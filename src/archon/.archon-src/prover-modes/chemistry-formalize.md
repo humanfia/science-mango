@@ -158,18 +158,30 @@ identify the specific reagent: prove that identity independently from the
 problem measurements and pinned constants.
 
 An accepted baseline `empirical_rule` receipt, or a dormant rule carried by a
-complete current controller activation receipt, grounds only the returned claim under the
-returned `authority_kind`, within every returned `applicability_conditions`
-entry, and outside every returned `exclusions` entry. For
+complete current controller activation receipt, grounds only the returned
+claim under the returned `authority_kind`, within every returned
+`applicability_conditions` entry, and outside every returned `exclusions`. For
 `peer_reviewed_literature`, treat it only as a source-scoped literature claim,
 never beyond the cited substrate, reagent, or conditions. For
 `contest_semantics_policy`, treat it as a bounded contest policy—not a paper or
-universal empirical law—and require the complete source-supplied finite
-candidate set, full structural-feature audit, and explicit interference
-exclusions that the returned record requires. `automatic_problem_instantiation`
-must be false; bind each applicability condition to exact problem evidence and
-never turn a literature claim into an inverse classification or the bounded
-policy into an open-world rule. When using one, preserve and cite
+universal empirical law. Keep `SourceFact` distinct from
+`AuthorizedCandidate`. A current activation may construct a finite candidate
+domain only when the rule explicitly authorizes it, each nominee has an exact
+pinned `CandidateOrigin`, and a complete permitted-authority manifest records
+every considered record and its source-bound include/exclude reason. Freeze
+that domain before filtering. The receipt and manifest may nominate and filter
+only. Even listing every permitted registry record is authority-inventory
+complete, not proof that the problem's admissible domain is exhaustive.
+Apply every independent problem constraint and every returned exclusion
+uniformly. A determinate identification is allowed when the Reviewer confirms
+that the candidate domain is justified by problem evidence or auditable
+chemistry evidence, every candidate is filtered uniformly, and exactly one
+candidate survives. A separate finite-exhaustive Lean theorem is optional
+and is never a passing prerequisite.
+`automatic_problem_instantiation` must be false; bind each
+applicability condition to exact problem evidence and never turn a literature
+claim into an inverse classification, a candidate into a problem fact, or the
+bounded policy into an open-world rule. When using one, preserve and cite
 `dataset_sha256`, `record_sha256`, `base_dataset_sha256`,
 `pinned_rule_record_sha256`, `empirical_registry_manifest_sha256`, and the
 returned `source.url`, `source.doi`, `source.locator`, and
@@ -184,6 +196,28 @@ after independent problem evidence establishes every returned applicability
 condition. Otherwise it may provide literature context for enumerating a
 candidate, but it cannot fill an omitted condition or ground a source-to-Lean
 bridge about the current reaction.
+
+Before auditing any depicted or stated transformation, classify its use as
+`quantitative_material_stage` or `qualitative_named_transform_only`. Use the
+quantitative class whenever the conclusion needs a yield, completeness,
+sole-product or absence claim, coefficient or phase amount, cross-stage atom or
+mass balance, loss/residue amount, or an omitted stream to be empty. Enumerate
+every permitted species, formula, phase, volatile output, and external input;
+expose complete atom, charge, mass, and measured-interval ledgers; and forbid
+anonymous or catch-all material streams.
+
+Use `qualitative_named_transform_only` only for an explicit source arrow or
+exact named-final cue acting as a non-exclusive compatibility constraint in an
+authorized finite candidate audit. Bind the named roles, direction, and source
+locator. Keep every omitted protocol, coefficient, phase, byproduct, and stream
+unknown. This mode may check a candidate's own formula, charge/valence,
+structure, primitive stoichiometry, pinned-weight interval, and compatibility,
+but cannot prove yield, completeness, sole-product status, absence of material,
+or a quantitative stage balance. A receipt may authorize candidate construction
+only as its exact rule says; it cannot supply a `SourceFact` or invent streams.
+If candidate provenance, the uniform audit, or uniqueness remains unresolved,
+the Reviewer must fail. Otherwise one semantically justified survivor may
+answer the identification without a separate exhaustive theorem.
 
 Problem-stipulated values override the pinned dataset. A pinned nominal value
 may be used for an olympiad-style central
@@ -264,7 +298,13 @@ shortcut. Outputs without this exact controller marker keep the normal workflow.
 - Every finite candidate set, charge/count bound, structural case split, and
   image readout must name its provenance (`problem_text`, `problem_image`,
   `problem_stated_fallback`,
-  `trusted_general_law`, or `derived_theorem`). If the supplied facts leave
+  `trusted_general_law`, `derived_theorem`, or
+  `activated_candidate_construction_rule`). The last provenance requires an
+  exact current activation receipt and complete permitted-authority manifest;
+  it constructs only an authority-relative `AuthorizedCandidate` domain, not a
+  `SourceFact`. For identification, the Reviewer must audit candidate-domain
+  provenance, uniform coverage, and uniqueness. A finite exhaustive theorem
+  may be recorded when available but is optional. If the supplied facts leave
   infinitely many or multiple candidates, formalize that underdetermination
   instead of silently importing a finite official-answer table.
 - In this run, previous-part certificates are not yet controller-bound. Derive

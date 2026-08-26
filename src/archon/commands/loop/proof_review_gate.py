@@ -21,6 +21,7 @@ from .problem_only_review_contract import (
     ProblemOnlyReviewContractError,
     resolve_target_review_source_contract,
     stored_review_provenance_matches_current,
+    validate_native_passing_preflight,
     validate_native_review_source_certificate,
 )
 from .review_source_contract import (
@@ -267,6 +268,7 @@ def _source_validated_proof_review_decision(
     project_path: Path,
     target: Path,
     expected_source_contract: Mapping[str, Any] | None = None,
+    preflight: Mapping[str, Any] | None = None,
 ) -> tuple[str, str, str, str, bool]:
     decision = _proof_review_decision(row)
     # A missing target-bound Review row is an output failure, not evidence of
@@ -283,7 +285,7 @@ def _source_validated_proof_review_decision(
             else resolve_target_review_source_contract(
                 project_path=project_path,
                 target=target,
-                preflight=None,
+                preflight=preflight,
             )
         )
     except ProblemOnlyReviewContractError as exc:
@@ -305,6 +307,11 @@ def _source_validated_proof_review_decision(
         expected,
         passing=route == "solved",
     )
+    if not error and route == "solved":
+        error = validate_native_passing_preflight(
+            expected,
+            require_zero_sorries=True,
+        )
     if not error:
         return decision
     label = (
@@ -789,6 +796,7 @@ def apply_target_proof_review(
             project_path=project_path,
             target=target,
             expected_source_contract=expected_source_contract,
+            preflight=preflight,
         )
     )
     try:

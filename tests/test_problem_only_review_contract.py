@@ -66,10 +66,13 @@ from archon.commands.loop.problem_only_review_contract import (
     native_problem_image_args,
     native_source_contract_provenance,
     render_native_chemistry_constant_policy,
+    render_native_certified_prior_result_prompt,
     render_native_composition_accounting_prompt,
     render_native_formalizer_answer_submission_prompt,
     resolve_native_formalizer_source_contract,
     resolve_target_review_source_contract,
+    validate_native_answer_submission_current,
+    validate_native_resolved_answer_submission_current,
     validate_native_review_source_certificate,
     validate_review_source_contract_current,
 )
@@ -350,7 +353,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
 
     def _source_audit(self, contract: dict) -> dict:
         passed = {"status": "passed", "evidence": "bound evidence checked"}
-        return {
+        audit = {
             "source_contract": native_source_contract_provenance(contract),
             "blind_source_audit": {
                 name: dict(passed)
@@ -406,6 +409,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 )
             },
         }
+        return audit
 
     def _proof_milestone(self, contract: dict) -> dict:
         return {
@@ -594,17 +598,9 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         for marker in (
             "MANDATORY FINITE STAGED-SPECIES DOMAIN",
             "finite, source-derived species domain",
-            (
-                "every permitted solid input and output, volatile output, and "
-                "external input"
-            ),
+            "every permitted solid input and output, volatile output, and external input",
             "Every atom or mass flow must be species-typed",
             "catch-all material-flow variables are forbidden",
-            "missing identity, formula, phase, or stream is a closure failure",
-            "never permission to invent an entry or declare a stream empty",
-            "Model-local constructors and hypotheses cannot establish closure",
-            "source-bounded symbolic domain",
-            "finite, exhaustive theorem",
             "every element in every admitted species an exact problem locator",
             "source-authorized external input for that same stage",
             "not an input to a later experiment",
@@ -614,8 +610,6 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "terminal-residue or terminal-candidate rule only after",
             "at least two fully species-typed, source-grounded, balanced models",
             "numerical slack and freely chosen flags are not countermodels",
-            "unknown or unclosed domain must remain blocked",
-            "does not require fabricated countermodels",
             "`chemistry_checks.staged_species_domain`",
             "exact token `not_staged_transformation`",
         ):
@@ -627,6 +621,49 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             ).split()
         )
         self.assertIn("MANDATORY FINITE STAGED-SPECIES DOMAIN", formalizer_prompt)
+        self.assertNotIn(
+            "CONTROLLER-FIXED EXHAUSTIVENESS DECLARATIONS", formalizer_prompt,
+        )
+        self.assertNotIn("candidateDomainExhaustive", formalizer_prompt)
+
+    def test_certified_prior_result_prompt_uses_typed_capability_not_a6_name(self):
+        contract = self._contract()
+        contract["certified_prior_result"] = {"context": {"bound": True}}
+        with patch(
+            "archon.commands.loop.problem_only_review_contract."
+            "render_certified_prior_result_prompt",
+            return_value="TYPED EXPORT CONTEXT",
+        ):
+            prompt = render_native_certified_prior_result_prompt(contract)
+        self.assertIn("prior-part capability", prompt)
+        self.assertIn("exact declared type and payload", prompt)
+        self.assertIn("specific prior-result premise", prompt)
+        self.assertIn("every producer/consumer binding matches", prompt)
+        self.assertNotIn("For A6", prompt)
+        self.assertNotIn(
+            "closed_domain_mellite_terminal_residue_candidate_filter", prompt,
+        )
+
+
+    def test_native_resolved_sidecar_rejects_operational_nonanswer(self) -> None:
+        path = answer_submission_path(self.project, self.row["id"])
+        answer = json.loads(path.read_text(encoding="utf-8"))
+        answer["outputs"][0]["raw_value"] = "needs_redraft"
+        path.write_text(json.dumps(answer), encoding="utf-8")
+
+        binding, error = validate_native_answer_submission_current(
+            project_path=self.project, target=self.target,
+        )
+        self.assertIsNotNone(binding)
+        self.assertEqual(error, "")
+
+        resolved_binding, resolved_error = (
+            validate_native_resolved_answer_submission_current(
+                project_path=self.project, target=self.target,
+            )
+        )
+        self.assertIsNone(resolved_binding)
+        self.assertIn("operational non-answer", resolved_error)
 
 
     def test_review_preflight_producer_flows_into_native_contract(self) -> None:
@@ -666,6 +703,46 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             preflight=preflight,
         )
         self.assertEqual(contract["preflight"], preflight)
+
+    def test_exhaustiveness_preflight_is_optional_audit_only(self) -> None:
+        base = self._contract()
+        self.assertNotIn("exhaustiveness_basis", base["preflight"])
+        self.assertNotIn("verified_exhaustiveness_basis", base)
+
+        audit = {
+            "status": "verified",
+            "reason": "optional finite-domain audit passed",
+            "candidate_declaration": "Example.Candidate",
+            "source_admissible_declaration": "Example.sourceAdmissible",
+            "frozen_domain_declaration": "Example.frozenDomain",
+            "theorem_declaration": "Example.candidateDomainExhaustive",
+            "expected_type": "∀ x, sourceAdmissible x → x ∈ frozenDomain",
+            "normalized_type_sha256": "b" * 64,
+            "candidate_sha256": _sha256(self.target.read_bytes()),
+            "lean_probe_passed": True,
+            "axioms": [],
+        }
+        audited = resolve_target_review_source_contract(
+            project_path=self.project,
+            target=self.target,
+            preflight={**self.preflight, "exhaustiveness_basis": audit},
+        )
+        self.assertEqual(audited["preflight"]["exhaustiveness_basis"], audit)
+        self.assertNotIn("verified_exhaustiveness_basis", audited)
+
+        stale = {**audit, "candidate_sha256": "0" * 64}
+        with self.assertRaisesRegex(
+            ProblemOnlyReviewContractError,
+            "exhaustiveness audit hash is stale or invalid",
+        ):
+            resolve_target_review_source_contract(
+                project_path=self.project,
+                target=self.target,
+                preflight={
+                    **self.preflight,
+                    "exhaustiveness_basis": stale,
+                },
+            )
 
     def test_initial_formalizer_contract_needs_no_answer_or_candidate(self) -> None:
         answer_submission_path(self.project, self.row["id"]).unlink()
@@ -905,7 +982,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             self.assertNotIn("symmetry_guided_benzylic_oxidation", prompt)
             self.assertNotIn("benzylic_oxidation_permanganate", prompt)
             self.assertNotIn("`archon chemistry-constant", prompt)
-            self.assertNotIn("preflight_sha256", prompt)
+            self.assertIn("preflight_sha256", prompt)
             self.assertIn("printed fallback", prompt)
             self.assertIn("never use a later fallback backward", prompt)
             for secret in (
@@ -2585,7 +2662,7 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             self.lean_source + "-- stale candidate\n", encoding="utf-8",
         )
         self.assertIn(
-            "does not match native problem-only evidence",
+            "stored native Review certificate is stale: candidate changed",
             validate_parallel_review_session(
                 session_dir=session_dir,
                 expected_rels=[self.rel],

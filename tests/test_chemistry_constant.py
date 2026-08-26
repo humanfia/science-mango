@@ -882,7 +882,6 @@ def test_chemistry_formalizer_sees_strict_offline_query_contract() -> None:
         "peer_reviewed_literature",
         "contest_semantics_policy",
         "bounded contest policy—not a paper or universal empirical law",
-        "complete source-supplied finite candidate set",
         "automatic_problem_instantiation",
         "bounded policy into an open-world rule",
         "base_dataset_sha256",

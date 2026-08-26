@@ -1,17 +1,32 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from archon.commands.loop.answer_submission import (
-    AnswerSubmissionError,
-    answer_submission_path,
-    answer_submission_relative_path,
-    freeze_answer_submissions,
-    validate_answer_submission,
+ROOT = Path(__file__).resolve().parents[1]
+MODULE_PATH = (
+    ROOT / "src" / "archon" / "commands" / "loop"
+    / "answer_submission.py"
+)
+SPEC = importlib.util.spec_from_file_location(
+    "answer_submission_isolated", MODULE_PATH
+)
+assert SPEC is not None and SPEC.loader is not None
+ANSWER = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(ANSWER)
+
+AnswerSubmissionError = ANSWER.AnswerSubmissionError
+answer_submission_path = ANSWER.answer_submission_path
+answer_submission_relative_path = ANSWER.answer_submission_relative_path
+freeze_answer_submissions = ANSWER.freeze_answer_submissions
+validate_answer_submission = ANSWER.validate_answer_submission
+validate_resolved_answer_submission = (
+    ANSWER.validate_resolved_answer_submission
 )
 
 
@@ -37,6 +52,14 @@ class AnswerSubmissionFreezeTests(unittest.TestCase):
         (self.workspace / "IChO2026Problems").mkdir()
         (self.workspace / "icho_2026_source").mkdir()
         self.outside.mkdir()
+
+        self.compile_patcher = mock.patch.object(
+            ANSWER,
+            "_run_current_lean_compile",
+            side_effect=self._compile_result,
+        )
+        self.compile_check = self.compile_patcher.start()
+        self.addCleanup(self.compile_patcher.stop)
 
         self.ids = ("icho_2026_t3_a1", "icho_2026_t9_a7")
         self.rows = (
@@ -181,6 +204,24 @@ class AnswerSubmissionFreezeTests(unittest.TestCase):
             json.dumps({"version": 2, "targets": proof_targets}), encoding="utf-8"
         )
 
+    def _compile_result(
+        self,
+        *,
+        project_path: Path,
+        target: Path,
+        timeout_sec: int = 3600,
+    ) -> dict[str, object]:
+        del timeout_sec
+        return {
+            "file": target.resolve().relative_to(
+                project_path.resolve()
+            ).as_posix(),
+            "status": "passed",
+            "compiles": True,
+            "returncode": 0,
+            "sorry_count": 0,
+        }
+
     def _gate(self, filename: str) -> tuple[Path, dict[str, object]]:
         path = self.workspace / ".archon" / filename
         return path, json.loads(path.read_text(encoding="utf-8"))
@@ -224,6 +265,7 @@ class AnswerSubmissionFreezeTests(unittest.TestCase):
                 target["lean"]["sha256"], _sha256(self.lean_payloads[target_id])
             )
             self.assertEqual(target["submission"]["status"], "valid")
+            self.assertEqual(target["lean"]["compile_status"], "passed")
             self.assertTrue(target["lean_certified"])
             self.assertEqual(
                 target["gates"]["formalization_review"]["status"], "passed"
@@ -243,6 +285,55 @@ class AnswerSubmissionFreezeTests(unittest.TestCase):
                 target["submission"]["value"]["outputs"],
                 self.submissions[index]["outputs"],
             )
+
+
+    def test_current_compile_failure_is_uncertified(self) -> None:
+        self.compile_check.side_effect = lambda **kwargs: {
+            "file": kwargs["target"].resolve().relative_to(
+                kwargs["project_path"].resolve()
+            ).as_posix(),
+            "status": "failed",
+            "compiles": False,
+            "returncode": 1,
+            "sorry_count": 0,
+        }
+        output = self.outside / "compile-failed-freeze.json"
+        receipt = freeze_answer_submissions(
+            self.workspace, self.bundle, self.ids, output
+        )
+        frozen = json.loads(output.read_text(encoding="utf-8"))
+        self.assertEqual(receipt["certified_count"], 0)
+        self.assertTrue(all(
+            target["lean"]["compile_status"] == "failed"
+            and not target["lean_certified"]
+            for target in frozen["targets"]
+        ))
+
+    def test_lean_mutation_during_compile_is_uncertified(self) -> None:
+        changed = False
+
+        def mutate(**kwargs: object) -> dict[str, object]:
+            nonlocal changed
+            target = kwargs["target"]
+            project_path = kwargs["project_path"]
+            assert isinstance(target, Path)
+            assert isinstance(project_path, Path)
+            result = self._compile_result(
+                project_path=project_path, target=target,
+            )
+            if not changed:
+                target.write_bytes(target.read_bytes() + b"-- changed\n")
+                changed = True
+            return result
+
+        self.compile_check.side_effect = mutate
+        output = self.outside / "lean-mutated-freeze.json"
+        freeze_answer_submissions(
+            self.workspace, self.bundle, self.ids, output
+        )
+        frozen = json.loads(output.read_text(encoding="utf-8"))
+        self.assertFalse(frozen["targets"][0]["lean_certified"])
+        self.assertTrue(frozen["targets"][1]["lean_certified"])
 
     def test_invalid_submission_is_recorded_without_untrusted_content(self) -> None:
         submission_path = answer_submission_path(self.workspace, self.ids[0])
@@ -473,6 +564,167 @@ class AnswerSubmissionFreezeTests(unittest.TestCase):
                     validate_answer_submission(
                         bad_numeric, row=self.rows[0], target_id=self.ids[0]
                     )
+
+    def test_resolved_validation_rejects_only_operational_nonanswers(self) -> None:
+        for sentinel in (
+            "blocked",
+            "blocked_missing_rule",
+            "blocked(missing rule)",
+            "Blocked: missing rule",
+            "Blocked. missing rule",
+            "blocked-missing-rule",
+            "blocked/missing-rule",
+            "\u00a0blocked_missing_rule",
+            "needs_redraft",
+            "needs_redraft.",
+            "needs\u00a0redraft",
+            "needs‑redraft",
+            "ＢＬＯＣＫＥＤ：missing rule",
+            "failed_closed",
+            "missing_source_closure",
+            "review_exhausted",
+            "retry_required",
+            "not_started",
+            "no_resolved_answer",
+            "cannot_determine",
+            "insufficient_evidence",
+            "fail—closed",
+            "fail_closed_missing_domain",
+            "FAIL-CLOSED: missing domain",
+            "fail/closed",
+            "source_closure_failure",
+            "source closure failure: missing manifest",
+            "underdetermined",
+            "underdetermined_missing_domain",
+            "under-determined",
+            "unknown",
+            "unknown_candidate",
+            "unresolved",
+            "indeterminate",
+        ):
+            diagnostic = json.loads(json.dumps(self.submissions[0]))
+            diagnostic["outputs"][0].update(
+                {"raw_value": sentinel, "display_value": sentinel}
+            )
+            with self.subTest(sentinel=sentinel):
+                self.assertEqual(
+                    validate_answer_submission(
+                        diagnostic, row=self.rows[0], target_id=self.ids[0]
+                    )["outputs"][0]["raw_value"],
+                    sentinel,
+                )
+                with self.assertRaisesRegex(
+                    AnswerSubmissionError, "operational non-answer",
+                ):
+                    validate_resolved_answer_submission(
+                        diagnostic, row=self.rows[0], target_id=self.ids[0]
+                    )
+
+        display_diagnostic = json.loads(json.dumps(self.submissions[0]))
+        display_diagnostic["outputs"][0]["display_value"] = "needs-redraft: audit"
+        self.assertEqual(
+            validate_answer_submission(
+                display_diagnostic, row=self.rows[0], target_id=self.ids[0]
+            )["outputs"][0]["raw_value"],
+            self.submissions[0]["outputs"][0]["raw_value"],
+        )
+        with self.assertRaisesRegex(AnswerSubmissionError, "operational non-answer"):
+            validate_resolved_answer_submission(
+                display_diagnostic, row=self.rows[0], target_id=self.ids[0]
+            )
+
+        for legitimate in (
+            "unblocked", "blockade", "unknownium", "underdetermination",
+        ):
+            submission = json.loads(json.dumps(self.submissions[0]))
+            submission["outputs"][0].update(
+                {"raw_value": legitimate, "display_value": legitimate}
+            )
+            with self.subTest(legitimate=legitimate):
+                normalized = validate_resolved_answer_submission(
+                    submission, row=self.rows[0], target_id=self.ids[0]
+                )
+                self.assertEqual(
+                    normalized["outputs"][0]["raw_value"], legitimate
+                )
+
+    def test_determination_status_requires_controller_contract(self) -> None:
+        row = json.loads(json.dumps(self.rows[0]))
+        row["requested_outputs"][0].update(
+            {
+                "kind": "classification",
+                "resolution_expectation": "determination_status",
+            }
+        )
+        submission = json.loads(json.dumps(self.submissions[0]))
+        submission["outputs"][0].update(
+            {
+                "kind": "classification",
+                "raw_value": "underdetermined",
+                "display_value": "Underdetermined",
+            }
+        )
+        normalized = validate_resolved_answer_submission(
+            submission, row=row, target_id=self.ids[0],
+        )
+        self.assertEqual(
+            normalized["outputs"][0]["raw_value"], "underdetermined",
+        )
+
+        submission["outputs"][0].update(
+            {"raw_value": "fail_closed", "display_value": "fail closed"}
+        )
+        with self.assertRaisesRegex(
+            AnswerSubmissionError, "operational non-answer",
+        ):
+            validate_resolved_answer_submission(
+                submission, row=row, target_id=self.ids[0],
+            )
+
+        row["requested_outputs"][0]["resolution_expectation"] = "solver_choice"
+        with self.assertRaisesRegex(
+            AnswerSubmissionError, "resolution_expectation",
+        ):
+            validate_answer_submission(
+                submission, row=row, target_id=self.ids[0],
+            )
+
+        row["requested_outputs"][0].update(
+            {
+                "kind": "formula",
+                "resolution_expectation": "determination_status",
+            }
+        )
+        submission["outputs"][0]["kind"] = "formula"
+        with self.assertRaisesRegex(
+            AnswerSubmissionError, "kind=classification",
+        ):
+            validate_answer_submission(
+                submission, row=row, target_id=self.ids[0],
+            )
+
+    def test_freeze_rejects_operational_nonanswer_as_uncertified(self) -> None:
+        submission_path = answer_submission_path(self.workspace, self.ids[0])
+        submission = json.loads(submission_path.read_text(encoding="utf-8"))
+        submission["outputs"][0].update(
+            {
+                "raw_value": "blocked_missing_rule",
+                "display_value": "blocked_missing_rule",
+            }
+        )
+        submission_path.write_text(json.dumps(submission), encoding="utf-8")
+
+        output = self.outside / "operational-nonanswer-freeze.json"
+        receipt = freeze_answer_submissions(
+            self.workspace, self.bundle, self.ids, output
+        )
+        frozen = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual(receipt["invalid_count"], 1)
+        self.assertEqual(receipt["certified_count"], 1)
+        self.assertEqual(frozen["targets"][0]["submission"]["status"], "invalid")
+        self.assertFalse(frozen["targets"][0]["lean_certified"])
+        self.assertTrue(frozen["targets"][1]["lean_certified"])
 
     def test_bundle_output_contract_and_target_scope_mismatch_abort(self) -> None:
         unsafe_rows = json.loads(json.dumps(self.rows))

@@ -6,11 +6,11 @@ from unittest.mock import patch
 
 from archon.commands.loop.review_feedback import (
     MAX_REPAIR_TASK_PROMPT_BYTES,
-    SOURCE_CLOSURE_REPAIR_ACTION,
     bound_repair_task,
     build_feedback_event,
     build_repair_task,
     render_repair_task,
+    render_validation_retry_feedback,
     sanitized_review_history,
     safe_preflight_summary,
 )
@@ -95,6 +95,24 @@ def _source_bound_formalization_certificate(
 
 
 class ReviewFeedbackTest(unittest.TestCase):
+    def test_validator_retry_may_correct_a_false_passing_verdict(self) -> None:
+        prompt = render_validation_retry_feedback(
+            "passing formalization_review requires a resolved answer "
+            "submission: operational non-answer"
+        )
+
+        self.assertIn("Re-audit the current candidate independently", prompt)
+        self.assertIn(
+            "Set the verdict, route, and status required by the independent "
+            "evidence",
+            prompt,
+        )
+        self.assertIn(
+            "do not preserve a passing verdict merely to avoid the validator",
+            prompt,
+        )
+        self.assertNotIn("weaken the verdict", prompt)
+
     def test_proof_feedback_is_structured_and_answer_free(self) -> None:
         digest = "a" * 64
         certificate = {
@@ -991,35 +1009,10 @@ class ReviewFeedbackTest(unittest.TestCase):
             worker_stage="formalization",
             candidate_sha256=digest,
         )
-        expected_actions = (
-            SOURCE_CLOSURE_REPAIR_ACTION,
-            "derive_a_source_bounded_finite_domain_or_encode_explicit_"
-            "underdetermination_before_reusing_generated_outputs",
-            "for_staged_transformations_enumerate_source_authorized_species_"
-            "phases_and_streams_otherwise_certify_not_staged_transformation",
-            "for_each_applicable_stage_construct_atom_charge_mass_and_measured_"
-            "interval_ledgers",
-            "honor_the_source_quantifier_and_require_exhaustive_uniqueness_only_"
-            "when_the_requested_identification_requires_it",
-            "remove_answer_shaped_singleton_domains_and_preselected_witnesses",
-        )
-        for action in expected_actions:
-            self.assertIn(action, formalization_task["required_actions"])
-            self.assertEqual(
-                formalization_task["required_actions"].count(action), 1,
-            )
         payload = json.dumps(formalization_task)
         for sentinel in failure_evidence.values():
             self.assertNotIn(sentinel, payload)
 
-        proof_task = build_repair_task(
-            record,
-            review_kind="formalization",
-            worker_stage="proof",
-            candidate_sha256=digest,
-        )
-        for action in expected_actions:
-            self.assertNotIn(action, proof_task["required_actions"])
 
         independent_certificate = {
             "checks": checks,
@@ -1067,12 +1060,6 @@ class ReviewFeedbackTest(unittest.TestCase):
             "independent_source_audit.domain_invariants",
             independent_task["failed_check_ids"],
         )
-        self.assertEqual(
-            independent_task["required_actions"].count(
-                SOURCE_CLOSURE_REPAIR_ACTION
-            ),
-            1,
-        )
         self.assertNotIn(
             "DOMAIN_INVARIANT_VALUE_SENTINEL",
             json.dumps(independent_task),
@@ -1116,10 +1103,6 @@ class ReviewFeedbackTest(unittest.TestCase):
         self.assertEqual(
             units_task["failed_check_ids"],
             ["chemistry_checks.units_dimensions"],
-        )
-        self.assertNotIn(
-            SOURCE_CLOSURE_REPAIR_ACTION,
-            units_task["required_actions"],
         )
         self.assertNotIn(
             "UNITS_ONLY_VALUE_SENTINEL", json.dumps(units_task),

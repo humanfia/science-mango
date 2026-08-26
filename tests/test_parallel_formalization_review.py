@@ -1,25 +1,26 @@
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest import mock
 
-from archon.commands.loop.answer_submission import answer_submission_path
 import archon.commands.loop.parallel_formalization_review as parallel_formalization_review
+from archon.commands.loop.answer_submission import answer_submission_path
+from archon.commands.loop.native_semantic_review import (
+    build_independent_rederivation_example,
+    build_native_semantic_review_contract,
+)
 from archon.commands.loop.parallel_formalization_review import (
+    _write_session,
     build_target_formalization_review_prompt,
     load_target_formalization_milestone,
     run_parallel_formalization_reviews,
 )
 from archon.commands.loop.parallel_review import TargetReviewOutcome
-from archon.commands.loop.native_semantic_review import (
-    build_independent_rederivation_example,
-    build_native_semantic_review_contract,
-)
 
 
 def _blind_contract(rel: str) -> dict:
@@ -407,6 +408,36 @@ def _r10_invalid_native_milestone(
 
 
 class ParallelFormalizationReviewTest(unittest.TestCase):
+    def test_session_summary_normalizes_status_and_verdict(self):
+        with tempfile.TemporaryDirectory() as td:
+            session = Path(td)
+            outcomes = {}
+            for rel, review in (
+                ("A.lean", {"status": " PASSED "}),
+                ("B.lean", {"verdict": "passed"}),
+            ):
+                outcomes[rel] = TargetReviewOutcome(
+                    rel=rel,
+                    attempt=1,
+                    runner_ok=True,
+                    milestone={
+                        "target": {"file": rel},
+                        "formalization_review": review,
+                    },
+                )
+            _write_session(
+                session_dir=session,
+                iter_num=1,
+                outcomes=outcomes,
+            )
+            self.assertIn(
+                "- Passed: 2",
+                (session / "summary.md").read_text(encoding="utf-8"),
+            )
+            self.assertIn(
+                "No formalization redrafts requested.",
+                (session / "recommendations.md").read_text(encoding="utf-8"),
+            )
     def test_native_prompt_is_problem_only_source_first_and_target_scoped(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -1357,16 +1388,6 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "count\nevery atom exactly once",
             ):
                 self.assertIn(marker, prompt)
-            normalized = " ".join(prompt.lower().split())
-            for marker in (
-                "sealed catalog approval is reusable and never needs another "
-                "user approval",
-                "repeat the same exact rule id at the current blocked bridge",
-                "automatically issue a fresh receipt for the next redraft",
-                "an activation certifies only the pinned source rule and never "
-                "proves that rule's applicability",
-            ):
-                self.assertIn(marker, normalized)
             self.assertNotIn('"official_answer_alignment"', prompt)
             self.assertNotIn('"source_inconsistency"', prompt)
 
@@ -1403,16 +1424,6 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertIn("`sorry` proof bodies are", prompt)
             self.assertIn("Do not edit", prompt)
             self.assertIn("PROGRESS.md", prompt)
-            normalized = " ".join(prompt.lower().split())
-            for marker in (
-                "sealed catalog approval is reusable and never needs another "
-                "user approval",
-                "repeat the same exact rule id at the current blocked bridge",
-                "automatically issue a fresh receipt for the next redraft",
-                "an activation certifies only the pinned source rule and never "
-                "proves that rule's applicability",
-            ):
-                self.assertIn(marker, normalized)
             self.assertIn(str(output / "milestones.jsonl"), prompt)
             self.assertIn("countermodel_resistance", prompt)
 

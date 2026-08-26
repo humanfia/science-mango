@@ -141,7 +141,6 @@ class ParallelReviewTest(unittest.TestCase):
                 "identity to be derived independently from the problem measurements",
                 '"staged_species_domain"',
                 "allowed solid inputs/outputs, volatile outputs, and external inputs",
-                "not_staged_transformation",
                 "auditing this exact current candidate only",
                 "does not authorize edits, prover use",
             ):
@@ -355,6 +354,112 @@ class ParallelReviewTest(unittest.TestCase):
                         milestone_path.read_text(encoding="utf-8")
                     )
                     self.assertEqual(persisted["status"], "partial")
+
+    def test_native_worker_requires_resolved_answer_only_for_solved(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            redraft = _partial_needs_redraft_milestone("Problems/A.lean")
+            redraft["status"] = "blocked"
+            cases = (
+                (
+                    "blocked_prefix",
+                    _milestone("Problems/A.lean"),
+                    "blocked_missing_candidate_domain",
+                    True,
+                ),
+                (
+                    "needs_redraft",
+                    _milestone("Problems/A.lean"),
+                    "needs_redraft",
+                    True,
+                ),
+                (
+                    "solved_whitespace",
+                    {**_milestone("Problems/A.lean"), "status": " Solved "},
+                    "blocked_missing_candidate_domain",
+                    True,
+                ),
+                (
+                    "redraft_route",
+                    redraft,
+                    "blocked_missing_candidate_domain",
+                    False,
+                ),
+            )
+            for name, milestone, sentinel, should_validate in cases:
+                with self.subTest(name=name):
+                    output = root / name
+                    runner = Mock()
+                    runner.run.return_value = True
+                    resolved_validator = Mock(return_value=(
+                        None,
+                        "target answer submission is invalid: "
+                        f"operational non-answer {sentinel}",
+                    ))
+                    spec = TargetReviewSpec(
+                        rel="Problems/A.lean",
+                        prompt="bounded prompt",
+                        output_dir=str(output),
+                        log_base=str(output / "agent"),
+                        attempt=1,
+                        source_contract={
+                            "contract_kind": "native_problem_input_only",
+                        },
+                    )
+                    with (
+                        patch(
+                            "archon.commands.loop.parallel_review."
+                            "validate_review_source_contract_current",
+                            return_value="",
+                        ),
+                        patch(
+                            "archon.commands.loop.parallel_review."
+                            "native_problem_image_args",
+                            return_value=[],
+                        ),
+                        patch(
+                            "archon.commands.loop.parallel_review.build_runner",
+                            return_value=runner,
+                        ),
+                        patch(
+                            "archon.commands.loop.parallel_review."
+                            "materialize_controller_review_provenance",
+                            return_value="",
+                        ),
+                        patch(
+                            "archon.commands.loop.parallel_review."
+                            "load_target_milestone",
+                            return_value=(milestone, ""),
+                        ),
+                        patch(
+                            "archon.commands.loop.parallel_review."
+                            "validate_native_resolved_answer_submission_current",
+                            resolved_validator,
+                        ),
+                    ):
+                        outcome = _run_review_worker(
+                            spec,
+                            project_path=root,
+                            verbose_logs=False,
+                            model=None,
+                            backend=None,
+                            harness=None,
+                        )
+
+                    self.assertTrue(outcome.runner_ok)
+                    if should_validate:
+                        resolved_validator.assert_called_once_with(
+                            project_path=root,
+                            target=root / "Problems/A.lean",
+                        )
+                        self.assertIsNone(outcome.milestone)
+                        self.assertIn(sentinel, outcome.validation_error)
+                        self.assertIn("operational non-answer", outcome.error)
+                    else:
+                        resolved_validator.assert_not_called()
+                        self.assertIs(outcome.milestone, milestone)
+                        self.assertEqual(outcome.validation_error, "")
+                        self.assertEqual(outcome.error, "")
 
     def test_partial_solved_remains_invalid_on_final_attempt(self):
         with tempfile.TemporaryDirectory() as td:

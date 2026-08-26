@@ -474,6 +474,14 @@ def tool_result_content(item):
             if isinstance(ch, dict):
                 lines.append(str(ch.get('kind', '?')) + ' ' + str(ch.get('path', '')))
         status = item.get('status', '')
+        error = item.get('error')
+        if status and status != 'completed':
+            lines.append('[status] ' + str(status))
+        if error:
+            lines.append('[error] ' + (
+                error if isinstance(error, str)
+                else json.dumps(error, ensure_ascii=False)
+            ))
         if status and not lines:
             lines.append(str(status))
         return '\n'.join(lines)

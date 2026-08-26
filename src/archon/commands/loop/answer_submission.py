@@ -17,6 +17,7 @@ import os
 import re
 import stat
 import tempfile
+import unicodedata
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -50,6 +51,36 @@ _NUMERIC_TIMES_TEN_DISPLAY = re.compile(
     r"^[+-]?(?:(?:[0-9]+(?:\.[0-9]*)?)|(?:\.[0-9]+))"
     r"[ \t]*×[ \t]*10\^[+-]?[0-9]+$"
 )
+_NONANSWER_SEPARATOR = re.compile(r"[\W_]+", flags=re.UNICODE)
+_WORKFLOW_NONANSWER_PREFIXES = (
+    "blocked",
+    "needs_redraft",
+    "needsredraft",
+    "fail_closed",
+    "failclosed",
+    "failed_closed",
+    "failedclosed",
+    "source_closure_failure",
+    "sourceclosurefailure",
+    "missing_source_closure",
+    "review_exhausted",
+    "retry_required",
+    "not_started",
+    "no_resolved_answer",
+)
+_UNRESOLVED_NONANSWER_PREFIXES = (
+    "unknown",
+    "underdetermined",
+    "under_determined",
+    "unresolved",
+    "indeterminate",
+    "cannot_determine",
+    "cannot_be_determined",
+    "unable_to_determine",
+    "insufficient_evidence",
+    "insufficient_information",
+    "no_unique_answer",
+)
 _REPORTING_POLICIES = {
     "formula": frozenset({"exact_symbolic"}),
     "classification": frozenset({"exact_symbolic"}),
@@ -65,7 +96,6 @@ _INVALID_SUBMISSION_CODES = frozenset(
         "invalid_contract",
     }
 )
-
 
 class AnswerSubmissionError(ValueError):
     """A problem-only submission cannot be validated or frozen safely."""
@@ -270,6 +300,7 @@ def _requested_output_contracts(
         kind = output.get("kind")
         unit = output.get("unit")
         reporting_policy = output.get("reporting_policy")
+        resolution_expectation = output.get("resolution_expectation", "concrete")
         if (
             not isinstance(output_id, str)
             or not _TARGET_ID.fullmatch(output_id)
@@ -292,6 +323,19 @@ def _requested_output_contracts(
                 f"problem-only row {target_id}/{output_id} has an unsafe "
                 f"kind/reporting_policy pair: {kind}/{policy_kind}"
             )
+        if resolution_expectation not in {"concrete", "determination_status"}:
+            _fail(
+                f"problem-only row {target_id}/{output_id} has an invalid "
+                "resolution_expectation"
+            )
+        if (
+            resolution_expectation == "determination_status"
+            and kind != "classification"
+        ):
+            _fail(
+                f"problem-only row {target_id}/{output_id} may request a "
+                "determination_status only with kind=classification"
+            )
         if policy_kind in {"decimal_places", "significant_figures"}:
             digits = reporting_policy.get("digits")
             minimum = 0 if policy_kind == "decimal_places" else 1
@@ -311,6 +355,7 @@ def _requested_output_contracts(
                 "kind": kind,
                 "unit": unit,
                 "reporting_policy_kind": policy_kind,
+                "resolution_expectation": resolution_expectation,
             }
         )
     return tuple(normalized)
@@ -435,8 +480,61 @@ def validate_answer_submission(
     }
 
 
+def _normalized_nonanswer_label(value: str) -> str:
+    normalized = unicodedata.normalize("NFKC", value).casefold().strip()
+    return _NONANSWER_SEPARATOR.sub("_", normalized).strip("_")
+
+
+def _has_reserved_prefix(label: str, prefixes: Sequence[str]) -> bool:
+    return any(
+        label == prefix or label.startswith(f"{prefix}_")
+        for prefix in prefixes
+    )
+
+
+def validate_resolved_answer_submission(
+    submission: Mapping[str, Any],
+    *,
+    row: Mapping[str, Any],
+    target_id: str,
+) -> dict[str, Any]:
+    """Validate one submission and reject workflow diagnostics as answers."""
+
+    normalized = validate_answer_submission(
+        submission, row=row, target_id=target_id,
+    )
+    contracts = _requested_output_contracts(row, target_id=target_id)
+    for output, contract in zip(
+        normalized["outputs"], contracts, strict=True,
+    ):
+        for field in ("raw_value", "display_value"):
+            value = output[field]
+            if not isinstance(value, str):
+                continue
+            label = _normalized_nonanswer_label(value)
+            workflow_nonanswer = _has_reserved_prefix(
+                label, _WORKFLOW_NONANSWER_PREFIXES,
+            )
+            unresolved_nonanswer = _has_reserved_prefix(
+                label, _UNRESOLVED_NONANSWER_PREFIXES,
+            )
+            if workflow_nonanswer or (
+                contract["resolution_expectation"] == "concrete"
+                and unresolved_nonanswer
+            ):
+                _fail(
+                    f"submission {target_id}/{output['id']}.{field} is an "
+                    "operational non-answer"
+                )
+    return normalized
+
+
 def _capture_submission(
-    root: Path, *, row: Mapping[str, Any], target_id: str
+    root: Path,
+    *,
+    row: Mapping[str, Any],
+    target_id: str,
+    require_resolved: bool = False,
 ) -> tuple[dict[str, Any], str | None]:
     rel = answer_submission_relative_path(target_id)
     path = root / rel
@@ -470,9 +568,12 @@ def _capture_submission(
         base.update({"status": "invalid", "error_code": "invalid_contract"})
         return base, None
     try:
-        normalized = validate_answer_submission(
-            parsed, row=row, target_id=target_id
+        validator = (
+            validate_resolved_answer_submission
+            if require_resolved
+            else validate_answer_submission
         )
+        normalized = validator(parsed, row=row, target_id=target_id)
         canonical_sha256 = _sha256(_canonical_json_bytes(normalized))
     except (AnswerSubmissionError, RecursionError):
         base.update({"status": "invalid", "error_code": "invalid_contract"})
@@ -495,6 +596,7 @@ def _capture_lean(root: Path, *, target_id: str) -> tuple[dict[str, Any], str | 
         "status": status,
         "path": rel.as_posix(),
         "sha256": _sha256(payload) if payload is not None else None,
+        "size_bytes": len(payload) if payload is not None else None,
     }
     if status != "valid":
         snapshot["error_code"] = error_code
@@ -534,6 +636,34 @@ def _review_source_contracts(
                     )
                 else:
                     malformed = True
+            milestones = certificate.get("milestones")
+            if milestones is not None:
+                if not isinstance(milestones, list):
+                    malformed = True
+                else:
+                    for index, milestone in enumerate(milestones):
+                        if not isinstance(milestone, Mapping):
+                            malformed = True
+                            continue
+                        prefix = f"certificate.milestones[{index}]"
+                        add(
+                            milestone,
+                            "source_contract",
+                            f"{prefix}.source_contract",
+                        )
+                        milestone_blind = milestone.get(
+                            "blind_review_certificate"
+                        )
+                        if milestone_blind is not None:
+                            if isinstance(milestone_blind, Mapping):
+                                add(
+                                    milestone_blind,
+                                    "source_contract",
+                                    f"{prefix}.blind_review_certificate."
+                                    "source_contract",
+                                )
+                            else:
+                                malformed = True
         else:
             malformed = True
     blind = record.get("blind_review_certificate")
@@ -584,6 +714,40 @@ def _source_contract_binding(
     return True, candidate
 
 
+def _run_current_lean_compile(
+    *, project_path: Path, target: Path,
+) -> Mapping[str, Any]:
+    from .review_preflight import check_review_target
+
+    return check_review_target(project_path=project_path, target=target)
+
+
+def _current_lean_compile_passes(
+    root: Path, *, target_rel: str, lean_sha256: str | None,
+) -> bool:
+    """Run the ordinary current Lean compile/zero-sorry preflight."""
+
+    if lean_sha256 is None:
+        return False
+    target = root / target_rel
+    try:
+        preflight = _run_current_lean_compile(
+            project_path=root, target=target,
+        )
+    except Exception:
+        return False
+    return bool(
+        isinstance(preflight, Mapping)
+        and preflight.get("file") == target_rel
+        and preflight.get("status") == "passed"
+        and preflight.get("compiles") is True
+        and type(preflight.get("returncode")) is int
+        and preflight.get("returncode") == 0
+        and type(preflight.get("sorry_count")) is int
+        and preflight.get("sorry_count") == 0
+    )
+
+
 def _empty_gate_snapshot(status: str) -> dict[str, Any]:
     return {
         "status": status,
@@ -620,11 +784,7 @@ def _load_gate_snapshot(
         return _empty_gate_snapshot("malformed")
     try:
         state = json.loads(payload)
-    except (
-        UnicodeDecodeError,
-        ValueError,
-        RecursionError,
-    ):
+    except (UnicodeDecodeError, ValueError, RecursionError):
         return _empty_gate_snapshot("malformed")
     if not isinstance(state, Mapping):
         return _empty_gate_snapshot("malformed")
@@ -824,7 +984,8 @@ def freeze_answer_submissions(
         row = rows_by_id[target_id]
         submission_rel = answer_submission_relative_path(target_id)
         submission, submission_sha256 = _capture_submission(
-            root, row=row, target_id=target_id
+            root, row=row, target_id=target_id,
+            require_resolved=True,
         )
         counts[submission["status"]] += 1
 
@@ -853,6 +1014,24 @@ def freeze_answer_submissions(
             required_status="solved",
             **common_gate_args,
         )
+        current_lean_compiles = _current_lean_compile_passes(
+            root, target_rel=target_rel, lean_sha256=lean_sha256,
+        )
+        # Re-open after the current compile check and require the exact same
+        # bytes before issuing a certified result.
+        post_review_lean, post_review_lean_sha256 = _capture_lean(
+            root, target_id=target_id,
+        )
+        lean_unchanged_through_reviews = bool(
+            lean["status"] == "valid"
+            and post_review_lean["status"] == "valid"
+            and lean_sha256 is not None
+            and post_review_lean_sha256 == lean_sha256
+            and post_review_lean.get("size_bytes") == lean.get("size_bytes")
+        )
+        lean["compile_status"] = (
+            "passed" if current_lean_compiles else "failed"
+        )
         same_answer_sha = (
             submission_sha256 is not None
             and formal["answer_submission_sha256"] == submission_sha256
@@ -861,6 +1040,8 @@ def freeze_answer_submissions(
         lean_certified = bool(
             submission["status"] == "valid"
             and lean["status"] == "valid"
+            and lean_unchanged_through_reviews
+            and current_lean_compiles
             and formal["status"] == "passed"
             and formal["source_contract_status"] == "bound"
             and formal["candidate_matches_source_contract"]
@@ -922,4 +1103,5 @@ __all__ = [
     "freeze_answer_submissions",
     "lean_target_relative_path",
     "validate_answer_submission",
+    "validate_resolved_answer_submission",
 ]

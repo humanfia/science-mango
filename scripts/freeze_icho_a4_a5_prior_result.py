@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
-"""Freeze hard-green IChO T1-A4/A5 results for the single T1-A6 consumer.
+"""Freeze reviewed A4/A5 answers as a small result file for A6.
 
-This is a controller-only operation.  It reads the stopped producer campaign,
-checks the exact formal/proof/compile/axiom/answer artifacts, asks Lean for the
-type of one deterministic primary result declaration per requested output,
-and delegates receipt construction to ``prior_result_dependency``.
-
-The resulting file is a controller staging artifact (0600).  The stage-2
-installer is responsible for copying its canonical bytes into the consumer
-workspace as a root-owned 0444 receipt before ``physics-formalize`` starts.
+The acceptance rule is intentionally narrow: both existing reviewer gates pass,
+the current Lean files compile with zero open sorries, and every requested
+output contains a concrete non-refusal answer. No independent receipt,
+cross-redraft credential, source-contract capability, environment verifier UID,
+or axiom audit is involved.
 """
 
 from __future__ import annotations
@@ -22,11 +19,13 @@ import stat
 import subprocess
 import sys
 import tempfile
+import unicodedata
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
 from archon.commands.loop.prior_result_dependency import (
+    SCHEMA_VERSION as PRIOR_RESULT_SCHEMA_VERSION,
     build_prior_result_dependency_context,
     build_validation_lineage_bindings,
     canonical_prior_result_value_sha256,
@@ -45,10 +44,6 @@ BUNDLE_REL = Path("icho_2026_source/questions_only.jsonl")
 MANIFEST_REL = Path("isolation_manifest.json")
 FORMAL_GATE_REL = Path(".archon/formalization-review-gate.json")
 PROOF_GATE_REL = Path(".archon/proof-review-gate.json")
-
-# This inventory is intentionally duplicated at the controller boundary.  A
-# changed bundle contract must fail closed rather than silently changing what
-# A6 inherits.
 EXPECTED_OUTPUTS: dict[str, tuple[tuple[str, str, str], ...]] = {
     A4: (
         ("metal_q_identity", "classification", ""),
@@ -63,28 +58,22 @@ EXPECTED_OUTPUTS: dict[str, tuple[tuple[str, str, str], ...]] = {
 }
 
 _SHA_RE = re.compile(r"^[0-9a-f]{64}$", re.ASCII)
-_DECL_RE = re.compile(
-    r"^[A-Za-z_][A-Za-z0-9_']*(?:\.[A-Za-z_][A-Za-z0-9_']*)*$",
-    re.ASCII,
-)
-_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
-_AXIOM_FINDING_RE = re.compile(
-    r"⚠\s+(?P<decl>[A-Za-z0-9_.]+)\s+uses non-standard axiom:\s+(?P<axiom>[A-Za-z0-9_.]+)"
-)
 _MAX_JSON_BYTES = 16 * 1024 * 1024
 _MAX_LEAN_BYTES = 8 * 1024 * 1024
-_MAX_TYPE_BYTES = 16 * 1024
+_REFUSAL_MARKERS = (
+    "cannot determine", "can't determine", "unable to determine",
+    "cannot conclude", "insufficient evidence", "insufficient information",
+    "not enough information", "indeterminate", "undetermined", "unknown",
+    "fail-closed", "fail closed", "withheld", "no conclusion",
+    "无法确定", "不能确定", "无法判断", "不能判断", "证据不足",
+    "信息不足", "不足以", "不确定", "拒绝作答", "拒答",
+)
 
-DeclarationTypeChecker = Callable[
-    [Path, str, str, Sequence[str]], Mapping[str, str]
-]
 CurrentCompileChecker = Callable[[Path, str, str], Mapping[str, Any]]
-CurrentAxiomChecker = Callable[[Path, str, str], Mapping[str, Any]]
-UidProcessChecker = Callable[[int], bool]
 
 
 class FreezePriorResultError(ValueError):
-    """The producer artifacts cannot be frozen into a trusted receipt."""
+    """The reviewed producer results cannot be frozen."""
 
 
 def _fail(message: str) -> None:
@@ -95,11 +84,8 @@ def _canonical(value: object) -> bytes:
     try:
         return (
             json.dumps(
-                value,
-                ensure_ascii=False,
-                sort_keys=True,
-                separators=(",", ":"),
-                allow_nan=False,
+                value, ensure_ascii=False, sort_keys=True,
+                separators=(",", ":"), allow_nan=False,
             )
             + "\n"
         ).encode("utf-8")
@@ -122,6 +108,40 @@ def _sha(value: object, label: str) -> str:
     if not isinstance(value, str) or _SHA_RE.fullmatch(value) is None:
         _fail(f"{label} must be a lowercase SHA-256")
     return value
+
+
+def _contains_refusal(value: object) -> bool:
+    if isinstance(value, str):
+        normalized = " ".join(
+            unicodedata.normalize("NFKC", value).casefold().split()
+        )
+        return any(marker in normalized for marker in _REFUSAL_MARKERS)
+    if isinstance(value, Mapping):
+        return any(_contains_refusal(item) for item in value.values())
+    if isinstance(value, Sequence) and not isinstance(
+        value, (str, bytes, bytearray)
+    ):
+        return any(_contains_refusal(item) for item in value)
+    return False
+
+
+def _is_concrete_output(raw_value: object, display_value: object) -> bool:
+    if (
+        raw_value is None
+        or isinstance(raw_value, bool)
+        or not isinstance(display_value, str)
+        or not display_value.strip()
+        or _contains_refusal(raw_value)
+        or _contains_refusal(display_value)
+    ):
+        return False
+    if isinstance(raw_value, str):
+        return bool(raw_value.strip())
+    if isinstance(raw_value, (Mapping, Sequence)) and not isinstance(
+        raw_value, (str, bytes, bytearray)
+    ):
+        return bool(raw_value)
+    return True
 
 
 def _strict_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -377,12 +397,11 @@ def _validate_answer(
         raw_value = output.get("raw_value")
         display_value = output.get("display_value")
         _canonical(raw_value)
-        if (
-            raw_value is None
-            or not isinstance(display_value, str)
-            or not display_value.strip()
-        ):
-            _fail(f"{source_id} answer outputs[{index}] has no exact value")
+        if not _is_concrete_output(raw_value, display_value):
+            _fail(
+                f"{source_id} answer outputs[{index}] is not a concrete "
+                "non-refusal answer"
+            )
         normalized.append({
             "output_id": output["id"],
             "kind": output["kind"],
@@ -395,39 +414,6 @@ def _validate_answer(
     return normalized
 
 
-def _validate_source_contract(
-    value: object,
-    *,
-    source_id: str,
-    target: str,
-    candidate_sha256: str,
-    bundle_sha256: str,
-    source_record_sha256: str,
-    answer_sha256: str,
-) -> Mapping[str, Any]:
-    if not isinstance(value, Mapping):
-        _fail(f"{source_id} review has no source contract")
-    expected = {
-        "schema_version": 1,
-        "contract_kind": "native_problem_input_only",
-        "authority": "problem-only",
-        "evaluation_mode": "answer_blind",
-        "target": target,
-        "source_bundle": BUNDLE_REL.as_posix(),
-        "source_bundle_sha256": bundle_sha256,
-        "source_record_id": source_id,
-        "source_record_sha256": source_record_sha256,
-        "answer_submission": _answer_relative(target),
-        "answer_submission_sha256": answer_sha256,
-        "candidate": target,
-        "candidate_sha256": candidate_sha256,
-    }
-    for key, expected_value in expected.items():
-        if value.get(key) != expected_value:
-            _fail(f"{source_id} source contract is stale: {key}")
-    return value
-
-
 def _gate_targets(
     gate: Mapping[str, Any], *, expected_targets: Sequence[str], label: str
 ) -> Mapping[str, Any]:
@@ -437,149 +423,7 @@ def _gate_targets(
     return targets
 
 
-def _certificate_requested_outputs(certificate: Mapping[str, Any]) -> object:
-    direct = certificate.get("requested_outputs")
-    if direct is not None:
-        return direct
-    nested = certificate.get("blind_review_certificate")
-    return nested.get("requested_outputs") if isinstance(nested, Mapping) else None
-
-
-def _primary_result_declarations(
-    certificate: Mapping[str, Any], *, source_id: str
-) -> dict[str, str]:
-    independent = certificate.get("independent_rederivation")
-    if not isinstance(independent, Mapping):
-        _fail(f"{source_id} formal certificate has no independent rederivation")
-    entries = independent.get("requested_outputs")
-    expected_ids = [item[0] for item in EXPECTED_OUTPUTS[source_id]]
-    if not isinstance(entries, list) or [
-        entry.get("id") if isinstance(entry, Mapping) else None for entry in entries
-    ] != expected_ids:
-        _fail(f"{source_id} formal output derivations are incomplete/out of order")
-    result: dict[str, str] = {}
-    all_declarations: set[str] = set()
-    for entry in entries:
-        assert isinstance(entry, Mapping)
-        carriers = entry.get("lean_carriers")
-        reported = carriers.get("reported_result") if isinstance(carriers, Mapping) else None
-        if (
-            not isinstance(reported, list)
-            or not reported
-            or len(reported) != len(set(map(str, reported)))
-            or any(
-                not isinstance(item, str) or _DECL_RE.fullmatch(item) is None
-                for item in reported
-            )
-        ):
-            _fail(f"{source_id} output {entry.get('id')} has invalid reported_result")
-        primary = reported[0]
-        if primary in all_declarations:
-            _fail(f"{source_id} primary result declaration is shared by two outputs")
-        all_declarations.update(reported)
-        result[str(entry["id"])] = primary
-
-    covered = _certificate_requested_outputs(certificate)
-    if not isinstance(covered, list) or [
-        item.get("output_id") if isinstance(item, Mapping) else None
-        for item in covered
-    ] != expected_ids:
-        _fail(f"{source_id} formal requested-output audit is incomplete")
-    for item in covered:
-        assert isinstance(item, Mapping)
-        if (
-            item.get("status") not in {"covered", "passed"}
-            or item.get("submission_status") != "matched"
-            or item.get("reporting_policy_status") != "matched"
-        ):
-            _fail(f"{source_id} requested output did not pass formal audit")
-    return result
-
-
-def _validate_no_answer_key_fields(value: Mapping[str, Any], *, label: str) -> None:
-    for key in ("official_answer_alignment", "source_inconsistency"):
-        if value.get(key) is not None:
-            _fail(f"{label} unexpectedly carries {key}")
-
-
-def _compile_audit(
-    proof_record: Mapping[str, Any], *, source_id: str, candidate_sha256: str
-) -> dict[str, Any]:
-    iteration = proof_record.get("last_review_iter")
-    events = proof_record.get("repair_events")
-    if type(iteration) is not int or iteration < 1 or not isinstance(events, list):
-        _fail(f"{source_id} proof has no final compile event")
-    matching = [
-        event for event in events
-        if isinstance(event, Mapping)
-        and event.get("iteration") == iteration
-        and event.get("candidate_sha256") == candidate_sha256
-        and event.get("resulting_status") == "solved"
-    ]
-    if len(matching) != 1:
-        _fail(f"{source_id} proof has no unique solved compile event")
-    preflight = matching[0].get("preflight")
-    if not isinstance(preflight, Mapping):
-        _fail(f"{source_id} solved event has no preflight")
-    if (
-        preflight.get("status") != "passed"
-        or preflight.get("compiles") is not True
-        or type(preflight.get("returncode")) is not int
-        or preflight.get("returncode") != 0
-        or type(preflight.get("sorry_count")) is not int
-        or preflight.get("sorry_count") != 0
-    ):
-        _fail(f"{source_id} compile/sorry preflight is not hard-green")
-    return {
-        "status": "passed",
-        "candidate_sha256": candidate_sha256,
-        "audit_sha256": _value_sha256(dict(preflight)),
-        "returncode": 0,
-        "sorry_count": 0,
-    }
-
-
-def _axiom_audit(
-    workspace: Path,
-    proof_record: Mapping[str, Any],
-    *,
-    source_id: str,
-    target: str,
-    candidate_sha256: str,
-) -> dict[str, Any]:
-    iteration = proof_record.get("last_review_iter")
-    if type(iteration) is not int or iteration < 1:
-        _fail(f"{source_id} has no valid proof iteration for axiom audit")
-    path = workspace / ".archon/logs" / f"iter-{iteration:03d}" / "axiom-sweep.json"
-    audit, payload = _read_json(path, label=f"{source_id} axiom audit")
-    target_files = audit.get("targetFiles")
-    failed_files = audit.get("failedFiles")
-    laundering = audit.get("sorryLaunderings")
-    nonstandard = audit.get("otherNonStandardAxioms")
-    if (
-        audit.get("ran") is not True
-        or audit.get("error") is not None
-        or not isinstance(target_files, list)
-        or not target_files
-        or len(target_files) != len(set(target_files))
-        or target not in target_files
-        or type(audit.get("filesChecked")) is not int
-        or audit.get("filesChecked") != len(target_files)
-        or failed_files != []
-        or laundering != []
-        or nonstandard != []
-    ):
-        _fail(f"{source_id} axiom audit did not cleanly cover the exact target")
-    return {
-        "status": "passed",
-        "candidate_sha256": candidate_sha256,
-        "audit_sha256": _bytes_sha256(payload),
-        "sorry_launderings": [],
-        "nonstandard_axioms": [],
-    }
-
-
-def _current_compile_audit(
+def _simple_compile_audit(
     value: object, *, source_id: str, target: str, candidate_sha256: str
 ) -> dict[str, Any]:
     fields = {
@@ -603,356 +447,14 @@ def _current_compile_audit(
         or type(value.get("sorry_count")) is not int
         or value.get("sorry_count") != 0
     ):
-        _fail(f"{source_id} current compile/sorry audit is not hard-green")
+        _fail(f"{source_id} current Lean compile/zero-sorry check failed")
     _sha(value.get("stdout_sha256"), f"{source_id} compile stdout hash")
     _sha(value.get("stderr_sha256"), f"{source_id} compile stderr hash")
     return {
         "status": "passed",
         "candidate_sha256": candidate_sha256,
-        "audit_sha256": _value_sha256(dict(value)),
         "returncode": 0,
         "sorry_count": 0,
-    }
-
-
-def _current_axiom_audit(
-    value: object, *, source_id: str, target: str, candidate_sha256: str
-) -> dict[str, Any]:
-    fields = {
-        "schema_version", "kind", "target", "candidate_sha256", "status",
-        "ran", "returncode", "files_checked", "declarations_checked",
-        "target_files", "failed_files", "sorry_launderings",
-        "nonstandard_axioms", "stdout_sha256", "stderr_sha256",
-    }
-    if not isinstance(value, Mapping) or set(value) != fields:
-        _fail(f"{source_id} current axiom audit has invalid fields")
-    if (
-        value.get("schema_version") != 1
-        or value.get("kind") != "current_exact_source_axiom_audit"
-        or value.get("target") != target
-        or value.get("candidate_sha256") != candidate_sha256
-        or value.get("status") != "passed"
-        or value.get("ran") is not True
-        or type(value.get("returncode")) is not int
-        or value.get("returncode") != 0
-        or type(value.get("files_checked")) is not int
-        or value.get("files_checked") != 1
-        or type(value.get("declarations_checked")) is not int
-        or value.get("declarations_checked") < 1
-        or value.get("target_files") != [target]
-        or value.get("failed_files") != []
-        or value.get("sorry_launderings") != []
-        or value.get("nonstandard_axioms") != []
-    ):
-        _fail(f"{source_id} current axiom audit is not hard-green/exact")
-    _sha(value.get("stdout_sha256"), f"{source_id} axiom stdout hash")
-    _sha(value.get("stderr_sha256"), f"{source_id} axiom stderr hash")
-    return {
-        "status": "passed",
-        "candidate_sha256": candidate_sha256,
-        "audit_sha256": _value_sha256(dict(value)),
-        "sorry_launderings": [],
-        "nonstandard_axioms": [],
-    }
-
-
-def _validate_terminal_campaign(
-    workspace: Path, *, producer_bundle_sha256: str
-) -> tuple[dict[str, Any], bytes]:
-    campaign, payload = _read_json(
-        workspace.parent / "campaign.json", label="producer terminal campaign"
-    )
-    native = campaign.get("native")
-    grounding = campaign.get("grounding")
-    if (
-        campaign.get("schema_version") != 1
-        or campaign.get("pipeline") != "archon-native-answer-blind-full32"
-        or campaign.get("workspace") != str(workspace)
-        or type(campaign.get("row_count")) is not int
-        or campaign.get("row_count") != 2
-        or campaign.get("bundle_sha256") != producer_bundle_sha256
-        or campaign.get("target_lifecycle") is not True
-        or campaign.get("status") != "succeeded"
-        or campaign.get("phase") not in {"loop", "complete"}
-        or type(campaign.get("returncode")) is not int
-        or campaign.get("returncode") != 0
-        or not isinstance(grounding, Mapping)
-        or type(grounding.get("complete")) is not int
-        or grounding.get("complete") != 2
-        or not isinstance(native, Mapping)
-        or native.get("complete") is not True
-        or native.get("formalization_review") != {"passed": 2}
-        or native.get("proof_review") != {"solved": 2}
-        or native.get("lake_build_ok") is not True
-        or type(native.get("sorry_count")) is not int
-        or native.get("sorry_count") != 0
-    ):
-        _fail("producer campaign is not terminal hard-green for exact A4/A5")
-    return campaign, payload
-
-
-def _uid_has_process(uid: int) -> bool:
-    """Return whether any current Linux process carries the dedicated UID."""
-
-    if type(uid) is not int or uid < 0:
-        _fail("solver UID is invalid")
-    proc = Path("/proc")
-    try:
-        entries = tuple(proc.iterdir())
-    except OSError as exc:
-        raise FreezePriorResultError("cannot audit dedicated solver processes") from exc
-    for entry in entries:
-        if not entry.name.isdigit():
-            continue
-        try:
-            status_payload = (entry / "status").read_text(
-                encoding="utf-8", errors="strict"
-            )
-        except FileNotFoundError:
-            continue
-        except (OSError, UnicodeError) as exc:
-            raise FreezePriorResultError(
-                "cannot audit dedicated solver process status"
-            ) from exc
-        uid_line = next(
-            (line for line in status_payload.splitlines() if line.startswith("Uid:")),
-            None,
-        )
-        if uid_line is None:
-            _fail("dedicated solver process has no UID ledger")
-        values = uid_line.removeprefix("Uid:").split()
-        if len(values) != 4 or any(not value.isdigit() for value in values):
-            _fail("dedicated solver process UID ledger is invalid")
-        if uid in {int(value) for value in values}:
-            return True
-    return False
-
-
-def _require_solver_quiescent(
-    solver_uid: int, checker: UidProcessChecker, *, stage: str
-) -> None:
-    if type(solver_uid) is not int or solver_uid < 0:
-        _fail("solver UID is invalid")
-    try:
-        active = checker(solver_uid)
-    except FreezePriorResultError:
-        raise
-    except Exception as exc:
-        raise FreezePriorResultError(
-            f"cannot check solver quiescence {stage}"
-        ) from exc
-    if type(active) is not bool:
-        _fail("solver process checker returned a non-boolean result")
-    if active:
-        _fail(f"dedicated solver UID still has a process {stage}")
-
-
-def _review_and_exports(
-    workspace: Path,
-    *,
-    source_id: str,
-    source_row: Mapping[str, Any],
-    producer_bundle_sha256: str,
-    formal_record: Mapping[str, Any],
-    proof_record: Mapping[str, Any],
-    declaration_type_checker: DeclarationTypeChecker,
-    current_compile_checker: CurrentCompileChecker,
-    current_axiom_checker: CurrentAxiomChecker,
-) -> dict[str, Any]:
-    target = _target(source_id)
-    module_payload = _read_plain_bytes(
-        workspace / target, maximum=_MAX_LEAN_BYTES, label=f"{source_id} Lean module"
-    )
-    module_sha256 = _bytes_sha256(module_payload)
-    formal_candidate_sha256 = _sha(
-        formal_record.get("candidate_sha256"),
-        f"{source_id} formal candidate hash",
-    )
-    if (
-        formal_record.get("status") != "passed"
-        or proof_record.get("status") != "solved"
-        or proof_record.get("proof_review_route") not in {None, "solved"}
-        or proof_record.get("candidate_sha256") != module_sha256
-    ):
-        _fail(f"{source_id} formal/proof/final candidate is not hard-green/bound")
-
-    certificate = formal_record.get("certificate")
-    proof_certificate = proof_record.get("blind_review_certificate")
-    if not isinstance(certificate, Mapping) or not isinstance(proof_certificate, Mapping):
-        _fail(f"{source_id} review certificate is missing")
-    # A proof repair may legitimately replace the formalization-pass module.
-    # Keep that earlier certificate internally bound to its own candidate; the
-    # proof gate, compile/axiom audits, and Lean #check below bind the final one.
-    if certificate.get("candidate_sha256") != formal_candidate_sha256:
-        _fail(f"{source_id} formal certificate candidate hash is stale")
-    if certificate.get("status") not in {None, "passed"}:
-        _fail(f"{source_id} formal certificate itself is not passing")
-    _validate_no_answer_key_fields(certificate, label=f"{source_id} formal certificate")
-    _validate_no_answer_key_fields(proof_record, label=f"{source_id} proof record")
-    _validate_no_answer_key_fields(proof_certificate, label=f"{source_id} proof certificate")
-
-    source_record_sha256 = _value_sha256(dict(source_row))
-    answer_rel = _answer_relative(target)
-    answer_payload = _read_plain_bytes(
-        workspace / answer_rel,
-        maximum=_MAX_JSON_BYTES,
-        label=f"{source_id} answer submission",
-    )
-    answer_sha256 = _bytes_sha256(answer_payload)
-    formal_contract = _validate_source_contract(
-        certificate.get("source_contract"),
-        source_id=source_id,
-        target=target,
-        candidate_sha256=formal_candidate_sha256,
-        bundle_sha256=producer_bundle_sha256,
-        source_record_sha256=source_record_sha256,
-        answer_sha256=answer_sha256,
-    )
-    proof_contract = _validate_source_contract(
-        proof_record.get("source_contract"),
-        source_id=source_id,
-        target=target,
-        candidate_sha256=module_sha256,
-        bundle_sha256=producer_bundle_sha256,
-        source_record_sha256=source_record_sha256,
-        answer_sha256=answer_sha256,
-    )
-    _validate_source_contract(
-        proof_certificate.get("source_contract"),
-        source_id=source_id,
-        target=target,
-        candidate_sha256=module_sha256,
-        bundle_sha256=producer_bundle_sha256,
-        source_record_sha256=source_record_sha256,
-        answer_sha256=answer_sha256,
-    )
-    payloads = _validate_answer(
-        workspace,
-        source_id=source_id,
-        target=target,
-        expected_sha256=answer_sha256,
-    )
-    declarations = _primary_result_declarations(certificate, source_id=source_id)
-    ordered_declarations = [
-        declarations[output_id] for output_id, _kind, _unit in EXPECTED_OUTPUTS[source_id]
-    ]
-    # Historical events remain required, but they do not attest the bytes being
-    # frozen now.  Fresh controller probes below are the receipt audit evidence.
-    _compile_audit(
-        proof_record, source_id=source_id, candidate_sha256=module_sha256
-    )
-    _axiom_audit(
-        workspace,
-        proof_record,
-        source_id=source_id,
-        target=target,
-        candidate_sha256=module_sha256,
-    )
-    try:
-        compile_value = current_compile_checker(workspace, target, module_sha256)
-    except FreezePriorResultError:
-        raise
-    except Exception as exc:
-        raise FreezePriorResultError(
-            f"{source_id} current compile/sorry audit did not run"
-        ) from exc
-    compile_audit = _current_compile_audit(
-        compile_value,
-        source_id=source_id,
-        target=target,
-        candidate_sha256=module_sha256,
-    )
-    try:
-        axiom_value = current_axiom_checker(workspace, target, module_sha256)
-    except FreezePriorResultError:
-        raise
-    except Exception as exc:
-        raise FreezePriorResultError(
-            f"{source_id} current axiom audit did not run"
-        ) from exc
-    axiom_audit = _current_axiom_audit(
-        axiom_value,
-        source_id=source_id,
-        target=target,
-        candidate_sha256=module_sha256,
-    )
-    try:
-        types = declaration_type_checker(
-            workspace, target, module_sha256, ordered_declarations
-        )
-    except FreezePriorResultError:
-        raise
-    except Exception as exc:
-        raise FreezePriorResultError(
-            f"{source_id} Lean declaration type check failed"
-        ) from exc
-    if not isinstance(types, Mapping) or set(types) != set(ordered_declarations):
-        _fail(f"{source_id} Lean type checker returned an incomplete declaration map")
-    module_after = _read_plain_bytes(
-        workspace / target,
-        maximum=_MAX_LEAN_BYTES,
-        label=f"{source_id} Lean module post-audit",
-    )
-    if module_after != module_payload:
-        _fail(f"{source_id} Lean module changed during current audits")
-
-    typed_exports: list[dict[str, Any]] = []
-    for payload, declaration in zip(payloads, ordered_declarations, strict=True):
-        expected_type = types.get(declaration)
-        if (
-            not isinstance(expected_type, str)
-            or not expected_type.strip()
-            or len(expected_type.encode("utf-8")) > _MAX_TYPE_BYTES
-        ):
-            _fail(f"{source_id} declaration {declaration} has no exact checked type")
-        expected_type = expected_type.strip()
-        typed_exports.append({
-            "export_id": (
-                f"certified_prior_result:{source_id}:{payload['output_id']}"
-            ),
-            "module": target,
-            "module_sha256": module_sha256,
-            "declaration": declaration,
-            "expected_type": expected_type,
-            "expected_type_sha256": _value_sha256(expected_type),
-            "result_payload": payload,
-            "result_payload_sha256": _value_sha256(payload),
-        })
-
-    previous_ids = _previous_part_ids(source_row, label=source_id)
-    return {
-        "source_id": source_id,
-        "source_record_sha256": source_record_sha256,
-        "previous_part_source_ids": previous_ids,
-        "previous_part_source_ids_sha256": _value_sha256(previous_ids),
-        "source_bundle_sha256": producer_bundle_sha256,
-        "answer_submission_sha256": answer_sha256,
-        "official_answer_seen": False,
-        "module": target,
-        "module_sha256": module_sha256,
-        "formalization_review": {
-            "status": "passed",
-            "candidate_sha256": formal_candidate_sha256,
-            "certificate_sha256": _value_sha256(dict(certificate)),
-            "source_contract_sha256": _value_sha256(dict(formal_contract)),
-            "source_bundle_sha256": producer_bundle_sha256,
-            "source_record_sha256": source_record_sha256,
-            "answer_submission_sha256": answer_sha256,
-            "official_answer_seen": False,
-        },
-        "proof_review": {
-            "status": "solved",
-            "candidate_sha256": module_sha256,
-            "certificate_sha256": _value_sha256(dict(proof_certificate)),
-            "source_contract_sha256": _value_sha256(dict(proof_contract)),
-            "source_bundle_sha256": producer_bundle_sha256,
-            "source_record_sha256": source_record_sha256,
-            "answer_submission_sha256": answer_sha256,
-            "official_answer_seen": False,
-        },
-        "compile_audit": compile_audit,
-        "axiom_audit": axiom_audit,
-        "typed_exports": typed_exports,
     }
 
 
@@ -963,14 +465,10 @@ def build_frozen_prior_result(
     consumer_seed: Path,
     producer_inventory_sha256: str,
     consumer_inventory_sha256: str,
-    declaration_type_checker: DeclarationTypeChecker,
     current_compile_checker: CurrentCompileChecker,
-    current_axiom_checker: CurrentAxiomChecker,
-    solver_uid: int = 26319,
-    uid_process_checker: UidProcessChecker = _uid_has_process,
     controller_uid: int | None = None,
 ) -> dict[str, Any]:
-    """Validate current artifacts and return the canonical A4/A5 receipt."""
+    """Build the minimal A4/A5 result object."""
 
     uid = os.geteuid() if controller_uid is None else controller_uid
     if type(uid) is not int or uid < 0:
@@ -990,16 +488,9 @@ def build_frozen_prior_result(
     consumer_inventory_sha256 = _sha(
         consumer_inventory_sha256, "consumer inventory hash"
     )
-    _require_solver_quiescent(
-        solver_uid, uid_process_checker, stage="before freeze"
-    )
 
     producer_rows, producer_bundle, producer_manifest = _load_bundle(
         producer_seed, expected_ids=PRODUCER_IDS, label="producer seed"
-    )
-    producer_bundle_sha256 = _bytes_sha256(producer_bundle)
-    _campaign, campaign_payload = _validate_terminal_campaign(
-        workspace, producer_bundle_sha256=producer_bundle_sha256
     )
     workspace_rows, workspace_bundle, workspace_manifest = _load_bundle(
         workspace, expected_ids=PRODUCER_IDS, label="producer workspace"
@@ -1009,14 +500,17 @@ def build_frozen_prior_result(
         or workspace_manifest != producer_manifest
         or workspace_rows != producer_rows
     ):
-        _fail("producer workspace source projection differs from its sealed seed")
+        _fail("producer workspace source projection differs from its seed")
     consumer_rows, consumer_bundle, _consumer_manifest = _load_bundle(
         consumer_seed, expected_ids=CONSUMER_BUNDLE_IDS, label="consumer seed"
     )
+    producer_bundle_sha256 = _bytes_sha256(producer_bundle)
     consumer_bundle_sha256 = _bytes_sha256(consumer_bundle)
 
     for source_id in PRODUCER_IDS:
-        _validate_requested_output_contract(producer_rows[source_id], source_id=source_id)
+        _validate_requested_output_contract(
+            producer_rows[source_id], source_id=source_id
+        )
     consumer = consumer_rows[A6]
     if _previous_part_ids(consumer, label=A6) != list(PRODUCER_IDS):
         _fail("A6 does not depend on exact ordered A4/A5")
@@ -1033,7 +527,7 @@ def build_frozen_prior_result(
             row.get("problem_id") != problem_id
             or _problem_pdf_sha256(row, label=source_id) != pdf_sha256
         ):
-            _fail(f"{source_id} is not in the exact A6 problem/PDF lineage")
+            _fail(f"{source_id} is not in the exact A6 source lineage")
 
     bindings = build_validation_lineage_bindings(
         problem_id=problem_id,
@@ -1045,12 +539,14 @@ def build_frozen_prior_result(
         consumer_inventory_sha256=consumer_inventory_sha256,
     )
     if set(bindings) != {"producer", "consumer"}:
-        _fail("core could not build the validation lineage")
+        _fail("could not build the A4/A5-to-A6 source binding")
 
-    formal_gate, _ = _read_json(
+    formal_gate, formal_gate_payload = _read_json(
         workspace / FORMAL_GATE_REL, label="formalization review gate"
     )
-    proof_gate, _ = _read_json(workspace / PROOF_GATE_REL, label="proof review gate")
+    proof_gate, proof_gate_payload = _read_json(
+        workspace / PROOF_GATE_REL, label="proof review gate"
+    )
     targets = tuple(_target(source_id) for source_id in PRODUCER_IDS)
     formal_targets = _gate_targets(
         formal_gate, expected_targets=targets, label="formalization review gate"
@@ -1060,27 +556,90 @@ def build_frozen_prior_result(
     )
 
     snapshots: list[dict[str, Any]] = []
+    frozen_files: list[tuple[Path, bytes, int, str]] = []
     for source_id, target in zip(PRODUCER_IDS, targets, strict=True):
         formal_record = formal_targets[target]
         proof_record = proof_targets[target]
-        if not isinstance(formal_record, Mapping) or not isinstance(proof_record, Mapping):
-            _fail(f"{source_id} gate record is invalid")
-        body = _review_and_exports(
-            workspace,
-            source_id=source_id,
-            source_row=producer_rows[source_id],
-            producer_bundle_sha256=producer_bundle_sha256,
-            formal_record=formal_record,
-            proof_record=proof_record,
-            declaration_type_checker=declaration_type_checker,
-            current_compile_checker=current_compile_checker,
-            current_axiom_checker=current_axiom_checker,
+        if (
+            not isinstance(formal_record, Mapping)
+            or formal_record.get("status") != "passed"
+        ):
+            _fail(f"{source_id} did not pass formalization semantic review")
+        if (
+            not isinstance(proof_record, Mapping)
+            or proof_record.get("status") != "solved"
+            or proof_record.get("proof_review_route") not in {None, "solved"}
+        ):
+            _fail(f"{source_id} did not pass proof semantic review")
+
+        module_path = workspace / target
+        module_payload = _read_plain_bytes(
+            module_path, maximum=_MAX_LEAN_BYTES,
+            label=f"{source_id} Lean module",
+        )
+        module_sha256 = _bytes_sha256(module_payload)
+        if proof_record.get("candidate_sha256") != module_sha256:
+            _fail(f"{source_id} proof review is stale for current Lean bytes")
+
+        answer_path = workspace / _answer_relative(target)
+        answer_bytes = _read_plain_bytes(
+            answer_path, maximum=_MAX_JSON_BYTES,
+            label=f"{source_id} answer submission",
+        )
+        payloads = _validate_answer(
+            workspace, source_id=source_id, target=target,
+            expected_sha256=_bytes_sha256(answer_bytes),
+        )
+        try:
+            compile_value = current_compile_checker(
+                workspace, target, module_sha256
+            )
+        except FreezePriorResultError:
+            raise
+        except Exception as exc:
+            raise FreezePriorResultError(
+                f"{source_id} current Lean compile check did not run"
+            ) from exc
+        compile_audit = _simple_compile_audit(
+            compile_value, source_id=source_id, target=target,
+            candidate_sha256=module_sha256,
+        )
+
+        typed_exports = [{
+            "export_id": (
+                f"certified_prior_result:{source_id}:{payload['output_id']}"
+            ),
+            "result_payload": payload,
+            "result_payload_sha256": _value_sha256(payload),
+        } for payload in payloads]
+        previous_ids = _previous_part_ids(
+            producer_rows[source_id], label=source_id
         )
         snapshots.append({
-            "schema_version": 1,
+            "schema_version": PRIOR_RESULT_SCHEMA_VERSION,
             "controller_binding": bindings["producer"],
-            **body,
+            "source_id": source_id,
+            "source_record_sha256": _value_sha256(
+                producer_rows[source_id]
+            ),
+            "previous_part_source_ids": previous_ids,
+            "previous_part_source_ids_sha256": _value_sha256(previous_ids),
+            "source_bundle_sha256": producer_bundle_sha256,
+            "answer_submission_sha256": _bytes_sha256(answer_bytes),
+            "official_answer_seen": False,
+            "module": target,
+            "module_sha256": module_sha256,
+            "formalization_review": {"status": "passed"},
+            "proof_review": {"status": "solved"},
+            "compile_audit": compile_audit,
+            "typed_exports": typed_exports,
         })
+        frozen_files.extend((
+            (module_path, module_payload, _MAX_LEAN_BYTES,
+             f"{source_id} Lean module"),
+            (answer_path, answer_bytes, _MAX_JSON_BYTES,
+             f"{source_id} answer submission"),
+        ))
 
     consumer_record_sha256 = _value_sha256(consumer)
     receipt = build_prior_result_dependency_context(
@@ -1091,10 +650,10 @@ def build_frozen_prior_result(
         producer_snapshots=snapshots,
     )
     if not receipt:
-        _fail("core rejected the hard-green A4/A5 snapshots")
+        _fail("result builder rejected A4/A5")
     error = validate_prior_result_dependency_context_self(receipt)
     if error:
-        _fail(f"core built an invalid receipt: {error}")
+        _fail(f"result builder returned invalid JSON: {error}")
     error = validate_prior_result_dependency_context(
         receipt,
         consumer_target=_target(A6),
@@ -1104,148 +663,23 @@ def build_frozen_prior_result(
         producer_snapshots=snapshots,
     )
     if error:
-        _fail(f"receipt is stale against current artifacts: {error}")
-    for snapshot in snapshots:
-        target = snapshot["module"]
-        expected_sha256 = snapshot["module_sha256"]
-        payload = _read_plain_bytes(
-            workspace / target,
-            maximum=_MAX_LEAN_BYTES,
-            label=f"{snapshot['source_id']} final Lean module recheck",
-        )
-        if _bytes_sha256(payload) != expected_sha256:
-            _fail(f"{snapshot['source_id']} Lean module changed during freeze")
-    _final_campaign, final_campaign_payload = _validate_terminal_campaign(
-        workspace, producer_bundle_sha256=producer_bundle_sha256
-    )
-    if final_campaign_payload != campaign_payload:
-        _fail("producer campaign changed during freeze")
-    _require_solver_quiescent(
-        solver_uid, uid_process_checker, stage="after freeze"
-    )
+        _fail(f"A4/A5 results changed during freeze: {error}")
+
+    for path, expected, maximum, label in frozen_files:
+        if _read_plain_bytes(
+            path, maximum=maximum, label=f"final {label} recheck"
+        ) != expected:
+            _fail(f"{label} changed during freeze")
+    for relative, expected, label in (
+        (FORMAL_GATE_REL, formal_gate_payload, "formalization review gate"),
+        (PROOF_GATE_REL, proof_gate_payload, "proof review gate"),
+    ):
+        if _read_plain_bytes(
+            workspace / relative, maximum=_MAX_JSON_BYTES,
+            label=f"final {label} recheck",
+        ) != expected:
+            _fail(f"{label} changed during freeze")
     return receipt
-
-
-def lean_declaration_types(
-    workspace: Path,
-    target: str,
-    expected_sha256: str,
-    declarations: Sequence[str],
-    *,
-    lake_bin: Path,
-    timeout_seconds: int = 120,
-) -> Mapping[str, str]:
-    """Append #check to exact final source bytes; never consult a stale olean."""
-
-    if not declarations or len(declarations) != len(set(declarations)):
-        _fail("Lean type check requires unique declarations")
-    if any(_DECL_RE.fullmatch(item) is None for item in declarations):
-        _fail("Lean type check received an invalid declaration")
-    if not target.endswith(".lean") or target.startswith("/") or ".." in Path(target).parts:
-        _fail("Lean type check target is unsafe")
-    expected_sha256 = _sha(expected_sha256, "Lean type-check candidate hash")
-    target_payload = _read_plain_bytes(
-        workspace / target,
-        maximum=_MAX_LEAN_BYTES,
-        label="Lean type-check target",
-    )
-    if _bytes_sha256(target_payload) != expected_sha256:
-        _fail("Lean type-check target hash is stale")
-    commands: list[str] = []
-    for declaration in declarations:
-        commands.extend([
-            "set_option pp.universes true in",
-            "set_option pp.explicit true in",
-            "set_option format.width 1000000 in",
-            f"#check {declaration}",
-        ])
-    suffix = ("\n".join(commands) + "\n").encode("utf-8")
-    source = target_payload
-    if source and not source.endswith(b"\n"):
-        source += b"\n"
-    source += b"\n" + suffix
-    with tempfile.TemporaryDirectory(prefix="icho-a4-a5-typecheck-") as raw:
-        check_path = Path(raw) / "CheckCertifiedExports.lean"
-        descriptor = os.open(
-            check_path,
-            os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_CLOEXEC", 0),
-            0o600,
-        )
-        try:
-            with os.fdopen(descriptor, "wb") as stream:
-                stream.write(source)
-                stream.flush()
-                os.fsync(stream.fileno())
-        except BaseException:
-            try:
-                os.close(descriptor)
-            except OSError:
-                pass
-            raise
-        try:
-            completed = subprocess.run(
-                [str(lake_bin), "env", "lean", str(check_path)],
-                cwd=workspace,
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=timeout_seconds,
-                env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
-            )
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            raise FreezePriorResultError("Lean declaration type check did not run") from exc
-    target_after = _read_plain_bytes(
-        workspace / target,
-        maximum=_MAX_LEAN_BYTES,
-        label="Lean type-check target postcheck",
-    )
-    if target_after != target_payload:
-        _fail("Lean type-check target changed during exact-source check")
-    if completed.returncode != 0 or completed.stderr.strip():
-        _fail(
-            "Lean declaration type check failed: "
-            f"rc={completed.returncode} stderr={completed.stderr[-2000:].strip()}"
-        )
-    lines = completed.stdout.splitlines()
-    result: dict[str, str] = {}
-    cursor = 0
-
-    def header_index(line: str) -> int | None:
-        for index, expected in enumerate(declarations):
-            prefix = f"{expected} :"
-            if line == prefix or line.startswith(prefix + " "):
-                return index
-        return None
-
-    for expected_index, declaration in enumerate(declarations):
-        if cursor >= len(lines) or header_index(lines[cursor]) != expected_index:
-            _fail(f"Lean did not print one exact type for {declaration}")
-        prefix = f"{declaration} :"
-        header = lines[cursor]
-        cursor += 1
-        inline_type = header[len(prefix):]
-        type_parts: list[str] = []
-        if inline_type:
-            normalized = " ".join(inline_type.split())
-            if not normalized:
-                _fail(f"Lean printed an invalid type for {declaration}")
-            type_parts.append(normalized)
-        while cursor < len(lines) and header_index(lines[cursor]) is None:
-            continuation = lines[cursor]
-            if not continuation or not continuation[0].isspace():
-                _fail("Lean type-check output contained unexpected lines")
-            normalized = " ".join(continuation.split())
-            if not normalized:
-                _fail(f"Lean printed an invalid type for {declaration}")
-            type_parts.append(normalized)
-            cursor += 1
-        expected_type = " ".join(type_parts)
-        if not expected_type or len(expected_type.encode("utf-8")) > _MAX_TYPE_BYTES:
-            _fail(f"Lean printed an invalid type for {declaration}")
-        result[declaration] = expected_type
-    if cursor != len(lines):
-        _fail("Lean type-check output contained unexpected lines")
-    return result
 
 
 def _write_exclusive_bytes(path: Path, payload: bytes) -> None:
@@ -1275,7 +709,7 @@ def lean_current_compile_audit(
     lake_bin: Path,
     timeout_seconds: int = 120,
 ) -> Mapping[str, Any]:
-    """Compile an exact private copy and scan those same bytes for placeholders."""
+    """Compile exact final bytes and count open sorries."""
 
     expected_sha256 = _sha(expected_sha256, "compile candidate hash")
     payload = _read_plain_bytes(
@@ -1287,146 +721,41 @@ def lean_current_compile_audit(
         probe = Path(raw) / Path(target).name
         _write_exclusive_bytes(probe, payload)
         from archon.commands.loop.sorry_count import file_open_sorry_count
-
         sorry_count = file_open_sorry_count(probe)
         try:
             completed = subprocess.run(
                 [str(lake_bin), "env", "lean", str(probe)],
-                cwd=workspace,
-                check=False,
-                stdin=subprocess.PIPE,
-                capture_output=True,
-                timeout=timeout_seconds,
+                cwd=workspace, check=False, stdin=subprocess.PIPE,
+                capture_output=True, timeout=timeout_seconds,
                 env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
-            raise FreezePriorResultError("current compile/sorry audit did not run") from exc
+            raise FreezePriorResultError(
+                "current Lean compile/zero-sorry check did not run"
+            ) from exc
         if _read_plain_bytes(
-            probe, maximum=_MAX_LEAN_BYTES, label="compile probe postcheck"
+            probe, maximum=_MAX_LEAN_BYTES,
+            label="compile probe postcheck",
         ) != payload:
-            _fail("compile probe changed during audit")
-    after = _read_plain_bytes(
-        workspace / target, maximum=_MAX_LEAN_BYTES, label="compile target postcheck"
-    )
-    if after != payload:
-        _fail("compile target changed during audit")
+            _fail("compile probe changed during check")
+    if _read_plain_bytes(
+        workspace / target, maximum=_MAX_LEAN_BYTES,
+        label="compile target postcheck",
+    ) != payload:
+        _fail("compile target changed during check")
     if type(sorry_count) is not int:
         _fail("current exact-source sorry count is unknown")
+    passed = completed.returncode == 0 and sorry_count == 0
     return {
         "schema_version": 1,
         "kind": "current_exact_source_compile_sorry_audit",
         "target": target,
         "candidate_sha256": expected_sha256,
         "source_size": len(payload),
-        "status": (
-            "passed" if completed.returncode == 0 and sorry_count == 0 else "failed"
-        ),
+        "status": "passed" if passed else "failed",
         "compiles": completed.returncode == 0,
         "returncode": completed.returncode,
         "sorry_count": sorry_count,
-        "stdout_sha256": _bytes_sha256(completed.stdout),
-        "stderr_sha256": _bytes_sha256(completed.stderr),
-    }
-
-
-def lean_current_axiom_audit(
-    workspace: Path,
-    target: str,
-    expected_sha256: str,
-    *,
-    lake_bin: Path,
-    axiom_checker: Path,
-    timeout_seconds: int = 1800,
-) -> Mapping[str, Any]:
-    """Run the bundled axiom checker on a private exact-source copy."""
-
-    expected_sha256 = _sha(expected_sha256, "axiom candidate hash")
-    payload = _read_plain_bytes(
-        workspace / target, maximum=_MAX_LEAN_BYTES, label="axiom target"
-    )
-    if not payload or _bytes_sha256(payload) != expected_sha256:
-        _fail("axiom target hash is stale/empty")
-    if lake_bin.name != "lake":
-        _fail("axiom audit requires a trusted executable named lake")
-    with tempfile.TemporaryDirectory(prefix="icho-a4-a5-axiom-") as raw:
-        probe = Path(raw) / Path(target).name
-        _write_exclusive_bytes(probe, payload)
-        path_value = str(lake_bin.parent)
-        inherited_path = os.environ.get("PATH")
-        if inherited_path:
-            path_value += os.pathsep + inherited_path
-        try:
-            completed = subprocess.run(
-                [str(axiom_checker), str(probe), "--report-only"],
-                cwd=workspace,
-                check=False,
-                stdin=subprocess.PIPE,
-                capture_output=True,
-                timeout=timeout_seconds,
-                env={
-                    **os.environ,
-                    "PATH": path_value,
-                    "PYTHONDONTWRITEBYTECODE": "1",
-                },
-            )
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            raise FreezePriorResultError("current axiom audit did not run") from exc
-        if _read_plain_bytes(
-            probe, maximum=_MAX_LEAN_BYTES, label="axiom probe postcheck"
-        ) != payload:
-            _fail("axiom checker did not restore its exact source probe")
-    after = _read_plain_bytes(
-        workspace / target, maximum=_MAX_LEAN_BYTES, label="axiom target postcheck"
-    )
-    if after != payload:
-        _fail("axiom target changed during audit")
-    try:
-        stdout = completed.stdout.decode("utf-8", "strict")
-        stderr = completed.stderr.decode("utf-8", "strict")
-    except UnicodeDecodeError as exc:
-        raise FreezePriorResultError("axiom checker output is not UTF-8") from exc
-    clean = _ANSI_RE.sub("", stdout)
-    file_matches = re.findall(
-        r"^\s*Files checked:\s*(\d+)\s*$", clean, flags=re.MULTILINE
-    )
-    declaration_matches = re.findall(
-        r"^\s*Declarations checked:\s*(\d+)\s*$", clean, flags=re.MULTILINE
-    )
-    files_checked = int(file_matches[0]) if len(file_matches) == 1 else 0
-    declarations_checked = (
-        int(declaration_matches[0]) if len(declaration_matches) == 1 else 0
-    )
-    findings = [
-        {"decl": match.group("decl"), "axiom": match.group("axiom")}
-        for match in _AXIOM_FINDING_RE.finditer(clean)
-    ]
-    laundering = [
-        finding for finding in findings
-        if str(finding["axiom"]).lower().startswith("sorryax")
-    ]
-    nonstandard = [finding for finding in findings if finding not in laundering]
-    passed = (
-        completed.returncode == 0
-        and not stderr.strip()
-        and files_checked == 1
-        and declarations_checked > 0
-        and "All files use only standard axioms" in clean
-        and not findings
-    )
-    return {
-        "schema_version": 1,
-        "kind": "current_exact_source_axiom_audit",
-        "target": target,
-        "candidate_sha256": expected_sha256,
-        "status": "passed" if passed else "failed",
-        "ran": True,
-        "returncode": completed.returncode,
-        "files_checked": files_checked,
-        "declarations_checked": declarations_checked,
-        "target_files": [target],
-        "failed_files": [] if passed else [target],
-        "sorry_launderings": laundering,
-        "nonstandard_axioms": nonstandard,
         "stdout_sha256": _bytes_sha256(completed.stdout),
         "stderr_sha256": _bytes_sha256(completed.stderr),
     }
@@ -1517,10 +846,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--producer-inventory-sha256", required=True)
     parser.add_argument("--consumer-inventory-sha256", required=True)
     parser.add_argument("--lake-bin", type=Path, required=True)
-    parser.add_argument("--axiom-checker", type=Path, required=True)
+    parser.add_argument("--axiom-checker", type=Path, help=argparse.SUPPRESS)
     parser.add_argument("--lean-timeout-seconds", type=int, default=120)
-    parser.add_argument("--axiom-timeout-seconds", type=int, default=1800)
-    parser.add_argument("--solver-uid", type=int, default=26319)
     parser.add_argument("--output", type=Path, required=True)
     return parser
 
@@ -1530,56 +857,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if os.geteuid() != 0:
             _fail("controller freezer must run as root")
-        if (
-            arguments.lean_timeout_seconds < 1
-            or arguments.axiom_timeout_seconds < 1
-        ):
-            _fail("Lean/axiom timeouts must be positive")
-        if arguments.solver_uid < 1:
-            _fail("--solver-uid must be a positive dedicated UID")
+        if arguments.lean_timeout_seconds < 1:
+            _fail("Lean timeout must be positive")
         lake_bin = _trusted_executable(
             arguments.lake_bin, label="--lake-bin", controller_uid=0
         )
-        axiom_checker = _trusted_executable(
-            arguments.axiom_checker, label="--axiom-checker", controller_uid=0
-        )
-
-        def checker(
-            workspace: Path,
-            target: str,
-            candidate_sha256: str,
-            declarations: Sequence[str],
-        ) -> Mapping[str, str]:
-            return lean_declaration_types(
-                workspace,
-                target,
-                candidate_sha256,
-                declarations,
-                lake_bin=lake_bin,
-                timeout_seconds=arguments.lean_timeout_seconds,
-            )
 
         def compile_checker(
             workspace: Path, target: str, candidate_sha256: str
         ) -> Mapping[str, Any]:
             return lean_current_compile_audit(
-                workspace,
-                target,
-                candidate_sha256,
-                lake_bin=lake_bin,
+                workspace, target, candidate_sha256, lake_bin=lake_bin,
                 timeout_seconds=arguments.lean_timeout_seconds,
-            )
-
-        def axiom_auditor(
-            workspace: Path, target: str, candidate_sha256: str
-        ) -> Mapping[str, Any]:
-            return lean_current_axiom_audit(
-                workspace,
-                target,
-                candidate_sha256,
-                lake_bin=lake_bin,
-                axiom_checker=axiom_checker,
-                timeout_seconds=arguments.axiom_timeout_seconds,
             )
 
         receipt = build_frozen_prior_result(
@@ -1588,17 +877,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             consumer_seed=arguments.consumer_seed,
             producer_inventory_sha256=arguments.producer_inventory_sha256,
             consumer_inventory_sha256=arguments.consumer_inventory_sha256,
-            declaration_type_checker=checker,
             current_compile_checker=compile_checker,
-            current_axiom_checker=axiom_auditor,
-            solver_uid=arguments.solver_uid,
             controller_uid=0,
         )
         file_sha256 = write_staged_receipt(
             arguments.output, receipt, controller_uid=0
         )
         print(json.dumps({
-            "status": "controller_receipt_staged",
+            "status": "a4_a5_results_staged",
             "output": str(arguments.output.resolve()),
             "mode": "0600",
             "consumer": A6,

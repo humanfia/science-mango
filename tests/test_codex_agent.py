@@ -603,6 +603,37 @@ class CodexParserTest(unittest.TestCase):
         self.assertEqual(tool_calls[0]["tool"], "Edit")
         self.assertEqual(tool_calls[0]["input"]["changes"][0]["path"], "A.lean")
 
+    def test_failed_file_delete_surfaces_status_and_error(self):
+        rows = _run_parser([
+            {"type": "thread.started", "thread_id": "t"},
+            {"type": "turn.started"},
+            {"type": "item.completed", "item": {
+                "id": "i0", "type": "file_change",
+                "changes": [{"path": "A.lean", "kind": "delete"}],
+                "status": "failed", "error": "Failed to delete file A.lean",
+            }},
+            {"type": "turn.completed", "usage": {}},
+        ])
+        result = [row for row in rows if row["event"] == "tool_result"][0]
+        self.assertEqual(
+            result["content"],
+            "delete A.lean\n[status] failed\n[error] Failed to delete file A.lean",
+        )
+
+    def test_successful_file_update_keeps_compact_result(self):
+        rows = _run_parser([
+            {"type": "thread.started", "thread_id": "t"},
+            {"type": "turn.started"},
+            {"type": "item.completed", "item": {
+                "id": "i0", "type": "file_change",
+                "changes": [{"path": "A.lean", "kind": "update"}],
+                "status": "completed",
+            }},
+            {"type": "turn.completed", "usage": {}},
+        ])
+        result = [row for row in rows if row["event"] == "tool_result"][0]
+        self.assertEqual(result["content"], "update A.lean")
+
     def test_turn_failed_surfaces_as_summary(self):
         rows = _run_parser([
             {"type": "thread.started", "thread_id": "t"},

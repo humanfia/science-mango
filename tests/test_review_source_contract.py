@@ -36,8 +36,8 @@ from archon.commands.loop.review_source_contract import (
     render_source_contract_prompt,
     source_contract_provenance,
     stored_provenance_matches_current,
-    validate_review_source_certificate,
     validate_blind_result_contracts,
+    validate_review_source_certificate,
 )
 
 
@@ -703,7 +703,6 @@ class ReviewSourceContractTest(unittest.TestCase):
                         audit, contract, passing=True,
                     ),
                 )
-
     def test_both_prompts_define_the_narrow_source_inconsistency_route(self):
         contract = build_review_source_contract(
             project_path=self.project,

@@ -85,7 +85,6 @@ from ..numeric_reporting_guard import MAX_NUMERIC_REPORTING_REASON_LENGTH
 from ..review_preflight import check_review_target
 from ..review_feedback import (
     MAX_REPAIR_TASK_PROMPT_BYTES,
-    SOURCE_CLOSURE_REPAIR_ACTION,
     bound_repair_task,
     build_feedback_event,
     build_repair_task,
@@ -108,6 +107,7 @@ from ..problem_only_review_contract import (
     resolve_native_formalizer_source_contract,
     resolve_target_review_source_contract,
     validate_native_answer_submission_current,
+    validate_native_resolved_answer_submission_current,
 )
 from ..resume import PROVER_CONTINUE, persist_session_id, pick_resume_session
 from ..sorry_count import file_open_sorry_count
@@ -881,58 +881,7 @@ or differently bound receipt are not authorization. This receipt applies only
 to the immediate formalization redraft and cannot authorize proof-stage use.
 
 """
-    required_actions = review_certificate.get("required_actions")
-    source_closure_protocol = (
-        """
-
-## Mandatory source-closure repair decision procedure
-
-Use this procedure only for failed identification, finite-domain, or staged-
-transformation checks. First honor the exact source quantifier. A
-suggest/propose/possible-witness task does not authorize global uniqueness;
-remove any stronger theorem and prove only the requested witness obligation.
-Treat every current nominee, generated output, and candidate-local universe as
-untrusted while rebuilding the model source-first.
-
-1. Freeze the admissible domain before reusing any nominee. Derive either an
-   explicit finite enumeration or a source-bounded symbolic domain with a
-   finite exhaustive theorem solely from bound problem evidence, certified
-   prior-result carriers, baseline pinned authority, or dormant authority
-   carried by a current activation receipt whose applicability has been proved
-   for this candidate. If the source is genuinely
-   underdetermined, encode that source-grounded boundary instead of forcing a
-   closed identification domain. For every applicable material stage, record
-   each admitted solid, volatile output, external input, and phase with its
-   exact locator or receipt. A missing identity, formula, phase, or stream means
-   the domain/stage is not closed; never invent it or silently declare it empty.
-   If no staged transformation exists, certify the exact
-   `not_staged_transformation` case instead of inventing a stage ledger.
-2. Apply one uniform set of source-derived constraints, every applicable atom,
-   charge, and mass ledger, and every source-supplied measured-interval ledger
-   to every member of that frozen domain. A singleton equality, answer-shaped
-   constructor, candidate-specific predicate, freely chosen Bool/Prop, or
-   model-selected stream/phase cannot establish admissibility, closure, or
-   uniqueness.
-3. When the source actually requests identification, claim it only when every
-   relevant domain and stage is closed and exactly one candidate survives the
-   uniform audit. An affirmative
-   non-uniqueness claim needs two fully species-typed, source-grounded, balanced
-   models. Zero survivors, an unknown survivor count, or any unclosed domain or
-   stage must remain explicitly blocked/underdetermined; do not fabricate a
-   nominee or countermodel.
-4. A trusted-rule receipt certifies only its pinned source and stated scope.
-   Prove every applicability condition and exclusion for the current candidate
-   before using it. The receipt cannot by itself close a candidate domain,
-   supply an omitted species/phase/stream, or turn a model-local hypothesis into
-   an identification premise.
-"""
-        if isinstance(required_actions, list)
-        and SOURCE_CLOSURE_REPAIR_ACTION in required_actions
-        else ""
-    )
     prompt_suffix = f"""
-
-{source_closure_protocol}
 
 Repair every listed defect class in the theorem contract, not just the last
 proof error. You may change unprotected statements in `{rel}` and
@@ -1719,9 +1668,31 @@ class ParallelProverRunner:
                 prior_formalization
                 if isinstance(prior_formalization, dict) else {}
             )
+            formal_status = str(
+                prior_formalization.get("status") or ""
+            ).strip().lower()
+            proof_status = str(
+                prior_proof.get("status") or ""
+            ).strip().lower()
+            # A diagnostic answer sidecar is intentionally valid while a
+            # target is being redrafted or retried.  It must not, however,
+            # revive a durable successful gate on resume.  Route only those
+            # successful restorations through the stricter requested-output
+            # validator.  A needs_redraft event is replayed below regardless
+            # of answer validity, so a stale pass cannot be revived while its
+            # fail-closed diagnostic remains available to the repair worker.
+            requires_resolved_answer = (
+                self.resume_enabled
+                and (formal_status == "passed" or proof_status == "solved")
+            )
             if native_answer_required:
+                answer_validator = (
+                    validate_native_resolved_answer_submission_current
+                    if requires_resolved_answer
+                    else validate_native_answer_submission_current
+                )
                 answer_binding, answer_submission_error = (
-                    validate_native_answer_submission_current(
+                    answer_validator(
                         project_path=self.project_path,
                         target=target,
                     )
@@ -1816,10 +1787,6 @@ class ParallelProverRunner:
                     and _target_sha256(target) != legacy_baseline
                     and _task_result_fingerprints(self.state_dir, rel)
                 )
-                formal_status = str(
-                    prior_formalization.get("status") or ""
-                )
-                proof_status = str(prior_proof.get("status") or "")
                 formal_event_cycle = _latest_pipeline_event_cycle(
                     prior_formalization,
                     history_key="review_events",
@@ -1872,7 +1839,9 @@ class ParallelProverRunner:
                             refreshed_proof
                             if isinstance(refreshed_proof, dict) else {}
                         )
-                        proof_status = str(prior_proof.get("status") or "")
+                        proof_status = str(
+                            prior_proof.get("status") or ""
+                        ).strip().lower()
                         shadow_proof_records[rel] = dict(prior_proof)
                         shadow_proof_attempts[rel] = int(
                             prior_proof.get("attempts") or 0
@@ -1909,7 +1878,7 @@ class ParallelProverRunner:
                         )
                         formal_status = str(
                             prior_formalization.get("status") or ""
-                        )
+                        ).strip().lower()
                         shadow_formalization_records[rel] = dict(
                             prior_formalization
                         )
@@ -2129,7 +2098,7 @@ class ParallelProverRunner:
                 read_meta(self.iter_meta, f"provers.{slug}.status")
                 if self.resume_enabled else None
             )
-            if prior_status == "done":
+            if prior_status == "done" and answer_submission_valid:
                 resumed_completed.append((
                     target, rel, slug, proof_cycles[rel],
                 ))
@@ -2258,8 +2227,7 @@ class ParallelProverRunner:
         def run_preflight(target: Path, rel: str) -> dict:
             try:
                 return self.preflight_checker(
-                    project_path=self.project_path,
-                    target=target,
+                    project_path=self.project_path, target=target,
                     timeout_sec=config.preflight_timeout_sec,
                 )
             except Exception as exc:

@@ -33,6 +33,7 @@ from .answer_submission import (
     AnswerSubmissionError,
     answer_submission_relative_path,
     validate_answer_submission,
+    validate_resolved_answer_submission,
 )
 from .certified_prior_result_context import (
     CertifiedPriorResultContextError,
@@ -147,6 +148,24 @@ _PREFLIGHT_FIELDS = {
     "duration_secs",
     "diagnostics",
     "numeric_reporting",
+}
+_OPTIONAL_PREFLIGHT_FIELDS = {"exhaustiveness_basis"}
+_EXHAUSTIVENESS_PREFLIGHT_FIELDS = {
+    "status",
+    "reason",
+    "candidate_declaration",
+    "source_admissible_declaration",
+    "frozen_domain_declaration",
+    "theorem_declaration",
+    "expected_type",
+    "normalized_type_sha256",
+    "candidate_sha256",
+    "lean_probe_passed",
+    "axioms",
+}
+_EXHAUSTIVENESS_PREFLIGHT_STATUSES = {"verified", "unavailable"}
+_ALLOWED_EXHAUSTIVENESS_AXIOMS = {
+    "propext", "Classical.choice", "Quot.sound", "sorryAx",
 }
 _PREFLIGHT_STATUSES = {"passed", "failed", "timeout", "error", "missing"}
 _NUMERIC_REPORTING_CORE_FIELDS = {"active", "status", "reason"}
@@ -549,6 +568,89 @@ def _validate_numeric_reporting(
     return result
 
 
+def _validate_exhaustiveness_preflight(
+    value: Any,
+    *,
+    expected_lean_sha256: str | None,
+) -> dict[str, Any]:
+    """Validate optional audit metadata without requiring fixed declarations."""
+    if not isinstance(value, Mapping):
+        raise ProblemOnlyReviewContractError(
+            "optional deterministic Lean exhaustiveness_basis must be an object"
+        )
+    if set(value) != _EXHAUSTIVENESS_PREFLIGHT_FIELDS:
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean preflight exhaustiveness_basis fields are invalid"
+        )
+    result = dict(value)
+    status = str(result.get("status") or "").strip().lower()
+    reason = str(result.get("reason") or "").strip()
+    probe = result.get("lean_probe_passed")
+    axioms = result.get("axioms")
+    text_fields = (
+        "candidate_declaration",
+        "source_admissible_declaration",
+        "frozen_domain_declaration",
+        "theorem_declaration",
+        "expected_type",
+    )
+    if any(
+        not isinstance(result.get(key), str)
+        or len(result[key]) > 4096
+        for key in text_fields
+    ):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean exhaustiveness declaration audit is invalid"
+        )
+    candidate_sha256 = str(result.get("candidate_sha256") or "").lower()
+    type_sha256 = str(result.get("normalized_type_sha256") or "").lower()
+    if (
+        not _SHA256_RE.fullmatch(candidate_sha256)
+        or not _SHA256_RE.fullmatch(type_sha256)
+        or (
+            expected_lean_sha256 is not None
+            and candidate_sha256 != expected_lean_sha256
+        )
+    ):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean exhaustiveness audit hash is stale or invalid"
+        )
+    if (
+        status not in _EXHAUSTIVENESS_PREFLIGHT_STATUSES
+        or not reason
+        or len(reason) > MAX_NUMERIC_REPORTING_REASON_LENGTH
+    ):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean exhaustiveness status/reason is invalid"
+        )
+    if (
+        not isinstance(axioms, list)
+        or any(not isinstance(axiom, str) or not axiom for axiom in axioms)
+        or axioms != sorted(set(axioms))
+        or any(
+            axiom not in _ALLOWED_EXHAUSTIVENESS_AXIOMS
+            for axiom in axioms
+        )
+    ):
+        raise ProblemOnlyReviewContractError(
+            "deterministic Lean exhaustiveness axiom evidence is invalid"
+        )
+    if status == "verified":
+        if probe is not True or any(not result[key] for key in text_fields):
+            raise ProblemOnlyReviewContractError(
+                "verified Lean exhaustiveness audit is incomplete"
+            )
+    elif (probe is not False and probe is not None) or axioms:
+        raise ProblemOnlyReviewContractError(
+            "unavailable Lean exhaustiveness evidence is contradictory"
+        )
+    result["status"] = status
+    result["reason"] = reason
+    result["candidate_sha256"] = candidate_sha256
+    result["normalized_type_sha256"] = type_sha256
+    return result
+
+
 def _validate_preflight(
     preflight: Mapping[str, Any],
     rel: str,
@@ -560,7 +662,11 @@ def _validate_preflight(
         raise ProblemOnlyReviewContractError(
             "deterministic Lean preflight is missing"
         )
-    if set(preflight) != _PREFLIGHT_FIELDS:
+    fields = set(preflight)
+    if (
+        not _PREFLIGHT_FIELDS.issubset(fields)
+        or fields - (_PREFLIGHT_FIELDS | _OPTIONAL_PREFLIGHT_FIELDS)
+    ):
         raise ProblemOnlyReviewContractError(
             "deterministic Lean preflight has missing or ambiguous fields"
         )
@@ -622,6 +728,18 @@ def _validate_preflight(
         expected_lean_sha256=expected_lean_sha256,
         expected_bundle_sha256=expected_bundle_sha256,
     )
+    if "exhaustiveness_basis" in result:
+        result["exhaustiveness_basis"] = _validate_exhaustiveness_preflight(
+            result["exhaustiveness_basis"],
+            expected_lean_sha256=expected_lean_sha256,
+        )
+        if (
+            sorry_count == 0
+            and "sorryAx" in result["exhaustiveness_basis"]["axioms"]
+        ):
+            raise ProblemOnlyReviewContractError(
+                "zero-sorry preflight contains sorryAx"
+            )
     reporting = result["numeric_reporting"]
     if status == "passed" and (
         reporting["active"] is not True
@@ -791,6 +909,7 @@ def _validated_answer_submission_binding(
     *,
     row: Mapping[str, Any],
     record_id: str,
+    require_resolved: bool = False,
 ) -> tuple[str, str]:
     """Validate one generated answer artifact, retaining no answer values."""
 
@@ -812,9 +931,12 @@ def _validated_answer_submission_binding(
         payload, label="target answer submission",
     )
     try:
-        validate_answer_submission(
-            submission, row=row, target_id=record_id,
+        validator = (
+            validate_resolved_answer_submission
+            if require_resolved
+            else validate_answer_submission
         )
+        validator(submission, row=row, target_id=record_id)
     except AnswerSubmissionError as exc:
         raise ProblemOnlyReviewContractError(
             f"target answer submission is invalid: {exc}"
@@ -822,10 +944,10 @@ def _validated_answer_submission_binding(
     return rel, _sha256_bytes(payload)
 
 
-def validate_native_answer_submission_current(
-    *, project_path: Path, target: Path,
+def _validate_native_answer_submission_current(
+    *, project_path: Path, target: Path, require_resolved: bool,
 ) -> tuple[dict[str, str] | None, str]:
-    """Validate a worker sidecar without retaining or returning answer values."""
+    """Validate a worker sidecar while retaining no generated answer values."""
 
     root = project_path.resolve()
     try:
@@ -848,10 +970,35 @@ def validate_native_answer_submission_current(
         _validate_problem_row(row, record_id)
         rel, digest = _validated_answer_submission_binding(
             root, row=row, record_id=record_id,
+            require_resolved=require_resolved,
         )
         return {"path": rel, "sha256": digest}, ""
     except (ProblemOnlyReviewContractError, AnswerSubmissionError) as exc:
         return None, str(exc)
+
+
+def validate_native_answer_submission_current(
+    *, project_path: Path, target: Path,
+) -> tuple[dict[str, str] | None, str]:
+    """Validate a worker sidecar, allowing a fail-closed diagnostic value."""
+
+    return _validate_native_answer_submission_current(
+        project_path=project_path,
+        target=target,
+        require_resolved=False,
+    )
+
+
+def validate_native_resolved_answer_submission_current(
+    *, project_path: Path, target: Path,
+) -> tuple[dict[str, str] | None, str]:
+    """Validate that a worker sidecar contains a resolved requested output."""
+
+    return _validate_native_answer_submission_current(
+        project_path=project_path,
+        target=target,
+        require_resolved=True,
+    )
 
 
 def _matching_source_report(
@@ -1094,7 +1241,7 @@ def _build_native_contract(
         raise ProblemOnlyReviewContractError(
             f"problem-side semantic DAG is invalid: {exc}"
         ) from exc
-    return {
+    contract = {
         "schema_version": NATIVE_CONTRACT_SCHEMA_VERSION,
         "contract_kind": NATIVE_CONTRACT_KIND,
         "required": True,
@@ -1148,6 +1295,7 @@ def _build_native_contract(
         "preflight": preflight_row,
         "errors": [],
     }
+    return contract
 
 
 def native_problem_image_args(
@@ -1308,6 +1456,7 @@ def native_source_contract_provenance(
         "source_report",
         "source_report_sha256",
         "candidate",
+        "preflight_sha256",
         "candidate_sha256",
         "question_sha256",
         "shared_context_sha256",
@@ -1888,13 +2037,6 @@ def render_native_chemistry_constant_policy(
   and phase. Every atom or mass flow must be species-typed. Anonymous `other`,
   `residual`, `ejected`, `untracked`, or catch-all material-flow variables are
   forbidden.
-- Enumerate only species, formulas, phases, and streams authorized by an exact
-  source locator, a strict derivation, or an applicable pinned authority. A
-  missing identity, formula, phase, or stream is a closure failure that must
-  remain blocked, never permission to invent an entry or declare a stream
-  empty. Model-local constructors and hypotheses cannot establish closure or
-  support identification. A source-bounded symbolic domain is allowed instead
-  of an explicit list only with a finite, exhaustive theorem.
 - Give every element in every admitted species an exact problem locator, an
   independently rederived prior-part carrier, or a valid pinned/activated
   authority. An element may enter a stage only through the enumerated initial
@@ -1912,10 +2054,9 @@ def render_native_chemistry_constant_policy(
   external input. Scalar mass equality alone is not chemical feasibility.
   Apply a terminal-residue or terminal-candidate rule only after the species
   domain is closed and every stage ledger passes. A claimed countermodel or
-  affirmative non-uniqueness result requires at least two fully species-typed,
+  underdetermination result requires at least two fully species-typed,
   source-grounded, balanced models; numerical slack and freely chosen flags
-  are not countermodels. An unknown or unclosed domain must remain blocked and
-  does not require fabricated countermodels.
+  are not countermodels.
 - Every Review certificate must include
   `chemistry_checks.staged_species_domain`, with `passed` or `failed` status
   and evidence naming the domain, stages, and ledger carriers. Use
@@ -1956,10 +2097,11 @@ def render_native_certified_prior_result_prompt(
         "previous_parts objects remain dependency questions/policy only and "
         "never establish an answer. Missing, stale, unmatched, or unlisted "
         "facts fail closed; do not extrapolate beyond an export's exact type."
-        " For A6, a verified typed export may serve as the controller-"
-        "authenticated prior-part fallback for "
-        "closed_domain_mellite_terminal_residue_candidate_filter; the receipt "
-        "alone does not prove any other applicability premise of that rule."
+        " A verified typed export may serve as a controller-authenticated "
+        "prior-part capability only when its exact declared type and payload "
+        "supply the specific prior-result premise required by the consuming "
+        "rule and every producer/consumer binding matches. The receipt alone "
+        "does not prove any other applicability premise of that rule."
     )
 
 
@@ -2042,16 +2184,37 @@ def _legacy_shadow_contract(contract: Mapping[str, Any]) -> dict[str, Any]:
         "authority": "problem-only",
         "target": contract.get("target"),
         "lean_sha256": contract.get("candidate_sha256"),
+        "candidate_sha256": contract.get("candidate_sha256"),
+        "source_bundle_sha256": contract.get("source_bundle_sha256"),
+        "source_record_sha256": contract.get("source_record_sha256"),
         "blueprint": "",
         "blueprint_sha256": "",
         "source_report": contract.get("source_report"),
         "source_sha256": contract.get("source_report_sha256"),
+        "source_report_sha256": contract.get("source_report_sha256"),
         "entry_id": contract.get("source_record_id"),
         "blind_record_sha256": contract.get("source_record_sha256"),
         "blind_candidate_record": contract.get("candidate"),
         "blind_candidate_sha256": contract.get("candidate_sha256"),
         "lean_result_contracts_sha256": None,
         "requested_outputs": evidence.get("requested_outputs", []),
+        "requested_outputs_sha256": contract.get("requested_outputs_sha256"),
+        "reporting_policy_sha256": contract.get("reporting_policy_sha256"),
+        "measurement_policy_sha256": contract.get("measurement_policy_sha256"),
+        "candidate_domain_policy_sha256": contract.get(
+            "candidate_domain_policy_sha256"
+        ),
+        "chemistry_constant_dataset": contract.get(
+            "chemistry_constant_dataset"
+        ),
+        "answer_submission_sha256": contract.get("answer_submission_sha256"),
+        "certified_prior_result_sha256": contract.get(
+            "certified_prior_result_sha256"
+        ),
+        "certified_prior_result_context_receipt_sha256": contract.get(
+            "certified_prior_result_context_receipt_sha256"
+        ),
+        "preflight_sha256": contract.get("preflight_sha256"),
         "question_field": "question",
         "question_sha256": contract.get("question_sha256"),
         "previous_blind_sha256": contract.get("previous_parts_sha256"),
@@ -2628,7 +2791,7 @@ def stored_review_provenance_matches_current(
     provenance: Any,
     bind_candidate: bool,
 ) -> tuple[bool, str]:
-    """Validate durable provenance, with a source-only formalization mode."""
+    # Preserve source-only formal passes; bind solved proofs to the candidate.
     try:
         native = native_problem_only_enabled(project_path)
     except ProblemOnlyReviewContractError as exc:
@@ -2640,13 +2803,12 @@ def stored_review_provenance_matches_current(
             provenance=provenance,
         )
     try:
-        expected = native_source_contract_provenance(
-            _build_native_contract(
-                project_path=project_path,
-                target=target,
-                preflight=None,
-            )
+        fresh_contract = _build_native_contract(
+            project_path=project_path,
+            target=target,
+            preflight=None,
         )
+        expected = native_source_contract_provenance(fresh_contract)
     except ProblemOnlyReviewContractError as exc:
         return False, str(exc)
     if not isinstance(provenance, Mapping):
@@ -2654,11 +2816,26 @@ def stored_review_provenance_matches_current(
     actual = dict(provenance)
     if set(actual) != set(expected):
         return False, "stored native Review provenance fields are stale or ambiguous"
+
+    candidate_bound = {
+        "candidate_sha256",
+        "preflight_sha256",
+    }
     for key, value in expected.items():
-        if not bind_candidate and key == "candidate_sha256":
+        if key in candidate_bound:
             continue
         if actual.get(key) != value:
             return False, f"stored native Review certificate is stale: {key} changed"
+
+    actual_candidate = str(actual.get("candidate_sha256") or "")
+    if not _SHA256_RE.fullmatch(actual_candidate):
+        return False, "stored native Review candidate binding is invalid"
+    if bind_candidate and actual_candidate != expected.get("candidate_sha256"):
+        return False, "stored native Review certificate is stale: candidate changed"
+
+    preflight_sha256 = str(actual.get("preflight_sha256") or "")
+    if bind_candidate and not _SHA256_RE.fullmatch(preflight_sha256):
+        return False, "stored native Review preflight binding is invalid"
     return True, ""
 
 

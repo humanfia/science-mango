@@ -24,13 +24,14 @@ from .native_semantic_review import (
 from .parallel_review import TargetReviewOutcome, TargetReviewSpec
 from .problem_only_review_contract import (
     ProblemOnlyReviewContractError,
-    materialize_controller_review_provenance,
     is_native_problem_only_contract,
+    materialize_controller_review_provenance,
     native_problem_image_args,
     native_source_contract_provenance,
     render_native_composition_accounting_prompt,
     render_native_source_contract_prompt,
     resolve_target_review_source_contract,
+    validate_native_resolved_answer_submission_current,
     validate_native_review_source_certificate,
     validate_review_source_contract_current,
 )
@@ -130,23 +131,27 @@ one `trusted_bridge_requests` entry with exactly `bridge_obligation_index` and
 `rule_id`. Each blocked bridge may request at most one rule; a rule ID may occur
 at most once. Never supply a claim, source, URL, locator, hash, applicability
 condition, exclusion, or paraphrase in that request. Use an empty list when no
-activation is needed for the next redraft. Sealed catalog approval is reusable
-and never needs another user approval, but each activation is candidate- and
-bridge-bound. Therefore, when an already activated rule is still needed after
-this candidate fails, repeat the same exact rule ID at the current blocked
-bridge; the controller will automatically issue a fresh receipt for the next
-redraft. If the rule is no longer needed or its source-bound conditions are
-impossible to establish, use an empty list. A passing verdict or covered bridge
-cannot request a rule. The controller will reject unknown IDs and will
-independently rebuild a complete target- and candidate-bound activation receipt
-from its sealed catalog for only the next target-local redraft. A normal
-empirical-rule lookup or a candidate-local citation is not an activation receipt
-and does not activate a dormant rule. An activation certifies only the pinned
-source rule and never proves that rule's applicability. All applicability
-conditions are conjunctive and source-bound: if even one lacks exact evidence,
-block the candidate and identify every unmet condition. A fresh candidate must
-establish a fresh application witness; it cannot reuse an older candidate's
-witness. Receipt completeness never establishes applicability."""
+activation is needed. A passing verdict or covered bridge cannot request a
+rule. The controller will reject unknown IDs and will independently rebuild a
+complete target- and candidate-bound activation receipt from its sealed catalog
+for only the next target-local redraft. A normal empirical-rule lookup or a
+candidate-local citation is not an activation receipt and does not activate a
+dormant rule. All applicability conditions are conjunctive and source-bound: if
+even one lacks exact evidence, the rule is inapplicable and the target must
+remain blocked. Receipt completeness never establishes applicability."""
+
+
+_REQUESTED_OUTPUT_RESOLUTION_PROTOCOL = """A passing formalization must cover
+the actual source-requested output kind. If the source asks to identify, draw,
+give, or calculate an identity, formula, structure, set, integer, or number, a
+generated sidecar whose raw or display value is an operational sentinel such as
+`blocked`, `blocked_*`, `needs_redraft`, `fail_closed_*`,
+`source_closure_failure`, or an `unknown`/`underdetermined`/`unresolved`
+placeholder is not that output. Mark conclusion alignment and the affected
+requested output failed, even when Lean correctly proves the diagnostic.
+Only when a controller output contract explicitly requests a determination
+status may an unresolved determination be accepted; otherwise a concrete
+answer is required. The solver and Reviewer may not self-assign that exception."""
 
 
 def _utcnow() -> str:
@@ -160,6 +165,12 @@ def _formalization_review(row: dict) -> dict | None:
         if isinstance(findings, dict):
             raw = findings.get("formalization_review")
     return raw if isinstance(raw, dict) else None
+
+
+def _formalization_review_status(row: dict) -> str:
+    raw = _formalization_review(row) or {}
+    return str(raw.get("status") or raw.get("verdict") or "").strip().lower()
+
 
 def _canonical_schema_feedback(feedback: dict) -> str | None:
     payload = json.dumps(
@@ -547,6 +558,8 @@ the candidate's interpretation.
 
 {_STAGED_SPECIES_DOMAIN_PROTOCOL}
 
+{_REQUESTED_OUTPUT_RESOLUTION_PROTOCOL}
+
 {_CHEMISTRY_TRUSTED_BRIDGE_PROTOCOL}
 
 {_DORMANT_TRUSTED_BRIDGE_PROTOCOL}
@@ -558,7 +571,8 @@ check chemical identity, formula/molar-mass consistency, conservation, units,
 structures/stereochemistry, identification uniqueness, raw arithmetic, and
 mechanical significant-figure rules. Reject answer-shaped definitions,
 preselected witness tables, post-hoc tolerances, staged rounding chosen to
-reach a candidate, or a finite candidate domain not derived from the problem.
+reach a candidate, or a finite candidate domain not justified by the problem
+or auditable chemical evidence.
 For every mass fraction, weight fraction, wt%, or mass loading, independently
 state the numerator and denominator and identify whether each printed mass is
 the total mixture mass or a component-only mass. Unless the problem explicitly
@@ -603,7 +617,7 @@ Write exactly one JSON object line to {milestone}:
       "raw_derivation": {{"status":"passed|failed","evidence":"<end-to-end unrounded/symbolic derivation carrier>"}},
       "reporting_rule_source": {{"status":"passed|failed","evidence":"<problem-stated or predeclared mechanical reporting rule>"}},
       "tolerance_provenance": {{"status":"passed|failed","evidence":"<measurement/rounding derivation for every tolerance>"}},
-      "candidate_domain_provenance": {{"status":"passed|failed","evidence":"<problem-derived domain or explicit underdetermination>"}},
+      "candidate_domain_provenance": {{"status":"passed|failed","evidence":"<problem or auditable chemistry evidence supporting the candidate domain>"}},
       "lean_result_binding": {{"status":"passed|failed","evidence":"<candidate_sha256, deterministic preflight results, and nontrivial Lean result carriers>"}}
     }},
     "contract_audit": {{
@@ -745,14 +759,15 @@ output; inspect every problem image; check chemical identity, formula/molar-mass
 consistency, conservation, units, structures/stereochemistry, and identification
 uniqueness. Specifically look for answer-shaped definitions, preselected witness
 tables, post-hoc tolerances, staged rounding chosen to reach a candidate, and
-candidate domains not derivable from the problem. Do not consult an official
+candidate domains not justified by the problem or auditable chemical evidence.
+Do not consult an official
 answer, worked solution, marking scheme, rubric, answer key, or visible run."""
         source_audit_schema = """    \"blind_source_audit\": {
       \"answer_independence\": {\"status\":\"passed|failed\",\"evidence\":\"<why no answer-bearing input influenced statement or proof>\"},
       \"raw_derivation\": {\"status\":\"passed|failed\",\"evidence\":\"<end-to-end unrounded/symbolic derivation carrier>\"},
       \"reporting_rule_source\": {\"status\":\"passed|failed\",\"evidence\":\"<problem-stated or predeclared mechanical reporting rule>\"},
       \"tolerance_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<measurement/rounding derivation for every tolerance>\"},
-      \"candidate_domain_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<problem-derived domain or explicit underdetermination>\"},
+      \"candidate_domain_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<problem or auditable chemistry evidence supporting the candidate domain>\"},
       \"lean_result_binding\": {\"status\":\"passed|failed\",\"evidence\":\"<payload hash, exact type hash, and nontrivial Lean result carrier>\"}
     },"""
         alignment_schema = ""
@@ -838,6 +853,8 @@ and branch checks may be not_applicable. Inventory every nontrivial source-to-
 Lean bridge with a named carrier; a pass requires every bridge to be covered.
 
 {_STAGED_SPECIES_DOMAIN_PROTOCOL}
+
+{_REQUESTED_OUTPUT_RESOLUTION_PROTOCOL}
 
 {chemistry_protocol}
 
@@ -986,6 +1003,35 @@ def _run_formalization_review_worker(
             target=project_path / spec.rel,
         ),
     )
+    formalization_review = (
+        _formalization_review(milestone) if milestone is not None else None
+    )
+    if (
+        milestone is not None
+        and is_native_problem_only_contract(spec.source_contract)
+        and str(
+            (formalization_review or {}).get("status")
+            or (formalization_review or {}).get("verdict")
+            or ""
+        ).strip().lower() in _PASS
+    ):
+        _answer_binding, resolution_error = (
+            validate_native_resolved_answer_submission_current(
+                project_path=project_path,
+                target=project_path / spec.rel,
+            )
+        )
+        if resolution_error:
+            validation_error = "; ".join(
+                part for part in (
+                    validation_error,
+                    (
+                        "passing formalization_review requires a resolved "
+                        f"answer submission: {resolution_error}"
+                    ),
+                ) if part
+            )
+            milestone = None
     if validation_error:
         error = "; ".join(part for part in (error, validation_error) if part)
     return TargetReviewOutcome(
@@ -1015,7 +1061,7 @@ def _write_session(
     )
     milestone_tmp.replace(session_dir / "milestones.jsonl")
     passed = sum(
-        str((_formalization_review(row) or {}).get("status") or "").lower() in _PASS
+        _formalization_review_status(row) in _PASS
         for row in rows
     )
     (session_dir / "summary.md").write_text(
@@ -1029,7 +1075,7 @@ def _write_session(
     for rel in sorted(outcomes):
         row = outcomes[rel].milestone or {}
         raw = _formalization_review(row) or {}
-        if str(raw.get("status") or "").lower() in _PASS:
+        if _formalization_review_status(row) in _PASS:
             continue
         recommendations.append(f"- `{rel}` — {str(raw.get('reason') or 'redraft required')}")
     if len(recommendations) == 2:

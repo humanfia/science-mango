@@ -21,16 +21,18 @@ from .proof_review_gate import (
 )
 from .problem_only_review_contract import (
     ProblemOnlyReviewContractError,
-    materialize_controller_review_provenance,
     is_native_problem_only_contract,
+    materialize_controller_review_provenance,
     native_problem_only_enabled,
     native_problem_image_args,
     native_source_contract_provenance,
     render_native_composition_accounting_prompt,
     render_native_source_contract_prompt,
     resolve_target_review_source_contract,
+    stored_review_provenance_matches_current,
     validate_native_passing_preflight,
     validate_native_pipelined_preflight,
+    validate_native_resolved_answer_submission_current,
     validate_native_review_source_certificate,
     validate_review_source_contract_current,
 )
@@ -76,6 +78,14 @@ retention scope. A missing, ambiguous, contradicted, or different-substrate cue
 fails closed. The policy does not identify the specific reagent; require that
 identity to be derived independently from the problem measurements and pinned
 constants.
+
+For an activated empirical contest rule, keep `SourceFact` distinct from
+`AuthorizedCandidate`. Candidate nomination must be bound to the exact rule and
+auditable origin evidence. A determinate identification is allowed when the
+Reviewer confirms candidate-domain provenance, applies every independent
+constraint uniformly, verifies uniqueness, and rejects answer smuggling.
+A finite-exhaustive Lean theorem may be recorded when available but is optional
+and is never a passing prerequisite.
 """
 
 _STAGED_SPECIES_DOMAIN_PROTOCOL = """For every staged material transformation,
@@ -87,6 +97,19 @@ or catch-all material streams, freely chosen empirical Bool/Prop fields, and
 terminal-residue reasoning applied before that finite domain is closed. Use
 `not_applicable` only when there is no staged material transformation, and then
 include the exact evidence token `not_staged_transformation`."""
+
+_REQUESTED_OUTPUT_RESOLUTION_PROTOCOL = """When the source asks to identify,
+draw, give, determine, or calculate an output, an operational workflow sentinel
+such as `blocked`, `blocked_*`, `needs_redraft`, `fail_closed_*`,
+`source_closure_failure`, or an `unknown`/`underdetermined`/`unresolved`
+placeholder is not that output. Such a sidecar is useful only as fail-closed
+redraft evidence. It must make submission_status failed, requested-output status
+blocked, the relevant semantic check failed, and the route non-solved. Never
+mark a sentinel matched, covered, passed, or solved merely because Lean proves it.
+The only exception is a controller-bound source `requested_outputs` entry with
+explicit `resolution_expectation=determination_status`; only then may an
+unknown/underdetermined/unresolved determination classification be resolved.
+The solver and Reviewer may not infer or self-assign that exception."""
 
 _TRUSTED_BRIDGE_AUDIT_ONLY_PROTOCOL = """An optional
 `trusted_bridge_activation_audit_context` is controller-rebuilt evidence for
@@ -349,9 +372,12 @@ check chemical identity, formula/molar-mass consistency, conservation, units,
 structures/stereochemistry, identification uniqueness, raw arithmetic, and
 mechanical significant-figure rules. Reject answer-shaped definitions,
 preselected witness tables, post-hoc tolerances, staged rounding chosen to
-reach a candidate, or a finite candidate domain not derived from the problem.
+reach a candidate, or a finite candidate domain not justified by the problem
+or auditable chemical evidence.
 
 {_STAGED_SPECIES_DOMAIN_PROTOCOL}
+
+{_REQUESTED_OUTPUT_RESOLUTION_PROTOCOL}
 
 {_TRUSTED_BRIDGE_AUDIT_ONLY_PROTOCOL}
 
@@ -393,7 +419,7 @@ Write exactly one JSON object line to {milestone}. Required shape:
       "raw_derivation": {{"status":"passed|failed","evidence":"<end-to-end unrounded/symbolic derivation carrier>"}},
       "reporting_rule_source": {{"status":"passed|failed","evidence":"<problem-stated or predeclared mechanical reporting rule>"}},
       "tolerance_provenance": {{"status":"passed|failed","evidence":"<measurement/rounding derivation for every tolerance>"}},
-      "candidate_domain_provenance": {{"status":"passed|failed","evidence":"<problem-derived domain or explicit underdetermination>"}},
+      "candidate_domain_provenance": {{"status":"passed|failed","evidence":"<problem or auditable chemistry evidence supporting the candidate domain>"}},
       "lean_result_binding": {{"status":"passed|failed","evidence":"<candidate_sha256, deterministic preflight results, and nontrivial Lean result carriers>"}}
     }},
     "contract_audit": {{
@@ -609,15 +635,16 @@ output; inspect every problem image; check chemical identity, formula/molar-mass
 consistency, conservation, units, structures/stereochemistry, identification
 uniqueness, raw arithmetic, and mechanical significant-figure rules. Reject
 answer-shaped definitions, preselected witness tables, post-hoc tolerances,
-staged rounding chosen to reach a candidate, or an ungrounded finite candidate
-domain. Do not consult an official answer, worked solution, marking scheme,
-rubric, answer key, or visible run."""
+staged rounding chosen to reach a candidate, or a finite candidate domain not
+justified by the problem or auditable chemical evidence. Do not consult an
+official answer, worked solution, marking scheme, rubric, answer key, or visible
+run."""
         source_audit_schema = """    \"blind_source_audit\": {
       \"answer_independence\": {\"status\":\"passed|failed\",\"evidence\":\"<why no answer-bearing input influenced statement or proof>\"},
       \"raw_derivation\": {\"status\":\"passed|failed\",\"evidence\":\"<end-to-end unrounded/symbolic derivation carrier>\"},
       \"reporting_rule_source\": {\"status\":\"passed|failed\",\"evidence\":\"<problem-stated or predeclared mechanical reporting rule>\"},
       \"tolerance_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<measurement/rounding derivation for every tolerance>\"},
-      \"candidate_domain_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<problem-derived domain or explicit underdetermination>\"},
+      \"candidate_domain_provenance\": {\"status\":\"passed|failed\",\"evidence\":\"<problem or auditable chemistry evidence supporting the candidate domain>\"},
       \"lean_result_binding\": {\"status\":\"passed|failed\",\"evidence\":\"<payload hash, exact type hash, and nontrivial Lean result carrier>\"}
     },"""
         alignment_schema = ""
@@ -703,6 +730,8 @@ Review the actual theorem contract and proof for:
 {chemistry_protocol}
 
 {_STAGED_SPECIES_DOMAIN_PROTOCOL}
+
+{_REQUESTED_OUTPUT_RESOLUTION_PROTOCOL}
 
 {_TRUSTED_BRIDGE_AUDIT_ONLY_PROTOCOL}
 
@@ -872,6 +901,22 @@ def _run_review_worker(
         spec.source_contract,
         final_attempt=(spec.final_attempt and runner_ok and not error),
     )
+    if (
+        milestone is not None
+        and str(milestone.get("status") or "").strip().lower() == "solved"
+        and is_native_problem_only_contract(spec.source_contract)
+    ):
+        _answer_binding, resolved_error = (
+            validate_native_resolved_answer_submission_current(
+                project_path=project_path,
+                target=project_path / spec.rel,
+            )
+        )
+        if resolved_error:
+            milestone = None
+            validation_error = "; ".join(
+                x for x in (validation_error, resolved_error) if x
+            )
     if validation_error:
         error = "; ".join(x for x in (error, validation_error) if x)
     return TargetReviewOutcome(
@@ -981,6 +1026,24 @@ def validate_parallel_review_session(
             return f"unsupported pipelined Review status {status!r}"
         expected_contract = None
         if native and project_path is not None:
+            raw_review = row.get("proof_review")
+            if raw_review is None:
+                findings = row.get("findings")
+                if isinstance(findings, dict):
+                    raw_review = findings.get("proof_review")
+            provenance = (
+                raw_review.get("source_contract")
+                if isinstance(raw_review, dict)
+                else None
+            )
+            fresh, reason = stored_review_provenance_matches_current(
+                project_path=project_path,
+                target=project_path / rel,
+                provenance=provenance,
+                bind_candidate=True,
+            )
+            if not fresh:
+                return f"{rel}: {reason}"
             try:
                 expected_contract = resolve_target_review_source_contract(
                     project_path=project_path,
@@ -989,6 +1052,9 @@ def validate_parallel_review_session(
                 )
             except ProblemOnlyReviewContractError as exc:
                 return f"{rel}: {exc}"
+            expected_contract["preflight_sha256"] = provenance.get(
+                "preflight_sha256"
+            )
         route_error = _validate_proof_review_route(row, status, expected_contract)
         if route_error:
             return f"{rel}: {route_error}"
