@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "goal_id": "archonphysics.full_thermalization.v0_3",
+  "root": "thermalization.complete",
+  "capability_families": [
+    {
+      "family_id": "foundation.archonphysics_v0_2",
+      "title": "Frozen finite deterministic foundation",
+      "description": "The released archon-physics v0.2 finite-lattice, modal-observable, hitting-time, local-dynamics, and conditional kinetic-rescaling API. This family is reused without repartitioning or rewriting its release evidence.",
+      "depends_on": [],
+      "source_refs": [
+        "sources.archonphysics_v0_2_release"
+      ],
+      "status": "verified",
+      "verified_campaign": {
+        "campaign_id": "archonphysics.finite_core.v0_2",
+        "plan_hash": "a5c38429b727d2a96a06a8d404367ee1c7dac6f8617ddd0d3c7f6dabe13e6c73",
+        "capabilities": [
+          "hamiltonian.physlib_equations_adapter",
+          "hamiltonian.polynomial_energy_scaling",
+          "harmonic.mass_weighted_operator",
+          "harmonic.modal_energy_physlib_bridge",
+          "harmonic.normal_modes",
+          "hitting.first_time",
+          "hitting.persistence",
+          "kinetic.effective_solution_rescaling",
+          "kinetic.hitting_time_rescaling",
+          "lattice.mass_weighting",
+          "lattice.periodic_positive_mass",
+          "microscopic.finite_local_hamiltonian_dynamics",
+          "thermal.approx_equipartition",
+          "thermal.late_window_weights",
+          "thermal.spectral_entropy"
+        ],
+        "release_certificate_hash": "5c2551b1dac46d2700de1e49ba2242cbf7479870294275a4ef548422b21041ac"
+      }
+    },
+    {
+      "family_id": "microscopic.random_observables",
+      "title": "F1 — random microscopic observables",
+      "description": "Fix one bounded iid positive-mass law, one independent random-phase initial ensemble, and one concrete coercive cubic-leading potential family. Construct the global finite microscopic flow, measurable nonzero-mode frame, modal-energy process, and measurable ENNReal equilibration time.",
+      "depends_on": [
+        "foundation.archonphysics_v0_2"
+      ],
+      "source_refs": [
+        "sources.lukkarinen_spohn_0505075_v1",
+        "sources.thermal_roadmap",
+        "sources.wang_1903_09502_v2"
+      ],
+      "status": "planned",
+      "verified_campaign": null
+    },
+    {
+      "family_id": "kinetic.effective_relaxation",
+      "title": "F2 — effective kinetic relaxation",
+      "description": "For an explicit parameterized collision kernel, define the modal-energy kinetic evolution and prove well-posedness, positivity, conservation, entropy production, quantitative relaxation, and a robust first crossing of the equipartition threshold. Exact-model nondegeneracy remains a separate obligation.",
+      "depends_on": [
+        "foundation.archonphysics_v0_2"
+      ],
+      "source_refs": [
+        "sources.bricmont_kupiainen_0703014_v1",
+        "sources.germain_la_menegaki_2409_01507_v1",
+        "sources.spohn_0505025_v2",
+        "sources.wang_1903_09502_v2"
+      ],
+      "status": "planned",
+      "verified_campaign": null
+    },
+    {
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "title": "F3 — probabilistic microscopic-to-kinetic transfer",
+      "description": "Kernel-check a conditional reduction for the fixed canonical random-mass lattice: from one explicit FullThermalizationCertificate containing a target RobustTwoTimeF2Certificate, the frozen threshold separation, and a matching canonical local-uniform KineticWindowApproximation along every admissible joint limit, derive high-probability two-sided g² T_eq bounds and the energy-density corollary. Construction of a target-model certificate remains a separate open research obligation; literature analogues are not accepted as exact-model proofs.",
+      "depends_on": [
+        "kinetic.effective_relaxation",
+        "microscopic.random_observables"
+      ],
+      "source_refs": [
+        "sources.deng_hani_2301_07063_v2",
+        "sources.germain_la_menegaki_2606_01358_v1",
+        "sources.staffilani_tran_2106_09819_v5",
+        "sources.vassilev_wu_2605_19308_v1",
+        "sources.frozen_v03_primary_literature_audit_2026_08_24",
+        "sources.wang_1903_09502_v2"
+      ],
+      "status": "unexpanded",
+      "verified_campaign": null
+    },
+    {
+      "family_id": "thermalization.complete",
+      "title": "Synthetic complete-thermalization root",
+      "description": "Conditional release root for the fixed canonical iid mass/phase ensemble and coercive cubic-leading potential. Assuming the named FullThermalizationCertificate, derive the full N-1 nonzero-mode late-window probability-qualified inverse-square equilibration window and its energy-density corollary. It does not claim an inhabitant of the certificate, mixing, ergodicity, permanent convergence, convergence to a unique kinetic hitting time, or success for every sample.",
+      "depends_on": [
+        "transfer.probabilistic_micro_kinetic"
+      ],
+      "source_refs": [],
+      "status": "unexpanded",
+      "verified_campaign": null
+    }
+  ],
+  "source_corpus": [
+    {
+      "source_id": "sources.archonphysics_v0_2_release",
+      "reference": ".archon/physics-rebuild/release-certificate.json",
+      "sha256": "aa598367be183bb7c0343358b1fafde8d4da7d3fae9ea8d4e123146bcfeac0cb"
+    },
+    {
+      "source_id": "sources.bricmont_kupiainen_0703014_v1",
+      "reference": "references/online-grounding/BricmontKupiainen_2007_arXiv_math-ph0703014v1.pdf",
+      "sha256": "0752e42c177b5d8a44bd9b72e222811fb34014a00221006e30c7e175d29e0475"
+    },
+    {
+      "source_id": "sources.deng_hani_2301_07063_v2",
+      "reference": "references/online-grounding/DengHani_2023_arXiv2301.07063v2.pdf",
+      "sha256": "eac1121d5b1d7b1e5caa51a3c78d8820c3bfd795a4e18de1814c05e2390c9620"
+    },
+    {
+      "source_id": "sources.germain_la_menegaki_2409_01507_v1",
+      "reference": "references/online-grounding/GermainLaMenegaki_2024_arXiv2409.01507v1.pdf",
+      "sha256": "d0c18e4eb32a821ea00be67bb14296d6a45be806ae0dadd8f66066528616cb01"
+    },
+    {
+      "source_id": "sources.germain_la_menegaki_2606_01358_v1",
+      "reference": "references/online-grounding/GermainLaMenegaki_2026_arXiv2606.01358v1.pdf",
+      "sha256": "6991ebe3d68f1dcae5b8a7b2c8d2d438208d11a50ff67a44dd5f6b9cd83eb74e"
+    },
+    {
+      "source_id": "sources.lukkarinen_spohn_0505075_v1",
+      "reference": "references/online-grounding/LukkarinenSpohn_2005_arXiv_math-ph0505075v1.pdf",
+      "sha256": "75df5e80ce826f86dbaf408a51b216f49b65f0d46fddfea8e8e3c223da8eeb20"
+    },
+    {
+      "source_id": "sources.spohn_0505025_v2",
+      "reference": "references/online-grounding/Spohn_2005_arXiv_math-ph0505025v2.pdf",
+      "sha256": "2b9434874b98b015adee7652c9d9cf7d6235974ebfc3b121141ab12c4e793777"
+    },
+    {
+      "source_id": "sources.staffilani_tran_2106_09819_v5",
+      "reference": "references/online-grounding/StaffilaniTran_2024_arXiv2106.09819v5.pdf",
+      "sha256": "aa9311b7a4d9318d75ea0414a5781eeeb25dd8dfd9bbeef33b7c69732d531ad2"
+    },
+    {
+      "source_id": "sources.thermal_roadmap",
+      "reference": "references/Thermal_physics_README.md",
+      "sha256": "d17e30d980e7f398522371973d047b6c85aaed55f02036ab06ef4d5c2df6260d"
+    },
+    {
+      "source_id": "sources.wang_1903_09502_v2",
+      "reference": "references/WangFuZhangZhao_2019_arXiv1903.09502v2.pdf",
+      "sha256": "026e100f6dc3fe567463f9712bcd01727493a2b4d6a8a380adb07d015841ea66"
+    },
+    {
+      "source_id": "sources.vassilev_wu_2605_19308_v1",
+      "reference": "references/online-grounding/VassilevWu_2026_arXiv2605.19308v1.pdf",
+      "sha256": "b224f65e386d16ea711e615454945d751c9362da1f7e8cf525ef015409752b9c"
+    },
+    {
+      "source_id": "sources.frozen_v03_primary_literature_audit_2026_08_24",
+      "reference": "references/online-grounding/FROZEN_V03_RANDOM_FPUT_PRIMARY_LITERATURE_AUDIT_2026-08-24.md",
+      "sha256": "02e5c6c4c65ddba29826aff77f140d65a1f1b2888e8fc2dfd11d548525ca899d"
+    }
+  ],
+  "grounding_packages": [
+    "ArchonPhysics-v0.2",
+    "Mathlib",
+    "Physlib"
+  ],
+  "forbidden_legacy": [],
+  "completion_gates": {
+    "source_coverage": 1.0,
+    "module_gates": "all",
+    "legacy_dependency_count": 0,
+    "sorry_count": 0,
+    "sealed_holdout": "pass",
+    "standalone_extract": "pass"
+  }
+}

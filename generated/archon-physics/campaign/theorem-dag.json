@@ -1,0 +1,1276 @@
+{
+  "schema_version": 1,
+  "kind": "archonphysics.theorem-dag",
+  "dag_id": "archonphysics.full_thermalization.v0_3",
+  "family_goal": {
+    "goal_id": "archonphysics.full_thermalization.v0_3",
+    "spec_hash": "5f48b0ad6f3be9249ac98a8c6dff8030d6e79e2612acb4f952630ebfb0076517"
+  },
+  "root": "thermalization.complete",
+  "family_roots": {
+    "foundation.archonphysics_v0_2": "foundation.finite_core",
+    "kinetic.effective_relaxation": "kinetic.family_complete",
+    "microscopic.random_observables": "microscopic.family_complete",
+    "transfer.probabilistic_micro_kinetic": "transfer.family_complete"
+  },
+  "auxiliary_roots": [
+    "evidence.bricmont_kupiainen_near_equilibrium",
+    "evidence.deng_hani_nls_kinetic_limit",
+    "evidence.lukkarinen_spohn_linear_kinetic_limit",
+    "evidence.spohn_phonon_boltzmann_program",
+    "evidence.staffilani_tran_stochastic_kinetic_limit",
+    "evidence.wang_inverse_square_claim"
+  ],
+  "nodes": [
+    {
+      "node_id": "foundation.finite_core",
+      "family_id": "foundation.archonphysics_v0_2",
+      "node_kind": "synthetic_root",
+      "title": "Released finite deterministic core",
+      "statement": "The archon-physics v0.2 entrypoint exposes the locked finite periodic lattice, positive-mass algebra, Hamiltonian scaling, finite normal modes, modal equipartition and entropy observables, ENNReal hitting times, local microscopic dynamics, conservation laws conditional on the ODE, and effective kinetic rescaling APIs, with no custom axiom, sorry, or admit.",
+      "dependencies": [],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.archonphysics_v0_2_release",
+          "locator": "complete release certificate",
+          "role": "proof"
+        }
+      ],
+      "trust": "kernel",
+      "status": "verified",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics.lean",
+        "declaration": "ArchonPhysics",
+        "kind": "module",
+        "role": "definition"
+      },
+      "verification": {
+        "campaign_id": "archonphysics.finite_core.v0_2",
+        "plan_hash": "a5c38429b727d2a96a06a8d404367ee1c7dac6f8617ddd0d3c7f6dabe13e6c73",
+        "certificate_hash": "5c2551b1dac46d2700de1e49ba2242cbf7479870294275a4ef548422b21041ac",
+        "certificate_file_sha256": "aa598367be183bb7c0343358b1fafde8d4da7d3fae9ea8d4e123146bcfeac0cb",
+        "symbol_dag_hash": "89845a67c12e9981f4467f8048ed6240b4f3acf54c2bf633dd25f8ea137165e4",
+        "symbol_dag_file_sha256": "dfa45b8330adbc90bdd8457c0d696c4d6659f5e10630dedd40aca6ebca195d22",
+        "api_lock_file_sha256": "0a1d0db6f859865dfa18730cc02edb318e2d80e8ce1af0c85b5020f7aae27f3a",
+        "module_source_sha256": "fdd8bd66513f3f311f044206c5a11474d071eb78794231f58655a9e629b4ecd3"
+      }
+    },
+    {
+      "node_id": "microscopic.random_parameter_space",
+      "family_id": "microscopic.random_observables",
+      "node_kind": "definition",
+      "title": "Infinite iid mass and phase ensemble",
+      "statement": "Construct one probability space carrying an infinite iid mass sequence with common law supported on [mMinus,mPlus] subset (0,infinity), an independent sequence of Haar-uniform phases, and finite-N restriction maps. The canonical RandomEnsemble and IIDMassPhaseEnsemble now kernel-check the infinite iid laws, Haar phases, block independence, finite restrictions, and support bounds. The two-band profile supplies a nonnegative unit-mass macroscopic rank profile, fixed separation from uniform, a 3/M pointwise bound, and vanishing energy on every o(M) soft layer. The remaining obligation is a measurable dependent initial-state adapter realizing that profile and the phases while removing translation position and total momentum and satisfying one uniform energy shell.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "pp. 1-2, random-mass chain and random-phase numerical ensemble",
+          "role": "model"
+        },
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Sections 2, 5, and 8",
+          "role": "statement"
+        }
+      ],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/RandomEnsemble.lean",
+        "declaration": "ArchonPhysics.IIDMassPhaseEnsemble",
+        "kind": "structure",
+        "role": "definition"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "microscopic.reduced_measurable_spectrum",
+      "family_id": "microscopic.random_observables",
+      "node_kind": "theorem",
+      "title": "Reduced spectrum and measurable mode data",
+      "statement": "For N at least two, identify the one-dimensional translation kernel and the N-1 positive sector, and construct measurable ordered frequencies and basis-free modal-energy data. Local kernel proofs now give continuous measurable ordered eigenvalues, globally measurable Lagrange projectors, and exact projector identities on simple spectrum. For canonical iid Uniform[4/5,6/5] masses the complete ordered spectrum is almost surely simple, there is a unique random zero-mode index, positivity holds exactly off that index, and every fixed ordered-mode energy is globally measurable. The spectrum/projector/zero-mode adapter is kernel-closed; only its use along the still-missing global random flow remains downstream.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.random_parameter_space",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.lukkarinen_spohn_0505075_v1",
+          "locator": "Sections 2-3, random harmonic crystal and dispersion data",
+          "role": "model"
+        },
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Section 3",
+          "role": "statement"
+        }
+      ],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/MeasurableNormalModes.lean",
+        "declaration": "ArchonPhysics.measurableReducedModeData",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "microscopic.mode_transform_and_coupling",
+      "family_id": "microscopic.random_observables",
+      "node_kind": "theorem",
+      "title": "Mode transform and interaction tensor",
+      "statement": "Define Q, P, and complex mode amplitudes on the reduced spectrum; prove the inverse transform, harmonic-energy decomposition, the exact nonlinear interaction-tensor expansion and permutation symmetry, without asserting that every random coupling coefficient is nonzero. The local Physlib bridge kernel-checks the physical Hamilton equations through mass weighting and tensor forcing to interaction- and Schrodinger-picture finite-time Duhamel identities. A new projector outer-product formula constructs globally measurable basis-free squared ordered interaction tensors and normalized physical vertex weights, almost surely equal to the existing eigenbasis vertex square for canonical iid masses. A measurable signed amplitude-level eigenframe still remains for pathwise interaction-picture amplitudes, but second-order collision weights no longer require it.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.reduced_measurable_spectrum",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "pp. 2-3, Eqs. (2)-(9)",
+          "role": "model"
+        },
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Section 4",
+          "role": "statement"
+        }
+      ],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/ModeCoupling.lean",
+        "declaration": "ArchonPhysics.modeHamiltonianExpansion",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "microscopic.coercive_cubic_global_flow",
+      "family_id": "microscopic.random_observables",
+      "node_kind": "theorem",
+      "title": "Concrete coercive cubic-leading global flow",
+      "statement": "For fixed kappa and beta with beta greater than 2*kappa^2/9, use U_g(x)=x^2/2+(kappa*g/3)x^3+(beta*g^2/4)x^4 and prove coercivity. Local kernel proofs construct fixed-mass two-sided energy-conserving trajectories, a mass-uniform gauge Poincare bound, and a compact joint mass-inverse-mass energy shell in one ambient phase space. The reduced trajectory is now exactly embedded in that common space; reciprocal mass, both gauges, energy-shell invariance, and a uniform cutoff radius are proved. The canonical jointly measurable global cutoff flow agrees for all time with the true uncut reduced Hamiltonian trajectory. The deterministic and parameter-uniform global-flow adapter is kernel-closed; random initial-data packaging remains downstream.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.random_parameter_space",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Section 2.2 coercivity caveat",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "Eq. (1), pure odd-polynomial model used only as the cubic-leading comparison",
+          "role": "model"
+        }
+      ],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/GlobalMicroscopicFlow.lean",
+        "declaration": "ArchonPhysics.coerciveCubicGlobalFlow",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "microscopic.random_flow",
+      "family_id": "microscopic.random_observables",
+      "node_kind": "theorem",
+      "title": "Jointly measurable random microscopic flow",
+      "statement": "Combine the fixed ensemble, measurable initial-state adapter, and coercive global dynamics into a jointly measurable sample-and-time trajectory with continuous paths and the required invariants. Local kernel proofs now provide joint compactness of the canonical mass box and energy shell, the exact reduced-to-parametric ODE embedding, reciprocal mass and gauge invariants, a uniform cutoff radius, and a canonical jointly measurable global flow that agrees for all time with the true uncut reduced trajectory. A consumer specializes this construction to masses in [4/5,6/5] and inverse masses in [5/6,5/4]. Composition with the still-pending measurable initial-profile adapter is the remaining random-model packaging step; the global flow construction itself is kernel-closed.",
+      "dependencies": [
+        {
+          "node_id": "microscopic.coercive_cubic_global_flow",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.random_parameter_space",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.reduced_measurable_spectrum",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Sections 2 and 8, Targets A-B",
+          "role": "statement"
+        }
+      ],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/RandomMicroscopicFlow.lean",
+        "declaration": "ArchonPhysics.measurableMicroscopicFlow",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "microscopic.modal_observable",
+      "family_id": "microscopic.random_observables",
+      "node_kind": "theorem",
+      "title": "Measurable full-mode equipartition observable",
+      "statement": "On all N-1 nonzero harmonic modes, prove measurability of modal energies, late-window averages, normalization, and the l1 distance to uniform energy. The physical ordered observable is defined basis-free as (normSq(P_k M^(-1/2)p)+lambda_k normSq(P_k sqrt(M)q))/2, is globally measurable and nonnegative, and its full sum equals the original physical harmonic Hamiltonian. The canonical global flow is now composed with this observable: the full profile, positive-frequency mask, and positive-mode finite sum are jointly measurable in sample and time, and every compatible realization agrees for all time with the true uncut reduced orbit. The reduced momentum gauge makes the unique zero-mode energy exactly zero, so the positive sum equals the full modal energy. The remaining F1 observable work is the dependent random initial adapter plus late-window normalization/distance and hitting-time assembly.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.random_flow",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.reduced_measurable_spectrum",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "pp. 3-4, modal-energy window and spectral-entropy diagnostic",
+          "role": "model"
+        },
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Section 5",
+          "role": "statement"
+        }
+      ],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/RandomModalObservable.lean",
+        "declaration": "ArchonPhysics.measurableSampleEquipartitionDistance",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "microscopic.random_equilibration_time",
+      "family_id": "microscopic.random_observables",
+      "node_kind": "theorem",
+      "title": "Measurable ENNReal sample equilibration time",
+      "statement": "Define the first positive time at which the full-mode late-window l1 distance is at most delta as an ENNReal infimum, with top for an empty event, and prove measurability. Also expose a fixed-duration persistence variant; do not require permanent convergence in a finite Hamiltonian system.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.modal_observable",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "p. 4, operational equipartition-time threshold",
+          "role": "model"
+        },
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Section 6",
+          "role": "statement"
+        }
+      ],
+      "trust": "open",
+      "status": "planned",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/RandomModalObservable.lean",
+        "declaration": "ArchonPhysics.measurableSampleEquilibrationTime",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "microscopic.family_complete",
+      "family_id": "microscopic.random_observables",
+      "node_kind": "synthetic_root",
+      "title": "F1 random microscopic certificate",
+      "statement": "The kernel-checked canonical certificate packages iid Uniform[4/5,6/5] masses, iid Haar phases and their independence, measurable exact-energy initial data, a jointly measurable genuine global reduced Hamiltonian orbit, exactly N-1 positive modes almost surely, normalized positive-mode late-window weights with almost-sure positive denominator and sum one, measurable l1 distance, and measurable strict and persistent ENNReal hitting times. Hitting-time finiteness, kinetic convergence, thermalization, and g^-2 scaling are deliberately not fields of F1.",
+      "dependencies": [
+        {
+          "node_id": "microscopic.mode_transform_and_coupling",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.random_equilibration_time",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [],
+      "trust": "kernel",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/CanonicalRandomMicroscopicCertificate.lean",
+        "declaration": "ArchonPhysics.CanonicalRandomMicroscopicCertificate.exists_certificate",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "kinetic.collision_data_and_operator",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "definition",
+      "title": "Marked collision data and g-independent operator",
+      "statement": "Define a limiting marked mode space, frequency map, resonance measures, nonnegative coupling kernels, symmetry and detailed-balance data, and the collision operator C. The kinetic equation is dD_g/dt=g^2*C(D_g), with every measurability and integrability requirement explicit.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.spohn_0505025_v2",
+          "locator": "phonon Boltzmann collision operators and three-phonon processes",
+          "role": "model"
+        },
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "p. 3, Eqs. (10)-(12)",
+          "role": "model"
+        }
+      ],
+      "trust": "open",
+      "status": "planned",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/WaveKineticEquation.lean",
+        "declaration": "ArchonPhysics.CollisionData",
+        "kind": "structure",
+        "role": "definition"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "kinetic.energy_spectrum_observable",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "definition",
+      "title": "Kinetic modal-energy equipartition observable",
+      "statement": "Convert wave action D(k) to modal energy omega(k)*D(k), apply the same late-window average and normalization convention as the microscopic observable, and measure l1 distance to the uniform energy vector. Uniformity of D itself is not asserted.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "kinetic.collision_data_and_operator",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Sections 5 and 7",
+          "role": "statement"
+        }
+      ],
+      "trust": "open",
+      "status": "planned",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/WaveKineticEquation.lean",
+        "declaration": "ArchonPhysics.kineticEquipartitionDistance",
+        "kind": "def",
+        "role": "definition"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "kinetic.admissible_kernel_contracts",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "hypothesis_interface",
+      "title": "Explicit analytic contracts for a kinetic kernel",
+      "statement": "Define transparent structures for global kinetic well-posedness, invariant preservation, entropy production, acoustic-edge integrability, collision-network connectivity, and an entropy-dissipation or contraction estimate. These structures are hypotheses, not assertions that the target random lattice satisfies them.",
+      "dependencies": [
+        {
+          "node_id": "kinetic.collision_data_and_operator",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.bricmont_kupiainen_0703014_v1",
+          "locator": "near-equilibrium relaxation assumptions and conclusions",
+          "role": "model"
+        },
+        {
+          "source_id": "sources.spohn_0505025_v2",
+          "locator": "stationary thermal solutions and H-theorem discussion",
+          "role": "model"
+        }
+      ],
+      "trust": "open",
+      "status": "planned",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/QuantitativeKineticRelaxation.lean",
+        "declaration": "ArchonPhysics.AdmissibleKineticKernel",
+        "kind": "structure",
+        "role": "hypothesis_interface"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "kinetic.well_posed_invariants_entropy",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "theorem",
+      "title": "Conditional kinetic well-posedness and invariants",
+      "statement": "From the explicit analytic kernel contracts, construct the global kinetic solution in the declared state space and prove nonnegativity, energy conservation, every applicable action invariant, and the kinetic H-theorem with all integral exchanges justified. The finite-network continuation layer is now kernel-checked: the collision field is C1, nonnegative rates make every nonnegative-orthant boundary coordinate inward, exact triad resonance conserves total kinetic energy, strictly positive frequencies turn the nonnegative energy shell into an explicit sup-norm bound, automatic negative-part control preserves the nonnegative cone, and cutoff continuation constructs an actual global forward solution of the untruncated network equation from every nonnegative initial action. The full entropy and invariant-classification package for the limiting target kernel remains conditional.",
+      "dependencies": [
+        {
+          "node_id": "kinetic.admissible_kernel_contracts",
+          "mode": "assumes"
+        },
+        {
+          "node_id": "kinetic.collision_data_and_operator",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.spohn_0505025_v2",
+          "locator": "properties of the phonon Boltzmann equation",
+          "role": "proof"
+        }
+      ],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/QuantitativeKineticRelaxation.lean",
+        "declaration": "ArchonPhysics.kineticWellPosedInvariantsEntropy",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "kinetic.quantitative_relaxation",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "theorem",
+      "title": "Conditional quantitative relaxation to energy equipartition",
+      "statement": "Under the explicit connectivity, infrared, and entropy-dissipation contracts, prove convergence of the kinetic modal-energy profile to equipartition in the prescribed initial basin and obtain quantitative upper and lower threshold-crossing information. A local dominated-convergence theorem now proves integrated decay and finite threshold crossing for measurable rates positive almost everywhere without a uniform spectral gap, but the exact target collision evolution still has to be bounded by that weighted mechanism.",
+      "dependencies": [
+        {
+          "node_id": "kinetic.admissible_kernel_contracts",
+          "mode": "assumes"
+        },
+        {
+          "node_id": "kinetic.energy_spectrum_observable",
+          "mode": "requires"
+        },
+        {
+          "node_id": "kinetic.well_posed_invariants_entropy",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.bricmont_kupiainen_0703014_v1",
+          "locator": "Abstract and main near-equilibrium relaxation result",
+          "role": "proof"
+        },
+        {
+          "source_id": "sources.germain_la_menegaki_2409_01507_v1",
+          "locator": "Theorems 3-4: weighted polynomial decay and nonlinear stability near nonsingular Rayleigh-Jeans equilibria for the homogeneous FPU-beta kinetic equation; different kernel and perturbative basin",
+          "role": "limitation"
+        }
+      ],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/QuantitativeKineticRelaxation.lean",
+        "declaration": "ArchonPhysics.kineticRelaxesToEquipartition",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "kinetic.robust_first_crossing",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "theorem",
+      "title": "Conditional robust kinetic first crossing",
+      "statement": "Construct tauStar>0 and prove a strict margin above delta on every compact interval ending before tauStar and a strict hit below delta immediately after tauStar. Mere asymptotic relaxation without this margin is insufficient for hitting-time transfer.",
+      "dependencies": [
+        {
+          "node_id": "kinetic.quantitative_relaxation",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Sections 6-8",
+          "role": "statement"
+        }
+      ],
+      "trust": "open",
+      "status": "planned",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/QuantitativeKineticRelaxation.lean",
+        "declaration": "ArchonPhysics.RobustKineticFirstCrossing",
+        "kind": "structure",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "kinetic.inverse_square_rescaling",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "theorem",
+      "title": "Exact effective-model inverse-square time rescaling",
+      "statement": "Adapt the v0.2 kinetic solution and hitting-time rescaling theorems to the modal-energy observable, proving D_g(t)=D_1(g^2*t) and the corresponding kinetic threshold-time scaling under the explicit uniqueness and crossing hypotheses.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "kinetic.robust_first_crossing",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "p. 3, collision term proportional to the coupling squared",
+          "role": "model"
+        }
+      ],
+      "trust": "open",
+      "status": "planned",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/QuantitativeKineticRelaxation.lean",
+        "declaration": "ArchonPhysics.kineticEquipartitionTimeRescaling",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "kinetic.family_complete",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "synthetic_root",
+      "title": "F2 conditional kinetic certificate",
+      "statement": "The kernel-checked conditional certificate constructs an actual global forward solution of every finite nonnegative three-wave network with nonnegative rates, proves preservation of the nonnegative cone and exact kinetic energy, normalizes every positive late-time window, and transports the selected unit-coupling solution and its threshold exactly by tau = g^2 t. Under two explicitly named analytic fields--strict decay/coercivity of the target observable and convergence to equipartition--it packages the unique robust crossing and the physical threshold tauStar/g^2. It does not assert that the frozen random lattice discharges either analytic field.",
+      "dependencies": [
+        {
+          "node_id": "kinetic.inverse_square_rescaling",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [],
+      "trust": "kernel",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/ConditionalFiniteThreeWaveKineticFamily.lean",
+        "declaration": "ArchonPhysics.ConditionalFiniteThreeWaveKineticFamily.exists_conditionalF2Certificate",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.joint_limit_and_empirical_data",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "definition",
+      "title": "Admissible joint limit and empirical collision data",
+      "statement": "Define sequences g_j to 0 from above and N_j to infinity with an eventual cutoff N_j>=Nmin(g_j), without hard-coding an unsupported Ng^2 regime. Local kernels now define the full ordered positive-mode triple data, strictly exclude the unique translation zero mode, and construct globally measurable marked Dirac and coupling-weighted mismatch measures that are sign-gauge invariant and agree almost surely with the physical eigenbasis formula. The marked bounded-Lipschitz interface amplifies a test error epsilon_j by at most T_j/(2*pi)+T_j^2/pi, so epsilon_j*(T_j+T_j^2)->0 suffices for resonance-action transfer. The target random-lattice empirical rate is not asserted.",
+      "dependencies": [
+        {
+          "node_id": "kinetic.family_complete",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.family_complete",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "thermodynamic and weak-nonlinearity discussion; no quantitative Nmin(g) supplied",
+          "role": "limitation"
+        }
+      ],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/MicroscopicKineticConvergence.lean",
+        "declaration": "ArchonPhysics.AdmissibleJointLimit",
+        "kind": "structure",
+        "role": "definition"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.exact_kernel_identification",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "theorem",
+      "title": "Exact random collision-kernel identification",
+      "statement": "For the fixed iid mass law and cubic-leading coercive lattice, prove convergence in probability of marked empirical spectral, coupling, and resonance data to exactly the CollisionData used by F2. The scalar profile, complete positive-mode measures, sign-gauge invariance, measurability, physical eigenbasis equality, and marked bounded-Lipschitz transfer are kernel-checked. Exact finite projector/Fourier/resolvent factorization reduces the collision transform to one-leg spectral kernels. The varying-size Levy bridge, uniform compact support/tightness, exact Sherman-Morrison update with an automatically discharged off-spectrum denominator, and single- and finite-mass threshold-count Hamming sensitivity are proved. Bounded differences has been derived from scalar Hoeffding and finite-product Fubini inside Lean: the normalized canonical threshold count has two-sided deviation probability at most 2*exp(-2*N*epsilon^2) around its own finite-volume expectation. Exact trace identities and IID strong laws identify the first two normalized harmonic spectral moments almost surely: trace(H_N)/N tends to 5*log(3/2), while trace(H_N^2)/N tends to 25/6+(25/2)*log(3/2)^2. Generic finite-rank gluing is now specialized to the actual periodic weighted cycle: an explicit ZMod-to-Fin-to-block reindex writes the length n+m cycle as the two smaller periodic cycles plus four signed rank-one boundary terms, hence every threshold-count defect is at most four. This almost-subadditivity now proves convergence of the finite-volume expectation centers at every fixed threshold; McDiarmid concentration then gives convergence in probability to a deterministic scalar IDS value together with an eventual exponential tail, without a continuity-point assumption. For the marked one-leg kernel, the apparent inverse-square-root zero-mode singularity has been removed exactly; the regularized cosine and sine weights are continuous, zero-constant polynomial weights satisfy p(B*B^T)=B*q(B^T*B)*B^T, and the resulting periodic kernel has finite propagation plus finite-window extensionality. The complex Fourier leg splits exactly into regularized cosine and sine components. Continuous zero-constant Weierstrass approximation is proved, and fixed-window polynomial entries and their three-leg products are measurable, uniformly bounded local observables with almost-sure IID spatial strong laws. A deterministic block-remainder theorem lifts convergence along window-width multiples to the ordinary prefix average at every natural volume. The physical cubic tensor has an extensive square lower bound, and the per-site normalized positive collision measure has a realization- and volume-independent positive mass lower bound on simple spectrum. The remaining open core is the deterministic periodic-interior-to-window reindex, volume-uniform continuous-weight three-leg approximation error, the resulting full varying-size random marked spectral-kernel limit, convergence and uniqueness of its collision-measure shape, and a quantitative probability rate compatible with the joint N,g limit.",
+      "dependencies": [
+        {
+          "node_id": "transfer.joint_limit_and_empirical_data",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.lukkarinen_spohn_0505075_v1",
+          "locator": "rigorous weak-disorder harmonic analogue, not the nonlinear target model",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.staffilani_tran_2106_09819_v5",
+          "locator": "rigorous stochastic multidimensional lattice analogue, not the deterministic 1D random-mass chain",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "wave-turbulence collision formula, not a rigorous empirical-kernel convergence theorem",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.germain_la_menegaki_2606_01358_v1",
+          "locator": "Sections 4 and 14: the oscillator-chain kinetic equation is derived formally and a rigorous microscopic-to-kinetic derivation at kinetic time remains open",
+          "role": "limitation"
+        }
+      ],
+      "trust": "open",
+      "status": "blocked",
+      "blocker": "No pinned source proves the required varying-size one-leg marked spectral-kernel limit and quantitative bounded-Lipschitz rate for this exact one-dimensional random-mass model. Compactness, extensive collision-mass nonvanishing, Hamming sensitivity, sharp concentration, fixed-threshold deterministic scalar IDS limits, the first two spectral-moment limits, zero-preserving polynomial approximation, and fixed-window polynomial strong laws are closed. The periodic-interior reindex, volume-uniform continuous marked-kernel error, local marked-kernel uniqueness, limiting collision shape, and the model-specific joint-limit rate are not.",
+      "lean_target": {
+        "module_path": "ArchonPhysics/MicroscopicKineticConvergence.lean",
+        "declaration": "ArchonPhysics.exactCollisionKernelIdentification",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.exact_infrared_and_nondegeneracy",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "theorem",
+      "title": "Full-spectrum infrared control and collision nondegeneracy",
+      "statement": "For the exact limiting collision data, control the acoustic edge after removing only the translation mode, prove collision-network connectivity/nondegeneracy, and establish the F2 analytic bounds. Local proofs give exact single-leg l2 scaling and normalizedVertex^2 <= omega0*omega1*omega2/8. The clean cycle has the full multiplicity-counted spectrum 4*sin(pi*j/N)^2 and explicit acoustic threshold-count envelopes; frozen random spectra inherit deterministic count sandwiches and one- or finitely-many mass replacements obey exact threshold-count sensitivity bounds. The periodic transfer polynomial has exact normalized linear coefficient equal to the empirical mass mean, converging almost surely to one, and the first two normalized harmonic trace moments have explicit almost-sure limits. Finite Fubini plus Parseval gives the exact full cubic tensor-square identity; frozen inverse masses imply the extensive lower bound (125/36)*N. Combining the uniform frequency ceiling with simple spectrum gives a raw positive collision mass at least c*N, so the natural per-site collision measure has a uniform strictly positive total mass. This rules out vanishing total collision weight but does not locate that weight near zero mismatch. Resonant-state density/Jacobian compensation, on-shell or broadened-resonance lower bounds, N-stable connectivity, invariant classification, and weighted coercivity for the exact limiting random kernel remain open.",
+      "dependencies": [
+        {
+          "node_id": "kinetic.admissible_kernel_contracts",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.exact_kernel_identification",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.lukkarinen_spohn_0505075_v1",
+          "locator": "dispersion and crossing assumptions illustrate model-sensitive kinetic hypotheses",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "claims generic resonant channels but does not prove uniform full-spectrum coercivity",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.germain_la_menegaki_2409_01507_v1",
+          "locator": "Introduction and Theorems 3-4: the homogeneous FPU-beta linearized collision frequency degenerates at the acoustic edge and yields weighted polynomial, not uniform-gap, decay",
+          "role": "limitation"
+        }
+      ],
+      "trust": "open",
+      "status": "blocked",
+      "blocker": "A uniform per-site lower bound for total collision mass is proved, but the exact one-dimensional acoustic-edge resonance density/Jacobian, positive near-resonant rates, N-stable connectivity, invariant classification, and weighted coercivity for the target random collision network remain unproved.",
+      "lean_target": {
+        "module_path": "ArchonPhysics/MicroscopicKineticConvergence.lean",
+        "declaration": "ArchonPhysics.exactKernelSatisfiesAnalyticContracts",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.exact_kinetic_relaxation",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "theorem",
+      "title": "Exact kinetic relaxation in the target initial basin",
+      "statement": "Discharge every F2 analytic contract for the identified target kernel and the fixed random-phase initial-profile basin, instantiate the conditional kinetic theorems, and obtain a finite robust kinetic equilibration time tauStar.",
+      "dependencies": [
+        {
+          "node_id": "kinetic.family_complete",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.exact_infrared_and_nondegeneracy",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.bricmont_kupiainen_0703014_v1",
+          "locator": "rigorous near-equilibrium result; target initial basin and kernel are not covered",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "numerical far-from-equilibrium evidence, not a quantitative relaxation theorem",
+          "role": "limitation"
+        }
+      ],
+      "trust": "open",
+      "status": "blocked",
+      "blocker": "No exact quantitative relaxation theorem is available for the identified full-spectrum kernel and the target out-of-equilibrium initial profiles.",
+      "lean_target": {
+        "module_path": "ArchonPhysics/ThermalizationTransfer.lean",
+        "declaration": "ArchonPhysics.targetKineticThermalizationCertificate",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.micro_observable_limit",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "theorem",
+      "title": "Microscopic observable converges on kinetic windows",
+      "statement": "For every admissible joint limit, finite kinetic horizon, and positive error, prove that the probability tends to zero that the supremum over tau in [0,T] of the difference between the microscopic full-mode windowed energy distance at time tau/g_j^2 and the kinetic distance exceeds the error. Include survival probability if the exact paper polynomial is instantiated. The local KineticObservableBridge already composes an integrated raw microscopic-to-kinetic l1 bound, a microscopic energy floor, and kinetic normalized relaxation into the required deterministic normalized late-window estimate; establishing those probabilistic kinetic-window premises for the target lattice remains open.",
+      "dependencies": [
+        {
+          "node_id": "microscopic.family_complete",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.exact_kernel_identification",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.exact_kinetic_relaxation",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.deng_hani_2301_07063_v2",
+          "locator": "rigorous NLS kinetic-limit theorem through short kinetic times; different equation and dimension regime",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.staffilani_tran_2106_09819_v5",
+          "locator": "rigorous stochastic ZK three-wave limit; different stochastic multidimensional model",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "weak-turbulence derivation and numerics; no uniform probabilistic error estimate",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.germain_la_menegaki_2606_01358_v1",
+          "locator": "Sections 4 and 14: the review explicitly labels the oscillator-chain microscopic-to-kinetic derivation formal and states that a rigorous kinetic-time derivation remains missing",
+          "role": "limitation"
+        },
+        {
+          "source_id": "sources.vassilev_wu_2605_19308_v1",
+          "locator": "Theorem 1.1 treats equal-mass full beta-FPUT and only the first kinetic increment through at most T_kin^(2/3), not the random-mass cubic full kinetic window",
+          "role": "limitation"
+        }
+      ],
+      "trust": "open",
+      "status": "blocked",
+      "blocker": "Uniform-in-kinetic-time microscopic-to-kinetic convergence for the exact nonlinear one-dimensional random-mass lattice has not been proved by the pinned literature or locally. The verified KineticObservableBridge is a conditional observable composition theorem, not that convergence proof.",
+      "lean_target": {
+        "module_path": "ArchonPhysics/MicroscopicKineticConvergence.lean",
+        "declaration": "ArchonPhysics.ObservableMicroscopicToKinetic",
+        "kind": "structure",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.full_thermalization_hypotheses",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "hypothesis_interface",
+      "title": "Explicit conditional F2/F3 input certificate",
+      "statement": "The kernel-level FullThermalizationCertificate packages exactly a target RobustTwoTimeF2Certificate, the frozen threshold separation delta < 1/8, and a matching canonical local-uniform KineticWindowApproximation along every admissible joint limit. It contains no high-probability law, hitting-time conclusion, or copy of the desired theorem; constructing an inhabitant for the target model remains open.",
+      "dependencies": [
+        {
+          "node_id": "kinetic.family_complete",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.family_complete",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.exact_kernel_identification",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.exact_infrared_and_nondegeneracy",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.exact_kinetic_relaxation",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.micro_observable_limit",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [],
+      "trust": "open",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/FullThermalization.lean",
+        "declaration": "ArchonPhysics.FullThermalizationCertificate",
+        "kind": "structure",
+        "role": "hypothesis_interface"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.window_time_rescaling",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "theorem",
+      "title": "Canonical closed hitting-time and kinetic-rescaling adapter",
+      "statement": "For the canonical frozen model, identify the measurable scaled closed equilibration time almost surely with the raw threshold hitting time of the scaled distance, preserving ENNReal top and the exact g² kinetic rescaling.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "microscopic.family_complete",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Sections 5-7",
+          "role": "statement"
+        }
+      ],
+      "trust": "kernel",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/CanonicalFrozenClosedHittingRescaling.lean",
+        "declaration": "ArchonPhysics.CanonicalFrozenClosedHittingRescaling.scaled_measurableClosedEquilibrationTime_eq_hittingTime_ae",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.deterministic_hitting_stability",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "theorem",
+      "title": "Almost-everywhere robust two-time hitting transfer",
+      "statement": "Transfer local-uniform approximation to a positive finite lower/upper kinetic-time window for any measurable random time that agrees almost everywhere with the raw closed hitting functional. No unique crossing time or convergence to one tauStar is assumed.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "kinetic.family_complete",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.window_time_rescaling",
+          "mode": "requires"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.thermal_roadmap",
+          "locator": "Sections 6 and 8, hitting-time transfer requirement",
+          "role": "statement"
+        }
+      ],
+      "trust": "kernel",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/AETwoTimeProbabilisticHittingTransfer.lean",
+        "declaration": "ArchonPhysics.AETwoTimeProbabilisticHittingTransfer.random_local_uniform_error_implies_ae_identified_twoTime_window",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.high_probability_g2_bounds",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "theorem",
+      "title": "Conditional high-probability inverse-square two-sided law",
+      "statement": "Assuming one explicit FullThermalizationCertificate, prove for the fixed canonical iid mass/phase ensemble that the probability of the actual full-positive-mode closed equilibration time lying in the certificate kinetic window after g² scaling tends to one along every admissible joint limit. The conclusion is a two-sided window, not convergence to a unique tauStar.",
+      "dependencies": [
+        {
+          "node_id": "transfer.deterministic_hitting_stability",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.full_thermalization_hypotheses",
+          "mode": "assumes"
+        }
+      ],
+      "represents": null,
+      "citations": [],
+      "trust": "kernel_conditional",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/FullThermalization.lean",
+        "declaration": "ArchonPhysics.fullNonzeroModeThermalizationLaw",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.energy_density_corollary",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "theorem",
+      "title": "Conditional energy-density inverse-square corollary",
+      "statement": "Assuming the same FullThermalizationCertificate, substitute g = lambda*epsilon^((degree-2)/2) into the established two-sided probability window and obtain the exact inverse energy-density scale. This is a corollary of the conditional dynamical law plus the kernel-checked algebraic scaling, not a consequence of algebra alone.",
+      "dependencies": [
+        {
+          "node_id": "foundation.finite_core",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.high_probability_g2_bounds",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.full_thermalization_hypotheses",
+          "mode": "assumes"
+        }
+      ],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "energy-density rescaling and reported slopes",
+          "role": "empirical"
+        }
+      ],
+      "trust": "kernel_conditional",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/FullThermalization.lean",
+        "declaration": "ArchonPhysics.fullNonzeroModeEnergyDensityThermalizationLaw",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "transfer.family_complete",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "synthetic_root",
+      "title": "F3 conditional probability-law reduction",
+      "statement": "Package the kernel-checked reduction from the explicit FullThermalizationCertificate hypothesis to the canonical full-positive-mode high-probability g^{-2} window and its energy-density corollary. This node verifies only the implication and does not assert that the target random-mass model inhabits the hypothesis interface.",
+      "dependencies": [
+        {
+          "node_id": "transfer.energy_density_corollary",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.high_probability_g2_bounds",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.full_thermalization_hypotheses",
+          "mode": "assumes"
+        }
+      ],
+      "represents": null,
+      "citations": [],
+      "trust": "kernel_conditional",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/FullThermalization.lean",
+        "declaration": "ArchonPhysics.fullNonzeroModeEnergyDensityThermalizationLaw",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "thermalization.complete",
+      "family_id": "thermalization.complete",
+      "node_kind": "synthetic_root",
+      "title": "Conditional full nonzero-mode probabilistic thermalization law",
+      "statement": "For the fixed canonical iid mass/phase ensemble, the concrete coercive cubic-leading potential with beta > 2*kappa^2/9, 0 <= mu < 1, and 0 < delta < 1/8, assume one explicit FullThermalizationCertificate and derive the full N-1 positive-mode late-window high-probability law T_eq = Theta_P(g^-2) along every admissible weak-coupling/thermodynamic joint limit, together with the energy-density corollary. The theorem does not construct the certificate, assert convergence to a unique kinetic hitting time, mixing, ergodicity, permanent convergence, or success for every sample.",
+      "dependencies": [
+        {
+          "node_id": "transfer.family_complete",
+          "mode": "requires"
+        },
+        {
+          "node_id": "transfer.full_thermalization_hypotheses",
+          "mode": "assumes"
+        }
+      ],
+      "represents": null,
+      "citations": [],
+      "trust": "kernel_conditional",
+      "status": "active",
+      "blocker": null,
+      "lean_target": {
+        "module_path": "ArchonPhysics/FullThermalization.lean",
+        "declaration": "ArchonPhysics.fullNonzeroModeThermalizationLaw",
+        "kind": "theorem",
+        "role": "claim"
+      },
+      "verification": null
+    },
+    {
+      "node_id": "evidence.wang_inverse_square_claim",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "external_claim",
+      "title": "Wang et al. wave-turbulence and numerical claim",
+      "statement": "The paper argues from wave-turbulence theory and finite-size numerics that the equipartition time is proportional to the inverse square of effective nonlinearity in the thermodynamic limit. It does not supply the exact probabilistic microscopic-to-kinetic theorem required by this DAG.",
+      "dependencies": [],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "Abstract; Eqs. (10)-(12); Figs. 1-3",
+          "role": "empirical"
+        },
+        {
+          "source_id": "sources.wang_1903_09502_v2",
+          "locator": "weak-turbulence passage from the microscopic Hamiltonian to the kinetic equation",
+          "role": "limitation"
+        }
+      ],
+      "trust": "empirical",
+      "status": "grounded",
+      "blocker": null,
+      "lean_target": null,
+      "verification": null
+    },
+    {
+      "node_id": "evidence.lukkarinen_spohn_linear_kinetic_limit",
+      "family_id": "microscopic.random_observables",
+      "node_kind": "external_claim",
+      "title": "Rigorous linear kinetic limit in a weakly random harmonic crystal",
+      "statement": "Lukkarinen and Spohn prove a disorder-averaged linear Boltzmann limit for a weakly disordered harmonic crystal under dispersion and recollision-suppression assumptions. The result is rigorous but does not cover nonlinear modal equipartition in the target one-dimensional chain.",
+      "dependencies": [],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.lukkarinen_spohn_0505075_v1",
+          "locator": "Abstract and main kinetic-limit theorem",
+          "role": "proof"
+        },
+        {
+          "source_id": "sources.lukkarinen_spohn_0505075_v1",
+          "locator": "harmonic and weak-disorder hypotheses",
+          "role": "limitation"
+        }
+      ],
+      "trust": "literature",
+      "status": "grounded",
+      "blocker": null,
+      "lean_target": null,
+      "verification": null
+    },
+    {
+      "node_id": "evidence.spohn_phonon_boltzmann_program",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "external_claim",
+      "title": "Phonon Boltzmann equation and equilibrium structure",
+      "statement": "Spohn formulates the phonon Boltzmann program for weakly anharmonic lattice dynamics and proves or analyzes structural properties including stationary thermal solutions under dispersion assumptions. The paper does not prove the target microscopic random-chain limit.",
+      "dependencies": [],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.spohn_0505025_v2",
+          "locator": "Abstract and sections on collision operators and stationary solutions",
+          "role": "proof"
+        },
+        {
+          "source_id": "sources.spohn_0505025_v2",
+          "locator": "discussion of the still-formal microscopic link",
+          "role": "limitation"
+        }
+      ],
+      "trust": "literature",
+      "status": "grounded",
+      "blocker": null,
+      "lean_target": null,
+      "verification": null
+    },
+    {
+      "node_id": "evidence.bricmont_kupiainen_near_equilibrium",
+      "family_id": "kinetic.effective_relaxation",
+      "node_kind": "external_claim",
+      "title": "Rigorous near-equilibrium phonon Boltzmann relaxation",
+      "statement": "Bricmont and Kupiainen prove diffusive approach to equilibrium for a phonon Boltzmann equation when the initial condition is a small perturbation of equilibrium and satisfies their spatial hypotheses. This does not cover the target far-from-equilibrium initial basin or identify its collision kernel.",
+      "dependencies": [],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.bricmont_kupiainen_0703014_v1",
+          "locator": "Abstract and main theorem",
+          "role": "proof"
+        },
+        {
+          "source_id": "sources.bricmont_kupiainen_0703014_v1",
+          "locator": "small-perturbation and spatial-decay hypotheses",
+          "role": "limitation"
+        }
+      ],
+      "trust": "literature",
+      "status": "grounded",
+      "blocker": null,
+      "lean_target": null,
+      "verification": null
+    },
+    {
+      "node_id": "evidence.staffilani_tran_stochastic_kinetic_limit",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "external_claim",
+      "title": "Rigorous nonlinear three-wave kinetic limit for stochastic lattice ZK",
+      "statement": "Staffilani and Tran rigorously derive a three-wave kinetic equation for a stochastic multidimensional lattice Zakharov-Kuznetsov model under their hypotheses. The noise, equation, dimension, and dispersion differ from the deterministic one-dimensional random-mass lattice.",
+      "dependencies": [],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.staffilani_tran_2106_09819_v5",
+          "locator": "Abstract and principal kinetic-limit theorem",
+          "role": "proof"
+        },
+        {
+          "source_id": "sources.staffilani_tran_2106_09819_v5",
+          "locator": "stochastic forcing, d>=2, and lattice-ZK hypotheses",
+          "role": "limitation"
+        }
+      ],
+      "trust": "literature",
+      "status": "grounded",
+      "blocker": null,
+      "lean_target": null,
+      "verification": null
+    },
+    {
+      "node_id": "evidence.deng_hani_nls_kinetic_limit",
+      "family_id": "transfer.probabilistic_micro_kinetic",
+      "node_kind": "external_claim",
+      "title": "Rigorous wave kinetic limit for NLS",
+      "statement": "Deng and Hani rigorously derive the wave kinetic equation for nonlinear Schrodinger dynamics across their stated scaling regimes and up to small multiples of kinetic time. The NLS model and dimensional/resonance structure do not match the target random-mass lattice.",
+      "dependencies": [],
+      "represents": null,
+      "citations": [
+        {
+          "source_id": "sources.deng_hani_2301_07063_v2",
+          "locator": "Abstract and main theorem",
+          "role": "proof"
+        },
+        {
+          "source_id": "sources.deng_hani_2301_07063_v2",
+          "locator": "NLS equation, periodic-box, and time-range hypotheses",
+          "role": "limitation"
+        }
+      ],
+      "trust": "literature",
+      "status": "grounded",
+      "blocker": null,
+      "lean_target": null,
+      "verification": null
+    }
+  ]
+}
