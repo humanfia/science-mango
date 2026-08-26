@@ -36,6 +36,7 @@ def _certificate(
     *,
     requests: list[dict] | None = None,
     answer_submission_sha256: str = "4" * 64,
+    preflight_sha256: str = "7" * 64,
 ) -> dict:
     return {
         "schema_version": 2,
@@ -70,6 +71,7 @@ def _certificate(
             "target": TARGET,
             "candidate": TARGET,
             "candidate_sha256": CANDIDATE_SHA256,
+            "preflight_sha256": preflight_sha256,
             "answer_submission": ANSWER_SUBMISSION,
             "answer_submission_sha256": answer_submission_sha256,
         },
@@ -120,12 +122,14 @@ def _contract(
     target: str = TARGET,
     candidate: str = CANDIDATE_SHA256,
     answer_submission_sha256: str = "4" * 64,
+    preflight_sha256: str = "7" * 64,
 ) -> dict:
     return {
         "contract_kind": "native_problem_input_only",
         "target": target,
         "candidate": target,
         "candidate_sha256": candidate,
+        "preflight_sha256": preflight_sha256,
         "answer_submission": ANSWER_SUBMISSION,
         "source_bundle_sha256": "2" * 64,
         "source_record_sha256": "3" * 64,
@@ -774,6 +778,65 @@ def test_next_reviewer_context_is_rebuilt_for_only_the_same_target_transition(
         target_rel="Problems/problem_b.lean",
         current_candidate_sha256=current_sha256,
         expected_source_contract=_contract(candidate=current_sha256),
+    ) == {}
+
+
+def test_next_reviewer_context_rebinds_the_prior_preflight_digest(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _enable_unit_catalog(monkeypatch)
+    prior_preflight_sha256 = "7" * 64
+    current_preflight_sha256 = "8" * 64
+    certificate = _certificate(
+        requests=[_request()],
+        preflight_sha256=prior_preflight_sha256,
+    )
+    record = _retry_gate_record(certificate)
+    current_candidate_sha256 = "0" * 64
+    validated_preflights: list[str] = []
+
+    def validate_source_certificate(
+        _certificate: dict,
+        expected_contract: dict,
+        *,
+        passing: bool,
+    ) -> str:
+        assert passing is False
+        validated_preflights.append(expected_contract["preflight_sha256"])
+        return (
+            ""
+            if expected_contract["preflight_sha256"]
+            == prior_preflight_sha256
+            else "preflight digest belongs to the following redraft"
+        )
+
+    monkeypatch.setattr(
+        activation,
+        "validate_native_review_source_certificate",
+        validate_source_certificate,
+    )
+    context = activation.build_trusted_bridge_review_context(
+        record,
+        target_rel=TARGET,
+        current_candidate_sha256=current_candidate_sha256,
+        expected_source_contract=_contract(
+            candidate=current_candidate_sha256,
+            preflight_sha256=current_preflight_sha256,
+        ),
+    )
+
+    assert context["trusted_bridge_activations"]["complete"] is True
+    assert validated_preflights == [prior_preflight_sha256]
+
+    certificate["source_contract"]["preflight_sha256"] = "not-a-sha256"
+    assert activation.build_trusted_bridge_review_context(
+        record,
+        target_rel=TARGET,
+        current_candidate_sha256=current_candidate_sha256,
+        expected_source_contract=_contract(
+            candidate=current_candidate_sha256,
+            preflight_sha256=current_preflight_sha256,
+        ),
     ) == {}
 
 

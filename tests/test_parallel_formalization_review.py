@@ -519,6 +519,14 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "identity to be derived independently from the problem measurements",
                 "not answer smuggling merely because it is defined as the output carrier",
                 "injected into a premise, singleton/answer-shaped domain, opaque predicate",
+                "explicit problem arrow or named-final cue is itself the authority",
+                "transparent local formula, valence, composition, or topology edits",
+                "Never request the directed omitted-protocol rule merely to "
+                "authorize this qualitative source-arrow compatibility",
+                "Require source-exhaustive candidate-domain provenance only when "
+                "a domain is a decisive premise",
+                "deterministic preflight passed",
+                "seeded import as unsealed",
                 "do not fail solely because no global candidate universe was asserted",
                 '"staged_species_domain"',
                 "quantitative_material_stage",

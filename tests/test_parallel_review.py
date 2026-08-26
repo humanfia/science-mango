@@ -140,6 +140,14 @@ class ParallelReviewTest(unittest.TestCase):
                 "does not identify the specific reagent",
                 "identity to be derived independently from the problem measurements",
                 "require a concrete evidence-supported output but not an open-world exhaustive classification",
+                "explicit problem arrow or named-final cue is itself the authority",
+                "transparent local formula, valence, composition, or topology edits",
+                "Never request the directed omitted-protocol rule merely to "
+                "authorize this qualitative source-arrow compatibility",
+                "Require source-exhaustive candidate-domain provenance only when "
+                "a domain is a decisive premise",
+                "deterministic preflight passed",
+                "seeded import as unsealed",
                 "A named output carrier is not answer smuggling unless it is injected into a premise",
                 '"staged_species_domain"',
                 "quantitative_material_stage",

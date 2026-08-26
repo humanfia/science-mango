@@ -79,17 +79,36 @@ fails closed. The policy does not identify the specific reagent; require that
 identity to be derived independently from the problem measurements and pinned
 constants.
 
+For `qualitative_named_transform_only`, an explicit problem arrow or named-final
+cue is itself the authority only for its named tail/reagent/head roles, direction,
+and non-exclusive compatibility meaning. When those source facts are joined to
+transparent local formula, valence, composition, or topology edits, do not require
+an empirical rule, dormant activation, or source-exhaustive candidate universe.
+Never request the directed omitted-protocol rule merely to authorize this
+qualitative source-arrow compatibility. This shortcut supplies
+no omitted condition and cannot support yield, completion, sole-product,
+absence, or quantitative material-flow claims.
+
+For a native answer-blind target whose deterministic preflight passed, import
+admission has already checked every local imported module against the
+controller isolation-manifest hash or an approved trusted package root. Do not
+reject a transparent mathematical or mechanical reporting declaration from
+such a seeded import as unsealed or demand a second declaration receipt.
+
 For an activated empirical contest rule, keep `SourceFact` distinct from
 `AuthorizedCandidate`. Candidate nomination must be bound to the exact rule and
 auditable origin evidence. For source verbs identify, draw, or give a structure,
 require a concrete evidence-supported output but not an open-world exhaustive
-classification unless the source says unique, all, every, or equivalent. Audit
-the provenance of every finite candidate domain actually used and apply every
-independent constraint uniformly. When no finite domain is used, audit the
-direct problem-and-authority evidence chain and do not fail solely because no
-global candidate universe was asserted. A named output carrier is not answer
-smuggling unless it is injected into a premise, singleton/answer-shaped domain,
-opaque predicate, or reflexive theorem.
+classification unless the source says unique, all, every, or equivalent.
+Require source-exhaustive candidate-domain provenance only when a domain is a
+decisive premise for uniqueness, exhaustiveness, or eliminating every
+alternative. A non-singleton control list may be audited for answer smuggling
+without being treated as the complete chemical universe, and it cannot by
+itself prove uniqueness. For a direct concrete witness, audit the
+problem-and-authority evidence chain and do not fail solely because no global
+candidate universe was asserted. A named output carrier is not answer smuggling
+unless it is injected into a premise, singleton/answer-shaped domain, opaque
+predicate, or reflexive theorem.
 A finite-exhaustive Lean theorem may be recorded when available but is optional
 and is never a passing prerequisite.
 """
@@ -107,10 +126,12 @@ quantitative class.
 For an explicit source arrow or named-final cue used only as a non-exclusive
 compatibility constraint for an identify/draw/give-structure output, use
 `qualitative_named_transform_only`: bind the named roles, direction, exact
-source locator, applicable trusted rule, and nontrivial compatibility carriers.
-Keep omitted protocol details, coefficients, phases, byproducts, and streams
-unknown; do not invent them and do not fail solely because they are omitted.
-This class cannot support yield, completeness, sole-product/absence, or a
+source locator, and nontrivial transparent local structure/composition
+compatibility carriers. The exact problem locator is sufficient authority for
+those limited arrow semantics; do not require or request a dormant directed-
+reaction rule. Keep omitted protocol details, coefficients, phases, byproducts,
+and streams unknown; do not invent them and do not fail solely because they are
+omitted. This class cannot support yield, completeness, sole-product/absence, or a
 quantitative stage balance. Passing evidence must include the exact token
 `qualitative_named_transform_only`. Use `not_applicable` only when there is no
 staged transformation, with exact token `not_staged_transformation`."""

@@ -508,6 +508,19 @@ def build_trusted_bridge_review_context(
     certificate_source = certificate.get("source_contract")
     if not isinstance(certificate_source, Mapping):
         return {}
+    prior_preflight_sha256 = certificate_source.get("preflight_sha256")
+    if (
+        prior_preflight_sha256 is not None
+        and (
+            not isinstance(prior_preflight_sha256, str)
+            or _SHA256_RE.fullmatch(prior_preflight_sha256) is None
+        )
+    ):
+        return {}
+    # The deterministic preflight projection changes with each redraft.  The
+    # activation-input certificate must therefore be checked against its own
+    # preflight digest, not the immediately following candidate's digest.
+    prior_contract["preflight_sha256"] = prior_preflight_sha256
     current_answer_path = expected_source_contract.get("answer_submission")
     if current_answer_path is not None:
         prior_answer_path = certificate_source.get("answer_submission")

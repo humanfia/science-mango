@@ -95,16 +95,35 @@ fails closed. The policy does not identify the specific reagent; require that
 identity to be derived independently from the problem measurements and pinned
 constants.
 
+For `qualitative_named_transform_only`, an explicit problem arrow or named-final
+cue is itself the authority only for its named tail/reagent/head roles, direction,
+and non-exclusive compatibility meaning. When those source facts are joined to
+transparent local formula, valence, composition, or topology edits, do not require
+an empirical rule, dormant activation, or source-exhaustive candidate universe.
+Never request the directed omitted-protocol rule merely to authorize this
+qualitative source-arrow compatibility. This shortcut supplies
+no omitted condition and cannot support yield, completion, sole-product,
+absence, or quantitative material-flow claims.
+
+For a native answer-blind target whose deterministic preflight passed, import
+admission has already checked every local imported module against the
+controller isolation-manifest hash or an approved trusted package root. Do not
+reject a transparent mathematical or mechanical reporting declaration from
+such a seeded import as unsealed or demand a second declaration receipt.
+
 For source verbs identify, draw, or give a structure, require a concrete
 evidence-supported output but not an open-world exhaustive classification
 unless the source says unique, all, every, or equivalent. A named candidate is
 not answer smuggling merely because it is defined as the output carrier: reject
 it only when the candidate is injected into a premise, singleton/answer-shaped
 domain, opaque predicate, or reflexive theorem instead of being checked by
-nontrivial source-bound carriers. Audit the provenance of every finite
-candidate domain actually used. When no finite domain is used, audit the direct
-problem-and-authority evidence chain and do not fail solely because no global
-candidate universe was asserted.
+nontrivial source-bound carriers. Require source-exhaustive candidate-domain
+provenance only when a domain is a decisive premise for uniqueness,
+exhaustiveness, or eliminating every alternative. A non-singleton control list
+may be audited for answer smuggling without being treated as the complete
+chemical universe, and it cannot by itself prove uniqueness. For a direct
+concrete witness, audit the problem-and-authority evidence chain and do not fail
+solely because no global candidate universe was asserted.
 """
 
 _CHEMISTRY_SOURCE_CERTIFICATE_PROTOCOL = """For every depicted reaction arrow,
@@ -136,8 +155,10 @@ anonymous/catch-all streams and premature terminal-residue reasoning there.
 The qualitative class is allowed for an explicit source arrow or named-final
 cue used only as a non-exclusive compatibility constraint for an
 identify/draw/give-structure output. Bind the named roles, direction, source
-locator, applicable trusted rule, and nontrivial compatibility carriers. Keep
-omitted protocol details, coefficients, phases, byproducts, and streams
+locator, and nontrivial transparent local structure/composition compatibility
+carriers. The exact problem locator is sufficient authority for those limited
+arrow semantics; do not require or request a dormant directed-reaction rule.
+Keep omitted protocol details, coefficients, phases, byproducts, and streams
 unknown; do not invent them and do not fail solely because they are omitted.
 This class cannot support yield, completeness, sole-product/absence, or a
 quantitative stage balance. Passing evidence must include the exact token
@@ -161,7 +182,10 @@ for only the next target-local redraft. A normal empirical-rule lookup or a
 candidate-local citation is not an activation receipt and does not activate a
 dormant rule. All applicability conditions are conjunctive and source-bound: if
 even one lacks exact evidence, the rule is inapplicable and the target must
-remain blocked. Receipt completeness never establishes applicability."""
+remain blocked. Receipt completeness never establishes applicability. Never
+request the directed omitted-protocol rule for an explicit problem arrow
+classified as `qualitative_named_transform_only`; that path is already
+source-bound under the limited protocol above."""
 
 
 _REQUESTED_OUTPUT_RESOLUTION_PROTOCOL = """A passing formalization must cover
