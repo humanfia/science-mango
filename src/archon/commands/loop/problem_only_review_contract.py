@@ -1935,9 +1935,14 @@ def render_native_chemistry_constant_policy(
     baseline_count = len(BASELINE_EMPIRICAL_RULE_IDS)
 
     return f"""APPROVED OFFLINE CHEMISTRY REGISTRY POLICY:
-- The only allowed auxiliary chemistry lookup is the version-pinned, network-free
-  structured CLI. Its allowed dataset is version={DATASET_VERSION},
+- The version-pinned structured CLI remains the preferred reproducible lookup.
+  Its allowed dataset is version={DATASET_VERSION},
   sha256={DATASET_SHA256}.
+- Minimal public literature lookup is also allowed when a chemistry bridge is
+  missing. Search only for the generic species, reaction, or property; record
+  the source title, DOI or stable URL, exact locator, exact scoped claim, and
+  applicability conditions. Never search for an olympiad problem, its wording,
+  an official answer, solution, rubric, marking scheme, or a prior run.
 - Query grammar (angle-bracket names are placeholders, not literal tokens):
   `"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>`,
   `"$ARCHON_CLI_BIN" chemistry-constant isotope_mass <ISOTOPE>`,
@@ -1982,8 +1987,12 @@ def render_native_chemistry_constant_policy(
   id fails closed.
 - Pass exactly one element, isotope, formula, registered template id,
   registered contest-policy id, or exact allowlisted empirical-rule id. Never
-  pass a problem id, question/source text, URL, or search phrase. Do not use web
-  search or any other external knowledge service.
+  pass a problem id, question/source text, URL, or search phrase to the
+  structured CLI.
+- A public literature source may ground only the exact claim and scope it
+  states. It may nominate a candidate but cannot invent an omitted problem
+  condition, prove applicability to a different substrate, or provide candidate
+  uniqueness by itself. The Reviewer must independently check its use.
 - A Reviewer must verify each used lookup through the same
   `"$ARCHON_CLI_BIN"` grammar. Check the returned dataset version/hash against
   the controller-bound values above, then check record_sha256 against the

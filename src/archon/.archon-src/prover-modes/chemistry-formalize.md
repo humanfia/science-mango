@@ -136,6 +136,15 @@ must verify every used lookup through the same
 `"$ARCHON_CLI_BIN"` grammar and check that returned version/hash against the
 pinned dataset; prompt examples never define the supported inventory.
 
+When a required chemistry bridge is absent from the problem and offline
+registry, public Web Search is allowed. Search by generic species, reaction,
+or property only—never by olympiad problem id, exact question wording,
+official answer, solution, rubric, marking scheme, or prior-run text. Prefer
+primary literature or an authoritative reference. Record the title, DOI or
+stable URL, exact locator, exact scoped claim, and applicability conditions.
+Use the source only within that scope; it cannot invent an omitted problem
+condition or establish candidate uniqueness by itself.
+
 A candidate-local `axiom`, `def`, `theorem`, structure field, or predicate is
 never a trusted chemistry rule merely because it has a plausible name, is
 fully qualified, or compiles. It may encode a bridge only after the decisive

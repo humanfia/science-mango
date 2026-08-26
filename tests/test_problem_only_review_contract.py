@@ -580,6 +580,11 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             "empirical_registry_manifest_sha256",
             "source.content_sha256",
             "approved review metadata",
+            "Minimal public literature lookup is also allowed",
+            "generic species, reaction, or property",
+            "Never search for an olympiad problem",
+            "official answer, solution, rubric, marking scheme",
+            "cannot invent an omitted problem condition",
         ):
             self.assertIn(marker, prompt)
         for rule_id in EMPIRICAL_RULE_IDS:

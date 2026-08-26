@@ -57,18 +57,32 @@ CRNT_PACKAGE_REL = Path("crnt-lean")
 CRNT_INDEX_REL = Path(".archon/lean-explore/project-index.json")
 PACKAGE_OVERRIDES_REL = Path(".lake/package-overrides.json")
 TRUSTED_PRIOR_RESULT_CONSUMER_ID = "icho_2026_t1_a6"
+LIVE_LITERATURE_TARGET_IDS = frozenset({
+    "icho_2026_t1_a4",
+    "icho_2026_t1_a5",
+})
+WEB_SEARCH_DISABLED_SETTINGS = (
+    'web_search="disabled"',
+    "features.standalone_web_search=false",
+    "features.search_tool=false",
+)
+WEB_SEARCH_LIVE_SETTINGS = ('web_search="live"', "tools.web_search=true")
 
 NATIVE_AGENTS = """# Answer-Blind Native Archon Instructions
 
-Use only the problem statement, problem images, local Lean libraries, and
-artifacts created in this workspace. Never seek or read an official answer,
-solution, rubric, marking scheme, grader output, prior run, or another solver's
-workspace. Web/search/browser tools are disabled. Everything inside the sealed
-problem bundle and its problem PDF/images is student-visible problem input,
-including printed fallback values. A fallback for one part may be used only for
-the later part(s) that the problem explicitly authorizes; it may not justify or
-select the answer to the part it replaces. If answer-bearing material outside
-the sealed problem inputs is visible, stop and report it without using it.
+Use only the problem statement, problem images, local Lean libraries, artifacts
+created in this workspace, and—only when exact target-bound campaign config
+enables it—public literature found with generic chemistry keywords. Never seek
+or read an official answer, solution, rubric, marking scheme, grader output,
+prior run, or another solver workspace. When Live Web Search is enabled, never
+send a problem id, exact question wording, or answer clue; record the title, DOI
+or stable URL, locator, exact scoped claim, and applicability conditions.
+Everything inside the sealed problem bundle and its problem PDF/images is
+student-visible problem input, including printed fallback values. A fallback
+for one part may be used only for the later part(s) that the problem explicitly
+authorizes; it may not justify or select the answer to the part it replaces.
+If answer-bearing material outside the sealed problem inputs is visible, stop
+and report it without using it.
 
 Do not edit the question bundle, source reports, problem PDF/images,
 `isolation_manifest.json`, `.archon/config.json`, or this file. During a
@@ -101,12 +115,16 @@ scoring.
 NATIVE_PROTOCOL = """# Answer-Blind Native Archon Protocol
 
 This run provides the model only the problem-only bundle, its referenced problem
-assets, and local Lean libraries. `official_answer_seen = false`. It does not
-claim operating-system network isolation; the harness disables web, search,
-browser, plugins, and apps, and the solver must not seek answer-bearing material.
-Printed fallback values inside those problem assets are exam-visible inputs;
-they are admissible only for the downstream parts explicitly named by the
-problem, never as evidence for the upstream result they replace.
+assets, local Lean libraries, and any public literature obtained by a specifically
+authorized target-bound Live Web Search. `official_answer_seen = false`. It does
+not claim operating-system network isolation. Live queries, when enabled, must
+contain only generic chemistry keywords and must never contain a problem id,
+exact question wording, or answer clue; searches for official answers, solutions,
+rubrics, marking schemes, and prior runs are forbidden. Browser, plugins, and
+apps remain disabled. Printed fallback values inside problem assets are
+exam-visible inputs; they are admissible only for the downstream parts
+explicitly named by the problem, never as evidence for the upstream result they
+replace.
 
 Archon performs the normal chemistry workflow in one workspace: create faithful
 Lean statements, run formalization Review, fill proofs, run proof Review, then
@@ -703,6 +721,34 @@ def _patch_native_config(
     for key in ("base_url_env", "key_env", "wire_api"):
         harness.pop(key, None)
     extra_args = list(harness.get("extra_args") or [])
+    live_literature_search = (
+        frozenset(_target_ids(workspace, expected_items=max_objectives))
+        == LIVE_LITERATURE_TARGET_IDS
+    )
+    if (
+        len(extra_args) % 2 != 0
+        or any(
+            extra_args[index] != "-c"
+            for index in range(0, len(extra_args), 2)
+        )
+    ):
+        raise CampaignError("Codex extra_args must be -c/setting pairs")
+    controlled_web_settings = set(
+        WEB_SEARCH_DISABLED_SETTINGS + WEB_SEARCH_LIVE_SETTINGS
+    )
+    filtered_extra_args: list[str] = []
+    for index in range(0, len(extra_args), 2):
+        setting = extra_args[index + 1]
+        if setting not in controlled_web_settings:
+            filtered_extra_args.extend(("-c", setting))
+    extra_args = filtered_extra_args
+    web_settings = (
+        WEB_SEARCH_LIVE_SETTINGS
+        if live_literature_search
+        else WEB_SEARCH_DISABLED_SETTINGS
+    )
+    for setting in web_settings:
+        extra_args.extend(("-c", setting))
     for setting in (
         "features.code_mode=false",
         "features.code_mode.enabled=false",
@@ -1067,6 +1113,35 @@ def _check_native_config(
         blind_isolation = blind["isolation"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
         raise CampaignError("prepared Archon config is invalid") from exc
+    extra_args = harness.get("extra_args")
+    live_literature_search = (
+        frozenset(_target_ids(workspace, expected_items=max_objectives))
+        == LIVE_LITERATURE_TARGET_IDS
+    )
+    expected_web_settings = (
+        WEB_SEARCH_LIVE_SETTINGS
+        if live_literature_search
+        else WEB_SEARCH_DISABLED_SETTINGS
+    )
+    forbidden_web_settings = (
+        WEB_SEARCH_DISABLED_SETTINGS
+        if live_literature_search
+        else WEB_SEARCH_LIVE_SETTINGS
+    )
+    if isinstance(extra_args, list):
+        config_pairs = {
+            (extra_args[index], extra_args[index + 1])
+            for index in range(0, len(extra_args) - 1, 2)
+        }
+    else:
+        config_pairs = set()
+    web_search_valid = (
+        all(("-c", setting) in config_pairs for setting in expected_web_settings)
+        and all(
+            ("-c", setting) not in config_pairs
+            for setting in forbidden_web_settings
+        )
+    )
     if (
         not isinstance(blind, dict)
         or not isinstance(blind_isolation, dict)
@@ -1084,6 +1159,7 @@ def _check_native_config(
         or any(key in harness for key in ("base_url_env", "key_env"))
         or "features.shell_tool=true" not in (harness.get("extra_args") or [])
         or "features.multi_agent=false" not in (harness.get("extra_args") or [])
+        or not web_search_valid
         or (loop.get("domain_profile") or {}).get("name")
         != ("chemistry" if preparation else "chemistry-native")
         or (loop.get("domain_profile") or {}).get("lean_search_packages")

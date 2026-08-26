@@ -660,6 +660,60 @@ class NativeArchonCampaignTests(unittest.TestCase):
             config, ids = RUNNER._fresh_config(config)
             RUNNER.prepare_workspace(config, ids)
 
+    def test_live_web_search_is_enabled_only_for_exact_a4_a5(self) -> None:
+        cases = (
+            ("exact", ("icho_2026_t1_a5", "icho_2026_t1_a4"), True),
+            ("other_pair", ("icho_2026_t1_a4", "icho_2026_t1_a6"), False),
+        )
+        for name, ids, expected_live in cases:
+            with self.subTest(name=name):
+                workspace = self.base / f"web-{name}"
+                workspace.mkdir()
+                (workspace / "isolation_manifest.json").write_text(
+                    json.dumps({"target_ids": list(ids)}), encoding="utf-8",
+                )
+                self._fake_configure(workspace)
+                RUNNER._patch_native_config(
+                    workspace,
+                    max_iterations=3,
+                    review_max_iterations=3,
+                    max_parallel=2,
+                    target_lifecycle=True,
+                    max_objectives=2,
+                )
+                value = json.loads(
+                    (workspace / ".archon/config.json").read_text()
+                )
+                extra_args = value["harnesses"]["answer-blind-gpt"][
+                    "extra_args"
+                ]
+                pairs = set(zip(extra_args[::2], extra_args[1::2]))
+                selected = (
+                    RUNNER.WEB_SEARCH_LIVE_SETTINGS
+                    if expected_live
+                    else RUNNER.WEB_SEARCH_DISABLED_SETTINGS
+                )
+                rejected = (
+                    RUNNER.WEB_SEARCH_DISABLED_SETTINGS
+                    if expected_live
+                    else RUNNER.WEB_SEARCH_LIVE_SETTINGS
+                )
+                self.assertTrue(
+                    all(("-c", setting) in pairs for setting in selected)
+                )
+                self.assertTrue(
+                    all(("-c", setting) not in pairs for setting in rejected)
+                )
+                RUNNER._check_native_config(
+                    workspace,
+                    max_iterations=3,
+                    review_max_iterations=3,
+                    max_parallel=2,
+                    max_objectives=2,
+                    target_lifecycle=True,
+                    preparation=True,
+                )
+
     def test_prepare_uses_shared_helpers_and_patches_native_codex(self) -> None:
         with self._prepare_patches()[0] as validate, self._prepare_patches()[1] as copy, self._prepare_patches()[2] as configure:
             config, ids = RUNNER._fresh_config(self.config)
@@ -683,6 +737,13 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertIn("features.shell_tool=true", harness["extra_args"])
         self.assertIn("features.multi_agent=false", harness["extra_args"])
         self.assertIn("features.multi_agent_v2=false", harness["extra_args"])
+        self.assertIn('web_search="disabled"', harness["extra_args"])
+        self.assertIn(
+            "features.standalone_web_search=false", harness["extra_args"]
+        )
+        self.assertIn("features.search_tool=false", harness["extra_args"])
+        self.assertNotIn('web_search="live"', harness["extra_args"])
+        self.assertNotIn("tools.web_search=true", harness["extra_args"])
         self.assertEqual(loop["domain_profile"]["name"], "chemistry")
         self.assertEqual(
             loop["domain_profile"]["lean_search_packages"],
