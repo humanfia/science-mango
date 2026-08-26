@@ -2037,30 +2037,48 @@ def render_native_chemistry_constant_policy(
   enumerating a candidate, but it cannot fill an omitted condition or ground a
   source-to-Lean bridge about the current reaction.
 
-- MANDATORY FINITE STAGED-SPECIES DOMAIN: whenever a requested result depends
-  on one or more staged material transformations (including heating, drying,
-  decomposition, precipitation, reaction, or workup), establish a finite,
-  source-derived species domain before using mass agreement or any terminal
-  product/residue rule. For each stage, enumerate every permitted solid input
-  and output, volatile output, and external input by chemical identity/formula
-  and phase. Every atom or mass flow must be species-typed. Anonymous `other`,
-  `residual`, `ejected`, `untracked`, or catch-all material-flow variables are
-  forbidden.
-- Give every element in every admitted species an exact problem locator, an
-  independently rederived prior-part carrier, or a valid pinned/activated
-  authority. An element may enter a stage only through the enumerated initial
-  material or an enumerated, source-authorized external input for that same
-  stage. A reagent used in a separate earlier analysis or workup is not an
-  input to a later experiment unless the problem explicitly carries it
-  forward.
+- STAGED-TRANSFORMATION CLASSIFICATION: before auditing a depicted or stated
+  transformation, classify how the requested output uses it as either
+  `quantitative_material_stage` or `qualitative_named_transform_only`.
+- Use `quantitative_material_stage` whenever the conclusion depends on yield,
+  completeness, sole-product or absence claims, stage coefficients or phase
+  amounts, cross-stage atom/mass balance, loss/residue amount, or an omitted
+  stream being empty. For this class, establish a finite, source-derived
+  species domain and enumerate every permitted solid input/output, volatile
+  output, and external input by identity/formula and phase. Every atom or mass
+  flow must be species-typed; anonymous `other`, `residual`, `ejected`,
+  `untracked`, or catch-all streams are forbidden. Give every admitted element
+  an exact problem locator, independently rederived prior carrier, or valid
+  pinned/activated authority.
+- Use `qualitative_named_transform_only` only when an explicit source arrow or
+  named-final cue is a non-exclusive compatibility constraint for an
+  identify/draw/give-structure output. Bind the named reactant, reagent,
+  product role, direction, exact source locator, and every applicable trusted
+  rule. Keep omitted protocol details, coefficients, phases, byproducts, and
+  streams unknown. This class may check the candidate's own formula, charge,
+  valence, structure, primitive stoichiometry, pinned-weight interval, and
+  compatibility, but it may not claim yield, completeness, sole-product
+  status, absence of material, or a quantitative stage balance. It does not
+  require inventing or exhaustively enumerating omitted streams and byproducts.
+- For source verbs identify, draw, or give a structure without `unique`, `all`,
+  `every`, or equivalent exhaustive wording, a concrete evidence-supported
+  witness is the requested output; do not require a proof that the open-world
+  chemical universe is finite or globally exhaustive. Audit the provenance of
+  every finite candidate domain actually used, apply all decisive constraints
+  uniformly, and reject answer smuggling. A named output carrier is not
+  smuggling merely because it names the candidate; reject candidates injected
+  into a premise, singleton/answer-shaped domain, opaque predicate, or reflexive
+  theorem. Do not fail solely because no global
+  candidate universe was asserted.
 - Do not encode source qualitative or empirical facts as unconstrained
   `Bool`/`Prop` fields (for example identity, industrial use, symmetry,
   stability, or reaction completion) that a witness can set arbitrarily. Each
   decisive predicate needs a source locator/receipt and a nontrivial carrier,
-  or must be eliminated by the finite candidate audit.
-- For every stage, expose named Lean carriers for the complete atom, charge,
-  mass, and measured-interval ledgers, including every admitted species and
-  external input. Scalar mass equality alone is not chemical feasibility.
+  or must be eliminated by an actually used, provenance-bound candidate audit.
+- For every `quantitative_material_stage`, expose named Lean carriers for the
+  complete atom, charge, mass, and measured-interval ledgers, including every
+  admitted species and external input. Scalar mass equality alone is not
+  chemical feasibility.
   Apply a terminal-residue or terminal-candidate rule only after the species
   domain is closed and every stage ledger passes. A claimed countermodel or
   underdetermination result requires at least two fully species-typed,
@@ -2068,9 +2086,12 @@ def render_native_chemistry_constant_policy(
   are not countermodels.
 - Every Review certificate must include
   `chemistry_checks.staged_species_domain`, with `passed` or `failed` status
-  and evidence naming the domain, stages, and ledger carriers. Use
-  `not_applicable` only when the target has no staged material transformation;
-  that evidence must include the exact token `not_staged_transformation`.
+  and evidence naming the selected classification. Quantitative evidence names
+  the domain, stages, and ledger carriers. A qualitative pass must include the
+  exact token `qualitative_named_transform_only` and name the source-arrow and
+  compatibility carriers. Use `not_applicable` only when the target has no
+  staged material transformation; that evidence must include the exact token
+  `not_staged_transformation`.
 
 - Problem-stipulated values override the dataset. A pinned nominal value may be
   used for an olympiad-style central answer when the problem asks for one, but
@@ -2168,8 +2189,10 @@ def render_native_source_contract_prompt(contract: Mapping[str, Any]) -> str:
         "Do not copy raw/display answer values into source_contract provenance "
         "or controller process history. Every requested output, reporting rule, "
         "tolerance, and candidate-domain restriction must be derived from the "
-        "bound problem evidence or an exact typed export in the controller-"
-        "certified prior-result context. Missing or ambiguous evidence fails "
+        "bound problem evidence, auditable chemistry evidence allowed by the "
+        "bound policy within its exact scope, or an exact typed export in the "
+        "controller-certified prior-result context. Missing or ambiguous "
+        "evidence fails "
         "closed.\n"
         + prior_result_block
         + ("\n" if prior_result_block else "")

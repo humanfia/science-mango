@@ -81,22 +81,39 @@ constants.
 
 For an activated empirical contest rule, keep `SourceFact` distinct from
 `AuthorizedCandidate`. Candidate nomination must be bound to the exact rule and
-auditable origin evidence. A determinate identification is allowed when the
-Reviewer confirms candidate-domain provenance, applies every independent
-constraint uniformly, verifies uniqueness, and rejects answer smuggling.
+auditable origin evidence. For source verbs identify, draw, or give a structure,
+require a concrete evidence-supported output but not an open-world exhaustive
+classification unless the source says unique, all, every, or equivalent. Audit
+the provenance of every finite candidate domain actually used and apply every
+independent constraint uniformly. When no finite domain is used, audit the
+direct problem-and-authority evidence chain and do not fail solely because no
+global candidate universe was asserted. A named output carrier is not answer
+smuggling unless it is injected into a premise, singleton/answer-shaped domain,
+opaque predicate, or reflexive theorem.
 A finite-exhaustive Lean theorem may be recorded when available but is optional
 and is never a passing prerequisite.
 """
 
-_STAGED_SPECIES_DOMAIN_PROTOCOL = """For every staged material transformation,
-the `staged_species_domain` check is mandatory. Passing evidence must enumerate
-each stage's allowed solid inputs/outputs, volatile outputs, and external inputs;
-bind every admitted element to a problem locator or valid authority; and name
-the atom, charge, mass, and measured-interval ledger carriers. Reject anonymous
-or catch-all material streams, freely chosen empirical Bool/Prop fields, and
-terminal-residue reasoning applied before that finite domain is closed. Use
-`not_applicable` only when there is no staged material transformation, and then
-include the exact evidence token `not_staged_transformation`."""
+_STAGED_SPECIES_DOMAIN_PROTOCOL = """For every depicted or stated
+transformation, the `staged_species_domain` check is mandatory, but first
+classify the requested output's use as `quantitative_material_stage` or
+`qualitative_named_transform_only`. Require a finite species domain and
+complete atom/charge/mass/interval ledgers only when the conclusion needs
+yield, completeness, sole-product/absence, coefficients or phase amounts,
+cross-stage balance, loss/residue, or an omitted stream to be empty. Reject
+anonymous/catch-all streams and premature terminal-residue reasoning in that
+quantitative class.
+
+For an explicit source arrow or named-final cue used only as a non-exclusive
+compatibility constraint for an identify/draw/give-structure output, use
+`qualitative_named_transform_only`: bind the named roles, direction, exact
+source locator, applicable trusted rule, and nontrivial compatibility carriers.
+Keep omitted protocol details, coefficients, phases, byproducts, and streams
+unknown; do not invent them and do not fail solely because they are omitted.
+This class cannot support yield, completeness, sole-product/absence, or a
+quantitative stage balance. Passing evidence must include the exact token
+`qualitative_named_transform_only`. Use `not_applicable` only when there is no
+staged transformation, with exact token `not_staged_transformation`."""
 
 _REQUESTED_OUTPUT_RESOLUTION_PROTOCOL = """When the source asks to identify,
 draw, give, determine, or calculate an output, an operational workflow sentinel
@@ -369,8 +386,10 @@ typed, or extrapolated prior fact fails closed.
 
 For chemistry, enumerate every requested output; inspect every listed image;
 check chemical identity, formula/molar-mass consistency, conservation, units,
-structures/stereochemistry, identification uniqueness, raw arithmetic, and
-mechanical significant-figure rules. Reject answer-shaped definitions,
+structures/stereochemistry, requested-quantifier fit, and whether each identified
+candidate satisfies every decisive constraint; require global uniqueness or
+exhaustive coverage only when the source asks for unique, all, every, or
+equivalent. Check raw arithmetic and mechanical significant-figure rules. Reject answer-shaped definitions,
 preselected witness tables, post-hoc tolerances, staged rounding chosen to
 reach a candidate, or a finite candidate domain not justified by the problem
 or auditable chemical evidence.
@@ -612,7 +631,8 @@ def build_target_review_prompt(
    opened or searched; generated interpretations are untrusted.
 2. Audit the independently derived candidate and raw end-to-end proof. Every
    reporting rule, tolerance, and candidate-domain restriction must come from
-   the problem or a predeclared mechanical rule, never a known result.
+   the problem, an applicable auditable chemistry authority allowed by the bound
+   policy, or a predeclared mechanical rule, never a known result.
 3. Verify that the symbolic specification, candidate, reporting rule, Lean
    carrier, and hashes were frozen before any later reveal or scoring.
 Read the solve candidate JSON and require schema_version=1, id and
@@ -632,8 +652,10 @@ Both the blind source audit and contract audit must pass. Missing provenance
 fails closed."""
         chemistry_protocol = """For chemistry, enumerate every problem-requested
 output; inspect every problem image; check chemical identity, formula/molar-mass
-consistency, conservation, units, structures/stereochemistry, identification
-uniqueness, raw arithmetic, and mechanical significant-figure rules. Reject
+consistency, conservation, units, structures/stereochemistry, requested-quantifier
+fit, and whether each identified candidate satisfies every decisive constraint.
+Require global uniqueness or exhaustive coverage only when the source asks for
+unique, all, every, or equivalent. Check raw arithmetic and mechanical significant-figure rules. Reject
 answer-shaped definitions, preselected witness tables, post-hoc tolerances,
 staged rounding chosen to reach a candidate, or a finite candidate domain not
 justified by the problem or auditable chemical evidence. Do not consult an
@@ -663,8 +685,10 @@ Both audit groups must pass before route=solved."""
         chemistry_protocol = """For chemistry, perform the full chemistry-reviewer
 audit inside this target Review: enumerate every requested output; inspect every
 image; check chemical identity and invariants (including formula/molar-mass
-consistency and conservation), units, structures/stereochemistry, identification
-uniqueness, answer smuggling through definitions/cardinalities/tables, and official
+consistency and conservation), units, structures/stereochemistry, requested-quantifier
+fit, and whether each identified candidate satisfies every decisive constraint.
+Require global uniqueness or exhaustive coverage only when the source asks for
+unique, all, every, or equivalent. Check answer smuggling through definitions/cardinalities/tables, and official
 rounding/significant-figure conventions. Record every blueprint/Lean conflict.
 An official-answer conflict is a modeling failure even when Lean compiles and
 even when the blueprint and generated reports agree with one another, except

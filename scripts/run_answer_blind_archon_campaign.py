@@ -41,6 +41,7 @@ from archon.commands.loop.prior_result_dependency import (
     load_prior_result_dependency_context_checked,
     prior_result_dependency_relative_path,
 )
+from archon.commands.loop.utils import data_path as archon_data_path
 
 
 SCHEMA_VERSION = 1
@@ -808,11 +809,14 @@ def _patch_native_config(
 
 
 def _write_native_policy_files(workspace: Path) -> None:
+    formalize_mode = archon_data_path(
+        "prover-modes/chemistry-formalize.md"
+    ).read_text(encoding="utf-8")
     payloads = {
         workspace / ".archon/AGENTS.md": NATIVE_AGENTS,
         workspace / "ANSWER_BLIND_PROTOCOL.md": NATIVE_PROTOCOL,
-        workspace / ".archon/prover-modes/physics-formalize.md": NATIVE_FORMALIZE_MODE,
-        workspace / ".archon/prover-modes/chemistry-formalize.md": NATIVE_FORMALIZE_MODE,
+        workspace / ".archon/prover-modes/physics-formalize.md": formalize_mode,
+        workspace / ".archon/prover-modes/chemistry-formalize.md": formalize_mode,
         workspace / ".archon/prover-modes/physics.md": NATIVE_PROOF_MODE,
         workspace / ".archon/prover-modes/chemistry.md": NATIVE_PROOF_MODE,
         workspace / ".archon/prompts/plan.md": NATIVE_PLAN_GUIDE,

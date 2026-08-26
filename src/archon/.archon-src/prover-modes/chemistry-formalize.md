@@ -216,17 +216,26 @@ expose complete atom, charge, mass, and measured-interval ledgers; and forbid
 anonymous or catch-all material streams.
 
 Use `qualitative_named_transform_only` only for an explicit source arrow or
-exact named-final cue acting as a non-exclusive compatibility constraint in an
-authorized finite candidate audit. Bind the named roles, direction, and source
-locator. Keep every omitted protocol, coefficient, phase, byproduct, and stream
-unknown. This mode may check a candidate's own formula, charge/valence,
-structure, primitive stoichiometry, pinned-weight interval, and compatibility,
-but cannot prove yield, completeness, sole-product status, absence of material,
-or a quantitative stage balance. A receipt may authorize candidate construction
-only as its exact rule says; it cannot supply a `SourceFact` or invent streams.
-If candidate provenance, the uniform audit, or uniqueness remains unresolved,
-the Reviewer must fail. Otherwise one semantically justified survivor may
-answer the identification without a separate exhaustive theorem.
+exact named-final cue acting as a non-exclusive compatibility constraint for an
+identify/draw/give-structure output. It need not assert a finite open-world
+candidate universe. Bind the named roles, direction, and source locator. Keep
+every omitted protocol, coefficient, phase, byproduct, and stream unknown. This
+mode may check a candidate's own formula, charge/valence, structure, primitive
+stoichiometry, pinned-weight interval, and compatibility, but cannot prove
+yield, completeness, sole-product status, absence of material, or a quantitative
+stage balance. A receipt may authorize candidate construction only as its exact
+rule says; it cannot supply a `SourceFact` or invent streams.
+
+For source verbs identify, draw, or give a structure, emit a concrete candidate
+when the source-first constraints and applicable authorities support it, and
+give nontrivial carriers checking every decisive constraint. Audit the
+provenance and uniform coverage of every finite candidate domain actually used.
+Do not demand a global enumeration or global uniqueness proof unless the source
+says unique, all, every, or equivalent. A named output carrier is not answer
+smuggling merely because it names the candidate; reject it when the candidate is
+injected into a premise, singleton/answer-shaped domain, opaque predicate, or
+reflexive theorem. Fail closed when a real conflicting candidate remains or a
+decisive bridge lacks an applicable trusted source.
 
 Problem-stipulated values override the pinned dataset. A pinned nominal value
 may be used for an olympiad-style central
@@ -311,11 +320,14 @@ shortcut. Outputs without this exact controller marker keep the normal workflow.
   `activated_candidate_construction_rule`). The last provenance requires an
   exact current activation receipt and complete permitted-authority manifest;
   it constructs only an authority-relative `AuthorizedCandidate` domain, not a
-  `SourceFact`. For identification, the Reviewer must audit candidate-domain
-  provenance, uniform coverage, and uniqueness. A finite exhaustive theorem
-  may be recorded when available but is optional. If the supplied facts leave
-  infinitely many or multiple candidates, formalize that underdetermination
-  instead of silently importing a finite official-answer table.
+  `SourceFact`. If a finite candidate domain is actually used, the Reviewer must
+  audit its provenance and the uniform application of every decisive constraint.
+  For identify/draw/give-structure outputs, a concrete evidence-supported
+  witness does not require an open-world finite enumeration or global uniqueness
+  proof unless the source requests unique, all, every, or equivalent. A finite
+  exhaustive theorem may be recorded when available but is optional. If the
+  supplied facts leave a real unresolved choice between candidates, formalize
+  that underdetermination instead of silently importing an official-answer table.
 - In this run, previous-part certificates are not yet controller-bound. Derive
   any needed earlier result inline from the problem-only material, or use only
   a fallback value explicitly printed in the current problem. A previous

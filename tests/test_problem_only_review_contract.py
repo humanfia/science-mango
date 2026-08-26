@@ -596,36 +596,56 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
         self.assertNotIn("symmetry_guided_benzylic_oxidation", prompt)
         self.assertNotIn("benzylic_oxidation_permanganate", prompt)
 
-    def test_chemistry_policy_requires_finite_staged_species_domain(self) -> None:
+    def test_chemistry_policy_scopes_finite_species_domain_to_quantitative_use(
+        self,
+    ) -> None:
         prompt = " ".join(
             render_native_chemistry_constant_policy(self._contract()).split()
         )
         for marker in (
-            "MANDATORY FINITE STAGED-SPECIES DOMAIN",
+            "STAGED-TRANSFORMATION CLASSIFICATION",
+            "`quantitative_material_stage`",
+            "`qualitative_named_transform_only`",
+            "Use `quantitative_material_stage` whenever the conclusion depends on yield",
             "finite, source-derived species domain",
-            "every permitted solid input and output, volatile output, and external input",
+            "every permitted solid input/output, volatile output, and external input",
             "Every atom or mass flow must be species-typed",
-            "catch-all material-flow variables are forbidden",
-            "every element in every admitted species an exact problem locator",
-            "source-authorized external input for that same stage",
-            "not an input to a later experiment",
+            "catch-all streams are forbidden",
+            "Use `qualitative_named_transform_only` only when an explicit source arrow",
+            "non-exclusive compatibility constraint for an identify/draw/give-structure output",
+            "Keep omitted protocol details, coefficients, phases, byproducts, and streams unknown",
+            "may not claim yield, completeness, sole-product status, absence of material",
+            "does not require inventing or exhaustively enumerating omitted streams and byproducts",
+            "identify, draw, or give a structure",
+            "concrete evidence-supported witness",
+            "open-world chemical universe is finite or globally exhaustive",
+            "reject answer smuggling",
             "unconstrained `Bool`/`Prop` fields",
+            "For every `quantitative_material_stage`, expose named Lean carriers",
             "complete atom, charge, mass, and measured-interval ledgers",
             "Scalar mass equality alone is not chemical feasibility",
             "terminal-residue or terminal-candidate rule only after",
             "at least two fully species-typed, source-grounded, balanced models",
             "numerical slack and freely chosen flags are not countermodels",
             "`chemistry_checks.staged_species_domain`",
+            "A qualitative pass must include the exact token `qualitative_named_transform_only`",
             "exact token `not_staged_transformation`",
         ):
             self.assertIn(marker, prompt)
+        self.assertNotIn("MANDATORY FINITE STAGED-SPECIES DOMAIN", prompt)
 
         formalizer_prompt = " ".join(
             _native_formalizer_semantic_dag_block(
                 project_path=self.project, target=self.target,
             ).split()
         )
-        self.assertIn("MANDATORY FINITE STAGED-SPECIES DOMAIN", formalizer_prompt)
+        self.assertIn("STAGED-TRANSFORMATION CLASSIFICATION", formalizer_prompt)
+        self.assertIn("`quantitative_material_stage`", formalizer_prompt)
+        self.assertIn("`qualitative_named_transform_only`", formalizer_prompt)
+        self.assertIn("reject answer smuggling", formalizer_prompt)
+        self.assertNotIn(
+            "MANDATORY FINITE STAGED-SPECIES DOMAIN", formalizer_prompt,
+        )
         self.assertNotIn(
             "CONTROLLER-FIXED EXHAUSTIVENESS DECLARATIONS", formalizer_prompt,
         )
@@ -944,8 +964,15 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             self.assertIn(marker, formal_prompt)
 
         for prompt in (proof_prompt, formal_prompt):
+            normalized_prompt = " ".join(prompt.split())
             self.assertIn("NATIVE PROBLEM-INPUT-ONLY CONTRACT", prompt)
             self.assertIn("candidate_sha256", prompt)
+            self.assertIn(
+                "bound problem evidence, auditable chemistry evidence allowed "
+                "by the bound policy within its exact scope",
+                normalized_prompt,
+            )
+            self.assertIn("reject answer smuggling", normalized_prompt)
             self.assertIn(
                 '"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>',
                 prompt,

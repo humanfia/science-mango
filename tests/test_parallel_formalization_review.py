@@ -481,8 +481,12 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 '"Suggest", "propose", or "give a possible"',
                 "one source-compatible witness",
                 "do not demand or let the candidate claim global uniqueness",
+                '"Identify", "draw", or "give the structure"',
+                "concrete evidence-supported identification/witness",
+                "does not by itself require a finite enumeration of the open chemical universe",
+                "global uniqueness theorem",
                 '"Determine" or "calculate"',
-                'Require uniqueness only for "unique" or "uniquely"',
+                'Require global uniqueness only for "unique" or "uniquely"',
                 'exhaustive coverage only for "all", "every"',
                 "source-only stock-flow ledger",
                 "cumulative fresh input",
@@ -513,9 +517,18 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "different-substrate cue fails closed",
                 "does not identify the specific reagent",
                 "identity to be derived independently from the problem measurements",
+                "not answer smuggling merely because it is defined as the output carrier",
+                "injected into a premise, singleton/answer-shaped domain, opaque predicate",
+                "do not fail solely because no global candidate universe was asserted",
                 '"staged_species_domain"',
+                "quantitative_material_stage",
+                "qualitative_named_transform_only",
+                "Only that class must enumerate all allowed solid inputs/outputs",
                 "allowed solid inputs/outputs, volatile outputs, and external inputs",
-                "Reject anonymous or catch-all material streams",
+                "complete atom, charge, mass, and measured-interval ledger carriers",
+                "non-exclusive compatibility constraint for an identify/draw/give-structure output",
+                "Keep omitted protocol details, coefficients, phases, byproducts, and streams unknown",
+                "Reject anonymous/catch-all streams",
                 "not_staged_transformation",
                 "inner activation-input candidate and answer hash intentionally "
                 "belong to the already reviewed parent hop",
@@ -523,6 +536,15 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
                 "are expected",
             ):
                 self.assertIn(marker, normalized_chemistry)
+            self.assertIn(
+                "bound problem evidence, auditable chemistry evidence allowed "
+                "by the bound policy within its exact scope",
+                normalized_chemistry,
+            )
+            self.assertIn(
+                "problem or auditable chemistry evidence supporting the candidate domain",
+                normalized_chemistry,
+            )
 
             blueprint_schema = next(
                 line.strip() for line in prompt.splitlines()

@@ -796,23 +796,22 @@ class NativeArchonCampaignTests(unittest.TestCase):
         agents = (workspace / ".archon/AGENTS.md").read_text()
         protocol = (workspace / "ANSWER_BLIND_PROTOCOL.md").read_text()
         formalize = (workspace / ".archon/prover-modes/physics-formalize.md").read_text()
+        chemistry_formalize = (
+            workspace / ".archon/prover-modes/chemistry-formalize.md"
+        ).read_text()
+        canonical_formalize = RUNNER.archon_data_path(
+            "prover-modes/chemistry-formalize.md"
+        ).read_text(encoding="utf-8")
         plan = (workspace / ".archon/prompts/plan.md").read_text()
         review = (workspace / ".archon/prompts/review.md").read_text()
         for text in (agents, protocol, formalize, plan, review):
             self.assertNotIn("freeze gates", text.lower())
             self.assertNotIn("lean-lsp mcp", text.lower())
         self.assertIn("formalization Review", agents)
-        self.assertIn("atomically overwrite", formalize)
-        self.assertIn(".answer.json", formalize)
-        self.assertIn("Semantic Card", formalize)
-        self.assertIn("cumulative/overall/repeated-process", formalize)
-        self.assertIn("numerator and denominator", formalize)
-        self.assertIn("exact unrounded raw value", formalize)
-        self.assertIn("source locator", formalize)
-        self.assertIn("archon:numeric-reporting-certificate", formalize)
-        self.assertIn("reporting_policy_digits", formalize)
-        self.assertIn("ReportsAtQuantum", formalize)
-        self.assertIn("zero significant-figure report is ambiguous", formalize)
+        self.assertEqual(formalize, canonical_formalize)
+        self.assertEqual(chemistry_formalize, canonical_formalize)
+        self.assertIn("finite-exhaustive Lean theorem is optional", formalize)
+        self.assertIn("qualitative_named_transform_only", formalize)
         self.assertIn("numeric_reporting", review)
         self.assertIn("cannot be waived", review)
         self.assertIn("source-first independent derivation", review)
@@ -838,7 +837,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
             "mellitic_acid_benzoyl_chloride_to_c12o9",
             "mellitic_acid_p2o5_heating_forms_some_trianhydride",
         )
-        for text in (formalize, review):
+        for text in (review,):
             normalized = " ".join(text.split())
             self.assertIn(
                 '"$ARCHON_CLI_BIN" chemistry-constant atomic_weight <ELEMENT>',
@@ -903,12 +902,6 @@ class NativeArchonCampaignTests(unittest.TestCase):
             self.assertIn("does not identify the specific reagent", normalized)
             self.assertIn("must fail closed", normalized)
             self.assertNotIn("`archon chemistry-constant", text)
-        self.assertIn(
-            ".archon/task_results/IChO2026Problems_problem_<TARGET_ID>.answer.json",
-            formalize,
-        )
-        self.assertIn("display_value", formalize)
-        self.assertIn("Do not create any other candidate/answer JSON", formalize)
         self.assertIn("student-visible problem input", agents)
         self.assertIn("may be used only for", agents)
         self.assertIn("may not justify", agents)
