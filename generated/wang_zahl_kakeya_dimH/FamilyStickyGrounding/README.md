@@ -387,6 +387,19 @@ worse than the old global bound, but a genuine local packing or concentration
 theorem is still needed to control them with sufficiently mild scale
 dependence.
 
+The canonical insertion recursion now preserves a fixed local-card budget
+`n`: the lower child has exactly the parent active-fine cardinality, the upper
+child has no larger active-fine cardinality, and the before/after intervals are
+unchanged.  This yields a counted fixed-`n` driver, a uniform adjacent threshold,
+and a fully automatic fixed-local-card endpoint whose single delta threshold
+depends on `n` rather than on the ambient finite index type.  Its sole remaining
+local-card input is the honest seed certificate
+`NonLargeLocalCardBudget ... n` for the automatically generated capped seed.
+The identity cover can preserve equality throughout the recursion, so the
+recursive machinery cannot manufacture a smaller seed budget by itself.  This
+is therefore an interface for a future packing/concentration theorem, not yet
+such a theorem and not yet a cardinality-uniform positive delta threshold.
+
 The first failed relevant node and all earlier successful checks are computed;
 empty active-coarse and below-cutoff root data give sharp obstructions to
 manufacturing the repaired V2 node lower bounds automatically.
