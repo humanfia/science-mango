@@ -607,15 +607,24 @@ Source commit: `{source_commit}`.
 
 ## Generation provenance and limitations
 
-The formalizations were produced in a clean K3 rerun with `kimi-k3[1m]`
-through Claude Code, without importing the earlier GPT proof files.  They were
-then checked by Lean compilation, source-aware semantic review, kernel-axiom
-inspection, and the default Lake build.  A small number of workers consulted
-same-run sibling files for formatting conventions, so this release claims
-independence from the earlier proofs rather than strict per-target filesystem
-isolation.  Prompts, model transcripts, and runtime logs are intentionally not
-published; consequently the generation-process statement is reported
-provenance and cannot be established from the public bundle alone.
+The formalizations were produced in a fresh answer-blind campaign with
+OpenAI `gpt-5.6-sol` through Codex.  The solver workspace exposed the current
+problem statement and images plus pinned shared libraries, but not the official
+solution or sibling-target artifacts.  The results were then checked by Lean
+compilation, source-aware semantic review, kernel-axiom inspection, and the
+default Lake build.  Official-solution comparison was performed only after the
+campaign terminated.  Prompts, model transcripts, and runtime logs are
+intentionally not published; consequently the generation-process statement is
+reported provenance and cannot be established from the public bundle alone.
+
+## Known auxiliary-carrier limitation
+
+The requested T7-A3 outputs, `5.6662 mol` and `189 cycles`, match the official
+rubric.  An auxiliary previous-part carrier nevertheless labels mixture M1 as
+containing `N2`, `CO2`, and `H2`, whereas the source figure shows `N2`, `CO`,
+and `H2` at that stage.  This carrier is not used to derive either requested
+T7-A3 output, but the release should not be described as free of every
+non-output semantic defect.
 
 ## Known official-source inconsistency
 

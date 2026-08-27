@@ -1,33 +1,20 @@
 % --- Archon physics formalization source begin ---
-% archon:physics
 % archon:chemistry
 % archon:covers IChO2026Problems/problem_icho_2026_t7_a3.lean
-% archon:source-report reports/icho_2026/problem_icho_2026_t7_a3.source.json
 % archon:problem-id icho_2026_t7
 % archon:part-id T7-A3
 % archon:previous-part icho_2026_t7_a1
-% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part-policy derive_in_answer_blind_run_or_use_problem_stated_fallback
 
 \chapter{Icho Chemistry problem icho\_2026\_t7\_a3}
 \label{ch:IChO2026Problems_problem_icho_2026_t7_a3}
 
 \paragraph{Problem source.}
-\#\# Source
-58th International Chemistry Olympiad, Tashkent, Uzbekistan, 2026.
-Official-materials index: https://www.icho2026.uz/problems
-English problem PDF: ../icho\_2026\_source/raw/theory\_problem.pdf
-English solution/rubric PDF: ../icho\_2026\_source/raw/theory\_solution.pdf
-Problem PDF page 64; printed local question page 2; solution starts on PDF page 63.
-The page PNG is primary visual evidence for formulas, structures, tables, and figures.
-
-\#\# T7. Nitrogen Fixation
+\#\# Shared official problem context
 T7. Nitrogen Fixation 7\% The Haber–Bosch process is the principal industrial method for ammonia production. A simplified diagram of an ammonia synthesis plant is shown below. Fig. 1. M1 - Mixture 1, M2 - Mixture 2, Z −CO2 scrubber, CLR - cooler In the following calculations, assume that all reactions in Fig. 1, except NH3 formation, are quantitative. 7.1 Tick the gases contained in M1 and M2; and tick the correct relationship between 𝑥and 𝑦. An ammonia production complex with a capacity of 660, 000 tons per year was commissioned at the Navoiazot plant in Uzbekistan, which operates with a 97.0\% of overall yield. 7.2 Calculate the mass of CH4 (tons) required annually to produce 660, 000 tons of ammonia, if the Navoiazot operates according to the Fig. 1. Consider a model of a real reaction system, which includes recirculation of reagents. An open system operates in a cyclic mode. Each cycle consists of four steps: 1. A stoichiometric N2 : H2 = 1 : 3 mixture with a total amount of n0 mol is fed into the reactor after each cycle. 2. The reaction proceeds with a constant yield of 𝜂= 0.150. 3. Ammonia is separated by liquification. 4. Unreacted gases are returned into the reactor. The cycle is repeated until the required overall yield is reached. Fig. 2. M2. – Mixture 2, CLR - cooler.
 
-\#\# Current subquestion 7.3
+\#\# Current subquestion T7-A3
 a) Calculate the amount of nitrogen, present in the system after the 58th cycle (before the addition of 59th portion of mixture), if 𝑛0 = 4 mol. Provide 4 decimal places. Hint: a formula for the sum of the terms of a geometric progression is needed. b) Calculate the number of cycles needed to increase the overall yield from 15.0\% to 97.0\%.
-
-\#\# Dataset metadata
-IChO 2026; T7; raw rubric points=15; kind=theory; formalization\_ready=true.
 
 \paragraph{Shared problem context.}
 T7. Nitrogen Fixation 7\% The Haber–Bosch process is the principal industrial method for ammonia production. A simplified diagram of an ammonia synthesis plant is shown below. Fig. 1. M1 - Mixture 1, M2 - Mixture 2, Z −CO2 scrubber, CLR - cooler In the following calculations, assume that all reactions in Fig. 1, except NH3 formation, are quantitative. 7.1 Tick the gases contained in M1 and M2; and tick the correct relationship between 𝑥and 𝑦. An ammonia production complex with a capacity of 660, 000 tons per year was commissioned at the Navoiazot plant in Uzbekistan, which operates with a 97.0\% of overall yield. 7.2 Calculate the mass of CH4 (tons) required annually to produce 660, 000 tons of ammonia, if the Navoiazot operates according to the Fig. 1. Consider a model of a real reaction system, which includes recirculation of reagents. An open system operates in a cyclic mode. Each cycle consists of four steps: 1. A stoichiometric N2 : H2 = 1 : 3 mixture with a total amount of n0 mol is fed into the reactor after each cycle. 2. The reaction proceeds with a constant yield of 𝜂= 0.150. 3. Ammonia is separated by liquification. 4. Unreacted gases are returned into the reactor. The cycle is repeated until the required overall yield is reached. Fig. 2. M2. – Mixture 2, CLR - cooler.
@@ -35,26 +22,23 @@ T7. Nitrogen Fixation 7\% The Haber–Bosch process is the principal industrial 
 \paragraph{Current subquestion.}
 a) Calculate the amount of nitrogen, present in the system after the 58th cycle (before the addition of 59th portion of mixture), if 𝑛0 = 4 mol. Provide 4 decimal places. Hint: a formula for the sum of the terms of a geometric progression is needed. b) Calculate the number of cycles needed to increase the overall yield from 15.0\% to 97.0\%.
 
-\paragraph{Recorded answer/context.}
-Each time, along with the unreacted gases, a stoichiometric mixture of N2 and H2 is added to the synthesis reactor. Let's define 𝑓𝑛as the number of moles of N2, which are present in the reactor after the reaction and before adding the next portion. For moles of N2, the following recurrence relation is obtained: 𝑓𝑛= (𝑛0 4 + 𝑓𝑛−1)(1 −𝜂), 𝑓1 = (1 −𝜂)𝑛0 4 (2 pt each) Applying the relation and using 𝑛0 = 4, we obtain: 𝑓2 = (1 + 𝑓1)(1 −𝜂) = (1 −𝜂) + (1 −𝜂)2 𝑓3 = (1 + 𝑓2)(1 −𝜂) = (1 −𝜂) + (1 −𝜂)2 + (1 −𝜂)3 𝑓4 = (1 + 𝑓3)(1 −𝜂) = (1 −𝜂) + (1 −𝜂)2 + (1 −𝜂)3 + (1 −𝜂)4 ... 𝑓𝑛= (1 −𝜂) + (1 −𝜂)2 + (1 −𝜂)3 + (1 −𝜂)4 + … + (1 −𝜂)𝑛= 𝑛 ∑ 𝑖=1 (1 −𝜂)𝑖(2 pt) = (1 −𝜂)1 −(1 −𝜂)𝑛 1 −(1 −𝜂) = ( 1 𝜂−1) (1 −(1 −𝜂)𝑛) (2 pt) a) After using the numerical values, we can easily calculate 𝑓𝑛= 5.6662 (2 pt) If student calculated the answer by calculating every single 𝑓𝑛and got the final answer correctly, full marks for the answer are given, but 0 for the equations. For any other reasonable solution, giving the correct answer, full mark will be given. b) Over n cycles, n moles of nitrogen have entered the system: 1 −𝜂𝑓𝑖𝑛𝑎𝑙= ( 1 𝜂−1) (1 −(1 −𝜂)𝑛) 𝑛 (3 pt) When 𝜂= 0.15 and 𝜂𝑓𝑖𝑛𝑎𝑙= 0.97, the exact answer is n = 188.9, so the required number of cycles is 189 (2 pt). Note: this equation can be easily converted to a linear one by mentioning that (1 −(1 −𝜂)𝑛) ≈1, which is practically true after n = 30. For any other reasonable solution, giving the correct answer, full marks will be given. 𝑛= \_\_\_189\_\_\_\_ Total: 15 pt 15.0 pt
-
 \paragraph{Figure/image paths.}
 \begin{itemize}
-\item ../icho\_2026\_source/image/T7\_page-2.png
-\item ../icho\_2026\_source/image/T7\_page-1.png
+\item icho\_2026\_source/image/T7\_page-2.png
+\item icho\_2026\_source/image/T7\_page-1.png
 \end{itemize}
 
 \paragraph{Reusable previous-part conclusions.}
 \begin{itemize}
-\item Source T7-A1. Question: Tick the gases contained in M1 and M2; and tick the correct relationship between 𝑥and 𝑦. Reusable conclusions: Visual-answer notice: the official solution contains essential ticks, structures, tables, graphs, or equations that PDF plain-text extraction may omit. Consult the cited solution PDF page.
-
-CH4 H2O CO O2 H2 N2 NH3 CO2 M1 ✓ ✓ ✓ M2 ✓ ✓ ✓ 𝑥> 𝑦 𝑥= 𝑦 𝑥< 𝑦 ✓ For composition of M1: 1 pt For two correct ticks: 0.5 pt; If only one correct tick given: 0.25 pt -0.25 pt penalty for each incorrect tick, but not below 0 pt. For composition of M2: 1 pt; For two correct ticks: 0.5 pt; If only one correct tick given: 0.25 pt -0.25 pt penalty for each incorrect tick, but not below 0 pt. For relationship: 1 pt. 3.0 pt Policy: natural\_language\_prerequisite\_only; the current target and later answers must not be assumed
+\item Source T7-A1. Question: Tick the gases contained in M1 and M2; and tick the correct relationship between 𝑥and 𝑦. Policy: derive\_in\_answer\_blind\_run\_or\_use\_problem\_stated\_fallback
 \end{itemize}
 
 \paragraph{Formalization target.}
 create a compiling Lean file with sorry bodies at `IChO2026Problems/problem\_icho\_2026\_t7\_a3.lean`.
 The Lean declarations must preserve every mathematical object, quantifier, hypothesis, side condition, approximation/error guarantee, and requested conclusion from the source statement.
-Use Mathlib/Physlib/Chemistry names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+Use Mathlib/Physlib/CRNT names found through LeanExplore where available. Prefer the configured benchmark Base library; introduce a local definition only when the source genuinely requires an object that the environment does not expose.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
 
 \begin{theorem}[Icho Chemistry formalization target]
 \label{thm:physics:icho_2026_t7_a3:target}

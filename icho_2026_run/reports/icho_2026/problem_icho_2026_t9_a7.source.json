@@ -1,6 +1,9 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "command": "physics-formalize",
+  "evaluation_mode": "answer_blind",
+  "official_answer_seen": false,
+  "phase": "solve",
   "status": "prepared",
   "next_stage": "autoformalize",
   "prover_mode": "chemistry-formalize",
@@ -13,67 +16,139 @@
   "lean_search_packages": [
     "Mathlib",
     "Physlib",
-    "Chemistry"
+    "CRNT"
   ],
   "entry": {
-    "id": "icho_2026_t9_a7",
-    "index": "icho_2026_t9_a7",
-    "source_index": "T9-A7",
-    "problem_id": "icho_2026_t9",
-    "part_id": "T9-A7",
-    "question": "## Source\n58th International Chemistry Olympiad, Tashkent, Uzbekistan, 2026.\nOfficial-materials index: https://www.icho2026.uz/problems\nEnglish problem PDF: ../icho_2026_source/raw/theory_problem.pdf\nEnglish solution/rubric PDF: ../icho_2026_source/raw/theory_solution.pdf\nProblem PDF page 87; printed local question page 4; solution starts on PDF page 87.\nThe page PNG is primary visual evidence for formulas, structures, tables, and figures.\n\n## T9. Cyclodextrin Chemistry\nT9. Cyclodextrin Chemistry 7% Cyclodextrins (CD) are a family of cyclic oligosaccharides, consisting of glucose subunits joined by α1,4-glycosidic bonds. The three most common cyclodextrins (α-, β-, γ-cyclodextrin) contain 6, 7, and 8 α-D-glucopyranoside units, respectively. 9.1 Calculate the molar mass of β-CD. Assume M𝑤(glucose) = 180.16 g mol−1. CDs combine macrocyclic properties with glucose chemistry, which was demonstrated in the synthesis of X. Primary and secondary hydroxy groups show different reactivity due to being a part of CDs. Stoddart et al. synthesised compound K, where only one OH group remained free per glucopyranoside unit. equiv.= equivalent 9.2 Tick the favorable chair conformation and draw the structure of K by completing the CD template. Show stereochemistry unambiguously. 9.3 Determine the ring size, 𝑟𝑠, of macrocycle X. Give the number of stereocentres, 𝑠𝑐, in X. α-Cycloaltrin, a synthetic analogue of α-CD, was synthesised as follows. 9.4 Draw the structure of Y with stereochemistry by completing the CD template. In 2000, Sinay et al. demonstrated that a single protic group (NH and OH) at unit 1 directs the next reductive debenzylation of a primary OH group to unit 4 in the macrocyclic ring (or to unit 3 if the unit 4 position is not available). This allowed the synthesis of the following β-CD dimer as a mixture of constitutional linkage isomers. 9.5 Draw the structure of L on the β-CD template. Fill in all the boxes. 9.6 Determine the number of isomers of the β-CD dimer that can form during the synthesis by Sinay et. al. To confirm the positions of debenzylation, L was subjected to the “hexo-5-enose degradation” reaction, as shown below. The products were then analysed by mass spectrometry.\n\n## Current subquestion 9.7\nCalculate the 𝑚/𝑧value for the two [M+Na]+ peaks that were observed for the degradation products from L. Use integer values of atomic mass.\n\n## Dataset metadata\nIChO 2026; T9; raw rubric points=6; kind=theory; formalization_ready=true.",
-    "current_question": "Calculate the 𝑚/𝑧value for the two [M+Na]+ peaks that were observed for the degradation products from L. Use integer values of atomic mass.",
-    "shared_context": "T9. Cyclodextrin Chemistry 7% Cyclodextrins (CD) are a family of cyclic oligosaccharides, consisting of glucose subunits joined by α1,4-glycosidic bonds. The three most common cyclodextrins (α-, β-, γ-cyclodextrin) contain 6, 7, and 8 α-D-glucopyranoside units, respectively. 9.1 Calculate the molar mass of β-CD. Assume M𝑤(glucose) = 180.16 g mol−1. CDs combine macrocyclic properties with glucose chemistry, which was demonstrated in the synthesis of X. Primary and secondary hydroxy groups show different reactivity due to being a part of CDs. Stoddart et al. synthesised compound K, where only one OH group remained free per glucopyranoside unit. equiv.= equivalent 9.2 Tick the favorable chair conformation and draw the structure of K by completing the CD template. Show stereochemistry unambiguously. 9.3 Determine the ring size, 𝑟𝑠, of macrocycle X. Give the number of stereocentres, 𝑠𝑐, in X. α-Cycloaltrin, a synthetic analogue of α-CD, was synthesised as follows. 9.4 Draw the structure of Y with stereochemistry by completing the CD template. In 2000, Sinay et al. demonstrated that a single protic group (NH and OH) at unit 1 directs the next reductive debenzylation of a primary OH group to unit 4 in the macrocyclic ring (or to unit 3 if the unit 4 position is not available). This allowed the synthesis of the following β-CD dimer as a mixture of constitutional linkage isomers. 9.5 Draw the structure of L on the β-CD template. Fill in all the boxes. 9.6 Determine the number of isomers of the β-CD dimer that can form during the synthesis by Sinay et. al. To confirm the positions of debenzylation, L was subjected to the “hexo-5-enose degradation” reaction, as shown below. The products were then analysed by mass spectrometry.",
-    "answer": "Since we know the chemical formula for the units, we can calculate molecular weights of the two products. Each product should have one unit 2 (black sphere) and 2-3 unit 1s (white sphere). Additionally, we should add C2H3O2, which corresponds to the mass of the OAc group. Therefore: 𝑀1 ∶2C27H28O5 + C22H25O4 + C2H3O2 = C78H84O16 [𝑀1 + Na]+= 1299 𝑀2 ∶3C27H28O5 + C22H25O4 + C2H3O2 = C105H112O21 [𝑀2 + Na]+=1731 [𝑀1 + Na]+ = 1299 [𝑀2 + Na]+= 1731 Each correct answer 3 points, total – 6 points m/z without Na+ 1p each m/z without C2H2O2 1p each 6.0 pt",
+    "candidate_domain_policy": {
+      "allowed_sources": [
+        "problem_text",
+        "problem_image",
+        "problem_stated_fallback",
+        "trusted_general_law",
+        "derived_theorem"
+      ],
+      "previous_part_results": "derive_inline_from_problem_only_material_or_use_problem_stated_fallback",
+      "underdetermined_result": "must_be_reported",
+      "unjustified_search_bounds": "forbidden"
+    },
     "category": "IChO 2026 Theory",
-    "dataset": "IChO 2026 official English exam materials",
+    "current_question": "Calculate the 𝑚/𝑧value for the two [M+Na]+ peaks that were observed for the degradation products from L. Use integer values of atomic mass.",
+    "dataset": "IChO 2026 official English problem materials",
     "dataset_format": "native",
-    "points": 6.0,
-    "paper": "T9",
-    "kind": "theory",
+    "evaluation_mode": "answer_blind",
     "formalization_ready": true,
+    "id": "icho_2026_t9_a7",
     "image": "T9_page-4.png",
     "images": [
       "T9_page-4.png",
       "T9_page-3.png"
     ],
+    "index": "icho_2026_t9_a7",
+    "kind": "theory",
+    "measurement_policy": {
+      "derived_tolerances": "must_be_proved_from_source_measurement_intervals",
+      "measured_display_half_width": "one_half_of_last_displayed_quantum",
+      "stipulated_constants": "exact_as_printed_unless_problem_calls_them_measured"
+    },
+    "official_answer_seen": false,
+    "paper": "T9",
+    "part_id": "T9-A7",
+    "phase": "solve",
+    "points": 6.0,
     "previous_parts": [
       {
-        "source_id": "icho_2026_t9_a5",
+        "dependency_policy": "derive_in_answer_blind_run_or_use_problem_stated_fallback",
         "part_id": "T9-A5",
         "question": "Draw the structure of L on the β-CD template. Fill in all the boxes.",
-        "answer": "Visual-answer notice: the official solution contains essential ticks, structures, tables, graphs, or equations that PDF plain-text extraction may omit. Consult the cited solution PDF page.\n\nCorrect structure 2 points. -1 p for each incorrect substituent 0 p if 2 or more incorrect substituents 2.0 pt",
-        "reusable_conclusions": [
-          "Visual-answer notice: the official solution contains essential ticks, structures, tables, graphs, or equations that PDF plain-text extraction may omit. Consult the cited solution PDF page.\n\nCorrect structure 2 points. -1 p for each incorrect substituent 0 p if 2 or more incorrect substituents 2.0 pt"
-        ],
-        "dependency_policy": "natural_language_prerequisite_only; the current target and later answers must not be assumed"
+        "source_id": "icho_2026_t9_a5"
       }
     ],
-    "source_pdf": "theory_problem.pdf",
-    "source_page": 87,
     "printed_page": 4,
-    "solution_pdf": "theory_solution.pdf",
-    "marking_scheme_pdf": "theory_solution.pdf",
-    "source_url": "https://scheikundeolympiade.science.ru.nl/internationaal/2026/IChO2026%20Theory%20task%20final%20English.pdf",
-    "solution_url": "https://scheikundeolympiade.science.ru.nl/internationaal/2026/IChO2026%20Theory%20Solutions.pdf",
-    "image_paths": [
-      "../icho_2026_source/image/T9_page-4.png",
-      "../icho_2026_source/image/T9_page-3.png"
+    "problem_assets": [
+      {
+        "kind": "problem_page",
+        "path": "T9_page-4.png",
+        "printed_page": 4,
+        "sha256": "a387cc56150da4c1070f2eb0b61e1e7c130429b1ec58594613fdfdb816476a1d",
+        "source_page": 87
+      },
+      {
+        "kind": "problem_page",
+        "path": "T9_page-3.png",
+        "printed_page": 4,
+        "sha256": "a63869290bd2dcbc80632be3cbf121fab1ffa361f725255f17c191d16df7da4f",
+        "source_page": 87
+      },
+      {
+        "kind": "problem_pdf",
+        "path": "theory_problem.pdf",
+        "sha256": "af51373f43201cecf81457afa4cd44a2cf68a776068abf216292482dbc8d3d60",
+        "source_page": 87
+      }
     ],
-    "image_path": "../icho_2026_source/image/T9_page-4.png"
+    "problem_id": "icho_2026_t9",
+    "protocol": "icho-answer-blind-v1",
+    "question": "## Shared official problem context\nT9. Cyclodextrin Chemistry 7% Cyclodextrins (CD) are a family of cyclic oligosaccharides, consisting of glucose subunits joined by α1,4-glycosidic bonds. The three most common cyclodextrins (α-, β-, γ-cyclodextrin) contain 6, 7, and 8 α-D-glucopyranoside units, respectively. 9.1 Calculate the molar mass of β-CD. Assume M𝑤(glucose) = 180.16 g mol−1. CDs combine macrocyclic properties with glucose chemistry, which was demonstrated in the synthesis of X. Primary and secondary hydroxy groups show different reactivity due to being a part of CDs. Stoddart et al. synthesised compound K, where only one OH group remained free per glucopyranoside unit. equiv.= equivalent 9.2 Tick the favorable chair conformation and draw the structure of K by completing the CD template. Show stereochemistry unambiguously. 9.3 Determine the ring size, 𝑟𝑠, of macrocycle X. Give the number of stereocentres, 𝑠𝑐, in X. α-Cycloaltrin, a synthetic analogue of α-CD, was synthesised as follows. 9.4 Draw the structure of Y with stereochemistry by completing the CD template. In 2000, Sinay et al. demonstrated that a single protic group (NH and OH) at unit 1 directs the next reductive debenzylation of a primary OH group to unit 4 in the macrocyclic ring (or to unit 3 if the unit 4 position is not available). This allowed the synthesis of the following β-CD dimer as a mixture of constitutional linkage isomers. 9.5 Draw the structure of L on the β-CD template. Fill in all the boxes. 9.6 Determine the number of isomers of the β-CD dimer that can form during the synthesis by Sinay et. al. To confirm the positions of debenzylation, L was subjected to the “hexo-5-enose degradation” reaction, as shown below. The products were then analysed by mass spectrometry.\n\n## Current subquestion T9-A7\nCalculate the 𝑚/𝑧value for the two [M+Na]+ peaks that were observed for the degradation products from L. Use integer values of atomic mass.",
+    "reporting_policy": {
+      "default_final_display": "three_significant_figures",
+      "explicit_precision": "use_only_precision_requested_in_problem",
+      "final_precision": {
+        "kind": "per_requested_output",
+        "source": "requested_outputs"
+      },
+      "intermediate_rounding": "forbidden",
+      "raw_result_required": true,
+      "tie_rule": "half_away_from_zero"
+    },
+    "requested_outputs": [
+      {
+        "audit_requirements": [
+          "image_component_accounting"
+        ],
+        "id": "first_fragment_mz",
+        "kind": "integer",
+        "reporting_policy": {
+          "kind": "exact_integer",
+          "source": "problem_output_type"
+        },
+        "source_requirement": "m/z of the first degradation-product sodium adduct",
+        "unit": "m/z"
+      },
+      {
+        "audit_requirements": [
+          "image_component_accounting"
+        ],
+        "id": "second_fragment_mz",
+        "kind": "integer",
+        "reporting_policy": {
+          "kind": "exact_integer",
+          "source": "problem_output_type"
+        },
+        "source_requirement": "m/z of the second degradation-product sodium adduct",
+        "unit": "m/z"
+      }
+    ],
+    "schema_version": 1,
+    "shared_context": "T9. Cyclodextrin Chemistry 7% Cyclodextrins (CD) are a family of cyclic oligosaccharides, consisting of glucose subunits joined by α1,4-glycosidic bonds. The three most common cyclodextrins (α-, β-, γ-cyclodextrin) contain 6, 7, and 8 α-D-glucopyranoside units, respectively. 9.1 Calculate the molar mass of β-CD. Assume M𝑤(glucose) = 180.16 g mol−1. CDs combine macrocyclic properties with glucose chemistry, which was demonstrated in the synthesis of X. Primary and secondary hydroxy groups show different reactivity due to being a part of CDs. Stoddart et al. synthesised compound K, where only one OH group remained free per glucopyranoside unit. equiv.= equivalent 9.2 Tick the favorable chair conformation and draw the structure of K by completing the CD template. Show stereochemistry unambiguously. 9.3 Determine the ring size, 𝑟𝑠, of macrocycle X. Give the number of stereocentres, 𝑠𝑐, in X. α-Cycloaltrin, a synthetic analogue of α-CD, was synthesised as follows. 9.4 Draw the structure of Y with stereochemistry by completing the CD template. In 2000, Sinay et al. demonstrated that a single protic group (NH and OH) at unit 1 directs the next reductive debenzylation of a primary OH group to unit 4 in the macrocyclic ring (or to unit 3 if the unit 4 position is not available). This allowed the synthesis of the following β-CD dimer as a mixture of constitutional linkage isomers. 9.5 Draw the structure of L on the β-CD template. Fill in all the boxes. 9.6 Determine the number of isomers of the β-CD dimer that can form during the synthesis by Sinay et. al. To confirm the positions of debenzylation, L was subjected to the “hexo-5-enose degradation” reaction, as shown below. The products were then analysed by mass spectrometry.",
+    "source_index": "T9-A7",
+    "source_page": 87,
+    "source_pdf": "theory_problem.pdf",
+    "blind_record_sha256": "cebd1f87c52c37e8545c66bc1d7dea9a78eb9ee47e4ae2c93e9e5ea7aec5810e",
+    "image_paths": [
+      "icho_2026_source/image/T9_page-4.png",
+      "icho_2026_source/image/T9_page-3.png"
+    ],
+    "image_path": "icho_2026_source/image/T9_page-4.png"
   },
   "problem_id": "icho_2026_t9",
   "part_id": "T9-A7",
   "previous_parts": [
     {
-      "source_id": "icho_2026_t9_a5",
+      "dependency_policy": "derive_in_answer_blind_run_or_use_problem_stated_fallback",
       "part_id": "T9-A5",
       "question": "Draw the structure of L on the β-CD template. Fill in all the boxes.",
-      "answer": "Visual-answer notice: the official solution contains essential ticks, structures, tables, graphs, or equations that PDF plain-text extraction may omit. Consult the cited solution PDF page.\n\nCorrect structure 2 points. -1 p for each incorrect substituent 0 p if 2 or more incorrect substituents 2.0 pt",
-      "reusable_conclusions": [
-        "Visual-answer notice: the official solution contains essential ticks, structures, tables, graphs, or equations that PDF plain-text extraction may omit. Consult the cited solution PDF page.\n\nCorrect structure 2 points. -1 p for each incorrect substituent 0 p if 2 or more incorrect substituents 2.0 pt"
-      ],
-      "dependency_policy": "natural_language_prerequisite_only; the current target and later answers must not be assumed"
+      "source_id": "icho_2026_t9_a5"
     }
-  ]
+  ],
+  "blind_record_sha256": "cebd1f87c52c37e8545c66bc1d7dea9a78eb9ee47e4ae2c93e9e5ea7aec5810e"
 }

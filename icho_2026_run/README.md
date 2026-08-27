@@ -1,27 +1,20 @@
-# IChO 2026 K3 clean-room rerun
+# IChO 2026 answer-blind formalizations
 
-This Lake project reruns the 32 theory-ready IChO 2026 subquestions from
-papers T1--T9 with `kimi-k3[1m]` through the Claude Code harness. Practical
-papers P1--P3 remain outside the target set.
+This Lake project contains Lean formalizations for 32 selected theory-ready
+subquestions from the IChO 2026 theory papers T1--T9. Practical papers P1--P3
+and the remaining theory subquestions are outside this release's scope.
 
-The branch inherits the pinned Lean 4.31.0, Mathlib, Physlib, CRNT, and shared
-chemistry infrastructure from `chemistry`. Before the rerun, all 32 prior
-problem proofs, problem blueprints, source reports, Review certificates, and
-runtime sessions were removed. The official source JSONL and source images are
-the only problem-specific inputs.
+The proofs were generated in a fresh answer-blind campaign from commit
+`10b04c62`. The solver workspace contained the official problem statements and
+images, but not the official solutions. All 32 selected targets passed direct
+Lean compilation, source-aware formalization review, proof review, placeholder
+scans, the axiom sweep, and the default Lake build.
 
-## Clean-room boundary
-
-Agents working in this project must not inspect Git history, another worktree,
-the `chemistry` branch, or any previously published IChO proof dataset. They
-may use only the current source question, marking-scheme answer, source images,
-pinned upstream dependencies, and declarations present in this worktree.
-
-## Status
-
-The K3 rerun is being prepared. Success requires all 32 targets to pass direct
-Lean compilation, source-aware formalization Review, proof Review, placeholder
-scans, axiom sweeps, and the default Lake build.
+An independent post-run comparison found all 47 requested outputs equivalent
+to the official rubric answers, for an expected 168/168 raw points within this
+selected target set. This is not a claim of a full score on the complete IChO
+exam. Validation details, rounding notes, and one known auxiliary-carrier
+limitation are recorded in [RESULTS.md](RESULTS.md).
 
 ## Build
 
@@ -30,4 +23,7 @@ lake exe cache get
 lake build
 ```
 
-The target queue is `references/icho_2026_theory_ready.jsonl`.
+The selected target list is `references/icho_2026_theory_ready.jsonl`.
+
+- [Source code](https://github.com/humanfia/science-mango/tree/chemistry-blind-solver/icho_2026_run)
+- [Dataset](https://huggingface.co/datasets/humanfia-lab/icho-2026-lean4-formalizations)
