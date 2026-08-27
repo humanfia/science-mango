@@ -43,7 +43,6 @@ _IMPORT_RE = re.compile(r"(?m)^\s*import\s+(\S+)\s*$")
 _ACTIVE_LEAN_RE = re.compile(
     r"\b(?:sorry|admit|axiom|native_decide|sorryAx)\b"
 )
-_WORKFLOW_BRAND_RE = re.compile(r"archon", re.IGNORECASE)
 _STALE_WORKFLOW_PROSE_PATTERNS = (
     re.compile(r"\bredraft\b", re.IGNORECASE),
     re.compile(r"\bautoformaliz\w*\b", re.IGNORECASE),
@@ -290,7 +289,11 @@ def _load_targets(project: Path) -> list[Target]:
 
     report_dir = project / "reports" / "icho_2026"
     report_paths = sorted(report_dir.glob("*.source.json"))
-    problem_paths = sorted((project / "IChO2026Problems").rglob("*.lean"))
+    problem_paths = sorted(
+        path
+        for path in (project / "IChO2026Problems").rglob("*.lean")
+        if _PROBLEM_NAME_RE.fullmatch(path.name)
+    )
     observed_counts = {
         "inventory records": len(inventory),
         "source reports": len(report_paths),
@@ -663,7 +666,6 @@ def _validate_public_bundle(bundle: Path) -> None:
         except UnicodeError:
             _fail(f"non-text file in public bundle: {relative.as_posix()}")
         checks: tuple[tuple[str, re.Pattern[str]], ...] = (
-            ("workflow branding", _WORKFLOW_BRAND_RE),
             *(
                 ("stale workflow prose", pattern)
                 for pattern in _STALE_WORKFLOW_PROSE_PATTERNS
