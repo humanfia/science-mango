@@ -420,8 +420,19 @@ theorem physlibQuadraticSecondPicardRotatedSource_eq_zero_of_modeFrequency_eq_ze
     (hzero : modeFrequency m observed = 0) :
     physlibQuadraticSecondPicardRotatedSource
       m kappa observed radius phase time = 0 := by
-  unfold physlibQuadraticSecondPicardRotatedSource forcedModeSource
-  simp [hzero]
+  have hcross :
+      quadraticTensorCrossContraction m observed
+          (freeWeightedConfiguration radius (modeFrequency m) time phase)
+          (physlibQuadraticFirstPicardModalHistory
+            m kappa radius phase time) = 0 :=
+    quadraticTensorCrossContraction_eq_zero_of_observedFrequency_eq_zero
+      m observed
+        (freeWeightedConfiguration radius (modeFrequency m) time phase)
+        (physlibQuadraticFirstPicardModalHistory
+          m kappa radius phase time) hzero
+  unfold physlibQuadraticSecondPicardRotatedSource
+  rw [hcross]
+  simp [forcedModeSource]
 
 /-- The free cubic second-Picard source likewise has no zero-frequency
 observed-mode component. -/
