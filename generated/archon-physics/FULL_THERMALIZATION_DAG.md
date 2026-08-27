@@ -918,3 +918,59 @@ exact-versus-leading-flow estimate including the retained cubic diagrams and
 recollisions, high-probability tube persistence, and identification/relaxation
 of the limiting kinetic kernel.  Therefore `thermalization.complete` remains
 unverified.
+
+### 2026-08-27 F3 finite-Wick, second-order, and flow-stability checkpoint
+
+- `FiniteModalEnergyProbabilityTransfer` upgrades the deterministic modal-state
+  stability bound to convergence in probability for mean modal-energy error.
+  With a positive extensive reference-energy floor it also gives convergence
+  of the normalized modal-energy profile.  The state comparison and the
+  high-probability good event remain explicit inputs.
+- `MicroscopicErrorComposition` proves that a leading microscopic error and a
+  higher-order remainder, each controlled on its own measurable good event,
+  combine through event intersection and the union bound into the exact
+  `localUniformError_zero_law` and `ConvergesInProbabilityTo` interfaces.  It
+  does not construct either component estimate.
+- `CircularComplexGaussianWick` grounds the needed finite initial-law moments
+  in Mathlib Gaussian theory rather than postulating Wick rules.  For one mode
+  of action `n`, it proves `E |Z|^2 = n` and `E |Z|^4 = 2 n^2`.  For distinct
+  product-law modes it proves `E(|Z_i|^2 |Z_j|^2) = n_i n_j` and both centered
+  unconjugated and conjugated cross moments vanish.  These are time-zero
+  finite-law statements; nonlinear propagation to kinetic time is open.
+- `DuhamelSecondMomentAlgebra`, `DuhamelTwoStepMomentAlgebra`, and
+  `FiniteSecondOrderPhaseExpansion` prove the exact one- and two-correction
+  squared-amplitude polynomials and their finite Haar phase averages.  The
+  genuine second-order coefficient contains both `|w|^2` and the interference
+  `2 Re(z * conj u)`; the charge-selection theorem does not discard the latter.
+  The supplied corrections are not yet identified with the true LJ/FPUT
+  Duhamel iterates.
+- `FiniteSecondOrderFGRScaling` proves that, when the first-order
+  charge-selected interference vanishes, the finite-Haar averaged increment
+  divided by `g^2` converges to that complete second-order coefficient, with
+  explicit `g` and `g^2` remainder terms.  This rigorously isolates the
+  inverse-square coupling scale for a fixed finite two-step Picard polynomial;
+  it does not prove accumulation over time `O(g^-2)` or a kinetic limit.
+- `LennardJonesAlphaBetaFlowStability` inserts the previously proved exact LJ
+  `O(g^3)` force remainder into Mathlib Gronwall comparison.  If the retained
+  alpha-beta flow has effective stability rate `kappa * g^2`, the exact LJ and
+  retained trajectories differ by at most
+  `(C / kappa) * (exp (kappa * L) - 1) * g` uniformly for every
+  `t in [0, L/g^2]`.  The paper mass support gives an `N`-uniform per-mode RMS
+  consumer.  With only a fixed positive Lipschitz rate `K`, the certified bound
+  instead contains `g^3 * (exp (K*L/g^2) - 1)`, recording the obstruction
+  rather than mislabelling it `O(g)`.
+
+The effective `kappa * g^2` retained-flow stability, high-probability
+tube persistence, identification of the true first and second Duhamel
+corrections, nonlinear random-phase/Wick propagation, recollision and
+small-denominator control, and the microscopic-to-kinetic kernel limit remain
+unproved.  In particular, no LJ `ConditionalRoot`, canonical
+`KineticWindowApproximation`, or `localUniformError_controls` field is
+constructed here.  The three-family graph is unchanged and
+`thermalization.complete` remains unverified.
+
+All eight new core modules, all eight consumers, and both public barrels pass
+`-DwarningAsError=true`; the full `ArchonPhysics ArchonPhysicsConsumers`
+build passes with 9455 jobs.  The audited endpoints depend only on `propext`,
+`Classical.choice`, and `Quot.sound`, and the exact file set contains no
+`sorry`, `admit`, added `axiom`, `unsafe`, or `opaque` declaration.
