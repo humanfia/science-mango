@@ -78,6 +78,23 @@ CLAUDE_BINARY_SHA256 = (
     "4e9bec1177ce9690e8bd988b710ac24105e70da428dd094c5adcbbe786a55555"
 )
 
+# Claude Code 2.1.226 is a Bun executable. Bun aborts during startup when these
+# exact read-only kernel/cgroup metadata files are hidden by Landlock. They
+# expose only this process and host resource limits; no filesystem content,
+# credential, sibling workspace, or answer artifact is made visible.
+CLAUDE_CODE_RUNTIME_READONLY_PATHS = tuple(Path(item) for item in (
+    "/proc/self/cgroup",
+    "/sys/fs/cgroup/cpu.max",
+    "/sys/fs/cgroup/memory.max",
+    "/sys/fs/cgroup/memory.high",
+    "/proc/stat",
+    "/sys/devices/system/cpu/online",
+    "/proc/sys/vm/overcommit_memory",
+    "/proc/sys/vm/mmap_min_addr",
+    "/proc/self/maps",
+    "/sys/kernel/mm/transparent_hugepage/enabled",
+))
+
 MAX_PARALLEL = 2
 MAX_ITERATIONS = 3
 REVIEW_MAX_ITERATIONS = 3
@@ -409,6 +426,13 @@ def _configure_base(arguments: argparse.Namespace) -> ModuleType:
     def load_controller():
         controller = original_load_controller()
         original_environment = controller._solver_environment
+        original_apply_landlock = controller._apply_landlock
+
+        def apply_landlock(*, read_only: Any, read_write: Any):
+            return original_apply_landlock(
+                read_only=(*read_only, *CLAUDE_CODE_RUNTIME_READONLY_PATHS),
+                read_write=read_write,
+            )
 
         def solver_environment(*args: Any, **kwargs: Any) -> dict[str, str]:
             environment = original_environment(*args, **kwargs)
@@ -440,6 +464,7 @@ def _configure_base(arguments: argparse.Namespace) -> ModuleType:
             return environment
 
         controller._solver_environment = solver_environment
+        controller._apply_landlock = apply_landlock
         return controller
 
     original_runtime_tools = base._require_runtime_tools
@@ -458,6 +483,15 @@ def _configure_base(arguments: argparse.Namespace) -> ModuleType:
         claude = base.OVERLAY / "bin/claude"
         if claude.is_symlink() or not claude.is_file():
             _fail(f"sealed runtime lacks a plain Claude Code binary: {claude}")
+        for path in CLAUDE_CODE_RUNTIME_READONLY_PATHS:
+            if path.is_symlink() or not path.is_file():
+                _fail(f"Claude runtime metadata path is missing or unsafe: {path}")
+            metadata = path.stat(follow_symlinks=False)
+            if (
+                metadata.st_uid != 0
+                or stat.S_IMODE(metadata.st_mode) & 0o022
+            ):
+                _fail(f"Claude runtime metadata path is writable: {path}")
         metadata = claude.stat(follow_symlinks=False)
         if metadata.st_uid != 0 or stat.S_IMODE(metadata.st_mode) != 0o555:
             _fail("sealed Claude Code binary must be root-owned mode 0555")
