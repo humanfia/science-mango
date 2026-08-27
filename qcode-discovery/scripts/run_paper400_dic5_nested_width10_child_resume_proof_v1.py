@@ -684,20 +684,42 @@ def _fixed_environment() -> Iterator[None]:
         os.environ.update(previous)
 
 
+def _require_unlimited_cpu_hard() -> None:
+    _soft, hard = resource.getrlimit(resource.RLIMIT_CPU)
+    if hard != resource.RLIM_INFINITY:
+        raise HierarchicalResumeRunnerError(
+            "hard RLIMIT_CPU must be unlimited for resumable solver"
+        )
+
+
 @contextlib.contextmanager
-def _inherited_fsize(cap: int) -> Iterator[None]:
+def _inherited_solver_limits(cap: int) -> Iterator[None]:
     old_fsize = resource.getrlimit(resource.RLIMIT_FSIZE)
     old_core = resource.getrlimit(resource.RLIMIT_CORE)
+    old_cpu = resource.getrlimit(resource.RLIMIT_CPU)
     hard = old_fsize[1]
     if hard != resource.RLIM_INFINITY and hard < cap:
         raise HierarchicalResumeRunnerError("hard RLIMIT_FSIZE below proof cap")
+    if old_cpu[1] != resource.RLIM_INFINITY:
+        raise HierarchicalResumeRunnerError(
+            "hard RLIMIT_CPU must be unlimited for resumable solver"
+        )
     try:
         resource.setrlimit(resource.RLIMIT_FSIZE, (cap, hard))
         resource.setrlimit(resource.RLIMIT_CORE, (0, old_core[1]))
+        resource.setrlimit(
+            resource.RLIMIT_CPU,
+            (resource.RLIM_INFINITY, resource.RLIM_INFINITY),
+        )
         yield
     finally:
-        resource.setrlimit(resource.RLIMIT_FSIZE, old_fsize)
-        resource.setrlimit(resource.RLIMIT_CORE, old_core)
+        try:
+            resource.setrlimit(resource.RLIMIT_CPU, old_cpu)
+        finally:
+            try:
+                resource.setrlimit(resource.RLIMIT_FSIZE, old_fsize)
+            finally:
+                resource.setrlimit(resource.RLIMIT_CORE, old_core)
 
 
 def _rlimit_policy(cap: int) -> dict[str, Any]:
@@ -706,6 +728,8 @@ def _rlimit_policy(cap: int) -> dict[str, Any]:
     return {
         "proof_fsize_soft_bytes": cap,
         "core_soft_bytes": 0,
+        "cpu_soft_seconds": resource.RLIM_INFINITY,
+        "cpu_hard_seconds": resource.RLIM_INFINITY,
         "must_be_inherited_by_live_solver": True,
     }
 
@@ -716,14 +740,17 @@ def _verify_live_peer_rlimits(pid: int, cap: int) -> dict[str, Any]:
     try:
         fsize = resource.prlimit(pid, resource.RLIMIT_FSIZE)
         core = resource.prlimit(pid, resource.RLIMIT_CORE)
+        cpu = resource.prlimit(pid, resource.RLIMIT_CPU)
     except (OSError, ProcessLookupError, PermissionError) as exc:
         raise HierarchicalResumeRunnerError("cannot inspect live peer RLIMITs") from exc
     if (
         type(fsize) is not tuple or len(fsize) != 2
         or type(core) is not tuple or len(core) != 2
+        or type(cpu) is not tuple or len(cpu) != 2
         or fsize[0] != cap
         or (fsize[1] != resource.RLIM_INFINITY and fsize[1] < cap)
         or core[0] != 0
+        or cpu != (resource.RLIM_INFINITY, resource.RLIM_INFINITY)
     ):
         raise HierarchicalResumeRunnerError("live peer RLIMIT policy mismatch")
     return {
@@ -732,6 +759,8 @@ def _verify_live_peer_rlimits(pid: int, cap: int) -> dict[str, Any]:
         "proof_fsize_hard_bytes": fsize[1],
         "core_soft_bytes": core[0],
         "core_hard_bytes": core[1],
+        "cpu_soft_seconds": cpu[0],
+        "cpu_hard_seconds": cpu[1],
         "verified": True,
     }
 
@@ -741,7 +770,8 @@ def _peer_rlimit_record_valid(
 ) -> bool:
     fields = {
         "pid", "proof_fsize_soft_bytes", "proof_fsize_hard_bytes",
-        "core_soft_bytes", "core_hard_bytes", "verified",
+        "core_soft_bytes", "core_hard_bytes", "cpu_soft_seconds",
+        "cpu_hard_seconds", "verified",
     }
     return bool(
         type(value) is dict and set(value) == fields
@@ -756,6 +786,10 @@ def _peer_rlimit_record_valid(
         and type(value.get("core_soft_bytes")) is int
         and value.get("core_soft_bytes") == 0
         and type(value.get("core_hard_bytes")) is int
+        and type(value.get("cpu_soft_seconds")) is int
+        and value.get("cpu_soft_seconds") == resource.RLIM_INFINITY
+        and type(value.get("cpu_hard_seconds")) is int
+        and value.get("cpu_hard_seconds") == resource.RLIM_INFINITY
         and value.get("verified") is True
     )
 
@@ -799,6 +833,7 @@ def _execution_source_binding() -> dict[str, str]:
 def _session_value(
     root: Path, loaded: Mapping[str, Any], claim: Mapping[str, Any],
     config: Mapping[str, Any], started: Mapping[str, Any], cpu: int,
+    started_peer_rlimits: Mapping[str, Any],
 ) -> dict[str, Any]:
     return seal({
         "schema_version": SCHEMA_VERSION,
@@ -816,6 +851,7 @@ def _session_value(
         "controller_config_sha256": config["self_sha256"],
         "controller_start_sha256": started["self_sha256"],
         "expected_single_cpu": cpu,
+        "started_peer_rlimits": dict(started_peer_rlimits),
         "solver_args": list(SOLVER_ARGS),
         "proof_cap_bytes": loaded["resource_caps"]["proof_max_bytes"],
         "resource_policy_sha256": static_v1.canonical_sha256(
@@ -841,7 +877,8 @@ def _load_session(
         "root_identity", "root_lock_identity", "resume_static_sha256", "child_index",
         "child_dimacs_sha256", "start_claim_sha256", "controller_root",
         "controller_config_sha256", "controller_start_sha256",
-        "expected_single_cpu", "solver_args", "proof_cap_bytes",
+        "expected_single_cpu", "started_peer_rlimits", "solver_args",
+        "proof_cap_bytes",
         "resource_policy_sha256", "rlimit_policy",
         "execution_source_binding", "transport_authority",
         "transport_trusted_for_scientific_proof", "production_eligible",
@@ -932,6 +969,11 @@ def _load_session(
     if (
         start.get("kind") != "start.commit"
         or start.get("self_sha256") != session.get("controller_start_sha256")
+        or not _peer_rlimit_record_valid(
+            session.get("started_peer_rlimits"),
+            pid=start.get("pid"),
+            cap=session.get("proof_cap_bytes"),
+        )
     ):
         raise HierarchicalResumeRunnerError("controller start/session mismatch")
     return loaded, session
@@ -1007,10 +1049,11 @@ def _start_root_locked(root: Path, **static_kwargs: Any) -> dict[str, Any]:
     )):
         raise HierarchicalResumeRunnerError("root was already started or claimed")
     cpu = _single_cpu()
-    claim = _claim(target / START_CLAIM, root=target, action="start")
     cap = loaded["resource_caps"]["proof_max_bytes"]
+    _require_unlimited_cpu_hard()
+    claim = _claim(target / START_CLAIM, root=target, action="start")
     try:
-        with _fixed_environment(), _inherited_fsize(cap):
+        with _fixed_environment(), _inherited_solver_limits(cap):
             config = controller.initialize(
                 target / RUNTIME_ROOT,
                 cnf=target / STATIC_DIMACS,
@@ -1028,8 +1071,11 @@ def _start_root_locked(root: Path, **static_kwargs: Any) -> dict[str, Any]:
             or os.sched_getaffinity(pid) != {cpu}
         ):
             raise HierarchicalResumeRunnerError("started peer identity/CPU mismatch")
-        _verify_live_peer_rlimits(pid, cap)
-        session = _session_value(target, loaded, claim, config, started, cpu)
+        started_peer_rlimits = _verify_live_peer_rlimits(pid, cap)
+        session = _session_value(
+            target, loaded, claim, config, started, cpu,
+            started_peer_rlimits,
+        )
         _publish_json(target / SESSION_COMMIT, session)
         _load_session(target, **static_kwargs)
         return session
@@ -1389,7 +1435,15 @@ def validate_transport_chain(
                 start_claim = _manifest_claim_matches(
                     directory, "start.claim.json", "start.claim", active,
                 )
-                if start_claim.get("init_manifest_sha256") != config.get("self_sha256"):
+                if (
+                    start_claim.get("init_manifest_sha256")
+                    != config.get("self_sha256")
+                    or not _peer_rlimit_record_valid(
+                        session.get("started_peer_rlimits"),
+                        pid=active.get("pid"),
+                        cap=session.get("proof_cap_bytes"),
+                    )
+                ):
                     raise HierarchicalResumeRunnerError("start/config mismatch")
             else:
                 if active.get("kind") != "resume.commit" or previous_checkpoint is None:
@@ -1755,9 +1809,10 @@ def _resume_root_locked(root: Path, **static_kwargs: Any) -> dict[str, Any]:
     commit_path = target / _resume_commit_path(generation)
     if claim_path.exists() or commit_path.exists():
         raise HierarchicalResumeRunnerError("checkpoint resume already claimed")
-    claim = _claim(claim_path, root=target, action=f"resume-{generation:06d}")
     cap = loaded["resource_caps"]["proof_max_bytes"]
-    with _fixed_environment(), _inherited_fsize(cap):
+    _require_unlimited_cpu_hard()
+    claim = _claim(claim_path, root=target, action=f"resume-{generation:06d}")
+    with _fixed_environment(), _inherited_solver_limits(cap):
         resumed = controller.resume(target / RUNTIME_ROOT)
     pid, ticks = resumed.get("pid"), resumed.get("proc_start_ticks")
     if (

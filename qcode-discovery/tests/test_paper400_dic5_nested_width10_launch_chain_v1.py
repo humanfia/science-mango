@@ -4,6 +4,7 @@ import contextlib
 import inspect
 import json
 import os
+import resource
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -646,3 +647,167 @@ def test_v4_transport_accepts_natural_gen0_then_resumed_gen1_layout(
     assert observed_target == root_target
     assert target_bytes == root_target.stat().st_size
 
+
+
+def test_solver_limits_promote_finite_soft_cpu_and_restore_on_exception(
+    monkeypatch,
+):
+    infinity = resource.RLIM_INFINITY
+    original = {
+        resource.RLIMIT_FSIZE: (4096, infinity),
+        resource.RLIMIT_CORE: (123, infinity),
+        resource.RLIMIT_CPU: (17, infinity),
+    }
+    observed = dict(original)
+    calls = []
+
+    def fake_getrlimit(kind):
+        return observed[kind]
+
+    def fake_setrlimit(kind, value):
+        calls.append((kind, value))
+        observed[kind] = value
+
+    monkeypatch.setattr(runner.resource, "getrlimit", fake_getrlimit)
+    monkeypatch.setattr(runner.resource, "setrlimit", fake_setrlimit)
+    with pytest.raises(RuntimeError, match="synthetic body failure"):
+        with runner._inherited_solver_limits(2048):
+            assert observed[resource.RLIMIT_FSIZE] == (2048, infinity)
+            assert observed[resource.RLIMIT_CORE] == (0, infinity)
+            assert observed[resource.RLIMIT_CPU] == (infinity, infinity)
+            raise RuntimeError("synthetic body failure")
+    assert observed == original
+    assert (resource.RLIMIT_CPU, (infinity, infinity)) in calls
+
+
+def test_solver_limits_reject_finite_cpu_hard_before_any_mutation(
+    monkeypatch,
+):
+    limits = {
+        resource.RLIMIT_FSIZE: (4096, resource.RLIM_INFINITY),
+        resource.RLIMIT_CORE: (0, resource.RLIM_INFINITY),
+        resource.RLIMIT_CPU: (17, 1200),
+    }
+    calls = []
+    monkeypatch.setattr(
+        runner.resource, "getrlimit", lambda kind: limits[kind],
+    )
+    monkeypatch.setattr(
+        runner.resource, "setrlimit",
+        lambda kind, value: calls.append((kind, value)),
+    )
+    with pytest.raises(
+        runner.HierarchicalResumeRunnerError,
+        match="hard RLIMIT_CPU must be unlimited",
+    ):
+        with runner._inherited_solver_limits(2048):
+            pytest.fail("finite hard CPU limit entered solver context")
+    assert calls == []
+
+
+def test_live_peer_and_persisted_record_reject_finite_cpu_limit(
+    monkeypatch,
+):
+    infinity = resource.RLIM_INFINITY
+    cap = 2048
+    limits = {
+        resource.RLIMIT_FSIZE: (cap, infinity),
+        resource.RLIMIT_CORE: (0, infinity),
+        resource.RLIMIT_CPU: (1200, 1200),
+    }
+    monkeypatch.setattr(
+        runner.resource, "prlimit", lambda pid, kind: limits[kind],
+    )
+    with pytest.raises(
+        runner.HierarchicalResumeRunnerError,
+        match="live peer RLIMIT policy mismatch",
+    ):
+        runner._verify_live_peer_rlimits(1234, cap)
+
+    record = {
+        "pid": 1234,
+        "proof_fsize_soft_bytes": cap,
+        "proof_fsize_hard_bytes": infinity,
+        "core_soft_bytes": 0,
+        "core_hard_bytes": infinity,
+        "cpu_soft_seconds": 1200,
+        "cpu_hard_seconds": 1200,
+        "verified": True,
+    }
+    assert not runner._peer_rlimit_record_valid(
+        record, pid=1234, cap=cap,
+    )
+    record["cpu_soft_seconds"] = infinity
+    record["cpu_hard_seconds"] = infinity
+    assert runner._peer_rlimit_record_valid(
+        record, pid=1234, cap=cap,
+    )
+    policy = runner._rlimit_policy(cap)
+    assert policy["cpu_soft_seconds"] == infinity
+    assert policy["cpu_hard_seconds"] == infinity
+
+
+def test_start_finite_cpu_hard_fails_before_durable_claim(
+    monkeypatch, tmp_path: Path,
+):
+    root = tmp_path / "start-root"
+    root.mkdir(mode=0o700)
+    loaded = {"resource_caps": {"proof_max_bytes": 2048}}
+    monkeypatch.setattr(runner, "_existing_root", lambda path: root)
+    monkeypatch.setattr(runner, "_load_static", lambda *args, **kwargs: loaded)
+    monkeypatch.setattr(runner, "_single_cpu", lambda: 0)
+    monkeypatch.setattr(
+        runner.resource, "getrlimit",
+        lambda kind: (17, 1200) if kind == resource.RLIMIT_CPU
+        else (0, resource.RLIM_INFINITY),
+    )
+    monkeypatch.setattr(
+        runner, "_claim",
+        lambda *args, **kwargs: pytest.fail("durable start claim was created"),
+    )
+    with pytest.raises(
+        runner.HierarchicalResumeRunnerError,
+        match="hard RLIMIT_CPU must be unlimited",
+    ):
+        runner._start_root_locked(root)
+    assert not (root / runner.START_CLAIM).exists()
+
+
+def test_resume_finite_cpu_hard_fails_before_durable_admission_claim(
+    monkeypatch, tmp_path: Path,
+):
+    root = tmp_path / "resume-root"
+    root.mkdir(mode=0o700)
+    loaded = {
+        "resource_caps": {
+            "proof_max_bytes": 2048,
+            "checkpoint_generation_max_count": 3,
+        },
+        "record": {"resource_policy": {}},
+    }
+    session = {"expected_single_cpu": 0}
+    monkeypatch.setattr(runner, "_existing_root", lambda path: root)
+    monkeypatch.setattr(
+        runner, "_load_session",
+        lambda *args, **kwargs: (loaded, session),
+    )
+    monkeypatch.setattr(runner, "_single_cpu", lambda: 0)
+    monkeypatch.setattr(
+        runner, "validate_transport_chain",
+        lambda *args, **kwargs: {"generations": [{"generation": 0}]},
+    )
+    monkeypatch.setattr(
+        runner.resource, "getrlimit",
+        lambda kind: (17, 1200) if kind == resource.RLIMIT_CPU
+        else (0, resource.RLIM_INFINITY),
+    )
+    monkeypatch.setattr(
+        runner, "_claim",
+        lambda *args, **kwargs: pytest.fail("resume admission claim was created"),
+    )
+    with pytest.raises(
+        runner.HierarchicalResumeRunnerError,
+        match="hard RLIMIT_CPU must be unlimited",
+    ):
+        runner._resume_root_locked(root)
+    assert not (root / runner._resume_claim_path(1)).exists()
