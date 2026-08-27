@@ -317,7 +317,7 @@ def _configure_base(arguments: argparse.Namespace) -> ModuleType:
     base.RUNTIME = runtime
     base.OVERLAY = overlay
     base.CONTROLLER = overlay / "scripts/run_answer_blind_archon_isolated_campaign.py"
-    base.ARCHON = runtime / "bin/archon"
+    base.ARCHON = overlay / "scripts/run_answer_blind_overlay_archon.sh"
     base.PYTHON = runtime / "venv/bin/python"
     base.WORKER_LOG = campaign / "controller-worker.log"
     base.GRADER = arguments.controller_input / "grader.jsonl"
@@ -446,6 +446,15 @@ def _configure_base(arguments: argparse.Namespace) -> ModuleType:
 
     def runtime_tools() -> None:
         original_runtime_tools()
+        archon = base.ARCHON
+        if archon.is_symlink() or not archon.is_file():
+            _fail(f"sealed overlay lacks its Archon entry: {archon}")
+        archon_metadata = archon.stat(follow_symlinks=False)
+        if (
+            archon_metadata.st_uid != 0
+            or stat.S_IMODE(archon_metadata.st_mode) != 0o555
+        ):
+            _fail("sealed overlay Archon entry must be root-owned mode 0555")
         claude = base.OVERLAY / "bin/claude"
         if claude.is_symlink() or not claude.is_file():
             _fail(f"sealed runtime lacks a plain Claude Code binary: {claude}")
