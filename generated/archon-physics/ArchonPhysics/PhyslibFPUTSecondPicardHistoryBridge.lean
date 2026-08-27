@@ -113,6 +113,22 @@ theorem interactionTensor_cons_mul_eq_zero_of_inputFrequency_eq_zero
   rw [interactionTensor_cons_eq_zero_of_inputFrequency_eq_zero
     m observed modes input hzero, zero_mul]
 
+/-- Every distinguished tensor contraction vanishes when its observed leg
+has zero harmonic frequency.  The conclusion is obtained termwise from the
+physical interaction tensor, independently of the modal amplitudes. -/
+theorem distinguishedTensorContraction_eq_zero_of_observedFrequency_eq_zero
+    {N n : Nat} [NeZero N]
+    (m : Lattice.PositiveMassConfig N) (observed : Lattice.Site N)
+    (history : WeightedConfiguration N)
+    (hzero : modeFrequency m observed = 0) :
+    distinguishedTensorContraction m history observed n = 0 := by
+  classical
+  unfold distinguishedTensorContraction
+  apply Finset.sum_eq_zero
+  intro modes hmodes
+  rw [interactionTensor_cons_eq_zero_of_observedFrequency_eq_zero
+    m observed modes hzero, zero_mul]
+
 /-- In particular, the entire polarized quadratic contraction vanishes at a
 zero-frequency observed mode. -/
 theorem quadraticTensorCrossContraction_eq_zero_of_observedFrequency_eq_zero
@@ -445,8 +461,16 @@ theorem physlibFreeCubicSecondPicardRotatedSource_eq_zero_of_modeFrequency_eq_ze
     (hzero : modeFrequency m observed = 0) :
     physlibFreeCubicSecondPicardRotatedSource
       m beta observed radius phase time = 0 := by
-  unfold physlibFreeCubicSecondPicardRotatedSource forcedModeSource
-  simp [hzero]
+  have hcubic :
+      distinguishedTensorContraction m
+          (freeWeightedConfiguration radius (modeFrequency m) time phase)
+          observed 3 = 0 :=
+    distinguishedTensorContraction_eq_zero_of_observedFrequency_eq_zero
+      m observed
+        (freeWeightedConfiguration radius (modeFrequency m) time phase) hzero
+  unfold physlibFreeCubicSecondPicardRotatedSource
+  rw [hcubic]
+  simp [forcedModeSource]
 
 /-- Hence the complete extracted second-Picard source vanishes for a
 zero-frequency observed mode. -/
