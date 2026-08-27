@@ -864,3 +864,57 @@ energies.  Consequently this checkpoint does not mark
   `4*mLower^(-1)*C^2*g^6`.  This uses pointwise domination, not stochastic
   time cancellation, and still assumes interval integrability and persistence
   of the tube/amplitude hypotheses throughout the window.
+
+
+### 2026-08-27 F3 probability, ensemble-transfer, and LJ-remainder checkpoint
+
+- `MicroscopicErrorProbabilityUpgrade` closes the model-independent
+  probability adapter used by F3.  Deterministic control on a measurable good
+  event plus a vanishing complement budget, or alternatively a vanishing
+  first/second `ENNReal` moment, now yields the exact
+  `localUniformError_zero_law` and bundled `ConvergesInProbabilityTo` interface.
+  This result converts a microscopic estimate into the required probability
+  format; it does not supply that microscopic estimate.
+- `FiniteModalEnergyL1Stability` proves, for every finite mode set,
+  `sum_k |norm(a_k)^2 - norm(b_k)^2| <=
+  (norm2(a) + norm2(b)) * norm2(a-b)`.  Its per-mode and positive
+  energy-density corollaries transfer an RMS state error `O(g)` to mean and
+  normalized modal-energy `l1` errors `O(g)`.  Thus observable stability is no
+  longer a separate F3 gap once an exact-versus-leading-flow RMS estimate is
+  available.
+- `TruncatedGaussianCoordinateUpperDomination` and
+  `TruncatedGaussianFiniteEventTransfer` construct the reverse finite
+  Radon--Nikodym comparison for the concrete conditioned Gaussian mass law.
+  For a finite constant `C >= 1`, the complete first-`N` mass/Haar-phase laws
+  satisfy `GaussianBlock_N <= C^N * UniformBlock_N`, while the previously
+  proved lower comparison holds in the opposite direction.  Consequently a
+  uniform-law bad-event estimate transfers to the Gaussian law only when its
+  decay beats the explicit exponential factor `C^N`.  No qualitative
+  probability-to-zero statement or infinite-product equivalence is inferred
+  without such a rate.
+- `LennardJonesStoppedHigherRemainderProbability` turns the volume-uniform
+  all-mode LJ Taylor remainder bound into a kinetic-window estimate.  On the
+  displayed tube and amplitude event, the instantaneous normalized modal RMS
+  is `O(g^3)` and the normalized RMS of its integral on `[0,L/g^2]` is bounded
+  by `C_LJ * L * g`, independently of `N`.  The explicit measurable stopped
+  observable agrees with the actual remainder on the good event, and every
+  tail above its deterministic budget is bounded by the good-event-complement
+  probability.  Hence `g_j -> 0` together with
+  `P(good_j^c) -> 0` gives convergence in measure.
+- `LennardJonesHigherRemainderProbabilityUpgrade` converts that real-valued
+  certificate to the project's `ENNReal` zero-neighbourhood law and bundled
+  convergence-in-probability type.  This closes the probability-format and
+  higher-Taylor-remainder pieces only.  It does not prove the good-tube event
+  has high probability, control the retained cubic/quartic FPUT dynamics, or
+  establish `localUniformError_controls` for the actual microscopic
+  observable.
+
+All six new core modules, five consumers, both public barrels, and the full
+`ArchonPhysics ArchonPhysicsConsumers` build pass; the audited consumer
+endpoints use only `propext`, `Classical.choice`, and `Quot.sound`.  The family
+graph and root status are unchanged.  F3 still requires random-phase or
+near-Gaussian propagation through `t = O(g^-2)`, an `N`-uniform
+exact-versus-leading-flow estimate including the retained cubic diagrams and
+recollisions, high-probability tube persistence, and identification/relaxation
+of the limiting kinetic kernel.  Therefore `thermalization.complete` remains
+unverified.
