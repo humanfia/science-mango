@@ -1211,6 +1211,7 @@ def _fresh_restored_old_checkpoint(
 
 def _writable_holders(
     path: Path, *, expected_identity: Mapping[str, Any] | None = None,
+    _proc_root: Path = Path("/proc"),
 ) -> list[int]:
     wanted = os.stat(path, follow_symlinks=False)
     if (
@@ -1226,15 +1227,39 @@ def _writable_holders(
             "proof is not the expected regular inode"
         )
     holders: set[int] = set()
-    for process in Path("/proc").iterdir():
+    try:
+        processes = list(_proc_root.iterdir())
+    except OSError as exc:
+        raise AdaptiveSwitchEvidenceV3Error(
+            "cannot inspect process table"
+        ) from exc
+    for process in processes:
         if not process.name.isdigit():
             continue
         try:
+            status_lines = (process / "status").read_text(
+                encoding="ascii"
+            ).splitlines()
+            uid_lines = [
+                line for line in status_lines if line.startswith("Uid:")
+            ]
+            if len(uid_lines) != 1:
+                raise ValueError("process status has no unique Uid field")
+            uid_fields = uid_lines[0].split()
+            if len(uid_fields) != 5 or uid_fields[0] != "Uid:":
+                raise ValueError("process Uid field is malformed")
+            uids = [int(value, 10) for value in uid_fields[1:]]
+            if any(value < 0 for value in uids):
+                raise ValueError("process Uid field is negative")
+            if uids[1] != wanted.st_uid:
+                continue
             descriptors = list((process / "fd").iterdir())
         except (FileNotFoundError, ProcessLookupError):
             continue
-        except PermissionError as exc:
-            raise AdaptiveSwitchEvidenceV3Error("cannot inspect process fds") from exc
+        except (OSError, UnicodeError, ValueError) as exc:
+            raise AdaptiveSwitchEvidenceV3Error(
+                "cannot inspect process descriptor table"
+            ) from exc
         for descriptor in descriptors:
             try:
                 observed = os.stat(descriptor)
@@ -1251,8 +1276,10 @@ def _writable_holders(
                     holders.add(int(process.name))
             except (FileNotFoundError, ProcessLookupError):
                 continue
-            except PermissionError as exc:
-                raise AdaptiveSwitchEvidenceV3Error("cannot inspect fd flags") from exc
+            except (OSError, UnicodeError, ValueError) as exc:
+                raise AdaptiveSwitchEvidenceV3Error(
+                    "cannot inspect descriptor flags"
+                ) from exc
     final_identity = base._stat_identity(
         os.stat(path, follow_symlinks=False)
     )

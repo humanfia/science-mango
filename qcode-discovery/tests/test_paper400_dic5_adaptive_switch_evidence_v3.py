@@ -157,6 +157,100 @@ def test_v2_exact_source_loader_binds_location_before_execution(
     assert observed[fullname]["sha256"] == hashlib.sha256(payload).hexdigest()
 
 
+def _fake_proc_process(root: Path, pid: int, effective_uid: int) -> Path:
+    process = root / str(pid)
+    process.mkdir(parents=True)
+    (process / "status").write_text(
+        "Name:\twriter-scan-test\n"
+        f"Uid:\t{effective_uid}\t{effective_uid}\t"
+        f"{effective_uid}\t{effective_uid}\n",
+        encoding="ascii",
+    )
+    (process / "fd").mkdir()
+    (process / "fdinfo").mkdir()
+    return process
+
+
+def test_v3_writer_scan_skips_foreign_uid_before_permission_denied_fd(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proof = tmp_path / "proof.drat"
+    proof.write_bytes(b"")
+    proc = tmp_path / "proc"
+    foreign = _fake_proc_process(
+        proc, 41001, proof.stat().st_uid + 1,
+    )
+    real_iterdir = Path.iterdir
+
+    def guarded_iterdir(path: Path):
+        if path == foreign / "fd":
+            raise PermissionError("foreign fd table is not readable")
+        return real_iterdir(path)
+
+    monkeypatch.setattr(Path, "iterdir", guarded_iterdir)
+    assert v3._writable_holders(proof, _proc_root=proc) == []
+
+
+def test_v3_writer_scan_same_uid_permission_is_fail_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proof = tmp_path / "proof.drat"
+    proof.write_bytes(b"")
+    proc = tmp_path / "proc"
+    owner = _fake_proc_process(proc, 41002, proof.stat().st_uid)
+    real_iterdir = Path.iterdir
+
+    def guarded_iterdir(path: Path):
+        if path == owner / "fd":
+            raise PermissionError("owner fd table is not readable")
+        return real_iterdir(path)
+
+    monkeypatch.setattr(Path, "iterdir", guarded_iterdir)
+    with pytest.raises(
+        v3.AdaptiveSwitchEvidenceV3Error,
+        match="cannot inspect process descriptor table",
+    ):
+        v3._writable_holders(proof, _proc_root=proc)
+
+
+def test_v3_writer_scan_malformed_status_is_fail_closed(
+    tmp_path: Path,
+) -> None:
+    proof = tmp_path / "proof.drat"
+    proof.write_bytes(b"")
+    proc = tmp_path / "proc"
+    process = _fake_proc_process(proc, 41003, proof.stat().st_uid)
+    (process / "status").write_text("Uid:\t0\n", encoding="ascii")
+    with pytest.raises(
+        v3.AdaptiveSwitchEvidenceV3Error,
+        match="cannot inspect process descriptor table",
+    ):
+        v3._writable_holders(proof, _proc_root=proc)
+
+
+def test_v3_writer_scan_status_permission_is_fail_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    proof = tmp_path / "proof.drat"
+    proof.write_bytes(b"")
+    proc = tmp_path / "proc"
+    process = _fake_proc_process(proc, 41004, proof.stat().st_uid)
+    status = process / "status"
+    real_read_text = Path.read_text
+
+    def guarded_read_text(path: Path, *args: Any, **kwargs: Any) -> str:
+        if path == status:
+            raise PermissionError("process status is not readable")
+        return real_read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", guarded_read_text)
+    with pytest.raises(
+        v3.AdaptiveSwitchEvidenceV3Error,
+        match="cannot inspect process descriptor table",
+    ):
+        v3._writable_holders(proof, _proc_root=proc)
+
+
 def test_v3_retirement_binds_post_rename_identity_and_blocks_old_name(
     tmp_path: Path,
 ) -> None:

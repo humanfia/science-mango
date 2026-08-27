@@ -4,7 +4,7 @@
 The adaptive overlay and serialized switch evidence are not launch authority.
 ``prepare`` only admits immutable candidate material after fresh width-10 and
 overlay replay plus a non-authoritative structural switch-record check.  A
-strict first launch is possible only inside one switch-v3 atomic lease that
+strict first launch is possible only inside one switch-v4 atomic lease that
 binds and first-starts the complete eight-descendant cover while keeping at
 most four solvers live.  The atomic handoff is intentionally one-shot, even
 after rollback.  DMTCP checkpoints remain transport-only records.  A descendant
@@ -58,16 +58,16 @@ _CONTROLLER_SOURCE_SHA256 = (
 _SWITCH_V2_RELATIVE = Path(
     "scripts/paper400_dic5_adaptive_switch_evidence_v2.py"
 )
-_SWITCH_V3_RELATIVE = Path(
-    "scripts/paper400_dic5_adaptive_switch_evidence_v3.py"
+_SWITCH_V4_RELATIVE = Path(
+    "scripts/paper400_dic5_adaptive_switch_evidence_v4.py"
 )
 _SWITCH_V2_SOURCE = PROJECT / _SWITCH_V2_RELATIVE
-_SWITCH_V3_SOURCE = PROJECT / _SWITCH_V3_RELATIVE
+_SWITCH_V4_SOURCE = PROJECT / _SWITCH_V4_RELATIVE
 _SWITCH_V2_SOURCE_SHA256 = (
     "f4f6b7fbed84f5daf5a98a48d33b73299b3fd135ff92b3119b6fe1e241225da2"
 )
-_SWITCH_V3_SOURCE_SHA256 = (
-    "bbaed5af10dc390a9b1b87b480a5bf3ce2c5a2004338154d77743bae6f8172fd"
+_SWITCH_V4_SOURCE_SHA256 = (
+    "8e3e0764d46ff8f609184e90caf660a1f988e4c3877b3baf8a4a4c16f62e504c"
 )
 
 _STRICT_VENV = Path(
@@ -1251,7 +1251,7 @@ def _expected_strict_derived_env_writer_record() -> dict[str, Any]:
         "sha256": _STRICT_DERIVED_ENV_WRITER_SHA256,
         "bytes": len(payload),
         "externally_bound": False,
-        "execution": "compile-exact-source-bytes-v3",
+        "execution": "compile-exact-source-bytes-v4",
     }
 
 
@@ -1276,7 +1276,7 @@ def _strict_derived_env_writer_from_executed_sources(
             or type(record.get("bytes")) is not int
             or record["bytes"] < 1
             or type(record.get("externally_bound")) is not bool
-            or record.get("execution") != "compile-exact-source-bytes-v3"
+            or record.get("execution") != "compile-exact-source-bytes-v4"
         ):
             raise AdaptiveChildResumeError(
                 "science executed-source closure is not type-exact"
@@ -1777,7 +1777,7 @@ def _mkdir(parent: Path, name: str) -> None:
 
 
 class _TransferableRootLock:
-    """EX/NB outer lock whose open-file-description can move into switch-v3."""
+    """EX/NB outer lock whose open-file-description can move into switch-v4."""
 
     __slots__ = (
         "root", "_root_identity", "_lock_identity", "_fd", "_entered",
@@ -1854,7 +1854,7 @@ class _TransferableRootLock:
 
     def complete_transfer(self) -> None:
         descriptor = self.validated_transfer_fd()
-        # switch-v3 dup() now owns the same open-file-description.  Closing
+        # switch-v4 dup() now owns the same open-file-description.  Closing
         # this reference preserves flock through its duplicate; LOCK_UN here
         # would incorrectly unlock both references.
         self._fd = -1
@@ -1895,7 +1895,7 @@ def _relinquish_adopted_outer_locks(
     """Drop all caller OFD references without any partial LOCK_UN window."""
 
     if exact_transferable_locks:
-        # v3 already dup'ed every descriptor. Mark all wrappers transferred
+        # v4 already dup'ed every descriptor. Mark all wrappers transferred
         # before the first close, because close itself may fail.
         for lock in outer_locks:
             lock._transferred = True
@@ -1910,7 +1910,7 @@ def _relinquish_adopted_outer_locks(
         if failures:
             raise AdaptiveChildResumeError(
                 "adopted caller descriptor close failed after complete "
-                "v3 adoption: " + "; ".join(failures)
+                "v4 adoption: " + "; ".join(failures)
             )
         return
 
@@ -2385,7 +2385,9 @@ def _poison_cli_replay_scope(state: dict[str, Any] | None) -> None:
         state["poisoned"] = True
 
 
-def _validated_science_source_record(value: Any) -> bytes:
+def _validated_science_source_record(
+    value: Any, *, expected_execution: str,
+) -> bytes:
     if (
         type(value) is not dict
         or set(value) != {
@@ -2397,17 +2399,17 @@ def _validated_science_source_record(value: Any) -> bytes:
         or not _is_sha256(value.get("sha256"))
         or type(value.get("bytes")) is not int
         or value.get("bytes") < 1
-        or value.get("execution") != "compile-exact-source-bytes-v3"
+        or value.get("execution") != expected_execution
     ):
         raise AdaptiveChildResumeError(
-            "switch-v3 overlay source record is malformed"
+            "switch-v4 overlay source record is malformed"
         )
     payload = _stable_source_bytes(
         PROJECT / value["relative_path"], value["sha256"],
     )
     if len(payload) != value["bytes"]:
         raise AdaptiveChildResumeError(
-            "switch-v3 overlay source byte count changed"
+            "switch-v4 overlay source byte count changed"
         )
     return canonical_bytes(value)
 
@@ -2415,7 +2417,7 @@ def _validated_science_source_record(value: Any) -> bytes:
 def _validated_executed_sources(value: Any) -> bytes:
     if type(value) is not list or len(value) < 4:
         raise AdaptiveChildResumeError(
-            "switch-v3 executed source closure is malformed"
+            "switch-v4 executed source closure is malformed"
         )
     seen_modules: set[str] = set()
     for record in value:
@@ -2432,10 +2434,10 @@ def _validated_executed_sources(value: Any) -> bytes:
             or type(record.get("bytes")) is not int
             or record["bytes"] < 1
             or type(record.get("externally_bound")) is not bool
-            or record.get("execution") != "compile-exact-source-bytes-v3"
+            or record.get("execution") != "compile-exact-source-bytes-v4"
         ):
             raise AdaptiveChildResumeError(
-                "switch-v3 executed source record is malformed"
+                "switch-v4 executed source record is malformed"
             )
         seen_modules.add(record["module"])
         path = Path(record["path"])
@@ -2459,12 +2461,19 @@ def _science_modules_impl(
     """Execute once per CLI while freshly hashing every executed source."""
 
     state = _active_cli_replay_scope()
-    switch = _switch_v3_module(_SWITCH_V3_SOURCE_SHA256)
+    switch = _switch_v4_module(_SWITCH_V4_SOURCE_SHA256)
     record_source_bytes = _switch_record_overlay_source(switch_evidence)
+    serialized_source_record = json.loads(
+        record_source_bytes.decode("ascii")
+    )
+    serialized_source_identity = canonical_bytes({
+        key: value for key, value in serialized_source_record.items()
+        if key != "execution"
+    })
     loader = getattr(switch, "_load_overlay_exact", None)
     if not callable(loader):
         raise AdaptiveChildResumeError(
-            "switch-v3 exact overlay loader is absent"
+            "switch-v4 exact overlay loader is absent"
         )
     if state is not None and state["science_modules"] is not None:
         try:
@@ -2483,9 +2492,15 @@ def _science_modules_impl(
                 state["science_executed_sources"].decode("ascii")
             )
             if (
-                record_source_bytes != state["science_source_record"]
-                or _validated_science_source_record(source_record)
+                _validated_science_source_record(
+                    source_record,
+                    expected_execution="compile-exact-source-bytes-v4",
+                )
                 != state["science_source_record"]
+                or canonical_bytes({
+                    key: value for key, value in source_record.items()
+                    if key != "execution"
+                }) != serialized_source_identity
                 or _validated_executed_sources(executed_sources)
                 != state["science_executed_sources"]
             ):
@@ -2499,8 +2514,14 @@ def _science_modules_impl(
 
     overlay, source_record, executed_sources = loader()
     try:
-        source_bytes = _validated_science_source_record(source_record)
-        if source_bytes != record_source_bytes:
+        source_bytes = _validated_science_source_record(
+            source_record,
+            expected_execution="compile-exact-source-bytes-v4",
+        )
+        if canonical_bytes({
+            key: value for key, value in source_record.items()
+            if key != "execution"
+        }) != serialized_source_identity:
             raise AdaptiveChildResumeError(
                 "switch record overlay source differs from exact loader"
             )
@@ -2610,11 +2631,11 @@ def _strict_scoped_instance(
         raise
 
 
-_SWITCH_V3_CACHE: dict[str, Any] = {}
+_SWITCH_V4_CACHE: dict[str, Any] = {}
 
 
 def _switch_record_overlay_source(record: Mapping[str, Any]) -> bytes:
-    """Parse real v2 switch-record provenance without selecting v3 code."""
+    """Parse real v2 switch-record provenance without selecting v4 code."""
 
     binding = record.get("source_binding") if type(record) is dict else None
     fields = {
@@ -2666,7 +2687,10 @@ def _switch_record_overlay_source(record: Mapping[str, Any]) -> bytes:
             "switch record misses the frozen v2 source pin"
         )
     try:
-        return _validated_science_source_record(overlay_source)
+        return _validated_science_source_record(
+            overlay_source,
+            expected_execution="compile-exact-source-bytes-v3",
+        )
     except Exception as exc:
         raise AdaptiveChildResumeError(
             "switch record overlay source binding is invalid"
@@ -2675,18 +2699,18 @@ def _switch_record_overlay_source(record: Mapping[str, Any]) -> bytes:
 
 def _verify_exact_switch_module(module: Any) -> None:
     _stable_source_bytes(_SWITCH_V2_SOURCE, _SWITCH_V2_SOURCE_SHA256)
-    _stable_source_bytes(_SWITCH_V3_SOURCE, _SWITCH_V3_SOURCE_SHA256)
-    v3_record = getattr(module, "_V3_SOURCE_RECORD", None)
+    _stable_source_bytes(_SWITCH_V4_SOURCE, _SWITCH_V4_SOURCE_SHA256)
+    v4_record = getattr(module, "_V4_SOURCE_RECORD", None)
     v2_record = getattr(module, "_BASE_SOURCE_RECORD", None)
     if (
-        type(v3_record) is not dict
-        or v3_record.get("relative_path") != _SWITCH_V3_RELATIVE.as_posix()
-        or v3_record.get("sha256") != _SWITCH_V3_SOURCE_SHA256
+        type(v4_record) is not dict
+        or v4_record.get("relative_path") != _SWITCH_V4_RELATIVE.as_posix()
+        or v4_record.get("sha256") != _SWITCH_V4_SOURCE_SHA256
         or type(v2_record) is not dict
         or v2_record.get("relative_path") != _SWITCH_V2_RELATIVE.as_posix()
         or v2_record.get("sha256") != _SWITCH_V2_SOURCE_SHA256
         or Path(getattr(module, "__file__", "")).resolve(strict=True)
-            != _SWITCH_V3_SOURCE.resolve(strict=True)
+            != _SWITCH_V4_SOURCE.resolve(strict=True)
         or Path(
             getattr(getattr(module, "base", None), "__file__", "")
         ).resolve(strict=True) != _SWITCH_V2_SOURCE.resolve(strict=True)
@@ -2696,26 +2720,26 @@ def _verify_exact_switch_module(module: Any) -> None:
         )
 
 
-def _switch_v3_module(expected_sha256: str) -> Any:
-    expected = _require_sha256(expected_sha256, "switch-v3 source pin")
-    if expected != _SWITCH_V3_SOURCE_SHA256:
+def _switch_v4_module(expected_sha256: str) -> Any:
+    expected = _require_sha256(expected_sha256, "switch-v4 source pin")
+    if expected != _SWITCH_V4_SOURCE_SHA256:
         raise AdaptiveChildResumeError(
-            "switch-v3 source differs from frozen pin"
+            "switch-v4 source differs from frozen pin"
         )
-    cached = _SWITCH_V3_CACHE.get(expected)
+    cached = _SWITCH_V4_CACHE.get(expected)
     if cached is None:
         _stable_source_bytes(_SWITCH_V2_SOURCE, _SWITCH_V2_SOURCE_SHA256)
         cached = _load_exact_source_module(
-            "scripts.paper400_dic5_adaptive_switch_evidence_v3",
-            _SWITCH_V3_SOURCE, _SWITCH_V3_SOURCE_SHA256,
+            "scripts.paper400_dic5_adaptive_switch_evidence_v4",
+            _SWITCH_V4_SOURCE, _SWITCH_V4_SOURCE_SHA256,
         )
-        _SWITCH_V3_CACHE[expected] = cached
+        _SWITCH_V4_CACHE[expected] = cached
     _verify_exact_switch_module(cached)
     return cached
 
 
 def _default_switch_verifier(record: Mapping[str, Any]) -> Mapping[str, Any]:
-    switch = _switch_v3_module(_SWITCH_V3_SOURCE_SHA256)
+    switch = _switch_v4_module(_SWITCH_V4_SOURCE_SHA256)
     _switch_record_overlay_source(record)
     return switch.validate_switch_record_structure(record)
 
@@ -2771,15 +2795,15 @@ def _execution_module_binding(
         return value
     overlay, width10, adaptive, cube16 = modules
     _switch_record_overlay_source(switch_evidence)
-    switch_module = _switch_v3_module(_SWITCH_V3_SOURCE_SHA256)
+    switch_module = _switch_v4_module(_SWITCH_V4_SOURCE_SHA256)
     sources = {
         "controller": _module_source_record(
             controller, role="executed-dmtcp-controller-source",
             relative=Path("scripts/run_cadical_dmtcp_resume_v1.py"),
         ),
-        "switch_v3": _module_source_record(
-            switch_module, role="executed-switch-v3-source",
-            relative=_SWITCH_V3_RELATIVE,
+        "switch_v4": _module_source_record(
+            switch_module, role="executed-switch-v4-source",
+            relative=_SWITCH_V4_RELATIVE,
         ),
         "switch_v2": _module_source_record(
             switch_module.base,
@@ -2808,11 +2832,11 @@ def _execution_module_binding(
         ),
     }
     if (
-        sources["switch_v3"]["sha256"] != _SWITCH_V3_SOURCE_SHA256
+        sources["switch_v4"]["sha256"] != _SWITCH_V4_SOURCE_SHA256
         or sources["switch_v2"]["sha256"] != _SWITCH_V2_SOURCE_SHA256
     ):
         raise AdaptiveChildResumeError(
-            "executed switch v2/v3 misses frozen source pins"
+            "executed switch v2/v4 misses frozen source pins"
         )
     instance = _strict_scoped_instance(modules)
     instance_fingerprint = overlay._instance_replay_fingerprint(
@@ -2845,7 +2869,7 @@ def _execution_module_binding(
         "strict_base": True,
         "production_eligible": False,
         "switch_v2_source_sha256": _SWITCH_V2_SOURCE_SHA256,
-        "switch_v3_source_sha256": _SWITCH_V3_SOURCE_SHA256,
+        "switch_v4_source_sha256": _SWITCH_V4_SOURCE_SHA256,
         "sources": sources,
         "dependency_tree": dependency_tree,
         "system_stdlib_tree": stdlib_tree,
@@ -3493,7 +3517,7 @@ def _fresh_target(
         )
     except Exception as exc:
         raise AdaptiveChildResumeError(
-            f"switch-v3 structure validation failed: {exc}"
+            f"switch-v4 structure validation failed: {exc}"
         ) from exc
     if (
         type(structure) is not dict
@@ -3644,7 +3668,7 @@ def _static_value(
             "serialized_switch_launch_authorized": False,
             "serialized_composite_launch_authorized": False,
             "candidate_exact_bytes_replayed": True,
-            "atomic_switch_v3_lease_required": True,
+            "atomic_switch_v4_lease_required": True,
             "strict_first_start_requires_complete_eight_root_cover": True,
             "adaptive_handoff_reentry_supported": False,
             "maximum_live_workers_during_handoff": COHORT_SIZE,
@@ -4517,7 +4541,7 @@ def start_root(
         ))
         if loaded["record"]["strict_base"] is True:
             raise AdaptiveChildResumeError(
-                "strict first start requires start-batch atomic switch-v3 lease"
+                "strict first start requires start-batch atomic switch-v4 lease"
             )
         cpu = _single_cpu()
         return _start_locked(target, loaded, cpu=cpu, pin_parent_cpu=False)["session"]
@@ -5125,8 +5149,8 @@ def _stop_failed_new_root(
     ):
         raise AdaptiveChildResumeError("cleanup target key is malformed")
     return seal({
-        "schema_version": 3,
-        "kind": "paper400-adaptive-new-root-quiescence-v3",
+        "schema_version": SCHEMA_VERSION,
+        "kind": "paper400-adaptive-new-root-quiescence-observation-v5",
         "lane_index": lane_index,
         "descendant_index": descendant_index,
         "new_root_identity": _directory_identity(
@@ -5218,12 +5242,12 @@ def _atomic_handoff_start(
             )
         ):
             raise AdaptiveChildResumeError(
-                "switch-v3 prepared-target journals malformed"
+                "switch-v4 prepared-target journals malformed"
             )
         adoption = lease.adopt_prepared_outer_locks(
             outer_lock_fds=list(outer_fds),
         )
-        # Successful return means switch-v3 owns duplicate references to all
+        # Successful return means switch-v4 owns duplicate references to all
         # eight OFDs. From this point the local ExitStack must never LOCK_UN.
         outer_transferred = True
         _relinquish_adopted_outer_locks(
@@ -5232,7 +5256,7 @@ def _atomic_handoff_start(
         )
         if adoption is not None:
             raise AdaptiveChildResumeError(
-                "switch-v3 outer-lock adoption must return None"
+                "switch-v4 outer-lock adoption must return None"
             )
 
         def start_entry(
@@ -5243,7 +5267,7 @@ def _atomic_handoff_start(
 
             def note(active: Mapping[str, Any]) -> Any:
                 # A solver exists at this boundary.  Mark the attempt before
-                # the durable journal call; switch-v3 registers the key before
+                # the durable journal call; switch-v4 registers the key before
                 # publishing so its process-local registry is authoritative.
                 spawn_attempts.add(key)
                 return lease.note_started_worker(
@@ -5314,7 +5338,7 @@ def _atomic_handoff_start(
             or type(batch_commit.get("root_bindings")) is not list
             or len(batch_commit["root_bindings"]) != COVER_ROOT_COUNT
         ):
-            raise AdaptiveChildResumeError("switch-v3 cover commit schema mismatch")
+            raise AdaptiveChildResumeError("switch-v4 cover commit schema mismatch")
         return dict(batch_commit), [
             started_entries[key] for key in TARGET_KEYS
         ]
@@ -5387,7 +5411,7 @@ def _atomic_handoff_start(
             or rollback.get("new_workers_quiescent") is not True
         ):
             raise AdaptiveChildResumeError(
-                "switch-v3 explicit rollback attestation mismatch"
+                "switch-v4 explicit rollback attestation mismatch"
             )
         raise
 
@@ -5462,6 +5486,17 @@ def _handoff_link_value(
     batch_commit_path: Path, batch_commit: Mapping[str, Any],
     binding: Mapping[str, Any],
 ) -> dict[str, Any]:
+    commit_sha = batch_commit.get("batch_commit_sha256")
+    if commit_sha is None:
+        commit_sha = batch_commit.get("record_sha256")
+    attempt_id = batch_commit.get("attempt_id")
+    incident_pin = batch_commit.get("incident_precondition_sha256")
+    if (
+        not _is_sha256(commit_sha)
+        or not _is_sha256(attempt_id)
+        or not _is_sha256(incident_pin)
+    ):
+        raise AdaptiveChildResumeError("handoff attempt/incident binding malformed")
     if (
         binding.get("new_session_sha256") != session["record_sha256"]
         or binding.get("new_start_commit_sha256")
@@ -5470,6 +5505,8 @@ def _handoff_link_value(
         != static["selection"]["descendant_index"]
         or binding.get("descendant_sha256")
         != static["selection"]["descendant_sha256"]
+        or binding.get("global_leaf_index")
+        != static["selection"]["global_leaf_index"]
         or not json_type_equal(
             binding.get("new_root_identity"), session["root_identity"]
         )
@@ -5487,7 +5524,9 @@ def _handoff_link_value(
             "expected_batch_manifest_sha256"
         ],
         "batch_commit_path": str(batch_commit_path.resolve(strict=True)),
-        "batch_commit_sha256": batch_commit["record_sha256"],
+        "batch_commit_sha256": commit_sha,
+        "attempt_id": attempt_id,
+        "incident_precondition_sha256": incident_pin,
         "fence_sha256": binding["fence_sha256"],
         "prepared_target_sha256": binding["prepared_target_sha256"],
         "started_worker_journal_sha256": binding[
@@ -5522,9 +5561,73 @@ def _write_handoff_links(
         links.append(link)
     return links
 
+def inspect_incident_batch(roots: Sequence[Path]) -> dict[str, Any]:
+    """Build the sealed v4 incident precondition without launch authority."""
+
+    if type(roots) not in (list, tuple) or len(roots) != COVER_ROOT_COUNT:
+        raise AdaptiveChildResumeError(
+            "incident inspection requires exactly eight roots"
+        )
+    root_list = [_existing_root(Path(root)) for root in roots]
+    if len(set(root_list)) != COVER_ROOT_COUNT:
+        raise AdaptiveChildResumeError("incident inspection roots are duplicated")
+    loaded_items = [
+        _load_static(
+            root, instance=None, switch_verifier=None, science_modules=None,
+        )
+        for root in root_list
+    ]
+    if any(item["record"]["strict_base"] is not True for item in loaded_items):
+        raise AdaptiveChildResumeError(
+            "incident inspection is strict-production only"
+        )
+    common = _batch_common(loaded_items)
+    entries = _cover_entries(
+        root_list,
+        list(range(COHORT_SIZE)) * DESCENDANTS_PER_LANE,
+        loaded_items,
+    )
+    source_hashes = {
+        item["record"]["execution_module_binding"]["switch_v4_source_sha256"]
+        for item in loaded_items
+    }
+    if len(source_hashes) != 1:
+        raise AdaptiveChildResumeError(
+            "incident roots disagree on executed switch-v4 source"
+        )
+    switch = _switch_v4_module(next(iter(source_hashes)))
+    record = switch.build_incident_precondition(
+        common["batch_root"],
+        target_roots=[entry["root"] for entry in entries],
+        timeout_seconds=common["timeout_seconds"],
+        elapsed_seconds_by_lane=common["elapsed_seconds_by_lane"],
+        strict_base=True,
+    )
+    if (
+        type(record) is not dict
+        or not selfhash_valid(record)
+        or record.get("attempt_id") != switch.ATTEMPT_ID
+        or record.get("batch_root") != str(common["batch_root"])
+        or record.get("batch_manifest_sha256")
+            != common["expected_batch_manifest_sha256"]
+        or record.get("switch_evidence_sha256")
+            != common["expected_switch_evidence_sha256"]
+        or type(record.get("target_roots")) is not list
+        or len(record["target_roots"]) != COVER_ROOT_COUNT
+        or record.get("authenticated") is not False
+        or record.get("launch_authorized") is not False
+        or record.get("scientific_claim") is not False
+    ):
+        raise AdaptiveChildResumeError(
+            "switch-v4 incident precondition attestation mismatch"
+        )
+    return dict(record)
+
+
 
 def start_batch(
     roots: Sequence[Path], cpus: Sequence[int], *, batch_commit_path: Path,
+    expected_incident_precondition_sha256: str,
     instance: Any | None = None,
     switch_verifier: Callable[..., Mapping[str, Any]] | None = None,
     science_modules: tuple[Any, Any, Any, Any] | None = None,
@@ -5532,6 +5635,9 @@ def start_batch(
 ) -> dict[str, Any]:
     """First-start all eight descendants under one atomic old-batch lease."""
 
+    incident_pin = _require_sha256(
+        expected_incident_precondition_sha256, "incident precondition pin",
+    )
     commit_path = Path(batch_commit_path)
     _validate_new_output_path(commit_path, label="batch handoff commit")
     root_list, cpu_list = _cover_roots_cpus(roots, cpus)
@@ -5572,30 +5678,40 @@ def start_batch(
             _preflight_solver_limits(
                 item["record"]["resource_policy"]["proof_max_bytes"]
             )
+        expected_attempt_id: str | None = None
         if lease_factory is None:
             source_hashes = {
                 item["record"]["execution_module_binding"][
-                    "switch_v3_source_sha256"
+                    "switch_v4_source_sha256"
                 ]
                 for item in loaded_items
             }
             if len(source_hashes) != 1:
                 raise AdaptiveChildResumeError(
-                    "eight roots disagree on executed switch-v3 source"
+                    "eight roots disagree on executed switch-v4 source"
                 )
-            switch_module = _switch_v3_module(next(iter(source_hashes)))
+            switch_module = _switch_v4_module(next(iter(source_hashes)))
+            expected_attempt_id = _require_sha256(
+                switch_module.ATTEMPT_ID, "switch-v4 attempt id",
+            )
             factory = switch_module.acquire_atomic_switch_lease
             expected_commit_path = (
                 common["batch_root"] / switch_module.HANDOFF_COMMIT
             )
             if commit_path != expected_commit_path:
                 raise AdaptiveChildResumeError(
-                    "batch commit path is not switch-v3 canonical path"
+                    "batch commit path is not switch-v4 canonical path"
                 )
         else:
             factory = lease_factory
         with factory(
             common["batch_root"],
+            target_roots=[entry["root"] for entry in entries],
+            target_outer_lock_fds=[
+                locks_by_root[entry["root"]].validated_transfer_fd()
+                for entry in entries
+            ],
+            expected_incident_precondition_sha256=incident_pin,
             expected_batch_manifest_sha256=common[
                 "expected_batch_manifest_sha256"
             ],
@@ -5615,6 +5731,18 @@ def start_batch(
                     locks_by_root[entry["root"]] for entry in entries
                 ],
             )
+            if (
+                not _is_sha256(batch_commit.get("attempt_id"))
+                or batch_commit.get("incident_precondition_sha256")
+                    != incident_pin
+                or (
+                    expected_attempt_id is not None
+                    and batch_commit["attempt_id"] != expected_attempt_id
+                )
+            ):
+                raise AdaptiveChildResumeError(
+                    "committed v4 handoff misses attempt/incident binding"
+                )
             try:
                 links = _write_handoff_links(
                     started, commit_path, batch_commit,
@@ -5632,6 +5760,8 @@ def start_batch(
         "roots": [str(root) for root in root_list], "cpus": cpu_list,
         "batch_commit_path": str(commit_path.resolve(strict=True)),
         "batch_commit_sha256": batch_commit["record_sha256"],
+        "attempt_id": batch_commit["attempt_id"],
+        "incident_precondition_sha256": incident_pin,
         "prepared_retirement_sha256": batch_commit[
             "prepared_retirement_sha256"
         ],
@@ -5659,6 +5789,7 @@ def _verify_complete_handoff_links(
         "schema_version", "kind", "gate", "root", "static_sha256",
         "session_sha256", "switch_evidence_sha256", "batch_manifest_sha256",
         "batch_commit_path", "batch_commit_sha256", "fence_sha256",
+        "attempt_id", "incident_precondition_sha256",
         "prepared_target_sha256", "started_worker_journal_sha256",
         "cohort_index", "initial_handoff_state",
         "cohort_quiescence_sha256", "root_binding", "launch_authorized",
@@ -5673,19 +5804,23 @@ def _verify_complete_handoff_links(
         or link["root"] != str(root)
         or link["static_sha256"] != loaded["record"]["record_sha256"]
         or link["session_sha256"] != session["record_sha256"]
+        or not _is_sha256(link["attempt_id"])
+        or not _is_sha256(link["incident_precondition_sha256"])
         or link["launch_authorized"] is not False
         or link["resume_requires_fresh_durable_retirement_verification"] is not True
         or link["scientific_claim"] is not False
     ):
         raise AdaptiveChildResumeError("root handoff link mismatch")
     if handoff_verifier is None:
-        source_sha = loaded["record"]["execution_module_binding"]["switch_v3_source_sha256"]
-        verifier = _switch_v3_module(source_sha).verify_committed_handoff
+        source_sha = loaded["record"]["execution_module_binding"]["switch_v4_source_sha256"]
+        verifier = _switch_v4_module(source_sha).verify_committed_handoff
     else:
         verifier = handoff_verifier
     verification = verifier(
         Path(link["batch_commit_path"]),
         expected_batch_commit_sha256=link["batch_commit_sha256"],
+        expected_attempt_id=link["attempt_id"],
+        expected_incident_precondition_sha256=link["incident_precondition_sha256"],
         expected_switch_evidence_sha256=link["switch_evidence_sha256"],
         expected_batch_manifest_sha256=link["batch_manifest_sha256"],
     )
@@ -5696,6 +5831,9 @@ def _verify_complete_handoff_links(
         or verification.get("authenticated") is not False
         or verification.get("launch_authorized") is not False
         or verification.get("batch_commit_sha256") != link["batch_commit_sha256"]
+        or verification.get("attempt_id") != link["attempt_id"]
+        or verification.get("incident_precondition_sha256")
+            != link["incident_precondition_sha256"]
         or verification.get("switch_evidence_sha256") != link["switch_evidence_sha256"]
         or verification.get("batch_manifest_sha256") != link["batch_manifest_sha256"]
         or not _is_sha256(verification.get("prepared_retirement_sha256"))
@@ -5704,7 +5842,7 @@ def _verify_complete_handoff_links(
     binding = _binding_for_root(verification, root)
     expected = _handoff_link_value(
         root, loaded["record"], session, Path(link["batch_commit_path"]),
-        {"record_sha256": link["batch_commit_sha256"]}, binding,
+        verification, binding,
     )
     if not json_type_equal(link, expected):
         raise AdaptiveChildResumeError("root handoff link differs from fresh replay")
@@ -5722,7 +5860,7 @@ def _verify_complete_handoff_links(
         peer_expected = _handoff_link_value(
             peer_root, peer_static["record"], peer_session,
             Path(link["batch_commit_path"]),
-            {"record_sha256": link["batch_commit_sha256"]}, peer,
+            verification, peer,
         )
         if not json_type_equal(peer_link, peer_expected):
             raise AdaptiveChildResumeError("eight-root handoff links incomplete")
@@ -5730,6 +5868,8 @@ def _verify_complete_handoff_links(
     replay = verifier(
         Path(link["batch_commit_path"]),
         expected_batch_commit_sha256=link["batch_commit_sha256"],
+        expected_attempt_id=link["attempt_id"],
+        expected_incident_precondition_sha256=link["incident_precondition_sha256"],
         expected_switch_evidence_sha256=link["switch_evidence_sha256"],
         expected_batch_manifest_sha256=link["batch_manifest_sha256"],
     )
@@ -5747,6 +5887,8 @@ def _fresh_handoff_provenance(
             "kind": "paper400-dic5-adaptive-handoff-provenance-v5",
             "strict_atomic_handoff": False,
             "batch_commit_sha256": None, "root_fence_sha256": None,
+            "attempt_id": None,
+            "incident_precondition_sha256": None,
             "prepared_retirement_sha256": None,
             "prepared_target_sha256": None,
             "started_worker_journal_sha256": None,
@@ -5765,6 +5907,9 @@ def _fresh_handoff_provenance(
         "kind": "paper400-dic5-adaptive-handoff-provenance-v5",
         "strict_atomic_handoff": True,
         "batch_commit_sha256": verification["batch_commit_sha256"],
+        "attempt_id": verification["attempt_id"],
+        "incident_precondition_sha256":
+            verification["incident_precondition_sha256"],
         "root_fence_sha256": binding["fence_sha256"],
         "prepared_retirement_sha256": verification["prepared_retirement_sha256"],
         "prepared_target_sha256": binding["prepared_target_sha256"],
@@ -5787,8 +5932,14 @@ def _fresh_handoff_provenance(
 def repair_handoff_links(
     roots: Sequence[Path], *, batch_commit_path: Path,
     expected_batch_commit_sha256: str,
+    expected_attempt_id: str,
+    expected_incident_precondition_sha256: str,
     handoff_verifier: Callable[..., Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    attempt_pin = _require_sha256(expected_attempt_id, "v4 attempt id")
+    incident_pin = _require_sha256(
+        expected_incident_precondition_sha256, "incident precondition pin",
+    )
     if type(roots) not in (list, tuple) or len(roots) != COVER_ROOT_COUNT:
         raise AdaptiveChildResumeError("repair requires exactly eight roots")
     root_list = [_existing_root(Path(root)) for root in roots]
@@ -5810,19 +5961,24 @@ def repair_handoff_links(
     if handoff_verifier is not None:
         raise AdaptiveChildResumeError("strict repair forbids injected verifier")
     source_hashes = {
-        item["record"]["execution_module_binding"]["switch_v3_source_sha256"]
+        item["record"]["execution_module_binding"]["switch_v4_source_sha256"]
         for item in loaded_items
     }
     if len(source_hashes) != 1:
-        raise AdaptiveChildResumeError("eight repair roots disagree on switch-v3 source")
-    verifier = _switch_v3_module(
+        raise AdaptiveChildResumeError("eight repair roots disagree on switch-v4 source")
+    switch_module = _switch_v4_module(
         next(iter(source_hashes))
-    ).verify_committed_handoff
+    )
+    if attempt_pin != switch_module.ATTEMPT_ID:
+        raise AdaptiveChildResumeError("repair attempt id misses frozen v4")
+    verifier = switch_module.verify_committed_handoff
     verified = verifier(
         Path(batch_commit_path),
         expected_batch_commit_sha256=_require_sha256(
             expected_batch_commit_sha256, "batch commit pin"
         ),
+        expected_attempt_id=attempt_pin,
+        expected_incident_precondition_sha256=incident_pin,
         expected_switch_evidence_sha256=common[
             "expected_switch_evidence_sha256"
         ],
@@ -5837,7 +5993,7 @@ def repair_handoff_links(
         binding = _binding_for_root(verified, root)
         expected = _handoff_link_value(
             root, loaded["record"], session, Path(batch_commit_path),
-            {"record_sha256": expected_batch_commit_sha256}, binding,
+            verified, binding,
         )
         path = root / HANDOFF_LINK
         if path.exists():
@@ -5853,6 +6009,8 @@ def repair_handoff_links(
         "action": "repair-handoff-links",
         "success": True,
         "batch_commit_sha256": expected_batch_commit_sha256,
+        "attempt_id": attempt_pin,
+        "incident_precondition_sha256": incident_pin,
         "written_roots": written,
         "launch_authorized": False,
         "scientific_claim": False,
@@ -6452,8 +6610,8 @@ def _committed_quiescence_record(
             "committed rollback checkpoint binding is inconsistent"
         )
     return seal({
-        "schema_version": 3,
-        "kind": "paper400-adaptive-new-root-quiescence-v3",
+        "schema_version": SCHEMA_VERSION,
+        "kind": "paper400-adaptive-new-root-quiescence-observation-v5",
         "lane_index": lane_index,
         "descendant_index": descendant_index,
         "new_root_identity": _directory_identity(
@@ -6503,6 +6661,13 @@ def rollback_handoff_batch(
                 )
             loaded_items.append(loaded)
             verifications.append(verification)
+        attempt_ids = {item["attempt_id"] for item in verifications}
+        incident_pins = {
+            item["incident_precondition_sha256"] for item in verifications
+        }
+        if len(attempt_ids) != 1 or len(incident_pins) != 1:
+            raise AdaptiveChildResumeError("rollback roots disagree on v4 incident")
+        attempt_pin, incident_pin = next(iter(attempt_ids)), next(iter(incident_pins))
         common = _batch_common(loaded_items)
         expected_switch_record = loaded_items[0]["switch_evidence"]
         if any(
@@ -6539,20 +6704,24 @@ def rollback_handoff_batch(
         ]
         source_hashes = {
             item["record"]["execution_module_binding"][
-                "switch_v3_source_sha256"
+                "switch_v4_source_sha256"
             ]
             for item in loaded_items
         }
         if len(source_hashes) != 1:
             raise AdaptiveChildResumeError(
-                "rollback roots disagree on switch-v3 source"
+                "rollback roots disagree on switch-v4 source"
             )
-        switch = _switch_v3_module(next(iter(source_hashes)))
-    # The runner releases all new-root locks.  switch-v3 is the unique owner
+        switch = _switch_v4_module(next(iter(source_hashes)))
+        if attempt_pin != switch.ATTEMPT_ID:
+            raise AdaptiveChildResumeError("rollback attempt id misses frozen v4")
+    # The runner releases all new-root locks.  switch-v4 is the unique owner
     # that reacquires and independently rechecks all sixteen new entrypoints.
     rollback_record = switch.rollback_committed_handoff(
         Path(batch_commit_path),
         expected_batch_commit_sha256=commit_pin,
+        expected_attempt_id=attempt_pin,
+        expected_incident_precondition_sha256=incident_pin,
         expected_switch_evidence_sha256=common[
             "expected_switch_evidence_sha256"
         ],
@@ -6566,6 +6735,9 @@ def rollback_handoff_batch(
         type(rollback_record) is not dict
         or not _is_sha256(rollback_record.get("record_sha256"))
         or rollback_record.get("committed_handoff_sha256") != commit_pin
+        or rollback_record.get("attempt_id") != attempt_pin
+        or rollback_record.get("incident_precondition_sha256")
+            != incident_pin
         or rollback_record.get("new_workers_quiescent") is not True
         or rollback_record.get("old_checkpoint_replayed") is not True
         or rollback_record.get("authenticated") is not False
@@ -6580,6 +6752,8 @@ def rollback_handoff_batch(
         "success": True, "complete_binary_cover": True,
         "checkpoint_summary_sha256": stopped["record_sha256"],
         "batch_commit_sha256": commit_pin,
+        "attempt_id": attempt_pin,
+        "incident_precondition_sha256": incident_pin,
         "rollback_record_sha256": rollback_record["record_sha256"],
         "old_checkpoint_replayed": True, "new_workers_quiescent": True,
         "new_resume_entrypoints_retired": True,
@@ -7531,6 +7705,13 @@ def build_parser() -> argparse.ArgumentParser:
     start_batch_parser.add_argument(
         "--batch-commit-path", type=Path, required=True,
     )
+    start_batch_parser.add_argument(
+        "--expected-incident-precondition-sha256", required=True,
+    )
+    inspect_incident = sub.add_parser(
+        "inspect-incident-batch", allow_abbrev=False,
+    )
+    inspect_incident.add_argument("--root", type=Path, action="append", required=True)
     for action in (
         "checkpoint-stop-batch", "resume-batch", "status-batch",
     ):
@@ -7565,6 +7746,8 @@ def build_parser() -> argparse.ArgumentParser:
     repair.add_argument("--root", type=Path, action="append", required=True)
     repair.add_argument("--batch-commit-path", type=Path, required=True)
     repair.add_argument("--expected-batch-commit-sha256", required=True)
+    repair.add_argument("--expected-attempt-id", required=True)
+    repair.add_argument("--expected-incident-precondition-sha256", required=True)
     return parser
 
 def _main_in_cli_replay_scope(argv: Sequence[str] | None = None) -> int:
@@ -7594,9 +7777,14 @@ def _main_in_cli_replay_scope(argv: Sequence[str] | None = None) -> int:
         )
     elif args.action == "start":
         result = start_root(args.root)
+    elif args.action == "inspect-incident-batch":
+        result = inspect_incident_batch(args.root)
     elif args.action == "start-batch":
         result = start_batch(
             args.root, args.cpu, batch_commit_path=args.batch_commit_path,
+            expected_incident_precondition_sha256=(
+                args.expected_incident_precondition_sha256
+            ),
         )
     elif args.action in {
         "checkpoint-stop-batch", "status-batch",
@@ -7626,6 +7814,8 @@ def _main_in_cli_replay_scope(argv: Sequence[str] | None = None) -> int:
     elif args.action == "repair-handoff-links":
         result = repair_handoff_links(
             args.root, batch_commit_path=args.batch_commit_path,
+            expected_attempt_id=args.expected_attempt_id,
+            expected_incident_precondition_sha256=args.expected_incident_precondition_sha256,
             expected_batch_commit_sha256=(
                 args.expected_batch_commit_sha256
             ),
@@ -7669,6 +7859,7 @@ if __name__ == "__main__":
 __all__ = [
     "AdaptiveChildResumeError", "checkpoint_stop_batch",
     "checkpoint_stop_root", "harvest_root", "prepare_root_from_material",
+    "inspect_incident_batch",
     "recover_action", "repair_handoff_links", "resume_batch", "resume_root",
     "rollback_handoff_batch", "start_batch", "start_root", "status_batch",
     "switch_cohort_batch",

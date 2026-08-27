@@ -444,7 +444,7 @@ def _install_real_tiny_proof(root: Path) -> None:
 def test_prepare_exact_candidate_and_static_tamper(tmp_path: Path) -> None:
     root, static = _prepare(tmp_path)
     assert static['strict_base'] is False
-    assert static['launch_attestation']['atomic_switch_v3_lease_required'] is True
+    assert static['launch_attestation']['atomic_switch_v4_lease_required'] is True
     assert static['python_startup']['strict_base'] is False
     assert (root / runner.STATIC_DESCENDANT_CNF).read_bytes() == _render(PARENT_DIMACS, [1])
     with (root / runner.STATIC_DESCENDANT_CNF).open('ab') as stream:
@@ -845,8 +845,8 @@ def _fake_quiescence(
     root: Path, lane: int, descendant: int, pid: int, ticks: int,
 ) -> dict[str, Any]:
     return runner.seal({
-        'schema_version': 3,
-        'kind': 'paper400-adaptive-new-root-quiescence-v3',
+        'schema_version': 5,
+        'kind': 'paper400-adaptive-new-root-quiescence-observation-v5',
         'lane_index': lane, 'descendant_index': descendant,
         'new_root_identity': runner._directory_identity(
             root, require_mode_0700=True,
@@ -979,26 +979,38 @@ def test_atomic_complete_cover_starts_cohorts_in_order_and_commits(
     assert lease.commits == 1 and cleanup == []
 
 
-def test_frozen_switch_v2_v3_exact_loader_and_record_cannot_select_source() -> None:
-    module = runner._switch_v3_module(runner._SWITCH_V3_SOURCE_SHA256)
+def test_frozen_switch_v2_v4_exact_loader_and_record_cannot_select_source() -> None:
+    module = runner._switch_v4_module(runner._SWITCH_V4_SOURCE_SHA256)
     assert (
-        module._V3_SOURCE_RECORD["sha256"]
-        == runner._SWITCH_V3_SOURCE_SHA256
+        module._V4_SOURCE_RECORD["sha256"]
+        == runner._SWITCH_V4_SOURCE_SHA256
     )
     assert (
         module._BASE_SOURCE_RECORD["sha256"]
         == runner._SWITCH_V2_SOURCE_SHA256
     )
     _, overlay_source, overlay_executed = module._load_overlay_exact()
+    serialized_overlay_source = dict(overlay_source)
+    serialized_overlay_source["execution"] = "compile-exact-source-bytes-v3"
     binding = module.base._source_binding(
         {"legacy_project": str(runner.PROJECT), "legacy_sources": []},
-        [], overlay_source, overlay_executed,
+        [], serialized_overlay_source, overlay_executed,
     )
     record = {"source_binding": binding}
     assert (
         runner._switch_record_overlay_source(record)
-        == runner.canonical_bytes(overlay_source)
+        == runner.canonical_bytes(serialized_overlay_source)
     )
+    v4_tag_record = {
+        "source_binding": module.base._source_binding(
+            {"legacy_project": str(runner.PROJECT), "legacy_sources": []},
+            [], overlay_source, overlay_executed,
+        ),
+    }
+    with pytest.raises(
+        runner.AdaptiveChildResumeError, match="overlay source binding",
+    ):
+        runner._switch_record_overlay_source(v4_tag_record)
     modules = runner._science_modules(record)
     assert modules[0].__file__ == str(
         runner.PROJECT
@@ -1035,26 +1047,26 @@ def test_frozen_switch_v2_v3_exact_loader_and_record_cannot_select_source() -> N
         runner.AdaptiveChildResumeError, match="real v2 schema",
     ):
         runner._switch_record_overlay_source({
-            "source_binding": module._v3_source_binding(),
+            "source_binding": module._v4_source_binding(),
         })
     with pytest.raises(
         runner.AdaptiveChildResumeError, match="frozen pin",
     ):
-        runner._switch_v3_module("0" * 64)
+        runner._switch_v4_module("0" * 64)
 
 
-def test_runner_quiescence_schema_is_accepted_by_frozen_switch_v3(
+def test_runner_quiescence_schema_is_accepted_by_frozen_switch_v4(
     tmp_path: Path,
 ) -> None:
     root = tmp_path / "quiescence-root"
     root.mkdir(mode=0o700)
     root.chmod(0o700)
-    switch = runner._switch_v3_module(runner._SWITCH_V3_SOURCE_SHA256)
+    switch = runner._switch_v4_module(runner._SWITCH_V4_SOURCE_SHA256)
 
     def record(state: str, checkpoint: str | None) -> dict[str, Any]:
         return runner.seal({
-            "schema_version": 3,
-            "kind": "paper400-adaptive-new-root-quiescence-v3",
+            "schema_version": 5,
+            "kind": "paper400-adaptive-new-root-quiescence-observation-v5",
             "lane_index": 0,
             "descendant_index": 0,
             "new_root_identity": runner._directory_identity(
@@ -1077,12 +1089,12 @@ def test_runner_quiescence_schema_is_accepted_by_frozen_switch_v3(
     missing = dict(checked)
     missing.pop("record_sha256")
     missing.pop("checkpoint_commit_sha256")
-    with pytest.raises(switch.AdaptiveSwitchEvidenceV3Error):
+    with pytest.raises(switch.AdaptiveSwitchEvidenceV4Error):
         switch._validate_quiescence_record(runner.seal(missing))
     bad = dict(inactive)
     bad.pop("record_sha256")
     bad["checkpoint_commit_sha256"] = "b" * 64
-    with pytest.raises(switch.AdaptiveSwitchEvidenceV3Error):
+    with pytest.raises(switch.AdaptiveSwitchEvidenceV4Error):
         switch._validate_quiescence_record(runner.seal(bad))
 
 
@@ -1129,6 +1141,376 @@ def test_real_switch_lane_layout_maps_exact_eight_targets() -> None:
         runner._batch_common(bad)
 
 
+def _v4_cover_fixture(
+    tmp_path: Path, *, strict_base: bool,
+) -> tuple[list[Path], list[dict[str, Any]], Path, dict[str, Any]]:
+    tmp_path.chmod(0o700)
+    batch_root = tmp_path / 'old-batch'
+    batch_root.mkdir(mode=0o700)
+    batch_root.chmod(0o700)
+    lanes = [
+        {
+            'lane_index': lane,
+            'global_leaf_index': 100 + lane,
+            'hard_evidence_sha256': f'{lane + 1:064x}',
+        }
+        for lane in range(runner.LANE_COUNT)
+    ]
+    switch = {'record_sha256': 'a' * 64, 'lanes': lanes}
+    roots: list[Path] = []
+    loaded: list[dict[str, Any]] = []
+    for position, (lane, descendant) in enumerate(runner.TARGET_KEYS):
+        root = tmp_path / f'v4-root-{lane}-{descendant}'
+        root.mkdir(mode=0o700)
+        root.chmod(0o700)
+        (root / 'state').mkdir(mode=0o700)
+        runner._initialize_outer_lock(root)
+        roots.append(root)
+        loaded.append({
+            'overlay': {},
+            'switch_evidence': switch,
+            'record': {
+                'record_sha256': f'{position + 100:064x}',
+                'strict_base': strict_base,
+                'batch_root_identity': {'path': str(batch_root)},
+                'switch_evidence_sha256': 'a' * 64,
+                'switch_policy': {
+                    'timeout_seconds': 60.0,
+                    'elapsed_seconds_by_lane': [60.1, 60.2, 60.3, 60.4],
+                },
+                'external_pins': {
+                    'expected_overlay_sha256': f'{lane + 20:064x}',
+                    'expected_hard_evidence_sha256':
+                        lanes[lane]['hard_evidence_sha256'],
+                    'expected_switch_evidence_sha256': 'a' * 64,
+                    'expected_batch_manifest_sha256': 'b' * 64,
+                },
+                'selection': {
+                    'global_leaf_index': 100 + lane,
+                    'candidate_variables': [390],
+                    'descendant_index': descendant,
+                    'descendant_sha256': f'{position + 200:064x}',
+                },
+                'execution_module_binding': {
+                    'switch_v4_source_sha256': 'c' * 64,
+                },
+                'resource_policy': {'proof_max_bytes': 64 << 20},
+            },
+        })
+    return roots, loaded, batch_root, switch
+
+
+def test_inspect_incident_batch_calls_readonly_builder_once_in_canonical_order(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    roots, loaded, batch_root, _ = _v4_cover_fixture(
+        tmp_path, strict_base=True,
+    )
+    by_root = dict(zip(roots, loaded, strict=True))
+    calls: list[dict[str, Any]] = []
+    attempt = 'd' * 64
+
+    def build_incident(
+        observed_batch_root: Path, **kwargs: Any,
+    ) -> dict[str, Any]:
+        calls.append({
+            'batch_root': observed_batch_root,
+            **kwargs,
+        })
+        return runner.seal({
+            'attempt_id': attempt,
+            'batch_root': str(batch_root),
+            'batch_manifest_sha256': 'b' * 64,
+            'switch_evidence_sha256': 'a' * 64,
+            'target_roots': [
+                {'path': str(root)} for root in kwargs['target_roots']
+            ],
+            'authenticated': False,
+            'launch_authorized': False,
+            'scientific_claim': False,
+        })
+
+    monkeypatch.setattr(
+        runner, '_load_static',
+        lambda root, **kwargs: by_root[Path(root)],
+    )
+    monkeypatch.setattr(
+        runner, '_switch_v4_module',
+        lambda source_sha: SimpleNamespace(
+            ATTEMPT_ID=attempt,
+            build_incident_precondition=build_incident,
+        ),
+    )
+    observed = runner.inspect_incident_batch(roots)
+    assert observed['attempt_id'] == attempt
+    assert len(calls) == 1
+    assert calls[0]['batch_root'] == batch_root
+    assert calls[0]['target_roots'] == roots
+    assert calls[0]['strict_base'] is True
+    assert calls[0]['timeout_seconds'] == 60.0
+    assert calls[0]['elapsed_seconds_by_lane'] == [
+        60.1, 60.2, 60.3, 60.4,
+    ]
+    assert not (batch_root / 'adaptive-handoff-v4-unexpected').exists()
+
+
+def test_start_batch_forwards_external_incident_and_eight_held_outer_fds(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    roots, loaded, batch_root, _ = _v4_cover_fixture(
+        tmp_path, strict_base=False,
+    )
+    by_root = dict(zip(roots, loaded, strict=True))
+    cpus = [0, 1, 2, 3] * 2
+    incident = 'e' * 64
+    attempt = 'd' * 64
+    commit_path = tmp_path / 'handoff.json'
+    captured: dict[str, Any] = {}
+
+    @contextlib.contextmanager
+    def lease_factory(
+        observed_batch_root: Path, **kwargs: Any,
+    ) -> Iterator[object]:
+        captured['batch_root'] = observed_batch_root
+        captured.update(kwargs)
+        assert len(kwargs['target_outer_lock_fds']) == runner.COVER_ROOT_COUNT
+        assert all(
+            os.fstat(descriptor).st_nlink == 1
+            for descriptor in kwargs['target_outer_lock_fds']
+        )
+        yield object()
+
+    def fake_atomic(
+        lease: object, entries: list[dict[str, Any]], **kwargs: Any,
+    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        del lease, kwargs
+        commit_path.write_bytes(b'{}\n')
+        return ({
+            'record_sha256': 'f' * 64,
+            'attempt_id': attempt,
+            'incident_precondition_sha256': incident,
+            'prepared_retirement_sha256': '8' * 64,
+        }, entries)
+
+    monkeypatch.setattr(
+        runner, '_cover_roots_cpus',
+        lambda observed_roots, observed_cpus: (
+            list(observed_roots), list(observed_cpus),
+        ),
+    )
+    monkeypatch.setattr(
+        runner, '_load_static',
+        lambda root, **kwargs: by_root[Path(root)],
+    )
+    monkeypatch.setattr(runner, '_preflight_solver_limits', lambda cap: None)
+    monkeypatch.setattr(runner, '_atomic_handoff_start', fake_atomic)
+    monkeypatch.setattr(
+        runner, '_write_handoff_links',
+        lambda *args: [
+            {'record_sha256': f'{position + 300:064x}'}
+            for position in range(runner.COVER_ROOT_COUNT)
+        ],
+    )
+    key_by_root = dict(zip(roots, runner.TARGET_KEYS, strict=True))
+    monkeypatch.setattr(
+        runner, '_binding_for_root',
+        lambda commit, root: {
+            'handoff_state': (
+                'CHECKPOINTED'
+                if key_by_root[Path(root)][1] == 0 else 'RUNNING'
+            ),
+        },
+    )
+    monkeypatch.setattr(
+        runner, '_switch_v4_module',
+        lambda source_sha: (_ for _ in ()).throw(
+            AssertionError('start-batch rebuilt public incident')
+        ),
+    )
+    result = runner.start_batch(
+        roots, cpus, batch_commit_path=commit_path,
+        expected_incident_precondition_sha256=incident,
+        instance=TEST_INSTANCE, switch_verifier=_switch_verifier,
+        science_modules=SCIENCE, lease_factory=lease_factory,
+    )
+    assert result['success'] is True
+    assert result['attempt_id'] == attempt
+    assert result['incident_precondition_sha256'] == incident
+    assert captured['batch_root'] == batch_root
+    assert captured['target_roots'] == roots
+    assert captured['expected_incident_precondition_sha256'] == incident
+    assert captured['expected_batch_manifest_sha256'] == 'b' * 64
+    assert captured['expected_switch_evidence_sha256'] == 'a' * 64
+    assert captured['strict_base'] is False
+
+
+def test_repair_handoff_links_forwards_v4_attempt_and_incident(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    roots, loaded, _, _ = _v4_cover_fixture(
+        tmp_path, strict_base=True,
+    )
+    by_root = dict(zip(roots, loaded, strict=True))
+    attempt = 'd' * 64
+    incident = 'e' * 64
+    commit = 'f' * 64
+    captured: dict[str, Any] = {}
+
+    def verify(path: Path, **kwargs: Any) -> dict[str, Any]:
+        captured['path'] = path
+        captured.update(kwargs)
+        return {'root_bindings': []}
+
+    monkeypatch.setattr(
+        runner, '_load_static',
+        lambda root, **kwargs: by_root[Path(root)],
+    )
+    monkeypatch.setattr(
+        runner, '_load_session',
+        lambda root, loaded_item: {
+            'record_sha256': '7' * 64,
+            'root_identity': {'path': str(root)},
+        },
+    )
+    monkeypatch.setattr(
+        runner, '_switch_v4_module',
+        lambda source_sha: SimpleNamespace(
+            ATTEMPT_ID=attempt,
+            verify_committed_handoff=verify,
+        ),
+    )
+    monkeypatch.setattr(
+        runner, '_binding_for_root',
+        lambda verified, root: {'new_root_identity': {'path': str(root)}},
+    )
+    monkeypatch.setattr(
+        runner, '_handoff_link_value',
+        lambda root, *args: runner.seal({'root': str(root)}),
+    )
+    commit_path = tmp_path / 'canonical-v4-handoff.json'
+    result = runner.repair_handoff_links(
+        roots, batch_commit_path=commit_path,
+        expected_batch_commit_sha256=commit,
+        expected_attempt_id=attempt,
+        expected_incident_precondition_sha256=incident,
+    )
+    assert result['attempt_id'] == attempt
+    assert result['incident_precondition_sha256'] == incident
+    assert len(result['written_roots']) == runner.COVER_ROOT_COUNT
+    assert captured == {
+        'path': commit_path,
+        'expected_batch_commit_sha256': commit,
+        'expected_attempt_id': attempt,
+        'expected_incident_precondition_sha256': incident,
+        'expected_switch_evidence_sha256': 'a' * 64,
+        'expected_batch_manifest_sha256': 'b' * 64,
+    }
+
+
+def test_rollback_handoff_forwards_full_switch_and_neutral_quiescence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    roots, loaded, _, switch_record = _v4_cover_fixture(
+        tmp_path, strict_base=True,
+    )
+    by_root = dict(zip(roots, loaded, strict=True))
+    key_by_root = dict(zip(roots, runner.TARGET_KEYS, strict=True))
+    attempt = 'd' * 64
+    incident = 'e' * 64
+    commit = 'f' * 64
+    checkpoint = '9' * 64
+    captured: dict[str, Any] = {}
+
+    monkeypatch.setattr(
+        runner, 'checkpoint_stop_batch',
+        lambda *args, **kwargs: {'record_sha256': checkpoint},
+    )
+    monkeypatch.setattr(
+        runner, '_cover_roots_cpus',
+        lambda observed_roots, observed_cpus: (
+            list(observed_roots), list(observed_cpus),
+        ),
+    )
+    monkeypatch.setattr(
+        runner, '_root_lock',
+        lambda *args, **kwargs: contextlib.nullcontext(),
+    )
+    monkeypatch.setattr(
+        runner, '_load_static',
+        lambda root, **kwargs: by_root[Path(root)],
+    )
+    monkeypatch.setattr(
+        runner, '_load_session',
+        lambda root, loaded_item: {'record_sha256': '7' * 64},
+    )
+    monkeypatch.setattr(
+        runner, '_verify_complete_handoff_links',
+        lambda *args, **kwargs: {
+            'batch_commit_sha256': commit,
+            'attempt_id': attempt,
+            'incident_precondition_sha256': incident,
+        },
+    )
+    monkeypatch.setattr(
+        runner, '_binding_for_root',
+        lambda verified, root: {
+            'lane_index': key_by_root[Path(root)][0],
+            'descendant_index': key_by_root[Path(root)][1],
+        },
+    )
+    monkeypatch.setattr(
+        runner, '_committed_quiescence_record',
+        lambda root, lane, descendant, loaded_item: _fake_quiescence(
+            root, lane, descendant,
+            1000 + 10 * descendant + lane,
+            2000 + 10 * descendant + lane,
+        ),
+    )
+
+    def rollback(path: Path, **kwargs: Any) -> dict[str, Any]:
+        captured['path'] = path
+        captured.update(kwargs)
+        return runner.seal({
+            'committed_handoff_sha256': commit,
+            'attempt_id': attempt,
+            'incident_precondition_sha256': incident,
+            'new_workers_quiescent': True,
+            'old_checkpoint_replayed': True,
+            'authenticated': False,
+            'launch_authorized': False,
+        })
+
+    monkeypatch.setattr(
+        runner, '_switch_v4_module',
+        lambda source_sha: SimpleNamespace(
+            ATTEMPT_ID=attempt,
+            rollback_committed_handoff=rollback,
+        ),
+    )
+    commit_path = tmp_path / 'canonical-v4-handoff.json'
+    result = runner.rollback_handoff_batch(
+        roots, [0, 1, 2, 3] * 2,
+        batch_commit_path=commit_path,
+        expected_batch_commit_sha256=commit,
+        checkpoint_summary_path=tmp_path / 'checkpoint-summary.json',
+    )
+    assert result['attempt_id'] == attempt
+    assert result['incident_precondition_sha256'] == incident
+    assert captured['path'] == commit_path
+    assert captured['expected_attempt_id'] == attempt
+    assert captured['expected_incident_precondition_sha256'] == incident
+    assert captured['expected_switch_record'] is switch_record
+    assert len(captured['quiescence_records']) == runner.COVER_ROOT_COUNT
+    assert {
+        (item['schema_version'], item['kind'])
+        for item in captured['quiescence_records']
+    } == {
+        (
+            5,
+            'paper400-adaptive-new-root-quiescence-observation-v5',
+        ),
+    }
+
 def test_handoff_binding_requires_both_durable_journal_hashes(
     tmp_path: Path,
 ) -> None:
@@ -1163,10 +1545,88 @@ def test_handoff_binding_requires_both_durable_journal_hashes(
     )
     assert observed['prepared_target_sha256'] == '5' * 64
     assert observed['started_worker_journal_sha256'] == '6' * 64
+    with pytest.raises(
+        runner.AdaptiveChildResumeError,
+        match='handoff binding/session mismatch',
+    ):
+        runner._handoff_link_value(
+            roots[0],
+            {
+                'selection': {
+                    'global_leaf_index': observed['global_leaf_index'] + 1,
+                    'descendant_index': observed['descendant_index'],
+                    'descendant_sha256': observed['descendant_sha256'],
+                },
+            },
+            {
+                'record_sha256': observed['new_session_sha256'],
+                'controller_start_sha256': observed[
+                    'new_start_commit_sha256'
+                ],
+                'root_identity': observed['new_root_identity'],
+            },
+            tmp_path / 'unreached-handoff.json',
+            {
+                'record_sha256': '9' * 64,
+                'attempt_id': 'a' * 64,
+                'incident_precondition_sha256': 'b' * 64,
+            },
+            observed,
+        )
     bad = json.loads(json.dumps(bindings))
     bad[0].pop('started_worker_journal_sha256')
     with pytest.raises(runner.AdaptiveChildResumeError, match='schema'):
         runner._binding_for_root({'root_bindings': bad}, roots[0])
+
+
+@pytest.mark.parametrize(
+    'binding_field',
+    [
+        'new_session_sha256',
+        'new_start_commit_sha256',
+    ],
+)
+def test_handoff_link_rejects_session_transport_cross_binding(
+    tmp_path: Path, binding_field: str,
+) -> None:
+    root = tmp_path / 'cross-binding'
+    static = {
+        'selection': {
+            'global_leaf_index': 100,
+            'descendant_index': 0,
+            'descendant_sha256': '1' * 64,
+        },
+    }
+    session = {
+        'record_sha256': '2' * 64,
+        'controller_start_sha256': '3' * 64,
+        'root_identity': {'path': str(root)},
+    }
+    binding = {
+        'new_session_sha256': session['record_sha256'],
+        'new_start_commit_sha256': session[
+            'controller_start_sha256'
+        ],
+        'global_leaf_index': 100,
+        'descendant_index': 0,
+        'descendant_sha256': '1' * 64,
+        'new_root_identity': session['root_identity'],
+    }
+    binding[binding_field] = 'f' * 64
+    with pytest.raises(
+        runner.AdaptiveChildResumeError,
+        match='handoff binding/session mismatch',
+    ):
+        runner._handoff_link_value(
+            root, static, session,
+            tmp_path / 'unreached-handoff.json',
+            {
+                'record_sha256': '9' * 64,
+                'attempt_id': 'a' * 64,
+                'incident_precondition_sha256': 'b' * 64,
+            },
+            binding,
+        )
 
 
 def test_transferable_root_lock_close_preserves_adopted_flock(
@@ -1586,6 +2046,7 @@ def test_bad_summary_and_handoff_link_preflight_have_zero_transport_side_effect(
     with pytest.raises(runner.AdaptiveChildResumeError, match='root handoff link'):
         runner.start_batch(
             roots, [0, 1, 2, 3] * 2, batch_commit_path=tmp_path / 'batch-commit.json',
+            expected_incident_precondition_sha256='1' * 64,
             instance=TEST_INSTANCE, switch_verifier=_switch_verifier,
             science_modules=SCIENCE, lease_factory=lambda *args, **kwargs: None,
         )
@@ -1893,6 +2354,7 @@ def test_strict_python_gate_and_cli_surface() -> None:
         'prepare', 'start-batch', 'checkpoint-stop-batch', 'resume-batch',
         'status-batch', 'switch-cohort-batch', 'recover-action',
         'repair-handoff-links',
+        'inspect-incident-batch',
         'rollback-handoff-batch', 'harvest', 'verify',
     } <= set(choices)
     source = DRAFT.read_text()
@@ -1937,16 +2399,19 @@ def _strict_subprocess_source(*, full_probe: bool) -> str:
         "def probe(argv):\n"
         " state=runner._active_strict_dependency_context()\n"
         " result['pycache_path']=state['pycache_path']\n"
-        " switch=runner._switch_v3_module("
-        "runner._SWITCH_V3_SOURCE_SHA256)\n"
+        " switch=runner._switch_v4_module("
+        "runner._SWITCH_V4_SOURCE_SHA256)\n"
         " _,overlay_source,overlay_executed=switch._load_overlay_exact()\n"
+        " serialized_overlay_source=dict(overlay_source)\n"
+        " serialized_overlay_source['execution']='compile-exact-source-bytes-v3'\n"
         " runner._normalize_strict_science_sys_path()\n"
         " runner._adopt_strict_derived_environment(overlay_executed)\n"
         " binding=switch.base._source_binding("
         "{'legacy_project':str(runner.PROJECT),'legacy_sources':[]},"
-        "[],overlay_source,overlay_executed)\n"
+        "[],serialized_overlay_source,overlay_executed)\n"
         " record={'source_binding':binding}\n"
         " modules=runner._science_modules(record)\n"
+        " assert runner._science_modules(record)==modules\n"
         " instance=runner._strict_scoped_instance(modules)\n"
         " fingerprint=modules[0]._instance_replay_fingerprint("
         "instance,strict_base=True)\n"
@@ -2057,7 +2522,7 @@ def test_real_isolated_dependency_context_and_science_execution_binding() -> Non
     assert writer['module'] == runner._STRICT_DERIVED_ENV_WRITER_MODULE
     assert writer['path'] == str(runner._STRICT_DERIVED_ENV_WRITER)
     assert writer['sha256'] == runner._STRICT_DERIVED_ENV_WRITER_SHA256
-    assert writer['execution'] == 'compile-exact-source-bytes-v3'
+    assert writer['execution'] == 'compile-exact-source-bytes-v4'
     assert execution['science_derived_environment'][
         'effect_scope'
     ] == 'sets-listed-keys-before-lower-final-v5-own-numpy-and-qldpc-imports-v1'
@@ -2085,8 +2550,8 @@ def test_real_isolated_dependency_context_and_science_execution_binding() -> Non
     assert execution['switch_v2_source_sha256'] == (
         runner._SWITCH_V2_SOURCE_SHA256
     )
-    assert execution['switch_v3_source_sha256'] == (
-        runner._SWITCH_V3_SOURCE_SHA256
+    assert execution['switch_v4_source_sha256'] == (
+        runner._SWITCH_V4_SOURCE_SHA256
     )
     assert runner.canonical_sha256({
         key: value for key, value in execution.items()
@@ -2188,7 +2653,7 @@ def test_derived_environment_writer_requires_unique_exact_closure() -> None:
             'sha256': f'{index + 1:x}' * 64,
             'bytes': index + 1,
             'externally_bound': False,
-            'execution': 'compile-exact-source-bytes-v3',
+            'execution': 'compile-exact-source-bytes-v4',
         }
 
     tail = [dummy(0), dummy(1), dummy(2)]
@@ -2214,7 +2679,7 @@ def test_derived_environment_writer_requires_unique_exact_closure() -> None:
             runner._strict_derived_env_writer_from_executed_sources(malformed)
     with pytest.raises(runner.AdaptiveChildResumeError, match='type-exact'):
         runner._strict_derived_env_writer_from_executed_sources([
-            {**writer, 'execution': 'import-pyc'}, *tail,
+            {**writer, 'execution': 'compile-exact-source-bytes-v3'}, *tail,
         ])
     with pytest.raises(runner.AdaptiveChildResumeError, match='exact type'):
         runner._strict_derived_env_writer_from_executed_sources(tuple(closure))
