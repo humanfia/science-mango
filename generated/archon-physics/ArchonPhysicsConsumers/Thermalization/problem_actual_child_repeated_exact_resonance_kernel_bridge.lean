@@ -1,0 +1,31 @@
+import ArchonPhysics.ActualChildRepeatedExactResonanceKernelBridge
+
+/-!
+# Consumer: exact ChildRepeated resonance to kernel input
+
+This consumer exposes the three honest interfaces separately: qualitative
+six-IID thickening, quantitative two-mass inverse-function geometry, and the
+volume-uniform linear-small-ball analytic contract.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization.ActualChildRepeatedExactResonanceKernelBridge
+
+open ArchonPhysics.ActualChildRepeatedExactResonanceKernelBridge
+
+#check SixIIDExactWeightedResonanceData.exists_positive_openPatch_of_law
+#check SixIIDExactWeightedResonanceData.exists_positive_iid_openPatch
+#check exists_actualTwoMassChildFrequency_openImageRegularPatch
+#check exists_actualTwoMassChildRepeatedExactPatchData
+#check ActualTwoMassChildRepeatedExactPatchData.exists_linearSmallBallLower
+#check ActualTwoMassChildRepeatedExactPatchData.exists_linearSmallBallLower_of_law
+#check VolumeUniformLinearSmallBallLower.inverseTimeKernelLower
+
+#print axioms SixIIDExactWeightedResonanceData.exists_positive_openPatch_of_law
+#print axioms SixIIDExactWeightedResonanceData.exists_positive_iid_openPatch
+#print axioms exists_actualTwoMassChildFrequency_openImageRegularPatch
+#print axioms exists_actualTwoMassChildRepeatedExactPatchData
+#print axioms ActualTwoMassChildRepeatedExactPatchData.exists_linearSmallBallLower
+#print axioms ActualTwoMassChildRepeatedExactPatchData.exists_linearSmallBallLower_of_law
+#print axioms VolumeUniformLinearSmallBallLower.inverseTimeKernelLower
+
+end ArchonPhysicsConsumers.Thermalization.ActualChildRepeatedExactResonanceKernelBridge

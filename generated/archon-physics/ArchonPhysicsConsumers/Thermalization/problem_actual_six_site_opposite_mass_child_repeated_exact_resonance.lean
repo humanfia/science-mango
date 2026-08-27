@@ -1,0 +1,35 @@
+import ArchonPhysics.ActualSixSiteOppositeMassChildRepeatedExactResonance
+
+/-!
+# Consumer: opposite-mass six-site exact child-repeated resonance
+
+This consumer exposes the exact opposite-site characteristic polynomial,
+the two endpoint sign certificates, and the resulting interior resonance
+between the positive ordered modes zero and three.  No simple-spectrum or
+Jacobian conclusion is asserted.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.ActualSixSiteOppositeMassChildRepeatedExactResonance
+
+#check explicitSixSiteOppositeWeightLaplacian_charpoly_eval
+#check oppositeSixSiteHarmonic_charpoly_eval
+#check leftOppositeHarmonic_orderedEigenvalue
+#check rightOppositeHarmonic_orderedEigenvalue
+#check oppositeChildRepeatedMismatch_left_neg
+#check oppositeChildRepeatedMismatch_right_pos
+#check exists_interior_oppositeChildRepeated_exactResonance
+#check opposite_parent_frequency_pos
+#check opposite_child_frequency_pos
+#check exists_interior_positive_oppositeChildRepeated_exactResonance
+
+#print axioms explicitSixSiteOppositeWeightLaplacian_charpoly_eval
+#print axioms oppositeSixSiteHarmonic_charpoly_eval
+#print axioms leftOppositeHarmonic_orderedEigenvalue
+#print axioms rightOppositeHarmonic_orderedEigenvalue
+#print axioms oppositeChildRepeatedMismatch_left_neg
+#print axioms oppositeChildRepeatedMismatch_right_pos
+#print axioms exists_interior_positive_oppositeChildRepeated_exactResonance
+
+end ArchonPhysicsConsumers.Thermalization

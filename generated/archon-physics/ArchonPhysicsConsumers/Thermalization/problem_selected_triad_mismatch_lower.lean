@@ -1,0 +1,13 @@
+import ArchonPhysics.SelectedTriadMismatchLower
+
+namespace ArchonPhysicsConsumers.Thermalization.SelectedTriadMismatchLower
+
+open ArchonPhysics.SelectedTriadMismatchLower
+
+#check selectedTriad_weight_le_positiveWeightedMismatchMeasure_apply
+#check invSite_mul_selectedTriad_weight_le_perSiteMismatch_apply
+
+#print axioms selectedTriad_weight_le_positiveWeightedMismatchMeasure_apply
+#print axioms invSite_mul_selectedTriad_weight_le_perSiteMismatch_apply
+
+end ArchonPhysicsConsumers.Thermalization.SelectedTriadMismatchLower

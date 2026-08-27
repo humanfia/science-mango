@@ -1,0 +1,11 @@
+import ArchonPhysics.ActualSixSiteNearResonantMismatchEven
+
+open ArchonPhysics.ActualSixSiteNearResonantMismatchEven
+
+#check nearResonantMassTriple_neg_mem_support
+#check actualSixSiteNearResonant_charpoly_neg_eq
+#check actualSixSiteNearResonant_orderedEigenvalue_neg_eq
+#check actualSixSiteNearResonant_orderedModeFrequency_neg_eq
+#check actualSixSiteNearResonantMismatchPath_neg_eq
+
+#print axioms actualSixSiteNearResonantMismatchPath_neg_eq

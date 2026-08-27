@@ -1,0 +1,14 @@
+import ArchonPhysics.CanonicalOnShellMarginalContinuumThermalizationComposition
+
+namespace ArchonPhysicsConsumers.Thermalization.CanonicalOnShellMarginalContinuumThermalizationComposition
+
+open ArchonPhysics.CanonicalOnShellMarginalContinuumThermalizationComposition
+
+/-- Kernel-lock the sector-compatible continuum-to-release composition. -/
+theorem problem_canonical_on_shell_marginal_continuum_thermalization_composition :
+    (@KineticWindowApproximation.exists_highProbabilityG2Bounds_of_marginalDominatedCanonicalOnShell) =
+      @KineticWindowApproximation.exists_highProbabilityG2Bounds_of_marginalDominatedCanonicalOnShell := rfl
+
+end ArchonPhysicsConsumers.Thermalization.CanonicalOnShellMarginalContinuumThermalizationComposition
+
+#print axioms ArchonPhysics.CanonicalOnShellMarginalContinuumThermalizationComposition.KineticWindowApproximation.exists_highProbabilityG2Bounds_of_marginalDominatedCanonicalOnShell

@@ -1,0 +1,23 @@
+import ArchonPhysics.ActualSixSitePositiveRegularNearResonancePatch
+
+/-!
+# Consumer: positive regular near-resonance patch at six sites
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.ActualSixSitePositiveRegularNearResonancePatch
+
+#check actualSixSitePositiveRegularNearResonancePatch
+#check isOpen_actualSixSitePositiveRegularNearResonancePatch
+#check measurableSet_actualSixSitePositiveRegularNearResonancePatch
+#check actualSixSitePositiveRegularNearResonancePatch_subset_support
+#check actualSixSitePositiveRegularNearResonancePatch_nonempty
+#check iidMassTripleLaw_actualSixSitePositiveRegularNearResonancePatch_pos
+#check exists_positive_iidMass_actualSixSite_liftedRegularNearResonancePatch
+
+#print axioms actualSixSitePositiveRegularNearResonancePatch_nonempty
+#print axioms iidMassTripleLaw_actualSixSitePositiveRegularNearResonancePatch_pos
+#print axioms exists_positive_iidMass_actualSixSite_liftedRegularNearResonancePatch
+
+end ArchonPhysicsConsumers.Thermalization

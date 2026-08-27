@@ -1,0 +1,21 @@
+import ArchonPhysics.CanonicalOnShellMarginalRayleighJeansDistanceF2
+
+namespace ArchonPhysicsConsumers.Thermalization.CanonicalOnShellMarginalRayleighJeansDistanceF2
+
+open ArchonPhysics.CanonicalOnShellMarginalRayleighJeansDistanceF2
+
+/-- Kernel-lock relaxation of the concrete Rayleigh--Jeans distance under
+the sector-compatible marginal rigidity hypotheses. -/
+theorem problem_canonical_on_shell_marginal_rayleigh_jeans_relaxation :
+    (@tendsto_rayleighJeansDistance_zero_of_marginalDominatedCanonicalOnShell) =
+      @tendsto_rayleighJeansDistance_zero_of_marginalDominatedCanonicalOnShell := rfl
+
+/-- Kernel-lock the resulting robust two-time hitting window. -/
+theorem problem_canonical_on_shell_marginal_rayleigh_jeans_window :
+    (@exists_robustRayleighJeansHittingWindow_of_marginalDominatedCanonicalOnShell) =
+      @exists_robustRayleighJeansHittingWindow_of_marginalDominatedCanonicalOnShell := rfl
+
+end ArchonPhysicsConsumers.Thermalization.CanonicalOnShellMarginalRayleighJeansDistanceF2
+
+#print axioms ArchonPhysics.CanonicalOnShellMarginalRayleighJeansDistanceF2.tendsto_rayleighJeansDistance_zero_of_marginalDominatedCanonicalOnShell
+#print axioms ArchonPhysics.CanonicalOnShellMarginalRayleighJeansDistanceF2.exists_robustRayleighJeansHittingWindow_of_marginalDominatedCanonicalOnShell

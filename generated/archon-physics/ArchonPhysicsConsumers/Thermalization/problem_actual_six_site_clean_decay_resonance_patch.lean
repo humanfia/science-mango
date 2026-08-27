@@ -1,0 +1,21 @@
+import ArchonPhysics.ActualSixSiteCleanDecayResonancePatch
+
+/-!
+# Consumer: actual six-site clean decay resonance patch
+
+This consumer checks the exact clean spectrum, the genuine resonant mass
+point, and the positive-iid-mass near-resonance conclusion.
+-/
+
+open ArchonPhysics.ActualSixSiteCleanDecayResonancePatch
+
+#check orderedEigenvalue_cleanCycleHarmonic_six
+#check actualSixSiteLiftedFrequencyChart_unit_mismatch_eq_zero
+#check continuous_actualSixSiteDecayMismatch
+#check iidMassTripleLaw_actualSixSiteNearResonancePatch_pos
+#check iidMassTripleLaw_actualSixSite_abs_mismatch_lt_pos
+
+#print axioms orderedEigenvalue_cleanCycleHarmonic_six
+#print axioms actualSixSiteLiftedFrequencyChart_unit_mismatch_eq_zero
+#print axioms iidMassTripleLaw_actualSixSiteNearResonancePatch_pos
+#print axioms iidMassTripleLaw_actualSixSite_abs_mismatch_lt_pos

@@ -1,0 +1,33 @@
+import ArchonPhysics.ActualSixSiteThreeMassSimpleSpectrum
+
+/-!
+# Consumer: simple spectrum in the six-site near-resonance patch
+
+This consumer checks the restricted resultant certificate, the iid nullity
+of the nonsimple locus, positivity of the selected decay modes, and the final
+positive-probability simple near-resonance patch.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.ActualSixSiteThreeMassSimpleSpectrum
+
+#check sixSiteRepeatedRootSlicePolynomial
+#check evaluate_sixSiteRepeatedRootSlicePolynomial
+#check sixSiteRepeatedRootSlicePolynomial_ne_zero
+#check inverseMassCoordinates_actualSixSiteThreeMassConfig
+#check iidMassTripleLaw_actualSixSite_orderedPositiveDuplicate_eq_zero
+#check iidMassTripleLaw_actualSixSite_not_simpleOrderedSpectrum_eq_zero
+#check actualSixSite_simpleOrderedSpectrum_ae
+#check actualSixSiteDecayModes_energy_pos_of_simple
+#check actualSixSiteSimpleNearResonancePatch_decayModes_energy_pos
+#check iidMassTripleLaw_actualSixSiteSimpleNearResonancePatch_pos
+
+#print axioms sixSiteRepeatedRootSlicePolynomial_ne_zero
+#print axioms inverseMassCoordinates_actualSixSiteThreeMassConfig
+#print axioms iidMassTripleLaw_actualSixSite_orderedPositiveDuplicate_eq_zero
+#print axioms iidMassTripleLaw_actualSixSite_not_simpleOrderedSpectrum_eq_zero
+#print axioms actualSixSiteDecayModes_energy_pos_of_simple
+#print axioms iidMassTripleLaw_actualSixSiteSimpleNearResonancePatch_pos
+
+end ArchonPhysicsConsumers.Thermalization

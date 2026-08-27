@@ -423,6 +423,80 @@ theorem measurable_sampledPositiveLateWindowRationalPersistentHittingTime
     (fun r ↦ measurable_sampledPositiveLateWindowL1Distance
       massSample initial flow hmass hinitial hflow mu (r : Real))
 
+
+/-- Closed threshold at every real time in the interval
+start to start + duration. -/
+def RealClosedPersistsFor
+    (distance : Real → Real) (delta start duration : Real) : Prop :=
+  ∀ time : Real,
+    start ≤ time → time ≤ start + duration → distance time ≤ delta
+
+/-- A real-time window immediately implies its rationally sampled version. -/
+theorem rationalClosedPersistsFor_of_realClosedPersistsFor
+    (distance : Real → Real) (delta start duration : Real)
+    (hreal : RealClosedPersistsFor distance delta start duration) :
+    RationalClosedPersistsFor distance delta start duration := by
+  intro q hleft hright
+  exact hreal (q : Real) hleft hright
+
+/-- For a continuous diagnostic and a positive-duration window, checking every
+rational time is exactly as strong as checking every real time.  Positivity of
+the duration is essential: a zero-length interval at an irrational endpoint
+contains no rational sample. -/
+theorem realClosedPersistsFor_of_rationalClosedPersistsFor
+    (distance : Real → Real) (delta start duration : Real)
+    (hduration : 0 < duration) (hcontinuous : Continuous distance)
+    (hrational : RationalClosedPersistsFor distance delta start duration) :
+    RealClosedPersistsFor distance delta start duration := by
+  intro time hleft hright
+  by_contra hnot
+  have hbad : delta < distance time := lt_of_not_ge hnot
+  have hopen : IsOpen {x : Real | delta < distance x} :=
+    isOpen_lt continuous_const hcontinuous
+  obtain ⟨epsilon, hepsilon, hball⟩ :
+      ∃ epsilon > 0, Metric.ball time epsilon ⊆
+        {x : Real | delta < distance x} :=
+    Metric.isOpen_iff.1 hopen time hbad
+  have hstartEnd : start < start + duration :=
+    lt_add_of_pos_right start hduration
+  have hinterior :
+      max start (time - epsilon) <
+        min (start + duration) (time + epsilon) := by
+    apply max_lt
+    · apply lt_min
+      · exact hstartEnd
+      · exact hleft.trans_lt (lt_add_of_pos_right time hepsilon)
+    · apply lt_min
+      · exact (sub_lt_self time hepsilon).trans_le hright
+      · linarith
+  obtain ⟨q, hqLower, hqUpper⟩ := exists_rat_btwn hinterior
+  have hqStart : start ≤ (q : Real) :=
+    (le_max_left start (time - epsilon)).trans hqLower.le
+  have hqEnd : (q : Real) ≤ start + duration :=
+    hqUpper.le.trans (min_le_left (start + duration) (time + epsilon))
+  have hqLeft : time - epsilon < (q : Real) :=
+    (le_max_right start (time - epsilon)).trans_lt hqLower
+  have hqRight : (q : Real) < time + epsilon :=
+    hqUpper.trans_le (min_le_right (start + duration) (time + epsilon))
+  have hqBall : (q : Real) ∈ Metric.ball time epsilon := by
+    rw [Metric.mem_ball, Real.dist_eq]
+    exact (abs_lt.2 ⟨by linarith, by linarith⟩)
+  have hbadQ : delta < distance (q : Real) := hball hqBall
+  exact (not_lt_of_ge (hrational q hqStart hqEnd)) hbadQ
+
+/-- Continuous diagnostics identify the measurable rational-window predicate
+with the literal all-real-times predicate. -/
+theorem rationalClosedPersistsFor_iff_realClosedPersistsFor
+    (distance : Real → Real) (delta start duration : Real)
+    (hduration : 0 < duration) (hcontinuous : Continuous distance) :
+    RationalClosedPersistsFor distance delta start duration ↔
+      RealClosedPersistsFor distance delta start duration := by
+  constructor
+  · exact realClosedPersistsFor_of_rationalClosedPersistsFor
+      distance delta start duration hduration hcontinuous
+  · exact rationalClosedPersistsFor_of_realClosedPersistsFor
+      distance delta start duration
+
 /-- Canonical iid random masses: the complete positive-mode late-window
 distance is measurable for every fixed terminal time. -/
 theorem canonical_measurable_sampledPositiveLateWindowL1Distance

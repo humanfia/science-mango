@@ -1,0 +1,14 @@
+import ArchonPhysics.CanonicalOnShellContinuumThermalizationComposition
+
+namespace ArchonPhysicsConsumers.Thermalization.CanonicalOnShellContinuumThermalizationComposition
+
+open ArchonPhysics.CanonicalOnShellContinuumThermalizationComposition
+
+/-- Kernel-lock the direct continuum on-shell F2--F3 release composition. -/
+theorem problem_canonical_on_shell_continuum_thermalization_composition :
+    (@KineticWindowApproximation.exists_highProbabilityG2Bounds_of_canonicalOnShell) =
+      @KineticWindowApproximation.exists_highProbabilityG2Bounds_of_canonicalOnShell := rfl
+
+end ArchonPhysicsConsumers.Thermalization.CanonicalOnShellContinuumThermalizationComposition
+
+#print axioms ArchonPhysics.CanonicalOnShellContinuumThermalizationComposition.KineticWindowApproximation.exists_highProbabilityG2Bounds_of_canonicalOnShell
