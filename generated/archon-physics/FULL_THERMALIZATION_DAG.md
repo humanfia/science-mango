@@ -974,3 +974,55 @@ All eight new core modules, all eight consumers, and both public barrels pass
 build passes with 9455 jobs.  The audited endpoints depend only on `propext`,
 `Classical.choice`, and `Quot.sound`, and the exact file set contains no
 `sorry`, `admit`, added `axiom`, `unsafe`, or `opaque` declaration.
+
+### 2026-08-27 F3 free-Duhamel mismatch and coherent-resonance checkpoint
+
+- `FiniteOscillatoryResonanceSplit` proves the exact finite resonant and
+  nonresonant decomposition of an oscillatory Duhamel sum. Exact-resonance
+  terms grow linearly in time, while the nonresonant sector has the explicit
+  inverse-mismatch bound. No lower bound uniform in lattice size is assumed.
+- `FreeFPUTMismatchPhaseExpansion` evaluates the quadratic FPUT source on the
+  free harmonic orbit, with the physical sign and the `2*pi` cancellation
+  checked exactly. Its first interaction-picture Picard integral is a finite
+  sum of `oscillatoryIntegral` factors at
+  `omega_observed - sum_j charge_j * omega_j`.
+- `FreeFPUTDuhamelResonanceBridge` combines that identity with the exact Haar
+  selector and the resonance split. It exposes both the same-charge ordered
+  pair second moment and the phase-independent nonresonant bound
+  `2 * norm coupling * sum norm coefficient / abs mismatch`.
+- `FreeFPUTCollisionMismatchBridge` translates phase/conjugate labels to the
+  existing three-leg interaction signs. For the random-mass harmonic
+  spectrum the free FPUT mismatch is exactly `phaseMismatch`; after ordered
+  pullback it is exactly `orderedThreeWaveMismatch`. This identifies the
+  frequency variable, not yet the complete collision coefficient.
+- `FiniteHaarOscillatorySecondMoment` retains every equal-charge ordered pair;
+  generic off-diagonal pairs keep their complex cross-resonance factors. The
+  FPUT specialization is more rigid: equal charge forces equal mismatch, so
+  `FreeFPUTHaarResonanceReduction` gives one ordinary
+  `finiteTimeResonanceWeight` for every surviving pair and factors out the
+  exact `Complex.normSq coupling` prefactor.
+- `FreeFPUTChargeFiberAggregation` reorganizes all those surviving pairs by
+  realized phase charge. Each contribution is the norm square of the full
+  coherent coefficient sum in that charge fiber times its common resonance
+  weight. Input permutations and every other same-charge cross term remain;
+  this expression is not replaced by a termwise diagonal collision sum.
+
+- `FreeFPUTEnergyCollisionWeightBridge` fixes the physical output-mode
+  normalization term by term. For nonnegative input energies and a positive
+  three-mode tuple, the prescribed-energy coefficient satisfies exactly
+  `normSq C = (kappa*g)^2 * normalizedInteractionWeight * action_k * action_l`.
+  This is a coefficient bridge only; it does not diagonalize a coherent charge
+  fiber or supply the gain-loss structure of the true second Duhamel iterate.
+
+These are exact finite-volume free-first-Picard results. They do not replace
+the free orbit by the true nonlinear trajectory, propagate Haar/Gaussian RPA
+through `t = O(g^-2)`, control the inverse-gap sums uniformly in `N`, identify
+the thermodynamic collision kernel, or construct `localUniformError_controls`.
+Accordingly F3 and `thermalization.complete` remain unverified.
+
+All eight new core modules, all eight consumers, and both public barrels pass
+`-DwarningAsError=true`; the full `ArchonPhysics ArchonPhysicsConsumers`
+build passes with 9471 jobs. The audited consumer endpoints depend only on
+`propext`, `Classical.choice`, and `Quot.sound`; the sixteen exact new Lean
+files contain no `sorry`, `admit`, added `axiom`, `unsafe`, or `opaque`
+declaration.
