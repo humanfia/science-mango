@@ -56,7 +56,7 @@ EXPECTED_PROOF_HELPER_SHA256 = (
     "0094e536f9492e4919e927c63ba93a9b36181fb0c4574dc2e1952201a37f4efd"
 )
 EXPECTED_FOUR_LANE_SHA256 = (
-    "13bf91a6a91394ab745bc7eda0616e2a1796b24b9403f744d039380d5ed42f4c"
+    "ab55b4beebbe45234b19165dad7f3e46e85a00f769766a5c8f77e7fe840c07d9"
 )
 
 SOLVER = Path("/root/cadical-rel-1.9.5-standalone-audit/build/cadical")

@@ -1192,7 +1192,7 @@ def _make_lane_outcome(
     return seal({
         "schema_version": SCHEMA_VERSION,
         "lane_index": lane["lane_index"],
-        "leaf_index": lane["leaf_index"],
+        "global_leaf_index": lane["global_leaf_index"],
         "cpu": lane["cpu"],
         "action_sequence": sequence,
         "claim_sha256": claim_sha256,
@@ -1225,7 +1225,7 @@ def _read_lane_outcome(
 ) -> dict[str, Any]:
     outcome, _ = _read_canonical_json(path)
     fields = {
-        "schema_version", "lane_index", "leaf_index", "cpu",
+        "schema_version", "lane_index", "global_leaf_index", "cpu",
         "action_sequence", "claim_sha256", "action", "success",
         "disposition", "disposition_reason", "goal_satisfied",
         "transport_state_before", "transport_state_after",
@@ -1258,7 +1258,7 @@ def _read_lane_outcome(
         or not selfhash_valid(outcome)
         or outcome.get("schema_version") != SCHEMA_VERSION
         or outcome.get("lane_index") != lane["lane_index"]
-        or outcome.get("leaf_index") != lane["leaf_index"]
+        or outcome.get("global_leaf_index") != lane["global_leaf_index"]
         or outcome.get("cpu") != lane["cpu"]
         or outcome.get("action_sequence") != sequence
         or outcome.get("claim_sha256") != claim_sha256

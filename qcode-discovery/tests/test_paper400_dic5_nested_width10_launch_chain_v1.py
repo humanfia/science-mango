@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import contextlib
 import inspect
+import json
+import os
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -264,6 +266,135 @@ def test_prepare_full_replays_once_and_fast_rebuilds_exactly_four(
     assert counts == {"full": 1, "fast": 4, "child": 4}
 
 
+def test_lane_outcome_round_trip_uses_real_global_index_schema(monkeypatch):
+    lane = {"lane_index": 1, "global_leaf_index": 64, "cpu": 11}
+    outcome = coordinator._make_lane_outcome(
+        lane=lane,
+        action="start",
+        sequence=0,
+        claim_sha256="a" * 64,
+        disposition="APPLIED",
+        reason="START_APPLIED",
+        goal_satisfied=True,
+        before=None,
+        after=None,
+        child_result={"kind": "fake-start", "state": "RUNNING"},
+    )
+    assert outcome["global_leaf_index"] == 64
+    assert "leaf_index" not in outcome
+    monkeypatch.setattr(
+        coordinator,
+        "_read_canonical_json",
+        lambda path: (outcome, coordinator.canonical_bytes(outcome) + b"\n"),
+    )
+    assert coordinator._read_lane_outcome(
+        Path("lane-1.json"),
+        lane=lane,
+        action="start",
+        sequence=0,
+        claim_sha256="a" * 64,
+    ) == outcome
+
+    legacy = dict(outcome)
+    legacy.pop("record_sha256")
+    legacy["leaf_index"] = legacy.pop("global_leaf_index")
+    legacy = coordinator.seal(legacy)
+    monkeypatch.setattr(
+        coordinator,
+        "_read_canonical_json",
+        lambda path: (legacy, coordinator.canonical_bytes(legacy) + b"\n"),
+    )
+    with pytest.raises(
+        coordinator.FourLaneBatchError,
+        match="lane action outcome schema or binding mismatch",
+    ):
+        coordinator._read_lane_outcome(
+            Path("lane-1.json"),
+            lane=lane,
+            action="start",
+            sequence=0,
+            claim_sha256="a" * 64,
+        )
+
+
+def test_synthetic_start_persists_four_real_width10_global_indices(
+    monkeypatch, tmp_path: Path,
+):
+    root = (tmp_path / "batch").resolve()
+    root.mkdir(mode=0o700)
+    actions = root / coordinator.ACTIONS
+    actions.mkdir(mode=0o700)
+    lanes_root = root / coordinator.LANES
+    lanes_root.mkdir(mode=0o700)
+    cpus = sorted(os.sched_getaffinity(0))[:4]
+    assert len(cpus) == 4
+    global_indices = [0, 64, 128, 192]
+    lanes = []
+    for lane_index, (cpu, global_leaf_index) in enumerate(
+        zip(cpus, global_indices, strict=True)
+    ):
+        child_root = lanes_root / f"lane-{lane_index}"
+        child_root.mkdir(mode=0o700)
+        lanes.append({
+            "lane_index": lane_index,
+            "global_leaf_index": global_leaf_index,
+            "cpu": cpu,
+            "child_root": str(child_root),
+        })
+    manifest = {
+        "record_sha256": "b" * 64,
+        "batch": {"batch_index": 0},
+        "authority": coordinator.AUTHORITY_COVER_TRANSPORT,
+        "lanes": lanes,
+    }
+    monkeypatch.setattr(
+        coordinator,
+        "_batch_lock",
+        lambda target: contextlib.nullcontext({}),
+    )
+    monkeypatch.setattr(
+        coordinator,
+        "_load_batch",
+        lambda *args, **kwargs: {
+            "manifest": manifest,
+            "static_kwargs": {},
+        },
+    )
+    observed_affinities = []
+
+    def fake_start(child_root: Path, **kwargs):
+        observed_affinities.append(set(os.sched_getaffinity(0)))
+        return {
+            "kind": "fake-start",
+            "state": "RUNNING",
+            "root": str(child_root),
+        }
+
+    def fake_status(child_root: Path, **kwargs):
+        return {
+            "kind": "fake-status",
+            "chain": {"state": "RUNNING"},
+            "terminal_claimed": False,
+            "terminal_committed": False,
+        }
+
+    monkeypatch.setattr(coordinator.child_runner, "start_root", fake_start)
+    monkeypatch.setattr(coordinator.child_runner, "status_root", fake_status)
+    before = set(os.sched_getaffinity(0))
+    result = coordinator.run_batch_action(root, "start", strict_base=False)
+    assert result["all_lanes_succeeded"] is True
+    assert observed_affinities == [{cpu} for cpu in cpus]
+    assert set(os.sched_getaffinity(0)) == before
+    outcomes = [
+        json.loads(
+            (actions / "000000" / f"lane-{lane_index}.json").read_bytes()
+        )
+        for lane_index in range(4)
+    ]
+    assert [item["global_leaf_index"] for item in outcomes] == global_indices
+    assert all("leaf_index" not in item for item in outcomes)
+
+
 def test_production_static_kwargs_never_inject_instance():
     replay = _verification("8" * 64)
     kwargs = coordinator._static_kwargs(None, True, {
@@ -278,7 +409,7 @@ def test_child_runner_pin_equals_frozen_coordinator_source_bytes():
     actual = coordinator._file_sha256(
         Path(coordinator.__file__).resolve(), cap=16 << 20,
     )
-    assert actual == "13bf91a6a91394ab745bc7eda0616e2a1796b24b9403f744d039380d5ed42f4c"
+    assert actual == "ab55b4beebbe45234b19165dad7f3e46e85a00f769766a5c8f77e7fe840c07d9"
     assert runner.EXPECTED_FOUR_LANE_SHA256 == actual
 
 
