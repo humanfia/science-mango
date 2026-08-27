@@ -79,19 +79,18 @@ CLAUDE_BINARY_SHA256 = (
 )
 
 # Claude Code 2.1.226 is a Bun executable. Bun aborts during startup when these
-# exact read-only kernel/cgroup metadata files are hidden by Landlock. They
-# expose only this process and host resource limits; no filesystem content,
-# credential, sibling workspace, or answer artifact is made visible.
+# read-only kernel/cgroup metadata paths are hidden by Landlock. The worker
+# installs Landlock before it forks Claude, so a rule for /proc/self would be
+# pinned to the worker PID and would not cover the Claude child. Read-only
+# procfs access is therefore allowed as one runtime metadata mount. The
+# dedicated solver UID continues to deny other processes' environment, memory,
+# and filesystem roots; the launch probes verify /proc/1/environ stays denied.
 CLAUDE_CODE_RUNTIME_READONLY_PATHS = tuple(Path(item) for item in (
-    "/proc/self/cgroup",
+    "/proc",
     "/sys/fs/cgroup/cpu.max",
     "/sys/fs/cgroup/memory.max",
     "/sys/fs/cgroup/memory.high",
-    "/proc/stat",
     "/sys/devices/system/cpu/online",
-    "/proc/sys/vm/overcommit_memory",
-    "/proc/sys/vm/mmap_min_addr",
-    "/proc/self/maps",
     "/sys/kernel/mm/transparent_hugepage/enabled",
 ))
 
@@ -484,7 +483,7 @@ def _configure_base(arguments: argparse.Namespace) -> ModuleType:
         if claude.is_symlink() or not claude.is_file():
             _fail(f"sealed runtime lacks a plain Claude Code binary: {claude}")
         for path in CLAUDE_CODE_RUNTIME_READONLY_PATHS:
-            if path.is_symlink() or not path.is_file():
+            if path.is_symlink() or not (path.is_file() or path.is_dir()):
                 _fail(f"Claude runtime metadata path is missing or unsafe: {path}")
             metadata = path.stat(follow_symlinks=False)
             if (
