@@ -315,6 +315,35 @@ def _load_targets(project: Path) -> list[Target]:
         report_entry = report.get("entry")
         if not isinstance(report_entry, dict):
             _fail(f"missing entry object in {report_path}")
+        if report.get("official_answer_seen") is not False:
+            _fail(f"source report is not answer-blind: {report_path}")
+        if report_entry.get("answer") is not None:
+            _fail(
+                f"source report contains an unredacted official answer: {report_path}"
+            )
+        if report_entry.get("evaluation_mode") != "answer_blind":
+            _fail(f"source report has the wrong evaluation mode: {report_path}")
+        if report_entry.get("protocol") != "icho-answer-blind-v1":
+            _fail(f"source report has the wrong blind protocol: {report_path}")
+        if report_entry.get("dataset") != (
+            "IChO 2026 official English problem materials"
+        ):
+            _fail(f"source report has the wrong blind dataset label: {report_path}")
+        for hidden_field in ("source_url", "solution_url", "solution_pdf"):
+            if report_entry.get(hidden_field) is not None:
+                _fail(
+                    f"source report exposes hidden field {hidden_field}: {report_path}"
+                )
+        blind_previous_parts = report_entry.get("previous_parts")
+        if not isinstance(blind_previous_parts, list) or any(
+            not isinstance(part, dict) or "answer" in part
+            for part in blind_previous_parts
+        ):
+            _fail(f"source report exposes a previous-part answer: {report_path}")
+        if not isinstance(report_entry.get("shared_context"), str) or not report_entry[
+            "shared_context"
+        ]:
+            _fail(f"source report has no shared problem context: {report_path}")
         record_id = _record_id(report_entry, report_path)
         if record_id in reports:
             _fail(f"duplicate source-report id: {record_id}")
@@ -353,21 +382,14 @@ def _load_targets(project: Path) -> list[Target]:
         "problem_id",
         "part_id",
         "current_question",
-        "shared_context",
-        "answer",
         "category",
-        "dataset",
         "points",
         "paper",
         "kind",
-        "previous_parts",
-        "source_url",
-        "solution_url",
         "images",
         "source_pdf",
         "source_page",
         "printed_page",
-        "solution_pdf",
     )
     targets: list[Target] = []
     for record_id in sorted(inventory):
@@ -383,16 +405,27 @@ def _load_targets(project: Path) -> list[Target]:
         except (OSError, UnicodeError) as exc:
             _fail(f"cannot read Lean source {lean_path}: {exc}")
         _validate_lean_source(lean_relative, lean_source)
-        targets.append(Target(entry, lean_relative, lean_source))
+        release_entry = dict(entry)
+        release_entry["shared_context"] = report_entry["shared_context"]
+        targets.append(Target(release_entry, lean_relative, lean_source))
 
     umbrella_path = project / "IChO2026Problems.lean"
     _require_plain_file(umbrella_path)
     umbrella_imports = set(_IMPORT_RE.findall(umbrella_path.read_text(encoding="utf-8")))
-    missing_imports = sorted(
-        target.module for target in targets if target.module not in umbrella_imports
-    )
-    if missing_imports:
-        _fail(f"problem umbrella is missing imports: {missing_imports}")
+    if "IChO2026Problems.All" not in umbrella_imports:
+        _fail("problem umbrella does not import IChO2026Problems.All")
+
+    all_path = project / "IChO2026Problems" / "All.lean"
+    _require_plain_file(all_path)
+    all_imports = set(_IMPORT_RE.findall(all_path.read_text(encoding="utf-8")))
+    target_imports = {target.module for target in targets}
+    if all_imports != target_imports:
+        missing_imports = sorted(target_imports - all_imports)
+        extra_imports = sorted(all_imports - target_imports)
+        _fail(
+            "IChO2026Problems.All import mismatch: "
+            f"missing={missing_imports}, extra={extra_imports}"
+        )
     return targets
 
 
@@ -524,6 +557,7 @@ def _lean_sources(project: Path, targets: list[Target]) -> list[Path]:
     paths = [project.joinpath(*target.lean_relative.parts) for target in targets]
     roots = (
         project / "IChO2026Problems.lean",
+        project / "IChO2026Problems" / "All.lean",
         project / "IChO2026Chem.lean",
         project / "IChO2026Run.lean",
     )
