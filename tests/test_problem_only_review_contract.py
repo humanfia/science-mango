@@ -315,15 +315,31 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             ),
             ["--image", str((self.project / self.image_rel).resolve()), "--"],
         )
+        claude_args = native_problem_image_args(
+            project_path=self.project,
+            target=self.target,
+            harness=HarnessDescriptor(
+                name="claude", runner="claude-code",
+            ),
+        )
+        self.assertEqual(claude_args[0], "--append-system-prompt")
+        self.assertEqual(len(claude_args), 2)
+        self.assertNotIn("--image", claude_args)
+        self.assertIn(self.image_rel, claude_args[1])
+        self.assertIn(
+            str((self.project / self.image_rel).resolve()), claude_args[1]
+        )
+        self.assertIn(
+            _sha256((self.project / self.image_rel).read_bytes()), claude_args[1]
+        )
+        self.assertIn("local Read tool", claude_args[1])
         with self.assertRaisesRegex(
-            ProblemOnlyReviewContractError, "Codex --image capable",
+            ProblemOnlyReviewContractError, "Codex or Claude Code",
         ):
             native_problem_image_args(
                 project_path=self.project,
                 target=self.target,
-                harness=HarnessDescriptor(
-                    name="claude", runner="claude-code",
-                ),
+                harness=HarnessDescriptor(name="unknown", runner="other"),
             )
         (self.project / self.image_rel).write_bytes(b"drift")
         with self.assertRaisesRegex(

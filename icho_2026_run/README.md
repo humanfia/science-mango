@@ -25,5 +25,5 @@ lake build
 
 The selected target list is `references/icho_2026_theory_ready.jsonl`.
 
-- [Source code](https://github.com/humanfia/science-mango/tree/chemistry-blind-solver/icho_2026_run)
+- [Source code](https://github.com/humanfia/science-mango/tree/chemistry-blind-solver-kimi/icho_2026_run)
 - [Dataset](https://huggingface.co/datasets/humanfia-lab/icho-2026)

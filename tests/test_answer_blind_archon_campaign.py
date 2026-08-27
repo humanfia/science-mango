@@ -123,6 +123,24 @@ class NativeArchonCampaignTests(unittest.TestCase):
 
     @staticmethod
     def _fake_configure(workspace: Path, **_kwargs: object) -> dict[str, object]:
+        variant = str(_kwargs.get("variant", "gpt"))
+        if variant == "gpt":
+            harnesses = {
+                "answer-blind-gpt": {
+                    "runner": "codex",
+                    "base_url_env": "OLD_BASE",
+                    "key_env": "OLD_KEY",
+                    "wire_api": "responses",
+                    "sandbox": "workspace-write",
+                    "extra_args": ["-c", "web_search=\"disabled\""],
+                }
+            }
+        else:
+            harnesses = RUNNER._CONFIGURE.build_archon_config(
+                variant="kimi-k3",
+                max_objectives=int(_kwargs.get("max_objectives", 32)),
+                max_parallel=int(_kwargs.get("max_parallel", 4)),
+            )["harnesses"]
         state = workspace / ".archon"
         state.mkdir()
         (state / "config.json").write_text(
@@ -148,16 +166,7 @@ class NativeArchonCampaignTests(unittest.TestCase):
                     "domain_profile": {"name": "chemistry"},
                     "shared_infrastructure": {"enabled": False},
                 },
-                "harnesses": {
-                    "answer-blind-gpt": {
-                        "runner": "codex",
-                        "base_url_env": "OLD_BASE",
-                        "key_env": "OLD_KEY",
-                        "wire_api": "responses",
-                        "sandbox": "workspace-write",
-                        "extra_args": ["-c", "web_search=\"disabled\""],
-                    }
-                },
+                "harnesses": harnesses,
             }),
             encoding="utf-8",
         )
@@ -937,6 +946,90 @@ class NativeArchonCampaignTests(unittest.TestCase):
                 preparation=True,
             )
 
+    def test_prepare_patches_and_checks_native_kimi(self) -> None:
+        config = dataclasses.replace(
+            self.config,
+            campaign_root=self.base / "campaign-kimi",
+            variant="kimi-k3",
+        )
+        validate_patch, copy_patch, configure_patch = self._prepare_patches()
+        with (
+            validate_patch as validate,
+            copy_patch as copy,
+            configure_patch as configure,
+        ):
+            prepared, ids = RUNNER._fresh_config(config)
+            RUNNER.prepare_workspace(prepared, ids)
+
+        validate.assert_called_once_with(self.seed.resolve())
+        copy.assert_called_once()
+        self.assertEqual(copy.call_args.kwargs["label"], "Kimi K3")
+        configure.assert_called_once()
+        self.assertEqual(configure.call_args.kwargs["variant"], "kimi-k3")
+        value = json.loads(
+            (prepared.workspace / ".archon/config.json").read_text()
+        )
+        harness = value["harnesses"]["answer-blind-kimi-k3"]
+        expected = RUNNER._CONFIGURE.build_archon_config(
+            variant="kimi-k3",
+            max_objectives=32,
+            max_parallel=4,
+        )["harnesses"]["answer-blind-kimi-k3"]
+        self.assertEqual(harness, expected)
+        self.assertEqual(harness["runner"], "claude-code")
+        self.assertEqual(harness["model"], "kimi-k3[1m]")
+        self.assertNotIn("Bash", harness["disallowed_tools"])
+        self.assertEqual(value["loop"]["harness"], "answer-blind-kimi-k3")
+        self.assertEqual(value["loop"]["model"], "kimi-k3[1m]")
+        RUNNER._check_native_config(
+            prepared.workspace,
+            max_iterations=prepared.max_iterations,
+            review_max_iterations=prepared.review_max_iterations,
+            max_parallel=prepared.max_parallel,
+            max_objectives=prepared.expected_items,
+            target_lifecycle=prepared.target_lifecycle,
+            preparation=True,
+            variant="kimi-k3",
+        )
+        self.assertEqual(RUNNER._base_index(prepared, ids)["variant"], "kimi-k3")
+
+        mismatch_root = self.base / "variant-mismatch"
+        mismatch_root.mkdir()
+        mismatch = RUNNER.Config(
+            campaign_root=mismatch_root,
+            variant="kimi-k3",
+        )
+        mismatch.index_path.write_text(
+            json.dumps({
+                "pipeline": RUNNER.PIPELINE,
+                "variant": "gpt",
+            }),
+            encoding="utf-8",
+        )
+        with (
+            mock.patch.object(
+                RUNNER,
+                "_resume_config",
+                return_value=(mismatch, self.ids),
+            ),
+            self.assertRaisesRegex(
+                RUNNER.CampaignError,
+                r"--variant must match.*\(gpt\)",
+            ),
+        ):
+            RUNNER.resume_campaign(mismatch)
+
+        parser = RUNNER._parser()
+        self.assertEqual(
+            parser.parse_args(["--campaign-root", "/tmp/c"]).variant,
+            "gpt",
+        )
+        self.assertEqual(
+            parser.parse_args([
+                "--campaign-root", "/tmp/c", "--variant", "kimi-k3",
+            ]).variant,
+            "kimi-k3",
+        )
 
     def test_default_fresh_run_prepares_without_starting_loop(self) -> None:
         commands: list[list[str]] = []

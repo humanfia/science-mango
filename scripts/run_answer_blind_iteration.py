@@ -1988,6 +1988,7 @@ def _validate_model_broker_receipt(
     path: Path | None, *, variant: str, run_id: str, model: str,
     broker_environment: Mapping[str, str],
     runtime_files: Mapping[str, str],
+    request_profile: str = "agent_harness_v1",
 ) -> str:
     if path is None:
         _fail("a root-owned model broker receipt is mandatory")
@@ -2000,17 +2001,26 @@ def _validate_model_broker_receipt(
         "schema_version", "protocol", "phase", "variant", "run_id",
         "listen_url", "upstream_origin", "allowed_model",
         "public_dummy_key_sha256", "broker_uid", "broker_binary_sha256",
-        "started_at",
+        "request_profile", "started_at",
     }
     if set(receipt) != fields:
         _fail("model broker receipt has invalid fields")
+    # Claude Code accepts the long-context selector kimi-k3[1m] in the sealed
+    # workspace config, but normalizes its provider request to kimi-k3.
+    # Structured controller calls send their configured model id unchanged.
+    broker_model = (
+        "kimi-k3"
+        if variant == "kimi-k3" and request_profile == "agent_harness_v1"
+        else model
+    )
     if (
         receipt.get("schema_version") != SCHEMA_VERSION
         or receipt.get("protocol") != PROTOCOL
         or receipt.get("phase") != "model_broker_ready"
         or receipt.get("variant") != variant
         or receipt.get("run_id") != run_id
-        or receipt.get("allowed_model") != model
+        or receipt.get("allowed_model") != broker_model
+        or receipt.get("request_profile") != request_profile
     ):
         _fail("model broker receipt provenance mismatch")
     base_key = (
@@ -2034,7 +2044,7 @@ def _validate_model_broker_receipt(
     expected_origin = (
         "https://chatgpt.com"
         if variant == "gpt"
-        else "https://api.kimi.com"
+        else "https://api.moonshot.cn"
     )
     if receipt["upstream_origin"] != expected_origin:
         _fail("model broker upstream origin is not the pinned release endpoint")
@@ -2582,6 +2592,7 @@ def run_solver_iteration(
         model=model,
         broker_environment=credentials,
         runtime_files=runtime_files,
+        request_profile="agent_harness_v1",
     )
     broker_receipt_path = _plain_file(
         model_broker_receipt, label="model broker receipt"
@@ -3502,6 +3513,7 @@ def finalize_solver_run(
             dummy_key: "answer-blind-public-dummy-token",
         },
         runtime_files=runtime_files,
+        request_profile="agent_harness_v1",
     )
     broker_uid = ready.get("broker_uid")
     if (

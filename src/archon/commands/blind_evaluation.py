@@ -1966,13 +1966,18 @@ def _load_and_validate_model_broker_binding(
         _MODEL_BROKER_TRANSCRIPT_FIELDS,
         label="model broker transcript",
     )
+    broker_model_id = (
+        "kimi-k3"
+        if variant == "kimi-k3" and request_profile == "agent_harness_v1"
+        else model_id
+    )
     if (
         ready.get("schema_version") != SCHEMA_VERSION
         or ready.get("protocol") != PROTOCOL
         or ready.get("phase") != "model_broker_ready"
         or ready.get("variant") != variant
         or ready.get("run_id") != run_id
-        or ready.get("allowed_model") != model_id
+        or ready.get("allowed_model") != broker_model_id
         or ready.get("request_profile") != request_profile
     ):
         _fail("model broker ready receipt disagrees with the sealed solver run")
@@ -1986,8 +1991,14 @@ def _load_and_validate_model_broker_binding(
         or listen.fragment
     ):
         _fail("model broker listen_url must be a credential-free loopback URL")
-    if variant == "kimi-k3" and listen.path.rstrip("/") != "/v1":
-        _fail("Kimi model broker listen_url must use the pinned /v1 base path")
+    if variant == "kimi-k3":
+        expected_path = (
+            "" if request_profile == "agent_harness_v1" else "/v1"
+        )
+        if listen.path.rstrip("/") != expected_path:
+            _fail(
+                "Kimi model broker listen_url path disagrees with its request profile"
+            )
     upstream = urlparse(str(ready.get("upstream_origin") or ""))
     if (
         upstream.scheme != "https"
@@ -2002,7 +2013,7 @@ def _load_and_validate_model_broker_binding(
     expected_origin = (
         "https://chatgpt.com"
         if variant == "gpt"
-        else "https://api.kimi.com"
+        else "https://api.moonshot.cn"
     )
     if ready.get("upstream_origin") != expected_origin:
         _fail("model broker upstream origin is not the pinned release endpoint")
@@ -2072,7 +2083,8 @@ def _load_model_broker_binding(
         project=project, binding=seal.get("model_broker"),
         variant=aggregate.get("variant"), run_id=solver.get("run_id"),
         model_id=solver.get("model_id"), runtime=seal.get("runtime_inventory"),
-        minimum_requests=minimum_requests, label="finalize Review model_broker",
+        minimum_requests=minimum_requests, request_profile="agent_harness_v1",
+        label="finalize Review model_broker",
     )
 
 
@@ -2342,6 +2354,7 @@ def _validate_solver_invocation_receipt(
             variant=receipt.get("variant"), run_id=receipt.get("run_id"),
             model_id=receipt.get("model_id"), runtime=runtime_inventory,
             minimum_requests=1,
+            request_profile="agent_harness_v1",
             label=f"solver invocation {expected_invocation} model_broker",
         )
     )
@@ -3924,7 +3937,7 @@ def _load_and_validate_structured_solver(
         _fail("structured solver controller bindings are incomplete")
     expected_identity = {
         "gpt": ("openai", "gpt-5.6-sol"),
-        "kimi-k3": ("moonshot", "kimi-k3[1m]"),
+        "kimi-k3": ("moonshot", "kimi-k3"),
     }.get(aggregate.get("variant"))
     if (
         aggregate.get("schema_version") != SCHEMA_VERSION
@@ -5255,7 +5268,7 @@ def _load_source_first_precommit(
     runtime = seal.get("runtime_inventory")
     expected_identity = {
         "gpt": ("openai", "gpt-5.6-sol"),
-        "kimi-k3": ("moonshot", "kimi-k3[1m]"),
+        "kimi-k3": ("moonshot", "kimi-k3"),
     }.get(precommit.get("variant"))
     if (
         precommit.get("schema_version") != SCHEMA_VERSION
@@ -6404,7 +6417,7 @@ def validate_structured_source_records(
     )
     expected_identity = {
         "gpt": ("openai", "gpt-5.6-sol"),
-        "kimi-k3": ("moonshot", "kimi-k3[1m]"),
+        "kimi-k3": ("moonshot", "kimi-k3"),
     }.get(records_commitment.get("variant"))
     if (
         records_commitment.get("schema_version") != SCHEMA_VERSION
@@ -6583,7 +6596,7 @@ def _load_independent_review_invocation(
     runtime = seal.get("runtime_inventory")
     expected_identity = {
         "gpt": ("openai", "gpt-5.6-sol"),
-        "kimi-k3": ("moonshot", "kimi-k3[1m]"),
+        "kimi-k3": ("moonshot", "kimi-k3"),
     }.get(aggregate.get("variant"))
     if (
         aggregate.get("schema_version") != SCHEMA_VERSION

@@ -2713,8 +2713,8 @@ class BlindEvaluationTest(unittest.TestCase):
                 "schema_version": 1, "protocol": blind.PROTOCOL,
                 "phase": "model_broker_ready", "variant": "kimi-k3",
                 "run_id": "run-kimi", "listen_url": "http://127.0.0.1:18080/v1",
-                "upstream_origin": "https://api.kimi.com",
-                "allowed_model": "kimi-k3[1m]",
+                "upstream_origin": "https://api.moonshot.cn",
+                "allowed_model": "kimi-k3",
                 "request_profile": blind._STRUCTURED_REQUEST_PROFILE,
                 "public_dummy_key_sha256": hashlib.sha256(
                     b"answer-blind-public-dummy-token"
@@ -2750,12 +2750,12 @@ class BlindEvaluationTest(unittest.TestCase):
             runtime = {"files": {"bin/model-broker": broker_hash}}
             blind._load_and_validate_model_broker_binding(
                 project=project, binding=binding, variant="kimi-k3",
-                run_id="run-kimi", model_id="kimi-k3[1m]", runtime=runtime,
+                run_id="run-kimi", model_id="kimi-k3", runtime=runtime,
                 minimum_requests=1, exact_requests=1,
                 request_profile=blind._STRUCTURED_REQUEST_PROFILE,
                 label="test Kimi broker",
             )
-            request_payload = blind._json_bytes({"model": "kimi-k3[1m]"})
+            request_payload = blind._json_bytes({"model": "kimi-k3"})
             response_payload = blind._json_bytes({"content": []})
             attempt = {
                 "adapter": "structured_broker_http_v1", "status": "accepted",
@@ -2767,13 +2767,13 @@ class BlindEvaluationTest(unittest.TestCase):
                     "raw_response_sha256": hashlib.sha256(response_payload).hexdigest(),
                     "reasoning_control": {
                         "provider_field_supported": False,
-                        "model_id": "kimi-k3[1m]", "max_tokens": 131072,
+                        "model_id": "kimi-k3", "max_tokens": 131072,
                     },
                 },
             }
             blind._validate_structured_transport_provenance(
                 project=project, runtime=runtime,
-                aggregate={"variant": "kimi-k3", "model_id": "kimi-k3[1m]"},
+                aggregate={"variant": "kimi-k3", "model_id": "kimi-k3"},
                 attempt=attempt, request_path=controller / "request.json",
                 request_payload=request_payload, response_path=controller / "response.json",
                 response_payload=response_payload, expected_gpt_exchange=None,
@@ -2782,7 +2782,7 @@ class BlindEvaluationTest(unittest.TestCase):
             with self.assertRaisesRegex(blind.BlindEvaluationError, "Kimi adapter provenance"):
                 blind._validate_structured_transport_provenance(
                     project=project, runtime=runtime,
-                    aggregate={"variant": "kimi-k3", "model_id": "kimi-k3[1m]"},
+                    aggregate={"variant": "kimi-k3", "model_id": "kimi-k3"},
                     attempt=attempt, request_path=controller / "request.json",
                     request_payload=request_payload,
                     response_path=controller / "response.json",

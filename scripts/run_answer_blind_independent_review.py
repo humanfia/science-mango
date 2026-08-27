@@ -49,7 +49,7 @@ SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 MODELS: Mapping[str, tuple[str, str]] = {
     "gpt": ("openai", "gpt-5.6-sol"),
-    "kimi-k3": ("moonshot", "kimi-k3[1m]"),
+    "kimi-k3": ("moonshot", "kimi-k3"),
 }
 PRECOMMIT_FIELDS = {
     "schema_version", "protocol", "phase", "variant", "model_family",
@@ -436,7 +436,7 @@ def _production_exchange(
     broker = _load_broker_module()
     started = broker.start_broker(
         controller_dir=transport_dir, variant=variant, run_id=run_id,
-        model=model, upstream="https://api.kimi.com/coding/",
+        model=model, upstream="https://api.moonshot.cn/anthropic",
         credential_file=broker_credential_file,
         credential_format=broker_credential_format,
         token_name=broker_token_name, broker_user=broker_user,

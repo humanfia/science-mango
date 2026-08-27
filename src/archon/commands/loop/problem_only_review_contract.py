@@ -1311,13 +1311,13 @@ def native_problem_image_args(
     harness: Any,
     source_contract: Mapping[str, Any] | None = None,
 ) -> list[str]:
-    """Return hash-verified Codex ``--image`` arguments for one target.
+    """Return hash-verified native image arguments for one target.
 
-    Native problem-only prompts must receive pixels, not merely image path and
-    digest text. Image inventory is rebuilt from the sealed questions-only
-    bundle before a candidate exists, or reused from a fully validated Review
-    contract. A native campaign fails before model launch when its selected
-    harness cannot attach images.
+    Codex receives each image through ``--image``. Claude Code has no matching
+    flag, so it receives an explicit current-target path/digest block and must
+    open each image with its local Read tool. The inventory is rebuilt from the
+    sealed questions-only bundle before a candidate exists, or reused from a
+    fully validated Review contract. Unsupported harnesses fail before launch.
     """
     root = project_path.resolve()
     mode = _explicit_answer_blind_mode(root)
@@ -1343,11 +1343,12 @@ def native_problem_image_args(
         raise ProblemOnlyReviewContractError(
             "native problem image inventory is missing"
         )
-    if getattr(harness, "runner", None) != "codex":
+    runner = getattr(harness, "runner", None)
+    if runner not in {"codex", "claude-code"}:
         raise ProblemOnlyReviewContractError(
-            "native problem images require a Codex --image capable harness"
+            "native problem images require a Codex or Claude Code harness"
         )
-    args: list[str] = []
+    verified: list[dict[str, str]] = []
     seen: set[str] = set()
     for index, item in enumerate(images, start=1):
         if not isinstance(item, Mapping):
@@ -1365,7 +1366,24 @@ def native_problem_image_args(
                 f"native problem image {index} is stale or duplicated"
             )
         seen.add(str(path))
-        args.extend(("--image", str(path)))
+        verified.append({
+            "contract_path": path.relative_to(root).as_posix(),
+            "read_path": str(path),
+            "sha256": digest,
+        })
+    if runner == "claude-code":
+        image_prompt = (
+            "CURRENT-TARGET PROBLEM IMAGES (controller hash-verified):\n"
+            + json.dumps(verified, ensure_ascii=False, sort_keys=True)
+            + "\nBefore deriving or reviewing the answer, use the local Read tool "
+            "on every exact read_path. Treat only "
+            "these exact images as visual problem evidence; do not open any "
+            "sibling target image or answer-bearing artifact."
+        )
+        return ["--append-system-prompt", image_prompt]
+    args: list[str] = []
+    for item in verified:
+        args.extend(("--image", item["read_path"]))
     # Codex 0.147 declares ``--image <FILE>...`` as variadic. Without an
     # explicit option terminator, Codex consumes Archon's final positional
     # prompt as one more image and exits with "No prompt provided via stdin".

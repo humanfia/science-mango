@@ -242,9 +242,10 @@ class AnswerBlindWorkspaceConfigTests(unittest.TestCase):
                 ],
             )
             self.assertTrue(
-                {"Bash", "WebSearch", "WebFetch", "Agent", "Task", "ScheduleWakeup"}
+                {"WebSearch", "WebFetch", "Agent", "Task", "ScheduleWakeup"}
                 <= set(descriptor["disallowed_tools"])
             )
+            self.assertNotIn("Bash", descriptor["disallowed_tools"])
             serialized = json.dumps(descriptor, sort_keys=True).casefold()
             for forbidden in ("token", "api_key", "base_url", "password", "secret"):
                 self.assertNotIn(forbidden, serialized)

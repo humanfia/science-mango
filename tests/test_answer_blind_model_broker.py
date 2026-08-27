@@ -41,12 +41,57 @@ class AnswerBlindModelBrokerTests(unittest.TestCase):
     def test_protocol_is_exactly_shared_with_launcher(self):
         self.assertEqual(MODULE.PROTOCOL, LAUNCHER.PROTOCOL)
 
+    def test_kimi_agent_receipt_maps_long_context_alias_to_wire_model(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            broker_hash = "a" * 64
+            ready_path = root / "ready.json"
+            receipt = {
+                "schema_version": 1,
+                "protocol": MODULE.PROTOCOL,
+                "phase": "model_broker_ready",
+                "variant": "kimi-k3",
+                "run_id": "kimi-agent-test",
+                "listen_url": "http://127.0.0.1:18080",
+                "upstream_origin": "https://api.moonshot.cn",
+                "allowed_model": "kimi-k3",
+                "request_profile": "agent_harness_v1",
+                "public_dummy_key_sha256": hashlib.sha256(
+                    MODULE.PUBLIC_DUMMY_TOKEN.encode()
+                ).hexdigest(),
+                "broker_uid": 1002,
+                "broker_binary_sha256": broker_hash,
+                "started_at": "2026-08-27T00:00:00Z",
+            }
+            ready_path.write_text(json.dumps(receipt), encoding="utf-8")
+            ready_path.chmod(0o400)
+            arguments = {
+                "variant": "kimi-k3",
+                "run_id": "kimi-agent-test",
+                "model": "kimi-k3[1m]",
+                "broker_environment": {
+                    "ANTHROPIC_BASE_URL": "http://127.0.0.1:18080",
+                    "ANTHROPIC_AUTH_TOKEN": MODULE.PUBLIC_DUMMY_TOKEN,
+                },
+                "runtime_files": {"libexec/model-broker": broker_hash},
+            }
+            LAUNCHER._validate_model_broker_receipt(ready_path, **arguments)
+
+            receipt["allowed_model"] = "kimi-k3[1m]"
+            ready_path.chmod(0o600)
+            ready_path.write_text(json.dumps(receipt), encoding="utf-8")
+            ready_path.chmod(0o400)
+            with self.assertRaisesRegex(
+                LAUNCHER.ControllerError, "provenance mismatch"
+            ):
+                LAUNCHER._validate_model_broker_receipt(ready_path, **arguments)
+
     def test_upstreams_and_paths_are_closed(self):
         gpt = MODULE._validate_upstream(
             "gpt", "https://chatgpt.com/backend-api/codex/responses"
         )
         kimi = MODULE._validate_upstream(
-            "kimi-k3", "https://api.kimi.com/coding/"
+            "kimi-k3", "https://api.moonshot.cn/anthropic"
         )
         self.assertEqual(
             MODULE._target_path("gpt", gpt, "/v1/responses"),
@@ -54,7 +99,7 @@ class AnswerBlindModelBrokerTests(unittest.TestCase):
         )
         self.assertEqual(
             MODULE._target_path("kimi-k3", kimi, "/v1/messages"),
-            "/coding/v1/messages",
+            "/anthropic/v1/messages",
         )
         for bad in (
             "http://chatgpt.com/backend-api/codex/responses",
@@ -120,17 +165,45 @@ class AnswerBlindModelBrokerTests(unittest.TestCase):
                 MODULE._validate_provider_request(document, variant="gpt")
 
         kimi_local = {
-            "model": "kimi-k3[1m]",
+            "model": "kimi-k3",
             "messages": [{"role": "user", "content": "derive"}],
             "tools": [
                 {
                     "name": "local_read",
                     "description": "read a problem-only file",
-                    "input_schema": {"type": "object", "properties": {}},
+                    "input_schema": {
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "type": "object",
+                        "properties": {},
+                    },
                 }
             ],
         }
         MODULE._validate_provider_request(kimi_local, variant="kimi-k3")
+        for invalid_schema_reference in (
+            "https://example.test/schema",
+            "http://json-schema.org/draft/2020-12/schema",
+            "https://json-schema.org/draft/7/schema",
+            "https://json-schema.org/draft/2020-12/schema?remote=true",
+        ):
+            invalid = json.loads(json.dumps(kimi_local))
+            invalid["tools"][0]["input_schema"]["$schema"] = (
+                invalid_schema_reference
+            )
+            with self.subTest(schema=invalid_schema_reference), self.assertRaises(
+                MODULE.BrokerError
+            ):
+                MODULE._validate_provider_request(invalid, variant="kimi-k3")
+
+        misplaced = {
+            **kimi_local,
+            "metadata": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema"
+            },
+        }
+        with self.assertRaises(MODULE.BrokerError):
+            MODULE._validate_provider_request(misplaced, variant="kimi-k3")
+
         for hosted_type in (
             "web_search_20250305",
             "web_fetch_20260812",
@@ -240,7 +313,7 @@ class AnswerBlindModelBrokerTests(unittest.TestCase):
                 )
 
         kimi = {
-            "model": "kimi-k3[1m]",
+            "model": "kimi-k3",
             "tools": [],
             "messages": [
                 {

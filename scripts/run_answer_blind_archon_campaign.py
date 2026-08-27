@@ -47,6 +47,7 @@ from archon.commands.loop.utils import data_path as archon_data_path
 SCHEMA_VERSION = 1
 PIPELINE = "archon-native-answer-blind-full32"
 EXPECTED_ITEMS = 32
+VARIANTS = ("gpt", "kimi-k3")
 DEFAULT_MAX_PARALLEL = 4
 REVIEW_PREFLIGHT_TIMEOUT_SEC = 3600
 BUNDLE_REL = Path("icho_2026_source/questions_only.jsonl")
@@ -580,6 +581,7 @@ class Config:
     reuse_lake_packages: bool = False
     in_place_index: bool = False
     trusted_prior_result_receipt: Path | None = None
+    variant: str = "gpt"
 
     @property
     def workspace(self) -> Path:
@@ -654,6 +656,8 @@ def _fresh_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         raise CampaignError("reuse_lake_packages must be a boolean")
     if type(config.in_place_index) is not bool:
         raise CampaignError("in_place_index must be a boolean")
+    if config.variant not in VARIANTS:
+        raise CampaignError(f"variant must be one of: {', '.join(VARIANTS)}")
     try:
         _SEED.validate_seed(seed)
     except Exception as exc:
@@ -689,6 +693,8 @@ def _resume_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         raise CampaignError("reuse_lake_packages must be a boolean")
     if type(config.in_place_index) is not bool:
         raise CampaignError("in_place_index must be a boolean")
+    if config.variant not in VARIANTS:
+        raise CampaignError(f"variant must be one of: {', '.join(VARIANTS)}")
     ids = _target_ids(config.workspace, expected_items=config.expected_items)
     _check_native_config(
         config.workspace,
@@ -697,6 +703,7 @@ def _resume_config(config: Config) -> tuple[Config, tuple[str, ...]]:
         max_parallel=config.max_parallel,
         max_objectives=config.expected_items,
         target_lifecycle=config.target_lifecycle,
+        variant=config.variant,
     )
     _validate_native_markers(config.workspace, ids)
     _validate_crnt_project_index(config)
@@ -707,18 +714,58 @@ def _patch_native_config(
     workspace: Path, *, max_iterations: int, review_max_iterations: int,
     max_parallel: int, target_lifecycle: bool,
     max_objectives: int = EXPECTED_ITEMS,
+    variant: str = "gpt",
 ) -> None:
+    if variant not in VARIANTS:
+        raise CampaignError(f"variant must be one of: {', '.join(VARIANTS)}")
+    harness_name = f"answer-blind-{variant}"
     path = workspace / ".archon/config.json"
     try:
         value = json.loads(path.read_text())
         loop = value["loop"]
-        harness = value["harnesses"]["answer-blind-gpt"]
+        harness = value["harnesses"][harness_name]
         domain = loop["domain_profile"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
-        raise CampaignError("configured workspace lacks the GPT Archon harness") from exc
+        raise CampaignError(
+            f"configured workspace lacks the {variant} Archon harness"
+        ) from exc
     if not isinstance(domain, dict) or domain.get("name") != "chemistry":
         raise CampaignError("configured workspace lacks the chemistry profile")
     domain["lean_search_packages"] = list(LEAN_SEARCH_PACKAGES)
+    model = "gpt-5.6-sol" if variant == "gpt" else "kimi-k3[1m]"
+    if variant == "kimi-k3":
+        expected_harness = _CONFIGURE.build_archon_config(
+            variant=variant,
+            max_objectives=max_objectives,
+            max_parallel=max_parallel,
+        )["harnesses"][harness_name]
+        if harness != expected_harness:
+            raise CampaignError("configured workspace has an invalid Kimi harness")
+        loop.update({
+            "harness": harness_name,
+            "model": model,
+            "max_iterations": max_iterations,
+            "formalization_review_max_iterations": review_max_iterations,
+            "proof_review_max_iterations": review_max_iterations,
+            "parallel": True,
+            "max_parallel": max_parallel,
+            "max_objectives": max_objectives,
+            "formalization_review_gate": True,
+            "proof_review_gate": True,
+            "deterministic_review": True,
+            "review_preflight_jobs": max_parallel,
+            "review_preflight_timeout_sec": REVIEW_PREFLIGHT_TIMEOUT_SEC,
+            "parallel_target_review_jobs": max_parallel,
+            "parallel_formalization_review_jobs": max_parallel,
+            "parallel_formalization_review": target_lifecycle,
+            "parallel_target_review": target_lifecycle,
+            "pipeline_target_review": target_lifecycle,
+        })
+        shared = loop.get("shared_infrastructure")
+        if isinstance(shared, dict):
+            shared["enabled"] = False
+        path.write_bytes(_json_bytes(value))
+        return
     for key in ("base_url_env", "key_env", "wire_api"):
         harness.pop(key, None)
     extra_args = list(harness.get("extra_args") or [])
@@ -782,8 +829,8 @@ def _patch_native_config(
     })
     harness.pop("lean_lsp_mcp_bin", None)
     loop.update({
-        "harness": "answer-blind-gpt",
-        "model": "gpt-5.6-sol",
+        "harness": harness_name,
+        "model": model,
         "max_iterations": max_iterations,
         "formalization_review_max_iterations": review_max_iterations,
         "proof_review_max_iterations": review_max_iterations,
@@ -1108,11 +1155,16 @@ def _check_native_config(
     max_objectives: int = EXPECTED_ITEMS,
     target_lifecycle: bool = False,
     preparation: bool = False,
+    variant: str = "gpt",
 ) -> None:
+    if variant not in VARIANTS:
+        raise CampaignError(f"variant must be one of: {', '.join(VARIANTS)}")
+    harness_name = f"answer-blind-{variant}"
+    model = "gpt-5.6-sol" if variant == "gpt" else "kimi-k3[1m]"
     try:
         value = json.loads((workspace / ".archon/config.json").read_text())
         loop = value["loop"]
-        harness = value["harnesses"]["answer-blind-gpt"]
+        harness = value["harnesses"][harness_name]
         blind = value["answer_blind"]
         blind_isolation = blind["isolation"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
@@ -1139,11 +1191,30 @@ def _check_native_config(
         }
     else:
         config_pairs = set()
-    web_search_valid = (
+    web_search_valid = variant == "kimi-k3" or (
         all(("-c", setting) in config_pairs for setting in expected_web_settings)
         and all(
             ("-c", setting) not in config_pairs
             for setting in forbidden_web_settings
+        )
+    )
+    expected_kimi_harness = _CONFIGURE.build_archon_config(
+        variant="kimi-k3",
+        max_objectives=max_objectives,
+        max_parallel=max_parallel,
+    )["harnesses"]["answer-blind-kimi-k3"]
+    harness_valid = (
+        harness == expected_kimi_harness
+        if variant == "kimi-k3"
+        else (
+            harness.get("runner") == "codex"
+            and harness.get("sandbox") == "danger-full-access"
+            and harness.get("lean_explore_backend") == "hosted"
+            and harness.get("mcp") == []
+            and "lean_lsp_mcp_bin" not in harness
+            and not any(key in harness for key in ("base_url_env", "key_env"))
+            and "features.shell_tool=true" in (harness.get("extra_args") or [])
+            and "features.multi_agent=false" in (harness.get("extra_args") or [])
         )
     )
     if (
@@ -1155,15 +1226,10 @@ def _check_native_config(
         or blind.get("protocol") != "icho-answer-blind-v1"
         or blind_isolation.get("filesystem_answer_blind") is not True
         or blind_isolation.get("network_answer_blind") is not False
-        or harness.get("runner") != "codex"
-        or harness.get("sandbox") != "danger-full-access"
-        or harness.get("lean_explore_backend") != "hosted"
-        or harness.get("mcp") != []
-        or "lean_lsp_mcp_bin" in harness
-        or any(key in harness for key in ("base_url_env", "key_env"))
-        or "features.shell_tool=true" not in (harness.get("extra_args") or [])
-        or "features.multi_agent=false" not in (harness.get("extra_args") or [])
+        or not harness_valid
         or not web_search_valid
+        or loop.get("harness") != harness_name
+        or loop.get("model") != model
         or (loop.get("domain_profile") or {}).get("name")
         != ("chemistry" if preparation else "chemistry-native")
         or (loop.get("domain_profile") or {}).get("lean_search_packages")
@@ -1456,10 +1522,11 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
     assert config.seed_workspace is not None and config.lake_packages is not None
     config.campaign_root.mkdir(parents=True, exist_ok=True)
     try:
-        _SEED.copy_seed_to_workspace(config.seed_workspace, config.workspace, label="GPT")
+        label = "GPT" if config.variant == "gpt" else "Kimi K3"
+        _SEED.copy_seed_to_workspace(config.seed_workspace, config.workspace, label=label)
         _CONFIGURE.configure_answer_blind_workspace(
             config.workspace,
-            variant="gpt",
+            variant=config.variant,
             max_objectives=len(ids),
             max_parallel=config.max_parallel,
         )
@@ -1472,6 +1539,7 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
         max_parallel=config.max_parallel,
         max_objectives=len(ids),
         target_lifecycle=config.target_lifecycle,
+        variant=config.variant,
     )
     _write_native_policy_files(config.workspace)
     _check_native_config(
@@ -1482,6 +1550,7 @@ def prepare_workspace(config: Config, ids: Sequence[str]) -> None:
         max_objectives=len(ids),
         target_lifecycle=config.target_lifecycle,
         preparation=True,
+        variant=config.variant,
     )
     # Lake may refresh package-local Git metadata even for an otherwise clean
     # build.  Give this campaign its own copy so the native workflow cannot
@@ -1758,6 +1827,7 @@ def _base_index(config: Config, ids: Sequence[str]) -> dict[str, Any]:
         "review_max_iterations": config.review_max_iterations,
         "max_parallel": config.max_parallel,
         "target_lifecycle": config.target_lifecycle,
+        "variant": config.variant,
         "status": "preparing",
         "updated_at": _utcnow(),
     }
@@ -1801,6 +1871,7 @@ def run_fresh(config: Config, *, start_loop: bool) -> dict[str, Any]:
         max_parallel=config.max_parallel,
         max_objectives=config.expected_items,
         target_lifecycle=config.target_lifecycle,
+        variant=config.variant,
     )
     _validate_crnt_project_index(config)
     grounding = _run_initial_grounding(config, ids)
@@ -1849,6 +1920,12 @@ def resume_campaign(config: Config) -> dict[str, Any]:
         raise CampaignError("invalid campaign.json") from exc
     if index.get("pipeline") != PIPELINE:
         raise CampaignError("campaign.json belongs to a different pipeline")
+    receipt_variant = index.get("variant", "gpt")
+    if receipt_variant != config.variant:
+        raise CampaignError(
+            "--variant must match the prepared campaign value "
+            f"({receipt_variant})"
+        )
     receipt_max_iterations = index.get("max_iterations")
     if (
         type(receipt_max_iterations) is not int
@@ -1930,6 +2007,12 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--lake-packages", type=Path)
     parser.add_argument("--archon-bin", default="archon")
     parser.add_argument(
+        "--variant",
+        choices=VARIANTS,
+        default="gpt",
+        help="model harness variant; repeat the prepared value on resume",
+    )
+    parser.add_argument(
         "--trusted-prior-result-receipt",
         type=Path,
         help=(
@@ -2003,6 +2086,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         reuse_lake_packages=args.reuse_lake_packages,
         in_place_index=args.in_place_index,
         trusted_prior_result_receipt=args.trusted_prior_result_receipt,
+        variant=args.variant,
     )
     try:
         if args.resume:

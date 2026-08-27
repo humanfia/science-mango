@@ -436,7 +436,6 @@ def _kimi_descriptor() -> dict[str, Any]:
             ".mcp.json",
         ],
         "disallowed_tools": [
-            "Bash",
             "WebSearch",
             "WebFetch",
             "Agent",

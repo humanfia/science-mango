@@ -100,8 +100,8 @@ class StructuredSolverTests(unittest.TestCase):
             "schema_version": 1, "protocol": MODULE.PROTOCOL,
             "phase": "model_broker_ready", "variant": "kimi-k3",
             "run_id": self.run_id, "listen_url": "http://127.0.0.1:18080/v1",
-            "upstream_origin": "https://api.kimi.com",
-            "allowed_model": "kimi-k3[1m]", "request_profile": MODULE.REQUEST_PROFILE,
+            "upstream_origin": "https://api.moonshot.cn",
+            "allowed_model": "kimi-k3", "request_profile": MODULE.REQUEST_PROFILE,
             "public_dummy_key_sha256": MODULE._sha(MODULE.PUBLIC_DUMMY_TOKEN.encode()),
             "broker_uid": 65534, "broker_binary_sha256": "1" * 64,
             "started_at": "2026-08-12T00:00:00Z",
@@ -281,7 +281,7 @@ class StructuredSolverTests(unittest.TestCase):
                 "raw_response_sha256": "",
                 "reasoning_control": {
                     "provider_field_supported": False,
-                    "model_id": "kimi-k3[1m]",
+                    "model_id": "kimi-k3",
                     "max_tokens": 131072,
                 },
             }
@@ -535,7 +535,7 @@ PhysicsFormalizeCommand(
             "schema_version": 1, "protocol": MODULE.PROTOCOL,
             "phase": "model_broker_ready", "variant": "kimi-k3",
             "run_id": self.run_id, "listen_url": "http://127.0.0.1:18082/v1",
-            "upstream_origin": "https://api.kimi.com", "allowed_model": "kimi-k3[1m]",
+            "upstream_origin": "https://api.moonshot.cn", "allowed_model": "kimi-k3",
             "request_profile": MODULE.REQUEST_PROFILE,
             "public_dummy_key_sha256": MODULE._sha(MODULE.PUBLIC_DUMMY_TOKEN.encode()),
             "broker_uid": 65534, "broker_binary_sha256": "1" * 64,
@@ -586,8 +586,8 @@ PhysicsFormalizeCommand(
                     "schema_version": 1, "protocol": MODULE.PROTOCOL,
                     "phase": "model_broker_ready", "variant": "kimi-k3",
                     "run_id": self.run_id, "listen_url": "http://127.0.0.1:18081/v1",
-                    "upstream_origin": "https://api.kimi.com",
-                    "allowed_model": "kimi-k3[1m]", "request_profile": MODULE.REQUEST_PROFILE,
+                    "upstream_origin": "https://api.moonshot.cn",
+                    "allowed_model": "kimi-k3", "request_profile": MODULE.REQUEST_PROFILE,
                     "public_dummy_key_sha256": MODULE._sha(MODULE.PUBLIC_DUMMY_TOKEN.encode()),
                     "broker_uid": 65534, "broker_binary_sha256": "1" * 64,
                     "started_at": "2026-08-12T00:00:00Z",
@@ -646,8 +646,8 @@ PhysicsFormalizeCommand(
                     "phase": "model_broker_ready", "variant": "kimi-k3",
                     "run_id": self.run_id,
                     "listen_url": "http://127.0.0.1:18083/v1",
-                    "upstream_origin": "https://api.kimi.com",
-                    "allowed_model": "kimi-k3[1m]",
+                    "upstream_origin": "https://api.moonshot.cn",
+                    "allowed_model": "kimi-k3",
                     "request_profile": "wrong-profile",
                     "public_dummy_key_sha256": MODULE._sha(
                         MODULE.PUBLIC_DUMMY_TOKEN.encode()
@@ -858,7 +858,7 @@ PhysicsFormalizeCommand(
                 "raw_response_sha256": MODULE._sha(raw_response),
                 "reasoning_control": {
                     "provider_field_supported": False,
-                    "model_id": "kimi-k3[1m]", "max_tokens": 131072,
+                    "model_id": "kimi-k3", "max_tokens": 131072,
                 },
             })
 

@@ -47,7 +47,7 @@ SAFE_DECLARATION = re.compile(
 )
 MODELS: Mapping[str, tuple[str, str]] = {
     "gpt": ("openai", "gpt-5.6-sol"),
-    "kimi-k3": ("moonshot", "kimi-k3[1m]"),
+    "kimi-k3": ("moonshot", "kimi-k3"),
 }
 MAX_ARTIFACT_BYTES = 8 * 1024 * 1024
 MAX_PROVIDER_RESPONSE_BYTES = 64 * 1024 * 1024
@@ -1257,7 +1257,8 @@ def http_provider_call(url: str, request: Mapping[str, Any]) -> ProviderReply:
     if parsed.scheme != "http" or parsed.hostname != "127.0.0.1" or not parsed.port:
         _fail("structured solver broker must be an explicit IPv4 loopback URL")
     payload = _canonical(request).rstrip(b"\n")
-    endpoint = parsed.path.rstrip("/") + ("/responses" if "input" in request else "/messages")
+    api_root = parsed.path.rstrip("/") or "/v1"
+    endpoint = api_root + ("/responses" if "input" in request else "/messages")
     connection = http.client.HTTPConnection("127.0.0.1", parsed.port, timeout=900)
     connection.request(
         "POST", endpoint, body=payload,
@@ -2401,7 +2402,7 @@ def run_structured_solver(
             try:
                 started = broker_module.start_broker(
                     controller_dir=controller, variant=variant, run_id=run_id,
-                    model=model, upstream="https://api.kimi.com/coding/",
+                    model=model, upstream="https://api.moonshot.cn/anthropic",
                     credential_file=broker_credential_file,
                     credential_format=broker_credential_format,
                     token_name=broker_token_name, broker_user=broker_user,

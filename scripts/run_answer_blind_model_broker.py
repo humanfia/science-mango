@@ -54,7 +54,7 @@ VARIANTS: Mapping[str, Mapping[str, Any]] = {
     },
     "kimi-k3": {
         "paths": frozenset({"/v1/messages", "/v1/messages/count_tokens"}),
-        "default_upstream": "https://api.kimi.com/coding/",
+        "default_upstream": "https://api.moonshot.cn/anthropic",
     },
 }
 
@@ -482,6 +482,19 @@ def _validate_provider_request(
             )
         return
     if isinstance(value, str):
+        # Claude Code annotates each local tool's input schema with this exact
+        # JSON Schema dialect URI.  It is inert schema metadata, not a
+        # provider-side fetch/resource handle.  Permit only the fixed value at
+        # the fixed local-tool schema location; every other URL remains closed.
+        if (
+            variant == "kimi-k3"
+            and request_profile == "agent_harness_v1"
+            and value == "https://json-schema.org/draft/2020-12/schema"
+            and __import__("re").fullmatch(
+                r"\$\.tools\[\d+\]\.input_schema\.\$schema", path
+            )
+        ):
+            return
         stripped = value.strip().lower()
         if stripped.startswith(("http://", "https://", "file://", "data:")):
             _fail(f"provider request contains a remote/resource reference at {path}")
@@ -584,7 +597,19 @@ class _BrokerHandler(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
         parsed_path = urllib.parse.urlsplit(self.path)
-        if parsed_path.query or parsed_path.path not in VARIANTS[self.state.variant]["paths"]:
+        # Claude Code 2.1.x appends this fixed compatibility query to its
+        # Anthropic Messages calls. It carries no resource, state, or hosted
+        # tool authority. Keep every other query fail-closed.
+        allowed_query = (
+            self.state.variant == "kimi-k3"
+            and self.state.request_profile == "agent_harness_v1"
+            and parsed_path.query == "beta=true"
+        )
+        if (
+            parsed_path.query not in {"", "beta=true"}
+            or (parsed_path.query and not allowed_query)
+            or parsed_path.path not in VARIANTS[self.state.variant]["paths"]
+        ):
             self._json_error(404, "endpoint is not allowlisted")
             return
         if not _dummy_authorized(self.headers):
@@ -647,6 +672,8 @@ class _BrokerHandler(http.server.BaseHTTPRequestHandler):
                 if value:
                     upstream_headers[name] = value
             target = _target_path(self.state.variant, self.state.upstream, parsed_path.path)
+            if parsed_path.query:
+                target += "?" + parsed_path.query
             connection.request("POST", target, body=body, headers=upstream_headers)
             response = connection.getresponse()
             response_status = response.status
@@ -806,10 +833,19 @@ def _worker(
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
     actual_port = int(server.server_address[1])
+    base_url = f"http://127.0.0.1:{actual_port}"
+    # Codex and the tool-free structured clients take an API-prefix URL.
+    # Claude Code treats ANTHROPIC_BASE_URL as an origin/base path and appends
+    # /v1/messages itself, so a trailing /v1 would become /v1/v1/messages.
+    listen_url = (
+        base_url
+        if variant == "kimi-k3" and request_profile == "agent_harness_v1"
+        else base_url + "/v1"
+    )
     state.event(
         {
             "type": "ready",
-            "listen_url": f"http://127.0.0.1:{actual_port}/v1",
+            "listen_url": listen_url,
             "started_at": state.started_at,
             "broker_uid": uid,
         }
