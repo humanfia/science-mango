@@ -39,10 +39,10 @@ SLOTS_ENV_VAR = "ARCHON_DISPATCH_SLOTS_DIR"
 MAX_PARALLEL_ENV_VAR = "ARCHON_DISPATCH_MAX_PARALLEL"
 
 # A slot held longer than this is assumed to belong to a crashed
-# process. The in-loop idle-timeout kills agents after 15 minutes of
-# no JSONL activity, so a healthy slot turnover is much faster; 1
-# hour is safe.
-DEFAULT_STALE_AFTER_S = 3600.0
+# process. Kimi agents may spend 30 minutes idle and retry the same prompt
+# up to three times, so a healthy lease can remain held for about 90 minutes;
+# 2 hours keeps that lease live while still bounding crash recovery.
+DEFAULT_STALE_AFTER_S = 7200.0
 
 
 class SlotPool:

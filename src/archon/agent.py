@@ -15,7 +15,7 @@ Quick reference:
     # Auto-restart on a hung provider (e.g. overnight Kimi run):
     agent.run(
         prompt, cwd=project, log_base=phase_log,
-        idle_timeout_s=900,   # 15 min of zero JSONL activity
+        idle_timeout_s=1800,  # 30 min of zero JSONL activity
         max_attempts=3,       # then re-run the same prompt up to 3x
     )
 """
@@ -820,7 +820,7 @@ class ClaudePBackend(ClaudeBackend):
 
     name = "claude-p"
 
-    _DEFAULT_TIMEOUT_SEC = 1800   # 30 min — archon's idle watchdog is 15 min
+    _DEFAULT_TIMEOUT_SEC = 1800   # 30 min — matches the Kimi-branch watchdog
     _DEFAULT_QUIET_AFTER_SEC = 15  # allow gaps between tool calls
 
     def __init__(
@@ -1120,7 +1120,7 @@ class ClaudeAgent:
         extra_args: list[str] | None = None,
         env_overrides: dict[str, str] | None = None,
         cancel_event: 'threading.Event | None' = None,
-        idle_timeout_s: float | None = 900,
+        idle_timeout_s: float | None = 1800,
         max_attempts: int = 3,
         resume_session_id: str | None = None,
     ) -> bool:
@@ -1148,8 +1148,8 @@ class ClaudeAgent:
         written for this many seconds, claude is killed and (when
         ``max_attempts`` > 1) the same prompt is re-run. This catches
         third-party providers (Kimi, DeepSeek) whose connections
-        sometimes hang silently — a 15-minute idle threshold turns an
-        overnight stall into a 15-minute hiccup. Only the watchdog path
+        sometimes hang silently — a 30-minute idle threshold turns an
+        overnight stall into a 30-minute hiccup. Only the watchdog path
         retries; real failures (auth errors, bad prompts) return False
         immediately so we don't double-bill on something a retry can't
         fix. Requires ``log_base`` (the watchdog reads the JSONL's

@@ -19,6 +19,7 @@ import unittest
 from pathlib import Path
 
 from archon.dispatch import (
+    DEFAULT_STALE_AFTER_S,
     SLOTS_ENV_VAR,
     SlotPool,
 )
@@ -128,6 +129,26 @@ class SlotPoolTest(unittest.TestCase):
             pool2 = SlotPool.init(Path(d), 2, stale_after_s=1.0)
             self.assertEqual(pool2.free_count(), 2)
             self.assertEqual(pool2.held_count(), 0)
+
+    def test_default_stale_threshold_covers_three_kimi_idle_attempts(self):
+        """A live 3x1800s Kimi lease survives; a >2h lease is reclaimed."""
+        self.assertEqual(DEFAULT_STALE_AFTER_S, 7200.0)
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            pool = SlotPool.init(root, 1)
+            held = pool.acquire()
+
+            within_budget = time.time() - 5400
+            os.utime(held, (within_budget, within_budget))
+            still_held = SlotPool.init(root, 1)
+            self.assertEqual(still_held.free_count(), 0)
+            self.assertEqual(still_held.held_count(), 1)
+
+            past_stale_threshold = time.time() - 7201
+            os.utime(held, (past_stale_threshold, past_stale_threshold))
+            reaped = SlotPool.init(root, 1)
+            self.assertEqual(reaped.free_count(), 1)
+            self.assertEqual(reaped.held_count(), 0)
 
     def test_from_env_returns_none_when_unset(self):
         old = os.environ.pop(SLOTS_ENV_VAR, None)
