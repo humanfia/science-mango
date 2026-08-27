@@ -3,6 +3,7 @@ from __future__ import annotations
 import errno
 import fcntl
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -125,6 +126,35 @@ def test_v2_launch_lease_is_superseded_and_not_exported(tmp_path: Path) -> None:
     )
     with pytest.raises(v2.AdaptiveSwitchEvidenceV2Error, match="SUPERSEDED_BY_V3"):
         context.__enter__()
+
+
+def test_v2_exact_source_loader_binds_location_before_execution(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "location_probe.py"
+    payload = (
+        b"TOP_LEVEL_FILE = __file__\n"
+        b"TOP_LEVEL_CACHED = __cached__\n"
+    )
+    source.write_bytes(payload)
+    observed: dict[str, dict[str, Any]] = {}
+    fullname = "scripts.location_probe"
+    loader = v2._SourceBytesLoader(
+        fullname, source, payload, observed, externally_bound=True,
+    )
+    spec = importlib.util.spec_from_loader(
+        fullname, loader, origin=str(source),
+    )
+    assert spec is not None and spec.has_location is False
+    module = importlib.util.module_from_spec(spec)
+
+    loader.exec_module(module)
+
+    assert module.TOP_LEVEL_FILE == str(source)
+    assert module.TOP_LEVEL_CACHED is None
+    assert module.__file__ == str(source)
+    assert module.__cached__ is None
+    assert observed[fullname]["sha256"] == hashlib.sha256(payload).hexdigest()
 
 
 def test_v3_retirement_binds_post_rename_identity_and_blocks_old_name(

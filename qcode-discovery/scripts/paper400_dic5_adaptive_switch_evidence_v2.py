@@ -445,6 +445,26 @@ class _SourceBytesLoader(importlib.abc.Loader):
         return None
 
     def exec_module(self, module: types.ModuleType) -> None:
+        spec = getattr(module, "__spec__", None)
+        expected_path = str(self.path)
+        expected_package = self.fullname.rpartition(".")[0]
+        if (
+            spec is None or getattr(spec, "name", None) != self.fullname
+            or getattr(spec, "loader", None) is not self
+            or getattr(spec, "origin", None) != expected_path
+            or getattr(module, "__name__", None) != self.fullname
+            or getattr(module, "__loader__", None) is not self
+            or getattr(module, "__package__", None) != expected_package
+        ):
+            raise AdaptiveSwitchEvidenceV2Error(
+                "exact source module specification mismatch"
+            )
+        # ``spec_from_loader`` cannot infer a location from this byte-only
+        # loader.  Bind the externally discovered source path before the
+        # module executes so legacy code may safely derive PROJECT from
+        # ``__file__``.  No bytecode is loaded or written by this loader.
+        module.__file__ = expected_path
+        module.__cached__ = None
         digest = hashlib.sha256(self.payload).hexdigest()
         self.observed[self.fullname] = {
             "module": self.fullname, "path": str(self.path),
@@ -454,6 +474,13 @@ class _SourceBytesLoader(importlib.abc.Loader):
         }
         code = compile(self.payload, str(self.path), "exec", dont_inherit=True)
         exec(code, module.__dict__)
+        if (
+            module.__dict__.get("__file__") != expected_path
+            or module.__dict__.get("__cached__", object()) is not None
+        ):
+            raise AdaptiveSwitchEvidenceV2Error(
+                "exact source module location binding changed during execution"
+            )
 
 
 class _SourceOnlyFinder(importlib.abc.MetaPathFinder):
