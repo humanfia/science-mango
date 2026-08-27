@@ -56,4 +56,4 @@ described as free of every non-output semantic defect.
 ## Release links
 
 - [Source code](https://github.com/humanfia/science-mango/tree/chemistry-blind-solver/icho_2026_run)
-- [Dataset](https://huggingface.co/datasets/humanfia-lab/icho-2026-lean4-formalizations)
+- [Dataset](https://huggingface.co/datasets/humanfia-lab/icho-2026)
