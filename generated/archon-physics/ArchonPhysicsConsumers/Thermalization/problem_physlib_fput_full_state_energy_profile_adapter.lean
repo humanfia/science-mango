@@ -1,0 +1,30 @@
+import ArchonPhysics.PhyslibFPUTFullStateEnergyProfileAdapter
+
+/-!
+# Consumer: full-state endpoint to energy-profile adapter
+
+This checks that the all-positive-mode sup-norm endpoint estimates and the
+compatibility-free canonical Haar certificate are constructed from the
+full-state endpoint moment theorem.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.PhyslibFPUTFullStateEnergyProfileAdapter
+
+#check fullState_initial_secondMoment_error
+#check fullState_final_secondMoment_error
+#check FPUTFullStateEnergyProfileBlockwiseAdapter.initial_endpoint_control
+#check FPUTFullStateEnergyProfileBlockwiseAdapter.final_endpoint_control
+#check FPUTFullStateEnergyProfileBlockwiseAdapter.toCanonicalHaarEnergyProfileBlockwiseCertificate
+#check FPUTFullStateEnergyProfileBlockwiseAdapter.toCertificate_initial_endpoint_control
+#check FPUTFullStateEnergyProfileBlockwiseAdapter.toCertificate_final_endpoint_control
+
+#print axioms fullState_initial_secondMoment_error
+#print axioms fullState_final_secondMoment_error
+#print axioms FPUTFullStateEnergyProfileBlockwiseAdapter.initial_endpoint_control
+#print axioms FPUTFullStateEnergyProfileBlockwiseAdapter.final_endpoint_control
+#print axioms
+  FPUTFullStateEnergyProfileBlockwiseAdapter.toCanonicalHaarEnergyProfileBlockwiseCertificate
+
+end ArchonPhysicsConsumers.Thermalization
