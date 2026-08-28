@@ -1,0 +1,24 @@
+import ArchonPhysics.PhyslibFPUTCoupledKineticShadowingClosure
+
+/-!
+# Consumer: coupled FPUT kinetic-time second-moment closure
+
+This consumer exposes the fixed-volume theorem in which every actual block
+residual is derived from a reference residual and a common-source amplitude
+coupling.  The two uniform input envelopes are required to be little-o of the
+kinetic step.
+-/
+
+open ArchonPhysics.PhyslibFPUTCoupledKineticShadowingClosure
+
+#check CoupledSecondMomentKineticFamilyCertificate
+#check CoupledSecondMomentKineticFamilyCertificate.actualSecondMoment
+#check CoupledSecondMomentKineticFamilyCertificate.actualResidualDefect
+#check CoupledSecondMomentKineticFamilyCertificate.actualResidualDefectMax
+#check CoupledSecondMomentKineticFamilyCertificate.actualSecondMoment_is_momentKineticEulerResidual
+#check CoupledSecondMomentKineticFamilyCertificate.actualResidualDefect_le_max
+#check CoupledSecondMomentKineticFamilyCertificate.actualSecondMoment_kineticEuler_shadowing_tendsto_zero
+
+#print axioms CoupledSecondMomentKineticFamilyCertificate.actualSecondMoment_is_momentKineticEulerResidual
+#print axioms CoupledSecondMomentKineticFamilyCertificate.actualResidualDefect_le_max
+#print axioms CoupledSecondMomentKineticFamilyCertificate.actualSecondMoment_kineticEuler_shadowing_tendsto_zero
