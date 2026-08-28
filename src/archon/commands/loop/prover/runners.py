@@ -1028,6 +1028,30 @@ def _pipeline_cycle(value: object) -> int:
     return cycle if cycle > 0 else 0
 
 
+def _restore_initial_delivery_baseline(
+    baseline_sha256: object,
+    task_result_fingerprints: object,
+) -> tuple[str, tuple[tuple[str, str], ...]] | None:
+    """Validate one controller-owned initial-delivery baseline from meta."""
+    digest = str(baseline_sha256 or "").strip().lower()
+    if len(digest) != 64 or not set(digest) <= set("0123456789abcdef"):
+        return None
+    if not isinstance(task_result_fingerprints, Mapping):
+        return None
+    restored: list[tuple[str, str]] = []
+    for raw_path, raw_fingerprint in task_result_fingerprints.items():
+        if not isinstance(raw_path, str) or not raw_path:
+            return None
+        fingerprint = str(raw_fingerprint or "").strip().lower()
+        if (
+            len(fingerprint) != 64
+            or not set(fingerprint) <= set("0123456789abcdef")
+        ):
+            return None
+        restored.append((raw_path, fingerprint))
+    return digest, tuple(sorted(restored))
+
+
 def _latest_pipeline_event_cycle(
     record: dict,
     *,
@@ -1673,9 +1697,11 @@ class ParallelProverRunner:
         resumed_terminal_formalizations: set[str] = set()
         resumed_redrafts: list[tuple[Path, str, str, int, dict, str]] = []
         restored_formal_events: list[tuple[Path, str, int, str]] = []
+        resumed_exhausted_initial_deliveries: list[str] = []
 
         formalization_cycles: dict[str, int] = {}
         initial_delivery_attempts: dict[str, int] = {}
+        initial_delivery_retry_eligible: set[str] = set()
         initial_delivery_baselines: dict[
             str, tuple[str, tuple[tuple[str, str], ...]]
         ] = {}
@@ -1793,6 +1819,34 @@ class ParallelProverRunner:
             )
             shadow_formalization_records[rel] = dict(prior_formalization)
             if initial_formalization:
+                restored_delivery_attempt = 0
+                if self.resume_enabled:
+                    restored_delivery_attempt = _pipeline_cycle(read_meta(
+                        self.iter_meta,
+                        f"pipelineFormalizers.{slug}.deliveryAttempt",
+                    ))
+                    if restored_delivery_attempt:
+                        initial_delivery_attempts[rel] = min(
+                            restored_delivery_attempt,
+                            _INITIAL_FORMALIZER_DELIVERY_MAX_ATTEMPTS,
+                        )
+                    restored_delivery_baseline = (
+                        _restore_initial_delivery_baseline(
+                            read_meta(
+                                self.iter_meta,
+                                f"pipelineFormalizers.{slug}.baselineSha256",
+                            ),
+                            read_meta(
+                                self.iter_meta,
+                                f"pipelineFormalizers.{slug}."
+                                "baselineTaskResultFingerprints",
+                            ),
+                        )
+                    )
+                    if restored_delivery_baseline is not None:
+                        initial_delivery_baselines[rel] = (
+                            restored_delivery_baseline
+                        )
                 prior_status = (
                     read_meta(
                         self.iter_meta,
@@ -1800,6 +1854,27 @@ class ParallelProverRunner:
                     )
                     if self.resume_enabled else None
                 )
+                if (
+                    not self.resume_enabled
+                    or restored_delivery_attempt
+                    or prior_status is None
+                ):
+                    initial_delivery_retry_eligible.add(rel)
+                if (
+                    self.resume_enabled
+                    and prior_status == "error"
+                    and initial_delivery_attempts.get(rel) == 1
+                ):
+                    # Attempt 1 completed but the controller died before its
+                    # queued-attempt-2 write. Consume that completed attempt
+                    # instead of replaying it after restart.
+                    initial_delivery_attempts[rel] = 2
+                    prior_status = "queued"
+                    write_meta(self.iter_meta, **{
+                        f"pipelineFormalizers.{slug}.status": "queued",
+                        f"pipelineFormalizers.{slug}.deliveryAttempt": 2,
+                        f"pipelineFormalizers.{slug}.answerSubmissionRepair": False,
+                    })
                 legacy_status = (
                     read_meta(self.iter_meta, f"provers.{slug}.status")
                     if self.resume_enabled else None
@@ -2117,9 +2192,28 @@ class ParallelProverRunner:
                         formalization_cycles[rel],
                     ))
                 else:
-                    pending_initial_formalizers.append((
-                        target, formalization_cycles[rel],
-                    ))
+                    delivery_attempt = initial_delivery_attempts.get(rel, 1)
+                    if (
+                        self.resume_enabled
+                        and delivery_attempt
+                        >= _INITIAL_FORMALIZER_DELIVERY_MAX_ATTEMPTS
+                        and prior_status != "queued"
+                    ):
+                        # Attempt 2 is deliberately non-resumable. A running
+                        # or failed second attempt therefore exhausts the
+                        # persisted budget instead of becoming a third call.
+                        resumed_exhausted_initial_deliveries.append(rel)
+                        write_meta(self.iter_meta, **{
+                            f"pipelineFormalizers.{slug}.status": "error",
+                            f"pipelineFormalizers.{slug}.error": (
+                                "initial formalizer full-delivery retry budget "
+                                "exhausted"
+                            ),
+                        })
+                    else:
+                        pending_initial_formalizers.append((
+                            target, formalization_cycles[rel],
+                        ))
                 continue
             prior_status = (
                 read_meta(self.iter_meta, f"provers.{slug}.status")
@@ -2150,6 +2244,11 @@ class ParallelProverRunner:
         pending_formalization: set[str] = set()
         settled_targets: set[str] = set()
         unresolved: dict[str, str] = {}
+        for rel in resumed_exhausted_initial_deliveries:
+            pending_formalization.add(rel)
+            unresolved[rel] = (
+                "initial formalizer full-delivery retry budget exhausted"
+            )
         review_rounds: dict[int, dict[str, int]] = {}
         proof_review_validation_feedback: dict[tuple[str, int], str] = {}
         formalization_review_validation_feedback: dict[tuple[str, int], str] = {}
@@ -2622,11 +2721,14 @@ required action while preserving the accepted statement.
                     ),
                 )
                 baseline_sha256 = next((
-                    digest for digest in baseline_candidates if len(digest) == 64
+                    digest for digest in baseline_candidates
+                    if len(digest) == 64
+                    and set(digest) <= set("0123456789abcdef")
                 ), baseline_sha256)
-                baseline_results = {}
+                if preserved_baseline is None:
+                    baseline_results = {}
                 snap_dir.mkdir(parents=True, exist_ok=True)
-            elif delivery_attempt == 1:
+            elif delivery_attempt == 1 and preserved_baseline is None:
                 snapshot_baseline(target, snap_dir)
             else:
                 # A delivery retry is a fresh model call over the same semantic
@@ -2657,6 +2759,9 @@ required action while preserving the accepted statement.
                 ),
                 f"pipelineFormalizers.{slug}.baselineSha256": (
                     baseline_sha256
+                ),
+                f"pipelineFormalizers.{slug}.baselineTaskResultFingerprints": (
+                    dict(sorted(baseline_results.items()))
                 ),
             }
             if mode_name:
@@ -3228,7 +3333,7 @@ required action while preserving the accepted statement.
                                     })
                                 elif (
                                     work.kind == "initial_formalizer"
-                                    and not self.resume_enabled
+                                    and work.rel in initial_delivery_retry_eligible
                                     and work.delivery_attempt
                                     < _INITIAL_FORMALIZER_DELIVERY_MAX_ATTEMPTS
                                 ):
