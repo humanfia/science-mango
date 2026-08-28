@@ -5775,7 +5775,10 @@ def start_batch(
         expected_incident_precondition_sha256, "incident precondition pin",
     )
     commit_path = Path(batch_commit_path)
-    _validate_new_output_path(commit_path, label="batch handoff commit")
+    _validate_new_output_path(
+        commit_path, label="batch handoff commit",
+        parent_may_be_absent=True,
+    )
     root_list, cpu_list = _cover_roots_cpus(roots, cpus)
     for root in root_list:
         _validate_new_output_path(
@@ -6153,7 +6156,9 @@ def repair_handoff_links(
     })
 
 
-def _validate_new_output_path(path: Path, *, label: str) -> None:
+def _validate_new_output_path(
+    path: Path, *, label: str, parent_may_be_absent: bool = False,
+) -> None:
     target = Path(path)
     if (
         not target.is_absolute()
@@ -6161,7 +6166,15 @@ def _validate_new_output_path(path: Path, *, label: str) -> None:
         or target.exists() or target.is_symlink()
     ):
         raise AdaptiveChildResumeError(f"{label} path must be new normalized absolute")
-    _directory_identity(target.parent, require_mode_0700=True)
+    parent = target.parent
+    if parent_may_be_absent and not parent.exists():
+        if parent.is_symlink():
+            raise AdaptiveChildResumeError(
+                f"{label} parent must not be a symlink"
+            )
+        _directory_identity(parent.parent, require_mode_0700=True)
+    else:
+        _directory_identity(parent, require_mode_0700=True)
 
 
 def _publish_batch_summary(path: Path, value: Mapping[str, Any]) -> None:

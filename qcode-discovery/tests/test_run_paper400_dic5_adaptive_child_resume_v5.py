@@ -1254,6 +1254,53 @@ def test_inspect_incident_batch_calls_readonly_builder_once_in_canonical_order(
     assert not (batch_root / 'adaptive-handoff-v4-unexpected').exists()
 
 
+def test_new_output_path_allows_one_absent_attempt_parent(
+    tmp_path: Path,
+) -> None:
+    tmp_path.chmod(0o700)
+    parent = tmp_path / f"adaptive-handoff-v4-attempt-{'d' * 64}"
+    target = parent / '90-handoff.json'
+    runner._validate_new_output_path(
+        target, label='batch handoff commit',
+        parent_may_be_absent=True,
+    )
+    assert not parent.exists()
+
+
+def test_new_output_path_default_rejects_absent_parent(
+    tmp_path: Path,
+) -> None:
+    tmp_path.chmod(0o700)
+    target = tmp_path / 'attempt' / '90-handoff.json'
+    with pytest.raises(runner.AdaptiveChildResumeError):
+        runner._validate_new_output_path(target, label='ordinary output')
+
+
+def test_new_output_path_rejects_symlink_parent_when_absence_allowed(
+    tmp_path: Path,
+) -> None:
+    tmp_path.chmod(0o700)
+    parent = tmp_path / 'attempt'
+    parent.symlink_to(tmp_path / 'missing-target', target_is_directory=True)
+    with pytest.raises(runner.AdaptiveChildResumeError, match='symlink'):
+        runner._validate_new_output_path(
+            parent / '90-handoff.json', label='batch handoff commit',
+            parent_may_be_absent=True,
+        )
+
+
+def test_new_output_path_rejects_multiple_absent_parent_levels(
+    tmp_path: Path,
+) -> None:
+    tmp_path.chmod(0o700)
+    target = tmp_path / 'attempt' / 'nested' / '90-handoff.json'
+    with pytest.raises(runner.AdaptiveChildResumeError):
+        runner._validate_new_output_path(
+            target, label='batch handoff commit',
+            parent_may_be_absent=True,
+        )
+
+
 def test_start_batch_forwards_external_incident_and_eight_held_outer_fds(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1264,7 +1311,7 @@ def test_start_batch_forwards_external_incident_and_eight_held_outer_fds(
     cpus = [0, 1, 2, 3] * 2
     incident = 'e' * 64
     attempt = 'd' * 64
-    commit_path = tmp_path / 'handoff.json'
+    commit_path = tmp_path / 'attempt' / 'handoff.json'
     captured: dict[str, Any] = {}
 
     @contextlib.contextmanager
@@ -1278,6 +1325,7 @@ def test_start_batch_forwards_external_incident_and_eight_held_outer_fds(
             os.fstat(descriptor).st_nlink == 1
             for descriptor in kwargs['target_outer_lock_fds']
         )
+        commit_path.parent.mkdir(mode=0o700)
         yield object()
 
     def fake_atomic(
