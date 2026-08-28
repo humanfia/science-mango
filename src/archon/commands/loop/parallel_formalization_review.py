@@ -1241,12 +1241,14 @@ def _existing_partial_gate_disposition(
 ) -> str:
     """Classify an existing same-or-newer target gate before fallback apply.
 
-    Batch gate records predate per-target ``review_events``.  Their
-    ``last_review_iter`` and candidate binding are nevertheless durable and
-    must win over a replayed incomplete batch.  A matching record is an
-    idempotent no-op; a same-or-newer record bound to different or malformed
+    Batch gate records predate per-target ``review_events``.  A matching
+    same-or-newer record that has consumed a Review is durable and must win
+    over a replayed incomplete batch.  A zero-cost repair (``reviews == 0``)
+    has not consumed the valid partial outcome, so it remains eligible for
+    fallback application in the same iteration; an older replay still cannot
+    overwrite a newer zero-cost record.  Different or malformed candidate
     state is rejected rather than overwritten.  Older records still permit a
-    genuinely new Review transition.
+    Review transition.
     """
     state = load_gate_state(state_dir) or {}
     targets = state.get("targets")
@@ -1268,6 +1270,10 @@ def _existing_partial_gate_disposition(
         or stored_candidate != candidate_sha256
     ):
         return "stale"
+    if reviews == 0:
+        if status != "retry":
+            return "stale"
+        return "durable" if last_review_iter > iter_num else "apply"
     return "durable"
 
 

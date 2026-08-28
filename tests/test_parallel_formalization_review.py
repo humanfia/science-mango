@@ -2051,6 +2051,89 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertEqual(before["A.lean"]["status"], "passed")
             self.assertEqual(before["A.lean"]["reviews"], 1)
 
+    def test_zero_cost_batch_retry_allows_same_iter_partial_review(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, iter_dir, targets, preflight = _simple_batch(
+                root, ("A.lean", "B.lean", "C.lean"),
+            )
+            candidate_sha256 = hashlib.sha256(
+                (root / "A.lean").read_bytes()
+            ).hexdigest()
+            state.mkdir(parents=True, exist_ok=True)
+            (state / "formalization-review-gate.json").write_text(
+                json.dumps({
+                    "version": 2,
+                    "max_iterations": 3,
+                    "targets": {"A.lean": {
+                        "status": "retry",
+                        "reviews": 0,
+                        "last_review_iter": 21,
+                        "reason": "zero-cost deterministic repair",
+                        "candidate_sha256": candidate_sha256,
+                        "certificate": {},
+                    }},
+                }),
+                encoding="utf-8",
+            )
+            before = load_gate_state(state)["targets"]
+
+            with mock.patch.object(
+                parallel_formalization_review,
+                "resolve_target_review_source_contract",
+                side_effect=_pre_dispatch_failure("C.lean"),
+            ):
+                replay = _run_simple_reviews(
+                    root=root,
+                    state=state,
+                    iter_dir=iter_dir,
+                    targets=targets,
+                    preflight=preflight,
+                    prior_gate_targets=before,
+                )
+
+            self.assertFalse(replay["complete"])
+            self.assertEqual(replay["reviewed"], 2)
+            self.assertEqual(replay["unresolved"], ["C.lean"])
+            record = load_gate_state(state)["targets"]["A.lean"]
+            self.assertEqual(record["status"], "passed")
+            self.assertEqual(record["reviews"], 1)
+            self.assertEqual(record["last_review_iter"], 21)
+            self.assertEqual(len(record["review_events"]), 1)
+
+    def test_newer_zero_cost_retry_blocks_older_partial_replay(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, _iter_dir, targets, _preflight = _simple_batch(
+                root, ("A.lean",),
+            )
+            candidate_sha256 = hashlib.sha256(
+                targets[0].read_bytes()
+            ).hexdigest()
+            state.mkdir(parents=True, exist_ok=True)
+            (state / "formalization-review-gate.json").write_text(
+                json.dumps({
+                    "version": 2,
+                    "max_iterations": 3,
+                    "targets": {"A.lean": {
+                        "status": "retry",
+                        "reviews": 0,
+                        "last_review_iter": 22,
+                        "candidate_sha256": candidate_sha256,
+                    }},
+                }),
+                encoding="utf-8",
+            )
+
+            disposition = (
+                parallel_formalization_review
+                ._existing_partial_gate_disposition(
+                    state_dir=state, rel="A.lean", iter_num=21,
+                    candidate_sha256=candidate_sha256,
+                )
+            )
+            self.assertEqual(disposition, "durable")
+
     def test_applied_batch_verdicts_win_conflicting_partial_replay(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
