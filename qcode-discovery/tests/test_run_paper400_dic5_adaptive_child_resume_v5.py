@@ -2438,19 +2438,54 @@ def _strict_subprocess_source(*, full_probe: bool) -> str:
         "runner._STRICT_FORBIDDEN_STARTUP_MODULES))\n"
         "result['native_environment_after']="
         "runner._strict_environment_snapshot()\n"
+        "result['process_environment_after']="
+        "runner._strict_process_environment_snapshot()\n"
         "print(json.dumps(result,sort_keys=True))\n"
     )
 
 
 def _strict_subprocess_environment() -> dict[str, str]:
-    return {
-        key: value for key, value in os.environ.items()
-        if key not in {
-            'LD_PRELOAD', 'LD_LIBRARY_PATH', 'LD_AUDIT',
-            'PYTHONPATH',
-        }
-        and not key.startswith(runner._STRICT_FORBIDDEN_ENV_PREFIXES)
-    }
+    return dict(runner._STRICT_ENTRY_ENVIRONMENT)
+
+
+_REAL_PREPARE_MATERIALS = Path(os.environ.get(
+    'PAPER400_REAL_PREPARE_MATERIALS',
+    '/root/paper400-adaptive-prod-20260827-mHCpDT/materials-000001',
+))
+_REAL_PREPARE_BATCH_ROOT = Path(os.environ.get(
+    'PAPER400_REAL_PREPARE_BATCH_ROOT',
+    '/tmp/paper400-dic5-width10-parent000-batch000-v3-b59cfbe9-20260827T054227Z',
+))
+
+
+def _real_prepare_cli_argv(
+    root: Path, *, materials: Path = _REAL_PREPARE_MATERIALS,
+) -> list[str]:
+    return [
+        str(runner._STRICT_PYTHON), '-I', '-S', '-B', str(DRAFT), 'prepare',
+        '--root', str(root),
+        '--batch-root', str(_REAL_PREPARE_BATCH_ROOT),
+        '--parent-manifest', str(materials / 'parent-manifest.json'),
+        '--width6-campaign', str(materials / 'width6-campaign.json'),
+        '--width10-campaign', str(materials / 'width10-campaign.json'),
+        '--overlay-manifest', str(materials / 'lane-0/overlay.json'),
+        '--hard-evidence', str(materials / 'lane-0/hard-evidence.json'),
+        '--switch-evidence', str(materials / 'switch-evidence.json'),
+        '--elapsed-seconds-by-lane-json',
+        str(materials / 'elapsed-seconds-by-lane.json'),
+        '--expected-overlay-sha256',
+        '5d6af396290361eed58a1ae7066ac4a2abfd2e3b0260afd39ac8787b39d03acf',
+        '--expected-hard-evidence-sha256',
+        '4b44152fa91e706dadc1b5b573618e0e724d896bca81f3a352fb5f1559b7b95c',
+        '--expected-switch-evidence-sha256',
+        '2ac95f8d035f0edf604077a2cd1d0db837b1d457704eb18e0777c09f33e80c7b',
+        '--expected-batch-manifest-sha256',
+        '3228c3dab9464efd656eda26301ea200074085c08eedfb6abd19d2f683cfe40f',
+        '--descendant-index', '0',
+        '--candidate-variable', '390',
+        '--timeout-seconds', '86400',
+        '--proof-max-bytes', '68719476736',
+    ]
 
 
 def test_real_isolated_dependency_context_and_science_execution_binding() -> None:
@@ -2474,6 +2509,9 @@ def test_real_isolated_dependency_context_and_science_execution_binding() -> Non
     assert observed['forbidden_inside'] == []
     assert observed['forbidden_after'] == []
     assert observed['native_environment_after'] == {}
+    assert observed['process_environment_after'] == dict(
+        runner._STRICT_ENTRY_ENVIRONMENT
+    )
     assert observed['numpy_version'] == '2.3.5'
     assert observed['strict_sys_path'] == [
         str(PROJECT), '/usr/lib/python3.12',
@@ -2517,6 +2555,13 @@ def test_real_isolated_dependency_context_and_science_execution_binding() -> Non
     assert execution['science_derived_environment']['environment'] == {
         key: value for key, value in runner._STRICT_DERIVED_THREAD_ENV
     }
+    assert execution['science_derived_environment']['entry_environment'] == dict(
+        runner._STRICT_ENTRY_ENVIRONMENT
+    )
+    assert execution['science_derived_environment']['effective_environment'] == {
+        **dict(runner._STRICT_ENTRY_ENVIRONMENT),
+        **dict(runner._STRICT_DERIVED_THREAD_ENV),
+    }
     writer = execution['science_derived_environment']['writer_source']
     assert writer == runner._expected_strict_derived_env_writer_record()
     assert writer['module'] == runner._STRICT_DERIVED_ENV_WRITER_MODULE
@@ -2537,6 +2582,20 @@ def test_real_isolated_dependency_context_and_science_execution_binding() -> Non
         'bytes': runner._STRICT_SYSTEM_MAP_EXPECTED_BYTES,
         'files_sha256': runner._STRICT_SYSTEM_MAP_EXPECTED_SHA256,
     }
+    expected_system_files = [
+        {
+            'path': path, 'bytes': size, 'sha256': sha256,
+            'uid': uid, 'mode': mode, 'links': links,
+        }
+        for path, size, sha256, uid, mode, links
+        in runner._STRICT_SYSTEM_MAP_EXPECTED_RECORDS
+    ]
+    assert mapped['system_files'] == expected_system_files
+    assert not {
+        '/usr/lib/locale/C.utf8/LC_CTYPE',
+        '/usr/lib/locale/locale-archive',
+        '/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache',
+    }.intersection(item['path'] for item in mapped['system_files'])
     assert mapped['anonymous_executable']['count_method'] == (
         'nonempty-permission-classes-v1'
     )
@@ -2559,22 +2618,117 @@ def test_real_isolated_dependency_context_and_science_execution_binding() -> Non
     }) == execution['execution_module_binding_sha256']
 
 
+@pytest.mark.slow
+@pytest.mark.skipif(
+    os.environ.get('PAPER400_RUN_REAL_PREPARE') != '1',
+    reason='requires explicitly gated immutable production materials',
+)
+def test_real_prepare_cli_uses_exact_entry_environment_and_17_file_closure(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / 'root'
+    completed = subprocess.run(
+        _real_prepare_cli_argv(root),
+        cwd=PROJECT, env=_strict_subprocess_environment(),
+        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE, timeout=300, check=False,
+    )
+    assert completed.returncode == 0, completed.stderr.decode(
+        'utf-8', 'replace',
+    )
+    static = json.loads((root / 'state/00-static.json').read_bytes())
+    assert completed.stdout == runner.canonical_bytes(static) + b'\n'
+    assert static['state'] == 'RESUMABLE_STATIC_SEALED'
+    assert runner.canonical_sha256({
+        key: value for key, value in static.items() if key != 'record_sha256'
+    }) == static['record_sha256']
+    launch = static['python_startup']['strict_runtime_binding']['launch_inputs']
+    assert launch['entry_environment'] == dict(runner._STRICT_ENTRY_ENVIRONMENT)
+    derived = static['execution_module_binding']['science_derived_environment']
+    assert derived['entry_environment'] == dict(runner._STRICT_ENTRY_ENVIRONMENT)
+    assert derived['effective_environment'] == {
+        **dict(runner._STRICT_ENTRY_ENVIRONMENT),
+        **dict(runner._STRICT_DERIVED_THREAD_ENV),
+    }
+    mapped = static['execution_module_binding']['mapped_runtime_closure']
+    expected_system_files = [
+        {
+            'path': path, 'bytes': size, 'sha256': sha256,
+            'uid': uid, 'mode': mode, 'links': links,
+        }
+        for path, size, sha256, uid, mode, links
+        in runner._STRICT_SYSTEM_MAP_EXPECTED_RECORDS
+    ]
+    assert mapped['system_files'] == expected_system_files
+    assert mapped['summaries']['system'] == {
+        'file_count': 17,
+        'bytes': 14576760,
+        'files_sha256':
+            '8f635d72d68f1dcd88cf0c9a9a019b8cb0ff65e0bf1e4379a8ec4e3cf1935d49',
+    }
+    assert not {
+        '/usr/lib/locale/C.utf8/LC_CTYPE',
+        '/usr/lib/locale/locale-archive',
+        '/usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache',
+    }.intersection(item['path'] for item in mapped['system_files'])
+    assert static['source_binding']['sources'][
+        'adaptive_child_runner_v5_source'
+    ]['sha256'] == hashlib.sha256(DRAFT.read_bytes()).hexdigest()
+
+
+def test_real_prepare_cli_rejects_c_utf8_before_material_io(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / 'root'
+    missing_materials = tmp_path / 'materials-that-must-not-be-read'
+    environment = _strict_subprocess_environment()
+    environment['LANG'] = 'C.UTF-8'
+    completed = subprocess.run(
+        _real_prepare_cli_argv(root, materials=missing_materials),
+        cwd=PROJECT, env=environment, stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30,
+        check=False,
+    )
+    assert completed.returncode == 2
+    assert completed.stdout == b''
+    assert (
+        'strict entry process environment differs from exact pin'
+        in completed.stderr.decode('utf-8', 'strict')
+    )
+    assert not root.exists()
+    assert not missing_materials.exists()
+
+
 @pytest.mark.parametrize(
-    'flags,environment_name',
+    'flags,environment_name,environment_value',
     [
-        (['-I', '-S'], None),
-        (['-S', '-B'], None),
-        (['-I', '-S', '-B'], 'LD_LIBRARY_PATH'),
-        (['-I', '-S', '-B'], 'NUMBA_CACHE_DIR'),
-        (['-I', '-S', '-B'], 'OPENBLAS_NUM_THREADS'),
+        (['-I', '-S'], None, None),
+        (['-S', '-B'], None, None),
+        (['-I', '-S', '-B'], 'LD_LIBRARY_PATH', '/tmp'),
+        (['-I', '-S', '-B'], 'NUMBA_CACHE_DIR', '/tmp'),
+        (['-I', '-S', '-B'], 'OPENBLAS_NUM_THREADS', '/tmp'),
+        (['-I', '-S', '-B'], 'LANG', 'C.UTF-8'),
+        (['-I', '-S', '-B'], 'LC_ALL', 'C.UTF-8'),
+        (['-I', '-S', '-B'], 'LC_CTYPE', 'C.UTF-8'),
+        (['-I', '-S', '-B'], 'PATH', '/usr/bin:/bin'),
+        (['-I', '-S', '-B'], 'HOME', '/root'),
+        (['-I', '-S', '-B'], 'PYTHONPATH', '/tmp/test-only-imports'),
+        (['-I', '-S', '-B'], 'LANG', None),
+        (['-I', '-S', '-B'], 'LC_ALL', None),
+        (['-I', '-S', '-B'], 'TZ', None),
     ],
 )
 def test_strict_subprocess_rejects_wrong_flags_and_loader_environment(
-    flags: list[str], environment_name: str | None,
+    flags: list[str],
+    environment_name: str | None,
+    environment_value: str | None,
 ) -> None:
     environment = _strict_subprocess_environment()
     if environment_name is not None:
-        environment[environment_name] = '/tmp'
+        if environment_value is None:
+            environment.pop(environment_name)
+        else:
+            environment[environment_name] = environment_value
     completed = subprocess.run(
         [
             str(runner._STRICT_PYTHON), *flags, '-c',
@@ -2591,7 +2745,7 @@ def test_strict_subprocess_rejects_wrong_flags_and_loader_environment(
     if environment_name is None:
         assert '-I -S -B' in output
     else:
-        assert 'native/JIT environment injection' in output
+        assert 'strict entry process environment differs from exact pin' in output
 
 
 def test_numba_config_and_proc_maps_fail_closed(
@@ -2623,8 +2777,10 @@ def test_numba_config_and_proc_maps_fail_closed(
     with pytest.raises(runner.AdaptiveChildResumeError, match='outside'):
         runner._mapped_path_category(Path('/opt/evil.so'))
 
-    for key in list(runner._strict_environment_snapshot()):
+    for key in list(os.environ):
         monkeypatch.delenv(key, raising=False)
+    for key, value in runner._STRICT_ENTRY_ENVIRONMENT:
+        monkeypatch.setenv(key, value)
     for key, value in runner._STRICT_DERIVED_THREAD_ENV:
         monkeypatch.setenv(key, value)
     writer_source = runner._expected_strict_derived_env_writer_record()

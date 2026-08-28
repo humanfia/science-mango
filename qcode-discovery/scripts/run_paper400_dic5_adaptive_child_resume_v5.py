@@ -125,10 +125,100 @@ _STRICT_STDLIB_EXTERNAL_EXPECTED_BYTES = 9061155
 _STRICT_STDLIB_EXTERNAL_EXPECTED_SHA256 = (
     "defd1fa2a69edd12c6854ce344db5f3bab8c6df11387727a0f4ad936630ebc6e"
 )
-_STRICT_SYSTEM_MAP_EXPECTED_FILES = 20
-_STRICT_SYSTEM_MAP_EXPECTED_BYTES = 18020024
+_STRICT_SYSTEM_MAP_EXPECTED_RECORDS = (
+    (
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2", 236616,
+        "cd4df4f3c7b83673d61189bf2eaebd33ca4f2853ab9772b8a25e025ef99b1e81",
+        0, 0o755, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libbz2.so.1.0.4", 78944,
+        "218c4abdabce31161f3c2778762986d1fe06633705c7eb004a740946a5ccdfff",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libc.so.6", 2125328,
+        "8db37cf3f2169f59a0f07ef1fea308c35656668c64c8ff294e1860f4121eb161",
+        0, 0o755, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libcrypto.so.3", 5309400,
+        "1451aceec262c3338052fa77542eb971d4ba311c6bf12d9aa70d0b56aca942f9",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libdl.so.2", 14408,
+        "292d5f5af2e7360b3e18c56591a4960115373ecf40627660f9149b6c68a33f80",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libexpat.so.1.9.1", 174336,
+        "c42ff317838b4b4639e2ea801905f0317177c6df7e31b2f0d0240e3c3ac0cfde",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libffi.so.8.1.4", 47672,
+        "00f593fe192f2851b8ce23b25cec2488d769beb5a8f63e8c9e563071e1075153",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1", 183024,
+        "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0", 352304,
+        "135f3c8f006d2fe5e68e51281c7974cb991a03de3bfb3593d68d174dfcf854d1",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5", 202904,
+        "696e868dd0700a19a6d65fc01608ec2d70d3cb91f65710e89180cd2e688f30cb",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libm.so.6", 952616,
+        "e9c4b28d340e415b8137480ec442662f981e1399386c5931dae0e886e3639e91",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libpthread.so.0", 14408,
+        "a27ffa9bf233d61a5f02ddb0cf770dd6579021afc1aa8aec0fb58ee4a965281a",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/librt.so.1", 14624,
+        "c6e6288545e24b0b3cfbf33320bda9236521625d8c3d628f3444f1ed40e5c7c5",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6", 1468440,
+        "f2cd05de8b6f71ea9d0495a6f9ff9cae844b15d9c45b7ef49ee0af0f81658cc7",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libssl.so.3", 696512,
+        "55869549f4c7d7221e311121696f135390a7172755459ad04aef831f855eb214",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", 2592224,
+        "1fd75fe70354a416d75aef22bcae68c47bd25d20e2d0568c30b1a9838cf62f11",
+        0, 0o644, 1,
+    ),
+    (
+        "/usr/lib/x86_64-linux-gnu/libz.so.1.3", 113000,
+        "9b64150b28505a33d6bc3ecf709c279f6de97a1c184dbda65d06ee4537f6d286",
+        0, 0o644, 1,
+    ),
+)
+_STRICT_SYSTEM_MAP_EXPECTED_FILES = 17
+_STRICT_SYSTEM_MAP_EXPECTED_BYTES = 14576760
 _STRICT_SYSTEM_MAP_EXPECTED_SHA256 = (
-    "37e191cd3a60603e0fec9ae9a3b3a2be4d6376c01a6eda2139c630feed2e9feb"
+    "8f635d72d68f1dcd88cf0c9a9a019b8cb0ff65e0bf1e4379a8ec4e3cf1935d49"
+)
+_STRICT_ENTRY_ENVIRONMENT = (
+    ("LANG", "C"), ("LC_ALL", "C"), ("TZ", "UTC"),
 )
 _STRICT_JIT_EXEC_EXPECTED_PERMISSION_CLASS_COUNT = 2
 _STRICT_JIT_EXEC_EXPECTED_BYTES = 90112
@@ -1095,6 +1185,14 @@ def _strict_mapped_runtime_closure(
         raise AdaptiveChildResumeError(
             "mapped runtime closure changed while it was hashed"
         )
+    expected_system_files = [
+        {
+            "path": path, "bytes": size, "sha256": sha256,
+            "uid": uid, "mode": mode, "links": links,
+        }
+        for path, size, sha256, uid, mode, links
+        in _STRICT_SYSTEM_MAP_EXPECTED_RECORDS
+    ]
     system_summary = {
         "file_count": len(groups["system"]),
         "bytes": sum(item["bytes"] for item in groups["system"]),
@@ -1105,7 +1203,10 @@ def _strict_mapped_runtime_closure(
         "bytes": _STRICT_SYSTEM_MAP_EXPECTED_BYTES,
         "files_sha256": _STRICT_SYSTEM_MAP_EXPECTED_SHA256,
     }
-    if not json_type_equal(system_summary, expected_system):
+    if (
+        not json_type_equal(groups["system"], expected_system_files)
+        or not json_type_equal(system_summary, expected_system)
+    ):
         raise AdaptiveChildResumeError(
             "mapped system-file closure differs from frozen manifest"
         )
@@ -1188,6 +1289,38 @@ def _strict_environment_snapshot() -> dict[str, str]:
     return {key: observed[key] for key in sorted(observed)}
 
 
+def _strict_process_environment_snapshot() -> dict[str, str]:
+    return {
+        key: value for key, value in sorted(os.environ.items())
+    }
+
+
+def _expected_strict_process_environment(
+    *, derived: bool,
+) -> dict[str, str]:
+    if type(derived) is not bool:
+        raise AdaptiveChildResumeError(
+            "strict derived-environment flag is malformed"
+        )
+    expected = dict(_STRICT_ENTRY_ENVIRONMENT)
+    if derived:
+        expected.update(dict(_STRICT_DERIVED_THREAD_ENV))
+    return {key: expected[key] for key in sorted(expected)}
+
+
+def _require_strict_process_environment(
+    *, derived: bool,
+) -> dict[str, str]:
+    observed = _strict_process_environment_snapshot()
+    expected = _expected_strict_process_environment(derived=derived)
+    if not json_type_equal(observed, expected):
+        stage = "derived" if derived else "entry"
+        raise AdaptiveChildResumeError(
+            f"strict {stage} process environment differs from exact pin"
+        )
+    return observed
+
+
 def _strict_launch_filesystem_binding() -> dict[str, Any]:
     cwd_text = os.getcwd()
     project_identity = _strict_plain_directory(PROJECT, "project cwd")
@@ -1219,15 +1352,10 @@ def _strict_launch_filesystem_binding() -> dict[str, Any]:
 
 
 def _strict_launch_input_binding() -> dict[str, Any]:
+    observed = _require_strict_process_environment(derived=False)
     filesystem = _strict_launch_filesystem_binding()
-    observed = _strict_environment_snapshot()
-    if observed:
-        raise AdaptiveChildResumeError(
-            "strict execution forbids native/JIT environment injection: "
-            + ",".join(observed)
-        )
     return {
-        "method": "fixed-launch-inputs-entry-environment-absent-v2",
+        "method": "fixed-launch-inputs-exact-minimal-environment-v3",
         "filesystem": filesystem,
         "forbidden_environment_prefixes": list(
             _STRICT_FORBIDDEN_ENV_PREFIXES
@@ -1235,8 +1363,10 @@ def _strict_launch_input_binding() -> dict[str, Any]:
         "dynamic_loader_environment_keys": [
             "LD_AUDIT", "LD_LIBRARY_PATH", "LD_PRELOAD",
         ],
-        "entry_environment_policy": "all-listed-keys-absent",
-        "entry_environment": {},
+        "entry_environment_policy": (
+            "exact-lang-c-lc-all-c-tz-utc-no-other-keys-v1"
+        ),
+        "entry_environment": observed,
     }
 
 
@@ -1304,6 +1434,9 @@ def _strict_derived_environment_binding(
         raise AdaptiveChildResumeError(
             "science-derived environment writer record differs from exact pin"
         )
+    full_environment = _require_strict_process_environment(
+        derived=True,
+    )
     filesystem = _strict_launch_filesystem_binding()
     observed = _strict_environment_snapshot()
     expected = {
@@ -1315,15 +1448,19 @@ def _strict_derived_environment_binding(
             + ",".join(observed)
         )
     value = {
-        "method": "exact-post-science-derived-thread-environment-v2",
+        "method": "exact-post-science-derived-thread-environment-v3",
         "filesystem": filesystem,
+        "entry_environment": dict(_STRICT_ENTRY_ENVIRONMENT),
         "environment": observed,
+        "effective_environment": full_environment,
         "writer_source": dict(writer_source),
         "effect_scope": (
             "sets-listed-keys-before-lower-final-v5-own-"
             "numpy-and-qldpc-imports-v1"
         ),
-        "entry_environment_policy": "all-listed-keys-absent",
+        "entry_environment_policy": (
+            "exact-lang-c-lc-all-c-tz-utc-no-other-keys-v1"
+        ),
         "derived_only_after_exact_science_load": True,
         "writer_selected_from_type_exact_executed_source_closure": True,
     }
@@ -1501,6 +1638,7 @@ def _active_strict_dependency_context(
     derived = state["derived_environment"]
     if derived is None:
         if allow_derived_adoption:
+            _require_strict_process_environment(derived=True)
             expected_filesystem = state["runtime_binding"][
                 "launch_inputs"
             ]["filesystem"]
@@ -1674,10 +1812,7 @@ def _strict_dependency_context() -> Iterator[None]:
         environment_error: BaseException | None = None
         try:
             if state["derived_environment"] is None:
-                if _strict_environment_snapshot():
-                    raise AdaptiveChildResumeError(
-                        "unadopted native environment appeared in strict context"
-                    )
+                _require_strict_process_environment(derived=False)
             elif not json_type_equal(
                 _strict_derived_environment_binding(
                     state["derived_environment"].get("writer_source")
@@ -1693,10 +1828,11 @@ def _strict_dependency_context() -> Iterator[None]:
         finally:
             for key in list(_strict_environment_snapshot()):
                 os.environ.pop(key, None)
-            if _strict_environment_snapshot() and environment_error is None:
-                environment_error = AdaptiveChildResumeError(
-                    "strict native environment could not be restored absent"
-                )
+            try:
+                _require_strict_process_environment(derived=False)
+            except BaseException as exc:
+                if environment_error is None:
+                    environment_error = exc
         state["active"] = False
         sys.path = list(original_sys_path)
         sys.dont_write_bytecode = original_dont_write_bytecode
