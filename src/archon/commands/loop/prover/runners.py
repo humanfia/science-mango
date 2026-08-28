@@ -1697,11 +1697,10 @@ class ParallelProverRunner:
         resumed_terminal_formalizations: set[str] = set()
         resumed_redrafts: list[tuple[Path, str, str, int, dict, str]] = []
         restored_formal_events: list[tuple[Path, str, int, str]] = []
-        resumed_exhausted_initial_deliveries: list[str] = []
+        resumed_initial_delivery_failures: dict[str, str] = {}
 
         formalization_cycles: dict[str, int] = {}
         initial_delivery_attempts: dict[str, int] = {}
-        initial_delivery_retry_eligible: set[str] = set()
         initial_delivery_baselines: dict[
             str, tuple[str, tuple[tuple[str, str], ...]]
         ] = {}
@@ -1854,27 +1853,13 @@ class ParallelProverRunner:
                     )
                     if self.resume_enabled else None
                 )
-                if (
-                    not self.resume_enabled
-                    or restored_delivery_attempt
-                    or prior_status is None
-                ):
-                    initial_delivery_retry_eligible.add(rel)
-                if (
+                restored_answer_submission_repair = bool(
                     self.resume_enabled
-                    and prior_status == "error"
-                    and initial_delivery_attempts.get(rel) == 1
-                ):
-                    # Attempt 1 completed but the controller died before its
-                    # queued-attempt-2 write. Consume that completed attempt
-                    # instead of replaying it after restart.
-                    initial_delivery_attempts[rel] = 2
-                    prior_status = "queued"
-                    write_meta(self.iter_meta, **{
-                        f"pipelineFormalizers.{slug}.status": "queued",
-                        f"pipelineFormalizers.{slug}.deliveryAttempt": 2,
-                        f"pipelineFormalizers.{slug}.answerSubmissionRepair": False,
-                    })
+                    and read_meta(
+                        self.iter_meta,
+                        f"pipelineFormalizers.{slug}.answerSubmissionRepair",
+                    ) is True
+                )
                 legacy_status = (
                     read_meta(self.iter_meta, f"provers.{slug}.status")
                     if self.resume_enabled else None
@@ -2175,6 +2160,51 @@ class ParallelProverRunner:
                             handoff, handoff_label,
                         ))
                     continue
+                if restored_answer_submission_repair:
+                    if answer_submission_valid:
+                        resumed_formalized.append((
+                            target,
+                            rel,
+                            slug,
+                            formalization_cycles[rel],
+                        ))
+                    elif prior_status == "queued":
+                        resumed_redrafts.append((
+                            target,
+                            rel,
+                            slug,
+                            formalization_cycles[rel],
+                            _answer_submission_repair_handoff(
+                                answer_submission_error
+                            ),
+                            _ANSWER_SUBMISSION_REPAIR_LABEL,
+                        ))
+                    else:
+                        # An answer-only repair is itself bounded. If it was
+                        # already launched or failed before the controller
+                        # restarted, do not turn it into another full delivery.
+                        failure = "answer-submission repair was interrupted"
+                        resumed_initial_delivery_failures[rel] = failure
+                        write_meta(self.iter_meta, **{
+                            f"pipelineFormalizers.{slug}.status": "error",
+                            f"pipelineFormalizers.{slug}.error": failure,
+                        })
+                    continue
+                if (
+                    self.resume_enabled
+                    and prior_status == "materialized"
+                    and not answer_submission_valid
+                ):
+                    failure = (
+                        "durable materialized formalizer has an invalid "
+                        "answer submission"
+                    )
+                    resumed_initial_delivery_failures[rel] = failure
+                    write_meta(self.iter_meta, **{
+                        f"pipelineFormalizers.{slug}.status": "error",
+                        f"pipelineFormalizers.{slug}.error": failure,
+                    })
+                    continue
                 if (
                     answer_submission_valid
                     and (
@@ -2192,6 +2222,21 @@ class ParallelProverRunner:
                         formalization_cycles[rel],
                     ))
                 else:
+                    if (
+                        self.resume_enabled
+                        and prior_status == "error"
+                        and initial_delivery_attempts.get(rel) == 1
+                    ):
+                        # Attempt 1 completed but the controller died before
+                        # its queued-attempt-2 write.
+                        initial_delivery_attempts[rel] = 2
+                        prior_status = "queued"
+                        write_meta(self.iter_meta, **{
+                            f"pipelineFormalizers.{slug}.status": "queued",
+                            f"pipelineFormalizers.{slug}.deliveryAttempt": 2,
+                            f"pipelineFormalizers.{slug}."
+                            "answerSubmissionRepair": False,
+                        })
                     delivery_attempt = initial_delivery_attempts.get(rel, 1)
                     if (
                         self.resume_enabled
@@ -2202,13 +2247,14 @@ class ParallelProverRunner:
                         # Attempt 2 is deliberately non-resumable. A running
                         # or failed second attempt therefore exhausts the
                         # persisted budget instead of becoming a third call.
-                        resumed_exhausted_initial_deliveries.append(rel)
+                        failure = (
+                            "initial formalizer full-delivery retry budget "
+                            "exhausted"
+                        )
+                        resumed_initial_delivery_failures[rel] = failure
                         write_meta(self.iter_meta, **{
                             f"pipelineFormalizers.{slug}.status": "error",
-                            f"pipelineFormalizers.{slug}.error": (
-                                "initial formalizer full-delivery retry budget "
-                                "exhausted"
-                            ),
+                            f"pipelineFormalizers.{slug}.error": failure,
                         })
                     else:
                         pending_initial_formalizers.append((
@@ -2244,11 +2290,9 @@ class ParallelProverRunner:
         pending_formalization: set[str] = set()
         settled_targets: set[str] = set()
         unresolved: dict[str, str] = {}
-        for rel in resumed_exhausted_initial_deliveries:
+        for rel, failure in resumed_initial_delivery_failures.items():
             pending_formalization.add(rel)
-            unresolved[rel] = (
-                "initial formalizer full-delivery retry budget exhausted"
-            )
+            unresolved[rel] = failure
         review_rounds: dict[int, dict[str, int]] = {}
         proof_review_validation_feedback: dict[tuple[str, int], str] = {}
         formalization_review_validation_feedback: dict[tuple[str, int], str] = {}
@@ -2683,6 +2727,14 @@ required action while preserving the accepted statement.
             else:
                 baseline_sha256, preserved_results = preserved_baseline
                 baseline_results = dict(preserved_results)
+            resumed_unfinished_attempt = bool(
+                self.resume_enabled
+                and delivery_attempt == 1
+                and read_meta(
+                    self.iter_meta,
+                    f"pipelineFormalizers.{slug}.status",
+                ) in {"running", "error"}
+            )
             resume_sid = None
             legacy_resume = False
             if delivery_attempt == 1:
@@ -2706,6 +2758,9 @@ required action while preserving the accepted statement.
                         ),
                     )
                     legacy_resume = bool(resume_sid)
+            if resumed_unfinished_attempt and resume_sid is None:
+                delivery_attempt = 2
+                initial_delivery_attempts[rel] = delivery_attempt
             if resume_sid:
                 stored_baseline = str(
                     read_meta(
@@ -3333,7 +3388,6 @@ required action while preserving the accepted statement.
                                     })
                                 elif (
                                     work.kind == "initial_formalizer"
-                                    and work.rel in initial_delivery_retry_eligible
                                     and work.delivery_attempt
                                     < _INITIAL_FORMALIZER_DELIVERY_MAX_ATTEMPTS
                                 ):
