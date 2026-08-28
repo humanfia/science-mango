@@ -1,0 +1,33 @@
+import ArchonPhysics.PhyslibFPUTProbabilisticFullStateEnergyProfileAdapter
+
+/-!
+# Consumer: probabilistic full-state to all-mode energy profile
+
+This checks both the compatibility-free profile certificate and the explicit
+finite union bound over blocks and positive modes.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.PhyslibFPUTProbabilisticFullStateEnergyProfileAdapter
+open FPUTProbabilisticFullStateEnergyProfileBlockwiseAdapter
+
+#check probabilisticFullState_initial_secondMoment_error
+#check probabilisticFullState_final_secondMoment_error
+#check initial_endpoint_control
+#check final_endpoint_control
+#check toCanonicalHaarEnergyProfileBlockwiseCertificate
+#check firstKAllModesBad
+#check firstKAllModesBad_measurable
+#check initial_state_near_of_not_mem_firstKAllModesBad
+#check firstKAllModesBad_probability_le_abs_cube
+
+#print axioms probabilisticFullState_initial_secondMoment_error
+#print axioms probabilisticFullState_final_secondMoment_error
+#print axioms initial_endpoint_control
+#print axioms final_endpoint_control
+#print axioms toCanonicalHaarEnergyProfileBlockwiseCertificate
+#print axioms firstKAllModesBad_measurable
+#print axioms firstKAllModesBad_probability_le_abs_cube
+
+end ArchonPhysicsConsumers.Thermalization
