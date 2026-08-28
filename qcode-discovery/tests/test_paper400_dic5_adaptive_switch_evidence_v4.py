@@ -305,7 +305,7 @@ def test_execution_closure_splits_fixed_replay_from_current_science(v4):
 def test_fixed_attempt_and_production_hard_pins(v4):
     assert len(v4.ATTEMPT_ID) == 64
     assert v4.ATTEMPT_ID == (
-        "6bef308b48b6469d5232347e20a7b08d78a63fa08b0c63fcc96d9156da6e26ca"
+        "16e45b07d25d911b2a41555e5e049547e738a642c7c147b4417430c78e887fa6"
     )
     assert v4.ATTEMPT_ROOT.name.endswith(v4.ATTEMPT_ID)
     assert len(v4.EXPECTED_HARD_EVIDENCE_SHA256S) == 4
@@ -605,6 +605,25 @@ def test_neutral_v5_quiescence_is_wrapped_as_incident_bound_v4(v4):
     assert journal["input_observation_sha256"] == neutral["record_sha256"]
     assert journal["incident_precondition_sha256"] == incident_pin
     assert v4._validate_v4_quiescence_journal(journal, incident_pin) == journal
+    recovered = v4._quiescence_observation_from_v4_journal(
+        journal, incident_pin,
+    )
+    assert recovered == neutral
+    assert v4.canonical_bytes(recovered) == v4.canonical_bytes(neutral)
+    with pytest.raises(v4.AdaptiveSwitchEvidenceV4Error):
+        v4._quiescence_observation_from_v4_journal(
+            journal, _sha("wrong-incident"),
+        )
+    wrong_input = dict(journal)
+    wrong_input["input_observation_sha256"] = _sha("wrong-input")
+    wrong_input = v4.seal({
+        key: value for key, value in wrong_input.items()
+        if key != "record_sha256"
+    })
+    with pytest.raises(v4.AdaptiveSwitchEvidenceV4Error):
+        v4._quiescence_observation_from_v4_journal(
+            wrong_input, incident_pin,
+        )
     tampered = dict(journal)
     tampered["proof_bytes"] += 1
     tampered = v4.seal({k: value for k, value in tampered.items() if k != "record_sha256"})
@@ -629,6 +648,152 @@ def test_neutral_v5_quiescence_is_wrapped_as_incident_bound_v4(v4):
     })
     with pytest.raises(v4.AdaptiveSwitchEvidenceV4Error):
         v4._validate_quiescence_record(malformed)
+
+
+def test_precommit_cleanup_releases_only_running_controller_locks(
+    v4, tmp_path, monkeypatch,
+):
+    batch = tmp_path / "batch"
+    roots_parent = tmp_path / "roots"
+    attempt = batch / v4.ATTEMPT_ROOT
+    quiescence_dir = batch / v4.QUIESCENCE_DIRECTORY
+    _mkdir(batch)
+    _mkdir(roots_parent)
+    _mkdir(attempt)
+    _mkdir(quiescence_dir)
+    incident_pin = _sha("cleanup-incident")
+    targets = {}
+    outer_locks = []
+    cohort_locks = []
+    commit_locks = []
+    journals = {}
+    controller_paths = {}
+    outer_paths = {}
+    try:
+        for lane, descendant in v4.TARGET_KEYS:
+            root = roots_parent / f"lane-{lane}-desc-{descendant}"
+            _mkdir(root)
+            outer = root / ".adaptive-child.lock"
+            _write(outer, b"")
+            _mkdir(root / "runtime")
+            _mkdir(root / "runtime/dmtcp")
+            controller = root / "runtime/dmtcp/.controller.lock"
+            _write(controller, b"")
+            key = (lane, descendant)
+            targets[key] = {
+                "new_root_identity": v4.base._root_identity(root),
+            }
+            outer_paths[key] = outer
+            controller_paths[key] = controller
+            outer_locks.append(v4.base._HeldLock(
+                outer, f"outer-{lane}-{descendant}", fcntl.LOCK_EX,
+            ))
+            controller_held = v4.base._HeldLock(
+                controller, f"controller-{lane}-{descendant}",
+                fcntl.LOCK_SH,
+            )
+            if descendant == 0:
+                cohort_locks.append(controller_held)
+                raw = _neutral_quiescence(v4)
+                raw.update({
+                    "lane_index": lane,
+                    "descendant_index": descendant,
+                    "new_root_identity": v4.base._root_identity(root),
+                    "new_pid": 1000 + lane,
+                    "new_proc_start_ticks": 2000 + lane,
+                })
+                raw = _reseal(v4, raw)
+                journal = v4._seal_v4_quiescence_journal(
+                    raw, incident_pin,
+                )
+                journals[key] = journal
+                _write(
+                    quiescence_dir
+                    / f"lane-{lane}-descendant-{descendant}.json",
+                    v4.canonical_bytes(journal) + b"\n",
+                )
+            else:
+                commit_locks.append(controller_held)
+        lease = object.__new__(v4.AtomicSwitchLease)
+        for name, value in {
+            "_root": batch,
+            "_nonce": "cleanup-nonce",
+            "_candidate_only": False,
+            "_committed": False,
+            "_rolled_back": False,
+            "_cleanup_nonce": None,
+            "_outer_locks": outer_locks,
+            "_cohort_locks": cohort_locks,
+            "_commit_controller_locks": commit_locks,
+            "_cohort_transition_nonce": "cohort-transition",
+            "_cohort0_quiescence": journals,
+            "_target_records": targets,
+            "_started_workers": {
+                key: object() for key in v4.TARGET_KEYS
+            },
+            "_incident_precondition": {
+                "record_sha256": incident_pin,
+            },
+        }.items():
+            object.__setattr__(lease, name, value)
+        monkeypatch.setattr(
+            v4.AtomicSwitchLease, "_assert_retirement_intact",
+            lambda self: None,
+        )
+        monkeypatch.setattr(
+            v4.AtomicSwitchLease, "_old_post_retirement_fence",
+            lambda self: None,
+        )
+
+        permit = lease.begin_precommit_cleanup()
+
+        assert permit.started_target_keys == v4.TARGET_KEYS
+        assert {
+            (item["lane_index"], item["descendant_index"])
+            for item in permit.checkpointed_quiescence_records
+        } == {(lane, 0) for lane in range(v4.LANE_COUNT)}
+        assert all(held.fd >= 0 for held in outer_locks)
+        assert all(held.fd >= 0 for held in cohort_locks)
+        assert all(held.fd == -1 for held in commit_locks)
+        assert lease._commit_controller_locks == []
+        assert lease._cohort_locks == cohort_locks
+
+        for lane in range(v4.LANE_COUNT):
+            desc1 = os.open(
+                controller_paths[(lane, 1)],
+                os.O_RDWR | os.O_CLOEXEC | os.O_NOFOLLOW,
+            )
+            try:
+                fcntl.flock(desc1, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.flock(desc1, fcntl.LOCK_UN)
+            finally:
+                os.close(desc1)
+            desc0 = os.open(
+                controller_paths[(lane, 0)],
+                os.O_RDWR | os.O_CLOEXEC | os.O_NOFOLLOW,
+            )
+            try:
+                with pytest.raises(BlockingIOError):
+                    fcntl.flock(desc0, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            finally:
+                os.close(desc0)
+            outer_probe = os.open(
+                outer_paths[(lane, 0)],
+                os.O_RDWR | os.O_CLOEXEC | os.O_NOFOLLOW,
+            )
+            try:
+                with pytest.raises(BlockingIOError):
+                    fcntl.flock(
+                        outer_probe, fcntl.LOCK_EX | fcntl.LOCK_NB,
+                    )
+            finally:
+                os.close(outer_probe)
+        with pytest.raises(v4.AdaptiveSwitchEvidenceV4Error):
+            lease.begin_precommit_cleanup()
+    finally:
+        v4._close_locks(commit_locks)
+        v4._close_locks(cohort_locks)
+        v4._close_locks(outer_locks)
 
 
 def test_target_and_outer_fd_collection_types_fail_closed(v4, tmp_path):
@@ -881,8 +1046,11 @@ def test_module_import_captures_historical_sources_without_exact_exec(
 
 def test_real_failed_v3_incident_is_readonly_if_available(v4):
     root = v4.EXPECTED_BATCH_ROOT
+    batch_lock = root / v4.base.BATCH_LOCK
     if not root.is_dir():
         pytest.skip("production incident batch is not mounted")
+    if not batch_lock.exists() and not batch_lock.is_symlink():
+        pytest.skip("production canonical batch lock is temporarily retired")
     try:
         locks, _ = v4.base._acquire_all_locks(root)
     except BlockingIOError:
@@ -1906,6 +2074,9 @@ def test_fixed_and_current_bundle_consumers_do_not_cross(v4):
     assert "science.coordinator, science.child, science.overlay" in enter
     assert "self._child is not current_science_bundle.child" in lease_init
     assert "self._overlay is not current_science_bundle.overlay" in lease_init
+    assert "self._commit_controller_locks: list[Any] = []" in lease_init
+    assert "self._cleanup_nonce: str | None = None" in lease_init
+    assert "_cleanup_started" not in lease_init
     assert "super().verify_target(" in verify_target
     assert "self._overlay" in base_verify_target
     assert "_direct_controller_inspect(self._child, root)" in verify_worker

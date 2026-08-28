@@ -720,11 +720,21 @@ class _FakeOuterLock:
 
 
 class _FakeLease:
-    def __init__(self, fail_note: tuple[int, int] | None = None) -> None:
+    def __init__(
+        self, fail_note: tuple[int, int] | None = None, *,
+        fail_commit: bool = False, fail_cleanup: bool = False,
+        fail_cohort: bool = False,
+    ) -> None:
         self.fail_note = fail_note
+        self.fail_commit = fail_commit
+        self.fail_cohort = fail_cohort
+        self.fail_cleanup = fail_cleanup
         self.permits: dict[tuple[int, int], _Permit] = {}
         self.started: dict[tuple[int, int], dict[str, Any]] = {}
         self.note_order: list[tuple[tuple[int, int], bool]] = []
+        self.checkpointed: list[dict[str, Any]] = []
+        self.cleanup_permit: Any | None = None
+        self.events: list[Any] = []
         self.rollback: dict[str, Any] | None = None
         self.commits = 0
         self.adopted: list[int] | None = None
@@ -764,8 +774,21 @@ class _FakeLease:
             raise RuntimeError('note journal publication fault')
         return SimpleNamespace(key=permit.key)
 
-    def started_target_keys(self) -> list[tuple[int, int]]:
-        return list(self.started)
+    def begin_precommit_cleanup(self) -> object:
+        self.events.append('begin-cleanup')
+        if self.fail_cleanup:
+            raise RuntimeError('cleanup authorization fault')
+        permit = SimpleNamespace(
+            started_target_keys=tuple(
+                key for key in runner.TARGET_KEYS if key in self.started
+            ),
+            checkpointed_quiescence_records=[
+                json.loads(runner.canonical_bytes(item))
+                for item in self.checkpointed
+            ],
+        )
+        self.cleanup_permit = permit
+        return permit
 
     def post_start_fence(
         self, *, permit: _Permit, started_worker: object, **kwargs: Any,
@@ -779,6 +802,12 @@ class _FakeLease:
             (item['lane_index'], item['descendant_index'])
             for item in quiescence_records
         ] == list(runner.TARGET_KEYS[:runner.COHORT_SIZE])
+        if self.fail_cohort:
+            raise RuntimeError('cohort journal publication fault')
+        self.checkpointed = [
+            json.loads(runner.canonical_bytes(item))
+            for item in quiescence_records
+        ]
         return self.transition
 
     def commit_handoff(
@@ -786,7 +815,10 @@ class _FakeLease:
     ) -> dict[str, Any]:
         del batch_commit_path
         self.commits += 1
+        self.events.append('commit')
         assert [fence.key for fence in fences] == list(runner.TARGET_KEYS)
+        if self.fail_commit:
+            raise RuntimeError('commit publication fault')
         bindings = [
             {
                 'lane_index': key[0], 'descendant_index': key[1],
@@ -801,6 +833,8 @@ class _FakeLease:
         })
 
     def rollback_after_new_quiescent(self, **kwargs: Any) -> dict[str, Any]:
+        assert kwargs.get('cleanup_permit') is self.cleanup_permit
+        self.events.append('rollback')
         self.rollback = kwargs
         return {
             'launch_authorized': False,
@@ -902,7 +936,9 @@ def _install_atomic_transport_fakes(
         root: Path, started: Mapping[str, Any], *, lane_index: int,
         descendant_index: int,
     ) -> dict[str, Any]:
+        assert lease.cleanup_permit is not None
         cleanup.append((lane_index, descendant_index))
+        lease.events.append(('stop', (lane_index, descendant_index)))
         active = started['controller_start']
         return _fake_quiescence(
             root, lane_index, descendant_index,
@@ -957,6 +993,80 @@ def test_atomic_note_journal_fault_is_quiescent_not_not_started(
     assert lease.rollback['not_started_target_keys'] == list(
         runner.TARGET_KEYS[2:]
     )
+
+
+def test_atomic_cohort_journal_fault_reuses_local_descendant_zero_records(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    entries, locks = _atomic_entries(tmp_path)
+    lease = _FakeLease(fail_cohort=True)
+    cleanup: list[tuple[int, int]] = []
+    _install_atomic_transport_fakes(monkeypatch, lease, cleanup)
+    with pytest.raises(RuntimeError, match='cohort journal publication fault'):
+        runner._atomic_handoff_start(
+            lease, entries, batch_commit_path=tmp_path / 'commit.json',
+            outer_locks=locks,
+        )
+    assert cleanup == []
+    assert lease.events == ['begin-cleanup', 'rollback']
+    assert lease.rollback is not None
+    assert [
+        (item['lane_index'], item['descendant_index'])
+        for item in lease.rollback['quiescence_records']
+    ] == list(runner.TARGET_KEYS[:runner.COHORT_SIZE])
+    assert lease.rollback['not_started_target_keys'] == list(
+        runner.TARGET_KEYS[runner.COHORT_SIZE:]
+    )
+    assert all(lock.transferred for lock in locks)
+
+
+def test_atomic_commit_fault_releases_before_stopping_only_descendant_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    entries, locks = _atomic_entries(tmp_path)
+    lease = _FakeLease(fail_commit=True)
+    cleanup: list[tuple[int, int]] = []
+    _install_atomic_transport_fakes(monkeypatch, lease, cleanup)
+    with pytest.raises(RuntimeError, match='commit publication fault'):
+        runner._atomic_handoff_start(
+            lease, entries, batch_commit_path=tmp_path / 'commit.json',
+            outer_locks=locks,
+        )
+    expected = [(lane, 1) for lane in reversed(range(runner.COHORT_SIZE))]
+    assert cleanup == expected
+    assert lease.events == [
+        'commit', 'begin-cleanup',
+        *(('stop', key) for key in expected),
+        'rollback',
+    ]
+    assert lease.rollback is not None
+    assert lease.rollback['cleanup_permit'] is lease.cleanup_permit
+    assert [
+        (item['lane_index'], item['descendant_index'])
+        for item in lease.rollback['quiescence_records']
+    ] == list(runner.TARGET_KEYS)
+    assert all(lock.transferred for lock in locks)
+
+
+def test_atomic_cleanup_authorization_fault_performs_no_stop_or_rollback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    entries, locks = _atomic_entries(tmp_path)
+    lease = _FakeLease(fail_commit=True, fail_cleanup=True)
+    cleanup: list[tuple[int, int]] = []
+    _install_atomic_transport_fakes(monkeypatch, lease, cleanup)
+    with pytest.raises(
+        runner.AdaptiveChildResumeError,
+        match='cannot authorize fail-closed precommit cleanup',
+    ):
+        runner._atomic_handoff_start(
+            lease, entries, batch_commit_path=tmp_path / 'commit.json',
+            outer_locks=locks,
+        )
+    assert cleanup == []
+    assert lease.rollback is None
+    assert lease.events == ['commit', 'begin-cleanup']
+    assert all(lock.transferred for lock in locks)
 
 
 def test_atomic_complete_cover_starts_cohorts_in_order_and_commits(

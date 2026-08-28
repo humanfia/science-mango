@@ -67,7 +67,7 @@ _SWITCH_V2_SOURCE_SHA256 = (
     "f4f6b7fbed84f5daf5a98a48d33b73299b3fd135ff92b3119b6fe1e241225da2"
 )
 _SWITCH_V4_SOURCE_SHA256 = (
-    "5193ec668ea2b0a1cec5d52d1ac40fa5c69f9cb6a043ed22ffa0ffbe4fa65181"
+    "9e442bc598913fdf8cc1aaf0a1e7f4edd6a6581b32c998da02542f439fafe784"
 )
 
 _STRICT_VENV = Path(
@@ -5346,6 +5346,9 @@ def _atomic_handoff_start(
     started_entries: dict[tuple[int, int], dict[str, Any]] = {}
     spawn_attempts: set[tuple[int, int]] = set()
     early_quiescence: dict[tuple[int, int], dict[str, Any]] = {}
+    cohort_quiescence: dict[
+        tuple[int, int], dict[str, Any]
+    ] = {}
     fences: dict[tuple[int, int], Any] = {}
     committed = False
     outer_transferred = False
@@ -5445,18 +5448,21 @@ def _atomic_handoff_start(
             [entry["root"] for entry in entries[:COHORT_SIZE]],
             actions=["checkpoint-stop"],
         )
-        cohort_quiescence: list[dict[str, Any]] = []
         for entry in entries[:COHORT_SIZE]:
             with _temporary_cpu(entry["cpu"]):
                 _checkpoint_stop_locked(
                     entry["root"], batch_token=checkpoint_token,
                 )
-            cohort_quiescence.append(_committed_quiescence_record(
+            key = entry["target_key"]
+            cohort_quiescence[key] = _committed_quiescence_record(
                 entry["root"], entry["lane_index"],
                 entry["descendant_index"], entry["loaded"],
-            ))
+            )
         transition = lease.note_cohort_checkpointed(
-            quiescence_records=cohort_quiescence,
+            quiescence_records=[
+                cohort_quiescence[key]
+                for key in TARGET_KEYS[:COHORT_SIZE]
+            ],
         )
         for entry in entries[COHORT_SIZE:]:
             start_entry(entry, transition)
@@ -5486,11 +5492,84 @@ def _atomic_handoff_start(
                 "handoff failed before continuous outer-lock adoption; "
                 "PREPARED retirement retained"
             ) from original
+        try:
+            cleanup_permit = lease.begin_precommit_cleanup()
+            raw_registered = cleanup_permit.started_target_keys
+            raw_checkpointed = (
+                cleanup_permit.checkpointed_quiescence_records
+            )
+        except BaseException as exc:
+            raise AdaptiveChildResumeError(
+                "cannot authorize fail-closed precommit cleanup; "
+                "PREPARED retirement retained"
+            ) from exc
+        if (
+            type(raw_registered) is not tuple
+            or len(raw_registered) != len(set(raw_registered))
+            or any(
+                type(key) is not tuple
+                or len(key) != 2
+                or type(key[0]) is not int
+                or type(key[1]) is not int
+                or key not in TARGET_KEYS
+                for key in raw_registered
+            )
+            or type(raw_checkpointed) is not list
+        ):
+            raise AdaptiveChildResumeError(
+                "cleanup permit snapshots are malformed; "
+                "PREPARED retirement retained"
+            )
+        registered = set(raw_registered)
+        if spawn_attempts != registered:
+            raise AdaptiveChildResumeError(
+                "spawn attempts differ from cleanup permit; "
+                "PREPARED retirement retained"
+            )
         quiescence = dict(early_quiescence)
+        checkpointed: set[tuple[int, int]] = set()
+        for key, record in cohort_quiescence.items():
+            if (
+                key not in registered
+                or _target_key_from_quiescence(record) != key
+                or (
+                    key in quiescence
+                    and not json_type_equal(quiescence[key], record)
+                )
+            ):
+                raise AdaptiveChildResumeError(
+                    "local checkpointed snapshot is malformed; "
+                    "PREPARED retirement retained"
+                )
+            checkpointed.add(key)
+            quiescence[key] = record
+        permit_checkpointed: set[tuple[int, int]] = set()
+        for record in raw_checkpointed:
+            key = _target_key_from_quiescence(record)
+            if (
+                key in permit_checkpointed or key not in registered
+                or record.get("state") != "CHECKPOINTED"
+                or (
+                    key in quiescence
+                    and not json_type_equal(quiescence[key], record)
+                )
+            ):
+                raise AdaptiveChildResumeError(
+                    "checkpointed cleanup snapshot is malformed; "
+                    "PREPARED retirement retained"
+                )
+            permit_checkpointed.add(key)
+            checkpointed.add(key)
+            quiescence[key] = record
         cleanup_failures: list[str] = []
         for key in reversed(TARGET_KEYS):
+            if key not in registered or key in quiescence:
+                continue
             entry = started_entries.get(key)
-            if entry is None or key in quiescence:
+            if entry is None:
+                cleanup_failures.append(
+                    f"{key}: missing process-local started entry"
+                )
                 continue
             try:
                 quiescence[key] = _stop_failed_new_root(
@@ -5505,25 +5584,8 @@ def _atomic_handoff_start(
                 "cover cleanup failed; PREPARED retirement retained: "
                 + "; ".join(cleanup_failures)
             )
-        try:
-            raw_registered = lease.started_target_keys()
-            registered = set(raw_registered)
-        except BaseException as exc:
-            raise AdaptiveChildResumeError(
-                "cannot obtain atomic started-target registry; "
-                "PREPARED retirement retained"
-            ) from exc
         if (
-            any(
-                type(key) is not tuple
-                or len(key) != 2
-                or type(key[0]) is not int
-                or type(key[1]) is not int
-                or key not in TARGET_KEYS
-                for key in registered
-            )
-            or spawn_attempts != registered
-            or set(quiescence) != registered
+            set(quiescence) != registered
             or any(
                 _target_key_from_quiescence(record) != key
                 for key, record in quiescence.items()
@@ -5534,6 +5596,7 @@ def _atomic_handoff_start(
                 "PREPARED retirement retained"
             )
         rollback = lease.rollback_after_new_quiescent(
+            cleanup_permit=cleanup_permit,
             quiescence_records=[
                 quiescence[key] for key in TARGET_KEYS if key in quiescence
             ],

@@ -69,7 +69,7 @@ QUIESCENCE_INPUT_KIND = (
 QUIESCENCE_KIND = "paper400-adaptive-new-root-quiescence-v4"
 
 ATTEMPT_ID = (
-    "6bef308b48b6469d5232347e20a7b08d78a63fa08b0c63fcc96d9156da6e26ca"
+    "16e45b07d25d911b2a41555e5e049547e738a642c7c147b4417430c78e887fa6"
 )
 ATTEMPT_ROOT = Path(f"adaptive-handoff-v4-attempt-{ATTEMPT_ID}")
 INCIDENT_PRECONDITION = ATTEMPT_ROOT / "00-incident-precondition.json"
@@ -2449,6 +2449,33 @@ def _validate_v4_quiescence_journal(
     return dict(record)
 
 
+def _quiescence_observation_from_v4_journal(
+    record: Any, incident_precondition_sha256: str,
+) -> dict[str, Any]:
+    """Recover the exact neutral v5 observation bound by a v4 journal."""
+
+    checked = _validate_v4_quiescence_journal(
+        record, incident_precondition_sha256,
+    )
+    return _validate_quiescence_record({
+        "schema_version": 5,
+        "kind": QUIESCENCE_INPUT_KIND,
+        "lane_index": checked["lane_index"],
+        "descendant_index": checked["descendant_index"],
+        "new_root_identity": dict(checked["new_root_identity"]),
+        "new_pid": checked["new_pid"],
+        "new_proc_start_ticks": checked["new_proc_start_ticks"],
+        "state": checked["state"],
+        "pid_identity_alive": checked["pid_identity_alive"],
+        "checkpoint_commit_sha256":
+            checked["checkpoint_commit_sha256"],
+        "proof_sha256": checked["proof_sha256"],
+        "proof_bytes": checked["proof_bytes"],
+        "writable_holders": list(checked["writable_holders"]),
+        "record_sha256": checked["input_observation_sha256"],
+    })
+
+
 def _stable_owned_json(path: Path) -> dict[str, Any]:
     candidate = Path(path)
     try:
@@ -3410,11 +3437,61 @@ class CohortTransitionPermit:
         del memo
         raise TypeError("CohortTransitionPermit cannot be copied")
 
+
+class PrecommitCleanupPermit:
+    """One-shot process/thread-local authority for precommit rollback."""
+
+    __slots__ = (
+        "_lease", "_lease_nonce", "_token", "_used",
+        "_owner_pid", "_owner_thread", "_started_target_keys",
+        "_checkpointed_quiescence_bytes",
+    )
+
+    def __init__(
+        self, lease: "AtomicSwitchLease", *,
+        started_target_keys: Sequence[tuple[int, int]],
+        checkpointed_quiescence_records: Sequence[Mapping[str, Any]],
+    ) -> None:
+        self._lease = lease
+        self._lease_nonce = lease._nonce
+        self._token = uuid.uuid4().hex
+        self._used = False
+        self._owner_pid = os.getpid()
+        self._owner_thread = threading.get_ident()
+        self._started_target_keys = tuple(started_target_keys)
+        self._checkpointed_quiescence_bytes = tuple(
+            canonical_bytes(item)
+            for item in checkpointed_quiescence_records
+        )
+
+    @property
+    def started_target_keys(self) -> tuple[tuple[int, int], ...]:
+        return self._started_target_keys
+
+    @property
+    def checkpointed_quiescence_records(self) -> list[dict[str, Any]]:
+        return [
+            json.loads(item)
+            for item in self._checkpointed_quiescence_bytes
+        ]
+
+    def __reduce__(self) -> Any:
+        raise TypeError("PrecommitCleanupPermit cannot be serialized")
+
+    def __copy__(self) -> Any:
+        raise TypeError("PrecommitCleanupPermit cannot be copied")
+
+    def __deepcopy__(self, memo: Any) -> Any:
+        del memo
+        raise TypeError("PrecommitCleanupPermit cannot be copied")
+
+
 class AtomicSwitchLease(base.AtomicSwitchLease):
     __slots__ = (
         "_prepared", "_retired_records", "_target_records",
         "_started_workers", "_outer_locks", "_cohort0_quiescence",
         "_cohort_transition_nonce", "_cohort_locks",
+        "_commit_controller_locks", "_cleanup_nonce",
         "_rolled_back", "_v4_sources", "_incident_precondition",
         "_incident_target_roots", "_incident_outer_lock_fds",
         "_incident_external_pin",
@@ -3474,6 +3551,8 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         ] = {}
         self._cohort_transition_nonce: str | None = None
         self._cohort_locks: list[Any] = []
+        self._commit_controller_locks: list[Any] = []
+        self._cleanup_nonce: str | None = None
         self._rolled_back = False
         self._v4_sources = dict(v4_sources)
         self._incident_precondition = (
@@ -3889,6 +3968,10 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         candidate_variables: list[int], descendant_index: int,
         expected_descendant_sha256: str,
     ) -> Any:
+        if self._cleanup_nonce is not None:
+            raise AdaptiveSwitchEvidenceV4Error(
+                "target verification forbidden during cleanup"
+            )
         matches = [
             lane for lane in self._record["lanes"]
             if lane["global_leaf_index"] == global_leaf_index
@@ -3956,6 +4039,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
             or permit._lease_nonce != self._nonce or permit._used
             or key not in TARGET_KEYS
             or self._permits.get(key) is not permit
+            or self._cleanup_nonce is not None
             or key in self._target_records
             or key in self._started_workers
         ):
@@ -4033,6 +4117,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         self._assert_retirement_intact()
         if (
             self._candidate_only or self._committed or self._rolled_back
+            or self._cleanup_nonce is not None
             or self._outer_locks or self._started_workers
             or set(self._target_records) != set(TARGET_KEYS)
         ):
@@ -4080,6 +4165,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
             or type(target_record) is not dict
             or len(self._target_records) != TARGET_COUNT
             or set(self._target_records) != set(TARGET_KEYS)
+            or self._cleanup_nonce is not None
             or len(self._outer_locks) != TARGET_COUNT
             or key in self._started_workers
             or (
@@ -4171,6 +4257,153 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         return tuple(
             key for key in TARGET_KEYS if key in self._started_workers
         )
+
+    def begin_precommit_cleanup(self) -> PrecommitCleanupPermit:
+        """Release only running-cohort SH locks before stopping workers."""
+
+        self._assert_retirement_intact()
+        cohort0 = {(lane, 0) for lane in range(LANE_COUNT)}
+        cohort1 = {(lane, 1) for lane in range(LANE_COUNT)}
+        terminal_paths = (
+            self._root / HANDOFF_COMMIT,
+            self._root / ROLLBACK_COMMIT,
+            self._root / COMPENSATION_COMMIT,
+        )
+        if (
+            self._candidate_only or self._committed or self._rolled_back
+            or self._cleanup_nonce is not None
+            or len(self._outer_locks) != TARGET_COUNT
+            or set(self._target_records) != set(TARGET_KEYS)
+            or any(
+                path.exists() or path.is_symlink()
+                for path in terminal_paths
+            )
+        ):
+            raise AdaptiveSwitchEvidenceV4Error(
+                "precommit cleanup is not unambiguously safe"
+            )
+        identities = [
+            self._target_records[key]["new_root_identity"]
+            for key in TARGET_KEYS
+        ]
+        outer_probe = _acquire_new_root_fences(
+            identities, controller_root_identities=[],
+            already_held=self._outer_locks,
+        )
+        if outer_probe:
+            _close_locks(outer_probe)
+            raise AdaptiveSwitchEvidenceV4Error(
+                "precommit outer-lock coverage was not retained"
+            )
+        observations: list[dict[str, Any]] = []
+        if self._cohort_transition_nonce is None:
+            if self._cohort0_quiescence or self._cohort_locks:
+                raise AdaptiveSwitchEvidenceV4Error(
+                    "pre-transition cleanup retained cohort state"
+                )
+        else:
+            if set(self._cohort0_quiescence) != cohort0:
+                raise AdaptiveSwitchEvidenceV4Error(
+                    "post-transition cleanup journal coverage is malformed"
+                )
+            cohort_probe = _acquire_new_root_fences(
+                identities,
+                controller_root_identities=[
+                    self._target_records[key]["new_root_identity"]
+                    for key in TARGET_KEYS if key in cohort0
+                ],
+                already_held=[*self._outer_locks, *self._cohort_locks],
+            )
+            if cohort_probe:
+                _close_locks(cohort_probe)
+                raise AdaptiveSwitchEvidenceV4Error(
+                    "checkpointed-cohort locks were not continuously held"
+                )
+            for key in TARGET_KEYS:
+                if key not in cohort0:
+                    continue
+                path = (
+                    self._root / QUIESCENCE_DIRECTORY
+                    / f"lane-{key[0]}-descendant-{key[1]}.json"
+                )
+                journal = _validate_v4_quiescence_journal(
+                    _stable_owned_json(path),
+                    self._incident_precondition["record_sha256"],
+                )
+                if not json_type_equal(
+                    journal, self._cohort0_quiescence[key],
+                ):
+                    raise AdaptiveSwitchEvidenceV4Error(
+                        "cohort journal changed before cleanup"
+                    )
+                observations.append(
+                    _quiescence_observation_from_v4_journal(
+                        journal,
+                        self._incident_precondition["record_sha256"],
+                    )
+                )
+        if self._commit_controller_locks:
+            commit_probe = _acquire_new_root_fences(
+                identities,
+                controller_root_identities=[
+                    self._target_records[key]["new_root_identity"]
+                    for key in TARGET_KEYS if key in cohort1
+                ],
+                already_held=[
+                    *self._outer_locks,
+                    *self._commit_controller_locks,
+                ],
+            )
+            if commit_probe:
+                _close_locks(commit_probe)
+                raise AdaptiveSwitchEvidenceV4Error(
+                    "running-cohort lock coverage was incomplete"
+                )
+        self._old_post_retirement_fence()
+        permit = PrecommitCleanupPermit(
+            self,
+            started_target_keys=[
+                key for key in TARGET_KEYS
+                if key in self._started_workers
+            ],
+            checkpointed_quiescence_records=observations,
+        )
+        failures: list[BaseException] = []
+        for held in reversed(self._commit_controller_locks):
+            try:
+                held.close()
+            except BaseException as exc:
+                failures.append(exc)
+        if (
+            failures
+            or any(
+                getattr(held, "fd", -1) >= 0
+                for held in self._commit_controller_locks
+            )
+        ):
+            raise AdaptiveSwitchEvidenceV4Error(
+                "running-cohort controller locks could not be released"
+            ) from (failures[0] if failures else None)
+        self._commit_controller_locks = []
+        if any(
+            path.exists() or path.is_symlink()
+            for path in terminal_paths
+        ):
+            raise AdaptiveSwitchEvidenceV4Error(
+                "terminal state appeared during precommit cleanup"
+            )
+        outer_probe = _acquire_new_root_fences(
+            identities, controller_root_identities=[],
+            already_held=self._outer_locks,
+        )
+        if outer_probe:
+            _close_locks(outer_probe)
+            raise AdaptiveSwitchEvidenceV4Error(
+                "outer-lock coverage changed during cleanup"
+            )
+        self._old_post_retirement_fence()
+        self._cleanup_nonce = permit._token
+        return permit
 
     def _verify_quiescent_worker(
         self, key: tuple[int, int], record: Mapping[str, Any], *,
@@ -4314,6 +4547,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         cohort0 = {(lane, 0) for lane in range(LANE_COUNT)}
         if (
             self._committed or self._rolled_back
+            or self._cleanup_nonce is not None
             or self._cohort_transition_nonce is not None
             or self._cohort_locks
             or type(quiescence_records) is not list
@@ -4408,6 +4642,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
             or self._started_workers.get(key) is not started_worker
             or key in self._fences
             or started_worker._fenced or permit._used
+            or self._cleanup_nonce is not None
         ):
             raise AdaptiveSwitchEvidenceV4Error(
                 "started worker is stale/foreign"
@@ -4444,6 +4679,8 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         cohort1 = {(lane, 1) for lane in range(LANE_COUNT)}
         if (
             self._candidate_only or self._committed or self._rolled_back
+            or self._cleanup_nonce is not None
+            or self._commit_controller_locks
             or type(fences) is not list or len(fences) != TARGET_COUNT
             or set(self._target_records) != set(TARGET_KEYS)
             or set(self._started_workers) != set(TARGET_KEYS)
@@ -4487,11 +4724,14 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
             self._target_records[key]["new_root_identity"]
             for key in TARGET_KEYS
         ]
-        extra_controller_locks = _acquire_new_root_fences(
+        self._commit_controller_locks = _acquire_new_root_fences(
             identities,
-            already_held=[*self._outer_locks, *self._cohort_locks],
+            controller_root_identities=[
+                self._target_records[key]["new_root_identity"]
+                for key in TARGET_KEYS if key in cohort1
+            ],
+            already_held=self._outer_locks,
         )
-        self._cohort_locks.extend(extra_controller_locks)
         for key in TARGET_KEYS:
             fence = by_key[key]
             root = Path(fence.new_root_identity["path"])
@@ -4502,8 +4742,12 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
                     "new root changed before commit"
                 )
             if key in cohort0:
+                observation = _quiescence_observation_from_v4_journal(
+                    self._cohort0_quiescence[key],
+                    self._incident_precondition["record_sha256"],
+                )
                 self._verify_quiescent_worker(
-                    key, self._cohort0_quiescence[key],
+                    key, observation,
                     require_checkpointed=True,
                 )
             else:
@@ -4638,7 +4882,8 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         return json.loads(canonical_bytes(record))
 
     def rollback_after_new_quiescent(
-        self, *, quiescence_records: list[dict[str, Any]],
+        self, *, cleanup_permit: PrecommitCleanupPermit,
+        quiescence_records: list[dict[str, Any]],
         not_started_target_keys: list[tuple[int, int]],
     ) -> dict[str, Any]:
         """Retire all prepared new entrypoints, then restore the old batch."""
@@ -4646,8 +4891,28 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         self._assert_retirement_intact()
         if (
             self._committed or self._rolled_back
+            or type(cleanup_permit) is not PrecommitCleanupPermit
+            or cleanup_permit._lease is not self
+            or cleanup_permit._lease_nonce != self._nonce
+            or cleanup_permit._owner_pid != os.getpid()
+            or cleanup_permit._owner_thread != threading.get_ident()
+            or self._cleanup_nonce != cleanup_permit._token
+            or cleanup_permit._used
+            or cleanup_permit.started_target_keys != tuple(
+                key for key in TARGET_KEYS
+                if key in self._started_workers
+            )
+            or self._commit_controller_locks
             or len(self._outer_locks) != TARGET_COUNT
             or set(self._target_records) != set(TARGET_KEYS)
+            or any(
+                path.exists() or path.is_symlink()
+                for path in (
+                    self._root / HANDOFF_COMMIT,
+                    self._root / ROLLBACK_COMMIT,
+                    self._root / COMPENSATION_COMMIT,
+                )
+            )
             or type(quiescence_records) is not list
             or type(not_started_target_keys) is not list
             or any(
@@ -4671,6 +4936,42 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
                     "duplicate quiescence target"
                 )
             records[key] = record
+        permit_records: dict[tuple[int, int], dict[str, Any]] = {}
+        for value in cleanup_permit.checkpointed_quiescence_records:
+            record = _validate_quiescence_record(value)
+            key = (record["lane_index"], record["descendant_index"])
+            if key in permit_records:
+                raise AdaptiveSwitchEvidenceV4Error(
+                    "cleanup permit duplicates checkpointed target"
+                )
+            permit_records[key] = record
+        if set(permit_records) != set(self._cohort0_quiescence):
+            raise AdaptiveSwitchEvidenceV4Error(
+                "cleanup permit checkpointed coverage drifted"
+            )
+        for key, expected in permit_records.items():
+            path = (
+                self._root / QUIESCENCE_DIRECTORY
+                / f"lane-{key[0]}-descendant-{key[1]}.json"
+            )
+            journal = _validate_v4_quiescence_journal(
+                _stable_owned_json(path),
+                self._incident_precondition["record_sha256"],
+            )
+            projected = _quiescence_observation_from_v4_journal(
+                journal,
+                self._incident_precondition["record_sha256"],
+            )
+            if (
+                not json_type_equal(
+                    journal, self._cohort0_quiescence[key]
+                )
+                or not json_type_equal(projected, expected)
+                or not json_type_equal(records.get(key), expected)
+            ):
+                raise AdaptiveSwitchEvidenceV4Error(
+                    "checkpointed cleanup observation drifted"
+                )
         started = set(self._started_workers)
         not_started = set(not_started_target_keys)
         if (
@@ -4719,6 +5020,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
                 "new rollback lock coverage is not exact"
             )
         new_retired: list[tuple[Any, dict[str, Any]]] = []
+        cleanup_permit._used = True
         try:
             suffix = self._record["record_sha256"][:16] + "-precommit"
             for sequence, held in enumerate(all_new_locks):
@@ -4844,8 +5146,10 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
     def _close(self) -> None:
         if not self._active:
             return
+        _close_locks(self._commit_controller_locks)
         _close_locks(self._cohort_locks)
         _close_locks(self._outer_locks)
+        self._commit_controller_locks = []
         self._cohort_locks = []
         self._outer_locks = []
         super()._close()
