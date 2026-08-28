@@ -1,0 +1,17 @@
+import ArchonPhysics.PhyslibFPUTMomentKineticEulerShadowing
+
+open ArchonPhysics.PhyslibFPUTMomentKineticEulerShadowing
+
+#check MomentKineticEulerResidual
+#check IsKineticEulerTrajectory
+#check abs_microscopic_sub_kinetic_next_le
+#check moment_kineticEuler_shadowing_exp_bound
+#check moment_kineticEuler_shadowing_uniform_bound
+#check moment_kineticEuler_shadowing_tendsto_zero
+#check actualFPUT_oneBlock_is_momentKineticEulerResidual
+
+#print axioms abs_microscopic_sub_kinetic_next_le
+#print axioms moment_kineticEuler_shadowing_exp_bound
+#print axioms moment_kineticEuler_shadowing_uniform_bound
+#print axioms moment_kineticEuler_shadowing_tendsto_zero
+#print axioms actualFPUT_oneBlock_is_momentKineticEulerResidual
