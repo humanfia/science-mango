@@ -123,8 +123,16 @@ and fixed-root momentum assignment at order `r`. -/
 def fixedRootRawHistoryTimeWeight
     {N : Nat} [NeZero N] (r : Nat) (rootMomentum : Site N)
     (T : Real) : Real :=
-  ∑ history : FixedRootRawHistoryIndex N r rootMomentum,
-    binaryTreeTimeSimplexWeight history.1.1 T
+  ∑ tree : BinaryInteractionTreeOfOrder r,
+    ∑ decoration : BinarySignDecoration tree.1,
+      ∑ _momentum :
+          {momentum :
+              (signedMomentumTreeOfDecoration
+                  tree.1 decoration).LeafPosition → Site N //
+            (signedMomentumTreeOfDecoration
+                  tree.1 decoration).leafMomentumToRoot momentum =
+              rootMomentum},
+        binaryTreeTimeSimplexWeight tree.1 T
 
 theorem fixedRootRawHistoryTimeWeight_nonneg
     {N : Nat} [NeZero N] (r : Nat) (rootMomentum : Site N)
@@ -132,8 +140,12 @@ theorem fixedRootRawHistoryTimeWeight_nonneg
     0 ≤ fixedRootRawHistoryTimeWeight r rootMomentum T := by
   unfold fixedRootRawHistoryTimeWeight
   apply Finset.sum_nonneg
-  intro history _historyMem
-  exact binaryTreeTimeSimplexWeight_nonneg history.1.1 hT
+  intro tree _treeMem
+  apply Finset.sum_nonneg
+  intro decoration _decorationMem
+  apply Finset.sum_nonneg
+  intro momentum _momentumMem
+  exact binaryTreeTimeSimplexWeight_nonneg tree.1 hT
 
 /-- Exact counting plus the pointwise tree-simplex bound controls the entire
 raw order-`r` time weight. -/
@@ -145,22 +157,46 @@ theorem fixedRootRawHistoryTimeWeight_le_exact_count
   classical
   unfold fixedRootRawHistoryTimeWeight
   calc
-    (∑ history : FixedRootRawHistoryIndex N r rootMomentum,
-        binaryTreeTimeSimplexWeight history.1.1 T) ≤
-        ∑ _history : FixedRootRawHistoryIndex N r rootMomentum,
-          T ^ r := by
+    (∑ tree : BinaryInteractionTreeOfOrder r,
+        ∑ decoration : BinarySignDecoration tree.1,
+          ∑ _momentum :
+              {momentum :
+                  (signedMomentumTreeOfDecoration
+                      tree.1 decoration).LeafPosition → Site N //
+                (signedMomentumTreeOfDecoration
+                      tree.1 decoration).leafMomentumToRoot momentum =
+                  rootMomentum},
+            binaryTreeTimeSimplexWeight tree.1 T) ≤
+        ∑ tree : BinaryInteractionTreeOfOrder r,
+          ∑ decoration : BinarySignDecoration tree.1,
+            ∑ _momentum :
+                {momentum :
+                    (signedMomentumTreeOfDecoration
+                        tree.1 decoration).LeafPosition → Site N //
+                  (signedMomentumTreeOfDecoration
+                        tree.1 decoration).leafMomentumToRoot momentum =
+                    rootMomentum},
+              T ^ r := by
       apply Finset.sum_le_sum
-      intro history _historyMem
+      intro tree _treeMem
+      apply Finset.sum_le_sum
+      intro decoration _decorationMem
+      apply Finset.sum_le_sum
+      intro momentum _momentumMem
       calc
-        binaryTreeTimeSimplexWeight history.1.1 T ≤
-            T ^ history.1.1.order :=
-          binaryTreeTimeSimplexWeight_le_pow history.1.1 hT
-        _ = T ^ r := by rw [history.1.2]
-    _ = (Fintype.card (FixedRootRawHistoryIndex N r rootMomentum) : Nat) *
-          T ^ r := by
-      simp
+        binaryTreeTimeSimplexWeight tree.1 T ≤ T ^ tree.1.order :=
+          binaryTreeTimeSimplexWeight_le_pow tree.1 hT
+        _ = T ^ r := by rw [tree.2]
     _ = (catalan r * 4 ^ r * N ^ r : Nat) * T ^ r := by
-      rw [card_fixedRootRawHistoryIndex rootMomentum]
+      simp_rw [Finset.sum_const, Finset.card_univ,
+        card_fixedRootLeafMomentumFiber rootMomentum,
+        nsmul_eq_mul]
+      simp_rw [Finset.sum_const, Finset.card_univ,
+        card_binarySignDecoration_of_order, nsmul_eq_mul]
+      rw [Finset.sum_const, Finset.card_univ,
+        card_binaryInteractionTreeOfOrder]
+      push_cast
+      ring
 
 /-- Purely exponential version of the same absolute-value estimate. -/
 theorem fixedRootRawHistoryTimeWeight_le_exponential
