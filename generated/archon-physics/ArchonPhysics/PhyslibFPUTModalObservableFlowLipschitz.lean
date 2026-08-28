@@ -20,8 +20,11 @@ namespace ArchonPhysics.PhyslibFPUTModalObservableFlowLipschitz
 
 open ArchonPhysics
 open ArchonPhysics.CanonicalRandomMassGlobalFlow
+open ArchonPhysics.CoerciveHamiltonianPhyslib
 open ArchonPhysics.ComplexModeAmplitude
+open ArchonPhysics.HarmonicModes
 open ArchonPhysics.MassWeightedHamiltonianDynamics
+open ArchonPhysics.ModalPhaseMismatch
 open ArchonPhysics.ParametricLocalHamiltonianFlow
 open ArchonPhysics.PhyslibFPUTEnergyShellFlowLipschitz
 open ArchonPhysics.ReducedModeTransform
@@ -100,12 +103,16 @@ theorem fixedMassSelectedModeAmplitude_eq
     fixedMassModalMomentumCoordinateCLM
     parametricPhasePositionCLM parametricPhaseMomentumCLM
     complexModeAmplitude
-  simp only [ContinuousLinearMap.smul_apply, ContinuousLinearMap.add_apply,
-    ContinuousLinearMap.smulRight_apply, ContinuousLinearMap.comp_apply,
-    LinearIsometryEquiv.toContinuousLinearMap_apply,
-    EuclideanSpace.proj_apply, real_smul, Complex.ofReal_mul]
+  change (Real.sqrt (2 * modeFrequency m observed))⁻¹ •
+      ((modalCoordinates m (sqrtMassTransform m x.2.1) observed) •
+          (modeFrequency m observed : Complex) +
+        (modalCoordinates m (inverseSqrtMassTransform m x.2.2) observed) •
+          Complex.I) = _
+  simp only [RCLike.real_smul_eq_coe_mul]
+  push_cast
   rw [div_eq_mul_inv]
-  ring
+  simp only [mul_comm]
+  exact mul_comm _ _
 
 /-- The selected physical modal amplitude is globally Lipschitz, with its
 honest continuous-linear operator norm as the constant. -/
