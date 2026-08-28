@@ -3491,7 +3491,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         "_prepared", "_retired_records", "_target_records",
         "_started_workers", "_outer_locks", "_cohort0_quiescence",
         "_cohort_transition_nonce", "_cohort_locks",
-        "_commit_controller_locks", "_cleanup_nonce",
+        "_commit_controller_locks", "_cleanup_nonce", "_cleanup_permit",
         "_rolled_back", "_v4_sources", "_incident_precondition",
         "_incident_target_roots", "_incident_outer_lock_fds",
         "_incident_external_pin",
@@ -3553,6 +3553,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         self._cohort_locks: list[Any] = []
         self._commit_controller_locks: list[Any] = []
         self._cleanup_nonce: str | None = None
+        self._cleanup_permit: PrecommitCleanupPermit | None = None
         self._rolled_back = False
         self._v4_sources = dict(v4_sources)
         self._incident_precondition = (
@@ -3961,6 +3962,12 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
             )
         return record
 
+    def _assert_forward_allowed(self) -> None:
+        if self._cleanup_permit is not None:
+            raise AdaptiveSwitchEvidenceV4Error(
+                "forward operation forbidden during cleanup"
+            )
+
     def verify_target(
         self, overlay_manifest: Mapping[str, Any], *,
         expected_overlay_sha256: str, global_leaf_index: int,
@@ -3968,10 +3975,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         candidate_variables: list[int], descendant_index: int,
         expected_descendant_sha256: str,
     ) -> Any:
-        if self._cleanup_nonce is not None:
-            raise AdaptiveSwitchEvidenceV4Error(
-                "target verification forbidden during cleanup"
-            )
+        self._assert_forward_allowed()
         matches = [
             lane for lane in self._record["lanes"]
             if lane["global_leaf_index"] == global_leaf_index
@@ -4029,6 +4033,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
     ) -> dict[str, Any]:
         """Durably bind a verified permit to its root before spawning."""
 
+        self._assert_forward_allowed()
         self._assert_retirement_intact()
         key = (
             getattr(permit, "lane_index", None),
@@ -4039,7 +4044,6 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
             or permit._lease_nonce != self._nonce or permit._used
             or key not in TARGET_KEYS
             or self._permits.get(key) is not permit
-            or self._cleanup_nonce is not None
             or key in self._target_records
             or key in self._started_workers
         ):
@@ -4114,10 +4118,10 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
     ) -> None:
         """Take continuous ownership of all eight runner-held outer locks."""
 
+        self._assert_forward_allowed()
         self._assert_retirement_intact()
         if (
             self._candidate_only or self._committed or self._rolled_back
-            or self._cleanup_nonce is not None
             or self._outer_locks or self._started_workers
             or set(self._target_records) != set(TARGET_KEYS)
         ):
@@ -4143,6 +4147,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         new_pid: int, new_proc_start_ticks: int,
         cohort_transition_permit: CohortTransitionPermit | None = None,
     ) -> StartedWorker:
+        self._assert_forward_allowed()
         self._assert_retirement_intact()
         key = (
             getattr(permit, "lane_index", None),
@@ -4165,7 +4170,6 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
             or type(target_record) is not dict
             or len(self._target_records) != TARGET_COUNT
             or set(self._target_records) != set(TARGET_KEYS)
-            or self._cleanup_nonce is not None
             or len(self._outer_locks) != TARGET_COUNT
             or key in self._started_workers
             or (
@@ -4272,6 +4276,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         if (
             self._candidate_only or self._committed or self._rolled_back
             or self._cleanup_nonce is not None
+            or self._cleanup_permit is not None
             or len(self._outer_locks) != TARGET_COUNT
             or set(self._target_records) != set(TARGET_KEYS)
             or any(
@@ -4368,6 +4373,11 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
             ],
             checkpointed_quiescence_records=observations,
         )
+        # Enter the irreversible cleanup phase before releasing even one
+        # controller lock.  A close/fence fault must poison every forward API,
+        # and rollback authority remains bound to this exact process object.
+        self._cleanup_permit = permit
+        self._cleanup_nonce = permit._token
         failures: list[BaseException] = []
         for held in reversed(self._commit_controller_locks):
             try:
@@ -4402,7 +4412,6 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
                 "outer-lock coverage changed during cleanup"
             )
         self._old_post_retirement_fence()
-        self._cleanup_nonce = permit._token
         return permit
 
     def _verify_quiescent_worker(
@@ -4543,11 +4552,11 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
     ) -> CohortTransitionPermit:
         """Fence the stopped descendant-0 cohort before descendant-1 starts."""
 
+        self._assert_forward_allowed()
         self._assert_retirement_intact()
         cohort0 = {(lane, 0) for lane in range(LANE_COUNT)}
         if (
             self._committed or self._rolled_back
-            or self._cleanup_nonce is not None
             or self._cohort_transition_nonce is not None
             or self._cohort_locks
             or type(quiescence_records) is not list
@@ -4627,6 +4636,7 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         self, *, permit: Any, started_worker: StartedWorker,
         new_session_sha256: str, new_start_commit_sha256: str,
     ) -> PostStartFence:
+        self._assert_forward_allowed()
         self._assert_retirement_intact()
         key = (
             getattr(permit, "lane_index", None),
@@ -4642,7 +4652,6 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
             or self._started_workers.get(key) is not started_worker
             or key in self._fences
             or started_worker._fenced or permit._used
-            or self._cleanup_nonce is not None
         ):
             raise AdaptiveSwitchEvidenceV4Error(
                 "started worker is stale/foreign"
@@ -4674,12 +4683,12 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
     def commit_handoff(
         self, *, fences: list[Any], batch_commit_path: Path,
     ) -> dict[str, Any]:
+        self._assert_forward_allowed()
         self._assert_retirement_intact()
         cohort0 = {(lane, 0) for lane in range(LANE_COUNT)}
         cohort1 = {(lane, 1) for lane in range(LANE_COUNT)}
         if (
             self._candidate_only or self._committed or self._rolled_back
-            or self._cleanup_nonce is not None
             or self._commit_controller_locks
             or type(fences) is not list or len(fences) != TARGET_COUNT
             or set(self._target_records) != set(TARGET_KEYS)
@@ -4888,16 +4897,23 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
     ) -> dict[str, Any]:
         """Retire all prepared new entrypoints, then restore the old batch."""
 
-        self._assert_retirement_intact()
+        # Reject a forged/copy-equivalent permit before any filesystem I/O.
         if (
-            self._committed or self._rolled_back
-            or type(cleanup_permit) is not PrecommitCleanupPermit
+            type(cleanup_permit) is not PrecommitCleanupPermit
+            or self._cleanup_permit is not cleanup_permit
             or cleanup_permit._lease is not self
             or cleanup_permit._lease_nonce != self._nonce
             or cleanup_permit._owner_pid != os.getpid()
             or cleanup_permit._owner_thread != threading.get_ident()
             or self._cleanup_nonce != cleanup_permit._token
             or cleanup_permit._used
+        ):
+            raise AdaptiveSwitchEvidenceV4Error(
+                "rollback cleanup permit is not the exact live authority"
+            )
+        self._assert_retirement_intact()
+        if (
+            self._committed or self._rolled_back
             or cleanup_permit.started_target_keys != tuple(
                 key for key in TARGET_KEYS
                 if key in self._started_workers
@@ -5018,6 +5034,31 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         if len(all_new_locks) != TARGET_COUNT + len(started):
             raise AdaptiveSwitchEvidenceV4Error(
                 "new rollback lock coverage is not exact"
+            )
+        # Final no-yield fence: a terminal may race the earlier admission, and
+        # every old/new entrypoint must still be held immediately before the
+        # one-shot permit is consumed and the first rename can occur.
+        self._old_post_retirement_fence()
+        tail_probe = _acquire_new_root_fences(
+            root_identities,
+            controller_root_identities=controller_identities,
+            already_held=all_new_locks,
+        )
+        if tail_probe:
+            _close_locks(tail_probe)
+            raise AdaptiveSwitchEvidenceV4Error(
+                "rollback tail lock coverage was not continuously retained"
+            )
+        if any(
+            path.exists() or path.is_symlink()
+            for path in (
+                self._root / HANDOFF_COMMIT,
+                self._root / ROLLBACK_COMMIT,
+                self._root / COMPENSATION_COMMIT,
+            )
+        ):
+            raise AdaptiveSwitchEvidenceV4Error(
+                "terminal state appeared at rollback tail fence"
             )
         new_retired: list[tuple[Any, dict[str, Any]]] = []
         cleanup_permit._used = True

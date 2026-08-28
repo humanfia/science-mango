@@ -722,6 +722,7 @@ def test_precommit_cleanup_releases_only_running_controller_locks(
             "_committed": False,
             "_rolled_back": False,
             "_cleanup_nonce": None,
+            "_cleanup_permit": None,
             "_outer_locks": outer_locks,
             "_cohort_locks": cohort_locks,
             "_commit_controller_locks": commit_locks,
@@ -747,6 +748,8 @@ def test_precommit_cleanup_releases_only_running_controller_locks(
 
         permit = lease.begin_precommit_cleanup()
 
+        assert lease._cleanup_permit is permit
+        assert lease._cleanup_nonce == permit._token
         assert permit.started_target_keys == v4.TARGET_KEYS
         assert {
             (item["lane_index"], item["descendant_index"])
@@ -796,7 +799,507 @@ def test_precommit_cleanup_releases_only_running_controller_locks(
         v4._close_locks(outer_locks)
 
 
+def _make_precommit_fault_lease(v4, tmp_path):
+    batch = tmp_path / "cleanup-fault-batch"
+    roots_parent = tmp_path / "cleanup-fault-roots"
+    _mkdir(batch)
+    _mkdir(roots_parent)
+    targets = {}
+    outer_locks = []
+    commit_locks = []
+    for lane, descendant in v4.TARGET_KEYS:
+        root = roots_parent / f"lane-{lane}-desc-{descendant}"
+        _mkdir(root)
+        outer = root / ".adaptive-child.lock"
+        _write(outer, b"")
+        _mkdir(root / "runtime")
+        _mkdir(root / "runtime/dmtcp")
+        controller = root / "runtime/dmtcp/.controller.lock"
+        _write(controller, b"")
+        key = (lane, descendant)
+        targets[key] = {
+            "new_root_identity": v4.base._root_identity(root),
+        }
+        outer_locks.append(v4.base._HeldLock(
+            outer, f"outer-{lane}-{descendant}", fcntl.LOCK_EX,
+        ))
+        if descendant == 1:
+            commit_locks.append(v4.base._HeldLock(
+                controller, f"controller-{lane}-{descendant}",
+                fcntl.LOCK_SH,
+            ))
+    lease = object.__new__(v4.AtomicSwitchLease)
+    for name, value in {
+        "_root": batch,
+        "_nonce": "cleanup-fault-nonce",
+        "_candidate_only": False,
+        "_committed": False,
+        "_rolled_back": False,
+        "_cleanup_nonce": None,
+        "_cleanup_permit": None,
+        "_outer_locks": outer_locks,
+        "_cohort_locks": [],
+        "_commit_controller_locks": commit_locks,
+        "_cohort_transition_nonce": None,
+        "_cohort0_quiescence": {},
+        "_target_records": targets,
+        "_started_workers": {
+            key: object() for key in v4.TARGET_KEYS
+        },
+        "_incident_precondition": {
+            "record_sha256": _sha("cleanup-fault-incident"),
+        },
+    }.items():
+        object.__setattr__(lease, name, value)
+    return lease, outer_locks, commit_locks
+
+
+def test_cleanup_phase_latched_before_post_close_fence_fault(
+    v4, tmp_path, monkeypatch,
+):
+    lease, outer_locks, commit_locks = _make_precommit_fault_lease(
+        v4, tmp_path,
+    )
+    fence_calls = []
+
+    def old_fence(self):
+        fence_calls.append(len(fence_calls) + 1)
+        if len(fence_calls) == 2:
+            raise KeyboardInterrupt("synthetic post-close fence interrupt")
+
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_assert_retirement_intact",
+        lambda self: None,
+    )
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_old_post_retirement_fence", old_fence,
+    )
+    try:
+        with pytest.raises(KeyboardInterrupt):
+            lease.begin_precommit_cleanup()
+        permit = lease._cleanup_permit
+        assert type(permit) is v4.PrecommitCleanupPermit
+        assert lease._cleanup_nonce == permit._token
+        assert all(held.fd == -1 for held in commit_locks)
+        with pytest.raises(
+            v4.AdaptiveSwitchEvidenceV4Error,
+            match="precommit cleanup is not unambiguously safe",
+        ):
+            lease.begin_precommit_cleanup()
+        with pytest.raises(
+            v4.AdaptiveSwitchEvidenceV4Error,
+            match="forward operation forbidden during cleanup",
+        ):
+            lease.verify_target(
+                {},
+                expected_overlay_sha256=_sha("overlay"),
+                global_leaf_index=0,
+                expected_hard_evidence_sha256=_sha("hard"),
+                candidate_variables=[],
+                descendant_index=0,
+                expected_descendant_sha256=_sha("descendant"),
+            )
+    finally:
+        v4._close_locks(commit_locks)
+        v4._close_locks(outer_locks)
+
+
+def test_cleanup_phase_latched_before_close_interrupt(
+    v4, tmp_path, monkeypatch,
+):
+    lease, outer_locks, commit_locks = _make_precommit_fault_lease(
+        v4, tmp_path,
+    )
+    original_close = v4.base._HeldLock.close
+    failing = commit_locks[-1]
+
+    def close_then_interrupt(self):
+        original_close(self)
+        if self is failing:
+            raise KeyboardInterrupt("synthetic close interrupt")
+
+    monkeypatch.setattr(v4.base._HeldLock, "close", close_then_interrupt)
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_assert_retirement_intact",
+        lambda self: None,
+    )
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_old_post_retirement_fence",
+        lambda self: None,
+    )
+    try:
+        with pytest.raises(v4.AdaptiveSwitchEvidenceV4Error) as captured:
+            lease.begin_precommit_cleanup()
+        assert isinstance(captured.value.__cause__, KeyboardInterrupt)
+        permit = lease._cleanup_permit
+        assert type(permit) is v4.PrecommitCleanupPermit
+        assert lease._cleanup_nonce == permit._token
+        assert all(held.fd == -1 for held in commit_locks)
+        with pytest.raises(v4.AdaptiveSwitchEvidenceV4Error):
+            lease.begin_precommit_cleanup()
+    finally:
+        for held in reversed([*commit_locks, *outer_locks]):
+            if held.fd >= 0:
+                original_close(held)
+
+
+def test_pointer_phase_blocks_all_forward_apis_before_nonce_assignment(
+    v4, tmp_path, monkeypatch,
+):
+    lease, outer_locks, commit_locks = _make_precommit_fault_lease(
+        v4, tmp_path,
+    )
+    source_lines, first_line = inspect.getsourcelines(
+        v4.AtomicSwitchLease.begin_precommit_cleanup
+    )
+    nonce_line = first_line + next(
+        index for index, line in enumerate(source_lines)
+        if "self._cleanup_nonce = permit._token" in line
+    )
+
+    def interrupt_between_bindings(frame, event, arg):
+        del arg
+        if (
+            frame.f_code
+                is v4.AtomicSwitchLease.begin_precommit_cleanup.__code__
+            and event == "line"
+            and frame.f_lineno == nonce_line
+        ):
+            raise KeyboardInterrupt("synthetic inter-assignment interrupt")
+        return interrupt_between_bindings
+
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_assert_retirement_intact",
+        lambda self: None,
+    )
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_old_post_retirement_fence",
+        lambda self: None,
+    )
+    try:
+        sys.settrace(interrupt_between_bindings)
+        try:
+            with pytest.raises(
+                KeyboardInterrupt, match="inter-assignment"
+            ):
+                lease.begin_precommit_cleanup()
+        finally:
+            sys.settrace(None)
+
+        assert type(lease._cleanup_permit) is v4.PrecommitCleanupPermit
+        assert lease._cleanup_nonce is None
+        assert all(held.fd >= 0 for held in commit_locks)
+
+        io_calls = []
+
+        def forbidden_retirement_io(self):
+            del self
+            io_calls.append("retirement")
+            raise AssertionError("forward API performed I/O before cleanup gate")
+
+        monkeypatch.setattr(
+            v4.AtomicSwitchLease, "_assert_retirement_intact",
+            forbidden_retirement_io,
+        )
+        calls = [
+            lambda: lease.verify_target(
+                {},
+                expected_overlay_sha256=_sha("overlay"),
+                global_leaf_index=0,
+                expected_hard_evidence_sha256=_sha("hard"),
+                candidate_variables=[],
+                descendant_index=0,
+                expected_descendant_sha256=_sha("descendant"),
+            ),
+            lambda: lease.prepare_target(
+                permit=None, new_root_identity={},
+            ),
+            lambda: lease.adopt_prepared_outer_locks(
+                outer_lock_fds=[],
+            ),
+            lambda: lease.note_started_worker(
+                permit=None, new_root_identity={},
+                new_pid=1, new_proc_start_ticks=1,
+            ),
+            lambda: lease.note_cohort_checkpointed(
+                quiescence_records=[],
+            ),
+            lambda: lease.post_start_fence(
+                permit=None, started_worker=None,
+                new_session_sha256="", new_start_commit_sha256="",
+            ),
+            lambda: lease.commit_handoff(
+                fences=[],
+                batch_commit_path=lease._root / v4.HANDOFF_COMMIT,
+            ),
+        ]
+        for call in calls:
+            with pytest.raises(
+                v4.AdaptiveSwitchEvidenceV4Error,
+                match="forward operation forbidden during cleanup",
+            ):
+                call()
+        assert io_calls == []
+    finally:
+        v4._close_locks(commit_locks)
+        v4._close_locks(outer_locks)
+
+
+class _FakeRollbackLock:
+    def __init__(self, path):
+        self.current_path = Path(path)
+        self.original_path = Path(path)
+
+
+def _make_rollback_fault_lease(v4, tmp_path, *, started_keys=()):
+    batch = tmp_path / "rollback-fault-batch"
+    roots_parent = tmp_path / "rollback-fault-roots"
+    _mkdir(batch)
+    _mkdir(batch / v4.ATTEMPT_ROOT)
+    _mkdir(roots_parent)
+    targets = {}
+    outer_locks = []
+    for lane, descendant in v4.TARGET_KEYS:
+        root = roots_parent / f"lane-{lane}-desc-{descendant}"
+        _mkdir(root)
+        targets[(lane, descendant)] = {
+            "new_root_identity": {"path": str(root)},
+        }
+        outer_locks.append(
+            _FakeRollbackLock(root / ".adaptive-child.lock")
+        )
+    started = {
+        key: object() for key in started_keys
+    }
+    lease = object.__new__(v4.AtomicSwitchLease)
+    for name, value in {
+        "_root": batch,
+        "_nonce": "rollback-fault-nonce",
+        "_committed": False,
+        "_rolled_back": False,
+        "_outer_locks": outer_locks,
+        "_cohort_locks": [],
+        "_commit_controller_locks": [],
+        "_cohort0_quiescence": {},
+        "_target_records": targets,
+        "_started_workers": started,
+        "_record": {"record_sha256": _sha("rollback-record")},
+    }.items():
+        object.__setattr__(lease, name, value)
+    permit = v4.PrecommitCleanupPermit(
+        lease,
+        started_target_keys=[
+            key for key in v4.TARGET_KEYS if key in started
+        ],
+        checkpointed_quiescence_records=[],
+    )
+    object.__setattr__(lease, "_cleanup_permit", permit)
+    object.__setattr__(lease, "_cleanup_nonce", permit._token)
+    records = [
+        {
+            "lane_index": lane,
+            "descendant_index": descendant,
+        }
+        for lane, descendant in v4.TARGET_KEYS
+        if (lane, descendant) in started
+    ]
+    not_started = [
+        key for key in v4.TARGET_KEYS if key not in started
+    ]
+    return lease, permit, records, not_started
+
+
+@pytest.mark.parametrize(
+    "terminal_name",
+    ["HANDOFF_COMMIT", "ROLLBACK_COMMIT", "COMPENSATION_COMMIT"],
+)
+def test_rollback_tail_fence_rejects_terminal_after_last_worker_verify(
+    v4, tmp_path, monkeypatch, terminal_name,
+):
+    started = v4.TARGET_KEYS
+    lease, permit, records, not_started = _make_rollback_fault_lease(
+        v4, tmp_path, started_keys=started,
+    )
+    controllers = [
+        _FakeRollbackLock(
+            Path(
+                lease._target_records[key]["new_root_identity"]["path"]
+            ) / "runtime/dmtcp/.controller.lock"
+        )
+        for key in v4.TARGET_KEYS
+    ]
+    acquire_calls = []
+
+    def acquire(*args, **kwargs):
+        del args, kwargs
+        acquire_calls.append(len(acquire_calls) + 1)
+        return controllers if len(acquire_calls) == 1 else []
+
+    verify_calls = []
+
+    def verify(self, key, record, **kwargs):
+        del self, kwargs
+        verify_calls.append(key)
+        if len(verify_calls) == v4.TARGET_COUNT:
+            _write(
+                lease._root / getattr(v4, terminal_name), b"terminal\n"
+            )
+        return record
+
+    retire_calls = []
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_assert_retirement_intact",
+        lambda self: None,
+    )
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_old_post_retirement_fence",
+        lambda self: None,
+    )
+    monkeypatch.setattr(v4, "_validate_quiescence_record", dict)
+    monkeypatch.setattr(v4, "_acquire_new_root_fences", acquire)
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_verify_quiescent_worker", verify,
+    )
+    monkeypatch.setattr(
+        v4, "_retire_lock_v3",
+        lambda *args, **kwargs: retire_calls.append((args, kwargs)),
+    )
+
+    with pytest.raises(
+        v4.AdaptiveSwitchEvidenceV4Error,
+        match="terminal state appeared at rollback tail fence",
+    ):
+        lease.rollback_after_new_quiescent(
+            cleanup_permit=permit,
+            quiescence_records=records,
+            not_started_target_keys=not_started,
+        )
+    assert permit._used is False
+    assert verify_calls == list(v4.TARGET_KEYS)
+    assert retire_calls == []
+
+
+def test_zero_started_rollback_rechecks_terminal_after_fence_acquire(
+    v4, tmp_path, monkeypatch,
+):
+    lease, permit, records, not_started = _make_rollback_fault_lease(
+        v4, tmp_path,
+    )
+    acquire_calls = []
+
+    def acquire(*args, **kwargs):
+        del args, kwargs
+        acquire_calls.append(len(acquire_calls) + 1)
+        if len(acquire_calls) == 1:
+            _write(lease._root / v4.HANDOFF_COMMIT, b"terminal\n")
+        return []
+
+    retire_calls = []
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_assert_retirement_intact",
+        lambda self: None,
+    )
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_old_post_retirement_fence",
+        lambda self: None,
+    )
+    monkeypatch.setattr(v4, "_acquire_new_root_fences", acquire)
+    monkeypatch.setattr(
+        v4, "_retire_lock_v3",
+        lambda *args, **kwargs: retire_calls.append((args, kwargs)),
+    )
+
+    with pytest.raises(
+        v4.AdaptiveSwitchEvidenceV4Error,
+        match="terminal state appeared at rollback tail fence",
+    ):
+        lease.rollback_after_new_quiescent(
+            cleanup_permit=permit,
+            quiescence_records=records,
+            not_started_target_keys=not_started,
+        )
+    assert permit._used is False
+    assert retire_calls == []
+
+
+def test_rollback_rejects_copy_equivalent_permit_before_io(
+    v4, tmp_path, monkeypatch,
+):
+    lease, permit, records, not_started = _make_rollback_fault_lease(
+        v4, tmp_path,
+    )
+    forged = object.__new__(v4.PrecommitCleanupPermit)
+    for slot in v4.PrecommitCleanupPermit.__slots__:
+        object.__setattr__(forged, slot, getattr(permit, slot))
+    io_calls = []
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_assert_retirement_intact",
+        lambda self: io_calls.append("retirement-io"),
+    )
+
+    with pytest.raises(
+        v4.AdaptiveSwitchEvidenceV4Error,
+        match="exact live authority",
+    ):
+        lease.rollback_after_new_quiescent(
+            cleanup_permit=forged,
+            quiescence_records=records,
+            not_started_target_keys=not_started,
+        )
+    assert io_calls == []
+    assert permit._used is False
+
+
+def test_exact_rollback_permit_consumed_before_first_retire_fault(
+    v4, tmp_path, monkeypatch,
+):
+    lease, permit, records, not_started = _make_rollback_fault_lease(
+        v4, tmp_path,
+    )
+    retirement_checks = []
+    retire_calls = []
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_assert_retirement_intact",
+        lambda self: retirement_checks.append("checked"),
+    )
+    monkeypatch.setattr(
+        v4.AtomicSwitchLease, "_old_post_retirement_fence",
+        lambda self: None,
+    )
+    monkeypatch.setattr(
+        v4, "_acquire_new_root_fences",
+        lambda *args, **kwargs: [],
+    )
+
+    def fail_first_retire(*args, **kwargs):
+        retire_calls.append((args, kwargs))
+        raise RuntimeError("synthetic first-retire failure")
+
+    monkeypatch.setattr(v4, "_retire_lock_v3", fail_first_retire)
+    with pytest.raises(RuntimeError, match="first-retire"):
+        lease.rollback_after_new_quiescent(
+            cleanup_permit=permit,
+            quiescence_records=records,
+            not_started_target_keys=not_started,
+        )
+    assert permit._used is True
+    assert len(retire_calls) == 1
+    assert retirement_checks == ["checked"]
+
+    with pytest.raises(
+        v4.AdaptiveSwitchEvidenceV4Error,
+        match="exact live authority",
+    ):
+        lease.rollback_after_new_quiescent(
+            cleanup_permit=permit,
+            quiescence_records=records,
+            not_started_target_keys=not_started,
+        )
+    assert retirement_checks == ["checked"]
+
+
 def test_target_and_outer_fd_collection_types_fail_closed(v4, tmp_path):
+
     with pytest.raises(v4.AdaptiveSwitchEvidenceV4Error):
         v4._validate_unstarted_target_roots(
             tmp_path, [], {}, _switch(v4)
@@ -2076,6 +2579,7 @@ def test_fixed_and_current_bundle_consumers_do_not_cross(v4):
     assert "self._overlay is not current_science_bundle.overlay" in lease_init
     assert "self._commit_controller_locks: list[Any] = []" in lease_init
     assert "self._cleanup_nonce: str | None = None" in lease_init
+    assert "self._cleanup_permit: PrecommitCleanupPermit | None = None" in lease_init
     assert "_cleanup_started" not in lease_init
     assert "super().verify_target(" in verify_target
     assert "self._overlay" in base_verify_target
