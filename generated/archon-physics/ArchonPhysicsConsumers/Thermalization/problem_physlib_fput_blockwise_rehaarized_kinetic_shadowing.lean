@@ -1,0 +1,23 @@
+import ArchonPhysics.PhyslibFPUTBlockwiseReHaarizedKineticShadowing
+
+/-!
+# Consumer: blockwise re-Haarized FPUT kinetic shadowing
+
+The reference endpoints in this interface are independent from block to
+block.  Only the actual moment array is a coherent endpoint chain.  Actual
+kinetic residuals and their little-o estimate are conclusions.
+-/
+
+open ArchonPhysics.PhyslibFPUTBlockwiseReHaarizedKineticShadowing
+
+#check FPUTBlockwiseReHaarizedMomentCertificate
+#check FPUTBlockwiseReHaarizedMomentCertificate.referenceInitial
+#check FPUTBlockwiseReHaarizedMomentCertificate.referenceFinal
+#check FPUTBlockwiseReHaarizedMomentCertificate.actualResidualDefect
+#check FPUTBlockwiseReHaarizedMomentCertificate.actual_is_momentKineticEulerResidual
+#check FPUTBlockwiseReHaarizedMomentCertificate.actualResidualDefect_div_kineticStep_tendsto_zero
+#check FPUTBlockwiseReHaarizedMomentCertificate.actual_blockwiseReHaarized_kineticEuler_shadowing_tendsto_zero
+
+#print axioms FPUTBlockwiseReHaarizedMomentCertificate.actual_is_momentKineticEulerResidual
+#print axioms FPUTBlockwiseReHaarizedMomentCertificate.actualResidualDefect_div_kineticStep_tendsto_zero
+#print axioms FPUTBlockwiseReHaarizedMomentCertificate.actual_blockwiseReHaarized_kineticEuler_shadowing_tendsto_zero
