@@ -10,6 +10,7 @@ from unittest import mock
 
 import archon.commands.loop.parallel_formalization_review as parallel_formalization_review
 from archon.commands.loop.answer_submission import answer_submission_path
+from archon.commands.loop.formalization_review_gate import load_gate_state
 from archon.commands.loop.native_semantic_review import (
     build_independent_rederivation_example,
     build_native_semantic_review_contract,
@@ -21,6 +22,9 @@ from archon.commands.loop.parallel_formalization_review import (
     run_parallel_formalization_reviews,
 )
 from archon.commands.loop.parallel_review import TargetReviewOutcome
+from archon.commands.loop.problem_only_review_contract import (
+    ProblemOnlyReviewContractError,
+)
 
 
 def _blind_contract(rel: str) -> dict:
@@ -122,6 +126,74 @@ def _milestone(rel: str, *, passed: bool = True) -> dict:
         "session": {"id": "session_1", "model": "test"},
         "next_steps": "" if passed else "restore the missing constraint",
     }
+
+
+def _simple_batch(
+    root: Path, names: tuple[str, ...],
+) -> tuple[Path, Path, list[Path], dict]:
+    state = root / ".archon"
+    iter_dir = state / "logs" / "iter-021"
+    iter_dir.mkdir(parents=True)
+    targets = [root / name for name in names]
+    for target in targets:
+        target.write_text("theorem example : True := by sorry\n")
+    preflight = {"targets": [
+        {"file": target.name, "compiles": True} for target in targets
+    ]}
+    return state, iter_dir, targets, preflight
+
+
+def _successful_worker(spec, **_kwargs) -> TargetReviewOutcome:
+    return TargetReviewOutcome(
+        rel=spec.rel,
+        attempt=spec.attempt,
+        runner_ok=True,
+        milestone=_milestone(spec.rel),
+    )
+
+
+def _pre_dispatch_failure(rejected_name: str):
+    real_resolver = (
+        parallel_formalization_review.resolve_target_review_source_contract
+    )
+
+    def resolver(**kwargs):
+        if kwargs["target"].name == rejected_name:
+            raise ProblemOnlyReviewContractError("pre-dispatch failure")
+        return real_resolver(**kwargs)
+
+    return resolver
+
+
+def _run_simple_reviews(
+    *,
+    root: Path,
+    state: Path,
+    iter_dir: Path,
+    targets: list[Path],
+    preflight: dict,
+    worker_fn=_successful_worker,
+    prior_gate_targets: dict | None = None,
+) -> dict:
+    return run_parallel_formalization_reviews(
+        project_path=root,
+        state_dir=state,
+        iter_dir=iter_dir,
+        iter_num=21,
+        objectives=targets,
+        preflight=preflight,
+        prior_gate_targets=prior_gate_targets or {},
+        requested_jobs=len(targets),
+        max_attempts=1,
+        backoff_sec=0,
+        verbose_logs=False,
+        model=None,
+        backend=None,
+        harness=None,
+        worker_fn=worker_fn,
+        executor_factory=ThreadPoolExecutor,
+        partial_gate_max_iterations=3,
+    )
 
 
 def _canonical_json_bytes(value: object) -> bytes:
@@ -1809,6 +1881,122 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertIn(
                 "D.lean",
                 (session / "recommendations.md").read_text(),
+            )
+
+    def test_incomplete_batch_applies_valid_targets_idempotently(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, iter_dir, targets, preflight = _simple_batch(
+                root, ("A.lean", "B.lean", "C.lean"),
+            )
+
+            def run_batch():
+                with mock.patch.object(
+                    parallel_formalization_review,
+                    "resolve_target_review_source_contract",
+                    side_effect=_pre_dispatch_failure("C.lean"),
+                ):
+                    prior = (load_gate_state(state) or {}).get("targets", {})
+                    return _run_simple_reviews(
+                        root=root,
+                        state=state,
+                        iter_dir=iter_dir,
+                        targets=targets,
+                        preflight=preflight,
+                        prior_gate_targets=prior,
+                    )
+
+            first = run_batch()
+            self.assertFalse(first["complete"])
+            self.assertEqual(first["reviewed"], 2)
+            self.assertEqual(first["unresolved"], ["C.lean"])
+            self.assertFalse(Path(first["session_dir"]).exists())
+
+            gate = load_gate_state(state)
+            self.assertIsNotNone(gate)
+            records = gate["targets"]
+            self.assertEqual(set(records), {"A.lean", "B.lean"})
+            for rel in ("A.lean", "B.lean"):
+                record = records[rel]
+                self.assertEqual(record["status"], "passed")
+                self.assertEqual(record["reviews"], 1)
+                self.assertEqual(len(record["review_events"]), 1)
+                candidate_sha256 = hashlib.sha256(
+                    (root / rel).read_bytes()
+                ).hexdigest()
+                self.assertEqual(
+                    record["review_events"][0]["event_id"],
+                    "top-level-fallback:21:"
+                    f"{rel}:formalization:{candidate_sha256}",
+                )
+
+            replay = run_batch()
+            self.assertFalse(replay["complete"])
+            replay_records = load_gate_state(state)["targets"]
+            for rel in ("A.lean", "B.lean"):
+                self.assertEqual(replay_records[rel]["reviews"], 1)
+                self.assertEqual(len(replay_records[rel]["review_events"]), 1)
+
+    def test_incomplete_batch_rejects_stale_candidate_hash(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, iter_dir, targets, preflight = _simple_batch(
+                root, ("A.lean", "B.lean", "C.lean"),
+            )
+
+            def worker(spec, **_kwargs):
+                if spec.rel == "B.lean":
+                    (root / "A.lean").write_text(
+                        "theorem changed : True := by sorry\n"
+                    )
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(spec.rel),
+                )
+
+            with mock.patch.object(
+                parallel_formalization_review,
+                "resolve_target_review_source_contract",
+                side_effect=_pre_dispatch_failure("C.lean"),
+            ):
+                report = _run_simple_reviews(
+                    root=root,
+                    state=state,
+                    iter_dir=iter_dir,
+                    targets=targets,
+                    preflight=preflight,
+                    worker_fn=worker,
+                )
+
+            self.assertFalse(report["complete"])
+            self.assertEqual(report["reviewed"], 1)
+            self.assertEqual(report["unresolved"], ["A.lean", "C.lean"])
+            gate = load_gate_state(state)
+            self.assertEqual(set(gate["targets"]), {"B.lean"})
+            self.assertFalse(Path(report["session_dir"]).exists())
+
+    def test_complete_batch_keeps_atomic_session_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, iter_dir, targets, preflight = _simple_batch(
+                root, ("A.lean", "B.lean"),
+            )
+            report = _run_simple_reviews(
+                root=root, state=state, iter_dir=iter_dir,
+                targets=targets, preflight=preflight,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["reviewed"], 2)
+            self.assertEqual(report["unresolved"], [])
+            self.assertIsNone(load_gate_state(state))
+            session = Path(report["session_dir"])
+            self.assertTrue(session.is_dir())
+            self.assertEqual(
+                len((session / "milestones.jsonl").read_text().splitlines()),
+                2,
             )
 
     def test_incomplete_batch_does_not_replace_existing_session(self):

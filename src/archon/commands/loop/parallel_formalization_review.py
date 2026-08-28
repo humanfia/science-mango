@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -13,7 +14,11 @@ from archon.agent import ClaudeBackend, build_runner
 from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.commands.tooling.project_config import HarnessDescriptor
 
-from .formalization_review_gate import REVIEW_SCHEMA_VERSION
+from .formalization_review_gate import (
+    REVIEW_SCHEMA_VERSION,
+    apply_target_formalization_review,
+    load_gate_state,
+)
 from .native_semantic_review import (
     build_independent_rederivation_example,
     build_native_semantic_review_contract,
@@ -1214,6 +1219,111 @@ def _write_session(
     )
 
 
+def _review_event_is_durable(
+    *, state_dir: Path, rel: str, event_id: str,
+) -> bool:
+    state = load_gate_state(state_dir) or {}
+    targets = state.get("targets")
+    record = targets.get(rel) if isinstance(targets, dict) else None
+    events = record.get("review_events") if isinstance(record, dict) else None
+    return any(
+        isinstance(event, dict) and event.get("event_id") == event_id
+        for event in (events if isinstance(events, list) else [])
+    )
+
+
+def _consume_incomplete_formalization_outcomes(
+    *,
+    project_path: Path,
+    state_dir: Path,
+    iter_num: int,
+    max_iterations: int,
+    targets: dict[str, Path],
+    outcomes: dict[str, TargetReviewOutcome],
+    outcome_specs: dict[str, TargetReviewSpec],
+    preflight_rows: dict[str, dict],
+) -> set[str]:
+    """Durably apply valid rows from an otherwise incomplete top-level batch.
+
+    A complete batch still follows the existing atomic session path.  For an
+    incomplete batch, each already accepted worker outcome is rebound to the
+    current source contract and candidate bytes before the existing per-target
+    gate transition is used.  Invalid or stale rows stay unresolved.
+    """
+    rejected: set[str] = set()
+    for rel, outcome in sorted(outcomes.items()):
+        target = targets.get(rel)
+        spec = outcome_specs.get(rel)
+        milestone = outcome.milestone
+        if (
+            target is None
+            or spec is None
+            or outcome.rel != rel
+            or not isinstance(milestone, dict)
+        ):
+            rejected.add(rel)
+            continue
+        source_contract = spec.source_contract
+        if not isinstance(source_contract, dict):
+            rejected.add(rel)
+            continue
+        try:
+            contract_error = validate_review_source_contract_current(
+                project_path=project_path,
+                contract=source_contract,
+            )
+            candidate_sha256 = hashlib.sha256(target.read_bytes()).hexdigest()
+            expected_candidate_sha256 = str(
+                source_contract.get("candidate_sha256")
+                or source_contract.get("lean_sha256")
+                or ""
+            ).strip().lower()
+            validation_error = _validate_certificate(
+                milestone,
+                source_contract,
+                build_native_semantic_review_contract(
+                    project_path=project_path,
+                    target=target,
+                ),
+            )
+        except Exception:
+            rejected.add(rel)
+            continue
+        if (
+            contract_error
+            or expected_candidate_sha256 != candidate_sha256
+            or validation_error
+        ):
+            rejected.add(rel)
+            continue
+        event_id = (
+            f"top-level-fallback:{iter_num}:{rel}:formalization:"
+            f"{candidate_sha256}"
+        )
+        try:
+            update = apply_target_formalization_review(
+                state_dir=state_dir,
+                project_path=project_path,
+                target=target,
+                milestone=milestone,
+                iter_num=iter_num,
+                max_iterations=max_iterations,
+                event_id=event_id,
+                expected_source_contract=source_contract,
+                preflight=preflight_rows.get(rel),
+            )
+        except Exception:
+            rejected.add(rel)
+            continue
+        if not update.applied and not _review_event_is_durable(
+            state_dir=state_dir,
+            rel=rel,
+            event_id=event_id,
+        ):
+            rejected.add(rel)
+    return rejected
+
+
 def run_parallel_formalization_reviews(
     *,
     project_path: Path,
@@ -1233,8 +1343,9 @@ def run_parallel_formalization_reviews(
     worker_fn: Callable[..., TargetReviewOutcome] = _run_formalization_review_worker,
     executor_factory=ProcessPoolExecutor,
     sleep_fn: Callable[[float], None] = time.sleep,
+    partial_gate_max_iterations: int | None = None,
 ) -> dict:
-    """Review formalizations concurrently and atomically publish a full batch."""
+    """Review concurrently; publish only complete sessions, optionally gate partials."""
     targets = sorted({
         path.resolve().relative_to(project_path.resolve()).as_posix(): path
         for path in objectives
@@ -1244,7 +1355,9 @@ def run_parallel_formalization_reviews(
         for row in preflight.get("targets", []) if isinstance(row, dict)
     }
     pending = {rel: path for rel, path in targets}
+    target_paths = dict(targets)
     outcomes: dict[str, TargetReviewOutcome] = {}
+    outcome_specs: dict[str, TargetReviewSpec] = {}
     validation_feedback: dict[str, str] = {}
     schema_feedback: dict[str, list[dict]] = {}
     rounds: list[dict] = []
@@ -1342,6 +1455,7 @@ def run_parallel_formalization_reviews(
                         )
             else:
                 outcomes[spec.rel] = outcome
+                outcome_specs[spec.rel] = spec
                 validation_feedback.pop(spec.rel, None)
                 schema_feedback.pop(spec.rel, None)
 
@@ -1389,6 +1503,23 @@ def run_parallel_formalization_reviews(
             sleep_fn(max(0.0, float(backoff_sec)) * attempt)
 
     complete = not pending and len(outcomes) == len(targets)
+    if not complete and partial_gate_max_iterations is not None:
+        rejected = _consume_incomplete_formalization_outcomes(
+            project_path=project_path,
+            state_dir=state_dir,
+            iter_num=iter_num,
+            max_iterations=partial_gate_max_iterations,
+            targets=target_paths,
+            outcomes=outcomes,
+            outcome_specs=outcome_specs,
+            preflight_rows=preflight_rows,
+        )
+        for rel in rejected:
+            outcomes.pop(rel, None)
+            outcome_specs.pop(rel, None)
+            target = target_paths.get(rel)
+            if target is not None:
+                pending[rel] = target
     session_dir = state_dir / "proof-journal" / "sessions" / f"session_{iter_num}"
     if complete:
         _write_session(

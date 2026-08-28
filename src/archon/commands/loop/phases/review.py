@@ -662,13 +662,13 @@ class ReviewPhase(Phase):
                 "review.status": "error",
                 "review.durationSecs": review_secs,
                 "review.error": (
-                    "review agent exited unsuccessfully; formalization gate "
-                    "was not updated"
+                    "review batch remained incomplete; unresolved targets "
+                    "were not accepted"
                 ),
             })
             raise RuntimeError(
-                "Review agent exited unsuccessfully; refusing to apply "
-                "formalization verdicts or consume Review attempts"
+                "Review batch remained incomplete; refusing to apply "
+                "unresolved target verdicts or continue"
             )
         blockers, reset_complete = self._run_physics_doctor_gate()
         reporting_blockers = numeric_reporting_blockers(self._review_preflight)
@@ -1062,6 +1062,9 @@ class ReviewPhase(Phase):
             model=ctx.model,
             backend=ctx.backend,
             harness=ctx.harness_descriptor_for("review"),
+            partial_gate_max_iterations=(
+                ctx.options.formalization_review_max_iterations
+            ),
         )
         secs = round(time.monotonic() - start, 3)
         rounds = report.get("rounds", [])
