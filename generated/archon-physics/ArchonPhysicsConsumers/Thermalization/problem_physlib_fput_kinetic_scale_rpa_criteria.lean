@@ -1,0 +1,11 @@
+import ArchonPhysics.PhyslibFPUTKineticScaleRPACriteria
+
+open Filter
+open Topology
+open ArchonPhysics.PhyslibFPUTKineticScaleRPACriteria
+
+#check cumulative_block_defect_tendsto_zero
+#check affine_RPA_error_tendsto_zero_at_kinetic_scale
+
+#print axioms cumulative_block_defect_tendsto_zero
+#print axioms affine_RPA_error_tendsto_zero_at_kinetic_scale
