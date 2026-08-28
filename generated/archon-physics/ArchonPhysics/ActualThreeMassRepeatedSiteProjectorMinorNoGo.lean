@@ -1,5 +1,6 @@
 import ArchonPhysics.ActualProjectorAdjugatePolynomial
 import ArchonPhysics.ActualThreeMassCollisionWeightedProjectorMinorZeroAtom
+import ArchonPhysics.ActualThreeMassCollisionWeightedProjectorMinorTail
 
 /-!
 # Repeated selected-site no-go for the actual projector minor
