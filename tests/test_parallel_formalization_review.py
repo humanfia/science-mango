@@ -10,7 +10,10 @@ from unittest import mock
 
 import archon.commands.loop.parallel_formalization_review as parallel_formalization_review
 from archon.commands.loop.answer_submission import answer_submission_path
-from archon.commands.loop.formalization_review_gate import load_gate_state
+from archon.commands.loop.formalization_review_gate import (
+    apply_formalization_review,
+    load_gate_state,
+)
 from archon.commands.loop.native_semantic_review import (
     build_independent_rederivation_example,
     build_native_semantic_review_contract,
@@ -174,12 +177,14 @@ def _run_simple_reviews(
     preflight: dict,
     worker_fn=_successful_worker,
     prior_gate_targets: dict | None = None,
+    iter_num: int = 21,
+    partial_gate_max_iterations: int = 3,
 ) -> dict:
     return run_parallel_formalization_reviews(
         project_path=root,
         state_dir=state,
         iter_dir=iter_dir,
-        iter_num=21,
+        iter_num=iter_num,
         objectives=targets,
         preflight=preflight,
         prior_gate_targets=prior_gate_targets or {},
@@ -192,7 +197,34 @@ def _run_simple_reviews(
         harness=None,
         worker_fn=worker_fn,
         executor_factory=ThreadPoolExecutor,
-        partial_gate_max_iterations=3,
+        partial_gate_max_iterations=partial_gate_max_iterations,
+    )
+
+
+def _apply_simple_gate(
+    *,
+    root: Path,
+    state: Path,
+    targets: list[Path],
+    report: dict,
+    iter_num: int = 21,
+    max_iterations: int = 3,
+):
+    progress = state / "PROGRESS.md"
+    progress.write_text(
+        "# Progress\n\n## Current Stage\nreview\n\n"
+        "## Current Objectives\n"
+        + "".join(f"- **`{target.name}`**\n" for target in targets),
+        encoding="utf-8",
+    )
+    return apply_formalization_review(
+        state_dir=state,
+        project_path=root,
+        progress_file=progress,
+        session_dir=Path(report["session_dir"]),
+        iter_num=iter_num,
+        reviewed_objectives=targets,
+        max_iterations=max_iterations,
     )
 
 
@@ -1936,6 +1968,233 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             for rel in ("A.lean", "B.lean"):
                 self.assertEqual(replay_records[rel]["reviews"], 1)
                 self.assertEqual(len(replay_records[rel]["review_events"]), 1)
+
+    def test_applied_complete_batch_blocks_same_and_older_incomplete_replays(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, iter_dir, targets, preflight = _simple_batch(
+                root, ("A.lean", "B.lean", "C.lean"),
+            )
+            complete = _run_simple_reviews(
+                root=root, state=state, iter_dir=iter_dir,
+                targets=targets, preflight=preflight,
+            )
+            self.assertTrue(complete["complete"])
+            _apply_simple_gate(
+                root=root, state=state, targets=targets, report=complete,
+            )
+            before = json.loads(json.dumps(load_gate_state(state)["targets"]))
+
+            def replay(iter_num: int):
+                with mock.patch.object(
+                    parallel_formalization_review,
+                    "resolve_target_review_source_contract",
+                    side_effect=_pre_dispatch_failure("C.lean"),
+                ):
+                    return _run_simple_reviews(
+                        root=root,
+                        state=state,
+                        iter_dir=iter_dir,
+                        targets=targets,
+                        preflight=preflight,
+                        prior_gate_targets=load_gate_state(state)["targets"],
+                        iter_num=iter_num,
+                    )
+
+            same = replay(21)
+            older = replay(20)
+            for report in (same, older):
+                self.assertFalse(report["complete"])
+                self.assertEqual(report["reviewed"], 2)
+                self.assertEqual(report["unresolved"], ["C.lean"])
+            self.assertEqual(load_gate_state(state)["targets"], before)
+
+    def test_applied_complete_batch_is_idempotent_at_max_one_review(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, iter_dir, targets, preflight = _simple_batch(
+                root, ("A.lean", "B.lean"),
+            )
+            complete = _run_simple_reviews(
+                root=root, state=state, iter_dir=iter_dir,
+                targets=targets, preflight=preflight,
+            )
+            _apply_simple_gate(
+                root=root,
+                state=state,
+                targets=targets,
+                report=complete,
+                max_iterations=1,
+            )
+            before = json.loads(json.dumps(load_gate_state(state)["targets"]))
+            with mock.patch.object(
+                parallel_formalization_review,
+                "resolve_target_review_source_contract",
+                side_effect=_pre_dispatch_failure("B.lean"),
+            ):
+                replay = _run_simple_reviews(
+                    root=root,
+                    state=state,
+                    iter_dir=iter_dir,
+                    targets=targets,
+                    preflight=preflight,
+                    prior_gate_targets=before,
+                    partial_gate_max_iterations=1,
+                )
+
+            self.assertFalse(replay["complete"])
+            self.assertEqual(replay["reviewed"], 1)
+            self.assertEqual(replay["unresolved"], ["B.lean"])
+            self.assertEqual(load_gate_state(state)["targets"], before)
+            self.assertEqual(before["A.lean"]["status"], "passed")
+            self.assertEqual(before["A.lean"]["reviews"], 1)
+
+    def test_applied_batch_verdicts_win_conflicting_partial_replay(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, iter_dir, targets, preflight = _simple_batch(
+                root, ("A.lean", "B.lean", "C.lean"),
+            )
+
+            def initial_worker(spec, **_kwargs):
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(
+                        spec.rel, passed=spec.rel != "B.lean",
+                    ),
+                )
+
+            complete = _run_simple_reviews(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                targets=targets,
+                preflight=preflight,
+                worker_fn=initial_worker,
+            )
+            _apply_simple_gate(
+                root=root, state=state, targets=targets, report=complete,
+            )
+            before = json.loads(json.dumps(load_gate_state(state)["targets"]))
+
+            def conflicting_worker(spec, **_kwargs):
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(
+                        spec.rel, passed=spec.rel == "B.lean",
+                    ),
+                )
+
+            with mock.patch.object(
+                parallel_formalization_review,
+                "resolve_target_review_source_contract",
+                side_effect=_pre_dispatch_failure("C.lean"),
+            ):
+                replay = _run_simple_reviews(
+                    root=root,
+                    state=state,
+                    iter_dir=iter_dir,
+                    targets=targets,
+                    preflight=preflight,
+                    worker_fn=conflicting_worker,
+                    prior_gate_targets=before,
+                )
+
+            self.assertFalse(replay["complete"])
+            self.assertEqual(replay["reviewed"], 2)
+            after = load_gate_state(state)["targets"]
+            self.assertEqual(after, before)
+            self.assertEqual(after["A.lean"]["status"], "passed")
+            self.assertEqual(after["B.lean"]["status"], "retry")
+
+    def test_same_iter_gate_with_stale_candidate_is_not_overwritten(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, iter_dir, targets, preflight = _simple_batch(
+                root, ("A.lean", "B.lean", "C.lean"),
+            )
+            complete = _run_simple_reviews(
+                root=root, state=state, iter_dir=iter_dir,
+                targets=targets, preflight=preflight,
+            )
+            _apply_simple_gate(
+                root=root, state=state, targets=targets, report=complete,
+            )
+            before = json.loads(json.dumps(load_gate_state(state)["targets"]))
+            (root / "A.lean").write_text(
+                "theorem changed : True := by sorry\n"
+            )
+
+            with mock.patch.object(
+                parallel_formalization_review,
+                "resolve_target_review_source_contract",
+                side_effect=_pre_dispatch_failure("C.lean"),
+            ):
+                replay = _run_simple_reviews(
+                    root=root,
+                    state=state,
+                    iter_dir=iter_dir,
+                    targets=targets,
+                    preflight=preflight,
+                    prior_gate_targets=before,
+                )
+
+            self.assertFalse(replay["complete"])
+            self.assertEqual(replay["reviewed"], 1)
+            self.assertEqual(replay["unresolved"], ["A.lean", "C.lean"])
+            self.assertEqual(load_gate_state(state)["targets"], before)
+
+    def test_older_gate_allows_newer_partial_review(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state, iter_dir, targets, preflight = _simple_batch(
+                root, ("A.lean", "B.lean", "C.lean"),
+            )
+            complete = _run_simple_reviews(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                targets=targets,
+                preflight=preflight,
+                iter_num=20,
+            )
+            _apply_simple_gate(
+                root=root,
+                state=state,
+                targets=targets,
+                report=complete,
+                iter_num=20,
+            )
+            with mock.patch.object(
+                parallel_formalization_review,
+                "resolve_target_review_source_contract",
+                side_effect=_pre_dispatch_failure("C.lean"),
+            ):
+                replay = _run_simple_reviews(
+                    root=root,
+                    state=state,
+                    iter_dir=iter_dir,
+                    targets=targets,
+                    preflight=preflight,
+                    prior_gate_targets=load_gate_state(state)["targets"],
+                    iter_num=21,
+                )
+
+            self.assertFalse(replay["complete"])
+            self.assertEqual(replay["reviewed"], 2)
+            records = load_gate_state(state)["targets"]
+            for rel in ("A.lean", "B.lean"):
+                self.assertEqual(records[rel]["reviews"], 2)
+                self.assertEqual(records[rel]["last_review_iter"], 21)
+                self.assertEqual(len(records[rel]["review_events"]), 1)
+            self.assertEqual(records["C.lean"]["reviews"], 1)
+            self.assertEqual(records["C.lean"]["last_review_iter"], 20)
 
     def test_incomplete_batch_rejects_stale_candidate_hash(self):
         with tempfile.TemporaryDirectory() as td:

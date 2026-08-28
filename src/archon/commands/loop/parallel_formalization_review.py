@@ -1232,6 +1232,45 @@ def _review_event_is_durable(
     )
 
 
+def _existing_partial_gate_disposition(
+    *,
+    state_dir: Path,
+    rel: str,
+    iter_num: int,
+    candidate_sha256: str,
+) -> str:
+    """Classify an existing same-or-newer target gate before fallback apply.
+
+    Batch gate records predate per-target ``review_events``.  Their
+    ``last_review_iter`` and candidate binding are nevertheless durable and
+    must win over a replayed incomplete batch.  A matching record is an
+    idempotent no-op; a same-or-newer record bound to different or malformed
+    state is rejected rather than overwritten.  Older records still permit a
+    genuinely new Review transition.
+    """
+    state = load_gate_state(state_dir) or {}
+    targets = state.get("targets")
+    record = targets.get(rel) if isinstance(targets, dict) else None
+    if not isinstance(record, dict):
+        return "apply"
+    last_review_iter = record.get("last_review_iter")
+    if type(last_review_iter) is not int or last_review_iter < iter_num:
+        return "apply"
+    status = str(record.get("status") or "").strip()
+    reviews = record.get("reviews")
+    stored_candidate = str(
+        record.get("candidate_sha256") or ""
+    ).strip().lower()
+    if (
+        status not in {"passed", "retry", "review_exhausted"}
+        or type(reviews) is not int
+        or reviews < 0
+        or stored_candidate != candidate_sha256
+    ):
+        return "stale"
+    return "durable"
+
+
 def _consume_incomplete_formalization_outcomes(
     *,
     project_path: Path,
@@ -1295,6 +1334,17 @@ def _consume_incomplete_formalization_outcomes(
             or validation_error
         ):
             rejected.add(rel)
+            continue
+        prior_disposition = _existing_partial_gate_disposition(
+            state_dir=state_dir,
+            rel=rel,
+            iter_num=iter_num,
+            candidate_sha256=candidate_sha256,
+        )
+        if prior_disposition == "stale":
+            rejected.add(rel)
+            continue
+        if prior_disposition == "durable":
             continue
         event_id = (
             f"top-level-fallback:{iter_num}:{rel}:formalization:"
