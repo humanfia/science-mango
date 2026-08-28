@@ -2452,7 +2452,6 @@ def _strict_subprocess_source(*, full_probe: bool) -> str:
         " _,overlay_source,overlay_executed=switch._load_overlay_exact()\n"
         " serialized_overlay_source=dict(overlay_source)\n"
         " serialized_overlay_source['execution']='compile-exact-source-bytes-v3'\n"
-        " runner._normalize_strict_science_sys_path()\n"
         " runner._adopt_strict_derived_environment(overlay_executed)\n"
         " binding=switch.base._source_binding("
         "{'legacy_project':str(runner.PROJECT),'legacy_sources':[]},"

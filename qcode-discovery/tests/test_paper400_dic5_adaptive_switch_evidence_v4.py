@@ -10,6 +10,7 @@ import json
 import os
 import subprocess
 import stat
+import sys
 from pathlib import Path
 
 import pytest
@@ -304,7 +305,7 @@ def test_execution_closure_splits_fixed_replay_from_current_science(v4):
 def test_fixed_attempt_and_production_hard_pins(v4):
     assert len(v4.ATTEMPT_ID) == 64
     assert v4.ATTEMPT_ID == (
-        "0476098fb46e7acf70c9b568835052b917af8590aa85612492e3168e998b5bff"
+        "6bef308b48b6469d5232347e20a7b08d78a63fa08b0c63fcc96d9156da6e26ca"
     )
     assert v4.ATTEMPT_ROOT.name.endswith(v4.ATTEMPT_ID)
     assert len(v4.EXPECTED_HARD_EVIDENCE_SHA256S) == 4
@@ -313,6 +314,102 @@ def test_fixed_attempt_and_production_hard_pins(v4):
         (0, 0), (1, 0), (2, 0), (3, 0),
         (0, 1), (1, 1), (2, 1), (3, 1),
     )
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_current_legacy_exact_restores_sys_path(
+    v4, monkeypatch, tmp_path, fail,
+):
+    before_object = sys.path
+    before = list(sys.path)
+    marker = str(tmp_path / "legacy-path-leak")
+    child_name = "synthetic_legacy_child"
+    coordinator_name = "synthetic_legacy_coordinator"
+    child = object()
+
+    class Coordinator:
+        child_runner = child
+
+    def import_module(name):
+        assert name == coordinator_name
+        sys.path.insert(0, marker)
+        if fail:
+            raise RuntimeError("synthetic legacy import failure")
+        monkeypatch.setitem(sys.modules, child_name, child)
+        return Coordinator()
+
+    monkeypatch.setattr(v4.importlib, "import_module", import_module)
+    discovery = {
+        "legacy_project": tmp_path,
+        "source_payloads": {},
+        "coordinator_module": coordinator_name,
+        "child_module": child_name,
+    }
+    if fail:
+        with pytest.raises(RuntimeError, match="synthetic legacy"):
+            v4._load_legacy_exact(discovery)
+    else:
+        coordinator, observed_child, executed = v4._load_legacy_exact(
+            discovery
+        )
+        assert isinstance(coordinator, Coordinator)
+        assert observed_child is child
+        assert executed == []
+    assert sys.path is before_object
+    assert sys.path == before
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_current_overlay_exact_restores_sys_path(
+    v4, monkeypatch, tmp_path, fail,
+):
+    before_object = sys.path
+    before = list(sys.path)
+    marker = str(tmp_path / "overlay-path-leak")
+
+    class Finder:
+        def __init__(self, project, payloads):
+            assert project == v4.PROJECT
+            assert len(payloads) == 1
+            name, (_, _, digest) = next(iter(payloads.items()))
+            self.observed = {
+                name: {
+                    "sha256": digest,
+                    "externally_bound": True,
+                }
+            }
+
+    overlay = object()
+
+    def import_module(name):
+        del name
+        sys.path.insert(0, marker)
+        if fail:
+            raise RuntimeError("synthetic overlay import failure")
+        return overlay
+
+    monkeypatch.setattr(v4, "_ExactSourceFinder", Finder)
+    monkeypatch.setattr(v4.importlib, "import_module", import_module)
+    if fail:
+        with pytest.raises(RuntimeError, match="synthetic overlay"):
+            v4._load_overlay_exact()
+    else:
+        observed_overlay, _, executed = v4._load_overlay_exact()
+        assert observed_overlay is overlay
+        assert len(executed) == 1
+    assert sys.path is before_object
+    assert sys.path == before
+
+
+def test_enter_rechecks_python_loader_state_before_retirement(v4):
+    source = inspect.getsource(v4._enter)
+    snapshot = source.index("entry_python_state = _python_loader_state()")
+    lease = source.index("lease = AtomicSwitchLease(")
+    fence = source.index(
+        "if _python_loader_state() != entry_python_state:"
+    )
+    retirement = source.index("lease.prepare_retirement()")
+    assert snapshot < lease < fence < retirement
 
 
 def test_attempt_root_and_nested_directory_fsync_direct_parents(v4, tmp_path, monkeypatch):
@@ -1616,6 +1713,10 @@ def test_fixed_bundle_validates_provenance_before_snapshot_under_v4_guard(
     v4, monkeypatch,
 ):
     calls = []
+    before_object = sys.path
+    before = list(sys.path)
+    legacy_marker = "/synthetic-fixed-legacy-leak"
+    overlay_marker = "/synthetic-fixed-overlay-leak"
 
     class Guard:
         entered = False
@@ -1650,12 +1751,14 @@ def test_fixed_bundle_validates_provenance_before_snapshot_under_v4_guard(
         def load_legacy_exact(discovery):
             assert discovery == {"fixture": True}
             assert guard.entered is True
+            sys.path.insert(0, legacy_marker)
             calls.append("historical-legacy")
             return coordinator, child, legacy_executed
 
         @staticmethod
         def load_overlay_exact():
             assert guard.entered is True
+            sys.path.insert(0, overlay_marker)
             calls.append("historical-overlay")
             return overlay, overlay_record, overlay_executed
 
@@ -1682,6 +1785,8 @@ def test_fixed_bundle_validates_provenance_before_snapshot_under_v4_guard(
 
     def validate_binding(*args):
         assert guard.entered is False
+        assert sys.path is before_object
+        assert sys.path == before
         assert args == (
             {"fixture": True}, legacy_executed,
             overlay_record, overlay_executed,
@@ -1730,12 +1835,44 @@ def test_fixed_bundle_validates_provenance_before_snapshot_under_v4_guard(
         elapsed_seconds_by_lane=[1.0, 2.0, 3.0, 4.0],
     )
     assert bundle.record == record
+    assert sys.path is before_object
+    assert sys.path == before
     assert calls == [
         "source-pins", "guard-enter", "historical-bootstrap",
         "historical-legacy", "historical-overlay", "guard-exit",
         "dynamic-binding", "snapshot", "build-record",
         ("validate-record", record),
     ]
+
+
+def test_fixed_replay_bundle_restores_sys_path_on_loader_failure(
+    v4, monkeypatch,
+):
+    before_object = sys.path
+    before = list(sys.path)
+    marker = "/synthetic-fixed-replay-failure"
+
+    class HistoricalLoaders:
+        @staticmethod
+        def load_legacy_exact(discovery):
+            del discovery
+            sys.path.insert(0, marker)
+            raise RuntimeError("synthetic fixed replay failure")
+
+    monkeypatch.setattr(
+        v4, "_fixed_replay_sources_unchanged", lambda: None
+    )
+    monkeypatch.setattr(
+        v4, "_load_fixed_replay_readonly", lambda: HistoricalLoaders()
+    )
+    with pytest.raises(RuntimeError, match="synthetic fixed replay"):
+        v4._load_fixed_replay_bundle(
+            Path("/fixed-root"), {},
+            timeout_seconds=10.0,
+            elapsed_seconds_by_lane=[1.0, 2.0, 3.0, 4.0],
+        )
+    assert sys.path is before_object
+    assert sys.path == before
 
 
 def test_fixed_and_current_bundle_consumers_do_not_cross(v4):

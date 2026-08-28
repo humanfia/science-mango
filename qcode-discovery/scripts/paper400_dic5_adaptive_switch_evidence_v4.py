@@ -69,7 +69,7 @@ QUIESCENCE_INPUT_KIND = (
 QUIESCENCE_KIND = "paper400-adaptive-new-root-quiescence-v4"
 
 ATTEMPT_ID = (
-    "0476098fb46e7acf70c9b568835052b917af8590aa85612492e3168e998b5bff"
+    "6bef308b48b6469d5232347e20a7b08d78a63fa08b0c63fcc96d9156da6e26ca"
 )
 ATTEMPT_ROOT = Path(f"adaptive-handoff-v4-attempt-{ATTEMPT_ID}")
 INCIDENT_PRECONDITION = ATTEMPT_ROOT / "00-incident-precondition.json"
@@ -518,6 +518,18 @@ def _restore_project_modules(
         sys.modules[name] = module
 
 
+def _python_loader_state() -> tuple[list[str], Any, Any]:
+    if type(sys.path) is not list or any(
+        type(item) is not str for item in sys.path
+    ):
+        raise AdaptiveSwitchEvidenceV4Error(
+            "exact loader changed sys.path type or entries"
+        )
+    return (
+        list(sys.path), sys.dont_write_bytecode, sys.pycache_prefix,
+    )
+
+
 def _load_legacy_exact(
     discovery: Mapping[str, Any],
 ) -> tuple[Any, Any, list[dict[str, Any]]]:
@@ -528,6 +540,7 @@ def _load_legacy_exact(
     with _LOAD_GUARD:
         before_names = set(sys.modules)
         before_meta = list(sys.meta_path)
+        before_path = list(sys.path)
         removed = _purge_project_modules()
         try:
             sys.meta_path.insert(0, finder)
@@ -552,6 +565,7 @@ def _load_legacy_exact(
                 finder.observed[name] for name in sorted(finder.observed)
             ]
         finally:
+            sys.path[:] = before_path
             sys.meta_path[:] = before_meta
             _restore_project_modules(before_names, removed)
 
@@ -565,6 +579,7 @@ def _load_overlay_exact() -> tuple[Any, dict[str, Any], list[dict[str, Any]]]:
     with _LOAD_GUARD:
         before_names = set(sys.modules)
         before_meta = list(sys.meta_path)
+        before_path = list(sys.path)
         removed = _purge_project_modules()
         try:
             sys.meta_path.insert(0, finder)
@@ -583,6 +598,7 @@ def _load_overlay_exact() -> tuple[Any, dict[str, Any], list[dict[str, Any]]]:
                 "execution": "compile-exact-source-bytes-v4",
             }, [finder.observed[item] for item in sorted(finder.observed)]
         finally:
+            sys.path[:] = before_path
             sys.meta_path[:] = before_meta
             _restore_project_modules(before_names, removed)
 
@@ -737,13 +753,17 @@ def _load_fixed_replay_bundle(
 ) -> _FixedReplayBundle:
     _fixed_replay_sources_unchanged()
     with _LOAD_GUARD:
-        fixed_replay_readonly = _load_fixed_replay_readonly()
-        coordinator, child, legacy_executed = (
-            fixed_replay_readonly.load_legacy_exact(discovery)
-        )
-        overlay, overlay_record, overlay_executed = (
-            fixed_replay_readonly.load_overlay_exact()
-        )
+        before_path = list(sys.path)
+        try:
+            fixed_replay_readonly = _load_fixed_replay_readonly()
+            coordinator, child, legacy_executed = (
+                fixed_replay_readonly.load_legacy_exact(discovery)
+            )
+            overlay, overlay_record, overlay_executed = (
+                fixed_replay_readonly.load_overlay_exact()
+            )
+        finally:
+            sys.path[:] = before_path
     fixed_source_binding = _validate_fixed_dynamic_source_binding(
         discovery, legacy_executed, overlay_record, overlay_executed
     )
@@ -4843,6 +4863,7 @@ def _enter(
 ) -> AtomicSwitchLease:
     if type(strict_base) is not bool or strict_base is not True:
         raise AdaptiveSwitchEvidenceV4Error("only strict real replay is allowed")
+    entry_python_state = _python_loader_state()
     root = Path(batch_root)
     if (
         root != EXPECTED_BATCH_ROOT
@@ -4959,6 +4980,10 @@ def _enter(
                 else incident["record_sha256"]
             ),
         )
+        if _python_loader_state() != entry_python_state:
+            raise AdaptiveSwitchEvidenceV4Error(
+                "exact loader changed Python global state"
+            )
         if not candidate_only:
             lease.prepare_retirement()
         return lease
