@@ -6,7 +6,9 @@ the last displayed place.  This module reads the predeclared policy from the
 problem-only bundle, computes the only admissible reporting quantum, and
 builds a Lean probe that checks an exact ``ReportsAtQuantum`` declaration.
 
-The guard is deliberately narrow.  It activates only for the
+The certificate audit is deliberately narrow.  Complete marker absence is recorded
+as optional audit evidence; once any marker is present, parsing, policy matching,
+and the generated Lean probe remain fail-closed.  It activates only for the
 ``chemistry-native`` profile and an ``answer_blind`` bundle row.  Other Archon
 projects retain their existing Review behaviour.
 """
@@ -27,6 +29,11 @@ from archon.commands.tooling.domain_profile import load_domain_profile
 
 CERTIFICATE_MARKER = "archon:numeric-reporting-certificate"
 CERTIFICATE_SCHEMA_VERSION = 1
+NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS = "optional_audit"
+NUMERIC_REPORTING_MARKERS_ABSENT_REASON = (
+    "numeric reporting certificate markers are absent; marker evidence is an "
+    "optional audit when the original Lean target compiles"
+)
 
 _CERTIFICATE_RE = re.compile(
     rf"^\s*--\s*{re.escape(CERTIFICATE_MARKER)}\s+(?P<payload>\{{.*\}})\s*$"
@@ -541,7 +548,7 @@ def _probe_suffix(
 def prepare_numeric_reporting_guard(
     *, project_path: Path, target: Path, source_bytes: bytes | None = None,
 ) -> NumericReportingGuard:
-    """Prepare a target-bound proof probe, failing closed when active."""
+    """Prepare a strict proof probe or record complete marker absence for audit."""
     config_path = project_path / ".archon" / "config.json"
     config_mentions_native = False
     try:
@@ -605,6 +612,15 @@ def prepare_numeric_reporting_guard(
                 active=True,
                 status="not_applicable",
                 reason="target has no numeric requested outputs",
+                lean_source_sha256=lean_source_sha256,
+                bundle_sha256=bundle_digest,
+            )
+        if not raw_certificates:
+            return NumericReportingGuard(
+                active=True,
+                status=NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
+                reason=NUMERIC_REPORTING_MARKERS_ABSENT_REASON,
+                numeric_outputs=numeric_outputs,
                 lean_source_sha256=lean_source_sha256,
                 bundle_sha256=bundle_digest,
             )
@@ -703,7 +719,9 @@ def numeric_reporting_blockers(preflight: Mapping[str, Any] | None) -> list[dict
         if not isinstance(guard, Mapping) or guard.get("active") is not True:
             continue
         status = str(guard.get("status") or "").strip()
-        if status in {"passed", "not_applicable"}:
+        if status in {
+            "passed", "not_applicable", NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
+        }:
             continue
         rel = str(row.get("file") or "").strip()
         reason = str(guard.get("reason") or "numeric reporting guard failed").strip()

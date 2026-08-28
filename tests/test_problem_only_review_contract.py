@@ -58,14 +58,16 @@ from archon.commands.loop.answer_submission import answer_submission_path
 from archon.commands.loop.review_source_contract import (
     normalized_review_source_certificate,
 )
+from archon.commands.loop.numeric_reporting_guard import (
+    NUMERIC_REPORTING_MARKERS_ABSENT_REASON,
+    NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
+)
 from archon.commands.loop.problem_only_review_contract import (
     NATIVE_CONTRACT_KIND,
-    NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
     ProblemOnlyReviewContractError,
     _validate_native_composition_accounting,
     materialize_controller_review_provenance,
     native_problem_image_args,
-    numeric_reporting_marker_repair_reason,
     native_source_contract_provenance,
     render_native_chemistry_constant_policy,
     render_native_certified_prior_result_prompt,
@@ -1689,41 +1691,35 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 preflight=timeout,
             )
 
-    def test_missing_marker_exception_is_semantic_only_and_proof_stays_strict(
+    def test_missing_numeric_markers_are_valid_optional_audit_evidence(
         self,
     ) -> None:
         contract = self._contract()
         contract["problem_evidence"]["requested_outputs"][0]["kind"] = "numeric"
         reporting = contract["preflight"]["numeric_reporting"]
-        marker_preflight = {
+        contract["preflight"] = {
             **contract["preflight"],
-            "status": "failed",
-            "compiles": True,
-            "returncode": 0,
             "numeric_reporting": {
                 **reporting,
-                "status": "failed",
-                "reason": NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
+                "status": NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
+                "reason": NUMERIC_REPORTING_MARKERS_ABSENT_REASON,
                 "numeric_outputs": 1,
                 "certificates": [],
             },
         }
-        contract["preflight"] = marker_preflight
 
         self.assertEqual(
-            numeric_reporting_marker_repair_reason(contract),
-            NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
-        )
-        self.assertEqual(
             validate_native_passing_preflight(
-                contract,
-                require_zero_sorries=False,
-                allow_numeric_reporting_marker_repair=True,
+                contract, require_zero_sorries=True,
             ),
             "",
         )
+
+        contract["preflight"]["numeric_reporting"]["reason"] = (
+            "unrecognized optional reason"
+        )
         self.assertIn(
-            "successful deterministic Lean preflight",
+            "numeric_reporting is contradictory",
             validate_native_passing_preflight(
                 contract, require_zero_sorries=True,
             ),

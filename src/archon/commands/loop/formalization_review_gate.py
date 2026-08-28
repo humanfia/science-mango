@@ -28,9 +28,7 @@ from .native_semantic_review import (
     validate_independent_rederivation,
 )
 from .problem_only_review_contract import (
-    NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
     ProblemOnlyReviewContractError,
-    numeric_reporting_marker_repair_reason,
     resolve_target_review_source_contract,
     stored_review_provenance_matches_current,
     validate_native_review_source_certificate,
@@ -777,34 +775,6 @@ def _doctor_failures(
     return per_file, global_blockers
 
 
-def _numeric_reporting_marker_blocker_reason(
-    blockers: list[dict[str, str]],
-    source_contract: Mapping[str, Any] | None,
-) -> str:
-    """Recognize one source-bound, controller-generated marker blocker."""
-    if len(blockers) != 1 or not isinstance(source_contract, Mapping):
-        return ""
-    blocker = blockers[0]
-    reason = blocker.get("reason")
-    if (
-        blocker.get("source") != "numeric-reporting-guard"
-        or blocker.get("kind") != "invalid_reporting_certificate"
-        or reason != NUMERIC_REPORTING_MARKER_MISSING_REPAIR
-    ):
-        return ""
-    evidence = source_contract.get("problem_evidence")
-    requested = (
-        evidence.get("requested_outputs")
-        if isinstance(evidence, Mapping) else None
-    )
-    if not isinstance(requested, list) or not any(
-        isinstance(output, Mapping) and output.get("kind") == "numeric"
-        for output in requested
-    ):
-        return ""
-    return str(reason)
-
-
 def _merge_review_failure_reasons(
     semantic_decision: str,
     semantic_reason: str,
@@ -1266,18 +1236,6 @@ def apply_formalization_review(
             )
         except ProblemOnlyReviewContractError:
             expected_source_contract = None
-        mechanical_repair = ""
-        if semantic_decision == "passed":
-            mechanical_repair = _numeric_reporting_marker_blocker_reason(
-                target_blockers,
-                expected_source_contract,
-            )
-            if mechanical_repair:
-                decision = "failed"
-                reason = mechanical_repair
-        free_mechanical_repair = bool(mechanical_repair) and (
-            old.get("reason") != NUMERIC_REPORTING_MARKER_MISSING_REPAIR
-        )
         proof_redraft_fresh = formalization_redraft_candidate_is_fresh(
             state_dir=state_dir,
             target_rel=rel,
@@ -1328,7 +1286,7 @@ def apply_formalization_review(
                 f"({reviews}/{review_limit})"
             )
             certificate = {}
-        elif not free_mechanical_repair:
+        else:
             reviews += 1
             review_consumed = True
         trusted_resubmission = None
@@ -1476,19 +1434,10 @@ def apply_formalization_review(
         )
         write_stage(progress_file, "autoformalize")
         _replace_objectives(progress_file, [
-            (
-                f"- **`{rel}`** — Mechanical deterministic-preflight repair: "
-                f"{targets[rel]['reason']}. Semantic Review usage "
-                f"({targets[rel]['reviews']}/"
-                f"{effective_formalization_review_limit(targets[rel], max_iterations)} "
-                f"used). [prover-mode: {formalize_mode}]"
-                if targets[rel].get("reason") == NUMERIC_REPORTING_MARKER_MISSING_REPAIR
-                else
-                f"- **`{rel}`** — Redraft after failed formalization Review "
-                f"({targets[rel]['reviews']}/"
-                f"{effective_formalization_review_limit(targets[rel], max_iterations)} "
-                f"used). [prover-mode: {formalize_mode}]"
-            )
+            f"- **`{rel}`** — Redraft after failed formalization Review "
+            f"({targets[rel]['reviews']}/"
+            f"{effective_formalization_review_limit(targets[rel], max_iterations)} "
+            f"used). [prover-mode: {formalize_mode}]"
             for rel in retry
         ])
     else:
@@ -1579,8 +1528,6 @@ def apply_target_formalization_review(
     review_consumed = False
     trusted_resubmission = None
     source_contract = expected_source_contract
-    mechanical_repair = ""
-    free_mechanical_repair = False
     if reviews >= review_limit:
         status = "review_exhausted"
         reason = (
@@ -1611,16 +1558,6 @@ def apply_target_formalization_review(
             decision = "failed"
             reason = f"problem-only source contract validation failed: {exc}"
             certificate = {}
-        if decision == "passed":
-            mechanical_repair = numeric_reporting_marker_repair_reason(
-                source_contract,
-                preflight=preflight,
-            )
-            free_mechanical_repair = (
-                bool(mechanical_repair)
-                and old.get("reason")
-                != NUMERIC_REPORTING_MARKER_MISSING_REPAIR
-            )
         proof_redraft_fresh = formalization_redraft_candidate_is_fresh(
             state_dir=state_dir,
             target_rel=rel,
@@ -1663,32 +1600,25 @@ def apply_target_formalization_review(
                 passed=False,
                 applied=False,
             )
-        if mechanical_repair:
-            # The semantic certificate passed.  A missing Lean
-            # comment marker gets one zero-cost repair; repeats spend budget.
-            decision = "failed"
-            reason = mechanical_repair
-        if not free_mechanical_repair:
-            reviews += 1
-            review_consumed = True
-            if (
-                decision == "failed"
-                and not mechanical_repair
-                and reviews == max_iterations
-                and review_limit == max_iterations
-            ):
-                trusted_resubmission = _trusted_bridge_resubmission(
-                    record=old,
-                    certificate=certificate,
-                    target_rel=rel,
-                    candidate_sha256=candidate_sha256,
-                    expected_source_contract=source_contract,
-                    event_id=event_id,
-                    iter_num=iter_num,
-                    base_max_iterations=max_iterations,
-                )
-                if trusted_resubmission is not None:
-                    review_limit = int(trusted_resubmission["max_total_reviews"])
+        reviews += 1
+        review_consumed = True
+        if (
+            decision == "failed"
+            and reviews == max_iterations
+            and review_limit == max_iterations
+        ):
+            trusted_resubmission = _trusted_bridge_resubmission(
+                record=old,
+                certificate=certificate,
+                target_rel=rel,
+                candidate_sha256=candidate_sha256,
+                expected_source_contract=source_contract,
+                event_id=event_id,
+                iter_num=iter_num,
+                base_max_iterations=max_iterations,
+            )
+            if trusted_resubmission is not None:
+                review_limit = int(trusted_resubmission["max_total_reviews"])
         if decision == "passed":
             status = "passed"
         elif reviews >= review_limit:

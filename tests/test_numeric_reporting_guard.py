@@ -10,6 +10,8 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from archon.commands.loop.numeric_reporting_guard import (
+    NUMERIC_REPORTING_MARKERS_ABSENT_REASON,
+    NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
     NumericReportingGuardError,
     expected_reporting_quantum,
     finalized_guard_evidence,
@@ -17,7 +19,6 @@ from archon.commands.loop.numeric_reporting_guard import (
     prepare_numeric_reporting_guard,
 )
 from archon.commands.loop.proof_review_gate import apply_proof_review
-from archon.commands.loop.problem_only_review_contract import NUMERIC_REPORTING_MARKER_MISSING_REPAIR
 from archon.commands.loop.review_preflight import check_review_target
 
 
@@ -167,9 +168,11 @@ class NumericReportingGuardTest(unittest.TestCase):
         self.assertEqual(guard.status, "failed")
         self.assertIn("must be 1/", guard.reason)
 
-    def test_missing_duplicate_and_unsafe_certificates_fail_closed(self):
+    def test_present_duplicate_and_unsafe_certificates_fail_closed(self):
         sources = {
-            "missing": "def Example.rawValue : ℝ := 1\n",
+            "malformed-marker": (
+                "-- archon:numeric-reporting-certificate not-json\n"
+            ),
             "duplicate": _certificate() + "\n" + _certificate() + "\n",
             "unsafe": _certificate(raw="Example.rawValue; #eval 1") + "\n",
             "boolean": _certificate(digits=True) + "\n",
@@ -288,9 +291,9 @@ class NumericReportingGuardTest(unittest.TestCase):
         self.assertTrue(result["compiles"])
         self.assertEqual(result["numeric_reporting"]["status"], "passed")
 
-    def test_compiling_target_without_marker_gets_fixed_mechanical_route(self):
+    def test_compiling_target_with_malformed_marker_is_blocked(self):
         self._write_problem(
-            source="def Example.rawValue : ℝ := 1\n",
+            source="-- archon:numeric-reporting-certificate not-json\n",
         )
         process = Mock()
         process.pid = 1234
@@ -307,12 +310,44 @@ class NumericReportingGuardTest(unittest.TestCase):
 
         self.assertEqual(result["status"], "failed")
         self.assertTrue(result["compiles"])
+        self.assertEqual(result["numeric_reporting"]["status"], "failed")
+        self.assertEqual(
+            len(numeric_reporting_blockers({"targets": [result]})), 1,
+        )
+
+    def test_compiling_target_without_marker_is_optional_audit(self):
+        self._write_problem(
+            source="def Example.rawValue : ℝ := 1\n",
+        )
+        process = Mock()
+        process.pid = 1234
+        process.returncode = 0
+        process.communicate.return_value = ("", "")
+
+        with patch(
+            "archon.commands.loop.review_preflight.subprocess.Popen",
+            return_value=process,
+        ):
+            result = check_review_target(
+                project_path=self.project, target=self.target,
+            )
+
+        self.assertEqual(result["status"], "passed")
+        self.assertTrue(result["compiles"])
         self.assertEqual(result["returncode"], 0)
         reporting = result["numeric_reporting"]
         self.assertEqual(
-            reporting["reason"], NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
+            reporting["status"], NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
         )
+        self.assertEqual(
+            reporting["reason"], NUMERIC_REPORTING_MARKERS_ABSENT_REASON,
+        )
+        self.assertEqual(reporting["numeric_outputs"], 1)
+        self.assertEqual(reporting["certificates"], [])
         self.assertNotIn("lean_probe_passed", reporting)
+        self.assertEqual(
+            numeric_reporting_blockers({"targets": [result]}), [],
+        )
 
     def test_failed_probe_with_compiling_original_keeps_compile_success(self):
         self._write_problem()
@@ -351,7 +386,7 @@ class NumericReportingGuardTest(unittest.TestCase):
         self.assertFalse(result["numeric_reporting"]["lean_probe_passed"])
         self.assertNotEqual(
             result["numeric_reporting"]["reason"],
-            NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
+            NUMERIC_REPORTING_MARKERS_ABSENT_REASON,
         )
 
     def test_failed_guard_becomes_formalization_and_proof_blocker(self):

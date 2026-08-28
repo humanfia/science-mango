@@ -43,6 +43,8 @@ from .certified_prior_result_context import (
 from .numeric_reporting_guard import (
     MAX_NUMERIC_REPORTING_CERTIFICATE_BYTES,
     MAX_NUMERIC_REPORTING_REASON_LENGTH,
+    NUMERIC_REPORTING_MARKERS_ABSENT_REASON,
+    NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
 )
 from .review_source_contract import (
     build_review_source_contract,
@@ -180,13 +182,8 @@ _NUMERIC_REPORTING_FINAL_FIELDS = _NUMERIC_REPORTING_EVIDENCE_FIELDS | {
 }
 _NUMERIC_REPORTING_STATUSES = {
     "passed", "failed", "blocked", "not_applicable", "error",
+    NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
 }
-NUMERIC_REPORTING_MARKER_MISSING_REPAIR = (
-    "compiled Lean target is missing the required "
-    "archon:numeric-reporting-certificate marker; add exactly one valid "
-    "certificate line for each numeric requested output, then rerun "
-    "deterministic preflight"
-)
 _GENERATED_ENTRY_FIELDS = {
     "blind_record_sha256",
     "image_path",
@@ -543,6 +540,15 @@ def _validate_numeric_reporting(
         )
         or (
             active is True
+            and status == NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS
+            and reason == NUMERIC_REPORTING_MARKERS_ABSENT_REASON
+            and count > 0
+            and not certificates
+            and not probe_present
+            and bound
+        )
+        or (
+            active is True
             and status == "passed"
             and complete
             and probe_present
@@ -749,7 +755,9 @@ def _validate_preflight(
     reporting = result["numeric_reporting"]
     if status == "passed" and (
         reporting["active"] is not True
-        or reporting["status"] not in {"passed", "not_applicable"}
+        or reporting["status"] not in {
+            "passed", "not_applicable", NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
+        }
     ):
         raise ProblemOnlyReviewContractError(
             "passing deterministic Lean preflight has invalid numeric_reporting"
@@ -2761,7 +2769,6 @@ def validate_native_passing_preflight(
     contract: Mapping[str, Any] | None,
     *,
     require_zero_sorries: bool,
-    allow_numeric_reporting_marker_repair: bool = False,
 ) -> str:
     """Validate worker-local deterministic evidence for a passing verdict."""
     if not is_native_problem_only_contract(contract):
@@ -2782,15 +2789,6 @@ def validate_native_passing_preflight(
     except ProblemOnlyReviewContractError as exc:
         return str(exc)
     if (
-        allow_numeric_reporting_marker_repair
-        and numeric_reporting_marker_repair_reason(contract, preflight=row)
-    ):
-        # A semantic formalization certificate may be checked independently
-        # of a comment-only certificate repair.  The formalization gate still
-        # refuses to pass the target and routes the exact mechanical fix.
-        # Proof Review calls this validator again without the exception.
-        return ""
-    if (
         row.get("status") != "passed"
         or row.get("compiles") is not True
         or row.get("returncode") != 0
@@ -2799,56 +2797,6 @@ def validate_native_passing_preflight(
     if require_zero_sorries and row.get("sorry_count") != 0:
         return "solved proof Review requires deterministic sorry_count=0"
     return ""
-
-
-def numeric_reporting_marker_repair_reason(
-    contract: Mapping[str, Any] | None,
-    *,
-    preflight: Mapping[str, Any] | None = None,
-) -> str:
-    """Return a fixed repair reason for a source-bound marker-only failure.
-
-    This deliberately does not classify bad values, policies, declaration
-    bindings, Lean probe failures, or ordinary compilation failures as
-    mechanical.  No new evidence field or trust path is introduced.
-    """
-    if not is_native_problem_only_contract(contract):
-        return ""
-    row = preflight if isinstance(preflight, Mapping) else contract.get(
-        "preflight"
-    )
-    if not isinstance(row, Mapping):
-        return ""
-    reporting = row.get("numeric_reporting")
-    evidence = contract.get("problem_evidence")
-    requested = (
-        evidence.get("requested_outputs")
-        if isinstance(evidence, Mapping) else None
-    )
-    numeric_count = (
-        sum(
-            1 for output in requested
-            if isinstance(output, Mapping) and output.get("kind") == "numeric"
-        )
-        if isinstance(requested, list) else 0
-    )
-    if not isinstance(reporting, Mapping):
-        return ""
-    reason = reporting.get("reason")
-    if (
-        numeric_count < 1
-        or reporting.get("numeric_outputs") != numeric_count
-        or row.get("status") != "failed"
-        or row.get("compiles") is not True
-        or row.get("returncode") != 0
-        or reporting.get("active") is not True
-        or reporting.get("status") != "failed"
-        or reporting.get("certificates") != []
-        or "lean_probe_passed" in reporting
-        or reason != NUMERIC_REPORTING_MARKER_MISSING_REPAIR
-    ):
-        return ""
-    return str(reason)
 
 
 def validate_native_review_source_certificate(
@@ -2899,7 +2847,6 @@ def validate_native_review_source_certificate(
         preflight_error = validate_native_passing_preflight(
             expected_contract,
             require_zero_sorries=False,
-            allow_numeric_reporting_marker_repair=True,
         )
         if preflight_error:
             return preflight_error

@@ -30,7 +30,6 @@ from archon.commands.loop.review_source_contract import (
     source_contract_provenance,
 )
 from archon.commands.loop.problem_only_review_contract import (
-    NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
     ProblemOnlyReviewContractError,
     native_source_contract_provenance,
     resolve_target_review_source_contract,
@@ -922,100 +921,6 @@ class FormalizationReviewGateTests(unittest.TestCase):
             stored["milestones"][0]["independent_rederivation"],
             review["independent_rederivation"],
         )
-
-    def test_missing_reporting_marker_does_not_consume_semantic_review(self):
-        contract = self._set_native_profile_and_bundle()
-        review = self._passing_certificate()
-        review.update(self._native_source_audit())
-        review["independent_rederivation"] = (
-            build_independent_rederivation_example(contract)
-        )
-        rel = self.target.relative_to(self.project).as_posix()
-
-        result = self._review(
-            1,
-            "passed",
-            formalization_review=review,
-            blockers=({
-                "source": "numeric-reporting-guard",
-                "file": rel,
-                "kind": "invalid_reporting_certificate",
-                "reason": NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
-            },),
-        )
-
-        self.assertEqual(result.retry, (rel,))
-        record = load_gate_state(self.state)["targets"][rel]
-        self.assertEqual(record["reviews"], 0)
-        self.assertEqual(
-            record["reason"], NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
-        )
-        progress = self.progress.read_text(encoding="utf-8")
-        self.assertIn("Mechanical deterministic-preflight repair", progress)
-        self.assertIn("Semantic Review usage (0/3 used)", progress)
-
-        repeated = self._review(
-            2,
-            "passed",
-            formalization_review=review,
-            blockers=({
-                "source": "numeric-reporting-guard",
-                "file": rel,
-                "kind": "invalid_reporting_certificate",
-                "reason": NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
-            },),
-        )
-        self.assertEqual(repeated.retry, (rel,))
-        record = load_gate_state(self.state)["targets"][rel]
-        self.assertEqual(record["reviews"], 1)
-
-    def test_repeated_marker_target_retry_is_counted_and_exhausted(self):
-        rel = self.target.relative_to(self.project).as_posix()
-        formalization_review_gate._write_state(
-            self.state, {
-                "version": 2,
-                "max_iterations": 1,
-                "targets": {rel: {
-                    "status": "retry",
-                    "reviews": 0,
-                    "reason": NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
-                }},
-            },
-        )
-        milestone = {
-            "status": "solved",
-            "target": {"file": rel, "theorem": "p"},
-            "formalization_review": self._passing_certificate(),
-        }
-        with (
-            mock.patch.object(
-                formalization_review_gate, "_decision_from_milestone",
-                return_value=("passed", "semantic pass", {}),
-            ),
-            mock.patch.object(
-                formalization_review_gate,
-                "numeric_reporting_marker_repair_reason",
-                return_value=NUMERIC_REPORTING_MARKER_MISSING_REPAIR,
-            ),
-            mock.patch.object(
-                formalization_review_gate, "_trusted_bridge_resubmission",
-            ) as trusted_resubmission,
-        ):
-            update = apply_target_formalization_review(
-                state_dir=self.state,
-                project_path=self.project,
-                target=self.target,
-                milestone=milestone,
-                iter_num=2,
-                max_iterations=1,
-                event_id="pipeline:2:Problems/p.lean:formalization:2",
-                expected_source_contract={},
-                preflight={},
-            )
-        self.assertEqual(update.reviews, 1)
-        self.assertEqual(update.status, "review_exhausted")
-        self.assertFalse(update.passed)
-        trusted_resubmission.assert_not_called()
 
     def test_native_batch_failure_preserves_source_bound_repair_actions(self):
         contract = self._set_native_profile_and_bundle()

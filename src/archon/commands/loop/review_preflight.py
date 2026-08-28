@@ -15,38 +15,13 @@ from pathlib import Path
 
 from .deterministic_plan import fast_open_sorry_count
 from .numeric_reporting_guard import (
-    CERTIFICATE_MARKER,
     MAX_NUMERIC_REPORTING_REASON_LENGTH,
+    NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
     finalized_guard_evidence,
     prepare_numeric_reporting_guard,
 )
-from .problem_only_review_contract import NUMERIC_REPORTING_MARKER_MISSING_REPAIR
 
 _PROCESS_GROUP_TERM_GRACE_SEC = 1.0
-
-
-def _numeric_reporting_mechanical_repair_reason(
-    guard: object, source_bytes: bytes,
-) -> str:
-    """Classify only complete absence of the required comment marker."""
-    if (
-        getattr(guard, "active", False) is not True
-        or getattr(guard, "status", "") != "failed"
-        or getattr(guard, "numeric_outputs", 0) < 1
-        or getattr(guard, "certificates", ())
-    ):
-        return ""
-    reason = str(getattr(guard, "reason", ""))
-    marker_present = CERTIFICATE_MARKER.encode("ascii") in source_bytes
-    if (
-        not marker_present
-        and reason.startswith(
-            "numeric reporting certificates must cover each numeric output "
-            "exactly once: missing "
-        )
-    ):
-        return NUMERIC_REPORTING_MARKER_MISSING_REPAIR
-    return ""
 
 
 @dataclass(frozen=True)
@@ -182,14 +157,6 @@ def _check_target(
         reporting = finalized_guard_evidence(
             reporting_guard, lean_probe_passed=lean_probe_passed,
         )
-        mechanical_repair = _numeric_reporting_mechanical_repair_reason(
-            reporting_guard, source_bytes,
-        )
-        if result.returncode == 0 and mechanical_repair:
-            # The original Lean file is sound; only a controller-readable
-            # comment marker needs repair.  Keep the preflight nonpassing,
-            # but expose a fixed mechanical route rather than a semantic one.
-            reporting["reason"] = mechanical_repair
         # When the target itself does not compile, the reporting theorem was
         # not isolated as the cause.  Preserve that distinction so proof
         # routing treats this as an ordinary compile retry, not a semantic
@@ -205,7 +172,7 @@ def _check_target(
                 lean_probe_passed=None,
             )
         passed = result.returncode == 0 and reporting.get("status") in {
-            "passed", "not_applicable",
+            "passed", "not_applicable", NUMERIC_REPORTING_OPTIONAL_AUDIT_STATUS,
         }
         return ReviewPreflightCheck(
             rel,
