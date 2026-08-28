@@ -1,0 +1,34 @@
+import ArchonPhysics.CanonicalFixedRadiusHaarMomentClosure
+
+/-!
+# Consumer: exact fixed-radius Haar moment closure
+
+This consumer exercises the charge-balanced two- and four-point closure used
+by the canonical FPUT random-phase initialization, together with the explicit
+nearby-family error bounds.  In particular, the repeated-mode fourth moment
+has fixed-radius coefficient one and is not replaced by a Gaussian Wick
+multiplicity.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.CanonicalFixedRadiusHaarMomentClosure
+
+#check integral_twoPointProduct_fixedRadiusHaarAmplitude
+#check integral_anomalousProduct_fixedRadiusHaarAmplitude
+#check integral_fourPointProduct_fixedRadiusHaarAmplitude
+#check norm_integral_twoPoint_sub_chargeBalanced_le
+#check norm_integral_fourPoint_sub_chargeBalanced_le
+#check fixedRadiusHaarAmplitude_eq_canonicalFreeComplexInitialAmplitude
+#check integral_twoPointProduct_canonicalFreeComplexInitialAmplitude
+#check integral_fourPointProduct_canonicalFreeComplexInitialAmplitude
+#check integral_fourPointProduct_canonicalFreeComplexInitialAmplitude_same
+
+#print axioms integral_twoPointProduct_fixedRadiusHaarAmplitude
+#print axioms integral_fourPointProduct_fixedRadiusHaarAmplitude
+#print axioms norm_integral_twoPoint_sub_chargeBalanced_le
+#print axioms norm_integral_fourPoint_sub_chargeBalanced_le
+#print axioms integral_fourPointProduct_canonicalFreeComplexInitialAmplitude
+#print axioms integral_fourPointProduct_canonicalFreeComplexInitialAmplitude_same
+
+end ArchonPhysicsConsumers.Thermalization
