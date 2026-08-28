@@ -48,9 +48,21 @@ theorem problem_finite_six_wave_rayleigh_jeans_network_stationary
   finiteSixWaveObservableSlope_rayleighJeans_eq_zero
     channels rate frequency weight chemical inverseTemperature hresonant
 
+theorem problem_rayleigh_jeans_is_finite_six_wave_weak_solution
+    (channels : Channel -> SixWaveChannel Mode) (rate : Channel -> Real)
+    (frequency : Mode -> Real) (chemical inverseTemperature : Real)
+    (hresonant : ∀ collision, ChannelResonant (channels collision) frequency) :
+    SolvesFiniteSixWaveKineticWeakly channels rate
+      (fun _time mode =>
+        ArchonPhysics.SixWaveCollisionAlgebra.rayleighJeansAction
+          chemical inverseTemperature (frequency mode)) :=
+  rayleighJeans_solvesFiniteSixWaveKineticWeakly
+    channels rate frequency chemical inverseTemperature hresonant
+
 #print axioms problem_finite_six_wave_weak_action_conservation
 #print axioms problem_finite_six_wave_weak_energy_conservation
 #print axioms problem_finite_six_wave_rayleigh_jeans_network_stationary
+#print axioms problem_rayleigh_jeans_is_finite_six_wave_weak_solution
 
 end
 

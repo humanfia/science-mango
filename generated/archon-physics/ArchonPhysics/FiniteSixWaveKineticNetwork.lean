@@ -175,6 +175,23 @@ def SolvesFiniteSixWaveKineticWeakly
       (finiteSixWaveObservableSlope channels rate (trajectory time) weight)
       time
 
+/-- The time-independent Rayleigh--Jeans profile is an exact weak solution
+of every resonant finite six-wave network. -/
+theorem rayleighJeans_solvesFiniteSixWaveKineticWeakly
+    [Fintype Mode]
+    (channels : Channel -> SixWaveChannel Mode) (rate : Channel -> Real)
+    (frequency : Mode -> Real) (chemical inverseTemperature : Real)
+    (hresonant : ∀ collision, ChannelResonant (channels collision) frequency) :
+    SolvesFiniteSixWaveKineticWeakly channels rate
+      (fun _time mode =>
+        rayleighJeansAction chemical inverseTemperature (frequency mode)) := by
+  intro time weight
+  rw [finiteSixWaveObservableSlope_rayleighJeans_eq_zero
+    channels rate frequency weight chemical inverseTemperature hresonant]
+  simpa using (hasDerivAt_const time
+    (∑ mode, weight mode *
+      rayleighJeansAction chemical inverseTemperature (frequency mode)))
+
 /-- Every weak solution conserves total wave action infinitesimally. -/
 theorem hasDerivAt_totalAction_zero_of_solvesWeakly
     [Fintype Mode]
