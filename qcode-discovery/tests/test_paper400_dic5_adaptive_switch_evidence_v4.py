@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 import copy
 import fcntl
 import hashlib
@@ -7,6 +8,7 @@ import importlib.util
 import inspect
 import json
 import os
+import subprocess
 import stat
 from pathlib import Path
 
@@ -227,20 +229,75 @@ def _switch(v4) -> dict:
     }
 
 
-def test_execution_closure_is_v4_plus_frozen_v2_only(v4):
+def test_execution_closure_splits_fixed_replay_from_current_science(v4):
     binding = v4._v4_source_binding()
     assert [item["role"] for item in binding["sources"]] == [
         "adaptive_switch_evidence_v4_source",
         "adaptive_switch_evidence_v2_primitives_source",
     ]
-    source = SOURCE.read_text(encoding="utf-8")
-    assert "_load_v3_execution_base" not in source
-    assert "v3, _V3_EXECUTION" not in source
+    dependency = binding["historical_fixed_replay_dependency"]
+    assert dependency["readonly_api"] == [
+        "load_legacy_exact", "load_overlay_exact",
+    ]
+    assert dependency["historical_v3_calls_are_readonly_loaders_only"] is True
+    assert dependency["fixed_record_primitives"] == (
+        "current-v4-frozen-v2-exact-source"
+    )
+    assert dependency["dynamic_source_binding_sha256"] == (
+        v4.FIXED_REPLAY_DYNAMIC_SOURCE_BINDING_SHA256
+    )
+    assert dependency["static_source_binding"] == (
+        v4._expected_failed_v3_source_binding()
+    )
+    assert [item["sha256"] for item in dependency["sources"]] == [
+        v4.FAILED_V3_SOURCE_SHA256,
+        v4.EXPECTED_V2_SOURCE_SHA256,
+        v4.FIXED_REPLAY_OVERLAY_SOURCE_SHA256,
+    ]
+    assert [item["execution"] for item in dependency["sources"]] == [
+        (
+            "on-demand-fixed-replay-"
+            "compile-exact-source-bytes-v4-fixed-bootstrap"
+        ),
+        "on-demand-fixed-replay-compile-exact-source-bytes-v3",
+        (
+            "on-demand-fixed-replay-historical-v3-readonly-loader-"
+            "compile-exact-source-bytes-v3"
+        ),
+    ]
+    assert [Path(item["absolute_path"]) for item in dependency["sources"]] == [
+        v4.FIXED_REPLAY_V3_SOURCE,
+        v4.FIXED_REPLAY_V2_SOURCE,
+        v4.FIXED_REPLAY_OVERLAY_SOURCE,
+    ]
+    assert v4._FixedReplayReadonly.__slots__ == (
+        "_load_legacy", "_load_overlay",
+    )
+    assert not hasattr(v4, "_FIXED_REPLAY_READONLY")
+
+    class HistoricalModule:
+        _load_legacy_exact = staticmethod(lambda discovery: discovery)
+        _load_overlay_exact = staticmethod(lambda: None)
+
+    facade = v4._FixedReplayReadonly(HistoricalModule())
+    public_methods = {
+        name for name, value in vars(v4._FixedReplayReadonly).items()
+        if not name.startswith("_") and callable(value)
+    }
+    assert public_methods == {"load_legacy_exact", "load_overlay_exact"}
+    assert not hasattr(facade, "_snapshot")
+    assert not hasattr(facade, "_build_record")
+    assert not hasattr(facade, "_source_binding")
+    assert not hasattr(facade, "_validate_record")
+    assert not hasattr(facade, "action")
     assert v4.EXPECTED_V2_SOURCE_SHA256 == binding["sources"][1]["sha256"]
 
 
 def test_fixed_attempt_and_production_hard_pins(v4):
     assert len(v4.ATTEMPT_ID) == 64
+    assert v4.ATTEMPT_ID == (
+        "0476098fb46e7acf70c9b568835052b917af8590aa85612492e3168e998b5bff"
+    )
     assert v4.ATTEMPT_ROOT.name.endswith(v4.ATTEMPT_ID)
     assert len(v4.EXPECTED_HARD_EVIDENCE_SHA256S) == 4
     assert all(len(item) == 64 for item in v4.EXPECTED_HARD_EVIDENCE_SHA256S)
@@ -689,6 +746,32 @@ def test_historical_source_helper_is_named_v3_and_never_executes_it(v4):
         item["role"] != "adaptive_switch_evidence_v3_execution_base_source"
         for item in v4._v4_source_binding()["sources"]
     )
+
+
+def test_module_import_captures_historical_sources_without_exact_exec(
+    monkeypatch,
+):
+    compiled_paths = []
+    real_compile = builtins.compile
+
+    def audited_compile(*args, **kwargs):
+        if len(args) >= 2:
+            compiled_paths.append(str(args[1]))
+        return real_compile(*args, **kwargs)
+
+    monkeypatch.setattr(builtins, "compile", audited_compile)
+    module = _load_module()
+    assert str(module.FIXED_REPLAY_V3_SOURCE) not in compiled_paths
+    assert str((PROJECT / module.BASE_RELATIVE).resolve()) in compiled_paths
+    assert not hasattr(module, "_FIXED_REPLAY_READONLY")
+    assert [
+        hashlib.sha256(payload).hexdigest()
+        for payload in module._FIXED_REPLAY_SOURCE_PAYLOADS
+    ] == [
+        module.FAILED_V3_SOURCE_SHA256,
+        module.EXPECTED_V2_SOURCE_SHA256,
+        module.FIXED_REPLAY_OVERLAY_SOURCE_SHA256,
+    ]
 
 
 def test_real_failed_v3_incident_is_readonly_if_available(v4):
@@ -1412,3 +1495,243 @@ def test_retirement_authority_flags_fail_closed(
         match="v4 retirement journal chain mismatch",
     ):
         v4._validate_retirement_chain(root, commit, incident_pin)
+
+def test_runner_style_isolated_fixed_replay_bootstrap(v4):
+    dependency_root = Path(
+        "/root/qcode-stage3-distqldpc-lower-v1/qcode-discovery/.venv/"
+        "lib/python3.12/site-packages"
+    )
+    strict_python = Path(
+        "/root/qcode-stage3-distqldpc-lower-v1/qcode-discovery/.venv/bin/python"
+    )
+    if (
+        not v4.EXPECTED_BATCH_ROOT.is_dir()
+        or not dependency_root.is_dir()
+        or not strict_python.is_file()
+    ):
+        pytest.skip("production replay inputs are not mounted")
+    probe = f"""
+import importlib.util
+import json
+import sys
+from pathlib import Path
+project = Path({str(PROJECT)!r})
+dependency_root = Path({str(dependency_root)!r})
+sys.path[:0] = [str(project), str(dependency_root)]
+source = project / "scripts/paper400_dic5_adaptive_switch_evidence_v4.py"
+spec = importlib.util.spec_from_file_location(
+    "scripts.paper400_dic5_adaptive_switch_evidence_v4", source
+)
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+discovery = module.base._discover_sources(
+    module.EXPECTED_BATCH_ROOT,
+    expected_batch_manifest_sha256=module.EXPECTED_BATCH_MANIFEST_SHA256,
+)
+with module._LOAD_GUARD:
+    fixed_replay_readonly = module._load_fixed_replay_readonly()
+    _, _, legacy = fixed_replay_readonly.load_legacy_exact(discovery)
+    _, overlay_record, overlay = (
+        fixed_replay_readonly.load_overlay_exact()
+    )
+binding = module._validate_fixed_dynamic_source_binding(
+    discovery, legacy, overlay_record, overlay
+)
+print(json.dumps({{
+    "attempt_id": module.ATTEMPT_ID,
+    "dynamic": binding["source_binding_sha256"],
+    "legacy": len(legacy),
+    "overlay": len(overlay),
+    "overlay_execution": overlay_record["execution"],
+    "overlay_sha256": overlay_record["sha256"],
+}}, sort_keys=True))
+"""
+    completed = subprocess.run(
+        [str(strict_python), "-I", "-S", "-B", "-c", probe],
+        check=False, capture_output=True, text=True, timeout=120,
+        env={"LANG": "C", "LC_ALL": "C", "TZ": "UTC"},
+    )
+    assert completed.returncode == 0, completed.stderr
+    observed = json.loads(completed.stdout)
+    assert observed == {
+        "attempt_id": v4.ATTEMPT_ID,
+        "dynamic": v4.FIXED_REPLAY_DYNAMIC_SOURCE_BINDING_SHA256,
+        "legacy": 25,
+        "overlay": 19,
+        "overlay_execution": "compile-exact-source-bytes-v3",
+        "overlay_sha256": v4.FIXED_REPLAY_OVERLAY_SOURCE_SHA256,
+    }
+
+
+def test_fixed_bundle_validates_provenance_before_snapshot_under_v4_guard(
+    v4, monkeypatch,
+):
+    calls = []
+
+    class Guard:
+        entered = False
+
+        def __enter__(self):
+            assert self.entered is False
+            self.entered = True
+            calls.append("guard-enter")
+            return self
+
+        def __exit__(self, *args):
+            self.entered = False
+            calls.append("guard-exit")
+            return False
+
+    guard = Guard()
+    coordinator = object()
+    child = object()
+    overlay = object()
+    legacy_executed = [{"kind": "historical-legacy"}]
+    overlay_executed = [{"kind": "historical-overlay"}]
+    overlay_record = {
+        "role": "adaptive_leaf_overlay_v2_source",
+        "relative_path": v4.OVERLAY_RELATIVE.as_posix(),
+        "sha256": v4.FIXED_REPLAY_OVERLAY_SOURCE_SHA256,
+        "bytes": v4.FIXED_REPLAY_OVERLAY_SOURCE_BYTES,
+        "execution": "compile-exact-source-bytes-v3",
+    }
+
+    class HistoricalLoaders:
+        @staticmethod
+        def load_legacy_exact(discovery):
+            assert discovery == {"fixture": True}
+            assert guard.entered is True
+            calls.append("historical-legacy")
+            return coordinator, child, legacy_executed
+
+        @staticmethod
+        def load_overlay_exact():
+            assert guard.entered is True
+            calls.append("historical-overlay")
+            return overlay, overlay_record, overlay_executed
+
+    binding = {"fixed": True}
+    snapshot = {"snapshot": True}
+    record = {
+        "source_binding": binding,
+        "record_sha256": v4.EXPECTED_SWITCH_EVIDENCE_SHA256,
+    }
+    monkeypatch.setattr(v4, "_LOAD_GUARD", guard)
+
+    def load_historical_readonly():
+        assert guard.entered is True
+        calls.append("historical-bootstrap")
+        return HistoricalLoaders()
+
+    monkeypatch.setattr(
+        v4, "_load_fixed_replay_readonly", load_historical_readonly
+    )
+    monkeypatch.setattr(
+        v4, "_fixed_replay_sources_unchanged",
+        lambda: calls.append("source-pins"),
+    )
+
+    def validate_binding(*args):
+        assert guard.entered is False
+        assert args == (
+            {"fixture": True}, legacy_executed,
+            overlay_record, overlay_executed,
+        )
+        calls.append("dynamic-binding")
+        return binding
+
+    def snapshot_locked(root, observed_coordinator, observed_child):
+        assert root == Path("/fixed-root")
+        assert observed_coordinator is coordinator
+        assert observed_child is child
+        calls.append("snapshot")
+        return snapshot
+
+    def build_record(
+        root, observed_snapshot, discovery, observed_overlay,
+        observed_legacy, observed_overlay_record, observed_overlay_executed,
+        **policy,
+    ):
+        assert root == Path("/fixed-root")
+        assert observed_snapshot is snapshot
+        assert discovery == {"fixture": True}
+        assert observed_overlay is overlay
+        assert observed_legacy == legacy_executed
+        assert observed_overlay_record == overlay_record
+        assert observed_overlay_executed == overlay_executed
+        assert policy == {
+            "timeout_seconds": 10.0,
+            "elapsed_seconds_by_lane": [1.0, 2.0, 3.0, 4.0],
+        }
+        calls.append("build-record")
+        return record
+
+    monkeypatch.setattr(
+        v4, "_validate_fixed_dynamic_source_binding", validate_binding
+    )
+    monkeypatch.setattr(v4.base, "_snapshot_locked", snapshot_locked)
+    monkeypatch.setattr(v4.base, "_build_record", build_record)
+    monkeypatch.setattr(
+        v4, "validate_switch_record_structure",
+        lambda value: calls.append(("validate-record", value)),
+    )
+    bundle = v4._load_fixed_replay_bundle(
+        Path("/fixed-root"), {"fixture": True},
+        timeout_seconds=10.0,
+        elapsed_seconds_by_lane=[1.0, 2.0, 3.0, 4.0],
+    )
+    assert bundle.record == record
+    assert calls == [
+        "source-pins", "guard-enter", "historical-bootstrap",
+        "historical-legacy", "historical-overlay", "guard-exit",
+        "dynamic-binding", "snapshot", "build-record",
+        ("validate-record", record),
+    ]
+
+
+def test_fixed_and_current_bundle_consumers_do_not_cross(v4):
+    current = inspect.getsource(v4._load_current_science_bundle)
+    enter = inspect.getsource(v4._enter)
+    lease_init = inspect.getsource(v4.AtomicSwitchLease.__init__)
+    verify_target = inspect.getsource(v4.AtomicSwitchLease.verify_target)
+    base_verify_target = inspect.getsource(v4.base.AtomicSwitchLease.verify_target)
+    verify_worker = inspect.getsource(
+        v4.AtomicSwitchLease._verify_quiescent_worker
+    )
+    prewrite = inspect.getsource(
+        v4.AtomicSwitchLease._lightweight_incident_prewrite_fence
+    )
+    post_retirement = inspect.getsource(
+        v4.AtomicSwitchLease._old_post_retirement_fence
+    )
+    prepare = inspect.getsource(v4.AtomicSwitchLease.prepare_retirement)
+    fresh = inspect.getsource(v4.AtomicSwitchLease._fresh_record)
+    rollback = inspect.getsource(
+        v4.AtomicSwitchLease.rollback_after_new_quiescent
+    )
+    restored = inspect.getsource(v4._fresh_restored_old_checkpoint)
+    committed_rollback = inspect.getsource(v4.rollback_committed_handoff)
+    assert "_load_legacy_exact(discovery)" in current
+    assert "_load_overlay_exact()" in current
+    assert "fixed_replay_bundle = _load_fixed_replay_bundle(" in enter
+    assert "current_science_bundle = _load_current_science_bundle(" in enter
+    assert "snapshot=fixed_replay_bundle.snapshot" in enter
+    assert "child=fixed_replay_bundle.child" in enter
+    assert "science.coordinator, science.child, science.overlay" in enter
+    assert "self._child is not current_science_bundle.child" in lease_init
+    assert "self._overlay is not current_science_bundle.overlay" in lease_init
+    assert "super().verify_target(" in verify_target
+    assert "self._overlay" in base_verify_target
+    assert "_direct_controller_inspect(self._child, root)" in verify_worker
+    assert "self._fixed_replay_bundle.snapshot" in prewrite
+    assert "self._fixed_replay_bundle.child" in prewrite
+    assert "self._fixed_replay_bundle.snapshot" in post_retirement
+    assert "self._fixed_replay_bundle.child" in post_retirement
+    assert "self._fixed_replay_bundle.snapshot" in prepare
+    assert "self._fixed_replay_bundle.child" in prepare
+    assert "fixed = self._fixed_replay_bundle" in fresh
+    assert "fixed = self._fixed_replay_bundle" in rollback
+    assert "fixed = _load_fixed_replay_bundle(" in restored
+    assert "_, child, _ = _load_legacy_exact(discovery)" in committed_rollback
+    assert "_direct_controller_inspect(child, target_root)" in committed_rollback

@@ -37,6 +37,15 @@ V3_RELATIVE = Path("scripts/paper400_dic5_adaptive_switch_evidence_v3.py")
 OVERLAY_RELATIVE = Path(
     "investigations/paper400_dic5_adaptive_leaf_overlay_v2.py"
 )
+FIXED_REPLAY_PROJECT = Path(
+    "/root/paper400-adaptive-prod-20260827-mHCpDT/source-b6058b8/"
+    "qcode-discovery"
+)
+FIXED_REPLAY_V3_SOURCE = (
+    FIXED_REPLAY_PROJECT / "scripts/paper400_dic5_adaptive_switch_evidence_v3.py"
+)
+FIXED_REPLAY_V2_SOURCE = FIXED_REPLAY_PROJECT / BASE_RELATIVE
+FIXED_REPLAY_OVERLAY_SOURCE = FIXED_REPLAY_PROJECT / OVERLAY_RELATIVE
 MAX_SOURCE_BYTES = 16 << 20
 MAX_PROOF_BYTES = 1 << 40
 SCHEMA_VERSION = 4
@@ -60,7 +69,7 @@ QUIESCENCE_INPUT_KIND = (
 QUIESCENCE_KIND = "paper400-adaptive-new-root-quiescence-v4"
 
 ATTEMPT_ID = (
-    "f78d7ec81f5d82cc065be27a22309cd7bf565cdff16d12b00c86f1102e00f22c"
+    "0476098fb46e7acf70c9b568835052b917af8590aa85612492e3168e998b5bff"
 )
 ATTEMPT_ROOT = Path(f"adaptive-handoff-v4-attempt-{ATTEMPT_ID}")
 INCIDENT_PRECONDITION = ATTEMPT_ROOT / "00-incident-precondition.json"
@@ -152,6 +161,16 @@ EXPECTED_V2_SOURCE_SHA256 = (
     "f4f6b7fbed84f5daf5a98a48d33b73299b3fd135ff92b3119b6fe1e241225da2"
 )
 EXPECTED_V2_SOURCE_BYTES = 82701
+FIXED_REPLAY_OVERLAY_SOURCE_SHA256 = (
+    "f4c485d94616c464c7b240407a4d69b9d49a5dac55966d4cb5cbc4431558436d"
+)
+FIXED_REPLAY_OVERLAY_SOURCE_BYTES = 72189
+FIXED_REPLAY_STATIC_SOURCE_BINDING_SHA256 = (
+    "199bd785ab31bdcc1881d9b3733ff5a41164be68745b3e91d12ec207f3bb747e"
+)
+FIXED_REPLAY_DYNAMIC_SOURCE_BINDING_SHA256 = (
+    "993c2fdbcd56c82093fff7aee4d9e83e9ecec45c28e80b248d4b4f655e0db362"
+)
 
 
 class AdaptiveSwitchEvidenceV4Error(RuntimeError):
@@ -198,6 +217,143 @@ _V4_SOURCE_RECORD = {
     "bytes": len(_V4_SOURCE_PAYLOAD),
     "execution": "module-load-captured-exact-source-bytes-v4",
 }
+
+
+class _FixedReplayReadonly:
+    """Expose only the two pinned historical v3 readonly loaders."""
+
+    __slots__ = ("_load_legacy", "_load_overlay")
+
+    def __init__(self, module: Any) -> None:
+        self._load_legacy = module._load_legacy_exact
+        self._load_overlay = module._load_overlay_exact
+
+    def load_legacy_exact(
+        self, discovery: Mapping[str, Any],
+    ) -> tuple[Any, Any, list[dict[str, Any]]]:
+        return self._load_legacy(discovery)
+
+    def load_overlay_exact(
+        self,
+    ) -> tuple[Any, dict[str, Any], list[dict[str, Any]]]:
+        return self._load_overlay()
+
+
+_FIXED_REPLAY_SOURCE_PATHS = (
+    FIXED_REPLAY_V3_SOURCE, FIXED_REPLAY_V2_SOURCE,
+    FIXED_REPLAY_OVERLAY_SOURCE,
+)
+_FIXED_REPLAY_SOURCE_EXPECTED = (
+    (FAILED_V3_SOURCE_SHA256, FAILED_V3_SOURCE_BYTES),
+    (EXPECTED_V2_SOURCE_SHA256, EXPECTED_V2_SOURCE_BYTES),
+    (
+        FIXED_REPLAY_OVERLAY_SOURCE_SHA256,
+        FIXED_REPLAY_OVERLAY_SOURCE_BYTES,
+    ),
+)
+_FIXED_REPLAY_SOURCE_ROLES = (
+    "historical_adaptive_switch_evidence_v3_fixed_replay_source",
+    "historical_adaptive_switch_evidence_v2_primitives_source",
+    "historical_adaptive_leaf_overlay_v2_fixed_replay_source",
+)
+_FIXED_REPLAY_SOURCE_EXECUTIONS = (
+    (
+        "on-demand-fixed-replay-"
+        "compile-exact-source-bytes-v4-fixed-bootstrap"
+    ),
+    "on-demand-fixed-replay-compile-exact-source-bytes-v3",
+    (
+        "on-demand-fixed-replay-historical-v3-readonly-loader-"
+        "compile-exact-source-bytes-v3"
+    ),
+)
+
+
+def _capture_fixed_replay_sources() -> tuple[
+    tuple[dict[str, Any], ...], tuple[bytes, bytes, bytes],
+]:
+    """Read and pin historical sources without executing historical code."""
+
+    payloads = tuple(
+        _read_source_bytes(path) for path in _FIXED_REPLAY_SOURCE_PATHS
+    )
+    if any(
+        hashlib.sha256(payload).hexdigest() != digest
+        or len(payload) != size
+        for payload, (digest, size) in zip(
+            payloads, _FIXED_REPLAY_SOURCE_EXPECTED, strict=True
+        )
+    ):
+        raise AdaptiveSwitchEvidenceV4Error(
+            "historical fixed-replay source misses frozen pin"
+        )
+    records = tuple({
+        "role": role,
+        "absolute_path": str(path),
+        "sha256": digest,
+        "bytes": size,
+        "execution": execution,
+    } for role, path, (digest, size), execution in zip(
+        _FIXED_REPLAY_SOURCE_ROLES, _FIXED_REPLAY_SOURCE_PATHS,
+        _FIXED_REPLAY_SOURCE_EXPECTED, _FIXED_REPLAY_SOURCE_EXECUTIONS,
+        strict=True,
+    ))
+    return records, payloads
+
+
+(
+    _FIXED_REPLAY_SOURCE_RECORDS,
+    _FIXED_REPLAY_SOURCE_PAYLOADS,
+) = _capture_fixed_replay_sources()
+
+
+def _load_fixed_replay_readonly() -> _FixedReplayReadonly:
+    """Lazily exact-load v3 and retain only its two readonly loaders."""
+
+    module = types.ModuleType(
+        "_paper400_adaptive_switch_v3_fixed_replay_exact_bytes"
+    )
+    module.__file__ = str(FIXED_REPLAY_V3_SOURCE)
+    module.__package__ = "scripts"
+    module.__loader__ = None
+    exec(
+        compile(
+            _FIXED_REPLAY_SOURCE_PAYLOADS[0],
+            str(FIXED_REPLAY_V3_SOURCE), "exec",
+            dont_inherit=True,
+        ),
+        module.__dict__,
+    )
+    v3_record = getattr(module, "_V3_SOURCE_RECORD", None)
+    v2_record = getattr(module, "_BASE_SOURCE_RECORD", None)
+    static_binding = module._v3_source_binding()
+    if (
+        Path(getattr(module, "PROJECT", "")) != FIXED_REPLAY_PROJECT
+        or Path(getattr(module, "__file__", "")) != FIXED_REPLAY_V3_SOURCE
+        or type(v3_record) is not dict
+        or v3_record.get("sha256") != FAILED_V3_SOURCE_SHA256
+        or v3_record.get("bytes") != FAILED_V3_SOURCE_BYTES
+        or type(v2_record) is not dict
+        or v2_record.get("sha256") != EXPECTED_V2_SOURCE_SHA256
+        or v2_record.get("bytes") != EXPECTED_V2_SOURCE_BYTES
+        or Path(getattr(getattr(module, "base", None), "__file__", ""))
+            != FIXED_REPLAY_V2_SOURCE
+        or not callable(getattr(module, "_load_legacy_exact", None))
+        or not callable(getattr(module, "_load_overlay_exact", None))
+        or type(static_binding) is not dict
+        or not module.selfhash_valid(
+            static_binding, "source_binding_sha256"
+        )
+        or static_binding.get("source_binding_sha256")
+            != FIXED_REPLAY_STATIC_SOURCE_BINDING_SHA256
+        or not json_type_equal(
+            static_binding, _expected_failed_v3_source_binding()
+        )
+    ):
+        raise AdaptiveSwitchEvidenceV4Error(
+            "historical v3 fixed-replay bootstrap mismatch"
+        )
+    return _FixedReplayReadonly(module)
 
 
 def _load_base_from_exact_source() -> tuple[Any, dict[str, Any]]:
@@ -430,8 +586,228 @@ def _load_overlay_exact() -> tuple[Any, dict[str, Any], list[dict[str, Any]]]:
             sys.meta_path[:] = before_meta
             _restore_project_modules(before_names, removed)
 
+class _FixedReplayBundle:
+    __slots__ = (
+        "coordinator", "child", "overlay", "legacy_executed",
+        "overlay_record", "overlay_executed", "snapshot", "record",
+    )
+
+    def __init__(
+        self, *, coordinator: Any, child: Any, overlay: Any,
+        legacy_executed: Sequence[Mapping[str, Any]],
+        overlay_record: Mapping[str, Any],
+        overlay_executed: Sequence[Mapping[str, Any]],
+        snapshot: Mapping[str, Any], record: Mapping[str, Any],
+    ) -> None:
+        self.coordinator = coordinator
+        self.child = child
+        self.overlay = overlay
+        self.legacy_executed = list(legacy_executed)
+        self.overlay_record = dict(overlay_record)
+        self.overlay_executed = list(overlay_executed)
+        self.snapshot = snapshot
+        self.record = dict(record)
+
+
+class _CurrentScienceBundle:
+    __slots__ = (
+        "coordinator", "child", "overlay", "legacy_executed",
+        "overlay_record", "overlay_executed", "snapshot",
+    )
+
+    def __init__(
+        self, *, coordinator: Any, child: Any, overlay: Any,
+        legacy_executed: Sequence[Mapping[str, Any]],
+        overlay_record: Mapping[str, Any],
+        overlay_executed: Sequence[Mapping[str, Any]],
+        snapshot: Mapping[str, Any],
+    ) -> None:
+        self.coordinator = coordinator
+        self.child = child
+        self.overlay = overlay
+        self.legacy_executed = list(legacy_executed)
+        self.overlay_record = dict(overlay_record)
+        self.overlay_executed = list(overlay_executed)
+        self.snapshot = snapshot
+
+
+def _fixed_replay_sources_unchanged() -> None:
+    paths = (
+        FIXED_REPLAY_V3_SOURCE, FIXED_REPLAY_V2_SOURCE,
+        FIXED_REPLAY_OVERLAY_SOURCE,
+    )
+    if any(
+        _read_source_bytes(path) != payload
+        for path, payload in zip(
+            paths, _FIXED_REPLAY_SOURCE_PAYLOADS, strict=True
+        )
+    ):
+        raise AdaptiveSwitchEvidenceV4Error(
+            "historical fixed-replay dependency changed since capture"
+        )
+
+
+def _validate_fixed_dynamic_source_binding(
+    discovery: Mapping[str, Any],
+    legacy_executed: Sequence[Mapping[str, Any]],
+    overlay_record: Mapping[str, Any],
+    overlay_executed: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    binding = base._source_binding(
+        discovery, legacy_executed, overlay_record, overlay_executed
+    )
+    fields = {
+        "schema_version", "method", "legacy_project", "legacy_sources",
+        "legacy_executed_source_closure", "current_sources",
+        "overlay_executed_source_closure",
+        "sitecustomize_imported_by_loader", "pyc_executed_by_loader",
+        "source_binding_sha256",
+    }
+    legacy = binding.get("legacy_executed_source_closure")
+    overlay = binding.get("overlay_executed_source_closure")
+    current = binding.get("current_sources")
+    overlay_module = ".".join(OVERLAY_RELATIVE.with_suffix("").parts)
+    fixed_overlay_executions = (
+        [] if type(overlay) is not list else [
+            item for item in overlay
+            if type(item) is dict and item.get("module") == overlay_module
+        ]
+    )
+    if (
+        type(binding) is not dict or set(binding) != fields
+        or not selfhash_valid(binding, "source_binding_sha256")
+        or binding.get("source_binding_sha256")
+            != FIXED_REPLAY_DYNAMIC_SOURCE_BINDING_SHA256
+        or binding.get("schema_version") != 2
+        or binding.get("method")
+            != "manifest-pinned-source-bytes-compile-exec-no-pyc-v2"
+        or binding.get("legacy_project")
+            != str(discovery["legacy_project"])
+        or type(legacy) is not list or len(legacy) != 25
+        or type(overlay) is not list or len(overlay) != 19
+        or type(current) is not list or len(current) != 2
+        or current[0] != {
+            "role": "adaptive_switch_evidence_v2_source",
+            "relative_path": BASE_RELATIVE.as_posix(),
+            "sha256": EXPECTED_V2_SOURCE_SHA256,
+        }
+        or not json_type_equal(current[1], overlay_record)
+        or overlay_record.get("sha256")
+            != FIXED_REPLAY_OVERLAY_SOURCE_SHA256
+        or overlay_record.get("bytes")
+            != FIXED_REPLAY_OVERLAY_SOURCE_BYTES
+        or overlay_record.get("execution")
+            != "compile-exact-source-bytes-v3"
+        or any(
+            type(item) is not dict
+            or item.get("execution") != "compile-exact-source-bytes-v3"
+            or type(item.get("path")) is not str
+            or not Path(item["path"]).is_relative_to(
+                Path(discovery["legacy_project"])
+            )
+            for item in legacy
+        )
+        or any(
+            type(item) is not dict
+            or item.get("execution") != "compile-exact-source-bytes-v3"
+            or type(item.get("path")) is not str
+            or not Path(item["path"]).is_relative_to(FIXED_REPLAY_PROJECT)
+            for item in overlay
+        )
+        or len(fixed_overlay_executions) != 1
+        or fixed_overlay_executions[0].get("path")
+            != str(FIXED_REPLAY_OVERLAY_SOURCE)
+        or fixed_overlay_executions[0].get("sha256")
+            != FIXED_REPLAY_OVERLAY_SOURCE_SHA256
+        or fixed_overlay_executions[0].get("bytes")
+            != FIXED_REPLAY_OVERLAY_SOURCE_BYTES
+        or fixed_overlay_executions[0].get("externally_bound") is not True
+        or binding.get("sitecustomize_imported_by_loader") is not False
+        or binding.get("pyc_executed_by_loader") is not False
+    ):
+        raise AdaptiveSwitchEvidenceV4Error(
+            "historical fixed-replay dynamic source binding mismatch"
+        )
+    return dict(binding)
+
+
+def _load_fixed_replay_bundle(
+    root: Path, discovery: Mapping[str, Any], *,
+    timeout_seconds: float, elapsed_seconds_by_lane: Sequence[float],
+) -> _FixedReplayBundle:
+    _fixed_replay_sources_unchanged()
+    with _LOAD_GUARD:
+        fixed_replay_readonly = _load_fixed_replay_readonly()
+        coordinator, child, legacy_executed = (
+            fixed_replay_readonly.load_legacy_exact(discovery)
+        )
+        overlay, overlay_record, overlay_executed = (
+            fixed_replay_readonly.load_overlay_exact()
+        )
+    fixed_source_binding = _validate_fixed_dynamic_source_binding(
+        discovery, legacy_executed, overlay_record, overlay_executed
+    )
+
+    if (
+        overlay_record.get("role") != "adaptive_leaf_overlay_v2_source"
+        or overlay_record.get("relative_path")
+            != OVERLAY_RELATIVE.as_posix()
+        or overlay_record.get("sha256")
+            != FIXED_REPLAY_OVERLAY_SOURCE_SHA256
+        or overlay_record.get("bytes")
+            != FIXED_REPLAY_OVERLAY_SOURCE_BYTES
+        or overlay_record.get("execution")
+            != "compile-exact-source-bytes-v3"
+    ):
+        raise AdaptiveSwitchEvidenceV4Error(
+            "historical v3 readonly overlay loader misses frozen pin"
+        )
+    snapshot = base._snapshot_locked(
+        root, coordinator, child
+    )
+    record = base._build_record(
+        root, snapshot, discovery, overlay, legacy_executed,
+        overlay_record, overlay_executed,
+        timeout_seconds=timeout_seconds,
+        elapsed_seconds_by_lane=list(elapsed_seconds_by_lane),
+    )
+    validate_switch_record_structure(record)
+    if (
+        not json_type_equal(
+            record.get("source_binding"), fixed_source_binding
+        )
+        or record.get("record_sha256") != EXPECTED_SWITCH_EVIDENCE_SHA256
+    ):
+        raise AdaptiveSwitchEvidenceV4Error(
+            "historical fixed-replay record misses frozen provenance"
+        )
+    return _FixedReplayBundle(
+        coordinator=coordinator, child=child, overlay=overlay,
+        legacy_executed=legacy_executed,
+        overlay_record=overlay_record,
+        overlay_executed=overlay_executed,
+        snapshot=snapshot, record=record,
+    )
+
+
+def _load_current_science_bundle(
+    discovery: Mapping[str, Any], *,
+    fixed_snapshot: Mapping[str, Any],
+) -> _CurrentScienceBundle:
+    coordinator, child, legacy_executed = _load_legacy_exact(discovery)
+    overlay, overlay_record, overlay_executed = _load_overlay_exact()
+    return _CurrentScienceBundle(
+        coordinator=coordinator, child=child, overlay=overlay,
+        legacy_executed=legacy_executed,
+        overlay_record=overlay_record,
+        overlay_executed=overlay_executed,
+        snapshot=json.loads(canonical_bytes(fixed_snapshot)),
+    )
+
+
 
 def _v4_source_binding() -> dict[str, Any]:
+    _fixed_replay_sources_unchanged()
     if (
         _read_source_bytes(_V4_SOURCE_PATH) != _V4_SOURCE_PAYLOAD
         or hashlib.sha256(
@@ -439,7 +815,7 @@ def _v4_source_binding() -> dict[str, Any]:
         ).hexdigest() != EXPECTED_V2_SOURCE_SHA256
     ):
         raise AdaptiveSwitchEvidenceV4Error(
-            "v4/v2 source closure changed since exact module load"
+            "v4/current-v2 source closure changed since exact module load"
         )
     return seal({
         "schema_version": SCHEMA_VERSION,
@@ -448,6 +824,22 @@ def _v4_source_binding() -> dict[str, Any]:
             dict(_V4_SOURCE_RECORD),
             dict(_BASE_SOURCE_RECORD),
         ],
+        "historical_fixed_replay_dependency": {
+            "purpose": "fixed-incident-switch-record-replay-only",
+            "readonly_api": [
+                "load_legacy_exact", "load_overlay_exact",
+            ],
+            "sources": [
+                dict(item) for item in _FIXED_REPLAY_SOURCE_RECORDS
+            ],
+            "static_source_binding":
+                _expected_failed_v3_source_binding(),
+            "dynamic_source_binding_sha256":
+                FIXED_REPLAY_DYNAMIC_SOURCE_BINDING_SHA256,
+            "historical_v3_calls_are_readonly_loaders_only": True,
+            "fixed_record_primitives": "current-v4-frozen-v2-exact-source",
+            "current_science_uses_v4_loaders_and_overlay": True,
+        },
         "sitecustomize_executed_by_loader": False,
         "pyc_executed_by_loader": False,
     }, "source_binding_sha256")
@@ -2732,17 +3124,16 @@ def _fresh_restored_old_checkpoint(
         root,
         expected_batch_manifest_sha256=expected_batch_manifest_sha256,
     )
-    coordinator, child, executed = _load_legacy_exact(discovery)
-    overlay, overlay_record, overlay_executed = _load_overlay_exact()
-    snapshot = base._snapshot_locked(root, coordinator, child)
     policy = dict(switch_observation_policy)
-    replay = base._build_record(
-        root, snapshot, discovery, overlay, executed,
-        overlay_record, overlay_executed,
+    fixed = _load_fixed_replay_bundle(
+        root, discovery,
         timeout_seconds=policy["timeout_seconds"],
         elapsed_seconds_by_lane=policy["elapsed_seconds_by_lane"],
     )
-    validate_switch_record_structure(replay)
+    snapshot = fixed.snapshot
+    replay = fixed.record
+    executed = fixed.legacy_executed
+    overlay_executed = fixed.overlay_executed
     if (
         snapshot["manifest"].get("record_sha256")
         != expected_batch_manifest_sha256
@@ -2976,10 +3367,13 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         "_rolled_back", "_v4_sources", "_incident_precondition",
         "_incident_target_roots", "_incident_outer_lock_fds",
         "_incident_external_pin",
+        "_fixed_replay_bundle", "_current_science_bundle",
     )
 
     def __init__(
         self, *args: Any, v4_sources: Mapping[str, Any],
+        fixed_replay_bundle: _FixedReplayBundle,
+        current_science_bundle: _CurrentScienceBundle,
         incident_precondition: Mapping[str, Any] | None,
         incident_target_roots: list[Path] | None,
         incident_outer_lock_fds: list[int] | None,
@@ -2987,6 +3381,34 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
+        if (
+            type(fixed_replay_bundle) is not _FixedReplayBundle
+            or type(current_science_bundle) is not _CurrentScienceBundle
+            or self._coordinator is not current_science_bundle.coordinator
+            or self._child is not current_science_bundle.child
+            or self._overlay is not current_science_bundle.overlay
+            or self._snapshot is not current_science_bundle.snapshot
+            or not json_type_equal(
+                self._legacy_executed,
+                current_science_bundle.legacy_executed,
+            )
+            or not json_type_equal(
+                self._overlay_record,
+                current_science_bundle.overlay_record,
+            )
+            or not json_type_equal(
+                self._overlay_executed,
+                current_science_bundle.overlay_executed,
+            )
+            or not json_type_equal(
+                self._record, fixed_replay_bundle.record
+            )
+        ):
+            raise AdaptiveSwitchEvidenceV4Error(
+                "fixed/current replay bundle construction mismatch"
+            )
+        self._fixed_replay_bundle = fixed_replay_bundle
+        self._current_science_bundle = current_science_bundle
         self._prepared: dict[str, Any] | None = None
         self._retired_records: list[dict[str, Any]] = []
         self._target_records: dict[
@@ -3166,7 +3588,8 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
                         "target directory changed before first write"
                     )
         _lightweight_old_checkpoint_fence(
-            self._root, self._snapshot, incident, self._child
+            self._root, self._fixed_replay_bundle.snapshot, incident,
+            self._fixed_replay_bundle.child,
         )
         if not json_type_equal(
             incident.get("source_binding"), _v4_source_binding()
@@ -3198,8 +3621,9 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
     def _old_post_retirement_fence(self) -> None:
         self._assert_retirement_intact()
         _lightweight_old_checkpoint_fence(
-            self._root, self._snapshot,
-            self._incident_precondition, self._child,
+            self._root, self._fixed_replay_bundle.snapshot,
+            self._incident_precondition,
+            self._fixed_replay_bundle.child,
         )
 
     def prepare_retirement(self) -> dict[str, Any]:
@@ -3346,8 +3770,9 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
                             "restored old lock identity changed"
                         )
                 _lightweight_old_checkpoint_fence(
-                    self._root, self._snapshot,
-                    self._incident_precondition, self._child,
+                    self._root, self._fixed_replay_bundle.snapshot,
+                    self._incident_precondition,
+                    self._fixed_replay_bundle.child,
                 )
             except BaseException as replay_error:
                 reretire_failures: list[BaseException] = []
@@ -3378,7 +3803,33 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
         if self._prepared is not None:
             self._old_post_retirement_fence()
             return dict(self._record)
-        return super()._fresh_record()
+        fixed = self._fixed_replay_bundle
+        _fixed_replay_sources_unchanged()
+        fixed_source_binding = _validate_fixed_dynamic_source_binding(
+            self._discovery, fixed.legacy_executed,
+            fixed.overlay_record, fixed.overlay_executed,
+        )
+        snapshot = base._snapshot_locked(
+            self._root, fixed.coordinator, fixed.child
+        )
+        record = base._build_record(
+            self._root, snapshot, self._discovery, fixed.overlay,
+            fixed.legacy_executed, fixed.overlay_record,
+            fixed.overlay_executed, timeout_seconds=self._timeout,
+            elapsed_seconds_by_lane=self._elapsed,
+        )
+        validate_switch_record_structure(record)
+        if (
+            not json_type_equal(
+                record.get("source_binding"), fixed_source_binding
+            )
+            or not json_type_equal(record, self._record)
+        ):
+            self._poisoned = True
+            raise AdaptiveSwitchEvidenceV4Error(
+                "fixed old stopped state changed under lease"
+            )
+        return record
 
     def verify_target(
         self, overlay_manifest: Mapping[str, Any], *,
@@ -4253,17 +4704,29 @@ class AtomicSwitchLease(base.AtomicSwitchLease):
                 _restore_lock_v3(held, retirement)
                 restored_pairs.append((held, retirement))
                 restored.append(held.role)
+            fixed = self._fixed_replay_bundle
+            _fixed_replay_sources_unchanged()
+            fixed_source_binding = _validate_fixed_dynamic_source_binding(
+                self._discovery, fixed.legacy_executed,
+                fixed.overlay_record, fixed.overlay_executed,
+            )
             snapshot = base._snapshot_locked(
-                self._root, self._coordinator, self._child
+                self._root, fixed.coordinator, fixed.child
             )
             replay = base._build_record(
-                self._root, snapshot, self._discovery, self._overlay,
-                self._legacy_executed, self._overlay_record,
-                self._overlay_executed,
+                self._root, snapshot, self._discovery, fixed.overlay,
+                fixed.legacy_executed, fixed.overlay_record,
+                fixed.overlay_executed,
                 timeout_seconds=self._timeout,
                 elapsed_seconds_by_lane=self._elapsed,
             )
-            if not json_type_equal(replay, self._record):
+            validate_switch_record_structure(replay)
+            if (
+                not json_type_equal(
+                    replay.get("source_binding"), fixed_source_binding
+                )
+                or not json_type_equal(replay, self._record)
+            ):
                 raise AdaptiveSwitchEvidenceV4Error(
                     "old checkpoint failed rollback replay"
                 )
@@ -4376,16 +4839,14 @@ def _enter(
             root,
             expected_batch_manifest_sha256=EXPECTED_BATCH_MANIFEST_SHA256,
         )
-        coordinator, child, legacy_executed = _load_legacy_exact(discovery)
-        overlay, overlay_record, overlay_executed = _load_overlay_exact()
-        snapshot = base._snapshot_locked(root, coordinator, child)
-        record = base._build_record(
-            root, snapshot, discovery, overlay, legacy_executed,
-            overlay_record, overlay_executed,
-            timeout_seconds=timeout_seconds,
+        fixed_replay_bundle = _load_fixed_replay_bundle(
+            root, discovery, timeout_seconds=timeout_seconds,
             elapsed_seconds_by_lane=elapsed_seconds_by_lane,
         )
-        validate_switch_record_structure(record)
+        record = fixed_replay_bundle.record
+        current_science_bundle = _load_current_science_bundle(
+            discovery, fixed_snapshot=fixed_replay_bundle.snapshot
+        )
         if (
             record.get("record_sha256")
                 != EXPECTED_SWITCH_EVIDENCE_SHA256
@@ -4433,7 +4894,9 @@ def _enter(
             incident = _build_incident_precondition_locked(
                 root, locks, target_roots=incident_roots,
                 target_outer_lock_fds=incident_fds,
-                snapshot=snapshot, switch_record=record, child=child,
+                snapshot=fixed_replay_bundle.snapshot,
+                switch_record=record,
+                child=fixed_replay_bundle.child,
             )
             if (
                 expected_incident_precondition_sha256 is not None
@@ -4446,12 +4909,17 @@ def _enter(
                 raise AdaptiveSwitchEvidenceV4Error(
                     "fresh incident rebuild misses external pin"
                 )
+        science = current_science_bundle
         lease = AtomicSwitchLease(
-            root, locks, discovery, coordinator, child, overlay,
-            legacy_executed, overlay_record, overlay_executed, snapshot, record,
+            root, locks, discovery,
+            science.coordinator, science.child, science.overlay,
+            science.legacy_executed, science.overlay_record,
+            science.overlay_executed, science.snapshot, record,
             timeout_seconds=timeout_seconds,
             elapsed_seconds_by_lane=elapsed_seconds_by_lane,
             candidate_only=candidate_only, v4_sources=_v4_source_binding(),
+            fixed_replay_bundle=fixed_replay_bundle,
+            current_science_bundle=current_science_bundle,
             incident_precondition=incident,
             incident_target_roots=incident_roots,
             incident_outer_lock_fds=incident_fds,
