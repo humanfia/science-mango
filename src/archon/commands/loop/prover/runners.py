@@ -1006,6 +1006,10 @@ class _PipelineWork:
     baseline_sha256: str = ""
     result_fingerprints: tuple[tuple[str, str], ...] = ()
     source_contract: dict | None = None
+    delivery_attempt: int = 0
+
+
+_INITIAL_FORMALIZER_DELIVERY_MAX_ATTEMPTS = 2
 
 
 def _pipeline_cycle(value: object) -> int:
@@ -1671,6 +1675,10 @@ class ParallelProverRunner:
         restored_formal_events: list[tuple[Path, str, int, str]] = []
 
         formalization_cycles: dict[str, int] = {}
+        initial_delivery_attempts: dict[str, int] = {}
+        initial_delivery_baselines: dict[
+            str, tuple[str, tuple[tuple[str, str], ...]]
+        ] = {}
         shadow_proof_attempts: dict[str, int] = {}
         shadow_proof_records: dict[str, dict] = {}
         shadow_formalization_reviews: dict[str, int] = {}
@@ -2539,6 +2547,7 @@ required action while preserving the accepted statement.
         ) -> None:
             rel = relpath(target, self.project_path)
             slug = file_slug(rel)
+            delivery_attempt = initial_delivery_attempts.setdefault(rel, 1)
             formalizer_log = self.iter_dir / "formalizers" / slug
             snap_dir = self.iter_dir / "formalizer-snapshots" / slug
             mode_name = select_prover_mode_for_target(
@@ -2566,29 +2575,38 @@ required action while preserving the accepted statement.
             prompt = (
                 f"{base_prompt}\n\n{semantic_block}\nYour assigned file: {rel}"
             )
-            baseline_sha256 = _target_sha256(target)
-            baseline_results = _task_result_fingerprints(self.state_dir, rel)
-            resume_sid = pick_resume_session(
-                self.iter_meta,
-                f"pipelineFormalizers.{slug}.sessionId",
-                enabled=self.resume_enabled and cycle == 1,
-                label=f"formalizer[{slug}]",
-                cwd=self.project_path,
-                jsonl_fallback=Path(str(formalizer_log) + ".jsonl"),
-            )
+            preserved_baseline = initial_delivery_baselines.get(rel)
+            if preserved_baseline is None:
+                baseline_sha256 = _target_sha256(target)
+                baseline_results = _task_result_fingerprints(
+                    self.state_dir, rel,
+                )
+            else:
+                baseline_sha256, preserved_results = preserved_baseline
+                baseline_results = dict(preserved_results)
+            resume_sid = None
             legacy_resume = False
-            if not resume_sid and self.resume_enabled and cycle == 1:
+            if delivery_attempt == 1:
                 resume_sid = pick_resume_session(
                     self.iter_meta,
-                    f"provers.{slug}.sessionId",
-                    enabled=True,
-                    label=f"legacy-formalizer[{slug}]",
+                    f"pipelineFormalizers.{slug}.sessionId",
+                    enabled=self.resume_enabled and cycle == 1,
+                    label=f"formalizer[{slug}]",
                     cwd=self.project_path,
-                    jsonl_fallback=(
-                        self.iter_dir / "provers" / f"{slug}.jsonl"
-                    ),
+                    jsonl_fallback=Path(str(formalizer_log) + ".jsonl"),
                 )
-                legacy_resume = bool(resume_sid)
+                if not resume_sid and self.resume_enabled and cycle == 1:
+                    resume_sid = pick_resume_session(
+                        self.iter_meta,
+                        f"provers.{slug}.sessionId",
+                        enabled=True,
+                        label=f"legacy-formalizer[{slug}]",
+                        cwd=self.project_path,
+                        jsonl_fallback=(
+                            self.iter_dir / "provers" / f"{slug}.jsonl"
+                        ),
+                    )
+                    legacy_resume = bool(resume_sid)
             if resume_sid:
                 stored_baseline = str(
                     read_meta(
@@ -2608,8 +2626,19 @@ required action while preserving the accepted statement.
                 ), baseline_sha256)
                 baseline_results = {}
                 snap_dir.mkdir(parents=True, exist_ok=True)
-            else:
+            elif delivery_attempt == 1:
                 snapshot_baseline(target, snap_dir)
+            else:
+                # A delivery retry is a fresh model call over the same semantic
+                # cycle. Keep the first attempt's snapshot and fingerprints so
+                # partial Lean/sidecar delivery is judged against the true
+                # pre-formalization state, not its own half-written output.
+                snap_dir.mkdir(parents=True, exist_ok=True)
+            if preserved_baseline is None:
+                initial_delivery_baselines[rel] = (
+                    baseline_sha256,
+                    tuple(sorted(baseline_results.items())),
+                )
             submit_prompt = (
                 f"{PROVER_CONTINUE}\n\n{semantic_block}"
                 if resume_sid
@@ -2619,6 +2648,9 @@ required action while preserving the accepted statement.
                 f"pipelineFormalizers.{slug}.file": rel,
                 f"pipelineFormalizers.{slug}.status": "running",
                 f"pipelineFormalizers.{slug}.cycle": cycle,
+                f"pipelineFormalizers.{slug}.deliveryAttempt": (
+                    delivery_attempt
+                ),
                 f"pipelineFormalizers.{slug}.origin": (
                     "legacy-autoformalize-resume"
                     if legacy_resume else "initial"
@@ -2630,7 +2662,12 @@ required action while preserving the accepted statement.
             if mode_name:
                 meta_update[f"pipelineFormalizers.{slug}.mode"] = mode_name
             write_meta(self.iter_meta, **meta_update)
-            log.step(f"Starting target formalizer for {rel}")
+            delivery_label = (
+                f" (delivery {delivery_attempt}/"
+                f"{_INITIAL_FORMALIZER_DELIVERY_MAX_ATTEMPTS})"
+                if delivery_attempt > 1 else ""
+            )
+            log.step(f"Starting target formalizer for {rel}{delivery_label}")
             future = pool.submit(
                 self.formalizer_worker,
                 submit_prompt,
@@ -2653,6 +2690,7 @@ required action while preserving the accepted statement.
                 cycle=cycle,
                 baseline_sha256=baseline_sha256,
                 result_fingerprints=tuple(sorted(baseline_results.items())),
+                delivery_attempt=delivery_attempt,
             )
 
         def submit_formalizer(
@@ -3051,14 +3089,24 @@ required action while preserving the accepted statement.
                         answer_only_repair = (
                             work.kind == "answer_submission_repair"
                         )
+                        full_delivery_requires_runner = (
+                            answer_only_repair
+                            or work.kind == "initial_formalizer"
+                        )
                         materialized = answer_submission_valid and compiles and (
-                            (runner_ok if answer_only_repair else True)
+                            (runner_ok if full_delivery_requires_runner else True)
                             and (
                                 answer_only_repair
                                 or (changed and result_updated)
                             )
                         )
                         errors = [runner_error] if runner_error else []
+                        if (
+                            work.kind == "initial_formalizer"
+                            and not runner_ok
+                            and not runner_error
+                        ):
+                            errors.append("formalizer runner did not complete")
                         if not changed and not answer_only_repair:
                             errors.append("formalizer did not change the Lean target")
                         if not compiles:
@@ -3073,6 +3121,10 @@ required action while preserving the accepted statement.
                             "cycle": work.cycle,
                             "status": "materialized" if materialized else "error",
                             "review_attempt": work.attempt,
+                            "delivery_attempt": (
+                                work.delivery_attempt
+                                if work.kind == "initial_formalizer" else None
+                            ),
                             "runner_ok": runner_ok,
                             "baseline_sha256": work.baseline_sha256,
                             "lean_sha256": digest,
@@ -3094,6 +3146,10 @@ required action while preserving the accepted statement.
                                 "materialized" if materialized else "error"
                             ),
                             f"pipelineFormalizers.{work.slug}.runnerOk": runner_ok,
+                            f"pipelineFormalizers.{work.slug}.deliveryAttempt": (
+                                work.delivery_attempt
+                                if work.kind == "initial_formalizer" else None
+                            ),
                             f"pipelineFormalizers.{work.slug}.changed": changed,
                             f"pipelineFormalizers.{work.slug}.compiles": compiles,
                             f"pipelineFormalizers.{work.slug}.taskResultUpdated": (
@@ -3131,6 +3187,7 @@ required action while preserving the accepted statement.
                         else:
                             pending_formalization.add(work.rel)
                             queued_answer_repair = False
+                            queued_delivery_retry = False
                             if full_pipeline:
                                 unresolved[work.rel] = "; ".join(errors)
                                 can_repair_answer = (
@@ -3169,6 +3226,29 @@ required action while preserving the accepted statement.
                                         f"pipelineFormalizers.{work.slug}.cycle": next_cycle,
                                         f"pipelineFormalizers.{work.slug}.answerSubmissionRepair": True,
                                     })
+                                elif (
+                                    work.kind == "initial_formalizer"
+                                    and not self.resume_enabled
+                                    and work.delivery_attempt
+                                    < _INITIAL_FORMALIZER_DELIVERY_MAX_ATTEMPTS
+                                ):
+                                    # Retry only the initial full delivery, not
+                                    # the semantic formalization cycle. The
+                                    # retry is deliberately a fresh model call.
+                                    queued_delivery_retry = True
+                                    next_delivery_attempt = work.delivery_attempt + 1
+                                    initial_delivery_attempts[work.rel] = (
+                                        next_delivery_attempt
+                                    )
+                                    pending_initial_formalizers.append((
+                                        work.target, work.cycle,
+                                    ))
+                                    write_meta(self.iter_meta, **{
+                                        f"pipelineFormalizers.{work.slug}.status": "queued",
+                                        f"pipelineFormalizers.{work.slug}.cycle": work.cycle,
+                                        f"pipelineFormalizers.{work.slug}.deliveryAttempt": next_delivery_attempt,
+                                        f"pipelineFormalizers.{work.slug}.answerSubmissionRepair": False,
+                                    })
                             else:
                                 settled_targets.add(work.rel)
                             log.error(
@@ -3179,6 +3259,11 @@ required action while preserving the accepted statement.
                                 log.step(
                                     "Queued one bounded answer-submission repair "
                                     f"for {work.rel}"
+                                )
+                            elif queued_delivery_retry:
+                                log.step(
+                                    "Queued one fresh bounded full-delivery "
+                                    f"retry for {work.rel}"
                                 )
                         continue
 

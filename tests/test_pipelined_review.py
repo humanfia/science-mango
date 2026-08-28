@@ -296,6 +296,273 @@ class PipelinedReviewTest(unittest.TestCase):
             preflight_checker=_preflight,
         )
 
+    def _run_initial_delivery_case(
+        self,
+        *,
+        root: Path,
+        state: Path,
+        iter_dir: Path,
+        target: Path,
+        formalizer_worker,
+    ) -> tuple[dict, dict, dict[str, int]]:
+        runner = self._runner(
+            root=root,
+            state=state,
+            iter_dir=iter_dir,
+            prover_worker=_process_prover,
+            review_worker=_process_review,
+            formalizer_worker=formalizer_worker,
+            formalization_review_worker=_process_formalization_review,
+            max_parallel=1,
+            full_pipeline=True,
+            stage="autoformalize",
+        )
+        with (
+            patch(
+                "archon.commands.loop.prover.runners."
+                "native_problem_only_enabled",
+                return_value=False,
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "_native_formalizer_semantic_dag_block",
+                return_value="CONTRACT",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "resolve_target_review_source_contract",
+                return_value=None,
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "build_target_formalization_review_prompt",
+                return_value="formal-review",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "build_target_review_prompt",
+                return_value="proof-review",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "build_parallel_prover_prompt",
+                return_value="work",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners.snapshot_baseline"
+            ) as snapshot,
+            patch(
+                "archon.commands.loop.prover.runners.pick_resume_session",
+                return_value=None,
+            ) as pick_resume,
+            patch(
+                "archon.commands.loop.prover.runners.persist_session_id"
+            ),
+        ):
+            runner._run_fanout([target], file_modes={})
+        report = json.loads(
+            (iter_dir / "pipelined-review.json").read_text(encoding="utf-8")
+        )
+        meta = json.loads(
+            (iter_dir / "meta.json").read_text(encoding="utf-8")
+        )
+        return report, meta, {
+            "formalizer_pick_resume": sum(
+                len(call.args) > 1
+                and str(call.args[1]).startswith("pipelineFormalizers.")
+                for call in pick_resume.call_args_list
+            ),
+            "formalizer_snapshot": sum(
+                len(call.args) > 1
+                and "formalizer-snapshots" in str(call.args[1])
+                for call in snapshot.call_args_list
+            ),
+        }
+
+    def test_initial_runner_false_gets_one_fresh_delivery_retry(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8",
+            )
+            calls = 0
+            resume_session_ids: list[str | None] = []
+
+            def formalizer(*args, **_kwargs):
+                nonlocal calls
+                calls += 1
+                resume_session_ids.append(args[7])
+                if calls == 1:
+                    return False
+                target.write_text(
+                    "theorem a (h_law : True) : True := by sorry\n",
+                    encoding="utf-8",
+                )
+                (state / "task_results" / "A.lean.md").write_text(
+                    "# Complete delivery\n", encoding="utf-8",
+                )
+                return True
+
+            report, meta, patch_calls = self._run_initial_delivery_case(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                target=target,
+                formalizer_worker=formalizer,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(calls, 2)
+            self.assertEqual(resume_session_ids, [None, None])
+            self.assertEqual(patch_calls, {
+                "formalizer_pick_resume": 1,
+                "formalizer_snapshot": 1,
+            })
+            history = report["formalizer_history"]["A.lean"]
+            self.assertEqual(
+                [row["delivery_attempt"] for row in history], [1, 2]
+            )
+            self.assertEqual([row["cycle"] for row in history], [1, 1])
+            self.assertEqual(
+                [row["status"] for row in history],
+                ["error", "materialized"],
+            )
+            self.assertEqual(
+                [row["runner_ok"] for row in history], [False, True]
+            )
+            self.assertEqual(
+                history[0]["baseline_sha256"],
+                history[1]["baseline_sha256"],
+            )
+            self.assertEqual(
+                meta["pipelineFormalizers"]["A"]["deliveryAttempt"], 2
+            )
+
+    def test_initial_delivery_retry_keeps_original_lean_and_result_baseline(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8",
+            )
+            calls = 0
+
+            def formalizer(*_args, **_kwargs):
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    target.write_text(
+                        "theorem a (h_law : True) : True := by sorry\n",
+                        encoding="utf-8",
+                    )
+                else:
+                    (state / "task_results" / "A.lean.md").write_text(
+                        "# Sidecar completed\n", encoding="utf-8",
+                    )
+                return True
+
+            report, _meta, patch_calls = self._run_initial_delivery_case(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                target=target,
+                formalizer_worker=formalizer,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(calls, 2)
+            self.assertEqual(patch_calls, {
+                "formalizer_pick_resume": 1,
+                "formalizer_snapshot": 1,
+            })
+            history = report["formalizer_history"]["A.lean"]
+            self.assertEqual(
+                [row["delivery_attempt"] for row in history], [1, 2]
+            )
+            self.assertEqual([row["cycle"] for row in history], [1, 1])
+            self.assertTrue(history[0]["changed"])
+            self.assertFalse(history[0]["task_result_updated"])
+            self.assertTrue(history[1]["changed"])
+            self.assertTrue(history[1]["task_result_updated"])
+            self.assertEqual(
+                history[0]["baseline_sha256"],
+                history[1]["baseline_sha256"],
+            )
+            self.assertEqual(
+                history[0]["review_attempt"],
+                history[1]["review_attempt"],
+            )
+
+    def test_initial_delivery_retry_is_bounded_after_two_failures(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8",
+            )
+            calls = 0
+            resume_session_ids: list[str | None] = []
+
+            def formalizer(*args, **_kwargs):
+                nonlocal calls
+                calls += 1
+                resume_session_ids.append(args[7])
+                return False
+
+            report, meta, patch_calls = self._run_initial_delivery_case(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                target=target,
+                formalizer_worker=formalizer,
+            )
+
+            self.assertFalse(report["complete"])
+            self.assertEqual(report["unresolved"], ["A.lean"])
+            self.assertEqual(report["pending_formalization_targets"], ["A.lean"])
+            self.assertEqual(calls, 2)
+            self.assertEqual(resume_session_ids, [None, None])
+            self.assertEqual(patch_calls, {
+                "formalizer_pick_resume": 1,
+                "formalizer_snapshot": 1,
+            })
+            self.assertEqual(report["formalizers"], {
+                "requested": 2,
+                "materialized": 0,
+                "failed": 2,
+            })
+            history = report["formalizer_history"]["A.lean"]
+            self.assertEqual(
+                [row["delivery_attempt"] for row in history], [1, 2]
+            )
+            self.assertEqual([row["cycle"] for row in history], [1, 1])
+            self.assertTrue(all(
+                "formalizer runner did not complete" in row["error"]
+                for row in history
+            ))
+            self.assertEqual(
+                meta["pipelineFormalizers"]["A"]["deliveryAttempt"], 2
+            )
+            self.assertEqual(
+                meta["pipelineFormalizers"]["A"]["status"], "error"
+            )
+
     def test_a6_missing_prior_receipt_fails_before_any_worker(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -547,6 +814,14 @@ class PipelinedReviewTest(unittest.TestCase):
             history = report["formalizer_history"]["problem_item_a.lean"]
             self.assertEqual(len(history), 2)
             self.assertFalse(history[0]["answer_submission_valid"])
+            self.assertEqual(
+                [row["delivery_attempt"] for row in history], [1, None]
+            )
+            self.assertEqual([row["cycle"] for row in history], [1, 2])
+            self.assertEqual(
+                [row["answer_submission_repair"] for row in history],
+                [False, True],
+            )
             self.assertTrue(history[1]["answer_submission_repair"])
 
     def test_answer_submission_repair_handoff_never_echoes_raw_error(self):
