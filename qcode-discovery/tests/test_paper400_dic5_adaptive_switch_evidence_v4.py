@@ -121,7 +121,15 @@ def _make_static_target(
             )
         },
     }
-    policy = v4.base._observation_policy(86400.0, [1.0, 2.0, 3.0, 4.0])
+    observation_policy = v4.base._observation_policy(
+        86400.0, [1.0, 2.0, 3.0, 4.0]
+    )
+    policy = {
+        "timeout_seconds": observation_policy["timeout_seconds"],
+        "elapsed_seconds_by_lane": list(
+            observation_policy["elapsed_seconds_by_lane"]
+        ),
+    }
     record = v4.seal({
         "schema_version": 5,
         "kind": "paper400-dic5-adaptive-child-resume-static-v5",
@@ -1081,6 +1089,46 @@ def _validate_target_cover(v4, batch, observations, old_lanes, policy):
         list(v4.EXPECTED_HARD_EVIDENCE_SHA256S),
         policy,
     )
+
+
+def test_incident_accepts_runner_compact_policy_bound_to_full_switch(
+    v4, tmp_path,
+):
+    batch, targets, fds, observations, old_lanes, policy = (
+        _make_target_cover(v4, tmp_path)
+    )
+    del targets
+    try:
+        assert set(policy) == {
+            "annotation_source", "elapsed_seconds_by_lane",
+            "hardness_only", "status", "timed_out", "timeout_seconds",
+        }
+        _validate_target_cover(
+            v4, batch, observations, old_lanes, policy
+        )
+    finally:
+        for fd in fds:
+            os.close(fd)
+
+
+def test_incident_rejects_noncanonical_full_switch_policy(v4, tmp_path):
+    batch, targets, fds, observations, old_lanes, policy = (
+        _make_target_cover(v4, tmp_path)
+    )
+    del targets
+    try:
+        policy = copy.deepcopy(policy)
+        policy["status"] = "SAT"
+        with pytest.raises(
+            v4.AdaptiveSwitchEvidenceV4Error,
+            match="switch observation policy is noncanonical",
+        ):
+            _validate_target_cover(
+                v4, batch, observations, old_lanes, policy
+            )
+    finally:
+        for fd in fds:
+            os.close(fd)
 
 
 def test_incident_target_rechecks_actual_material_bytes(v4, tmp_path):

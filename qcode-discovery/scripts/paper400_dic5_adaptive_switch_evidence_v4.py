@@ -1394,6 +1394,34 @@ _V5_DECLARED_LOCK_IDENTITY_FIELDS = {
 }
 
 
+def _compact_v5_switch_policy(observation_policy: Any) -> dict[str, Any]:
+    """Validate the full switch policy, then project the v5 static fields."""
+
+    if type(observation_policy) is not dict:
+        raise AdaptiveSwitchEvidenceV4Error(
+            "switch observation policy malformed"
+        )
+    try:
+        rebuilt = base._observation_policy(
+            observation_policy["timeout_seconds"],
+            observation_policy["elapsed_seconds_by_lane"],
+        )
+    except Exception as exc:
+        raise AdaptiveSwitchEvidenceV4Error(
+            "switch observation policy malformed"
+        ) from exc
+    if not json_type_equal(observation_policy, rebuilt):
+        raise AdaptiveSwitchEvidenceV4Error(
+            "switch observation policy is noncanonical"
+        )
+    return {
+        "timeout_seconds": rebuilt["timeout_seconds"],
+        "elapsed_seconds_by_lane": list(
+            rebuilt["elapsed_seconds_by_lane"]
+        ),
+    }
+
+
 def _validate_v5_declared_outer_identity(
     value: Any, full_identity: Mapping[str, Any],
 ) -> dict[str, Any]:
@@ -1448,6 +1476,9 @@ def _validate_unstarted_target_roots(
         raise AdaptiveSwitchEvidenceV4Error(
             "fresh switch lane table malformed"
         )
+    compact_switch_policy = _compact_v5_switch_policy(
+        switch_record.get("observation_policy")
+    )
     expected_static_files = {
         "parent-manifest.json", "width6-campaign.json",
         "width10-campaign.json", "adaptive-overlay.json",
@@ -1556,7 +1587,7 @@ def _validate_unstarted_target_roots(
             or selection.get("descendant_index") != descendant_index
             or not json_type_equal(
                 static_record.get("switch_policy"),
-                switch_record.get("observation_policy"),
+                compact_switch_policy,
             )
             or static_record.get("hard_evidence_sha256")
                 != lane.get("hard_evidence_sha256")
@@ -5086,7 +5117,7 @@ _V5_SELECTION_FIELDS = {
 
 def _validate_incident_target_semantics(
     root: Path, targets: Any, old_lanes: Any, hard_pins: Any,
-    switch_policy: Any,
+    switch_observation_policy: Any,
 ) -> None:
     if (
         type(targets) is not list or len(targets) != TARGET_COUNT
@@ -5096,6 +5127,9 @@ def _validate_incident_target_semantics(
         raise AdaptiveSwitchEvidenceV4Error(
             "incident target semantic cardinality mismatch"
         )
+    compact_switch_policy = _compact_v5_switch_policy(
+        switch_observation_policy
+    )
     batch_identity = base._root_identity(root)
     paths: list[Path] = []
     root_inodes: set[tuple[int, int]] = set()
@@ -5301,7 +5335,7 @@ def _validate_incident_target_semantics(
             or static_record.get("publication_certificate") is not False
             or static_record.get("upload_authorized") is not False
             or not json_type_equal(
-                static_record.get("switch_policy"), switch_policy
+                static_record.get("switch_policy"), compact_switch_policy
             )
             or not json_type_equal(
                 static_record.get("launch_attestation"),
