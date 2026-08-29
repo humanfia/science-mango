@@ -383,6 +383,647 @@ class PipelinedReviewTest(unittest.TestCase):
             ),
         }
 
+    def test_initial_formalizer_compile_failure_gets_one_fresh_repair_before_review(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "problem_item_a.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8"
+            )
+            task_result = (
+                state / "task_results" / "problem_item_a.lean.md"
+            )
+            answer_binding = {
+                "path": "blind_candidates/problem_item_a.json",
+                "sha256": "a" * 64,
+            }
+            events: list[str] = []
+            formalizer_prompts: list[str] = []
+            formalizer_sessions: list[str | None] = []
+            original_task_result: list[bytes] = []
+            validation_bindings: list[dict] = []
+            formalization_review_observations: list[dict] = []
+            proof_review_calls = 0
+
+            def fake_formalizer(*args, **_kwargs):
+                prompt = args[0]
+                formalizer_prompts.append(prompt)
+                formalizer_sessions.append(args[7])
+                if len(formalizer_prompts) == 1:
+                    events.append("initial-formalizer")
+                    target.write_text(
+                        "theorem a (h : True) : True := by\n"
+                        "  exact missing_name\n",
+                        encoding="utf-8",
+                    )
+                    task_result.write_text(
+                        "# Stable formalization result\n", encoding="utf-8"
+                    )
+                    original_task_result.append(task_result.read_bytes())
+                elif len(formalizer_prompts) == 2:
+                    events.append("formalization-compile-repair")
+                    target.write_text(
+                        "theorem a (h : True) : True := by\n"
+                        "  exact missing_second\n",
+                        encoding="utf-8",
+                    )
+                else:
+                    events.append("formalization-compile-repair")
+                    target.write_text(
+                        "theorem a (h : True) : True := by\n"
+                        "  sorry\n",
+                        encoding="utf-8",
+                    )
+                return True
+
+            def synthetic_preflight(
+                *, project_path: Path, target: Path, timeout_sec: int
+            ) -> dict:
+                del timeout_sec
+                text = target.read_text(encoding="utf-8")
+                rel = target.resolve().relative_to(
+                    project_path.resolve()
+                ).as_posix()
+                identifier = (
+                    "missing_second" if "missing_second" in text
+                    else "missing_name" if "missing_name" in text
+                    else ""
+                )
+                if identifier:
+                    events.append("compile-failed")
+                    return {
+                        "file": rel,
+                        "status": "failed",
+                        "compiles": False,
+                        "returncode": 1,
+                        "sorry_count": 0,
+                        "duration_secs": 0.01,
+                        "diagnostics": (
+                            "problem_item_a.lean:2:9: error: unknown "
+                            f"identifier '{identifier}'"
+                        ),
+                        "numeric_reporting": {
+                            "active": False,
+                            "status": "not_applicable",
+                            "reason": "synthetic test target",
+                        },
+                    }
+                events.append("compile-passed")
+                return {
+                    "file": rel,
+                    "status": "passed",
+                    "compiles": True,
+                    "returncode": 0,
+                    "sorry_count": text.count("sorry"),
+                    "duration_secs": 0.01,
+                    "diagnostics": "",
+                    "numeric_reporting": {
+                        "active": False,
+                        "status": "not_applicable",
+                        "reason": "synthetic test target",
+                    },
+                }
+
+            def validate_answer(**_kwargs):
+                binding = dict(answer_binding)
+                validation_bindings.append(binding)
+                return binding, ""
+
+            def fake_formalization_review(spec, **_kwargs):
+                events.append("formalization-review")
+                formalization_review_observations.append({
+                    "formalizer_calls": len(formalizer_prompts),
+                    "target": target.read_text(encoding="utf-8"),
+                    "task_result": task_result.read_bytes(),
+                })
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_formalization_milestone(spec.rel),
+                )
+
+            def fake_prover(*_args, **_kwargs):
+                events.append("prover")
+                target.write_text(
+                    "theorem a (h : True) : True := by\n  exact h\n",
+                    encoding="utf-8",
+                )
+                return True
+
+            def fake_proof_review(spec, **_kwargs):
+                nonlocal proof_review_calls
+                proof_review_calls += 1
+                events.append("proof-review")
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(spec.rel),
+                )
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=fake_prover,
+                review_worker=fake_proof_review,
+                formalizer_worker=fake_formalizer,
+                formalization_review_worker=fake_formalization_review,
+                max_parallel=1,
+                full_pipeline=True,
+                stage="autoformalize",
+            )
+            runner.preflight_checker = synthetic_preflight
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "native_problem_only_enabled",
+                    return_value=True,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "resolve_native_formalizer_source_contract",
+                    return_value={},
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "validate_native_answer_submission_current",
+                    side_effect=validate_answer,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "_native_formalizer_semantic_dag_block",
+                    return_value="CONTRACT",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "resolve_target_review_source_contract",
+                    return_value=None,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_target_formalization_review_prompt",
+                    return_value="formal-review",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_target_review_prompt",
+                    return_value="proof-review",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="prove",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch("archon.commands.loop.prover.runners.persist_session_id"),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertEqual(len(formalizer_prompts), 3)
+            self.assertNotIn("compile-only repair", formalizer_prompts[0])
+            self.assertIn(
+                "compile-only repair (attempt 1/3)",
+                formalizer_prompts[1],
+            )
+            self.assertIn("missing_name", formalizer_prompts[1])
+            self.assertIn(
+                "compile-only repair (attempt 2/3)",
+                formalizer_prompts[2],
+            )
+            self.assertIn("missing_second", formalizer_prompts[2])
+            self.assertEqual(formalizer_sessions, [None, None, None])
+            self.assertEqual(len(formalization_review_observations), 1)
+            observation = formalization_review_observations[0]
+            self.assertEqual(observation["formalizer_calls"], 3)
+            self.assertNotIn("missing_name", observation["target"])
+            self.assertNotIn("missing_second", observation["target"])
+            self.assertEqual(
+                observation["task_result"], original_task_result[0]
+            )
+            self.assertEqual(task_result.read_bytes(), original_task_result[0])
+            self.assertGreaterEqual(len(validation_bindings), 3)
+            self.assertTrue(all(
+                binding == answer_binding for binding in validation_bindings
+            ))
+            self.assertEqual(proof_review_calls, 1)
+            self.assertLess(
+                events.index("compile-passed"),
+                events.index("formalization-review"),
+            )
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertTrue(report["complete"])
+            self.assertEqual(
+                report["compile_repairs"]["requested"], 2
+            )
+            repairs = report["compile_repairs"]["results"]
+            self.assertEqual([row["attempt"] for row in repairs], [1, 2])
+            self.assertEqual(
+                [row["status"] for row in repairs], ["retrying", "passed"]
+            )
+            self.assertTrue(all(
+                row["stage"] == "formalization" for row in repairs
+            ))
+            self.assertTrue(all(
+                row["task_result_preserved"] for row in repairs
+            ))
+            self.assertTrue(all(
+                row["answer_submission_preserved"] for row in repairs
+            ))
+            history = report["formalizer_history"]["problem_item_a.lean"]
+            self.assertEqual(len(history), 3)
+            self.assertTrue(all(row["compile_repair"] for row in history[1:]))
+            self.assertTrue(all(
+                row["answer_submission_binding"] == answer_binding
+                for row in history[1:]
+            ))
+
+    def test_proof_second_compile_repair_succeeds_before_review(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8"
+            )
+            events: list[str] = []
+            prompts: list[str] = []
+            sessions: list[str | None] = []
+            review_observations: list[dict] = []
+
+            def fake_prover(*args, **_kwargs):
+                prompts.append(args[0])
+                sessions.append(args[7])
+                if len(prompts) == 1:
+                    events.append("prover")
+                    target.write_text(
+                        "theorem a : True := by\n  exact missing_name\n",
+                        encoding="utf-8",
+                    )
+                elif len(prompts) == 2:
+                    events.append("proof-compile-repair")
+                    target.write_text(
+                        "theorem a : True := by\n  exact missing_two\n",
+                        encoding="utf-8",
+                    )
+                else:
+                    events.append("proof-compile-repair")
+                    target.write_text(
+                        "theorem a : True := by\n  trivial\n",
+                        encoding="utf-8",
+                    )
+                return True
+
+            def synthetic_preflight(
+                *, project_path: Path, target: Path, timeout_sec: int
+            ) -> dict:
+                del timeout_sec
+                text = target.read_text(encoding="utf-8")
+                identifier = (
+                    "missing_two" if "missing_two" in text
+                    else "missing_name" if "missing_name" in text
+                    else ""
+                )
+                failed = bool(identifier)
+                events.append("compile-failed" if failed else "compile-passed")
+                return {
+                    "file": target.resolve().relative_to(
+                        project_path.resolve()
+                    ).as_posix(),
+                    "status": "failed" if failed else "passed",
+                    "compiles": not failed,
+                    "returncode": 1 if failed else 0,
+                    "sorry_count": 0,
+                    "duration_secs": 0.01,
+                    "diagnostics": (
+                        f"A.lean:2:9: error: unknown identifier '{identifier}'"
+                        if identifier else ""
+                    ),
+                    "numeric_reporting": {
+                        "active": False,
+                        "status": "not_applicable",
+                        "reason": "synthetic test target",
+                    },
+                }
+
+            def fake_review(spec, **_kwargs):
+                events.append("proof-review")
+                review_observations.append({
+                    "prover_calls": len(prompts),
+                    "target": target.read_text(encoding="utf-8"),
+                })
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(spec.rel),
+                )
+
+            runner = self._runner(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                prover_worker=fake_prover,
+                review_worker=fake_review,
+                max_parallel=1,
+                max_attempts=1,
+            )
+            runner.preflight_checker = synthetic_preflight
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "native_problem_only_enabled",
+                    return_value=False,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "resolve_target_review_source_contract",
+                    return_value=None,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_target_review_prompt",
+                    return_value="review",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="prove",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch("archon.commands.loop.prover.runners.persist_session_id"),
+            ):
+                runner._run_fanout([target], file_modes={})
+
+            self.assertEqual(len(prompts), 3)
+            self.assertNotIn("compile-only repair", prompts[0])
+            self.assertIn("compile-only repair (attempt 1/3)", prompts[1])
+            self.assertIn("missing_name", prompts[1])
+            self.assertIn("compile-only repair (attempt 2/3)", prompts[2])
+            self.assertIn("missing_two", prompts[2])
+            self.assertEqual(sessions, [None, None, None])
+            self.assertEqual(len(review_observations), 1)
+            self.assertEqual(review_observations[0]["prover_calls"], 3)
+            self.assertNotIn("missing_name", review_observations[0]["target"])
+            self.assertNotIn("missing_two", review_observations[0]["target"])
+            self.assertLess(
+                events.index("compile-passed"), events.index("proof-review")
+            )
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["compile_repairs"]["requested"], 2)
+            repairs = report["compile_repairs"]["results"]
+            self.assertEqual([row["attempt"] for row in repairs], [1, 2])
+            self.assertEqual(
+                [row["status"] for row in repairs], ["retrying", "passed"]
+            )
+            repair = repairs[-1]
+            self.assertEqual(repair["stage"], "proof")
+            self.assertEqual(repair["status"], "passed")
+
+    def test_exhausted_compile_repair_hard_gates_review_and_is_not_repeated_on_resume(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8"
+            )
+            prompts: list[str] = []
+            sessions: list[str | None] = []
+            normal_calls = 0
+            review_calls = 0
+
+            def still_broken_prover(*args, **_kwargs):
+                nonlocal normal_calls
+                prompt = args[0]
+                prompts.append(prompt)
+                sessions.append(args[7])
+                if "compile-only repair" in prompt:
+                    repair_attempt = sum(
+                        "compile-only repair" in row for row in prompts
+                    )
+                    target.write_text(
+                        "theorem a : True := by\n"
+                        f"  exact missing_repair_{repair_attempt}\n",
+                        encoding="utf-8",
+                    )
+                else:
+                    normal_calls += 1
+                    if normal_calls == 1:
+                        target.write_text(
+                            "theorem a : True := by\n  exact missing_initial\n",
+                            encoding="utf-8",
+                        )
+                return True
+
+            def failed_preflight(
+                *, project_path: Path, target: Path, timeout_sec: int
+            ) -> dict:
+                del timeout_sec
+                text = target.read_text(encoding="utf-8")
+                identifier = next(
+                    (
+                        name
+                        for name in (
+                            "missing_repair_3", "missing_repair_2",
+                            "missing_repair_1", "missing_initial",
+                        )
+                        if name in text
+                    ),
+                    "missing_initial",
+                )
+                return {
+                    "file": target.resolve().relative_to(
+                        project_path.resolve()
+                    ).as_posix(),
+                    "status": "failed",
+                    "compiles": False,
+                    "returncode": 1,
+                    "sorry_count": 0,
+                    "duration_secs": 0.01,
+                    "diagnostics": (
+                        f"A.lean:2:9: error: unknown identifier '{identifier}'"
+                    ),
+                    "numeric_reporting": {
+                        "active": False,
+                        "status": "not_applicable",
+                        "reason": "synthetic test target",
+                    },
+                }
+
+            def unexpected_review(spec, **_kwargs):
+                nonlocal review_calls
+                review_calls += 1
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_milestone(spec.rel),
+                )
+
+            def make_runner(*, resume_enabled: bool) -> ParallelProverRunner:
+                runner = self._runner(
+                    root=root,
+                    state=state,
+                    iter_dir=iter_dir,
+                    prover_worker=still_broken_prover,
+                    review_worker=unexpected_review,
+                    max_parallel=1,
+                    max_attempts=1,
+                    resume_enabled=resume_enabled,
+                )
+                runner.preflight_checker = failed_preflight
+                return runner
+
+            with (
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "native_problem_only_enabled",
+                    return_value=False,
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "resolve_target_review_source_contract",
+                ) as resolve_contract,
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_target_review_prompt",
+                    return_value="review",
+                ),
+                patch(
+                    "archon.commands.loop.prover.runners."
+                    "build_parallel_prover_prompt",
+                    return_value="prove",
+                ),
+                patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+                patch(
+                    "archon.commands.loop.prover.runners.pick_resume_session",
+                    return_value=None,
+                ),
+                patch("archon.commands.loop.prover.runners.persist_session_id"),
+            ):
+                with self.assertRaisesRegex(
+                    RuntimeError, "compile gate blocked Review"
+                ):
+                    make_runner(resume_enabled=False)._run_fanout(
+                        [target], file_modes={}
+                    )
+                first_report = json.loads(
+                    (iter_dir / "pipelined-review.json").read_text(
+                        encoding="utf-8"
+                    )
+                )
+                self.assertEqual(len(prompts), 4)
+                self.assertEqual(
+                    sum(
+                        "compile-only repair" in prompt
+                        for prompt in prompts
+                    ),
+                    3,
+                )
+                self.assertIn("attempt 1/3", prompts[1])
+                self.assertIn("attempt 2/3", prompts[2])
+                self.assertIn("attempt 3/3", prompts[3])
+                self.assertEqual(sessions, [None, None, None, None])
+                with self.assertRaisesRegex(
+                    RuntimeError, "compile gate blocked Review"
+                ):
+                    make_runner(resume_enabled=True)._run_fanout(
+                        [target], file_modes={}
+                    )
+                resumed_report = json.loads(
+                    (iter_dir / "pipelined-review.json").read_text(
+                        encoding="utf-8"
+                    )
+                )
+
+            self.assertEqual(review_calls, 0)
+            resolve_contract.assert_not_called()
+            self.assertEqual(len(prompts), 4)
+            self.assertEqual(normal_calls, 1)
+            self.assertEqual(
+                sum(
+                    "compile-only repair" in prompt
+                    for prompt in prompts
+                ),
+                3,
+            )
+            self.assertFalse(resumed_report["complete"])
+            self.assertEqual(resumed_report["reviewed"], 0)
+            resumed_compile_repairs = resumed_report["compile_repairs"]
+            self.assertEqual(
+                resumed_compile_repairs["budget_per_delivery"], 3
+            )
+            self.assertEqual(resumed_compile_repairs["requested"], 3)
+            self.assertEqual(resumed_compile_repairs["passed"], 0)
+            self.assertEqual(resumed_compile_repairs["exhausted"], 1)
+            resumed_repairs = resumed_compile_repairs["results"]
+            self.assertEqual(len(resumed_repairs), 1)
+            self.assertEqual(resumed_repairs[0]["attempt"], 3)
+            self.assertEqual(resumed_repairs[0]["status"], "exhausted")
+            self.assertTrue(
+                resumed_repairs[0]["restored_from_meta"]
+            )
+            self.assertFalse(first_report["complete"])
+            self.assertEqual(first_report["compile_repairs"]["requested"], 3)
+            self.assertEqual(first_report["compile_repairs"]["passed"], 0)
+            self.assertEqual(first_report["compile_repairs"]["exhausted"], 1)
+            repairs = first_report["compile_repairs"]["results"]
+            self.assertEqual([row["attempt"] for row in repairs], [1, 2, 3])
+            self.assertEqual(
+                [row["status"] for row in repairs],
+                ["retrying", "retrying", "exhausted"],
+            )
+            repair = repairs[-1]
+            self.assertEqual(repair["stage"], "proof")
+            self.assertEqual(repair["status"], "exhausted")
+            meta = json.loads(
+                (iter_dir / "meta.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                meta["pipelineCompileRepairs"]["proof"]["A"]["status"],
+                "exhausted",
+            )
+            self.assertEqual(
+                meta["pipelineCompileRepairs"]["proof"]["A"]["attempt"],
+                3,
+            )
+
     def test_resume_enabled_without_session_gets_fresh_delivery_retry(
         self,
     ):
@@ -1112,7 +1753,7 @@ class PipelinedReviewTest(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertEqual(_pipeline_cycle(value), expected)
 
-    def test_preflight_exception_has_numeric_reporting_evidence(self):
+    def test_preflight_exception_hard_gates_review_with_numeric_evidence(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             state = root / ".archon"
@@ -1125,23 +1766,24 @@ class PipelinedReviewTest(unittest.TestCase):
                 "theorem a : True := by sorry\n",
                 encoding="utf-8",
             )
-            observed: list[dict] = []
             preflight_calls: list[dict] = []
+            review_calls = 0
 
             def failed_preflight(**kwargs):
                 preflight_calls.append(kwargs)
                 raise RuntimeError("preflight exploded")
 
-            def capture_contract(**kwargs):
-                observed.append(kwargs["preflight"])
-                return None
+            def unexpected_review(*args, **kwargs):
+                nonlocal review_calls
+                review_calls += 1
+                return _process_review(*args, **kwargs)
 
             runner = self._runner(
                 root=root,
                 state=state,
                 iter_dir=iter_dir,
                 prover_worker=_process_prover,
-                review_worker=_process_review,
+                review_worker=unexpected_review,
                 max_parallel=1,
                 max_attempts=1,
             )
@@ -1150,8 +1792,7 @@ class PipelinedReviewTest(unittest.TestCase):
                 patch(
                     "archon.commands.loop.prover.runners."
                     "resolve_target_review_source_contract",
-                    side_effect=capture_contract,
-                ),
+                ) as resolve_contract,
                 patch(
                     "archon.commands.loop.prover.runners."
                     "build_target_review_prompt",
@@ -1168,10 +1809,24 @@ class PipelinedReviewTest(unittest.TestCase):
                     return_value=None,
                 ),
                 patch("archon.commands.loop.prover.runners.persist_session_id"),
+                self.assertRaisesRegex(
+                    RuntimeError,
+                    "compile gate blocked Review",
+                ),
             ):
                 runner._run_fanout([target], file_modes={})
 
-            self.assertTrue(observed)
+            self.assertEqual(review_calls, 0)
+            resolve_contract.assert_not_called()
+            self.assertEqual(len(preflight_calls), 1)
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertFalse(report["complete"])
+            observed = report["preflight"]["targets"]
+            self.assertEqual(len(observed), 1)
             self.assertEqual(
                 observed[0]["numeric_reporting"],
                 {
