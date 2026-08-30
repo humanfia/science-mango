@@ -3940,8 +3940,20 @@ required action while preserving the accepted statement.
                             answer_only_repair
                             or work.kind == "initial_formalizer"
                         )
+                        complete_current_initial_delivery = (
+                            work.kind == "initial_formalizer"
+                            and changed
+                            and compiles
+                            and result_updated
+                            and answer_submission_valid
+                        )
                         materialized = answer_submission_valid and compiles and (
-                            (runner_ok if full_delivery_requires_runner else True)
+                            (
+                                (
+                                    runner_ok or complete_current_initial_delivery
+                                )
+                                if full_delivery_requires_runner else True
+                            )
                             and (
                                 answer_only_repair
                                 or (changed and result_updated)
@@ -3968,7 +3980,6 @@ required action while preserving the accepted statement.
                                 "initial_formalizer", "formalizer",
                             }
                             and changed
-                            and result_updated
                             and answer_submission_valid
                             and _deterministic_compile_failure(postflight)
                         )

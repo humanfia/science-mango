@@ -245,6 +245,42 @@ def _preflight(*, project_path: Path, target: Path, timeout_sec: int) -> dict:
     }
 
 
+def _missing_identifier_preflight(
+    *, project_path: Path, target: Path, timeout_sec: int
+) -> dict:
+    """Return deterministic synthetic diagnostics for ``missing_*`` names."""
+    del timeout_sec
+    text = target.read_text(encoding="utf-8")
+    identifier = next(
+        (
+            token.rstrip(";,)")
+            for token in text.split()
+            if token.startswith("missing_")
+        ),
+        "",
+    )
+    failed = bool(identifier)
+    return {
+        "file": target.resolve().relative_to(
+            project_path.resolve()
+        ).as_posix(),
+        "status": "failed" if failed else "passed",
+        "compiles": not failed,
+        "returncode": 1 if failed else 0,
+        "sorry_count": text.count("sorry"),
+        "duration_secs": 0.01,
+        "diagnostics": (
+            f"{target.name}:2:9: error: unknown identifier '{identifier}'"
+            if identifier else ""
+        ),
+        "numeric_reporting": {
+            "active": False,
+            "status": "not_applicable",
+            "reason": "synthetic test target",
+        },
+    }
+
+
 class PipelinedReviewTest(unittest.TestCase):
     def _runner(
         self,
@@ -382,6 +418,80 @@ class PipelinedReviewTest(unittest.TestCase):
                 for call in snapshot.call_args_list
             ),
         }
+
+    def _run_native_initial_compile_case(
+        self,
+        *,
+        root: Path,
+        state: Path,
+        iter_dir: Path,
+        target: Path,
+        formalizer_worker,
+        answer_validator,
+        formalization_review_worker,
+    ) -> None:
+        runner = self._runner(
+            root=root,
+            state=state,
+            iter_dir=iter_dir,
+            prover_worker=_process_prover,
+            review_worker=_process_review,
+            formalizer_worker=formalizer_worker,
+            formalization_review_worker=formalization_review_worker,
+            max_parallel=1,
+            full_pipeline=True,
+            stage="autoformalize",
+        )
+        runner.preflight_checker = _missing_identifier_preflight
+        with (
+            patch(
+                "archon.commands.loop.prover.runners."
+                "native_problem_only_enabled",
+                return_value=True,
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "resolve_native_formalizer_source_contract",
+                return_value={},
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "validate_native_answer_submission_current",
+                side_effect=answer_validator,
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "_native_formalizer_semantic_dag_block",
+                return_value="CONTRACT",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "resolve_target_review_source_contract",
+                return_value=None,
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "build_target_formalization_review_prompt",
+                return_value="formal-review",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "build_target_review_prompt",
+                return_value="proof-review",
+            ),
+            patch(
+                "archon.commands.loop.prover.runners."
+                "build_parallel_prover_prompt",
+                return_value="work",
+            ),
+            patch("archon.commands.loop.prover.runners.snapshot_baseline"),
+            patch(
+                "archon.commands.loop.prover.runners.pick_resume_session",
+                return_value=None,
+            ),
+            patch("archon.commands.loop.prover.runners.persist_session_id"),
+        ):
+            runner._run_fanout([target], file_modes={})
 
     def test_initial_formalizer_compile_failure_gets_one_fresh_repair_before_review(
         self,
@@ -653,6 +763,236 @@ class PipelinedReviewTest(unittest.TestCase):
                 row["answer_submission_binding"] == answer_binding
                 for row in history[1:]
             ))
+
+    def test_initial_compile_failure_with_unchanged_task_result_repairs_before_review(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            task_results = state / "task_results"
+            task_results.mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "problem_item_a.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8"
+            )
+            task_result = task_results / "problem_item_a.lean.md"
+            original_task_result = b"# Existing task result\n"
+            task_result.write_bytes(original_task_result)
+            answer_binding = {
+                "path": "blind_candidates/problem_item_a.json",
+                "sha256": "a" * 64,
+            }
+            prompts: list[str] = []
+            sessions: list[str | None] = []
+            review_observations: list[dict] = []
+
+            def formalizer(*args, **_kwargs):
+                prompts.append(args[0])
+                sessions.append(args[7])
+                if len(prompts) == 1:
+                    identifier = "missing_initial"
+                elif len(prompts) == 2:
+                    identifier = "missing_repair_1"
+                else:
+                    identifier = ""
+                body = (
+                    f"  exact {identifier}\n"
+                    if identifier else "  trivial\n"
+                )
+                target.write_text(
+                    "theorem a : True := by\n" + body,
+                    encoding="utf-8",
+                )
+                return True
+
+            def answer_validator(**_kwargs):
+                return dict(answer_binding), ""
+
+            def formalization_review(spec, **_kwargs):
+                review_observations.append({
+                    "formalizer_calls": len(prompts),
+                    "target": target.read_text(encoding="utf-8"),
+                    "task_result": task_result.read_bytes(),
+                })
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_formalization_milestone(spec.rel),
+                )
+
+            self._run_native_initial_compile_case(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                target=target,
+                formalizer_worker=formalizer,
+                answer_validator=answer_validator,
+                formalization_review_worker=formalization_review,
+            )
+
+            self.assertEqual(len(prompts), 3)
+            self.assertNotIn("compile-only repair", prompts[0])
+            self.assertIn("compile-only repair (attempt 1/3)", prompts[1])
+            self.assertIn("missing_initial", prompts[1])
+            self.assertIn("compile-only repair (attempt 2/3)", prompts[2])
+            self.assertIn("missing_repair_1", prompts[2])
+            self.assertEqual(sessions, [None, None, None])
+            self.assertEqual(len(review_observations), 1)
+            observation = review_observations[0]
+            self.assertEqual(observation["formalizer_calls"], 3)
+            self.assertNotIn("missing_", observation["target"])
+            self.assertEqual(
+                observation["task_result"], original_task_result
+            )
+            self.assertEqual(task_result.read_bytes(), original_task_result)
+
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertTrue(report["complete"])
+            history = report["formalizer_history"]["problem_item_a.lean"]
+            self.assertEqual(len(history), 3)
+            self.assertFalse(history[0]["task_result_updated"])
+            self.assertTrue(history[0]["answer_submission_valid"])
+            self.assertTrue(all(
+                row["compile_repair"] for row in history[1:]
+            ))
+            repairs = report["compile_repairs"]["results"]
+            self.assertEqual([row["attempt"] for row in repairs], [1, 2])
+            self.assertEqual(
+                [row["status"] for row in repairs], ["retrying", "passed"]
+            )
+            self.assertTrue(all(
+                row["task_result_preserved"] for row in repairs
+            ))
+            self.assertTrue(all(
+                row["answer_submission_preserved"] for row in repairs
+            ))
+
+    def test_initial_compile_failure_with_unchanged_task_result_exhausts_three_repairs(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            task_results = state / "task_results"
+            task_results.mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "problem_item_a.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8"
+            )
+            task_result = task_results / "problem_item_a.lean.md"
+            original_task_result = b"# Existing task result\n"
+            task_result.write_bytes(original_task_result)
+            answer_binding = {
+                "path": "blind_candidates/problem_item_a.json",
+                "sha256": "b" * 64,
+            }
+            prompts: list[str] = []
+            sessions: list[str | None] = []
+            review_calls = 0
+
+            def formalizer(*args, **_kwargs):
+                prompts.append(args[0])
+                sessions.append(args[7])
+                repair_attempt = max(0, len(prompts) - 1)
+                identifier = (
+                    "missing_initial"
+                    if repair_attempt == 0
+                    else f"missing_repair_{repair_attempt}"
+                )
+                target.write_text(
+                    "theorem a : True := by\n"
+                    f"  exact {identifier}\n",
+                    encoding="utf-8",
+                )
+                return True
+
+            def answer_validator(**_kwargs):
+                return dict(answer_binding), ""
+
+            def unexpected_review(spec, **_kwargs):
+                nonlocal review_calls
+                review_calls += 1
+                return TargetReviewOutcome(
+                    rel=spec.rel,
+                    attempt=spec.attempt,
+                    runner_ok=True,
+                    milestone=_formalization_milestone(spec.rel),
+                )
+
+            with self.assertRaisesRegex(
+                RuntimeError, "compile gate blocked Review"
+            ):
+                self._run_native_initial_compile_case(
+                    root=root,
+                    state=state,
+                    iter_dir=iter_dir,
+                    target=target,
+                    formalizer_worker=formalizer,
+                    answer_validator=answer_validator,
+                    formalization_review_worker=unexpected_review,
+                )
+
+            self.assertEqual(review_calls, 0)
+            self.assertEqual(len(prompts), 4)
+            self.assertNotIn("compile-only repair", prompts[0])
+            self.assertIn("attempt 1/3", prompts[1])
+            self.assertIn("missing_initial", prompts[1])
+            self.assertIn("attempt 2/3", prompts[2])
+            self.assertIn("missing_repair_1", prompts[2])
+            self.assertIn("attempt 3/3", prompts[3])
+            self.assertIn("missing_repair_2", prompts[3])
+            self.assertEqual(sessions, [None, None, None, None])
+            self.assertEqual(task_result.read_bytes(), original_task_result)
+
+            report = json.loads(
+                (iter_dir / "pipelined-review.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertFalse(report["complete"])
+            self.assertEqual(
+                report["pending_formalization_targets"],
+                ["problem_item_a.lean"],
+            )
+            history = report["formalizer_history"]["problem_item_a.lean"]
+            self.assertEqual(len(history), 4)
+            self.assertFalse(history[0]["task_result_updated"])
+            self.assertTrue(history[0]["answer_submission_valid"])
+            self.assertTrue(all(
+                row["compile_repair"] for row in history[1:]
+            ))
+            repairs = report["compile_repairs"]["results"]
+            self.assertEqual([row["attempt"] for row in repairs], [1, 2, 3])
+            self.assertEqual(
+                [row["status"] for row in repairs],
+                ["retrying", "retrying", "exhausted"],
+            )
+            self.assertTrue(all(
+                row["task_result_preserved"] for row in repairs
+            ))
+            self.assertTrue(all(
+                row["answer_submission_preserved"] for row in repairs
+            ))
+            meta = json.loads(
+                (iter_dir / "meta.json").read_text(encoding="utf-8")
+            )
+            persisted = meta["pipelineCompileRepairs"]["formalization"][
+                "problem_item_a"
+            ]
+            self.assertEqual(persisted["attempt"], 3)
+            self.assertEqual(persisted["status"], "exhausted")
 
     def test_proof_second_compile_repair_succeeds_before_review(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1092,6 +1432,71 @@ class PipelinedReviewTest(unittest.TestCase):
                 meta["pipelineFormalizers"]["A"]["deliveryAttempt"], 2
             )
 
+    def test_complete_initial_delivery_survives_false_runner_result(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-001"
+            (iter_dir / "provers").mkdir(parents=True)
+            (state / "task_results").mkdir()
+            (iter_dir / "meta.json").write_text("{}\n", encoding="utf-8")
+            target = root / "A.lean"
+            target.write_text(
+                "theorem a : True := by sorry\n", encoding="utf-8",
+            )
+            calls = 0
+
+            def formalizer(*_args, **_kwargs):
+                nonlocal calls
+                calls += 1
+                target.write_text(
+                    "theorem a (h_law : True) : True := by sorry\n",
+                    encoding="utf-8",
+                )
+                (state / "task_results" / "A.lean.md").write_text(
+                    "# Complete delivery\n", encoding="utf-8",
+                )
+                return False
+
+            report, meta, patch_calls = self._run_initial_delivery_case(
+                root=root,
+                state=state,
+                iter_dir=iter_dir,
+                target=target,
+                formalizer_worker=formalizer,
+            )
+
+            self.assertTrue(report["complete"])
+            self.assertEqual(calls, 1)
+            self.assertEqual(patch_calls, {
+                "formalizer_pick_resume": 1,
+                "formalizer_snapshot": 1,
+            })
+            history = report["formalizer_history"]["A.lean"]
+            self.assertEqual(len(history), 1)
+            delivery = history[0]
+            self.assertEqual(delivery["status"], "materialized")
+            self.assertFalse(delivery["runner_ok"])
+            self.assertTrue(delivery["changed"])
+            self.assertTrue(delivery["preflight"]["compiles"])
+            self.assertTrue(delivery["task_result_updated"])
+            self.assertTrue(delivery["answer_submission_valid"])
+            self.assertIn(
+                "formalizer runner did not complete", delivery["error"]
+            )
+            self.assertEqual(
+                meta["pipelineFormalizers"]["A"]["status"], "materialized"
+            )
+            self.assertFalse(
+                meta["pipelineFormalizers"]["A"]["runnerOk"]
+            )
+            formalization = json.loads(
+                (state / "formalization-review-gate.json").read_text(
+                    encoding="utf-8"
+                )
+            )["targets"]["A.lean"]
+            self.assertEqual(formalization["status"], "passed")
+
     def test_initial_delivery_retry_keeps_original_lean_and_result_baseline(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -1139,6 +1544,9 @@ class PipelinedReviewTest(unittest.TestCase):
                 [row["delivery_attempt"] for row in history], [1, 2]
             )
             self.assertEqual([row["cycle"] for row in history], [1, 1])
+            self.assertEqual(
+                [row["status"] for row in history], ["error", "materialized"]
+            )
             self.assertTrue(history[0]["changed"])
             self.assertFalse(history[0]["task_result_updated"])
             self.assertTrue(history[1]["changed"])
