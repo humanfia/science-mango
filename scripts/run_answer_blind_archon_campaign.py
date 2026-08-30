@@ -33,9 +33,6 @@ from archon.commands.loop.physics_grounding import (
     _report_name as grounding_report_name,
     run_physics_grounding,
 )
-from archon.commands.loop.native_semantic_review import (
-    render_independent_rederivation_instructions,
-)
 from archon.commands.tooling.project_lean_index import build_project_index
 from archon.commands.loop.prior_result_dependency import (
     load_prior_result_dependency_context_checked,
@@ -413,28 +410,25 @@ order:
    result, independently reconstruct exactly one audit entry per requested
    output. Do the arithmetic, stoichiometric counting, conservation reasoning,
    and case analysis yourself from those allowed sources.
-2. Each independent entry must state the requested quantity's exact meaning,
-   including cumulative/overall/repeated-process versus per-step/per-cycle
-   scope; numerator and denominator or composition/mass basis; every constant
-   with value, unit, and source locator; upstream dependencies and governing
-   equations; branch/sign/case/stereochemical conditions; unit/dimension;
-   exact unrounded raw value or symbolic result; and source-authorized final
-   reporting rule. Use an explicit source-based `not_applicable`, never a blank.
+2. Record that derivation in the existing `checks`, `requested_outputs`,
+   `blind_source_audit`, `contract_audit`, and `chemistry_checks` fields. These
+   fields carry the semantic verdict; give concise evidence for every requested
+   output, decisive candidate-domain choice, uniqueness claim, and
+   answer-smuggling check.
 3. Only then inspect the formalizer's Semantic Card and Lean statement. Compare
    the independently derived entry field by field with both artifacts. Check
    atom/repeating-unit counts, mass-balance bases, cumulative yields or losses,
    denominators, constants, unit conversions, branches, and the absence of
    unauthorized intermediate rounding. A proof of the encoded statement is no
    evidence that the encoding matches the problem.
-4. Include the following machine-validated compact certificate in
-   `formalization_review`:
-
-{render_independent_rederivation_instructions()}
-
+4. `independent_rederivation` is optional audit metadata. Its auxiliary JSON
+   absence or wrong-type shape alone does not determine the verdict or consume
+   a Review retry. A substantive mismatch remains blocking: record it in the
+   existing semantic fields and return `status=failed` with `needs_redraft`.
 5. `formalization_review.status=passed` is allowed only when ambiguity is clear
    and every independent entry exactly matches both the Semantic Card and Lean
-   contract. A missing/duplicate output, missing locator or field, conflicting
-   reasonable interpretation, or any mismatch is `status=failed` with a
+   contract. A missing/duplicate requested output, conflicting reasonable
+   interpretation, or semantic mismatch is `status=failed` with a
    `needs_redraft` reason. Do not silently select one ambiguous interpretation.
 
 During prover Review, re-check that the proof closes the already reviewed raw

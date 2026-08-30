@@ -24,6 +24,7 @@ from archon.state import parse_objective_files
 from archon.state.progress import write_stage
 
 from .native_semantic_review import (
+    build_native_schema_feedback,
     build_native_semantic_review_contract,
     validate_independent_rederivation,
 )
@@ -560,10 +561,36 @@ def _validate_structured_review(
     native_error, native_certificate = validate_independent_rederivation(
         raw, native_semantic_contract,
     )
-    if native_error:
+    native_schema_feedback = (
+        build_native_schema_feedback(native_error)
+        if native_error
+        else None
+    )
+    optional_wrong_type = (
+        isinstance(native_schema_feedback, dict)
+        and native_schema_feedback.get("issue") == "wrong_type"
+        and str(native_schema_feedback.get("field_path") or "").startswith(
+            "independent_rederivation"
+        )
+    )
+    if native_error and not optional_wrong_type:
         failures.append(native_error)
-    elif native_semantic_contract is not None:
-        certificate["independent_rederivation"] = native_certificate
+    if native_semantic_contract is not None:
+        if not native_error:
+            certificate["independent_rederivation_audit"] = {
+                "status": "valid",
+            }
+            certificate["independent_rederivation"] = native_certificate
+        elif optional_wrong_type:
+            certificate["independent_rederivation_audit"] = {
+                "status": "invalid_optional_schema",
+                "schema_feedback": native_schema_feedback,
+            }
+        else:
+            certificate["independent_rederivation_audit"] = {
+                "status": "invalid_semantic",
+                "reason": str(native_error)[:1000],
+            }
     if failures:
         return False, "; ".join(dict.fromkeys(failures))[:2000], certificate
     return True, "structured formalization Review certificate passed", certificate

@@ -824,9 +824,14 @@ class NativeArchonCampaignTests(unittest.TestCase):
         self.assertIn("numeric_reporting", review)
         self.assertIn("cannot be waived", review)
         self.assertIn("source-first independent derivation", review)
-        self.assertIn('"method": "source_first_without_lean"', review)
-        self.assertIn("semantic_card_comparison", review)
-        self.assertIn("lean_statement_comparison", review)
+        self.assertIn(
+            "`independent_rederivation` is optional audit metadata", review,
+        )
+        self.assertIn("wrong-type shape alone does not determine the verdict", review)
+        self.assertIn("A substantive mismatch remains blocking", review)
+        self.assertNotIn('"method": "source_first_without_lean"', review)
+        self.assertNotIn("semantic_card_comparison", review)
+        self.assertNotIn("lean_statement_comparison", review)
         self.assertIn("needs_redraft", review)
         self.assertIn("proof of the encoded statement is no", review)
         self.assertIn("evidence that the encoding matches the problem", review)

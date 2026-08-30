@@ -1182,8 +1182,32 @@ class FormalizationReviewGateTests(unittest.TestCase):
 
         rel = self.target.relative_to(self.project).as_posix()
         self.assertEqual(result.retry, (rel,))
-        reason = load_gate_state(self.state)["targets"][rel]["reason"]
+        record = load_gate_state(self.state)["targets"][rel]
+        reason = record["reason"]
         self.assertIn("must be matched", reason)
+        audit = record["certificate"]["milestones"][0][
+            "independent_rederivation_audit"
+        ]
+        self.assertEqual(audit["status"], "invalid_semantic")
+
+    def test_native_optional_certificate_schema_failure_is_nonblocking(self):
+        contract = self._set_native_profile_and_bundle()
+        review = self._passing_certificate()
+        review.update(self._native_source_audit())
+        review.pop("independent_rederivation", None)
+
+        result = self._review(1, "passed", formalization_review=review)
+
+        rel = self.target.relative_to(self.project).as_posix()
+        self.assertEqual(result.passed, (rel,))
+        record = load_gate_state(self.state)["targets"][rel]
+        milestone = record["certificate"]["milestones"][0]
+        audit = milestone["independent_rederivation_audit"]
+        self.assertEqual(audit["status"], "invalid_optional_schema")
+        feedback = audit["schema_feedback"]
+        self.assertEqual(feedback["error_kind"], "schema_validation")
+        self.assertEqual(feedback["field_path"], "independent_rederivation")
+        self.assertNotIn("independent_rederivation", milestone)
 
     def test_passed_target_stays_filtered_from_fresh_autoformalize(self):
         self._review(1, "passed")

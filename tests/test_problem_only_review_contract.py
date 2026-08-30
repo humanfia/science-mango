@@ -1908,6 +1908,222 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
                 self.assertIsNone(outcome.milestone)
                 self.assertIn("changed after contract creation", outcome.error)
 
+    def test_formalization_worker_recovers_missing_output_in_same_session(
+        self,
+    ) -> None:
+        contract = self._contract()
+        output = self.output_root / "formalization" / "missing-output-recovery"
+        output.mkdir(parents=True, exist_ok=True)
+        milestone = output / "milestones.jsonl"
+        summary = output / "summary.md"
+        log_base = output / "agent"
+        runner = Mock()
+        session_id = "formalization-review-session"
+
+        def run(prompt, **kwargs):
+            if runner.run.call_count == 1:
+                Path(f"{kwargs['log_base']}.jsonl").write_text(
+                    json.dumps({
+                        "event": "session_end",
+                        "session_id": session_id,
+                    }) + "\n",
+                    encoding="utf-8",
+                )
+                return True
+            milestone.write_text(
+                json.dumps(self._formalization_milestone(contract)) + "\n",
+                encoding="utf-8",
+            )
+            summary.write_text("# Recovered Review\n", encoding="utf-8")
+            return True
+
+        runner.run.side_effect = run
+        spec = TargetReviewSpec(
+            rel=self.rel,
+            prompt="bounded original Review prompt",
+            output_dir=str(output),
+            log_base=str(log_base),
+            attempt=3,
+            source_contract=contract,
+        )
+        harness = HarnessDescriptor(name="kimi", runner="claude-code")
+        with patch(
+            "archon.commands.loop.parallel_formalization_review.build_runner",
+            return_value=runner,
+        ):
+            outcome = _run_formalization_review_worker(
+                spec,
+                project_path=self.project,
+                verbose_logs=False,
+                model="kimi",
+                backend=None,
+                harness=harness,
+            )
+
+        self.assertEqual(runner.run.call_count, 2)
+        first, recovery = runner.run.call_args_list
+        self.assertEqual(first.args[0], spec.prompt)
+        self.assertNotEqual(recovery.args[0], spec.prompt)
+        self.assertIn(str(milestone), recovery.args[0])
+        self.assertIn(str(summary), recovery.args[0])
+        self.assertEqual(recovery.kwargs["resume_session_id"], session_id)
+        self.assertEqual(recovery.kwargs["max_attempts"], 1)
+        self.assertEqual(recovery.kwargs["cwd"], self.project)
+        self.assertEqual(
+            recovery.kwargs["extra_args"], first.kwargs["extra_args"],
+        )
+        self.assertTrue(outcome.runner_ok)
+        self.assertIsNotNone(outcome.milestone)
+        self.assertEqual(outcome.validation_error, "")
+
+    def test_formalization_worker_does_not_recover_without_session_id(
+        self,
+    ) -> None:
+        contract = self._contract()
+        output = self.output_root / "formalization" / "missing-session-id"
+        output.mkdir(parents=True, exist_ok=True)
+        runner = Mock()
+
+        def run(_prompt, **kwargs):
+            Path(f"{kwargs['log_base']}.jsonl").write_text(
+                json.dumps({"event": "session_end"}) + "\n",
+                encoding="utf-8",
+            )
+            return True
+
+        runner.run.side_effect = run
+        spec = TargetReviewSpec(
+            rel=self.rel,
+            prompt="bounded original Review prompt",
+            output_dir=str(output),
+            log_base=str(output / "agent"),
+            attempt=3,
+            source_contract=contract,
+        )
+        harness = HarnessDescriptor(name="kimi", runner="claude-code")
+        with patch(
+            "archon.commands.loop.parallel_formalization_review.build_runner",
+            return_value=runner,
+        ):
+            outcome = _run_formalization_review_worker(
+                spec,
+                project_path=self.project,
+                verbose_logs=False,
+                model="kimi",
+                backend=None,
+                harness=harness,
+            )
+
+        runner.run.assert_called_once()
+        self.assertTrue(outcome.runner_ok)
+        self.assertIsNone(outcome.milestone)
+        self.assertIn("milestone missing", outcome.validation_error)
+
+    def test_formalization_worker_recovery_still_validates_milestone(
+        self,
+    ) -> None:
+        contract = self._contract()
+        output = self.output_root / "formalization" / "invalid-recovery"
+        output.mkdir(parents=True, exist_ok=True)
+        milestone = output / "milestones.jsonl"
+        runner = Mock()
+
+        def run(_prompt, **kwargs):
+            if runner.run.call_count == 1:
+                Path(f"{kwargs['log_base']}.jsonl").write_text(
+                    json.dumps({
+                        "event": "session_end",
+                        "session_id": "invalid-recovery-session",
+                    }) + "\n",
+                    encoding="utf-8",
+                )
+                return True
+            milestone.write_text("{}\n", encoding="utf-8")
+            return True
+
+        runner.run.side_effect = run
+        spec = TargetReviewSpec(
+            rel=self.rel,
+            prompt="bounded original Review prompt",
+            output_dir=str(output),
+            log_base=str(output / "agent"),
+            attempt=3,
+            source_contract=contract,
+        )
+        harness = HarnessDescriptor(name="kimi", runner="claude-code")
+        with patch(
+            "archon.commands.loop.parallel_formalization_review.build_runner",
+            return_value=runner,
+        ):
+            outcome = _run_formalization_review_worker(
+                spec,
+                project_path=self.project,
+                verbose_logs=False,
+                model="kimi",
+                backend=None,
+                harness=harness,
+            )
+
+        self.assertEqual(runner.run.call_count, 2)
+        self.assertIsNone(outcome.milestone)
+        self.assertIn("milestone target is missing", outcome.validation_error)
+
+    def test_formalization_worker_recovery_rejects_candidate_drift(
+        self,
+    ) -> None:
+        contract = self._contract()
+        output = self.output_root / "formalization" / "recovery-drift"
+        output.mkdir(parents=True, exist_ok=True)
+        milestone = output / "milestones.jsonl"
+        runner = Mock()
+
+        def run(_prompt, **kwargs):
+            if runner.run.call_count == 1:
+                Path(f"{kwargs['log_base']}.jsonl").write_text(
+                    json.dumps({
+                        "event": "session_end",
+                        "session_id": "recovery-drift-session",
+                    }) + "\n",
+                    encoding="utf-8",
+                )
+                return True
+            milestone.write_text(
+                json.dumps(self._formalization_milestone(contract)) + "\n",
+                encoding="utf-8",
+            )
+            self.target.write_text(
+                self.lean_source + "-- recovery drift\n",
+                encoding="utf-8",
+            )
+            return True
+
+        runner.run.side_effect = run
+        spec = TargetReviewSpec(
+            rel=self.rel,
+            prompt="bounded original Review prompt",
+            output_dir=str(output),
+            log_base=str(output / "agent"),
+            attempt=3,
+            source_contract=contract,
+        )
+        harness = HarnessDescriptor(name="kimi", runner="claude-code")
+        with patch(
+            "archon.commands.loop.parallel_formalization_review.build_runner",
+            return_value=runner,
+        ):
+            outcome = _run_formalization_review_worker(
+                spec,
+                project_path=self.project,
+                verbose_logs=False,
+                model="kimi",
+                backend=None,
+                harness=harness,
+            )
+
+        self.assertEqual(runner.run.call_count, 2)
+        self.assertIsNone(outcome.milestone)
+        self.assertIn("changed after contract creation", outcome.error)
+
 
     def test_requested_outputs_require_exact_one_to_one_coverage(self) -> None:
         self.row["requested_outputs"].append({

@@ -13,6 +13,7 @@ from typing import Callable
 from archon.agent import ClaudeBackend, build_runner
 from archon.commands.tooling.domain_profile import load_domain_profile
 from archon.commands.tooling.project_config import HarnessDescriptor
+from archon.state import extract_session_id
 
 from .formalization_review_gate import (
     REVIEW_SCHEMA_VERSION,
@@ -20,10 +21,8 @@ from .formalization_review_gate import (
     load_gate_state,
 )
 from .native_semantic_review import (
-    build_independent_rederivation_example,
     build_native_semantic_review_contract,
     build_native_schema_feedback,
-    render_independent_rederivation_instructions,
     validate_independent_rederivation,
 )
 from .parallel_review import TargetReviewOutcome, TargetReviewSpec
@@ -439,9 +438,27 @@ def _validate_certificate(
             raw, native_semantic_contract,
         )
         if native_error:
-            return native_error
-        if native_semantic_contract is not None:
+            schema_feedback = build_native_schema_feedback(native_error)
+            optional_wrong_type = (
+                isinstance(schema_feedback, dict)
+                and schema_feedback.get("issue") == "wrong_type"
+                and str(schema_feedback.get("field_path") or "").startswith(
+                    "independent_rederivation"
+                )
+            )
+            if not optional_wrong_type:
+                # A semantic disagreement remains a hard Review failure.
+                return native_error
+            # Do not spend another Review attempt solely on malformed optional
+            # metadata, and never retain malformed reviewer-supplied data.
+            raw.pop("independent_rederivation", None)
+            raw["independent_rederivation_audit"] = {
+                "status": "invalid_optional_schema",
+                "schema_feedback": schema_feedback,
+            }
+        elif native_semantic_contract is not None:
             raw["independent_rederivation"] = normalized
+            raw["independent_rederivation_audit"] = {"status": "valid"}
     source_error = validate_native_review_source_certificate(
         raw,
         expected_source_contract,
@@ -538,20 +555,6 @@ def _build_native_target_formalization_review_prompt(
     retry_feedback = render_validation_retry_feedback(
         retry_validation_error
     )
-    native_contract = build_native_semantic_review_contract(
-        project_path=project_path,
-        target=target,
-    )
-    independent_instructions = (
-        render_independent_rederivation_instructions(native_contract)
-        if native_contract is not None
-        else ""
-    )
-    independent_schema_line = (
-        '"independent_rederivation": '
-        + json.dumps(build_independent_rederivation_example(native_contract), ensure_ascii=False)
-        + "," if native_contract is not None and native_contract.get("valid") else ""
-    )
     return f"""You are one target-scoped formalization Review worker for Archon iteration {iter_num}.
 
 Assigned target (the only target you may review):
@@ -588,7 +591,10 @@ Read only these bounded inputs:
 
 {source_block}
 
-{independent_instructions}
+Independently reason from the bound problem source and record that reasoning in
+the existing semantic checks, requested_outputs, and chemistry_checks. A
+separate `independent_rederivation` object is optional audit metadata; do not
+delay or fail delivery merely because that optional object is absent.
 
 Controller-sanitized prior process metadata follows. Use it only as a regression
 checklist after independently auditing the current formalization. Apart from an
@@ -728,7 +734,6 @@ Write exactly one JSON object line to {milestone}:
     "bridge_obligations": [{{"claim": "...", "carrier": "...", "status": "covered|blocked", "evidence": "..."}}],
     "trusted_bridge_requests": [{{"bridge_obligation_index": 0, "rule_id": "<exact dormant ID>"}}],
     "source_contract": {json.dumps(source_provenance, ensure_ascii=False)},
-    {independent_schema_line}
     "blind_source_audit": {{
       "answer_independence": {{"status":"passed|failed","evidence":"<why only bound problem inputs influenced the audit>"}},
       "raw_derivation": {{"status":"passed|failed","evidence":"<end-to-end unrounded/symbolic derivation carrier>"}},
@@ -1061,6 +1066,32 @@ after both files are durable.
 """
 
 
+def _review_output_delivery_missing(path: Path) -> bool:
+    """Return whether a successful worker omitted its sole gate input."""
+    if not path.is_file():
+        return True
+    try:
+        return not path.read_text(encoding="utf-8", errors="ignore").strip()
+    except OSError:
+        # Let the normal loader report a precise unreadable-file error.
+        return False
+
+
+def _review_output_recovery_prompt(*, milestone: Path, summary: Path) -> str:
+    """Request delivery only from the same already-completed Review session."""
+    return f"""OUTPUT DELIVERY RECOVERY ONLY.
+
+Resume the Review you just completed. Do not re-audit the target, change your
+verdict, edit Lean or any input, or inspect any new file. Using only the
+conclusions already reached and the exact output schema from the prior turn,
+write exactly one complete JSON object line to:
+  {milestone}
+and write the required at-most-12-line summary to:
+  {summary}
+Return only after both files are durable.
+"""
+
+
 def _run_formalization_review_worker(
     spec: TargetReviewSpec,
     *,
@@ -1092,15 +1123,36 @@ def _run_formalization_review_worker(
             harness=harness,
             source_contract=spec.source_contract,
         )
-        runner_ok = build_runner(
+        runner = build_runner(
             role="review", model=model, descriptor=harness, backend=backend,
-        ).run(
+        )
+        runner_ok = runner.run(
             spec.prompt,
             cwd=project_path,
             log_base=Path(spec.log_base),
             verbose_logs=verbose_logs,
             extra_args=image_args,
         )
+        milestone_path = output_dir / "milestones.jsonl"
+        if (
+            runner_ok
+            and harness.runner == "claude-code"
+            and _review_output_delivery_missing(milestone_path)
+        ):
+            session_id = extract_session_id(Path(f"{spec.log_base}.jsonl"))
+            if session_id:
+                runner_ok = runner.run(
+                    _review_output_recovery_prompt(
+                        milestone=milestone_path,
+                        summary=output_dir / "summary.md",
+                    ),
+                    cwd=project_path,
+                    log_base=Path(spec.log_base),
+                    verbose_logs=verbose_logs,
+                    extra_args=image_args,
+                    max_attempts=1,
+                    resume_session_id=session_id,
+                )
     except Exception as exc:
         error = f"{type(exc).__name__}: {exc}"
     contract_error = validate_review_source_contract_current(

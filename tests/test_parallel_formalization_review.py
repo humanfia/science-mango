@@ -565,8 +565,9 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
 
             self.assertIn("NATIVE PROBLEM-INPUT-ONLY CONTRACT", prompt)
             self.assertIn(contract["image_assets"][0]["sha256"], prompt)
-            self.assertIn("source_first_without_lean", prompt)
-            self.assertIn('"independent_rederivation"', prompt)
+            self.assertIn("`independent_rederivation` object is optional", prompt)
+            self.assertNotIn("source_first_without_lean", prompt)
+            self.assertNotIn('"independent_rederivation": {', prompt)
             self.assertNotIn("OFFICIAL SOURCE CONTRACT", prompt)
             self.assertNotIn("Blind solve candidate record", prompt)
             self.assertNotIn("Mandatory answer-blind derivation protocol", prompt)
@@ -718,6 +719,29 @@ class ParallelFormalizationReviewTest(unittest.TestCase):
             self.assertEqual(error, "")
             self.assertIsNotNone(row)
 
+            independent = milestone["formalization_review"][
+                "independent_rederivation"
+            ]
+            independent["requested_outputs"][0]["constants"] = [{
+                "name": "source factor",
+                "value": "1",
+                "unit": "dimensionless",
+                "source_locator": "current_question",
+            }]
+            path.write_text(json.dumps(milestone) + "\n")
+            row, error = load_target_formalization_milestone(
+                path, rel, None, contract,
+            )
+            self.assertEqual(error, "")
+            self.assertEqual(
+                row["formalization_review"]["independent_rederivation_audit"]
+                ["status"],
+                "invalid_optional_schema",
+            )
+
+            milestone["formalization_review"]["independent_rederivation"] = (
+                build_independent_rederivation_example(contract)
+            )
             milestone["formalization_review"]["independent_rederivation"][
                 "requested_outputs"
             ][0]["lean_statement_comparison"]["status"] = "mismatched"
