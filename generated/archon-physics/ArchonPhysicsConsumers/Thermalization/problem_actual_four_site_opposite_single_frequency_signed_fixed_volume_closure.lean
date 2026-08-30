@@ -1,0 +1,29 @@
+import ArchonPhysics.ActualFourSiteOppositeSingleFrequencySignedFixedVolumeClosure
+
+/-!
+# Consumer: four-site opposite single-frequency signed closure
+
+This consumer exposes the full iid absolute-continuity theorem, its direct
+canonical-resultant endpoint, the signed `L1` certificate, and the concrete
+fixed-volume weak-coupling package.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.ActualFourSiteOppositeSingleFrequencySignedFixedVolumeClosure
+
+#check fourSiteOpposite_outerMismatchChart_eq_signedFrequency_ae
+#check actualFourSiteOppositeSingleFrequencyOuterMismatchLaw_absolutelyContinuous
+#check actualFourSiteOppositeSingleFrequencyOuterCanonicalResultant_endToEnd
+#check actualFourSiteOppositeSingleFrequencyOuterSignedL1Certificate
+#check tendsto_actualFourSiteOppositeSingleFrequencyOuterSignedWeakCoupling
+#check actualFourSiteOppositeSingleFrequencyOuterSignedFixedVolume_endToEnd
+
+#print axioms
+  actualFourSiteOppositeSingleFrequencyOuterMismatchLaw_absolutelyContinuous
+#print axioms
+  actualFourSiteOppositeSingleFrequencyOuterCanonicalResultant_endToEnd
+#print axioms
+  actualFourSiteOppositeSingleFrequencyOuterSignedFixedVolume_endToEnd
+
+end ArchonPhysicsConsumers.Thermalization

@@ -1,0 +1,15 @@
+import ArchonPhysics.ActualEightSiteExactAllDistinctLinearSmallBall
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.ActualEightSiteExactAllDistinctLinearSmallBall
+
+#check actualEightSiteSelectedMassTriple_mem_interior
+#check threeMassSiteConfig_actualEightSiteSelectedMassTriple
+#check actualThreeMassProjectorWeightMatrix_selected_eq
+#check exists_actualEightSite_exactAllDistinct_linearSmallBallLower
+
+#print axioms
+  ArchonPhysics.ActualEightSiteExactAllDistinctLinearSmallBall.exists_actualEightSite_exactAllDistinct_linearSmallBallLower
+
+end ArchonPhysicsConsumers.Thermalization

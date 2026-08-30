@@ -1,0 +1,27 @@
+import ArchonPhysics.PhyslibFPUTGardenPowerScheduleHigherOrderRPA
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.PhyslibFPUTGardenPowerScheduleHigherOrderRPA
+
+#check squareCouplingCutoff
+#check quadraticGardenGoodEnvelope
+#check quarticGardenGoodEnvelope
+#check squareCouplingCutoff_div_abs
+#check quadraticGardenGoodEnvelope_div_abs
+#check quarticGardenGoodEnvelope_eq
+#check squareCouplingCutoff_tendsto_zero
+#check squareCouplingCutoff_div_abs_tendsto_zero
+#check quadraticGardenGoodEnvelope_div_abs_tendsto_zero
+#check quarticGardenGoodEnvelope_tendsto_zero
+#check coupling_channel_budget_tendsto_zero_at_kineticTime_squareCutoff
+
+#print axioms quadraticGardenGoodEnvelope_div_abs
+#print axioms quarticGardenGoodEnvelope_eq
+#print axioms squareCouplingCutoff_div_abs_tendsto_zero
+#print axioms quadraticGardenGoodEnvelope_div_abs_tendsto_zero
+#print axioms quarticGardenGoodEnvelope_tendsto_zero
+#print axioms
+  coupling_channel_budget_tendsto_zero_at_kineticTime_squareCutoff
+
+end ArchonPhysicsConsumers.Thermalization

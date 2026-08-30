@@ -1,0 +1,22 @@
+import ArchonPhysics.CanonicalIIDCoerciveUniformBlockMomentBound
+
+/-!
+Consumer checks for uniform continuous-law canonical block-moment bounds.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.CanonicalIIDCoerciveUniformBlockMomentBound
+
+#check canonicalSignedBlockEnvelope_mono_of_nonneg
+#check norm_canonicalSignedBlockBochnerIntegral_le_uniformEnvelope
+#check exists_systemUniform_canonicalSignedBlockBochnerIntegral_bound
+#check canonicalSignedBlockBochnerIntegral_hmoment_of_uniformEnvelope
+#check canonicalSignedBlockBochnerIntegral_empty
+#check tendsto_orderedCanonicalSignedClusterFactorizationDefect_zero_of_uniformEnvelope
+
+#print axioms norm_canonicalSignedBlockBochnerIntegral_le_uniformEnvelope
+#print axioms canonicalSignedBlockBochnerIntegral_hmoment_of_uniformEnvelope
+#print axioms tendsto_orderedCanonicalSignedClusterFactorizationDefect_zero_of_uniformEnvelope
+
+end ArchonPhysicsConsumers.Thermalization

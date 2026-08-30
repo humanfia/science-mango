@@ -1,0 +1,6 @@
+import ArchonPhysics.PhyslibFPUTActualGardenPowerScheduleRPAConvergence
+
+open ArchonPhysics.PhyslibFPUTActualGardenPowerScheduleRPAConvergence
+
+#print axioms indexedBinaryUnitSlotBudget
+#print axioms actualFiniteCoerciveOrderedClusterFactorizationDefect_tendsto_zero_squareCutoff_of_uniformMomentBound

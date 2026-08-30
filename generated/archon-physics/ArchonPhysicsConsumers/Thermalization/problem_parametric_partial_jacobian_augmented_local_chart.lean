@@ -1,0 +1,5 @@
+import ArchonPhysics.ParametricPartialJacobianAugmentedLocalChart
+
+open ArchonPhysics.ParametricPartialJacobianAugmentedLocalChart
+
+#print axioms exists_open_injective_augmentedPatch

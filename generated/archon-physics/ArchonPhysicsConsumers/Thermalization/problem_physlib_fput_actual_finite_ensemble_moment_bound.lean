@@ -1,0 +1,32 @@
+import ArchonPhysics.PhyslibFPUTActualFiniteEnsembleMomentBound
+
+/-!
+# Consumer: finite actual FPUT ensemble moment bounds
+
+This consumer exposes the normalized finite-weight product bound, its actual
+modal-amplitude specialization, and the fixed-cluster system-uniform bound.
+The modal envelope remains explicit; no unavailable global energy-to-amplitude
+estimate, RPA closure, or decay statement is assumed.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.PhyslibFPUTActualFiniteEnsembleMomentBound
+
+#check norm_signedBlockMonomial_le_prod_slotEnvelope
+#check norm_finiteWeightedBlockMoment_le_prod_slotEnvelope
+#check norm_finiteWeightedBlockMoment_le_pow_card
+#check norm_signedPhyslibInteractionModePath_eq_modeAmplitude
+#check norm_actualFiniteCubicEnsembleBlockMoment_le_prod_slotEnvelope
+#check norm_actualFiniteCubicEnsembleBlockMoment_le_prod_of_modeAmplitude
+#check norm_actualFiniteCubicEnsembleBlockMoment_le_pow_card
+#check norm_actualFiniteCubicEnsembleBlockMoment_le_one
+#check exists_systemUniform_actualFiniteCubicEnsembleBlockMoment_bound
+
+#print axioms norm_finiteWeightedBlockMoment_le_prod_slotEnvelope
+#print axioms
+  norm_actualFiniteCubicEnsembleBlockMoment_le_prod_of_modeAmplitude
+#print axioms
+  exists_systemUniform_actualFiniteCubicEnsembleBlockMoment_bound
+
+end ArchonPhysicsConsumers.Thermalization

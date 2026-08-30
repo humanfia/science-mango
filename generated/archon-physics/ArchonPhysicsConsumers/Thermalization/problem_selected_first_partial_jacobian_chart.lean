@@ -1,0 +1,6 @@
+import ArchonPhysics.SelectedFirstPartialJacobianChart
+
+open ArchonPhysics.SelectedFirstPartialJacobianChart
+
+#print axioms exists_strictDerivative_det_ne_zero_selectedFirstAugmentedMap
+#print axioms exists_open_injective_selectedFirstAugmentedPatch

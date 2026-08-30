@@ -1,0 +1,6 @@
+import ArchonPhysics.FiniteSymmetricWindowLocalIntegrability
+
+open ArchonPhysics.FiniteSymmetricWindowLocalIntegrability
+
+#print axioms locallyIntegrable_of_integrable_symmetric_natWindows
+#print axioms ae_locallyIntegrable_of_ae_integrable_symmetric_natWindows

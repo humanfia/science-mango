@@ -1,0 +1,6 @@
+import ArchonPhysics.PairwisePhaseDecoherenceInsufficient
+
+open ArchonPhysics.PairwisePhaseDecoherenceInsufficient
+
+#print axioms integral_coherentTriadPhase_mul_star_eq_zero
+#print axioms integral_coherentTriad_threePoint_eq_one

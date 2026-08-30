@@ -1,0 +1,7 @@
+import ArchonPhysics.FiniteSymmetricWindowIntegralBounds
+
+open ArchonPhysics.FiniteSymmetricWindowIntegralBounds
+
+#print axioms real_prod_probability_symmetricWindow
+#print axioms norm_integral_timeSample_le_two_mul
+#print axioms integral_norm_timeSample_le_two_mul

@@ -1,0 +1,39 @@
+import ArchonPhysics.PhyslibFPUTActualSourceSlotHistoryGardenBridge
+
+/-!
+# Consumer: actual finite source-slot Picard histories
+
+The checked endpoints expose the genuine samplewise quadratic/quartic source
+histories, their exact left/right source-slot reconstructions, the concrete
+`ClusterUnitSlotHistoryExpansion` instances, and the resulting explicit
+four-sector norm budgets.  No continuous-canonical lift or sector decay is
+claimed by this consumer.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.CanonicalIIDCoerciveActualGardenHistoryDecomposition
+open ArchonPhysics.PhyslibFPUTActualDuhamelSourceHistoryExpansion
+open ArchonPhysics.PhyslibFPUTActualSourceSlotHistoryGardenBridge
+
+#check actualFiniteQuadraticUnitSource_eq_historySum
+#check actualFiniteQuarticUnitSource_eq_historySum
+#check actualLeftQuadraticUnitSourceSlotFactorizationDefect_eq_historySum
+#check actualRightQuadraticUnitSourceSlotFactorizationDefect_eq_historySum
+#check actualLeftQuarticUnitSourceSlotFactorizationDefect_eq_historySum
+#check actualRightQuarticUnitSourceSlotFactorizationDefect_eq_historySum
+#check actualFiniteQuadraticUnitSlotHistoryExpansion
+#check actualFiniteQuarticUnitSlotHistoryExpansion
+#check actualFiniteQuadraticUnitSlotNormSum_le_fourSectors
+#check actualFiniteQuarticUnitSlotNormSum_le_fourSectors
+
+#print axioms actualFiniteQuadraticUnitSource_eq_historySum
+#print axioms actualFiniteQuarticUnitSource_eq_historySum
+#print axioms actualLeftQuadraticUnitSourceSlotFactorizationDefect_eq_historySum
+#print axioms actualRightQuadraticUnitSourceSlotFactorizationDefect_eq_historySum
+#print axioms actualLeftQuarticUnitSourceSlotFactorizationDefect_eq_historySum
+#print axioms actualRightQuarticUnitSourceSlotFactorizationDefect_eq_historySum
+#print axioms actualFiniteQuadraticUnitSlotNormSum_le_fourSectors
+#print axioms actualFiniteQuarticUnitSlotNormSum_le_fourSectors
+
+end ArchonPhysicsConsumers.Thermalization

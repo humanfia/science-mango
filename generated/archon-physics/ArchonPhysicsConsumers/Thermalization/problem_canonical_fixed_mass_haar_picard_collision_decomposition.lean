@@ -1,0 +1,13 @@
+import ArchonPhysics.CanonicalFixedMassHaarPicardCollisionDecomposition
+
+/-!
+Consumer for the exact fixed-mass canonical Haar Picard collision and
+true-orbit remainder decomposition.
+-/
+
+open ArchonPhysics.PhyslibFPUTActualHaarPostSecondPicardDecomposition
+open ArchonPhysics.CanonicalFixedMassHaarPicardCollisionDecomposition
+
+#print axioms integral_canonicalTwoStepUnmatchedPairSum_eq_zero
+#print axioms physlibMatchedChargeTwoStepMoment_eq_without_firstOrder
+#print axioms canonicalFixedMassHaar_actualPicard_decomposition

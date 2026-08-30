@@ -1,0 +1,6 @@
+import ArchonPhysics.CanonicalIIDCoerciveActualDuhamelFixedTimeClosure
+
+open ArchonPhysics.CanonicalIIDCoerciveActualDuhamelFixedTimeClosure
+
+#print axioms integrable_canonicalQuadraticHistorySlot_fixedTime_closed
+#print axioms integrable_canonicalQuarticHistorySlot_fixedTime_closed

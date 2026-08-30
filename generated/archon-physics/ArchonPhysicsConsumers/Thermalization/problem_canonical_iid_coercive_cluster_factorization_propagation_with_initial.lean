@@ -1,0 +1,5 @@
+import ArchonPhysics.CanonicalIIDCoerciveClusterFactorizationPropagationWithInitial
+
+open ArchonPhysics.CanonicalIIDCoerciveClusterFactorizationPropagationWithInitial
+
+#print axioms norm_canonicalCoerciveClusterFactorizationDefect_le_initial_add_source

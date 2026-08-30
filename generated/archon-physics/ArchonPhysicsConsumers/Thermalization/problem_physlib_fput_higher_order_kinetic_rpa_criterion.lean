@@ -1,0 +1,23 @@
+import ArchonPhysics.PhyslibFPUTHigherOrderKineticRPACriterion
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.PhyslibFPUTHigherOrderKineticRPACriterion
+
+#check couplingWeightedSlotError
+#check couplingWeightedSlotError_nonneg
+#check orderedUnitSlotBudget
+#check orderedUnitSlotBudget_nonneg
+#check ordered_couplingWeightedSlotError_eq_channels
+#check norm_actualFiniteCoerciveOrderedClusterFactorizationDefect_le_channels
+#check coupling_channel_budget_mul_kineticTime
+#check coupling_channel_budget_tendsto_zero_at_kineticTime
+
+#print axioms orderedUnitSlotBudget_nonneg
+#print axioms ordered_couplingWeightedSlotError_eq_channels
+#print axioms
+  norm_actualFiniteCoerciveOrderedClusterFactorizationDefect_le_channels
+#print axioms coupling_channel_budget_mul_kineticTime
+#print axioms coupling_channel_budget_tendsto_zero_at_kineticTime
+
+end ArchonPhysicsConsumers.Thermalization

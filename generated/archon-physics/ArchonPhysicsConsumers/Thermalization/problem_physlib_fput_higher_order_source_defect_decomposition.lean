@@ -1,0 +1,17 @@
+import ArchonPhysics.PhyslibFPUTHigherOrderSourceDefectDecomposition
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics
+open ArchonPhysics.PhyslibFPUTHigherOrderSourceDefectDecomposition
+
+#check signedBlockSlotInsertion_union
+#check finiteWeightedBlockInsertion_union
+#check blockFactorizationDefectSource_finiteWeighted_eq_sum
+#check norm_blockFactorizationDefectSource_finiteWeighted_le
+#check actualFiniteCoerciveClusterFactorizationDefectSource_eq_sum
+#check norm_actualFiniteCoerciveClusterFactorizationDefectSource_le
+
+#print axioms norm_actualFiniteCoerciveClusterFactorizationDefectSource_le
+
+end ArchonPhysicsConsumers.Thermalization

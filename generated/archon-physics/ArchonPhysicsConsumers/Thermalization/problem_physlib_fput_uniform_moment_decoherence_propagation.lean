@@ -1,0 +1,9 @@
+import ArchonPhysics.PhyslibFPUTUniformMomentDecoherencePropagation
+
+open Filter
+open Topology
+
+open ArchonPhysics.PhyslibFPUTUniformMomentDecoherencePropagation
+
+#print axioms tendsto_orderedClusterFactorizationDefect_zero_of_uniformMomentBound
+#print axioms actualFiniteCoerciveOrderedClusterFactorizationDefect_tendsto_zero_of_uniformMomentBound

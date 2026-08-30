@@ -1,0 +1,5 @@
+import ArchonPhysics.LocalNonzeroJacobianQuantitativePatch
+
+open ArchonPhysics.LocalNonzeroJacobianQuantitativePatch
+
+#print axioms exists_open_injective_detLower_patch

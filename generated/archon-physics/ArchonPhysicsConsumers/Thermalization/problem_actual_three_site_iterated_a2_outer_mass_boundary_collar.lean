@@ -1,0 +1,15 @@
+import ArchonPhysics.ActualThreeSiteIteratedA2OuterMassBoundaryCollar
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.ActualThreeSiteIteratedA2OuterMassBoundaryCollar
+
+#check massCoordinateLaw_threeSiteOuterMassBoundaryCollar_le
+#check iidMassTripleLaw_threeSiteOuterMassBoundaryEvent_le
+#check iidMassTriple_mem_support_ae
+
+#print axioms massCoordinateLaw_threeSiteOuterMassBoundaryCollar_le
+#print axioms iidMassTripleLaw_threeSiteOuterMassBoundaryEvent_le
+#print axioms iidMassTriple_mem_support_ae
+
+end ArchonPhysicsConsumers.Thermalization

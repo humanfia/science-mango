@@ -1,0 +1,15 @@
+import ArchonPhysics.ActualThreeSiteIteratedA2OuterInverseMassStrip
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.ActualThreeSiteIteratedA2OuterInverseMassStrip
+
+#check abs_sub_lt_two_mul_of_inverse_sub_lt
+#check massCoordinateLaw_inverseMassStripFiber_le
+#check iidMassTripleLaw_threeSiteOuterInverseMassStrip_le
+
+#print axioms abs_sub_lt_two_mul_of_inverse_sub_lt
+#print axioms massCoordinateLaw_inverseMassStripFiber_le
+#print axioms iidMassTripleLaw_threeSiteOuterInverseMassStrip_le
+
+end ArchonPhysicsConsumers.Thermalization

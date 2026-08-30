@@ -1,0 +1,7 @@
+import ArchonPhysics.QuantitativeSmallBallAtlasClosure
+
+open ArchonPhysics.QuantitativeSmallBallAtlasClosure
+
+#print axioms measure_event_le_tsum_of_ae_atlas
+#print axioms measure_event_le_tsum_mul_of_ae_atlas
+#print axioms measure_smallBall_le_tsum_mul_two_delta_of_ae_atlas

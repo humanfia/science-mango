@@ -1,0 +1,13 @@
+import ArchonPhysics.ActualThreeSiteIteratedA2OuterQuantitativeSmallBall
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.ActualThreeSiteIteratedA2OuterQuantitativeSmallBall
+
+#check volume_threeSiteOuterAugmentedSmallBallTarget
+#check exists_finiteCoefficient_threeSiteOuter_compact_goodBad_smallBall
+
+#print axioms volume_threeSiteOuterAugmentedSmallBallTarget
+#print axioms exists_finiteCoefficient_threeSiteOuter_compact_goodBad_smallBall
+
+end ArchonPhysicsConsumers.Thermalization

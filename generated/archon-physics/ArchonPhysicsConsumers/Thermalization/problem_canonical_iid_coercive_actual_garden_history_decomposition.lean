@@ -1,0 +1,32 @@
+import ArchonPhysics.CanonicalIIDCoerciveActualGardenHistoryDecomposition
+
+/-!
+# Consumer: exact canonical four-sector garden/history decomposition
+
+The checked endpoint resolves each actual canonical quadratic/quartic unit
+slot into finite regular-good, bad-small-denominator,
+recollision/repeated-history, and truncation sectors.  It proves only exact
+finite-sum identities and triangle bounds; no sector decay is assumed.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.CanonicalIIDCoerciveActualGardenHistoryDecomposition
+
+#check GardenHistorySector
+#check finiteHistorySum_eq_fourSectorContributions
+#check finiteHistoryNormSum_eq_fourSectorNormBudgets
+#check ClusterUnitSlotHistoryExpansion.leftDefect_eq_fourSectorContributions
+#check ClusterUnitSlotHistoryExpansion.rightDefect_eq_fourSectorContributions
+#check ClusterUnitSlotHistoryExpansion.totalDefectNormSum_le_fourSectorBudgets
+#check canonicalQuadraticUnitSlotBudget_le_fourGardenSectors
+#check canonicalQuarticUnitSlotBudget_le_fourGardenSectors
+#check norm_canonicalClusterSource_le_fourGardenSectorBudgets
+
+#print axioms finiteHistorySum_eq_fourSectorContributions
+#print axioms ClusterUnitSlotHistoryExpansion.totalDefectNormSum_le_fourSectorBudgets
+#print axioms canonicalQuadraticUnitSlotBudget_le_fourGardenSectors
+#print axioms canonicalQuarticUnitSlotBudget_le_fourGardenSectors
+#print axioms norm_canonicalClusterSource_le_fourGardenSectorBudgets
+
+end ArchonPhysicsConsumers.Thermalization

@@ -1,0 +1,5 @@
+import ArchonPhysics.LocalParametricJacobianSmallBallPipeline
+
+open ArchonPhysics.LocalParametricJacobianSmallBallPipeline
+
+#print axioms exists_localPatch_parametricMismatch_smallBall

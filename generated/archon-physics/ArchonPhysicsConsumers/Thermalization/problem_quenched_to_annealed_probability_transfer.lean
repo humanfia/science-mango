@@ -1,0 +1,5 @@
+import ArchonPhysics.QuenchedToAnnealedProbabilityTransfer
+
+open ArchonPhysics.QuenchedToAnnealedProbabilityTransfer
+
+#print axioms prod_measure_tendsto_zero_of_ae_section_measure_tendsto_zero

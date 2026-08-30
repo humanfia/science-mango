@@ -1,0 +1,34 @@
+import ArchonPhysics.PhyslibFPUTCubicLipschitzEnvelopeMesoscopicScale
+
+/-!
+# Consumer: cubic Lipschitz endpoint-envelope time scales
+
+This gate checks the explicit mesoscopic and global time-polynomial
+majorants, the closing range `0 ≤ alpha < 1`, and the precise obstruction
+at the kinetic choice `alpha = 2`.  The divergent kinetic statement concerns
+the present global majorant, not the exact FPUT dynamics.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization.PhyslibFPUTCubicLipschitzEnvelopeMesoscopicScale
+
+open ArchonPhysics.PhyslibFPUTCubicLipschitzEnvelopeMesoscopicScale
+
+#check twoStepMass_le_timePolynomial
+#check coefficientUnitEnergyWindow_le_constant_mul_cube
+#check haarCubicUnitEnvelope_le_mesoscopicPolynomial
+#check haarCubicAbsCubeEnvelope_tendsto_zero_mesoscopic
+#check haarCubicUnitEnvelope_le_globalPolynomial
+#check kineticScaleCouplingTime_tendsto_atTop
+#check globalHaarCubicUnitPolynomial_kineticScale_identity
+#check globalHaarCubicUnitPolynomial_kineticScale_tendsto_atTop
+
+#print axioms twoStepMass_le_timePolynomial
+#print axioms coefficientUnitEnergyWindow_le_constant_mul_cube
+#print axioms haarCubicUnitEnvelope_le_mesoscopicPolynomial
+#print axioms haarCubicAbsCubeEnvelope_tendsto_zero_mesoscopic
+#print axioms haarCubicUnitEnvelope_le_globalPolynomial
+#print axioms kineticScaleCouplingTime_tendsto_atTop
+#print axioms globalHaarCubicUnitPolynomial_kineticScale_identity
+#print axioms globalHaarCubicUnitPolynomial_kineticScale_tendsto_atTop
+
+end ArchonPhysicsConsumers.Thermalization.PhyslibFPUTCubicLipschitzEnvelopeMesoscopicScale

@@ -1,0 +1,35 @@
+import ArchonPhysics.CanonicalIIDCoerciveRegularGoodOscillatoryBudget
+
+/-!
+# Consumer: actual regular-good oscillatory garden budget
+
+This consumer checks the genuine arbitrary-order resolvent bound, its finite
+actual-sector lift, and the fixed-order square-cutoff kinetic-time schedule.
+The single regular-good realization certificate remains visible and is not
+misreported as a theorem derived automatically from the Hamiltonian.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.CanonicalIIDCoerciveRegularGoodOscillatoryBudget
+
+#check RegularGoodOscillatoryRealization
+#check RegularGoodOscillatoryRealization.norm_leftContribution_le_coupling_resolvent
+#check RegularGoodOscillatoryRealization.norm_rightContribution_le_coupling_resolvent
+#check RegularGoodOscillatoryRealization.sectorNormBudget_le_coupling_resolvent
+#check RegularGoodOscillatoryRealization.sectorNormBudget_le_quadraticGardenGoodEnvelope
+#check RegularGoodOscillatoryRealization.sectorNormBudget_le_quarticGardenGoodEnvelope
+
+/-- Consumer alias for the explicit fixed-order kinetic-time schedule. -/
+theorem problem_regularGoodCouplingBudget_tendsto_zero_at_kineticTime_squareCutoff :
+    type_of% (@regularGoodCouplingBudget_tendsto_zero_at_kineticTime_squareCutoff) :=
+  @regularGoodCouplingBudget_tendsto_zero_at_kineticTime_squareCutoff
+
+#print axioms RegularGoodOscillatoryRealization.norm_leftContribution_le_coupling_resolvent
+#print axioms RegularGoodOscillatoryRealization.sectorNormBudget_le_coupling_resolvent
+#print axioms RegularGoodOscillatoryRealization.sectorNormBudget_le_quadraticGardenGoodEnvelope
+#print axioms RegularGoodOscillatoryRealization.sectorNormBudget_le_quarticGardenGoodEnvelope
+#print axioms regularGoodCouplingBudget_tendsto_zero_at_kineticTime_squareCutoff
+#print axioms problem_regularGoodCouplingBudget_tendsto_zero_at_kineticTime_squareCutoff
+
+end ArchonPhysicsConsumers.Thermalization

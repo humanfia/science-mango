@@ -1,0 +1,5 @@
+import ArchonPhysics.CanonicalIIDCoerciveUnbalancedSubkineticRPA
+
+open ArchonPhysics.CanonicalIIDCoerciveUnbalancedSubkineticRPA
+
+#print axioms canonicalAnnealedUnbalancedBinaryRPA_tendsto_zero_at_subkineticTime

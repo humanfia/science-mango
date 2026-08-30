@@ -1,0 +1,19 @@
+import ArchonPhysics.OrderedQuasimodeSpectralProjectorMass
+
+/-!
+# Consumer: ordered quasimode spectral-projector mass
+
+This gate checks the unique-window quadratic-form and projected-norm bounds.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization.OrderedQuasimodeSpectralProjectorMass
+
+open ArchonPhysics.OrderedQuasimodeSpectralProjectorMass
+
+#check orderedModeProjector_quadraticEnergy_ge_of_uniqueWindow
+#check orderedModeProjector_projectedNormSq_ge_of_uniqueWindow
+
+#print axioms orderedModeProjector_quadraticEnergy_ge_of_uniqueWindow
+#print axioms orderedModeProjector_projectedNormSq_ge_of_uniqueWindow
+
+end ArchonPhysicsConsumers.Thermalization.OrderedQuasimodeSpectralProjectorMass

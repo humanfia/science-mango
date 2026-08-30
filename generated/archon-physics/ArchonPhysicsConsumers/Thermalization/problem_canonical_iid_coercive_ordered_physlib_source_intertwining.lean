@@ -1,0 +1,28 @@
+import ArchonPhysics.CanonicalIIDCoerciveOrderedPhyslibSourceIntertwining
+
+/-!
+# Consumer: canonical iid ordered/Physlib source intertwining
+
+This consumer checks the reduced-path, pointwise matching, and almost-sure
+all-time signed source bridges.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.CanonicalIIDCoerciveOrderedPhyslibSourceIntertwining
+
+#check orderedSignedRotatedSource_reducedPath_eq_orientedPhyslib
+#check canonicalOrderedPotentialChannelRotatedSource_eq_orientedPhyslib_of_matches_reduced
+#check canonicalSignedPotentialChannelRotatedSource_eq_orientedPhyslib_of_matches_reduced
+
+theorem problem_canonical_iid_coercive_ordered_physlib_source_intertwining :
+    type_of%
+      (@canonicalSignedPotentialChannelRotatedSource_eq_orientedPhyslib_ae_allTime) :=
+  @canonicalSignedPotentialChannelRotatedSource_eq_orientedPhyslib_ae_allTime
+
+#print axioms orderedSignedRotatedSource_reducedPath_eq_orientedPhyslib
+#print axioms canonicalOrderedPotentialChannelRotatedSource_eq_orientedPhyslib_ae_allTime
+#print axioms canonicalSignedPotentialChannelRotatedSource_eq_orientedPhyslib_ae_allTime
+#print axioms problem_canonical_iid_coercive_ordered_physlib_source_intertwining
+
+end ArchonPhysicsConsumers.Thermalization

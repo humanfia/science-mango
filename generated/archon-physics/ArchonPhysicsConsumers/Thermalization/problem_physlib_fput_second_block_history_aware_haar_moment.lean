@@ -1,0 +1,21 @@
+import ArchonPhysics.PhyslibFPUTSecondBlockHistoryAwareHaarMoment
+
+/-!
+# Consumer: the second FPUT block with initial-Haar history retained
+
+This gate checks the exact history-aware order-two reference increment and
+the cubic actual/reference discrepancy on `[T,2T]` for one coherent physical
+Hamiltonian orbit.  It deliberately contains no restart or re-Haar field.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization.PhyslibFPUTSecondBlockHistoryAwareHaarMoment
+
+open ArchonPhysics.PhyslibFPUTSecondBlockHistoryAwareHaarMoment
+
+#check physlibReference_secondBlockIncrement_eq_historyAwareKinetic_add_highOrder
+#check abs_actualHaarModalMoment_secondBlockIncrement_sub_historyAwareReference_le_abs_cube
+
+#print axioms physlibReference_secondBlockIncrement_eq_historyAwareKinetic_add_highOrder
+#print axioms abs_actualHaarModalMoment_secondBlockIncrement_sub_historyAwareReference_le_abs_cube
+
+end ArchonPhysicsConsumers.Thermalization.PhyslibFPUTSecondBlockHistoryAwareHaarMoment

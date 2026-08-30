@@ -1,0 +1,39 @@
+import ArchonPhysics.PhyslibFPUTA1A2NonresonantHistorySplit
+
+/-!
+# Consumer: physical A1/A2 nonresonant history split
+
+This gate checks the deterministic inverse-gap gains and the explicit
+near-resonant/recollision remainder.  It does not assert a kinetic or Markov
+closure.  Such a conclusion still requires a frozen iid mass law,
+initial-only Haar/Gaussian randomness, an explicit `g,N` joint limit, a
+uniform kinetic `tau` window, mismatch equidistribution, and vanishing of the
+memory/recollision remainder.  In particular, no blockwise re-Haar operation
+is present here.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization.PhyslibFPUTA1A2NonresonantHistorySplit
+
+open ArchonPhysics.PhyslibFPUTA1A2NonresonantHistorySplit
+
+#check finiteCharacterCoefficientAbsMass_eq_near_add_far
+#check physlibA1CoefficientAbsMass_le_near_time_add_far_inverse_gap
+#check fullyNonresonant_pair_iff
+#check mem_iteratedQuadraticNearRecollisionTerms_iff
+#check iteratedQuadraticNestedAbsMassOn_regular_le_inverse_gap_sq
+#check mem_physlibA2CubicNearTerms_iff
+#check completeSecondPicardCoefficientAbsMass_le_near_history_add_far_resolvent
+#check finiteCharacterTwoStepAbsMass_le_near_far_envelope
+#check physlibHaarCubicLipschitzUnitEnvelope_le_near_far_envelope
+
+#print axioms finiteCharacterCoefficientAbsMass_eq_near_add_far
+#print axioms physlibA1CoefficientAbsMass_le_near_time_add_far_inverse_gap
+#print axioms fullyNonresonant_pair_iff
+#print axioms mem_iteratedQuadraticNearRecollisionTerms_iff
+#print axioms iteratedQuadraticNestedAbsMassOn_regular_le_inverse_gap_sq
+#print axioms mem_physlibA2CubicNearTerms_iff
+#print axioms completeSecondPicardCoefficientAbsMass_le_near_history_add_far_resolvent
+#print axioms finiteCharacterTwoStepAbsMass_le_near_far_envelope
+#print axioms physlibHaarCubicLipschitzUnitEnvelope_le_near_far_envelope
+
+end ArchonPhysicsConsumers.Thermalization.PhyslibFPUTA1A2NonresonantHistorySplit

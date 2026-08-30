@@ -1,0 +1,6 @@
+import ArchonPhysics.CanonicalIIDCoerciveBinarySubkineticCriterion
+
+open ArchonPhysics.CanonicalIIDCoerciveBinarySubkineticCriterion
+
+#print axioms coupling_channel_tendsto_zero_of_subkinetic
+#print axioms canonicalBinaryDefect_tendsto_zero_at_subkineticTime

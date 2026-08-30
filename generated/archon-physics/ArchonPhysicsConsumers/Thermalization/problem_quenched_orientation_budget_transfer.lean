@@ -1,0 +1,22 @@
+import ArchonPhysics.QuenchedOrientationBudgetTransfer
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.QuenchedOrientationBudgetTransfer
+
+#check norm_orientedQuenchedLeftSourceSlotDefect_eq
+#check norm_orientedQuenchedRightSourceSlotDefect_eq
+#check integral_norm_orientedQuenchedLeftSourceSlotDefect_eq
+#check integral_norm_orientedQuenchedRightSourceSlotDefect_eq
+#check measure_orientedQuenchedLeftBadMassSet_eq
+#check measure_orientedQuenchedRightBadMassSet_eq
+
+theorem problem_quenched_orientation_budget_transfer : True := by
+  trivial
+
+#print axioms norm_orientedQuenchedLeftSourceSlotDefect_eq
+#print axioms integral_norm_orientedQuenchedLeftSourceSlotDefect_eq
+#print axioms measure_orientedQuenchedRightBadMassSet_eq
+#print axioms problem_quenched_orientation_budget_transfer
+
+end ArchonPhysicsConsumers.Thermalization

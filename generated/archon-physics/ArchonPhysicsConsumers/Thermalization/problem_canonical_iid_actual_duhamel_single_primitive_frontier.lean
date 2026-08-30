@@ -1,0 +1,6 @@
+import ArchonPhysics.CanonicalIIDCoerciveActualDuhamelSinglePrimitiveFrontier
+
+open ArchonPhysics.CanonicalIIDCoerciveActualDuhamelSinglePrimitiveFrontier
+
+#print axioms integrable_canonicalQuadraticHistorySlot_of_secondPicardSource
+#print axioms integrable_canonicalQuarticHistorySlot_fixedTime

@@ -1,0 +1,65 @@
+import ArchonPhysics.CanonicalIIDCoerciveActualClusterSourceSlotClosure
+
+/-!
+# Consumer: canonical iid actual source-slot expectation closure
+
+The actual coercive alpha--beta canonical flow now has a checked continuous
+expectation bridge at arbitrary fixed finite ordered cluster order:
+
+* the block factorization defect has its exact Hamiltonian derivative and FTC
+  representation;
+* every nontranslation quadratic/quartic source-slot observable and its mixed
+  opposite-block observable is Bochner integrable;
+* the full source-slot defect splits exactly into those two channels;
+* each channel, and hence the full slot, has a deterministic sample-independent
+  global cost `D` made from the explicit shell, infrared, and block envelopes.
+
+`D` is only a legal good/bad-event domination budget.  Nothing here proves it
+decays, closes the hierarchy, establishes RPA/independence, removes resonant or
+charge-balanced clusters, suppresses recollisions, or derives a kinetic limit.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.CanonicalIIDCoerciveActualClusterSourceSlotClosure
+open ArchonPhysics.CanonicalIIDCoerciveActualSourceSlotExpectation
+open ArchonPhysics.CanonicalIIDCoerciveActualSourceSlotSplit
+open ArchonPhysics.CanonicalIIDCoerciveClusterExpectationClosure
+open ArchonPhysics.CanonicalIIDCoerciveSourceSlotExpectationClosure
+
+#check hasDerivAt_canonicalCoerciveClusterFactorizationDefect
+#check canonicalCoerciveClusterFactorizationDefect_eq_initial_add_integral
+#check integrable_canonicalQuadraticSourceSlotObservable_fixedTime
+#check integrable_canonicalQuarticSourceSlotObservable_fixedTime
+#check integrable_canonicalLeftQuadraticSlotProduct_fixedTime
+#check integrable_canonicalLeftQuarticSlotProduct_fixedTime
+#check integrable_canonicalRightQuadraticSlotProduct_fixedTime
+#check integrable_canonicalRightQuarticSlotProduct_fixedTime
+#check canonicalLeftFullSourceSlotFactorizationDefect_eq_channels
+#check canonicalRightFullSourceSlotFactorizationDefect_eq_channels
+#check norm_canonicalLeftQuadraticSourceSlotFactorizationDefect_le_cost
+#check norm_canonicalLeftQuarticSourceSlotFactorizationDefect_le_cost
+#check norm_canonicalRightQuadraticSourceSlotFactorizationDefect_le_cost
+#check norm_canonicalRightQuarticSourceSlotFactorizationDefect_le_cost
+#check norm_canonicalLeftFullSourceSlotFactorizationDefect_le_channelCosts
+#check norm_canonicalRightFullSourceSlotFactorizationDefect_le_channelCosts
+#check canonicalCoerciveClusterFactorizationDefectSource_eq_fullSlotSums
+#check norm_canonicalCoerciveClusterFactorizationDefectSource_le_slotChannelCost
+
+#print axioms hasDerivAt_canonicalCoerciveClusterFactorizationDefect
+#print axioms
+  canonicalCoerciveClusterFactorizationDefect_eq_initial_add_integral
+#print axioms integrable_canonicalQuadraticSourceSlotObservable_fixedTime
+#print axioms integrable_canonicalQuarticSourceSlotObservable_fixedTime
+#print axioms canonicalLeftFullSourceSlotFactorizationDefect_eq_channels
+#print axioms canonicalRightFullSourceSlotFactorizationDefect_eq_channels
+#print axioms
+  norm_canonicalLeftFullSourceSlotFactorizationDefect_le_channelCosts
+#print axioms
+  norm_canonicalRightFullSourceSlotFactorizationDefect_le_channelCosts
+#print axioms
+  canonicalCoerciveClusterFactorizationDefectSource_eq_fullSlotSums
+#print axioms
+  norm_canonicalCoerciveClusterFactorizationDefectSource_le_slotChannelCost
+
+end ArchonPhysicsConsumers.Thermalization

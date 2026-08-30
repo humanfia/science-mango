@@ -1,0 +1,26 @@
+import ArchonPhysics.RandomMassOrderedPhyslibAmplitudeIntertwining
+
+/-!
+# Consumer: ordered/Physlib amplitude intertwining
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.RandomMassOrderedPhyslibAmplitudeIntertwining
+
+#check complexModeAmplitude_orderedSignedCoordinate_eq_orientation_mul
+#check orderedSignedInteractionAmplitudeAlongPhyslibPath_eq_orientation_mul
+#check phaseSignAct_orderedSignedInteractionAmplitude_eq_orientation_mul
+#check orderedSignedInteractionBlock_eq_orientation_mul_physlibBlock
+
+theorem problem_random_mass_ordered_physlib_amplitude_intertwining :
+    type_of% (@norm_orderedSignedInteractionBlock_eq_physlibBlock) :=
+  @norm_orderedSignedInteractionBlock_eq_physlibBlock
+
+#print axioms complexModeAmplitude_orderedSignedCoordinate_eq_orientation_mul
+#print axioms orderedSignedInteractionAmplitudeAlongPhyslibPath_eq_orientation_mul
+#print axioms norm_orderedBlockOrientation
+#print axioms norm_orderedSignedInteractionBlock_eq_physlibBlock
+#print axioms problem_random_mass_ordered_physlib_amplitude_intertwining
+
+end ArchonPhysicsConsumers.Thermalization

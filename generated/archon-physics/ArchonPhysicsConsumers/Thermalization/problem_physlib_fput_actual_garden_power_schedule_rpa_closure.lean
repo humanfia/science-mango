@@ -1,0 +1,15 @@
+import ArchonPhysics.PhyslibFPUTActualGardenPowerScheduleRPAClosure
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.PhyslibFPUTActualGardenPowerScheduleRPAClosure
+
+#check indexedOrderedUnitSlotBudget
+#check indexedOrderedUnitSlotBudget_nonneg
+#check actualFiniteCoerciveOrderedClusterFactorizationDefect_tendsto_zero_squareCutoff
+
+#print axioms indexedOrderedUnitSlotBudget_nonneg
+#print axioms
+  actualFiniteCoerciveOrderedClusterFactorizationDefect_tendsto_zero_squareCutoff
+
+end ArchonPhysicsConsumers.Thermalization

@@ -1,0 +1,42 @@
+import ArchonPhysics.CanonicalIIDCoerciveRegularGoodCutoffExponentBalance
+
+/-!
+# Consumer: general regular-good cutoff exponent balance
+
+This consumer checks the exact feasibility interval, the quadratic
+fixed/growing-order no-go under full resolvent loss, the feasible quartic
+interval, and the general-cutoff reuse of the existing linear-small-ball
+kinetic criterion.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.CanonicalIIDCoerciveRegularGoodCutoffExponentBalance
+
+#check cutoffExponentAdmissible_iff
+#check midpointCutoffExponent_admissible
+#check exists_cutoffExponentAdmissible_iff
+#check actualQuadraticFullResolvent_no_cutoff
+#check actualQuadraticFullResolvent_no_growingOrder_schedule
+#check actualQuarticFullResolvent_admissible_iff
+#check actualQuadratic_exists_cutoff_iff_effectiveLoss
+#check quadraticFullResolvent_exists_cutoff_iff_surplus
+#check RegularGoodOscillatoryRealization.sectorNormBudget_le_powerEnvelope
+#check higherOrder_channel_criteria_of_powerCutoff
+
+/-- Consumer alias for the end-to-end feasible power-cutoff criterion. -/
+theorem problem_coupling_channel_budget_tendsto_zero_at_kineticTime_powerCutoff :
+    type_of% (@coupling_channel_budget_tendsto_zero_at_kineticTime_powerCutoff) :=
+  @coupling_channel_budget_tendsto_zero_at_kineticTime_powerCutoff
+
+#print axioms exists_cutoffExponentAdmissible_iff
+#print axioms actualQuadraticFullResolvent_no_cutoff
+#print axioms actualQuadraticFullResolvent_no_growingOrder_schedule
+#print axioms actualQuarticFullResolvent_admissible_iff
+#print axioms actualQuadratic_exists_cutoff_iff_effectiveLoss
+#print axioms RegularGoodOscillatoryRealization.sectorNormBudget_le_powerEnvelope
+#print axioms higherOrder_channel_criteria_of_powerCutoff
+#print axioms coupling_channel_budget_tendsto_zero_at_kineticTime_powerCutoff
+#print axioms problem_coupling_channel_budget_tendsto_zero_at_kineticTime_powerCutoff
+
+end ArchonPhysicsConsumers.Thermalization

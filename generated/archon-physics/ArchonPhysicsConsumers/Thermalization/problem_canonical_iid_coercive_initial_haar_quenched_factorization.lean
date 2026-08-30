@@ -1,0 +1,26 @@
+import ArchonPhysics.CanonicalIIDCoerciveInitialHaarQuenchedFactorization
+
+/-!
+# Consumer: quenched initial Haar factorization
+
+This consumer verifies the fixed-mass, phase-only initial moment and the
+exact vanishing of the quenched two-block defect.  It makes no assertion that
+the annealed random-mass covariance vanishes.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.CanonicalIIDCoerciveInitialHaarQuenchedFactorization
+
+#check canonicalQuenchedPhaseRestriction_hasLaw_finitePhaseHaarLaw
+#check integral_mFourier_canonicalQuenchedPhaseRestriction_eq_selector
+#check canonicalQuenchedSignedBlockMoment_eq_radial_mul_selector
+#check canonicalInitialRadialBlockCoefficient_union
+#check canonicalQuenchedClusterFactorizationDefect_eq_zero
+
+#print axioms canonicalQuenchedPhaseRestriction_hasLaw_finitePhaseHaarLaw
+#print axioms integral_mFourier_canonicalQuenchedPhaseRestriction_eq_selector
+#print axioms canonicalQuenchedSignedBlockMoment_eq_radial_mul_selector
+#print axioms canonicalQuenchedClusterFactorizationDefect_eq_zero
+
+end ArchonPhysicsConsumers.Thermalization

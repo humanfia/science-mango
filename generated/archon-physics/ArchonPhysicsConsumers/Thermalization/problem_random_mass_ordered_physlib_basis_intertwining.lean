@@ -1,0 +1,31 @@
+import ArchonPhysics.RandomMassOrderedPhyslibBasisIntertwining
+
+/-!
+# Consumer: ordered canonical versus Physlib basis intertwining
+
+This consumer checks the deterministic simple-spectrum sign relation and its
+transport to nonlinear interaction-picture sources.
+-/
+
+namespace ArchonPhysicsConsumers.Thermalization
+
+open ArchonPhysics.RandomMassOrderedPhyslibBasisIntertwining
+
+#check normalModeBasis_vecMulVec_eq_signedOrderedEigenvector
+#check signedOrderedEigenvector_eq_orientation_smul_normalModeBasis
+#check orderedPhyslibOrientation_eq_one_or_neg_one
+#check abs_orderedPhyslibOrientation
+#check orderedSignedCoordinate_eq_orientation_mul_modalCoordinates
+#check orderedSignedNonlinearForce_eq_orientation_mul_physlibModeTensorForce
+
+theorem problem_random_mass_ordered_physlib_basis_intertwining :
+    type_of%
+      (@orderedSignedRotatedSource_eq_orientation_mul_physlibModeRotatedSource) :=
+  @orderedSignedRotatedSource_eq_orientation_mul_physlibModeRotatedSource
+
+#print axioms orderedPhyslibOrientation_sq
+#print axioms orderedSignedCoordinate_eq_orientation_mul_modalCoordinates
+#print axioms orderedSignedRotatedSource_eq_orientation_mul_physlibModeRotatedSource
+#print axioms problem_random_mass_ordered_physlib_basis_intertwining
+
+end ArchonPhysicsConsumers.Thermalization
