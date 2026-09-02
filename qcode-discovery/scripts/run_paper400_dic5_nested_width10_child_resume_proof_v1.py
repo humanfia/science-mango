@@ -67,8 +67,6 @@ DRAT_CHECKER = Path(
 LRAT_CHECKER = Path(
     "/home/jing/paper400-toolchain/proof-checkers/bin/lrat-check"
 )
-SUDO = Path("/usr/bin/sudo")
-LSOF = Path("/usr/bin/lsof")
 
 EXPECTED_SOLVER_SHA256 = (
     "6e7d53fa447d13fb962de78c7bd6a6354711151529754a5684170bd9a6a36a21"
@@ -88,12 +86,62 @@ EXPECTED_DRAT_SHA256 = (
 EXPECTED_LRAT_SHA256 = (
     "c523189a2c4c121bc1e6d284347cbbbec0d3ebf6a1deccb99cb4752548a3ee79"
 )
-EXPECTED_SUDO_SHA256 = (
-    "1e000f41739201f030cdc588fbe50d5438570f5386104c9521543824827fb985"
-)
-EXPECTED_LSOF_SHA256 = (
-    "2484863a7bfda7f97b90bfd5dfceed4ec9f27dd51f9c5158c8daabbf4309b1df"
-)
+
+# Run the Linux lease probe in a short-lived process. A lease-break signal is
+# fatal there by design, so a racing open cannot accidentally terminate the
+# multi-threaded four-lane coordinator. The helper source is covered by this
+# runner's source hash and executes under the already-pinned Python runtime.
+_OPEN_HOLDER_LEASE_OK = b"paper400-exclusive-open-lease-v1\n"
+_OPEN_HOLDER_LEASE_BUSY = b"paper400-open-holder-present-v1\n"
+_OPEN_HOLDER_LEASE_BUSY_RC = 73
+_OPEN_HOLDER_LEASE_PROBE = r"""
+import errno
+import fcntl
+import os
+import signal
+import stat
+import sys
+
+ok = b"paper400-exclusive-open-lease-v1\n"
+busy = b"paper400-open-holder-present-v1\n"
+busy_rc = 73
+if len(sys.argv) != 7:
+    raise SystemExit(74)
+path = sys.argv[1]
+expected = tuple(int(value) for value in sys.argv[2:])
+signal.signal(signal.SIGIO, signal.SIG_DFL)
+try:
+    descriptor = os.open(
+        path,
+        os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK,
+    )
+except OSError as exc:
+    if exc.errno in (errno.EACCES, errno.EAGAIN):
+        os.write(1, busy)
+        raise SystemExit(busy_rc)
+    raise
+try:
+    observed = os.fstat(descriptor)
+    identity = (
+        observed.st_dev, observed.st_ino, observed.st_mode,
+        observed.st_uid, observed.st_nlink,
+    )
+    if identity != expected or not stat.S_ISREG(observed.st_mode):
+        raise SystemExit(75)
+    try:
+        fcntl.fcntl(descriptor, fcntl.F_SETLEASE, fcntl.F_WRLCK)
+    except OSError as exc:
+        if exc.errno in (errno.EACCES, errno.EAGAIN):
+            os.write(1, busy)
+            raise SystemExit(busy_rc)
+        raise
+    if fcntl.fcntl(descriptor, fcntl.F_GETLEASE) != fcntl.F_WRLCK:
+        raise SystemExit(76)
+    os.write(1, ok)
+    fcntl.fcntl(descriptor, fcntl.F_SETLEASE, fcntl.F_UNLCK)
+finally:
+    os.close(descriptor)
+"""
 
 SCHEMA_VERSION = 1
 GATE = "paper400-dic5-nested-width10-child-resume-proof-v1"
@@ -1351,132 +1399,10 @@ def _writable_holders(path: Path) -> list[int]:
         item.st_dev, item.st_ino, item.st_mode, item.st_uid, item.st_nlink,
         item.st_size, item.st_mtime_ns, item.st_ctime_ns,
     )
-    holders: set[int] = set()
-    needs_privileged_scan = False
-    for process in Path("/proc").iterdir():
-        if not process.name.isdigit():
-            continue
-        try:
-            status_lines = (process / "status").read_text(
-                encoding="ascii",
-            ).splitlines()
-            uid_lines = [
-                line for line in status_lines if line.startswith("Uid:")
-            ]
-            if len(uid_lines) != 1:
-                raise HierarchicalResumeRunnerError(
-                    "ambiguous process UID status"
-                )
-            uid_fields = uid_lines[0].split()[1:]
-            if len(uid_fields) != 4:
-                raise HierarchicalResumeRunnerError(
-                    "malformed process UID status"
-                )
-            process_effective_uid = int(uid_fields[1])
-        except (FileNotFoundError, ProcessLookupError):
-            continue
-        except PermissionError as exc:
-            raise HierarchicalResumeRunnerError(
-                "cannot inspect process UID status"
-            ) from exc
-        except ValueError as exc:
-            raise HierarchicalResumeRunnerError(
-                "non-integer process UID status"
-            ) from exc
-        if process_effective_uid != wanted.st_uid:
-            # A different-euid process cannot acquire this mode-0600 inode
-            # inside the canonical mode-0700 result root.  Same-euid
-            # descriptor visibility remains fail-closed below.
-            continue
-        try:
-            descriptors = list((process / "fd").iterdir())
-        except (FileNotFoundError, ProcessLookupError):
-            continue
-        except PermissionError:
-            needs_privileged_scan = True
-            continue
-        for descriptor in descriptors:
-            try:
-                observed = os.stat(descriptor)
-                if (observed.st_dev, observed.st_ino) != (wanted.st_dev, wanted.st_ino):
-                    continue
-                lines = (process / "fdinfo" / descriptor.name).read_text(
-                    encoding="ascii",
-                ).splitlines()
-                flags = [line for line in lines if line.startswith("flags:")]
-                if len(flags) != 1:
-                    raise HierarchicalResumeRunnerError("ambiguous /proc fd flags")
-                value = int(flags[0].split(":", 1)[1].strip(), 8)
-                if value & os.O_ACCMODE != os.O_RDONLY:
-                    holders.add(int(process.name))
-            except (FileNotFoundError, ProcessLookupError):
-                continue
-            except PermissionError:
-                needs_privileged_scan = True
-                continue
-    if needs_privileged_scan:
-        # Some login/session processes are deliberately non-dumpable, so a
-        # same-UID caller cannot inspect their /proc/<pid>/fd directories.
-        # A pinned root lsof pass over the exact inode closes that visibility
-        # gap.  Treating every open descriptor as writable is conservative.
-        holders.update(_privileged_open_holders(path))
-    after = os.stat(path, follow_symlinks=False)
-    if identity(wanted) != identity(after):
-        raise HierarchicalResumeRunnerError(
-            "proof changed during writable-holder scan"
-        )
-    return sorted(holders)
-
-
-def _verify_privileged_scanner_binary(
-    path: Path, expected_sha256: str, *, require_setuid: bool,
-) -> None:
-    descriptor = os.open(path, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
-    try:
-        before = os.fstat(descriptor)
-        if (
-            not stat.S_ISREG(before.st_mode)
-            or before.st_uid != 0
-            or before.st_nlink != 1
-            or before.st_mode & 0o022
-            or not before.st_mode & stat.S_IXUSR
-            or require_setuid is not bool(before.st_mode & stat.S_ISUID)
-            or before.st_size > (16 << 20)
-        ):
-            raise HierarchicalResumeRunnerError(
-                "privileged descriptor scanner binary is unsafe"
-            )
-        digest = hashlib.sha256()
-        observed = 0
-        while True:
-            chunk = os.read(descriptor, 1 << 20)
-            if not chunk:
-                break
-            observed += len(chunk)
-            digest.update(chunk)
-        after = os.fstat(descriptor)
-    finally:
-        os.close(descriptor)
-    if (
-        _stat_identity(before) != _stat_identity(after)
-        or observed != before.st_size
-        or digest.hexdigest() != expected_sha256
-    ):
-        raise HierarchicalResumeRunnerError(
-            "privileged descriptor scanner binary binding mismatch"
-        )
-
-
-def _privileged_open_holders(path: Path) -> list[int]:
-    _verify_privileged_scanner_binary(
-        SUDO, EXPECTED_SUDO_SHA256, require_setuid=True,
-    )
-    _verify_privileged_scanner_binary(
-        LSOF, EXPECTED_LSOF_SHA256, require_setuid=False,
-    )
     argv = [
-        str(SUDO), "-n", "--", str(LSOF),
-        "-nP", "-w", "-t", "--", str(path),
+        sys.executable, "-I", "-S", "-c", _OPEN_HOLDER_LEASE_PROBE,
+        str(path), str(wanted.st_dev), str(wanted.st_ino),
+        str(wanted.st_mode), str(wanted.st_uid), str(wanted.st_nlink),
     ]
     try:
         result = subprocess.run(
@@ -1490,30 +1416,30 @@ def _privileged_open_holders(path: Path) -> list[int]:
         )
     except (OSError, subprocess.SubprocessError) as exc:
         raise HierarchicalResumeRunnerError(
-            "privileged descriptor scan failed"
-        ) from exc
-    if result.returncode == 1 and result.stdout == b"" and result.stderr == b"":
-        return []
-    if result.returncode != 0 or result.stderr:
-        raise HierarchicalResumeRunnerError(
-            "privileged descriptor scan returned an error"
-        )
-    try:
-        lines = result.stdout.decode("ascii", "strict").splitlines()
-        holders = sorted({int(line) for line in lines})
-    except (UnicodeDecodeError, ValueError) as exc:
-        raise HierarchicalResumeRunnerError(
-            "privileged descriptor scan output is malformed"
+            "kernel open-holder lease probe failed"
         ) from exc
     if (
-        not lines or len(result.stdout) > (1 << 20)
-        or any(not line or not line.isdecimal() for line in lines)
-        or any(pid <= 0 for pid in holders)
+        result.returncode == _OPEN_HOLDER_LEASE_BUSY_RC
+        and result.stdout == _OPEN_HOLDER_LEASE_BUSY
+        and result.stderr == b""
     ):
         raise HierarchicalResumeRunnerError(
-            "privileged descriptor scan output is malformed"
+            "stopped proof still has an open holder"
         )
-    return holders
+    if (
+        result.returncode != 0
+        or result.stdout != _OPEN_HOLDER_LEASE_OK
+        or result.stderr != b""
+    ):
+        raise HierarchicalResumeRunnerError(
+            "kernel open-holder lease probe returned an error"
+        )
+    after = os.stat(path, follow_symlinks=False)
+    if identity(wanted) != identity(after):
+        raise HierarchicalResumeRunnerError(
+            "proof changed during writable-holder scan"
+        )
+    return []
 
 
 def validate_transport_chain(

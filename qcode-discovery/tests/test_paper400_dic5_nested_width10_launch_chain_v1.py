@@ -21,47 +21,38 @@ def _verification(manifest_sha256: str) -> dict:
     return nested._canonical_valid_verification_record(manifest_sha256)
 
 
-def test_privileged_open_holder_scan_is_exact_and_fail_closed(
+def test_kernel_open_holder_lease_is_exact_and_fail_closed(
+    tmp_path: Path,
+):
+    proof = tmp_path / "proof.drat"
+    proof.write_bytes(b"proof")
+    assert runner._writable_holders(proof) == []
+    descriptor = os.open(proof, os.O_RDONLY | os.O_CLOEXEC)
+    try:
+        with pytest.raises(
+            runner.HierarchicalResumeRunnerError, match="open holder",
+        ):
+            runner._writable_holders(proof)
+    finally:
+        os.close(descriptor)
+    assert runner._writable_holders(proof) == []
+
+
+def test_kernel_open_holder_lease_rejects_malformed_helper_result(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
 ):
     proof = tmp_path / "proof.drat"
     proof.write_bytes(b"proof")
-    verified: list[tuple[Path, str, bool]] = []
-
-    def fake_verify(path: Path, digest: str, *, require_setuid: bool) -> None:
-        verified.append((path, digest, require_setuid))
-
-    monkeypatch.setattr(runner, "_verify_privileged_scanner_binary", fake_verify)
     monkeypatch.setattr(
         runner.subprocess, "run",
         lambda argv, **kwargs: subprocess.CompletedProcess(
-            argv, 0, stdout=b"42\n42\n77\n", stderr=b"",
-        ),
-    )
-    assert runner._privileged_open_holders(proof) == [42, 77]
-    assert verified == [
-        (runner.SUDO, runner.EXPECTED_SUDO_SHA256, True),
-        (runner.LSOF, runner.EXPECTED_LSOF_SHA256, False),
-    ]
-
-    monkeypatch.setattr(
-        runner.subprocess, "run",
-        lambda argv, **kwargs: subprocess.CompletedProcess(
-            argv, 1, stdout=b"", stderr=b"",
-        ),
-    )
-    assert runner._privileged_open_holders(proof) == []
-
-    monkeypatch.setattr(
-        runner.subprocess, "run",
-        lambda argv, **kwargs: subprocess.CompletedProcess(
-            argv, 0, stdout=b"not-a-pid\n", stderr=b"",
+            argv, 0, stdout=b"unexpected\n", stderr=b"",
         ),
     )
     with pytest.raises(
-        runner.HierarchicalResumeRunnerError, match="output is malformed",
+        runner.HierarchicalResumeRunnerError, match="returned an error",
     ):
-        runner._privileged_open_holders(proof)
+        runner._writable_holders(proof)
 
 
 def _fake_campaign() -> dict:

@@ -1,8 +1,8 @@
 # paper400 cube, solve, checkpoint, and resume runbook
 
-This runbook is for branch paper400-adaptive-resume-v1:
+This runbook is for branch paper400-adaptive-resume-v2:
 
-https://github.com/humanfia/science-mango/tree/paper400-adaptive-resume-v1
+https://github.com/humanfia/science-mango/tree/paper400-adaptive-resume-v2
 
 The implementation keeps three kinds of evidence separate:
 
@@ -19,7 +19,7 @@ in ordinary Git.
 With a configured GitHub SSH key:
 
 ~~~bash
-git clone --branch paper400-adaptive-resume-v1 --single-branch \
+git clone --branch paper400-adaptive-resume-v2 --single-branch \
   git@github.com:humanfia/science-mango.git
 cd science-mango/qcode-discovery
 uv sync --frozen --extra sat --group dev
@@ -29,7 +29,7 @@ PY="$PWD/.venv/bin/python"
 Without an SSH key, use:
 
 ~~~bash
-git clone --branch paper400-adaptive-resume-v1 --single-branch \
+git clone --branch paper400-adaptive-resume-v2 --single-branch \
   https://github.com/humanfia/science-mango.git
 cd science-mango/qcode-discovery
 uv sync --frozen --extra sat --group dev
@@ -53,8 +53,9 @@ at these fixed paths:
 - /home/jing/paper400-toolchain/audit/trusted-checker-policy.json
 - /home/jing/science-mango/qcode-discovery/.venv/bin/python, resolving to the
   pinned standalone CPython 3.12.14 path below
-- /usr/bin/sudo and /usr/bin/lsof; passwordless sudo is required only for the
-  fail-closed open-file scan when Linux hides same-UID process descriptors
+- Linux local filesystems with `F_SETLEASE` support; the runner uses an
+  exclusive kernel write-lease probe to fail closed if any process still has
+  the proof open, including processes hidden by `/proc` permissions
 
 Important pinned hashes are:
 
@@ -70,8 +71,6 @@ acfb3108fd9e42cf59ebfbb2f1a59e6a2df9b066ed73f1abd97d852a2467da69  mtcp_restart
 c523189a2c4c121bc1e6d284347cbbbec0d3ebf6a1deccb99cb4752548a3ee79  lrat-check
 af3a2089ebf0df9b1120e1cfd3164cc6a2e9bf07bb35f057f3f85890d0f854e2  trusted-checker-policy.json
 f7c6210eb40fadcd3c2889dddd24a15fc2c9f926aec5a03bf9da66e12d581526  python3.12
-1e000f41739201f030cdc588fbe50d5438570f5386104c9521543824827fb985  sudo
-2484863a7bfda7f97b90bfd5dfceed4ec9f27dd51f9c5158c8daabbf4309b1df  lsof
 ~~~
 
 The runner also hashes the DMTCP libraries, dynamic loader, libc, libgcc,
