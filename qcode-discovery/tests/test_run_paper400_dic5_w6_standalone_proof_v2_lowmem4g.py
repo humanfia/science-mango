@@ -31,7 +31,7 @@ def test_lowmem_policy_identity_is_explicit_and_original_is_preserved() -> None:
     assert proof.GATE.endswith("-v2-no-raw-admission")
     assert proof.RUNNER_RELATIVE_PATH.endswith("_v2_lowmem4g.py")
     assert hashlib.sha256(original.read_bytes()).hexdigest() == (
-        "1034c232eae3bd131e988771673e2c4890c869658c8b380d9703a99d154c99cb"
+        "c25a301f13642c148085ade1ee38ab0e5f0d4b57e81a0df370a5a2e7a6d09404"
     )
 
 

@@ -42,32 +42,36 @@ must not exist yet; its parent must exist and be writable.
 ## 2. Required prepared toolchain
 
 A Git clone alone is not sufficient for the strict four-lane production
-runner. The second machine should use the prepared Ubuntu 24.04 x86-64 image
-or install byte-identical files at these fixed paths:
+runner. This branch is pinned to the prepared Ubuntu 22.04 x86-64 toolchain
+at these fixed paths:
 
-- /root/cadical-rel-1.9.5-standalone-audit/build/cadical
-- /root/cadical-rel-1.9.5-standalone-audit/build/standalone-audit-manifest.json
-- the complete /root/dmtcp-v4.2.0-install prefix
-- /root/qcode-proof-tools/bin/drat-trim
-- /root/qcode-proof-tools/bin/lrat-check
-- /root/qcode-proof-tools/trusted-checker-policy.json
-- /root/science-mango-qcode-coset-two-block/qcode-discovery/.venv/bin/python,
-  resolving to the pinned /usr/bin/python3.12
+- /home/jing/paper400-toolchain/cadical-1.9.5/bin/cadical
+- /home/jing/paper400-toolchain/audit/standalone-audit-manifest.json
+- the complete /home/jing/paper400-toolchain/dmtcp-4.2.0 prefix
+- /home/jing/paper400-toolchain/proof-checkers/bin/drat-trim
+- /home/jing/paper400-toolchain/proof-checkers/bin/lrat-check
+- /home/jing/paper400-toolchain/audit/trusted-checker-policy.json
+- /home/jing/science-mango/qcode-discovery/.venv/bin/python, resolving to the
+  pinned standalone CPython 3.12.14 path below
+- /usr/bin/sudo and /usr/bin/lsof; passwordless sudo is required only for the
+  fail-closed open-file scan when Linux hides same-UID process descriptors
 
 Important pinned hashes are:
 
 ~~~text
-f8b70724eb0af0ea3b5c0c305fa6a959822ce680326f04ceee7b44ce970d1171  cadical
-d9297104990410d960a11b10cb9e1facca9ea08cdfd50c1a6f843a522da11eee  standalone-audit-manifest.json
-63f7e80bb6ea39cf1b7fe7998a809f791aa5724ff4e77731d400b6c7ab022891  dmtcp_launch
-a56701f7f2ee2156437501bd3b16e5e34cdefc6e4da9b05b01d9e0ac5a56e3fe  dmtcp_command
-a57d8d05dcc78ce6b04c1c79ea703e48d3ec5dd99857cfd5066ac3f0b493432b  dmtcp_restart
-3eec60c21ed4aacaa6445a761775e03624d052703a0d54eb4771c7f5e5a67902  dmtcp_coordinator
-20c7f3b5a6b0d6e4601f3044fc0ab52c4b54ac2bd8e8e24ab83243fedbf2e6ea  mtcp_restart
-a48ebed7b4b6b373d3ddbeb3368dae7622a9e17bab7fe6eb751ab996757f9fbe  drat-trim
-5b87b3ee157db3b1c6b0b70e23faa40ab123c8dd6db63d9518d64312da579517  lrat-check
-353163220be9065fa7204ae364fd54699d34718595b38d67a9d2094210121deb  trusted-checker-policy.json
-1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118  python3.12
+6e7d53fa447d13fb962de78c7bd6a6354711151529754a5684170bd9a6a36a21  cadical
+e274b8e5ab4e9456096243ad5ce3a3a8248374590a0ebf49ce36653357294e6a  standalone-audit-manifest.json
+2036e98a96ca701425a4d47d86b82d0b4657cf39cbac90cd22770dc9d65480ab  dmtcp_launch
+aa4eebcbdaa62abde9af5e849f93423de22ce4415871c678095613598d3c4c98  dmtcp_command
+b1e72dd345660cdcb3688accb4888542df3c8d1ed97e08ebbbfc46e783da32ae  dmtcp_restart
+ed76910fe215c1507ca08814a4e2f94943b44027a7410f1aa5eb17f5b6ff8e77  dmtcp_coordinator
+acfb3108fd9e42cf59ebfbb2f1a59e6a2df9b066ed73f1abd97d852a2467da69  mtcp_restart
+8d25091073e9295028dd4aec85acca4d9b3381d2cfcc145a5b0e14ae909ce394  drat-trim
+c523189a2c4c121bc1e6d284347cbbbec0d3ebf6a1deccb99cb4752548a3ee79  lrat-check
+af3a2089ebf0df9b1120e1cfd3164cc6a2e9bf07bb35f057f3f85890d0f854e2  trusted-checker-policy.json
+f7c6210eb40fadcd3c2889dddd24a15fc2c9f926aec5a03bf9da66e12d581526  python3.12
+1e000f41739201f030cdc588fbe50d5438570f5386104c9521543824827fb985  sudo
+2484863a7bfda7f97b90bfd5dfceed4ec9f27dd51f9c5158c8daabbf4309b1df  lsof
 ~~~
 
 The runner also hashes the DMTCP libraries, dynamic loader, libc, libgcc,
@@ -85,7 +89,9 @@ test -x "$PY"
 "$PY" -m pytest \
   tests/test_run_cadical_dmtcp_resume_v1.py \
   tests/test_run_cadical_dmtcp_resume_v1_spawn_cleanup.py \
-  tests/test_paper400_dic5_nested_width10_launch_chain_v1.py -q
+  tests/test_paper400_dic5_nested_width10_launch_chain_v1.py \
+  tests/test_paper400_dic5_nested_width10_supervisor_v1.py \
+  tests/test_paper400_transport_prune_v1.py -q
 ~~~
 
 The optional BCP-aware cuber is TEST_ONLY preprocessing and is not silently
@@ -134,19 +140,19 @@ PY="$REPO/.venv/bin/python"
 RUNNER="$REPO/scripts/run_paper400_dic5_nested_width10_four_lane_v1.py"
 test -x "$PY"
 test -f "$RUNNER"
-test "$(readlink -f /root/science-mango-qcode-coset-two-block/qcode-discovery/.venv/bin/python)" = /usr/bin/python3.12
+test "$(readlink -f "$PY")" = /home/jing/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12
 sha256sum -c <<EOF
-f8b70724eb0af0ea3b5c0c305fa6a959822ce680326f04ceee7b44ce970d1171  /root/cadical-rel-1.9.5-standalone-audit/build/cadical
-d9297104990410d960a11b10cb9e1facca9ea08cdfd50c1a6f843a522da11eee  /root/cadical-rel-1.9.5-standalone-audit/build/standalone-audit-manifest.json
-63f7e80bb6ea39cf1b7fe7998a809f791aa5724ff4e77731d400b6c7ab022891  /root/dmtcp-v4.2.0-install/bin/dmtcp_launch
-a56701f7f2ee2156437501bd3b16e5e34cdefc6e4da9b05b01d9e0ac5a56e3fe  /root/dmtcp-v4.2.0-install/bin/dmtcp_command
-a57d8d05dcc78ce6b04c1c79ea703e48d3ec5dd99857cfd5066ac3f0b493432b  /root/dmtcp-v4.2.0-install/bin/dmtcp_restart
-3eec60c21ed4aacaa6445a761775e03624d052703a0d54eb4771c7f5e5a67902  /root/dmtcp-v4.2.0-install/bin/dmtcp_coordinator
-20c7f3b5a6b0d6e4601f3044fc0ab52c4b54ac2bd8e8e24ab83243fedbf2e6ea  /root/dmtcp-v4.2.0-install/bin/mtcp_restart
-a48ebed7b4b6b373d3ddbeb3368dae7622a9e17bab7fe6eb751ab996757f9fbe  /root/qcode-proof-tools/bin/drat-trim
-5b87b3ee157db3b1c6b0b70e23faa40ab123c8dd6db63d9518d64312da579517  /root/qcode-proof-tools/bin/lrat-check
-353163220be9065fa7204ae364fd54699d34718595b38d67a9d2094210121deb  /root/qcode-proof-tools/trusted-checker-policy.json
-1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118  /root/science-mango-qcode-coset-two-block/qcode-discovery/.venv/bin/python
+6e7d53fa447d13fb962de78c7bd6a6354711151529754a5684170bd9a6a36a21  /home/jing/paper400-toolchain/cadical-1.9.5/bin/cadical
+e274b8e5ab4e9456096243ad5ce3a3a8248374590a0ebf49ce36653357294e6a  /home/jing/paper400-toolchain/audit/standalone-audit-manifest.json
+2036e98a96ca701425a4d47d86b82d0b4657cf39cbac90cd22770dc9d65480ab  /home/jing/paper400-toolchain/dmtcp-4.2.0/bin/dmtcp_launch
+aa4eebcbdaa62abde9af5e849f93423de22ce4415871c678095613598d3c4c98  /home/jing/paper400-toolchain/dmtcp-4.2.0/bin/dmtcp_command
+b1e72dd345660cdcb3688accb4888542df3c8d1ed97e08ebbbfc46e783da32ae  /home/jing/paper400-toolchain/dmtcp-4.2.0/bin/dmtcp_restart
+ed76910fe215c1507ca08814a4e2f94943b44027a7410f1aa5eb17f5b6ff8e77  /home/jing/paper400-toolchain/dmtcp-4.2.0/bin/dmtcp_coordinator
+acfb3108fd9e42cf59ebfbb2f1a59e6a2df9b066ed73f1abd97d852a2467da69  /home/jing/paper400-toolchain/dmtcp-4.2.0/bin/mtcp_restart
+8d25091073e9295028dd4aec85acca4d9b3381d2cfcc145a5b0e14ae909ce394  /home/jing/paper400-toolchain/proof-checkers/bin/drat-trim
+c523189a2c4c121bc1e6d284347cbbbec0d3ebf6a1deccb99cb4752548a3ee79  /home/jing/paper400-toolchain/proof-checkers/bin/lrat-check
+af3a2089ebf0df9b1120e1cfd3164cc6a2e9bf07bb35f057f3f85890d0f854e2  /home/jing/paper400-toolchain/audit/trusted-checker-policy.json
+f7c6210eb40fadcd3c2889dddd24a15fc2c9f926aec5a03bf9da66e12d581526  /home/jing/science-mango/qcode-discovery/.venv/bin/python
 EOF
 
 INPUT=/ABS/PAPER400-INPUTS
@@ -193,6 +199,29 @@ on CPUs 44 through 47.
 These loops launch only the listed batches. They do not auto-refill the
 remaining leaves of the 1024-leaf campaign.
 
+For a crash-safe host-local campaign that continuously reuses every listed
+CPU after a leaf is certified and pruned, use the supervisor. The tag must be
+new, and every generated batch root must not already exist:
+
+~~~bash
+SUPERVISOR="$REPO/scripts/run_paper400_dic5_nested_width10_supervisor_v1.py"
+CPUS=($(seq 0 223))
+
+"$PY" "$SUPERVISOR" preflight --input "$INPUT"
+"$PY" "$SUPERVISOR" init \
+  --run-parent "$RUN_PARENT" --input "$INPUT" --tag host2-001 \
+  --batch-first 12 --batch-last 255 --cpus "${CPUS[@]}" \
+  --stop-free-bytes 5497558138880 \
+  --resume-free-bytes 6597069766656
+"$PY" "$SUPERVISOR" run \
+  --root "$RUN_PARENT/.paper400-supervisor-v1-host2-001"
+~~~
+
+`run` stays in the foreground and catches SIGINT/SIGTERM by checkpoint-stopping
+all live lanes. `status` reports the durable campaign state; `checkpoint-stop`
+performs an explicit safe stop. Run it under a persistent service manager when
+it must survive SSH disconnects or reboots.
+
 ## 6. Capacity preflight
 
 The numeric caps above are validation ceilings per child root; they do not
@@ -206,7 +235,7 @@ while running. A practical minimum is 64 GB RAM; 128 GB is safer.
 ## 7. Operate a four-lane batch
 
 The coordinator accepts start, status, checkpoint-stop, resume,
-verify-checkpoint, and harvest-inactive:
+verify-checkpoint, harvest-inactive, and prune-transport:
 
 ~~~bash
 PY="$PWD/.venv/bin/python"
@@ -219,6 +248,10 @@ test -x "$PY"
 
 "$PY" scripts/run_paper400_dic5_nested_width10_four_lane_v1.py resume \
   --root /ABS/BATCH_ROOT
+
+# Irreversible. Every lane must already have a fully replayed final proof.
+"$PY" scripts/run_paper400_dic5_nested_width10_four_lane_v1.py prune-transport \
+  --root /ABS/BATCH_ROOT
 ~~~
 
 checkpoint-stop must produce a commit for each active lane before that lane is
@@ -229,6 +262,16 @@ other lanes.
 A solver appends to proof.drat. Resume may truncate only the uncommitted suffix
 written after the adopted checkpoint. DMTCP transport records remain TEST_ONLY
 or COVER_ONLY_TRANSPORT and do not establish UNSAT.
+
+`prune-transport` first runs the same fresh final-root DRAT/LRAT replay used by
+`verify-final`, writes a durable manifest of every entry authorized for
+deletion, and then removes only `runtime/dmtcp`. It retains the exact leaf CNF,
+copied DRAT, converted LRAT, certificates, validation, and predecessor records.
+The action is fail-closed, resumable after an interrupted deletion, and
+idempotent after its prune commit. It refuses unfinished leaves, changed
+transport entries, symlink escapes, hard links, and non-plain entries. Pruning
+is irreversible: the leaf cannot be resumed afterward, although `status` and
+`verify-final` continue to work from the retained proof evidence.
 
 ## 8. Checkpoint portability limitation
 

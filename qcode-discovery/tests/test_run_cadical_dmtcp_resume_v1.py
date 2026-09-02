@@ -4,6 +4,8 @@ import hashlib
 import importlib.util
 import os
 import stat
+import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -124,6 +126,29 @@ def test_launch_and_restart_use_separate_generation_dirs_and_safe_flags(
         assert "--ckptdir" in command
     with pytest.raises(resume_v1.ResumeControllerError, match="exactly one"):
         resume_v1._restart_argv(gen1, binaries, [])
+
+
+def test_spawn_detached_fixes_dmtcp_artifact_umask(tmp_path: Path) -> None:
+    artifact = tmp_path / "restart-script-mode"
+    program = (
+        "import os,sys,time; "
+        "fd=os.open(sys.argv[1],os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o766); "
+        "os.close(fd); time.sleep(60)"
+    )
+    pid, ticks = resume_v1._spawn_detached(
+        [sys.executable, "-c", program, str(artifact)],
+        cwd=tmp_path,
+        stdout_path=tmp_path / "spawn.stdout",
+        stderr_path=tmp_path / "spawn.stderr",
+    )
+    try:
+        deadline = time.monotonic() + 5
+        while not artifact.exists() and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert artifact.exists()
+        assert stat.S_IMODE(artifact.stat().st_mode) == 0o744
+    finally:
+        resume_v1._kill_spawned_group(pid, ticks)
 
 
 @pytest.mark.parametrize(

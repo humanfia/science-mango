@@ -5,6 +5,7 @@ import inspect
 import json
 import os
 import resource
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -18,6 +19,49 @@ from scripts import run_paper400_dic5_nested_width10_four_lane_v1 as coordinator
 
 def _verification(manifest_sha256: str) -> dict:
     return nested._canonical_valid_verification_record(manifest_sha256)
+
+
+def test_privileged_open_holder_scan_is_exact_and_fail_closed(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+):
+    proof = tmp_path / "proof.drat"
+    proof.write_bytes(b"proof")
+    verified: list[tuple[Path, str, bool]] = []
+
+    def fake_verify(path: Path, digest: str, *, require_setuid: bool) -> None:
+        verified.append((path, digest, require_setuid))
+
+    monkeypatch.setattr(runner, "_verify_privileged_scanner_binary", fake_verify)
+    monkeypatch.setattr(
+        runner.subprocess, "run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(
+            argv, 0, stdout=b"42\n42\n77\n", stderr=b"",
+        ),
+    )
+    assert runner._privileged_open_holders(proof) == [42, 77]
+    assert verified == [
+        (runner.SUDO, runner.EXPECTED_SUDO_SHA256, True),
+        (runner.LSOF, runner.EXPECTED_LSOF_SHA256, False),
+    ]
+
+    monkeypatch.setattr(
+        runner.subprocess, "run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(
+            argv, 1, stdout=b"", stderr=b"",
+        ),
+    )
+    assert runner._privileged_open_holders(proof) == []
+
+    monkeypatch.setattr(
+        runner.subprocess, "run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(
+            argv, 0, stdout=b"not-a-pid\n", stderr=b"",
+        ),
+    )
+    with pytest.raises(
+        runner.HierarchicalResumeRunnerError, match="output is malformed",
+    ):
+        runner._privileged_open_holders(proof)
 
 
 def _fake_campaign() -> dict:
@@ -410,7 +454,7 @@ def test_child_runner_pin_equals_frozen_coordinator_source_bytes():
     actual = coordinator._file_sha256(
         Path(coordinator.__file__).resolve(), cap=16 << 20,
     )
-    assert actual == "ab55b4beebbe45234b19165dad7f3e46e85a00f769766a5c8f77e7fe840c07d9"
+    assert actual == "595fc59c65ab7d5b2de628b4c6d55d5adfc110d28386a811a235c847db57b60d"
     assert runner.EXPECTED_FOUR_LANE_SHA256 == actual
 
 

@@ -50,37 +50,49 @@ FOUR_LANE_RELATIVE = Path(
     "scripts/run_paper400_dic5_nested_width10_four_lane_v1.py"
 )
 EXPECTED_CONTROLLER_SHA256 = (
-    "a71cb71e61061d7f925ccc04eb1ccaf48c00289d897b957394dfc8b730062505"
+    "9e57ea9b99a4b041c73a97939f997671790b77b6cb5c7b3d7fe04e1d925f47d2"
 )
 EXPECTED_PROOF_HELPER_SHA256 = (
-    "0094e536f9492e4919e927c63ba93a9b36181fb0c4574dc2e1952201a37f4efd"
+    "2d1c2e0240a7eacb5e07695fc55028860ec1a23eb15681af9f1e49fbb42d2a38"
 )
 EXPECTED_FOUR_LANE_SHA256 = (
-    "ab55b4beebbe45234b19165dad7f3e46e85a00f769766a5c8f77e7fe840c07d9"
+    "595fc59c65ab7d5b2de628b4c6d55d5adfc110d28386a811a235c847db57b60d"
 )
 
-SOLVER = Path("/root/cadical-rel-1.9.5-standalone-audit/build/cadical")
-DMTCP_PREFIX = Path("/root/dmtcp-v4.2.0-install")
-DRAT_CHECKER = Path("/root/qcode-proof-tools/bin/drat-trim")
-LRAT_CHECKER = Path("/root/qcode-proof-tools/bin/lrat-check")
+SOLVER = Path("/home/jing/paper400-toolchain/cadical-1.9.5/bin/cadical")
+DMTCP_PREFIX = Path("/home/jing/paper400-toolchain/dmtcp-4.2.0")
+DRAT_CHECKER = Path(
+    "/home/jing/paper400-toolchain/proof-checkers/bin/drat-trim"
+)
+LRAT_CHECKER = Path(
+    "/home/jing/paper400-toolchain/proof-checkers/bin/lrat-check"
+)
+SUDO = Path("/usr/bin/sudo")
+LSOF = Path("/usr/bin/lsof")
 
 EXPECTED_SOLVER_SHA256 = (
-    "f8b70724eb0af0ea3b5c0c305fa6a959822ce680326f04ceee7b44ce970d1171"
+    "6e7d53fa447d13fb962de78c7bd6a6354711151529754a5684170bd9a6a36a21"
 )
 EXPECTED_DMTCP_LAUNCH_SHA256 = (
-    "63f7e80bb6ea39cf1b7fe7998a809f791aa5724ff4e77731d400b6c7ab022891"
+    "2036e98a96ca701425a4d47d86b82d0b4657cf39cbac90cd22770dc9d65480ab"
 )
 EXPECTED_DMTCP_COMMAND_SHA256 = (
-    "a56701f7f2ee2156437501bd3b16e5e34cdefc6e4da9b05b01d9e0ac5a56e3fe"
+    "aa4eebcbdaa62abde9af5e849f93423de22ce4415871c678095613598d3c4c98"
 )
 EXPECTED_DMTCP_RESTART_SHA256 = (
-    "a57d8d05dcc78ce6b04c1c79ea703e48d3ec5dd99857cfd5066ac3f0b493432b"
+    "b1e72dd345660cdcb3688accb4888542df3c8d1ed97e08ebbbfc46e783da32ae"
 )
 EXPECTED_DRAT_SHA256 = (
-    "a48ebed7b4b6b373d3ddbeb3368dae7622a9e17bab7fe6eb751ab996757f9fbe"
+    "8d25091073e9295028dd4aec85acca4d9b3381d2cfcc145a5b0e14ae909ce394"
 )
 EXPECTED_LRAT_SHA256 = (
-    "5b87b3ee157db3b1c6b0b70e23faa40ab123c8dd6db63d9518d64312da579517"
+    "c523189a2c4c121bc1e6d284347cbbbec0d3ebf6a1deccb99cb4752548a3ee79"
+)
+EXPECTED_SUDO_SHA256 = (
+    "1e000f41739201f030cdc588fbe50d5438570f5386104c9521543824827fb985"
+)
+EXPECTED_LSOF_SHA256 = (
+    "2484863a7bfda7f97b90bfd5dfceed4ec9f27dd51f9c5158c8daabbf4309b1df"
 )
 
 SCHEMA_VERSION = 1
@@ -100,6 +112,17 @@ FINAL_ROOT_ATTESTATION_FIELDS = frozenset({
     "strict_proof_unsat", "valid",
     "failures", "record_sha256",
 }) | frozenset(proof_v1.IDENTITY_FIELDS)
+TRANSPORT_PRUNE_SCHEMA_VERSION = 1
+TRANSPORT_PRUNE_CLAIM_KIND = (
+    "paper400-dic5-nested-width10-transport-prune-claim-v1"
+)
+TRANSPORT_PRUNE_COMMIT_KIND = (
+    "paper400-dic5-nested-width10-transport-prune-commit-v1"
+)
+TRANSPORT_PRUNE_STATUS_KIND = (
+    "paper400-dic5-nested-width10-transport-prune-status-v1"
+)
+TRANSPORT_PRUNE_MAX_ENTRIES = 100_000
 
 STATIC_PARENT = Path("static/parent-manifest.json")
 STATIC_WIDTH6_CAMPAIGN = Path("static/width6-campaign.json")
@@ -121,6 +144,8 @@ _HELD_ROOT_LOCKS: set[tuple[int, int, int]] = set()
 _HELD_ROOT_LOCKS_GUARD = threading.Lock()
 DRAT_ARTIFACT = Path("artifacts/child.drat")
 LRAT_ARTIFACT = Path("artifacts/child.lrat")
+TRANSPORT_PRUNE_CLAIM = Path("state/30-transport-prune.claim.json")
+TRANSPORT_PRUNE_COMMIT = Path("state/31-transport-prune.json")
 CHAIN_REQUIRE_STATUS = "STATUS"
 CHAIN_REQUIRE_CHECKPOINTED = "CHECKPOINTED_ONLY"
 CHAIN_REQUIRE_INACTIVE = "INACTIVE_ONLY"
@@ -1327,6 +1352,7 @@ def _writable_holders(path: Path) -> list[int]:
         item.st_size, item.st_mtime_ns, item.st_ctime_ns,
     )
     holders: set[int] = set()
+    needs_privileged_scan = False
     for process in Path("/proc").iterdir():
         if not process.name.isdigit():
             continue
@@ -1366,10 +1392,9 @@ def _writable_holders(path: Path) -> list[int]:
             descriptors = list((process / "fd").iterdir())
         except (FileNotFoundError, ProcessLookupError):
             continue
-        except PermissionError as exc:
-            raise HierarchicalResumeRunnerError(
-                "cannot inspect process descriptor table"
-            ) from exc
+        except PermissionError:
+            needs_privileged_scan = True
+            continue
         for descriptor in descriptors:
             try:
                 observed = os.stat(descriptor)
@@ -1386,16 +1411,109 @@ def _writable_holders(path: Path) -> list[int]:
                     holders.add(int(process.name))
             except (FileNotFoundError, ProcessLookupError):
                 continue
-            except PermissionError as exc:
-                raise HierarchicalResumeRunnerError(
-                    "cannot inspect process descriptor flags"
-                ) from exc
+            except PermissionError:
+                needs_privileged_scan = True
+                continue
+    if needs_privileged_scan:
+        # Some login/session processes are deliberately non-dumpable, so a
+        # same-UID caller cannot inspect their /proc/<pid>/fd directories.
+        # A pinned root lsof pass over the exact inode closes that visibility
+        # gap.  Treating every open descriptor as writable is conservative.
+        holders.update(_privileged_open_holders(path))
     after = os.stat(path, follow_symlinks=False)
     if identity(wanted) != identity(after):
         raise HierarchicalResumeRunnerError(
             "proof changed during writable-holder scan"
         )
     return sorted(holders)
+
+
+def _verify_privileged_scanner_binary(
+    path: Path, expected_sha256: str, *, require_setuid: bool,
+) -> None:
+    descriptor = os.open(path, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+    try:
+        before = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(before.st_mode)
+            or before.st_uid != 0
+            or before.st_nlink != 1
+            or before.st_mode & 0o022
+            or not before.st_mode & stat.S_IXUSR
+            or require_setuid is not bool(before.st_mode & stat.S_ISUID)
+            or before.st_size > (16 << 20)
+        ):
+            raise HierarchicalResumeRunnerError(
+                "privileged descriptor scanner binary is unsafe"
+            )
+        digest = hashlib.sha256()
+        observed = 0
+        while True:
+            chunk = os.read(descriptor, 1 << 20)
+            if not chunk:
+                break
+            observed += len(chunk)
+            digest.update(chunk)
+        after = os.fstat(descriptor)
+    finally:
+        os.close(descriptor)
+    if (
+        _stat_identity(before) != _stat_identity(after)
+        or observed != before.st_size
+        or digest.hexdigest() != expected_sha256
+    ):
+        raise HierarchicalResumeRunnerError(
+            "privileged descriptor scanner binary binding mismatch"
+        )
+
+
+def _privileged_open_holders(path: Path) -> list[int]:
+    _verify_privileged_scanner_binary(
+        SUDO, EXPECTED_SUDO_SHA256, require_setuid=True,
+    )
+    _verify_privileged_scanner_binary(
+        LSOF, EXPECTED_LSOF_SHA256, require_setuid=False,
+    )
+    argv = [
+        str(SUDO), "-n", "--", str(LSOF),
+        "-nP", "-w", "-t", "--", str(path),
+    ]
+    try:
+        result = subprocess.run(
+            argv,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=30,
+            check=False,
+            env={"LANG": "C", "LC_ALL": "C", "PATH": "/usr/bin:/bin"},
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise HierarchicalResumeRunnerError(
+            "privileged descriptor scan failed"
+        ) from exc
+    if result.returncode == 1 and result.stdout == b"" and result.stderr == b"":
+        return []
+    if result.returncode != 0 or result.stderr:
+        raise HierarchicalResumeRunnerError(
+            "privileged descriptor scan returned an error"
+        )
+    try:
+        lines = result.stdout.decode("ascii", "strict").splitlines()
+        holders = sorted({int(line) for line in lines})
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise HierarchicalResumeRunnerError(
+            "privileged descriptor scan output is malformed"
+        ) from exc
+    if (
+        not lines or len(result.stdout) > (1 << 20)
+        or any(not line or not line.isdecimal() for line in lines)
+        or any(pid <= 0 for pid in holders)
+    ):
+        raise HierarchicalResumeRunnerError(
+            "privileged descriptor scan output is malformed"
+        )
+    return holders
 
 
 def validate_transport_chain(
@@ -1846,6 +1964,12 @@ def status_root(root: Path, **static_kwargs: Any) -> dict[str, Any]:
     target = _existing_root(root)
     with _root_lock(target, exclusive=False):
         checked_static_kwargs = _action_static_kwargs(target, static_kwargs)
+        if (target / TRANSPORT_PRUNE_COMMIT).exists():
+            return _pruned_status_locked(target, **checked_static_kwargs)
+        if (target / TRANSPORT_PRUNE_CLAIM).exists():
+            raise HierarchicalResumeRunnerError(
+                "transport prune is incomplete; rerun prune-transport"
+            )
         return _status_root_locked(target, **checked_static_kwargs)
 
 
@@ -2466,7 +2590,7 @@ def _verify_stopped_proof_locked(
         "publication_certificate": False,
         "upload_authorized": False,
         "production_eligible_child_terminal": not loaded["record"]["test_only"],
-        "no_further_root_writes_after_this_commit": True,
+        "no_further_scientific_artifact_writes_after_this_commit": True,
     })
     _publish_json(target / FINAL_COMMIT, commit)
     return commit
@@ -2595,6 +2719,16 @@ def verify_final_root(root: Path, **static_kwargs: Any) -> dict[str, Any]:
     target = _existing_root(root)
     with _root_lock(target, exclusive=False):
         checked_static_kwargs = _action_static_kwargs(target, static_kwargs)
+        if (target / TRANSPORT_PRUNE_COMMIT).exists():
+            claim = _read_transport_prune_claim(target)
+            _read_transport_prune_commit(target)
+            return _validate_pruned_scientific_evidence_locked(
+                target, claim, fresh_replay=True, **checked_static_kwargs,
+            )
+        if (target / TRANSPORT_PRUNE_CLAIM).exists():
+            raise HierarchicalResumeRunnerError(
+                "transport prune is incomplete; rerun prune-transport"
+            )
         return _verify_final_root_locked(target, **checked_static_kwargs)
 
 
@@ -2647,7 +2781,8 @@ def _verify_final_root_locked(
         "proof_v1_failures", "global_distance_claim",
         "publication_certificate", "upload_authorized",
         "production_eligible_child_terminal",
-        "no_further_root_writes_after_this_commit", "record_sha256",
+        "no_further_scientific_artifact_writes_after_this_commit",
+        "record_sha256",
     }, label="final commit")
     fresh_record = final_commit.get("fresh_replay")
     if type(fresh_record) is not dict:
@@ -2823,7 +2958,9 @@ def _verify_final_root_locked(
         or final_commit.get("upload_authorized") is not False
         or final_commit.get("production_eligible_child_terminal")
         is not (not loaded["record"]["test_only"])
-        or final_commit.get("no_further_root_writes_after_this_commit") is not True
+        or final_commit.get(
+            "no_further_scientific_artifact_writes_after_this_commit"
+        ) is not True
         or fresh_record.get("all_fresh_replay_passed") is not True
         or type(fresh_record.get("drat_checker")) is not dict
         or fresh_record["drat_checker"].get("verified") is not True
@@ -2925,6 +3062,743 @@ def _verify_final_root_locked(
     return attestation
 
 
+def _transport_entry_record(root: Path, path: Path) -> dict[str, Any]:
+    """Describe one transport entry without ever following a symlink."""
+
+    try:
+        relative = path.relative_to(root)
+    except ValueError as exc:  # pragma: no cover - caller constructs descendants
+        raise HierarchicalResumeRunnerError(
+            "transport entry escaped the result root"
+        ) from exc
+    if (
+        not relative.parts
+        or relative.parts[: len(RUNTIME_ROOT.parts)] != RUNTIME_ROOT.parts
+    ):
+        raise HierarchicalResumeRunnerError(
+            "transport entry is outside the exact removable subtree"
+        )
+    before = os.stat(path, follow_symlinks=False)
+    common = {
+        "relative_path": relative.as_posix(),
+        "device": int(before.st_dev),
+        "inode": int(before.st_ino),
+        "mode": stat.S_IMODE(before.st_mode),
+        "uid": int(before.st_uid),
+    }
+    if before.st_uid != os.geteuid():
+        raise HierarchicalResumeRunnerError(
+            "transport entry is not owned by the effective user"
+        )
+    if stat.S_ISDIR(before.st_mode):
+        if before.st_dev != os.stat(root, follow_symlinks=False).st_dev:
+            raise HierarchicalResumeRunnerError(
+                "transport subtree crosses a filesystem boundary"
+            )
+        return {**common, "entry_type": "directory"}
+    if stat.S_ISLNK(before.st_mode):
+        target = os.readlink(path)
+        after = os.stat(path, follow_symlinks=False)
+        if _stat_identity(before) != _stat_identity(after):
+            raise HierarchicalResumeRunnerError(
+                "transport symlink changed while recording"
+            )
+        return {
+            **common,
+            "entry_type": "symlink",
+            "links": int(before.st_nlink),
+            "bytes": int(before.st_size),
+            "target": target,
+        }
+    if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
+        raise HierarchicalResumeRunnerError(
+            "transport subtree contains a non-plain or multiply-linked entry"
+        )
+    descriptor = os.open(
+        path, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+    )
+    try:
+        opened = os.fstat(descriptor)
+        if _stat_identity(before) != _stat_identity(opened):
+            raise HierarchicalResumeRunnerError(
+                "transport file changed before hashing"
+            )
+        digest = hashlib.sha256()
+        observed = 0
+        while True:
+            chunk = os.read(descriptor, 8 << 20)
+            if not chunk:
+                break
+            observed += len(chunk)
+            if observed > before.st_size:
+                raise HierarchicalResumeRunnerError(
+                    "transport file grew while hashing"
+                )
+            digest.update(chunk)
+        after = os.fstat(descriptor)
+    finally:
+        os.close(descriptor)
+    if (
+        _stat_identity(before) != _stat_identity(after)
+        or observed != before.st_size
+    ):
+        raise HierarchicalResumeRunnerError(
+            "transport file changed while hashing"
+        )
+    return {
+        **common,
+        "entry_type": "file",
+        "links": int(before.st_nlink),
+        "bytes": int(before.st_size),
+        "sha256": digest.hexdigest(),
+    }
+
+
+def _transport_tree_entries(root: Path) -> list[dict[str, Any]]:
+    """Return a stable, bounded manifest for the exact DMTCP subtree."""
+
+    runtime = root / RUNTIME_ROOT
+    if not os.path.lexists(runtime):
+        return []
+    records: list[dict[str, Any]] = []
+
+    def visit(path: Path) -> None:
+        if len(records) >= TRANSPORT_PRUNE_MAX_ENTRIES:
+            raise HierarchicalResumeRunnerError(
+                "transport prune entry count exceeds cap"
+            )
+        record = _transport_entry_record(root, path)
+        records.append(record)
+        if record["entry_type"] != "directory":
+            return
+        before = os.stat(path, follow_symlinks=False)
+        try:
+            with os.scandir(path) as iterator:
+                children = sorted(
+                    (Path(entry.path) for entry in iterator),
+                    key=lambda item: item.name,
+                )
+        except OSError as exc:
+            raise HierarchicalResumeRunnerError(
+                "cannot enumerate transport subtree"
+            ) from exc
+        after = os.stat(path, follow_symlinks=False)
+        if (
+            before.st_dev != after.st_dev
+            or before.st_ino != after.st_ino
+            or before.st_mode != after.st_mode
+            or before.st_uid != after.st_uid
+        ):
+            raise HierarchicalResumeRunnerError(
+                "transport directory changed while recording"
+            )
+        for child in children:
+            visit(child)
+
+    visit(runtime)
+    return sorted(
+        records,
+        key=lambda item: (
+            len(Path(item["relative_path"]).parts), item["relative_path"],
+        ),
+    )
+
+
+def _validate_transport_entries(entries: Any) -> list[dict[str, Any]]:
+    if type(entries) is not list or not entries:
+        raise HierarchicalResumeRunnerError(
+            "transport prune manifest is empty or malformed"
+        )
+    if len(entries) > TRANSPORT_PRUNE_MAX_ENTRIES:
+        raise HierarchicalResumeRunnerError(
+            "transport prune manifest exceeds its entry cap"
+        )
+    checked: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    directories: set[str] = set()
+    for item in entries:
+        if type(item) is not dict:
+            raise HierarchicalResumeRunnerError(
+                "transport prune entry is not an object"
+            )
+        kind = item.get("entry_type")
+        common = {
+            "relative_path", "entry_type", "device", "inode", "mode", "uid",
+        }
+        expected = {
+            "directory": common,
+            "file": common | {"links", "bytes", "sha256"},
+            "symlink": common | {"links", "bytes", "target"},
+        }.get(kind)
+        relative_text = item.get("relative_path")
+        if expected is None or set(item) != expected:
+            raise HierarchicalResumeRunnerError(
+                "transport prune entry schema mismatch"
+            )
+        if type(relative_text) is not str:
+            raise HierarchicalResumeRunnerError(
+                "transport prune path is malformed"
+            )
+        relative = Path(relative_text)
+        if (
+            relative.is_absolute()
+            or relative.as_posix() != relative_text
+            or any(part in {"", ".", ".."} for part in relative.parts)
+            or relative.parts[: len(RUNTIME_ROOT.parts)] != RUNTIME_ROOT.parts
+            or relative_text in seen
+        ):
+            raise HierarchicalResumeRunnerError(
+                "transport prune path escapes or is duplicated"
+            )
+        if any(
+            type(item.get(field)) is not int or item[field] < 0
+            for field in ("device", "inode", "mode", "uid")
+        ):
+            raise HierarchicalResumeRunnerError(
+                "transport prune inode identity is malformed"
+            )
+        if kind in {"file", "symlink"} and (
+            type(item.get("links")) is not int or item["links"] != 1
+            or type(item.get("bytes")) is not int or item["bytes"] < 0
+        ):
+            raise HierarchicalResumeRunnerError(
+                "transport prune leaf identity is malformed"
+            )
+        if kind == "file" and (
+            type(item.get("sha256")) is not str
+            or re.fullmatch(r"[0-9a-f]{64}", item["sha256"]) is None
+        ):
+            raise HierarchicalResumeRunnerError(
+                "transport prune file hash is malformed"
+            )
+        if kind == "symlink" and type(item.get("target")) is not str:
+            raise HierarchicalResumeRunnerError(
+                "transport prune symlink target is malformed"
+            )
+        parent = relative.parent.as_posix()
+        if relative != RUNTIME_ROOT and parent not in directories:
+            raise HierarchicalResumeRunnerError(
+                "transport prune manifest lacks a parent directory"
+            )
+        if relative == RUNTIME_ROOT and kind != "directory":
+            raise HierarchicalResumeRunnerError(
+                "transport prune root is not a directory"
+            )
+        if kind == "directory":
+            directories.add(relative_text)
+        seen.add(relative_text)
+        checked.append(dict(item))
+    if [item["relative_path"] for item in checked] != sorted(
+        seen, key=lambda value: (len(Path(value).parts), value),
+    ):
+        raise HierarchicalResumeRunnerError(
+            "transport prune manifest order is non-canonical"
+        )
+    if checked[0]["relative_path"] != RUNTIME_ROOT.as_posix():
+        raise HierarchicalResumeRunnerError(
+            "transport prune manifest has the wrong root"
+        )
+    return checked
+
+
+def _transport_manifest(root: Path) -> dict[str, Any]:
+    entries = _validate_transport_entries(_transport_tree_entries(root))
+    return {
+        "relative_path": RUNTIME_ROOT.as_posix(),
+        "entries": entries,
+        "entry_count": len(entries),
+        "regular_file_bytes": sum(
+            item["bytes"] for item in entries if item["entry_type"] == "file"
+        ),
+        "manifest_sha256": static_v1.canonical_sha256(entries),
+    }
+
+
+def _validate_final_attestation(value: Any, root: Path) -> dict[str, Any]:
+    raw = dict(value) if type(value) is dict else {}
+    if (
+        set(raw) != FINAL_ROOT_ATTESTATION_FIELDS
+        or not static_v1.selfhash_valid(raw)
+        or raw.get("schema_version") != FINAL_ROOT_ATTESTATION_SCHEMA_VERSION
+        or raw.get("kind") != FINAL_ROOT_ATTESTATION_KIND
+        or raw.get("gate") != proof_v1.RUNNER_GATE
+        or raw.get("root") != str(root)
+        or not static_v1.json_type_equal(
+            raw.get("root_identity"), _root_identity(root)
+        )
+        or raw.get("valid") is not True
+        or raw.get("failures") != []
+        or raw.get("proof_replay_decision_complete") is not True
+        or raw.get("strict_proof_unsat") is not True
+    ):
+        raise HierarchicalResumeRunnerError(
+            "transport prune final-root attestation is invalid"
+        )
+    return raw
+
+
+def _transport_prune_claim_value(
+    root: Path, attestation: Mapping[str, Any], manifest: Mapping[str, Any],
+) -> dict[str, Any]:
+    return seal({
+        "schema_version": TRANSPORT_PRUNE_SCHEMA_VERSION,
+        "kind": TRANSPORT_PRUNE_CLAIM_KIND,
+        "gate": GATE,
+        "root": str(root),
+        "root_identity": _root_identity(root),
+        "runtime_relative_path": RUNTIME_ROOT.as_posix(),
+        "final_root_attestation": dict(attestation),
+        "final_root_attestation_sha256": attestation["record_sha256"],
+        "transport_entries": list(manifest["entries"]),
+        "transport_entry_count": manifest["entry_count"],
+        "transport_regular_file_bytes": manifest["regular_file_bytes"],
+        "transport_manifest_sha256": manifest["manifest_sha256"],
+        "preserved_artifact_relative_paths": [
+            STATIC_DIMACS.as_posix(), DRAT_ARTIFACT.as_posix(),
+            LRAT_ARTIFACT.as_posix(), CERTIFICATE.as_posix(),
+            VALIDATION.as_posix(), FINAL_COMMIT.as_posix(),
+        ],
+        "irreversible": True,
+    })
+
+
+def _read_transport_prune_claim(root: Path) -> dict[str, Any]:
+    claim = _read_json(root / TRANSPORT_PRUNE_CLAIM)
+    fields = {
+        "schema_version", "kind", "gate", "root", "root_identity",
+        "runtime_relative_path", "final_root_attestation",
+        "final_root_attestation_sha256", "transport_entries",
+        "transport_entry_count", "transport_regular_file_bytes",
+        "transport_manifest_sha256", "preserved_artifact_relative_paths",
+        "irreversible", "record_sha256",
+    }
+    entries = _validate_transport_entries(claim.get("transport_entries"))
+    attestation = _validate_final_attestation(
+        claim.get("final_root_attestation"), root,
+    )
+    if (
+        set(claim) != fields
+        or not static_v1.selfhash_valid(claim)
+        or claim.get("schema_version") != TRANSPORT_PRUNE_SCHEMA_VERSION
+        or claim.get("kind") != TRANSPORT_PRUNE_CLAIM_KIND
+        or claim.get("gate") != GATE
+        or claim.get("root") != str(root)
+        or not static_v1.json_type_equal(
+            claim.get("root_identity"), _root_identity(root)
+        )
+        or claim.get("runtime_relative_path") != RUNTIME_ROOT.as_posix()
+        or claim.get("final_root_attestation_sha256")
+        != attestation["record_sha256"]
+        or claim.get("transport_entry_count") != len(entries)
+        or claim.get("transport_regular_file_bytes") != sum(
+            item["bytes"] for item in entries if item["entry_type"] == "file"
+        )
+        or claim.get("transport_manifest_sha256")
+        != static_v1.canonical_sha256(entries)
+        or claim.get("preserved_artifact_relative_paths") != [
+            STATIC_DIMACS.as_posix(), DRAT_ARTIFACT.as_posix(),
+            LRAT_ARTIFACT.as_posix(), CERTIFICATE.as_posix(),
+            VALIDATION.as_posix(), FINAL_COMMIT.as_posix(),
+        ]
+        or claim.get("irreversible") is not True
+    ):
+        raise HierarchicalResumeRunnerError(
+            "transport prune claim schema or binding mismatch"
+        )
+    return claim
+
+
+def _artifact_matches_without_hash(
+    root: Path, path: Path, expected: Mapping[str, Any],
+) -> None:
+    info = os.stat(path, follow_symlinks=False)
+    try:
+        relative = path.relative_to(root).as_posix()
+    except ValueError as exc:  # pragma: no cover
+        raise HierarchicalResumeRunnerError(
+            "preserved artifact escaped the root"
+        ) from exc
+    if (
+        not stat.S_ISREG(info.st_mode)
+        or relative != expected.get("relative_path")
+        or info.st_dev != expected.get("device")
+        or info.st_ino != expected.get("inode")
+        or stat.S_IMODE(info.st_mode) != expected.get("mode")
+        or info.st_uid != os.geteuid()
+        or info.st_nlink != expected.get("links")
+        or info.st_size != expected.get("bytes")
+    ):
+        raise HierarchicalResumeRunnerError(
+            "preserved scientific artifact identity changed"
+        )
+
+
+def _artifact_matches_with_hash(
+    root: Path, path: Path, expected: Mapping[str, Any],
+) -> None:
+    expected_bytes = expected.get("bytes")
+    expected_role = expected.get("role")
+    if (
+        type(expected_bytes) is not int or expected_bytes < 0
+        or type(expected_role) is not str or not expected_role
+    ):
+        raise HierarchicalResumeRunnerError(
+            "preserved scientific artifact record is malformed"
+        )
+    observed = v2._physical_record(
+        path, root, expected_role, cap=max(1, expected_bytes),
+    )
+    if not static_v1.json_type_equal(observed, expected):
+        raise HierarchicalResumeRunnerError(
+            "preserved scientific artifact content changed"
+        )
+
+
+def _quiesce_transport_coordinators(
+    root: Path, chain: Mapping[str, Any],
+) -> None:
+    generations = chain.get("generations")
+    if type(generations) is not list or not generations:
+        raise HierarchicalResumeRunnerError(
+            "transport coordinator list is malformed"
+        )
+    command = DMTCP_PREFIX / "bin/dmtcp_command"
+    for generation in generations:
+        number = generation.get("generation") if type(generation) is dict else None
+        port = (
+            generation.get("coordinator_port")
+            if type(generation) is dict else None
+        )
+        if (
+            type(number) is not int or number < 0
+            or type(port) is not int or not 1 <= port <= 65535
+        ):
+            raise HierarchicalResumeRunnerError(
+                "transport coordinator identity is malformed"
+            )
+        port_file = (
+            root / RUNTIME_ROOT / "generations" / f"{number:06d}"
+            / "coordinator.port"
+        )
+        with _fixed_environment():
+            controller._quit_coordinator_if_present(command, port_file)
+        for _attempt in range(50):
+            try:
+                with _fixed_environment():
+                    controller._query_status(command, port, timeout=0.2)
+            except (
+                controller.ResumeControllerError,
+                subprocess.SubprocessError,
+                OSError,
+            ):
+                break
+        else:
+            raise HierarchicalResumeRunnerError(
+                "DMTCP coordinator remained reachable after shutdown"
+            )
+
+
+def _validate_pruned_scientific_evidence_locked(
+    root: Path, claim: Mapping[str, Any], *, fresh_replay: bool,
+    **static_kwargs: Any,
+) -> dict[str, Any]:
+    """Validate retained science without requiring the deleted transport."""
+
+    loaded = _load_static(root, **static_kwargs)
+    attestation = _validate_final_attestation(
+        claim.get("final_root_attestation"), root,
+    )
+    identity = _proof_identity(loaded)
+    if any(
+        not static_v1.json_type_equal(attestation.get(key), value)
+        for key, value in identity.items()
+    ):
+        raise HierarchicalResumeRunnerError(
+            "pruned attestation leaf identity mismatch"
+        )
+    session = _read_json(root / SESSION_COMMIT)
+    terminal = _read_json(root / TERMINAL_CLAIM)
+    drat_commit = _read_json(root / DRAT_COMMIT)
+    lrat_commit = _read_json(root / LRAT_COMMIT)
+    certificate = _read_json(root / CERTIFICATE)
+    validation = _read_json(root / VALIDATION)
+    final_commit = _read_json(root / FINAL_COMMIT)
+    if (
+        not static_v1.selfhash_valid(session)
+        or not static_v1.selfhash_valid(terminal)
+        or not static_v1.selfhash_valid(drat_commit)
+        or not static_v1.selfhash_valid(lrat_commit)
+        or not static_v1.selfhash_valid(final_commit)
+        or session.get("record_sha256") != attestation.get("session_sha256")
+        or terminal.get("record_sha256")
+        != attestation.get("terminal_claim_sha256")
+        or drat_commit.get("record_sha256")
+        != attestation.get("drat_commit_sha256")
+        or lrat_commit.get("record_sha256")
+        != attestation.get("lrat_commit_sha256")
+        or final_commit.get("record_sha256")
+        != attestation.get("final_commit_sha256")
+        or certificate.get("certificate_sha256")
+        != attestation.get("certificate_sha256")
+        or validation.get("validation_sha256")
+        != attestation.get("validation_sha256")
+        or final_commit.get("strict_proof_unsat") is not True
+        or final_commit.get("proof_replay_decision_complete") is not True
+        or final_commit.get(
+            "no_further_scientific_artifact_writes_after_this_commit"
+        ) is not True
+    ):
+        raise HierarchicalResumeRunnerError(
+            "pruned predecessor record binding mismatch"
+        )
+    certificate_failures = proof_v1.validate_child_certificate(
+        certificate, loaded["campaign"],
+    )
+    validation_failures = proof_v1.validate_child_run_record(
+        validation, loaded["campaign"],
+    )
+    if (
+        certificate_failures
+        or validation_failures
+        or not static_v1.json_type_equal(
+            validation.get("certificate"), certificate,
+        )
+    ):
+        raise HierarchicalResumeRunnerError(
+            "pruned child certificate or validation mismatch"
+        )
+    cnf = v2._physical_record(
+        root / STATIC_DIMACS, root, "exact-hierarchical-child-cnf",
+        cap=loaded["record"]["child"]["child_dimacs_bytes"],
+    )
+    drat = v2._physical_record(
+        root / DRAT_ARTIFACT, root, "raw-binary-drat",
+        cap=loaded["resource_caps"]["proof_max_bytes"],
+    )
+    lrat = v2._physical_record(
+        root / LRAT_ARTIFACT, root, "converted-lrat",
+        cap=proof_helper.LRAT_MAX_BYTES,
+    )
+    if (
+        not static_v1.json_type_equal(cnf, attestation.get("cnf_artifact"))
+        or not static_v1.json_type_equal(drat, attestation.get("drat_artifact"))
+        or not static_v1.json_type_equal(lrat, attestation.get("lrat_artifact"))
+        or not static_v1.json_type_equal(drat_commit.get("proof"), drat)
+        or not static_v1.json_type_equal(lrat_commit.get("lrat_artifact"), lrat)
+    ):
+        raise HierarchicalResumeRunnerError(
+            "pruned scientific artifact binding mismatch"
+        )
+    if not fresh_replay:
+        return attestation
+    fresh_drat, _do, _de, _db = _run_checker(
+        root=root, loaded=loaded, role="final-drat-replay",
+        proof_path=root / DRAT_ARTIFACT, proof_record=drat,
+        proof_cap=loaded["resource_caps"]["proof_max_bytes"],
+    )
+    fresh_lrat, _lo, _le, _lb = _run_checker(
+        root=root, loaded=loaded, role="final-lrat-replay",
+        proof_path=root / LRAT_ARTIFACT, proof_record=lrat,
+        proof_cap=proof_helper.LRAT_MAX_BYTES,
+    )
+    if (
+        fresh_drat.get("verified") is not True
+        or fresh_lrat.get("verified") is not True
+    ):
+        raise HierarchicalResumeRunnerError(
+            "pruned final-root fresh proof replay failed"
+        )
+    refreshed = dict(attestation)
+    refreshed.pop("record_sha256", None)
+    refreshed["fresh_drat_checker"] = fresh_drat
+    refreshed["fresh_lrat_checker"] = fresh_lrat
+    return seal(refreshed)
+
+
+def _delete_claimed_transport(root: Path, claim: Mapping[str, Any]) -> None:
+    """Delete only entries authorized by the durable prune claim."""
+
+    expected = {
+        item["relative_path"]: item
+        for item in _validate_transport_entries(claim["transport_entries"])
+    }
+    current_entries = _transport_tree_entries(root)
+    for item in current_entries:
+        allowed = expected.get(item["relative_path"])
+        if allowed is None or not static_v1.json_type_equal(item, allowed):
+            raise HierarchicalResumeRunnerError(
+                "transport subtree changed after prune authorization"
+            )
+    for item in sorted(
+        current_entries,
+        key=lambda value: (len(Path(value["relative_path"]).parts),
+                           value["relative_path"]),
+        reverse=True,
+    ):
+        path = root / item["relative_path"]
+        if not os.path.lexists(path):
+            continue
+        observed = _transport_entry_record(root, path)
+        if not static_v1.json_type_equal(observed, item):
+            raise HierarchicalResumeRunnerError(
+                "transport entry changed immediately before deletion"
+            )
+        if item["entry_type"] == "directory":
+            os.rmdir(path)
+        else:
+            os.unlink(path)
+    if os.path.lexists(root / RUNTIME_ROOT):
+        raise HierarchicalResumeRunnerError(
+            "transport subtree remains after claimed deletion"
+        )
+    parent_fd = os.open(
+        (root / RUNTIME_ROOT).parent,
+        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+    )
+    try:
+        os.fsync(parent_fd)
+    finally:
+        os.close(parent_fd)
+
+
+def _transport_prune_commit_value(
+    root: Path, claim: Mapping[str, Any],
+) -> dict[str, Any]:
+    attestation = claim["final_root_attestation"]
+    return seal({
+        "schema_version": TRANSPORT_PRUNE_SCHEMA_VERSION,
+        "kind": TRANSPORT_PRUNE_COMMIT_KIND,
+        "gate": GATE,
+        "root": str(root),
+        "root_identity": _root_identity(root),
+        "claim_sha256": claim["record_sha256"],
+        "final_root_attestation_sha256": attestation["record_sha256"],
+        "transport_manifest_sha256": claim["transport_manifest_sha256"],
+        "removed_relative_path": RUNTIME_ROOT.as_posix(),
+        "removed_entry_count": claim["transport_entry_count"],
+        "removed_regular_file_bytes": claim["transport_regular_file_bytes"],
+        "runtime_absent": True,
+        "cnf_artifact": attestation["cnf_artifact"],
+        "drat_artifact": attestation["drat_artifact"],
+        "lrat_artifact": attestation["lrat_artifact"],
+        "strict_proof_unsat": True,
+        "proof_replay_decision_complete": True,
+        "scientific_artifacts_preserved": True,
+        "transport_only_deleted": True,
+        "irreversible": True,
+    })
+
+
+def _read_transport_prune_commit(root: Path) -> dict[str, Any]:
+    claim = _read_transport_prune_claim(root)
+    commit = _read_json(root / TRANSPORT_PRUNE_COMMIT)
+    expected = _transport_prune_commit_value(root, claim)
+    if not static_v1.json_type_equal(commit, expected):
+        raise HierarchicalResumeRunnerError(
+            "transport prune commit schema or binding mismatch"
+        )
+    if os.path.lexists(root / RUNTIME_ROOT):
+        raise HierarchicalResumeRunnerError(
+            "transport prune commit exists but runtime remains"
+        )
+    for key, relative in (
+        ("cnf_artifact", STATIC_DIMACS),
+        ("drat_artifact", DRAT_ARTIFACT),
+        ("lrat_artifact", LRAT_ARTIFACT),
+    ):
+        _artifact_matches_without_hash(root, root / relative, commit[key])
+    return commit
+
+
+def prune_transport_root(root: Path, **static_kwargs: Any) -> dict[str, Any]:
+    """Irreversibly remove DMTCP state after a fresh final proof replay."""
+
+    target = _existing_root(root)
+    with _root_lock(target, exclusive=True):
+        checked_static_kwargs = _action_static_kwargs(target, static_kwargs)
+        if (target / TRANSPORT_PRUNE_COMMIT).exists():
+            commit = _read_transport_prune_commit(target)
+            claim = _read_transport_prune_claim(target)
+            _validate_pruned_scientific_evidence_locked(
+                target, claim, fresh_replay=True, **checked_static_kwargs,
+            )
+            return commit
+        if (target / TRANSPORT_PRUNE_CLAIM).exists():
+            claim = _read_transport_prune_claim(target)
+            _validate_pruned_scientific_evidence_locked(
+                target, claim, fresh_replay=True, **checked_static_kwargs,
+            )
+        else:
+            if not (target / FINAL_COMMIT).exists():
+                raise HierarchicalResumeRunnerError(
+                    "transport pruning requires a final child commit"
+                )
+            attestation = _verify_final_root_locked(
+                target, **checked_static_kwargs,
+            )
+            loaded, session = _load_session(
+                target, **checked_static_kwargs,
+            )
+            chain = validate_transport_chain(
+                target, session, loaded["record"]["resource_policy"],
+                requirement=CHAIN_REQUIRE_STOPPED,
+            )
+            _quiesce_transport_coordinators(target, chain)
+            manifest = _transport_manifest(target)
+            claim = _transport_prune_claim_value(
+                target, attestation, manifest,
+            )
+            _publish_json(target / TRANSPORT_PRUNE_CLAIM, claim)
+            claim = _read_transport_prune_claim(target)
+        _delete_claimed_transport(target, claim)
+        for key, relative in (
+            ("cnf_artifact", STATIC_DIMACS),
+            ("drat_artifact", DRAT_ARTIFACT),
+            ("lrat_artifact", LRAT_ARTIFACT),
+        ):
+            _artifact_matches_with_hash(
+                target, target / relative,
+                claim["final_root_attestation"][key],
+            )
+        commit = _transport_prune_commit_value(target, claim)
+        _publish_json(target / TRANSPORT_PRUNE_COMMIT, commit)
+        return _read_transport_prune_commit(target)
+
+
+def _pruned_status_locked(
+    root: Path, **static_kwargs: Any,
+) -> dict[str, Any]:
+    _load_static(root, **static_kwargs)
+    commit = _read_transport_prune_commit(root)
+    chain = seal({
+        "schema_version": TRANSPORT_PRUNE_SCHEMA_VERSION,
+        "kind": TRANSPORT_PRUNE_STATUS_KIND,
+        "gate": GATE,
+        "root": str(root),
+        "state": "PRUNED",
+        "prune_commit_sha256": commit["record_sha256"],
+        "transport_present": False,
+        "scientific_artifacts_preserved": True,
+        "transport_trusted_for_scientific_proof": False,
+    })
+    return seal({
+        "schema_version": SCHEMA_VERSION,
+        "kind": "paper400-nested-width10-resume-status-v1",
+        "gate": GATE,
+        "root": str(root),
+        "resume_static_sha256": _read_json(
+            root / STATIC_COMMIT
+        )["record_sha256"],
+        "session_sha256": _read_json(
+            root / SESSION_COMMIT
+        )["record_sha256"],
+        "chain": chain,
+        "terminal_claimed": True,
+        "terminal_committed": True,
+        "production_eligible": False,
+    })
+
+
 def _caps_from_args(args: argparse.Namespace) -> dict[str, int]:
     return {
         "proof_max_bytes": args.proof_max_bytes,
@@ -2953,7 +3827,7 @@ def build_parser() -> argparse.ArgumentParser:
     for action in (
         "start", "checkpoint-stop", "resume", "status",
         "verify-checkpoint", "harvest-inactive",
-        "verify-checkpoint-only", "verify-final",
+        "verify-checkpoint-only", "verify-final", "prune-transport",
     ):
         child = sub.add_parser(action, allow_abbrev=False)
         child.add_argument("--root", type=Path, required=True)
@@ -3018,6 +3892,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = verify_checkpoint_only(args.root)
     elif args.action == "verify-final":
         result = verify_final_root(args.root)
+    elif args.action == "prune-transport":
+        result = prune_transport_root(args.root)
     else:  # pragma: no cover
         raise HierarchicalResumeRunnerError("unreachable action")
     sys.stdout.buffer.write(canonical_bytes(result) + b"\n")
@@ -3045,8 +3921,10 @@ __all__ = [
     "HierarchicalResumeRunnerError", "checkpoint_stop_root", "harvest_inactive_root",
     "prepare_root_from_material",
     "resume_root", "start_root", "status_root", "validate_transport_chain",
-    "verify_checkpoint_only", "verify_checkpoint_root", "verify_final_root",
+    "prune_transport_root", "verify_checkpoint_only", "verify_checkpoint_root",
+    "verify_final_root",
     "FINAL_ROOT_ATTESTATION_FIELDS", "FINAL_ROOT_ATTESTATION_KIND",
     "FINAL_ROOT_ATTESTATION_SCHEMA_VERSION",
+    "TRANSPORT_PRUNE_CLAIM", "TRANSPORT_PRUNE_CLAIM_KIND",
+    "TRANSPORT_PRUNE_COMMIT", "TRANSPORT_PRUNE_COMMIT_KIND",
 ]
-

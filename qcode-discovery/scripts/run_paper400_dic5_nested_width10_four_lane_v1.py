@@ -50,11 +50,11 @@ LANES = Path("lanes")
 MAX_INPUT_BYTES = 64 << 20
 ACTION_NAMES = frozenset({
     "start", "checkpoint-stop", "resume", "status", "verify-checkpoint",
-    "harvest-inactive",
+    "harvest-inactive", "prune-transport",
 })
 AFFINITY_ACTIONS = frozenset({"start", "checkpoint-stop", "resume"})
 TRANSPORT_STATES = frozenset({
-    "RUNNING", "CHECKPOINTED", "INACTIVE_UNCHECKPOINTED",
+    "RUNNING", "CHECKPOINTED", "INACTIVE_UNCHECKPOINTED", "PRUNED",
 })
 LANE_DISPOSITIONS = frozenset({
     "OBSERVED", "APPLIED", "SKIPPED", "PENDING", "UNRESOLVED", "FAILED",
@@ -1443,6 +1443,7 @@ def _action_callable(action: str) -> Callable[..., dict[str, Any]]:
         "status": child_runner.status_root,
         "verify-checkpoint": child_runner.verify_checkpoint_root,
         "harvest-inactive": child_runner.harvest_inactive_root,
+        "prune-transport": child_runner.prune_transport_root,
     }
     try:
         return mapping[action]
@@ -1534,6 +1535,26 @@ def _dispatch_lane_action(
             before=None, after=after, child_result=value,
         )
 
+    if (
+        action == "prune-transport"
+        and (lane_root / child_runner.TRANSPORT_PRUNE_CLAIM).exists()
+        and not (lane_root / child_runner.TRANSPORT_PRUNE_COMMIT).exists()
+    ):
+        value = _invoke_lane_action(
+            action, action_function, lane_root, cpu, static_kwargs,
+        )
+        after = _lane_status(lane_root, static_kwargs)
+        if after["state"] != "PRUNED" or not after["terminal_committed"]:
+            raise FourLaneBatchError(
+                "resumed transport prune did not reach the pruned state"
+            )
+        return _make_lane_outcome(
+            lane=lane, action=action, sequence=sequence,
+            claim_sha256=claim_sha256, disposition="APPLIED",
+            reason="PRUNE_TRANSPORT_RESUMED", goal_satisfied=True,
+            before=None, after=after, child_result=value,
+        )
+
     before = _lane_status(lane_root, static_kwargs)
     if action == "status":
         return _make_lane_outcome(
@@ -1551,13 +1572,48 @@ def _dispatch_lane_action(
             error_type="TerminalStageIncomplete",
             error_message="terminal claim exists without a final commit",
         )
-    if before["terminal_committed"]:
+    if before["terminal_committed"] and action != "prune-transport":
         attestation = _verified_final_root(lane_root, static_kwargs)
         return _make_lane_outcome(
             lane=lane, action=action, sequence=sequence,
             claim_sha256=claim_sha256, disposition="SKIPPED",
             reason="ALREADY_FINAL", goal_satisfied=True,
             before=before, after=before, child_result=attestation,
+        )
+
+    if action == "prune-transport":
+        if not before["terminal_committed"]:
+            return _make_lane_outcome(
+                lane=lane, action=action, sequence=sequence,
+                claim_sha256=claim_sha256, disposition="PENDING",
+                reason="WAITING_FOR_FINAL_PROOF", goal_satisfied=False,
+                before=before, after=before, child_result=before["value"],
+            )
+        value = _invoke_lane_action(
+            action, action_function, lane_root, cpu, static_kwargs,
+        )
+        after = _lane_status(lane_root, static_kwargs)
+        if after["state"] != "PRUNED" or not after["terminal_committed"]:
+            return _make_lane_outcome(
+                lane=lane, action=action, sequence=sequence,
+                claim_sha256=claim_sha256, disposition="FAILED",
+                reason="ACTION_POSTCONDITION_FAILED", goal_satisfied=False,
+                before=before, after=after, child_result=value,
+                error_type="ActionPostconditionFailed",
+                error_message=(
+                    "transport prune returned without a committed pruned state"
+                ),
+            )
+        disposition = "SKIPPED" if before["state"] == "PRUNED" else "APPLIED"
+        reason = (
+            "ALREADY_PRUNED" if disposition == "SKIPPED"
+            else "PRUNE_TRANSPORT_APPLIED"
+        )
+        return _make_lane_outcome(
+            lane=lane, action=action, sequence=sequence,
+            claim_sha256=claim_sha256, disposition=disposition,
+            reason=reason, goal_satisfied=True,
+            before=before, after=after, child_result=value,
         )
 
     state = before["state"]

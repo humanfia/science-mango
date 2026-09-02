@@ -77,47 +77,55 @@ OLD_TEST_RELATIVE_PATH = (
 )
 
 SCIENCE_PYTHON = Path(
-    "/root/science-mango-qcode-coset-two-block/qcode-discovery/.venv/bin/python"
+    "/home/jing/science-mango/qcode-discovery/.venv/bin/python"
 )
-EXPECTED_PYTHON_REALPATH = Path("/usr/bin/python3.12")
+EXPECTED_PYTHON_REALPATH = Path(
+    "/home/jing/.local/share/uv/python/"
+    "cpython-3.12.14-linux-x86_64-gnu/bin/python3.12"
+)
 EXPECTED_PYTHON_SHA256 = (
-    "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118"
+    "f7c6210eb40fadcd3c2889dddd24a15fc2c9f926aec5a03bf9da66e12d581526"
 )
 
 SOLVER_PATH = Path(
-    "/root/cadical-rel-1.9.5-standalone-audit/build/cadical"
+    "/home/jing/paper400-toolchain/cadical-1.9.5/bin/cadical"
 )
 SOLVER_AUDIT_PATH = Path(
-    "/root/cadical-rel-1.9.5-standalone-audit/build/"
-    "standalone-audit-manifest.json"
+    "/home/jing/paper400-toolchain/audit/standalone-audit-manifest.json"
 )
-TRUST_POLICY_PATH = Path("/root/qcode-proof-tools/trusted-checker-policy.json")
-DRAT_TRIM_PATH = Path("/root/qcode-proof-tools/bin/drat-trim")
-LRAT_CHECK_PATH = Path("/root/qcode-proof-tools/bin/lrat-check")
+TRUST_POLICY_PATH = Path(
+    "/home/jing/paper400-toolchain/audit/trusted-checker-policy.json"
+)
+DRAT_TRIM_PATH = Path(
+    "/home/jing/paper400-toolchain/proof-checkers/bin/drat-trim"
+)
+LRAT_CHECK_PATH = Path(
+    "/home/jing/paper400-toolchain/proof-checkers/bin/lrat-check"
+)
 
 EXPECTED_SOLVER_SHA256 = (
-    "f8b70724eb0af0ea3b5c0c305fa6a959822ce680326f04ceee7b44ce970d1171"
+    "6e7d53fa447d13fb962de78c7bd6a6354711151529754a5684170bd9a6a36a21"
 )
-EXPECTED_SOLVER_BYTES = 1_102_280
+EXPECTED_SOLVER_BYTES = 1_109_904
 EXPECTED_SOLVER_VERSION = "1.9.5"
 EXPECTED_SOLVER_COMMIT = "146207318796f094dcded87349a64f0c6927309e"
 EXPECTED_SOLVER_AUDIT_SHA256 = (
-    "d9297104990410d960a11b10cb9e1facca9ea08cdfd50c1a6f843a522da11eee"
+    "e274b8e5ab4e9456096243ad5ce3a3a8248374590a0ebf49ce36653357294e6a"
 )
 EXPECTED_POLICY_FILE_SHA256 = (
-    "353163220be9065fa7204ae364fd54699d34718595b38d67a9d2094210121deb"
+    "af3a2089ebf0df9b1120e1cfd3164cc6a2e9bf07bb35c057f3f85890d0f854e2"
 )
 EXPECTED_POLICY_CANONICAL_SHA256 = (
-    "4e284ca7f01079210d458d677a8b5e81dd619da408a5e88fcd61bc703775ef4f"
+    "c5575a34b4cee90f3967e951f885653740fbbe7c2edf2c1323ab552d9872ea86"
 )
 EXPECTED_DRAT_TRIM_SHA256 = (
-    "a48ebed7b4b6b373d3ddbeb3368dae7622a9e17bab7fe6eb751ab996757f9fbe"
+    "8d25091073e9295028dd4aec85acca4d9b3381d2cfcc145a5b0e14ae909ce394"
 )
 EXPECTED_LRAT_CHECK_SHA256 = (
-    "5b87b3ee157db3b1c6b0b70e23faa40ab123c8dd6db63d9518d64312da579517"
+    "c523189a2c4c121bc1e6d284347cbbbec0d3ebf6a1deccb99cb4752548a3ee79"
 )
 EXPECTED_CHECKER_SOURCE_COMMIT = "2e5e29cb0019d5cfd547d4208dca1b3ec290349f"
-EXPECTED_DRAT_TRIM_BYTES = 51_184
+EXPECTED_DRAT_TRIM_BYTES = 51_224
 EXPECTED_LRAT_CHECK_BYTES = 22_024
 ELF_INTERPRETER_LEXICAL = Path("/lib64/ld-linux-x86-64.so.2")
 ELF_OBJECT_SPECS = (
@@ -125,40 +133,40 @@ ELF_OBJECT_SPECS = (
         "ld-linux-x86-64.so.2",
         Path("/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"),
         Path("/lib64/ld-linux-x86-64.so.2"),
-        236_616,
-        "cd4df4f3c7b83673d61189bf2eaebd33ca4f2853ab9772b8a25e025ef99b1e81",
+        240_936,
+        "8d06f393f4a93bcf9b81145a259524d66a95522a646bf8d7e05b6ffdf2e63dcc",
         (),
     ),
     (
         "libstdc++.so.6",
-        Path("/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33"),
+        Path("/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30"),
         Path("/lib/x86_64-linux-gnu/libstdc++.so.6"),
-        2_592_224,
-        "1fd75fe70354a416d75aef22bcae68c47bd25d20e2d0568c30b1a9838cf62f11",
+        2_260_296,
+        "ff0825e113603c3866680d5d52216bc6d8eedf3a59f52a0aef67ff01994db128",
         ("libm.so.6", "libc.so.6", "ld-linux-x86-64.so.2", "libgcc_s.so.1"),
     ),
     (
         "libm.so.6",
         Path("/usr/lib/x86_64-linux-gnu/libm.so.6"),
         Path("/lib/x86_64-linux-gnu/libm.so.6"),
-        952_616,
-        "e9c4b28d340e415b8137480ec442662f981e1399386c5931dae0e886e3639e91",
+        940_560,
+        "df621c68dbfed7e843434ef2faedb9f4d4b0543ad161e9a55eaf4d4ce2443176",
         ("libc.so.6", "ld-linux-x86-64.so.2"),
     ),
     (
         "libgcc_s.so.1",
         Path("/usr/lib/x86_64-linux-gnu/libgcc_s.so.1"),
         Path("/lib/x86_64-linux-gnu/libgcc_s.so.1"),
-        183_024,
-        "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb",
-        ("libc.so.6", "ld-linux-x86-64.so.2"),
+        125_488,
+        "fc9d43b2f6c20e53b009238f767c5b949d202389e20de9e202ea684b4ba3729a",
+        ("libc.so.6",),
     ),
     (
         "libc.so.6",
         Path("/usr/lib/x86_64-linux-gnu/libc.so.6"),
         Path("/lib/x86_64-linux-gnu/libc.so.6"),
-        2_125_328,
-        "8db37cf3f2169f59a0f07ef1fea308c35656668c64c8ff294e1860f4121eb161",
+        2_220_400,
+        "e01b1ce7be2987f3b8560e26d0df2623f9dd5cec17be923ae28a785bc0d32d50",
         ("ld-linux-x86-64.so.2",),
     ),
 )
@@ -220,6 +228,14 @@ _PRCTL.argtypes = [
     ctypes.c_int, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong,
 ]
 _PRCTL.restype = ctypes.c_int
+# Linux UAPI values.  Some standalone CPython builds omit these names from
+# ``fcntl`` even though the running Linux kernel implements memfd sealing.
+F_ADD_SEALS = getattr(fcntl, "F_ADD_SEALS", 1033)
+F_GET_SEALS = getattr(fcntl, "F_GET_SEALS", 1034)
+F_SEAL_SEAL = getattr(fcntl, "F_SEAL_SEAL", 0x0001)
+F_SEAL_SHRINK = getattr(fcntl, "F_SEAL_SHRINK", 0x0002)
+F_SEAL_GROW = getattr(fcntl, "F_SEAL_GROW", 0x0004)
+F_SEAL_WRITE = getattr(fcntl, "F_SEAL_WRITE", 0x0008)
 PROOF_MAX_BYTES = 1 << 40
 LRAT_MAX_BYTES = 1 << 40
 DISK_RESERVE_MARGIN_BYTES = 128 << 30
@@ -1145,12 +1161,9 @@ def _seal_memfd_from_path(
         if expected_bytes is not None and total != expected_bytes:
             raise ProofRunnerError(f"pinned file size mismatch: {path}")
         os.fchmod(memfd, 0o500 if executable else 0o400)
-        seals = (
-            fcntl.F_SEAL_WRITE | fcntl.F_SEAL_GROW | fcntl.F_SEAL_SHRINK
-            | fcntl.F_SEAL_SEAL
-        )
-        fcntl.fcntl(memfd, fcntl.F_ADD_SEALS, seals)
-        if fcntl.fcntl(memfd, fcntl.F_GET_SEALS) != seals:
+        seals = F_SEAL_WRITE | F_SEAL_GROW | F_SEAL_SHRINK | F_SEAL_SEAL
+        fcntl.fcntl(memfd, F_ADD_SEALS, seals)
+        if fcntl.fcntl(memfd, F_GET_SEALS) != seals:
             raise ProofRunnerError("memfd seal set mismatch")
         os.lseek(memfd, 0, os.SEEK_SET)
         return memfd, {
@@ -1831,12 +1844,12 @@ def _toolchain_binding() -> dict[str, Any]:
         raise ProofRunnerError("trusted checker policy field set mismatch")
     checkers = policy_json.get("checkers")
     if type(checkers) is not dict or set(checkers) != {
-        "drat-trim-v05.22.2023-gcc13.3.0-x86_64",
-        "lrat-check-v05.22.2023-gcc13.3.0-x86_64",
+        "drat-trim-v05.22.2023-gcc11.4.0-x86_64",
+        "lrat-check-v05.22.2023-gcc11.4.0-x86_64",
     }:
         raise ProofRunnerError("trusted checker policy checker set mismatch")
-    drat_policy = checkers["drat-trim-v05.22.2023-gcc13.3.0-x86_64"]
-    lrat_policy = checkers["lrat-check-v05.22.2023-gcc13.3.0-x86_64"]
+    drat_policy = checkers["drat-trim-v05.22.2023-gcc11.4.0-x86_64"]
+    lrat_policy = checkers["lrat-check-v05.22.2023-gcc11.4.0-x86_64"]
     for record, expected_hash, expected_format, expected_role, marker_hash in (
         (
             drat_policy, EXPECTED_DRAT_TRIM_SHA256, "drat", "drat-trim-verify",
@@ -2784,12 +2797,9 @@ def _sealed_memfd_from_bytes(
     try:
         _write_all(descriptor, payload)
         os.fchmod(descriptor, 0o500 if executable else 0o400)
-        seals = (
-            fcntl.F_SEAL_WRITE | fcntl.F_SEAL_GROW | fcntl.F_SEAL_SHRINK
-            | fcntl.F_SEAL_SEAL
-        )
-        fcntl.fcntl(descriptor, fcntl.F_ADD_SEALS, seals)
-        if fcntl.fcntl(descriptor, fcntl.F_GET_SEALS) != seals:
+        seals = F_SEAL_WRITE | F_SEAL_GROW | F_SEAL_SHRINK | F_SEAL_SEAL
+        fcntl.fcntl(descriptor, F_ADD_SEALS, seals)
+        if fcntl.fcntl(descriptor, F_GET_SEALS) != seals:
             raise ProofRunnerError("byte memfd seal mismatch")
         os.lseek(descriptor, 0, os.SEEK_SET)
         return descriptor, {

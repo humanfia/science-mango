@@ -59,6 +59,7 @@ READY_TIMEOUT_S = 30.0
 CONTROL_TIMEOUT_S = 600.0
 POLL_S = 0.10
 DMTCP_IMAGE_MAGIC = b"DMTCP_CHECKPOINT_IMAGE_v4.0\n"
+DMTCP_CHILD_UMASK = 0o022
 
 REQUIRED_DMTCP_BINS = (
     "dmtcp_launch",
@@ -1103,6 +1104,7 @@ def _spawn_detached(argv: Sequence[str], *, cwd: Path, stdout_path: Path, stderr
             stderr=stderr_fd,
             close_fds=True,
             start_new_session=True,
+            umask=DMTCP_CHILD_UMASK,
         )
     finally:
         os.close(stdout_fd)
