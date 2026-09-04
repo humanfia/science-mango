@@ -120,6 +120,9 @@ def test_true_fast_terminal_remains_unresolved_without_new_receipts(
         )
 
     monkeypatch.setattr(live.supervisor.child_runner, "start_root", fast)
+    monkeypatch.setattr(live, "VISIBILITY_RETRY_SECONDS", 0.0)
+    monkeypatch.setattr(live.supervisor.child_runner, "_load_static", lambda _root: {})
+    monkeypatch.setattr(live.recovery, "_fast_start_context", lambda _root, _loaded: {})
     result = live._recover_step(
         loaded,
         plan=plan,
@@ -130,3 +133,27 @@ def test_true_fast_terminal_remains_unresolved_without_new_receipts(
     assert result["state"] == "FAST_TERMINAL_STILL_UNRESOLVED"
     assert not started_path.exists()
     assert not live._receipt_path(bundle, step).exists()
+
+
+def test_visibility_retry_seals_a_session_that_becomes_observable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _loaded, _plan, step, _bundle, _intent, _orphan, session = _fixture(tmp_path)
+    calls = 0
+
+    def delayed(_root: Path, *, cpu: int) -> dict:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise live.supervisor.child_runner.RecursiveChildRunnerError(
+                "unsealed child start commit is not live and bound"
+            )
+        return session
+
+    monkeypatch.setattr(live.supervisor.child_runner, "start_root", delayed)
+    monkeypatch.setattr(live, "VISIBILITY_RETRY_SECONDS", 1.0)
+    monkeypatch.setattr(live, "VISIBILITY_RETRY_INTERVAL_SECONDS", 0.0)
+    assert live._recover_live_or_exact_fast(
+        Path(step["worker"]["child_root"]), cpu=step["worker"]["cpu_ids"][0],
+    ) == session
+    assert calls == 2

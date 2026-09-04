@@ -23,6 +23,7 @@ import contextlib
 import hashlib
 import os
 import sys
+import time
 from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
@@ -43,6 +44,8 @@ GATE = "paper400-dic5-recursive-postbootstrap-live-start-recovery-v1"
 SIDECAR_DIR = Path("postbootstrap-batch-live-start-recovery-v1")
 RECEIPT_KIND = "paper400-dic5-recursive-postbootstrap-live-start-recovery-receipt-v1"
 RECOVERY_REASON = "FAST_START_SIGNAL_RECHECKED_AFTER_CONTROLLER_PID_VISIBILITY"
+VISIBILITY_RETRY_SECONDS = 120.0
+VISIBILITY_RETRY_INTERVAL_SECONDS = 2.0
 
 
 class LiveStartRecoveryError(RuntimeError):
@@ -133,6 +136,45 @@ def _publish_exact(path: Path, value: Mapping[str, Any], *, label: str) -> None:
     supervisor._publish_json(path, value)
 
 
+def _recover_live_or_exact_fast(child_root: Path, *, cpu: int) -> dict[str, Any] | None:
+    """Wait briefly for a live controller PID, or prove a quiescent fast root.
+
+    The frozen runner's start-commit exception is an observation signal, not a
+    terminal result.  A DMTCP launch can have committed the solver process
+    while its PID identity is still becoming visible to the immediate caller.
+    Retrying the frozen runner is safe: it seals an existing live session and
+    never creates a second generation.  At the deadline, only the recovery
+    module's exact stopped-proof context permits the ordinary fast path.
+    """
+
+    deadline = time.monotonic() + VISIBILITY_RETRY_SECONDS
+    while True:
+        try:
+            return supervisor.child_runner.start_root(child_root, cpu=cpu)
+        except supervisor.child_runner.RecursiveChildRunnerError as exc:
+            observed = f"{type(exc).__name__}: {exc}"
+            if observed == recovery.FAST_START_ERROR and time.monotonic() < deadline:
+                time.sleep(VISIBILITY_RETRY_INTERVAL_SECONDS)
+                continue
+            if observed not in {
+                recovery.FAST_START_ERROR,
+                "RecursiveChildRunnerError: unsealed child transport is not safely recoverable",
+            }:
+                raise LiveStartRecoveryError("frozen child start recovery failed unexpectedly") from exc
+            break
+    try:
+        child_loaded = supervisor.child_runner._load_static(child_root)
+        recovery._fast_start_context(child_root, child_loaded)
+    except (
+        recovery.RecursiveCheckpointRecoveryError,
+        supervisor.child_runner.RecursiveChildRunnerError,
+    ) as context_exc:
+        raise LiveStartRecoveryError(
+            "unsealed child start was neither recoverable live nor an exact stopped fast terminal"
+        ) from context_exc
+    return None
+
+
 def _recover_step(
     loaded: Mapping[str, Any], *, plan: Mapping[str, Any], step: Mapping[str, Any],
     checkpoint_receipt: Mapping[str, Any], checkpoint_chain: Mapping[str, Any],
@@ -170,16 +212,16 @@ def _recover_step(
             # The frozen runner is the sole authority that can inspect a
             # START_RECOVERY_REQUIRED root and seal a live session.  It never
             # creates a second controller generation for a live runtime.
-            session = supervisor.child_runner.start_root(child_root, cpu=worker["cpu_ids"][0])
-        except supervisor.child_runner.RecursiveChildRunnerError as exc:
-            if f"{type(exc).__name__}: {exc}" == recovery.FAST_START_ERROR:
-                return {
-                    "item_id": item_id,
-                    "state": "FAST_TERMINAL_STILL_UNRESOLVED",
-                    "hardness_only": True,
-                    "solver_terminal_claim": False,
-                }
-            raise LiveStartRecoveryError("frozen child start recovery did not seal a live session") from exc
+            session = _recover_live_or_exact_fast(child_root, cpu=worker["cpu_ids"][0])
+        except LiveStartRecoveryError:
+            raise
+        if session is None:
+            return {
+                "item_id": item_id,
+                "state": "FAST_TERMINAL_STILL_UNRESOLVED",
+                "hardness_only": True,
+                "solver_terminal_claim": False,
+            }
         started = batch._start_receipt_value(intent, session)
         _publish_exact(started_path, started, label="batch started receipt")
         state = "LIVE_SESSION_SEALED"
