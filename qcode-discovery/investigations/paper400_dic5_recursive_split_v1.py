@@ -81,8 +81,11 @@ TRIGGER_FIELDS = frozenset({
     "trigger_sha256",
 })
 
-QUEUE_SCHEMA_VERSION = 1
-QUEUE_KIND = "paper400-dic5-recursive-split-queue-v1"
+# Version 2 adds the variable/clause count fields that are already mandatory
+# in a leaf proof certificate.  Without them a queue item cannot independently
+# prove that a certificate belongs to its exact child formula.
+QUEUE_SCHEMA_VERSION = 2
+QUEUE_KIND = "paper400-dic5-recursive-split-queue-v2"
 QUEUE_ITEM_STATES = frozenset({"PENDING", "CLAIMED", "CERTIFIED", "FAILED"})
 QUEUE_TERMINAL_STATES = frozenset({"CERTIFIED", "FAILED"})
 QUEUE_STATUS_OPEN = "OPEN"
@@ -93,10 +96,21 @@ QUEUE_MAX_LEASE_SECONDS = 7 * 24 * 60 * 60
 QUEUE_ITEM_FIELDS = frozenset({
     "item_id", "parent_id", "parent_manifest_sha256", "split_manifest_sha256",
     "leaf_id", "leaf_sha256", "path", "depth", "child_cnf_sha256",
-    "child_dimacs_sha256", "child_dimacs_bytes", "cpu_slots", "cpu_ids",
+    "child_dimacs_sha256", "child_num_variables", "child_num_clauses",
+    "child_dimacs_bytes", "cpu_slots", "cpu_ids",
     "state", "claim", "attempts", "last_error", "certificate_sha256",
     "item_sha256",
 })
+
+# Cleanup is a two-phase irreversible operation.  The claim is published and
+# fsynced before any transport entry is removed; the commit is published only
+# after the removal has been fsynced.  Keeping the names fixed also gives a
+# crashed sidecar a deterministic recovery point.
+CLEANUP_CLAIM_NAME = "parent-transport-cleanup.claim.json"
+CLEANUP_COMMIT_NAME = "parent-transport-cleanup.json"
+CLEANUP_CLAIM_KIND = "paper400-dic5-parent-transport-cleanup-claim-v1"
+CLEANUP_COMMIT_KIND = "paper400-dic5-parent-transport-cleanup-v1"
+CLEANUP_MAX_ENTRIES = 2_000_000
 QUEUE_CLAIM_FIELDS = frozenset({
     "worker_id", "token", "claimed_at", "lease_expires_at", "cpu_slots",
     "cpu_ids",
@@ -1345,8 +1359,9 @@ def _validate_queue(queue: Mapping[str, Any]) -> dict[str, Any]:
         for key in ("leaf_sha256", "child_cnf_sha256", "child_dimacs_sha256"):
             if not is_sha256(item.get(key)):
                 raise RecursiveSplitError(f"queue item {key} is invalid")
-        if type(item.get("child_dimacs_bytes")) is not int or item["child_dimacs_bytes"] < 0:
-            raise RecursiveSplitError("queue item DIMACS size is invalid")
+        for key in ("child_num_variables", "child_num_clauses", "child_dimacs_bytes"):
+            if type(item.get(key)) is not int or item[key] < 0:
+                raise RecursiveSplitError(f"queue item {key} is invalid")
         item_slots = item.get("cpu_slots")
         if type(item_slots) is not int or isinstance(item_slots, bool) or not 1 <= item_slots <= len(pool):
             raise RecursiveSplitError("queue item CPU slots are invalid")
@@ -1416,7 +1431,12 @@ def _atomic_write_queue(path: Path, queue: Mapping[str, Any]) -> None:
     fd: int | None = None
     try:
         fd = os.open(temporary, flags, 0o600)
-        os.write(fd, payload)
+        view = memoryview(payload)
+        while view:
+            written = os.write(fd, view)
+            if written <= 0:
+                raise RecursiveSplitError("short queue publication")
+            view = view[written:]
         os.fsync(fd)
         os.close(fd)
         fd = None
@@ -1444,7 +1464,36 @@ def load_split_queue(path: Path | str) -> dict[str, Any]:
             raise RecursiveSplitError("queue file is not a regular file")
         if info.st_uid != os.geteuid() or info.st_nlink != 1 or info.st_size > MAX_JSON_BYTES:
             raise RecursiveSplitError("queue file metadata is unsafe")
-        payload = target.read_bytes()
+        # Read through an fd and verify identity/size before and after.  This
+        # prevents a concurrent atomic replace (or an in-place corruption)
+        # from being accepted as a valid queue snapshot.
+        fd = os.open(target, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+        try:
+            before = os.fstat(fd)
+            if (
+                before.st_dev != info.st_dev or before.st_ino != info.st_ino
+                or before.st_size != info.st_size
+            ):
+                raise RecursiveSplitError("queue changed before read")
+            chunks: list[bytes] = []
+            observed = 0
+            while True:
+                chunk = os.read(fd, 1 << 20)
+                if not chunk:
+                    break
+                observed += len(chunk)
+                if observed > MAX_JSON_BYTES:
+                    raise RecursiveSplitError("queue file exceeds size cap")
+                chunks.append(chunk)
+            after = os.fstat(fd)
+        finally:
+            os.close(fd)
+        if (
+            before.st_dev != after.st_dev or before.st_ino != after.st_ino
+            or before.st_size != after.st_size or observed != before.st_size
+        ):
+            raise RecursiveSplitError("queue changed while reading")
+        payload = b"".join(chunks)
     except OSError as exc:
         raise RecursiveSplitError("cannot read split queue") from exc
     try:
@@ -1526,6 +1575,8 @@ def new_split_queue(
             "depth": leaf["depth"],
             "child_cnf_sha256": leaf["child_cnf_sha256"],
             "child_dimacs_sha256": leaf["child_dimacs_sha256"],
+            "child_num_variables": leaf["child_num_variables"],
+            "child_num_clauses": leaf["child_num_clauses"],
             "child_dimacs_bytes": leaf["child_dimacs_bytes"],
             "cpu_slots": default_cpu_slots,
             "cpu_ids": [],
@@ -1574,7 +1625,12 @@ def create_split_queue(
     try:
         fd = os.open(target, flags, 0o600)
         try:
-            os.write(fd, payload)
+            view = memoryview(payload)
+            while view:
+                written = os.write(fd, view)
+                if written <= 0:
+                    raise RecursiveSplitError("short queue publication")
+                view = view[written:]
             os.fsync(fd)
         finally:
             os.close(fd)
@@ -1767,6 +1823,53 @@ def release_queue_item(
     return _queue_mutate(path, mutate)
 
 
+def renew_queue_item(
+    path: Path | str,
+    *,
+    item_id: str,
+    worker_id: str,
+    token: str,
+    lease_seconds: float | None = None,
+    now: float | None = None,
+) -> dict[str, Any]:
+    """Extend one live queue claim without changing its CPU assignment.
+
+    Recursive children can legitimately run longer than the initial dispatch
+    interval.  A worker therefore renews its own still-live claim before the
+    expiry boundary.  Renewal after expiry is intentionally refused: that
+    claim may already have been recovered and reassigned to another worker.
+    """
+
+    timestamp = time.time() if now is None else _finite_timestamp(now, label="renewal now")
+    requested = None if lease_seconds is None else _finite_nonnegative(
+        lease_seconds, label="lease_seconds",
+    )
+    if requested is not None and not 0 < requested <= QUEUE_MAX_LEASE_SECONDS:
+        raise RecursiveSplitError("renewal lease_seconds is outside bounds")
+
+    def mutate(queue: dict[str, Any]) -> tuple[dict[str, Any], bool]:
+        value = _queue_unsigned(queue)
+        item = next((candidate for candidate in value["items"] if candidate["item_id"] == item_id), None)
+        if item is None:
+            raise RecursiveSplitError("unknown queue item")
+        _check_claim(item, worker_id, token)
+        claim = item["claim"]
+        if timestamp >= claim["lease_expires_at"]:
+            raise RecursiveSplitError("cannot renew an expired queue claim")
+        duration = float(value["lease_seconds"] if requested is None else requested)
+        renewed_claim = dict(claim)
+        renewed_claim["lease_expires_at"] = timestamp + duration
+        unsigned = _queue_item_unsigned(item)
+        unsigned["claim"] = renewed_claim
+        item.clear()
+        item.update(seal(unsigned, "item_sha256"))
+        value["updated_at"] = timestamp
+        value["event_sequence"] += 1
+        return _reseal_queue(value), True
+
+    return _queue_mutate(path, mutate)
+
+
 def _certificate_digest(certificate: Mapping[str, Any]) -> str:
     if type(certificate) is not dict:
         raise RecursiveSplitError("certificate must be an object")
@@ -1900,6 +2003,7 @@ load_queue = load_split_queue
 recover_queue = recover_split_queue
 claim_split_queue_item = claim_queue_item
 release_split_queue_item = release_queue_item
+renew_split_queue_item = renew_queue_item
 certify_split_queue_item = certify_queue_item
 complete_queue_item = certify_queue_item
 fail_split_queue_item = fail_queue_item
@@ -2108,6 +2212,123 @@ def _live_generation_identities(runtime: Path) -> list[dict[str, int]]:
     return live
 
 
+def _cleanup_entry_manifest(runtime: Path) -> dict[str, Any]:
+    """Capture a conservative, inode-bound manifest of a transport tree."""
+    entries: list[dict[str, Any]] = []
+    if runtime.is_symlink() or not runtime.is_dir():
+        raise RecursiveSplitError("cleanup runtime is not a plain directory")
+    for candidate in sorted(runtime.rglob("*"), key=lambda item: item.relative_to(runtime).as_posix()):
+        relative = candidate.relative_to(runtime).as_posix()
+        info = candidate.lstat()
+        if info.st_uid != os.geteuid():
+            raise RecursiveSplitError("cleanup entry ownership is unsafe")
+        if stat.S_ISLNK(info.st_mode):
+            raise RecursiveSplitError("refusing to authorize symlink cleanup entry")
+        if stat.S_ISDIR(info.st_mode):
+            # Directory link counts naturally include ``.`` and every direct
+            # subdirectory; unlike a regular-file hardlink count they are not
+            # expected to be one.  The complete tree manifest below freezes
+            # this value before removal, so a later tree mutation is still
+            # rejected by the claim/commit comparison.
+            if info.st_nlink < 2:
+                raise RecursiveSplitError("cleanup directory link count is unsafe")
+            kind = "directory"
+            size = 0
+        elif stat.S_ISREG(info.st_mode):
+            if info.st_nlink != 1:
+                raise RecursiveSplitError("cleanup file link count is unsafe")
+            kind = "file"
+            size = info.st_size
+        else:
+            raise RecursiveSplitError("cleanup entry is not a regular file/directory")
+        entries.append({
+            "relative_path": relative,
+            "entry_type": kind,
+            "device": int(info.st_dev),
+            "inode": int(info.st_ino),
+            "mode": stat.S_IMODE(info.st_mode),
+            "uid": int(info.st_uid),
+            "links": int(info.st_nlink),
+            "bytes": int(size),
+        })
+        if len(entries) > CLEANUP_MAX_ENTRIES:
+            raise RecursiveSplitError("cleanup tree has too many entries")
+    return {
+        "relative_path": "runtime/dmtcp",
+        "entries": entries,
+        "entry_count": len(entries),
+        "regular_file_bytes": sum(item["bytes"] for item in entries if item["entry_type"] == "file"),
+        "manifest_sha256": canonical_sha256(entries),
+    }
+
+
+def _publish_cleanup_record(path: Path, record: Mapping[str, Any], *, exclusive: bool = True) -> None:
+    payload = canonical_bytes(dict(record)) + b"\n"
+    flags = os.O_WRONLY | os.O_CREAT | os.O_CLOEXEC | os.O_NOFOLLOW
+    if exclusive:
+        flags |= os.O_EXCL
+    fd = os.open(path, flags, 0o600)
+    try:
+        view = memoryview(payload)
+        while view:
+            written = os.write(fd, view)
+            if written <= 0:
+                raise RecursiveSplitError("short cleanup record publication")
+            view = view[written:]
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+    directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
+
+
+def _read_cleanup_record(path: Path, *, field: str, kind: str) -> dict[str, Any]:
+    try:
+        info = path.lstat()
+        if stat.S_ISLNK(info.st_mode) or not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid():
+            raise RecursiveSplitError("cleanup record metadata is unsafe")
+        payload = path.read_bytes()
+        value = json.loads(payload)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RecursiveSplitError("cleanup record is unreadable") from exc
+    if type(value) is not dict or payload not in {canonical_bytes(value), canonical_bytes(value) + b"\n"}:
+        raise RecursiveSplitError("cleanup record is not canonical")
+    if value.get("kind") != kind or not selfhash_valid(value, field):
+        raise RecursiveSplitError("cleanup record self-hash/kind is invalid")
+    return value
+
+
+def _cleanup_claim_value(root: Path, split_manifest: Mapping[str, Any], aggregate: Mapping[str, Any], manifest: Mapping[str, Any]) -> dict[str, Any]:
+    return seal({
+        "schema_version": SCHEMA_VERSION,
+        "kind": CLEANUP_CLAIM_KIND,
+        "parent_root": str(root),
+        "runtime_relative_path": "runtime/dmtcp",
+        "aggregate_sha256": aggregate["aggregate_sha256"],
+        "split_manifest_sha256": split_manifest["manifest_sha256"],
+        "transport_manifest": manifest,
+        "irreversible": True,
+    }, "cleanup_claim_sha256")
+
+
+def _cleanup_commit_value(root: Path, claim: Mapping[str, Any], manifest: Mapping[str, Any]) -> dict[str, Any]:
+    return seal({
+        "schema_version": SCHEMA_VERSION,
+        "kind": CLEANUP_COMMIT_KIND,
+        "parent_root": str(root),
+        "runtime_relative_path": "runtime/dmtcp",
+        "cleanup_claim_sha256": claim["cleanup_claim_sha256"],
+        "transport_manifest_sha256": manifest["manifest_sha256"],
+        "removed_entries": manifest["entry_count"],
+        "removed_regular_file_bytes": manifest["regular_file_bytes"],
+        "runtime_absent": True,
+        "irreversible": True,
+    }, "cleanup_sha256")
+
+
 def cleanup_parent_transport(
     parent_root: Path,
     *,
@@ -2133,8 +2354,32 @@ def cleanup_parent_transport(
     root = _safe_owned_directory(Path(parent_root))
     lock_path = root / ".hierarchical-resume.lock"
     runtime = root / "runtime" / "dmtcp"
-    if not runtime.exists() or runtime.is_symlink() or not runtime.is_dir():
-        raise RecursiveSplitError("parent DMTCP runtime is absent or aliased")
+    cleanup_claim_path = root / CLEANUP_CLAIM_NAME
+    cleanup_commit_path = root / CLEANUP_COMMIT_NAME
+    if cleanup_commit_path.exists():
+        commit = _read_cleanup_record(
+            cleanup_commit_path, field="cleanup_sha256", kind=CLEANUP_COMMIT_KIND,
+        )
+        if runtime.exists() or commit.get("runtime_absent") is not True:
+            raise RecursiveSplitError("cleanup commit/runtime state mismatch")
+        return commit
+    if cleanup_claim_path.exists():
+        claim = _read_cleanup_record(
+            cleanup_claim_path, field="cleanup_claim_sha256", kind=CLEANUP_CLAIM_KIND,
+        )
+        if (
+            claim.get("parent_root") != str(root)
+            or claim.get("aggregate_sha256") != aggregate["aggregate_sha256"]
+            or claim.get("split_manifest_sha256") != split_manifest["manifest_sha256"]
+        ):
+            raise RecursiveSplitError("cleanup claim binding mismatch")
+        manifest = claim.get("transport_manifest")
+        if type(manifest) is not dict or manifest.get("manifest_sha256") != canonical_sha256(manifest.get("entries")):
+            raise RecursiveSplitError("cleanup claim transport manifest is invalid")
+    else:
+        if not runtime.exists() or runtime.is_symlink() or not runtime.is_dir():
+            raise RecursiveSplitError("parent DMTCP runtime is absent or aliased")
+        manifest = _cleanup_entry_manifest(runtime)
     # A committed active session is not enough: inspect every generation PID
     # and reject any identity that is still alive.  This is intentionally
     # conservative; a stale PID record causes a no-op rather than deletion.
@@ -2152,48 +2397,51 @@ def cleanup_parent_transport(
             "dry_run": True,
             "removed_entries": [],
             "aggregate_sha256": aggregate["aggregate_sha256"],
+            "transport_manifest_sha256": manifest["manifest_sha256"],
         }, "cleanup_sha256")
     with _exclusive_lock(lock_path):
         # Re-check the runtime after taking the lock.  No external process may
         # start/resume the old parent while deletion is in progress.  The
         # pre-lock snapshot is intentionally discarded: a PID can be reused
         # or a new generation can appear in the race window.
-        live_after_lock = _live_generation_identities(runtime)
+        if cleanup_commit_path.exists():
+            return _read_cleanup_record(
+                cleanup_commit_path, field="cleanup_sha256", kind=CLEANUP_COMMIT_KIND,
+            )
+        live_after_lock = _live_generation_identities(runtime) if runtime.exists() else []
         if live_after_lock:
             raise RecursiveSplitError("parent solver became live before cleanup")
-        removed: list[str] = []
-        for child in sorted(runtime.iterdir(), key=lambda path: path.name):
-            if child.is_symlink():
-                raise RecursiveSplitError("refusing to remove symlink in DMTCP runtime")
-            if child.name not in {"generations", "tmp", "images", "coordinator.log", "coordinator.port", "dmtcp_restart_script.sh"}:
-                raise RecursiveSplitError(f"unknown DMTCP runtime entry: {child.name}")
-        shutil.rmtree(runtime)
-        removed.append("runtime/dmtcp")
-        record = seal({
-            "schema_version": SCHEMA_VERSION,
-            "kind": "paper400-dic5-parent-transport-cleanup-v1",
-            "parent_root": str(root),
-            "runtime_relative_path": "runtime/dmtcp",
-            "eligible": True,
-            "applied": True,
-            "dry_run": False,
-            "removed_entries": removed,
-            "aggregate_sha256": aggregate["aggregate_sha256"],
-            "split_manifest_sha256": split_manifest["manifest_sha256"],
-        }, "cleanup_sha256")
-        target = root / "parent-transport-cleanup.json"
-        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW
-        try:
-            fd = os.open(target, flags, 0o600)
-        except FileExistsError as exc:
-            raise RecursiveSplitError("cleanup record already exists") from exc
-        try:
-            payload = canonical_bytes(record) + b"\n"
-            os.write(fd, payload)
-            os.fsync(fd)
-        finally:
-            os.close(fd)
-        return record
+        if not cleanup_claim_path.exists():
+            if not runtime.exists():
+                raise RecursiveSplitError("cleanup runtime disappeared before claim")
+            # Re-capture under the lock to bind exactly the bytes/inodes that
+            # will be removed, then durably publish the claim before deletion.
+            manifest = _cleanup_entry_manifest(runtime)
+            claim = _cleanup_claim_value(root, split_manifest, aggregate, manifest)
+            _publish_cleanup_record(cleanup_claim_path, claim)
+        else:
+            claim = _read_cleanup_record(
+                cleanup_claim_path, field="cleanup_claim_sha256", kind=CLEANUP_CLAIM_KIND,
+            )
+            manifest = claim["transport_manifest"]
+        if runtime.exists():
+            current = _cleanup_entry_manifest(runtime)
+            if current["manifest_sha256"] != manifest["manifest_sha256"]:
+                raise RecursiveSplitError("transport changed after cleanup claim")
+            shutil.rmtree(runtime)
+            parent_dir = runtime.parent
+            directory = os.open(parent_dir, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW)
+            try:
+                os.fsync(directory)
+            finally:
+                os.close(directory)
+        elif not cleanup_claim_path.exists():
+            raise RecursiveSplitError("cleanup claim is missing")
+        commit = _cleanup_commit_value(root, claim, manifest)
+        _publish_cleanup_record(cleanup_commit_path, commit)
+        return _read_cleanup_record(
+            cleanup_commit_path, field="cleanup_sha256", kind=CLEANUP_COMMIT_KIND,
+        )
 
 
 __all__ = [
@@ -2216,7 +2464,8 @@ __all__ = [
     "new_split_queue", "create_split_queue", "initialize_split_queue",
     "load_split_queue", "load_queue", "recover_split_queue", "recover_queue",
     "claim_queue_item", "claim_split_queue_item", "release_queue_item",
-    "release_split_queue_item", "certify_queue_item", "certify_split_queue_item",
+    "release_split_queue_item", "renew_queue_item", "renew_split_queue_item",
+    "certify_queue_item", "certify_split_queue_item",
     "complete_queue_item", "fail_queue_item", "fail_split_queue_item",
     "split_queue_status", "queue_status",
 ]
