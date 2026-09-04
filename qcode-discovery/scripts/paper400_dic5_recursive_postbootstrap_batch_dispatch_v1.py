@@ -24,6 +24,7 @@ import argparse
 import contextlib
 import copy
 import hashlib
+import math
 import os
 import secrets
 import stat
@@ -304,22 +305,37 @@ def _validate_plan(loaded: Mapping[str, Any], value: Mapping[str, Any]) -> dict[
         item_ids.add(item_id)
         item = _queue_item(after, item_id)
         worker = step.get("worker")
+        claim = item.get("claim")
+        worker_fields = {
+            "schema_version", "kind", "bundle_sha256", "queue_sha256_at_claim", "item_id",
+            "leaf_id", "leaf_sha256", "token", "worker_id", "cpu_ids", "claim_expires_at",
+            "child_root", "state", "error", "created_at", "worker_sha256",
+        }
         if (
             not isinstance(worker, dict)
+            or set(worker) != worker_fields
             or not recursive.selfhash_valid(worker, "worker_sha256")
+            or worker.get("schema_version") != supervisor.SCHEMA_VERSION
+            or worker.get("kind") != supervisor.WORKER_RECORD_KIND
+            or worker.get("bundle_sha256") != loaded["bundle"].get("bundle_sha256")
+            or worker.get("state") != "CLAIMED"
+            or worker.get("error") is not None
+            or type(worker.get("created_at")) not in {int, float}
+            or not math.isfinite(float(worker["created_at"]))
+            or not isinstance(claim, dict)
             or worker.get("item_id") != item_id
             or worker.get("leaf_id") != item.get("leaf_id")
             or worker.get("leaf_sha256") != item.get("leaf_sha256")
-            or worker.get("token") != item.get("claim", {}).get("token")
-            or worker.get("worker_id") != item.get("claim", {}).get("worker_id")
+            or worker.get("token") != claim.get("token")
+            or worker.get("worker_id") != claim.get("worker_id")
             or worker.get("cpu_ids") != item.get("cpu_ids")
             or worker.get("queue_sha256_at_claim") != after.get("queue_sha256")
+            or worker.get("claim_expires_at") != claim.get("lease_expires_at")
             or worker.get("child_root") != str(bundle / supervisor.CHILDREN_DIR / item.get("path", ""))
             or step.get("worker_filename") != _worker_path(bundle, worker).name
         ):
             raise BatchDispatchError("batch plan worker binding is invalid")
-        claim = item.get("claim")
-        if not isinstance(claim, dict) or type(claim.get("claimed_at")) not in {int, float}:
+        if type(claim.get("claimed_at")) not in {int, float}:
             raise BatchDispatchError("batch plan claim timestamp is invalid")
         try:
             expected_before, expected_after, expected_item = _claim_one(

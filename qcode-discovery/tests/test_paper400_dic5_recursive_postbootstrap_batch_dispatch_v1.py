@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import importlib.util
 from pathlib import Path
 
@@ -139,6 +140,23 @@ def test_commit_publishes_all_workers_then_queue_ledger(
     for step in plan["steps"]:
         assert (bundle / "workers" / step["worker_filename"]).exists()
     assert (bundle / batch.SIDECAR_DIR / batch.COMMIT.name).exists()
+
+
+def test_plan_rejects_a_self_hashed_non_claimed_worker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    loaded, _original, _bundle = _fixture(tmp_path, fanout=2)
+    monkeypatch.setattr(batch.recovery, "_require_checkpoint_receipt", lambda _loaded: _receipt())
+    plan = batch._plan_value(loaded, worker_prefix="batch-test", now=200.0)
+    tampered = copy.deepcopy(plan)
+    worker = dict(tampered["steps"][0]["worker"])
+    worker.pop("worker_sha256")
+    worker["state"] = "ORPHAN_UNRESOLVED"
+    tampered["steps"][0]["worker"] = recursive.seal(worker, "worker_sha256")
+    tampered.pop("record_sha256")
+    tampered = batch.supervisor.seal(tampered, "record_sha256")
+    with pytest.raises(batch.BatchDispatchError, match="worker binding"):
+        batch._validate_plan(loaded, tampered)
 
 
 def test_fast_terminal_does_not_prevent_later_sibling_starts(
