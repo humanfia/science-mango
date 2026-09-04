@@ -34,6 +34,12 @@ def _patch_live_root(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> tuple[P
         "record_sha256": "b" * 64,
     }
     config = {"self_sha256": "c" * 64}
+    controller_claim = {
+        "kind": "start.claim",
+        "generation": 0,
+        "init_manifest_sha256": config["self_sha256"],
+        "self_sha256": "f" * 64,
+    }
     active = {
         "kind": "start.commit",
         "generation": 0,
@@ -66,6 +72,10 @@ def _patch_live_root(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> tuple[P
     monkeypatch.setattr(compat.child_runner.controller, "_generation_dir", lambda _runtime, _generation: runtime)
     monkeypatch.setattr(compat.child_runner.controller, "_active_commit", lambda _directory, _generation: active)
     monkeypatch.setattr(
+        compat.child_runner.controller, "read_manifest",
+        lambda _path, *, expected_kind: controller_claim,
+    )
+    monkeypatch.setattr(
         compat.recursive,
         "observe_proc_cpu_seconds",
         lambda _pid: {"proc_start_ticks": active["proc_start_ticks"], "state": "R"},
@@ -97,7 +107,10 @@ def _patch_live_root(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> tuple[P
         "_publish_json",
         lambda path, value: published.__setitem__(str(path), dict(value)),
     )
-    return root, {"static": static, "claim": claim, "config": config, "active": active, "status": status, "published": published}
+    return root, {
+        "static": static, "claim": claim, "config": config, "active": active,
+        "controller_claim": controller_claim, "status": status, "published": published,
+    }
 
 
 def test_seals_live_schema_compat_session_only_after_exact_attestations(
@@ -113,6 +126,19 @@ def test_seals_live_schema_compat_session_only_after_exact_attestations(
     receipt = values["published"][str(root / compat.COMPAT_RECEIPT)]
     assert receipt["controller_start_config_field"] == "config_manifest_sha256"
     assert receipt["controller_start_config_sha256"] == values["config"]["self_sha256"]
+    assert receipt["controller_start_claim_sha256"] == values["controller_claim"]["self_sha256"]
+
+
+def test_seals_frozen_start_claim_config_schema(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root, values = _patch_live_root(monkeypatch, tmp_path)
+    values["active"].pop("config_manifest_sha256")
+    values["active"]["claim_sha256"] = values["controller_claim"]["self_sha256"]
+
+    result = compat.seal_live_session(root, cpu=17)
+
+    assert result["state"] == "LIVE_SESSION_SEALED"
+    receipt = values["published"][str(root / compat.COMPAT_RECEIPT)]
+    assert receipt["controller_start_config_field"] == "start.claim.init_manifest_sha256"
 
 
 def test_rejects_a_live_start_with_wrong_new_schema_binding(
@@ -120,6 +146,7 @@ def test_rejects_a_live_start_with_wrong_new_schema_binding(
 ) -> None:
     root, values = _patch_live_root(monkeypatch, tmp_path)
     values["active"]["config_manifest_sha256"] = "f" * 64
+    values["controller_claim"]["init_manifest_sha256"] = "f" * 64
 
     with pytest.raises(compat.LiveSessionCompatError, match="live start/config binding"):
         compat.seal_live_session(root, cpu=17)

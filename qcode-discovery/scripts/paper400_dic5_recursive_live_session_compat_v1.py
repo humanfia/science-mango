@@ -3,10 +3,11 @@
 
 The immutable v1 recursive child runner intentionally remains untouched: its
 child static records bind the runner source byte-for-byte.  The frozen DMTCP
-controller used by this campaign writes ``config_manifest_sha256`` in a
-``start.commit`` whereas the v1 runner only recognised the older
-``init_manifest_sha256`` spelling.  A process can therefore be fully live,
-bound, CPU-pinned, and resource-limited but lack the otherwise ordinary
+controller used by this campaign records the configuration binding through
+its ``start.claim`` (``init_manifest_sha256``) and links that claim from
+``start.commit``.  The v1 runner incorrectly expects the configuration hash
+directly in the commit.  A process can therefore be fully live, bound,
+CPU-pinned, and resource-limited but lack the otherwise ordinary
 ``state/11-session.json`` receipt.
 
 This sidecar never starts, resumes, checkpoints, kills, or deletes a child.
@@ -69,7 +70,7 @@ def _source_binding() -> dict[str, Any]:
 
 def _stable_live_start(
     root: Path, loaded: Mapping[str, Any], *, cpu: int,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], str]:
     """Return only an authenticated, still-live v1 generation-zero start."""
 
     target = child_runner._safe_root(root)
@@ -96,6 +97,10 @@ def _stable_live_start(
     active = child_runner.controller._active_commit(
         child_runner.controller._generation_dir(runtime, 0), 0,
     )
+    controller_claim = child_runner.controller.read_manifest(
+        child_runner.controller._generation_dir(runtime, 0) / "start.claim.json",
+        expected_kind="start.claim",
+    )
     pid = active.get("pid")
     ticks = active.get("proc_start_ticks")
     if (
@@ -108,12 +113,22 @@ def _stable_live_start(
         or generation.get("stale_tail_injected") is not False
         or active.get("kind") != "start.commit"
         or active.get("generation") != 0
-        or active.get("config_manifest_sha256") != config.get("self_sha256")
         or type(pid) is not int
         or pid <= 0
         or type(ticks) is not int
         or ticks < 0
     ):
+        raise LiveSessionCompatError("live start/config binding is malformed")
+    direct = active.get("config_manifest_sha256")
+    if direct == config.get("self_sha256"):
+        config_field = "config_manifest_sha256"
+    elif (
+        active.get("claim_sha256") == controller_claim.get("self_sha256")
+        and controller_claim.get("generation") == 0
+        and controller_claim.get("init_manifest_sha256") == config.get("self_sha256")
+    ):
+        config_field = "start.claim.init_manifest_sha256"
+    else:
         raise LiveSessionCompatError("live start/config binding is malformed")
     observation = recursive.observe_proc_cpu_seconds(pid)
     if (
@@ -121,12 +136,13 @@ def _stable_live_start(
         or observation.get("state") not in {"R", "D"}
     ):
         raise LiveSessionCompatError("live start PID identity changed")
-    return claim, config, active
+    return claim, config, active, controller_claim, config_field
 
 
 def _receipt_value(
     root: Path, loaded: Mapping[str, Any], *, claim: Mapping[str, Any],
-    config: Mapping[str, Any], active: Mapping[str, Any], session: Mapping[str, Any],
+    config: Mapping[str, Any], active: Mapping[str, Any], controller_claim: Mapping[str, Any],
+    config_field: str, session: Mapping[str, Any],
 ) -> dict[str, Any]:
     static = loaded["static"]
     return child_runner.seal(
@@ -140,8 +156,9 @@ def _receipt_value(
             "start_claim_sha256": claim["record_sha256"],
             "controller_config_sha256": config["self_sha256"],
             "controller_start_sha256": active["self_sha256"],
-            "controller_start_config_field": "config_manifest_sha256",
-            "controller_start_config_sha256": active["config_manifest_sha256"],
+            "controller_start_claim_sha256": controller_claim["self_sha256"],
+            "controller_start_config_field": config_field,
+            "controller_start_config_sha256": config["self_sha256"],
             "expected_single_cpu": claim["expected_single_cpu"],
             "session_sha256": session["record_sha256"],
             "source_binding": _source_binding(),
@@ -181,17 +198,23 @@ def seal_live_session(root: Path, *, cpu: int) -> dict[str, Any]:
             }
         if (target / child_runner.FINAL_COMMIT).exists() or (target / child_runner.TERMINAL_CLAIM).exists():
             raise LiveSessionCompatError("terminal child has no compatibility session")
-        claim, config, active = _stable_live_start(target, loaded, cpu=cpu)
+        claim, config, active, controller_claim, config_field = _stable_live_start(
+            target, loaded, cpu=cpu,
+        )
         pid = active["pid"]
         affinity = child_runner._verify_live_affinity(pid, cpu)
         limits = child_runner._verify_live_limits(pid, loaded["policy"]["proof_max_bytes"])
         # Re-read the controller after OS-level attestations.  This closes the
         # PID-exit/reuse window immediately before publication.
-        checked_claim, checked_config, checked_active = _stable_live_start(target, loaded, cpu=cpu)
+        checked_claim, checked_config, checked_active, checked_controller_claim, checked_config_field = (
+            _stable_live_start(target, loaded, cpu=cpu)
+        )
         if (
             checked_claim != claim
             or checked_config != config
             or checked_active != active
+            or checked_controller_claim != controller_claim
+            or checked_config_field != config_field
         ):
             raise LiveSessionCompatError("live start changed during compatibility attestation")
         session = child_runner._session_value(
@@ -200,7 +223,8 @@ def seal_live_session(root: Path, *, cpu: int) -> dict[str, Any]:
         )
         _publish_exact(target / child_runner.SESSION_COMMIT, session, label="session receipt")
         receipt = _receipt_value(
-            target, loaded, claim=claim, config=config, active=active, session=session,
+            target, loaded, claim=claim, config=config, active=active,
+            controller_claim=controller_claim, config_field=config_field, session=session,
         )
         _publish_exact(target / COMPAT_RECEIPT, receipt, label="compatibility receipt")
         return {
