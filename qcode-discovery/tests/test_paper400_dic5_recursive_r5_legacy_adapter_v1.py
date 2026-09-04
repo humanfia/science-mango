@@ -66,3 +66,17 @@ def test_r5_static_path_validation_is_exact(tmp_path: Path) -> None:
     static.write_text(text.replace("science-mango-r5", "science-mango-r4"), encoding="utf-8")
     with pytest.raises(adapter.R5LegacyAdapterError, match="exact r5"):
         adapter.validate_r5_static_root(root)
+
+
+def test_r5_checkpoint_recovery_wrapper_installs_context(monkeypatch: pytest.MonkeyPatch) -> None:
+    from scripts import paper400_dic5_recursive_checkpoint_recovery_r5_v1 as wrapper
+
+    observed: list[Path] = []
+
+    def fake_main(_argv: list[str] | None) -> int:
+        observed.append(supervisor.LEGACY_RUNNER)
+        return 0
+
+    monkeypatch.setattr(wrapper.recovery, "main", fake_main)
+    assert wrapper.main(["recover-receipt", "--bundle", "/tmp/bundle"]) == 0
+    assert observed == [adapter.R5_RUNNER]
