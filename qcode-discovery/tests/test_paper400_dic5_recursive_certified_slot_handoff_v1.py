@@ -54,7 +54,7 @@ def _patch_provider(monkeypatch: pytest.MonkeyPatch, primary: Path, bundle: Path
         "_load_catalog",
         lambda _control: {"leases": [{"cpu": cpu, "bundle": str(bundle), "state": "RESERVED"} for cpu in [1, 2, 3, 4]]},
     )
-    monkeypatch.setattr(handoff.supervisor, "_load_bundle", lambda _bundle, *, control_root: loaded)
+    monkeypatch.setattr(handoff.initial, "_load_immutable_components", lambda _bundle, *, control_root: loaded)
     monkeypatch.setattr(handoff, "_fixed_user_processes", lambda _cpus: [])
 
 
@@ -88,7 +88,7 @@ def test_reserve_rejects_claimed_or_noncertified_slot(tmp_path: Path, monkeypatc
         )
 
     _bundle, bad = _provider(tmp_path / "bad", states=["CLAIMED", "CERTIFIED", "PENDING", "CERTIFIED"])
-    monkeypatch.setattr(handoff.supervisor, "_load_bundle", lambda _bundle, *, control_root: bad)
+    monkeypatch.setattr(handoff.initial, "_load_immutable_components", lambda _bundle, *, control_root: bad)
     with pytest.raises(handoff.CertifiedSlotHandoffError, match="pending or failed"):
         handoff.reserve_handoff(
             primary_control_root=primary, handoff_root=root, consumer_control_root=consumer,
@@ -134,8 +134,8 @@ def test_release_requires_certified_consumer_aggregate(tmp_path: Path, monkeypat
         "queue": {"items": [{"state": "CERTIFIED"}, {"state": "CERTIFIED"}], "queue_sha256": "f" * 64},
     }
     monkeypatch.setattr(
-        handoff.supervisor,
-        "_load_bundle",
+        handoff.initial,
+        "_load_immutable_components",
         lambda path, *, control_root: consumer_loaded if Path(path) == consumer_bundle else provider,
     )
     result = handoff.release_handoff(

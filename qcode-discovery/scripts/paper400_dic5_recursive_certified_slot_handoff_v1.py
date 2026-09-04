@@ -43,6 +43,7 @@ if str(PROJECT) not in sys.path:
     sys.path.insert(0, str(PROJECT))
 
 from investigations import paper400_dic5_recursive_split_v1 as recursive
+from scripts import paper400_dic5_recursive_initial_batch_dispatch_v1 as initial
 from scripts import paper400_dic5_recursive_split_supervisor_v1 as supervisor
 
 
@@ -110,6 +111,7 @@ def _source_binding() -> dict[str, Any]:
     return {
         "method": "exact-source-sha256-replay-v1",
         "certified_slot_handoff": item(source),
+        "initial_batch_dispatch": item(Path(initial.__file__).resolve(strict=True)),
         "recursive_split": item(Path(recursive.__file__).resolve(strict=True)),
         "recursive_supervisor": item(Path(supervisor.__file__).resolve(strict=True)),
     }
@@ -287,7 +289,11 @@ def _provider_evidence(primary_control_root: Path, cpu: int) -> dict[str, Any]:
         raise CertifiedSlotHandoffError("donor CPU does not have exactly one active primary reservation")
     lease = matches[0]
     bundle = _normalized_absolute(lease["bundle"], label="primary bundle")
-    loaded = supervisor._load_bundle(bundle, control_root=primary_control_root)
+    # The normal supervisor loader intentionally binds the queue to its
+    # pristine hash.  A live initial-batch queue evolves after certification,
+    # so use the existing immutable-component replayer which verifies the
+    # same static evidence while allowing valid queue transitions.
+    loaded = initial._load_immutable_components(bundle, control_root=primary_control_root)
     if (bundle / PARENT_AGGREGATE).exists():
         raise CertifiedSlotHandoffError("completed parent aggregate is not a certified-slot donor")
     queue = loaded["queue"]
@@ -431,7 +437,7 @@ def release_handoff(
     root = _ensure_handoff_root(handoff_root)
     name = _safe_bundle_name(consumer_bundle_name)
     bundle = consumer / name
-    loaded = supervisor._load_bundle(bundle, control_root=consumer)
+    loaded = initial._load_immutable_components(bundle, control_root=consumer)
     queue = loaded["queue"]
     if any(item.get("state") != "CERTIFIED" for item in queue["items"]):
         raise CertifiedSlotHandoffError("consumer queue is not fully certified")
@@ -524,6 +530,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (CertifiedSlotHandoffError, recursive.RecursiveSplitError, supervisor.RecursiveSplitSupervisorError, OSError, ValueError, TypeError) as exc:
+    except (CertifiedSlotHandoffError, recursive.RecursiveSplitError, supervisor.RecursiveSplitSupervisorError,
+            initial.InitialBatchDispatchError, OSError, ValueError, TypeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         raise SystemExit(2)
