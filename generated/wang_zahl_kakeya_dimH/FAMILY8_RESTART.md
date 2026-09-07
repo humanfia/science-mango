@@ -78,6 +78,10 @@ lake build Family8Grounding.Family8PaperFullCanonicalGroundingV588
 lake build Family8Grounding
 ```
 
+The serial cold-chain validation on the restart machine completed V581 as
+12146/12146 jobs, V588 as 12162/12162 jobs, and the aggregate import root as
+12173/12173 jobs.
+
 Cached `.olean` files are not committed and are not evidence on a new machine.
 The V582--V588 edge was freshly checked on the restart machine with these exact
 module builds:
