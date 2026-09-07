@@ -105,6 +105,9 @@ import ArchonPhysicsConsumers.Thermalization.problem_lennard_jones_stopped_highe
 import ArchonPhysicsConsumers.Thermalization.problem_lennard_jones_higher_remainder_probability_upgrade
 import ArchonPhysicsConsumers.Thermalization.problem_lennard_jones_alpha_beta_flow_stability
 
+import ArchonPhysicsConsumers.Thermalization.problem_r32_canonical_supervolume_uniform_no_hit
+import ArchonPhysicsConsumers.Thermalization.problem_r32_frozen_full_certificate_no_go
+
 /-!
 # ArchonPhysics consumer acceptance suite
 
