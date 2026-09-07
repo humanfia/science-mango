@@ -1,0 +1,31 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV517
+import Family8Grounding.Family8DensityAwareShadingFrostmanRestrictionV3
+import Family8Grounding.Family8Family7CoordinateToVerticalSelectedSubtypeDensityV3
+import Family8Grounding.Family8RelevantDef212ThetaConflictDichotomyV1
+
+/-!
+# Full canonical grounding checkpoint V518
+
+This checkpoint adds the validated density-aware Frostman restriction and
+coordinate-density transports, together with the exact relevant-long-scale
+dichotomy between finite Definition 2.12 inputs and a literal doubled-parent
+conflict.  Failed predecessors remain outside the import graph.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV518
+
+open Family8DensityAwareShadingFrostmanRestrictionV3
+open Family8Family7CoordinateToVerticalSelectedSubtypeDensityV3
+open Family8RelevantDef212ThetaConflictDichotomyV1
+
+#print axioms isFrostmanOn_subset_of_density_shading_retention
+#print axioms coordinateToVertical_selectedCoarseFamily_familyVolume
+#print axioms coordinateToVertical_selectedCoarseShading_shadingMass
+#print axioms coordinateToVertical_selectedCoarseShading_shadingDensity
+#print axioms RelevantThetaDoubledParentConflict
+#print axioms exists_relevantDef212Inputs_or_thetaConflict
+
+end Family8PaperFullCanonicalGroundingV518

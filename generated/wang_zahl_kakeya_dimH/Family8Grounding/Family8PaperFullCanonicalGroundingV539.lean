@@ -1,0 +1,61 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV538
+import Family8Grounding.Family8QFreshNextActiveReadinessProducerV1
+import Family8Grounding.Family8GreedyFactorTwoLowFreshRetainedV2
+import Family8Grounding.Family8EndpointIdentityTauActiveSameCoreOccurrenceWeightedCordobaMassStrengthenedV1
+import Family8Grounding.Family8SelectedParentBlockDensityHighOccurrenceBundleV1
+import Family8Grounding.Family8SelectedParentBlockDensityJohnHullCancellationV1
+import Family8Grounding.Family8Prop51ExactRLocalKTResidualDichotomyV1
+
+/-!
+# Full canonical grounding interface checkpoint V539
+
+This additive source checkpoint collects six callback-free or explicitly
+callback-scoped public terminals developed after V538:
+
+* readiness for the literal restricted q-fresh successor atom;
+* the retained factor-two low witness and its fresh-cardinality endpoint;
+* the endpoint same-core mass-strengthened Cordoba wrapper;
+* the finite nonzero block-density Katz--Tao bundle on the same high
+  occurrence;
+* cancellation of that literal block density through the selected-parent
+  John hull; and
+* the exact-`R` Proposition 5.1 low/high residual routing.
+
+No internal payload, split implementation, compatibility shim, or base
+normalization module is imported directly.  This checkpoint remains an
+interface aggregation and does not claim an unconditional Family 8
+conclusion.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV539
+
+#print axioms
+  Family8QFreshNextActiveReadinessProducerV1.qFreshNextActiveReadiness
+
+#print axioms
+  Family8GreedyFactorTwoLowFreshRetainedV2.RetainedFactorTwoFreshLow
+#print axioms
+  Family8GreedyFactorTwoLowFreshRetainedV2.retainedFactorTwoFreshLow_or_actualHighOccurrencePrefix
+#print axioms
+  Family8GreedyFactorTwoLowFreshRetainedV2.eight_mul_fresh_cardScale_le_divEight_negativePower_of_retained_low
+
+#print axioms
+  Family8EndpointIdentityTauActiveSameCoreOccurrenceWeightedCordobaMassStrengthenedV1.EndpointIdentitySameCoreOccurrenceWeightedCordobaMassStrengthenedConclusion
+#print axioms
+  Family8EndpointIdentityTauActiveSameCoreOccurrenceWeightedCordobaMassStrengthenedV1.exists_endpointIdentity_source_lowCallback_or_sameCoreOccurrenceWeightedCordoba_massStrengthened
+
+#print axioms
+  Family8SelectedParentBlockDensityHighOccurrenceBundleV1.coreHighOccurrence_blockDensity_ne_zero_ne_top_and_isKatzTao
+
+#print axioms
+  Family8SelectedParentBlockDensityJohnHullCancellationV1.blockDensity_mul_selectedParentBucketNormalizedJohnContainer_volume_le
+
+#print axioms
+  Family8Prop51ExactRLocalKTResidualDichotomyV1.prop51SubselectedFineDensityFreeScale
+#print axioms
+  Family8Prop51ExactRLocalKTResidualDichotomyV1.prop51ExactR_localKTResidual_outerCoefficient_dichotomy
+
+end Family8PaperFullCanonicalGroundingV539

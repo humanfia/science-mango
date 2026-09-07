@@ -1,0 +1,35 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV511
+import Family8Grounding.Family8ShadingAwareDensityFloorGlobalPowerV1
+import Family8Grounding.Family8StickyShadingAwareSelectedSourcePowerBudgetsGlobalV2
+import Family8Grounding.Family8SectionEightBetaGammaCardScaleBridgeV3
+import Family8Grounding.Family8ThirdFactorBetaGammaMonotonicityV5
+import Family8Grounding.Family8Family7CriticalScaleAffineJacobianV4
+
+/-!
+# Full canonical grounding checkpoint V512
+
+Adds the same-parent source-density/base power producer, both general and
+lossless beta-to-gamma third-factor bridges, and the exact critical-scale
+affine Jacobian used by the native-high Frostman transport.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV512
+
+open Family8ShadingAwareDensityFloorGlobalPowerV1
+open Family8StickyShadingAwareSelectedSourcePowerBudgetsGlobalV2
+open Family8SectionEightBetaGammaCardScaleBridgeV3
+open Family8ThirdFactorBetaGammaMonotonicityV5
+open Family8Family7CriticalScaleAffineJacobianV4
+
+#print axioms densityRatio_of_densityFloor_and_globalPowerCaps
+#print axioms exists_shadingAwareSelected_sourceDensity_and_basePower
+#print axioms sectionEight_to_one_beta_eq_gap_mul_gamma
+#print axioms sectionEight_to_one_beta_le_power_mul_gamma
+#print axioms sectionEightThirdFactor_beta_le_gamma_of_sixthPower_card
+#print axioms criticalScaleLinearEquiv_det
+#print axioms affineJacobian_criticalScaleAffineEquiv
+
+end Family8PaperFullCanonicalGroundingV512

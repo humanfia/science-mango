@@ -1,0 +1,33 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV92
+import Family8Grounding.Family8CanonicalBufferedTauActiveFrozenOuterConflictCapV5
+import Family8Grounding.Family8CanonicalBufferedTauActiveFrozenOuterThirdFactorFixedConflictV1
+import Family8Grounding.Family8FullRefinementSourceTauParentFloorV3
+import Family8Grounding.Family8StickyActiveKatzTaoBoundedFrozenAssemblyScaleV2
+import Family8Grounding.Family8SelectedParentMassPopularProp66AInnerV4
+import Family8Grounding.Family8SelectedParentMassPopularProp66AEndpointV2
+import Family8Grounding.Family8SelectedParentMassPopularEq46CardBudgetV2
+import Family8Grounding.Family8StickyFiberContractedJohnNormalizedFreshClosedLossV1
+import Family8Grounding.Family8StickyFiberContractedJohnGlobalNormalizedFreshV1
+import Family8Grounding.Family8StickyFiberContractedJohnGlobalFrostmanConnectorV1
+import Family8Grounding.Family8StickyFiberSubtypeAverageBridgeV1
+import Family8Grounding.Family8ContractedJohnAffineJacobianLowerV3
+
+set_option autoImplicit false
+set_option warningAsError true
+
+/-!
+# Family 8 full canonical grounding checkpoint V95
+
+This additive import-only checkpoint combines every exact-clean module
+completed after V92: callback-free outer conflict control, quantitative
+source-to-tau mass floors, the scale-only bounded frozen assembly, the
+mass-popular Prop66A endpoint, the complete global-Katz--Tao to selected
+contracted-John Frostman connector, literal fibre-average reindexing, and
+the fixed `Cproxy <= 93312*C` John Jacobian bound.
+
+V93 and V94 are failed name-check drafts and are deliberately not imported.
+-/
+
+namespace Family8PaperFullCanonicalGroundingV95
+
+end Family8PaperFullCanonicalGroundingV95

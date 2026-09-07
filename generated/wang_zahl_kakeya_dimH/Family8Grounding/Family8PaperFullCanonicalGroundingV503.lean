@@ -1,0 +1,30 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV502
+import Family8Grounding.Family8SelectedFineEndpointCountComparisonV1
+import Family8Grounding.Family8NormalizedLongCoreDoubledFiberCountLossPowerV1
+import Family8Grounding.Family8StickySelectedFiberLowCFFreshRetentionProducerV2
+import Family8Grounding.Family8Family7GenericNativeHighActivePatternSourceSubsetV3
+
+/-!
+# Full canonical grounding checkpoint V503
+
+Adds the literal endpoint count comparison and its uniform count-loss power,
+the fresh low-CF retention producer, and the active-pattern source containment
+needed to derive finite first-hit weights on the native-high branch.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV503
+
+open Family8SelectedFineEndpointCountComparisonV1
+open Family8NormalizedLongCoreDoubledFiberCountLossPowerV1
+open Family8StickySelectedFiberLowCFFreshRetentionProducerV2
+open Family8Family7GenericNativeHighActivePatternSourceSubsetV3
+
+#print axioms selectedFine_endpoint_countComparison
+#print axioms canonicalBuffered_doubledFiberCountLoss_le_power
+#print axioms exists_lowCF_fresh_selected_cardEnvelope_retention
+#print axioms genericNativeHighActivePatternSource_subset_highBase
+
+end Family8PaperFullCanonicalGroundingV503

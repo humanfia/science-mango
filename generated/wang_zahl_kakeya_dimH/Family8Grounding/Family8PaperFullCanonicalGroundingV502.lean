@@ -1,0 +1,30 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV501
+import Family8Grounding.Family8EndpointLongCoreSameAssemblyIdentityTripleV4
+import Family8Grounding.Family8EndpointLongCoreIdentityIntervalCountsV3
+import Family8Grounding.Family8StickySelectedFiberLowCFStrictMiddleV2
+
+/-!
+# Full canonical grounding checkpoint V502
+
+Adds three exact long-core integration seams: the identity-first same-assembly
+triple on the original datum, endpoint interval cardinality identities, and
+the low-CF strict middle estimate with literal selected-cardinality.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV502
+
+open Family8EndpointLongCoreSameAssemblyIdentityTripleV4
+open Family8EndpointLongCoreIdentityIntervalCountsV3
+open Family8StickySelectedFiberLowCFStrictMiddleV2
+
+#print axioms
+  actualDatum_averageMultiplicity_le_identityFirst_middle_third
+#print axioms endpointLongCore_tauActiveCover_coarseCard_eq_indexCard
+#print axioms endpointLongCore_activeFineRestricted_coarseCard_eq_indexCard
+#print axioms
+  four_mul_selectedFiberSourceAverage_le_strictMiddle
+
+end Family8PaperFullCanonicalGroundingV502

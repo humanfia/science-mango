@@ -1,0 +1,30 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV553
+import Family8Grounding.Family8SelectedOccurrenceFineAllRFrostmanV1
+import Family8Grounding.Family8SelectedOccurrenceFrozenFinalFiberBlockAverageBridgeV1
+import Family8Grounding.Family8EndpointIdentitySameQProp66CollapsedLossAwareDSOBridgeV1
+
+/-!
+# Full canonical grounding interface checkpoint V554
+
+The full selected-occurrence fine union now has a compiled normalized
+Frostman theorem from source Katz--Tao control and the literal per-block mass
+floor, without canonical-cover or retained-fine-bucket assumptions.  The
+polylogarithmic frozen exact-outer assembly's actual final fibre is reindexed
+at its same selected occurrence with exact average multiplicity, and the
+endpoint same-q terminal accepts the unavoidable external selection/assembly
+loss linearly and exactly once, separately from the count loss exponent.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV554
+
+#print axioms
+  Family8SelectedOccurrenceFineAllRFrostmanV1.selectedOccurrenceFine_isFrostmanOn_of_sourceKatzTao_and_blockMass_lower
+#print axioms
+  Family8SelectedOccurrenceFrozenFinalFiberBlockAverageBridgeV1.selectedOccurrenceFrozenFinalFiberBlockShading_averageMultiplicity_eq
+#print axioms
+  Family8EndpointIdentitySameQProp66CollapsedLossAwareDSOBridgeV1.dividingScaleOutput_of_endpointIdentity_sameQ_lossAware_prop66A_product
+
+end Family8PaperFullCanonicalGroundingV554

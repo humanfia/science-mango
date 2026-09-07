@@ -1,0 +1,52 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV578
+import Family8Grounding.Family8FiniteRandomRigidMotionRelativeCanonicalCardAutomaticCopyCountV1
+import Family8Grounding.Family8FiniteRigidMotionNormalizedBodyLoadCapScaleOnlyV1
+import Family8Grounding.Family8FiniteRigidMotionB2SourceNormalizedSupportV1
+import Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyProductLawV1
+import Family8Grounding.Family8FiniteRigidMotionOrthogonalScaleOnlyCatalogueScaleV1
+import Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationConflictMeanV1
+import Family8Grounding.Family8WinnerSideJointBucketLargeBWeightedOverlapJointScalarReductionV1
+
+/-!
+# Full canonical grounding interface checkpoint V579
+
+This checkpoint records the verified inputs now available for the two remaining
+Family 8 seams.
+
+On the Family 7 side, the raw scale-only rigid-motion law supplies the John/CWA
+product mean, the catalogue repetition count and its rounding inequality are
+automatic, the Katz--Tao point-load cap no longer assumes admissibility, and
+the original B2 support hypothesis is transported through the chosen rigid
+motion.  The admissible version of the elongated-conflict mean has also been
+verified independently.  A scale-only port of that conflict mean and the
+single-choice two-family selector are still required.
+
+On the large-width side, the chosen-witness scalar budget has been factored
+into the exact inner estimate and the outer weighted-overlap payment.  This is
+only the deterministic scalar reduction: the labelled-slab analytic estimate
+must still produce the cross-multiplied outer payment.
+
+No Family 8 closure is claimed here.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV579
+
+#print axioms
+  Family8FiniteRandomRigidMotionRelativeCanonicalCardAutomaticCopyCountV1.exists_copyCount_and_relativeCanonicalCard_scalarThreshold
+#print axioms
+  Family8FiniteRigidMotionNormalizedBodyLoadCapScaleOnlyV1.normalizedOrthogonalTranslationBodyLoadNat_mul_halfSq_le
+#print axioms
+  Family8FiniteRigidMotionB2SourceNormalizedSupportV1.eighthNormalized_orthogonalTranslation_carrier_subset_unitBall_of_B2
+#print axioms
+  Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyProductLawV1.sum_scaleOnlyFixedJohnOrthogonalTranslationBodyLoadNat_mul_motionBallVolume_le
+#print axioms
+  Family8FiniteRigidMotionOrthogonalScaleOnlyCatalogueScaleV1.scaleOnlyOrthogonalCatalogueScale_rounding
+#print axioms
+  Family8FiniteRigidMotionOrthogonalTranslationConflictMeanV1.sum_normalizedOrthogonalTranslationElongatedBodyLoad_scaleFour_le
+#print axioms
+  Family8WinnerSideJointBucketLargeBWeightedOverlapJointScalarReductionV1.winnerSideLargeBWeightedOverlapJointBudgetAt_of_innerScale_and_outerPayment
+
+end Family8PaperFullCanonicalGroundingV579

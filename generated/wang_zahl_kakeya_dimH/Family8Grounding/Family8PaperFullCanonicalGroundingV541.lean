@@ -1,0 +1,57 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV539
+import Family8Grounding.Family8EndpointIdentityTauActiveFreshRetainedCardScaleV1
+import Family8Grounding.Family8Prop51ExactRSameQResidualBridgeV1
+import Family8Grounding.Family8ConflictRetainedPositiveFineLevelWitnessV1
+import Family8Grounding.Family8Prop51ConflictRetainedSameQCardBridgeV1
+import Family8Grounding.Family8Prop66InnerScaleMismatchAbsorptionV1
+import Family8Grounding.Family8GreedyFactorTwoLowFreshCardLowerRetainedV1
+import Family8Grounding.Family8Prop51ExactRDensityFreeJohnCancellationV1
+
+/-!
+# Full canonical grounding interface checkpoint V541
+
+This additive checkpoint extends the exact V539 object with the endpoint
+tau-active fresh-card estimate and the same-`R`/same-`q` residual interfaces
+recorded by V540.  It also retains the literal lower cardinality comparison
+from the one-shot low fresh selector, yielding a same-selected-fresh
+mass-to-card-scale lower-bound interface, and records the density-free John
+cancellation for the exact Proposition 5.1 subset.
+
+This remains an interface checkpoint.  It does not assert that the remaining
+low-branch exponent premises or the high-branch label transport have been
+discharged, and it does not claim an unconditional Family 8 conclusion.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV541
+
+#print axioms
+  Family8EndpointIdentityTauActiveFreshRetainedCardScaleV1.endpointIdentity_tauActive_eight_mul_freshCardScale_le
+
+#print axioms
+  Family8Prop51ExactRSameQResidualBridgeV1.prop51ExactR_sameQ_blockDensity_localKTResidual_dichotomy
+#print axioms
+  Family8ConflictRetainedPositiveFineLevelWitnessV1.exists_conflictRetainedPositiveFineLevelWitness_of_fullMass
+#print axioms
+  Family8Prop51ConflictRetainedSameQCardBridgeV1.conflictRetained_card_mul_sameQ_fiberCard_le_two_mul_active
+
+#print axioms
+  Family8Prop66InnerScaleMismatchAbsorptionV1.proposition66AOuterFactor_mul_innerFactor_le_innerScaleMismatch_countLoss_mul_frostmanFactor
+
+#print axioms
+  Family8GreedyFactorTwoLowFreshCardLowerRetainedV1.RetainedFactorTwoFreshLowWithCardLower
+#print axioms
+  Family8GreedyFactorTwoLowFreshCardLowerRetainedV1.retainedFactorTwoFreshLowWithCardLower_of_lowRestriction
+#print axioms
+  Family8GreedyFactorTwoLowFreshCardLowerRetainedV1.sourceMass_le_sixteen_freshLoss_mul_freshCardScale
+#print axioms
+  Family8GreedyFactorTwoLowFreshCardLowerRetainedV1.freshCardScale_powerLower_of_sourceMass_and_freshLoss
+
+#print axioms
+  Family8Prop51ExactRDensityFreeJohnCancellationV1.prop51SubselectedFineDensityFreeScale_le_jacobian_mul_johnFactor
+#print axioms
+  Family8Prop51ExactRDensityFreeJohnCancellationV1.selectedParent_prop51SubselectedFineDensityFreeScale_le
+
+end Family8PaperFullCanonicalGroundingV541

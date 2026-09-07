@@ -1,0 +1,189 @@
+import Family8Grounding.Family8FiniteTestSimultaneousZeroColorExtractionV1
+
+open scoped ENNReal NNReal BigOperators
+open MeasureTheory Set
+
+namespace Family8FiniteTestSimultaneousZeroColorCanonicalResidualV1
+
+open LeanEval.Analysis.WangZahlKakeya
+open Submission.Kakeya.ConvexGeometry
+open Submission.Kakeya.ConvexFactoring
+open Submission.Kakeya.Uniformity
+open Family8GeneralizedKatzTaoMultiplicityV1
+open Family8FiniteTestSimultaneousZeroColorExtractionV1
+open FamilyStickyCinematicL32Prop41FiniteRandomSamplingExtractionV1
+open FamilyStickyHierarchyFiniteHullAllConvexAdapterV1
+
+noncomputable section
+
+set_option autoImplicit false
+set_option warningAsError true
+set_option linter.unusedSectionVars false
+
+/-!
+# Concrete zero-colour extraction and the canonical-hull residual
+
+This file feeds the exact zero-colour first moments into the simultaneous
+finite-test selector.  It then uses the pre-sampling canonical hull catalogue
+to produce genuine all-convex Katz--Tao control on the selected active
+indices.  The hypothesis called room below is a numerical inequality, not a
+good-subfamily or concentration callback.
+
+The last theorem records the catalogue-size obstruction honestly: the exact
+catalogue has at most 2^(# family) tests.  Thus the elementary first-moment
+selector is a real extraction theorem, but is not by itself the polynomial
+generalized Katz--Tao argument.
+-/
+
+/-- One literal zero-colour sample simultaneously retains an arbitrary
+nonnegative weight, has controlled cardinality, and has controlled contained
+mass in every member of an arbitrary finite test family. -/
+theorem exists_zeroColorSample_with_simultaneous_finiteTest_caps
+    {iota test : Type} [Fintype iota] [DecidableEq iota]
+    [Fintype test] [DecidableEq test]
+    (F : ConvexFamily iota) (tests : Finset test)
+    (testBody : test → ConvexBody Space)
+    (k : Nat) [NeZero k] (weight : iota → Real)
+    (valuePenalty retainedTarget cardinalThreshold : Real)
+    (testThreshold : test → Real)
+    (hweight : ∀ i, 0 ≤ weight i)
+    (hretainedTarget : 0 ≤ retainedTarget)
+    (hcardinalThreshold : 0 < cardinalThreshold)
+    (htestThreshold : ∀ q ∈ tests, 0 < testThreshold q)
+    (hvaluePenalty : (∑ i : iota, weight i) < valuePenalty)
+    (hroom :
+      retainedTarget ≤
+        (∑ i : iota, weight i) / (k : Real) -
+          valuePenalty *
+            (((Fintype.card iota : Real) / (k : Real)) /
+                cardinalThreshold +
+              ∑ q ∈ tests,
+                ((containedMass F (testBody q)).toReal / (k : Real)) /
+                  testThreshold q)) :
+    ∃ omega : iota → Fin k,
+      retainedTarget ≤ zeroColorSampleRealWeight k weight omega ∧
+        ((zeroColorSample k omega).card : Real) ≤ cardinalThreshold ∧
+          ∀ q ∈ tests,
+            (containedMassOn F (zeroColorSample k omega)
+              (testBody q)).toReal ≤ testThreshold q := by
+  classical
+  apply exists_finiteTest_simultaneous_of_expectation_room
+    tests
+    (zeroColorSampleRealWeight k weight)
+    (fun omega => ((zeroColorSample k omega).card : Real))
+    (fun q omega =>
+      (containedMassOn F (zeroColorSample k omega) (testBody q)).toReal)
+    (∑ i : iota, weight i) valuePenalty retainedTarget cardinalThreshold
+    testThreshold
+  · exact Finset.sum_nonneg fun i _hi => hweight i
+  · intro omega
+    unfold zeroColorSampleRealWeight
+    exact Finset.sum_le_sum_of_subset_of_nonneg
+      (Finset.subset_univ _) (fun i _hi _hnot => hweight i)
+  · intro omega
+    exact Nat.cast_nonneg _
+  · intro q omega
+    exact ENNReal.toReal_nonneg
+  · exact hretainedTarget
+  · exact hcardinalThreshold
+  · exact htestThreshold
+  · exact hvaluePenalty
+  · simpa only [expect_zeroColorSample_realWeight,
+      expect_zeroColorSample_card,
+      expect_zeroColorSample_containedMassOn_toReal] using hroom
+
+/-- The exact canonical-hull test count is bounded by the powerset count.
+This is the source of the exponential residual in a first-moment union bound. -/
+theorem sum_canonicalHullTests_le_two_pow_mul
+    {iota : Type} [Fintype iota] [DecidableEq iota]
+    (F : ConvexFamily iota)
+    (g : Fin (Fintype.card (CanonicalHullTests.Index F)) → Real)
+    (perTest : Real) (hperTest : 0 ≤ perTest)
+    (hg : ∀ q, g q ≤ perTest) :
+    (∑ q, g q) ≤
+      ((2 ^ Fintype.card iota : Nat) : Real) * perTest := by
+  calc
+    (∑ q, g q) ≤ ∑ _q : Fin (Fintype.card
+        (CanonicalHullTests.Index F)), perTest := by
+          exact Finset.sum_le_sum fun q _hq => hg q
+    _ = (Fintype.card (CanonicalHullTests.Index F) : Real) *
+        perTest := by simp
+    _ ≤ ((2 ^ Fintype.card iota : Nat) : Real) * perTest := by
+      apply mul_le_mul_of_nonneg_right _ hperTest
+      exact_mod_cast CanonicalHullTests.card_index_le_two_pow F
+
+/-- A genuine canonical-catalogue consequence of zero-colour sampling.
+
+The conclusion is the actual active-family predicate IsKatzTaoOn.  The only
+extra premise is the displayed numerical room inequality generated by the
+finite first moments.  Its sum ranges over the fixed original hull catalogue,
+so there is no post-selection test family hidden in the statement. -/
+theorem exists_zeroColorSample_canonicalHull_isKatzTaoOn
+    {iota : Type} [Fintype iota] [DecidableEq iota]
+    (F : ConvexFamily iota)
+    (k : Nat) [NeZero k] (weight : iota → Real)
+    (A : ENNReal) (hA : A ≠ ∞)
+    (valuePenalty retainedTarget cardinalThreshold : Real)
+    (hweight : ∀ i, 0 ≤ weight i)
+    (hretainedTarget : 0 ≤ retainedTarget)
+    (hcardinalThreshold : 0 < cardinalThreshold)
+    (htestThreshold :
+      ∀ q : Fin (Fintype.card (CanonicalHullTests.Index F)),
+        0 < (A * volume
+          (CanonicalHullTests.body F q : Set Space)).toReal)
+    (hvaluePenalty : (∑ i : iota, weight i) < valuePenalty)
+    (hroom :
+      retainedTarget ≤
+        (∑ i : iota, weight i) / (k : Real) -
+          valuePenalty *
+            (((Fintype.card iota : Real) / (k : Real)) /
+                cardinalThreshold +
+              ∑ q : Fin (Fintype.card
+                  (CanonicalHullTests.Index F)),
+                ((containedMass F
+                    (CanonicalHullTests.body F q)).toReal / (k : Real)) /
+                  (A * volume
+                    (CanonicalHullTests.body F q : Set Space)).toReal)) :
+    ∃ omega : iota → Fin k,
+      retainedTarget ≤ zeroColorSampleRealWeight k weight omega ∧
+        ((zeroColorSample k omega).card : Real) ≤ cardinalThreshold ∧
+          IsKatzTaoOn A F (zeroColorSample k omega) := by
+  classical
+  obtain ⟨omega, hretained, hcard, htests⟩ :=
+    exists_zeroColorSample_with_simultaneous_finiteTest_caps
+      F (Finset.univ : Finset
+        (Fin (Fintype.card (CanonicalHullTests.Index F))))
+      (CanonicalHullTests.body F) k weight valuePenalty retainedTarget
+      cardinalThreshold
+      (fun q => (A * volume
+        (CanonicalHullTests.body F q : Set Space)).toReal)
+      hweight hretainedTarget hcardinalThreshold
+      (fun q _hq => htestThreshold q) hvaluePenalty (by
+        simpa using hroom)
+  refine ⟨omega, hretained, hcard,
+    isKatzTaoOn_of_canonicalHullTests F
+      (zeroColorSample k omega) A ?_⟩
+  intro q
+  have hreal := htests q (Finset.mem_univ q)
+  have hleftTop :
+      containedMassOn F (zeroColorSample k omega)
+        (CanonicalHullTests.body F q) ≠ ∞ := by
+    have hallTop : containedMassOn F Finset.univ
+        (CanonicalHullTests.body F q) < ∞ := by
+      simpa using containedMass_lt_top F (CanonicalHullTests.body F q)
+    exact ((containedMassOn_mono
+      (Finset.subset_univ (zeroColorSample k omega))
+      (CanonicalHullTests.body F q)).trans_lt hallTop).ne
+  have hrightTop :
+      A * volume (CanonicalHullTests.body F q : Set Space) ≠ ∞ :=
+    ENNReal.mul_ne_top hA
+      (CanonicalHullTests.body F q).isCompact.measure_lt_top.ne
+  exact (ENNReal.toReal_le_toReal hleftTop hrightTop).mp hreal
+
+#print axioms exists_zeroColorSample_with_simultaneous_finiteTest_caps
+#print axioms sum_canonicalHullTests_le_two_pow_mul
+#print axioms exists_zeroColorSample_canonicalHull_isKatzTaoOn
+
+end
+
+end Family8FiniteTestSimultaneousZeroColorCanonicalResidualV1

@@ -1,0 +1,20 @@
+import Family8Grounding.Family8Def212ConvexWolffAtEveryScaleV2
+import Family8Grounding.Family8FiniteRandomRigidMotionPaperConflictOverlapLowerV1
+import Family8Grounding.Family8FiniteRandomRigidMotionPaperTransverseCoordinateAngleV1
+import Family8Grounding.Family8FiniteRandomRigidMotionPaperCommonPointElongatedBudgetV1
+import Family8Grounding.Family8FiniteRandomRigidMotionPaperConflictAngleAlgebraV1
+import Family8Grounding.Family8FiniteRandomRigidMotionPaperTubeSlabGeometryV1
+import Family8Grounding.Family8FiniteRandomRigidMotionPaperTubeOverlapUpperV1
+import Family8Grounding.Family8FiniteRandomRigidMotionPaperConflictToElongatedViaAngleV1
+import Family8Grounding.Family8FiniteRandomRigidMotionPaperElongatedCandidateGridV1
+import Family8Grounding.Family8FiniteRandomRigidMotionPaperAutomaticElongatedConflictV2
+
+/-!
+# Canonical paper-strength Family 8 grounding bundle
+
+This acyclic subaggregate freezes the exact clean dependency chain for the
+paper-strength elongated conflict producer together with the frozen
+Definition 2.12 interface.  In particular, it imports only the V2 endpoints:
+no stale automatic-conflict V1 module and no scratch module is part of the
+canonical bundle.
+-/

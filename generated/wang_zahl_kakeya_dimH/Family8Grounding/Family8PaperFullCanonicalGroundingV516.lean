@@ -1,0 +1,33 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV514
+import Family8Grounding.Family8OutputEtaCanonicalQuantumFourthScaleBudgetV1
+import Family8Grounding.Family8CoreNativeFrozenThirdBundleBetaGammaNoLossV3
+import Family8Grounding.Family8EndpointLongCoreSixteenthRadiusThresholdV1
+import Family8Grounding.Family8Family7GenericNativeHighMaxWeightCeilingCardRetentionV3
+
+/-!
+# Full canonical grounding checkpoint V516
+
+V515 used the wrong fully-qualified name in one `#print` command and is not
+imported.  This successor aggregates exactly the same independently validated
+modules while auditing the declaration in its actual successor namespace.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV516
+
+open Family8OutputEtaCanonicalQuantumFourthScaleBudgetV1
+open Family8CoreNativeFrozenThirdBundleBetaGammaNoLossV3
+open Family8EndpointLongCoreSixteenthRadiusThresholdV1
+open Family8Family7GenericNativeHighMaxWeightCeilingCardRetentionV3
+
+#print axioms outputEta_add_canonicalQuantum_le_four_epsilon_one_sub
+#print axioms
+  Family8CoreNativeFrozenThirdBundleBetaGammaNoLossV3.CoreNativeFrozenThirdBundle.toGammaOfFourthCardScale
+#print axioms endpointLongCoreSixteenthRadiusThreshold_pos
+#print axioms canonicalBufferedRadius_le_sixteenth_of_endpointSmall
+#print axioms
+  genericNativeHighActivePatternMaxWeight_familyCard_le_ceilingRatio
+
+end Family8PaperFullCanonicalGroundingV516

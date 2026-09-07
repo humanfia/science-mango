@@ -1,0 +1,20 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV507
+import Family8Grounding.Family8Family7LowerBucketMaxWeightCriticalBallShadingMassV2
+
+/-!
+# Full canonical grounding checkpoint V508
+
+Adds the honest LowerBucket Tonelli realization of the same maximal-weight
+critical ball as a literal three-dimensional shading-mass estimate.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV508
+
+open Family8Family7LowerBucketMaxWeightCriticalBallShadingMassV2
+
+#print axioms fibreFloor_mul_activePatternSource_le_familyCard_mul_maxWeightCriticalBallShadingMass
+
+end Family8PaperFullCanonicalGroundingV508

@@ -1,0 +1,27 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV505
+import Family8Grounding.Family8EndpointLongCoreSelectedFineCountPowerBundleV3
+import Family8Grounding.Family8ContractedJohnMiddleFourGlobalPowerAbsorptionV2
+import Family8Grounding.Family8Family7GenericNativeHighActivePatternSourceFiniteV3
+
+/-!
+# Full canonical grounding checkpoint V506
+
+Adds the same-witness endpoint count/power bundle, the literal factor-four
+global middle absorption, and automatic finiteness of each native-high
+active-pattern source from finite generic source mass.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV506
+
+open Family8EndpointLongCoreSelectedFineCountPowerBundleV3
+open Family8ContractedJohnMiddleFourGlobalPowerAbsorptionV2
+open Family8Family7GenericNativeHighActivePatternSourceFiniteV3
+
+#print axioms endpointLongCore_selectedFine_countComparison_and_power
+#print axioms four_mul_fixed_mul_ratioGain_le_globalTenEta
+#print axioms genericNativeHighActivePatternSource_ne_top_of_sourceMass_ne_top
+
+end Family8PaperFullCanonicalGroundingV506

@@ -25,3 +25,12 @@ modules under `Submission/`.
 
 `lake test` runs comparator for this problem. The command expects a comparator
 binary in `PATH`, or in the `COMPARATOR_BIN` environment variable.
+
+## Family 8 restart checkpoint
+
+The current in-progress Family 8 formalization is saved on the branch
+`codex/family8-v581-restart` in
+[`humanfia/science-mango`](https://github.com/humanfia/science-mango).
+It is a restart checkpoint, not a claim that Family 8 or `mainLemmaOne` is
+closed.  See [FAMILY8_RESTART.md](FAMILY8_RESTART.md) before continuing the
+proof on another machine.

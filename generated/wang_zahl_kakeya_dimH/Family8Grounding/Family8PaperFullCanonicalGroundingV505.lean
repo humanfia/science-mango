@@ -1,0 +1,24 @@
+import Family8Grounding.Family8PaperFullCanonicalGroundingV504
+import Family8Grounding.Family8StickySelectedFiberLowCFPowerStrictMiddleV2
+import Family8Grounding.Family8WeightedCanonicalCriticalScaleProxyAverageV2
+
+/-!
+# Full canonical grounding checkpoint V505
+
+Adds the source-power wrapper for the literal selected low-CF strict-middle
+estimate and affine invariance of average multiplicity for an arbitrary
+weighted canonical critical-ball proxy.
+-/
+
+set_option autoImplicit false
+set_option warningAsError true
+
+namespace Family8PaperFullCanonicalGroundingV505
+
+open Family8StickySelectedFiberLowCFPowerStrictMiddleV2
+open Family8WeightedCanonicalCriticalScaleProxyAverageV2
+
+#print axioms four_mul_selectedFiberSourceAverage_le_strictMiddle_of_sourcePowers
+#print axioms weightedCanonicalCriticalScaleProxyShading_averageMultiplicity
+
+end Family8PaperFullCanonicalGroundingV505
