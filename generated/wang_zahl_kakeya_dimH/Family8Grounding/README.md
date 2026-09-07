@@ -15,16 +15,16 @@ closed**.  The aggregate deliberately exposes the proved components and the
 remaining geometric seams; it does not replace the endpoint by a callback or
 an axiom.
 
-## Current restart checkpoint: V581
+## Current restart checkpoint: V588
 
 `Family8Grounding.lean` now imports
-`Family8PaperFullCanonicalGroundingV581.lean`.  The committed source closure,
-fresh-clone commands, verified boundary, unintegrated drafts, and the two
+`Family8PaperFullCanonicalGroundingV588.lean`.  The committed source closure,
+fresh-clone commands, verified boundary, remaining seams, and the two
 remaining proof lanes are recorded in
 [`../FAMILY8_RESTART.md`](../FAMILY8_RESTART.md).  That file is the
 authoritative recovery guide for this branch.
 
-V581 is an additive, exact-green integration checkpoint; it is **not** a proof
+V588 is an additive, exact-green integration checkpoint; it is **not** a proof
 of `mainLemmaOne`.  In particular, the Family 7/small-`b` and labelled-slab/
 large-`b` producer lanes described in the recovery guide remain open.
 

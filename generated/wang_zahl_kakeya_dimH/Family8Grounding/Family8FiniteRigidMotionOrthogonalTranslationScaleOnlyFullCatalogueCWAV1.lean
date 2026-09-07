@@ -19,11 +19,17 @@ open Submission.Kakeya.ConvexGeometry
 open Submission.Kakeya.ConvexFactoring
 open Submission.Kakeya.Uniformity
 open Family8Def212ConvexWolffAtEveryScaleV2
+open Family8KatzTaoFrostmanPropertiesV1
+open Family8GeneralizedFrostmanMultiplicityV1
 open Family8FiniteRandomRigidMotionB2NormalizationCoreV1
 open Family8FiniteRandomRigidMotionB2NormalizedDatumV1
 open Family8FiniteRandomRigidMotionPaperFixedJohnConflictGridV4
 open Family8FiniteRigidMotionB2SourceNormalizedSupportV1
 open Family8FiniteRigidMotionOrthogonalHaarV4
+open Family8FiniteRigidMotionOrthogonalHundredCatalogueV2
+open Family8FiniteRigidMotionOrthogonalNormalizedChoiceV3
+open Family8FiniteRigidMotionOrthogonalTranslationV2
+open Family8FiniteRigidMotionOrthogonalTranslationCWAProductMeanV1
 open Family8FiniteRigidMotionScaleOnlyElongatedConflictProjectionV1
 open Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyProductLawV1
 open Family8FiniteRigidMotionOrthogonalScaleOnlyCatalogueScaleV1
@@ -96,7 +102,9 @@ theorem fullNormalizedCopied_satisfiesConvexWolffAxioms_of_scaleOnlyJohnTail
   let B : ENNReal := ENNReal.ofReal AJohn * C / lower
   have hlower0 : lower ≠ 0 := by
     dsimp only [lower, scaleOnlyJointHalfSq]
-    positivity
+    apply ENNReal.div_ne_zero.mpr
+    exact ⟨pow_ne_zero 2 (ENNReal.coe_ne_zero.mpr
+      (div_pos hdelta (by norm_num)).ne'), by norm_num⟩
   have hfullCardTop : fullCard ≠ ∞ := by
     dsimp only [fullCard]
     exact ENNReal.coe_ne_top
@@ -125,12 +133,20 @@ theorem fullNormalizedCopied_satisfiesConvexWolffAxioms_of_scaleOnlyJohnTail
     (scaleOnlyNormalizedRadiusPos hdelta) normalized.family.tubes hunit
       (B / fullCard)
   intro q
+  change
+    ((containedIndices normalized.family.bodyFamily
+      (representativeTestBody (delta / 8)
+        (scaleOnlyNormalizedRadiusPos hdelta) q)).card : ENNReal) ≤
+      (B / fullCard) *
+        volume (representativeTestBody (delta / 8)
+          (scaleOnlyNormalizedRadiusPos hdelta) q : Set Space) * fullCard
   by_cases hfullCard0 : fullCard = 0
   · have hcard :
         ((containedIndices normalized.family.bodyFamily
           (representativeTestBody (delta / 8)
             (scaleOnlyNormalizedRadiusPos hdelta) q)).card : ENNReal) ≤
           fullCard := by
+      dsimp only [fullCard]
       exact_mod_cast Finset.card_le_univ
         (containedIndices normalized.family.bodyFamily
           (representativeTestBody (delta / 8)

@@ -6,8 +6,14 @@ Repository: `https://github.com/humanfia/science-mango`
 
 Checkpoint branch: `codex/family8-v581-restart`
 
+Recovery document:
+`https://github.com/humanfia/science-mango/blob/codex/family8-v581-restart/generated/wang_zahl_kakeya_dimH/FAMILY8_RESTART.md`
+
+Checkpoint branch URL:
+`https://github.com/humanfia/science-mango/tree/codex/family8-v581-restart`
+
 This branch deliberately records an in-progress proof.  The aggregate target
-`Family8Grounding` currently imports checkpoint V581, but V581 is not the
+`Family8Grounding` currently imports checkpoint V588, but V588 is not the
 mathematical completion criterion.
 
 ## Clone and reproduce the checkpoint
@@ -21,7 +27,7 @@ cd science-mango/generated/wang_zahl_kakeya_dimH
 lake update
 
 # Recheck the last integrated checkpoint and its aggregate import root.
-lake build Family8Grounding.Family8PaperFullCanonicalGroundingV581
+lake build Family8Grounding.Family8PaperFullCanonicalGroundingV588
 lake build Family8Grounding
 ```
 
@@ -60,25 +66,40 @@ Both remaining analytic branches must ultimately construct
 `Family8EndpointIdentitySameCoreHighLossAwareEq32IntegrationV1.lean`.  A green
 checkpoint import alone does not establish this theorem.
 
-## Last integrated checkpoint: V581
+## Last integrated checkpoint: V588
 
 `Family8Grounding.lean` imports
-`Family8Grounding.Family8PaperFullCanonicalGroundingV581`.
+`Family8Grounding.Family8PaperFullCanonicalGroundingV588`.
 
-Before this snapshot, the following exact builds succeeded in the original
-workspace:
+Reproduce the checkpoint and aggregate from a fresh clone with:
 
 ```bash
-lake build Family8Grounding.Family8PaperFullCanonicalGroundingV581
+lake build Family8Grounding.Family8PaperFullCanonicalGroundingV588
 lake build Family8Grounding
 ```
 
-The build contained 12,157 jobs.  The V581 terminal declarations printed only
-the standard dependencies `propext`, `Classical.choice`, and `Quot.sound`.
-Re-run the commands after cloning; cached `.olean` files are not committed and
-are not evidence on the new machine.
+Cached `.olean` files are not committed and are not evidence on a new machine.
+The V582--V588 edge was freshly checked on the restart machine with these exact
+module builds:
 
-V581 integrates these latest verified links:
+```bash
+lake build Family8Grounding.Family8FiniteRigidMotionScaleOnlyElongatedConflictProjectionV1
+lake build Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyJointSelectorV1
+lake build Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyFullCatalogueCWAV1
+lake build Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyRefinementCWAV1
+lake build Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyFrostmanCWAV1
+lake build Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyTailNumericsV1
+lake build Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyAutomaticCopyFrostmanCWAV1
+lake build Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyAutomaticCopyBudgetReductionV1
+lake build Family8Grounding.Family8CertifiedPlankLabelledSlabL2V1
+```
+
+They completed respectively as 9028/9028, 9060/9060, 9064/9064, 9067/9067,
+9071/9071, 9061/9061, 9468/9468, 9469/9469, and 9125/9125.  Their terminal
+declarations report only the standard dependencies `propext`,
+`Classical.choice`, and `Quot.sound`.
+
+V581 already integrated these relevant links:
 
 - `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyConflictMeanV1`:
   the elongated-conflict mean on the same raw scale-only
@@ -95,39 +116,59 @@ V581 integrates these latest verified links:
   the weakest whole-cross payment consumer.  It no longer requires the
   stronger common `innerResidual` factorization and directly produces the
   fixed-witness large-`b` conclusion.
-- `Family8FiniteRigidMotionScaleOnlyElongatedConflictProjectionV1` was exact
-  green after V581 was built, but is not yet imported by V581.  It converts
-  uniform elongated-body loads into the actual copied-anchor conflict-card
-  bound without admissibility, `BoundAt`, or essential-distinctness premises.
 
-Family 8 is **not closed** at V581.
+V582 through V588 add the following verified links:
 
-## Unintegrated drafts in this snapshot
+- `Family8FiniteRigidMotionScaleOnlyElongatedConflictProjectionV1` converts
+  uniform internal elongated-body loads into the actual copied-anchor
+  conflict-card bound without admissibility, `BoundAt`, or
+  essential-distinctness premises.
+- `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyJointSelectorV1`
+  exposes one common `omega` controlling every fixed-John catalogue tail and
+  the actual conflict-cardinality cap.  The internal elongated catalogue is
+  not leaked through the public endpoint.
+- `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyFullCatalogueCWAV1`
+  turns that fixed-John tail into the cardinal-normalized Convex Wolff axioms
+  for the full normalized indexed rigid-copy family.
+- `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyRefinementCWAV1`
+  feeds the conflict cap to the fresh greedy selector and restricts the full
+  CWA certificate to the same nonempty admissible refinement.  Its output also
+  carries retained cardinality and shading mass, Katz--Tao control, and the
+  source-to-selected average-multiplicity comparison.
+- `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyFrostmanCWAV1`
+  composes that exact selected object with the honest B2 Frostman connector.
+  Under explicit density and base budgets, it returns the final source
+  Frostman multiplicity estimate while retaining the same CWA certificate.
+- `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyTailNumericsV1`
+  supplies separate canonical logarithmic John/conflict thresholds and proves
+  the exact asymmetric two-family tail-room inequality from factor-two
+  reserves.  The tail-room premise is no longer a numerical callback.
+- `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyAutomaticCopyFrostmanCWAV1`
+  fixes the repetition count to the ceiling of the eighth-normalized source
+  canonical Frostman constant.  It proves positivity, the factor-two copy
+  bound, and the corresponding selected-card upper bound while retaining the
+  same selected Frostman/CWA object.
+- `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyAutomaticCopyBudgetReductionV1`
+  uses that factor-two bound to remove the integer copy count from both
+  product-mean budgets and cancels it exactly from the Frostman base budget.
+  The remaining conditions are source-level scalar inequalities.
+- `Family8CertifiedPlankLabelledSlabL2V1` closes the exact-level labelled-slab
+  row calculation: its certified row mass estimate combines with the
+  inverse-sine factor and cancels the B.2 thickness at one thresholded level.
 
-These files are intentionally saved so work can resume without reconstructing
-the abandoned compiler sessions.  Treat them as unverified until a fresh
-compiler run succeeds:
+The reduced source product-mean/base inequalities and the density budget are
+still explicit inputs.  Paying them and the remaining greedy/card/small-power
+factors into the fixed-geometry Family 7 endpoint is open.  Family 8 is
+therefore **not closed** at V588.  In particular, the full Appendix B.3
+dyadic aggregate and its whole-cross producer remain open.
 
-- `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyJointSelectorV1.lean`
-  contains the internal two-family Chernoff selector.  Its public endpoint
-  still needs to return the weakest useful pair: all John-catalogue tails and
-  the actual copied-anchor conflict-card cap.  The full elongated catalogue
-  may be used internally for the union bound but should not be exposed as the
-  final result.
-- `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyFullCatalogueCWAV1.lean`
-  is a source-only raw scale-only adapter from the full John tail to the CWA of
-  the full normalized indexed rigid-copy family.  It had no successful exact
-  build at snapshot time.
-- `Family8CertifiedPlankLabelledSlabL2V1.lean` contains the exact-level
-  intersecting row mass estimates and the proposed inverse-sine/thickness
-  cancellation.  It does not yet contain the full Appendix B.3 dyadic
-  aggregate or the whole-cross producer and had no successful exact build at
-  snapshot time.
+## Verified Lane B boundary
 
-The last background compile of the joint selector was stopped before creating
-the checkpoint because its output channel belonged to an interrupted agent.
-Start a fresh compiler run; do not infer success or failure from that stopped
-process.
+`Family8CertifiedPlankLabelledSlabL2V1.lean` is exact-green and imported by
+V588.  It proves the thresholded exact-level row estimate and the
+inverse-sine/B.2-thickness cancellation.  It does **not** yet supply the
+intersection-anchored local row binding, the full Appendix B.3 dyadic
+aggregate, or the whole-cross producer required by the large-`b` endpoint.
 
 ## Shortest continuation plan
 
@@ -137,53 +178,41 @@ work inside a lane, but each source file must have one owner.
 
 ### Lane A: Family 7 / small-`b`
 
-1. Reverify the conflict projection:
+The conflict projection, common selector, full copied CWA, and fresh selected
+refinement, Frostman, tail-numerics, and automatic-copy connectors are
+exact-green in V588, together with the automatic-copy budget reduction.
+Continue from
+`scaleOnlyCanonicalCopy_refinement_CWA_frostman`; do not reconstruct those
+eight steps through the older independent-choice interfaces.
 
-   ```bash
-   lake build Family8Grounding.Family8FiniteRigidMotionScaleOnlyElongatedConflictProjectionV1
-   ```
-
-2. Compile and repair
-   `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyJointSelectorV1`.
-   The same `omega` must control both load families.  Keep all John tests in
-   the public result, but immediately project the internal all-elongated-test
-   result to
-   `forall a, (normalizedConflictIndices copied a).card <= threshold`.
-
-3. Compile and repair
-   `Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyFullCatalogueCWAV1`.
-   Its output should only be the full copied-family
-   `SatisfiesConvexWolffAxioms` with the exact copied-card normalization; do not
-   reintroduce `IsAdmissible`, `BoundAt`, or essential distinctness.
-
-4. Feed the conflict-card result to
-   `Family8FiniteRandomRigidMotionPaperFixedJohnFreshSelectionV2.exists_normalized_refinement_admissible_isKatzTao_of_scale_B2`.
-   Combine the selected refinement, CWA, automatic copy count, and Frostman
-   connector.  Then discharge the remaining greedy/card/small-power scalar
-   payments needed for the fixed-geometry Family 7 `BoundAt` and selected
-   outer Equation (45).
-
-5. The endpoint still requires the exact chosen-outer geometry and Section 8
+1. Discharge the two reduced source-level John/conflict product-mean budgets,
+   plus the reduced Frostman base and density budgets, using the V588 scalar
+   adapters.
+2. Pay the remaining greedy/card/small-power scalar factors needed for the
+   fixed-geometry Family 7 `BoundAt` and selected outer Equation (45).  The
+   V588 modules deliberately do not assert these numerical payments.
+3. The endpoint still requires the exact chosen-outer geometry and Section 8
    power budgets in
    `Family8WinnerSideJointBucketEndpointPackedEq32LossAwarePaymentV1`.
 
 ### Lane B: labelled slab / large-`b`
 
-1. Fresh-compile `Family8CertifiedPlankLabelledSlabL2V1.lean` and repair the
-   current inverse-sine times B.2-thickness cancellation.
-2. Replace the unusable global-unit-ball binding by an intersection-anchored
+The exact-level inverse-sine/B.2-thickness cancellation is green in V588.
+Continue from that verified boundary:
+
+1. Replace the unusable global-unit-ball binding by an intersection-anchored
    local row lemma.  For two certified `a x b x 1` boxes sharing a point, the
    intersection controls the long coordinate; a `[8 * theta, 8, 8]` test box
    (volume `512 * theta`) is the intended safe target and removes the false
    `hunit` premise.
-3. Add the intersection-supported row weighted-overlap majorant and the full
+2. Add the intersection-supported row weighted-overlap majorant and the full
    dyadic Appendix B.3 aggregate.  Do not fall back to a global hull,
    `carrierFloor`, or the trivial `Q = N` estimate.
-4. Prove the final small-power scalar directly in the whole-cross form
+3. Prove the final small-power scalar directly in the whole-cross form
    `WinnerSideLargeBWeightedOverlapWholeCrossPaymentAt`.  Do not split it
    through an auxiliary common `innerResidual`; reviewer audit showed that is
    strictly stronger than the downstream endpoint needs.
-5. Apply
+4. Apply
    `winnerSide_largeB_weightedOverlap_productAtFixedW_of_wholeCrossPayment`,
    followed by the existing loss-aware Equation-(32) consumer.
 

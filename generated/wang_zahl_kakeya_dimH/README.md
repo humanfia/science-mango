@@ -31,6 +31,7 @@ binary in `PATH`, or in the `COMPARATOR_BIN` environment variable.
 The current in-progress Family 8 formalization is saved on the branch
 `codex/family8-v581-restart` in
 [`humanfia/science-mango`](https://github.com/humanfia/science-mango).
-It is a restart checkpoint, not a claim that Family 8 or `mainLemmaOne` is
-closed.  See [FAMILY8_RESTART.md](FAMILY8_RESTART.md) before continuing the
-proof on another machine.
+Its current aggregate checkpoint is V588.  This is not a claim that Family 8
+or `mainLemmaOne` is closed.  See
+[FAMILY8_RESTART.md](FAMILY8_RESTART.md) before continuing the proof on
+another machine.

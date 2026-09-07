@@ -1,5 +1,7 @@
 import Family8Grounding.Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyConflictMeanV1
 import Family8Grounding.Family8FiniteRigidMotionNormalizedBodyLoadCapScaleOnlyV1
+import Family8Grounding.Family8FiniteRigidMotionScaleOnlyElongatedConflictProjectionV1
+import Family8Grounding.Family8B2NormalizedConflictKatzTaoCapV5
 import FamilyStickyGrounding.FamilyStickyRandomTwoFamilyChernoffV1
 import Mathlib.Tactic
 
@@ -8,6 +10,7 @@ set_option warningAsError true
 set_option maxHeartbeats 6000000
 set_option linter.unusedSectionVars false
 set_option linter.unnecessarySimpa false
+set_option linter.style.haveILetI false
 
 open Set MeasureTheory
 open scoped ENNReal NNReal BigOperators InnerProductSpace
@@ -16,14 +19,25 @@ namespace Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyJointSelectorV1
 
 open LeanEval.Analysis.WangZahlKakeya
 open Submission.Kakeya.ConvexGeometry
+open Submission.Kakeya.ConvexFactoring
 open Family8KatzTaoFrostmanPropertiesV1
+open Family8GeneralizedFrostmanMultiplicityV1
 open Family8FiniteRandomRigidMotionB2NormalizationCoreV1
+open Family8FiniteRandomRigidMotionB2NormalizedDatumV1
+open Family8FiniteRandomRigidMotionB2FreshGreedyV1
+open Family8FiniteRandomRigidMotionPaperElongatedCandidateGridV1
 open Family8FiniteRigidMotionOrthogonalHundredCatalogueV2
 open Family8FiniteRigidMotionOrthogonalPatternCatalogueV3
+open Family8FiniteRigidMotionOrthogonalNormalizedChoiceV3
+open Family8FiniteRigidMotionOrthogonalTranslationV2
+open Family8FiniteRigidMotionOrthogonalTranslationCWAProductMeanV1
 open Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyProductLawV1
 open Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyConflictMeanV1
 open Family8FiniteRigidMotionOrthogonalScaleOnlyCatalogueScaleV1
 open Family8FiniteRigidMotionNormalizedBodyLoadCapScaleOnlyV1
+open Family8FiniteRigidMotionScaleOnlyElongatedConflictProjectionV1
+open Family8FiniteRandomRigidMotionPaperElongatedFrameTestV1
+open Family8B2NormalizedConflictKatzTaoCapV5
 open FamilyStickyRandomFiniteChernoffV3
 
 noncomputable section
@@ -64,6 +78,23 @@ def scaleOnlyJointConflictMeanCoefficient
   (11 * (enlargedHundredDirectionCap (delta / 8) : ENNReal) ^ 2) *
     729 * (Fintype.card iota : ENNReal)
 
+private theorem scaleOnlyJointJohnMeanCoefficient_ne_top
+    (iota : Type) [Fintype iota] :
+    scaleOnlyJointJohnMeanCoefficient iota ≠ ∞ := by
+  unfold scaleOnlyJointJohnMeanCoefficient
+  exact ENNReal.mul_ne_top (by norm_num) ENNReal.coe_ne_top
+
+private theorem scaleOnlyJointConflictMeanCoefficient_ne_top
+    (delta : NNReal) (iota : Type) [Fintype iota] :
+    scaleOnlyJointConflictMeanCoefficient delta iota ≠ ∞ := by
+  unfold scaleOnlyJointConflictMeanCoefficient
+  exact ENNReal.mul_ne_top
+    (ENNReal.mul_ne_top
+      (ENNReal.mul_ne_top (by norm_num)
+        (ENNReal.pow_ne_top ENNReal.coe_ne_top))
+      (by norm_num))
+    ENNReal.coe_ne_top
+
 def scaleOnlyJointJohnLoad
     {delta : NNReal} {iota : Type}
     [Fintype iota] [DecidableEq iota]
@@ -92,7 +123,7 @@ def scaleOnlyJointConflictLoad
 def scaleOnlyJointJohnCap
     {delta : NNReal} {iota : Type}
     [Fintype iota] [DecidableEq iota]
-    (C : ENNReal) (D : ActualTubeDatum delta iota) (hdelta : 0 < delta)
+    (C : ENNReal) (_D : ActualTubeDatum delta iota) (hdelta : 0 < delta)
     (K : ScaleOnlyFixedJohnTest delta hdelta) : Real :=
   (C * volume (scaleOnlyFixedJohnCatalogueBody hdelta K : Set Space) /
     scaleOnlyJointHalfSq delta).toReal
@@ -109,11 +140,32 @@ def scaleOnlyJointConflictCap
         (scaleOnlyOrthogonalCatalogueScale D hdelta) K : Set Space) /
     scaleOnlyJointHalfSq delta).toReal
 
+/-- The fixed integer threshold obtained after the elongated test volume and
+the normalized tube-volume floor cancel. -/
+def scaleOnlyJointConflictThreshold
+    (AConflict : Real) (C : ENNReal) : Nat :=
+  Nat.ceil (AConflict * (480000 * C : ENNReal).toReal)
+
+/-- Every elongated candidate has the same normalized Katz--Tao cap. -/
+theorem scaleOnlyJointConflictCap_eq_fixed
+    {delta : NNReal} {iota : Type}
+    [Fintype iota] [DecidableEq iota]
+    {C : ENNReal} (hCTop : C ≠ ∞)
+    (D : ActualTubeDatum delta iota) (hdelta : 0 < delta)
+    (K : ScaleOnlyFixedJohnElongatedTest D hdelta
+      (scaleOnlyOrthogonalCatalogueScale D hdelta)) :
+    scaleOnlyJointConflictCap C D hdelta K =
+      (480000 * C : ENNReal).toReal := by
+  unfold scaleOnlyJointConflictCap scaleOnlyJointHalfSq
+  rw [scaleOnlyFixedJohnOrthogonalTranslationElongatedBody_eq,
+    volume_paperElongatedBody,
+    normalizedConflictKatzTaoRatio_eq hdelta hCTop]
+
 /-- Real wrapper around the division-free fixed-John product mean. -/
 def scaleOnlyJointJohnMean
     {delta : NNReal} {iota : Type}
     [Fintype iota] [DecidableEq iota]
-    (D : ActualTubeDatum delta iota) (hdelta : 0 < delta)
+    (_D : ActualTubeDatum delta iota) (hdelta : 0 < delta)
     (K : ScaleOnlyFixedJohnTest delta hdelta) : Real :=
   (scaleOnlyJointJohnMeanCoefficient iota *
       volume (scaleOnlyFixedJohnCatalogueBody hdelta K : Set Space) /
@@ -136,12 +188,15 @@ private theorem scaleOnlyJointHalfSq_ne_zero
     {delta : NNReal} (hdelta : 0 < delta) :
     scaleOnlyJointHalfSq delta ≠ 0 := by
   unfold scaleOnlyJointHalfSq
-  positivity
+  apply ENNReal.div_ne_zero.mpr
+  exact ⟨pow_ne_zero 2 (ENNReal.coe_ne_zero.mpr
+    (div_pos hdelta (by norm_num)).ne'), by norm_num⟩
 
 private theorem scaleOnlyJointHalfSq_ne_top (delta : NNReal) :
     scaleOnlyJointHalfSq delta ≠ ∞ := by
   unfold scaleOnlyJointHalfSq
-  simp
+  exact ENNReal.div_ne_top
+    (ENNReal.pow_ne_top ENNReal.coe_ne_top) (by norm_num)
 
 private theorem scaleOnlyJointMotionBallVolume_ne_zero :
     scaleOnlyJointMotionBallVolume ≠ 0 := by
@@ -152,7 +207,7 @@ private theorem scaleOnlyJointMotionBallVolume_ne_zero :
 private theorem scaleOnlyJointMotionBallVolume_ne_top :
     scaleOnlyJointMotionBallVolume ≠ ∞ := by
   unfold scaleOnlyJointMotionBallVolume
-  exact Metric.isCompact_closedBall.measure_lt_top.ne
+  exact (isCompact_closedBall (0 : Space) _).measure_lt_top.ne
 
 private theorem natCast_le_div_toReal
     (m : Nat) {lower total : ENNReal}
@@ -186,8 +241,10 @@ private theorem sum_natCast_le_card_mul_div_toReal
   have hsum :
       (∑ g : choice, (load g : ENNReal)).toReal =
         ∑ g : choice, (load g : Real) := by
-    rw [ENNReal.toReal_sum]
-    simp only [ENNReal.toReal_natCast]
+    simpa only [ENNReal.toReal_natCast] using
+      (ENNReal.toReal_sum (s := Finset.univ)
+        (f := fun g : choice ↦ (load g : ENNReal))
+        (fun _g _hg ↦ ENNReal.coe_ne_top))
   calc
     (∑ g : choice, (load g : Real)) =
         (∑ g : choice, (load g : ENNReal)).toReal := hsum.symm
@@ -228,13 +285,11 @@ private theorem natCast_mul_bodyMean_le_bodyCap
         ((repetitions : Real) * coefficient.toReal * lower.toReal) *
           (bodyVolume.toReal / (ball.toReal * lower.toReal)) := by
             field_simp [ne_of_gt hballReal, ne_of_gt hlowerReal]
-            ring
     _ ≤ (C.toReal * ball.toReal) *
           (bodyVolume.toReal / (ball.toReal * lower.toReal)) :=
       mul_le_mul_of_nonneg_right hscaleReal' hfactor
     _ = C.toReal * bodyVolume.toReal / lower.toReal := by
       field_simp [ne_of_gt hballReal, ne_of_gt hlowerReal]
-      ring
 
 private theorem scaleOnlyJointChoice_nonempty
     {delta : NNReal} {iota : Type}
@@ -280,6 +335,17 @@ private theorem scaleOnlyJoint_load_le_cap
     (fun u : ScaleOnlyJointChoice D hdelta ↦
       scaleOnlyFixedJohnPackingGridVector hdelta u.1)
     D hdeltaHalf hKT testBody K g
+  have hmotion :
+      (fun u : ScaleOnlyJointChoice D hdelta ↦
+        orthogonalTranslationRigidMotion
+          (sampledHundredOrthogonal (normalizedSourceTube D)
+            (scaleOnlyNormalizedRadiusPos hdelta) u.2)
+          (scaleOnlyFixedJohnPackingGridVector hdelta u.1)) =
+        scaleOnlyFixedJohnSampledOrthogonalTranslationMotion D hdelta
+          (scaleOnlyOrthogonalCatalogueScale D hdelta) := by
+    funext u
+    rfl
+  rw [hmotion] at hcross
   apply natCast_le_div_toReal
     (normalizedRigidBodyLoadNat
       (scaleOnlyFixedJohnSampledOrthogonalTranslationMotion D hdelta
@@ -287,8 +353,7 @@ private theorem scaleOnlyJoint_load_le_cap
     (scaleOnlyJointHalfSq_ne_zero hdelta)
     (scaleOnlyJointHalfSq_ne_top delta)
     (ENNReal.mul_ne_top hCTop (testBody K).isCompact.measure_lt_top.ne)
-  simpa only [scaleOnlyJointHalfSq,
-    scaleOnlyFixedJohnSampledOrthogonalTranslationMotion] using hcross
+  simpa only [scaleOnlyJointHalfSq] using hcross
 
 /-- Internal two-family selector.  The elongated catalogue is quantified
 only here; the public conflict endpoint below projects it to actual anchors. -/
@@ -345,7 +410,7 @@ theorem exists_scaleOnlyJointChoice_two_bodyLoad_bounds
           (scaleOnlyFixedJohnCatalogueBody hdelta) K g)
       scaleOnlyJointMotionBallVolume_ne_zero
       scaleOnlyJointMotionBallVolume_ne_top
-      (ENNReal.mul_ne_top (by simp)
+      (ENNReal.mul_ne_top (scaleOnlyJointJohnMeanCoefficient_ne_top iota)
         (scaleOnlyFixedJohnCatalogueBody hdelta K).isCompact.measure_lt_top.ne)
     have h :=
       sum_scaleOnlyFixedJohnOrthogonalTranslationBodyLoadNat_mul_motionBallVolume_le
@@ -369,7 +434,8 @@ theorem exists_scaleOnlyJointChoice_two_bodyLoad_bounds
             (scaleOnlyOrthogonalCatalogueScale D hdelta)) K g)
       scaleOnlyJointMotionBallVolume_ne_zero
       scaleOnlyJointMotionBallVolume_ne_top
-      (ENNReal.mul_ne_top (by simp)
+      (ENNReal.mul_ne_top
+        (scaleOnlyJointConflictMeanCoefficient_ne_top delta iota)
         (scaleOnlyFixedJohnOrthogonalTranslationElongatedBody D hdelta
           (scaleOnlyOrthogonalCatalogueScale D hdelta) K).isCompact.measure_lt_top.ne)
     have h :=
@@ -428,7 +494,93 @@ theorem exists_scaleOnlyJointChoice_two_bodyLoad_bounds
       FamilyStickyRandomFiniteChernoffV3.productLoad] using
         homegaE K (Finset.mem_univ K)
 
+/-- Public joint selector seam.  The same tuple controls every fixed-John
+test and, after projecting the internal elongated catalogue, the actual
+conflict neighbourhood of every copied anchor. -/
+theorem exists_scaleOnlyJointChoice_john_and_conflict_bounds
+    {delta : NNReal} {iota : Type}
+    [Fintype iota] [DecidableEq iota]
+    (D : ActualTubeDatum delta iota) (hdelta : 0 < delta)
+    (hdeltaHalf : delta ≤ (2 : NNReal)⁻¹)
+    {C : ENNReal} (hCTop : C ≠ ∞)
+    (hKT : IsKatzTao C (eighthNormalizedDatum D).family.bodyFamily)
+    (repetitions : Nat) (AJohn AConflict : Real)
+    (hscaleJ :
+      (repetitions : ENNReal) * scaleOnlyJointJohnMeanCoefficient iota *
+          scaleOnlyJointHalfSq delta ≤
+        C * scaleOnlyJointMotionBallVolume)
+    (hscaleE :
+      (repetitions : ENNReal) *
+          scaleOnlyJointConflictMeanCoefficient delta iota *
+          scaleOnlyJointHalfSq delta ≤
+        C * scaleOnlyJointMotionBallVolume)
+    (htailRoom :
+      (Fintype.card (ScaleOnlyFixedJohnTest delta hdelta) : Real) *
+            Real.exp (Real.exp 1 - 1) * Real.exp AConflict +
+          (Fintype.card
+            (ScaleOnlyFixedJohnElongatedTest D hdelta
+              (scaleOnlyOrthogonalCatalogueScale D hdelta)) : Real) *
+            Real.exp (Real.exp 1 - 1) * Real.exp AJohn <
+        Real.exp AJohn * Real.exp AConflict) :
+    exists omega : Fin repetitions → ScaleOnlyJointChoice D hdelta,
+      (forall K : ScaleOnlyFixedJohnTest delta hdelta,
+        (∑ j, scaleOnlyJointJohnLoad D hdelta K (omega j)) ≤
+          AJohn * scaleOnlyJointJohnCap C D hdelta K) /\
+      (forall a,
+        (normalizedConflictIndices
+          (indexedRigidCopyDatum
+            (fun j ↦
+              scaleOnlyFixedJohnSampledOrthogonalTranslationMotion D hdelta
+                (scaleOnlyOrthogonalCatalogueScale D hdelta) (omega j)) D)
+          a).card ≤ scaleOnlyJointConflictThreshold AConflict C) := by
+  classical
+  obtain ⟨omega, homegaJ, homegaE⟩ :=
+    exists_scaleOnlyJointChoice_two_bodyLoad_bounds
+      D hdelta hdeltaHalf hCTop hKT repetitions AJohn AConflict
+        hscaleJ hscaleE htailRoom
+  refine ⟨omega, homegaJ, ?_⟩
+  apply normalizedConflictIndices_card_le_of_candidateElongatedBodyLoads
+    (scaleOnlyFixedJohnSampledOrthogonalTranslationMotion D hdelta
+      (scaleOnlyOrthogonalCatalogueScale D hdelta))
+    D hdelta hdeltaHalf omega
+  intro K
+  have htail := homegaE K
+  rw [scaleOnlyJointConflictCap_eq_fixed hCTop D hdelta K] at htail
+  simp only [scaleOnlyJointConflictLoad] at htail
+  have hbody :
+      scaleOnlyFixedJohnOrthogonalTranslationElongatedBody D hdelta
+          (scaleOnlyOrthogonalCatalogueScale D hdelta) =
+        normalizedRigidCandidateElongatedBody
+          (scaleOnlyFixedJohnSampledOrthogonalTranslationMotion D hdelta
+            (scaleOnlyOrthogonalCatalogueScale D hdelta)) D := by
+    funext L
+    rfl
+  rw [hbody] at htail
+  have hreal :
+      ((∑ j, normalizedRigidBodyLoadNat
+        (scaleOnlyFixedJohnSampledOrthogonalTranslationMotion D hdelta
+          (scaleOnlyOrthogonalCatalogueScale D hdelta)) D
+        (normalizedRigidCandidateElongatedBody
+          (scaleOnlyFixedJohnSampledOrthogonalTranslationMotion D hdelta
+            (scaleOnlyOrthogonalCatalogueScale D hdelta)) D)
+        K (omega j) : Nat) : Real) ≤
+          AConflict * (480000 * C : ENNReal).toReal := by
+    simpa only [Nat.cast_sum] using htail
+  have hceil :
+      ((∑ j, normalizedRigidBodyLoadNat
+        (scaleOnlyFixedJohnSampledOrthogonalTranslationMotion D hdelta
+          (scaleOnlyOrthogonalCatalogueScale D hdelta)) D
+        (normalizedRigidCandidateElongatedBody
+          (scaleOnlyFixedJohnSampledOrthogonalTranslationMotion D hdelta
+            (scaleOnlyOrthogonalCatalogueScale D hdelta)) D)
+        K (omega j) : Nat) : Real) ≤
+          (scaleOnlyJointConflictThreshold AConflict C : Real) := by
+    exact hreal.trans (Nat.le_ceil _)
+  exact_mod_cast hceil
+
 #print axioms exists_scaleOnlyJointChoice_two_bodyLoad_bounds
+#print axioms scaleOnlyJointConflictCap_eq_fixed
+#print axioms exists_scaleOnlyJointChoice_john_and_conflict_bounds
 
 end
 end Family8FiniteRigidMotionOrthogonalTranslationScaleOnlyJointSelectorV1
