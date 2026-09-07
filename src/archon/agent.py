@@ -15,7 +15,7 @@ Quick reference:
     # Auto-restart on a hung provider (e.g. overnight Kimi run):
     agent.run(
         prompt, cwd=project, log_base=phase_log,
-        idle_timeout_s=900,   # 15 min of zero JSONL activity
+        idle_timeout_s=1800,  # 30 min of zero JSONL activity
         max_attempts=3,       # then re-run the same prompt up to 3x
     )
 """
@@ -1112,7 +1112,7 @@ class ClaudeAgent:
         extra_args: list[str] | None = None,
         env_overrides: dict[str, str] | None = None,
         cancel_event: 'threading.Event | None' = None,
-        idle_timeout_s: float | None = 900,
+        idle_timeout_s: float | None = 1800,
         max_attempts: int = 3,
         resume_session_id: str | None = None,
     ) -> bool:

@@ -1001,7 +1001,7 @@ class CodexAgent:
         extra_args: list[str] | None = None,
         env_overrides: dict[str, str] | None = None,
         cancel_event: "threading.Event | None" = None,
-        idle_timeout_s: float | None = 900,
+        idle_timeout_s: float | None = 1800,
         max_attempts: int = 3,
         resume_session_id: str | None = None,
     ) -> bool:

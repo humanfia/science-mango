@@ -1,0 +1,81 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_e1_b4.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_e1_b4.source.json
+% archon:problem-id ipho_2026_e1
+% archon:part-id E1-B4
+% archon:previous-part ipho_2026_e1_b3
+% archon:previous-part-policy derive_inline_from_problem_only_material
+
+\chapter{Ipho Physics problem ipho\_2026\_e1\_b4}
+\label{ch:IPhO2026Problems_problem_ipho_2026_e1_b4}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The inner cylinder contains dry air plus water vapor at total pressure
+approximately P\_atm.  The water level is adjusted and its height H is recorded
+as temperature T falls.  At T\_0 = 273.15 K, extrapolated height is H\_0 and the
+water vapor pressure may be taken as zero.  Vapor pressure obeys
+ln(P\_v/P\_v0) = -(Q\_v/R)*(1/T - 1/T\_0).  Use the experimental procedure and
+geometry on pages 11--12.
+
+\#\# Current subquestion E1-B4
+
+Assuming dry air plus water vapor and zero vapor pressure at T\_0, express P\_v using P\_atm, H\_0, H, T\_0, and T.
+
+\paragraph{Shared problem context.}
+The inner cylinder contains dry air plus water vapor at total pressure
+approximately P\_atm.  The water level is adjusted and its height H is recorded
+as temperature T falls.  At T\_0 = 273.15 K, extrapolated height is H\_0 and the
+water vapor pressure may be taken as zero.  Vapor pressure obeys
+ln(P\_v/P\_v0) = -(Q\_v/R)*(1/T - 1/T\_0).  Use the experimental procedure and
+geometry on pages 11--12.
+
+\paragraph{Current subquestion.}
+Assuming dry air plus water vapor and zero vapor pressure at T\_0, express P\_v using P\_atm, H\_0, H, T\_0, and T.
+
+\paragraph{Figure/image paths.}
+\begin{itemize}
+\item ipho\_2026\_source/image/E1\_page-12.png
+\item ipho\_2026\_source/image/E1\_page-11.png
+\end{itemize}
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source E1-B3. Question: Extrapolate the B2 graph to determine H\_0 at 0 degrees Celsius. Policy: derive\_inline\_from\_problem\_only\_material
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_e1\_b4.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_e1_b4:target}
+\lean{IPhO2026.E1B4.dryAirPressure_eq_candidate, IPhO2026.E1B4.vaporPressure_eq_candidate, IPhO2026.E1B4.vaporPressure_fraction_form, IPhO2026.E1B4.candidateVaporPressure_vanishes_at_reference, IPhO2026.E1B4.vaporPressure_le_atm}
+\leanok
+The assigned autoformalize agent should translate this IPhO physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+\leanok
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+
+\emph{Prover-stage completion.} All 5 proof obligations in
+\texttt{IPhO2026Problems/problem\_ipho\_2026\_e1\_b4.lean} are now closed with
+kernel-checked proofs (no \texttt{sorry}; only the standard axioms
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}).  The main
+target \texttt{vaporPressure\_eq\_candidate} derives
+$P_v(T) = P_{\mathrm{atm}}\cdot(1 - H_0 T/(H T_0))$ from Dalton's law
+(\texttt{dalton\_reference}, \texttt{dalton\_atmospheric}) together with the
+combined gas law for the fixed dry-air amount
+(\texttt{combined\_gas\_law\_dry\_air}): the reference-state readouts give
+$P_{\mathrm{air}}(T_0) = P_{\mathrm{atm}}$, cross-multiplication and
+cancellation of the cross-section $A$ give the bridge lemma
+\texttt{dryAirPressure\_eq\_candidate}
+($P_{\mathrm{air}} = P_{\mathrm{atm}} H_0 T / (H T_0)$), and subtraction from
+$P_{\mathrm{atm}}$ yields the candidate closed form.
+\end{proof}
+% --- Archon physics formalization source end ---

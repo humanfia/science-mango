@@ -1,0 +1,69 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_t1_b1.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_t1_b1.source.json
+% archon:problem-id ipho_2026_t1
+% archon:part-id T1-B1
+
+\chapter{Ipho Physics problem ipho\_2026\_t1\_b1}
+\label{ch:IPhO2026Problems_problem_ipho_2026_t1_b1}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+At one instant a positron and an electron, each of mass m and charges of equal
+magnitude and opposite sign, are separated by 100*a\_0.  Their velocities are
+antiparallel and perpendicular to their separation.  Each particle has angular
+momentum of magnitude mu*hbar about the center of mass.  The system is isolated,
+classical, non-relativistic, and has only electrostatic interaction.  The Bohr
+radius is a\_0 = 4*pi*epsilon\_0*hbar\textasciicircum{}2/(m*e\textasciicircum{}2), and k = 1/(4*pi*epsilon\_0).
+
+\#\# Current subquestion T1-B1
+
+For mu = 4 the pair is bound. Find the maximum electron-positron separation in units of a\_0.
+
+\paragraph{Shared problem context.}
+At one instant a positron and an electron, each of mass m and charges of equal
+magnitude and opposite sign, are separated by 100*a\_0.  Their velocities are
+antiparallel and perpendicular to their separation.  Each particle has angular
+momentum of magnitude mu*hbar about the center of mass.  The system is isolated,
+classical, non-relativistic, and has only electrostatic interaction.  The Bohr
+radius is a\_0 = 4*pi*epsilon\_0*hbar\textasciicircum{}2/(m*e\textasciicircum{}2), and k = 1/(4*pi*epsilon\_0).
+
+\paragraph{Current subquestion.}
+For mu = 4 the pair is bound. Find the maximum electron-positron separation in units of a\_0.
+
+\paragraph{Figure/image path.}
+ipho\_2026\_source/image/T1\_page-2.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_t1\_b1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_t1_b1:target}
+\lean{IPhO2026T1B1.max_separation_eq, IPhO2026T1B1.max_separation_over_bohrRadius}
+\leanok
+For $\mu = 4$ the pair is bound, and the maximum electron--positron
+separation along the Coulomb orbit is
+$r_{\max} = p/(1-\varepsilon) = 128\,a_0/(1 - 7/25) = (1600/9)\,a_0$,
+i.e. $r_{\max}/a_0 = 1600/9 \approx 177.78$.
+\end{theorem}
+\begin{proof}
+\leanok
+Kernel-checked in Lean as \texttt{IPhO2026T1B1.max\_separation\_eq} and
+\texttt{IPhO2026T1B1.max\_separation\_over\_bohrRadius} (no \texttt{sorry}).
+Derivation chain from problem-side data only: $L = 2\mu\hbar = 8\hbar$;
+initial energy $E = L^2/(m r_0^2) - k e^2/r_0
+= -(36/10000)\,\hbar^2/(m a_0^2) < 0$ (the pair is bound); Hint~1 gives
+$\varepsilon = \sqrt{1 + 4L^2E/(k^2e^4m)} = \sqrt{49/625} = 7/25$; the
+Kepler/Coulomb semi-latus-rectum relation gives
+$p = L^2/((m/2)\,k e^2) = 128\,a_0$; the apoapsis of the conic
+$r(\theta) = p/(1 - \varepsilon\cos\theta)$ (Hint~2, supremum over $\theta$,
+attained at $\cos\theta = 1$) is $p/(1-\varepsilon) = (1600/9)\,a_0$.
+Consistency with Fig.~1b: the periapsis is $p/(1+\varepsilon) = 100\,a_0 = r_0$.
+\end{proof}
+% --- Archon physics formalization source end ---

@@ -1,0 +1,85 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_t2_b1.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_t2_b1.source.json
+% archon:problem-id ipho_2026_t2
+% archon:part-id T2-B1
+
+\chapter{Ipho Physics problem ipho\_2026\_t2\_b1}
+\label{ch:IPhO2026Problems_problem_ipho_2026_t2_b1}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+\#\# Current subquestion T2-B1
+
+Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R.
+
+\paragraph{Shared problem context.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+\paragraph{Current subquestion.}
+Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R.
+
+\paragraph{Figure/image path.}
+ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_t2\_b1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_t2_b1:target}
+\lean{IPhO2026.T2B1.container_radius_eq, IPhO2026.T2B1.t2_b1_coefficients}
+\leanok
+The assigned autoformalize agent should translate this IPhO physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+\leanok
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+
+\emph{Prover-stage completion.} All 23 proof obligations in
+\texttt{IPhO2026Problems/problem\_ipho\_2026\_t2\_b1.lean} are now closed with
+kernel-checked proofs (no \texttt{sorry}; only the standard axioms
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}).  The proof
+chain: the reflected direction at incidence angle $\theta$ is
+$d' = (-\sin 2\theta, -\cos 2\theta)$ (\texttt{reflectedDir\_eq}, via the
+vector reflection law \texttt{specularReflect} in the radial normal); the
+perpendicular distance from the container centre $C = (0, R/2)$ to the
+reflected line is $R\sin\theta\,(1-\cos\theta)$ (\texttt{distToLine\_container}),
+strictly increasing on $[0, \pi/2]$ (\texttt{dist\_strictMonoOn}) and continuous
+(\texttt{dist\_continuous}); a ray strikes the container iff this distance is at
+most $a$ (\texttt{strikes\_iff\_dist\_le}, via the 2D Lagrange identity
+$\lVert t\,\cdot\,v - w\rVert^2 = (t - \langle v, w\rangle)^2 + \mathrm{cross}_2(w,v)^2$
+for unit $v$, with the closest approach forward by \texttt{footParam\_pos});
+the container clears the mirror, forcing $a < R/2$
+(\texttt{container\_radius\_lt\_half}); hence the extremal striking ray at
+$\theta_{\max}$ grazes the container,
+$\mathrm{dist}(\theta_{\max}) = a$ (\texttt{dist\_at\_max\_eq}, by the
+intermediate value theorem and strict monotonicity).  Expanding with
+$\sin 2\theta = 2\sin\theta\cos\theta$ (\texttt{distTrig\_expand}) gives
+$a = R\sin\theta_{\max} - \frac{R}{2}\sin(2\theta_{\max})$
+(\texttt{container\_radius\_eq}), i.e.\ $\alpha = R$, $\beta = -R/2$
+(\texttt{t2\_b1\_coefficients}); the coefficients are determined because
+$\sin\theta$ and $\sin 2\theta$ are linearly independent on $[0, \pi/4]$
+(\texttt{coefficients\_unique}, evaluated at $\pi/6$ and $\pi/4$, using
+$\sqrt{3}\,\sqrt{2} = \sqrt{6} \neq 2$).
+\end{proof}
+% --- Archon physics formalization source end ---

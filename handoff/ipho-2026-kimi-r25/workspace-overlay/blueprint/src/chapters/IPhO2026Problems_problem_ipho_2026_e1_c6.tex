@@ -1,0 +1,79 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_e1_c6.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_e1_c6.source.json
+% archon:problem-id ipho_2026_e1
+% archon:part-id E1-C6
+% archon:previous-part ipho_2026_e1_c5
+% archon:previous-part-policy derive_inline_from_problem_only_material
+
+\chapter{Ipho Physics problem ipho\_2026\_e1\_c6}
+\label{ch:IPhO2026Problems_problem_ipho_2026_e1_c6}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Water in the inner and outer cylinders exchanges heat radially through an
+acrylic cylindrical wall.  Record T\_IC and T\_OC versus time.  The heat-flow
+model is dQ/dt = (T\_OC - T\_IC)/R\_Th.  For radial Fourier conduction,
+dQ/dt = -lambda*A*dT/dr.  Ignore apparatus heat capacity where instructed and
+use the dimensions in Figure 17.
+
+\#\# Current subquestion E1-C6
+
+Determine the effective wall thermal resistance R\_Th from the C5 graph.
+
+\paragraph{Shared problem context.}
+Water in the inner and outer cylinders exchanges heat radially through an
+acrylic cylindrical wall.  Record T\_IC and T\_OC versus time.  The heat-flow
+model is dQ/dt = (T\_OC - T\_IC)/R\_Th.  For radial Fourier conduction,
+dQ/dt = -lambda*A*dT/dr.  Ignore apparatus heat capacity where instructed and
+use the dimensions in Figure 17.
+
+\paragraph{Current subquestion.}
+Determine the effective wall thermal resistance R\_Th from the C5 graph.
+
+\paragraph{Figure/image path.}
+ipho\_2026\_source/image/E1\_page-13.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source E1-C5. Question: Graph the finite-difference rate (T\_IC,j-T\_IC,j-1)/(t\_j-t\_j-1) against the corresponding average T\_OC-T\_IC. Policy: derive\_inline\_from\_problem\_only\_material
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_e1\_c6.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_e1_c6:target}
+\leanok
+The assigned autoformalize agent should translate this IPhO physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+\leanok
+Fully proved in \texttt{IPhO2026Problems/problem\_ipho\_2026\_e1\_c6.lean}
+(namespace \texttt{IPhO2026.E1C6}): the two law fields of
+\texttt{IntervalHeatExchange} (equation (4) in finite-interval form and the
+IC-water calorimetry $\Delta Q = m_{IC} \cdot c_w \cdot \Delta T_{IC}$)
+eliminate $\Delta Q$ to the combined interval equation
+$m \cdot c_w \cdot \Delta T_{IC} = (\bar T_{OC} - \bar T_{IC})/R_{Th} \cdot \Delta t$
+(\texttt{ic\_water\_heating\_eq\_wall\_flow}); dividing by the positive time
+step and by $m \cdot c_w \cdot R_{Th}$ gives the C5 proportionality with
+physical slope $1/(m \cdot c_w \cdot R_{Th})$
+(\texttt{finiteDifferenceRate\_eq\_physical\_slope}), and cancelling the
+nonzero abscissa identifies the graph readout $k = 1/(m \cdot c_w \cdot R_{Th})$
+(\texttt{c5GraphSlope\_eq\_physical}). Inverting with the positive IC water
+mass (\texttt{icWaterMass\_pos}) yields the target
+$R_{Th} = 1/(m_{IC} \cdot c_w \cdot k)$
+(\texttt{thermalResistance\_eq\_candidate}). The heating-branch certificates
+\texttt{heatReceived\_pos}, \texttt{finiteDifferenceRate\_pos},
+\texttt{c5GraphSlope\_pos} and \texttt{determined\_resistance\_pos} are closed
+by \texttt{positivity} along the same laws. All seven former \texttt{sorry}
+bodies are now kernel-checked proofs; no new axioms beyond
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}.
+\end{proof}
+% --- Archon physics formalization source end ---

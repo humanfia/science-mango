@@ -48,8 +48,9 @@ chapter, `PROGRESS.md`, or protected signatures.
   Formalizer report or physics blueprint, LeanExplore semantic search, then
   Loogle-style type search.
 - When using the official LeanExplore MCP, start with `search_summary`, pass
-  `packages: ["Mathlib", "PhysLean"]` when the tool accepts package filters,
-  and fetch source/module/docstring only for candidates you intend to use.
+  `packages: ["Mathlib", "Physlib"]` and `rerank_top: 0` when the tool accepts
+  those fields, and fetch source/module/docstring only for candidates you
+  intend to use.
 - Treat PhysLean modules as domain infrastructure, not as axioms. If a physical
   law is only present as a local hypothesis in the generated statement, use
   that hypothesis directly.

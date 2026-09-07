@@ -1,0 +1,92 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_t3_a2.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_t3_a2.source.json
+% archon:problem-id ipho_2026_t3
+% archon:part-id T3-A2
+% archon:previous-part ipho_2026_t3_a1
+% archon:previous-part-policy derive_inline_from_problem_only_material
+
+\chapter{Ipho Physics problem ipho\_2026\_t3\_a2}
+\label{ch:IPhO2026Problems_problem_ipho_2026_t3_a2}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A homogeneous isotropic paramagnetic torus has mean radius R, inner radius r
+with r << R, volume V, and cross-sectional area A.  An insulated conducting
+wire is wound densely around it with N turns and instantaneous current I.
+Fields H and B and magnetization M are approximately uniform in the torus.
+Use B = mu\_0*H + mu\_0*M, Ampere's law, and the sign convention that work and
+heat entering the paramagnetic torus are positive.
+
+\#\# Current subquestion T3-A2
+
+Find the work dW\_emf performed by the external voltage source when B changes by dB.
+
+\paragraph{Shared problem context.}
+A homogeneous isotropic paramagnetic torus has mean radius R, inner radius r
+with r << R, volume V, and cross-sectional area A.  An insulated conducting
+wire is wound densely around it with N turns and instantaneous current I.
+Fields H and B and magnetization M are approximately uniform in the torus.
+Use B = mu\_0*H + mu\_0*M, Ampere's law, and the sign convention that work and
+heat entering the paramagnetic torus are positive.
+
+\paragraph{Current subquestion.}
+Find the work dW\_emf performed by the external voltage source when B changes by dB.
+
+\paragraph{Figure/image paths.}
+\begin{itemize}
+\item ipho\_2026\_source/image/T3\_page-2.png
+\item ipho\_2026\_source/image/T3\_page-1.png
+\end{itemize}
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source T3-A1. Question: Write the field magnitude H inside the torus in terms of N, I, A, and V. Policy: derive\_inline\_from\_problem\_only\_material
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_t3\_a2.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_t3_a2:target}
+\leanok
+For the densely wound paramagnetic torus in the thin-torus ($r \ll R$)
+uniform-field model, the work performed by the external voltage source when
+the magnitude of $\vec B$ changes by $dB$ is
+\[
+  dW_{emf} \;=\; V\,H\,dB,
+\]
+in terms of the torus volume $V$, the $H$-field magnitude $H$ and the field
+change $dB$, as requested by T3-A2.  Lean:
+\texttt{IPhO2026.T3A2.emf\_work} (packaged form
+\texttt{IPhO2026.T3A2.emf\_work\_eq\_expr}); sign-convention coherence in
+\texttt{IPhO2026.T3A2.emf\_work\_positive}.
+\end{theorem}
+\begin{proof}
+\leanok
+The azimuthal $\vec B$ is uniform and perpendicular to the tube cross-section,
+so each of the $N$ turns links the flux $B \cdot A$ and the winding's total
+flux linkage is $\lambda = N B A$ (\texttt{fluxLinkage}); a change $dB$ of the
+field magnitude changes the linkage by $N\,A\,dB$
+(\texttt{fluxLinkage\_change}).  Faraday's law in step form gives
+$\varepsilon\,dt = N\,dB\,A$ for the voltage the source must supply against
+the induced emf (\texttt{FaradaysLawWinding}), and the source maintaining the
+instantaneous current $I$ performs $dW_{emf} = I\,\varepsilon\,dt$
+(\texttt{SourceWorkStep}; negligible wire resistance, so no Joule term), hence
+$dW_{emf} = I\,N\,A\,dB$ (\texttt{source\_work\_of\_linkage\_change}).
+Ampère's law on the mean circle combined with the torus volume--geometry gives
+$H\,V = N\,I\,A$ (\texttt{field\_times\_volume}), and substituting
+$N I A = H V$ yields $dW_{emf} = (H V)\,dB = V H\,dB$ (\texttt{emf\_work}).
+The T3-A1 result $H = NIA/V$ is re-derived inline from the problem-only
+governing laws (\texttt{field\_magnitude\_T3A1}), per the
+\texttt{derive\_inline\_from\_problem\_only\_material} policy; no sibling file
+is imported.  Lean proof bodies are deferred (\texttt{sorry}) at the
+autoformalize stage.
+\end{proof}
+% --- Archon physics formalization source end ---

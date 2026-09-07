@@ -49,11 +49,12 @@ by-sorry formalization, not a proof attempt.
 6. Use LeanExplore before inventing APIs:
    - Start with `mcp__lean-explore__search_summary` or `search_summary`.
    - Query both natural-language concepts and likely Lean names.
-   - Always pass `packages: ["Mathlib", "Physlib"]` when the tool schema
-     supports package filters.
+   - Always pass `packages: ["Mathlib", "Physlib"]` and `rerank_top: 0` when
+     the tool schema supports those fields. The pinned local backend uses its
+     embedding index without the optional reranker.
    - Fetch source/module/docstring for only the candidates you intend to use.
-7. Verify Lean syntax and available names with `archon-lean-lsp` diagnostics,
-   hover, local search, or small snippets.
+7. Verify Lean syntax and available names with the pinned local compiler
+   feedback loop and small snippets.
 8. Write declarations with `sorry` bodies. The file must compile with only
    expected `sorry` warnings when you stop.
 

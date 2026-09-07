@@ -1,0 +1,71 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_e1_b6.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_e1_b6.source.json
+% archon:problem-id ipho_2026_e1
+% archon:part-id E1-B6
+% archon:previous-part ipho_2026_e1_b5
+% archon:previous-part-policy derive_inline_from_problem_only_material
+
+\chapter{Ipho Physics problem ipho\_2026\_e1\_b6}
+\label{ch:IPhO2026Problems_problem_ipho_2026_e1_b6}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The inner cylinder contains dry air plus water vapor at total pressure
+approximately P\_atm.  The water level is adjusted and its height H is recorded
+as temperature T falls.  At T\_0 = 273.15 K, extrapolated height is H\_0 and the
+water vapor pressure may be taken as zero.  Vapor pressure obeys
+ln(P\_v/P\_v0) = -(Q\_v/R)*(1/T - 1/T\_0).  Use the experimental procedure and
+geometry on pages 11--12.
+
+\#\# Current subquestion E1-B6
+
+Convert Q\_v into latent heat per unit mass L\_v and state the formula.
+
+\paragraph{Shared problem context.}
+The inner cylinder contains dry air plus water vapor at total pressure
+approximately P\_atm.  The water level is adjusted and its height H is recorded
+as temperature T falls.  At T\_0 = 273.15 K, extrapolated height is H\_0 and the
+water vapor pressure may be taken as zero.  Vapor pressure obeys
+ln(P\_v/P\_v0) = -(Q\_v/R)*(1/T - 1/T\_0).  Use the experimental procedure and
+geometry on pages 11--12.
+
+\paragraph{Current subquestion.}
+Convert Q\_v into latent heat per unit mass L\_v and state the formula.
+
+\paragraph{Figure/image path.}
+ipho\_2026\_source/image/E1\_page-12.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source E1-B5. Question: Construct a Clausius-Clapeyron graph and use it to determine the molar latent heat Q\_v. Policy: derive\_inline\_from\_problem\_only\_material
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_e1\_b6.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_e1_b6:target}
+\leanok
+The assigned autoformalize agent should translate this IPhO physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+\leanok
+Fully proved in \texttt{IPhO2026Problems/problem\_ipho\_2026\_e1\_b6.lean}
+(namespace \texttt{IPhO2026.E1B6}): the conversion formula
+$L_v = Q_v / M_w$ (\texttt{latentHeatPerMass\_eq\_candidate}) follows from the
+three defining latent-heat laws on one vaporization sample
+($Q = n \cdot Q_v$, $Q = m \cdot L_v$, $m = n \cdot M_w$), which give
+$n \cdot Q_v = n \cdot (M_w \cdot L_v)$; cancelling the positive vaporized
+amount $n$ yields the bridge form $Q_v = M_w \cdot L_v$
+(\texttt{molarLatentHeat\_eq\_molarMass\_mul\_specific}), and dividing by the
+positive molar mass $M_w$ yields $L_v = Q_v / M_w$. Positivity of $L_v$ is
+certified by \texttt{latentHeatPerMass\_pos}.
+\end{proof}
+% --- Archon physics formalization source end ---

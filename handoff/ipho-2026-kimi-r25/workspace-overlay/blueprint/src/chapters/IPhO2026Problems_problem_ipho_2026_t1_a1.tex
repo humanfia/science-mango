@@ -1,0 +1,75 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_t1_a1.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_t1_a1.source.json
+% archon:problem-id ipho_2026_t1
+% archon:part-id T1-A1
+
+\chapter{Ipho Physics problem ipho\_2026\_t1\_a1}
+\label{ch:IPhO2026Problems_problem_ipho_2026_t1_a1}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two water reservoirs are separated by a vertical wall MN.  A square slot of
+vertical size a*sqrt(2)/2 is sealed by a fully submerged solid cube of side a
+and density 3*rho\_0, where rho\_0 is the density of water.  The cube is hinged
+frictionlessly at O and may rotate about an axis perpendicular to the figure.
+The maximum permitted difference in water levels is Delta h = 1.41 m.  Use
+Figure 1a on the source page for the exact geometry and lever arms.
+
+\#\# Current subquestion T1-A1
+
+Calculate the side length a that makes Delta h = 1.41 m the maximum permissible water-level difference.
+
+\paragraph{Shared problem context.}
+Two water reservoirs are separated by a vertical wall MN.  A square slot of
+vertical size a*sqrt(2)/2 is sealed by a fully submerged solid cube of side a
+and density 3*rho\_0, where rho\_0 is the density of water.  The cube is hinged
+frictionlessly at O and may rotate about an axis perpendicular to the figure.
+The maximum permitted difference in water levels is Delta h = 1.41 m.  Use
+Figure 1a on the source page for the exact geometry and lever arms.
+
+\paragraph{Current subquestion.}
+Calculate the side length a that makes Delta h = 1.41 m the maximum permissible water-level difference.
+
+\paragraph{Figure/image path.}
+ipho\_2026\_source/image/T1\_page-1.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_t1\_a1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_t1_a1:target}
+\lean{IPhO2026.T1A1.exists_unique_side, IPhO2026.T1A1.candidateSide,
+IPhO2026.T1A1.candidateSide_correct, IPhO2026.T1A1.candidateSide_unique,
+IPhO2026.T1A1.candidateSide_bounds, IPhO2026.T1A1.candidateSide_ceiling_cm}
+\leanok
+This IPhO physics problem is formalized in the covered Lean file
+\texttt{IPhO2026Problems/problem\_ipho\_2026\_t1\_a1.lean}: there is a unique
+side length $a > 0$ for which $\Delta h = 1.41\,\mathrm{m}$ is exactly the
+maximum permissible water-level difference
+(\texttt{IPhO2026.T1A1.exists\_unique\_side}); the derived candidate
+$a = \Delta h/(2\sqrt{2}) \approx 0.4985\,\mathrm{m}$ meets the specification
+uniquely (\texttt{candidateSide\_correct}, \texttt{candidateSide\_unique}),
+lies in $0.498 < a < 0.499$ (\texttt{candidateSide\_bounds}), and rounds up to
+$0.50\,\mathrm{m}$ under the source-derived round-up-to-centimetres rule
+(\texttt{candidateSide\_ceiling\_cm}).
+\end{theorem}
+\begin{proof}
+\leanok
+Kernel-checked in Lean (no \texttt{sorry}): torque balance about the
+frictionless hinge O gives the linear threshold
+\texttt{IPhO2026.T1A1.sealHolds\_iff} ($\mathrm{SealHolds} \iff
+\Delta h \le 2\sqrt{2}\,a$) from the assembled torques
+\texttt{overturningTorque\_eq} ($\rho_0 g \Delta h\, a^3/4$) and
+\texttt{restoringTorque\_eq} ($\sqrt{2}\rho_0 g a^4/2$), so
+\texttt{isMaxPermissibleLevelDiff\_iff} characterizes the maximum by
+$\Delta h = 2\sqrt{2}\,a$; existence, uniqueness, numerics, and the ceiling
+rule follow by positivity/division algebra and $1.4142 < \sqrt2 < 1.4143$.
+\end{proof}
+% --- Archon physics formalization source end ---

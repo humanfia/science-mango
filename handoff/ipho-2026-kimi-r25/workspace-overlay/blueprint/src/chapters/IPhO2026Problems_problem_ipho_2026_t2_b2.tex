@@ -1,0 +1,96 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_t2_b2.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_t2_b2.source.json
+% archon:problem-id ipho_2026_t2
+% archon:part-id T2-B2
+% archon:previous-part ipho_2026_t2_b1
+% archon:previous-part-policy derive_inline_from_problem_only_material
+
+\chapter{Ipho Physics problem ipho\_2026\_t2\_b2}
+\label{ch:IPhO2026Problems_problem_ipho_2026_t2_b2}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+\#\# Current subquestion T2-B2
+
+Express the power ratio P/P\_0 in terms of theta\_max.
+
+\paragraph{Shared problem context.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+\paragraph{Current subquestion.}
+Express the power ratio P/P\_0 in terms of theta\_max.
+
+\paragraph{Figure/image path.}
+ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source T2-B1. Question: Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R. Policy: derive\_inline\_from\_problem\_only\_material
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_t2\_b2.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_t2_b2:target}
+\lean{IPhO2026.T2B2.power_ratio}
+\leanok
+The assigned autoformalize agent should translate this IPhO physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+\leanok
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+
+\emph{Prover-stage completion.} All 32 proof obligations in
+\texttt{IPhO2026Problems/problem\_ipho\_2026\_t2\_b2.lean} are now closed with
+kernel-checked proofs (no \texttt{sorry}; only the standard axioms
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}).  The shared
+T2-B geometry is re-established exactly as in
+\texttt{problem\_ipho\_2026\_t2\_b1.lean}: the reflected direction is
+$d' = (-\sin 2\theta, -\cos 2\theta)$ (\texttt{reflectedDir\_eq}); the
+perpendicular distance from $C = (0, R/2)$ to the reflected line is
+$R\sin\theta\,(1-\cos\theta)$ (\texttt{distToLine\_container}), strictly
+increasing and continuous on $[0, \pi/2]$ (\texttt{dist\_strictMonoOn},
+\texttt{dist\_continuous}); a ray strikes the container iff this distance is at
+most $a$ (\texttt{strikes\_iff\_dist\_le}); the extremal ray grazes the
+container, $\mathrm{dist}(\theta_{\max}) = a$ (\texttt{dist\_at\_max\_eq}),
+giving the factored T2-B1 relation
+$a = R\sin\theta_{\max}\,(1-\cos\theta_{\max})$
+(\texttt{container\_radius\_eq\_factored}).  For B2 the flux bookkeeping is
+added: a reflected ray strikes iff $\theta \le \theta_{\max}$
+(\texttt{strikes\_iff\_le\_max}), and $\sin$ covers $[0, \sin\theta_{\max}]$
+(\texttt{sin\_surj\_upto}), so the absorbed impact-parameter set is exactly
+$[-R\sin\theta_{\max}, R\sin\theta_{\max}]$
+(\texttt{absorbedImpactSet\_eq\_Icc}); its Lebesgue width is
+$2R\sin\theta_{\max}$ (\texttt{volume\_absorbedImpactSet}, via
+\texttt{Real.volume\_Icc}).  Hence per unit length
+$P = 2R\sin\theta_{\max}\,I$ (\texttt{powerWithMirror\_eq}) while
+$P_0 = 2aI$, so $P/P_0 = R\sin\theta_{\max}/a$
+(\texttt{power\_ratio\_eq\_sin}); eliminating $a$ via the factored relation
+(with $\sin\theta_{\max} > 0$ and $1-\cos\theta_{\max} > 0$ from
+\texttt{thetaMax\_pos}, \texttt{sin\_pos\_of\_theta\_range},
+\texttt{one\_sub\_cos\_pos\_of\_theta\_range}) yields
+$P/P_0 = 1/(1-\cos\theta_{\max})$ (\texttt{power\_ratio}).
+\end{proof}
+% --- Archon physics formalization source end ---

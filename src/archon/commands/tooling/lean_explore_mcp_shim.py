@@ -81,6 +81,31 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
+class _OfflineLocalService:
+    """Use the pinned embedding index without an uncached reranker."""
+
+    def __init__(self, service):
+        self._service = service
+
+    async def search(
+        self,
+        query: str,
+        limit: int = 20,
+        rerank_top: int | None = 0,
+        packages: list[str] | None = None,
+    ):
+        del rerank_top
+        return await self._service.search(
+            query=query,
+            limit=limit,
+            rerank_top=0,
+            packages=packages,
+        )
+
+    def __getattr__(self, name: str):
+        return getattr(self._service, name)
+
+
 def _init_backend(backend: str, api_key: str | None):
     if backend == "api":
         key = api_key or os.environ.get("LEANEXPLORE_API_KEY") or _project_env_api_key()
@@ -104,7 +129,7 @@ def _init_backend(backend: str, api_key: str | None):
 
     from lean_explore.search import SearchEngine, Service
 
-    return Service(engine=SearchEngine(use_local_data=False))
+    return _OfflineLocalService(Service(engine=SearchEngine(use_local_data=False)))
 
 
 def _project_env_api_key(env: dict[str, str] | None = None) -> str | None:

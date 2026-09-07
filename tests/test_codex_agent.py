@@ -8,6 +8,7 @@ against synthetic streams that mirror the real codex 0.136 event schema.
 
 from __future__ import annotations
 
+import inspect
 import json
 import os
 import subprocess
@@ -43,6 +44,12 @@ def _agent(**kw) -> CodexAgent:
 
 
 class BuildArgvTest(unittest.TestCase):
+    def test_native_run_uses_extended_idle_watchdog(self):
+        self.assertEqual(
+            inspect.signature(CodexAgent.run).parameters["idle_timeout_s"].default,
+            1800,
+        )
+
     def test_base_argv_shape(self):
         argv = _agent(model="gpt-5.1-codex").build_argv(
             "PROMPT", env_source={}, lake_root="/proj"
@@ -424,6 +431,37 @@ class McpTest(unittest.TestCase):
             )
 
         self.assertEqual(got, "secret-from-project")
+
+
+class LeanExploreShimTest(unittest.IsolatedAsyncioTestCase):
+    async def test_offline_local_service_forces_no_reranker(self):
+        marker = object()
+
+        class FakeService:
+            engine = "base-engine"
+
+            async def search(self, **kwargs):
+                self.search_kwargs = kwargs
+                return marker
+
+            async def get_by_id(self, declaration_id):
+                return declaration_id
+
+        base = FakeService()
+        service = lean_explore_mcp_shim._OfflineLocalService(base)
+
+        result = await service.search(
+            query="square root",
+            limit=7,
+            rerank_top=50,
+            packages=["Mathlib", "Physlib"],
+        )
+
+        self.assertIs(result, marker)
+        self.assertEqual(base.search_kwargs["rerank_top"], 0)
+        self.assertEqual(base.search_kwargs["packages"], ["Mathlib", "Physlib"])
+        self.assertEqual(service.engine, "base-engine")
+        self.assertEqual(await service.get_by_id(42), 42)
 
 
 # ── prompt variant ────────────────────────────────────────────────────

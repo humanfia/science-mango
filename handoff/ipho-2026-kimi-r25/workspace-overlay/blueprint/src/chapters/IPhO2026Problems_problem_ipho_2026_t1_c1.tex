@@ -1,0 +1,88 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_t1_c1.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_t1_c1.source.json
+% archon:problem-id ipho_2026_t1
+% archon:part-id T1-C1
+
+\chapter{Ipho Physics problem ipho\_2026\_t1\_c1}
+\label{ch:IPhO2026Problems_problem_ipho_2026_t1_c1}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A photon of angular frequency omega is absorbed by an ozone molecule O3 at rest,
+dissociating it into O2 and O.  Let U\_i and U\_f be the ground-state energies of
+O3 and O2 and define Delta U = U\_f - U\_i.  The outgoing O2 momentum makes angle
+theta with the incident photon.  Treat the oxygen fragments classically and
+non-relativistically, take the mass of an oxygen atom to be m, and use photon
+momentum p\_gamma = E\_gamma/c = hbar*omega/c.
+
+\#\# Current subquestion T1-C1
+
+Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m.
+
+\paragraph{Shared problem context.}
+A photon of angular frequency omega is absorbed by an ozone molecule O3 at rest,
+dissociating it into O2 and O.  Let U\_i and U\_f be the ground-state energies of
+O3 and O2 and define Delta U = U\_f - U\_i.  The outgoing O2 momentum makes angle
+theta with the incident photon.  Treat the oxygen fragments classically and
+non-relativistically, take the mass of an oxygen atom to be m, and use photon
+momentum p\_gamma = E\_gamma/c = hbar*omega/c.
+
+\paragraph{Current subquestion.}
+Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m.
+
+\paragraph{Figure/image path.}
+ipho\_2026\_source/image/T1\_page-3.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_t1\_c1.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_t1_c1:target}
+\lean{IPhO2026.T1C1.OzonePhotodissociation.isLeast_feasibleFreqs, IPhO2026.T1C1.OzonePhotodissociation.omegaMin_eq}
+\leanok
+For an acute emission angle $0 < \theta < \pi/2$ (the branch of Fig.~1c) and
+dissociation energy below the kinematic threshold
+$2\,\Delta U\,(3 - 2\cos^2\theta) \le 3 m c^{2}$ — overwhelmingly satisfied in
+the actual problem, where $\Delta U \sim 1\,\mathrm{eV} \ll mc^{2}$ — the least
+angular frequency at which the photon can dissociate the ozone molecule with
+the $\mathrm{O}_2$ emitted at angle $\theta$ is
+\[
+\omega_{\min}(\theta)
+= \frac{6\,m c^{2}\,\Delta U}
+{\hbar\,\bigl(3 m c^{2} + \sqrt{9 m^{2} c^{4} - 6 m c^{2}\,\Delta U\,(3 - 2\cos^{2}\theta)}\bigr)} .
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+Kernel-checked in Lean as
+\texttt{IPhO2026.T1C1.OzonePhotodissociation.isLeast\_feasibleFreqs} and
+\texttt{IPhO2026.T1C1.OzonePhotodissociation.omegaMin\_eq} (no \texttt{sorry}).
+Derivation from problem-side conservation laws only: eliminating the recoil
+momentum of the O atom from the two momentum-conservation components and the
+energy-conservation equation leaves a single quadratic
+$3p^{2} - 4(\hbar\omega/c)\cos\theta\,p + (2(\hbar\omega/c)^{2} + 4m\Delta U - 4m\hbar\omega) = 0$
+in the $\mathrm{O}_2$ momentum $p$ (\texttt{feasibleAt\_iff\_exists\_p},
+\texttt{exists\_pos\_momentum\_balance\_iff\_quadratic}).  Completing the square,
+a positive real root $p > 0$ exists iff the discriminant condition
+$(3 - 2\cos^{2}\theta)(\hbar\omega)^{2} - 6mc^{2}(\hbar\omega) + 6mc^{2}\Delta U \le 0$
+holds (\texttt{feasibleAt\_iff\_quadratic}).  The threshold is the smaller root
+$E_{\min} = \hbar\omega_{\min} = (3mc^{2} - \sqrt{9m^{2}c^{4} - 6mc^{2}\Delta U(3-2\cos^{2}\theta)})/(3-2\cos^{2}\theta)$
+(\texttt{quadratic\_omegaMinFormula}, \texttt{omegaMinFormula\_eq\_rootForm}),
+rationalized to the displayed closed form (\texttt{photonEnergy\_omegaMinFormula}).
+Membership ($E_{\min}$ saturates the bound, \texttt{feasibleAt\_omegaMinFormula})
+and the lower bound ($Q(E) \le 0 \Rightarrow E \ge E_{\min}$ via
+$Q(E) - Q(E_{\min}) = (E - E_{\min})(a(E + E_{\min}) - 6mc^{2})$ with
+$aE_{\min} = 3mc^{2} - \sqrt{\cdots} \le 3mc^{2}$) give that $\omega_{\min}$ is
+the least feasible frequency, so the infimum $\omega_{\min} = \inf\{\omega > 0
+\mid \text{feasible}\}$ equals the closed form (\texttt{omegaMin\_eq}).
+Recoil strictly raises the threshold above the naive $\Delta U/\hbar$
+(\texttt{photonEnergy\_omegaMinFormula\_gt}).
+\end{proof}
+% --- Archon physics formalization source end ---

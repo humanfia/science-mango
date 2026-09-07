@@ -137,9 +137,9 @@ blueprint/src/chapters/<chapter>.tex
    - require signed branch and orientation choices to be fixed by assumptions
      or derived bridge lemmas.
 
-You may use read-only tools such as `archon-lean-lsp` and LeanExplore MCP.
-When using LeanExplore MCP, pass `packages: ["Mathlib", "PhysLean"]` when
-the tool supports it.
+You may use LeanExplore MCP and the pinned local compiler feedback loop.
+When using LeanExplore MCP, pass `packages: ["Mathlib", "Physlib"]` and
+`rerank_top: 0` when the tool supports those fields.
 
 You may not edit Lean, blueprint, state files, or reports other than your own.
 

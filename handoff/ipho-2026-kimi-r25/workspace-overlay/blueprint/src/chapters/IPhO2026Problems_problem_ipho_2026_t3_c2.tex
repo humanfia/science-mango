@@ -1,0 +1,80 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_ipho_2026_t3_c2.lean
+% archon:source-report reports/ipho_2026/problem_ipho_2026_t3_c2.source.json
+% archon:problem-id ipho_2026_t3
+% archon:part-id T3-C2
+% archon:previous-part ipho_2026_t3_b1
+% archon:previous-part-policy derive_inline_from_problem_only_material
+% archon:previous-part ipho_2026_t3_c1
+% archon:previous-part-policy derive_inline_from_problem_only_material
+
+\chapter{Ipho Physics problem ipho\_2026\_t3\_c2}
+\label{ch:IPhO2026Problems_problem_ipho_2026_t3_c2}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+\#\# Current subquestion T3-C2
+
+Express M\_1 in terms of M\_2, M\_3, and M\_4.
+
+\paragraph{Shared problem context.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+\paragraph{Current subquestion.}
+Express M\_1 in terms of M\_2, M\_3, and M\_4.
+
+\paragraph{Figure/image path.}
+ipho\_2026\_source/image/T3\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source T3-B1. Question: At fixed temperature T, H changes from H\_i to H\_f. Find the heat Q transferred into the torus. Policy: derive\_inline\_from\_problem\_only\_material
+\item Source T3-C1. Question: Label T\_h and T\_c on Figure 3b and identify the processes on which Q\_h and Q\_c are transferred. Policy: derive\_inline\_from\_problem\_only\_material
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_ipho\_2026\_t3\_c2.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+This is an answer-blind solve-phase task. Derive a candidate result only from the problem-side evidence above; do not assume a target value, select a tolerance around a desired value, or encode a desired result into a candidate domain.
+For numerical questions, define the raw end-to-end quantity and apply an explicit source-derived rounding rule. For identification questions, characterize or prove uniqueness before recording the derived candidate.
+
+\begin{theorem}[Ipho Physics formalization target]
+\label{thm:physics:ipho_2026_t3_c2:target}
+\leanok
+The assigned autoformalize agent should translate this IPhO physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+\leanok
+Formalization completed in \texttt{IPhO2026Problems/problem\_ipho\_2026\_t3\_c2.lean}
+(namespace \texttt{IPhO2026.T3C2}) and all proof bodies are now kernel-checked
+(no \texttt{sorry}): the bridge lemmas
+\texttt{heat\_cold\_leg\_magnetization\_form},
+\texttt{heat\_hot\_leg\_magnetization\_form} (EOS solved for $H_i$ via
+\texttt{eq\_div\_iff}, substituted into the T3-B1 heat relation, cleared by
+\texttt{field\_simp}), \texttt{magnetization\_balance\_of\_heats}
+(cross-multiplied Clausius relation, cancellation of the common prefactor
+$A\,T_h\,T_c \neq 0$ by \texttt{mul\_left\_cancel₀}), the orientation bridges
+\texttt{cold\_leg\_absorbs\_heat} / \texttt{hot\_leg\_rejects\_heat}
+(\texttt{pow\_lt\_pow\_left₀}, positivity of the prefactor), and the main
+targets \texttt{magnetization\_vertex\_one\_sq} and
+\texttt{magnetization\_vertex\_one} are all proved, giving
+$M_1^2 = M_2^2 - M_3^2 + M_4^2$ and $M_1 = \sqrt{M_2^2 - M_3^2 + M_4^2}$.
+Axiom audit: only \texttt{propext}, \texttt{Classical.choice},
+\texttt{Quot.sound}.
+\end{proof}
+% --- Archon physics formalization source end ---
