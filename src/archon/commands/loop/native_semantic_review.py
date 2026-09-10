@@ -34,6 +34,7 @@ from .certified_prior_result_context import (
     CertifiedPriorResultContextError,
     canonical_value_sha256,
     load_certified_prior_result_context,
+    uses_full_theory_inline_prior,
 )
 
 SCHEMA_VERSION = 1
@@ -297,6 +298,16 @@ def _root_owned_not_publicly_writable(path: Path) -> bool:
     return metadata.st_uid == 0 and not (stat.S_IMODE(metadata.st_mode) & 0o022)
 
 
+def _read_only_user_mount(path: Path) -> bool:
+    """Rootless libraries must be kernel read-only mounts, not just chmod'd files."""
+    try:
+        return os.geteuid() != 0 and path.stat().st_uid == os.geteuid() and bool(
+            os.statvfs(path).f_flag & os.ST_RDONLY
+        )
+    except OSError:
+        return False
+
+
 def _trusted_plain_file(path: Path) -> bool:
     try:
         metadata = path.lstat()
@@ -305,8 +316,8 @@ def _trusted_plain_file(path: Path) -> bool:
     return (
         stat.S_ISREG(metadata.st_mode)
         and not stat.S_ISLNK(metadata.st_mode)
-        and metadata.st_uid == 0
-        and not (stat.S_IMODE(metadata.st_mode) & 0o022)
+        and ((metadata.st_uid == 0 and not (stat.S_IMODE(metadata.st_mode) & 0o022))
+             or _read_only_user_mount(path))
     )
 
 
@@ -318,8 +329,8 @@ def _trusted_plain_directory(path: Path) -> bool:
     return (
         stat.S_ISDIR(metadata.st_mode)
         and not stat.S_ISLNK(metadata.st_mode)
-        and metadata.st_uid == 0
-        and not (stat.S_IMODE(metadata.st_mode) & 0o022)
+        and ((metadata.st_uid == 0 and not (stat.S_IMODE(metadata.st_mode) & 0o022))
+             or _read_only_user_mount(path))
     )
 
 
@@ -339,7 +350,16 @@ def _trusted_pinned_environment(
         root = project_path.resolve(strict=True)
     except OSError:
         return None
-    if not root.is_dir() or not _root_owned_not_publicly_writable(root):
+    rootless = False
+    if _read_only_user_mount(root / ".archon/config.json"):
+        try:
+            rootless = uses_full_theory_inline_prior(root, [row["id"] for row in _load_bundle(root)])
+        except (ValueError, KeyError):
+            return None
+    if not root.is_dir() or not (
+        _root_owned_not_publicly_writable(root)
+        or (rootless and root.stat().st_uid == os.geteuid())
+    ):
         return None
 
     controller_files = [
@@ -381,7 +401,10 @@ def _trusted_pinned_environment(
         or lean_candidate.absolute() != lean_path
         or not _trusted_plain_file(lean_path)
         or not os.access(lean_path, os.X_OK)
-        or lean_path.parent.parent.name != f"lean-v{lean_version}"
+        or lean_path.parent.parent.name not in (
+            {f"lean-v{lean_version}", f"leanprover--lean4---v{lean_version}"}
+            if rootless else {f"lean-v{lean_version}"}
+        )
         or not _trusted_plain_directory(lean_path.parent)
         or not _trusted_plain_directory(lean_path.parent.parent)
     ):
@@ -419,10 +442,12 @@ def _trusted_pinned_environment(
     except OSError:
         return None
     if (
-        not _root_owned_not_publicly_writable(lake_root)
-        or link_metadata.st_uid != 0
+        not (_root_owned_not_publicly_writable(lake_root)
+             or (rootless and not lake_root.is_symlink() and lake_root.stat().st_uid == os.geteuid()))
+        or link_metadata.st_uid != (os.geteuid() if rootless else 0)
         or not packages_root.is_dir()
-        or not _root_owned_not_publicly_writable(packages_root)
+        or not (_root_owned_not_publicly_writable(packages_root)
+                or (rootless and _read_only_user_mount(packages_root)))
     ):
         return None
 
@@ -1142,13 +1167,21 @@ def _validate_requested_output(
         _error(f"bundle {record_id}/{output_id} unit is not a string")
     if not isinstance(policy, Mapping) or not policy:
         _error(f"bundle {record_id}/{output_id} reporting policy is missing")
-    return {
+    result = {
         "id": output_id,
         "kind": kind,
         "source_requirement": requirement,
         "unit": unit,
         "reporting_policy": copy.deepcopy(dict(policy)),
     }
+    semantic = raw.get("semantic_requirements")
+    if semantic is not None:
+        if not isinstance(semantic, list) or not semantic or any(
+            not isinstance(value, str) or not value.strip() for value in semantic
+        ):
+            _error(f"bundle {record_id}/{output_id} has invalid semantic requirements")
+        result["semantic_requirements"] = list(semantic)
+    return result
 
 
 def build_native_semantic_review_contract(
@@ -1231,7 +1264,8 @@ def build_native_semantic_review_contract(
         if not isinstance(previous_parts, list):
             _error(f"bundle {record_id} previous_parts is not a list")
         try:
-            certified_prior_result = load_certified_prior_result_context(
+            inline_prior = uses_full_theory_inline_prior(root, [item["id"] for item in rows])
+            certified_prior_result = {} if inline_prior else load_certified_prior_result_context(
                 project_path=root,
                 consumer_record_id=record_id,
                 consumer_target_rel=target_rel,
@@ -1493,7 +1527,8 @@ def render_independent_rederivation_instructions(
         "problem-only contract; never invent a field, index, asset, or declaration. "
         f"Keep each string at most {MAX_TEXT_CHARS} characters, each JSON value "
         f"at most {MAX_JSON_VALUE_CHARS} characters, each list at most "
-        f"{MAX_ITEMS_PER_FIELD} items, each requested-output object at most "
+        f"{MAX_ITEMS_PER_FIELD} items (except requested_outputs, which must match "
+        "the complete source inventory), each requested-output object at most "
         f"{MAX_OUTPUT_BYTES} UTF-8 bytes, and the complete independent_rederivation "
         f"at most {MAX_CERTIFICATE_BYTES} UTF-8 bytes. "
         f"Use at most {MAX_PINNED_DECLARATIONS} distinct pinned-library "
@@ -2303,10 +2338,9 @@ def validate_independent_rederivation(
         expected_outputs = contract.get("requested_outputs")
         if not isinstance(expected_outputs, list):
             _error("independent_rederivation requested output inventory is invalid")
-        actual_outputs = _bounded_list(
-            raw.get("requested_outputs"),
-            label="independent_rederivation.requested_outputs",
-        )
+        actual_outputs = raw.get("requested_outputs")
+        if not isinstance(actual_outputs, list) or len(actual_outputs) != len(expected_outputs):
+            _error("independent_rederivation must cover the exact ordered requested output ids")
         for index, actual in enumerate(actual_outputs):
             _exact_fields(
                 actual,

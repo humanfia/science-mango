@@ -751,8 +751,8 @@ def _patch_native_config(
     for setting in web_settings:
         extra_args.extend(("-c", setting))
     for setting in (
-        "features.code_mode=false",
         "features.code_mode.enabled=false",
+        "features.code_mode_host=true",
         "features.shell_snapshot=false",
         "features.shell_tool=true",
         "features.multi_agent=false",
@@ -763,10 +763,9 @@ def _patch_native_config(
         "runner": "codex",
         "model": "gpt-5.6-sol",
         "effort": "max",
-        # This host disables unprivileged user namespaces, so Codex's
-        # workspace-write sandbox cannot provide its execution host.  The
-        # native loop instead runs as a dedicated non-root UID, while answer
-        # and controller paths stay root-only; _run_loop enforces that boundary.
+        # Execution isolation is supplied outside Codex: either a dedicated
+        # non-root UID on the original host, or the rootless namespace launcher.
+        # _run_loop rejects UID 0; the deployment must hide answer/controller data.
         "sandbox": "danger-full-access",
         # Loop-owned deterministic grounding uses hosted LeanExplore for the
         # public Mathlib/Physlib index and the generated local CRNT overlay.
@@ -1514,7 +1513,7 @@ def physics_command(config: Config) -> list[str]:
         "--image-root", str(config.workspace / "icho_2026_source/image"),
         "--out-dir", "IChO2026Problems",
         "--report-dir", "reports/icho_2026",
-        "--work-dir", ".archon/physics-formalize/full32",
+        "--work-dir", f".archon/physics-formalize/full{config.expected_items}",
         "--evaluation-mode", "answer-blind",
         "--limit", "-1", "--update-progress",
     ]

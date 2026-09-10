@@ -39,6 +39,7 @@ from .certified_prior_result_context import (
     CertifiedPriorResultContextError,
     load_certified_prior_result_context,
     render_certified_prior_result_prompt,
+    uses_full_theory_inline_prior,
 )
 from .numeric_reporting_guard import (
     MAX_NUMERIC_REPORTING_CERTIFICATE_BYTES,
@@ -867,6 +868,13 @@ def _validate_problem_row(row: Mapping[str, Any], record_id: str) -> None:
         output_id = item.get("id")
         requirement = item.get("source_requirement")
         audit_requirements = item.get("audit_requirements")
+        semantic_requirements = item.get("semantic_requirements")
+        if semantic_requirements is not None and (
+            not isinstance(semantic_requirements, list)
+            or not semantic_requirements
+            or any(not isinstance(value, str) or not value.strip() for value in semantic_requirements)
+        ):
+            raise ProblemOnlyReviewContractError("invalid semantic requirements")
         if audit_requirements is not None and (
             not isinstance(audit_requirements, list)
             or not audit_requirements
@@ -1225,8 +1233,13 @@ def _build_native_contract(
         "measurement_policy": row["measurement_policy"],
         "candidate_domain_policy": row["candidate_domain_policy"],
     }
+    # A fresh rootless full-theory campaign has no trusted prior-run receipt.
+    # It must derive every prior-part result from the bound problem inputs.
+    # This explicit mode is accepted only for the complete canonical scope;
+    # historical 32-target and pilot campaigns retain mandatory A6 receipts.
     try:
-        certified_prior_result = load_certified_prior_result_context(
+        inline_prior = uses_full_theory_inline_prior(project_path, list(rows))
+        certified_prior_result = {} if inline_prior else load_certified_prior_result_context(
             project_path=project_path,
             consumer_record_id=record_id,
             consumer_target_rel=rel,

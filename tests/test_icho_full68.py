@@ -19,6 +19,7 @@ def module(name):
 
 BUNDLE = module('build_icho_answer_blind_bundles')
 CAMPAIGN = module('run_answer_blind_gpt_campaign')
+SEED = module('build_answer_blind_solver_seed')
 
 
 class FullTheoryTests(unittest.TestCase):
@@ -33,7 +34,7 @@ class FullTheoryTests(unittest.TestCase):
             self.assertEqual(len(outputs), len({item['id'] for item in outputs}))
         self.assertEqual(len(BUNDLE.FULL_THEORY_OUTPUTS['icho_2026_t8_a4']), 35)
         for item in BUNDLE.FULL_THEORY_OUTPUTS['icho_2026_t6_a2']:
-            self.assertTrue(item['audit_requirements'])
+            self.assertTrue(item['semantic_requirements'])
 
     def test_real_bundle_is_blind_complete_and_controller_accepts_only_correct_scope(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -52,6 +53,9 @@ class FullTheoryTests(unittest.TestCase):
             self.assertEqual(sum(row['points'] for row in rows), 437)
             self.assertTrue(all(row['formalization_ready'] for row in rows))
             self.assertTrue(all(row['official_answer_seen'] is False for row in rows))
+            contract = SEED._blind_bundle_contract(blind.read_bytes(), location='test-bundle')
+            self.assertEqual(len(contract.target_ids), 68)
+            self.assertIn('icho_2026_t8_a10', contract.target_ids)
             with self.assertRaises(CAMPAIGN.CampaignError):
                 CAMPAIGN._bundle_rows(blind)
             CAMPAIGN.configure_target_scope(68)

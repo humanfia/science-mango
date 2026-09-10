@@ -439,7 +439,7 @@ def _blind_bundle_contract(data: bytes, *, location: str) -> BlindBundleContract
             raise IsolationError(f"{location}:{line_number}: row must be an object")
         target_id = row.get("id")
         if not isinstance(target_id, str) or not re.fullmatch(
-            r"icho_2026_t[1-9]_a[1-9]", target_id
+            r"icho_2026_(?:t[1-9]_a[1-9]|t8_a10)", target_id
         ):
             raise IsolationError(f"{location}:{line_number}: invalid target id")
         if target_id in seen_ids:

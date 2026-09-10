@@ -304,6 +304,38 @@ class ProblemOnlyReviewContractTest(unittest.TestCase):
             preflight=self.preflight,
         )
 
+    def test_semantic_requirements_are_bound_and_validated(self) -> None:
+        obligations = ["Derive every requested structure from the problem evidence."]
+        self.row["requested_outputs"][0]["semantic_requirements"] = obligations
+        self._materialize_workspace()
+        contract = resolve_native_formalizer_source_contract(
+            project_path=self.project, target=self.target,
+        )
+        self.assertIn(obligations[0], json.dumps(contract))
+        requirement_nodes = [
+            node for node in contract["semantic_dag"]["nodes"]
+            if node.get("semantic_requirements") == obligations
+        ]
+        self.assertEqual(len(requirement_nodes), 2)  # derivation and requested output
+        for invalid in ([], "not-a-list", [""], [None]):
+            with self.subTest(invalid=invalid):
+                self.row["requested_outputs"][0]["semantic_requirements"] = invalid
+                self._materialize_workspace()
+                with self.assertRaises(ProblemOnlyReviewContractError):
+                    resolve_native_formalizer_source_contract(
+                        project_path=self.project, target=self.target,
+                    )
+
+    def test_rootless_inline_prior_policy_rejects_incomplete_scope(self) -> None:
+        path = self.state / "config.json"
+        config = json.loads(path.read_text())
+        config["loop"]["rootless_full_theory"] = True
+        path.write_text(json.dumps(config))
+        with self.assertRaisesRegex(ProblemOnlyReviewContractError, "full68"):
+            resolve_native_formalizer_source_contract(
+                project_path=self.project, target=self.target,
+            )
+
     def test_native_problem_images_are_verified_before_candidate_exists(self) -> None:
         codex = HarnessDescriptor(name="codex", runner="codex")
         self.target.unlink()

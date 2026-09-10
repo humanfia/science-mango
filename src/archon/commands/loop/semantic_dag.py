@@ -255,6 +255,14 @@ def _requested_output_nodes(
     }
     if audit_requirements:
         output["audit_requirements"] = list(audit_requirements)
+    semantic_requirements = raw.get("semantic_requirements")
+    if semantic_requirements is not None:
+        if not isinstance(semantic_requirements, list) or not semantic_requirements or any(
+            not isinstance(item, str) or not item.strip() for item in semantic_requirements
+        ):
+            raise SemanticDagError(f"requested_outputs[{index}].semantic_requirements is invalid")
+        output["semantic_requirements"] = list(semantic_requirements)
+        derive["semantic_requirements"] = list(semantic_requirements)
     return derive, output
 
 

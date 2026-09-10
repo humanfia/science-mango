@@ -9,6 +9,7 @@ projects the small wrapper used by existing Review source contracts.
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+import json
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +34,28 @@ def canonical_value_sha256(value: Any) -> str:
     """Compatibility alias for the core receipt canonical hash."""
 
     return canonical_prior_result_value_sha256(value)
+
+
+def uses_full_theory_inline_prior(project_path: Path, record_ids: Sequence[str]) -> bool:
+    """An explicit fresh full68 campaign rederives priors instead of importing receipts."""
+    config_path = project_path / ".archon/config.json"
+    if config_path.is_symlink() or config_path.parent.is_symlink():
+        raise CertifiedPriorResultContextError("inline-prior config must not be a symlink")
+    if not config_path.exists():
+        return False
+    try:
+        config = json.loads(config_path.read_text())
+        enabled = config.get("loop", {}).get("rootless_full_theory") is True
+    except (OSError, ValueError, AttributeError) as exc:
+        raise CertifiedPriorResultContextError("invalid inline-prior config") from exc
+    if not enabled:
+        return False
+    full_ids = {f"icho_2026_t{paper}_a{part}"
+                for paper, count in enumerate((6, 7, 7, 9, 6, 7, 7, 10, 9), 1)
+                for part in range(1, count + 1)}
+    if len(record_ids) != 68 or set(record_ids) != full_ids:
+        raise CertifiedPriorResultContextError("inline prior derivation requires the complete full68 scope")
+    return True
 
 
 def load_certified_prior_result_context(

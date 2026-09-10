@@ -86,7 +86,14 @@ def _exact_output(
         },
     }
     if audit_requirements:
-        output["audit_requirements"] = list(audit_requirements)
+        # audit_requirements is a closed machine-readable enum in native
+        # Review. Free-text obligations must not be passed as enum values.
+        field = (
+            "audit_requirements"
+            if all(value == "image_component_accounting" for value in audit_requirements)
+            else "semantic_requirements"
+        )
+        output[field] = list(audit_requirements)
     return output
 
 

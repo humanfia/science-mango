@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import re
 import tempfile
 import unittest
@@ -235,6 +236,29 @@ class NativeSemanticReviewTests(unittest.TestCase):
             [item["id"] for item in contract["requested_outputs"]],
             ["out_1", "out_2"],
         )
+
+    def test_source_inventory_can_require_35_outputs(self) -> None:
+        contract = self._contract()
+        base = contract["requested_outputs"][0]
+        contract["requested_outputs"] = [
+            {**copy.deepcopy(base), "id": f"structure_{index}"}
+            for index in range(35)
+        ]
+        review = self._review(contract)
+        error, normalized = validate_independent_rederivation(review, contract)
+        self.assertEqual(error, "")
+        self.assertEqual(len(normalized["requested_outputs"]), 35)
+        review["independent_rederivation"]["requested_outputs"].pop()
+        error, _ = validate_independent_rederivation(review, contract)
+        self.assertIn("exact ordered", error)
+
+    @unittest.skipIf(os.geteuid() == 0, "tests unprivileged ownership")
+    def test_user_owned_chmod_readonly_is_not_a_sealed_mount(self) -> None:
+        path = self.project / "not-sealed"
+        path.write_text("untrusted")
+        path.chmod(0o444)
+        self.assertFalse(native_semantic_review._read_only_user_mount(path))
+        self.assertFalse(native_semantic_review._trusted_plain_file(path))
 
     def test_per_output_budget_uses_canonical_compact_json(self) -> None:
         contract = self._contract()
@@ -1206,6 +1230,7 @@ class NativeSemanticReviewTests(unittest.TestCase):
         probe.assert_not_called()
         self.assertEqual(build_native_schema_feedback(error)["max_items"], 256)
 
+    @unittest.skipUnless(os.geteuid() == 0, "fixture requires genuine root-owned sealed artifacts")
     def test_pinned_origin_probe_is_external_bounded_and_artifact_bound(self) -> None:
         for relative, payload in (
             ("lakefile.toml", "name = \"native_test\"\n"),
@@ -1490,6 +1515,7 @@ class NativeSemanticReviewTests(unittest.TestCase):
                 self.assertNotIn("RAW_DIAGNOSTIC", str(raised.exception))
         native_semantic_review._probe_pinned_library_declarations.cache_clear()
 
+    @unittest.skipUnless(os.geteuid() == 0, "fixture requires genuine root-owned sealed sources")
     def test_pinned_source_index_retries_transient_read_and_covers_generated_names(
         self,
     ) -> None:
