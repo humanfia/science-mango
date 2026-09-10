@@ -241,6 +241,71 @@ DEPENDENCY_REQUESTED_OUTPUTS: dict[str, tuple[dict[str, Any], ...]] = {
 }
 
 
+# Additional contracts are derived only from the numbered problem instructions.
+# Structures use the existing exact-symbolic channel, with explicit semantic
+# audit requirements; matching a name/string is not a structure proof.
+STRUCTURE_AUDIT = (
+    "Bind every atom, bond order, substituent, charge, radical and requested stereocentre to the problem figures.",
+    "Represent connectivity and requested stereochemistry explicitly in Lean; a string equality or assumed target is insufficient.",
+    "Derive the requested structure from problem constraints and justified general chemistry rules; do not assume the output.",
+)
+
+
+def _structures(labels: str) -> tuple[dict[str, Any], ...]:
+    return tuple(_exact_output(
+        f"structure_{label.lower()}", f"complete structure of {label}, including all requested stereochemistry and template fields",
+        "classification", audit_requirements=STRUCTURE_AUDIT,
+    ) for label in labels.split())
+
+
+FULL_THEORY_COUNTS = (6, 7, 7, 9, 6, 7, 7, 10, 9)
+FULL_THEORY_IDS = tuple(
+    f"icho_2026_t{paper}_a{part}"
+    for paper, count in enumerate(FULL_THEORY_COUNTS, 1)
+    for part in range(1, count + 1)
+)
+ADDITIONAL_THEORY_OUTPUTS = {
+    **DEPENDENCY_REQUESTED_OUTPUTS,
+    "icho_2026_t1_a1": tuple(_exact_output(f"identity_{x.lower()}", f"identity of {x}", "classification") for x in ("X", "Y")),
+    "icho_2026_t1_a2": (_exact_output("identity_z", "identity of Z", "classification"), *_structures("A B")),
+    "icho_2026_t2_a1": (_exact_output("balanced_bz_equation", "overall balanced BZ reaction with atoms and charge conserved", "formula"),),
+    "icho_2026_t2_a4": (_exact_output("phase_direction", "direction of motion in the supplied phase portrait", "classification"),),
+    "icho_2026_t2_a6": tuple(_exact_output(f"action_{i}", f"select effect a-e for action {i}", "classification") for i in range(1, 5)),
+    "icho_2026_t2_a7": (_exact_output("gibbs_rate_graph", "select and justify the dG/dt graph for the closed oscillatory system", "classification"),),
+    "icho_2026_t3_a3": (_exact_output("topology_table", "all table cells: additional monomer combinations or XXX, respecting supplied examples", "classification", audit_requirements=("Encode every blank cell and topology constraint from the image; justify XXX by excluding admissible combinations, not by an unsupported assertion.",)),),
+    "icho_2026_t3_a4": tuple(_exact_output(f"cof_{i}", f"repeat unit and all dashed boundary edges of COF {i}", "classification", audit_requirements=STRUCTURE_AUDIT) for i in range(3, 7)),
+    "icho_2026_t3_a5": (_exact_output("macrocycle_repeat", "smallest repeat unit of macrocycle X, with minimality justification", "classification", audit_requirements=STRUCTURE_AUDIT),),
+    "icho_2026_t4_a2": tuple(_exact_output(f"nuclear_{x}", f"balanced nuclear reaction ({x})", "formula") for x in "abc"),
+    "icho_2026_t4_a3": (_exact_output("fission_equation", "most common U235 neutron-induced fission equation with the specified same-group products", "formula"),),
+    "icho_2026_t5_a2": _structures("PL1 Y"),
+    "icho_2026_t5_a5": (_exact_output("lipid_phase", "lipid phase when both PL1 acid residues are protonated", "classification"),),
+    "icho_2026_t5_a6": _structures("PL2 PL3"),
+    "icho_2026_t6_a1": tuple(_exact_output(f"{species}_{kind}", f"number of distinct {kind} pi systems in {species} by Huckel's rule", "integer") for species in ("c18", "c16", "triplet_c13", "singlet_c13") for kind in ("aromatic", "antiaromatic")),
+    "icho_2026_t6_a2": _structures("B C D"),
+    "icho_2026_t6_a5": _structures("F G H I J K L"),
+    "icho_2026_t6_a6": _structures("M N O P Q R"),
+    "icho_2026_t7_a1": (*tuple(_exact_output(f"gases_{x.lower()}", f"complete set of gases in {x}", "finite_set") for x in ("M1", "M2")), _exact_output("xy_relation", "relationship between x and y", "classification")),
+    "icho_2026_t7_a4": (_exact_output("reaction_equation", "balanced equation for the reaction specified in the preceding problem context", "formula"),),
+    "icho_2026_t7_a5": _structures("5"),
+    "icho_2026_t7_a6": (_exact_output("yield_ranking", "rank Red/Ad combinations A-D by decreasing ammonia yield", "classification"),),
+    "icho_2026_t7_a7": tuple(_exact_output(f"formula_{x.lower()}", f"empirical formula/composition of {x}", "formula") for x in ("7", "8", "9", "10", "S", "T")),
+    "icho_2026_t8_a1": (_exact_output("half_equation", "balanced acidic CO2-to-CO reduction half equation including electron count", "formula"),),
+    "icho_2026_t8_a2": _structures("3 4 5 6 7"),
+    "icho_2026_t8_a3": (_exact_output("geometry_1", "geometry of structure 1 from the supplied choices", "classification"),),
+    "icho_2026_t8_a4": tuple(output for i in range(9, 16) for output in (*_structures(str(i)), *tuple(_exact_output(f"complex_{i}_{field}", f"{field} for complex {i}, respecting supplied answer-sheet information", "integer") for field in ("oxidation_state", "coordination_number", "valence_electrons", "total_charge")))),
+    "icho_2026_t8_a7": (_exact_output("co_rate_trend", "trend in CO formation rate per gram C3N4 with increasing catalyst mass fraction", "classification"),),
+    "icho_2026_t8_a8": tuple(_exact_output(f"condition_{x}", f"condition corresponding to curve {x} in the diagram", "classification") for x in "abcd"),
+    "icho_2026_t8_a10": tuple(_exact_output(f"lifetime_{x.lower()}", f"emission lifetime trend for {x} with increasing Red concentration", "classification") for x in ("S1", "T1")),
+    "icho_2026_t9_a2": (_exact_output("chair_conformation", "favourable chair conformation", "classification"), *_structures("K")),
+    "icho_2026_t9_a4": _structures("Y"),
+    "icho_2026_t9_a5": _structures("L"),
+    "icho_2026_t9_a8": _structures("O P Q R S"),
+}
+ADDITIONAL_THEORY_OUTPUTS["icho_2026_t1_a5"] = _structures("E F G")
+FULL_THEORY_OUTPUTS = {**REQUESTED_OUTPUTS, **ADDITIONAL_THEORY_OUTPUTS}
+assert set(FULL_THEORY_OUTPUTS) == set(FULL_THEORY_IDS)
+
+
 def _json_bytes(value: Any) -> bytes:
     return (
         json.dumps(
@@ -372,7 +437,8 @@ def _asset_records(
 
 
 def _blind_row(
-    row: dict[str, Any], *, image_root: Path, problem_pdf: Path
+    row: dict[str, Any], *, image_root: Path, problem_pdf: Path,
+    full_theory: bool = False,
 ) -> dict[str, Any]:
     identifier = str(row.get("id") or row.get("index") or "").strip()
     if not identifier:
@@ -382,7 +448,7 @@ def _blind_row(
     )
     current_question = str(row.get("current_question") or "").strip()
     shared_context = str(row.get("shared_context") or row.get("context") or "").strip()
-    requested_template = (
+    requested_template = FULL_THEORY_OUTPUTS.get(identifier) if full_theory else (
         REQUESTED_OUTPUTS.get(identifier)
         or DEPENDENCY_REQUESTED_OUTPUTS.get(identifier)
     )
@@ -419,7 +485,7 @@ def _blind_row(
         "paper": str(row.get("paper") or ""),
         "kind": str(row.get("kind") or "theory"),
         "formalization_ready": (
-            identifier in DEPENDENCY_REQUESTED_OUTPUTS
+            full_theory or identifier in DEPENDENCY_REQUESTED_OUTPUTS
             or bool(row.get("formalization_ready", True))
         ),
         "image": images[0],
@@ -517,8 +583,17 @@ def build_bundles(
     solution_pdf: Path,
     expected_count: int = 32,
     target_ids: Sequence[str] | None = None,
+    full_theory: bool = False,
 ) -> dict[str, Any]:
     rows = _read_jsonl(input_jsonl)
+    if full_theory:
+        if expected_count != 68 or target_ids is not None:
+            raise ValueError("full theory requires expected_count=68 and no target_ids")
+        ids = [str(row.get("id") or row.get("index") or "") for row in rows]
+        if len(ids) != 68 or set(ids) != set(FULL_THEORY_IDS):
+            raise ValueError("full theory requires exactly the canonical 68 theory IDs")
+        by_id = dict(zip(ids, rows))
+        rows = [by_id[identifier] for identifier in FULL_THEORY_IDS]
     dependency_selection_is_explicit = target_ids is not None
     if target_ids is not None:
         requested = [str(identifier).strip() for identifier in target_ids]
@@ -548,7 +623,7 @@ def build_bundles(
     selected_dependency_ids = sorted(
         set(selected_ids) & set(DEPENDENCY_REQUESTED_OUTPUTS)
     )
-    if selected_dependency_ids and not dependency_selection_is_explicit:
+    if selected_dependency_ids and not dependency_selection_is_explicit and not full_theory:
         raise ValueError(
             "dependency producer IDs require explicit target_ids: "
             f"{selected_dependency_ids}"
@@ -564,7 +639,7 @@ def build_bundles(
     grader_rows: list[dict[str, Any]] = []
     seen: set[str] = set()
     for source in rows:
-        blind = _blind_row(source, image_root=image_root, problem_pdf=problem_pdf)
+        blind = _blind_row(source, image_root=image_root, problem_pdf=problem_pdf, full_theory=full_theory)
         if blind["id"] in seen:
             raise ValueError(f"duplicate id: {blind['id']}")
         seen.add(blind["id"])
@@ -615,6 +690,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--problem-pdf", type=Path, required=True)
     parser.add_argument("--solution-pdf", type=Path, required=True)
     parser.add_argument("--expected-count", type=int, default=32)
+    parser.add_argument("--full-theory", action="store_true", help="Use all 68 theory contracts; requires --expected-count 68")
     parser.add_argument(
         "--target-id",
         action="append",
@@ -638,6 +714,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         solution_pdf=args.solution_pdf.resolve(),
         expected_count=args.expected_count,
         target_ids=args.target_ids,
+        full_theory=args.full_theory,
     )
     print(json.dumps(manifest, ensure_ascii=False, sort_keys=True))
     return 0

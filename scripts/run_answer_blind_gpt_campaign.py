@@ -43,6 +43,18 @@ VARIANT = "gpt"
 MODEL_FAMILY = "openai"
 MODEL_ID = "gpt-5.6-sol"
 EXPECTED_ITEM_COUNT = 32
+FULL_SCOPE_KIND = "full32"
+DEFAULT_CONCURRENCY = 32
+
+
+def configure_target_scope(count: int) -> None:
+    """Select an explicit campaign scope before preflight (one process/run)."""
+    if count not in (32, 68):
+        raise ValueError("target count must be 32 or 68")
+    global EXPECTED_ITEM_COUNT, FULL_SCOPE_KIND
+    EXPECTED_ITEM_COUNT = count
+    FULL_SCOPE_KIND = f"full{count}"
+
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 SAFE_CAMPAIGN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -433,6 +445,14 @@ def _bundle_rows(bundle: Path) -> tuple[bytes, dict[str, dict[str, Any]]]:
             _fail(f"bundle row {record_id} has stale answer-blind protocol metadata")
         _assert_solver_safe(row, path=f"bundle[{record_id}]")
         rows[record_id] = row
+    if EXPECTED_ITEM_COUNT == 68:
+        expected_ids = tuple(
+            f"icho_2026_t{paper}_a{part}"
+            for paper, count in enumerate((6, 7, 7, 9, 6, 7, 7, 10, 9), 1)
+            for part in range(1, count + 1)
+        )
+        if tuple(rows) != expected_ids:
+            _fail("full68 bundle must contain the canonical 68 theory IDs in question order")
     return payload, rows
 
 
@@ -847,7 +867,7 @@ def _execution_scope_document(binding: Binding) -> dict[str, Any]:
         "kind": (
             "failed_subset_retry"
             if binding.parent_campaign is not None
-            else "full32"
+            else FULL_SCOPE_KIND
         ),
         "ids": list(binding.ids),
     }
@@ -876,7 +896,7 @@ def _parent_execution_ids(
     canonical = tuple(record_id for record_id in bundle_ids if record_id in set(ids))
     if ids != canonical:
         _fail("parent campaign execution scope is not in exact bundle order")
-    if kind == "full32":
+    if kind == FULL_SCOPE_KIND:
         if ids != bundle_ids or locator is not None:
             _fail("parent full32 execution scope has retry provenance")
     elif kind == "failed_subset_retry":
@@ -1813,7 +1833,7 @@ class IndexWriter:
             or len(rows) != len(expected_ids)
         ):
             return "campaign execution scope is not an exact ordered bundle subset"
-        if scope.get("kind") == "full32":
+        if scope.get("kind") == FULL_SCOPE_KIND:
             if expected_ids != bundle_ids or parent is not None:
                 return "full32 campaign has retry-only scope provenance"
         elif scope.get("kind") == "failed_subset_retry":
@@ -2528,6 +2548,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--campaign-id", required=True)
     parser.add_argument("--campaign-root", type=Path, required=True)
+    parser.add_argument("--target-count", type=int, choices=(32, 68), default=32)
     parser.add_argument(
         "--seed-workspace",
         type=Path,
@@ -2571,7 +2592,7 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         help="repeat exactly four times in verifier-user order",
     )
-    parser.add_argument("--concurrency", type=int, default=EXPECTED_ITEM_COUNT)
+    parser.add_argument("--concurrency", type=int, default=DEFAULT_CONCURRENCY)
     parser.add_argument("--max-attempts", type=int, default=4)
     parser.add_argument("--stage-timeout-s", type=int, default=21600)
     parser.add_argument("--verifier-timeout-s", type=int, default=3600)
@@ -2609,6 +2630,7 @@ def _config(args: argparse.Namespace) -> Config:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    configure_target_scope(args.target_count)
     try:
         config = _config(args)
         if args.preflight or args.dry_run:
