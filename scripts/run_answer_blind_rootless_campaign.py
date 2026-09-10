@@ -199,7 +199,7 @@ def supervise(args) -> int:
             'assert all(r and r["valid"] for r in reviews), [r for r in reviews if not r or not r["valid"]]; '
             'packages=("Mathlib","Physlib","CRNT"); '
             'assert _trusted_pinned_environment(p,packages) is not None, "pinned runtime is not sealed"; '
-            'samples=[(("Mathlib",),{"Real.hasDerivAt_exp"}),(("Physlib",),{"WithDim.withDim_hMul_val"}),(("CRNT",),{"CRNT.Reaction.vector"})]; '
+            'samples=[(("Mathlib",),{"Nat.prime_two"}),(("Physlib",),{"WithDim.withDim_hMul_val"}),(("CRNT",),{"CRNT.Reaction.vector"})]; '
             'verified=[_verified_pinned_library_declarations(p,pkgs,refs) for pkgs,refs in samples]; '
             'assert all(found==refs for found,(_,refs) in zip(verified,samples)), ("pinned origin probe", [sorted(v) for v in verified]); '
             'print("FULL68_NATIVE_CONTRACTS_OK")'

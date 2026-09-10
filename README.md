@@ -4,6 +4,10 @@
 
 HumanizePhysics 利用 AI（Claude / OpenAI Codex）驱动的多阶段流水线，自动完成从自然语言问题到 Lean 4 机器可验证证明的全过程。
 
+IChO 全理论题实验现支持 **68 个编号小问、GPT `gpt-5.6-sol`、32 并发**，
+包含无需 root 的隔离启动与恢复入口，见 [full68 运行说明](docs/icho-gpt-full68.md)。
+这是新实验，历史 32 目标的 168/168 结果不代表新实验已完成或获得满分。
+
 ---
 
 ## 目录
