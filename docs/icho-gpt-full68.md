@@ -7,6 +7,12 @@ The historical 168/168 score does not describe this expanded campaign.
 
 ## Implementation and current status
 
+- At 2026-09-10 16:29 UTC, campaign `gpt56-003` was running with 32 live
+  Codex workers and 32 companion code-mode hosts. Fresh post-restart logs
+  contain actual shell calls and successful reads of the bound workspace.
+  All 68 source/formalizer and semantic-review contracts and the three
+  read-only pinned-library origin probes passed startup checks. This is
+  startup evidence, not a solved count or an official-answer score.
 - The bundle builder supports `--full-theory --expected-count 68`, checks the
   exact canonical theory inventory, and supplies problem-derived output
   contracts for the additional 36 questions. Original 32-target mode is unchanged.
