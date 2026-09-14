@@ -1,16 +1,18 @@
 # Quantum research harness
 
 This is the current harness used for the quantum-code M5 research and independent
-proof audits. Its Python modules and existing tests are imported unchanged;
+proof audits. Its research control modules and existing tests are imported unchanged; the CLI now also dispatches the formalize mode.
 [SOURCE_MANIFEST.json](SOURCE_MANIFEST.json) records their exact source hashes.
 [README.research.md](README.research.md) preserves the original research-run notes.
 
 It provides bounded solver/reviewer/integrator scheduling, frozen input hashes,
 separate proof-repair and unfinished-audit queues, same-reviewer continuation,
 semantic task dispatch, and independent review of integrated proofs. An unfinished
-review is not a mathematical rejection. Automatic status does not certify a
-mathematical theorem, and this harness does not yet invoke Lean's kernel. The
-existing science-mango formalization application remains a separate workflow.
+review is not a mathematical rejection. Automatic research-review status does not
+certify a mathematical theorem. The new [formalize entry point](../quantum_formalize/README.md)
+connects dual-library LeanExplore retrieval to proof generation, compiler repair,
+and a mandatory Lean type/axiom gate. The existing science-mango application
+remains available as a separate workflow.
 
 ## Install and check
 

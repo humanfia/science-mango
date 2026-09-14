@@ -1,0 +1,167 @@
+{
+  "kind": "real_humanize_codex_and_lean_smoke",
+  "model": "gpt-6-astra",
+  "effort": "medium",
+  "status": "accepted",
+  "target": "QuantumHarnessExample.nat_add_comm",
+  "scope": "Elementary infrastructure test, not formalization of M5",
+  "lean_toolchain": "leanprover/lean4:v4.34.0-rc1",
+  "attempts": [
+    {
+      "attempt": 1,
+      "accepted": false,
+      "stage": "compile",
+      "axioms": null,
+      "retrieval": [
+        {
+          "library": "Mathlib",
+          "query": "addition commutativity",
+          "status": "ok",
+          "packages_applied": [
+            "Mathlib"
+          ],
+          "hits": [
+            {
+              "id": 67970,
+              "name": "add_comm",
+              "module": "Mathlib.Algebra.Group.Defs",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259"
+            },
+            {
+              "id": 309165,
+              "name": "HahnSeries.instNonUnitalSemiring",
+              "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608"
+            },
+            {
+              "id": 179274,
+              "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+              "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121"
+            },
+            {
+              "id": 308875,
+              "name": "HahnSeries",
+              "module": "Mathlib.RingTheory.HahnSeries.Basic",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56"
+            },
+            {
+              "id": 179273,
+              "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+              "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117"
+            }
+          ]
+        },
+        {
+          "library": "Physlib",
+          "query": "addition commutativity",
+          "status": "ok",
+          "packages_applied": [
+            "Physlib"
+          ],
+          "hits": [
+            {
+              "id": 394440,
+              "name": "WithDim.instAddCommSemigroup",
+              "module": "Physlib.Units.WithDim.Basic",
+              "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86"
+            },
+            {
+              "id": 388632,
+              "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+              "module": "Physlib.QFT.AnomalyCancellation.Basic",
+              "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132"
+            },
+            {
+              "id": 386758,
+              "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+              "module": "Physlib.Mathematics.PiTensorProduct",
+              "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88"
+            }
+          ]
+        }
+      ],
+      "proof": "by\n  change ∀ a b : Nat, a + b = b + a\n  intro a b\n  exact Nat.add_comm a b",
+      "feedback": "<run>/attempt-001/Candidate.lean:2:75: error: unsolved goals\n⊢ QuantumHarnessFrozenTarget\n<run>/attempt-001/Candidate.lean:3:2: error: unexpected token 'by'; expected command\n"
+    },
+    {
+      "attempt": 2,
+      "accepted": true,
+      "stage": "acceptance",
+      "axioms": [],
+      "retrieval": [
+        {
+          "library": "Mathlib",
+          "query": "addition commutativity",
+          "status": "ok",
+          "packages_applied": [
+            "Mathlib"
+          ],
+          "hits": [
+            {
+              "id": 67970,
+              "name": "add_comm",
+              "module": "Mathlib.Algebra.Group.Defs",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259"
+            },
+            {
+              "id": 309165,
+              "name": "HahnSeries.instNonUnitalSemiring",
+              "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608"
+            },
+            {
+              "id": 179274,
+              "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+              "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121"
+            },
+            {
+              "id": 308875,
+              "name": "HahnSeries",
+              "module": "Mathlib.RingTheory.HahnSeries.Basic",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56"
+            },
+            {
+              "id": 179273,
+              "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+              "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+              "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117"
+            }
+          ]
+        },
+        {
+          "library": "Physlib",
+          "query": "addition commutativity",
+          "status": "ok",
+          "packages_applied": [
+            "Physlib"
+          ],
+          "hits": [
+            {
+              "id": 394440,
+              "name": "WithDim.instAddCommSemigroup",
+              "module": "Physlib.Units.WithDim.Basic",
+              "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86"
+            },
+            {
+              "id": 388632,
+              "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+              "module": "Physlib.QFT.AnomalyCancellation.Basic",
+              "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132"
+            },
+            {
+              "id": 386758,
+              "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+              "module": "Physlib.Mathematics.PiTensorProduct",
+              "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88"
+            }
+          ]
+        }
+      ],
+      "proof": "change ∀ a b : Nat, a + b = b + a\nintro a b\nexact Nat.add_comm a b",
+      "feedback": ""
+    }
+  ]
+}

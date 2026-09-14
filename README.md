@@ -1,6 +1,6 @@
 # HumanizePhysics
 
-新增：[量子码研究 harness](pipelines/quantum_humanize/README.md) — 导入当前 M5 推导所用的 Humanize 流程、完整控制测试及运行说明。它使用独立的 Python 3.12 环境和外部研究仓库；现有 Lean 流程保持独立。
+新增：[量子码研究 harness](pipelines/quantum_humanize/README.md) — 导入当前 M5 推导所用的 Humanize 流程、完整控制测试及运行说明。它使用独立的 Python 3.12 环境和外部研究仓库；并已增加 [LeanExplore 双库检索与 Lean 编译修复、验收入口](pipelines/quantum_formalize/README.md)。
 
 **Autonomous Lean 4 Formalization System** — 自动将数学定理与物理问题转化为经过验证的 Lean 4 形式化证明。
 

@@ -1,5 +1,7 @@
 # Import validation — 2026-09-14
 
+This records the original import. Subsequent formalization integration adapts the CLI entry point; current provenance is in SOURCE_MANIFEST.json and the additional checks are in [formalization validation](../quantum_formalize/VALIDATION.md).
+
 Environment: Python 3.12.14, hmz 0.1.0 installed from the required
 `48d1559805cbdb083958bf381a2ff57c183f96ab` humanize2 commit.
 
