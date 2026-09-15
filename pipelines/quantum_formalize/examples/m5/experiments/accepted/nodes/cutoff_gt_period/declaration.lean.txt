@@ -1,0 +1,9 @@
+theorem M5.cutoff_gt_period : ∀ (w T : ℕ), 2 ≤ w → 0 < T → T < M5.packingCutoff w T := by
+  change ∀ (w T : ℕ), 2 ≤ w → 0 < T → T < M5.packingCutoff w T
+  intro w T hw hT
+  unfold M5.packingCutoff
+  have h₁ : 2 * T ≤ w * T := Nat.mul_le_mul_right T hw
+  have h₂ : w * T ≤ w * T * (T + 2) := by
+    simpa only [Nat.mul_one] using
+      Nat.mul_le_mul_left (w * T) (show 1 ≤ T + 2 by omega)
+  omega

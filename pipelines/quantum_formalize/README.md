@@ -107,6 +107,13 @@ alongside the proof module when reproducing an accepted artifact.
 
 ## Tests
 
+For dependency-aware execution with up to 16 workers, see the
+[M5 experiment](examples/m5/README.md), its [proof roadmap](examples/m5/ROADMAP.md)
+and the [complete scheduling graph](examples/m5/GRAPH.md). The `formalize-dag`
+subcommand reuses this proof loop, supplies accepted ancestor proofs to dependent
+targets, and separately compiles the assembled result. Planned full-M5 nodes are
+kept distinct from executable auxiliary targets.
+
 ```bash
 .venv-quantum-harness/bin/python -m pytest -q pipelines/quantum_formalize
 QUANTUM_LEAN_TEST_TOOLCHAIN=leanprover/lean4:v4.34.0-rc1 \

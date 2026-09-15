@@ -1,0 +1,12 @@
+{
+  "name": "M5.repair_no_collision",
+  "statement": "∀ (w T r j e k : ℕ), r < T → j < w → w ≤ k → M5.packedExponent T r j ≠ e + k * T",
+  "imports": [
+    "M5Foundation"
+  ],
+  "context": "theorem M5.packed_range : ∀ (w T r j : ℕ), r < T → j < w → M5.packedExponent T r j < w * T := by\n  intro w T r j hr hj\n  change r + j * T < w * T\n  have hjw : j + 1 ≤ w := Nat.succ_le_of_lt hj\n  calc\n    r + j * T < T + j * T := Nat.add_lt_add_right hr _\n    _ = (j + 1) * T := by simp [Nat.add_mul, Nat.add_comm]\n    _ ≤ w * T := Nat.mul_le_mul_right T hjw\n\ntheorem M5.repair_above_packing : ∀ (w T e k : ℕ), 0 < T → w ≤ k → w * T ≤ e + k * T := by\n  change ∀ (w T e k : ℕ), 0 < T → w ≤ k → w * T ≤ e + k * T\n  intro w T e k hT hwk\n  exact Nat.le_trans (Nat.mul_le_mul_right T hwk) (Nat.le_add_left (k * T) e)",
+  "queries": [
+    "Nat.ne_of_lt"
+  ],
+  "guidance": "Auxiliary lemma from original M5 proof section 5: The repaired exponent cannot collide with an existing packed position. Combine accepted M5.packed_range with M5.repair_above_packing; r<T implies T>0. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+}

@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (T r s j k : ℕ), r < T → s < T → M5.packedExponent T r j = M5.packedExponent T s k → r = s ∧ j = k\nintro T r s j k hr hs h\nhave hrs : r = s := by\n  calc\n    r = M5.packedExponent T r j % T := (M5.packed_residue T r j hr).symm\n    _ = M5.packedExponent T s k % T := congrArg (fun n : ℕ => n % T) h\n    _ = s := M5.packed_residue T s k hs\nsubst s\nrefine ⟨rfl, ?_⟩\nhave hT : T ≠ 0 := Nat.ne_of_gt (lt_of_le_of_lt (Nat.zero_le r) hr)\nhave hm : j * T = k * T := by\n  simpa [M5.packedExponent, Nat.mul_comm] using h\nexact mul_right_cancel₀ hT hm",
+  "queries": [
+    "mul_right_cancel₀",
+    "M5.packedExponent"
+  ]
+}

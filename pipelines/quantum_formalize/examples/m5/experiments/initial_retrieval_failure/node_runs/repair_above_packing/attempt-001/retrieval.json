@@ -1,0 +1,61 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.mul_le_mul_right",
+    "status": "ok",
+    "results": [
+      {
+        "id": 98157,
+        "name": "MulRightReflectLE",
+        "module": "Mathlib.Algebra.Order.Monoid.Unbundled.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Monoid/Unbundled/Defs.lean#L238-L245",
+        "source_text": "/-- Typeclass for reverse monotonicity of multiplication on the right,\nnamely `a₁ * b ≤ a₂ * b → a₁ ≤ a₂`.\n\nYou should usually not use this very granular typeclass directly, but rather a typeclass like\n`IsOrderedCancelMonoid`. -/\nclass MulRightReflectLE [Mul M] [LE M] : Prop where\n  /-- Do not use this. Use `le_of_mul_le_mul_right'` instead. -/\n  protected le_of_mul_le_mul_right' {b a₁ a₂ : M} : a₁ * b ≤ a₂ * b → a₁ ≤ a₂\n",
+        "docstring": "Typeclass for reverse monotonicity of multiplication on the right,\nnamely `a₁ * b ≤ a₂ * b → a₁ ≤ a₂`.\n\nYou should usually not use this very granular typeclass directly, but rather a typeclass like\n`IsOrderedCancelMonoid`. "
+      },
+      {
+        "id": 212644,
+        "name": "Nat.factorization_le_factorization_mul_right",
+        "module": "Mathlib.Data.Nat.Factorization.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Factorization/Basic.lean#L159-L162",
+        "source_text": "theorem factorization_le_factorization_mul_right {a b : ℕ} (ha : a ≠ 0) :\n    b.factorization ≤ (a * b).factorization := by\n  rw [mul_comm]\n  apply factorization_le_factorization_mul_left ha\n",
+        "docstring": null
+      },
+      {
+        "id": 104415,
+        "name": "IsAddRightRegular.nsmul",
+        "module": "Mathlib.Algebra.Regular.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Regular/Basic.lean#L201-L201",
+        "source_text": "@[to_additive]\nlemma IsRightRegular.pow (n : ℕ) (rra : IsRightRegular a) : IsRightRegular (a ^ n) := by",
+        "docstring": null
+      },
+      {
+        "id": 67903,
+        "name": "IsRightCancelMul",
+        "module": "Mathlib.Algebra.Group.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L66-L69",
+        "source_text": "/-- A mixin for right cancellative multiplication. -/\n@[mk_iff] class IsRightCancelMul (G : Type u) [Mul G] : Prop where\n  /-- Multiplication is right cancellative (i.e. right regular). -/\n  protected mul_right_cancel (a : G) : IsRightRegular a\n",
+        "docstring": "A mixin for right cancellative multiplication. "
+      },
+      {
+        "id": 212741,
+        "name": "Nat.factorizationLCMRight",
+        "module": "Mathlib.Data.Nat.Factorization.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Factorization/Defs.lean#L320-L331",
+        "source_text": "/-- If `a = ∏ pᵢ ^ nᵢ` and `b = ∏ pᵢ ^ mᵢ`, then `factorizationLCMRight = ∏ pᵢ ^ kᵢ`, where\n`kᵢ = mᵢ` if `nᵢ < mᵢ` and `0` otherwise. Note that the product is over the divisors of `lcm a b`,\nso if one of `a` or `b` is `0` then the result is `1`.\n\nNote that `factorizationLCMRight a b` is *not* `factorizationLCMLeft b a`: the difference is\nthat in `factorizationLCMLeft a b` there are the primes whose exponent in `a` is bigger or equal\nthan the exponent in `b`, while in `factorizationLCMRight a b` there are the primes whose\nexponent in `b` is strictly bigger than in `a`. For example `factorizationLCMLeft 2 2 = 2`, but\n`factorizationLCMRight 2 2 = 1`. -/\ndef factorizationLCMRight (a b : ℕ) :=\n  (Nat.lcm a b).factorization.prod fun p n ↦\n    if b.factorization p ≤ a.factorization p then 1 else p ^ n\n",
+        "docstring": "If `a = ∏ pᵢ ^ nᵢ` and `b = ∏ pᵢ ^ mᵢ`, then `factorizationLCMRight = ∏ pᵢ ^ kᵢ`, where\n`kᵢ = mᵢ` if `nᵢ < mᵢ` and `0` otherwise. Note that the product is over the divisors of `lcm a b`,\nso if one of `a` or `b` is `0` then the result is `1`.\n\nNote that `factorizationLCMRight a b` is *not* `factorizationLCMLeft b a`: the difference is\nthat in `factorizationLCMLeft a b` there are the primes whose exponent in `a` is bigger or equal\nthan the exponent in `b`, while in `factorizationLCMRight a b` there are the primes whose\nexponent in `b` is strictly bigger than in `a`. For example `factorizationLCMLeft 2 2 = 2`, but\n`factorizationLCMRight 2 2 = 1`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Nat.mul_le_mul_right",
+    "status": "unavailable",
+    "error": "LeanExplore Physlib: HTTP 500",
+    "results": []
+  }
+]

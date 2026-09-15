@@ -1,0 +1,61 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.lt_of_lt_of_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 212915,
+        "name": "Nat.find",
+        "module": "Mathlib.Data.Nat.Find",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Find.lean#L61-L73",
+        "source_text": "/-- If `p` is a (decidable) predicate on `ℕ` and `hp : ∃ (n : ℕ), p n` is a proof that\nthere exists some natural number satisfying `p`, then `Nat.find hp` is the\nsmallest natural number satisfying `p`. Note that `Nat.find` is protected,\nmeaning that you can't just write `find`, even if the `Nat` namespace is open.\n\nThe API for `Nat.find` is:\n\n* `Nat.find_spec` is the proof that `Nat.find hp` satisfies `p`.\n* `Nat.find_min` is the proof that if `m < Nat.find hp` then `m` does not satisfy `p`.\n* `Nat.find_min'` is the proof that if `m` does satisfy `p` then `Nat.find hp ≤ m`.\n-/\nprotected def find : ℕ :=\n  (Nat.findX H).1\n",
+        "docstring": "If `p` is a (decidable) predicate on `ℕ` and `hp : ∃ (n : ℕ), p n` is a proof that\nthere exists some natural number satisfying `p`, then `Nat.find hp` is the\nsmallest natural number satisfying `p`. Note that `Nat.find` is protected,\nmeaning that you can't just write `find`, even if the `Nat` namespace is open.\n\nThe API for `Nat.find` is:\n\n* `Nat.find_spec` is the proof that `Nat.find hp` satisfies `p`.\n* `Nat.find_min` is the proof that if `m < Nat.find hp` then `m` does not satisfy `p`.\n* `Nat.find_min'` is the proof that if `m` does satisfy `p` then `Nat.find hp ≤ m`.\n"
+      },
+      {
+        "id": 212037,
+        "name": "Nat.ofNat_lt",
+        "module": "Mathlib.Data.Nat.Cast.Order.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Cast/Order/Basic.lean#L146-L148",
+        "source_text": "theorem ofNat_lt :\n    (ofNat(m) : α) < (ofNat(n) : α) ↔ (OfNat.ofNat m : ℕ) < OfNat.ofNat n :=\n  cast_lt\n",
+        "docstring": null
+      },
+      {
+        "id": 211982,
+        "name": "LibraryNote.«no_index_around_OfNat.ofNat»",
+        "module": "Mathlib.Data.Nat.Cast.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Cast/Defs.lean#L46-L55",
+        "source_text": "library_note «no_index around OfNat.ofNat»\n/--\nWhen writing lemmas about `OfNat.ofNat` that assume `Nat.AtLeastTwo`, the term needs to be wrapped\nin `no_index` so as not to confuse `simp`, as `no_index (OfNat.ofNat n)`.\n\nRather than referencing this library note, use `ofNat(n)` as a shorthand for\n`no_index (OfNat.ofNat n)`.\n\nSome discussion is [on Zulip here](https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/.E2.9C.94.20Polynomial.2Ecoeff.20example/near/395438147).\n-/\n",
+        "docstring": "When writing lemmas about `OfNat.ofNat` that assume `Nat.AtLeastTwo`, the term needs to be wrapped\nin `no_index` so as not to confuse `simp`, as `no_index (OfNat.ofNat n)`.\n\nRather than referencing this library note, use `ofNat(n)` as a shorthand for\n`no_index (OfNat.ofNat n)`.\n\nSome discussion is [on Zulip here](https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/.E2.9C.94.20Polynomial.2Ecoeff.20example/near/395438147).\n"
+      },
+      {
+        "id": 328825,
+        "name": "«termOfNat(_)»",
+        "module": "Mathlib.Tactic.OfNat",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/OfNat.lean#L22-L22",
+        "source_text": "macro \"ofNat(\" n:term \")\" : term => `(no_index (OfNat.ofNat $n))\n",
+        "docstring": "This macro is a shorthand for `OfNat.ofNat` combined with `no_index`.\n\nWhen writing lemmas about `OfNat.ofNat`, the term needs to be wrapped\nin `no_index` so as not to confuse `simp`, as `no_index (OfNat.ofNat n)`.\n\nSome discussion is [on Zulip here](https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/.E2.9C.94.20Polynomial.2Ecoeff.20example/near/395438147).\n"
+      },
+      {
+        "id": 328335,
+        "name": "Mathlib.Meta.NormNum.evalOfNat",
+        "module": "Mathlib.Tactic.NormNum.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Basic.lean#L76-L85",
+        "source_text": "/-- The `norm_num` extension which identifies an expression `OfNat.ofNat n`, returning `n`. -/\n@[norm_num OfNat.ofNat _] def evalOfNat : NormNumExt where eval {u α} e := do\n  let sα ← inferAddMonoidWithOne α\n  match e with\n  | ~q(@OfNat.ofNat _ $n $oα) =>\n    let n : Q(ℕ) ← whnf n\n    guard n.isRawNatLit\n    let ⟨a, (pa : Q($n = $e))⟩ ← mkOfNat α sα n\n    guard <|← isDefEq a e\n    return .isNat sα n q(isNat_ofNat $α $pa)\n",
+        "docstring": "The `norm_num` extension which identifies an expression `OfNat.ofNat n`, returning `n`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Nat.lt_of_lt_of_le",
+    "status": "unavailable",
+    "error": "LeanExplore Physlib: HTTP 500",
+    "results": []
+  }
+]

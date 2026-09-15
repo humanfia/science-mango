@@ -1,0 +1,255 @@
+[
+  {
+    "id": "packed_residue",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.packed_residue",
+      "statement": "∀ (T r j : ℕ), r < T → M5.packedExponent T r j % T = r",
+      "imports": [
+        "M5Foundation"
+      ],
+      "context": "",
+      "queries": [
+        "Nat.add_mul_mod_self_left"
+      ],
+      "guidance": "Auxiliary lemma from original M5 proof section 5: Packing preserves each original residue. Unfold packedExponent and use modular arithmetic. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+    },
+    "metadata": {
+      "source": "research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+      "section": 5,
+      "meaning": "Packing preserves each original residue.",
+      "scope": "auxiliary_lemma_only",
+      "dependency_declarations": [],
+      "supports_obligation": "M5_PACK",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "packed_range",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.packed_range",
+      "statement": "∀ (w T r j : ℕ), r < T → j < w → M5.packedExponent T r j < w * T",
+      "imports": [
+        "M5Foundation"
+      ],
+      "context": "",
+      "queries": [
+        "Nat.mul_lt_mul_of_pos_right"
+      ],
+      "guidance": "Auxiliary lemma from original M5 proof section 5: Each packed exponent lies below wT. Unfold packedExponent; derive j + 1 ≤ w and bound r + j*T. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+    },
+    "metadata": {
+      "source": "research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+      "section": 5,
+      "meaning": "Each packed exponent lies below wT.",
+      "scope": "auxiliary_lemma_only",
+      "dependency_declarations": [],
+      "supports_obligation": "M5_PACK",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "packed_injective",
+    "dependencies": [
+      "packed_residue"
+    ],
+    "spec": {
+      "name": "M5.packed_injective",
+      "statement": "∀ (T r s j k : ℕ), r < T → s < T → M5.packedExponent T r j = M5.packedExponent T s k → r = s ∧ j = k",
+      "imports": [
+        "M5Foundation"
+      ],
+      "context": "",
+      "queries": [
+        "Nat.mul_right_cancel"
+      ],
+      "guidance": "Auxiliary lemma from original M5 proof section 5: Distinct occurrence indices and residues yield distinct physical positions. Use the accepted M5.packed_residue lemma on both sides to obtain r=s; then cancel the positive factor T. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+    },
+    "metadata": {
+      "source": "research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+      "section": 5,
+      "meaning": "Distinct occurrence indices and residues yield distinct physical positions.",
+      "scope": "auxiliary_lemma_only",
+      "dependency_declarations": [
+        "M5.packed_residue"
+      ],
+      "supports_obligation": "M5_PACK",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "repair_above_packing",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.repair_above_packing",
+      "statement": "∀ (w T e k : ℕ), 0 < T → w ≤ k → w * T ≤ e + k * T",
+      "imports": [
+        "M5Foundation"
+      ],
+      "context": "",
+      "queries": [
+        "Nat.mul_le_mul_right"
+      ],
+      "guidance": "Auxiliary lemma from original M5 proof section 5: The shifted exponent is beyond all original packed positions. Only the stated arithmetic subclaim is targeted; CRT existence is a later obligation. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+    },
+    "metadata": {
+      "source": "research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+      "section": 5,
+      "meaning": "The shifted exponent is beyond all original packed positions.",
+      "scope": "auxiliary_lemma_only",
+      "dependency_declarations": [],
+      "supports_obligation": "M5_CRT_REPAIR",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "repair_no_collision",
+    "dependencies": [
+      "packed_range",
+      "repair_above_packing"
+    ],
+    "spec": {
+      "name": "M5.repair_no_collision",
+      "statement": "∀ (w T r j e k : ℕ), r < T → j < w → w ≤ k → M5.packedExponent T r j ≠ e + k * T",
+      "imports": [
+        "M5Foundation"
+      ],
+      "context": "",
+      "queries": [
+        "Nat.ne_of_lt"
+      ],
+      "guidance": "Auxiliary lemma from original M5 proof section 5: The repaired exponent cannot collide with an existing packed position. Combine accepted M5.packed_range with M5.repair_above_packing; r<T implies T>0. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+    },
+    "metadata": {
+      "source": "research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+      "section": 5,
+      "meaning": "The repaired exponent cannot collide with an existing packed position.",
+      "scope": "auxiliary_lemma_only",
+      "dependency_declarations": [
+        "M5.packed_range",
+        "M5.repair_above_packing"
+      ],
+      "supports_obligation": "M5_CRT_REPAIR",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "cutoff_gt_period",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.cutoff_gt_period",
+      "statement": "∀ (w T : ℕ), 2 ≤ w → 0 < T → T < M5.packingCutoff w T",
+      "imports": [
+        "M5Foundation"
+      ],
+      "context": "",
+      "queries": [
+        "Nat.mul_lt_mul_of_pos_left"
+      ],
+      "guidance": "Auxiliary lemma from original M5 proof section 5: The support cutoff L is strictly greater than the signature period. Unfold packingCutoff and establish the displayed bound using positivity. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+    },
+    "metadata": {
+      "source": "research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+      "section": 5,
+      "meaning": "The support cutoff L is strictly greater than the signature period.",
+      "scope": "auxiliary_lemma_only",
+      "dependency_declarations": [],
+      "supports_obligation": "M5_BOUNDED_SOURCE",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "progression_period",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.progression_period",
+      "statement": "∀ (T E j : ℕ), T ∣ E → T ∣ T + j * E",
+      "imports": [
+        "M5Foundation"
+      ],
+      "context": "",
+      "queries": [
+        "dvd_add dvd_mul_of_dvd_right"
+      ],
+      "guidance": "Auxiliary lemma from original M5 proof section 5: All constructed progression orders are multiples of the original period. This establishes only the divisibility consequence, not preservation of complete signature. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+    },
+    "metadata": {
+      "source": "research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+      "section": 5,
+      "meaning": "All constructed progression orders are multiples of the original period.",
+      "scope": "auxiliary_lemma_only",
+      "dependency_declarations": [],
+      "supports_obligation": "M5_LIFT",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "source_below_birth_bound",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.source_below_birth_bound",
+      "statement": "∀ (w T E N : ℕ), N < M5.packingCutoff w T + E → E ≤ 2 ^ (w * T) → N < M5.birthBound w T",
+      "imports": [
+        "M5Foundation"
+      ],
+      "context": "",
+      "queries": [
+        "Nat.lt_of_lt_of_le"
+      ],
+      "guidance": "Auxiliary lemma from original M5 proof section 5: The constructed order bound implies the advertised birth upper bound. Unfold birthBound and use addition monotonicity. Existence of such an N and the period bound remain separate unproved obligations. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+    },
+    "metadata": {
+      "source": "research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+      "section": 5,
+      "meaning": "The constructed order bound implies the advertised birth upper bound.",
+      "scope": "auxiliary_lemma_only",
+      "dependency_declarations": [],
+      "supports_obligation": "M5_BOUNDED_SOURCE",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "recovery_inclusion_positive",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.recovery_inclusion_positive",
+      "statement": "∀ (total excluded included : ℕ), total = excluded + included → 0 < total → excluded = 0 → 0 < included",
+      "imports": [
+        "M5Foundation"
+      ],
+      "context": "",
+      "queries": [
+        "Nat.add_zero"
+      ],
+      "guidance": "Auxiliary lemma from original M5 proof section 3: A positive completion count survives by inclusion when exclusion has zero completions. This is only the branch-partition arithmetic step. Exactness of the completion formula and the partition identity are not assumed proven by this node. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+    },
+    "metadata": {
+      "source": "research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+      "section": 3,
+      "meaning": "A positive completion count survives by inclusion when exclusion has zero completions.",
+      "scope": "auxiliary_lemma_only",
+      "dependency_declarations": [],
+      "supports_obligation": "M5_ORDER_RECOVER",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  }
+]

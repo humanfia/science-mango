@@ -1,0 +1,12 @@
+{
+  "name": "M5.packed_injective",
+  "statement": "∀ (T r s j k : ℕ), r < T → s < T → M5.packedExponent T r j = M5.packedExponent T s k → r = s ∧ j = k",
+  "imports": [
+    "M5Foundation"
+  ],
+  "context": "theorem M5.packed_residue : ∀ (T r j : ℕ), r < T → M5.packedExponent T r j % T = r := by\n  change ∀ (T r j : ℕ), r < T → M5.packedExponent T r j % T = r\n  intro T r j hr\n  simp [M5.packedExponent, Nat.add_mod, Nat.mul_mod, Nat.mod_eq_of_lt hr]",
+  "queries": [
+    "Nat.mul_right_cancel"
+  ],
+  "guidance": "Auxiliary lemma from original M5 proof section 5: Distinct occurrence indices and residues yield distinct physical positions. Use the accepted M5.packed_residue lemma on both sides to obtain r=s; then cancel the positive factor T. Preserve the exact target. This node alone does not prove M5. Return only tactic lines, without a leading by; the controller already writes := by."
+}

@@ -108,6 +108,8 @@ def main():
     commands = parser.add_subparsers(dest="action", required=True)
     from pipelines.quantum_formalize.cli import add_parser as add_formal_parser
     add_formal_parser(commands)
+    from pipelines.quantum_formalize.dag_cli import add_parser as add_dag_parser
+    add_dag_parser(commands)
     commands.add_parser("doctor", help="check the installed upstream pin; no agent calls")
     prepare_parser = commands.add_parser("prepare", help="freeze current evidence, no agents")
     mock_parser = commands.add_parser("mock", help="run deterministic fake-agent scenarios")
@@ -167,6 +169,9 @@ def main():
                                help="restart task-list JSON in the run area; proposals only, reviewed before dispatch")
     launch_parser.add_argument("--task", default="推进量子码研究交接任务；先独立审计 SELF，保留全部未证缺口。")
     args = parser.parse_args()
+    if args.action == "formalize-dag":
+        from pipelines.quantum_formalize.dag_cli import launch as launch_dag
+        return launch_dag(args)
     if args.action == "formalize":
         from pipelines.quantum_formalize.cli import launch as launch_formal
         return launch_formal(args)

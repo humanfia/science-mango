@@ -1,0 +1,68 @@
+{
+  "id": "packed_injective",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.packed_injective",
+    "spec_sha256": "559d976aca2c98b4206fa2102466e564916ffc08da5530772a57f6f82dcfb5e5",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-b5011wtr/attempt-001/Candidate_234a5345ff2f9c7b.lean",
+        "target_path": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-b5011wtr/attempt-001/FrozenTarget_234a5345ff2f9c7b.lean",
+        "feedback": "",
+        "target_sha256": "458b8c072250d65a3e8052ed4254dd45b20076e21d6bd7b9271e7f6fa85feb26",
+        "target_olean_sha256": "446382abf2c03c41b13042ff9a7cf50d09ae1af4e8160b93c02d6ba35f471f44",
+        "source_sha256": "b4162ea8621c8e524346290c89f33951b21b9134ff9b87fb784843c02cb9a3df",
+        "olean_sha256": "f94547bf600f76f4c7e4ecbf376650579a9cda98bd8b355b3024a8943be012f1",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T05:41:27.113423+00:00",
+    "work": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-b5011wtr",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-b5011wtr/attempt-001/Candidate_234a5345ff2f9c7b.lean",
+    "environment_sha256": "97cbd5ad7ab84e220872e051a00e05ebe2fef38636e83a0f4c689e7270d418e6",
+    "artifacts": {
+      "packed_residue": {
+        "payload": {
+          "declaration": "theorem M5.packed_residue : ∀ (T r j : ℕ), r < T → M5.packedExponent T r j % T = r := by\n  change ∀ (T r j : ℕ), r < T → M5.packedExponent T r j % T = r\n  intro T r j hr\n  simp [M5.packedExponent, Nat.add_mod, Nat.mul_mod, Nat.mod_eq_of_lt hr]",
+          "imports": [
+            "M5Foundation"
+          ],
+          "name": "M5.packed_residue",
+          "ancestors": [],
+          "spec_sha256": "82e4c16f873aeaf2434a3a84613f6099628906dc8642357e266818fa76a0148b"
+        },
+        "sha256": "9927421aa4f522629e4766fff7b6254687771e3140e57a368ecd13ad40676b4f"
+      },
+      "packed_injective": {
+        "payload": {
+          "declaration": "theorem M5.packed_injective : ∀ (T r s j k : ℕ), r < T → s < T → M5.packedExponent T r j = M5.packedExponent T s k → r = s ∧ j = k := by\n  change ∀ (T r s j k : ℕ), r < T → s < T → M5.packedExponent T r j = M5.packedExponent T s k → r = s ∧ j = k\n  intro T r s j k hr hs h\n  have hrs : r = s := by\n    calc\n      r = M5.packedExponent T r j % T := (M5.packed_residue T r j hr).symm\n      _ = M5.packedExponent T s k % T := congrArg (fun n : ℕ => n % T) h\n      _ = s := M5.packed_residue T s k hs\n  subst s\n  refine ⟨rfl, ?_⟩\n  have hT : T ≠ 0 := Nat.ne_of_gt (lt_of_le_of_lt (Nat.zero_le r) hr)\n  have hm : j * T = k * T := by\n    simpa [M5.packedExponent, Nat.mul_comm] using h\n  exact mul_right_cancel₀ hT hm",
+          "imports": [
+            "M5Foundation"
+          ],
+          "name": "M5.packed_injective",
+          "ancestors": [
+            "packed_residue"
+          ],
+          "spec_sha256": "b6460763570d7b365ba6bca4cc90bbfddf70b834bb93e2a1e0d598dc161c9971"
+        },
+        "sha256": "2f543396c01d203c69dd7f8e941a940ac6602ca28f44f53e1547090ab564d07b"
+      }
+    }
+  }
+}

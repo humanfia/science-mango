@@ -48,7 +48,9 @@ class RetrievalTests(unittest.IsolatedAsyncioTestCase):
             def __enter__(self): return self
             def __exit__(self, *args): pass
             def read(self): return b'{"packages_applied":[],"results":[]}'
-        with patch(_request.__module__ + '.urlopen', return_value=Response()):
+        # Humanize's loader may reload the module while an earlier imported
+        # function still references its original globals dictionary.
+        with patch.dict(_request.__globals__, {'urlopen': lambda *args, **kwargs: Response()}):
             with self.assertRaises(SearchUnavailable):
                 _request('sum', 'Physlib', 5, 10)
 

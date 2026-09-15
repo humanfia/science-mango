@@ -1,0 +1,79 @@
+{
+  "id": "repair_no_collision",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.repair_no_collision",
+    "spec_sha256": "91de0bac00303cd5f63fb66f552a62a42af7c10f4f72e80f6a05e2b7d87c5082",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext"
+        ],
+        "proof_path": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-vf01r22a/attempt-001/Candidate_05881eb43893eb20.lean",
+        "target_path": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-vf01r22a/attempt-001/FrozenTarget_05881eb43893eb20.lean",
+        "feedback": "",
+        "target_sha256": "4998fe8b2893b55134e56d707a605d041ce9ebd5bdcc91632b19022b80a9f716",
+        "target_olean_sha256": "02f7630abcc043372e9f2b33898a858f0219d7522f79d5a561bd8b4006c0b78d",
+        "source_sha256": "f07133889e55c655391d27a5c2a121e104f328240ae00169978f5ac78f04fec8",
+        "olean_sha256": "f2d10624d4547a96207d9df6479e21b1432afefcbe3a21f55a5e53b106ee8ca6",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T05:41:42.925963+00:00",
+    "work": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-vf01r22a",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-vf01r22a/attempt-001/Candidate_05881eb43893eb20.lean",
+    "environment_sha256": "97cbd5ad7ab84e220872e051a00e05ebe2fef38636e83a0f4c689e7270d418e6",
+    "artifacts": {
+      "packed_range": {
+        "payload": {
+          "declaration": "theorem M5.packed_range : ∀ (w T r j : ℕ), r < T → j < w → M5.packedExponent T r j < w * T := by\n  intro w T r j hr hj\n  change r + j * T < w * T\n  have hjw : j + 1 ≤ w := Nat.succ_le_of_lt hj\n  calc\n    r + j * T < T + j * T := Nat.add_lt_add_right hr _\n    _ = (j + 1) * T := by simp [Nat.add_mul, Nat.add_comm]\n    _ ≤ w * T := Nat.mul_le_mul_right T hjw",
+          "imports": [
+            "M5Foundation"
+          ],
+          "name": "M5.packed_range",
+          "ancestors": [],
+          "spec_sha256": "28ce759673ef24019b1d426e948e8b75c758411365fc6fc94f61612165c847e8"
+        },
+        "sha256": "57589c80fb3aeb9895428828257815e5d370f69d1c1bc7582a0fc21f2e1b3fe8"
+      },
+      "repair_above_packing": {
+        "payload": {
+          "declaration": "theorem M5.repair_above_packing : ∀ (w T e k : ℕ), 0 < T → w ≤ k → w * T ≤ e + k * T := by\n  change ∀ (w T e k : ℕ), 0 < T → w ≤ k → w * T ≤ e + k * T\n  intro w T e k hT hwk\n  exact Nat.le_trans (Nat.mul_le_mul_right T hwk) (Nat.le_add_left (k * T) e)",
+          "imports": [
+            "M5Foundation"
+          ],
+          "name": "M5.repair_above_packing",
+          "ancestors": [],
+          "spec_sha256": "742a8a946403f4c1b045e7f63b8f4744870d9312fd21e6b4c8dfb23380c3c970"
+        },
+        "sha256": "00ac2b135e75667e1ffa799e13afb47f1a64efe430a2c9d618216b0be581fd48"
+      },
+      "repair_no_collision": {
+        "payload": {
+          "declaration": "theorem M5.repair_no_collision : ∀ (w T r j e k : ℕ), r < T → j < w → w ≤ k → M5.packedExponent T r j ≠ e + k * T := by\n  change ∀ (w T r j e k : ℕ), r < T → j < w → w ≤ k → M5.packedExponent T r j ≠ e + k * T\n  intro w T r j e k hr hj hwk\n  have hT : 0 < T := Nat.lt_of_le_of_lt (Nat.zero_le r) hr\n  exact Nat.ne_of_lt (Nat.lt_of_lt_of_le (M5.packed_range w T r j hr hj) (M5.repair_above_packing w T e k hT hwk))",
+          "imports": [
+            "M5Foundation"
+          ],
+          "name": "M5.repair_no_collision",
+          "ancestors": [
+            "packed_range",
+            "repair_above_packing"
+          ],
+          "spec_sha256": "cef46f2ed09d434dc6ee097b93f9b9ac7c06e7aaad1e537453fb1a2e5809cc9e"
+        },
+        "sha256": "beefb8df4a68b144cf8ca45832b94f96d8953c5523495ff555ecd8964915a28f"
+      }
+    }
+  }
+}
