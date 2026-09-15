@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)), _\nintro N inst S U hS hU\nclassical\nrcases hS with ⟨c, hc⟩\nrcases hU with ⟨d, hd⟩\nhave hs := M5.Translation.shift_card_anchor N S c hc\nhave hu := M5.Translation.shift_card_anchor N U d hd\nhave hcard (T : Finset (ZMod N)) :\n    (M5.Translation.natSupport T).card = T.card := by\n  change (T.image ZMod.val).card = T.card\n  apply Finset.card_image_iff.mpr\n  intro x hx y hy h\n  exact ZMod.val_injective N h\nhave hzero (T : Finset (ZMod N)) (hT : 0 ∈ T) :\n    0 ∈ M5.Translation.natSupport T := by\n  change 0 ∈ T.image ZMod.val\n  exact Finset.mem_image.mpr ⟨0, hT, by simp⟩\nhave hbound (T : Finset (ZMod N)) :\n    ∀ a ∈ M5.Translation.natSupport T, a < N := by\n  intro a ha\n  change a ∈ T.image ZMod.val at ha\n  rcases Finset.mem_image.mp ha with ⟨x, hx, rfl⟩\n  exact ZMod.val_lt x\nrefine ⟨M5.Translation.natSupport (M5.Translation.shift S (-c)),\n  M5.Translation.natSupport (M5.Translation.shift U (-d)),\n  (hcard _).trans hs.1, (hcard _).trans hu.1,\n  hzero _ hs.2, hzero _ hu.2, hbound _, hbound _, ?_, ?_⟩\n· rw [← M5.Translation.anchored_difference_gcd N\n    (M5.Translation.shift S (-c)) (M5.Translation.shift U (-d)) hs.2 hu.2]\n  unfold M5.Translation.differenceGcd\n  rw [M5.Translation.difference_translation N S (-c),\n    M5.Translation.difference_translation N U (-d)]\n· exact M5.Translation.signature_translation N S U (-c) (-d)",
+  "queries": [
+    "ZMod.val_lt",
+    "Finset.card_image_iff"
+  ]
+}

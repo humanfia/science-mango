@@ -4,7 +4,7 @@ This is a status map of the original reviewed proof, not a strengthened theorem 
 
 | Original component | Formal status | Evidence / next dependency |
 |---|---|---|
-| §1 finite quotient period law and bound | Algebraic statements accepted; executable period computation remains | [stage3](stage3/RESULTS.md), [stage12](stage12/RESULTS.md) |
+| §1 finite quotient period law and bound | Period law, bound and exact finite period search accepted | [stage3](stage3/RESULTS.md), [stage12](stage12/RESULTS.md), [stage45](stage45/RESULTS.md) |
 | §2 explicit subset n formula | Exact identity, integer division and nonnegativity accepted | [stage20](stage20/RESULTS.md) |
 | §2 explicit repeated-tuple R formula | Exact identity, integer division and nonnegativity accepted | [stage24](stage24/RESULTS.md) |
 | §3 integer connectivity indicator | Accepted | [stage9](stage9/RESULTS.md) |

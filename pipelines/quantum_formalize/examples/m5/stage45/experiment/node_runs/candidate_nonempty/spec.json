@@ -1,0 +1,13 @@
+{
+  "name": "M5.PeriodSearch.candidate_nonempty",
+  "statement": "∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → (M5.PeriodSearch.candidates F).Nonempty",
+  "imports": [
+    "M5PeriodSearch"
+  ],
+  "context": "",
+  "queries": [
+    "Finset min mem min le finite interval",
+    "natural divides positive less equal"
+  ],
+  "guidance": "The accepted period_law gives t>0 and F|M_t. period_cardinality_bound gives t≤2^degree. Thus signaturePeriod F belongs to the finite candidate set. Return tactic lines without leading by; preserve exact target.\nExact accepted local API:\nM5.Period.period_law : ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N\nM5.Period.period_cardinality_bound : ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.signaturePeriod F ≤ 2 ^ F.natDegree\nM5.Period.period_one : M5.signaturePeriod (1 : M5.BinaryPolynomial) = 1"
+}

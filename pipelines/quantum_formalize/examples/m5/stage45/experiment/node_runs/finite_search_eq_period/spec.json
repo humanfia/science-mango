@@ -1,0 +1,13 @@
+{
+  "name": "M5.PeriodSearch.finite_search_eq_period",
+  "statement": "∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.PeriodSearch.finiteSearch F = M5.signaturePeriod F",
+  "imports": [
+    "M5PeriodSearch"
+  ],
+  "context": "theorem M5.PeriodSearch.candidate_nonempty : ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → (M5.PeriodSearch.candidates F).Nonempty := by\n  change ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → (M5.PeriodSearch.candidates F).Nonempty\n  intro F hmonic hcoeff\n  classical\n  obtain ⟨hpos, hlaw⟩ := M5.Period.period_law F hmonic hcoeff\n  have hbound := M5.Period.period_cardinality_bound F hmonic hcoeff\n  have hdiv : F ∣ M5.cyclicModulus (M5.signaturePeriod F) :=\n    (hlaw _).mpr (dvd_refl _)\n  refine ⟨M5.signaturePeriod F, ?_⟩\n  simp [M5.PeriodSearch.candidates, hdiv, hpos, hbound, Nat.succ_le_iff, Nat.lt_succ_iff]\n\ntheorem M5.PeriodSearch.finite_search_member : ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.PeriodSearch.finiteSearch F ∈ M5.PeriodSearch.candidates F := by\n  change ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.PeriodSearch.finiteSearch F ∈ M5.PeriodSearch.candidates F\n  intro F hmonic hcoeff\n  classical\n  have h := M5.PeriodSearch.candidate_nonempty F hmonic hcoeff\n  simp only [M5.PeriodSearch.finiteSearch, dif_pos h]\n  exact Finset.min'_mem _ _",
+  "queries": [
+    "Finset min mem min le finite interval",
+    "natural divides positive less equal"
+  ],
+  "guidance": "By finite_search_member, search is positive and F divides M_search. period_law gives t|search, hence t≤search. Conversely t belongs to candidates by period_law and period_cardinality_bound, so min'_le gives search≤t. Nat.le_antisymm yields equality. Return tactic lines without leading by; preserve exact target.\nExact accepted local API:\nM5.Period.period_law : ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N\nM5.Period.period_cardinality_bound : ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.signaturePeriod F ≤ 2 ^ F.natDegree\nM5.Period.period_one : M5.signaturePeriod (1 : M5.BinaryPolynomial) = 1"
+}

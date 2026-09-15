@@ -1,0 +1,836 @@
+[
+  {
+    "queries": [
+      "ZMod val add sub modulo injective",
+      "Finset image biUnion cardinality translation"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod val add sub modulo injective",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223076,
+            "name": "ZMod.val_injective",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L621-L627",
+            "source_text": "theorem val_injective (n : ℕ) [NeZero n] : Function.Injective (val : ZMod n → ℕ) := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  intro a b h\n  dsimp [ZMod]\n  ext\n  exact h\n",
+            "docstring": null
+          },
+          {
+            "id": 222980,
+            "name": "ZMod.val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+            "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+            "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+          },
+          {
+            "id": 88400,
+            "name": "Submodule.toAddSubmonoid_injective",
+            "module": "Mathlib.Algebra.Module.Submodule.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/Submodule/Defs.lean#L140-L141",
+            "source_text": "theorem toAddSubmonoid_injective : Injective (toAddSubmonoid : Submodule R M → AddSubmonoid M) :=\n  fun p q h => SetLike.ext'_iff.2 (show (p.toAddSubmonoid : Set M) = q from SetLike.ext'_iff.1 h)\n",
+            "docstring": null
+          },
+          {
+            "id": 60881,
+            "name": "instEnoughInjectivesModuleCatInt",
+            "module": "Mathlib.Algebra.Category.ModuleCat.EnoughInjectives",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Category/ModuleCat/EnoughInjectives.lean#L27-L28",
+            "source_text": "instance : EnoughInjectives (ModuleCat.{v} ℤ) :=\n  EnoughInjectives.of_equivalence (forget₂ (ModuleCat ℤ) AddCommGrpCat)\n",
+            "docstring": null
+          },
+          {
+            "id": 223146,
+            "name": "ZMod.val_sub",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L1034-L1041",
+            "source_text": "theorem val_sub {n : ℕ} [NeZero n] {a b : ZMod n} (h : b.val ≤ a.val) :\n    (a - b).val = a.val - b.val := by\n  by_cases hb : b = 0\n  · cases hb; simp\n  · have : NeZero b := ⟨hb⟩\n    rw [sub_eq_add_neg, val_add, val_neg_of_ne_zero, ← Nat.add_sub_assoc (le_of_lt (val_lt _)),\n      add_comm, Nat.add_sub_assoc h, Nat.add_mod_left]\n    apply Nat.mod_eq_of_lt (tsub_lt_of_lt (val_lt _))\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod val add sub modulo injective",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393558,
+            "name": "TimeMan.val_injective",
+            "module": "Physlib.SpaceAndTime.Time.TimeMan",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeMan.lean#L66-L70",
+            "source_text": "lemma val_injective : Function.Injective TimeMan.val := by\n  intro t1 t2 h\n  cases t1\n  cases t2\n  simp_all\n",
+            "docstring": null
+          },
+          {
+            "id": 393463,
+            "name": "Time.val_injective",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L83-L83",
+            "source_text": "lemma val_injective : Function.Injective val := fun _ _ h => Time.ext h\n",
+            "docstring": null
+          },
+          {
+            "id": 394438,
+            "name": "WithDim.val_sub",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L72-L74",
+            "source_text": "@[simp]\nlemma val_sub {d : Dimension} {M : Type} [Sub M] (m1 m2 : WithDim d M) :\n    (m1 - m2).val = m1.val - m2.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393490,
+            "name": "Time.sub_val",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L217-L219",
+            "source_text": "@[simp]\nlemma sub_val (t1 t2 : Time) :\n    (t1 - t2).val = t1.val - t2.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393200,
+            "name": "Space.sub_val",
+            "module": "Physlib.SpaceAndTime.Space.Module",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Module.lean#L218-L220",
+            "source_text": "@[simp]\nlemma sub_val {d} (p q : Space d) :\n    (p - q).val = fun i => p.val i - q.val i := by rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset image biUnion cardinality translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 204768,
+            "name": "Finset.biUnion_image",
+            "module": "Mathlib.Data.Finset.Union",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Union.lean#L288-L291",
+            "source_text": "theorem biUnion_image [DecidableEq γ] {s : Finset α} {t : α → Finset β} {f : β → γ} :\n    (s.biUnion t).image f = s.biUnion fun a => (t a).image f :=\n  haveI := Classical.decEq α\n  Finset.induction_on s rfl fun a s _ ih => by simp only [biUnion_insert, image_union, ih]\n",
+            "docstring": null
+          },
+          {
+            "id": 204767,
+            "name": "Finset.image_biUnion",
+            "module": "Mathlib.Data.Finset.Union",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Union.lean#L283-L286",
+            "source_text": "theorem image_biUnion [DecidableEq γ] {f : α → β} {s : Finset α} {t : β → Finset γ} :\n    (s.image f).biUnion t = s.biUnion fun a => t (f a) :=\n  haveI := Classical.decEq α\n  Finset.induction_on s rfl fun a s _ ih => by simp only [image_insert, biUnion_insert, ih]\n",
+            "docstring": null
+          },
+          {
+            "id": 204741,
+            "name": "Finset.biUnion",
+            "module": "Mathlib.Data.Finset.Union",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Union.lean#L189-L193",
+            "source_text": "/-- `Finset.biUnion s t` is the union of `t a` over `a ∈ s`.\n\n(This was formerly `bind` due to the monad structure on types with `DecidableEq`.) -/\nprotected def biUnion (s : Finset α) (t : α → Finset β) : Finset β :=\n  (s.1.bind fun a ↦ (t a).1).toFinset\n",
+            "docstring": "`Finset.biUnion s t` is the union of `t a` over `a ∈ s`.\n\n(This was formerly `bind` due to the monad structure on types with `DecidableEq`.) "
+          },
+          {
+            "id": 58605,
+            "name": "Finset.card_sigma",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L133-L136",
+            "source_text": "@[simp]\ntheorem card_sigma {σ : α → Type*} (s : Finset α) (t : ∀ a, Finset (σ a)) :\n    #(s.sigma t) = ∑ a ∈ s, #(t a) :=\n  Multiset.card_sigma _ _",
+            "docstring": null
+          },
+          {
+            "id": 203691,
+            "name": "Finset.card_image₂_iff",
+            "module": "Mathlib.Data.Finset.NAry",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/NAry.lean#L57-L60",
+            "source_text": "theorem card_image₂_iff :\n    #(image₂ f s t) = #s * #t ↔ (s ×ˢ t : Set (α × β)).InjOn fun x => f x.1 x.2 := by\n  rw [← card_product, ← coe_product]\n  exact card_image_iff\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset image biUnion cardinality translation",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "ZMod val add sub modulo injective",
+      "Finset image biUnion cardinality translation"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Nat.dvd_mod_iff",
+      "ZMod.val_neg_of_ne_zero",
+      "ZMod.val_add"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Nat.dvd_mod_iff",
+        "status": "ok",
+        "results": [
+          {
+            "id": 213210,
+            "name": "Nat.ModEq",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L35-L37",
+            "source_text": "/-- Modular equality. `n.ModEq a b`, or `a ≡ b [MOD n]`, means that `a % n = b % n`. -/\ndef Nat.ModEq (n a b : ℕ) :=\n  a % n = b % n\n",
+            "docstring": "Modular equality. `n.ModEq a b`, or `a ≡ b [MOD n]`, means that `a % n = b % n`. "
+          },
+          {
+            "id": 213289,
+            "name": "Nat.ModEq.dvd_iff",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L357-L360",
+            "source_text": "theorem dvd_iff (h : a ≡ b [MOD m]) (hdm : d ∣ m) : d ∣ a ↔ d ∣ b := by\n  simp only [← modEq_zero_iff_dvd]\n  replace h := h.of_dvd hdm\n  exact ⟨h.symm.trans, h.trans⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 213227,
+            "name": "Nat.modEq_iff_dvd",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L111-L113",
+            "source_text": "theorem modEq_iff_dvd : a ≡ b [MOD n] ↔ (n : ℤ) ∣ b - a := by\n  rw [ModEq, eq_comm, ← Int.natCast_inj, Int.natCast_mod, Int.natCast_mod,\n    Int.emod_eq_emod_iff_emod_sub_eq_zero, Int.dvd_iff_emod_eq_zero]\n",
+            "docstring": null
+          },
+          {
+            "id": 213224,
+            "name": "Nat.modEq_zero_iff_dvd",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L103-L103",
+            "source_text": "theorem modEq_zero_iff_dvd : a ≡ 0 [MOD n] ↔ n ∣ a := by rw [ModEq, zero_mod, dvd_iff_mod_eq_zero]\n",
+            "docstring": null
+          },
+          {
+            "id": 213230,
+            "name": "Nat.modEq_iff_dvd'",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L117-L119",
+            "source_text": "/-- A variant of `modEq_iff_dvd` with `Nat` divisibility -/\ntheorem modEq_iff_dvd' (h : a ≤ b) : a ≡ b [MOD n] ↔ n ∣ b - a := by\n  rw [modEq_iff_dvd, ← Int.natCast_dvd_natCast, Int.ofNat_sub h]\n",
+            "docstring": "A variant of `modEq_iff_dvd` with `Nat` divisibility "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Nat.dvd_mod_iff",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod.val_neg_of_ne_zero",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223145,
+            "name": "ZMod.val_neg_of_ne_zero",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L1031-L1032",
+            "source_text": "theorem val_neg_of_ne_zero {n : ℕ} [nz : NeZero n] (a : ZMod n) [na : NeZero a] :\n    (-a).val = n - a.val := by simp_all [neg_val a, na.out]\n",
+            "docstring": null
+          },
+          {
+            "id": 223137,
+            "name": "ZMod.val_ne_zero",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L965-L966",
+            "source_text": "theorem val_ne_zero {n : ℕ} (a : ZMod n) : a.val ≠ 0 ↔ a ≠ 0 :=\n  (val_eq_zero a).not\n",
+            "docstring": null
+          },
+          {
+            "id": 222985,
+            "name": "ZMod.val_neg'",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L80-L82",
+            "source_text": "@[simp]\ntheorem val_neg' {n : ZMod 0} : (-n).val = n.val :=\n  Int.natAbs_neg n",
+            "docstring": null
+          },
+          {
+            "id": 223143,
+            "name": "ZMod.neg_val'",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L1015-L1022",
+            "source_text": "theorem neg_val' {n : ℕ} [NeZero n] (a : ZMod n) : (-a).val = (n - a.val) % n :=\n  calc\n    (-a).val = val (-a) % n := by rw [Nat.mod_eq_of_lt (-a).val_lt]\n    _ = (n - val a) % n :=\n      Nat.ModEq.add_right_cancel' (val a)\n        (by\n          rw [Nat.ModEq, ← val_add, neg_add_cancel, tsub_add_cancel_of_le a.val_le, Nat.mod_self,\n            val_zero])\n",
+            "docstring": null
+          },
+          {
+            "id": 222980,
+            "name": "ZMod.val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+            "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+            "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod.val_neg_of_ne_zero",
+        "status": "ok",
+        "results": [
+          {
+            "id": 385568,
+            "name": "ChargeUnit.val_ne_zero",
+            "module": "Physlib.Electromagnetism.Charge.ChargeUnit",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Electromagnetism/Charge/ChargeUnit.lean#L46-L48",
+            "source_text": "@[simp]\nlemma val_ne_zero (x : ChargeUnit) : x.val ≠ 0 := by\n  exact Ne.symm (ne_of_lt x.property)",
+            "docstring": null
+          },
+          {
+            "id": 393138,
+            "name": "LengthUnit.val_ne_zero",
+            "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L38-L40",
+            "source_text": "@[simp]\nlemma val_ne_zero (x : LengthUnit) : x.val ≠ 0 := by\n  exact Ne.symm (ne_of_lt x.property)",
+            "docstring": null
+          },
+          {
+            "id": 385361,
+            "name": "MassUnit.val_ne_zero",
+            "module": "Physlib.ClassicalMechanics.Mass.MassUnit",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/Mass/MassUnit.lean#L41-L43",
+            "source_text": "@[simp]\nlemma val_ne_zero (x : MassUnit) : x.val ≠ 0 := by\n  exact Ne.symm (ne_of_lt x.property)",
+            "docstring": null
+          },
+          {
+            "id": 393614,
+            "name": "TimeUnit.val_ne_zero",
+            "module": "Physlib.SpaceAndTime.Time.TimeUnit",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeUnit.lean#L43-L45",
+            "source_text": "@[simp]\nlemma val_ne_zero (x : TimeUnit) : x.val ≠ 0 := by\n  exact Ne.symm (ne_of_lt x.property)",
+            "docstring": null
+          },
+          {
+            "id": 391475,
+            "name": "SpeedOfLight.val_ne_zero",
+            "module": "Physlib.Relativity.SpeedOfLight",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/SpeedOfLight.lean#L85-L86",
+            "source_text": "@[simp]\nlemma val_ne_zero (c : SpeedOfLight) : (c : ℝ) ≠ 0 := ne_of_gt c.pos",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod.val_add",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223081,
+            "name": "ZMod.val_add",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L646-L649",
+            "source_text": "theorem val_add {n : ℕ} [NeZero n] (a b : ZMod n) : (a + b).val = (a.val + b.val) % n := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.val_add\n",
+            "docstring": null
+          },
+          {
+            "id": 222980,
+            "name": "ZMod.val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+            "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+            "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+          },
+          {
+            "id": 223085,
+            "name": "ZMod.val_add_le",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L667-L670",
+            "source_text": "theorem val_add_le {n : ℕ} (a b : ZMod n) : (a + b).val ≤ a.val + b.val := by\n  cases n\n  · simpa [ZMod.val] using! Int.natAbs_add_le _ _\n  · simpa [ZMod.val_add] using! Nat.mod_le _ _\n",
+            "docstring": null
+          },
+          {
+            "id": 337470,
+            "name": "WithVal.ofVal_add",
+            "module": "Mathlib.Topology.Algebra.Valued.WithVal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/Valued/WithVal.lean#L108-L108",
+            "source_text": "@[simp] lemma ofVal_add (x y : WithVal v) : ofVal (x + y) = ofVal x + ofVal y := rfl",
+            "docstring": null
+          },
+          {
+            "id": 337457,
+            "name": "WithVal.instAdd",
+            "module": "Mathlib.Topology.Algebra.Valued.WithVal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/Valued/WithVal.lean#L89-L89",
+            "source_text": "instance : Add (WithVal v) where add x y := toVal _ (x.ofVal + y.ofVal)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod.val_add",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393177,
+            "name": "Space.add_val",
+            "module": "Physlib.SpaceAndTime.Space.Module",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Module.lean#L61-L63",
+            "source_text": "@[simp]\nlemma add_val {d: ℕ} (x y : Space d) :\n    (x + y).val = x.val + y.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 394434,
+            "name": "WithDim.val_add",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L58-L60",
+            "source_text": "@[simp]\nlemma val_add {d : Dimension} {M : Type} [Add M] (m1 m2 : WithDim d M) :\n    (m1 + m2).val = m1.val + m2.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 391810,
+            "name": "Lorentz.CoℂModule.val_add",
+            "module": "Physlib.Relativity.Tensors.ComplexTensor.Vector.Pre.Modules",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Vector/Pre/Modules.lean#L133-L134",
+            "source_text": "@[simp]\nlemma val_add (ψ ψ' : CoℂModule) : (ψ + ψ').val = ψ.val + ψ'.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393486,
+            "name": "Time.add_val",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L191-L193",
+            "source_text": "@[simp]\nlemma add_val (t1 t2 : Time) :\n    (t1 + t2).val = t1.val + t2.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393597,
+            "name": "TimeTransMan.addTime_val",
+            "module": "Physlib.SpaceAndTime.Time.TimeTransMan",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeTransMan.lean#L309-L311",
+            "source_text": "lemma addTime_val (x : TimeUnit) (r : ℝ) (t : TimeTransMan) :\n    (addTime x r t).val = x.1 * r + t.val := by\n  rw [addTime_eq_val]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Nat.dvd_mod_iff",
+      "ZMod.val_neg_of_ne_zero",
+      "ZMod.val_add"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "ZMod val add sub modulo injective",
+      "Finset image biUnion cardinality translation"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod val add sub modulo injective",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223076,
+            "name": "ZMod.val_injective",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L621-L627",
+            "source_text": "theorem val_injective (n : ℕ) [NeZero n] : Function.Injective (val : ZMod n → ℕ) := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  intro a b h\n  dsimp [ZMod]\n  ext\n  exact h\n",
+            "docstring": null
+          },
+          {
+            "id": 222980,
+            "name": "ZMod.val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+            "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+            "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+          },
+          {
+            "id": 88400,
+            "name": "Submodule.toAddSubmonoid_injective",
+            "module": "Mathlib.Algebra.Module.Submodule.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/Submodule/Defs.lean#L140-L141",
+            "source_text": "theorem toAddSubmonoid_injective : Injective (toAddSubmonoid : Submodule R M → AddSubmonoid M) :=\n  fun p q h => SetLike.ext'_iff.2 (show (p.toAddSubmonoid : Set M) = q from SetLike.ext'_iff.1 h)\n",
+            "docstring": null
+          },
+          {
+            "id": 60881,
+            "name": "instEnoughInjectivesModuleCatInt",
+            "module": "Mathlib.Algebra.Category.ModuleCat.EnoughInjectives",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Category/ModuleCat/EnoughInjectives.lean#L27-L28",
+            "source_text": "instance : EnoughInjectives (ModuleCat.{v} ℤ) :=\n  EnoughInjectives.of_equivalence (forget₂ (ModuleCat ℤ) AddCommGrpCat)\n",
+            "docstring": null
+          },
+          {
+            "id": 223146,
+            "name": "ZMod.val_sub",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L1034-L1041",
+            "source_text": "theorem val_sub {n : ℕ} [NeZero n] {a b : ZMod n} (h : b.val ≤ a.val) :\n    (a - b).val = a.val - b.val := by\n  by_cases hb : b = 0\n  · cases hb; simp\n  · have : NeZero b := ⟨hb⟩\n    rw [sub_eq_add_neg, val_add, val_neg_of_ne_zero, ← Nat.add_sub_assoc (le_of_lt (val_lt _)),\n      add_comm, Nat.add_sub_assoc h, Nat.add_mod_left]\n    apply Nat.mod_eq_of_lt (tsub_lt_of_lt (val_lt _))\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod val add sub modulo injective",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393558,
+            "name": "TimeMan.val_injective",
+            "module": "Physlib.SpaceAndTime.Time.TimeMan",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeMan.lean#L66-L70",
+            "source_text": "lemma val_injective : Function.Injective TimeMan.val := by\n  intro t1 t2 h\n  cases t1\n  cases t2\n  simp_all\n",
+            "docstring": null
+          },
+          {
+            "id": 393463,
+            "name": "Time.val_injective",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L83-L83",
+            "source_text": "lemma val_injective : Function.Injective val := fun _ _ h => Time.ext h\n",
+            "docstring": null
+          },
+          {
+            "id": 394438,
+            "name": "WithDim.val_sub",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L72-L74",
+            "source_text": "@[simp]\nlemma val_sub {d : Dimension} {M : Type} [Sub M] (m1 m2 : WithDim d M) :\n    (m1 - m2).val = m1.val - m2.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393490,
+            "name": "Time.sub_val",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L217-L219",
+            "source_text": "@[simp]\nlemma sub_val (t1 t2 : Time) :\n    (t1 - t2).val = t1.val - t2.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393200,
+            "name": "Space.sub_val",
+            "module": "Physlib.SpaceAndTime.Space.Module",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Module.lean#L218-L220",
+            "source_text": "@[simp]\nlemma sub_val {d} (p q : Space d) :\n    (p - q).val = fun i => p.val i - q.val i := by rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset image biUnion cardinality translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 204768,
+            "name": "Finset.biUnion_image",
+            "module": "Mathlib.Data.Finset.Union",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Union.lean#L288-L291",
+            "source_text": "theorem biUnion_image [DecidableEq γ] {s : Finset α} {t : α → Finset β} {f : β → γ} :\n    (s.biUnion t).image f = s.biUnion fun a => (t a).image f :=\n  haveI := Classical.decEq α\n  Finset.induction_on s rfl fun a s _ ih => by simp only [biUnion_insert, image_union, ih]\n",
+            "docstring": null
+          },
+          {
+            "id": 204767,
+            "name": "Finset.image_biUnion",
+            "module": "Mathlib.Data.Finset.Union",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Union.lean#L283-L286",
+            "source_text": "theorem image_biUnion [DecidableEq γ] {f : α → β} {s : Finset α} {t : β → Finset γ} :\n    (s.image f).biUnion t = s.biUnion fun a => t (f a) :=\n  haveI := Classical.decEq α\n  Finset.induction_on s rfl fun a s _ ih => by simp only [image_insert, biUnion_insert, ih]\n",
+            "docstring": null
+          },
+          {
+            "id": 204741,
+            "name": "Finset.biUnion",
+            "module": "Mathlib.Data.Finset.Union",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Union.lean#L189-L193",
+            "source_text": "/-- `Finset.biUnion s t` is the union of `t a` over `a ∈ s`.\n\n(This was formerly `bind` due to the monad structure on types with `DecidableEq`.) -/\nprotected def biUnion (s : Finset α) (t : α → Finset β) : Finset β :=\n  (s.1.bind fun a ↦ (t a).1).toFinset\n",
+            "docstring": "`Finset.biUnion s t` is the union of `t a` over `a ∈ s`.\n\n(This was formerly `bind` due to the monad structure on types with `DecidableEq`.) "
+          },
+          {
+            "id": 58605,
+            "name": "Finset.card_sigma",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L133-L136",
+            "source_text": "@[simp]\ntheorem card_sigma {σ : α → Type*} (s : Finset α) (t : ∀ a, Finset (σ a)) :\n    #(s.sigma t) = ∑ a ∈ s, #(t a) :=\n  Multiset.card_sigma _ _",
+            "docstring": null
+          },
+          {
+            "id": 203691,
+            "name": "Finset.card_image₂_iff",
+            "module": "Mathlib.Data.Finset.NAry",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/NAry.lean#L57-L60",
+            "source_text": "theorem card_image₂_iff :\n    #(image₂ f s t) = #s * #t ↔ (s ×ˢ t : Set (α × β)).InjOn fun x => f x.1 x.2 := by\n  rw [← card_product, ← coe_product]\n  exact card_image_iff\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "anchored_difference_gcd",
+    "receipts_sha256": "c58340b6f75d229ceccbca943641f0500d444590eea9ae057f0f600849060a1e"
+  }
+]

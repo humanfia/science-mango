@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst S c\nclassical\nhave hs (x : ZMod N) : x ∈ M5.Translation.shift S c ↔ x - c ∈ S := by\n  simp [M5.Translation.shift, sub_eq_add_neg]\next z\nsimp only [M5.Translation.differences, Finset.mem_biUnion, Finset.mem_image, hs]\nconstructor\n· rintro ⟨x, hx, y, hy, hxy⟩\n  refine ⟨x - c, hx, y - c, hy, ?_⟩\n  calc\n    (x - c) - (y - c) = x - y := by abel\n    _ = z := hxy\n· rintro ⟨x, hx, y, hy, hxy⟩\n  refine ⟨x + c, ?_, y + c, ?_, ?_⟩\n  · simpa using hx\n  · simpa using hy\n  · calc\n      (x + c) - (y + c) = x - y := by abel\n      _ = z := hxy",
+  "queries": []
+}

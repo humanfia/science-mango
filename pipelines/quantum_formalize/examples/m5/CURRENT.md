@@ -1,6 +1,6 @@
 # Current M5 formalization progress
 
-Stages 1–33 and 35–40 are complete: 179 named component lemmas accepted by Lean, with combined compilation per batch. Stage22 includes one retained accepted theorem plus three accepted retry targets. A union of90 components (stages1–15,17,18) also passed single-project compilation and independent exact-type/axiom audit in integrated90. Counts are not completion percentages.
+Stages 1–33, 35–41 and 45 are complete: 189 named component lemmas accepted by Lean, with combined compilation per batch. Stage22 includes one retained accepted theorem plus three accepted retry targets. A union of90 components (stages1–15,17,18) also passed single-project compilation and independent exact-type/axiom audit in integrated90. Counts are not completion percentages.
 
 The original §5 construction chain is now accepted: feasible anchored residue tuples yield a physical realization strictly below birthBound and the same supports realize an infinite arithmetic progression. No physical realizing witness is assumed at input. Explicit n/R identities, polynomial and integer exclusion indicators, and the anchored single-block / restricted tuple count bridges are also accepted.
 
@@ -17,11 +17,12 @@ Active:
 - Stage38 complete: generic finite arithmetic birth-search correctness; actual C/source-bound instantiation remains.
 - Stage39 complete: A positive iff realization at some order, A zero iff global absence, bounded source and same-support infinite progression.
 - Stage40 complete: arbitrary selected-polynomial R completion identity.
-- Stage41: translation/anchoring input correspondence running.
-- Stage42: actual conditional A in preparation.
-- Stage43: actual birth and later-order integration prepared; accepted27/39 being imported.
-- Stage44: prefix partition/terminal count for recovery running.
-- Stage45: finite period-search correctness in preparation.
+- Stage41 complete: translation/anchoring input correspondence using within-block differences.
+- Stage42: actual conditional A running after exact selected-R product repair.
+- Stage43: actual birth and arbitrary later-order integration running with verified27/39 imports.
+- Stage44: prefix partition/terminal count in acceptance replay after explicit finite-filter instance repair.
+- Stage45 complete: finite search through1..2^degree F returns exactly the mathematical period, including F=1.
+- Stages46/47: actual binary/residue recovery connections in preparation.
 
 Settings: gpt-6-astra / medium, proof concurrency ceiling16, five attempts per node. Prompts now include bounded hash-recorded local M5 declaration interfaces as untrusted references alongside Mathlib/Physlib retrieval. Exact target/source/axiom gates are unchanged.
 

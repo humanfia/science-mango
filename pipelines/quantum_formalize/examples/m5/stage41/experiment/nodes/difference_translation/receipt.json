@@ -1,0 +1,61 @@
+{
+  "id": "difference_translation",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Translation.difference_translation",
+    "spec_sha256": "ed3077b9a96e08cac8f978c918e95ab52c976daac5e124a9f77c41b615deee0c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-lc0gkyx9/attempt-001/Candidate_9fe522e1eed9d403.lean:2:78: error: unsolved goals\nN : ℕ\ninst✝ : NeZero N\nS : Finset (ZMod N)\nc : ZMod N\n⊢ ((S.preimage (fun x => x + -c) ⋯).biUnion fun x => Finset.image (fun y => x - y) (S.preimage (fun x => x + -c) ⋯)) =\n    S.biUnion fun x => Finset.image (fun y => x - y) S\n/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-lc0gkyx9/attempt-001/Candidate_9fe522e1eed9d403.lean:6:58: warning: This simp argument is unused:\n  Finset.image_biUnion\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.Translation.differences, M5.Translation.shift, Finset.image_image, Function.comp_def,\n    add_sub_add_right_eq_sub]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-lc0gkyx9/attempt-001/Candidate_9fe522e1eed9d403.lean:7:4: warning: This simp argument is unused:\n  Finset.image_image\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.Translation.differences, M5.Translation.shift, Finset.image_biUnion, Function.comp_def,\n    add_sub_add_right_eq_sub]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-lc0gkyx9/attempt-001/Candidate_9fe522e1eed9d403.lean:7:24: warning: This simp argument is unused:\n  Function.comp_def\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.Translation.differences, M5.Translation.shift, Finset.image_biUnion, Finset.image_image,\n    add_sub_add_right_eq_sub]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-lc0gkyx9/attempt-001/Candidate_9fe522e1eed9d403.lean:7:43: warning: This simp argument is unused:\n  add_sub_add_right_eq_sub\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.Translation.differences, M5.Translation.shift, Finset.image_biUnion, Finset.image_image,\n    Function.comp_def]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-lc0gkyx9/attempt-002/Candidate_e4caa4a916703e54.lean",
+        "target_path": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-lc0gkyx9/attempt-002/FrozenTarget_e4caa4a916703e54.lean",
+        "feedback": "",
+        "target_sha256": "04b944cb50d73fe778c4501739e453951686dfbdd826fa4725fbe75f06dc4856",
+        "target_olean_sha256": "1ccfac04d6a54861532c832b2c658465da40f98e77e799b23c3751e31c752f76",
+        "source_sha256": "967ee26041d21c84ce1dd78552c7c00387d744e5911b6ee327e8eead0c693556",
+        "olean_sha256": "22fe38e793ae5c2733e39d972eb2cb74fecfe709b2981e58e201e417a5564ff2",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T09:05:59.696642+00:00",
+    "work": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-lc0gkyx9",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4ca05bc6c111fe88fe49819759903127625f5894ed463973b9f7ed8629e06b3a",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-lc0gkyx9/attempt-002/Candidate_e4caa4a916703e54.lean",
+    "environment_sha256": "a3e7d8b3a549af8f7b6b2992032668257fdeed76ed85c8731f9e27061800b30e",
+    "artifacts": {
+      "difference_translation": {
+        "payload": {
+          "declaration": "theorem M5.Translation.difference_translation : ∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)) (c : ZMod N), M5.Translation.differences (M5.Translation.shift S c) = M5.Translation.differences S := by\n  intro N inst S c\n  classical\n  have hs (x : ZMod N) : x ∈ M5.Translation.shift S c ↔ x - c ∈ S := by\n    simp [M5.Translation.shift, sub_eq_add_neg]\n  ext z\n  simp only [M5.Translation.differences, Finset.mem_biUnion, Finset.mem_image, hs]\n  constructor\n  · rintro ⟨x, hx, y, hy, hxy⟩\n    refine ⟨x - c, hx, y - c, hy, ?_⟩\n    calc\n      (x - c) - (y - c) = x - y := by abel\n      _ = z := hxy\n  · rintro ⟨x, hx, y, hy, hxy⟩\n    refine ⟨x + c, ?_, y + c, ?_, ?_⟩\n    · simpa using hx\n    · simpa using hy\n    · calc\n        (x + c) - (y + c) = x - y := by abel\n        _ = z := hxy",
+          "imports": [
+            "M5Translation"
+          ],
+          "name": "M5.Translation.difference_translation",
+          "ancestors": [],
+          "spec_sha256": "ed3077b9a96e08cac8f978c918e95ab52c976daac5e124a9f77c41b615deee0c"
+        },
+        "sha256": "03538005201164827f6f0df9bc4500a11a1000b32afe6e58e00a1053a7b28ea2"
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "id": "shift_quotient_polynomial",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Translation.shift_quotient_polynomial",
+    "spec_sha256": "8117af82530c1258236f758f37599c66d39846983256a4bbbc736c84f149a2dc",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-vic5gquy/attempt-001/Candidate_e89750d642613659.lean:16:4: error: unsolved goals\nN : ℕ\ninst : NeZero N\nS : Finset (ZMod N)\nc : ZMod N\nhsupport : ∀ (A : Finset (ZMod N)), supportPolynomial A = ∑ x ∈ A, Polynomial.X ^ x.val\n⊢ Set.InjOn (fun x => c + x) ↑S\n/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-vic5gquy/attempt-001/Candidate_e89750d642613659.lean:17:4: error: No goals to be solved\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-vic5gquy/attempt-002/Candidate_cd061f8eaeb93b9c.lean:26:8: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  (AdjoinRoot.mk (cyclicModulus N)) (Polynomial.X ^ ((c.val + x.val) % N))\nin the target expression\n  (AdjoinRoot.mk (cyclicModulus N)) (Polynomial.X ^ ((x.val + c.val) % N)) =\n    (AdjoinRoot.mk (cyclicModulus N)) (Polynomial.X ^ c.val) * (AdjoinRoot.mk (cyclicModulus N)) (Polynomial.X ^ x.val)\n\nN : ℕ\ninst : NeZero N\nS : Finset (ZMod N)\nc : ZMod N\nhsupport : ∀ (A : Finset (ZMod N)), supportPolynomial A = ∑ x ∈ A, Polynomial.X ^ x.val\nx : ZMod N\nhx : x ∈ S\nhp :\n  (AdjoinRoot.mk (cyclicModulus N)) (Polynomial.X ^ (c.val + x.val)) =\n    (AdjoinRoot.mk (cyclicModulus N)) (Polynomial.X ^ ((c.val + x.val) % N))\nhe : (c.val + x.val) % N + (c.val + x.val) / N * N = c.val + x.val\n⊢ (AdjoinRoot.mk (cyclicModulus N)) (Polynomial.X ^ ((x.val + c.val) % N)) =\n    (AdjoinRoot.mk (cyclicModulus N)) (Polynomial.X ^ c.val) * (AdjoinRoot.mk (cyclicModulus N)) (Polynomial.X ^ x.val)\n/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-vic5gquy/attempt-002/Candidate_cd061f8eaeb93b9c.lean:28:26: error: Application type mismatch: The argument\n  h\nhas type\n  (fun x => x + c) x = (fun x => x + c) y\nbut is expected to have type\n  ?m.211 + x = ?m.211 + y\nin the application\n  add_left_cancel h\n",
+        "attempt": 2
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-vic5gquy/attempt-003/Candidate_626cd345f4e78122.lean",
+        "target_path": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-vic5gquy/attempt-003/FrozenTarget_626cd345f4e78122.lean",
+        "feedback": "",
+        "target_sha256": "e055defafa785643ac98eb734557f338d7d7ab8e89f3d12d58e4510bb20e6453",
+        "target_olean_sha256": "4653d751df3b154bd44d78f64007758c5f9b76a43c6968f1b6af45e65a318b26",
+        "source_sha256": "5bcc96e701bb7517e8740cd3cdfe5f14128648f00bb796933512b777a9ba2af4",
+        "olean_sha256": "6bfa50635cc5c95803acc49f85ad3160c7a5c135c15cb79ce52089f059456afd",
+        "attempt": 3
+      }
+    ],
+    "created_at": "2026-09-15T09:05:59.824378+00:00",
+    "work": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-vic5gquy",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4ca05bc6c111fe88fe49819759903127625f5894ed463973b9f7ed8629e06b3a",
+    "phase": "finished",
+    "round": 3,
+    "proof": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-vic5gquy/attempt-003/Candidate_626cd345f4e78122.lean",
+    "environment_sha256": "a3e7d8b3a549af8f7b6b2992032668257fdeed76ed85c8731f9e27061800b30e",
+    "artifacts": {
+      "shift_quotient_polynomial": {
+        "payload": {
+          "declaration": "theorem M5.Translation.shift_quotient_polynomial : ∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)) (c : ZMod N), AdjoinRoot.mk (M5.cyclicModulus N) (M5.Translation.supportPolynomial (M5.Translation.shift S c)) = AdjoinRoot.mk (M5.cyclicModulus N) ((Polynomial.X : M5.BinaryPolynomial) ^ c.val) * AdjoinRoot.mk (M5.cyclicModulus N) (M5.Translation.supportPolynomial S) := by\n  classical\n  intro N inst S c\n  have hsupport (A : Finset (ZMod N)) :\n      M5.Translation.supportPolynomial A =\n        ∑ x ∈ A, (Polynomial.X : M5.BinaryPolynomial) ^ x.val := by\n    change (∑ e ∈ A.image ZMod.val, (Polynomial.X : M5.BinaryPolynomial) ^ e) = _\n    apply Finset.sum_image\n    intro x hx y hy h\n    exact ZMod.val_injective N h\n  rw [hsupport, hsupport]\n  unfold M5.Translation.shift\n  rw [Finset.sum_image]\n  · simp only [map_sum, Finset.mul_sum]\n    apply Finset.sum_congr rfl\n    intro x hx\n    have he : (c.val + x.val) % N + (c.val + x.val) / N * N =\n        c.val + x.val := by\n      simpa [Nat.mul_comm] using Nat.mod_add_div (c.val + x.val) N\n    have hp := M5.SupportPolynomial.quotient_monomial_period N\n      ((c.val + x.val) % N) ((c.val + x.val) / N)\n    rw [he] at hp\n    rw [ZMod.val_add, Nat.add_comm x.val c.val, ← hp, pow_add, map_mul]\n  · intro x hx y hy h\n    exact add_right_cancel h",
+          "imports": [
+            "M5Translation"
+          ],
+          "name": "M5.Translation.shift_quotient_polynomial",
+          "ancestors": [],
+          "spec_sha256": "8117af82530c1258236f758f37599c66d39846983256a4bbbc736c84f149a2dc"
+        },
+        "sha256": "b5d0108dd83b8026e1cdb9c3574ce2419a11cd8daf2b9d9017487426ec9e61cc"
+      }
+    }
+  }
+}

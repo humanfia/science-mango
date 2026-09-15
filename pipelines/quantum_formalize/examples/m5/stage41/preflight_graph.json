@@ -1,0 +1,159 @@
+{
+  "title": "M5 stage41: independent translation to the anchored input convention",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Section1 normalization correspondence using within-block modular differences before anchoring. No added equivalence-class or graph-connectivity theorem.",
+  "nodes": [
+    {
+      "id": "shift_card_anchor",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Translation.shift_card_anchor",
+        "statement": "∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)) (c : ZMod N), c ∈ S → (M5.Translation.shift S (-c)).card = S.card ∧ 0 ∈ M5.Translation.shift S (-c)",
+        "imports": [
+          "M5Translation"
+        ],
+        "context": "",
+        "queries": [
+          "ZMod val add sub modulo injective",
+          "Finset image biUnion cardinality translation"
+        ],
+        "guidance": "Addition by a fixed group element is injective, so Finset.card_image_iff gives the cardinality. The chosen c maps to c-c=0. Return tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 1,
+        "supports_obligation": "M5_TRANSLATE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "difference_translation",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Translation.difference_translation",
+        "statement": "∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)) (c : ZMod N), M5.Translation.differences (M5.Translation.shift S c) = M5.Translation.differences S",
+        "imports": [
+          "M5Translation"
+        ],
+        "context": "",
+        "queries": [
+          "ZMod val add sub modulo injective",
+          "Finset image biUnion cardinality translation"
+        ],
+        "guidance": "Unfold finite image/biUnion membership. Both translations cancel: (x+c)-(y+c)=x-y. Prove both inclusions, preserving arbitrary support collisions only through injective shift. Return tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 1,
+        "supports_obligation": "M5_TRANSLATE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "anchored_difference_gcd",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Translation.anchored_difference_gcd",
+        "statement": "∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)), 0 ∈ S → 0 ∈ U → M5.Translation.differenceGcd S U = M5.Connectivity.supportGcd N (M5.Translation.natSupport S) (M5.Translation.natSupport U)",
+        "imports": [
+          "M5Translation"
+        ],
+        "context": "",
+        "queries": [
+          "ZMod val add sub modulo injective",
+          "Finset image biUnion cardinality translation"
+        ],
+        "guidance": "Characterize divisors of both gcds. With zero present, each original residue occurs as x-0. Conversely a divisor of N and all canonical entries divides the canonical representative of every difference; use ZMod val subtraction modulo N. Do not claim raw support gcd invariance before anchoring. Return tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 1,
+        "supports_obligation": "M5_TRANSLATE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "shift_quotient_polynomial",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Translation.shift_quotient_polynomial",
+        "statement": "∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)) (c : ZMod N), AdjoinRoot.mk (M5.cyclicModulus N) (M5.Translation.supportPolynomial (M5.Translation.shift S c)) = AdjoinRoot.mk (M5.cyclicModulus N) ((Polynomial.X : M5.BinaryPolynomial) ^ c.val) * AdjoinRoot.mk (M5.cyclicModulus N) (M5.Translation.supportPolynomial S)",
+        "imports": [
+          "M5Translation"
+        ],
+        "context": "",
+        "queries": [
+          "ZMod val add sub modulo injective",
+          "Finset image biUnion cardinality translation"
+        ],
+        "guidance": "Use injectivity of ZMod.val for N positive and shift injectivity to express support polynomials as sums. Canonical val(x+c) is (val x+val c)%N. Quotient monomial periodicity identifies modulo reduction, and pow_add converts the shift to multiplication by X^c.val. Return tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 1,
+        "supports_obligation": "M5_TRANSLATE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "signature_translation",
+      "dependencies": [
+        "shift_quotient_polynomial"
+      ],
+      "spec": {
+        "name": "M5.Translation.signature_translation",
+        "statement": "∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)) (c d : ZMod N), M5.completeSignature (M5.Translation.supportPolynomial (M5.Translation.shift S c)) (M5.Translation.supportPolynomial (M5.Translation.shift U d)) N = M5.completeSignature (M5.Translation.supportPolynomial S) (M5.Translation.supportPolynomial U) N",
+        "imports": [
+          "M5Translation"
+        ],
+        "context": "",
+        "queries": [
+          "ZMod val add sub modulo injective",
+          "Finset image biUnion cardinality translation"
+        ],
+        "guidance": "The quotient root satisfies root^N=1, so its powers are units. Use shift_quotient_polynomial and common-divisor characterization to show multiplying each block by these units preserves its gcd with M_N. Use binary_dvd_antisymm for exact polynomial equality. Multiplicities retained; no squarefree assumption. Return tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 1,
+        "supports_obligation": "M5_TRANSLATE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "anchored_normalization",
+      "dependencies": [
+        "shift_card_anchor",
+        "difference_translation",
+        "anchored_difference_gcd",
+        "signature_translation"
+      ],
+      "spec": {
+        "name": "M5.Translation.anchored_normalization",
+        "statement": "∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)), S.Nonempty → U.Nonempty → ∃ A B : Finset ℕ, A.card = S.card ∧ B.card = U.card ∧ 0 ∈ A ∧ 0 ∈ B ∧ (∀ a ∈ A, a < N) ∧ (∀ b ∈ B, b < N) ∧ M5.Connectivity.supportGcd N A B = M5.Translation.differenceGcd S U ∧ M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) N = M5.completeSignature (M5.Translation.supportPolynomial S) (M5.Translation.supportPolynomial U) N",
+        "imports": [
+          "M5Translation"
+        ],
+        "context": "",
+        "queries": [
+          "ZMod val add sub modulo injective",
+          "Finset image biUnion cardinality translation"
+        ],
+        "guidance": "Choose c∈S,d∈U. Set A=natSupport(shift S (-c)),B similarly. Positive N makes canonical val injective and bounded by N, so preserve cards and anchors. Combine difference invariance and anchored gcd equality, then signature_translation. This is input normalization correspondence, not a new sorting or Tanner-graph theorem. Return tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 1,
+        "supports_obligation": "M5_TRANSLATE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

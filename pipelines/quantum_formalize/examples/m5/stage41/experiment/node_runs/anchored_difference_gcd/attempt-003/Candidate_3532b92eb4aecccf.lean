@@ -1,0 +1,57 @@
+import FrozenTarget_3532b92eb4aecccf
+theorem M5.Translation.anchored_difference_gcd : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)), _
+  intro N inst S U hS hU
+  classical
+  have hsub (d : ℕ) (hd : d ∣ N) (x y : ZMod N)
+      (hx : d ∣ x.val) (hy : d ∣ y.val) : d ∣ (x - y).val := by
+    by_cases hy0 : y = 0
+    · simpa [hy0] using hx
+    · letI : NeZero y := ⟨hy0⟩
+      rw [sub_eq_add_neg, ZMod.val_add, ZMod.val_neg_of_ne_zero]
+      exact (Nat.dvd_mod_iff hd).2 (dvd_add hx (Nat.dvd_sub hd hy))
+  have hbase (d : ℕ) (A : Finset (ZMod N)) :
+      (∀ a ∈ M5.Translation.natSupport A, d ∣ a) ↔
+        (∀ x ∈ A, d ∣ x.val) := by
+    constructor
+    · intro h x hx
+      exact h x.val (Finset.mem_image.mpr ⟨x, hx, rfl⟩)
+    · intro h a ha
+      rcases Finset.mem_image.mp ha with ⟨x, hx, rfl⟩
+      exact h x hx
+  have hdiff (d : ℕ) (A : Finset (ZMod N)) :
+      (∀ a ∈ M5.Translation.natSupport (M5.Translation.differences A), d ∣ a) ↔
+        (∀ x ∈ A, ∀ y ∈ A, d ∣ (x - y).val) := by
+    rw [hbase]
+    constructor
+    · intro h x hx y hy
+      apply h (x - y)
+      simp only [M5.Translation.differences, Finset.mem_biUnion, Finset.mem_image]
+      exact ⟨x, hx, y, hy, rfl⟩
+    · intro h z hz
+      have hz' : ∃ x ∈ A, ∃ y ∈ A, x - y = z := by
+        simpa [M5.Translation.differences] using hz
+      rcases hz' with ⟨x, hx, y, hy, rfl⟩
+      exact h x hx y hy
+  have hanch (d : ℕ) (hd : d ∣ N) (A : Finset (ZMod N)) (hA : 0 ∈ A) :
+      (∀ a ∈ M5.Translation.natSupport (M5.Translation.differences A), d ∣ a) ↔
+        (∀ a ∈ M5.Translation.natSupport A, d ∣ a) := by
+    rw [hdiff, hbase]
+    constructor
+    · intro h x hx
+      simpa using h x hx 0 hA
+    · intro h x hx y hy
+      exact hsub d hd x y (h x hx) (h y hy)
+  have hequiv (d : ℕ) :
+      d ∣ M5.Translation.differenceGcd S U ↔
+        d ∣ M5.Connectivity.supportGcd N (M5.Translation.natSupport S) (M5.Translation.natSupport U) := by
+    unfold M5.Translation.differenceGcd
+    rw [M5.Connectivity.support_gcd_dvd, M5.Connectivity.support_gcd_dvd]
+    constructor
+    · rintro ⟨hd, hs, hu⟩
+      exact ⟨hd, (hanch d hd S hS).1 hs, (hanch d hd U hU).1 hu⟩
+    · rintro ⟨hd, hs, hu⟩
+      exact ⟨hd, (hanch d hd S hS).2 hs, (hanch d hd U hU).2 hu⟩
+  apply Nat.dvd_antisymm
+  · exact (hequiv _).1 (dvd_refl _)
+  · exact (hequiv _).2 (dvd_refl _)

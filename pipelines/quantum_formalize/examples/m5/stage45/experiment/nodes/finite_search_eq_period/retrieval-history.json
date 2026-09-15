@@ -1,0 +1,184 @@
+[
+  {
+    "queries": [
+      "Finset min mem min le finite interval",
+      "natural divides positive less equal"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset min mem min le finite interval",
+        "status": "ok",
+        "results": [
+          {
+            "id": 288990,
+            "name": "Mathlib.Meta.elabFinsetBuilderIxx",
+            "module": "Mathlib.Order.Interval.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Interval/Finset/Defs.lean#L454-L492",
+            "source_text": "/-- Elaborate set builder notation for `Finset`.\n\n* `{x ≤ a | p x}` is elaborated as `Finset.filter (fun x ↦ p x) (Finset.Iic a)` if the expected type\n  is `Finset ?α`.\n* `{x ≥ a | p x}` is elaborated as `Finset.filter (fun x ↦ p x) (Finset.Ici a)` if the expected type\n  is `Finset ?α`.\n* `{x < a | p x}` is elaborated as `Finset.filter (fun x ↦ p x) (Finset.Iio a)` if the expected type\n  is `Finset ?α`.\n* `{x > a | p x}` is elaborated as `Finset.filter (fun x ↦ p x) (Finset.Ioi a)` if the expected type\n  is `Finset ?α`.\n\nSee also\n* `Data.Set.Defs` for the `Set` builder notation elaborator that this elaborator partly overrides.\n* `Data.Finset.Basic` for the `Finset` builder notation elaborator partly overriding this one for\n  syntax of the form `{x ∈ s | p x}`.\n* `Data.Fintype.Basic` for the `Finset` builder notation elaborator handling syntax of the form\n  `{x | p x}`, `{x : α | p x}`, `{x ∉ s | p x}`, `{x ≠ a | p x}`.\n\nTODO: Write a delaborator\n-/\n@[term_elab setBuilder]\nmeta def elabFinsetBuilderIxx : TermElab\n  | `({ $x:ident ≤ $a | $p }), expectedType? => do\n    -- If the expected type is not known to be `Finset ?α`, give up.\n    unless ← knownToBeFinsetNotSet expectedType? do throwUnsupportedSyntax\n    elabTerm (← `(Finset.filter (fun $x:ident ↦ $p) (Finset.Iic $a))) expectedType?\n  | `({ $x:ident ≥ $a | $p }), expectedType? => do\n    -- If the expected type is not known to be `Finset ?α`, give up.\n    unless ← knownToBeFinsetNotSet expectedType? do throwUnsupportedSyntax\n    elabTerm (← `(Finset.filter (fun $x:ident ↦ $p) (Finset.Ici $a))) expectedType?\n  | `({ $x:ident < $a | $p }), expectedType? => do\n    -- If the expected type is not known to be `Finset ?α`, give up.\n    unless ← knownToBeFinsetNotSet expectedType? do throwUnsupportedSyntax\n    elabTerm (← `(Finset.filter (fun $x:ident ↦ $p) (Finset.Iio $a))) expectedType?\n  | `({ $x:ident > $a | $p }), expectedType? => do\n    -- If the expected type is not known to be `Finset ?α`, give up.\n    unless ← knownToBeFinsetNotSet expectedType? do throwUnsupportedSyntax\n    elabTerm (← `(Finset.filter (fun $x:ident ↦ $p) (Finset.Ioi $a))) expectedType?\n  | _, _ => throwUnsupportedSyntax\n",
+            "docstring": "Elaborate set builder notation for `Finset`.\n\n* `{x ≤ a | p x}` is elaborated as `Finset.filter (fun x ↦ p x) (Finset.Iic a)` if the expected type\n  is `Finset ?α`.\n* `{x ≥ a | p x}` is elaborated as `Finset.filter (fun x ↦ p x) (Finset.Ici a)` if the expected type\n  is `Finset ?α`.\n* `{x < a | p x}` is elaborated as `Finset.filter (fun x ↦ p x) (Finset.Iio a)` if the expected type\n  is `Finset ?α`.\n* `{x > a | p x}` is elaborated as `Finset.filter (fun x ↦ p x) (Finset.Ioi a)` if the expected type\n  is `Finset ?α`.\n\nSee also\n* `Data.Set.Defs` for the `Set` builder notation elaborator that this elaborator partly overrides.\n* `Data.Finset.Basic` for the `Finset` builder notation elaborator partly overriding this one for\n  syntax of the form `{x ∈ s | p x}`.\n* `Data.Fintype.Basic` for the `Finset` builder notation elaborator handling syntax of the form\n  `{x | p x}`, `{x : α | p x}`, `{x ∉ s | p x}`, `{x ≠ a | p x}`.\n\nTODO: Write a delaborator\n"
+          },
+          {
+            "id": 203585,
+            "name": "Finset.min'",
+            "module": "Mathlib.Data.Finset.Max",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Max.lean#L177-L181",
+            "source_text": "/-- Given a nonempty finset `s` in a linear order `α`, then `s.min' H` is its minimum, as an\nelement of `α`, where `H` is a proof of nonemptiness. Without this assumption, use instead `s.min`,\ntaking values in `WithTop α`. -/\ndef min' (s : Finset α) (H : s.Nonempty) : α :=\n  inf' s H id\n",
+            "docstring": "Given a nonempty finset `s` in a linear order `α`, then `s.min' H` is its minimum, as an\nelement of `α`, where `H` is a proof of nonemptiness. Without this assumption, use instead `s.min`,\ntaking values in `WithTop α`. "
+          },
+          {
+            "id": 288941,
+            "name": "Finset.Icc",
+            "module": "Mathlib.Order.Interval.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Interval/Finset/Defs.lean#L277-L281",
+            "source_text": "/-- The finset $[a, b]$ of elements `x` such that `a ≤ x` and `x ≤ b`. Basically `Set.Icc a b` as a\nfinset. -/\n@[to_dual self (reorder := a b)]\ndef Icc (a b : α) : Finset α :=\n  LocallyFiniteOrder.finsetIcc a b\n",
+            "docstring": "The finset $[a, b]$ of elements `x` such that `a ≤ x` and `x ≤ b`. Basically `Set.Icc a b` as a\nfinset. "
+          },
+          {
+            "id": 203587,
+            "name": "Finset.min'_mem",
+            "module": "Mathlib.Data.Finset.Max",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Max.lean#L191-L192",
+            "source_text": "theorem min'_mem : s.min' H ∈ s :=\n  mem_of_min <| by simp only [Finset.min, min', id_eq, coe_inf', Function.comp_def]\n",
+            "docstring": null
+          },
+          {
+            "id": 203576,
+            "name": "Finset.min_le",
+            "module": "Mathlib.Data.Finset.Max",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Max.lean#L148-L149",
+            "source_text": "theorem min_le {a : α} {s : Finset α} (as : a ∈ s) : s.min ≤ a :=\n  inf_le as\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural divides positive less equal",
+        "status": "ok",
+        "results": [
+          {
+            "id": 215189,
+            "name": "PNat.le_of_dvd",
+            "module": "Mathlib.Data.PNat.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Basic.lean#L338-L342",
+            "source_text": "theorem le_of_dvd {m n : ℕ+} : m ∣ n → m ≤ n := by\n  rw [dvd_iff']\n  intro h\n  rw [← h]\n  apply (mod_le n m).left\n",
+            "docstring": null
+          },
+          {
+            "id": 97458,
+            "name": "PositiveLinearMap",
+            "module": "Mathlib.Algebra.Order.Module.PositiveLinearMap",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Module/PositiveLinearMap.lean#L30-L33",
+            "source_text": "/-- A positive linear map is a linear map that is also an order homomorphism. -/\nstructure PositiveLinearMap (R E₁ E₂ : Type*) [Semiring R]\n    [AddCommMonoid E₁] [PartialOrder E₁] [AddCommMonoid E₂] [PartialOrder E₂]\n    [Module R E₁] [Module R E₂] extends E₁ →ₗ[R] E₂, E₁ →o E₂\n",
+            "docstring": "A positive linear map is a linear map that is also an order homomorphism. "
+          },
+          {
+            "id": 56474,
+            "name": "IsStrictlyPositive",
+            "module": "Mathlib.Algebra.Algebra.StrictPositivity",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Algebra/StrictPositivity.lean#L34-L39",
+            "source_text": "/-- An element of an ordered algebra is *strictly positive* if it is nonnegative and invertible.\n\nNOTE: This definition will be generalized to the non-unital case in the future; do not unfold\nthe definition and use the API provided instead to avoid breakage when the refactor happens. -/\ndef IsStrictlyPositive {A : Type*} [LE A] [Monoid A] [Zero A] (a : A) : Prop :=\n  0 ≤ a ∧ IsUnit a\n",
+            "docstring": "An element of an ordered algebra is *strictly positive* if it is nonnegative and invertible.\n\nNOTE: This definition will be generalized to the non-unital case in the future; do not unfold\nthe definition and use the API provided instead to avoid breakage when the refactor happens. "
+          },
+          {
+            "id": 129648,
+            "name": "naturalParameterization",
+            "module": "Mathlib.Analysis.ConstantSpeed",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/ConstantSpeed.lean#L224-L230",
+            "source_text": "/-- The natural parameterization of `f` on `s`, which, if `f` has locally bounded variation on `s`,\n* has unit speed on `s` (by `has_unit_speed_naturalParameterization`).\n* composed with `variationOnFromTo f s a`, is at distance zero from `f`\n  (by `edist_naturalParameterization_eq_zero`).\n-/\nnoncomputable def naturalParameterization (f : α → E) (s : Set α) (a : α) : ℝ → E :=\n  f ∘ @Function.invFunOn _ _ ⟨a⟩ (variationOnFromTo f s a) s\n",
+            "docstring": "The natural parameterization of `f` on `s`, which, if `f` has locally bounded variation on `s`,\n* has unit speed on `s` (by `has_unit_speed_naturalParameterization`).\n* composed with `variationOnFromTo f s a`, is at distance zero from `f`\n  (by `edist_naturalParameterization_eq_zero`).\n"
+          },
+          {
+            "id": 277760,
+            "name": "Zsqrtd.not_divides_sq",
+            "module": "Mathlib.NumberTheory.Zsqrtd.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Zsqrtd/Basic.lean#L765-L767",
+            "source_text": "theorem not_divides_sq (x y) : (x + 1) * (x + 1) ≠ d * (y + 1) * (y + 1) := fun e => by\n  have t := (divides_sq_eq_zero e).left\n  contradiction\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "natural divides positive less equal",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390167,
+            "name": "PureU1.split_equal",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.VectorLike",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/VectorLike.lean#L26-L29",
+            "source_text": "/--\n  Given a natural number `n`, this lemma proves that `n + n` is equal to `2 * n`.\n-/\nlemma split_equal (n : ℕ) : n + n = 2 * n := (Nat.two_mul n).symm\n",
+            "docstring": "Given a natural number `n`, this lemma proves that `n + n` is equal to `2 * n`.\n"
+          },
+          {
+            "id": 392028,
+            "name": "TensorSpecies.Tensor.TensorExpressionOperator.equal",
+            "module": "Physlib.Relativity.Tensors.Elab",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L493-L504",
+            "source_text": "/-- The tensor expression operator which equates two tensors. -/\ndef TensorExpressionOperator.equal : List (TSyntax `indexExpr) × Term →\n    List (TSyntax `indexExpr) × Term →\n    TermElabM (List (TSyntax `indexExpr) × Term) := fun (ind1, T1) (ind2, T2) => do\n  let lPerm ← getPermutation ind1 ind2\n  let T2' ← permWrap lPerm T2\n  let equalSyntax : Term :=\n    if lPerm = List.range lPerm.length ∧ (← colorsDefEq T1 T2) then\n        Syntax.mkApp (mkIdent ``Eq) #[T1, T2]\n    else\n      Syntax.mkApp (mkIdent ``Eq) #[T1, T2']\n  return (ind1, equalSyntax)\n",
+            "docstring": "The tensor expression operator which equates two tensors. "
+          },
+          {
+            "id": 393668,
+            "name": "Space.equal_up_to_const_of_deriv_eq",
+            "module": "Physlib.SpaceAndTime.TimeAndSpace.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/TimeAndSpace/Basic.lean#L323-L343",
+            "source_text": "lemma equal_up_to_const_of_deriv_eq {d} {M} [NormedAddCommGroup M] [NormedSpace ℝ M]\n    {f g : Time → Space d → M} (hf : Differentiable ℝ ↿f) (hg : Differentiable ℝ ↿g)\n    (h₁ : ∀ t x, ∂ₜ (f · x) t = ∂ₜ (g · x) t)\n    (h₂ : ∀ t x i, Space.deriv i (f t) x = Space.deriv i (g t) x) :\n    ∃ (c : M), ∀ t x, f t x = g t x + c := by\n  suffices h : ∃ c', ∀ t x, f t x - g t x = c' by\n    obtain ⟨c', hc'⟩ := h\n    use c'\n    intro t x\n    rw [← hc' t x]\n    simp\n  apply const_of_time_deriv_space_deriv_eq_zero\n  · exact Differentiable.fun_sub hf hg\n  · intro t x\n    rw [Time.deriv_eq, fderiv_fun_sub]\n    simp [← Time.deriv_eq, h₁]\n    all_goals fun_prop\n  · intro t x i\n    rw [Space.deriv_eq_fderiv_basis, fderiv_fun_sub]\n    simp [← Space.deriv_eq_fderiv_basis, h₂]\n    all_goals fun_prop\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "candidate_nonempty",
+    "receipts_sha256": "7b04d3cfc892c43ba7b2f52e51400f5770bcdadd344b1178dd418db9a5816351"
+  }
+]

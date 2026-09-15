@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N inst S c\nhave hsupport (A : Finset (ZMod N)) :\n    M5.Translation.supportPolynomial A =\n      ∑ x ∈ A, (Polynomial.X : M5.BinaryPolynomial) ^ x.val := by\n  change (∑ n ∈ A.image ZMod.val, (Polynomial.X : M5.BinaryPolynomial) ^ n) = _\n  exact Finset.sum_image (fun a ha b hb h => ZMod.val_injective N h)\nhave hshift :\n    M5.Translation.supportPolynomial (M5.Translation.shift S c) =\n      ∑ x ∈ S, (Polynomial.X : M5.BinaryPolynomial) ^ (x + c).val := by\n  rw [hsupport]\n  unfold M5.Translation.shift\n  rw [Finset.sum_image]\n  · simp only [add_comm]\n  · intro a ha b hb h\n    first\n    | exact add_right_cancel h\n    | exact add_left_cancel h\nhave hmod (k : ℕ) :\n    AdjoinRoot.mk (M5.cyclicModulus N) ((Polynomial.X : M5.BinaryPolynomial) ^ (k % N)) =\n      AdjoinRoot.mk (M5.cyclicModulus N) ((Polynomial.X : M5.BinaryPolynomial) ^ k) := by\n  have h := M5.SupportPolynomial.quotient_monomial_period N (k % N) (k / N)\n  have hk : k % N + (k / N) * N = k := by\n    simpa only [Nat.mul_comm] using Nat.mod_add_div k N\n  rw [hk] at h\n  exact h.symm\nrw [hshift, hsupport]\nsimp only [map_sum, Finset.mul_sum]\napply Finset.sum_congr rfl\nintro x hx\nrw [ZMod.val_add, hmod, pow_add, map_mul]\nexact mul_comm _ _",
+  "queries": [
+    "ZMod.val_add",
+    "Nat.mod_add_div",
+    "Finset.sum_image"
+  ]
+}

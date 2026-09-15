@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst S c\nhave hsupport (A : Finset (ZMod N)) :\n    M5.Translation.supportPolynomial A =\n      ∑ x ∈ A, (Polynomial.X : M5.BinaryPolynomial) ^ x.val := by\n  change (∑ n ∈ A.image ZMod.val, (Polynomial.X : M5.BinaryPolynomial) ^ n) = _\n  apply Finset.sum_image\n  intro x hx y hy h\n  have hc := congrArg (fun n : ℕ => (n : ZMod N)) h\n  simpa using hc\nrw [hsupport, hsupport]\nunfold M5.Translation.shift\nrw [Finset.sum_image]\n· simp only [map_sum, Finset.mul_sum]\n  apply Finset.sum_congr rfl\n  intro x hx\n  rw [ZMod.val_add]\n  have hp := M5.SupportPolynomial.quotient_monomial_period N\n    ((c.val + x.val) % N) ((c.val + x.val) / N)\n  have he : (c.val + x.val) % N + (c.val + x.val) / N * N =\n      c.val + x.val := by\n    simpa [Nat.mul_comm] using Nat.mod_add_div (c.val + x.val) N\n  rw [he] at hp\n  rw [← hp, pow_add, map_mul]\n· intro x hx y hy h\n  exact add_left_cancel h",
+  "queries": []
+}

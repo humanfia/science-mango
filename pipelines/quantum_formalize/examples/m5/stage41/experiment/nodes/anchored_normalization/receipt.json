@@ -1,0 +1,123 @@
+{
+  "id": "anchored_normalization",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Translation.anchored_normalization",
+    "spec_sha256": "6ee0719c0bd35f380267013199849cedf3295b29a5e863748e3a2340c6e5e604",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-l8i1833p/attempt-001/Candidate_17951d5259a58aee.lean",
+        "target_path": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-l8i1833p/attempt-001/FrozenTarget_17951d5259a58aee.lean",
+        "feedback": "",
+        "target_sha256": "e8b0a7e40413812331966d601cb1aa2e75df6f70d6e5f7a7ea52452d62202d8d",
+        "target_olean_sha256": "b46a9337664e69c50b7ee2f6251fe02f61fc32aa7140420273a1ac56190fc9b5",
+        "source_sha256": "56d7342ec8866e656f6b996072c693d5d25335972f7936008ed43bb8fe084626",
+        "olean_sha256": "220dd9a974e0802fde0e7443c25278299231d8fc18fae29a181dd6c39e1c2860",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:16:44.026279+00:00",
+    "work": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-l8i1833p",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4ca05bc6c111fe88fe49819759903127625f5894ed463973b9f7ed8629e06b3a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-translation-normalization-formalization/.humanize-formal-runs/run-l8i1833p/attempt-001/Candidate_17951d5259a58aee.lean",
+    "environment_sha256": "a3e7d8b3a549af8f7b6b2992032668257fdeed76ed85c8731f9e27061800b30e",
+    "artifacts": {
+      "shift_card_anchor": {
+        "payload": {
+          "declaration": "theorem M5.Translation.shift_card_anchor : ∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)) (c : ZMod N), c ∈ S → (M5.Translation.shift S (-c)).card = S.card ∧ 0 ∈ M5.Translation.shift S (-c) := by\n  intro N inst S c hc\n  classical\n  unfold M5.Translation.shift\n  constructor\n  · apply Finset.card_image_iff.mpr\n    intro a ha b hb h\n    dsimp at h\n    first\n    | exact add_right_cancel h\n    | exact add_left_cancel h\n  · apply Finset.mem_image.mpr\n    exact ⟨c, hc, by simp⟩",
+          "imports": [
+            "M5Translation"
+          ],
+          "name": "M5.Translation.shift_card_anchor",
+          "ancestors": [],
+          "spec_sha256": "f2ddf7aca08b5fca7deef1fa2941b91fc090aa55f06347cb57c881bdf3166019"
+        },
+        "sha256": "e8e63b609e9ab703dc225345f7ad9c81f3a32182d4e6ed94ec8f0e166d1ec2c7"
+      },
+      "difference_translation": {
+        "payload": {
+          "declaration": "theorem M5.Translation.difference_translation : ∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)) (c : ZMod N), M5.Translation.differences (M5.Translation.shift S c) = M5.Translation.differences S := by\n  intro N inst S c\n  classical\n  have hs (x : ZMod N) : x ∈ M5.Translation.shift S c ↔ x - c ∈ S := by\n    simp [M5.Translation.shift, sub_eq_add_neg]\n  ext z\n  simp only [M5.Translation.differences, Finset.mem_biUnion, Finset.mem_image, hs]\n  constructor\n  · rintro ⟨x, hx, y, hy, hxy⟩\n    refine ⟨x - c, hx, y - c, hy, ?_⟩\n    calc\n      (x - c) - (y - c) = x - y := by abel\n      _ = z := hxy\n  · rintro ⟨x, hx, y, hy, hxy⟩\n    refine ⟨x + c, ?_, y + c, ?_, ?_⟩\n    · simpa using hx\n    · simpa using hy\n    · calc\n        (x + c) - (y + c) = x - y := by abel\n        _ = z := hxy",
+          "imports": [
+            "M5Translation"
+          ],
+          "name": "M5.Translation.difference_translation",
+          "ancestors": [],
+          "spec_sha256": "ed3077b9a96e08cac8f978c918e95ab52c976daac5e124a9f77c41b615deee0c"
+        },
+        "sha256": "03538005201164827f6f0df9bc4500a11a1000b32afe6e58e00a1053a7b28ea2"
+      },
+      "anchored_difference_gcd": {
+        "payload": {
+          "declaration": "theorem M5.Translation.anchored_difference_gcd : ∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)), 0 ∈ S → 0 ∈ U → M5.Translation.differenceGcd S U = M5.Connectivity.supportGcd N (M5.Translation.natSupport S) (M5.Translation.natSupport U) := by\n  change ∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)), _\n  intro N inst S U hS hU\n  classical\n  have hsub (d : ℕ) (hd : d ∣ N) (x y : ZMod N)\n      (hx : d ∣ x.val) (hy : d ∣ y.val) : d ∣ (x - y).val := by\n    by_cases hy0 : y = 0\n    · simpa [hy0] using hx\n    · letI : NeZero y := ⟨hy0⟩\n      rw [sub_eq_add_neg, ZMod.val_add, ZMod.val_neg_of_ne_zero]\n      exact (Nat.dvd_mod_iff hd).2 (dvd_add hx (Nat.dvd_sub hd hy))\n  have hbase (d : ℕ) (A : Finset (ZMod N)) :\n      (∀ a ∈ M5.Translation.natSupport A, d ∣ a) ↔\n        (∀ x ∈ A, d ∣ x.val) := by\n    constructor\n    · intro h x hx\n      exact h x.val (Finset.mem_image.mpr ⟨x, hx, rfl⟩)\n    · intro h a ha\n      rcases Finset.mem_image.mp ha with ⟨x, hx, rfl⟩\n      exact h x hx\n  have hdiff (d : ℕ) (A : Finset (ZMod N)) :\n      (∀ a ∈ M5.Translation.natSupport (M5.Translation.differences A), d ∣ a) ↔\n        (∀ x ∈ A, ∀ y ∈ A, d ∣ (x - y).val) := by\n    rw [hbase]\n    constructor\n    · intro h x hx y hy\n      apply h (x - y)\n      simp only [M5.Translation.differences, Finset.mem_biUnion, Finset.mem_image]\n      exact ⟨x, hx, y, hy, rfl⟩\n    · intro h z hz\n      have hz' : ∃ x ∈ A, ∃ y ∈ A, x - y = z := by\n        simpa [M5.Translation.differences] using hz\n      rcases hz' with ⟨x, hx, y, hy, rfl⟩\n      exact h x hx y hy\n  have hanch (d : ℕ) (hd : d ∣ N) (A : Finset (ZMod N)) (hA : 0 ∈ A) :\n      (∀ a ∈ M5.Translation.natSupport (M5.Translation.differences A), d ∣ a) ↔\n        (∀ a ∈ M5.Translation.natSupport A, d ∣ a) := by\n    rw [hdiff, hbase]\n    constructor\n    · intro h x hx\n      simpa using h x hx 0 hA\n    · intro h x hx y hy\n      exact hsub d hd x y (h x hx) (h y hy)\n  have hequiv (d : ℕ) :\n      d ∣ M5.Translation.differenceGcd S U ↔\n        d ∣ M5.Connectivity.supportGcd N (M5.Translation.natSupport S) (M5.Translation.natSupport U) := by\n    unfold M5.Translation.differenceGcd\n    rw [M5.Connectivity.support_gcd_dvd, M5.Connectivity.support_gcd_dvd]\n    constructor\n    · rintro ⟨hd, hs, hu⟩\n      exact ⟨hd, (hanch d hd S hS).1 hs, (hanch d hd U hU).1 hu⟩\n    · rintro ⟨hd, hs, hu⟩\n      exact ⟨hd, (hanch d hd S hS).2 hs, (hanch d hd U hU).2 hu⟩\n  apply Nat.dvd_antisymm\n  · exact (hequiv _).1 (dvd_refl _)\n  · exact (hequiv _).2 (dvd_refl _)",
+          "imports": [
+            "M5Translation"
+          ],
+          "name": "M5.Translation.anchored_difference_gcd",
+          "ancestors": [],
+          "spec_sha256": "beadb4c44c7b26bcfb492cf190bb006c47f8b643352b7c32ee6edbcb7d8667d9"
+        },
+        "sha256": "6f0e1634804286bd7286c5e31fba54b6984ab10acb64b7c83309e8b91d7a6332"
+      },
+      "shift_quotient_polynomial": {
+        "payload": {
+          "declaration": "theorem M5.Translation.shift_quotient_polynomial : ∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)) (c : ZMod N), AdjoinRoot.mk (M5.cyclicModulus N) (M5.Translation.supportPolynomial (M5.Translation.shift S c)) = AdjoinRoot.mk (M5.cyclicModulus N) ((Polynomial.X : M5.BinaryPolynomial) ^ c.val) * AdjoinRoot.mk (M5.cyclicModulus N) (M5.Translation.supportPolynomial S) := by\n  classical\n  intro N inst S c\n  have hsupport (A : Finset (ZMod N)) :\n      M5.Translation.supportPolynomial A =\n        ∑ x ∈ A, (Polynomial.X : M5.BinaryPolynomial) ^ x.val := by\n    change (∑ e ∈ A.image ZMod.val, (Polynomial.X : M5.BinaryPolynomial) ^ e) = _\n    apply Finset.sum_image\n    intro x hx y hy h\n    exact ZMod.val_injective N h\n  rw [hsupport, hsupport]\n  unfold M5.Translation.shift\n  rw [Finset.sum_image]\n  · simp only [map_sum, Finset.mul_sum]\n    apply Finset.sum_congr rfl\n    intro x hx\n    have he : (c.val + x.val) % N + (c.val + x.val) / N * N =\n        c.val + x.val := by\n      simpa [Nat.mul_comm] using Nat.mod_add_div (c.val + x.val) N\n    have hp := M5.SupportPolynomial.quotient_monomial_period N\n      ((c.val + x.val) % N) ((c.val + x.val) / N)\n    rw [he] at hp\n    rw [ZMod.val_add, Nat.add_comm x.val c.val, ← hp, pow_add, map_mul]\n  · intro x hx y hy h\n    exact add_right_cancel h",
+          "imports": [
+            "M5Translation"
+          ],
+          "name": "M5.Translation.shift_quotient_polynomial",
+          "ancestors": [],
+          "spec_sha256": "8117af82530c1258236f758f37599c66d39846983256a4bbbc736c84f149a2dc"
+        },
+        "sha256": "b5d0108dd83b8026e1cdb9c3574ce2419a11cd8daf2b9d9017487426ec9e61cc"
+      },
+      "signature_translation": {
+        "payload": {
+          "declaration": "theorem M5.Translation.signature_translation : ∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)) (c d : ZMod N), M5.completeSignature (M5.Translation.supportPolynomial (M5.Translation.shift S c)) (M5.Translation.supportPolynomial (M5.Translation.shift U d)) N = M5.completeSignature (M5.Translation.supportPolynomial S) (M5.Translation.supportPolynomial U) N := by\n  classical\n  intro N inst S U c d\n  have hforward (D : M5.BinaryPolynomial) (hD : D ∣ M5.cyclicModulus N)\n      (A : Finset (ZMod N)) (e : ZMod N)\n      (h : D ∣ M5.Translation.supportPolynomial A) :\n      D ∣ M5.Translation.supportPolynomial (M5.Translation.shift A e) := by\n    apply (M5.SignatureCongruence.divisibility_of_quotient_eq D\n      (M5.Translation.supportPolynomial (M5.Translation.shift A e))\n      ((Polynomial.X : M5.BinaryPolynomial) ^ e.val * M5.Translation.supportPolynomial A)\n      N hD (by\n        simpa only [map_mul] using M5.Translation.shift_quotient_polynomial N A e)).2\n    exact dvd_mul_of_dvd_right h _\n  have hcancel (A : Finset (ZMod N)) (e : ZMod N) :\n      M5.Translation.shift (M5.Translation.shift A e) (-e) = A := by\n    unfold M5.Translation.shift\n    ext x\n    simp only [Finset.mem_image]\n    constructor\n    · rintro ⟨y, ⟨z, hz, rfl⟩, he⟩\n      have hzx : z = x := by simpa using he\n      simpa [hzx] using hz\n    · intro hx\n      exact ⟨x + e, ⟨x, hx, rfl⟩, by simp⟩\n  have hshift (D : M5.BinaryPolynomial) (hD : D ∣ M5.cyclicModulus N)\n      (A : Finset (ZMod N)) (e : ZMod N) :\n      D ∣ M5.Translation.supportPolynomial (M5.Translation.shift A e) ↔\n        D ∣ M5.Translation.supportPolynomial A := by\n    constructor\n    · intro h\n      have hh := hforward D hD (M5.Translation.shift A e) (-e) h\n      simpa only [hcancel] using hh\n    · exact hforward D hD A e\n  have hg (D a b : M5.BinaryPolynomial) :\n      D ∣ EuclideanDomain.gcd a b ↔ D ∣ a ∧ D ∣ b := by\n    constructor\n    · intro h\n      exact ⟨dvd_trans h (EuclideanDomain.gcd_dvd_left a b),\n        dvd_trans h (EuclideanDomain.gcd_dvd_right a b)⟩\n    · rintro ⟨ha, hb⟩\n      exact EuclideanDomain.dvd_gcd ha hb\n  have hs (D a b : M5.BinaryPolynomial) :\n      D ∣ M5.completeSignature a b N ↔\n        D ∣ a ∧ D ∣ b ∧ D ∣ M5.cyclicModulus N := by\n    simp only [M5.completeSignature, hg, and_assoc]\n  have he (D : M5.BinaryPolynomial) :\n      D ∣ M5.completeSignature\n        (M5.Translation.supportPolynomial (M5.Translation.shift S c))\n        (M5.Translation.supportPolynomial (M5.Translation.shift U d)) N ↔\n      D ∣ M5.completeSignature\n        (M5.Translation.supportPolynomial S)\n        (M5.Translation.supportPolynomial U) N := by\n    rw [hs, hs]\n    constructor\n    · rintro ⟨hS, hU, hN⟩\n      exact ⟨(hshift D hN S c).1 hS, (hshift D hN U d).1 hU, hN⟩\n    · rintro ⟨hS, hU, hN⟩\n      exact ⟨(hshift D hN S c).2 hS, (hshift D hN U d).2 hU, hN⟩\n  apply M5.Signature.binary_dvd_antisymm\n  · exact (he _).1 dvd_rfl\n  · exact (he _).2 dvd_rfl",
+          "imports": [
+            "M5Translation"
+          ],
+          "name": "M5.Translation.signature_translation",
+          "ancestors": [
+            "shift_quotient_polynomial"
+          ],
+          "spec_sha256": "e096a2ee9bb03f9f20b17f736c1df35876e8f707c25c508f692de5d8150d9afc"
+        },
+        "sha256": "af172aed223f13bbd094ae4a72472978bd38de504d17356f86ca618f9f18e51c"
+      },
+      "anchored_normalization": {
+        "payload": {
+          "declaration": "theorem M5.Translation.anchored_normalization : ∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)), S.Nonempty → U.Nonempty → ∃ A B : Finset ℕ, A.card = S.card ∧ B.card = U.card ∧ 0 ∈ A ∧ 0 ∈ B ∧ (∀ a ∈ A, a < N) ∧ (∀ b ∈ B, b < N) ∧ M5.Connectivity.supportGcd N A B = M5.Translation.differenceGcd S U ∧ M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) N = M5.completeSignature (M5.Translation.supportPolynomial S) (M5.Translation.supportPolynomial U) N := by\n  change ∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)), _\n  intro N inst S U hS hU\n  classical\n  rcases hS with ⟨c, hc⟩\n  rcases hU with ⟨d, hd⟩\n  have hs := M5.Translation.shift_card_anchor N S c hc\n  have hu := M5.Translation.shift_card_anchor N U d hd\n  have hcard (T : Finset (ZMod N)) :\n      (M5.Translation.natSupport T).card = T.card := by\n    change (T.image ZMod.val).card = T.card\n    apply Finset.card_image_iff.mpr\n    intro x hx y hy h\n    exact ZMod.val_injective N h\n  have hzero (T : Finset (ZMod N)) (hT : 0 ∈ T) :\n      0 ∈ M5.Translation.natSupport T := by\n    change 0 ∈ T.image ZMod.val\n    exact Finset.mem_image.mpr ⟨0, hT, by simp⟩\n  have hbound (T : Finset (ZMod N)) :\n      ∀ a ∈ M5.Translation.natSupport T, a < N := by\n    intro a ha\n    change a ∈ T.image ZMod.val at ha\n    rcases Finset.mem_image.mp ha with ⟨x, hx, rfl⟩\n    exact ZMod.val_lt x\n  refine ⟨M5.Translation.natSupport (M5.Translation.shift S (-c)),\n    M5.Translation.natSupport (M5.Translation.shift U (-d)),\n    (hcard _).trans hs.1, (hcard _).trans hu.1,\n    hzero _ hs.2, hzero _ hu.2, hbound _, hbound _, ?_, ?_⟩\n  · rw [← M5.Translation.anchored_difference_gcd N\n      (M5.Translation.shift S (-c)) (M5.Translation.shift U (-d)) hs.2 hu.2]\n    unfold M5.Translation.differenceGcd\n    rw [M5.Translation.difference_translation N S (-c),\n      M5.Translation.difference_translation N U (-d)]\n  · exact M5.Translation.signature_translation N S U (-c) (-d)",
+          "imports": [
+            "M5Translation"
+          ],
+          "name": "M5.Translation.anchored_normalization",
+          "ancestors": [
+            "anchored_difference_gcd",
+            "difference_translation",
+            "shift_card_anchor",
+            "shift_quotient_polynomial",
+            "signature_translation"
+          ],
+          "spec_sha256": "034328c3495d9faf9aad8f8965d514936c64702c625773161356c1c443450f67"
+        },
+        "sha256": "7cf7b16b74368d1d66e7667ac976bfee5c925da0e15b85de20414a509dd6b775"
+      }
+    }
+  }
+}

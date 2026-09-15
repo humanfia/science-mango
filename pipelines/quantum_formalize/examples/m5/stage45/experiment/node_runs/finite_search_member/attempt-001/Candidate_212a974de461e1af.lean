@@ -1,0 +1,8 @@
+import FrozenTarget_212a974de461e1af
+theorem M5.PeriodSearch.finite_search_member : QuantumHarnessFrozenTarget := by
+  change ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.PeriodSearch.finiteSearch F ∈ M5.PeriodSearch.candidates F
+  intro F hmonic hcoeff
+  classical
+  have h := M5.PeriodSearch.candidate_nonempty F hmonic hcoeff
+  simp only [M5.PeriodSearch.finiteSearch, dif_pos h]
+  exact Finset.min'_mem _ _

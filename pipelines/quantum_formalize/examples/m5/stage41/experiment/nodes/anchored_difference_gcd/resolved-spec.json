@@ -1,0 +1,13 @@
+{
+  "name": "M5.Translation.anchored_difference_gcd",
+  "statement": "∀ (N : ℕ) [NeZero N] (S U : Finset (ZMod N)), 0 ∈ S → 0 ∈ U → M5.Translation.differenceGcd S U = M5.Connectivity.supportGcd N (M5.Translation.natSupport S) (M5.Translation.natSupport U)",
+  "imports": [
+    "M5Translation"
+  ],
+  "context": "",
+  "queries": [
+    "ZMod val add sub modulo injective",
+    "Finset image biUnion cardinality translation"
+  ],
+  "guidance": "Characterize divisors of both gcds. With zero present, each original residue occurs as x-0. Conversely a divisor of N and all canonical entries divides the canonical representative of every difference; use ZMod val subtraction modulo N. Do not claim raw support gcd invariance before anchoring. Return tactic lines without leading by; preserve exact target.\nExact imported local API (Lean Explore only searches external libraries):\nM5.Connectivity.support_gcd_dvd : ∀ (N d : ℕ) (A B : Finset ℕ), d ∣ M5.Connectivity.supportGcd N A B ↔ d ∣ N ∧ (∀ a ∈ A, d ∣ a) ∧ (∀ b ∈ B, d ∣ b)\nM5.SupportPolynomial.quotient_monomial_period : ∀ T a j : ℕ, AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ (a + j * T)) = AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ a)\nM5.Signature.binary_dvd_antisymm : ∀ P Q : M5.BinaryPolynomial, P ∣ Q → Q ∣ P → P = Q\nM5.Period.cyclic_dvd_iff_root_pow : ∀ (F : M5.BinaryPolynomial) (N : ℕ), F ∣ M5.cyclicModulus N ↔ (AdjoinRoot.root F) ^ N = 1\nM5.SignatureCongruence.divisibility_of_quotient_eq : ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a')"
+}

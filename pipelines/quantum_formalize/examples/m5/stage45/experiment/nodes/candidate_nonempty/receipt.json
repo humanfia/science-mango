@@ -1,0 +1,55 @@
+{
+  "id": "candidate_nonempty",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PeriodSearch.candidate_nonempty",
+    "spec_sha256": "98298549680d69a481d2be97d9176cf6529193b6cf1751814179491bccdfe410",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-period-search-formalization/.humanize-formal-runs/run-aiu0mqii/attempt-001/Candidate_c3d1270703762b5e.lean",
+        "target_path": "/home/jing/m5-lean-period-search-formalization/.humanize-formal-runs/run-aiu0mqii/attempt-001/FrozenTarget_c3d1270703762b5e.lean",
+        "feedback": "",
+        "target_sha256": "50367eadf3b5a349147378ccb6e1049ceb59918aa19e9d7c1a7dd624aa78de94",
+        "target_olean_sha256": "89ad6c19cbdab62b5cf782f385d81711bfd4a1ae315d37f618f8bde436b60279",
+        "source_sha256": "978f023c231670383007b7ab61247e3ceaba678f8ae0c99cc23901f8a4d4477d",
+        "olean_sha256": "c6a1972002484a01afd783c924b1e696393524e3d1bc552909e0a2ab0db7b1ff",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:20:13.667724+00:00",
+    "work": "/home/jing/m5-lean-period-search-formalization/.humanize-formal-runs/run-aiu0mqii",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1a67e2dcbeaff5d9ab91693911addfc9c6c414078f5971d98e8851cdcd545876",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-period-search-formalization/.humanize-formal-runs/run-aiu0mqii/attempt-001/Candidate_c3d1270703762b5e.lean",
+    "environment_sha256": "49b2aa0dbfe2e633cbbc541455d13ecbf4760dd029d21098f288787192df657b",
+    "artifacts": {
+      "candidate_nonempty": {
+        "payload": {
+          "declaration": "theorem M5.PeriodSearch.candidate_nonempty : ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → (M5.PeriodSearch.candidates F).Nonempty := by\n  change ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → (M5.PeriodSearch.candidates F).Nonempty\n  intro F hmonic hcoeff\n  classical\n  obtain ⟨hpos, hlaw⟩ := M5.Period.period_law F hmonic hcoeff\n  have hbound := M5.Period.period_cardinality_bound F hmonic hcoeff\n  have hdiv : F ∣ M5.cyclicModulus (M5.signaturePeriod F) :=\n    (hlaw _).mpr (dvd_refl _)\n  refine ⟨M5.signaturePeriod F, ?_⟩\n  simp [M5.PeriodSearch.candidates, hdiv, hpos, hbound, Nat.succ_le_iff, Nat.lt_succ_iff]",
+          "imports": [
+            "M5PeriodSearch"
+          ],
+          "name": "M5.PeriodSearch.candidate_nonempty",
+          "ancestors": [],
+          "spec_sha256": "98298549680d69a481d2be97d9176cf6529193b6cf1751814179491bccdfe410"
+        },
+        "sha256": "75fb9a27583389477b52367f8034edfba5fcb4c64c0c645177818f7d702ff8c0"
+      }
+    }
+  }
+}

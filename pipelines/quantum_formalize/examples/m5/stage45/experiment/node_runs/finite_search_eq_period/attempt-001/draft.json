@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.PeriodSearch.finiteSearch F = M5.signaturePeriod F\nintro F hmonic hcoeff\nclassical\nobtain ⟨hpos, hlaw⟩ := M5.Period.period_law F hmonic hcoeff\nhave hbound := M5.Period.period_cardinality_bound F hmonic hcoeff\nhave hdiv : F ∣ M5.cyclicModulus (M5.signaturePeriod F) :=\n  (hlaw _).mpr (dvd_refl _)\nhave ht : M5.signaturePeriod F ∈ M5.PeriodSearch.candidates F := by\n  simp [M5.PeriodSearch.candidates, hdiv, hpos, hbound, Nat.succ_le_iff, Nat.lt_succ_iff]\nhave hs := M5.PeriodSearch.finite_search_member F hmonic hcoeff\nhave hsprops : 0 < M5.PeriodSearch.finiteSearch F ∧\n    F ∣ M5.cyclicModulus (M5.PeriodSearch.finiteSearch F) := by\n  simp [M5.PeriodSearch.candidates] at hs\n  constructor\n  · omega\n  · aesop\napply Nat.le_antisymm\n· have hn := M5.PeriodSearch.candidate_nonempty F hmonic hcoeff\n  simp only [M5.PeriodSearch.finiteSearch, dif_pos hn]\n  exact Finset.min'_le _ _ ht\n· exact Nat.le_of_dvd hsprops.1 ((hlaw _).mp hsprops.2)",
+  "queries": [
+    "Finset.min'_le",
+    "Nat.le_of_dvd"
+  ]
+}

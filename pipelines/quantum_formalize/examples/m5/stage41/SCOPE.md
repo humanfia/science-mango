@@ -1,0 +1,9 @@
+# Stage41 normalization correspondence
+
+The reviewed proof §1 first independently translates supports so each contains zero. Only then does it use gcd(N,A,B)=1 as the integer connectivity criterion. The exact counts throughout the theorem count anchored ordered pairs, not equivalence classes. Accordingly, normalization is correspondence between unanchored recipe inputs and this anchored convention; it does not add a new sorting, equivalence classification, or graph-reachability target to the anchored M5 theorem.
+
+The raw exponent gcd cannot be treated as translation invariant on unanchored supports: modulo4, translating {1,3} by−1 yields {0,2}, and gcd(4,1,3)=1 differs from gcd(4,0,2)=2. A faithful unanchored arithmetic invariant instead uses all within-block modular differences. For supports S,U in ZMod N, take gcd of N and the canonical natural representatives of S−S and U−U. Independent translations leave those difference sets unchanged. Once both supports contain zero, this invariant equals supportGcd N on their canonical natural support representatives.
+
+A bounded normalization bridge can therefore prove: translation preserves cardinality and can anchor a chosen support point; difference sets are invariant; the difference gcd agrees with anchored supportGcd; quotient support polynomials transform by monomial units; complete signature is unchanged under independent translations; and nonempty unanchored supports have anchored natural representatives preserving weight, signature, and the difference gcd.
+
+All targets should assume positive N (equivalently NeZero N), retain polynomial multiplicities, and permit weight one. No Tanner-graph connectivity theorem is asserted. If the formal public input family is already anchored, these are input-convention correspondence lemmas, not an extra gate for the anchored global criterion.

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → (M5.PeriodSearch.candidates F).Nonempty\nintro F hmonic hcoeff\nclassical\nobtain ⟨hpos, hlaw⟩ := M5.Period.period_law F hmonic hcoeff\nhave hbound := M5.Period.period_cardinality_bound F hmonic hcoeff\nhave hdiv : F ∣ M5.cyclicModulus (M5.signaturePeriod F) :=\n  (hlaw _).mpr (dvd_refl _)\nrefine ⟨M5.signaturePeriod F, ?_⟩\nsimp [M5.PeriodSearch.candidates, hdiv, hpos, hbound, Nat.succ_le_iff, Nat.lt_succ_iff]",
+  "queries": []
+}
