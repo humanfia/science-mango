@@ -1,0 +1,158 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.pow_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 212258,
+        "name": "Finset.sum_pow",
+        "module": "Mathlib.Data.Nat.Choose.Multinomial",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Choose/Multinomial.lean#L355-L359",
+        "source_text": "theorem sum_pow (x : α → R) (n : ℕ) :\n    s.sum x ^ n = ∑ k ∈ s.sym n, k.val.countPerms * (k.val.map x).prod := by\n  conv_rhs => rw [← sum_coe_sort]\n  convert! sum_pow_of_commute x s (fun _ _ _ _ _ ↦ Commute.all ..) n\n  rw [Multiset.noncommProd_eq_prod]\n",
+        "docstring": null
+      },
+      {
+        "id": 58036,
+        "name": "Finset.sum_attach",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L99-L99",
+        "source_text": "@[to_additive]\nlemma prod_attach (s : Finset ι) (f : ι → M) : ∏ x ∈ s.attach, f x = ∏ x ∈ s, f x := by",
+        "docstring": null
+      },
+      {
+        "id": 59065,
+        "name": "Finset.sum_pow'",
+        "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L165-L167",
+        "source_text": "lemma sum_pow' (s : Finset κ) (f : κ → R) (n : ℕ) :\n    (∑ a ∈ s, f a) ^ n = ∑ p ∈ piFinset fun _i : Fin n ↦ s, ∏ i, f (p i) := by\n  convert! @prod_univ_sum (Fin n) _ _ _ _ _ (fun _i ↦ s) fun _i d ↦ f d; simp\n",
+        "docstring": null
+      },
+      {
+        "id": 57569,
+        "name": "finsum",
+        "module": "Mathlib.Algebra.BigOperators.Finprod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L101-L104",
+        "source_text": "/-- Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. -/\nnoncomputable irreducible_def finsum (lemma := finsum_def') [AddCommMonoid M] (f : α → M) : M :=\n  if h : HasFiniteSupport (f ∘ PLift.down) then ∑ i ∈ h.toFinset, f i.down else 0\n",
+        "docstring": "Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. "
+      },
+      {
+        "id": 57679,
+        "name": "finsum_mem_coe_finset",
+        "module": "Mathlib.Algebra.BigOperators.Finprod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L534-L534",
+        "source_text": "@[to_additive]\ntheorem finprod_mem_coe_finset (f : α → M) (s : Finset α) :\n    (∏ᶠ i ∈ (s : Set α), f i) = ∏ i ∈ s, f i :=",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.prod_ne_zero_iff",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58880,
+        "name": "Finset.prod_ne_zero_iff",
+        "module": "Mathlib.Algebra.BigOperators.GroupWithZero.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/GroupWithZero/Finset.lean#L60-L62",
+        "source_text": "lemma prod_ne_zero_iff : ∏ x ∈ s, f x ≠ 0 ↔ ∀ a ∈ s, f a ≠ 0 := by\n  rw [Ne, prod_eq_zero_iff]\n  push Not; rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 58874,
+        "name": "Finset.prod_eq_zero",
+        "module": "Mathlib.Algebra.BigOperators.GroupWithZero.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/GroupWithZero/Finset.lean#L30-L31",
+        "source_text": "lemma prod_eq_zero (hi : i ∈ s) (h : f i = 0) : ∏ j ∈ s, f j = 0 := by\n  classical rw [← prod_erase_mul _ _ hi, h, mul_zero]\n",
+        "docstring": null
+      },
+      {
+        "id": 58294,
+        "name": "Finset.prod",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L59-L69",
+        "source_text": "/-- `∏ x ∈ s, f x` is the product of `f x` as `x` ranges over the elements of the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∏ x, f x`, is a shorthand for\n`∏ x ∈ Finset.univ, f x`. -/\n@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=\n  (s.1.map f).prod\n",
+        "docstring": "`∏ x ∈ s, f x` is the product of `f x` as `x` ranges over the elements of the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∏ x, f x`, is a shorthand for\n`∏ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 70621,
+        "name": "Finset.coe_zero",
+        "module": "Mathlib.Algebra.Group.Pointwise.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/Basic.lean#L80-L80",
+        "source_text": "@[to_additive (attr := simp, norm_cast)]\ntheorem coe_one : ↑(1 : Finset α) = (1 : Set α) :=",
+        "docstring": null
+      },
+      {
+        "id": 58228,
+        "name": "Finset.prod_sdiff_ne_prod_sdiff_iff",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L874-L877",
+        "source_text": "@[to_additive]\nlemma prod_sdiff_ne_prod_sdiff_iff :\n    ∏ i ∈ s \\ t, f i ≠ ∏ i ∈ t \\ s, f i ↔ ∏ i ∈ s, f i ≠ ∏ i ∈ t, f i :=\n  prod_sdiff_eq_prod_sdiff_iff.not",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.prod_ne_zero_iff",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389890,
+        "name": "PureU1.VectorLikeEvenPlane.evenShiftZero",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L157-L159",
+        "source_text": "/-- The element of `Fin (1 + (n + n + 1))` corresponding to the first `1`,\n  casted into `Fin (2 * n.succ)`. -/\ndef evenShiftZero : Fin (2 * n.succ) := (Fin.cast (n_cond₂ n) (Fin.castAdd ((n + n) + 1) 0))\n",
+        "docstring": "The element of `Fin (1 + (n + n + 1))` corresponding to the first `1`,\ncasted into `Fin (2 * n.succ)`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

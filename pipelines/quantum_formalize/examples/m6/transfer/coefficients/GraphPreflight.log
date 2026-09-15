@@ -1,0 +1,22 @@
+M6.Transfer.polynomialMass 0 = 0 ∧
+  M6.Transfer.polynomialMass 1 = 1 ∧
+    (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass ((Polynomial.monomial n) c) = c.natAbs) ∧
+      ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p : Prop
+∀ (p q : Polynomial ℤ),
+  M6.Transfer.polynomialMass (p + q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q : Prop
+∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ),
+  M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i) : Prop
+∀ (p q : Polynomial ℤ),
+  M6.Transfer.polynomialMass (p * q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q : Prop
+∀ (R : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ),
+  (∀ (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), M6.Transfer.polynomialMass (W m t) ≤ 4) →
+    M6.Transfer.rowMass (M6.Transfer.propagate W v) ≤ 8 * M6.Transfer.rowMass v : Prop
+∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (n : ℕ),
+  (∀ (i : ℕ) (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), M6.Transfer.polynomialMass (W i m t) ≤ 4) →
+    M6.Transfer.rowMass (M6.Transfer.layers W start n) ≤ 8 ^ n : Prop
+∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : ℕ),
+  (∀ (i : ℕ) (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), M6.Transfer.polynomialMass (W i m t) ≤ 4) →
+    ((M6.Transfer.arrayTrace W N).coeff d).natAbs ≤ 2 ^ R * 8 ^ N : Prop
+∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start finish : M6.Transfer.Memory R) (n : ℕ),
+  (∀ (i : ℕ) (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), (W i m t).natDegree ≤ 2) →
+    (M6.Transfer.layers W start n finish).natDegree ≤ 2 * n : Prop

@@ -1,0 +1,13 @@
+{
+  "name": "M6.Transfer.mass_basic",
+  "statement": "M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p",
+  "imports": [
+    "M6TransferCoefficients"
+  ],
+  "context": "",
+  "queries": [
+    "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+    "Int natAbs_sum_le Polynomial natDegree_sum_le"
+  ],
+  "guidance": "Use Polynomial.sum_zero_index/sum_monomial_index. The coefficient bound follows from membership in p.support when nonzero and Finset.single_le_sum; zero case trivial. Return tactic lines without leading by. Actual definitions:\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n\nimport M6Transfer\n\nnamespace M6.Transfer\n\nnoncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K := by\n  classical\n  exact fun m n => ∑ t : Bit, if shift m t = n then W m t else 0\n\nnoncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K := by\n  classical\n  exact fun n => ∑ m : Memory R, ∑ t : Bit,\n    if shift m t = n then v m * W m t else 0\n\nnoncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K\n  | 0 => fun n => if n = start then 1 else 0\n  | k+1 => propagate (W k) (layers W start k)\n\nnoncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K\n  | 0 => 1\n  | k+1 => matrixProduct A k * A k\n\nnoncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K :=\n  ∑ start : Memory R, layers W start N start\n\nend M6.Transfer\n"
+}

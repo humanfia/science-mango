@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nchange ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N), M6.Pinned.weight (M6.Flatten.flatten N z) = M6.Physical.wordWeight N z\nintro N inst z\nlet e : Fin N ≃ ZMod N :=\n  { toFun := fun i => (i.val : ZMod N)\n    invFun := fun x => ⟨x.val, ZMod.val_lt x⟩\n    left_inv := by\n      intro i\n      apply Fin.ext\n      exact ZMod.val_natCast_of_lt i.isLt\n    right_inv := by\n      intro x\n      exact ZMod.natCast_zmod_val x }\nhave hs (f : ZMod N → ℕ) :\n    (∑ i : Fin N, f (i.val : ZMod N)) = ∑ x : ZMod N, f x := by\n  exact Fintype.sum_equiv e _ _ (fun _ => rfl)\nunfold M6.Pinned.weight M6.Physical.wordWeight M6.Physical.weight M6.Flatten.flatten\nsimp only [Finset.card_filter]\nchange (∑ i : Fin (2 * N), if (if i.val < N then z.1 (i.val : ZMod N) else z.2 ((i.val - N : ℕ) : ZMod N)) ≠ 0 then 1 else 0) =\n  (∑ x : ZMod N, if z.1 x ≠ 0 then 1 else 0) +\n  (∑ x : ZMod N, if z.2 x ≠ 0 then 1 else 0)\nrw [show 2 * N = N + N by omega, Fin.sum_univ_add]\napply congrArg₂ (· + ·)\n· calc\n    _ = ∑ i : Fin N, if z.1 (i.val : ZMod N) ≠ 0 then 1 else 0 := by\n      apply Finset.sum_congr rfl\n      intro i hi\n      simp [Fin.castAdd, i.isLt]\n    _ = _ := hs _\n· calc\n    _ = ∑ i : Fin N, if z.2 (i.val : ZMod N) ≠ 0 then 1 else 0 := by\n      apply Finset.sum_congr rfl\n      intro i hi\n      have h : ¬ N + i.val < N := by omega\n      simp [Fin.natAdd, h]\n    _ = _ := hs _",
+  "queries": [
+    "ZMod.val_natCast_of_lt ZMod.natCast_zmod_val",
+    "Fintype.sum_equiv"
+  ]
+}

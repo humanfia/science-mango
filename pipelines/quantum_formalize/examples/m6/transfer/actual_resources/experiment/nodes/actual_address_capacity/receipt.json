@@ -1,0 +1,69 @@
+{
+  "id": "actual_address_capacity",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.actual_address_capacity",
+    "spec_sha256": "78eabef5b5c9206e142ae6f45a99406b4772acf8328b143431daef3b4a44c5ad",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-actual-resources-formalization/.humanize-formal-runs/run-zfwwh7mx/attempt-001/Candidate_1c1fde32d767e667.lean",
+        "target_path": "/home/jing/m6-lean-transfer-actual-resources-formalization/.humanize-formal-runs/run-zfwwh7mx/attempt-001/FrozenTarget_1c1fde32d767e667.lean",
+        "feedback": "",
+        "target_sha256": "5462510b556f6ebf0cbd6148775a5f2abec7958e35e448f3b5142bd086502a77",
+        "target_olean_sha256": "a0d6f0b92833245ca543f9d38cc5960526e073e44ed7b5e23cfdeaede481ec84",
+        "source_sha256": "54f606f3c370b61b68cf0fdabb0edb8293af109d4f39fe2ac52c7c80372f86b4",
+        "olean_sha256": "24789c78bc4aec8ecd144d043e904f688f07f22b85467845b0341f3439d6ca12",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:37:38.117617+00:00",
+    "work": "/home/jing/m6-lean-transfer-actual-resources-formalization/.humanize-formal-runs/run-zfwwh7mx",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "006e46a878c34cb3335131b31c72a6130859e677d7f7a02d7819788ecbc9e2ff",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-actual-resources-formalization/.humanize-formal-runs/run-zfwwh7mx/attempt-001/Candidate_1c1fde32d767e667.lean",
+    "environment_sha256": "8b9164746d13a753bd0177cef06e070d34e36dc9d4a9e3a60ad39ad210f2e443",
+    "artifacts": {
+      "actual_trace_storage_bound": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.actual_trace_storage_bound : ∀ R N : ℕ, R < N → M6.Transfer.actualTraceStorage R N ≤ 4096 * N^2 * 2^R := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.actualTraceStorage R N ≤ 4096 * N^2 * 2^R\n  intro R N hRN\n  have hN : 1 ≤ N := by omega\n  have hspos : 0 < (2 : ℕ)^R := by positivity\n  have hs : 1 ≤ (2 : ℕ)^R := by omega\n  have hNN : N ≤ N^2 := by nlinarith\n  have hscale : N ≤ N^2 * 2^R := by\n    calc\n      N ≤ N^2 := hNN\n      _ = N^2 * 1 := by simp\n      _ ≤ N^2 * 2^R := Nat.mul_le_mul_left _ hs\n  have haddr : M6.Transfer.actualAddressBits R N ≤ 21*N := by\n    unfold M6.Transfer.actualAddressBits\n    omega\n  have hcoeff : M6.Transfer.coefficientBits R N ≤ 6*N := by\n    unfold M6.Transfer.coefficientBits\n    omega\n  have hlen : (M6.Transfer.scatterEventList R N).length = 6*(2*N+1)*2^R := by\n    simp [M6.Transfer.scatterEventList, M6.Transfer.ScatterEvent,\n      Fintype.card_prod, M6.Transfer.Bit, M6.Transfer.state_count,\n      mul_assoc, mul_comm, mul_left_comm] <;> ring\n  have hslots : 2*N+1 ≤ 3*N := by omega\n  have hlenbound : (M6.Transfer.scatterEventList R N).length ≤ 18*N*2^R := by\n    rw [hlen]\n    nlinarith [Nat.mul_le_mul_right (6*2^R) hslots]\n  have hrecord : 4*M6.Transfer.actualAddressBits R N+8 ≤ 92*N := by omega\n  have hevents : (M6.Transfer.scatterEventList R N).length *\n      (4*M6.Transfer.actualAddressBits R N+8) ≤ 1656*N^2*2^R := by\n    calc\n      _ ≤ (18*N*2^R)*(92*N) := Nat.mul_le_mul hlenbound hrecord\n      _ = 1656*N^2*2^R := by ring\n  have hscratch : 64*(M6.Transfer.coefficientBits R N +\n      M6.Transfer.actualAddressBits R N) ≤ 1728*N^2*2^R := by\n    nlinarith [Nat.mul_le_mul_left 1728 hscale]\n  have hextra : 4*N ≤ 4*N^2*2^R := by\n    nlinarith [Nat.mul_le_mul_left 4 hscale]\n  have hbase := M6.Transfer.trace_storage_bound R N hRN\n  unfold M6.Transfer.actualTraceStorage\n  nlinarith",
+          "imports": [
+            "M6TransferActualResources"
+          ],
+          "name": "M6.Transfer.actual_trace_storage_bound",
+          "ancestors": [],
+          "spec_sha256": "727e669a0f4ad4e269c94c0a6f8fce815fa93bef457a382c269b0d53c732c58a"
+        },
+        "sha256": "5a6bb9be41ae4497cc62945a47e09d5e2f71f91fd1a45018363fd3c961bfa573"
+      },
+      "actual_address_capacity": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.actual_address_capacity : ∀ R N : ℕ, R < N → M6.Transfer.actualTraceStorage R N < 2^(M6.Transfer.actualAddressBits R N) := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.actualTraceStorage R N < 2^(M6.Transfer.actualAddressBits R N)\n  intro R N hRN\n  have hpow : ∀ n : ℕ, n ≤ 2^n := by\n    intro n\n    induction n with\n    | zero => norm_num\n    | succ n ih =>\n      rw [pow_succ]\n      have hp : 0 < (2 : ℕ)^n := by positivity\n      omega\n  have hsq : N^2 ≤ ((2 : ℕ)^N)^2 := by\n    simpa only [pow_two] using Nat.mul_le_mul (hpow N) (hpow N)\n  have heq : (2 : ℕ)^(R + 2*N + 12) = 4096 * (2^N)^2 * 2^R := by\n    rw [show R + 2*N + 12 = R + N*2 + 12 by omega]\n    simp only [pow_add, pow_mul]\n    norm_num\n    <;> ring\n  calc\n    M6.Transfer.actualTraceStorage R N ≤ 4096 * N^2 * 2^R :=\n      M6.Transfer.actual_trace_storage_bound R N hRN\n    _ ≤ 4096 * (2^N)^2 * 2^R :=\n      Nat.mul_le_mul_right _ (Nat.mul_le_mul_left 4096 hsq)\n    _ = 2^(R + 2*N + 12) := heq.symm\n    _ < 2^(M6.Transfer.actualAddressBits R N) := by\n      apply Nat.pow_lt_pow_right (by decide : 1 < (2 : ℕ))\n      unfold M6.Transfer.actualAddressBits\n      omega",
+          "imports": [
+            "M6TransferActualResources"
+          ],
+          "name": "M6.Transfer.actual_address_capacity",
+          "ancestors": [
+            "actual_trace_storage_bound"
+          ],
+          "spec_sha256": "5c70f6be53965dfe8481b593637136b44c0c8057917a1b596c9df77cc65d9ea9"
+        },
+        "sha256": "300d8730b619e5f3304ca006efc4950b8e6641deb99ded12c2ab928643da57cf"
+      }
+    }
+  }
+}

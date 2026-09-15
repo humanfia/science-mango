@@ -1,0 +1,13 @@
+{
+  "name": "M6.FixedSpan.recipe_signature",
+  "statement": "∀ N : ℕ, 3 ∣ N → M6.Cyclic.signature M6.FixedSpan.recipe M6.FixedSpan.recipe (M6.Cyclic.modulus N) = M6.FixedSpan.recipe",
+  "imports": [
+    "M6FixedSpan"
+  ],
+  "context": "theorem M6.FixedSpan.recipe_divides : ∀ N : ℕ, 3 ∣ N → M6.FixedSpan.recipe ∣ M6.Cyclic.modulus N := by\n  change ∀ N : ℕ, 3 ∣ N → M6.FixedSpan.recipe ∣ M6.Cyclic.modulus N\n  intro N hN\n  obtain ⟨k, rfl⟩ := hN\n  have htwo : (2 : M6.Cyclic.BinaryPolynomial) = 0 :=\n    CharP.cast_eq_zero M6.Cyclic.BinaryPolynomial 2\n  have hneg : -(1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n    calc\n      -(1 : M6.Cyclic.BinaryPolynomial) = -1 + 2 := by rw [htwo]; simp\n      _ = 1 := by ring\n  have hfactor : M6.FixedSpan.recipe ∣ (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ 3 - 1 := by\n    refine ⟨Polynomial.X + 1, ?_⟩\n    symm\n    calc\n      M6.FixedSpan.recipe * (Polynomial.X + 1) =\n          Polynomial.X ^ 3 + 1 + (2 : M6.Cyclic.BinaryPolynomial) *\n            (Polynomial.X ^ 2 + Polynomial.X) := by\n        unfold M6.FixedSpan.recipe\n        ring\n      _ = Polynomial.X ^ 3 - 1 := by\n        rw [htwo]\n        simp [sub_eq_add_neg, hneg]\n  apply dvd_trans hfactor\n  simpa [M6.Cyclic.modulus, pow_mul, sub_eq_add_neg, hneg] using\n    (sub_dvd_pow_sub_pow ((Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ 3) 1 k)",
+  "queries": [
+    "tendsto_pow_const_div_const_pow_of_one_lt",
+    "polynomial geometric sum divisibility"
+  ],
+  "guidance": "Unfold signature; gcd_self and gcd_eq_left from recipe_divides. Use EuclideanDomain gcd APIs. Return tactic lines only without leading by."
+}

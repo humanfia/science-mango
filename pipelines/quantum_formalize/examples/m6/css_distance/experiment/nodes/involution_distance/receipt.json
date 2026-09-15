@@ -1,0 +1,56 @@
+{
+  "id": "involution_distance",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.CSS.involution_distance",
+    "spec_sha256": "980eded79a4ae50ebe8e6462ed9e11900388eb5b8a49f2b3fe440e0e9af95e22",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-bmaaavc3/attempt-001/Candidate_8114c004c85be9f1.lean",
+        "target_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-bmaaavc3/attempt-001/FrozenTarget_8114c004c85be9f1.lean",
+        "feedback": "",
+        "target_sha256": "33bb669e52318f1ef87747bb7626b2b30b047e45047e015f1335c73aa1e11235",
+        "target_olean_sha256": "e4eb566123811edc13fb84476b02fa928fe38aaafd5bd69bc11d811ab1b76a38",
+        "source_sha256": "993cf7e17e3d78e871743a9bea9d25f7f01ac5e0e523e9c62307cfd03853576a",
+        "olean_sha256": "91e72901873c1bc898402a84b84260b0bf8668176f096c3bdc5f46278439cb0a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:27:41.011127+00:00",
+    "work": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-bmaaavc3",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "f2bcc227bc1fcf108f408475ea435296fad3828cef7b95b17b87d713eef6919f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-bmaaavc3/attempt-001/Candidate_8114c004c85be9f1.lean",
+    "environment_sha256": "3a9f137ab9508c42a0d0bffc73d79886682571cc2f2d2e7374deb7dec0d424f2",
+    "artifacts": {
+      "involution_distance": {
+        "payload": {
+          "declaration": "theorem M6.CSS.involution_distance : ∀ (m : ℕ) (LX LZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ LX ↔ J v ∈ LZ) → M6.Pinned.distance LX = M6.Pinned.distance LZ := by\n  classical\n  change ∀ (m : ℕ) (LX LZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ LX ↔ J v ∈ LZ) → M6.Pinned.distance LX = M6.Pinned.distance LZ\n  intro m LX LZ J hJ hw hmem\n  have hback (v : M6.CSS.Vector m) (hv : v ∈ LZ) : J v ∈ LX := by\n    apply (hmem (J v)).mpr\n    simpa only [hJ v] using hv\n  cases hd : M6.Pinned.distance LX with\n  | none =>\n      have hX : LX = ∅ := (M6.Pinned.distance_spec m LX).1.mp hd\n      have hZ : LZ = ∅ := by\n        apply Finset.ext\n        intro v\n        constructor\n        · intro hv\n          have hx := hback v hv\n          rw [hX] at hx\n          simp at hx\n        · intro hv\n          simp at hv\n      exact ((M6.Pinned.distance_spec m LZ).1.mpr hZ).symm\n  | some d =>\n      obtain ⟨⟨v, hv, hvw⟩, hmin⟩ := (M6.Pinned.distance_spec m LX).2 d |>.mp hd\n      symm\n      apply (M6.Pinned.distance_spec m LZ).2 d |>.mpr\n      constructor\n      · exact ⟨J v, (hmem v).mp hv, (hw v).trans hvw⟩\n      · intro u hu\n        have h := hmin (J u) (hback u hu)\n        simpa only [hw u] using h",
+          "imports": [
+            "M6CSSDistance",
+            "M6PinnedAccepted"
+          ],
+          "name": "M6.CSS.involution_distance",
+          "ancestors": [],
+          "spec_sha256": "980eded79a4ae50ebe8e6462ed9e11900388eb5b8a49f2b3fe440e0e9af95e22"
+        },
+        "sha256": "a95674e89c4635de78026d077f788cb1003d0bcf3a073d7cceb61eee923b5de7"
+      }
+    }
+  }
+}

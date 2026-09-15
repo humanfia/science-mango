@@ -1,0 +1,8 @@
+import FrozenTarget_369b8db7c3b888a1
+theorem M6.Flatten.J_weight : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2 * N)), M6.Pinned.weight (M6.Flatten.J N v) = M6.Pinned.weight v
+  intro N inst v
+  unfold M6.Flatten.J
+  rw [M6.Flatten.flatten_weight, M6.Physical.J_weight,
+    ← M6.Flatten.flatten_weight N (M6.Flatten.unflatten N v),
+    M6.Flatten.flatten_right]

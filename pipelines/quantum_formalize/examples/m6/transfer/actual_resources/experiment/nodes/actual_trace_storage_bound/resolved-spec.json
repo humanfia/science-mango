@@ -1,0 +1,13 @@
+{
+  "name": "M6.Transfer.actual_trace_storage_bound",
+  "statement": "∀ R N : ℕ, R < N → M6.Transfer.actualTraceStorage R N ≤ 4096 * N^2 * 2^R",
+  "imports": [
+    "M6TransferActualResources"
+  ],
+  "context": "",
+  "queries": [
+    "Nat power monotonicity finite cardinality",
+    "Nat polynomial inequality powers"
+  ],
+  "guidance": "Use accepted trace_storage_bound for base128N²s. Actual event list length=6*(2N+1)*s<=18Ns. AddressBits<=21N, coefficientBits<=6N, so eventlist term<=1656N²s, scratch term<=1728N²s and extra input/pin bits<=4N²s. Sum<=4096. Includes materialized events, not a streaming assumption. Return tactic lines without leading by. Actual definitions:\nimport M6TransferScatter\nimport M6TransferResourcesAccepted\nnamespace M6.Transfer\n-- Wide enough for all bit-addressed allocations including the actual event list.\ndef actualAddressBits (R N : ℕ) : ℕ := R + 4*N + 16\n-- Per event: coefficient arithmetic, record construction/addressing, and the\n-- explicit allowance for two packed length-(R+1) parity computations and pins.\ndef actualEventBitCharge (R N : ℕ) : ℕ :=\n  4 * coefficientBits R N + 16 * actualAddressBits R N + 128 * (R+1) + 128\n\nnoncomputable def actualTraceWork (R N : ℕ) : ℕ :=\n  (Fintype.card (Memory R) * N * (scatterEventList R N).length +\n    (2^R)^2 * N * (2*N+1)) * actualEventBitCharge R N\n\nnoncomputable def actualTraceStorage (R N : ℕ) : ℕ :=\n  traceStorageModel R N +\n  (scatterEventList R N).length * (4 * actualAddressBits R N + 8) +\n  64 * (coefficientBits R N + actualAddressBits R N) + 4*N\n\nend M6.Transfer\n\nimport M6Transfer\nnamespace M6.Transfer\n\n-- A scatter loop visits each source state, both bit-labelled edges, every\n-- coefficient slot and each of the at-most-three edge coefficients.\nabbrev ScatterEvent (R N : ℕ) := Memory R × Bit × Fin (2*N+1) × Fin 3\n\ndef coefficientBits (R N : ℕ) : ℕ := R + 3*N + 2\ndef addressBits (R N : ℕ) : ℕ := R + 2*N + 4\n\ndef eventBitCharge (R N : ℕ) : ℕ :=\n  4 * coefficientBits R N + 4 * addressBits R N + 8\n\nnoncomputable def traceCoefficientOps (R N : ℕ) : ℕ :=\n  Fintype.card (Memory R) * N * Fintype.card (ScatterEvent R N)\n\n-- Include clearing each destination layer for every start/layer in the model.\nnoncomputable def traceWorkModel (R N : ℕ) : ℕ :=\n  (traceCoefficientOps R N + (2^R)^2 * N * (2*N+1)) * eventBitCharge R N\n\ndef traceStorageModel (R N : ℕ) : ℕ :=\n  2 * 2^R * (2*N+1) * coefficientBits R N +\n  (2*N+1) * coefficientBits R N + 2 * 2^R * (R+2) + 2*N + 16\n\ndef addressLocations (R N : ℕ) : ℕ := 16 * 2^R * (N+1)^2\n\nend M6.Transfer\n"
+}

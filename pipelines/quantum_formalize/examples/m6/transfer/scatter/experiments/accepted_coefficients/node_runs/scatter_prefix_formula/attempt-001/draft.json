@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro R N W input initial l addr\ninduction l generalizing initial with\n| nil => simp\n| cons e l ih =>\n    rw [List.foldl_cons, ih, List.map_cons, List.sum_cons]\n    cases h : M6.Transfer.eventDestination e with\n    | none =>\n        simp [M6.Transfer.scatterUpdate, h]\n    | some a =>\n        by_cases ha : a = addr\n        · subst a\n          simp [M6.Transfer.scatterUpdate, h, add_assoc]\n        · simp [M6.Transfer.scatterUpdate, h, Function.update_apply, ha, Ne.symm ha]",
+  "queries": [
+    "Function.update_apply",
+    "List.foldl_cons"
+  ]
+}

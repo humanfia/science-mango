@@ -1,0 +1,115 @@
+{
+  "id": "scalar_trace_coefficient",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.scalar_trace_coefficient",
+    "spec_sha256": "039297fe8579cc95cbad598a9643eca6539458638d3d72c60e5ccd099137ac53",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-l2oa0acl/attempt-001/Candidate_93a5529cfbc7f205.lean",
+        "target_path": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-l2oa0acl/attempt-001/FrozenTarget_93a5529cfbc7f205.lean",
+        "feedback": "",
+        "target_sha256": "24f81b0e5a6c6225c24ef44b66a0c8695ff2501c215212319e0d305196d57179",
+        "target_olean_sha256": "9d7bbb63b6c096bb09974ffc6e25a913b4e6f40773a41ce2cb225e84c72357d1",
+        "source_sha256": "b6ecee73310acc7159b7b28add9c7099b39abc76742cd091875cd121c16d02d3",
+        "olean_sha256": "dded989b7acf488c6504fde7e251b8985fa1cc04de39de20e73084194afefd77",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:27:14.264163+00:00",
+    "work": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-l2oa0acl",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0ae7531f0762f0becffafc3ec83f3134cddd7710eaa5ed4676e07b68d9fc6638",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-l2oa0acl/attempt-001/Candidate_93a5529cfbc7f205.lean",
+    "environment_sha256": "c1d3d7153dc7ea9ded3e35f72e00bf11abccc8f1cabcb7c14737462a67ffd68d",
+    "artifacts": {
+      "scatter_prefix_formula": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.scatter_prefix_formula : ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input initial : M6.Transfer.CoefficientArray R N) (l : List (M6.Transfer.ScatterEvent R N)) (addr : M6.Transfer.CoefficientAddress R N), (l.foldl (M6.Transfer.scatterUpdate W input) initial) addr = initial addr + (l.map (fun e => if M6.Transfer.eventDestination e = some addr then M6.Transfer.eventTerm W input e else 0)).sum := by\n  classical\n  intro R N W input initial l addr\n  induction l generalizing initial with\n  | nil => simp\n  | cons e l ih =>\n      rw [List.foldl_cons, ih, List.map_cons, List.sum_cons]\n      cases h : M6.Transfer.eventDestination e with\n      | none =>\n          simp [M6.Transfer.scatterUpdate, h]\n      | some a =>\n          by_cases ha : a = addr\n          · subst a\n            simp [M6.Transfer.scatterUpdate, h, add_assoc]\n          · simp [M6.Transfer.scatterUpdate, h, Function.update_apply, ha, Ne.symm ha]",
+          "imports": [
+            "M6TransferScatter"
+          ],
+          "name": "M6.Transfer.scatter_prefix_formula",
+          "ancestors": [],
+          "spec_sha256": "a8e35a5b123d435065e241f927a98ff4f6e4a73a307ec31d55e0c3c3f1b8eaa6"
+        },
+        "sha256": "85a51d8580f97e883801251e83efece43a95645b8b0d0fe4c86b2f7640034e90"
+      },
+      "small_polynomial_convolution": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.small_polynomial_convolution : ∀ (p q : Polynomial ℤ) (d : ℕ), q.natDegree ≤ 2 → (p*q).coeff d = ∑ e : Fin 3, if e.val ≤ d then p.coeff (d-e.val) * q.coeff e.val else 0 := by\n  change ∀ (p q : Polynomial ℤ) (d : ℕ), q.natDegree ≤ 2 → _\n  intro p q d hqdeg\n  have hq : q = Polynomial.monomial 0 (q.coeff 0) +\n      Polynomial.monomial 1 (q.coeff 1) +\n      Polynomial.monomial 2 (q.coeff 2) := by\n    ext n\n    by_cases hn : n ≤ 2\n    · interval_cases n <;>\n        simp only [Polynomial.coeff_add, Polynomial.coeff_monomial] <;> norm_num\n    · have hz : q.coeff n = 0 :=\n        Polynomial.coeff_eq_zero_of_natDegree_lt (by omega)\n      have h0 : 0 ≠ n := by omega\n      have h1 : 1 ≠ n := by omega\n      have h2 : 2 ≠ n := by omega\n      simp only [Polynomial.coeff_add, Polynomial.coeff_monomial,\n        if_neg h0, if_neg h1, if_neg h2, hz, add_zero]\n  have hm : ∀ (n : ℕ) (r : ℤ),\n      (p * Polynomial.monomial n r).coeff d =\n        if n ≤ d then p.coeff (d - n) * r else 0 := by\n    intro n r\n    rw [← Polynomial.C_mul_X_pow_eq_monomial, ← mul_assoc,\n      Polynomial.coeff_mul_X_pow']\n    split_ifs <;> simp [Polynomial.coeff_mul_C]\n  conv_lhs => rw [hq]\n  simp only [mul_add, Polynomial.coeff_add, hm]\n  have h1 : (1 ≤ d) ↔ (0 < d) := by omega\n  have h2 : (2 ≤ d) ↔ (1 < d) := by omega\n  simp [Fin.sum_univ_succ, h1, h2, add_assoc]",
+          "imports": [
+            "M6TransferScatter"
+          ],
+          "name": "M6.Transfer.small_polynomial_convolution",
+          "ancestors": [],
+          "spec_sha256": "f3a2903b09cae031ba85877a8f9a31171e58aa19652a9560cbeb12c3ca8eaefe"
+        },
+        "sha256": "d742411128863646362db38ff40f89a3078476baf908bdf1f76f6921421f6492"
+      },
+      "scatter_polynomial_coeff": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.scatter_polynomial_coeff : ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ) (addr : M6.Transfer.CoefficientAddress R N), (∀ m t, (W m t).natDegree ≤ 2) → M6.Transfer.scatterLayer W (M6.Transfer.encodeCoefficients v) addr = (M6.Transfer.propagate W v addr.1).coeff addr.2.val := by\n  classical\n  intro R N W v addr hW\n  rcases addr with ⟨n, d⟩\n  have hd (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit)\n      (i : Fin (2 * N + 1)) (e : Fin 3) :\n      M6.Transfer.eventDestination (m, t, i, e) = some (n, d) ↔\n        M6.Transfer.shift m t = n ∧ i.val + e.val = d.val := by\n    by_cases h : i.val + e.val < 2 * N + 1\n    · simp [M6.Transfer.eventDestination, h, Prod.mk.injEq, Fin.ext_iff]\n    · have hne : i.val + e.val ≠ d.val := by omega\n      simp [M6.Transfer.eventDestination, h, hne]\n  unfold M6.Transfer.scatterLayer\n  rw [M6.Transfer.scatter_prefix_formula]\n  simp only [zero_add, M6.Transfer.scatterEventList, Finset.sum_map_toList]\n  change (∑ x : M6.Transfer.Memory R × (M6.Transfer.Bit × (Fin (2 * N + 1) × Fin 3)),\n      if M6.Transfer.eventDestination x = some (n, d) then\n        M6.Transfer.eventTerm W (M6.Transfer.encodeCoefficients v) x else 0) = _\n  simp only [Fintype.sum_prod_type, hd, M6.Transfer.eventTerm,\n    M6.Transfer.encodeCoefficients, M6.Transfer.propagate,\n    Polynomial.finset_sum_coeff]\n  apply Finset.sum_congr rfl\n  intro m hm\n  apply Finset.sum_congr rfl\n  intro t ht\n  by_cases hs : M6.Transfer.shift m t = n\n  · simp only [hs, true_and, if_true]\n    rw [M6.Transfer.small_polynomial_convolution (v m) (W m t) d.val (hW m t)]\n    rw [Finset.sum_comm]\n    apply Finset.sum_congr rfl\n    intro e he\n    by_cases hle : e.val ≤ d.val\n    · simp only [if_pos hle]\n      let i₀ : Fin (2 * N + 1) := ⟨d.val - e.val, by omega⟩\n      rw [Finset.sum_eq_single i₀]\n      · have hi : i₀.val + e.val = d.val := by\n          dsimp [i₀]\n          omega\n        simp [hi, i₀]\n      · intro i hi hne\n        have hsum : i.val + e.val ≠ d.val := by\n          intro heq\n          apply hne\n          apply Fin.ext\n          dsimp [i₀]\n          omega\n        simp [hsum]\n      · simp\n    · have hsum (i : Fin (2 * N + 1)) : i.val + e.val ≠ d.val := by omega\n      simp [hle, hsum]\n  · simp [hs]",
+          "imports": [
+            "M6TransferScatter"
+          ],
+          "name": "M6.Transfer.scatter_polynomial_coeff",
+          "ancestors": [
+            "scatter_prefix_formula",
+            "small_polynomial_convolution"
+          ],
+          "spec_sha256": "988950245af794bdab385295ed17121b154d2ffe73a3bce2cd04ae06f8921ac6"
+        },
+        "sha256": "9ba8d920a338b3455656f1147cb87f897b3fdbc8de3d3f7d507235204b5d0931"
+      },
+      "scalar_layers_exact": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.scalar_layers_exact : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (k : ℕ), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarLayers (N:=N) W start k = M6.Transfer.encodeCoefficients (M6.Transfer.layers W start k) := by\n  classical\n  intro R N W start k hW\n  induction k with\n  | zero =>\n      funext addr\n      change (if addr.1 = start ∧ addr.2.val = 0 then (1 : ℤ) else 0) =\n        (if addr.1 = start then (1 : Polynomial ℤ) else 0).coeff addr.2.val\n      by_cases hm : addr.1 = start\n      · rw [if_pos hm]\n        change (if addr.1 = start ∧ addr.2.val = 0 then (1 : ℤ) else 0) =\n          (Polynomial.C (1 : ℤ)).coeff addr.2.val\n        rw [Polynomial.coeff_C]\n        simp [hm, eq_comm]\n      · simp [hm]\n  | succ k ih =>\n      change M6.Transfer.scatterLayer (W k) (M6.Transfer.scalarLayers W start k) =\n        M6.Transfer.encodeCoefficients (M6.Transfer.propagate (W k) (M6.Transfer.layers W start k))\n      rw [ih]\n      funext addr\n      exact M6.Transfer.scatter_polynomial_coeff R N (W k)\n        (M6.Transfer.layers W start k) addr (hW k)",
+          "imports": [
+            "M6TransferScatter"
+          ],
+          "name": "M6.Transfer.scalar_layers_exact",
+          "ancestors": [
+            "scatter_polynomial_coeff",
+            "scatter_prefix_formula",
+            "small_polynomial_convolution"
+          ],
+          "spec_sha256": "4c92832c69f25c0210e004a7d02c4a45469585d749baff260dfe83d83e85a135"
+        },
+        "sha256": "c5879f2267ec2d5e80bf8ee712ac71e9232c659ee3eb27036e4ffff0321e77eb"
+      },
+      "scalar_trace_coefficient": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.scalar_trace_coefficient : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : Fin (2*N+1)), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarTraceCoefficient W N d = (M6.Transfer.arrayTrace W N).coeff d.val := by\n  classical\n  intro R N W d hW\n  unfold M6.Transfer.scalarTraceCoefficient M6.Transfer.arrayTrace\n  rw [Polynomial.finset_sum_coeff]\n  apply Finset.sum_congr rfl\n  intro start hstart\n  rw [M6.Transfer.scalar_layers_exact R N W start N hW]\n  rfl",
+          "imports": [
+            "M6TransferScatter"
+          ],
+          "name": "M6.Transfer.scalar_trace_coefficient",
+          "ancestors": [
+            "scalar_layers_exact",
+            "scatter_polynomial_coeff",
+            "scatter_prefix_formula",
+            "small_polynomial_convolution"
+          ],
+          "spec_sha256": "8797aeb9c78f72020bf1449d7a6f05ab6b6f31367806532c24e071198ef65a60"
+        },
+        "sha256": "3e1928fd426b36bf9968357cc5ef1748f580d3f17570d56694128fdbb24e7714"
+      }
+    }
+  }
+}

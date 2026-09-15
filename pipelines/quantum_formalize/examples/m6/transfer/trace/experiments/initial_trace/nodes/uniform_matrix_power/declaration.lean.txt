@@ -1,0 +1,11 @@
+theorem M6.Transfer.uniform_matrix_power : ∀ (S K : Type) [Fintype S] [DecidableEq S] [CommSemiring K] (A : Matrix S S K) (N : ℕ), M6.Transfer.matrixProduct (fun _ => A) N = A ^ N := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (S K : Type) [Fintype S] [DecidableEq S] [CommSemiring K] (A : Matrix S S K) (N : ℕ), M6.Transfer.matrixProduct (fun _ => A) N = A ^ N
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro S K _ _ _ A N
+  induction N with
+  | zero => rfl
+  | succ n ih =>
+      simpa only [M6.Transfer.matrixProduct, pow_succ] using congrArg (fun B : Matrix S S K => B * A) ih

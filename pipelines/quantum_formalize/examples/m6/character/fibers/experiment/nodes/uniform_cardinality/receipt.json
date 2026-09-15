@@ -1,0 +1,87 @@
+{
+  "id": "uniform_cardinality",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.FiberSum.uniform_cardinality",
+    "spec_sha256": "6d7de45560a5ae5392e022cdf26fe1633bec60cb0cd47707d1ef2405feed6a17",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-aekhccil/attempt-001/Candidate_2394724334ca93d4.lean",
+        "target_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-aekhccil/attempt-001/FrozenTarget_2394724334ca93d4.lean",
+        "feedback": "",
+        "target_sha256": "e4553b64f1be8b02ba8fb5de73a38fe6ab9ff7366d631762d45fdf2197d4fb82",
+        "target_olean_sha256": "cb9ea6b0d6a885b7782f54d932e6a0c65d59357d3bcae4bbf195ea7e17a18c20",
+        "source_sha256": "c6f8b571ee734bc225fd9d0fdaa2f672f3214c3bace38008a8416908df1d6be8",
+        "olean_sha256": "99bfc775c6f7fdb2f72541b9dfc24398d6c3bebaf121a7621370133fd3029c43",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:28:17.887936+00:00",
+    "work": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-aekhccil",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "54588349adc5ff9a6608bc623473494d307e381baf0bd1bd8281ebdc729b78c5",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-aekhccil/attempt-001/Candidate_2394724334ca93d4.lean",
+    "environment_sha256": "ac932ef1e4bb05fe3067db86513d6d77ee46b3463f5af8f77ba4acd1d0fda600",
+    "artifacts": {
+      "sum_by_fibers": {
+        "payload": {
+          "declaration": "theorem M6.FiberSum.sum_by_fibers : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w\n  intro α β _ _ L w\n  simpa [M6.FiberSum.pullbackSum, M6.FiberSum.fiberSum, M6.FiberSum.fiber,\n    Fintype.card_subtype, nsmul_eq_mul] using (Fintype.sum_fiberwise' L w).symm",
+          "imports": [
+            "M6CharacterAccepted",
+            "M6Normalization"
+          ],
+          "name": "M6.FiberSum.sum_by_fibers",
+          "ancestors": [],
+          "spec_sha256": "ae96a8d1cf84683368c7eb1b5321f335d82af728fbcedf3a5d717896434f2576"
+        },
+        "sha256": "4b2720727610f2283aff6a8083ad0555ccf9bf393b4ab8b55c73c9d5a6dd27bd"
+      },
+      "uniform_weighted_sum": {
+        "payload": {
+          "declaration": "theorem M6.FiberSum.uniform_weighted_sum : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b\n  intro α β _ _ L k h w\n  change ∀ b, (M6.FiberSum.fiber L b).card = k at h\n  rw [M6.FiberSum.sum_by_fibers α β L w]\n  simp only [M6.FiberSum.fiberSum, h, Finset.mul_sum]",
+          "imports": [
+            "M6CharacterAccepted",
+            "M6Normalization"
+          ],
+          "name": "M6.FiberSum.uniform_weighted_sum",
+          "ancestors": [
+            "sum_by_fibers"
+          ],
+          "spec_sha256": "0648f5bb3da04e47ebdab7bae76a43d7e82a9243cb80dcec89900ebf7f79e490"
+        },
+        "sha256": "13e8273de5d88705c26667229c5f58ff475dc1ed3d362f9c4e6baafda99464a2"
+      },
+      "uniform_cardinality": {
+        "payload": {
+          "declaration": "theorem M6.FiberSum.uniform_cardinality : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → Fintype.card α = k * Fintype.card β := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → Fintype.card α = k * Fintype.card β\n  intro α β _ _ L k h\n  change ∀ b, (M6.FiberSum.fiber L b).card = k at h\n  have hc : ∀ b, Fintype.card {a : α // L a = b} = k := by\n    intro b\n    simpa [Fintype.card_subtype, M6.FiberSum.fiber] using h b\n  have hs := (Fintype.sum_fiberwise' L (fun _ : β => (1 : ℕ))).symm\n  simpa [hc, Nat.mul_comm] using hs",
+          "imports": [
+            "M6CharacterAccepted",
+            "M6Normalization"
+          ],
+          "name": "M6.FiberSum.uniform_cardinality",
+          "ancestors": [
+            "sum_by_fibers",
+            "uniform_weighted_sum"
+          ],
+          "spec_sha256": "8c39159b8155ae0194bbdf153e8cb1fdf8e920c588b5216b9078b1c64ed790c3"
+        },
+        "sha256": "7692f000c122b62d20fbddbaca453aca371870d4797fcede19e2f6e34df08cfd"
+      }
+    }
+  }
+}

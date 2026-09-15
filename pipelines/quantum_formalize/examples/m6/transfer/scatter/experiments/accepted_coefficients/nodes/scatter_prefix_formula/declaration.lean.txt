@@ -1,0 +1,15 @@
+theorem M6.Transfer.scatter_prefix_formula : ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input initial : M6.Transfer.CoefficientArray R N) (l : List (M6.Transfer.ScatterEvent R N)) (addr : M6.Transfer.CoefficientAddress R N), (l.foldl (M6.Transfer.scatterUpdate W input) initial) addr = initial addr + (l.map (fun e => if M6.Transfer.eventDestination e = some addr then M6.Transfer.eventTerm W input e else 0)).sum := by
+  classical
+  intro R N W input initial l addr
+  induction l generalizing initial with
+  | nil => simp
+  | cons e l ih =>
+      rw [List.foldl_cons, ih, List.map_cons, List.sum_cons]
+      cases h : M6.Transfer.eventDestination e with
+      | none =>
+          simp [M6.Transfer.scatterUpdate, h]
+      | some a =>
+          by_cases ha : a = addr
+          · subst a
+            simp [M6.Transfer.scatterUpdate, h, add_assoc]
+          · simp [M6.Transfer.scatterUpdate, h, Function.update_apply, ha, Ne.symm ha]

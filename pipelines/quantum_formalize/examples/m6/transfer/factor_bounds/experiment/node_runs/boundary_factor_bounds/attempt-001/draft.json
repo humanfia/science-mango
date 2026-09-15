@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (m : ℕ) (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2), _\nintro m P i s\nunfold M6.Character.boundaryFactor\nsplit_ifs with h\n· constructor\n  · have hm := M6.Transfer.mass_basic.2.2.1 s.val (1 : ℤ)\n    have hx : M6.Transfer.polynomialMass ((Polynomial.X : Polynomial ℤ) ^ s.val) = 1 := by\n      simpa only [Polynomial.monomial_one_right, Int.natAbs_one] using hm\n    exact hx.le\n  · simpa only [Polynomial.natDegree_X_pow] using (Nat.le_of_lt_succ (ZMod.val_lt s))\n· constructor\n  · rw [M6.Transfer.mass_basic.1]\n    decide\n  · simp",
+  "queries": []
+}

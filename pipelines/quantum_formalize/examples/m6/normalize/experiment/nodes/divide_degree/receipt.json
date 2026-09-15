@@ -1,0 +1,69 @@
+{
+  "id": "divide_degree",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Normalize.divide_degree",
+    "spec_sha256": "9d0387755b408d15c62012b53aa688b2d5734a830b30ead1f03d9ee72d549390",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-normalize-formalization/.humanize-formal-runs/run-k0518mho/attempt-001/Candidate_db3f5c60808cf3cc.lean",
+        "target_path": "/home/jing/m6-lean-normalize-formalization/.humanize-formal-runs/run-k0518mho/attempt-001/FrozenTarget_db3f5c60808cf3cc.lean",
+        "feedback": "",
+        "target_sha256": "2c641fc34873739b3436c78ed0392b639060cb4590342bdc51cb03ad60d13ad9",
+        "target_olean_sha256": "10a7c4037672ef86a5a4eaaebeddda8773691b1fd3eaaf3c218a797c7d052942",
+        "source_sha256": "5efc464be806e29f076a95940b1f40933fb930ccd9bf799724d5d7f5801b06cf",
+        "olean_sha256": "27280e0b336380585c3ca0966dfb115ed160bba0975b815033b7809cbc5582a3",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:44:42.171651+00:00",
+    "work": "/home/jing/m6-lean-normalize-formalization/.humanize-formal-runs/run-k0518mho",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "fa3cdc30d54fd76a763f02208fad234058cab67caeecddd409ee60f831b1459b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-normalize-formalization/.humanize-formal-runs/run-k0518mho/attempt-001/Candidate_db3f5c60808cf3cc.lean",
+    "environment_sha256": "8605dae007092149513f31ed8a4247a7351ad3f04471f8ef9c8392f43677f169",
+    "artifacts": {
+      "divide_coeff": {
+        "payload": {
+          "declaration": "theorem M6.Normalize.divide_coeff : ∀ (k : ℤ) (p : Polynomial ℤ) (d : ℕ), (M6.Normalize.divide k p).coeff d = p.coeff d / k := by\n  classical\n  change ∀ (k : ℤ) (p : Polynomial ℤ) (d : ℕ), (M6.Normalize.divide k p).coeff d = p.coeff d / k\n  intro k p d\n  by_cases hd : d ∈ p.support\n  · simp [M6.Normalize.divide, Polynomial.sum, Polynomial.coeff_sum, Polynomial.coeff_monomial, hd]\n  · have hz : p.coeff d = 0 := by simpa using hd\n    simp [M6.Normalize.divide, Polynomial.sum, Polynomial.coeff_sum, Polynomial.coeff_monomial, hd, hz]",
+          "imports": [
+            "M6Normalize"
+          ],
+          "name": "M6.Normalize.divide_coeff",
+          "ancestors": [],
+          "spec_sha256": "946721a0b7429363eab7134d8abf36639063f6bc4f7b8155a7c54d4762a862cc"
+        },
+        "sha256": "6ab8656e4ccd9151e2dc1f1bcf48a5e097ee3649e622a6eb01410e999a840e4f"
+      },
+      "divide_degree": {
+        "payload": {
+          "declaration": "theorem M6.Normalize.divide_degree : ∀ (k : ℤ) (p : Polynomial ℤ) (n : ℕ), (∀ d, n < d → p.coeff d = 0) → ∀ d, n < d → (M6.Normalize.divide k p).coeff d = 0 := by\n  change ∀ (k : ℤ) (p : Polynomial ℤ) (n : ℕ), (∀ d, n < d → p.coeff d = 0) → ∀ d, n < d → (M6.Normalize.divide k p).coeff d = 0\n  intro k p n hp d hd\n  rw [M6.Normalize.divide_coeff, hp d hd, Int.zero_ediv]",
+          "imports": [
+            "M6Normalize"
+          ],
+          "name": "M6.Normalize.divide_degree",
+          "ancestors": [
+            "divide_coeff"
+          ],
+          "spec_sha256": "0c0a6518d9450ec7b170d3a50132fd3503bf3b3ac4355e9254a6274b62b16562"
+        },
+        "sha256": "1eec54b98dd8d607ab98dd1f092150d182d19e5a803bca347643d46c1d128586"
+      }
+    }
+  }
+}

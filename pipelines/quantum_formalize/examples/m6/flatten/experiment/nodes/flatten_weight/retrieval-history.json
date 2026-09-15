@@ -1,0 +1,324 @@
+[
+  {
+    "queries": [
+      "Fin sum_univ_add finite sum equivalence ZMod",
+      "Finset card filter sum indicator"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fin sum_univ_add finite sum equivalence ZMod",
+        "status": "ok",
+        "results": [
+          {
+            "id": 57443,
+            "name": "Fin.sum_univ_add",
+            "module": "Mathlib.Algebra.BigOperators.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L158-L158",
+            "source_text": "@[to_additive]\ntheorem prod_univ_add {a b : ℕ} (f : Fin (a + b) → M) :\n    (∏ i : Fin (a + b), f i) = (∏ i : Fin a, f (castAdd b i)) * ∏ i : Fin b, f (natAdd a i) := by",
+            "docstring": null
+          },
+          {
+            "id": 57425,
+            "name": "Fin.sum_univ_two'",
+            "module": "Mathlib.Algebra.BigOperators.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L114-L114",
+            "source_text": "@[to_additive]\ntheorem prod_univ_two' (f : ι → M) (a b : ι) : ∏ i, f (![a, b] i) = f a * f b :=",
+            "docstring": null
+          },
+          {
+            "id": 58956,
+            "name": "Nat.ModEq.sum",
+            "module": "Mathlib.Algebra.BigOperators.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/ModEq.lean#L80-L83",
+            "source_text": "@[gcongr]\nprotected theorem sum {s : Finset α} (h : ∀ x ∈ s, f x ≡ g x [MOD n]) :\n    (∑ x ∈ s, f x) ≡ ∑ x ∈ s, g x [MOD n] :=\n  .multisetSum_map (s := s.1) h",
+            "docstring": null
+          },
+          {
+            "id": 58976,
+            "name": "Int.ModEq.sum",
+            "module": "Mathlib.Algebra.BigOperators.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/ModEq.lean#L173-L176",
+            "source_text": "@[gcongr]\nprotected theorem sum {s : Finset α} (h : ∀ x ∈ s, f x ≡ g x [ZMOD n]) :\n    (∑ x ∈ s, f x) ≡ ∑ x ∈ s, g x [ZMOD n] :=\n  .multisetSum_map (s := s.1) h",
+            "docstring": null
+          },
+          {
+            "id": 57569,
+            "name": "finsum",
+            "module": "Mathlib.Algebra.BigOperators.Finprod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L101-L104",
+            "source_text": "/-- Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. -/\nnoncomputable irreducible_def finsum (lemma := finsum_def') [AddCommMonoid M] (f : α → M) : M :=\n  if h : HasFiniteSupport (f ∘ PLift.down) then ∑ i ∈ h.toFinset, f i.down else 0\n",
+            "docstring": "Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fin sum_univ_add finite sum equivalence ZMod",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386530,
+            "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+            "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+            "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset card filter sum indicator",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58548,
+            "name": "Finset.card_filter",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Piecewise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Piecewise.lean#L277-L278",
+            "source_text": "lemma card_filter (p) [DecidablePred p] (s : Finset ι) :\n    #{i ∈ s | p i} = ∑ i ∈ s, ite (p i) 1 0 := by simp [sum_ite]\n",
+            "docstring": null
+          },
+          {
+            "id": 59048,
+            "name": "Finset.natCast_card_filter",
+            "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L40-L42",
+            "source_text": "lemma natCast_card_filter (p) [DecidablePred p] (s : Finset ι) :\n    (#{x ∈ s | p x} : R) = ∑ a ∈ s, if p a then (1 : R) else 0 := by\n  rw [sum_ite, sum_const_zero, add_zero, sum_const, nsmul_one]\n",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 58452,
+            "name": "Finset.indicator_sum",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Indicator",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Indicator.lean#L62-L62",
+            "source_text": "@[to_additive]\nlemma mulIndicator_prod (s : Finset ι) (t : Set κ) (f : ι → κ → β) :\n    mulIndicator t (∏ i ∈ s, f i) = ∏ i ∈ s, mulIndicator t (f i) :=",
+            "docstring": null
+          },
+          {
+            "id": 58448,
+            "name": "Finset.sum_indicator_eq_sum_filter",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Indicator",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Indicator.lean#L48-L48",
+            "source_text": "@[to_additive]\nlemma prod_mulIndicator_eq_prod_filter (s : Finset ι) (f : ι → κ → β) (t : ι → Set κ) (g : ι → κ)\n    [DecidablePred fun i ↦ g i ∈ t i] :\n    ∏ i ∈ s, mulIndicator (t i) (f i) (g i) = ∏ i ∈ s with g i ∈ t i, f i (g i) := by",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "flatten_add",
+    "receipts_sha256": "1578cf199b10330c0e3a83a9e34a9f0b61ffc97a1623e49fb863bfb4ba832c01"
+  },
+  {
+    "queries": [
+      "ZMod.val_natCast_of_lt ZMod.natCast_zmod_val",
+      "Fintype.sum_equiv"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod.val_natCast_of_lt ZMod.natCast_zmod_val",
+        "status": "ok",
+        "results": [
+          {
+            "id": 222987,
+            "name": "ZMod.val_natCast",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L88-L93",
+            "source_text": "@[simp]\ntheorem val_natCast (n a : ℕ) : (a : ZMod n).val = a % n := by\n  cases n\n  · rw [Nat.mod_zero]\n    exact Int.natAbs_natCast a\n  · apply Fin.val_natCast",
+            "docstring": null
+          },
+          {
+            "id": 223199,
+            "name": "ZMod",
+            "module": "Mathlib.Data.ZMod.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+            "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+            "docstring": "The integers modulo `n : ℕ`. "
+          },
+          {
+            "id": 223006,
+            "name": "ZMod.natCast_zmod_val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L203-L208",
+            "source_text": "/-- So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. -/\ntheorem natCast_zmod_val {n : ℕ} [NeZero n] (a : ZMod n) : (a.val : ZMod n) = a := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.cast_val_eq_self\n",
+            "docstring": "So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. "
+          },
+          {
+            "id": 222980,
+            "name": "ZMod.val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+            "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+            "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+          },
+          {
+            "id": 214283,
+            "name": "ZNum.div_to_int",
+            "module": "Mathlib.Data.Num.ZNum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L654-L674",
+            "source_text": "@[simp, norm_cast]\ntheorem div_to_int : ∀ n d, ((n / d : ZNum) : ℤ) = n / d\n  | 0, 0 => by simp [Int.ediv_zero]\n  | 0, pos _ => (Int.zero_ediv _).symm\n  | 0, neg _ => (Int.zero_ediv _).symm\n  | pos _, 0 => (Int.ediv_zero _).symm\n  | neg _, 0 => (Int.ediv_zero _).symm\n  | pos n, pos d => (Num.cast_toZNum _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | pos n, neg d => (Num.cast_toZNumNeg _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | neg n, pos d =>\n    show -_ = -_ / ↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change -[n.pred' / ↑d+1] = -[n.pred' / (d.pred' + 1)+1]\n      rw [d.to_nat_eq_succ_pred]\n  | neg n, neg d =>\n    show ↑(PosNum.pred' n / Num.pos d).succ' = -_ / -↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change (Nat.succ (_ / d) : ℤ) = Nat.succ (n.pred' / (d.pred' + 1))\n      rw [d.to_nat_eq_succ_pred]\n\n@[simp, norm_cast]\ntheorem mod_to_int : ∀ n d, ((n % d : ZNum) : ℤ) = n % d\n  | 0, _ => (Int.zero_emod _).symm\n  | pos n, d =>\n    (Num.cast_toZNum _).trans <| by\n      rw [← Num.to_nat_to_int, cast_pos, Num.mod_to_nat, ← PosNum.to_nat_to_int, abs_to_nat]\n      rfl\n  | neg n, d =>\n    (Num.cast_sub' _ _).trans <| by\n      rw [← Num.to_nat_to_int, cast_neg, ← Num.to_nat_to_int, Num.succ_to_nat, Num.mod_to_nat,\n          abs_to_nat, ← Int.subNatNat_eq_coe, n.to_int_eq_succ_pred]\n      rfl\n\n@[simp]\ntheorem gcd_to_nat (a b) : (gcd a b : ℕ) = Int.gcd a b :=",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod.val_natCast_of_lt ZMod.natCast_zmod_val",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393466,
+            "name": "Time.natCast_val",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L105-L106",
+            "source_text": "@[simp]\nlemma natCast_val {n : ℕ} : val n = n := rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype.sum_equiv",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58402,
+            "name": "Fintype.sum_equiv",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L738-L741",
+            "source_text": "@[to_additive /-- `Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. -/]\nlemma prod_equiv (e : ι ≃ κ) (f : ι → M) (g : κ → M) (h : ∀ x, f x = g (e x)) :\n    ∏ x, f x = ∏ x, g x := prod_bijective _ e.bijective _ _ h",
+            "docstring": "`Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. "
+          },
+          {
+            "id": 205356,
+            "name": "Sym.equivNatSumOfFintype",
+            "module": "Mathlib.Data.Finsupp.Multiset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Multiset.lean#L256-L262",
+            "source_text": "/-- The `n`th symmetric power of a finite type `α` is naturally equivalent to the subtype of maps\n`α → ℕ` with total mass `n`.\n\nSee also `Sym.equivNatSum` when `α` is not necessarily finite. -/\nnoncomputable def equivNatSumOfFintype [Fintype α] :\n    Sym α n ≃ {P : α → ℕ // ∑ i, P i = n} :=\n  (equivNatSum α n).trans <| Finsupp.equivFunOnFinite.subtypeEquiv <| by simp [Finsupp.sum_fintype]\n",
+            "docstring": "The `n`th symmetric power of a finite type `α` is naturally equivalent to the subtype of maps\n`α → ℕ` with total mass `n`.\n\nSee also `Sym.equivNatSum` when `α` is not necessarily finite. "
+          },
+          {
+            "id": 58223,
+            "name": "Finset.sum_map_equiv",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L856-L856",
+            "source_text": "@[to_additive]\ntheorem prod_map_equiv (e : ι ≃ κ) : (s.map e).prod (f ∘ e.symm) = s.prod f := by simp",
+            "docstring": null
+          },
+          {
+            "id": 255113,
+            "name": "Equiv",
+            "module": "Mathlib.Logic.Equiv.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Defs.lean#L68-L79",
+            "source_text": "/-- `α ≃ β` is the type of functions from `α → β` with a two-sided inverse. -/\nstructure Equiv (α β : Sort*) where\n  /-- The forward map of an equivalence.\n\n  Do NOT use directly. Use the coercion instead. -/\n  protected toFun : α → β\n  /-- The backward map of an equivalence.\n\n  Do NOT use `e.invFun` directly. Use the coercion of `e.symm` instead. -/\n  protected invFun : β → α\n  protected left_inv : LeftInverse invFun toFun := by intro; first | rfl | ext <;> rfl\n  protected right_inv : RightInverse invFun toFun := by intro; first | rfl | ext <;> rfl\n",
+            "docstring": "`α ≃ β` is the type of functions from `α → β` with a two-sided inverse. "
+          },
+          {
+            "id": 255290,
+            "name": "Equiv.psigmaCongrRight",
+            "module": "Mathlib.Logic.Equiv.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Defs.lean#L606-L613",
+            "source_text": "/-- A family of equivalences `Π a, β₁ a ≃ β₂ a` generates an equivalence between `Σ' a, β₁ a` and\n`Σ' a, β₂ a`. -/\n@[simps (attr := grind =) apply]\ndef psigmaCongrRight {β₁ β₂ : α → Sort*} (F : ∀ a, β₁ a ≃ β₂ a) : (Σ' a, β₁ a) ≃ Σ' a, β₂ a where\n  toFun a := ⟨a.1, F a.1 a.2⟩\n  invFun a := ⟨a.1, (F a.1).symm a.2⟩\n  left_inv := by grind\n  right_inv := by grind\n",
+            "docstring": "A family of equivalences `Π a, β₁ a ≃ β₂ a` generates an equivalence between `Σ' a, β₁ a` and\n`Σ' a, β₂ a`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fintype.sum_equiv",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386530,
+            "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+            "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+            "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+          },
+          {
+            "id": 386825,
+            "name": "Equiv.sumEquivSigmalCond",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L38-L43",
+            "source_text": "/-- An alternative form of `Equiv.sumEquivSigmaBool` where `Bool.casesOn` is replaced by `cond`. -/\ndef sumEquivSigmalCond : Fin m ⊕ Fin n ≃ Σ b, cond b (Fin m) (Fin n) :=\n  calc Fin m ⊕ Fin n\n    _ ≃ Fin n ⊕ Fin m := sumComm ..\n    _ ≃ Σ b, bif b then (Fin m) else (Fin n) := sumEquivSigmaBool ..\n    _ ≃ Σ b, cond b (Fin m) (Fin n) := sigmaCongrRight (fun | true | false => Equiv.refl _)\n",
+            "docstring": "An alternative form of `Equiv.sumEquivSigmaBool` where `Bool.casesOn` is replaced by `cond`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

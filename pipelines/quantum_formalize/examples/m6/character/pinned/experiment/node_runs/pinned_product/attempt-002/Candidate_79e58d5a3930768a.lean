@@ -1,0 +1,27 @@
+import FrozenTarget_79e58d5a3930768a
+theorem M6.Character.pinned_product : QuantumHarnessFrozenTarget := by
+  change ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Character.Vector m), (∏ i, M6.Character.boundaryFactor P i (v i)) = M6.Character.pinnedMonomial P v
+  intro m P v
+  classical
+  by_cases h : M6.Pinned.agrees P v
+  · rw [M6.Character.pinnedMonomial, if_pos h]
+    have hf : ∀ i, M6.Character.boundaryFactor P i (v i) = (Polynomial.X : Polynomial ℤ) ^ (v i).val := by
+      intro i
+      unfold M6.Pinned.agrees at h
+      have hi := h i
+      cases hp : P i <;> simp_all [M6.Character.boundaryFactor]
+    simp_rw [hf]
+    rw [M6.Character.weight_as_sum]
+    have hp : ∀ s : Finset (Fin m), (∏ i ∈ s, (Polynomial.X : Polynomial ℤ) ^ (v i).val) = Polynomial.X ^ (∑ i ∈ s, (v i).val) := by
+      intro s
+      induction s using Finset.induction_on with
+      | empty => simp
+      | @insert i s hi ih => simp [hi, ih, pow_add]
+    exact hp Finset.univ
+  · rw [M6.Character.pinnedMonomial, if_neg h]
+    by_contra hn
+    apply h
+    unfold M6.Pinned.agrees
+    intro i
+    have hi := Finset.prod_ne_zero_iff.mp hn i (Finset.mem_univ i)
+    cases hp : P i <;> simp [M6.Character.boundaryFactor, hp] at hi ⊢ <;> aesop

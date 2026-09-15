@@ -1,0 +1,14 @@
+{
+  "name": "M6.FiberSum.uniform_weighted_sum",
+  "statement": "∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b",
+  "imports": [
+    "M6CharacterAccepted",
+    "M6Normalization"
+  ],
+  "context": "theorem M6.FiberSum.sum_by_fibers : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w\n  intro α β _ _ L w\n  simpa [M6.FiberSum.pullbackSum, M6.FiberSum.fiberSum, M6.FiberSum.fiber,\n    Fintype.card_subtype, nsmul_eq_mul] using (Fintype.sum_fiberwise' L w).symm",
+  "queries": [
+    "finite sum over fibers cardinality",
+    "Fintype sum_fiberwise"
+  ],
+  "guidance": "Use sum_by_fibers, replace each fiber.card by k and factor finite sum. No surjectivity or k-positive assumption required. Return tactic lines only, no leading by."
+}

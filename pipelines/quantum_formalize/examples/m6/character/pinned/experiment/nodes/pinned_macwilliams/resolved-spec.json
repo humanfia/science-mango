@@ -1,0 +1,14 @@
+{
+  "name": "M6.Character.pinned_macwilliams",
+  "statement": "∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)) (P : M6.Pinned.Pins m), Polynomial.C ((M6.Character.subspaceWords D).card : ℤ) * M6.Pinned.enumerator (M6.Character.dualWords D) P = M6.Character.pinnedTransform D P",
+  "imports": [
+    "M6CharacterAccepted",
+    "M6PinnedCharacter"
+  ],
+  "context": "theorem M6.Character.weight_as_sum : ∀ (m : ℕ) (v : M6.Character.Vector m), M6.Pinned.weight v = ∑ i, (v i).val := by\n  change ∀ (m : ℕ) (v : M6.Character.Vector m), M6.Pinned.weight v = ∑ i, (v i).val\n  intro m v\n  classical\n  unfold M6.Pinned.weight\n  rw [Finset.card_eq_sum_ones, Finset.sum_filter]\n  apply Finset.sum_congr rfl\n  intro i hi\n  generalize hx : v i = x\n  have hx01 : x = 0 ∨ x = 1 := by\n    fin_cases x\n    · exact Or.inl rfl\n    · exact Or.inr rfl\n  rcases hx01 with rfl | rfl <;> norm_num [ZMod.val_zero, ZMod.val_one_eq_one_mod]\n\ntheorem M6.Character.pinned_product : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Character.Vector m), (∏ i, M6.Character.boundaryFactor P i (v i)) = M6.Character.pinnedMonomial P v := by\n  change ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Character.Vector m), (∏ i, M6.Character.boundaryFactor P i (v i)) = M6.Character.pinnedMonomial P v\n  intro m P v\n  classical\n  by_cases h : M6.Pinned.agrees P v\n  · rw [M6.Character.pinnedMonomial, if_pos h]\n    have hf : ∀ i, M6.Character.boundaryFactor P i (v i) = (Polynomial.X : Polynomial ℤ) ^ (v i).val := by\n      intro i\n      unfold M6.Pinned.agrees at h\n      have hi := h i\n      cases hp : P i <;> simp_all [M6.Character.boundaryFactor]\n    simp_rw [hf]\n    rw [M6.Character.weight_as_sum]\n    have hp : ∀ s : Finset (Fin m), (∏ i ∈ s, (Polynomial.X : Polynomial ℤ) ^ (v i).val) = Polynomial.X ^ (∑ i ∈ s, (v i).val) := by\n      intro s\n      induction s using Finset.induction_on with\n      | empty => simp\n      | @insert i s hi ih => simp [hi, ih, pow_add]\n    exact hp Finset.univ\n  · rw [M6.Character.pinnedMonomial, if_neg h]\n    by_contra hn\n    apply h\n    unfold M6.Pinned.agrees\n    intro i\n    have hi := Finset.prod_ne_zero_iff.mp hn i (Finset.mem_univ i)\n    cases hp : P i <;> simp [M6.Character.boundaryFactor, hp] at hi ⊢ <;> aesop",
+  "queries": [
+    "binary weight finite sum polynomial product",
+    "Fintype ZMod two finite sum"
+  ],
+  "guidance": "Use imported accepted weighted_macwilliams with w=boundaryFactor P. Its weightedDual is exactly Pinned.enumerator by pinned_product; transform unfolds pinnedCharacterFactor. Preserve actual Option pins and integer polynomials. Return tactic lines only, no leading by."
+}

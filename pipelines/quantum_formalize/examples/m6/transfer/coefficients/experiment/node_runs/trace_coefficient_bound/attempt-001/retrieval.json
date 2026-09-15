@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101069,
+        "name": "Polynomial.sum_eq_of_subset",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L851-L854",
+        "source_text": "theorem sum_eq_of_subset {S : Type*} [AddCommMonoid S] {p : R[X]} (f : ℕ → R → S)\n    (hf : ∀ i, f i 0 = 0) {s : Finset ℕ} (hs : p.support ⊆ s) :\n    p.sum f = ∑ n ∈ s, f n (p.coeff n) :=\n  Finsupp.sum_of_support_subset _ hs f (fun i _ ↦ hf i)\n",
+        "docstring": null
+      },
+      {
+        "id": 107546,
+        "name": "SkewPolynomial.sum_eq_of_subset",
+        "module": "Mathlib.Algebra.SkewPolynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/SkewPolynomial/Basic.lean#L540-L545",
+        "source_text": "lemma sum_eq_of_subset {p : SkewPolynomial R} (f : ℕ → R → S) (hf : ∀ i, f i 0 = 0) {s : Finset ℕ}\n    (hs : p.support ⊆ s) : p.sum f = ∑ n ∈ s, f n (p.coeff n) := by\n  rw [sum_def , Finset.sum_subset hs]\n  intro _ _ hx\n  simp only [mem_support_iff, ne_eq, not_not] at hx\n  simp [hx, hf]\n",
+        "docstring": null
+      },
+      {
+        "id": 101070,
+        "name": "Polynomial.mul_eq_sum_sum",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L856-L861",
+        "source_text": "/-- Expressing the product of two polynomials as a double sum. -/\ntheorem mul_eq_sum_sum :\n    p * q = ∑ i ∈ p.support, q.sum fun j a ↦ (monomial (i + j)) (p.coeff i * a) := by\n  apply toFinsupp_injective\n  simp_rw [sum, coeff, toFinsupp_sum, support, toFinsupp_mul, toFinsupp_monomial,\n    AddMonoidAlgebra.mul_def, Finsupp.sum]\n",
+        "docstring": "Expressing the product of two polynomials as a double sum. "
+      },
+      {
+        "id": 58827,
+        "name": "Multiset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Multiset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Multiset/Defs.lean#L40-L42",
+        "source_text": "@[to_additive\n      /-- Sum of a multiset given a commutative additive monoid structure on `M`.\n      `sum {a, b, c} = a + b + c` -/]\ndef prod : Multiset M → M :=",
+        "docstring": "Sum of a multiset given a commutative additive monoid structure on `M`.\n`sum {a, b, c} = a + b + c` "
+      },
+      {
+        "id": 313824,
+        "name": "MvPolynomial.restrictSupport_add",
+        "module": "Mathlib.RingTheory.MvPolynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/Basic.lean#L117-L126",
+        "source_text": "lemma restrictSupport_add (s t : Set (σ →₀ ℕ)) :\n    restrictSupport R (s + t) = restrictSupport R s * restrictSupport R t := by\n  apply le_antisymm\n  · rw [restrictSupport_eq_span, Submodule.span_le, Set.image_subset_iff, Set.add_subset_iff]\n    intro x hx y hy\n    simp [show monomial (x + y) (1 : R) = monomial x 1 * monomial y 1 by simp, -monomial_mul,\n      *, Submodule.mul_mem_mul]\n  · rw [restrictSupport_eq_span, restrictSupport_eq_span, Submodule.span_mul_span,\n      Submodule.span_le, Set.mul_subset_iff]\n    simp +contextual [Set.add_mem_add]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389408,
+        "name": "WickContraction.mul_wickTerm_eq_sum",
+        "module": "Physlib.QFT.PerturbationTheory.WickAlgebra.WickTerm",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickAlgebra/WickTerm.lean#L180-L231",
+        "source_text": "/--\nFor a list `φs = φ₀…φₙ` of `𝓕.FieldOp`, a Wick contraction `φsΛ` of `φs`, an element `φ` of\n  `𝓕.FieldOp`, and `i ≤ φs.length`\n  such that all `𝓕.FieldOp` in `φ₀…φᵢ₋₁` have time strictly less than `φ` and\n  `φ` has a time greater than or equal to all `FieldOp` in `φ₀…φₙ`, then\n\n`φ * φsΛ.wickTerm = 𝓢(φ, φ₀…φᵢ₋₁) • ∑ k, (φsΛ ↩Λ φ i k).wickTerm`\n\nwhere the sum is over all `k` in `Option φsΛ.uncontracted`, so `k` is either `none` or `some k`.\n\nThe proof proceeds as follows:\n- `ofFieldOp_mul_normalOrder_ofFieldOpList_eq_sum` is used to expand `φ 𝓝([φsΛ]ᵘᶜ)` as\n  a sum over `k` in `Option φsΛ.uncontracted` of terms involving `[anPart φ, φs[k]]ₛ`.\n- Then `wickTerm_insert_none` and `wickTerm_insert_some` are used to equate terms.\n-/\nlemma mul_wickTerm_eq_sum (φ : 𝓕.FieldOp) (φs : List 𝓕.FieldOp) (i : Fin φs.length.succ)\n    (φsΛ : WickContraction φs.length) (hlt : ∀ (k : Fin φs.length), timeOrderRel φ φs[k])\n    (hn : ∀ (k : Fin φs.length), i.succAbove k < i → ¬timeOrderRel φs[k] φ) :\n    ofFieldOp φ * φsΛ.wickTerm =\n    𝓢(𝓕 |>ₛ φ, 𝓕 |>ₛ ⟨φs.get, (Finset.univ.filter (fun x => i.succAbove x < i))⟩) •\n    ∑ (k : Option φsΛ.uncontracted), (φsΛ ↩Λ φ i k).wickTerm := by\n  trans (φsΛ.sign • φsΛ.timeContract) * ((ofFieldOp φ) * 𝓝(ofFieldOpList [φsΛ]ᵘᶜ))\n  · have ht := Subalgebra.mem_center_iff.mp (Subalgebra.smul_mem (Subalgebra.center ℂ _)\n      (WickContraction.timeContract φsΛ).2 (φsΛ.sign))\n    rw [wickTerm]\n    rw [← mul_assoc, ht, mul_assoc]\n  rw [ofFieldOp_mul_normalOrder_ofFieldOpList_eq_sum, Finset.mul_sum,\n    uncontractedFieldOpEquiv_list_sum, Finset.smul_sum]\n  simp only [Nat.succ_eq_add_one]\n  congr 1\n  funext n\n  match n with\n  | none =>\n    rw [wickTerm_insert_none]\n    simp only [contractStateAtIndex, uncontractedFieldOpEquiv, Equiv.optionCongr_apply,\n      Equiv.coe_trans, Option.map_none, one_mul, Algebra.smul_mul_assoc, smul_smul]\n    congr 1\n    rw [← mul_assoc, exchangeSign_mul_self]\n    simp\n  | some n =>\n    rw [wickTerm_insert_some _ _ _ _ _\n      (fun k => hlt k) (fun k a => hn k a)]\n    simp only [uncontractedFieldOpEquiv, Equiv.optionCongr_apply, Equiv.coe_trans, Option.map_some,\n      Function.comp_apply, finCongr_apply, Algebra.smul_mul_assoc, smul_smul]\n    congr 1\n    · rw [← mul_assoc, exchangeSign_mul_self]\n      rw [one_mul]\n    · rw [← mul_assoc]\n      congr 1\n      have ht := (WickContraction.timeContract φsΛ).prop\n      rw [@Subalgebra.mem_center_iff] at ht\n      rw [ht]\n",
+        "docstring": "For a list `φs = φ₀…φₙ` of `𝓕.FieldOp`, a Wick contraction `φsΛ` of `φs`, an element `φ` of\n  `𝓕.FieldOp`, and `i ≤ φs.length`\n  such that all `𝓕.FieldOp` in `φ₀…φᵢ₋₁` have time strictly less than `φ` and\n  `φ` has a time greater than or equal to all `FieldOp` in `φ₀…φₙ`, then\n\n`φ * φsΛ.wickTerm = 𝓢(φ, φ₀…φᵢ₋₁) • ∑ k, (φsΛ ↩Λ φ i k).wickTerm`\n\nwhere the sum is over all `k` in `Option φsΛ.uncontracted`, so `k` is either `none` or `some k`.\n\nThe proof proceeds as follows:\n- `ofFieldOp_mul_normalOrder_ofFieldOpList_eq_sum` is used to expand `φ 𝓝([φsΛ]ᵘᶜ)` as\n  a sum over `k` in `Option φsΛ.uncontracted` of terms involving `[anPart φ, φs[k]]ₛ`.\n- Then `wickTerm_insert_none` and `wickTerm_insert_some` are used to equate terms.\n"
+      },
+      {
+        "id": 388703,
+        "name": "CreateAnnihilate.sum_eq",
+        "module": "Physlib.QFT.PerturbationTheory.CreateAnnihilate",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/CreateAnnihilate.lean#L67-L70",
+        "source_text": "lemma sum_eq {M : Type} [AddCommMonoid M] (f : CreateAnnihilate → M) :\n    ∑ i, f i = f create + f annihilate := by\n  change ∑ i ∈ {create, annihilate}, f i = f create + f annihilate\n  simp\n",
+        "docstring": null
+      },
+      {
+        "id": 392878,
+        "name": "Space.grad_eq_sum",
+        "module": "Physlib.SpaceAndTime.Space.Derivatives.Grad",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Derivatives/Grad.lean#L160-L165",
+        "source_text": "lemma grad_eq_sum {d} (f : Space d → ℝ) (x : Space d) :\n    ∇ f x = ∑ i, ∂[i] f x • EuclideanSpace.single i 1 := by\n  ext j\n  simp only [grad, PiLp.toLp_apply, WithLp.ofLp_sum, WithLp.ofLp_smul, PiLp.ofLp_single,\n    Finset.sum_apply, Pi.smul_apply, Pi.single_apply, smul_eq_mul, mul_ite, mul_one, mul_zero,\n    Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte]\n",
+        "docstring": null
+      },
+      {
+        "id": 386098,
+        "name": "divergence_eq_sum_fderiv'",
+        "module": "Physlib.Mathematics.Calculus.Divergence",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Calculus/Divergence.lean#L47-L65",
+        "source_text": "lemma divergence_eq_sum_fderiv' {ι} [Fintype ι] (b : Basis ι 𝕜 E) {f : E → E} :\n    divergence 𝕜 f = fun x => ∑ i, b.repr (fderiv 𝕜 f x (b i)) i := by\n  let s : Finset E := Finset.univ.map ⟨b, Basis.injective b⟩\n  let f' : ι → s := fun i => ⟨b i, by simp [s]⟩\n  have h : Function.Injective f' := by\n    intro i j h\n    simp [f'] at h\n    exact Basis.injective b h\n  have h' : Function.Surjective f' := by\n    intro ⟨x, hx⟩\n    simp [s] at hx\n    obtain ⟨i, rfl⟩ := hx\n    simp [f']\n  let e : ι ≃ s := Equiv.ofBijective f' ⟨h, h'⟩\n  let b' : Basis s 𝕜 E := b.reindex e\n  rw [divergence_eq_sum_fderiv b']\n  ext x\n  rw [← e.symm.sum_comp]\n  simp [b']\n",
+        "docstring": null
+      },
+      {
+        "id": 386097,
+        "name": "divergence_eq_sum_fderiv",
+        "module": "Physlib.Mathematics.Calculus.Divergence",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Calculus/Divergence.lean#L39-L45",
+        "source_text": "lemma divergence_eq_sum_fderiv {s : Finset E} (b : Basis s 𝕜 E) {f : E → E} :\n    divergence 𝕜 f = fun x => ∑ i : s, b.repr (fderiv 𝕜 f x (b i)) i := by\n  funext x\n  unfold divergence\n  rw[LinearMap.trace_eq_matrix_trace_of_finset (s:=s) _ b]\n  simp only [Matrix.trace, Matrix.diag, LinearMap.toMatrix_apply]\n  rfl\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Int natAbs_sum_le Polynomial natDegree_sum_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101148,
+        "name": "Polynomial.natDegree_sum_le",
+        "module": "Mathlib.Algebra.Polynomial.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/BigOperators.lean#L61-L63",
+        "source_text": "theorem natDegree_sum_le (f : ι → S[X]) :\n    natDegree (∑ i ∈ s, f i) ≤ s.fold max 0 (natDegree ∘ f) := by\n  simpa using! natDegree_multiset_sum_le (s.val.map f)\n",
+        "docstring": null
+      },
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      },
+      {
+        "id": 58292,
+        "name": "Int.natAbs_sum_le",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L1127-L1129",
+        "source_text": "theorem Int.natAbs_sum_le (s : Finset ι) (f : ι → ℤ) :\n    (∑ i ∈ s, f i).natAbs ≤ ∑ i ∈ s, (f i).natAbs := by\n  induction s using Finset.cons_induction with grind\n",
+        "docstring": null
+      },
+      {
+        "id": 101430,
+        "name": "Polynomial.natDegree_add_le",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L338-L339",
+        "source_text": "theorem natDegree_add_le (p q : R[X]) : natDegree (p + q) ≤ max (natDegree p) (natDegree q) := by\n  rcases le_max_iff.1 (degree_add_le p q) with h | h <;> simp [natDegree_le_natDegree h]\n",
+        "docstring": null
+      },
+      {
+        "id": 101525,
+        "name": "Polynomial.natDegree_add_le_iff_left",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L81-L86",
+        "source_text": "theorem natDegree_add_le_iff_left {n : ℕ} (p q : R[X]) (qn : q.natDegree ≤ n) :\n    (p + q).natDegree ≤ n ↔ p.natDegree ≤ n := by\n  refine ⟨fun h => ?_, fun h => natDegree_add_le_of_degree_le h qn⟩\n  refine natDegree_le_iff_coeff_eq_zero.mpr fun m hm => ?_\n  convert! natDegree_le_iff_coeff_eq_zero.mp h m hm using 1\n  rw [coeff_add, natDegree_le_iff_coeff_eq_zero.mp qn _ hm, add_zero]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,166 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "LinearMap range membership finite cardinality",
+    "status": "ok",
+    "results": [
+      {
+        "id": 88917,
+        "name": "LinearMap.fintypeRange",
+        "module": "Mathlib.Algebra.Module.Submodule.Range",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/Submodule/Range.lean#L157-L162",
+        "source_text": "/-- The range of a linear map is finite if the domain is finite.\nNote: this instance can form a diamond with `Subtype.fintype` in the\n  presence of `Fintype M₂`. -/\ninstance fintypeRange [Fintype M] [DecidableEq M₂] [RingHomSurjective τ₁₂] (f : M →ₛₗ[τ₁₂] M₂) :\n    Fintype (range f) :=\n  Set.fintypeRange f\n",
+        "docstring": "The range of a linear map is finite if the domain is finite.\nNote: this instance can form a diamond with `Subtype.fintype` in the\n  presence of `Fintype M₂`. "
+      },
+      {
+        "id": 87565,
+        "name": "LinearMap.finiteRange",
+        "module": "Mathlib.Algebra.Module.LinearMap.FiniteRange",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/LinearMap/FiniteRange.lean#L193-L201",
+        "source_text": "/-- `LinearMap.finiteRange` is the submodule of `V →ₗ[K] W` consisting of linear maps satisfying\n`LinearMap.HasNoetherianRange`. We allow ourself this slightly abusive name because the set of\nlinear maps satisfying `LinearMap.HasFiniteRange` is only a submodule over a noetherian ring,\nin which case the two notions agree. -/\ndef finiteRange : Submodule K (V →ₗ[K] V₂) where\n  carrier := {u | u.HasNoetherianRange}\n  add_mem' hu hv := by simp_all\n  zero_mem' := by simp\n  smul_mem' c hu := by simp_all\n",
+        "docstring": "`LinearMap.finiteRange` is the submodule of `V →ₗ[K] W` consisting of linear maps satisfying\n`LinearMap.HasNoetherianRange`. We allow ourself this slightly abusive name because the set of\nlinear maps satisfying `LinearMap.HasFiniteRange` is only a submodule over a noetherian ring,\nin which case the two notions agree. "
+      },
+      {
+        "id": 87537,
+        "name": "LinearMap.hasFiniteRange_iff_range",
+        "module": "Mathlib.Algebra.Module.LinearMap.FiniteRange",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/LinearMap/FiniteRange.lean#L67-L69",
+        "source_text": "lemma hasFiniteRange_iff_range {f : V →ₗ[K] V₂} :\n    f.HasFiniteRange ↔ f.range.FG :=\n  Iff.rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 87568,
+        "name": "LinearMap.FiniteRangeSetoid.setoid",
+        "module": "Mathlib.Algebra.Module.LinearMap.FiniteRange",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/LinearMap/FiniteRange.lean#L222-L229",
+        "source_text": "/-- This is the equivalence relation on linear maps such that `u ≈ v` precisely\nwhen `u - v` is a linear map with noetherian range. We allow ourself this slightly abusive name\nbecause the more natural definition (`u - v` has finitely generated range) only yields a\nwell-behaved relation (more precisely, an additive congruence relation compatible with composition\non both sides) over a noetherian ring, in which case the two notions agree.\n\nThis setoid is declared as an instance in scope `LinearMap.FiniteRangeSetoid`. -/\nscoped instance setoid : Setoid (V →ₗ[K] V₂) := (LinearMap.finiteRange K V V₂).quotientRel\n",
+        "docstring": "This is the equivalence relation on linear maps such that `u ≈ v` precisely\nwhen `u - v` is a linear map with noetherian range. We allow ourself this slightly abusive name\nbecause the more natural definition (`u - v` has finitely generated range) only yields a\nwell-behaved relation (more precisely, an additive congruence relation compatible with composition\non both sides) over a noetherian ring, in which case the two notions agree.\n\nThis setoid is declared as an instance in scope `LinearMap.FiniteRangeSetoid`. "
+      },
+      {
+        "id": 88893,
+        "name": "LinearMap.range",
+        "module": "Mathlib.Algebra.Module.Submodule.Range",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/Submodule/Range.lean#L55-L58",
+        "source_text": "/-- The range of a linear map `f : M → M₂` is a submodule of `M₂`.\nSee Note [range copy pattern]. -/\ndef range [RingHomSurjective τ₁₂] (f : M →ₛₗ[τ₁₂] M₂) : Submodule R₂ M₂ :=\n  (map f ⊤).copy (Set.range f) Set.image_univ.symm\n",
+        "docstring": "The range of a linear map `f : M → M₂` is a submodule of `M₂`.\nSee Note [range copy pattern]. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "LinearMap range membership finite cardinality",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390581,
+        "name": "LinearPMap.numericalRange",
+        "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L478-L479",
+        "source_text": "/-- The set `{⟪x, T x⟫_ℂ | x ∈ T.domain ∧ ‖x‖ = 1} ⊆ ℂ`. -/\ndef numericalRange (T : H →ₗ.[ℂ] H) : Set ℂ := (fun x ↦ ⟪↑x, T x⟫_ℂ) '' {x : T.domain | ‖x‖ = 1}\n",
+        "docstring": "The set `{⟪x, T x⟫_ℂ | x ∈ T.domain ∧ ‖x‖ = 1} ⊆ ℂ`. "
+      },
+      {
+        "id": 386622,
+        "name": "LinearPMap.sum_domain_le",
+        "module": "Physlib.Mathematics.LinearPMap",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/LinearPMap.lean#L157-L157",
+        "source_text": "lemma sum_domain_le (a : α) : (sum f).domain ≤ (f a).domain := fun _ _ ↦ by simp_all [sum, mem_iInf]\n",
+        "docstring": null
+      },
+      {
+        "id": 390583,
+        "name": "LinearPMap.numericalRange_eq",
+        "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L484-L484",
+        "source_text": "lemma numericalRange_eq (T : H →ₗ.[ℂ] H) : Θ T = (fun x ↦ ⟪↑x, T x⟫_ℂ) '' {x | ‖x‖ = 1} := rfl\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "finite sum orthogonal submodule range",
+    "status": "ok",
+    "results": [
+      {
+        "id": 87539,
+        "name": "LinearMap.HasFiniteRange.fg_range",
+        "module": "Mathlib.Algebra.Module.LinearMap.FiniteRange",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/LinearMap/FiniteRange.lean#L72-L72",
+        "source_text": "alias ⟨HasFiniteRange.fg_range, _⟩ := hasFiniteRange_iff_range\n",
+        "docstring": "**Alias** of the forward direction of `LinearMap.hasFiniteRange_iff_range`."
+      },
+      {
+        "id": 133745,
+        "name": "Submodule.orthogonal",
+        "module": "Mathlib.Analysis.InnerProductSpace.Orthogonal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Orthogonal.lean#L42-L47",
+        "source_text": "/-- The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. -/\ndef orthogonal : Submodule 𝕜 E where\n  carrier := { v | ∀ u ∈ K, ⟪u, v⟫ = 0 }\n  zero_mem' _ _ := inner_zero_right _\n  add_mem' hx hy u hu := by rw [inner_add_right, hx u hu, hy u hu, add_zero]\n  smul_mem' c x hx u hu := by rw [inner_smul_right, hx u hu, mul_zero]\n",
+        "docstring": "The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. "
+      },
+      {
+        "id": 244807,
+        "name": "Submodule.biSup_eq_range_dfinsupp_lsum",
+        "module": "Mathlib.LinearAlgebra.DFinsupp",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/DFinsupp.lean#L377-L396",
+        "source_text": "/-- The bounded supremum of a family of commutative additive submonoids is equal to the range of\n`DFinsupp.sumAddHom` composed with `DFinsupp.filter_add_monoid_hom`; that is, every element in the\nbounded `iSup` can be produced from taking a finite number of non-zero elements from the `S i` that\nsatisfy `p i`, coercing them to `γ`, and summing them. -/\ntheorem biSup_eq_range_dfinsupp_lsum (p : ι → Prop) [DecidablePred p] (S : ι → Submodule R N) :\n    ⨆ (i) (_ : p i), S i =\n      LinearMap.range\n        (LinearMap.comp\n          (DFinsupp.lsum ℕ (fun i => (S i).subtype))\n            (DFinsupp.filterLinearMap R _ p)) := by\n  apply le_antisymm\n  · refine iSup₂_le fun i hi y hy => ⟨DFinsupp.single i ⟨y, hy⟩, ?_⟩\n    rw [LinearMap.comp_apply, filterLinearMap_apply, filter_single_pos _ _ hi]\n    simp only [lsum_apply_apply, sumAddHom_single, LinearMap.toAddMonoidHom_coe, coe_subtype]\n  · rintro x ⟨v, rfl⟩\n    refine dfinsuppSumAddHom_mem _ _ _ fun i _ => ?_\n    refine mem_iSup_of_mem i ?_\n    by_cases hp : p i\n    · simp [hp]\n    · simp [hp]\n",
+        "docstring": "The bounded supremum of a family of commutative additive submonoids is equal to the range of\n`DFinsupp.sumAddHom` composed with `DFinsupp.filter_add_monoid_hom`; that is, every element in the\nbounded `iSup` can be produced from taking a finite number of non-zero elements from the `S i` that\nsatisfy `p i`, coercing them to `γ`, and summing them. "
+      },
+      {
+        "id": 134851,
+        "name": "Submodule.isHilbertSumOrthogonal",
+        "module": "Mathlib.Analysis.InnerProductSpace.l2Space",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/l2Space.lean#L350-L359",
+        "source_text": "theorem Submodule.isHilbertSumOrthogonal (K : Submodule 𝕜 E) [hK : CompleteSpace K] :\n    IsHilbertSum 𝕜 (fun b => ↥(cond b K Kᗮ)) fun b => (cond b K Kᗮ).subtypeₗᵢ := by\n  have : ∀ b, CompleteSpace (↥(cond b K Kᗮ)) := by\n    intro b\n    cases b <;> first | exact instOrthogonalCompleteSpace K | assumption\n  refine IsHilbertSum.mkInternal _ K.orthogonalFamily_self ?_\n  refine le_trans ?_ (Submodule.le_topologicalClosure _)\n  rw [iSup_bool_eq, cond, cond]\n  refine Codisjoint.top_le ?_\n  exact K.isCompl_orthogonal.codisjoint\n",
+        "docstring": null
+      },
+      {
+        "id": 134333,
+        "name": "Submodule.orthogonal_orthogonal",
+        "module": "Mathlib.Analysis.InnerProductSpace.Projection.Submodule",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Projection/Submodule.lean#L53-L67",
+        "source_text": "/-- If `K` admits an orthogonal projection, then the orthogonal complement of its orthogonal\ncomplement is itself. -/\n@[simp]\ntheorem orthogonal_orthogonal [K.HasOrthogonalProjection] : Kᗮᗮ = K := by\n  ext v\n  constructor\n  · obtain ⟨y, hy, z, hz, rfl⟩ := K.exists_add_mem_mem_orthogonal v\n    intro hv\n    have hz' : z = 0 := by\n      have hyz : ⟪z, y⟫ = 0 := by simp [hz y hy, inner_eq_zero_symm]\n      simpa [inner_add_right, hyz] using hv z hz\n    simp [hy, hz']\n  · intro hv w hw\n    rw [inner_eq_zero_symm]\n    exact hw v hv\n",
+        "docstring": "If `K` admits an orthogonal projection, then the orthogonal complement of its orthogonal\ncomplement is itself. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "finite sum orthogonal submodule range",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390704,
+        "name": "LinearPMap.HasDenseDomain.orthogonal_range",
+        "module": "Physlib.QuantumMechanics.Operators.Unbounded",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Unbounded.lean#L196-L208",
+        "source_text": "/-- `U.rangeᗮ = U†.ker`\n\n  c.f. `LinearMap.orthogonal_range` and `ContinuousLinearMap.orthogonal_range` -/\nlemma HasDenseDomain.orthogonal_range [CompleteSpace H] (h : U.HasDenseDomain) :\n    U.toFun.rangeᗮ = U†.toFun.ker.map U†.domain.subtype := by\n  ext u\n  simp only [mem_orthogonal', Subtype.exists, mem_map, LinearMap.mem_ker, subtype_apply,\n    exists_and_right, exists_eq_right, toFun_eq_coe]\n  constructor\n  · intro h'\n    exact ⟨mem_adjoint_domain_of_exists u ⟨0, by simp [h']⟩, adjoint_apply_eq h _ (by simp [h'])⟩\n  · intro ⟨hu, hu'⟩ v ⟨x, hxv⟩\n    simp [← hxv, ← adjoint_isFormalAdjoint h ⟨u, hu⟩, hu']\n",
+        "docstring": "`U.rangeᗮ = U†.ker`\n\nc.f. `LinearMap.orthogonal_range` and `ContinuousLinearMap.orthogonal_range` "
+      },
+      {
+        "id": 390777,
+        "name": "LinearPMap.IsUnbounded.orthogonal_adjoint_range",
+        "module": "Physlib.QuantumMechanics.Operators.Unbounded",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Unbounded.lean#L836-L839",
+        "source_text": "/-- `U†.rangeᗮ = U.closure.ker` -/\nlemma IsUnbounded.orthogonal_adjoint_range [CompleteSpace H] [CompleteSpace H']\n    (h : U.IsUnbounded) : U†.toFun.rangeᗮ = U.closure.toFun.ker.map U.closure.domain.subtype :=\n  h.adjoint_adjoint_eq_closure ▸ h.adjoint.hasDenseDomain.orthogonal_range\n",
+        "docstring": "`U†.rangeᗮ = U.closure.ker` "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

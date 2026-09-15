@@ -1,0 +1,13 @@
+{
+  "name": "M6.Spaces.boundary_words_iff",
+  "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.boundaryWords N a b ↔ ∃ h : M6.Physical.Block N, M6.Flatten.flatten N (M6.Physical.boundary N a b h) = v",
+  "imports": [
+    "M6SpacesReady"
+  ],
+  "context": "theorem M6.Spaces.boundary_eval : ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.boundary N a b h = M6.Flatten.flatten N (M6.Physical.boundary N a b h) := by\n  intro N inst a b h\n  rfl",
+  "queries": [
+    "LinearMap range membership finite cardinality",
+    "finite sum orthogonal submodule range"
+  ],
+  "guidance": "Unfold boundaryWords,Character.subspaceWords,B; membership in linear range is an existence witness. Rewrite boundary_eval. Return tactic lines only without leading by."
+}

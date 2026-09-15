@@ -1,0 +1,69 @@
+{
+  "id": "array_trace_matrix",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.array_trace_matrix",
+    "spec_sha256": "38cd6cb4aaf0a64170bc6635f69b18fc1c57db3c4162e0515622928b76d68e43",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-olznfx2u/attempt-001/Candidate_d19a11bfad7ac93e.lean",
+        "target_path": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-olznfx2u/attempt-001/FrozenTarget_d19a11bfad7ac93e.lean",
+        "feedback": "",
+        "target_sha256": "ef8664bc65ae912372f90fec2396952df964cea7c23c5ea79a8bb6ebe60b6857",
+        "target_olean_sha256": "888fdee66581e48ca04ae06e497f777fba7eaf3c014f49d3ca649f56bef6121c",
+        "source_sha256": "0b3e519ec9f253b10151a1e90a5494f823508ffebd174037bc7a9add42862dd4",
+        "olean_sha256": "19bacf8c7ed1e6b04a816a1a44514048d7ad8e77dc85445cf7cf19a598a0d201",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:18:51.789205+00:00",
+    "work": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-olznfx2u",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "133d4cfc4e487dae7145935f58376dc11d86f23edc45ebf28e7bbc73edf6ba23",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-olznfx2u/attempt-001/Candidate_d19a11bfad7ac93e.lean",
+    "environment_sha256": "0a49c12eed1674ffadfafae0d472155791d7762df3dff824d8b1a97c252f8510",
+    "artifacts": {
+      "layers_matrix": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.layers_matrix : ∀ (R : ℕ) (K : Type) [CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K) (start finish : M6.Transfer.Memory R) (n : ℕ), M6.Transfer.layers W start n finish = M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) n start finish := by\n  classical\n  intro R K inst W start finish n\n  induction n generalizing finish with\n  | zero =>\n      simp [M6.Transfer.layers, M6.Transfer.matrixProduct, Matrix.one_apply, eq_comm]\n  | succ n ih =>\n      simp only [M6.Transfer.layers, M6.Transfer.propagate,\n        M6.Transfer.matrixProduct, Matrix.mul_apply, M6.Transfer.edgeMatrix,\n        Finset.mul_sum, mul_ite, mul_zero, ih]",
+          "imports": [
+            "M6TransferTraceReady"
+          ],
+          "name": "M6.Transfer.layers_matrix",
+          "ancestors": [],
+          "spec_sha256": "fb1fc7e78169a21b939ba6da3b8cd9cdeb2e329a926e2c8e6e960ea7e33b8f44"
+        },
+        "sha256": "e024b51242299a0aec604c188d69eaeab8398b757909592ed4fe85d007cce3c8"
+      },
+      "array_trace_matrix": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.array_trace_matrix : ∀ (R : ℕ) (K : Type) [CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K) (N : ℕ), M6.Transfer.arrayTrace W N = Matrix.trace (M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) N) := by\n  classical\n  intro R K inst W N\n  change (∑ start : M6.Transfer.Memory R, M6.Transfer.layers W start N start) =\n    ∑ start : M6.Transfer.Memory R, M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) N start start\n  apply Finset.sum_congr rfl\n  intro start hstart\n  exact M6.Transfer.layers_matrix R K W start start N",
+          "imports": [
+            "M6TransferTraceReady"
+          ],
+          "name": "M6.Transfer.array_trace_matrix",
+          "ancestors": [
+            "layers_matrix"
+          ],
+          "spec_sha256": "6f2bd1b871211c4c5f4b956508fe5be92b8e47a31acd1e42ccafaf28a9593234"
+        },
+        "sha256": "35944a21874a40dee0da85e1438e24d7996d0c07bd7c8787afa59befbe45b109"
+      }
+    }
+  }
+}

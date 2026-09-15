@@ -1,0 +1,52 @@
+import FrozenTarget_c314afa44875554c
+theorem M6.Transfer.scatter_polynomial_coeff : QuantumHarnessFrozenTarget := by
+  classical
+  intro R N W v addr hW
+  rcases addr with ⟨n, d⟩
+  have hd (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit)
+      (i : Fin (2 * N + 1)) (e : Fin 3) :
+      M6.Transfer.eventDestination (m, t, i, e) = some (n, d) ↔
+        M6.Transfer.shift m t = n ∧ i.val + e.val = d.val := by
+    by_cases h : i.val + e.val < 2 * N + 1
+    · simp [M6.Transfer.eventDestination, h, Prod.mk.injEq, Fin.ext_iff]
+    · have hne : i.val + e.val ≠ d.val := by omega
+      simp [M6.Transfer.eventDestination, h, hne]
+  unfold M6.Transfer.scatterLayer
+  rw [M6.Transfer.scatter_prefix_formula]
+  simp only [zero_add, M6.Transfer.scatterEventList, Finset.sum_map_toList]
+  change (∑ x : M6.Transfer.Memory R × (M6.Transfer.Bit × (Fin (2 * N + 1) × Fin 3)),
+      if M6.Transfer.eventDestination x = some (n, d) then
+        M6.Transfer.eventTerm W (M6.Transfer.encodeCoefficients v) x else 0) = _
+  simp only [Fintype.sum_prod_type, hd, M6.Transfer.eventTerm,
+    M6.Transfer.encodeCoefficients, M6.Transfer.propagate,
+    Polynomial.finset_sum_coeff]
+  apply Finset.sum_congr rfl
+  intro m hm
+  apply Finset.sum_congr rfl
+  intro t ht
+  by_cases hs : M6.Transfer.shift m t = n
+  · simp only [hs, true_and, if_true]
+    rw [M6.Transfer.small_polynomial_convolution (v m) (W m t) d.val (hW m t)]
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro e he
+    by_cases hle : e.val ≤ d.val
+    · simp only [if_pos hle]
+      let i₀ : Fin (2 * N + 1) := ⟨d.val - e.val, by omega⟩
+      rw [Finset.sum_eq_single i₀]
+      · have hi : i₀.val + e.val = d.val := by
+          dsimp [i₀]
+          omega
+        simp [hi, i₀]
+      · intro i hi hne
+        have hsum : i.val + e.val ≠ d.val := by
+          intro heq
+          apply hne
+          apply Fin.ext
+          dsimp [i₀]
+          omega
+        simp [hsum]
+      · simp
+    · have hsum (i : Fin (2 * N + 1)) : i.val + e.val ≠ d.val := by omega
+      simp [hle, hsum]
+  · simp [hs]

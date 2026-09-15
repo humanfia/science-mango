@@ -1,0 +1,33 @@
+theorem M6.CSS.quantum_distance_spec : ∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)), (M6.CSS.quantumDistance BX CX BZ CZ = none ↔ M6.CSS.logicalPaulis BX CX BZ CZ = ∅) ∧ ∀ d : ℕ, (M6.CSS.quantumDistance BX CX BZ CZ = some d ↔ (∃ p ∈ M6.CSS.logicalPaulis BX CX BZ CZ, M6.CSS.weight p = d) ∧ ∀ p ∈ M6.CSS.logicalPaulis BX CX BZ CZ, d ≤ M6.CSS.weight p) := by
+  classical
+  intro m BX CX BZ CZ
+  let L := M6.CSS.logicalPaulis BX CX BZ CZ
+  have hdef : M6.CSS.logicalPaulis BX CX BZ CZ = L := rfl
+  by_cases hL : L.Nonempty
+  · have hs : (L.image M6.CSS.weight).Nonempty := hL.image M6.CSS.weight
+    have hne : L ≠ ∅ := hL.ne_empty
+    have hsne : L.image M6.CSS.weight ≠ ∅ := hs.ne_empty
+    have hmin : ∀ d : ℕ,
+        (L.image M6.CSS.weight).min' hs = d ↔
+          (∃ p ∈ L, M6.CSS.weight p = d) ∧
+            ∀ p ∈ L, d ≤ M6.CSS.weight p := by
+      intro d
+      constructor
+      · intro hd
+        subst d
+        obtain ⟨p, hp, hw⟩ := Finset.mem_image.mp
+          (Finset.min'_mem (L.image M6.CSS.weight) hs)
+        refine ⟨⟨p, hp, hw⟩, ?_⟩
+        intro q hq
+        exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨q, hq, rfl⟩)
+      · rintro ⟨⟨p, hp, hw⟩, hb⟩
+        apply le_antisymm
+        · rw [← hw]
+          exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨p, hp, rfl⟩)
+        · obtain ⟨q, hq, hqw⟩ := Finset.mem_image.mp
+            (Finset.min'_mem (L.image M6.CSS.weight) hs)
+          rw [← hqw]
+          exact hb q hq
+    simp [M6.CSS.quantumDistance, hdef, hL, hs, hne, hsne, hmin]
+  · have he : L = ∅ := Finset.not_nonempty_iff_eq_empty.mp hL
+    simp [M6.CSS.quantumDistance, hdef, he]

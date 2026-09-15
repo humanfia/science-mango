@@ -1,0 +1,44 @@
+import M6TransferActualResources
+
+theorem M6.Transfer.actual_trace_storage_bound : ∀ R N : ℕ, R < N → M6.Transfer.actualTraceStorage R N ≤ 4096 * N^2 * 2^R := by
+  change ∀ R N : ℕ, R < N → M6.Transfer.actualTraceStorage R N ≤ 4096 * N^2 * 2^R
+  intro R N hRN
+  have hN : 1 ≤ N := by omega
+  have hspos : 0 < (2 : ℕ)^R := by positivity
+  have hs : 1 ≤ (2 : ℕ)^R := by omega
+  have hNN : N ≤ N^2 := by nlinarith
+  have hscale : N ≤ N^2 * 2^R := by
+    calc
+      N ≤ N^2 := hNN
+      _ = N^2 * 1 := by simp
+      _ ≤ N^2 * 2^R := Nat.mul_le_mul_left _ hs
+  have haddr : M6.Transfer.actualAddressBits R N ≤ 21*N := by
+    unfold M6.Transfer.actualAddressBits
+    omega
+  have hcoeff : M6.Transfer.coefficientBits R N ≤ 6*N := by
+    unfold M6.Transfer.coefficientBits
+    omega
+  have hlen : (M6.Transfer.scatterEventList R N).length = 6*(2*N+1)*2^R := by
+    simp [M6.Transfer.scatterEventList, M6.Transfer.ScatterEvent,
+      Fintype.card_prod, M6.Transfer.Bit, M6.Transfer.state_count,
+      mul_assoc, mul_comm, mul_left_comm] <;> ring
+  have hslots : 2*N+1 ≤ 3*N := by omega
+  have hlenbound : (M6.Transfer.scatterEventList R N).length ≤ 18*N*2^R := by
+    rw [hlen]
+    nlinarith [Nat.mul_le_mul_right (6*2^R) hslots]
+  have hrecord : 4*M6.Transfer.actualAddressBits R N+8 ≤ 92*N := by omega
+  have hevents : (M6.Transfer.scatterEventList R N).length *
+      (4*M6.Transfer.actualAddressBits R N+8) ≤ 1656*N^2*2^R := by
+    calc
+      _ ≤ (18*N*2^R)*(92*N) := Nat.mul_le_mul hlenbound hrecord
+      _ = 1656*N^2*2^R := by ring
+  have hscratch : 64*(M6.Transfer.coefficientBits R N +
+      M6.Transfer.actualAddressBits R N) ≤ 1728*N^2*2^R := by
+    nlinarith [Nat.mul_le_mul_left 1728 hscale]
+  have hextra : 4*N ≤ 4*N^2*2^R := by
+    nlinarith [Nat.mul_le_mul_left 4 hscale]
+  have hbase := M6.Transfer.trace_storage_bound R N hRN
+  unfold M6.Transfer.actualTraceStorage
+  nlinarith
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ R N : ℕ, R < N → M6.Transfer.actualTraceStorage R N < 2^(M6.Transfer.actualAddressBits R N)

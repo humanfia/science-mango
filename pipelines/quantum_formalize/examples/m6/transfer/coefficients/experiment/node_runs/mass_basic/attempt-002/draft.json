@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nunfold QuantumHarnessFrozenTarget\nhave hm : ∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs := by\n  intro n c\n  simp [M6.Transfer.polynomialMass, Polynomial.sum_monomial_index]\nrefine ⟨?_, ?_, hm, ?_⟩\n· simp [M6.Transfer.polynomialMass]\n· simpa using hm 0 1\n· intro p d\n  by_cases h : p.coeff d = 0\n  · simp [h]\n  · change (p.coeff d).natAbs ≤ ∑ n ∈ p.support, (p.coeff n).natAbs\n    exact Finset.single_le_sum\n      (f := fun n => (p.coeff n).natAbs)\n      (fun n _ => Nat.zero_le ((p.coeff n).natAbs))\n      (Polynomial.mem_support_iff.mpr h)",
+  "queries": []
+}

@@ -1,0 +1,84 @@
+{
+  "id": "zero_not_logical",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Spaces.zero_not_logical",
+    "spec_sha256": "cacdb06ee5809858fe09339394151c350e33e3963274de67e07d7cc8d7e3b9bd",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-mcmn4855/attempt-001/Candidate_538afe6b42cefaa7.lean",
+        "target_path": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-mcmn4855/attempt-001/FrozenTarget_538afe6b42cefaa7.lean",
+        "feedback": "",
+        "target_sha256": "71b8726fd1fe1faa5818a172dcdf90c7592a777e1e31fe63fbb4cf2da54ced18",
+        "target_olean_sha256": "aa0ca602c191216129230801ee7bad6c7811463ebf25f33df6b82ed59527e3c2",
+        "source_sha256": "276d3fb2714f06de00ec595218ce3d5b3a93079c154f826a9bd3feab59e6ebcc",
+        "olean_sha256": "c5aaa671c56f8f70b5a90fdb73d9f59f96b7c99bf9e12bac9faa8a16795bff36",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:34:07.069894+00:00",
+    "work": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-mcmn4855",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "aef03b789111dbfaa4b0b1b3a0e238a4bb16f03f5d27d9e12522ce617f6ec5d1",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-mcmn4855/attempt-001/Candidate_538afe6b42cefaa7.lean",
+    "environment_sha256": "eedb6f45d70c9d95b80fadc41c1c732e09ab966c14665922ac806b32146da181",
+    "artifacts": {
+      "boundary_eval": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.boundary_eval : ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.boundary N a b h = M6.Flatten.flatten N (M6.Physical.boundary N a b h) := by\n  intro N inst a b h\n  rfl",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.boundary_eval",
+          "ancestors": [],
+          "spec_sha256": "649ae2bd9830f2e0cc091a6c754f4e30d9e0e38fc49ab766b1b3e2e000fddeeb"
+        },
+        "sha256": "5539db7ea3239a1d515188394def2dda5b53667ec94f67fe140c9e69f4b5282e"
+      },
+      "boundary_words_iff": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.boundary_words_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.boundaryWords N a b ↔ ∃ h : M6.Physical.Block N, M6.Flatten.flatten N (M6.Physical.boundary N a b h) = v := by\n  intro N inst a b v\n  classical\n  simp [M6.Spaces.boundaryWords, M6.Character.subspaceWords, M6.Spaces.B,\n    LinearMap.mem_range, M6.Spaces.boundary_eval]",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.boundary_words_iff",
+          "ancestors": [
+            "boundary_eval"
+          ],
+          "spec_sha256": "b2a09049582e1327737d76b20776416cde7ff32fca24f94ddfebfafee053cf76"
+        },
+        "sha256": "633b11b9b3fc2e7dcc7dd1a4083e035ff7bae8bd5c0f82f5b23354f196dafd69"
+      },
+      "zero_not_logical": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.zero_not_logical : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (0 : M6.Pinned.Vector (2*N)) ∉ M6.Spaces.logicalWords N a b := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (0 : M6.Pinned.Vector (2*N)) ∉ M6.Spaces.logicalWords N a b\n  intro N inst a b\n  classical\n  have hz : (0 : M6.Pinned.Vector (2*N)) ∈ M6.Spaces.boundaryWords N a b := by\n    simpa [M6.Spaces.boundaryWords, M6.Character.subspaceWords] using\n      (M6.Spaces.B N a b).zero_mem\n  simpa [M6.Spaces.logicalWords, Finset.mem_sdiff, hz]",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.zero_not_logical",
+          "ancestors": [
+            "boundary_eval",
+            "boundary_words_iff"
+          ],
+          "spec_sha256": "8977961e7b285eb3ab66c25a9db8bd5965dc6432cc111ba3eb595dbacefaefdd"
+        },
+        "sha256": "36b7dada5f83897b78a28d69c16ec68b9d7e80b589b1150dd45e85656463422c"
+      }
+    }
+  }
+}

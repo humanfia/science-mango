@@ -1,0 +1,13 @@
+theorem M6.Transfer.boundary_edge_bounds : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (i j : Fin m) (s t : ZMod 2), M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s * M6.Character.boundaryFactor P j t) ≤ 4 ∧ (M6.Character.boundaryFactor P i s * M6.Character.boundaryFactor P j t).natDegree ≤ 2 := by
+  intro m P i j s t
+  obtain ⟨hmi, hdi⟩ := M6.Transfer.boundary_factor_bounds m P i s
+  obtain ⟨hmj, hdj⟩ := M6.Transfer.boundary_factor_bounds m P j t
+  constructor
+  · calc
+      M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s * M6.Character.boundaryFactor P j t)
+          ≤ M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s) *
+            M6.Transfer.polynomialMass (M6.Character.boundaryFactor P j t) :=
+        M6.Transfer.mass_mul _ _
+      _ ≤ 1 * 1 := Nat.mul_le_mul hmi hmj
+      _ ≤ 4 := by norm_num
+  · exact le_trans Polynomial.natDegree_mul_le (by omega)

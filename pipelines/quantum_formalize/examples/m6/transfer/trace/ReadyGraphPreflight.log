@@ -1,0 +1,15 @@
+∀ (R : ℕ) (K : Type) [inst : CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K)
+  (start finish : M6.Transfer.Memory R) (n : ℕ),
+  M6.Transfer.layers W start n finish =
+    M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) n start finish : Prop
+∀ (R : ℕ) (K : Type) [inst : CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K) (N : ℕ),
+  M6.Transfer.arrayTrace W N = (M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) N).trace : Prop
+∀ (S K : Type) [inst : Fintype S] [inst_1 : DecidableEq S] [inst_2 : CommSemiring K] (N : ℕ) [inst_3 : NeZero N]
+  (A : ℕ → Matrix S S K), (M6.Transfer.matrixProduct A N).trace = ∑ m, ∏ i, A i.val (m i) (m (i + 1)) : Prop
+∀ (R N : ℕ) [inst : NeZero N] (K : Type) [inst_1 : CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K),
+  (M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) N).trace =
+    ∑ p, ∏ i, W i.val ((↑p).1 i) (M6.Transfer.labels p i) : Prop
+∀ (R N : ℕ) [inst : NeZero N] (K : Type) [inst_1 : CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K),
+  M6.Transfer.arrayTrace W N = ∑ h, ∏ i, W i.val (M6.Transfer.memoryAt h i) (h i) : Prop
+∀ (S K : Type) [inst : Fintype S] [inst_1 : DecidableEq S] [inst_2 : CommSemiring K] (A : Matrix S S K) (N : ℕ),
+  M6.Transfer.matrixProduct (fun x => A) N = A ^ N : Prop

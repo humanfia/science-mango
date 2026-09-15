@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)), _\nintro m D\nhave hz : (0 : M6.Character.Vector m) ∈ M6.Character.subspaceWords D := by\n  simp [M6.Character.subspaceWords]\nhave hd : M6.Character.weightedDual D (fun _ _ => (1 : Polynomial ℤ)) =\n    Polynomial.C ((M6.Character.dualWords D).card : ℤ) := by\n  simp [M6.Character.weightedDual]\nhave ht : M6.Character.weightedTransform D (fun _ _ => (1 : Polynomial ℤ)) =\n    Polynomial.C ((2 : ℤ)^m) := by\n  unfold M6.Character.weightedTransform\n  rw [Finset.sum_eq_single (0 : M6.Character.Vector m)]\n  · exact (M6.Character.constant_transform m 0).1 rfl\n  · intro q hq hq0\n    exact (M6.Character.constant_transform m q).2 hq0\n  · intro h\n    exact (h hz).elim\nhave h := M6.Character.weighted_macwilliams m D (fun _ _ => (1 : Polynomial ℤ))\nrw [hd, ht, ← map_mul] at h\nhave hi := Polynomial.C_injective h\nexact_mod_cast hi",
+  "queries": []
+}

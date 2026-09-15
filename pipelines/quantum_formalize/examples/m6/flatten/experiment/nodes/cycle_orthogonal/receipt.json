@@ -1,0 +1,82 @@
+{
+  "id": "cycle_orthogonal",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Flatten.cycle_orthogonal",
+    "spec_sha256": "90015762da9b2619ebe13f6c5217a18ebeb316a00beaa8be59d8afc729641285",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-i9rxzftu/attempt-001/Candidate_a1a13f23c7b33ed2.lean",
+        "target_path": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-i9rxzftu/attempt-001/FrozenTarget_a1a13f23c7b33ed2.lean",
+        "feedback": "",
+        "target_sha256": "a486953f855708e17aed8168c4fb89fbb82e1e02b36e55a53cceb6d1fa962221",
+        "target_olean_sha256": "26a6b7c2dee89c032ed623adc63bf448a873e43a0506aa4990a81c7dbb61f515",
+        "source_sha256": "f6b31df7634dcf84cba87352706bea4c92c017ced8c9a170d49478390b88e08e",
+        "olean_sha256": "ce081005c0c359aa9722c36587810dde8eecf444db58a702bf522f1634b964e4",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:15:38.955460+00:00",
+    "work": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-i9rxzftu",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2d18c1652414b71e0fa8b98aef9562765a41dfdb04465f77b43ba1d4f2619a05",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-i9rxzftu/attempt-001/Candidate_a1a13f23c7b33ed2.lean",
+    "environment_sha256": "326713744fbdc1ee47e205c39c11b79ae570441fa7673eaf03a5f43f98298f54",
+    "artifacts": {
+      "flatten_dot": {
+        "payload": {
+          "declaration": "theorem M6.Flatten.flatten_dot : ∀ (N : ℕ) [NeZero N] (z w : M6.Physical.Word N), M6.Character.dot (M6.Flatten.flatten N z) (M6.Flatten.flatten N w) = M6.Physical.pairing N z w := by\n  change ∀ (N : ℕ) [NeZero N] (z w : M6.Physical.Word N), M6.Character.dot (M6.Flatten.flatten N z) (M6.Flatten.flatten N w) = M6.Physical.pairing N z w\n  intro N inst z w\n  classical\n  let e : Fin N ≃ ZMod N :=\n    { toFun := fun i => (i.val : ZMod N)\n      invFun := fun i => ⟨i.val, ZMod.val_lt i⟩\n      left_inv := by\n        intro i\n        apply Fin.ext\n        change ((i.val : ZMod N).val) = i.val\n        rw [ZMod.val_natCast, Nat.mod_eq_of_lt i.is_lt]\n      right_inv := by\n        intro i\n        simp }\n  have hsum (f : ZMod N → ZMod 2) :\n      (∑ i : Fin N, f (i.val : ZMod N)) = ∑ i : ZMod N, f i :=\n    e.sum_comp f\n  have hleft (i : Fin N) : i.val < N := i.is_lt\n  have hright (i : Fin N) : ¬ N + i.val < N := by omega\n  unfold M6.Character.dot M6.Flatten.flatten M6.Physical.pairing M6.Physical.dot\n  rw [two_mul, Fin.sum_univ_add]\n  simpa [Fin.val_castAdd, Fin.val_natAdd, hleft, hright] using\n    congrArg₂ (fun a b : ZMod 2 => a + b)\n      (hsum (fun i => z.1 i * w.1 i))\n      (hsum (fun i => z.2 i * w.2 i))",
+          "imports": [
+            "M6Flatten"
+          ],
+          "name": "M6.Flatten.flatten_dot",
+          "ancestors": [],
+          "spec_sha256": "550a1a0fe2ff9c247c5ca28064a96364cf2c195f4bd1536f54cfa6cca1602d06"
+        },
+        "sha256": "7bff2643382c1fb6c398e1bac973442eb1509b04ba79cede8cb6323bc311b05c"
+      },
+      "flatten_right": {
+        "payload": {
+          "declaration": "theorem M6.Flatten.flatten_right : ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2*N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v := by\n  change ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2 * N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v\n  intro N inst v\n  funext i\n  by_cases h : i.val < N\n  · simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_pos h, dif_pos h]\n    apply congrArg v\n    apply Fin.ext\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt h]\n  · have hi : i.val - N < N := by omega\n    simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_neg h, dif_neg h]\n    apply congrArg v\n    apply Fin.ext\n    simp only [Fin.val_mk, ZMod.val_natCast, Nat.mod_eq_of_lt hi]\n    omega",
+          "imports": [
+            "M6Flatten"
+          ],
+          "name": "M6.Flatten.flatten_right",
+          "ancestors": [],
+          "spec_sha256": "743f969229766fe353a835f50e4e54b947b7a6b09e9a276e6bd1ac561e85fb78"
+        },
+        "sha256": "54bdf4c902c3f3782b065b5bc13c8af18f4e9f3f806f4aa980b1317a1d16e5d4"
+      },
+      "cycle_orthogonal": {
+        "payload": {
+          "declaration": "theorem M6.Flatten.cycle_orthogonal : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 ↔ ∀ h : M6.Physical.Block N, M6.Character.dot (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))) v = 0 := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 ↔ ∀ h : M6.Physical.Block N, M6.Character.dot (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))) v = 0\n  intro N inst a b v\n  simpa only [← M6.Flatten.flatten_dot, M6.Flatten.flatten_right] using\n    (M6.Physical.cycle_orthogonal N a b (M6.Flatten.unflatten N v))",
+          "imports": [
+            "M6Flatten"
+          ],
+          "name": "M6.Flatten.cycle_orthogonal",
+          "ancestors": [
+            "flatten_dot",
+            "flatten_right"
+          ],
+          "spec_sha256": "8b51fa8131e1fff1cf31e625d54304f226f411346f5280a0a0cdf9f27d72a156"
+        },
+        "sha256": "204672e0db52ef79547d3206b42414b93b9de112fdfbe9f3f89cebdae456a227"
+      }
+    }
+  }
+}

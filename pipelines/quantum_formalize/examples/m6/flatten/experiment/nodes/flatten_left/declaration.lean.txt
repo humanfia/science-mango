@@ -1,0 +1,9 @@
+theorem M6.Flatten.flatten_left : ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N), M6.Flatten.unflatten N (M6.Flatten.flatten N z) = z := by
+  intro N _ z
+  apply Prod.ext
+  · funext i
+    have hi : i.val < N := ZMod.val_lt i
+    simp [M6.Flatten.unflatten, M6.Flatten.flatten, hi]
+  · funext i
+    have hi : ¬ N + i.val < N := by omega
+    simp [M6.Flatten.unflatten, M6.Flatten.flatten, hi, Nat.add_sub_cancel_left]

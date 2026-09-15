@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Character.Vector m), (∏ i, M6.Character.boundaryFactor P i (v i)) = M6.Character.pinnedMonomial P v\nintro m P v\nclassical\nby_cases h : M6.Pinned.agrees P v\n· rw [M6.Character.pinnedMonomial, if_pos h, M6.Character.weight_as_sum]\n  rw [Finset.pow_sum]\n  apply Finset.prod_congr rfl\n  intro i hi\n  unfold M6.Pinned.agrees at h\n  have hv := h i\n  cases hp : P i <;>\n    generalize hs : v i = s at hv ⊢ <;>\n    fin_cases s <;>\n    simp_all [M6.Character.boundaryFactor, ZMod.val_zero, ZMod.val_one_eq_one_mod]\n· rw [M6.Character.pinnedMonomial, if_neg h]\n  by_contra hn\n  apply h\n  unfold M6.Pinned.agrees\n  intro i\n  have hi : M6.Character.boundaryFactor P i (v i) ≠ 0 :=\n    (Finset.prod_ne_zero_iff.mp hn) i (Finset.mem_univ i)\n  cases hp : P i <;>\n    simp_all [M6.Character.boundaryFactor]",
+  "queries": [
+    "Finset.pow_sum",
+    "Finset.prod_ne_zero_iff"
+  ]
+}

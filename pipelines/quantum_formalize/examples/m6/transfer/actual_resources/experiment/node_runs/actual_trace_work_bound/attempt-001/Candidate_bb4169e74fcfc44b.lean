@@ -1,0 +1,39 @@
+import FrozenTarget_bb4169e74fcfc44b
+theorem M6.Transfer.actual_trace_work_bound : QuantumHarnessFrozenTarget := by
+  change ∀ R N : ℕ, R < N → M6.Transfer.actualTraceWork R N ≤ 16384 * N^3 * 4^R
+  intro R N hRN
+  classical
+  have hN : 1 ≤ N := by omega
+  have hslots : 2 * N + 1 ≤ 3 * N := by omega
+  have hcharge : M6.Transfer.actualEventBitCharge R N ≤ 616 * N := by
+    unfold M6.Transfer.actualEventBitCharge M6.Transfer.coefficientBits M6.Transfer.actualAddressBits
+    omega
+  have hevents :
+      Fintype.card (M6.Transfer.Memory R) * N *
+        (M6.Transfer.scatterEventList R N).length =
+        6 * N * (2 * N + 1) * 4^R := by
+    simpa only [M6.Transfer.traceCoefficientOps, M6.Transfer.scatterEventList,
+      Finset.length_toList, Finset.card_univ] using
+      M6.Transfer.scatter_loop_count R N
+  have hpow : (2^R)^2 = (4 : ℕ)^R := by
+    calc
+      (2^R)^2 = (2^2)^R := by
+        rw [← pow_mul, ← pow_mul, Nat.mul_comm R 2]
+      _ = 4^R := by norm_num
+  have hcount :
+      Fintype.card (M6.Transfer.Memory R) * N *
+          (M6.Transfer.scatterEventList R N).length +
+        (2^R)^2 * N * (2*N+1) ≤ 21 * N^2 * 4^R := by
+    rw [hevents, hpow]
+    calc
+      6 * N * (2*N+1) * 4^R + 4^R * N * (2*N+1) =
+          7 * N * (2*N+1) * 4^R := by ring
+      _ ≤ 7 * N * (3*N) * 4^R :=
+        Nat.mul_le_mul_right _ (Nat.mul_le_mul_left (7 * N) hslots)
+      _ = 21 * N^2 * 4^R := by ring
+  unfold M6.Transfer.actualTraceWork
+  calc
+    _ ≤ (21 * N^2 * 4^R) * (616 * N) := Nat.mul_le_mul hcount hcharge
+    _ = 12936 * (N^3 * 4^R) := by ring
+    _ ≤ 16384 * (N^3 * 4^R) := Nat.mul_le_mul_right _ (by norm_num)
+    _ = 16384 * N^3 * 4^R := by ring

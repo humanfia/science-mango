@@ -1,0 +1,75 @@
+{
+  "id": "character_factor_bounds",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.character_factor_bounds",
+    "spec_sha256": "73b077b293284cd86d7e51d310f7d27ff9b4cea15e27f31e9571f0c7dacde913",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-transfer-factor-bounds-formalization/.humanize-formal-runs/run-jk7ff3nm/attempt-001/Candidate_f3467b701b8440ba.lean:29:14: error(lean.unknownIdentifier): Unknown constant `Polynomial.natDegree_add_le.trans`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-factor-bounds-formalization/.humanize-formal-runs/run-jk7ff3nm/attempt-002/Candidate_bcc1c336525ea2c0.lean",
+        "target_path": "/home/jing/m6-lean-transfer-factor-bounds-formalization/.humanize-formal-runs/run-jk7ff3nm/attempt-002/FrozenTarget_bcc1c336525ea2c0.lean",
+        "feedback": "",
+        "target_sha256": "e4751898ec7c6e01531533317aea6df5f51cb61dc914c5848ce444bda065771e",
+        "target_olean_sha256": "218956b1a41b375096c68591425de21f8eea9dc1819f8199ed1d9a2509824af3",
+        "source_sha256": "82211d410ec1b348bdae00842a49b9ad45d33fa376e3b908d5849dd90cb5b7d2",
+        "olean_sha256": "6d8e093c95c10c37cbddb14d200a3f7b92bfce70e5694dcbfe1cbb42d6675ee4",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:40:56.614364+00:00",
+    "work": "/home/jing/m6-lean-transfer-factor-bounds-formalization/.humanize-formal-runs/run-jk7ff3nm",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "f735029117a966856af5b6e048fe6fb73e3822a474e7b0f07424b43cfdf16e0a",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-transfer-factor-bounds-formalization/.humanize-formal-runs/run-jk7ff3nm/attempt-002/Candidate_bcc1c336525ea2c0.lean",
+    "environment_sha256": "ee7c0066eade47eee7ced8261db29249943b525bcf5404ca8289fe0503ad2d69",
+    "artifacts": {
+      "boundary_factor_bounds": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.boundary_factor_bounds : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2), M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s) ≤ 1 ∧ (M6.Character.boundaryFactor P i s).natDegree ≤ 1 := by\n  classical\n  intro m P i s\n  by_cases h : P i = none ∨ P i = some s\n  · simp only [M6.Character.boundaryFactor, if_pos h]\n    constructor\n    · have hx : (Polynomial.X : Polynomial ℤ) ^ s.val = Polynomial.monomial s.val 1 := by\n        ext n\n        simp [Polynomial.coeff_monomial, eq_comm]\n      rw [hx, M6.Transfer.mass_basic.2.2.1]\n      norm_num\n    · have hs := ZMod.val_lt s\n      rw [Polynomial.natDegree_X_pow]\n      omega\n  · simp [M6.Character.boundaryFactor, h, M6.Transfer.mass_basic.1]",
+          "imports": [
+            "M6TransferFactorBounds"
+          ],
+          "name": "M6.Transfer.boundary_factor_bounds",
+          "ancestors": [],
+          "spec_sha256": "d7901d3da1ce870a4e9cc307bdeb9dc8b686ada563f2ac2c29fb2cf86556ace6"
+        },
+        "sha256": "b814635ba273104b639e952321585e463bdbbc6e97d8cebb5585245edca3c36f"
+      },
+      "character_factor_bounds": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.character_factor_bounds : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2), M6.Transfer.polynomialMass (M6.Character.pinnedCharacterFactor P i s) ≤ 2 ∧ (M6.Character.pinnedCharacterFactor P i s).natDegree ≤ 1 := by\n  classical\n  intro m P i s\n  let f : ZMod 2 → Polynomial ℤ := fun t =>\n    Polynomial.C (M6.Character.sign (s * t)) * M6.Character.boundaryFactor P i t\n  have hm (t : ZMod 2) : M6.Transfer.polynomialMass (f t) ≤ 1 := by\n    have hc : M6.Transfer.polynomialMass (Polynomial.C (M6.Character.sign (s * t))) = 1 := by\n      simpa [M6.Character.sign] using\n        (M6.Transfer.mass_basic.2.2.1 0 (M6.Character.sign (s * t)))\n    have h := M6.Transfer.mass_mul\n      (Polynomial.C (M6.Character.sign (s * t))) (M6.Character.boundaryFactor P i t)\n    change M6.Transfer.polynomialMass (f t) ≤ _ at h\n    rw [hc, one_mul] at h\n    exact le_trans h (M6.Transfer.boundary_factor_bounds m P i t).1\n  have hd (t : ZMod 2) : (f t).natDegree ≤ 1 := by\n    have h : (f t).natDegree ≤ (M6.Character.boundaryFactor P i t).natDegree := by\n      simpa [f] using\n        (Polynomial.natDegree_mul_le\n          (p := Polynomial.C (M6.Character.sign (s * t)))\n          (q := M6.Character.boundaryFactor P i t))\n    exact le_trans h (M6.Transfer.boundary_factor_bounds m P i t).2\n  have hu : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by decide\n  have he : M6.Character.pinnedCharacterFactor P i s = f 0 + f 1 := by\n    change (∑ t : ZMod 2, f t) = f 0 + f 1\n    rw [hu]\n    simp\n  rw [he]\n  constructor\n  · exact le_trans (M6.Transfer.mass_add (f 0) (f 1)) (by have h0 := hm 0; have h1 := hm 1; omega)\n  · exact le_trans (Polynomial.natDegree_add_le (f 0) (f 1)) (max_le (hd 0) (hd 1))",
+          "imports": [
+            "M6TransferFactorBounds"
+          ],
+          "name": "M6.Transfer.character_factor_bounds",
+          "ancestors": [
+            "boundary_factor_bounds"
+          ],
+          "spec_sha256": "5679d880102a7d43dc56b2eb23ea6f87756bb44103e6ba9a4405c642b4f5d4d9"
+        },
+        "sha256": "2b317d90e1d708a5968ef71f1cf29b1090965d60752a8c66dc9cb368bed88fa9"
+      }
+    }
+  }
+}

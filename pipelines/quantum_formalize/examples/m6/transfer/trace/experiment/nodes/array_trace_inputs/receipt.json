@@ -1,0 +1,112 @@
+{
+  "id": "array_trace_inputs",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.array_trace_inputs",
+    "spec_sha256": "6da79b4f3b0491e16c8dc3f1710cb63ef2979ef5a3c0c7d27ae2cea8b5a803ad",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-5l_t351f/attempt-001/Candidate_406b047271e0b2d9.lean",
+        "target_path": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-5l_t351f/attempt-001/FrozenTarget_406b047271e0b2d9.lean",
+        "feedback": "",
+        "target_sha256": "625a95838bd38bd14f4958df067869268e9a660acc83fcbb7ee091195c2ebf2a",
+        "target_olean_sha256": "c84d6001a702f871670bccdfb60bdc25b6cbb11efe3f6d31c3091bbed4528e06",
+        "source_sha256": "93a30cd0b520cd0da7bccf8cc7b5976715b52a9460534e74ccbaeec4b9d6786a",
+        "olean_sha256": "a51e5f598059ae1a4a92bd07113a597861ae4448eead6f8b231bb3e78b90a06b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:20:44.581689+00:00",
+    "work": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-5l_t351f",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "133d4cfc4e487dae7145935f58376dc11d86f23edc45ebf28e7bbc73edf6ba23",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-5l_t351f/attempt-001/Candidate_406b047271e0b2d9.lean",
+    "environment_sha256": "0a49c12eed1674ffadfafae0d472155791d7762df3dff824d8b1a97c252f8510",
+    "artifacts": {
+      "layers_matrix": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.layers_matrix : ∀ (R : ℕ) (K : Type) [CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K) (start finish : M6.Transfer.Memory R) (n : ℕ), M6.Transfer.layers W start n finish = M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) n start finish := by\n  classical\n  intro R K inst W start finish n\n  induction n generalizing finish with\n  | zero =>\n      simp [M6.Transfer.layers, M6.Transfer.matrixProduct, Matrix.one_apply, eq_comm]\n  | succ n ih =>\n      simp only [M6.Transfer.layers, M6.Transfer.propagate,\n        M6.Transfer.matrixProduct, Matrix.mul_apply, M6.Transfer.edgeMatrix,\n        Finset.mul_sum, mul_ite, mul_zero, ih]",
+          "imports": [
+            "M6TransferTraceReady"
+          ],
+          "name": "M6.Transfer.layers_matrix",
+          "ancestors": [],
+          "spec_sha256": "fb1fc7e78169a21b939ba6da3b8cd9cdeb2e329a926e2c8e6e960ea7e33b8f44"
+        },
+        "sha256": "e024b51242299a0aec604c188d69eaeab8398b757909592ed4fe85d007cce3c8"
+      },
+      "array_trace_matrix": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.array_trace_matrix : ∀ (R : ℕ) (K : Type) [CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K) (N : ℕ), M6.Transfer.arrayTrace W N = Matrix.trace (M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) N) := by\n  classical\n  intro R K inst W N\n  change (∑ start : M6.Transfer.Memory R, M6.Transfer.layers W start N start) =\n    ∑ start : M6.Transfer.Memory R, M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) N start start\n  apply Finset.sum_congr rfl\n  intro start hstart\n  exact M6.Transfer.layers_matrix R K W start start N",
+          "imports": [
+            "M6TransferTraceReady"
+          ],
+          "name": "M6.Transfer.array_trace_matrix",
+          "ancestors": [
+            "layers_matrix"
+          ],
+          "spec_sha256": "6f2bd1b871211c4c5f4b956508fe5be92b8e47a31acd1e42ccafaf28a9593234"
+        },
+        "sha256": "35944a21874a40dee0da85e1438e24d7996d0c07bd7c8787afa59befbe45b109"
+      },
+      "matrix_trace_cycle": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.matrix_trace_cycle : ∀ (S K : Type) [Fintype S] [DecidableEq S] [CommSemiring K] (N : ℕ) [NeZero N] (A : ℕ → Matrix S S K), Matrix.trace (M6.Transfer.matrixProduct A N) = ∑ m : ZMod N → S, ∏ i : ZMod N, A i.val (m i) (m (i+1)) := by\n  classical\n  intro S K _ _ _ N _ A\n  have sum_snoc (n : ℕ) (f : (Fin (n + 1) → S) → K) :\n      (∑ m, f m) = ∑ m : Fin n → S, ∑ b : S, f (Fin.snoc m b) := by\n    let e : ((Fin n → S) × S) ≃ (Fin (n + 1) → S) :=\n      { toFun := fun p => Fin.snoc p.1 p.2\n        invFun := fun m => (fun i => m i.castSucc, m (Fin.last n))\n        left_inv := by intro p; simp\n        right_inv := by\n          intro m\n          funext i\n          cases i using Fin.lastCases <;> simp }\n    calc\n      (∑ m, f m) = ∑ p, f (e p) := (e.sum_comp f).symm\n      _ = ∑ m : Fin n → S, ∑ b : S, f (Fin.snoc m b) := by\n        change (∑ p : (Fin n → S) × S, f (Fin.snoc p.1 p.2)) = _\n        exact Fintype.sum_prod_type (fun p : (Fin n → S) × S => f (Fin.snoc p.1 p.2))\n  have expansion : ∀ n (B : Matrix S S K),\n      Matrix.trace (M6.Transfer.matrixProduct A n * B) =\n        ∑ m : Fin (n + 1) → S,\n          (∏ i : Fin n, A i.val (m i.castSucc) (m i.succ)) *\n            B (m (Fin.last n)) (m 0) := by\n    intro n\n    induction n with\n    | zero =>\n        intro B\n        simpa [M6.Transfer.matrixProduct, Matrix.trace, Fin.snoc] using\n          (sum_snoc 0 (fun m => B (m (Fin.last 0)) (m 0))).symm\n    | succ n ih =>\n        intro B\n        rw [M6.Transfer.matrixProduct, Matrix.mul_assoc, ih]\n        simp only [Matrix.mul_apply, Finset.mul_sum]\n        conv_rhs => rw [sum_snoc (n + 1)]\n        apply Finset.sum_congr rfl\n        intro m _\n        apply Finset.sum_congr rfl\n        intro b _\n        have hs (i : Fin n) :\n            (Fin.snoc m b : Fin (n+2) → S) i.castSucc.succ = m i.succ := by\n          exact Fin.snoc_castSucc (α := fun _ : Fin (n+2) => S) b m i.succ\n        have hz : (Fin.snoc m b : Fin (n+2) → S) 0 = m 0 := by\n          change (Fin.snoc m b : Fin (n+2) → S) (Fin.castSucc (0 : Fin (n + 1))) = m 0\n          simp\n        simp only [Fin.prod_univ_castSucc, Fin.snoc_castSucc,\n          Fin.snoc_last, Fin.val_castSucc, Fin.val_last, hs, hz, mul_assoc]\n        congr 2\n        congr 1\n        exact (Fin.snoc_last (α := fun _ : Fin (n+2) => S) b m).symm\n  cases N with\n  | zero => exact (NeZero.ne 0 rfl).elim\n  | succ n =>\n      rw [M6.Transfer.matrixProduct, expansion]\n      change (∑ m : Fin (n + 1) → S,\n        (∏ i : Fin n, A i.val (m i.castSucc) (m i.succ)) *\n          A n (m (Fin.last n)) (m 0)) =\n        ∑ m : Fin (n + 1) → S,\n          ∏ i : Fin (n + 1), A i.val (m i) (m (i + 1))\n      apply Finset.sum_congr rfl\n      intro m _\n      have hs (i : Fin n) : i.castSucc + 1 = i.succ := by\n        apply Fin.ext\n        simp only [Fin.val_add, Fin.val_one', Fin.val_castSucc, Fin.val_succ, Nat.add_mod_mod]\n        exact Nat.mod_eq_of_lt i.succ.isLt\n      have hl : (Fin.last n : Fin (n + 1)) + 1 = 0 := by\n        apply Fin.ext\n        simp only [Fin.val_add, Fin.val_one', Fin.val_last, Fin.val_zero, Nat.add_mod_mod]\n        exact Nat.mod_self _\n      rw [Fin.prod_univ_castSucc]\n      simp only [Fin.val_castSucc, Fin.val_last, hs, hl]",
+          "imports": [
+            "M6TransferTraceReady"
+          ],
+          "name": "M6.Transfer.matrix_trace_cycle",
+          "ancestors": [],
+          "spec_sha256": "e9cb3891ba23c1316354eebda02d6d221454c72e6af5db8b744ec052c11d3e1b"
+        },
+        "sha256": "5352a794bec0bc3e66d8bb2a3726ab9230c8246a8c54529f74b933ab6818aec7"
+      },
+      "labelled_trace": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.labelled_trace : ∀ (R N : ℕ) [NeZero N] (K : Type) [CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K), Matrix.trace (M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) N) = ∑ p : M6.Transfer.ClosedWalk R N, ∏ i : ZMod N, W i.val (p.val.1 i) (M6.Transfer.labels p i) := by\n  classical\n  intro R N _ K _ W\n  have hprod (m : ZMod N → M6.Transfer.Memory R) (h : M6.Transfer.Input N) :\n      (∏ i : ZMod N, if M6.Transfer.shift (m i) (h i) = m (i + 1)\n        then W i.val (m i) (h i) else 0) =\n      if M6.Transfer.Follows R N m h then ∏ i : ZMod N, W i.val (m i) (h i) else 0 := by\n    by_cases hf : M6.Transfer.Follows R N m h\n    · rw [if_pos hf]\n      apply Finset.prod_congr rfl\n      intro i _\n      exact if_pos (hf i).symm\n    · rw [if_neg hf]\n      unfold M6.Transfer.Follows at hf\n      push_neg at hf\n      obtain ⟨i, hi⟩ := hf\n      apply Finset.prod_eq_zero (Finset.mem_univ i)\n      exact if_neg (Ne.symm hi)\n  let T := (ZMod N → M6.Transfer.Memory R) × M6.Transfer.Input N\n  let P : T → Prop := fun q => M6.Transfer.Follows R N q.1 q.2\n  let f : T → K := fun q => ∏ i : ZMod N, W i.val (q.1 i) (q.2 i)\n  rw [M6.Transfer.matrix_trace_cycle (M6.Transfer.Memory R) K N]\n  simp only [M6.Transfer.edgeMatrix, Fintype.prod_sum]\n  calc\n    (∑ m : ZMod N → M6.Transfer.Memory R, ∑ h : M6.Transfer.Input N,\n        ∏ i : ZMod N, if M6.Transfer.shift (m i) (h i) = m (i + 1)\n          then W i.val (m i) (h i) else 0) =\n        ∑ q : T, if P q then f q else 0 := by\n      rw [Fintype.sum_prod_type]\n      apply Finset.sum_congr rfl\n      intro m _\n      apply Finset.sum_congr rfl\n      intro h _\n      exact hprod m h\n    _ = ∑ q ∈ Finset.univ.filter P, f q := by\n      rw [Finset.sum_filter]\n    _ = ∑ p : M6.Transfer.ClosedWalk R N,\n        ∏ i : ZMod N, W i.val (p.val.1 i) (M6.Transfer.labels p i) := by\n      apply Finset.sum_bij\n        (fun q hq => (⟨q, (Finset.mem_filter.mp hq).2⟩ : M6.Transfer.ClosedWalk R N))\n      · intro q hq\n        exact Finset.mem_univ _\n      · intro a ha b hb hab\n        exact congrArg Subtype.val hab\n      · intro p hp\n        exact ⟨p.val, Finset.mem_filter.mpr ⟨Finset.mem_univ _, p.property⟩, rfl⟩\n      · intro q hq\n        rfl",
+          "imports": [
+            "M6TransferTraceReady"
+          ],
+          "name": "M6.Transfer.labelled_trace",
+          "ancestors": [
+            "matrix_trace_cycle"
+          ],
+          "spec_sha256": "79865398c2e85ad61f5bb889f8e4468e578205b8975a2be77f39323a7b3e051e"
+        },
+        "sha256": "900e7cde8e39cafb0971bfeb9837cc9db8953c18d6bfbe30a97212303a5bd115"
+      },
+      "array_trace_inputs": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.array_trace_inputs : ∀ (R N : ℕ) [NeZero N] (K : Type) [CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K), M6.Transfer.arrayTrace W N = ∑ h : M6.Transfer.Input N, ∏ i : ZMod N, W i.val (M6.Transfer.memoryAt h i) (h i) := by\n  classical\n  intro R N instN K instK W\n  rw [M6.Transfer.array_trace_matrix R K W N,\n    M6.Transfer.labelled_trace R N K W]\n  exact M6.Transfer.indexed_weight_sum R N K (fun i => W i.val)",
+          "imports": [
+            "M6TransferTraceReady"
+          ],
+          "name": "M6.Transfer.array_trace_inputs",
+          "ancestors": [
+            "array_trace_matrix",
+            "labelled_trace",
+            "layers_matrix",
+            "matrix_trace_cycle"
+          ],
+          "spec_sha256": "e1287e7fce6bdc1f85b788a07dcf03934a7221730771ed4ddb78283e236b94dc"
+        },
+        "sha256": "3f1dc40f5debbee7306f41248977b1115a64cd7a4c19888b2af07041ee1252cb"
+      }
+    }
+  }
+}

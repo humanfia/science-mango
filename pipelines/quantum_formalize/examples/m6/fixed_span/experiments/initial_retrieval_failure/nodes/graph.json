@@ -1,0 +1,169 @@
+[
+  {
+    "id": "distance_improvement",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.FixedSpan.distance_improvement",
+      "statement": "∀ R : ℕ, Filter.Tendsto (fun N : ℕ => (N : ℝ)^3 * (4 : ℝ)^R / (4 : ℝ)^N) Filter.atTop (nhds 0)",
+      "imports": [
+        "M6FixedSpan"
+      ],
+      "context": "",
+      "queries": [
+        "tendsto_pow_const_div_const_pow_of_one_lt",
+        "polynomial geometric sum divisibility"
+      ],
+      "guidance": "Use tendsto_pow_const_div_const_pow_of_one_lt 3 (r:=4), multiply limit by constant4^R and ring rearrange. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 6
+    }
+  },
+  {
+    "id": "witness_improvement",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.FixedSpan.witness_improvement",
+      "statement": "∀ R : ℕ, Filter.Tendsto (fun N : ℕ => (N : ℝ)^4 * (4 : ℝ)^R / (4 : ℝ)^N) Filter.atTop (nhds 0)",
+      "imports": [
+        "M6FixedSpan"
+      ],
+      "context": "",
+      "queries": [
+        "tendsto_pow_const_div_const_pow_of_one_lt",
+        "polynomial geometric sum divisibility"
+      ],
+      "guidance": "Same standard polynomial/geometric limit with exponent4. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 6
+    }
+  },
+  {
+    "id": "recipe_support",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.FixedSpan.recipe_support",
+      "statement": "M6.FixedSpan.recipe.support = {0,1,2}",
+      "imports": [
+        "M6FixedSpan"
+      ],
+      "context": "",
+      "queries": [
+        "tendsto_pow_const_div_const_pow_of_one_lt",
+        "polynomial geometric sum divisibility"
+      ],
+      "guidance": "Ext coefficient index, expand1+X+X²; binary coefficients at distinct0,1,2 are1. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 6
+    }
+  },
+  {
+    "id": "recipe_degree",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.FixedSpan.recipe_degree",
+      "statement": "M6.FixedSpan.recipe.Monic ∧ M6.FixedSpan.recipe.natDegree = 2",
+      "imports": [
+        "M6FixedSpan"
+      ],
+      "context": "",
+      "queries": [
+        "tendsto_pow_const_div_const_pow_of_one_lt",
+        "polynomial geometric sum divisibility"
+      ],
+      "guidance": "Use leading term X², degree computations; polynomial commutativity to monic_X_pow_add lower-degree expression. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 6
+    }
+  },
+  {
+    "id": "recipe_divides",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.FixedSpan.recipe_divides",
+      "statement": "∀ N : ℕ, 3 ∣ N → M6.FixedSpan.recipe ∣ M6.Cyclic.modulus N",
+      "imports": [
+        "M6FixedSpan"
+      ],
+      "context": "",
+      "queries": [
+        "tendsto_pow_const_div_const_pow_of_one_lt",
+        "polynomial geometric sum divisibility"
+      ],
+      "guidance": "First (1+X+X²)*(X+1)=X³+1 in characteristic2, then 3|N and a-1 divides a^k-1 witha=X³. Retain all repeated factors in ambientmodulus. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 6
+    }
+  },
+  {
+    "id": "recipe_signature",
+    "dependencies": [
+      "recipe_divides"
+    ],
+    "spec": {
+      "name": "M6.FixedSpan.recipe_signature",
+      "statement": "∀ N : ℕ, 3 ∣ N → M6.Cyclic.signature M6.FixedSpan.recipe M6.FixedSpan.recipe (M6.Cyclic.modulus N) = M6.FixedSpan.recipe",
+      "imports": [
+        "M6FixedSpan"
+      ],
+      "context": "",
+      "queries": [
+        "tendsto_pow_const_div_const_pow_of_one_lt",
+        "polynomial geometric sum divisibility"
+      ],
+      "guidance": "Unfold signature; gcd_self and gcd_eq_left from recipe_divides. Use EuclideanDomain gcd APIs. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 6
+    }
+  },
+  {
+    "id": "nontrivial_family",
+    "dependencies": [
+      "recipe_support",
+      "recipe_degree",
+      "recipe_signature"
+    ],
+    "spec": {
+      "name": "M6.FixedSpan.nontrivial_family",
+      "statement": "∀ k : ℕ, let N := 3*(k+1); 2 < N ∧ M6.FixedSpan.recipe.support.card = 3 ∧ 0 ∈ M6.FixedSpan.recipe.support ∧ Nat.gcd N (M6.FixedSpan.recipe.support.gcd id) = 1 ∧ (M6.Cyclic.signature M6.FixedSpan.recipe M6.FixedSpan.recipe (M6.Cyclic.modulus N)).natDegree = 2",
+      "imports": [
+        "M6FixedSpan"
+      ],
+      "context": "",
+      "queries": [
+        "tendsto_pow_const_div_const_pow_of_one_lt",
+        "polynomial geometric sum divisibility"
+      ],
+      "guidance": "Apply recipe_signature with3|N, degree/support lemmas; support contains1 and finite gcd=1; omega givesN>2. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 6
+    }
+  }
+]

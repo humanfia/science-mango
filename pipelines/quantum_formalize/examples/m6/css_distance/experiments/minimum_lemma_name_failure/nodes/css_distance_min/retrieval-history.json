@@ -1,0 +1,557 @@
+[
+  {
+    "queries": [
+      "weight preserving involution minimum distance"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223599,
+            "name": "MeasureTheory.MeasurePreserving",
+            "module": "Mathlib.Dynamics.Ergodic.MeasurePreserving",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/Ergodic/MeasurePreserving.lean#L43-L48",
+            "source_text": "/-- `f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. -/\nstructure MeasurePreserving (f : α → β)\n  (μa : Measure α := by volume_tac) (μb : Measure β := by volume_tac) : Prop where\n  protected measurable : Measurable f\n  protected map_eq : map f μa = μb\n",
+            "docstring": "`f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. "
+          },
+          {
+            "id": 348712,
+            "name": "dist_inv_inv",
+            "module": "Mathlib.Topology.MetricSpace.IsometricSMul",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/IsometricSMul.lean#L342-L345",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem dist_inv_inv [Group G] [PseudoMetricSpace G] [IsIsometricSMul G G]\n    [IsIsometricSMul Gᵐᵒᵖ G] (a b : G) : dist a⁻¹ b⁻¹ = dist a b :=\n  (IsometryEquiv.inv G).dist_eq a b",
+            "docstring": null
+          },
+          {
+            "id": 138004,
+            "name": "infEdist_inv_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L71-L72",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv_inv := infEDist_inv_inv",
+            "docstring": "**Alias** of `infEDist_inv_inv`."
+          },
+          {
+            "id": 138008,
+            "name": "infEdist_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L82-L83",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv := infEDist_inv",
+            "docstring": "**Alias** of `infEDist_inv`."
+          },
+          {
+            "id": 208405,
+            "name": "List.minimum",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L238-L241",
+            "source_text": "/-- `minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` -/\ndef minimum (l : List α) : WithTop α :=\n  argmin id l\n",
+            "docstring": "`minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389571,
+            "name": "WickContraction.fromInvolution_toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L132-L141",
+            "source_text": "lemma fromInvolution_toInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) :\n    (fromInvolution f).toInvolution = f := by\n  apply Subtype.ext\n  funext i\n  simp only [toInvolution]\n  split\n  · simp\n  · rename_i h\n    simp only [fromInvolution_getDual?_isSome, ne_eq, Decidable.not_not] at h\n    exact h.symm\n",
+            "docstring": null
+          },
+          {
+            "id": 389565,
+            "name": "WickContraction.toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L24-L32",
+            "source_text": "/-- The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\n  If `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\n  it is taken to itself. -/\ndef toInvolution : {f : Fin n → Fin n // Function.Involutive f} :=\n  ⟨fun i => if h : (c.getDual? i).isSome then (c.getDual? i).get h else i, by\n    intro i\n    by_cases h : (c.getDual? i).isSome\n    · simp [h]\n    · simp [h]⟩\n",
+            "docstring": "The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\nIf `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\nit is taken to itself. "
+          },
+          {
+            "id": 386187,
+            "name": "ConjModule.involution",
+            "module": "Physlib.Mathematics.ConjModule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/ConjModule.lean#L70-L74",
+            "source_text": "/-- Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. -/\ndef involution : ConjModule (ConjModule M) ≃ₗ[k] M :=\n  ((conjEquiv (k := k) (M := M)).trans (conjEquiv (k := k) (M := ConjModule M))).symm\n",
+            "docstring": "Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. "
+          },
+          {
+            "id": 389566,
+            "name": "WickContraction.fromInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L34-L71",
+            "source_text": "/-- The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\n  sets of the contraction the orbits of `f` of cardinality `2`. -/\ndef fromInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) : WickContraction n :=\n  ⟨Finset.univ.filter (fun a => a.card = 2 ∧ ∃ i, {i, f.1 i} = a), by\n  intro a\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and, and_imp, forall_exists_index]\n  intro h1 _ _\n  exact h1, by\n  intro a ha b hb\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at ha hb\n  obtain ⟨i, hai⟩ := ha.2\n  subst hai\n  obtain ⟨j, hbj⟩ := hb.2\n  subst hbj\n  by_cases h : i = j\n  · subst h\n    simp\n  · by_cases hi : i = f.1 j\n    · subst hi\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right, true_or, not_true_eq_false, and_false, or_false]\n      rw [f.2]\n      rw [@Finset.pair_comm]\n    · apply Or.inr\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right]\n      apply And.intro\n      · apply And.intro\n        · exact fun a => h a.symm\n        · by_contra hn\n          subst hn\n          rw [f.2 i] at hi\n          simp at hi\n      · apply And.intro\n        · exact fun a => hi a.symm\n        · rw [Function.Injective.eq_iff]\n          exact fun a => h (id (Eq.symm a))\n          exact Function.Involutive.injective f.2⟩\n",
+            "docstring": "The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\nsets of the contraction the orbits of `f` of cardinality `2`. "
+          },
+          {
+            "id": 386360,
+            "name": "Physlib.Fin.involutionCons",
+            "module": "Physlib.Mathematics.Fin.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L26-L144",
+            "source_text": "/-- There is an equivalence between involutions of `Fin n.succ` and involutions of\n  `Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n    in `Fin n.succ` will be sent). -/\ndef involutionCons (n : ℕ) : {f : Fin n.succ → Fin n.succ // Function.Involutive f } ≃\n    (f : {f : Fin n → Fin n // Function.Involutive f}) × {i : Option (Fin n) //\n      ∀ (h : i.isSome), f.1 (Option.get i h) = (Option.get i h)} where\n  toFun f := ⟨⟨\n    fun i =>\n    if h : f.1 i.succ = 0 then i\n    else Fin.pred (f.1 i.succ) h, by\n    intro i\n    by_cases h : f.1 i.succ = 0\n    · simp [h]\n    · simp only [succ_eq_add_one, h, ↓reduceDIte, Fin.succ_pred, f.2 i.succ, Fin.pred_succ,\n        dite_eq_ite, ite_eq_right_iff]\n      exact fun h => False.elim (Fin.succ_ne_zero i h)⟩,\n    ⟨if h : f.1 0 = 0 then none else Fin.pred (f.1 0) h, by\n    by_cases h0 : f.1 0 = 0\n    · simp [h0]\n    · simp only [succ_eq_add_one, h0, ↓reduceDIte, Option.isSome_some, Option.get_some,\n      Fin.succ_pred, dite_eq_left_iff, Fin.pred_inj, forall_const]\n      refine fun h => False.elim (h (f.2 0))⟩⟩\n  invFun f := ⟨\n      if h : (f.2.1).isSome then\n        Fin.cons (f.2.1.get h).succ (Function.update (Fin.succ ∘ f.1.1) (f.2.1.get h) 0)\n      else\n        Fin.cons 0 (Fin.succ ∘ f.1.1), by\n    by_cases hs : (f.2.1).isSome\n    · simp only [Nat.succ_eq_add_one, hs, ↓reduceDIte]\n      let a := f.2.1.get hs\n      change Function.Involutive (Fin.cons a.succ (Function.update (Fin.succ ∘ ↑f.fst) a 0))\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        rw [Fin.cons_zero, Fin.cons_succ]\n        simp\n      · subst hj\n        rw [Fin.cons_succ]\n        by_cases hja : j = a\n        · subst hja\n          simp\n        · rw [Function.update_apply, if_neg hja]\n          simp only [Function.comp_apply, Fin.cons_succ]\n          have hf2 := f.2.2 hs\n          change f.1.1 a = a at hf2\n          have hjf1 : f.1.1 j ≠ a := fun hn => hja (by rw [← f.1.2 j, hn, hf2])\n          rw [Function.update_apply, if_neg hjf1]\n          simp only [Function.comp_apply, Fin.succ_inj]\n          rw [f.1.2]\n    · simp only [succ_eq_add_one, hs, Bool.false_eq_true, ↓reduceDIte]\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.succ_inj]\n        rw [f.1.2]⟩\n  left_inv f := by\n    match f with\n    | ⟨f, hf⟩ =>\n    have hpred (j : Fin n) (hj : f j.succ ≠ 0) :\n        (↑(if h : f j.succ = 0 then j else (f j.succ).pred h) + 1 : ℕ) = ↑(f j.succ) := by\n      rw [dif_neg hj, Fin.val_pred]\n      have hv : (f j.succ).val ≠ 0 := fun h => hj (Fin.ext (by simpa using h))\n      omega\n    simp only [succ_eq_add_one, Option.isSome_dite', Option.get_dite', Fin.succ_pred,\n      Fin.cons_update, dite_eq_ite, ite_not, Subtype.mk.injEq]\n    ext i\n    by_cases h0 : f 0 = 0\n    · simp only [h0, ↓reduceIte]\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp [h0]\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n        refine hpred j fun hj => Fin.succ_ne_zero j (hf.injective (hj.trans h0.symm))\n    · rw [if_neg h0]\n      by_cases hf' : i = f 0\n      · subst hf'\n        simp only [Function.update_self, Fin.val_zero]\n        rw [hf]\n        simp\n      · rw [Function.update_apply, if_neg hf']\n        rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n        · subst hi\n          simp\n        · subst hj\n          simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n          refine hpred j fun hj => hf' ?_\n          rw [← hj, hf]\n  right_inv f := by\n    match f with\n    | ⟨⟨f, hf⟩, ⟨f0, hf0⟩⟩ =>\n    ext i\n    · simp only [succ_eq_add_one, Fin.cons_update]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        by_cases hi : i = f0.get hs\n        · simp only [Function.update_apply, hi, ↓reduceIte, ↓reduceDIte]\n          exact Eq.symm (Fin.val_eq_of_eq (hf0 hs))\n        · simp only [ne_eq, Fin.succ_inj, hi, not_false_eq_true, Function.update_of_ne,\n          Fin.cons_succ, Function.comp_apply, Fin.pred_succ, dite_eq_ite]\n          rw [if_neg (Fin.succ_ne_zero (f i))]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_succ, Function.comp_apply,\n        Fin.pred_succ, dite_eq_ite]\n        rw [if_neg (Fin.succ_ne_zero (f i))]\n    · simp only [Nat.succ_eq_add_one, Option.dite_none_left_eq_some, Option.some.injEq]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        simp only [Fin.cons_zero, Fin.pred_succ, exists_prop]\n        have hx : ¬ (f0.get hs).succ = 0 := (Fin.succ_ne_zero (f0.get hs))\n        simp only [hx, not_false_eq_true, true_and]\n        rw [Option.eq_some_iff_get_eq]\n        simp [hs]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_zero, not_true_eq_false,\n        IsEmpty.exists_iff, false_iff]\n        simp only [Bool.not_eq_true, Option.isSome_eq_false_iff, Option.isNone_iff_eq_none] at hs\n        subst hs\n        exact ne_of_beq_false rfl\n",
+            "docstring": "There is an equivalence between involutions of `Fin n.succ` and involutions of\n`Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n  in `Fin n.succ` will be sent). "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "involution_distance",
+    "receipts_sha256": "9ddfa2d26bbb873b159f297ed6163b24363c8b1c0bc776b3dd2c7cae75a53b6e"
+  },
+  {
+    "queries": [
+      "weight preserving involution minimum distance"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223599,
+            "name": "MeasureTheory.MeasurePreserving",
+            "module": "Mathlib.Dynamics.Ergodic.MeasurePreserving",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/Ergodic/MeasurePreserving.lean#L43-L48",
+            "source_text": "/-- `f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. -/\nstructure MeasurePreserving (f : α → β)\n  (μa : Measure α := by volume_tac) (μb : Measure β := by volume_tac) : Prop where\n  protected measurable : Measurable f\n  protected map_eq : map f μa = μb\n",
+            "docstring": "`f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. "
+          },
+          {
+            "id": 348712,
+            "name": "dist_inv_inv",
+            "module": "Mathlib.Topology.MetricSpace.IsometricSMul",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/IsometricSMul.lean#L342-L345",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem dist_inv_inv [Group G] [PseudoMetricSpace G] [IsIsometricSMul G G]\n    [IsIsometricSMul Gᵐᵒᵖ G] (a b : G) : dist a⁻¹ b⁻¹ = dist a b :=\n  (IsometryEquiv.inv G).dist_eq a b",
+            "docstring": null
+          },
+          {
+            "id": 138004,
+            "name": "infEdist_inv_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L71-L72",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv_inv := infEDist_inv_inv",
+            "docstring": "**Alias** of `infEDist_inv_inv`."
+          },
+          {
+            "id": 138008,
+            "name": "infEdist_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L82-L83",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv := infEDist_inv",
+            "docstring": "**Alias** of `infEDist_inv`."
+          },
+          {
+            "id": 208405,
+            "name": "List.minimum",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L238-L241",
+            "source_text": "/-- `minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` -/\ndef minimum (l : List α) : WithTop α :=\n  argmin id l\n",
+            "docstring": "`minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389571,
+            "name": "WickContraction.fromInvolution_toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L132-L141",
+            "source_text": "lemma fromInvolution_toInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) :\n    (fromInvolution f).toInvolution = f := by\n  apply Subtype.ext\n  funext i\n  simp only [toInvolution]\n  split\n  · simp\n  · rename_i h\n    simp only [fromInvolution_getDual?_isSome, ne_eq, Decidable.not_not] at h\n    exact h.symm\n",
+            "docstring": null
+          },
+          {
+            "id": 389565,
+            "name": "WickContraction.toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L24-L32",
+            "source_text": "/-- The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\n  If `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\n  it is taken to itself. -/\ndef toInvolution : {f : Fin n → Fin n // Function.Involutive f} :=\n  ⟨fun i => if h : (c.getDual? i).isSome then (c.getDual? i).get h else i, by\n    intro i\n    by_cases h : (c.getDual? i).isSome\n    · simp [h]\n    · simp [h]⟩\n",
+            "docstring": "The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\nIf `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\nit is taken to itself. "
+          },
+          {
+            "id": 386187,
+            "name": "ConjModule.involution",
+            "module": "Physlib.Mathematics.ConjModule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/ConjModule.lean#L70-L74",
+            "source_text": "/-- Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. -/\ndef involution : ConjModule (ConjModule M) ≃ₗ[k] M :=\n  ((conjEquiv (k := k) (M := M)).trans (conjEquiv (k := k) (M := ConjModule M))).symm\n",
+            "docstring": "Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. "
+          },
+          {
+            "id": 389566,
+            "name": "WickContraction.fromInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L34-L71",
+            "source_text": "/-- The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\n  sets of the contraction the orbits of `f` of cardinality `2`. -/\ndef fromInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) : WickContraction n :=\n  ⟨Finset.univ.filter (fun a => a.card = 2 ∧ ∃ i, {i, f.1 i} = a), by\n  intro a\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and, and_imp, forall_exists_index]\n  intro h1 _ _\n  exact h1, by\n  intro a ha b hb\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at ha hb\n  obtain ⟨i, hai⟩ := ha.2\n  subst hai\n  obtain ⟨j, hbj⟩ := hb.2\n  subst hbj\n  by_cases h : i = j\n  · subst h\n    simp\n  · by_cases hi : i = f.1 j\n    · subst hi\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right, true_or, not_true_eq_false, and_false, or_false]\n      rw [f.2]\n      rw [@Finset.pair_comm]\n    · apply Or.inr\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right]\n      apply And.intro\n      · apply And.intro\n        · exact fun a => h a.symm\n        · by_contra hn\n          subst hn\n          rw [f.2 i] at hi\n          simp at hi\n      · apply And.intro\n        · exact fun a => hi a.symm\n        · rw [Function.Injective.eq_iff]\n          exact fun a => h (id (Eq.symm a))\n          exact Function.Involutive.injective f.2⟩\n",
+            "docstring": "The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\nsets of the contraction the orbits of `f` of cardinality `2`. "
+          },
+          {
+            "id": 386360,
+            "name": "Physlib.Fin.involutionCons",
+            "module": "Physlib.Mathematics.Fin.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L26-L144",
+            "source_text": "/-- There is an equivalence between involutions of `Fin n.succ` and involutions of\n  `Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n    in `Fin n.succ` will be sent). -/\ndef involutionCons (n : ℕ) : {f : Fin n.succ → Fin n.succ // Function.Involutive f } ≃\n    (f : {f : Fin n → Fin n // Function.Involutive f}) × {i : Option (Fin n) //\n      ∀ (h : i.isSome), f.1 (Option.get i h) = (Option.get i h)} where\n  toFun f := ⟨⟨\n    fun i =>\n    if h : f.1 i.succ = 0 then i\n    else Fin.pred (f.1 i.succ) h, by\n    intro i\n    by_cases h : f.1 i.succ = 0\n    · simp [h]\n    · simp only [succ_eq_add_one, h, ↓reduceDIte, Fin.succ_pred, f.2 i.succ, Fin.pred_succ,\n        dite_eq_ite, ite_eq_right_iff]\n      exact fun h => False.elim (Fin.succ_ne_zero i h)⟩,\n    ⟨if h : f.1 0 = 0 then none else Fin.pred (f.1 0) h, by\n    by_cases h0 : f.1 0 = 0\n    · simp [h0]\n    · simp only [succ_eq_add_one, h0, ↓reduceDIte, Option.isSome_some, Option.get_some,\n      Fin.succ_pred, dite_eq_left_iff, Fin.pred_inj, forall_const]\n      refine fun h => False.elim (h (f.2 0))⟩⟩\n  invFun f := ⟨\n      if h : (f.2.1).isSome then\n        Fin.cons (f.2.1.get h).succ (Function.update (Fin.succ ∘ f.1.1) (f.2.1.get h) 0)\n      else\n        Fin.cons 0 (Fin.succ ∘ f.1.1), by\n    by_cases hs : (f.2.1).isSome\n    · simp only [Nat.succ_eq_add_one, hs, ↓reduceDIte]\n      let a := f.2.1.get hs\n      change Function.Involutive (Fin.cons a.succ (Function.update (Fin.succ ∘ ↑f.fst) a 0))\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        rw [Fin.cons_zero, Fin.cons_succ]\n        simp\n      · subst hj\n        rw [Fin.cons_succ]\n        by_cases hja : j = a\n        · subst hja\n          simp\n        · rw [Function.update_apply, if_neg hja]\n          simp only [Function.comp_apply, Fin.cons_succ]\n          have hf2 := f.2.2 hs\n          change f.1.1 a = a at hf2\n          have hjf1 : f.1.1 j ≠ a := fun hn => hja (by rw [← f.1.2 j, hn, hf2])\n          rw [Function.update_apply, if_neg hjf1]\n          simp only [Function.comp_apply, Fin.succ_inj]\n          rw [f.1.2]\n    · simp only [succ_eq_add_one, hs, Bool.false_eq_true, ↓reduceDIte]\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.succ_inj]\n        rw [f.1.2]⟩\n  left_inv f := by\n    match f with\n    | ⟨f, hf⟩ =>\n    have hpred (j : Fin n) (hj : f j.succ ≠ 0) :\n        (↑(if h : f j.succ = 0 then j else (f j.succ).pred h) + 1 : ℕ) = ↑(f j.succ) := by\n      rw [dif_neg hj, Fin.val_pred]\n      have hv : (f j.succ).val ≠ 0 := fun h => hj (Fin.ext (by simpa using h))\n      omega\n    simp only [succ_eq_add_one, Option.isSome_dite', Option.get_dite', Fin.succ_pred,\n      Fin.cons_update, dite_eq_ite, ite_not, Subtype.mk.injEq]\n    ext i\n    by_cases h0 : f 0 = 0\n    · simp only [h0, ↓reduceIte]\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp [h0]\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n        refine hpred j fun hj => Fin.succ_ne_zero j (hf.injective (hj.trans h0.symm))\n    · rw [if_neg h0]\n      by_cases hf' : i = f 0\n      · subst hf'\n        simp only [Function.update_self, Fin.val_zero]\n        rw [hf]\n        simp\n      · rw [Function.update_apply, if_neg hf']\n        rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n        · subst hi\n          simp\n        · subst hj\n          simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n          refine hpred j fun hj => hf' ?_\n          rw [← hj, hf]\n  right_inv f := by\n    match f with\n    | ⟨⟨f, hf⟩, ⟨f0, hf0⟩⟩ =>\n    ext i\n    · simp only [succ_eq_add_one, Fin.cons_update]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        by_cases hi : i = f0.get hs\n        · simp only [Function.update_apply, hi, ↓reduceIte, ↓reduceDIte]\n          exact Eq.symm (Fin.val_eq_of_eq (hf0 hs))\n        · simp only [ne_eq, Fin.succ_inj, hi, not_false_eq_true, Function.update_of_ne,\n          Fin.cons_succ, Function.comp_apply, Fin.pred_succ, dite_eq_ite]\n          rw [if_neg (Fin.succ_ne_zero (f i))]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_succ, Function.comp_apply,\n        Fin.pred_succ, dite_eq_ite]\n        rw [if_neg (Fin.succ_ne_zero (f i))]\n    · simp only [Nat.succ_eq_add_one, Option.dite_none_left_eq_some, Option.some.injEq]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        simp only [Fin.cons_zero, Fin.pred_succ, exists_prop]\n        have hx : ¬ (f0.get hs).succ = 0 := (Fin.succ_ne_zero (f0.get hs))\n        simp only [hx, not_false_eq_true, true_and]\n        rw [Option.eq_some_iff_get_eq]\n        simp [hs]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_zero, not_true_eq_false,\n        IsEmpty.exists_iff, false_iff]\n        simp only [Bool.not_eq_true, Option.isSome_eq_false_iff, Option.isNone_iff_eq_none] at hs\n        subst hs\n        exact ne_of_beq_false rfl\n",
+            "docstring": "There is an equivalence between involutions of `Fin n.succ` and involutions of\n`Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n  in `Fin n.succ` will be sent). "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "involution_distance",
+    "receipts_sha256": "9ddfa2d26bbb873b159f297ed6163b24363c8b1c0bc776b3dd2c7cae75a53b6e"
+  },
+  {
+    "queries": [
+      "weight preserving involution minimum distance"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223599,
+            "name": "MeasureTheory.MeasurePreserving",
+            "module": "Mathlib.Dynamics.Ergodic.MeasurePreserving",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/Ergodic/MeasurePreserving.lean#L43-L48",
+            "source_text": "/-- `f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. -/\nstructure MeasurePreserving (f : α → β)\n  (μa : Measure α := by volume_tac) (μb : Measure β := by volume_tac) : Prop where\n  protected measurable : Measurable f\n  protected map_eq : map f μa = μb\n",
+            "docstring": "`f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. "
+          },
+          {
+            "id": 348712,
+            "name": "dist_inv_inv",
+            "module": "Mathlib.Topology.MetricSpace.IsometricSMul",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/IsometricSMul.lean#L342-L345",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem dist_inv_inv [Group G] [PseudoMetricSpace G] [IsIsometricSMul G G]\n    [IsIsometricSMul Gᵐᵒᵖ G] (a b : G) : dist a⁻¹ b⁻¹ = dist a b :=\n  (IsometryEquiv.inv G).dist_eq a b",
+            "docstring": null
+          },
+          {
+            "id": 138004,
+            "name": "infEdist_inv_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L71-L72",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv_inv := infEDist_inv_inv",
+            "docstring": "**Alias** of `infEDist_inv_inv`."
+          },
+          {
+            "id": 138008,
+            "name": "infEdist_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L82-L83",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv := infEDist_inv",
+            "docstring": "**Alias** of `infEDist_inv`."
+          },
+          {
+            "id": 208405,
+            "name": "List.minimum",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L238-L241",
+            "source_text": "/-- `minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` -/\ndef minimum (l : List α) : WithTop α :=\n  argmin id l\n",
+            "docstring": "`minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389571,
+            "name": "WickContraction.fromInvolution_toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L132-L141",
+            "source_text": "lemma fromInvolution_toInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) :\n    (fromInvolution f).toInvolution = f := by\n  apply Subtype.ext\n  funext i\n  simp only [toInvolution]\n  split\n  · simp\n  · rename_i h\n    simp only [fromInvolution_getDual?_isSome, ne_eq, Decidable.not_not] at h\n    exact h.symm\n",
+            "docstring": null
+          },
+          {
+            "id": 389565,
+            "name": "WickContraction.toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L24-L32",
+            "source_text": "/-- The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\n  If `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\n  it is taken to itself. -/\ndef toInvolution : {f : Fin n → Fin n // Function.Involutive f} :=\n  ⟨fun i => if h : (c.getDual? i).isSome then (c.getDual? i).get h else i, by\n    intro i\n    by_cases h : (c.getDual? i).isSome\n    · simp [h]\n    · simp [h]⟩\n",
+            "docstring": "The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\nIf `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\nit is taken to itself. "
+          },
+          {
+            "id": 386187,
+            "name": "ConjModule.involution",
+            "module": "Physlib.Mathematics.ConjModule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/ConjModule.lean#L70-L74",
+            "source_text": "/-- Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. -/\ndef involution : ConjModule (ConjModule M) ≃ₗ[k] M :=\n  ((conjEquiv (k := k) (M := M)).trans (conjEquiv (k := k) (M := ConjModule M))).symm\n",
+            "docstring": "Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. "
+          },
+          {
+            "id": 389566,
+            "name": "WickContraction.fromInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L34-L71",
+            "source_text": "/-- The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\n  sets of the contraction the orbits of `f` of cardinality `2`. -/\ndef fromInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) : WickContraction n :=\n  ⟨Finset.univ.filter (fun a => a.card = 2 ∧ ∃ i, {i, f.1 i} = a), by\n  intro a\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and, and_imp, forall_exists_index]\n  intro h1 _ _\n  exact h1, by\n  intro a ha b hb\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at ha hb\n  obtain ⟨i, hai⟩ := ha.2\n  subst hai\n  obtain ⟨j, hbj⟩ := hb.2\n  subst hbj\n  by_cases h : i = j\n  · subst h\n    simp\n  · by_cases hi : i = f.1 j\n    · subst hi\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right, true_or, not_true_eq_false, and_false, or_false]\n      rw [f.2]\n      rw [@Finset.pair_comm]\n    · apply Or.inr\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right]\n      apply And.intro\n      · apply And.intro\n        · exact fun a => h a.symm\n        · by_contra hn\n          subst hn\n          rw [f.2 i] at hi\n          simp at hi\n      · apply And.intro\n        · exact fun a => hi a.symm\n        · rw [Function.Injective.eq_iff]\n          exact fun a => h (id (Eq.symm a))\n          exact Function.Involutive.injective f.2⟩\n",
+            "docstring": "The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\nsets of the contraction the orbits of `f` of cardinality `2`. "
+          },
+          {
+            "id": 386360,
+            "name": "Physlib.Fin.involutionCons",
+            "module": "Physlib.Mathematics.Fin.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L26-L144",
+            "source_text": "/-- There is an equivalence between involutions of `Fin n.succ` and involutions of\n  `Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n    in `Fin n.succ` will be sent). -/\ndef involutionCons (n : ℕ) : {f : Fin n.succ → Fin n.succ // Function.Involutive f } ≃\n    (f : {f : Fin n → Fin n // Function.Involutive f}) × {i : Option (Fin n) //\n      ∀ (h : i.isSome), f.1 (Option.get i h) = (Option.get i h)} where\n  toFun f := ⟨⟨\n    fun i =>\n    if h : f.1 i.succ = 0 then i\n    else Fin.pred (f.1 i.succ) h, by\n    intro i\n    by_cases h : f.1 i.succ = 0\n    · simp [h]\n    · simp only [succ_eq_add_one, h, ↓reduceDIte, Fin.succ_pred, f.2 i.succ, Fin.pred_succ,\n        dite_eq_ite, ite_eq_right_iff]\n      exact fun h => False.elim (Fin.succ_ne_zero i h)⟩,\n    ⟨if h : f.1 0 = 0 then none else Fin.pred (f.1 0) h, by\n    by_cases h0 : f.1 0 = 0\n    · simp [h0]\n    · simp only [succ_eq_add_one, h0, ↓reduceDIte, Option.isSome_some, Option.get_some,\n      Fin.succ_pred, dite_eq_left_iff, Fin.pred_inj, forall_const]\n      refine fun h => False.elim (h (f.2 0))⟩⟩\n  invFun f := ⟨\n      if h : (f.2.1).isSome then\n        Fin.cons (f.2.1.get h).succ (Function.update (Fin.succ ∘ f.1.1) (f.2.1.get h) 0)\n      else\n        Fin.cons 0 (Fin.succ ∘ f.1.1), by\n    by_cases hs : (f.2.1).isSome\n    · simp only [Nat.succ_eq_add_one, hs, ↓reduceDIte]\n      let a := f.2.1.get hs\n      change Function.Involutive (Fin.cons a.succ (Function.update (Fin.succ ∘ ↑f.fst) a 0))\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        rw [Fin.cons_zero, Fin.cons_succ]\n        simp\n      · subst hj\n        rw [Fin.cons_succ]\n        by_cases hja : j = a\n        · subst hja\n          simp\n        · rw [Function.update_apply, if_neg hja]\n          simp only [Function.comp_apply, Fin.cons_succ]\n          have hf2 := f.2.2 hs\n          change f.1.1 a = a at hf2\n          have hjf1 : f.1.1 j ≠ a := fun hn => hja (by rw [← f.1.2 j, hn, hf2])\n          rw [Function.update_apply, if_neg hjf1]\n          simp only [Function.comp_apply, Fin.succ_inj]\n          rw [f.1.2]\n    · simp only [succ_eq_add_one, hs, Bool.false_eq_true, ↓reduceDIte]\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.succ_inj]\n        rw [f.1.2]⟩\n  left_inv f := by\n    match f with\n    | ⟨f, hf⟩ =>\n    have hpred (j : Fin n) (hj : f j.succ ≠ 0) :\n        (↑(if h : f j.succ = 0 then j else (f j.succ).pred h) + 1 : ℕ) = ↑(f j.succ) := by\n      rw [dif_neg hj, Fin.val_pred]\n      have hv : (f j.succ).val ≠ 0 := fun h => hj (Fin.ext (by simpa using h))\n      omega\n    simp only [succ_eq_add_one, Option.isSome_dite', Option.get_dite', Fin.succ_pred,\n      Fin.cons_update, dite_eq_ite, ite_not, Subtype.mk.injEq]\n    ext i\n    by_cases h0 : f 0 = 0\n    · simp only [h0, ↓reduceIte]\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp [h0]\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n        refine hpred j fun hj => Fin.succ_ne_zero j (hf.injective (hj.trans h0.symm))\n    · rw [if_neg h0]\n      by_cases hf' : i = f 0\n      · subst hf'\n        simp only [Function.update_self, Fin.val_zero]\n        rw [hf]\n        simp\n      · rw [Function.update_apply, if_neg hf']\n        rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n        · subst hi\n          simp\n        · subst hj\n          simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n          refine hpred j fun hj => hf' ?_\n          rw [← hj, hf]\n  right_inv f := by\n    match f with\n    | ⟨⟨f, hf⟩, ⟨f0, hf0⟩⟩ =>\n    ext i\n    · simp only [succ_eq_add_one, Fin.cons_update]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        by_cases hi : i = f0.get hs\n        · simp only [Function.update_apply, hi, ↓reduceIte, ↓reduceDIte]\n          exact Eq.symm (Fin.val_eq_of_eq (hf0 hs))\n        · simp only [ne_eq, Fin.succ_inj, hi, not_false_eq_true, Function.update_of_ne,\n          Fin.cons_succ, Function.comp_apply, Fin.pred_succ, dite_eq_ite]\n          rw [if_neg (Fin.succ_ne_zero (f i))]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_succ, Function.comp_apply,\n        Fin.pred_succ, dite_eq_ite]\n        rw [if_neg (Fin.succ_ne_zero (f i))]\n    · simp only [Nat.succ_eq_add_one, Option.dite_none_left_eq_some, Option.some.injEq]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        simp only [Fin.cons_zero, Fin.pred_succ, exists_prop]\n        have hx : ¬ (f0.get hs).succ = 0 := (Fin.succ_ne_zero (f0.get hs))\n        simp only [hx, not_false_eq_true, true_and]\n        rw [Option.eq_some_iff_get_eq]\n        simp [hs]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_zero, not_true_eq_false,\n        IsEmpty.exists_iff, false_iff]\n        simp only [Bool.not_eq_true, Option.isSome_eq_false_iff, Option.isNone_iff_eq_none] at hs\n        subst hs\n        exact ne_of_beq_false rfl\n",
+            "docstring": "There is an equivalence between involutions of `Fin n.succ` and involutions of\n`Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n  in `Fin n.succ` will be sent). "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "involution_distance",
+    "receipts_sha256": "9ddfa2d26bbb873b159f297ed6163b24363c8b1c0bc776b3dd2c7cae75a53b6e"
+  },
+  {
+    "queries": [
+      "weight preserving involution minimum distance"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223599,
+            "name": "MeasureTheory.MeasurePreserving",
+            "module": "Mathlib.Dynamics.Ergodic.MeasurePreserving",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/Ergodic/MeasurePreserving.lean#L43-L48",
+            "source_text": "/-- `f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. -/\nstructure MeasurePreserving (f : α → β)\n  (μa : Measure α := by volume_tac) (μb : Measure β := by volume_tac) : Prop where\n  protected measurable : Measurable f\n  protected map_eq : map f μa = μb\n",
+            "docstring": "`f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. "
+          },
+          {
+            "id": 348712,
+            "name": "dist_inv_inv",
+            "module": "Mathlib.Topology.MetricSpace.IsometricSMul",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/IsometricSMul.lean#L342-L345",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem dist_inv_inv [Group G] [PseudoMetricSpace G] [IsIsometricSMul G G]\n    [IsIsometricSMul Gᵐᵒᵖ G] (a b : G) : dist a⁻¹ b⁻¹ = dist a b :=\n  (IsometryEquiv.inv G).dist_eq a b",
+            "docstring": null
+          },
+          {
+            "id": 138004,
+            "name": "infEdist_inv_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L71-L72",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv_inv := infEDist_inv_inv",
+            "docstring": "**Alias** of `infEDist_inv_inv`."
+          },
+          {
+            "id": 138008,
+            "name": "infEdist_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L82-L83",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv := infEDist_inv",
+            "docstring": "**Alias** of `infEDist_inv`."
+          },
+          {
+            "id": 208405,
+            "name": "List.minimum",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L238-L241",
+            "source_text": "/-- `minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` -/\ndef minimum (l : List α) : WithTop α :=\n  argmin id l\n",
+            "docstring": "`minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389571,
+            "name": "WickContraction.fromInvolution_toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L132-L141",
+            "source_text": "lemma fromInvolution_toInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) :\n    (fromInvolution f).toInvolution = f := by\n  apply Subtype.ext\n  funext i\n  simp only [toInvolution]\n  split\n  · simp\n  · rename_i h\n    simp only [fromInvolution_getDual?_isSome, ne_eq, Decidable.not_not] at h\n    exact h.symm\n",
+            "docstring": null
+          },
+          {
+            "id": 389565,
+            "name": "WickContraction.toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L24-L32",
+            "source_text": "/-- The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\n  If `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\n  it is taken to itself. -/\ndef toInvolution : {f : Fin n → Fin n // Function.Involutive f} :=\n  ⟨fun i => if h : (c.getDual? i).isSome then (c.getDual? i).get h else i, by\n    intro i\n    by_cases h : (c.getDual? i).isSome\n    · simp [h]\n    · simp [h]⟩\n",
+            "docstring": "The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\nIf `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\nit is taken to itself. "
+          },
+          {
+            "id": 386187,
+            "name": "ConjModule.involution",
+            "module": "Physlib.Mathematics.ConjModule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/ConjModule.lean#L70-L74",
+            "source_text": "/-- Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. -/\ndef involution : ConjModule (ConjModule M) ≃ₗ[k] M :=\n  ((conjEquiv (k := k) (M := M)).trans (conjEquiv (k := k) (M := ConjModule M))).symm\n",
+            "docstring": "Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. "
+          },
+          {
+            "id": 389566,
+            "name": "WickContraction.fromInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L34-L71",
+            "source_text": "/-- The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\n  sets of the contraction the orbits of `f` of cardinality `2`. -/\ndef fromInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) : WickContraction n :=\n  ⟨Finset.univ.filter (fun a => a.card = 2 ∧ ∃ i, {i, f.1 i} = a), by\n  intro a\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and, and_imp, forall_exists_index]\n  intro h1 _ _\n  exact h1, by\n  intro a ha b hb\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at ha hb\n  obtain ⟨i, hai⟩ := ha.2\n  subst hai\n  obtain ⟨j, hbj⟩ := hb.2\n  subst hbj\n  by_cases h : i = j\n  · subst h\n    simp\n  · by_cases hi : i = f.1 j\n    · subst hi\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right, true_or, not_true_eq_false, and_false, or_false]\n      rw [f.2]\n      rw [@Finset.pair_comm]\n    · apply Or.inr\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right]\n      apply And.intro\n      · apply And.intro\n        · exact fun a => h a.symm\n        · by_contra hn\n          subst hn\n          rw [f.2 i] at hi\n          simp at hi\n      · apply And.intro\n        · exact fun a => hi a.symm\n        · rw [Function.Injective.eq_iff]\n          exact fun a => h (id (Eq.symm a))\n          exact Function.Involutive.injective f.2⟩\n",
+            "docstring": "The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\nsets of the contraction the orbits of `f` of cardinality `2`. "
+          },
+          {
+            "id": 386360,
+            "name": "Physlib.Fin.involutionCons",
+            "module": "Physlib.Mathematics.Fin.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L26-L144",
+            "source_text": "/-- There is an equivalence between involutions of `Fin n.succ` and involutions of\n  `Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n    in `Fin n.succ` will be sent). -/\ndef involutionCons (n : ℕ) : {f : Fin n.succ → Fin n.succ // Function.Involutive f } ≃\n    (f : {f : Fin n → Fin n // Function.Involutive f}) × {i : Option (Fin n) //\n      ∀ (h : i.isSome), f.1 (Option.get i h) = (Option.get i h)} where\n  toFun f := ⟨⟨\n    fun i =>\n    if h : f.1 i.succ = 0 then i\n    else Fin.pred (f.1 i.succ) h, by\n    intro i\n    by_cases h : f.1 i.succ = 0\n    · simp [h]\n    · simp only [succ_eq_add_one, h, ↓reduceDIte, Fin.succ_pred, f.2 i.succ, Fin.pred_succ,\n        dite_eq_ite, ite_eq_right_iff]\n      exact fun h => False.elim (Fin.succ_ne_zero i h)⟩,\n    ⟨if h : f.1 0 = 0 then none else Fin.pred (f.1 0) h, by\n    by_cases h0 : f.1 0 = 0\n    · simp [h0]\n    · simp only [succ_eq_add_one, h0, ↓reduceDIte, Option.isSome_some, Option.get_some,\n      Fin.succ_pred, dite_eq_left_iff, Fin.pred_inj, forall_const]\n      refine fun h => False.elim (h (f.2 0))⟩⟩\n  invFun f := ⟨\n      if h : (f.2.1).isSome then\n        Fin.cons (f.2.1.get h).succ (Function.update (Fin.succ ∘ f.1.1) (f.2.1.get h) 0)\n      else\n        Fin.cons 0 (Fin.succ ∘ f.1.1), by\n    by_cases hs : (f.2.1).isSome\n    · simp only [Nat.succ_eq_add_one, hs, ↓reduceDIte]\n      let a := f.2.1.get hs\n      change Function.Involutive (Fin.cons a.succ (Function.update (Fin.succ ∘ ↑f.fst) a 0))\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        rw [Fin.cons_zero, Fin.cons_succ]\n        simp\n      · subst hj\n        rw [Fin.cons_succ]\n        by_cases hja : j = a\n        · subst hja\n          simp\n        · rw [Function.update_apply, if_neg hja]\n          simp only [Function.comp_apply, Fin.cons_succ]\n          have hf2 := f.2.2 hs\n          change f.1.1 a = a at hf2\n          have hjf1 : f.1.1 j ≠ a := fun hn => hja (by rw [← f.1.2 j, hn, hf2])\n          rw [Function.update_apply, if_neg hjf1]\n          simp only [Function.comp_apply, Fin.succ_inj]\n          rw [f.1.2]\n    · simp only [succ_eq_add_one, hs, Bool.false_eq_true, ↓reduceDIte]\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.succ_inj]\n        rw [f.1.2]⟩\n  left_inv f := by\n    match f with\n    | ⟨f, hf⟩ =>\n    have hpred (j : Fin n) (hj : f j.succ ≠ 0) :\n        (↑(if h : f j.succ = 0 then j else (f j.succ).pred h) + 1 : ℕ) = ↑(f j.succ) := by\n      rw [dif_neg hj, Fin.val_pred]\n      have hv : (f j.succ).val ≠ 0 := fun h => hj (Fin.ext (by simpa using h))\n      omega\n    simp only [succ_eq_add_one, Option.isSome_dite', Option.get_dite', Fin.succ_pred,\n      Fin.cons_update, dite_eq_ite, ite_not, Subtype.mk.injEq]\n    ext i\n    by_cases h0 : f 0 = 0\n    · simp only [h0, ↓reduceIte]\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp [h0]\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n        refine hpred j fun hj => Fin.succ_ne_zero j (hf.injective (hj.trans h0.symm))\n    · rw [if_neg h0]\n      by_cases hf' : i = f 0\n      · subst hf'\n        simp only [Function.update_self, Fin.val_zero]\n        rw [hf]\n        simp\n      · rw [Function.update_apply, if_neg hf']\n        rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n        · subst hi\n          simp\n        · subst hj\n          simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n          refine hpred j fun hj => hf' ?_\n          rw [← hj, hf]\n  right_inv f := by\n    match f with\n    | ⟨⟨f, hf⟩, ⟨f0, hf0⟩⟩ =>\n    ext i\n    · simp only [succ_eq_add_one, Fin.cons_update]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        by_cases hi : i = f0.get hs\n        · simp only [Function.update_apply, hi, ↓reduceIte, ↓reduceDIte]\n          exact Eq.symm (Fin.val_eq_of_eq (hf0 hs))\n        · simp only [ne_eq, Fin.succ_inj, hi, not_false_eq_true, Function.update_of_ne,\n          Fin.cons_succ, Function.comp_apply, Fin.pred_succ, dite_eq_ite]\n          rw [if_neg (Fin.succ_ne_zero (f i))]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_succ, Function.comp_apply,\n        Fin.pred_succ, dite_eq_ite]\n        rw [if_neg (Fin.succ_ne_zero (f i))]\n    · simp only [Nat.succ_eq_add_one, Option.dite_none_left_eq_some, Option.some.injEq]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        simp only [Fin.cons_zero, Fin.pred_succ, exists_prop]\n        have hx : ¬ (f0.get hs).succ = 0 := (Fin.succ_ne_zero (f0.get hs))\n        simp only [hx, not_false_eq_true, true_and]\n        rw [Option.eq_some_iff_get_eq]\n        simp [hs]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_zero, not_true_eq_false,\n        IsEmpty.exists_iff, false_iff]\n        simp only [Bool.not_eq_true, Option.isSome_eq_false_iff, Option.isNone_iff_eq_none] at hs\n        subst hs\n        exact ne_of_beq_false rfl\n",
+            "docstring": "There is an equivalence between involutions of `Fin n.succ` and involutions of\n`Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n  in `Fin n.succ` will be sent). "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "involution_distance",
+    "receipts_sha256": "9ddfa2d26bbb873b159f297ed6163b24363c8b1c0bc776b3dd2c7cae75a53b6e"
+  },
+  {
+    "queries": [
+      "weight preserving involution minimum distance"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223599,
+            "name": "MeasureTheory.MeasurePreserving",
+            "module": "Mathlib.Dynamics.Ergodic.MeasurePreserving",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/Ergodic/MeasurePreserving.lean#L43-L48",
+            "source_text": "/-- `f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. -/\nstructure MeasurePreserving (f : α → β)\n  (μa : Measure α := by volume_tac) (μb : Measure β := by volume_tac) : Prop where\n  protected measurable : Measurable f\n  protected map_eq : map f μa = μb\n",
+            "docstring": "`f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. "
+          },
+          {
+            "id": 348712,
+            "name": "dist_inv_inv",
+            "module": "Mathlib.Topology.MetricSpace.IsometricSMul",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/IsometricSMul.lean#L342-L345",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem dist_inv_inv [Group G] [PseudoMetricSpace G] [IsIsometricSMul G G]\n    [IsIsometricSMul Gᵐᵒᵖ G] (a b : G) : dist a⁻¹ b⁻¹ = dist a b :=\n  (IsometryEquiv.inv G).dist_eq a b",
+            "docstring": null
+          },
+          {
+            "id": 138004,
+            "name": "infEdist_inv_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L71-L72",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv_inv := infEDist_inv_inv",
+            "docstring": "**Alias** of `infEDist_inv_inv`."
+          },
+          {
+            "id": 138008,
+            "name": "infEdist_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L82-L83",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv := infEDist_inv",
+            "docstring": "**Alias** of `infEDist_inv`."
+          },
+          {
+            "id": 208405,
+            "name": "List.minimum",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L238-L241",
+            "source_text": "/-- `minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` -/\ndef minimum (l : List α) : WithTop α :=\n  argmin id l\n",
+            "docstring": "`minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389571,
+            "name": "WickContraction.fromInvolution_toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L132-L141",
+            "source_text": "lemma fromInvolution_toInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) :\n    (fromInvolution f).toInvolution = f := by\n  apply Subtype.ext\n  funext i\n  simp only [toInvolution]\n  split\n  · simp\n  · rename_i h\n    simp only [fromInvolution_getDual?_isSome, ne_eq, Decidable.not_not] at h\n    exact h.symm\n",
+            "docstring": null
+          },
+          {
+            "id": 389565,
+            "name": "WickContraction.toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L24-L32",
+            "source_text": "/-- The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\n  If `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\n  it is taken to itself. -/\ndef toInvolution : {f : Fin n → Fin n // Function.Involutive f} :=\n  ⟨fun i => if h : (c.getDual? i).isSome then (c.getDual? i).get h else i, by\n    intro i\n    by_cases h : (c.getDual? i).isSome\n    · simp [h]\n    · simp [h]⟩\n",
+            "docstring": "The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\nIf `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\nit is taken to itself. "
+          },
+          {
+            "id": 386187,
+            "name": "ConjModule.involution",
+            "module": "Physlib.Mathematics.ConjModule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/ConjModule.lean#L70-L74",
+            "source_text": "/-- Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. -/\ndef involution : ConjModule (ConjModule M) ≃ₗ[k] M :=\n  ((conjEquiv (k := k) (M := M)).trans (conjEquiv (k := k) (M := ConjModule M))).symm\n",
+            "docstring": "Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. "
+          },
+          {
+            "id": 389566,
+            "name": "WickContraction.fromInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L34-L71",
+            "source_text": "/-- The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\n  sets of the contraction the orbits of `f` of cardinality `2`. -/\ndef fromInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) : WickContraction n :=\n  ⟨Finset.univ.filter (fun a => a.card = 2 ∧ ∃ i, {i, f.1 i} = a), by\n  intro a\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and, and_imp, forall_exists_index]\n  intro h1 _ _\n  exact h1, by\n  intro a ha b hb\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at ha hb\n  obtain ⟨i, hai⟩ := ha.2\n  subst hai\n  obtain ⟨j, hbj⟩ := hb.2\n  subst hbj\n  by_cases h : i = j\n  · subst h\n    simp\n  · by_cases hi : i = f.1 j\n    · subst hi\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right, true_or, not_true_eq_false, and_false, or_false]\n      rw [f.2]\n      rw [@Finset.pair_comm]\n    · apply Or.inr\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right]\n      apply And.intro\n      · apply And.intro\n        · exact fun a => h a.symm\n        · by_contra hn\n          subst hn\n          rw [f.2 i] at hi\n          simp at hi\n      · apply And.intro\n        · exact fun a => hi a.symm\n        · rw [Function.Injective.eq_iff]\n          exact fun a => h (id (Eq.symm a))\n          exact Function.Involutive.injective f.2⟩\n",
+            "docstring": "The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\nsets of the contraction the orbits of `f` of cardinality `2`. "
+          },
+          {
+            "id": 386360,
+            "name": "Physlib.Fin.involutionCons",
+            "module": "Physlib.Mathematics.Fin.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L26-L144",
+            "source_text": "/-- There is an equivalence between involutions of `Fin n.succ` and involutions of\n  `Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n    in `Fin n.succ` will be sent). -/\ndef involutionCons (n : ℕ) : {f : Fin n.succ → Fin n.succ // Function.Involutive f } ≃\n    (f : {f : Fin n → Fin n // Function.Involutive f}) × {i : Option (Fin n) //\n      ∀ (h : i.isSome), f.1 (Option.get i h) = (Option.get i h)} where\n  toFun f := ⟨⟨\n    fun i =>\n    if h : f.1 i.succ = 0 then i\n    else Fin.pred (f.1 i.succ) h, by\n    intro i\n    by_cases h : f.1 i.succ = 0\n    · simp [h]\n    · simp only [succ_eq_add_one, h, ↓reduceDIte, Fin.succ_pred, f.2 i.succ, Fin.pred_succ,\n        dite_eq_ite, ite_eq_right_iff]\n      exact fun h => False.elim (Fin.succ_ne_zero i h)⟩,\n    ⟨if h : f.1 0 = 0 then none else Fin.pred (f.1 0) h, by\n    by_cases h0 : f.1 0 = 0\n    · simp [h0]\n    · simp only [succ_eq_add_one, h0, ↓reduceDIte, Option.isSome_some, Option.get_some,\n      Fin.succ_pred, dite_eq_left_iff, Fin.pred_inj, forall_const]\n      refine fun h => False.elim (h (f.2 0))⟩⟩\n  invFun f := ⟨\n      if h : (f.2.1).isSome then\n        Fin.cons (f.2.1.get h).succ (Function.update (Fin.succ ∘ f.1.1) (f.2.1.get h) 0)\n      else\n        Fin.cons 0 (Fin.succ ∘ f.1.1), by\n    by_cases hs : (f.2.1).isSome\n    · simp only [Nat.succ_eq_add_one, hs, ↓reduceDIte]\n      let a := f.2.1.get hs\n      change Function.Involutive (Fin.cons a.succ (Function.update (Fin.succ ∘ ↑f.fst) a 0))\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        rw [Fin.cons_zero, Fin.cons_succ]\n        simp\n      · subst hj\n        rw [Fin.cons_succ]\n        by_cases hja : j = a\n        · subst hja\n          simp\n        · rw [Function.update_apply, if_neg hja]\n          simp only [Function.comp_apply, Fin.cons_succ]\n          have hf2 := f.2.2 hs\n          change f.1.1 a = a at hf2\n          have hjf1 : f.1.1 j ≠ a := fun hn => hja (by rw [← f.1.2 j, hn, hf2])\n          rw [Function.update_apply, if_neg hjf1]\n          simp only [Function.comp_apply, Fin.succ_inj]\n          rw [f.1.2]\n    · simp only [succ_eq_add_one, hs, Bool.false_eq_true, ↓reduceDIte]\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.succ_inj]\n        rw [f.1.2]⟩\n  left_inv f := by\n    match f with\n    | ⟨f, hf⟩ =>\n    have hpred (j : Fin n) (hj : f j.succ ≠ 0) :\n        (↑(if h : f j.succ = 0 then j else (f j.succ).pred h) + 1 : ℕ) = ↑(f j.succ) := by\n      rw [dif_neg hj, Fin.val_pred]\n      have hv : (f j.succ).val ≠ 0 := fun h => hj (Fin.ext (by simpa using h))\n      omega\n    simp only [succ_eq_add_one, Option.isSome_dite', Option.get_dite', Fin.succ_pred,\n      Fin.cons_update, dite_eq_ite, ite_not, Subtype.mk.injEq]\n    ext i\n    by_cases h0 : f 0 = 0\n    · simp only [h0, ↓reduceIte]\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp [h0]\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n        refine hpred j fun hj => Fin.succ_ne_zero j (hf.injective (hj.trans h0.symm))\n    · rw [if_neg h0]\n      by_cases hf' : i = f 0\n      · subst hf'\n        simp only [Function.update_self, Fin.val_zero]\n        rw [hf]\n        simp\n      · rw [Function.update_apply, if_neg hf']\n        rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n        · subst hi\n          simp\n        · subst hj\n          simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n          refine hpred j fun hj => hf' ?_\n          rw [← hj, hf]\n  right_inv f := by\n    match f with\n    | ⟨⟨f, hf⟩, ⟨f0, hf0⟩⟩ =>\n    ext i\n    · simp only [succ_eq_add_one, Fin.cons_update]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        by_cases hi : i = f0.get hs\n        · simp only [Function.update_apply, hi, ↓reduceIte, ↓reduceDIte]\n          exact Eq.symm (Fin.val_eq_of_eq (hf0 hs))\n        · simp only [ne_eq, Fin.succ_inj, hi, not_false_eq_true, Function.update_of_ne,\n          Fin.cons_succ, Function.comp_apply, Fin.pred_succ, dite_eq_ite]\n          rw [if_neg (Fin.succ_ne_zero (f i))]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_succ, Function.comp_apply,\n        Fin.pred_succ, dite_eq_ite]\n        rw [if_neg (Fin.succ_ne_zero (f i))]\n    · simp only [Nat.succ_eq_add_one, Option.dite_none_left_eq_some, Option.some.injEq]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        simp only [Fin.cons_zero, Fin.pred_succ, exists_prop]\n        have hx : ¬ (f0.get hs).succ = 0 := (Fin.succ_ne_zero (f0.get hs))\n        simp only [hx, not_false_eq_true, true_and]\n        rw [Option.eq_some_iff_get_eq]\n        simp [hs]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_zero, not_true_eq_false,\n        IsEmpty.exists_iff, false_iff]\n        simp only [Bool.not_eq_true, Option.isSome_eq_false_iff, Option.isNone_iff_eq_none] at hs\n        subst hs\n        exact ne_of_beq_false rfl\n",
+            "docstring": "There is an equivalence between involutions of `Fin n.succ` and involutions of\n`Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n  in `Fin n.succ` will be sent). "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "involution_distance",
+    "receipts_sha256": "9ddfa2d26bbb873b159f297ed6163b24363c8b1c0bc776b3dd2c7cae75a53b6e"
+  }
+]

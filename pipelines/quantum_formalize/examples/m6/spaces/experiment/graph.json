@@ -1,0 +1,230 @@
+{
+  "title": "M6 actual physical subspaces and nonboundary logical words",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Concrete ranges and character dual equal original physical spaces. Requires actual accepted flatten closure before launch.",
+  "nodes": [
+    {
+      "id": "boundary_eval",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Spaces.boundary_eval",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.boundary N a b h = M6.Flatten.flatten N (M6.Physical.boundary N a b h)",
+        "imports": [
+          "M6SpacesReady"
+        ],
+        "context": "",
+        "queries": [
+          "LinearMap range membership finite cardinality",
+          "finite sum orthogonal submodule range"
+        ],
+        "guidance": "Definitional equality of composed linear maps and actual convolution pair. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "dual_boundary_eval",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Spaces.dual_boundary_eval",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.dualBoundary N a b h = M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))",
+        "imports": [
+          "M6SpacesReady"
+        ],
+        "context": "",
+        "queries": [
+          "LinearMap range membership finite cardinality",
+          "finite sum orthogonal submodule range"
+        ],
+        "guidance": "Definitional equality of composed linear maps. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "boundary_words_iff",
+      "dependencies": [
+        "boundary_eval"
+      ],
+      "spec": {
+        "name": "M6.Spaces.boundary_words_iff",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.boundaryWords N a b ↔ ∃ h : M6.Physical.Block N, M6.Flatten.flatten N (M6.Physical.boundary N a b h) = v",
+        "imports": [
+          "M6SpacesReady"
+        ],
+        "context": "",
+        "queries": [
+          "LinearMap range membership finite cardinality",
+          "finite sum orthogonal submodule range"
+        ],
+        "guidance": "Unfold boundaryWords,Character.subspaceWords,B; membership in linear range is an existence witness. Rewrite boundary_eval. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "cycle_words_iff",
+      "dependencies": [
+        "dual_boundary_eval"
+      ],
+      "spec": {
+        "name": "M6.Spaces.cycle_words_iff",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0",
+        "imports": [
+          "M6SpacesReady"
+        ],
+        "context": "",
+        "queries": [
+          "LinearMap range membership finite cardinality",
+          "finite sum orthogonal submodule range"
+        ],
+        "guidance": "Unfold dualWords/Orthogonal/D. Membership in D is range dualBoundary, so forall q∈D dot=0 iff forallh dot(dualBoundaryh)v=0. Apply accepted Flatten.cycle_orthogonal. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "boundaries_are_cycles",
+      "dependencies": [
+        "boundary_words_iff",
+        "cycle_words_iff"
+      ],
+      "spec": {
+        "name": "M6.Spaces.boundaries_are_cycles",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.Spaces.boundaryWords N a b ⊆ M6.Spaces.cycleWords N a b",
+        "imports": [
+          "M6SpacesReady"
+        ],
+        "context": "",
+        "queries": [
+          "LinearMap range membership finite cardinality",
+          "finite sum orthogonal submodule range"
+        ],
+        "guidance": "Use boundary witness h, Flatten.flatten_left and Physical.boundary_cycle. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "logical_words_iff",
+      "dependencies": [
+        "boundary_words_iff",
+        "cycle_words_iff"
+      ],
+      "spec": {
+        "name": "M6.Spaces.logical_words_iff",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.logicalWords N a b ↔ M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 ∧ ¬ ∃ h : M6.Physical.Block N, M6.Flatten.flatten N (M6.Physical.boundary N a b h) = v",
+        "imports": [
+          "M6SpacesReady"
+        ],
+        "context": "",
+        "queries": [
+          "LinearMap range membership finite cardinality",
+          "finite sum orthogonal submodule range"
+        ],
+        "guidance": "Unfold logicalWords, use Finset.mem_sdiff then accepted membership equivalences. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "zero_not_logical",
+      "dependencies": [
+        "boundary_words_iff"
+      ],
+      "spec": {
+        "name": "M6.Spaces.zero_not_logical",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (0 : M6.Pinned.Vector (2*N)) ∉ M6.Spaces.logicalWords N a b",
+        "imports": [
+          "M6SpacesReady"
+        ],
+        "context": "",
+        "queries": [
+          "LinearMap range membership finite cardinality",
+          "finite sum orthogonal submodule range"
+        ],
+        "guidance": "Zero belongs to range actual linear boundary by map_zero, hence to boundaryWords and not sdiff. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "dual_boundary_card",
+      "dependencies": [
+        "boundary_words_iff",
+        "dual_boundary_eval"
+      ],
+      "spec": {
+        "name": "M6.Spaces.dual_boundary_card",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (M6.Character.subspaceWords (M6.Spaces.D N a b)).card = (M6.Spaces.boundaryWords N a b).card",
+        "imports": [
+          "M6SpacesReady"
+        ],
+        "context": "",
+        "queries": [
+          "LinearMap range membership finite cardinality",
+          "finite sum orthogonal submodule range"
+        ],
+        "guidance": "Finset.card_bij between actual boundaryWords and dualBoundaryWords via Flatten.J. Use Flatten.J_involution, flatten_left, and Physical.J_involution. This is actual bijection, not an assumed equal cardinality. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "input_card",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Spaces.input_card",
+        "statement": "∀ (N : ℕ) [NeZero N], Nat.card (M6.Physical.Block N) = 2^N",
+        "imports": [
+          "M6SpacesReady"
+        ],
+        "context": "",
+        "queries": [
+          "LinearMap range membership finite cardinality",
+          "finite sum orthogonal submodule range"
+        ],
+        "guidance": "Finite function cardinality, ZMod card and NeZeroN; no physical support assumptions needed. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    }
+  ]
+}

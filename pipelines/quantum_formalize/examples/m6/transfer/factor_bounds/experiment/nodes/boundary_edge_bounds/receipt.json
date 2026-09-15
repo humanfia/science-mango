@@ -1,0 +1,69 @@
+{
+  "id": "boundary_edge_bounds",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.boundary_edge_bounds",
+    "spec_sha256": "3eec999b42124f5dabec6b374a4c469279a26b74b3edbbe88b1936d7ab387452",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-factor-bounds-formalization/.humanize-formal-runs/run-ft1cufdu/attempt-001/Candidate_18444fcae8dd2e2e.lean",
+        "target_path": "/home/jing/m6-lean-transfer-factor-bounds-formalization/.humanize-formal-runs/run-ft1cufdu/attempt-001/FrozenTarget_18444fcae8dd2e2e.lean",
+        "feedback": "",
+        "target_sha256": "b81a68ed6b37e1e3d7bc272d1e29ef327ab8274bb5671d8f4eeafb50a7a8ce52",
+        "target_olean_sha256": "e5f427f139fb0233f5a3ef919a5c0565d53be31e2faf852822a4a204748d5edf",
+        "source_sha256": "4ac7f3f83e7acc4acbe203271836aa3f97eca3709f843d962a5e2265657cc4a0",
+        "olean_sha256": "1c206f811826c78679d244d9f448214245506697822a12cc5b5eb50883c78c55",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:40:56.587314+00:00",
+    "work": "/home/jing/m6-lean-transfer-factor-bounds-formalization/.humanize-formal-runs/run-ft1cufdu",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "f735029117a966856af5b6e048fe6fb73e3822a474e7b0f07424b43cfdf16e0a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-factor-bounds-formalization/.humanize-formal-runs/run-ft1cufdu/attempt-001/Candidate_18444fcae8dd2e2e.lean",
+    "environment_sha256": "ee7c0066eade47eee7ced8261db29249943b525bcf5404ca8289fe0503ad2d69",
+    "artifacts": {
+      "boundary_factor_bounds": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.boundary_factor_bounds : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2), M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s) ≤ 1 ∧ (M6.Character.boundaryFactor P i s).natDegree ≤ 1 := by\n  classical\n  intro m P i s\n  by_cases h : P i = none ∨ P i = some s\n  · simp only [M6.Character.boundaryFactor, if_pos h]\n    constructor\n    · have hx : (Polynomial.X : Polynomial ℤ) ^ s.val = Polynomial.monomial s.val 1 := by\n        ext n\n        simp [Polynomial.coeff_monomial, eq_comm]\n      rw [hx, M6.Transfer.mass_basic.2.2.1]\n      norm_num\n    · have hs := ZMod.val_lt s\n      rw [Polynomial.natDegree_X_pow]\n      omega\n  · simp [M6.Character.boundaryFactor, h, M6.Transfer.mass_basic.1]",
+          "imports": [
+            "M6TransferFactorBounds"
+          ],
+          "name": "M6.Transfer.boundary_factor_bounds",
+          "ancestors": [],
+          "spec_sha256": "d7901d3da1ce870a4e9cc307bdeb9dc8b686ada563f2ac2c29fb2cf86556ace6"
+        },
+        "sha256": "b814635ba273104b639e952321585e463bdbbc6e97d8cebb5585245edca3c36f"
+      },
+      "boundary_edge_bounds": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.boundary_edge_bounds : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (i j : Fin m) (s t : ZMod 2), M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s * M6.Character.boundaryFactor P j t) ≤ 4 ∧ (M6.Character.boundaryFactor P i s * M6.Character.boundaryFactor P j t).natDegree ≤ 2 := by\n  intro m P i j s t\n  obtain ⟨hmi, hdi⟩ := M6.Transfer.boundary_factor_bounds m P i s\n  obtain ⟨hmj, hdj⟩ := M6.Transfer.boundary_factor_bounds m P j t\n  constructor\n  · calc\n      M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s * M6.Character.boundaryFactor P j t)\n          ≤ M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s) *\n            M6.Transfer.polynomialMass (M6.Character.boundaryFactor P j t) :=\n        M6.Transfer.mass_mul _ _\n      _ ≤ 1 * 1 := Nat.mul_le_mul hmi hmj\n      _ ≤ 4 := by norm_num\n  · exact le_trans Polynomial.natDegree_mul_le (by omega)",
+          "imports": [
+            "M6TransferFactorBounds"
+          ],
+          "name": "M6.Transfer.boundary_edge_bounds",
+          "ancestors": [
+            "boundary_factor_bounds"
+          ],
+          "spec_sha256": "5832e8bba76017e94036b26ecc4ebdebe46ae6cc7a399f3bee428445b0f283cc"
+        },
+        "sha256": "d0fa03ed64d075459bd85286df23bcc888e81bc90b2a63cbde1ab94b44b1be63"
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "matrix_trace_cycle",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.matrix_trace_cycle",
+    "spec_sha256": "e9cb3891ba23c1316354eebda02d6d221454c72e6af5db8b744ec052c11d3e1b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-ijevrp67/attempt-001/Candidate_a9515d49e98571b8.lean",
+        "target_path": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-ijevrp67/attempt-001/FrozenTarget_a9515d49e98571b8.lean",
+        "feedback": "",
+        "target_sha256": "734cb51c553ea750ce9f55e1a3fcb0e9be020b482498c5d53d58021c89fce4ad",
+        "target_olean_sha256": "4489a9a32950167f8910d5dfe61879a1017239a5d68c359901bcc2856905dc3b",
+        "source_sha256": "a88a2536eaab504421ba91b090bb89873f52688cb68fea5193c0a1ceaa7c16cc",
+        "olean_sha256": "408f865db730cbb6425858236b5d1da4de76c721ba45bf93edabc6405f47476e",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:17:02.134533+00:00",
+    "work": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-ijevrp67",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "133d4cfc4e487dae7145935f58376dc11d86f23edc45ebf28e7bbc73edf6ba23",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-trace-formalization/.humanize-formal-runs/run-ijevrp67/attempt-001/Candidate_a9515d49e98571b8.lean",
+    "environment_sha256": "0a49c12eed1674ffadfafae0d472155791d7762df3dff824d8b1a97c252f8510",
+    "artifacts": {
+      "matrix_trace_cycle": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.matrix_trace_cycle : ∀ (S K : Type) [Fintype S] [DecidableEq S] [CommSemiring K] (N : ℕ) [NeZero N] (A : ℕ → Matrix S S K), Matrix.trace (M6.Transfer.matrixProduct A N) = ∑ m : ZMod N → S, ∏ i : ZMod N, A i.val (m i) (m (i+1)) := by\n  classical\n  intro S K _ _ _ N _ A\n  have sum_snoc (n : ℕ) (f : (Fin (n + 1) → S) → K) :\n      (∑ m, f m) = ∑ m : Fin n → S, ∑ b : S, f (Fin.snoc m b) := by\n    let e : ((Fin n → S) × S) ≃ (Fin (n + 1) → S) :=\n      { toFun := fun p => Fin.snoc p.1 p.2\n        invFun := fun m => (fun i => m i.castSucc, m (Fin.last n))\n        left_inv := by intro p; simp\n        right_inv := by\n          intro m\n          funext i\n          cases i using Fin.lastCases <;> simp }\n    calc\n      (∑ m, f m) = ∑ p, f (e p) := (e.sum_comp f).symm\n      _ = ∑ m : Fin n → S, ∑ b : S, f (Fin.snoc m b) := by\n        change (∑ p : (Fin n → S) × S, f (Fin.snoc p.1 p.2)) = _\n        exact Fintype.sum_prod_type (fun p : (Fin n → S) × S => f (Fin.snoc p.1 p.2))\n  have expansion : ∀ n (B : Matrix S S K),\n      Matrix.trace (M6.Transfer.matrixProduct A n * B) =\n        ∑ m : Fin (n + 1) → S,\n          (∏ i : Fin n, A i.val (m i.castSucc) (m i.succ)) *\n            B (m (Fin.last n)) (m 0) := by\n    intro n\n    induction n with\n    | zero =>\n        intro B\n        simpa [M6.Transfer.matrixProduct, Matrix.trace, Fin.snoc] using\n          (sum_snoc 0 (fun m => B (m (Fin.last 0)) (m 0))).symm\n    | succ n ih =>\n        intro B\n        rw [M6.Transfer.matrixProduct, Matrix.mul_assoc, ih]\n        simp only [Matrix.mul_apply, Finset.mul_sum]\n        conv_rhs => rw [sum_snoc (n + 1)]\n        apply Finset.sum_congr rfl\n        intro m _\n        apply Finset.sum_congr rfl\n        intro b _\n        have hs (i : Fin n) :\n            (Fin.snoc m b : Fin (n+2) → S) i.castSucc.succ = m i.succ := by\n          exact Fin.snoc_castSucc (α := fun _ : Fin (n+2) => S) b m i.succ\n        have hz : (Fin.snoc m b : Fin (n+2) → S) 0 = m 0 := by\n          change (Fin.snoc m b : Fin (n+2) → S) (Fin.castSucc (0 : Fin (n + 1))) = m 0\n          simp\n        simp only [Fin.prod_univ_castSucc, Fin.snoc_castSucc,\n          Fin.snoc_last, Fin.val_castSucc, Fin.val_last, hs, hz, mul_assoc]\n        congr 2\n        congr 1\n        exact (Fin.snoc_last (α := fun _ : Fin (n+2) => S) b m).symm\n  cases N with\n  | zero => exact (NeZero.ne 0 rfl).elim\n  | succ n =>\n      rw [M6.Transfer.matrixProduct, expansion]\n      change (∑ m : Fin (n + 1) → S,\n        (∏ i : Fin n, A i.val (m i.castSucc) (m i.succ)) *\n          A n (m (Fin.last n)) (m 0)) =\n        ∑ m : Fin (n + 1) → S,\n          ∏ i : Fin (n + 1), A i.val (m i) (m (i + 1))\n      apply Finset.sum_congr rfl\n      intro m _\n      have hs (i : Fin n) : i.castSucc + 1 = i.succ := by\n        apply Fin.ext\n        simp only [Fin.val_add, Fin.val_one', Fin.val_castSucc, Fin.val_succ, Nat.add_mod_mod]\n        exact Nat.mod_eq_of_lt i.succ.isLt\n      have hl : (Fin.last n : Fin (n + 1)) + 1 = 0 := by\n        apply Fin.ext\n        simp only [Fin.val_add, Fin.val_one', Fin.val_last, Fin.val_zero, Nat.add_mod_mod]\n        exact Nat.mod_self _\n      rw [Fin.prod_univ_castSucc]\n      simp only [Fin.val_castSucc, Fin.val_last, hs, hl]",
+          "imports": [
+            "M6TransferTraceReady"
+          ],
+          "name": "M6.Transfer.matrix_trace_cycle",
+          "ancestors": [],
+          "spec_sha256": "e9cb3891ba23c1316354eebda02d6d221454c72e6af5db8b744ec052c11d3e1b"
+        },
+        "sha256": "5352a794bec0bc3e66d8bb2a3726ab9230c8246a8c54529f74b933ab6818aec7"
+      }
+    }
+  }
+}

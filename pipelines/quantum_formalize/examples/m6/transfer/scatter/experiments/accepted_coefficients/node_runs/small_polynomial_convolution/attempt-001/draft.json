@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (p q : Polynomial ℤ) (d : ℕ), q.natDegree ≤ 2 → _\nintro p q d hqdeg\nclassical\nhave hq : q = Polynomial.monomial 0 (q.coeff 0) +\n    Polynomial.monomial 1 (q.coeff 1) + Polynomial.monomial 2 (q.coeff 2) := by\n  ext n\n  by_cases hn : n ≤ 2\n  · interval_cases n <;> simp [Polynomial.coeff_monomial]\n  · have hz : q.coeff n = 0 :=\n      Polynomial.coeff_eq_zero_of_natDegree_lt (by omega)\n    simpa [Polynomial.coeff_monomial, show 0 ≠ n by omega,\n      show 1 ≠ n by omega, show 2 ≠ n by omega] using hz\nhave hm (n : ℕ) (r : ℤ) :\n    (p * Polynomial.monomial n r).coeff d =\n      if n ≤ d then p.coeff (d - n) * r else 0 := by\n  rw [← Polynomial.C_mul_X_pow_eq_monomial, ← mul_assoc]\n  simp [Polynomial.coeff_mul_X_pow', Polynomial.coeff_mul_C]\nconv_lhs => rw [hq]\nsimp [mul_add, Polynomial.coeff_add, hm, Fin.sum_univ_succ, add_assoc]",
+  "queries": [
+    "Polynomial.coeff_mul_X_pow'",
+    "Polynomial.C_mul_X_pow_eq_monomial"
+  ]
+}

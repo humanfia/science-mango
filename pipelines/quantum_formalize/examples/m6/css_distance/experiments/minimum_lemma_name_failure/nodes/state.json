@@ -1,0 +1,361 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T13:26:14.730726+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "involution_distance": {
+      "id": "involution_distance",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.CSS.involution_distance",
+        "spec_sha256": "980eded79a4ae50ebe8e6462ed9e11900388eb5b8a49f2b3fe440e0e9af95e22",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-ws8i9h20/attempt-001/Candidate_45e5fc86807d5a10.lean:12:14: error(lean.unknownIdentifier): Unknown constant `Finset.eq_empty_iff_forall_not_mem.mpr`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-ws8i9h20/attempt-001/Candidate_45e5fc86807d5a10.lean:13:14: error: No goals to be solved\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-ws8i9h20/attempt-002/Candidate_ec650bb28e29d160.lean:17:28: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-ws8i9h20/attempt-002/Candidate_ec650bb28e29d160.lean:19:28: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-ws8i9h20/attempt-003/Candidate_ea6068e9a079a6ba.lean",
+            "target_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-ws8i9h20/attempt-003/FrozenTarget_ea6068e9a079a6ba.lean",
+            "feedback": "",
+            "target_sha256": "33bb669e52318f1ef87747bb7626b2b30b047e45047e015f1335c73aa1e11235",
+            "target_olean_sha256": "c958ed974b685dd64df88c04c03b38fb84be2da3f4b0259c3c8be760fb7ee9b9",
+            "source_sha256": "ab878fd61543d8204d49b88e03f137a325065300b4025eb3c302c78c4a3e98d2",
+            "olean_sha256": "f037e225b7b7ea34cf79b16bf0f6c3c1068323736d4e9680c0e82bad576da348",
+            "attempt": 3
+          }
+        ],
+        "created_at": "2026-09-15T13:18:02.124975+00:00",
+        "work": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-ws8i9h20",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "f2bcc227bc1fcf108f408475ea435296fad3828cef7b95b17b87d713eef6919f",
+        "phase": "finished",
+        "round": 3,
+        "proof": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-ws8i9h20/attempt-003/Candidate_ea6068e9a079a6ba.lean",
+        "environment_sha256": "3a9f137ab9508c42a0d0bffc73d79886682571cc2f2d2e7374deb7dec0d424f2",
+        "artifacts": {
+          "involution_distance": {
+            "payload": {
+              "declaration": "theorem M6.CSS.involution_distance : ∀ (m : ℕ) (LX LZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ LX ↔ J v ∈ LZ) → M6.Pinned.distance LX = M6.Pinned.distance LZ := by\n  classical\n  change ∀ (m : ℕ) (LX LZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ LX ↔ J v ∈ LZ) → M6.Pinned.distance LX = M6.Pinned.distance LZ\n  intro m LX LZ J hJ hw hmem\n  have hback (v : M6.CSS.Vector m) (hv : v ∈ LZ) : J v ∈ LX := by\n    apply (hmem (J v)).mpr\n    simpa only [hJ v] using hv\n  cases hd : M6.Pinned.distance LX with\n  | none =>\n      have hX : LX = ∅ := (M6.Pinned.distance_spec m LX).1.mp hd\n      have hZ : LZ = ∅ := by\n        apply Finset.ext\n        intro v\n        constructor\n        · intro hv\n          have hx := hback v hv\n          rw [hX] at hx\n          simp at hx\n        · intro hv\n          simp at hv\n      exact ((M6.Pinned.distance_spec m LZ).1.mpr hZ).symm\n  | some d =>\n      obtain ⟨⟨v, hv, hvw⟩, hmin⟩ := (M6.Pinned.distance_spec m LX).2 d |>.mp hd\n      symm\n      apply (M6.Pinned.distance_spec m LZ).2 d |>.mpr\n      constructor\n      · exact ⟨J v, (hmem v).mp hv, (hw v).trans hvw⟩\n      · intro u hu\n        have h := hmin (J u) (hback u hu)\n        simpa only [hw u] using h",
+              "imports": [
+                "M6CSSDistance",
+                "M6PinnedAccepted"
+              ],
+              "name": "M6.CSS.involution_distance",
+              "ancestors": [],
+              "spec_sha256": "980eded79a4ae50ebe8e6462ed9e11900388eb5b8a49f2b3fe440e0e9af95e22"
+            },
+            "sha256": "a95674e89c4635de78026d077f788cb1003d0bcf3a073d7cceb61eee923b5de7"
+          }
+        }
+      }
+    },
+    "logical_pauli_components": {
+      "id": "logical_pauli_components",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.CSS.logical_pauli_components",
+        "spec_sha256": "82327191cebf5c0ae15f82ebc4c4e34381c794e63089de8d40df671c800f0b1c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-02odizx9/attempt-001/Candidate_0d1e6dda8110f9d2.lean",
+            "target_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-02odizx9/attempt-001/FrozenTarget_0d1e6dda8110f9d2.lean",
+            "feedback": "",
+            "target_sha256": "94fa9b1b179fe5668d98f80b6d3beab1b0897d03e65e5685e1f82046c1d9c9df",
+            "target_olean_sha256": "4dc4fd6507d372cbfac67ce179c2fefd41f319b0b0579eb95652d96be6de8b36",
+            "source_sha256": "a22f6884949632b352dea42ac79a57fc863754d7c69cbfa1c545902f09ee9f37",
+            "olean_sha256": "431821ef2b789d3718997fab346666609de4f8689498d90dab292211156f2cc7",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:18:02.143722+00:00",
+        "work": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-02odizx9",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "f2bcc227bc1fcf108f408475ea435296fad3828cef7b95b17b87d713eef6919f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-02odizx9/attempt-001/Candidate_0d1e6dda8110f9d2.lean",
+        "environment_sha256": "3a9f137ab9508c42a0d0bffc73d79886682571cc2f2d2e7374deb7dec0d424f2",
+        "artifacts": {
+          "logical_pauli_components": {
+            "payload": {
+              "declaration": "theorem M6.CSS.logical_pauli_components : ∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)) (p : M6.CSS.Pauli m), p ∈ M6.CSS.logicalPaulis BX CX BZ CZ ↔ p.1 ∈ CX ∧ p.2 ∈ CZ ∧ (p.1 ∈ M6.CSS.logical BX CX ∨ p.2 ∈ M6.CSS.logical BZ CZ) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)) (p : M6.CSS.Pauli m), p ∈ M6.CSS.logicalPaulis BX CX BZ CZ ↔ p.1 ∈ CX ∧ p.2 ∈ CZ ∧ (p.1 ∈ M6.CSS.logical BX CX ∨ p.2 ∈ M6.CSS.logical BZ CZ)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro m BX CX BZ CZ p\n  classical\n  simp only [M6.CSS.logicalPaulis, M6.CSS.logical, Finset.mem_filter,\n    Finset.mem_product, Finset.mem_sdiff] <;> tauto",
+              "imports": [
+                "M6CSSDistance",
+                "M6PinnedAccepted"
+              ],
+              "name": "M6.CSS.logical_pauli_components",
+              "ancestors": [],
+              "spec_sha256": "82327191cebf5c0ae15f82ebc4c4e34381c794e63089de8d40df671c800f0b1c"
+            },
+            "sha256": "db99a39a782001338129657d9b154d1402b89a5f9b5e9258f69c01f5324e3701"
+          }
+        }
+      }
+    },
+    "pure_weights": {
+      "id": "pure_weights",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.CSS.pure_weights",
+        "spec_sha256": "15645f50d81fa212935cdd1278ca106df87edb3b2edf14d94cbf39089c4b1055",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-7ji0p7l1/attempt-001/Candidate_540574bb47660f5c.lean",
+            "target_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-7ji0p7l1/attempt-001/FrozenTarget_540574bb47660f5c.lean",
+            "feedback": "",
+            "target_sha256": "681a960846f5f89588e02aa0a7d648121b59642683d497091d93a47d799030da",
+            "target_olean_sha256": "43706ec9ae83e917eff4ff31bf51109e2be77b99ee86e068e1381ef72026de59",
+            "source_sha256": "7a1f932a40103343c96d5918360476c3e5df6fddbabb9d3d58f4b6f5a31548d9",
+            "olean_sha256": "b6bde6186e012dd94b0ea456d9310366c880bc6ef4af99d4fe83475f3c98600e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:18:02.160858+00:00",
+        "work": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-7ji0p7l1",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "f2bcc227bc1fcf108f408475ea435296fad3828cef7b95b17b87d713eef6919f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-7ji0p7l1/attempt-001/Candidate_540574bb47660f5c.lean",
+        "environment_sha256": "3a9f137ab9508c42a0d0bffc73d79886682571cc2f2d2e7374deb7dec0d424f2",
+        "artifacts": {
+          "pure_weights": {
+            "payload": {
+              "declaration": "theorem M6.CSS.pure_weights : ∀ (m : ℕ) (v : M6.CSS.Vector m), M6.CSS.weight (v, 0) = M6.Pinned.weight v ∧ M6.CSS.weight (0, v) = M6.Pinned.weight v := by\n  change ∀ (m : ℕ) (v : M6.CSS.Vector m), M6.CSS.weight (v, 0) = M6.Pinned.weight v ∧ M6.CSS.weight (0, v) = M6.Pinned.weight v\n  intro m v\n  classical\n  simp [M6.CSS.weight, M6.CSS.support, M6.Pinned.weight]",
+              "imports": [
+                "M6CSSDistance",
+                "M6PinnedAccepted"
+              ],
+              "name": "M6.CSS.pure_weights",
+              "ancestors": [],
+              "spec_sha256": "15645f50d81fa212935cdd1278ca106df87edb3b2edf14d94cbf39089c4b1055"
+            },
+            "sha256": "ae57c2554eb89096b0e92736db8c55abf018c16b2653aaa6ba787c91dac5d965"
+          }
+        }
+      }
+    },
+    "quantum_distance_spec": {
+      "id": "quantum_distance_spec",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.CSS.quantum_distance_spec",
+        "spec_sha256": "21b02bfe1de15ccf0ab946f0595c4734790a0f914d34fdf67059218a909f5957",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-fx0k8jw3/attempt-001/Candidate_fbc20611b0768ee6.lean",
+            "target_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-fx0k8jw3/attempt-001/FrozenTarget_fbc20611b0768ee6.lean",
+            "feedback": "",
+            "target_sha256": "08f2b2fddf14aad95c6c2e1ab1a4594fa3df42248bfc6e7d4fce4791f696661d",
+            "target_olean_sha256": "a8a7011aa26cc28d55f1fe211f56ebfc9c6d0a88ce8de5c1f4f44868a805f428",
+            "source_sha256": "c53c093cf0ed986482edc7ea32030325f73dce311f06676db6883bf0ec923423",
+            "olean_sha256": "6022c5df4e88b36ec6adcbdf77f041098e73546932468597384e55936553af97",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:18:02.177173+00:00",
+        "work": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-fx0k8jw3",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "f2bcc227bc1fcf108f408475ea435296fad3828cef7b95b17b87d713eef6919f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-fx0k8jw3/attempt-001/Candidate_fbc20611b0768ee6.lean",
+        "environment_sha256": "3a9f137ab9508c42a0d0bffc73d79886682571cc2f2d2e7374deb7dec0d424f2",
+        "artifacts": {
+          "quantum_distance_spec": {
+            "payload": {
+              "declaration": "theorem M6.CSS.quantum_distance_spec : ∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)), (M6.CSS.quantumDistance BX CX BZ CZ = none ↔ M6.CSS.logicalPaulis BX CX BZ CZ = ∅) ∧ ∀ d : ℕ, (M6.CSS.quantumDistance BX CX BZ CZ = some d ↔ (∃ p ∈ M6.CSS.logicalPaulis BX CX BZ CZ, M6.CSS.weight p = d) ∧ ∀ p ∈ M6.CSS.logicalPaulis BX CX BZ CZ, d ≤ M6.CSS.weight p) := by\n  classical\n  intro m BX CX BZ CZ\n  let L := M6.CSS.logicalPaulis BX CX BZ CZ\n  have hdef : M6.CSS.logicalPaulis BX CX BZ CZ = L := rfl\n  by_cases hL : L.Nonempty\n  · have hs : (L.image M6.CSS.weight).Nonempty := hL.image M6.CSS.weight\n    have hne : L ≠ ∅ := hL.ne_empty\n    have hsne : L.image M6.CSS.weight ≠ ∅ := hs.ne_empty\n    have hmin : ∀ d : ℕ,\n        (L.image M6.CSS.weight).min' hs = d ↔\n          (∃ p ∈ L, M6.CSS.weight p = d) ∧\n            ∀ p ∈ L, d ≤ M6.CSS.weight p := by\n      intro d\n      constructor\n      · intro hd\n        subst d\n        obtain ⟨p, hp, hw⟩ := Finset.mem_image.mp\n          (Finset.min'_mem (L.image M6.CSS.weight) hs)\n        refine ⟨⟨p, hp, hw⟩, ?_⟩\n        intro q hq\n        exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨q, hq, rfl⟩)\n      · rintro ⟨⟨p, hp, hw⟩, hb⟩\n        apply le_antisymm\n        · rw [← hw]\n          exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨p, hp, rfl⟩)\n        · obtain ⟨q, hq, hqw⟩ := Finset.mem_image.mp\n            (Finset.min'_mem (L.image M6.CSS.weight) hs)\n          rw [← hqw]\n          exact hb q hq\n    simp [M6.CSS.quantumDistance, hdef, hL, hs, hne, hsne, hmin]\n  · have he : L = ∅ := Finset.not_nonempty_iff_eq_empty.mp hL\n    simp [M6.CSS.quantumDistance, hdef, he]",
+              "imports": [
+                "M6CSSDistance",
+                "M6PinnedAccepted"
+              ],
+              "name": "M6.CSS.quantum_distance_spec",
+              "ancestors": [],
+              "spec_sha256": "21b02bfe1de15ccf0ab946f0595c4734790a0f914d34fdf67059218a909f5957"
+            },
+            "sha256": "426f2381a778ff2bcdf8d2d453a86b50199be706493683e4d2b3076355530fea"
+          }
+        }
+      }
+    },
+    "support_bounds": {
+      "id": "support_bounds",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.CSS.support_bounds",
+        "spec_sha256": "f8b2e32c101a0143888b01665da88e4d036de1177b24b1613a9df969ba8e2ce1",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-w7n2l5dg/attempt-001/Candidate_3ca863d62b7dac97.lean",
+            "target_path": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-w7n2l5dg/attempt-001/FrozenTarget_3ca863d62b7dac97.lean",
+            "feedback": "",
+            "target_sha256": "c043c7ecc6da5d761673b8433c7096016acaa05b71de4662c734fe3d849ac452",
+            "target_olean_sha256": "390bf2c05578163d2adc05b357e51f53b2dc2ff1e37f51746314750593fce44e",
+            "source_sha256": "00b527fad96ea70e18101c82b9a3cdc72791e78fcb3d2d0a26d33f087ae557ce",
+            "olean_sha256": "099da34b4a9f31cca6f7529d31e67bbf7451eb842d6a51e93c8e0096bff8c969",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:18:02.199246+00:00",
+        "work": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-w7n2l5dg",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "f2bcc227bc1fcf108f408475ea435296fad3828cef7b95b17b87d713eef6919f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-w7n2l5dg/attempt-001/Candidate_3ca863d62b7dac97.lean",
+        "environment_sha256": "3a9f137ab9508c42a0d0bffc73d79886682571cc2f2d2e7374deb7dec0d424f2",
+        "artifacts": {
+          "support_bounds": {
+            "payload": {
+              "declaration": "theorem M6.CSS.support_bounds : ∀ (m : ℕ) (p : M6.CSS.Pauli m), M6.Pinned.weight p.1 ≤ M6.CSS.weight p ∧ M6.Pinned.weight p.2 ≤ M6.CSS.weight p := by\n  change ∀ (m : ℕ) (p : M6.CSS.Pauli m), M6.Pinned.weight p.1 ≤ M6.CSS.weight p ∧ M6.Pinned.weight p.2 ≤ M6.CSS.weight p\n  intro m p\n  classical\n  unfold M6.Pinned.weight M6.CSS.weight M6.CSS.support\n  constructor\n  · apply Finset.card_le_card\n    intro i hi\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi ⊢\n    exact Or.inl hi\n  · apply Finset.card_le_card\n    intro i hi\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi ⊢\n    exact Or.inr hi",
+              "imports": [
+                "M6CSSDistance",
+                "M6PinnedAccepted"
+              ],
+              "name": "M6.CSS.support_bounds",
+              "ancestors": [],
+              "spec_sha256": "f8b2e32c101a0143888b01665da88e4d036de1177b24b1613a9df969ba8e2ce1"
+            },
+            "sha256": "2f9f092df0dd06501b6aad41b48c1c41ef438d084c6bca081f96cf56c9b35956"
+          }
+        }
+      }
+    },
+    "css_distance_min": {
+      "id": "css_distance_min",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M6.CSS.css_distance_min",
+        "spec_sha256": "f6ceab2cd1f97f98e2b04c942018593f3b6512ad8203e5a96b7dac9433b90612",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-001/Candidate_24af15ef711913b8.lean:33:12: error(lean.unknownIdentifier): Unknown constant `Finset.eq_empty_iff_forall_not_mem.mpr`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-001/Candidate_24af15ef711913b8.lean:34:12: error: No goals to be solved\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-001/Candidate_24af15ef711913b8.lean:45:8: warning: Try `simp at hu` instead of `simpa using hu`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-001/Candidate_24af15ef711913b8.lean:57:6: warning: Try `simp at hu` instead of `simpa using hu`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-002/Candidate_5ac430d582d2a876.lean:41:12: warning: Try `simp at hp` instead of `simpa using hp`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-002/Candidate_5ac430d582d2a876.lean:42:12: warning: Try `simp at hp` instead of `simpa using hp`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-002/Candidate_5ac430d582d2a876.lean:44:28: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:29:12: error(lean.unknownIdentifier): Unknown constant `Finset.eq_empty_iff_forall_not_mem.mpr`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:30:12: error: No goals to be solved\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:27:17: warning: This simp argument is unused:\n  hx\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hz, M6.CSS.minDistance]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:27:21: warning: This simp argument is unused:\n  hz\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hx, M6.CSS.minDistance]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:36:17: warning: This simp argument is unused:\n  hx\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hz, M6.CSS.minDistance]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:36:21: warning: This simp argument is unused:\n  hz\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hx, M6.CSS.minDistance]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:49:17: warning: This simp argument is unused:\n  hx\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hz, M6.CSS.minDistance]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:49:21: warning: This simp argument is unused:\n  hz\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hx, M6.CSS.minDistance]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:59:17: warning: This simp argument is unused:\n  hx\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hz, M6.CSS.minDistance]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-003/Candidate_7984ffeefe370432.lean:59:21: warning: This simp argument is unused:\n  hz\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hx, M6.CSS.minDistance]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-004/Candidate_181be3f5aa0b3682.lean:33:28: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-004/Candidate_181be3f5aa0b3682.lean:35:28: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-004/Candidate_181be3f5aa0b3682.lean:37:26: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-004/Candidate_181be3f5aa0b3682.lean:47:28: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-004/Candidate_181be3f5aa0b3682.lean:62:28: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-005/Candidate_171b492cd4b98e9a.lean:25:12: error(lean.unknownIdentifier): Unknown constant `Finset.eq_empty_iff_forall_not_mem.mpr`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-005/Candidate_171b492cd4b98e9a.lean:26:12: error: No goals to be solved\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-005/Candidate_171b492cd4b98e9a.lean:39:32: warning: Try `simp at hp` instead of `simpa using hp`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i/attempt-005/Candidate_171b492cd4b98e9a.lean:55:32: warning: Try `simp at hp` instead of `simpa using hp`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T13:19:59.159496+00:00",
+        "work": "/home/jing/m6-lean-css-distance-formalization/.humanize-formal-runs/run-v8gb6g6i",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "f2bcc227bc1fcf108f408475ea435296fad3828cef7b95b17b87d713eef6919f",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "common_quantum_distance": {
+      "id": "common_quantum_distance",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "css_distance_min"
+      ]
+    }
+  }
+}

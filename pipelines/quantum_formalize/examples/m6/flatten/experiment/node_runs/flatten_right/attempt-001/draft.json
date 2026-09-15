@@ -1,0 +1,6 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2 * N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v\nintro N inst v\nfunext i\nby_cases h : i.val < N\n· simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_pos h, dif_pos h]\n  apply congrArg v\n  apply Fin.ext\n  simp [ZMod.val_natCast, Nat.mod_eq_of_lt h]\n· have hi : i.val - N < N := by omega\n  simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_neg h, dif_neg h]\n  apply congrArg v\n  apply Fin.ext\n  simp only [Fin.val_mk, ZMod.val_natCast, Nat.mod_eq_of_lt hi]\n  omega",
+  "queries": [
+    "ZMod.val_natCast"
+  ]
+}

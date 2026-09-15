@@ -1,0 +1,260 @@
+[
+  {
+    "queries": [
+      "binary weight finite sum polynomial product",
+      "Fintype ZMod two finite sum"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "binary weight finite sum polynomial product",
+        "status": "ok",
+        "results": [
+          {
+            "id": 314243,
+            "name": "MvPolynomial.IsWeightedHomogeneous.prod",
+            "module": "Mathlib.RingTheory.MvPolynomial.WeightedHomogeneous",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/WeightedHomogeneous.lean#L285-L298",
+            "source_text": "/-- A product of weighted homogeneous polynomials is weighted homogeneous, with weighted degree\n  equal to the sum of the weighted degrees. -/\ntheorem prod {ι : Type*} (s : Finset ι) (φ : ι → MvPolynomial σ R) (n : ι → M) {w : σ → M} :\n    (∀ i ∈ s, IsWeightedHomogeneous w (φ i) (n i)) →\n      IsWeightedHomogeneous w (∏ i ∈ s, φ i) (∑ i ∈ s, n i) := by\n  classical\n  refine Finset.induction_on s ?_ ?_\n  · intro\n    simp only [isWeightedHomogeneous_one, Finset.sum_empty, Finset.prod_empty]\n  · intro i s his IH h\n    simp only [his, Finset.prod_insert, Finset.sum_insert, not_false_iff]\n    apply (h i (Finset.mem_insert_self _ _)).mul (IH _)\n    intro j hjs\n    exact h j (Finset.mem_insert_of_mem hjs)\n",
+            "docstring": "A product of weighted homogeneous polynomials is weighted homogeneous, with weighted degree\nequal to the sum of the weighted degrees. "
+          },
+          {
+            "id": 101067,
+            "name": "Polynomial.sum",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L843-L845",
+            "source_text": "/-- Summing the values of a function applied to the coefficients of a polynomial -/\ndef sum {S : Type*} [AddCommMonoid S] (p : R[X]) (f : ℕ → R → S) : S :=\n  ∑ n ∈ p.support, f n (p.coeff n)\n",
+            "docstring": "Summing the values of a function applied to the coefficients of a polynomial "
+          },
+          {
+            "id": 101070,
+            "name": "Polynomial.mul_eq_sum_sum",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L856-L861",
+            "source_text": "/-- Expressing the product of two polynomials as a double sum. -/\ntheorem mul_eq_sum_sum :\n    p * q = ∑ i ∈ p.support, q.sum fun j a ↦ (monomial (i + j)) (p.coeff i * a) := by\n  apply toFinsupp_injective\n  simp_rw [sum, coeff, toFinsupp_sum, support, toFinsupp_mul, toFinsupp_monomial,\n    AddMonoidAlgebra.mul_def, Finsupp.sum]\n",
+            "docstring": "Expressing the product of two polynomials as a double sum. "
+          },
+          {
+            "id": 128685,
+            "name": "Polynomial.sum_derivRootWeight_pos",
+            "module": "Mathlib.Analysis.Complex.Polynomial.GaussLucas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Complex/Polynomial/GaussLucas.lean#L36-L52",
+            "source_text": "/-- The sum of the weights `derivRootWeight P z w` of all the roots `w` of `P` is positive,\nprovided that `P` is not a constant polynomial. -/\ntheorem sum_derivRootWeight_pos (hP : 0 < degree P) (z : ℂ) :\n    0 < ∑ w ∈ P.roots.toFinset, derivRootWeight P z w := by\n  have hP₀ : P ≠ 0 := by rintro rfl; simp at hP\n  by_cases hPz : P.eval z = 0\n  · simp [derivRootWeight, hPz, hP₀]\n  · simp only [derivRootWeight, if_neg hPz]\n    apply Finset.sum_pos\n    · intro w hw\n      apply div_pos (by simp_all)\n      suffices z ≠ w by simpa [sq_pos_iff, sub_eq_zero]\n      rintro rfl\n      simp_all\n    · rw [Multiset.toFinset_nonempty]\n      apply Splits.roots_ne_zero (IsAlgClosed.splits _)\n      rwa [← pos_iff_ne_zero, natDegree_pos_iff_degree_pos]\n",
+            "docstring": "The sum of the weights `derivRootWeight P z w` of all the roots `w` of `P` is positive,\nprovided that `P` is not a constant polynomial. "
+          },
+          {
+            "id": 128683,
+            "name": "Polynomial.derivRootWeight",
+            "module": "Mathlib.Analysis.Complex.Polynomial.GaussLucas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Complex/Polynomial/GaussLucas.lean#L23-L28",
+            "source_text": "/-- Given a polynomial `P` of positive degree and a root `z` of its derivative,\n`derivRootWeight P z w` gives the weight of a root `w` of `P` in a convex combination\nthat is equal to `z`. -/\nnoncomputable def derivRootWeight (P : ℂ[X]) (z w : ℂ) : ℝ :=\n  if P.eval z = 0 then (Pi.single z 1 : ℂ → ℝ) w\n  else P.rootMultiplicity w / ‖z - w‖ ^ 2\n",
+            "docstring": "Given a polynomial `P` of positive degree and a root `z` of its derivative,\n`derivRootWeight P z w` gives the weight of a root `w` of `P` in a convex combination\nthat is equal to `z`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "binary weight finite sum polynomial product",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype ZMod two finite sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223203,
+            "name": "ZMod.fintype",
+            "module": "Mathlib.Data.ZMod.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L158-L160",
+            "source_text": "instance fintype : ∀ (n : ℕ) [NeZero n], Fintype (ZMod n)\n  | 0, h => (h.ne _ rfl).elim\n  | n + 1, _ => Fin.fintype (n + 1)\n",
+            "docstring": null
+          },
+          {
+            "id": 205989,
+            "name": "Fintype.finite",
+            "module": "Mathlib.Data.Fintype.EquivFin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/EquivFin.lean#L164-L165",
+            "source_text": "protected theorem Fintype.finite {α : Type*} (_inst : Fintype α) : Finite α :=\n  ⟨Fintype.equivFin α⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 223081,
+            "name": "ZMod.val_add",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L646-L649",
+            "source_text": "theorem val_add {n : ℕ} [NeZero n] (a b : ZMod n) : (a + b).val = (a.val + b.val) % n := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.val_add\n",
+            "docstring": null
+          },
+          {
+            "id": 205944,
+            "name": "Fintype",
+            "module": "Mathlib.Data.Fintype.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Defs.lean#L53-L61",
+            "source_text": "/-- `Fintype α` means that `α` is finite, i.e. there are only\n  finitely many distinct elements of type `α`. The evidence of this\n  is a finset `elems` (a list up to permutation without duplicates),\n  together with a proof that everything of type `α` is in the list. -/\nclass Fintype (α : Type*) where\n  /-- The `Finset` containing all elements of a `Fintype` -/\n  elems : Finset α\n  /-- A proof that `elems` contains every element of the type -/\n  complete : ∀ x : α, x ∈ elems\n",
+            "docstring": "`Fintype α` means that `α` is finite, i.e. there are only\nfinitely many distinct elements of type `α`. The evidence of this\nis a finset `elems` (a list up to permutation without duplicates),\ntogether with a proof that everything of type `α` is in the list. "
+          },
+          {
+            "id": 307548,
+            "name": "AddMonoid.FG.to_moduleFinite_int",
+            "module": "Mathlib.RingTheory.Finiteness.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Finiteness/Defs.lean#L158-L160",
+            "source_text": "instance AddMonoid.FG.to_moduleFinite_int {G : Type*} [AddCommGroup G] [FG G] :\n    Module.Finite ℤ G :=\n  Module.Finite.iff_addGroup_fg.mpr <| AddGroup.fg_iff_addMonoid_fg.mpr ‹_›\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fintype ZMod two finite sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391810,
+            "name": "Lorentz.CoℂModule.val_add",
+            "module": "Physlib.Relativity.Tensors.ComplexTensor.Vector.Pre.Modules",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Vector/Pre/Modules.lean#L133-L134",
+            "source_text": "@[simp]\nlemma val_add (ψ ψ' : CoℂModule) : (ψ + ψ').val = ψ.val + ψ'.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 386759,
+            "name": "Physlib.PiTensorProduct.instModuleElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L90-L95",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of a module over `R`,\n  the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → Module R ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1' i\n  | Sum.inr i => inst2' i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of a module over `R`,\nthe target of the sum of these two maps also carry an instance thereof. "
+          },
+          {
+            "id": 387203,
+            "name": "SMRHN.sum_familyUniversal_two",
+            "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.FamilyMaps",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/FamilyMaps.lean#L125-L134",
+            "source_text": "lemma sum_familyUniversal_two {n : ℕ} (S : (SMνCharges 1).Charges)\n    (T : (SMνCharges n).Charges) (j : Fin 6) :\n    ∑ i, (toSpecies j (familyUniversal n S) i * toSpecies j T i) =\n    (toSpecies j S ⟨0, by simp⟩) * ∑ i, toSpecies j T i := by\n  simp only [toSpecies_apply, toSpeciesEquiv_apply, Fin.zero_eta,\n    Fin.isValue, Nat.reduceMul]\n  rw [Finset.mul_sum]\n  refine Finset.sum_congr rfl (fun i _ => ?_)\n  erw [toSpecies_familyUniversal]\n  rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 388589,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.ZModCharges_two_eq",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.ZMod",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/ZMod.lean#L102-L104",
+            "source_text": "/-- This lemma corresponds to the statement that there are no choices of `ℤ₂` representations\n  which give a phenomenologically viable theory. -/\nlemma ZModCharges_two_eq : ZModCharges 2 = ∅ := by decide\n",
+            "docstring": "This lemma corresponds to the statement that there are no choices of `ℤ₂` representations\nwhich give a phenomenologically viable theory. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "binary weight finite sum polynomial product",
+      "Fintype ZMod two finite sum"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

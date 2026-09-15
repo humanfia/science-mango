@@ -1,0 +1,105 @@
+{
+  "title": "M6 actual pinned transfer edge coefficient bounds",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "scope": "Original degree-at-most-two and mass-at-most-four for actual boundary/character pin factors, not an abstract supplied edge condition.",
+  "nodes": [
+    {
+      "id": "boundary_factor_bounds",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Transfer.boundary_factor_bounds",
+        "statement": "∀ (m : ℕ) (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2), M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s) ≤ 1 ∧ (M6.Character.boundaryFactor P i s).natDegree ≤ 1",
+        "imports": [
+          "M6TransferFactorBounds"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial natDegree_mul_le natDegree_sum_le",
+          "ZMod val_lt monomial polynomial coefficient"
+        ],
+        "guidance": "Split actual boundaryFactor acceptance condition. It is0 orX^s.val withs.val<2. mass_basic monomial gives mass1 for X powers, degree_X_pow gives degree s.val≤1. Pin acceptance and bit zero cases retained. Return tactic lines without leading by. Actual definitions:\nimport M6Character\nimport M6Pinned\n\nopen scoped BigOperators\nnamespace M6.Character\nnoncomputable def boundaryFactor {m : ℕ} (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2) : Polynomial ℤ := by\n  classical\n  exact if P i = none ∨ P i = some s then Polynomial.X ^ s.val else 0\n\nnoncomputable def pinnedCharacterFactor {m : ℕ} (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2) : Polynomial ℤ :=\n  ∑ t : ZMod 2, Polynomial.C (sign (s*t)) * boundaryFactor P i t\n\nnoncomputable def pinnedTransform {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (P : M6.Pinned.Pins m) : Polynomial ℤ :=\n  ∑ q ∈ subspaceWords D, ∏ i, pinnedCharacterFactor P i (q i)\n\nnoncomputable def pinnedMonomial {m : ℕ} (P : M6.Pinned.Pins m) (v : Vector m) : Polynomial ℤ := by\n  classical\n  exact if M6.Pinned.agrees P v then Polynomial.X ^ M6.Pinned.weight v else 0\nend M6.Character\n\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Algebra.Module.Pi\nimport Mathlib.Algebra.Module.Submodule.Basic\nimport Mathlib.Algebra.Polynomial.Basic\nimport Mathlib.Algebra.BigOperators.Ring.Finset\nimport Mathlib.Data.Fintype.Pi\nimport Mathlib.Tactic\n\nopen scoped BigOperators\nnamespace M6.Character\nabbrev Vector (m : ℕ) := Fin m → ZMod 2\n\ndef dot {m : ℕ} (q z : Vector m) : ZMod 2 := ∑ i, q i * z i\n\ndef sign (s : ZMod 2) : ℤ := (-1) ^ s.val\n\ndef character {m : ℕ} (q z : Vector m) : ℤ := sign (dot q z)\n\nnoncomputable def subspaceWords {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) : Finset (Vector m) := by\n  classical\n  exact Finset.univ.filter (fun q => q ∈ D)\n\ndef Orthogonal {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : Prop :=\n  ∀ q ∈ D, dot q z = 0\n\nnoncomputable def dualWords {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) : Finset (Vector m) := by\n  classical\n  exact Finset.univ.filter (Orthogonal D)\n\nnoncomputable def orthogonalIndicator {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : ℤ := by\n  classical\n  exact if Orthogonal D z then (subspaceWords D).card else 0\n\nnoncomputable def characterSum {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : ℤ :=\n  ∑ q ∈ subspaceWords D, character q z\n\nnoncomputable def localTransform {m : ℕ} (w : Fin m → ZMod 2 → Polynomial ℤ) (q : Vector m) : Polynomial ℤ :=\n  ∏ i, ∑ s : ZMod 2, Polynomial.C (sign (q i * s)) * w i s\n\nnoncomputable def weightedDual {m : ℕ} (D : Submodule (ZMod 2) (Vector m))\n    (w : Fin m → ZMod 2 → Polynomial ℤ) : Polynomial ℤ :=\n  ∑ z ∈ dualWords D, ∏ i, w i (z i)\n\nnoncomputable def weightedTransform {m : ℕ} (D : Submodule (ZMod 2) (Vector m))\n    (w : Fin m → ZMod 2 → Polynomial ℤ) : Polynomial ℤ :=\n  ∑ q ∈ subspaceWords D, localTransform w q\nend M6.Character\n\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_ACTUAL_EDGE_RESOURCE_HYPOTHESES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "character_factor_bounds",
+      "dependencies": [
+        "boundary_factor_bounds"
+      ],
+      "spec": {
+        "name": "M6.Transfer.character_factor_bounds",
+        "statement": "∀ (m : ℕ) (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2), M6.Transfer.polynomialMass (M6.Character.pinnedCharacterFactor P i s) ≤ 2 ∧ (M6.Character.pinnedCharacterFactor P i s).natDegree ≤ 1",
+        "imports": [
+          "M6TransferFactorBounds"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial natDegree_mul_le natDegree_sum_le",
+          "ZMod val_lt monomial polynomial coefficient"
+        ],
+        "guidance": "Expand sum over both bit labels. sign(s*t)=(-1)^val has natAbs1, hence constant polynomial mass1. Use accepted mass_sum/mass_mul and boundary_factor_bounds to get sum≤2. natDegree_C=0 and degree of each product≤1 imply sum degree≤1, including cancellation. Return tactic lines without leading by. Actual definitions:\nimport M6Character\nimport M6Pinned\n\nopen scoped BigOperators\nnamespace M6.Character\nnoncomputable def boundaryFactor {m : ℕ} (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2) : Polynomial ℤ := by\n  classical\n  exact if P i = none ∨ P i = some s then Polynomial.X ^ s.val else 0\n\nnoncomputable def pinnedCharacterFactor {m : ℕ} (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2) : Polynomial ℤ :=\n  ∑ t : ZMod 2, Polynomial.C (sign (s*t)) * boundaryFactor P i t\n\nnoncomputable def pinnedTransform {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (P : M6.Pinned.Pins m) : Polynomial ℤ :=\n  ∑ q ∈ subspaceWords D, ∏ i, pinnedCharacterFactor P i (q i)\n\nnoncomputable def pinnedMonomial {m : ℕ} (P : M6.Pinned.Pins m) (v : Vector m) : Polynomial ℤ := by\n  classical\n  exact if M6.Pinned.agrees P v then Polynomial.X ^ M6.Pinned.weight v else 0\nend M6.Character\n\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Algebra.Module.Pi\nimport Mathlib.Algebra.Module.Submodule.Basic\nimport Mathlib.Algebra.Polynomial.Basic\nimport Mathlib.Algebra.BigOperators.Ring.Finset\nimport Mathlib.Data.Fintype.Pi\nimport Mathlib.Tactic\n\nopen scoped BigOperators\nnamespace M6.Character\nabbrev Vector (m : ℕ) := Fin m → ZMod 2\n\ndef dot {m : ℕ} (q z : Vector m) : ZMod 2 := ∑ i, q i * z i\n\ndef sign (s : ZMod 2) : ℤ := (-1) ^ s.val\n\ndef character {m : ℕ} (q z : Vector m) : ℤ := sign (dot q z)\n\nnoncomputable def subspaceWords {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) : Finset (Vector m) := by\n  classical\n  exact Finset.univ.filter (fun q => q ∈ D)\n\ndef Orthogonal {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : Prop :=\n  ∀ q ∈ D, dot q z = 0\n\nnoncomputable def dualWords {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) : Finset (Vector m) := by\n  classical\n  exact Finset.univ.filter (Orthogonal D)\n\nnoncomputable def orthogonalIndicator {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : ℤ := by\n  classical\n  exact if Orthogonal D z then (subspaceWords D).card else 0\n\nnoncomputable def characterSum {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : ℤ :=\n  ∑ q ∈ subspaceWords D, character q z\n\nnoncomputable def localTransform {m : ℕ} (w : Fin m → ZMod 2 → Polynomial ℤ) (q : Vector m) : Polynomial ℤ :=\n  ∏ i, ∑ s : ZMod 2, Polynomial.C (sign (q i * s)) * w i s\n\nnoncomputable def weightedDual {m : ℕ} (D : Submodule (ZMod 2) (Vector m))\n    (w : Fin m → ZMod 2 → Polynomial ℤ) : Polynomial ℤ :=\n  ∑ z ∈ dualWords D, ∏ i, w i (z i)\n\nnoncomputable def weightedTransform {m : ℕ} (D : Submodule (ZMod 2) (Vector m))\n    (w : Fin m → ZMod 2 → Polynomial ℤ) : Polynomial ℤ :=\n  ∑ q ∈ subspaceWords D, localTransform w q\nend M6.Character\n\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_ACTUAL_EDGE_RESOURCE_HYPOTHESES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "boundary_edge_bounds",
+      "dependencies": [
+        "boundary_factor_bounds"
+      ],
+      "spec": {
+        "name": "M6.Transfer.boundary_edge_bounds",
+        "statement": "∀ (m : ℕ) (P : M6.Pinned.Pins m) (i j : Fin m) (s t : ZMod 2), M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s * M6.Character.boundaryFactor P j t) ≤ 4 ∧ (M6.Character.boundaryFactor P i s * M6.Character.boundaryFactor P j t).natDegree ≤ 2",
+        "imports": [
+          "M6TransferFactorBounds"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial natDegree_mul_le natDegree_sum_le",
+          "ZMod val_lt monomial polynomial coefficient"
+        ],
+        "guidance": "Use mass_mul and single-factor mass≤1≤2; natDegree_mul_le with eachdegree≤1. Arbitrary i,j includes all physical index choices. Return tactic lines without leading by. Actual definitions:\nimport M6Character\nimport M6Pinned\n\nopen scoped BigOperators\nnamespace M6.Character\nnoncomputable def boundaryFactor {m : ℕ} (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2) : Polynomial ℤ := by\n  classical\n  exact if P i = none ∨ P i = some s then Polynomial.X ^ s.val else 0\n\nnoncomputable def pinnedCharacterFactor {m : ℕ} (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2) : Polynomial ℤ :=\n  ∑ t : ZMod 2, Polynomial.C (sign (s*t)) * boundaryFactor P i t\n\nnoncomputable def pinnedTransform {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (P : M6.Pinned.Pins m) : Polynomial ℤ :=\n  ∑ q ∈ subspaceWords D, ∏ i, pinnedCharacterFactor P i (q i)\n\nnoncomputable def pinnedMonomial {m : ℕ} (P : M6.Pinned.Pins m) (v : Vector m) : Polynomial ℤ := by\n  classical\n  exact if M6.Pinned.agrees P v then Polynomial.X ^ M6.Pinned.weight v else 0\nend M6.Character\n\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Algebra.Module.Pi\nimport Mathlib.Algebra.Module.Submodule.Basic\nimport Mathlib.Algebra.Polynomial.Basic\nimport Mathlib.Algebra.BigOperators.Ring.Finset\nimport Mathlib.Data.Fintype.Pi\nimport Mathlib.Tactic\n\nopen scoped BigOperators\nnamespace M6.Character\nabbrev Vector (m : ℕ) := Fin m → ZMod 2\n\ndef dot {m : ℕ} (q z : Vector m) : ZMod 2 := ∑ i, q i * z i\n\ndef sign (s : ZMod 2) : ℤ := (-1) ^ s.val\n\ndef character {m : ℕ} (q z : Vector m) : ℤ := sign (dot q z)\n\nnoncomputable def subspaceWords {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) : Finset (Vector m) := by\n  classical\n  exact Finset.univ.filter (fun q => q ∈ D)\n\ndef Orthogonal {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : Prop :=\n  ∀ q ∈ D, dot q z = 0\n\nnoncomputable def dualWords {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) : Finset (Vector m) := by\n  classical\n  exact Finset.univ.filter (Orthogonal D)\n\nnoncomputable def orthogonalIndicator {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : ℤ := by\n  classical\n  exact if Orthogonal D z then (subspaceWords D).card else 0\n\nnoncomputable def characterSum {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : ℤ :=\n  ∑ q ∈ subspaceWords D, character q z\n\nnoncomputable def localTransform {m : ℕ} (w : Fin m → ZMod 2 → Polynomial ℤ) (q : Vector m) : Polynomial ℤ :=\n  ∏ i, ∑ s : ZMod 2, Polynomial.C (sign (q i * s)) * w i s\n\nnoncomputable def weightedDual {m : ℕ} (D : Submodule (ZMod 2) (Vector m))\n    (w : Fin m → ZMod 2 → Polynomial ℤ) : Polynomial ℤ :=\n  ∑ z ∈ dualWords D, ∏ i, w i (z i)\n\nnoncomputable def weightedTransform {m : ℕ} (D : Submodule (ZMod 2) (Vector m))\n    (w : Fin m → ZMod 2 → Polynomial ℤ) : Polynomial ℤ :=\n  ∑ q ∈ subspaceWords D, localTransform w q\nend M6.Character\n\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_ACTUAL_EDGE_RESOURCE_HYPOTHESES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "character_edge_bounds",
+      "dependencies": [
+        "character_factor_bounds"
+      ],
+      "spec": {
+        "name": "M6.Transfer.character_edge_bounds",
+        "statement": "∀ (m : ℕ) (P : M6.Pinned.Pins m) (i j : Fin m) (s t : ZMod 2), M6.Transfer.polynomialMass (M6.Character.pinnedCharacterFactor P i s * M6.Character.pinnedCharacterFactor P j t) ≤ 4 ∧ (M6.Character.pinnedCharacterFactor P i s * M6.Character.pinnedCharacterFactor P j t).natDegree ≤ 2",
+        "imports": [
+          "M6TransferFactorBounds"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial natDegree_mul_le natDegree_sum_le",
+          "ZMod val_lt monomial polynomial coefficient"
+        ],
+        "guidance": "Use mass_mul and2*2=4. natDegree_mul_le gives1+1=2. No assumptions on pins, swapped orientation or equality of coordinates needed. Return tactic lines without leading by. Actual definitions:\nimport M6Character\nimport M6Pinned\n\nopen scoped BigOperators\nnamespace M6.Character\nnoncomputable def boundaryFactor {m : ℕ} (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2) : Polynomial ℤ := by\n  classical\n  exact if P i = none ∨ P i = some s then Polynomial.X ^ s.val else 0\n\nnoncomputable def pinnedCharacterFactor {m : ℕ} (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2) : Polynomial ℤ :=\n  ∑ t : ZMod 2, Polynomial.C (sign (s*t)) * boundaryFactor P i t\n\nnoncomputable def pinnedTransform {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (P : M6.Pinned.Pins m) : Polynomial ℤ :=\n  ∑ q ∈ subspaceWords D, ∏ i, pinnedCharacterFactor P i (q i)\n\nnoncomputable def pinnedMonomial {m : ℕ} (P : M6.Pinned.Pins m) (v : Vector m) : Polynomial ℤ := by\n  classical\n  exact if M6.Pinned.agrees P v then Polynomial.X ^ M6.Pinned.weight v else 0\nend M6.Character\n\nimport Mathlib.Data.ZMod.Basic\nimport Mathlib.Algebra.Module.Pi\nimport Mathlib.Algebra.Module.Submodule.Basic\nimport Mathlib.Algebra.Polynomial.Basic\nimport Mathlib.Algebra.BigOperators.Ring.Finset\nimport Mathlib.Data.Fintype.Pi\nimport Mathlib.Tactic\n\nopen scoped BigOperators\nnamespace M6.Character\nabbrev Vector (m : ℕ) := Fin m → ZMod 2\n\ndef dot {m : ℕ} (q z : Vector m) : ZMod 2 := ∑ i, q i * z i\n\ndef sign (s : ZMod 2) : ℤ := (-1) ^ s.val\n\ndef character {m : ℕ} (q z : Vector m) : ℤ := sign (dot q z)\n\nnoncomputable def subspaceWords {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) : Finset (Vector m) := by\n  classical\n  exact Finset.univ.filter (fun q => q ∈ D)\n\ndef Orthogonal {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : Prop :=\n  ∀ q ∈ D, dot q z = 0\n\nnoncomputable def dualWords {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) : Finset (Vector m) := by\n  classical\n  exact Finset.univ.filter (Orthogonal D)\n\nnoncomputable def orthogonalIndicator {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : ℤ := by\n  classical\n  exact if Orthogonal D z then (subspaceWords D).card else 0\n\nnoncomputable def characterSum {m : ℕ} (D : Submodule (ZMod 2) (Vector m)) (z : Vector m) : ℤ :=\n  ∑ q ∈ subspaceWords D, character q z\n\nnoncomputable def localTransform {m : ℕ} (w : Fin m → ZMod 2 → Polynomial ℤ) (q : Vector m) : Polynomial ℤ :=\n  ∏ i, ∑ s : ZMod 2, Polynomial.C (sign (q i * s)) * w i s\n\nnoncomputable def weightedDual {m : ℕ} (D : Submodule (ZMod 2) (Vector m))\n    (w : Fin m → ZMod 2 → Polynomial ℤ) : Polynomial ℤ :=\n  ∑ z ∈ dualWords D, ∏ i, w i (z i)\n\nnoncomputable def weightedTransform {m : ℕ} (D : Submodule (ZMod 2) (Vector m))\n    (w : Fin m → ZMod 2 → Polynomial ℤ) : Polynomial ℤ :=\n  ∑ q ∈ subspaceWords D, localTransform w q\nend M6.Character\n\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_ACTUAL_EDGE_RESOURCE_HYPOTHESES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

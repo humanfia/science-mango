@@ -1,0 +1,82 @@
+{
+  "id": "J_weight",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Flatten.J_weight",
+    "spec_sha256": "7ca2952b20eff73b5a576520a7892d792c13addf253c5711578b742416345731",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-gm2go0h0/attempt-001/Candidate_369b8db7c3b888a1.lean",
+        "target_path": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-gm2go0h0/attempt-001/FrozenTarget_369b8db7c3b888a1.lean",
+        "feedback": "",
+        "target_sha256": "b3f5d8233fb72d08113029956f4c43074aafa40745ebb6226fac0e2222a40c31",
+        "target_olean_sha256": "924170e6a2eadb8a897798824972ffb9214f83ecd3eed052a88250c983053068",
+        "source_sha256": "56c0f471df9aa72982ed61e29c6448683589c26b7675df4b1f1eb83429f4e735",
+        "olean_sha256": "823d65fb8b367a691f59530363ef5fc54e570a31cf5b9fa02801d55b1e9a44d7",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:19:19.377026+00:00",
+    "work": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-gm2go0h0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2d18c1652414b71e0fa8b98aef9562765a41dfdb04465f77b43ba1d4f2619a05",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-gm2go0h0/attempt-001/Candidate_369b8db7c3b888a1.lean",
+    "environment_sha256": "326713744fbdc1ee47e205c39c11b79ae570441fa7673eaf03a5f43f98298f54",
+    "artifacts": {
+      "flatten_weight": {
+        "payload": {
+          "declaration": "theorem M6.Flatten.flatten_weight : ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N), M6.Pinned.weight (M6.Flatten.flatten N z) = M6.Physical.wordWeight N z := by\n  change ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N), M6.Pinned.weight (M6.Flatten.flatten N z) = M6.Physical.wordWeight N z\n  intro N inst z\n  classical\n  have hs (f : ZMod N → ℕ) :\n      (∑ i : Fin N, f (i.val : ZMod N)) = ∑ x : ZMod N, f x := by\n    cases N with\n    | zero => exact (NeZero.ne 0 rfl).elim\n    | succ n =>\n      change (∑ i : ZMod (n + 1), f (i.val : ZMod (n + 1))) = _\n      apply Finset.sum_congr rfl\n      intro i _\n      rw [ZMod.natCast_zmod_val]\n  unfold M6.Pinned.weight M6.Flatten.flatten M6.Physical.wordWeight M6.Physical.weight\n  simp only [Finset.card_filter]\n  rw [show 2 * N = N + N by omega, Fin.sum_univ_add]\n  apply congrArg₂ (fun a b : ℕ => a + b)\n  · calc\n      _ = ∑ i : Fin N, if z.1 (i.val : ZMod N) ≠ 0 then 1 else 0 := by\n        apply Finset.sum_congr rfl\n        intro i _\n        simp [Fin.is_lt]\n      _ = _ := hs (fun x => if z.1 x ≠ 0 then 1 else 0)\n  · calc\n      _ = ∑ i : Fin N, if z.2 (i.val : ZMod N) ≠ 0 then 1 else 0 := by\n        apply Finset.sum_congr rfl\n        intro i _\n        have hi : ¬ N + i.val < N := by omega\n        simp [hi]\n      _ = _ := hs (fun x => if z.2 x ≠ 0 then 1 else 0)",
+          "imports": [
+            "M6Flatten"
+          ],
+          "name": "M6.Flatten.flatten_weight",
+          "ancestors": [],
+          "spec_sha256": "ccdcf8a405ae8ede35d49dfe2a4966bbc33ad70e2803413d966e9a9c10011e5f"
+        },
+        "sha256": "0aeff99dda68a9431b39f39f1272a3cef3750f7d31eb84a32a2e44eeaaf65098"
+      },
+      "flatten_right": {
+        "payload": {
+          "declaration": "theorem M6.Flatten.flatten_right : ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2*N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v := by\n  change ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2 * N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v\n  intro N inst v\n  funext i\n  by_cases h : i.val < N\n  · simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_pos h, dif_pos h]\n    apply congrArg v\n    apply Fin.ext\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt h]\n  · have hi : i.val - N < N := by omega\n    simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_neg h, dif_neg h]\n    apply congrArg v\n    apply Fin.ext\n    simp only [Fin.val_mk, ZMod.val_natCast, Nat.mod_eq_of_lt hi]\n    omega",
+          "imports": [
+            "M6Flatten"
+          ],
+          "name": "M6.Flatten.flatten_right",
+          "ancestors": [],
+          "spec_sha256": "743f969229766fe353a835f50e4e54b947b7a6b09e9a276e6bd1ac561e85fb78"
+        },
+        "sha256": "54bdf4c902c3f3782b065b5bc13c8af18f4e9f3f806f4aa980b1317a1d16e5d4"
+      },
+      "J_weight": {
+        "payload": {
+          "declaration": "theorem M6.Flatten.J_weight : ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2*N)), M6.Pinned.weight (M6.Flatten.J N v) = M6.Pinned.weight v := by\n  change ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2 * N)), M6.Pinned.weight (M6.Flatten.J N v) = M6.Pinned.weight v\n  intro N inst v\n  unfold M6.Flatten.J\n  rw [M6.Flatten.flatten_weight, M6.Physical.J_weight,\n    ← M6.Flatten.flatten_weight N (M6.Flatten.unflatten N v),\n    M6.Flatten.flatten_right]",
+          "imports": [
+            "M6Flatten"
+          ],
+          "name": "M6.Flatten.J_weight",
+          "ancestors": [
+            "flatten_right",
+            "flatten_weight"
+          ],
+          "spec_sha256": "412aab2411e21e670d6ef94864ddfa16b40c2a933a75d53a78d6e1b238aede4a"
+        },
+        "sha256": "1d9055ace7b8b7afe02f63a3099db947d6561cb3889613d5929285253aa92d9b"
+      }
+    }
+  }
+}

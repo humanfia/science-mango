@@ -1,0 +1,61 @@
+{
+  "id": "small_polynomial_convolution",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.small_polynomial_convolution",
+    "spec_sha256": "f3a2903b09cae031ba85877a8f9a31171e58aa19652a9560cbeb12c3ca8eaefe",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-gur8i6z_/attempt-001/Candidate_7b867462eca30b19.lean:10:4: error: unsolved goals\ncase pos.«1»\np q : Polynomial ℤ\nd : ℕ\nhqdeg : q.natDegree ≤ 2\nn : ℕ\nhn : 1 ≤ 2\n⊢ (↑(q.coeff 0)).coeff 1 = 0\n\ncase pos.«2»\np q : Polynomial ℤ\nd : ℕ\nhqdeg : q.natDegree ≤ 2\nn : ℕ\nhn : 2 ≤ 2\n⊢ (↑(q.coeff 0)).coeff 2 = 0\n/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-gur8i6z_/attempt-001/Candidate_7b867462eca30b19.lean:13:6: error: Type mismatch: After simplification, term\n  hz\n has type\n  q.coeff n = 0\nbut is expected to have type\n  q.coeff n = (↑(q.coeff 0)).coeff n\n/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-gur8i6z_/attempt-001/Candidate_7b867462eca30b19.lean:2:81: error: unsolved goals\np q : Polynomial ℤ\nd : ℕ\nhqdeg : q.natDegree ≤ 2\nhq : q = (Polynomial.monomial 0) (q.coeff 0) + (Polynomial.monomial 1) (q.coeff 1) + (Polynomial.monomial 2) (q.coeff 2)\nhm : ∀ (n : ℕ) (r : ℤ), (p * (Polynomial.monomial n) r).coeff d = if n ≤ d then p.coeff (d - n) * r else 0\n⊢ ((if 1 ≤ d then p.coeff (d - 1) * q.coeff 1 else 0) + if 2 ≤ d then p.coeff (d - 2) * q.coeff 2 else 0) =\n    (if 0 < d then p.coeff (d - 1) * q.coeff 1 else 0) + if 1 < d then p.coeff (d - 2) * q.coeff 2 else 0\n/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-gur8i6z_/attempt-001/Candidate_7b867462eca30b19.lean:19:39: warning: This simp argument is unused:\n  Polynomial.coeff_mul_C\n\nHint: Omit it from the simp argument list.\n  [apply] simp [Polynomial.coeff_mul_X_pow']\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-gur8i6z_/attempt-002/Candidate_bb4828d33544d75b.lean",
+        "target_path": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-gur8i6z_/attempt-002/FrozenTarget_bb4828d33544d75b.lean",
+        "feedback": "",
+        "target_sha256": "d45cef0e204a8d7e8d1a96f527397ef943b1d10fc4803d00470c6186afda31ee",
+        "target_olean_sha256": "2eed7b536c06e70a0014054415a4ddda46b78253d8e7ad7d375a465bda1aa605",
+        "source_sha256": "548a623b62d11e30c3040ae25e86085030d70b741627322527b42339b2f68339",
+        "olean_sha256": "ed7ee21426762088d11fd898bb53e858970021b430a8f170ae33c3427f8ea619",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:17:41.135806+00:00",
+    "work": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-gur8i6z_",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0ae7531f0762f0becffafc3ec83f3134cddd7710eaa5ed4676e07b68d9fc6638",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-gur8i6z_/attempt-002/Candidate_bb4828d33544d75b.lean",
+    "environment_sha256": "c1d3d7153dc7ea9ded3e35f72e00bf11abccc8f1cabcb7c14737462a67ffd68d",
+    "artifacts": {
+      "small_polynomial_convolution": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.small_polynomial_convolution : ∀ (p q : Polynomial ℤ) (d : ℕ), q.natDegree ≤ 2 → (p*q).coeff d = ∑ e : Fin 3, if e.val ≤ d then p.coeff (d-e.val) * q.coeff e.val else 0 := by\n  change ∀ (p q : Polynomial ℤ) (d : ℕ), q.natDegree ≤ 2 → _\n  intro p q d hqdeg\n  have hq : q = Polynomial.monomial 0 (q.coeff 0) +\n      Polynomial.monomial 1 (q.coeff 1) +\n      Polynomial.monomial 2 (q.coeff 2) := by\n    ext n\n    by_cases hn : n ≤ 2\n    · interval_cases n <;>\n        simp only [Polynomial.coeff_add, Polynomial.coeff_monomial] <;> norm_num\n    · have hz : q.coeff n = 0 :=\n        Polynomial.coeff_eq_zero_of_natDegree_lt (by omega)\n      have h0 : 0 ≠ n := by omega\n      have h1 : 1 ≠ n := by omega\n      have h2 : 2 ≠ n := by omega\n      simp only [Polynomial.coeff_add, Polynomial.coeff_monomial,\n        if_neg h0, if_neg h1, if_neg h2, hz, add_zero]\n  have hm : ∀ (n : ℕ) (r : ℤ),\n      (p * Polynomial.monomial n r).coeff d =\n        if n ≤ d then p.coeff (d - n) * r else 0 := by\n    intro n r\n    rw [← Polynomial.C_mul_X_pow_eq_monomial, ← mul_assoc,\n      Polynomial.coeff_mul_X_pow']\n    split_ifs <;> simp [Polynomial.coeff_mul_C]\n  conv_lhs => rw [hq]\n  simp only [mul_add, Polynomial.coeff_add, hm]\n  have h1 : (1 ≤ d) ↔ (0 < d) := by omega\n  have h2 : (2 ≤ d) ↔ (1 < d) := by omega\n  simp [Fin.sum_univ_succ, h1, h2, add_assoc]",
+          "imports": [
+            "M6TransferScatter"
+          ],
+          "name": "M6.Transfer.small_polynomial_convolution",
+          "ancestors": [],
+          "spec_sha256": "f3a2903b09cae031ba85877a8f9a31171e58aa19652a9560cbeb12c3ca8eaefe"
+        },
+        "sha256": "d742411128863646362db38ff40f89a3078476baf908bdf1f76f6921421f6492"
+      }
+    }
+  }
+}

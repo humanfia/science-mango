@@ -1,0 +1,56 @@
+{
+  "id": "constant_transform",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Character.constant_transform",
+    "spec_sha256": "aa4bbf3a0da87d7cbc31b8cdcea19953e009a210f87e03ac6e59b08bac74432c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-frzhch1y/attempt-001/Candidate_5e51b76f232d87cd.lean",
+        "target_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-frzhch1y/attempt-001/FrozenTarget_5e51b76f232d87cd.lean",
+        "feedback": "",
+        "target_sha256": "e686ebfc5d030a29c261af14b7d52f5ac08fbdf0c464ec392a4d6297c4b412f8",
+        "target_olean_sha256": "1446312c660446e34355e95fc690c77187651fb80ec35398918de514bcc79fe9",
+        "source_sha256": "fa20b7cc0bffbb1bb3bd151304c7da8ee57536cd268376395617ad0da90a98c2",
+        "olean_sha256": "5e50af6c86c523c105c00c799c731282f05fabc3330b00a1d0f22a9772309e5a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:26:43.633770+00:00",
+    "work": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-frzhch1y",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "54588349adc5ff9a6608bc623473494d307e381baf0bd1bd8281ebdc729b78c5",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-frzhch1y/attempt-001/Candidate_5e51b76f232d87cd.lean",
+    "environment_sha256": "ac932ef1e4bb05fe3067db86513d6d77ee46b3463f5af8f77ba4acd1d0fda600",
+    "artifacts": {
+      "constant_transform": {
+        "payload": {
+          "declaration": "theorem M6.Character.constant_transform : ∀ (m : ℕ) (q : M6.Character.Vector m), (q = 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = Polynomial.C ((2 : ℤ)^m)) ∧ (q ≠ 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = 0) := by\n  classical\n  change ∀ (m : ℕ) (q : M6.Character.Vector m), _\n  intro m q\n  have hu : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by decide\n  have hz : M6.Character.sign 0 = 1 :=\n    ((M6.Character.sign_eq_one 0).1).2 rfl\n  have hs (a : ZMod 2) :\n      (∑ b : ZMod 2, Polynomial.C (M6.Character.sign (a * b)) * (1 : Polynomial ℤ)) =\n        if a = 0 then 2 else 0 := by\n    by_cases ha : a = 0\n    · subst a\n      simp [hu, hz]\n    · have hn : M6.Character.sign a = -1 :=\n        ((M6.Character.sign_eq_one a).2).2 ha\n      simp [hu, hz, hn, ha]\n  constructor\n  · intro hq\n    subst q\n    simp only [M6.Character.localTransform, hs]\n    simp\n  · intro hq\n    have hi : ∃ i : Fin m, q i ≠ 0 := by\n      by_contra h\n      apply hq\n      funext i\n      simpa using (not_exists.mp h i)\n    obtain ⟨i, hi⟩ := hi\n    unfold M6.Character.localTransform\n    apply Finset.prod_eq_zero (Finset.mem_univ i)\n    rw [hs, if_neg hi]",
+          "imports": [
+            "M6CharacterAccepted",
+            "M6Normalization"
+          ],
+          "name": "M6.Character.constant_transform",
+          "ancestors": [],
+          "spec_sha256": "4a2421c6ab821350d664f9af71e10ac2bba15a62d933440911d414512f919cb2"
+        },
+        "sha256": "877e1ba71c1628186448e080637501b83f1fd3345202eae779e33727f9e95c41"
+      }
+    }
+  }
+}

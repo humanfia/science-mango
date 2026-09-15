@@ -1,0 +1,12 @@
+{
+  "name": "M6.Normalize.divide_degree",
+  "statement": "∀ (k : ℤ) (p : Polynomial ℤ) (n : ℕ), (∀ d, n < d → p.coeff d = 0) → ∀ d, n < d → (M6.Normalize.divide k p).coeff d = 0",
+  "imports": [
+    "M6Normalize"
+  ],
+  "context": "theorem M6.Normalize.divide_coeff : ∀ (k : ℤ) (p : Polynomial ℤ) (d : ℕ), (M6.Normalize.divide k p).coeff d = p.coeff d / k := by\n  classical\n  change ∀ (k : ℤ) (p : Polynomial ℤ) (d : ℕ), (M6.Normalize.divide k p).coeff d = p.coeff d / k\n  intro k p d\n  by_cases hd : d ∈ p.support\n  · simp [M6.Normalize.divide, Polynomial.sum, Polynomial.coeff_sum, Polynomial.coeff_monomial, hd]\n  · have hz : p.coeff d = 0 := by simpa using hd\n    simp [M6.Normalize.divide, Polynomial.sum, Polynomial.coeff_sum, Polynomial.coeff_monomial, hd, hz]",
+  "queries": [
+    "polynomial coefficient finite sum integer division"
+  ],
+  "guidance": "Use divide_coeff then originalcoefficientzero, zero_ediv. This justifies finite degreecutoff after exactnormalization. Return tactic lines only without leading by."
+}

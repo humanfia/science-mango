@@ -1,0 +1,253 @@
+{
+  "kind": "untrusted_local_source_header_references",
+  "files": [
+    {
+      "module": "M6TransferTraceReady",
+      "path": "M6TransferTraceReady.lean",
+      "source_sha256": "79f018dfc09ed77a8a4feabe57410a99dafb5e47a4259fa040ea80c9bda64be0"
+    },
+    {
+      "module": "M6TransferTrace",
+      "path": "M6TransferTrace.lean",
+      "source_sha256": "01b7d86095314fce22070ab4cca2a1c8eb89dc78b18fe8d4c3e46e6329f16289"
+    },
+    {
+      "module": "M6TransferAccepted",
+      "path": "M6TransferAccepted.lean",
+      "source_sha256": "7e5e17ccb1d6fcdd071e77926bae79498911399b8142e2ef633b81cb7b13ed4f"
+    },
+    {
+      "module": "M6Transfer",
+      "path": "M6Transfer.lean",
+      "source_sha256": "19a1ba64c6f1121705d77ce664a4176e15e4059062fc3e6485e729c168c1dd02"
+    }
+  ],
+  "entries": [
+    {
+      "module": "M6TransferTrace",
+      "line": 5,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferTrace",
+      "line": 10,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferTrace",
+      "line": 16,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K",
+      "complete_header": false,
+      "note": "incomplete source-header excerpt; do not infer missing type text"
+    },
+    {
+      "module": "M6TransferTrace",
+      "line": 21,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K",
+      "complete_header": false,
+      "note": "incomplete source-header excerpt; do not infer missing type text"
+    },
+    {
+      "module": "M6TransferTrace",
+      "line": 26,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferAccepted",
+      "line": 3,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.memory_follows : ∀ (R N : ℕ) [NeZero N] (h : M6.Transfer.Input N), M6.Transfer.Follows R N (M6.Transfer.memoryAt h) h",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferAccepted",
+      "line": 17,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.output_convolution : ∀ (R N : ℕ) (c : Fin (R+1) → M6.Transfer.Bit) (h : M6.Transfer.Input N) (i : ZMod N), M6.Transfer.output c (M6.Transfer.memoryAt h i) (h i) = M6.Transfer.cyclicOutput c h i",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferAccepted",
+      "line": 21,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.shift_coordinates : ∀ (R : ℕ) (m : M6.Transfer.Memory (R+1)) (t : M6.Transfer.Bit), M6.Transfer.shift m t 0 = t ∧ ∀ j : Fin R, M6.Transfer.shift m t j.succ = m j.castSucc",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferAccepted",
+      "line": 35,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.memory_forced : ∀ (R N : ℕ) [NeZero N] (p : M6.Transfer.ClosedWalk R N) (i : ZMod N) (j : Fin R), p.val.1 i j = M6.Transfer.labels p (i - (j.val + 1 : ℕ))",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferAccepted",
+      "line": 57,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.labels_bijective : ∀ (R N : ℕ) [NeZero N], Function.Bijective (M6.Transfer.labels : M6.Transfer.ClosedWalk R N → M6.Transfer.Input N)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferAccepted",
+      "line": 71,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.closed_walk_card : ∀ (R N : ℕ) [NeZero N], Fintype.card (M6.Transfer.ClosedWalk R N) = 2 ^ N",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferAccepted",
+      "line": 81,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.indexed_weight_sum : ∀ (R N : ℕ) [NeZero N] (K : Type) [CommSemiring K] (W : ZMod N → M6.Transfer.Memory R → M6.Transfer.Bit → K), (∑ p : M6.Transfer.ClosedWalk R N, ∏ i : ZMod N, W i (p.val.1 i) (M6.Transfer.labels p i)) = ∑ h : M6.Transfer.Input N, ∏ i : ZMod N, W i (M6.Transfer.memoryAt h i) (h i)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 4,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev Bit",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 5,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev Memory (R : ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 6,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev Input (N : ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 8,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def shift {R : ℕ} (m : Memory R) (t : Bit) : Memory R",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 11,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def memoryAt {R N : ℕ} (h : Input N) (i : ZMod N) : Memory R",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 14,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def Follows (R N : ℕ) (m : ZMod N → Memory R) (h : Input N) : Prop",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 17,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev ClosedWalk (R N : ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 20,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable instance closedWalkFintype (R N : ℕ) [NeZero N] : Fintype (ClosedWalk R N)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 24,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def labels {R N : ℕ} (p : ClosedWalk R N) : Input N",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 26,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def output {R : ℕ} (c : Fin (R+1) → Bit) (m : Memory R) (t : Bit) : Bit",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 29,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def cyclicOutput {R N : ℕ} (c : Fin (R+1) → Bit) (h : Input N) (i : ZMod N) : Bit",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    }
+  ],
+  "truncated": false,
+  "skipped": [],
+  "limits": {
+    "files": 64,
+    "source_bytes": 2000000,
+    "header_chars": 24000,
+    "entries": 256,
+    "per_header_chars": 2400,
+    "prompt_chars": 48000
+  }
+}

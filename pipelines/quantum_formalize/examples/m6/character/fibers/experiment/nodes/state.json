@@ -1,0 +1,350 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T13:29:09.873209+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "constant_transform": {
+      "id": "constant_transform",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Character.constant_transform",
+        "spec_sha256": "aa4bbf3a0da87d7cbc31b8cdcea19953e009a210f87e03ac6e59b08bac74432c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-frzhch1y/attempt-001/Candidate_5e51b76f232d87cd.lean",
+            "target_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-frzhch1y/attempt-001/FrozenTarget_5e51b76f232d87cd.lean",
+            "feedback": "",
+            "target_sha256": "e686ebfc5d030a29c261af14b7d52f5ac08fbdf0c464ec392a4d6297c4b412f8",
+            "target_olean_sha256": "1446312c660446e34355e95fc690c77187651fb80ec35398918de514bcc79fe9",
+            "source_sha256": "fa20b7cc0bffbb1bb3bd151304c7da8ee57536cd268376395617ad0da90a98c2",
+            "olean_sha256": "5e50af6c86c523c105c00c799c731282f05fabc3330b00a1d0f22a9772309e5a",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:26:43.633770+00:00",
+        "work": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-frzhch1y",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "54588349adc5ff9a6608bc623473494d307e381baf0bd1bd8281ebdc729b78c5",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-frzhch1y/attempt-001/Candidate_5e51b76f232d87cd.lean",
+        "environment_sha256": "ac932ef1e4bb05fe3067db86513d6d77ee46b3463f5af8f77ba4acd1d0fda600",
+        "artifacts": {
+          "constant_transform": {
+            "payload": {
+              "declaration": "theorem M6.Character.constant_transform : ∀ (m : ℕ) (q : M6.Character.Vector m), (q = 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = Polynomial.C ((2 : ℤ)^m)) ∧ (q ≠ 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = 0) := by\n  classical\n  change ∀ (m : ℕ) (q : M6.Character.Vector m), _\n  intro m q\n  have hu : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by decide\n  have hz : M6.Character.sign 0 = 1 :=\n    ((M6.Character.sign_eq_one 0).1).2 rfl\n  have hs (a : ZMod 2) :\n      (∑ b : ZMod 2, Polynomial.C (M6.Character.sign (a * b)) * (1 : Polynomial ℤ)) =\n        if a = 0 then 2 else 0 := by\n    by_cases ha : a = 0\n    · subst a\n      simp [hu, hz]\n    · have hn : M6.Character.sign a = -1 :=\n        ((M6.Character.sign_eq_one a).2).2 ha\n      simp [hu, hz, hn, ha]\n  constructor\n  · intro hq\n    subst q\n    simp only [M6.Character.localTransform, hs]\n    simp\n  · intro hq\n    have hi : ∃ i : Fin m, q i ≠ 0 := by\n      by_contra h\n      apply hq\n      funext i\n      simpa using (not_exists.mp h i)\n    obtain ⟨i, hi⟩ := hi\n    unfold M6.Character.localTransform\n    apply Finset.prod_eq_zero (Finset.mem_univ i)\n    rw [hs, if_neg hi]",
+              "imports": [
+                "M6CharacterAccepted",
+                "M6Normalization"
+              ],
+              "name": "M6.Character.constant_transform",
+              "ancestors": [],
+              "spec_sha256": "4a2421c6ab821350d664f9af71e10ac2bba15a62d933440911d414512f919cb2"
+            },
+            "sha256": "877e1ba71c1628186448e080637501b83f1fd3345202eae779e33727f9e95c41"
+          }
+        }
+      }
+    },
+    "dual_cardinality": {
+      "id": "dual_cardinality",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Character.dual_cardinality",
+        "spec_sha256": "338d29bd92eee9a1f26f5be523dae56f4e7d3fb31ad1ff8984cc234ffeea1149",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-yy0la__g/attempt-001/Candidate_5628670b97439021.lean",
+            "target_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-yy0la__g/attempt-001/FrozenTarget_5628670b97439021.lean",
+            "feedback": "",
+            "target_sha256": "52aa45a2da599434ccdb9ac889a4ee8821eab7550f7c27d528351d5f43e1b102",
+            "target_olean_sha256": "66ecaf050d2f3726dbeabd832a7921d2d2bab5e359a9837bd6c4636aff931439",
+            "source_sha256": "e1dbae2654c64ce87115a14f73ec8b6e3e34f4d9d87b036caf236a6b75b0cdb5",
+            "olean_sha256": "26e5643ad465a6d6f13dbe7556f60a6ab55a1c12a5c002fb2c1077e14b6afac5",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:27:43.202074+00:00",
+        "work": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-yy0la__g",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "54588349adc5ff9a6608bc623473494d307e381baf0bd1bd8281ebdc729b78c5",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-yy0la__g/attempt-001/Candidate_5628670b97439021.lean",
+        "environment_sha256": "ac932ef1e4bb05fe3067db86513d6d77ee46b3463f5af8f77ba4acd1d0fda600",
+        "artifacts": {
+          "constant_transform": {
+            "payload": {
+              "declaration": "theorem M6.Character.constant_transform : ∀ (m : ℕ) (q : M6.Character.Vector m), (q = 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = Polynomial.C ((2 : ℤ)^m)) ∧ (q ≠ 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = 0) := by\n  classical\n  change ∀ (m : ℕ) (q : M6.Character.Vector m), _\n  intro m q\n  have hu : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by decide\n  have hz : M6.Character.sign 0 = 1 :=\n    ((M6.Character.sign_eq_one 0).1).2 rfl\n  have hs (a : ZMod 2) :\n      (∑ b : ZMod 2, Polynomial.C (M6.Character.sign (a * b)) * (1 : Polynomial ℤ)) =\n        if a = 0 then 2 else 0 := by\n    by_cases ha : a = 0\n    · subst a\n      simp [hu, hz]\n    · have hn : M6.Character.sign a = -1 :=\n        ((M6.Character.sign_eq_one a).2).2 ha\n      simp [hu, hz, hn, ha]\n  constructor\n  · intro hq\n    subst q\n    simp only [M6.Character.localTransform, hs]\n    simp\n  · intro hq\n    have hi : ∃ i : Fin m, q i ≠ 0 := by\n      by_contra h\n      apply hq\n      funext i\n      simpa using (not_exists.mp h i)\n    obtain ⟨i, hi⟩ := hi\n    unfold M6.Character.localTransform\n    apply Finset.prod_eq_zero (Finset.mem_univ i)\n    rw [hs, if_neg hi]",
+              "imports": [
+                "M6CharacterAccepted",
+                "M6Normalization"
+              ],
+              "name": "M6.Character.constant_transform",
+              "ancestors": [],
+              "spec_sha256": "4a2421c6ab821350d664f9af71e10ac2bba15a62d933440911d414512f919cb2"
+            },
+            "sha256": "877e1ba71c1628186448e080637501b83f1fd3345202eae779e33727f9e95c41"
+          },
+          "dual_cardinality": {
+            "payload": {
+              "declaration": "theorem M6.Character.dual_cardinality : ∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)), (M6.Character.subspaceWords D).card * (M6.Character.dualWords D).card = 2^m := by\n  classical\n  change ∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)), _\n  intro m D\n  have hz : (0 : M6.Character.Vector m) ∈ M6.Character.subspaceWords D := by\n    simp [M6.Character.subspaceWords]\n  have hd : M6.Character.weightedDual D (fun _ _ => (1 : Polynomial ℤ)) =\n      Polynomial.C ((M6.Character.dualWords D).card : ℤ) := by\n    simp [M6.Character.weightedDual]\n  have ht : M6.Character.weightedTransform D (fun _ _ => (1 : Polynomial ℤ)) =\n      Polynomial.C ((2 : ℤ)^m) := by\n    unfold M6.Character.weightedTransform\n    rw [Finset.sum_eq_single (0 : M6.Character.Vector m)]\n    · exact (M6.Character.constant_transform m 0).1 rfl\n    · intro q hq hq0\n      exact (M6.Character.constant_transform m q).2 hq0\n    · intro h\n      exact (h hz).elim\n  have h := M6.Character.weighted_macwilliams m D (fun _ _ => (1 : Polynomial ℤ))\n  rw [hd, ht, ← map_mul] at h\n  have hi := Polynomial.C_injective h\n  exact_mod_cast hi",
+              "imports": [
+                "M6CharacterAccepted",
+                "M6Normalization"
+              ],
+              "name": "M6.Character.dual_cardinality",
+              "ancestors": [
+                "constant_transform"
+              ],
+              "spec_sha256": "ebdce5da472bf6835be43c9d81dfe4d8504716aba5c6636c0e06020fb49e0d3b"
+            },
+            "sha256": "2f2779f1650cf6c03c5bafa0907bc049b290064412aec03976117080496953a9"
+          }
+        }
+      }
+    },
+    "sum_by_fibers": {
+      "id": "sum_by_fibers",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.FiberSum.sum_by_fibers",
+        "spec_sha256": "6ea67153fd65ae59d205a8e4970b288df0144c37663b9062e66af6e9475f98e4",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-xs5t57fl/attempt-001/Candidate_ac70f6105748aa71.lean",
+            "target_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-xs5t57fl/attempt-001/FrozenTarget_ac70f6105748aa71.lean",
+            "feedback": "",
+            "target_sha256": "67d49eaca812aa7d27e70547e9a603023af7eda1678a89555335c9892908e184",
+            "target_olean_sha256": "af4a2ef2cf1a9d2176287fffa859d275f8e930cdbf97aa6a6306875e3d9653fe",
+            "source_sha256": "4d624a72f92c9c928f2950ea29cc5ed7f6bb644c4b91b3b29e3eaca8d76eff4b",
+            "olean_sha256": "d9699aca75fcf7e5c040c0a1ebe5e7f604c13745a3ca44fd4f85bb5ead74bc0c",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:26:43.644149+00:00",
+        "work": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-xs5t57fl",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "54588349adc5ff9a6608bc623473494d307e381baf0bd1bd8281ebdc729b78c5",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-xs5t57fl/attempt-001/Candidate_ac70f6105748aa71.lean",
+        "environment_sha256": "ac932ef1e4bb05fe3067db86513d6d77ee46b3463f5af8f77ba4acd1d0fda600",
+        "artifacts": {
+          "sum_by_fibers": {
+            "payload": {
+              "declaration": "theorem M6.FiberSum.sum_by_fibers : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w\n  intro α β _ _ L w\n  simpa [M6.FiberSum.pullbackSum, M6.FiberSum.fiberSum, M6.FiberSum.fiber,\n    Fintype.card_subtype, nsmul_eq_mul] using (Fintype.sum_fiberwise' L w).symm",
+              "imports": [
+                "M6CharacterAccepted",
+                "M6Normalization"
+              ],
+              "name": "M6.FiberSum.sum_by_fibers",
+              "ancestors": [],
+              "spec_sha256": "ae96a8d1cf84683368c7eb1b5321f335d82af728fbcedf3a5d717896434f2576"
+            },
+            "sha256": "4b2720727610f2283aff6a8083ad0555ccf9bf393b4ab8b55c73c9d5a6dd27bd"
+          }
+        }
+      }
+    },
+    "uniform_weighted_sum": {
+      "id": "uniform_weighted_sum",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.FiberSum.uniform_weighted_sum",
+        "spec_sha256": "3311ed03efee1a0b9596600f7016ff49d8bc1cb2c90d99215294de26f899ef68",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-xu_e1uos/attempt-001/Candidate_e71597bc60b48df3.lean",
+            "target_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-xu_e1uos/attempt-001/FrozenTarget_e71597bc60b48df3.lean",
+            "feedback": "",
+            "target_sha256": "e3385a09ae519e4607a83608762b8883ff0ff1e8d6d87b387b61f33ee5dd9d7a",
+            "target_olean_sha256": "e11cbf6cea9305e374993b7f810bf724251db76e311629fb1e7ba5e24faecc3d",
+            "source_sha256": "92c45d970d8ff42a489f1d4b673e3f9e144b7febe36b0a8a86d4e9b148a8007a",
+            "olean_sha256": "fb440035669ea2d3a01dcce42cf3b227892a8675b392c2f432d153cf000421c7",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:27:38.421676+00:00",
+        "work": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-xu_e1uos",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "54588349adc5ff9a6608bc623473494d307e381baf0bd1bd8281ebdc729b78c5",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-xu_e1uos/attempt-001/Candidate_e71597bc60b48df3.lean",
+        "environment_sha256": "ac932ef1e4bb05fe3067db86513d6d77ee46b3463f5af8f77ba4acd1d0fda600",
+        "artifacts": {
+          "sum_by_fibers": {
+            "payload": {
+              "declaration": "theorem M6.FiberSum.sum_by_fibers : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w\n  intro α β _ _ L w\n  simpa [M6.FiberSum.pullbackSum, M6.FiberSum.fiberSum, M6.FiberSum.fiber,\n    Fintype.card_subtype, nsmul_eq_mul] using (Fintype.sum_fiberwise' L w).symm",
+              "imports": [
+                "M6CharacterAccepted",
+                "M6Normalization"
+              ],
+              "name": "M6.FiberSum.sum_by_fibers",
+              "ancestors": [],
+              "spec_sha256": "ae96a8d1cf84683368c7eb1b5321f335d82af728fbcedf3a5d717896434f2576"
+            },
+            "sha256": "4b2720727610f2283aff6a8083ad0555ccf9bf393b4ab8b55c73c9d5a6dd27bd"
+          },
+          "uniform_weighted_sum": {
+            "payload": {
+              "declaration": "theorem M6.FiberSum.uniform_weighted_sum : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b\n  intro α β _ _ L k h w\n  change ∀ b, (M6.FiberSum.fiber L b).card = k at h\n  rw [M6.FiberSum.sum_by_fibers α β L w]\n  simp only [M6.FiberSum.fiberSum, h, Finset.mul_sum]",
+              "imports": [
+                "M6CharacterAccepted",
+                "M6Normalization"
+              ],
+              "name": "M6.FiberSum.uniform_weighted_sum",
+              "ancestors": [
+                "sum_by_fibers"
+              ],
+              "spec_sha256": "0648f5bb3da04e47ebdab7bae76a43d7e82a9243cb80dcec89900ebf7f79e490"
+            },
+            "sha256": "13e8273de5d88705c26667229c5f58ff475dc1ed3d362f9c4e6baafda99464a2"
+          }
+        }
+      }
+    },
+    "uniform_cardinality": {
+      "id": "uniform_cardinality",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.FiberSum.uniform_cardinality",
+        "spec_sha256": "6d7de45560a5ae5392e022cdf26fe1633bec60cb0cd47707d1ef2405feed6a17",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-aekhccil/attempt-001/Candidate_2394724334ca93d4.lean",
+            "target_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-aekhccil/attempt-001/FrozenTarget_2394724334ca93d4.lean",
+            "feedback": "",
+            "target_sha256": "e4553b64f1be8b02ba8fb5de73a38fe6ab9ff7366d631762d45fdf2197d4fb82",
+            "target_olean_sha256": "cb9ea6b0d6a885b7782f54d932e6a0c65d59357d3bcae4bbf195ea7e17a18c20",
+            "source_sha256": "c6f8b571ee734bc225fd9d0fdaa2f672f3214c3bace38008a8416908df1d6be8",
+            "olean_sha256": "99bfc775c6f7fdb2f72541b9dfc24398d6c3bebaf121a7621370133fd3029c43",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:28:17.887936+00:00",
+        "work": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-aekhccil",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "54588349adc5ff9a6608bc623473494d307e381baf0bd1bd8281ebdc729b78c5",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-aekhccil/attempt-001/Candidate_2394724334ca93d4.lean",
+        "environment_sha256": "ac932ef1e4bb05fe3067db86513d6d77ee46b3463f5af8f77ba4acd1d0fda600",
+        "artifacts": {
+          "sum_by_fibers": {
+            "payload": {
+              "declaration": "theorem M6.FiberSum.sum_by_fibers : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w\n  intro α β _ _ L w\n  simpa [M6.FiberSum.pullbackSum, M6.FiberSum.fiberSum, M6.FiberSum.fiber,\n    Fintype.card_subtype, nsmul_eq_mul] using (Fintype.sum_fiberwise' L w).symm",
+              "imports": [
+                "M6CharacterAccepted",
+                "M6Normalization"
+              ],
+              "name": "M6.FiberSum.sum_by_fibers",
+              "ancestors": [],
+              "spec_sha256": "ae96a8d1cf84683368c7eb1b5321f335d82af728fbcedf3a5d717896434f2576"
+            },
+            "sha256": "4b2720727610f2283aff6a8083ad0555ccf9bf393b4ab8b55c73c9d5a6dd27bd"
+          },
+          "uniform_weighted_sum": {
+            "payload": {
+              "declaration": "theorem M6.FiberSum.uniform_weighted_sum : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b\n  intro α β _ _ L k h w\n  change ∀ b, (M6.FiberSum.fiber L b).card = k at h\n  rw [M6.FiberSum.sum_by_fibers α β L w]\n  simp only [M6.FiberSum.fiberSum, h, Finset.mul_sum]",
+              "imports": [
+                "M6CharacterAccepted",
+                "M6Normalization"
+              ],
+              "name": "M6.FiberSum.uniform_weighted_sum",
+              "ancestors": [
+                "sum_by_fibers"
+              ],
+              "spec_sha256": "0648f5bb3da04e47ebdab7bae76a43d7e82a9243cb80dcec89900ebf7f79e490"
+            },
+            "sha256": "13e8273de5d88705c26667229c5f58ff475dc1ed3d362f9c4e6baafda99464a2"
+          },
+          "uniform_cardinality": {
+            "payload": {
+              "declaration": "theorem M6.FiberSum.uniform_cardinality : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → Fintype.card α = k * Fintype.card β := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → Fintype.card α = k * Fintype.card β\n  intro α β _ _ L k h\n  change ∀ b, (M6.FiberSum.fiber L b).card = k at h\n  have hc : ∀ b, Fintype.card {a : α // L a = b} = k := by\n    intro b\n    simpa [Fintype.card_subtype, M6.FiberSum.fiber] using h b\n  have hs := (Fintype.sum_fiberwise' L (fun _ : β => (1 : ℕ))).symm\n  simpa [hc, Nat.mul_comm] using hs",
+              "imports": [
+                "M6CharacterAccepted",
+                "M6Normalization"
+              ],
+              "name": "M6.FiberSum.uniform_cardinality",
+              "ancestors": [
+                "sum_by_fibers",
+                "uniform_weighted_sum"
+              ],
+              "spec_sha256": "8c39159b8155ae0194bbdf153e8cb1fdf8e920c588b5216b9078b1c64ed790c3"
+            },
+            "sha256": "7692f000c122b62d20fbddbaca453aca371870d4797fcede19e2f6e34df08cfd"
+          }
+        }
+      }
+    }
+  }
+}

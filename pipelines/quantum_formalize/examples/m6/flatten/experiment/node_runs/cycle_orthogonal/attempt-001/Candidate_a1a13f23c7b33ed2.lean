@@ -1,0 +1,6 @@
+import FrozenTarget_a1a13f23c7b33ed2
+theorem M6.Flatten.cycle_orthogonal : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 ↔ ∀ h : M6.Physical.Block N, M6.Character.dot (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))) v = 0
+  intro N inst a b v
+  simpa only [← M6.Flatten.flatten_dot, M6.Flatten.flatten_right] using
+    (M6.Physical.cycle_orthogonal N a b (M6.Flatten.unflatten N v))

@@ -1,0 +1,36 @@
+import M6CharacterAccepted
+import M6Normalization
+
+theorem M6.Character.constant_transform : ∀ (m : ℕ) (q : M6.Character.Vector m), (q = 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = Polynomial.C ((2 : ℤ)^m)) ∧ (q ≠ 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = 0) := by
+  classical
+  change ∀ (m : ℕ) (q : M6.Character.Vector m), _
+  intro m q
+  have hu : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by decide
+  have hz : M6.Character.sign 0 = 1 :=
+    ((M6.Character.sign_eq_one 0).1).2 rfl
+  have hs (a : ZMod 2) :
+      (∑ b : ZMod 2, Polynomial.C (M6.Character.sign (a * b)) * (1 : Polynomial ℤ)) =
+        if a = 0 then 2 else 0 := by
+    by_cases ha : a = 0
+    · subst a
+      simp [hu, hz]
+    · have hn : M6.Character.sign a = -1 :=
+        ((M6.Character.sign_eq_one a).2).2 ha
+      simp [hu, hz, hn, ha]
+  constructor
+  · intro hq
+    subst q
+    simp only [M6.Character.localTransform, hs]
+    simp
+  · intro hq
+    have hi : ∃ i : Fin m, q i ≠ 0 := by
+      by_contra h
+      apply hq
+      funext i
+      simpa using (not_exists.mp h i)
+    obtain ⟨i, hi⟩ := hi
+    unfold M6.Character.localTransform
+    apply Finset.prod_eq_zero (Finset.mem_univ i)
+    rw [hs, if_neg hi]
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)), (M6.Character.subspaceWords D).card * (M6.Character.dualWords D).card = 2^m

@@ -1,0 +1,61 @@
+{
+  "id": "flatten_dot",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Flatten.flatten_dot",
+    "spec_sha256": "550a1a0fe2ff9c247c5ca28064a96364cf2c195f4bd1536f54cfa6cca1602d06",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-wqlfz_n6/attempt-001/Candidate_e5959ea39cc5f9f9.lean:23:2: error: `simp` made no progress\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-wqlfz_n6/attempt-002/Candidate_9d5a6fea5df3246f.lean",
+        "target_path": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-wqlfz_n6/attempt-002/FrozenTarget_9d5a6fea5df3246f.lean",
+        "feedback": "",
+        "target_sha256": "d08d4b8b91bc0e4f8d2c64a4e8ed5468aad0160b72271bda1698d0e09bdc6334",
+        "target_olean_sha256": "ea396300a62ee4444b8cf62a4d079ebf6078de77035e75f21214c7b95bdc93c7",
+        "source_sha256": "6e9d965d42583bf2d976b099b4c5305e872db7f225163242f86cb9284a04a089",
+        "olean_sha256": "c9aa91dafdf51e5d2234f36ca9891713c8435b9dd1d0b76f24460b325bb952cf",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:12:58.997493+00:00",
+    "work": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-wqlfz_n6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2d18c1652414b71e0fa8b98aef9562765a41dfdb04465f77b43ba1d4f2619a05",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-flatten-formalization/.humanize-formal-runs/run-wqlfz_n6/attempt-002/Candidate_9d5a6fea5df3246f.lean",
+    "environment_sha256": "326713744fbdc1ee47e205c39c11b79ae570441fa7673eaf03a5f43f98298f54",
+    "artifacts": {
+      "flatten_dot": {
+        "payload": {
+          "declaration": "theorem M6.Flatten.flatten_dot : ∀ (N : ℕ) [NeZero N] (z w : M6.Physical.Word N), M6.Character.dot (M6.Flatten.flatten N z) (M6.Flatten.flatten N w) = M6.Physical.pairing N z w := by\n  change ∀ (N : ℕ) [NeZero N] (z w : M6.Physical.Word N), M6.Character.dot (M6.Flatten.flatten N z) (M6.Flatten.flatten N w) = M6.Physical.pairing N z w\n  intro N inst z w\n  classical\n  let e : Fin N ≃ ZMod N :=\n    { toFun := fun i => (i.val : ZMod N)\n      invFun := fun i => ⟨i.val, ZMod.val_lt i⟩\n      left_inv := by\n        intro i\n        apply Fin.ext\n        change ((i.val : ZMod N).val) = i.val\n        rw [ZMod.val_natCast, Nat.mod_eq_of_lt i.is_lt]\n      right_inv := by\n        intro i\n        simp }\n  have hsum (f : ZMod N → ZMod 2) :\n      (∑ i : Fin N, f (i.val : ZMod N)) = ∑ i : ZMod N, f i :=\n    e.sum_comp f\n  have hleft (i : Fin N) : i.val < N := i.is_lt\n  have hright (i : Fin N) : ¬ N + i.val < N := by omega\n  unfold M6.Character.dot M6.Flatten.flatten M6.Physical.pairing M6.Physical.dot\n  rw [two_mul, Fin.sum_univ_add]\n  simpa [Fin.val_castAdd, Fin.val_natAdd, hleft, hright] using\n    congrArg₂ (fun a b : ZMod 2 => a + b)\n      (hsum (fun i => z.1 i * w.1 i))\n      (hsum (fun i => z.2 i * w.2 i))",
+          "imports": [
+            "M6Flatten"
+          ],
+          "name": "M6.Flatten.flatten_dot",
+          "ancestors": [],
+          "spec_sha256": "550a1a0fe2ff9c247c5ca28064a96364cf2c195f4bd1536f54cfa6cca1602d06"
+        },
+        "sha256": "7bff2643382c1fb6c398e1bac973442eb1509b04ba79cede8cb6323bc311b05c"
+      }
+    }
+  }
+}

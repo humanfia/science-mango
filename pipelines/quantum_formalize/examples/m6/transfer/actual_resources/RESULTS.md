@@ -1,0 +1,1 @@
+Original frozen targets accepted, with combined assembly and unchanged environment. Canonical evidence: `experiment/result.json`, `experiment/AUDIT.json`, and `experiment/MANIFEST.json`. Exact targets, proof payloads, original compiled artifacts, and allowed axioms were independently checked.

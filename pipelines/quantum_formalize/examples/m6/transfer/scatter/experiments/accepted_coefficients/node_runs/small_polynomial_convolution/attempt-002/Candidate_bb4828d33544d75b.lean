@@ -1,0 +1,30 @@
+import FrozenTarget_bb4828d33544d75b
+theorem M6.Transfer.small_polynomial_convolution : QuantumHarnessFrozenTarget := by
+  change ∀ (p q : Polynomial ℤ) (d : ℕ), q.natDegree ≤ 2 → _
+  intro p q d hqdeg
+  have hq : q = Polynomial.monomial 0 (q.coeff 0) +
+      Polynomial.monomial 1 (q.coeff 1) +
+      Polynomial.monomial 2 (q.coeff 2) := by
+    ext n
+    by_cases hn : n ≤ 2
+    · interval_cases n <;>
+        simp only [Polynomial.coeff_add, Polynomial.coeff_monomial] <;> norm_num
+    · have hz : q.coeff n = 0 :=
+        Polynomial.coeff_eq_zero_of_natDegree_lt (by omega)
+      have h0 : 0 ≠ n := by omega
+      have h1 : 1 ≠ n := by omega
+      have h2 : 2 ≠ n := by omega
+      simp only [Polynomial.coeff_add, Polynomial.coeff_monomial,
+        if_neg h0, if_neg h1, if_neg h2, hz, add_zero]
+  have hm : ∀ (n : ℕ) (r : ℤ),
+      (p * Polynomial.monomial n r).coeff d =
+        if n ≤ d then p.coeff (d - n) * r else 0 := by
+    intro n r
+    rw [← Polynomial.C_mul_X_pow_eq_monomial, ← mul_assoc,
+      Polynomial.coeff_mul_X_pow']
+    split_ifs <;> simp [Polynomial.coeff_mul_C]
+  conv_lhs => rw [hq]
+  simp only [mul_add, Polynomial.coeff_add, hm]
+  have h1 : (1 ≤ d) ↔ (0 < d) := by omega
+  have h2 : (2 ≤ d) ↔ (1 < d) := by omega
+  simp [Fin.sum_univ_succ, h1, h2, add_assoc]

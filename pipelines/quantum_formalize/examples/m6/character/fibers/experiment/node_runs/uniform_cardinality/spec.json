@@ -1,0 +1,14 @@
+{
+  "name": "M6.FiberSum.uniform_cardinality",
+  "statement": "∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → Fintype.card α = k * Fintype.card β",
+  "imports": [
+    "M6CharacterAccepted",
+    "M6Normalization"
+  ],
+  "context": "theorem M6.FiberSum.sum_by_fibers : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w\n  intro α β _ _ L w\n  simpa [M6.FiberSum.pullbackSum, M6.FiberSum.fiberSum, M6.FiberSum.fiber,\n    Fintype.card_subtype, nsmul_eq_mul] using (Fintype.sum_fiberwise' L w).symm\n\ntheorem M6.FiberSum.uniform_weighted_sum : ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b := by\n  classical\n  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b\n  intro α β _ _ L k h w\n  change ∀ b, (M6.FiberSum.fiber L b).card = k at h\n  rw [M6.FiberSum.sum_by_fibers α β L w]\n  simp only [M6.FiberSum.fiberSum, h, Finset.mul_sum]",
+  "queries": [
+    "finite sum over fibers cardinality",
+    "Fintype sum_fiberwise"
+  ],
+  "guidance": "Specialize weighted sum to constant1, compare coefficient0 and use exact_mod_cast; or direct cardinality by fibers. Return tactic lines only, no leading by."
+}

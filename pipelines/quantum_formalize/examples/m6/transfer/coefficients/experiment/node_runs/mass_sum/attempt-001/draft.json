@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i)\nintro I s f\nclassical\ninduction s using Finset.induction_on with\n| empty =>\n    simp only [Finset.sum_empty, M6.Transfer.mass_basic.1, le_refl]\n| @insert a s ha ih =>\n    simp only [Finset.sum_insert ha]\n    exact (M6.Transfer.mass_add (f a) (∑ i ∈ s, f i)).trans\n      (Nat.add_le_add_left ih (M6.Transfer.polynomialMass (f a)))",
+  "queries": []
+}

@@ -1,0 +1,208 @@
+{
+  "title": "M6 actual polynomial recurrence coefficient resources",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "scope": "Actual signed recurrence mass and degree bounds. Concrete edge factor bounds and coefficient-scatter refinement will discharge these internal hypotheses for the original algorithm.",
+  "nodes": [
+    {
+      "id": "mass_basic",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Transfer.mass_basic",
+        "statement": "M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p",
+        "imports": [
+          "M6TransferCoefficients"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+          "Int natAbs_sum_le Polynomial natDegree_sum_le"
+        ],
+        "guidance": "Use Polynomial.sum_zero_index/sum_monomial_index. The coefficient bound follows from membership in p.support when nonzero and Finset.single_le_sum; zero case trivial. Return tactic lines without leading by. Actual definitions:\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n\nimport M6Transfer\n\nnamespace M6.Transfer\n\nnoncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K := by\n  classical\n  exact fun m n => ∑ t : Bit, if shift m t = n then W m t else 0\n\nnoncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K := by\n  classical\n  exact fun n => ∑ m : Memory R, ∑ t : Bit,\n    if shift m t = n then v m * W m t else 0\n\nnoncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K\n  | 0 => fun n => if n = start then 1 else 0\n  | k+1 => propagate (W k) (layers W start k)\n\nnoncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K\n  | 0 => 1\n  | k+1 => matrixProduct A k * A k\n\nnoncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K :=\n  ∑ start : Memory R, layers W start N start\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_SIGNED_COEFFICIENT_RESOURCES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "mass_add",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Transfer.mass_add",
+        "statement": "∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p+q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q",
+        "imports": [
+          "M6TransferCoefficients"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+          "Int natAbs_sum_le Polynomial natDegree_sum_le"
+        ],
+        "guidance": "Extend all support sums to p.support union q.support using Polynomial.sum_eq_of_subset and support_add. Apply Int.natAbs_add_le pointwise; split sum. Do not assume absence of cancellations. Return tactic lines without leading by. Actual definitions:\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n\nimport M6Transfer\n\nnamespace M6.Transfer\n\nnoncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K := by\n  classical\n  exact fun m n => ∑ t : Bit, if shift m t = n then W m t else 0\n\nnoncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K := by\n  classical\n  exact fun n => ∑ m : Memory R, ∑ t : Bit,\n    if shift m t = n then v m * W m t else 0\n\nnoncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K\n  | 0 => fun n => if n = start then 1 else 0\n  | k+1 => propagate (W k) (layers W start k)\n\nnoncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K\n  | 0 => 1\n  | k+1 => matrixProduct A k * A k\n\nnoncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K :=\n  ∑ start : Memory R, layers W start N start\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_SIGNED_COEFFICIENT_RESOURCES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "mass_sum",
+      "dependencies": [
+        "mass_basic",
+        "mass_add"
+      ],
+      "spec": {
+        "name": "M6.Transfer.mass_sum",
+        "statement": "∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i)",
+        "imports": [
+          "M6TransferCoefficients"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+          "Int natAbs_sum_le Polynomial natDegree_sum_le"
+        ],
+        "guidance": "Induct s, use mass_add and mass_basic zero. Return tactic lines without leading by. Actual definitions:\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n\nimport M6Transfer\n\nnamespace M6.Transfer\n\nnoncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K := by\n  classical\n  exact fun m n => ∑ t : Bit, if shift m t = n then W m t else 0\n\nnoncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K := by\n  classical\n  exact fun n => ∑ m : Memory R, ∑ t : Bit,\n    if shift m t = n then v m * W m t else 0\n\nnoncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K\n  | 0 => fun n => if n = start then 1 else 0\n  | k+1 => propagate (W k) (layers W start k)\n\nnoncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K\n  | 0 => 1\n  | k+1 => matrixProduct A k * A k\n\nnoncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K :=\n  ∑ start : Memory R, layers W start N start\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_SIGNED_COEFFICIENT_RESOURCES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "mass_mul",
+      "dependencies": [
+        "mass_basic",
+        "mass_sum"
+      ],
+      "spec": {
+        "name": "M6.Transfer.mass_mul",
+        "statement": "∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p*q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q",
+        "imports": [
+          "M6TransferCoefficients"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+          "Int natAbs_sum_le Polynomial natDegree_sum_le"
+        ],
+        "guidance": "Rewrite Polynomial.mul_eq_sum_sum; apply mass_sum twice to double monomial expansion. mass_basic monomial and Int.natAbs_mul identify terms; sum distributivity factors product. Exact API Polynomial.mul_eq_sum_sum: p*q = sum i in p.support, q.sum(fun j a => monomial(i+j)(p.coeff i*a)). Return tactic lines without leading by. Actual definitions:\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n\nimport M6Transfer\n\nnamespace M6.Transfer\n\nnoncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K := by\n  classical\n  exact fun m n => ∑ t : Bit, if shift m t = n then W m t else 0\n\nnoncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K := by\n  classical\n  exact fun n => ∑ m : Memory R, ∑ t : Bit,\n    if shift m t = n then v m * W m t else 0\n\nnoncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K\n  | 0 => fun n => if n = start then 1 else 0\n  | k+1 => propagate (W k) (layers W start k)\n\nnoncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K\n  | 0 => 1\n  | k+1 => matrixProduct A k * A k\n\nnoncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K :=\n  ∑ start : Memory R, layers W start N start\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_SIGNED_COEFFICIENT_RESOURCES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "propagate_mass",
+      "dependencies": [
+        "mass_basic",
+        "mass_sum",
+        "mass_mul"
+      ],
+      "spec": {
+        "name": "M6.Transfer.propagate_mass",
+        "statement": "∀ (R : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.propagate W v) ≤ 8 * M6.Transfer.rowMass v",
+        "imports": [
+          "M6TransferCoefficients"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+          "Int natAbs_sum_le Polynomial natDegree_sum_le"
+        ],
+        "guidance": "Bound mass of source/label sums using mass_sum. Swap destination/source/label sums; the successor test selects exactly one destination per labelled edge. Apply mass_mul and edge mass<=4, then sum both Bit values/card=2. Keep both labels at R0. Return tactic lines without leading by. Actual definitions:\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n\nimport M6Transfer\n\nnamespace M6.Transfer\n\nnoncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K := by\n  classical\n  exact fun m n => ∑ t : Bit, if shift m t = n then W m t else 0\n\nnoncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K := by\n  classical\n  exact fun n => ∑ m : Memory R, ∑ t : Bit,\n    if shift m t = n then v m * W m t else 0\n\nnoncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K\n  | 0 => fun n => if n = start then 1 else 0\n  | k+1 => propagate (W k) (layers W start k)\n\nnoncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K\n  | 0 => 1\n  | k+1 => matrixProduct A k * A k\n\nnoncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K :=\n  ∑ start : Memory R, layers W start N start\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_SIGNED_COEFFICIENT_RESOURCES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "layers_mass",
+      "dependencies": [
+        "mass_basic",
+        "propagate_mass"
+      ],
+      "spec": {
+        "name": "M6.Transfer.layers_mass",
+        "statement": "∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.layers W start n) ≤ 8^n",
+        "imports": [
+          "M6TransferCoefficients"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+          "Int natAbs_sum_le Polynomial natDegree_sum_le"
+        ],
+        "guidance": "Induct n. Initial row delta start has total mass1 (mass_basic); propagate_mass gives 8 times induction bound. Rewrite pow_succ and arithmetic. Return tactic lines without leading by. Actual definitions:\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n\nimport M6Transfer\n\nnamespace M6.Transfer\n\nnoncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K := by\n  classical\n  exact fun m n => ∑ t : Bit, if shift m t = n then W m t else 0\n\nnoncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K := by\n  classical\n  exact fun n => ∑ m : Memory R, ∑ t : Bit,\n    if shift m t = n then v m * W m t else 0\n\nnoncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K\n  | 0 => fun n => if n = start then 1 else 0\n  | k+1 => propagate (W k) (layers W start k)\n\nnoncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K\n  | 0 => 1\n  | k+1 => matrixProduct A k * A k\n\nnoncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K :=\n  ∑ start : Memory R, layers W start N start\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_SIGNED_COEFFICIENT_RESOURCES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "trace_coefficient_bound",
+      "dependencies": [
+        "mass_basic",
+        "mass_sum",
+        "layers_mass"
+      ],
+      "spec": {
+        "name": "M6.Transfer.trace_coefficient_bound",
+        "statement": "∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → ((M6.Transfer.arrayTrace W N).coeff d).natAbs ≤ 2^R * 8^N",
+        "imports": [
+          "M6TransferCoefficients"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+          "Int natAbs_sum_le Polynomial natDegree_sum_le"
+        ],
+        "guidance": "Bound coefficient by polynomialMass, then mass_sum over starts. Each diagonal polynomial mass<=rowMass using single_le_sum, and layers_mass<=8^N. card Memory=2^R. This is the actual recurrence coefficient bound, with arbitrary signed edges satisfying original mass4. Return tactic lines without leading by. Actual definitions:\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n\nimport M6Transfer\n\nnamespace M6.Transfer\n\nnoncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K := by\n  classical\n  exact fun m n => ∑ t : Bit, if shift m t = n then W m t else 0\n\nnoncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K := by\n  classical\n  exact fun n => ∑ m : Memory R, ∑ t : Bit,\n    if shift m t = n then v m * W m t else 0\n\nnoncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K\n  | 0 => fun n => if n = start then 1 else 0\n  | k+1 => propagate (W k) (layers W start k)\n\nnoncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K\n  | 0 => 1\n  | k+1 => matrixProduct A k * A k\n\nnoncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K :=\n  ∑ start : Memory R, layers W start N start\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_SIGNED_COEFFICIENT_RESOURCES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "layers_degree",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Transfer.layers_degree",
+        "statement": "∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start finish : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, (W i m t).natDegree ≤ 2) → (M6.Transfer.layers W start n finish).natDegree ≤ 2*n",
+        "imports": [
+          "M6TransferCoefficients"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial sum_eq_of_subset mul_eq_sum_sum",
+          "Int natAbs_sum_le Polynomial natDegree_sum_le"
+        ],
+        "guidance": "Induct n generalizing finish. Initial delta constant degree0. For propagate use natDegree_sum_le_of_forall twice (or coefficient vanishing above2(n+1)), and natDegree_mul_le with induction bound and edge degree2. Zero/cancellation cases allowed. Return tactic lines without leading by. Actual definitions:\nimport M6TransferTrace\nnamespace M6.Transfer\nnoncomputable def polynomialMass (p : Polynomial ℤ) : ℕ := p.sum (fun _ c => c.natAbs)\nnoncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ :=\n  ∑ m : Memory R, polynomialMass (v m)\nend M6.Transfer\n\nimport M6Transfer\n\nnamespace M6.Transfer\n\nnoncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K := by\n  classical\n  exact fun m n => ∑ t : Bit, if shift m t = n then W m t else 0\n\nnoncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K := by\n  classical\n  exact fun n => ∑ m : Memory R, ∑ t : Bit,\n    if shift m t = n then v m * W m t else 0\n\nnoncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K\n  | 0 => fun n => if n = start then 1 else 0\n  | k+1 => propagate (W k) (layers W start k)\n\nnoncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K\n  | 0 => 1\n  | k+1 => matrixProduct A k * A k\n\nnoncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K :=\n  ∑ start : Memory R, layers W start N start\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_SIGNED_COEFFICIENT_RESOURCES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

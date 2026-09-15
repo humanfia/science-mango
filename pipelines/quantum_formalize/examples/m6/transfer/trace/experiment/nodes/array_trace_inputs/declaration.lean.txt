@@ -1,0 +1,6 @@
+theorem M6.Transfer.array_trace_inputs : ∀ (R N : ℕ) [NeZero N] (K : Type) [CommSemiring K] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → K), M6.Transfer.arrayTrace W N = ∑ h : M6.Transfer.Input N, ∏ i : ZMod N, W i.val (M6.Transfer.memoryAt h i) (h i) := by
+  classical
+  intro R N instN K instK W
+  rw [M6.Transfer.array_trace_matrix R K W N,
+    M6.Transfer.labelled_trace R N K W]
+  exact M6.Transfer.indexed_weight_sum R N K (fun i => W i.val)

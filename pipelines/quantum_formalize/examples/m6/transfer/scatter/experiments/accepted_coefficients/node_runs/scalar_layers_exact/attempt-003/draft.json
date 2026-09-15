@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro R N W start k hW\ninduction k with\n| zero =>\n    funext addr\n    by_cases hm : addr.1 = start\n    · simp only [M6.Transfer.scalarLayers, M6.Transfer.encodeCoefficients,\n        M6.Transfer.layers, hm, ite_true, true_and]\n      rw [show (1 : Polynomial ℤ) = Polynomial.C 1 by simp]\n      simp [Polynomial.coeff_C, eq_comm]\n    · simp [M6.Transfer.scalarLayers, M6.Transfer.encodeCoefficients,\n        M6.Transfer.layers, hm]\n| succ k ih =>\n    change M6.Transfer.scatterLayer (W k)\n      (M6.Transfer.scalarLayers W start k) =\n      M6.Transfer.encodeCoefficients\n        (M6.Transfer.propagate (W k) (M6.Transfer.layers W start k))\n    rw [ih]\n    funext addr\n    exact M6.Transfer.scatter_polynomial_coeff R N (W k)\n      (M6.Transfer.layers W start k) addr (hW k)",
+  "queries": []
+}

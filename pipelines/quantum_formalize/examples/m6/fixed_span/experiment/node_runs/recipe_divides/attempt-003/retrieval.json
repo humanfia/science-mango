@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "CharP.cast_eq_zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 63296,
+        "name": "CharP.cast_eq_zero",
+        "module": "Mathlib.Algebra.CharP.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/CharP/Defs.lean#L59-L59",
+        "source_text": "@[simp] lemma cast_eq_zero : (p : R) = 0 := (cast_eq_zero_iff R p p).2 dvd_rfl",
+        "docstring": null
+      },
+      {
+        "id": 63304,
+        "name": "CharP.charP_zero_iff_charZero",
+        "module": "Mathlib.Algebra.CharP.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/CharP/Defs.lean#L111-L112",
+        "source_text": "lemma charP_zero_iff_charZero : CharP R 0 ↔ CharZero R :=\n  ⟨fun _ ↦ charP_to_charZero R, fun _ ↦ ofCharZero R⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 63292,
+        "name": "CharP",
+        "module": "Mathlib.Algebra.CharP.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/CharP/Defs.lean#L35-L47",
+        "source_text": "/-- The generator of the kernel of the unique homomorphism ℕ → R for a semiring R.\n\n*Warning*: for a semiring `R`, `CharP R 0` and `CharZero R` need not coincide.\n* `CharP R 0` asks that only `0 : ℕ` maps to `0 : R` under the map `ℕ → R`;\n* `CharZero R` requires an injection `ℕ ↪ R`.\n\nFor instance, endowing `{0, 1}` with addition given by `max` (i.e. `1` is absorbing), shows that\n`CharZero {0, 1}` does not hold and yet `CharP {0, 1} 0` does.\nThis example is formalized in `Counterexamples/CharPZeroNeCharZero.lean`.\n-/\n@[mk_iff]\nclass _root_.CharP (R : Type*) [AddMonoidWithOne R] (p : outParam ℕ) : Prop where\n  cast_eq_zero_iff (R p) : ∀ x : ℕ, (x : R) = 0 ↔ p ∣ x\n",
+        "docstring": "The generator of the kernel of the unique homomorphism ℕ → R for a semiring R.\n\n*Warning*: for a semiring `R`, `CharP R 0` and `CharZero R` need not coincide.\n* `CharP R 0` asks that only `0 : ℕ` maps to `0 : R` under the map `ℕ → R`;\n* `CharZero R` requires an injection `ℕ ↪ R`.\n\nFor instance, endowing `{0, 1}` with addition given by `max` (i.e. `1` is absorbing), shows that\n`CharZero {0, 1}` does not hold and yet `CharP {0, 1} 0` does.\nThis example is formalized in `Counterexamples/CharPZeroNeCharZero.lean`.\n"
+      },
+      {
+        "id": 63302,
+        "name": "CharP.intCast_eq_zero_iff",
+        "module": "Mathlib.Algebra.CharP.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/CharP/Defs.lean#L99-L106",
+        "source_text": "lemma intCast_eq_zero_iff (a : ℤ) : (a : R) = 0 ↔ (p : ℤ) ∣ a := by\n  rcases lt_trichotomy a 0 with (h | rfl | h)\n  · rw [← neg_eq_zero, ← Int.cast_neg, ← Int.dvd_neg]\n    lift -a to ℕ using Int.neg_nonneg.mpr (le_of_lt h) with b\n    rw [Int.cast_natCast, CharP.cast_eq_zero_iff R p, Int.natCast_dvd_natCast]\n  · simp\n  · lift a to ℕ using le_of_lt h with b\n    rw [Int.cast_natCast, CharP.cast_eq_zero_iff R p, Int.natCast_dvd_natCast]\n",
+        "docstring": null
+      },
+      {
+        "id": 67052,
+        "name": "AddChar.eq_zero_iff",
+        "module": "Mathlib.Algebra.Group.AddChar",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/AddChar.lean#L251-L251",
+        "source_text": "lemma eq_zero_iff : ψ = 0 ↔ ∀ x, ψ x = 1 := DFunLike.ext_iff\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "CharP.cast_eq_zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391520,
+        "name": "TensorSpecies.Tensor.Pure.actionP_cast",
+        "module": "Physlib.Relativity.Tensors.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Basic.lean#L408-L411",
+        "source_text": "lemma actionP_cast {g : G} {p : Pure S c} (h : c = c1) :\n    LinearEquiv.cast (R := k) h (g • p) = g • LinearEquiv.cast (R := k) h p := by\n  subst h\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 388389,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.instDecidableEq",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L120-L121",
+        "source_text": "instance [DecidableEq 𝓩] : DecidableEq (ChargeSpectrum 𝓩) := fun _ _ =>\n  decidable_of_iff _ eq_iff.symm\n",
+        "docstring": null
+      },
+      {
+        "id": 387522,
+        "name": "TwoHiggsDoublet.quarticTermReduced_zero",
+        "module": "Physlib.Particles.BeyondTheStandardModel.TwoHDM.Potential",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/TwoHDM/Potential.lean#L591-L594",
+        "source_text": "@[simp]\nlemma quarticTermReduced_zero : quarticTermReduced 0 = 0 := by\n  ext k\n  simp [quarticTermReduced]",
+        "docstring": null
+      },
+      {
+        "id": 388276,
+        "name": "MSSMACC.AnomalyFreePerp.InLineEq",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L166-L168",
+        "source_text": "/-- Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. -/\ndef InLineEq : Type := {R : MSSMACC.AnomalyFreePerp // LineEqProp R}\n",
+        "docstring": "Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. "
+      },
+      {
+        "id": 388656,
+        "name": "ACCSystemQuad.QuadSols.ext_iff",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L311-L311",
+        "source_text": "@[ext]\nlemma QuadSols.ext {χ : ACCSystemQuad} {S T : χ.QuadSols} (h : S.val = T.val) :\n    S = T := by",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "sub_dvd_pow_sub_pow",
+    "status": "ok",
+    "results": [
+      {
+        "id": 105379,
+        "name": "sub_dvd_pow_sub_pow",
+        "module": "Mathlib.Algebra.Ring.GeomSum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Ring/GeomSum.lean#L310-L311",
+        "source_text": "lemma sub_dvd_pow_sub_pow (x y : R) (n : ℕ) : x - y ∣ x ^ n - y ^ n :=\n  (Commute.all x y).sub_dvd_pow_sub_pow n\n",
+        "docstring": null
+      },
+      {
+        "id": 105385,
+        "name": "Nat.pow_sub_pow_dvd_pow_sub_pow",
+        "module": "Mathlib.Algebra.Ring.GeomSum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Ring/GeomSum.lean#L341-L342",
+        "source_text": "lemma pow_sub_pow_dvd_pow_sub_pow (hmk : m ∣ k) : x ^ m - y ^ m ∣ x ^ k - y ^ k := by\n  obtain ⟨n, rfl⟩ := hmk; simpa [pow_mul] using (x ^ m).sub_dvd_pow_sub_pow (y ^ m) n\n",
+        "docstring": null
+      },
+      {
+        "id": 74837,
+        "name": "Submonoid.closure_pow_anti",
+        "module": "Mathlib.Algebra.Group.Submonoid.Pointwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Submonoid/Pointwise.lean#L93-L96",
+        "source_text": "@[to_additive]\nlemma closure_pow_anti {m n : ℕ} (hmn : m ∣ n) : closure (s ^ n) ≤ closure (s ^ m) := by\n  obtain ⟨k, rfl⟩ := hmn\n  simp [pow_mul]",
+        "docstring": null
+      },
+      {
+        "id": 74136,
+        "name": "SubmonoidClass.mk_pow",
+        "module": "Mathlib.Algebra.Group.Submonoid.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Submonoid/Defs.lean#L379-L382",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem mk_pow {M} [Monoid M] {A : Type*} [SetLike A M] [SubmonoidClass A M] {S : A} (x : M)\n    (hx : x ∈ S) (n : ℕ) : (⟨x, hx⟩ : S) ^ n = ⟨x ^ n, pow_mem hx n⟩ :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 74273,
+        "name": "Submonoid.powers",
+        "module": "Mathlib.Algebra.Group.Submonoid.Membership",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Submonoid/Membership.lean#L311-L314",
+        "source_text": "/-- The submonoid generated by an element. -/\ndef powers (n : M) : Submonoid M :=\n  Submonoid.copy (mrange (powersHom M n)) (Set.range (n ^ · : ℕ → M)) <|\n    Set.ext fun n => exists_congr fun i => by simp; rfl\n",
+        "docstring": "The submonoid generated by an element. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "sub_dvd_pow_sub_pow",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390551,
+        "name": "QuantumMechanics.radiusPowOperator_domain_ge",
+        "module": "Physlib.QuantumMechanics.Operators.Position",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Position.lean#L411-L419",
+        "source_text": "lemma radiusPowOperator_domain_ge {d : ℕ} (s : ℝ) :\n    PolyBddSchwartzSubmodule d ⌊1 - d / 2 - s⌋.toNat ≤ (radiusPowOperator s).domain := by\n  intro ψ hψ\n  let f := polyBddSchwartzEquiv.symm ⟨ψ, hψ⟩\n  apply mem_mulOperator_domain_iff.mpr\n  refine MemHS.ae_eq (f := 𝐫 s f.1) ?_ ?_\n  · filter_upwards [polyBddSchwartzEquiv_coe_ae f]\n    simp_all [f]\n  · exact radiusPowLM_apply_memHS s f.1 _ f.2 (add_floor_toNat_pos_aux d s)\n",
+        "docstring": null
+      },
+      {
+        "id": 390550,
+        "name": "QuantumMechanics.radiusPowLM_apply_polyBddSchwartz_memHS",
+        "module": "Physlib.QuantumMechanics.Operators.Position",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Position.lean#L405-L409",
+        "source_text": "lemma radiusPowLM_apply_polyBddSchwartz_memHS {d : ℕ} {s : ℝ}\n    (ψ : PolyBddSchwartzSubmodule d ⌊1 - d / 2 - s⌋.toNat) :\n    MemHS (𝐫[d] s (polyBddSchwartzEquiv.symm ψ)) :=\n  let f := polyBddSchwartzEquiv.symm ψ\n  radiusPowLM_apply_memHS s f.1 ⌊1 - d / 2 - s⌋.toNat f.2 (add_floor_toNat_pos_aux d s)\n",
+        "docstring": null
+      },
+      {
+        "id": 390358,
+        "name": "QuantumMechanics.SpaceDHilbertSpace.PolyBddSchwartzSubmodule.of_zero_eq",
+        "module": "Physlib.QuantumMechanics.HilbertSpaces.SpaceD.PolyBddSchwartzSubmodule",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/HilbertSpaces/SpaceD/PolyBddSchwartzSubmodule.lean#L150-L151",
+        "source_text": "lemma of_zero_eq (d : ℕ) : PolyBddSchwartzSubmodule d 0 = SchwartzSubmodule d := by\n  simp [PolyBddSchwartzSubmodule, polyBddSchwartzIncl, PolyBddSchwartzMap_zero_eq_top]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

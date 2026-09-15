@@ -1,0 +1,11 @@
+import FrozenTarget_2394724334ca93d4
+theorem M6.FiberSum.uniform_cardinality : QuantumHarnessFrozenTarget := by
+  classical
+  change ∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → Fintype.card α = k * Fintype.card β
+  intro α β _ _ L k h
+  change ∀ b, (M6.FiberSum.fiber L b).card = k at h
+  have hc : ∀ b, Fintype.card {a : α // L a = b} = k := by
+    intro b
+    simpa [Fintype.card_subtype, M6.FiberSum.fiber] using h b
+  have hs := (Fintype.sum_fiberwise' L (fun _ : β => (1 : ℕ))).symm
+  simpa [hc, Nat.mul_comm] using hs

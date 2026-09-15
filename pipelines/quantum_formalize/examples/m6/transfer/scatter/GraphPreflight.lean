@@ -1,0 +1,8 @@
+import M6TransferScatter
+#check (∀ R N : ℕ, Fintype.card (M6.Transfer.Memory R) * N * (M6.Transfer.scatterEventList R N).length = M6.Transfer.traceCoefficientOps R N)
+#check (∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input initial : M6.Transfer.CoefficientArray R N) (l : List (M6.Transfer.ScatterEvent R N)) (addr : M6.Transfer.CoefficientAddress R N), (l.foldl (M6.Transfer.scatterUpdate W input) initial) addr = initial addr + (l.map (fun e => if M6.Transfer.eventDestination e = some addr then M6.Transfer.eventTerm W input e else 0)).sum)
+#check (∀ (p q : Polynomial ℤ) (d : ℕ), q.natDegree ≤ 2 → (p*q).coeff d = ∑ e : Fin 3, if e.val ≤ d then p.coeff (d-e.val) * q.coeff e.val else 0)
+#check (∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ) (addr : M6.Transfer.CoefficientAddress R N), (∀ m t, (W m t).natDegree ≤ 2) → M6.Transfer.scatterLayer W (M6.Transfer.encodeCoefficients v) addr = (M6.Transfer.propagate W v addr.1).coeff addr.2.val)
+#check (∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (k : ℕ), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarLayers (N:=N) W start k = M6.Transfer.encodeCoefficients (M6.Transfer.layers W start k))
+#check (∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : Fin (2*N+1)), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarTraceCoefficient W N d = (M6.Transfer.arrayTrace W N).coeff d.val)
+#check (∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarTracePolynomial W N = M6.Transfer.arrayTrace W N)

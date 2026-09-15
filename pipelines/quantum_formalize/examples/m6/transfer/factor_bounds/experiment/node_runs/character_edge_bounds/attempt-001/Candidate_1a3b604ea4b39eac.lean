@@ -1,0 +1,16 @@
+import FrozenTarget_1a3b604ea4b39eac
+theorem M6.Transfer.character_edge_bounds : QuantumHarnessFrozenTarget := by
+  intro m P i j s t
+  have hi := M6.Transfer.character_factor_bounds m P i s
+  have hj := M6.Transfer.character_factor_bounds m P j t
+  constructor
+  · exact le_trans
+      (M6.Transfer.mass_mul
+        (M6.Character.pinnedCharacterFactor P i s)
+        (M6.Character.pinnedCharacterFactor P j t))
+      (by simpa using Nat.mul_le_mul hi.1 hj.1)
+  · exact le_trans
+      (Polynomial.natDegree_mul_le
+        (p := M6.Character.pinnedCharacterFactor P i s)
+        (q := M6.Character.pinnedCharacterFactor P j t))
+      (by simpa using Nat.add_le_add hi.2 hj.2)

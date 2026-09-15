@@ -1,0 +1,133 @@
+{
+  "title": "M6 exact equal-fiber and dual-cardinality normalization",
+  "scope": "Actual fiber-cardinality hypotheses will be discharged by physical map owner; no enumerator formula is assumed. No k-positive or squarefree assumption.",
+  "nodes": [
+    {
+      "id": "sum_by_fibers",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.FiberSum.sum_by_fibers",
+        "statement": "∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = M6.FiberSum.fiberSum L w",
+        "imports": [
+          "M6Normalization",
+          "M6CharacterAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum over fibers cardinality",
+          "Fintype sum_fiberwise"
+        ],
+        "guidance": "Reindex the finite domain sum by fibers using finite sum_fiberwise; each fiber has constant weight, hence cardinality times that polynomial. Return tactic lines only, no leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": "M6 sections2/4/5 equal-fiber normalization"
+      }
+    },
+    {
+      "id": "uniform_weighted_sum",
+      "dependencies": [
+        "sum_by_fibers"
+      ],
+      "spec": {
+        "name": "M6.FiberSum.uniform_weighted_sum",
+        "statement": "∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → ∀ (w : β → Polynomial ℤ), M6.FiberSum.pullbackSum L w = Polynomial.C (k : ℤ) * ∑ b, w b",
+        "imports": [
+          "M6Normalization",
+          "M6CharacterAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum over fibers cardinality",
+          "Fintype sum_fiberwise"
+        ],
+        "guidance": "Use sum_by_fibers, replace each fiber.card by k and factor finite sum. No surjectivity or k-positive assumption required. Return tactic lines only, no leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": "M6 sections2/4/5 equal-fiber normalization"
+      }
+    },
+    {
+      "id": "uniform_cardinality",
+      "dependencies": [
+        "uniform_weighted_sum"
+      ],
+      "spec": {
+        "name": "M6.FiberSum.uniform_cardinality",
+        "statement": "∀ (α β : Type) [Fintype α] [Fintype β] (L : α → β) (k : ℕ), M6.FiberSum.UniformFibers L k → Fintype.card α = k * Fintype.card β",
+        "imports": [
+          "M6Normalization",
+          "M6CharacterAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum over fibers cardinality",
+          "Fintype sum_fiberwise"
+        ],
+        "guidance": "Specialize weighted sum to constant1, compare coefficient0 and use exact_mod_cast; or direct cardinality by fibers. Return tactic lines only, no leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": "M6 sections2/4/5 equal-fiber normalization"
+      }
+    },
+    {
+      "id": "constant_transform",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Character.constant_transform",
+        "statement": "∀ (m : ℕ) (q : M6.Character.Vector m), (q = 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = Polynomial.C ((2 : ℤ)^m)) ∧ (q ≠ 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = 0)",
+        "imports": [
+          "M6Normalization",
+          "M6CharacterAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character sum cardinality",
+          "polynomial constant map injective"
+        ],
+        "guidance": "Expand the binary coordinate sum. When q i=0 its factor is2; when q i=1 it is0. For q≠0 choose a nonzero coordinate to make the product0. Use literal q i=0∨q i=1 before simp to avoid fin_cases leaving Fin constructors. Return tactics only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": "M6 section4 total counts"
+      }
+    },
+    {
+      "id": "dual_cardinality",
+      "dependencies": [
+        "constant_transform"
+      ],
+      "spec": {
+        "name": "M6.Character.dual_cardinality",
+        "statement": "∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)), (M6.Character.subspaceWords D).card * (M6.Character.dualWords D).card = 2^m",
+        "imports": [
+          "M6Normalization",
+          "M6CharacterAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character sum cardinality",
+          "polynomial constant map injective"
+        ],
+        "guidance": "Specialize accepted weighted_macwilliams to all coordinate weights1. WeightedDual becomes C(card dualWords). The transform sum has only q=0 contribution C(2^m), since0∈D. Compare coefficient0, then exact_mod_cast. No dimension or nondegeneracy premise; actual finite binary transform proves the result. Return tactics only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": "M6 section4 total counts"
+      }
+    }
+  ],
+  "pending_dependency": "Verified core character MacWilliams closure. Main core+pinned work has priority."
+}

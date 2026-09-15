@@ -1,0 +1,55 @@
+{
+  "id": "scalar_trace_polynomial",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.scalar_trace_polynomial",
+    "spec_sha256": "f1bcb1fe1509c473eeb1ad9c00a96789bc38605d55b846887240e78348054a69",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-6v0r9eqz/attempt-001/Candidate_09197c213351ba40.lean",
+        "target_path": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-6v0r9eqz/attempt-001/FrozenTarget_09197c213351ba40.lean",
+        "feedback": "",
+        "target_sha256": "cfc28d93665c2982246680957054d1a463480df258bef6d8485b05c72cf38666",
+        "target_olean_sha256": "66be0351420cc7e2346e3858a66acf7516505a7a4066665f175923dcb48d76e8",
+        "source_sha256": "4c2df3360d6e12fe60f8ba1688637712bac0c47cc5ba632de9508c042d46fac2",
+        "olean_sha256": "71a91f4bec2e52663d73f206e99c557638801d5d9f0facfa753225d3f84af059",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:36:05.641091+00:00",
+    "work": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-6v0r9eqz",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "fbc7c9ea2063679772dbf6a46b271e999a60450ecd0223aef0639ed5fca8f829",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-6v0r9eqz/attempt-001/Candidate_09197c213351ba40.lean",
+    "environment_sha256": "862bda87680c3b11c17d2a4755d7f9e1e1376ad0741864d1310c019a532cf5f0",
+    "artifacts": {
+      "scalar_trace_polynomial": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.scalar_trace_polynomial : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarTracePolynomial W N = M6.Transfer.arrayTrace W N := by\n  classical\n  intro R N W hW\n  change M6.Transfer.scalarTracePolynomial W N = M6.Transfer.arrayTrace W N\n  apply Polynomial.ext\n  intro d\n  rw [M6.Transfer.scalarTracePolynomial, Polynomial.finset_sum_coeff]\n  by_cases hd : d < 2 * N + 1\n  · let j : Fin (2 * N + 1) := ⟨d, hd⟩\n    calc\n      _ = (Polynomial.monomial j.val (M6.Transfer.scalarTraceCoefficient W N j)).coeff d := by\n        apply Finset.sum_eq_single j\n        · intro i hi hij\n          have hv : i.val ≠ d := by\n            intro he\n            apply hij\n            apply Fin.ext\n            exact he\n          simp [Polynomial.coeff_monomial, hv, Ne.symm hv]\n        · simp\n      _ = M6.Transfer.scalarTraceCoefficient W N j := by\n        simp [j]\n      _ = (M6.Transfer.arrayTrace W N).coeff d :=\n        M6.Transfer.scalar_trace_coefficient R N W j hW\n  · have hleft : (∑ i : Fin (2 * N + 1),\n        (Polynomial.monomial i.val (M6.Transfer.scalarTraceCoefficient W N i)).coeff d) = 0 := by\n      apply Finset.sum_eq_zero\n      intro i hi\n      have hv : i.val ≠ d := by\n        have := i.isLt\n        omega\n      simp [Polynomial.coeff_monomial, hv, Ne.symm hv]\n    rw [hleft]\n    symm\n    rw [M6.Transfer.arrayTrace, Polynomial.finset_sum_coeff]\n    apply Finset.sum_eq_zero\n    intro start hstart\n    apply Polynomial.coeff_eq_zero_of_natDegree_lt\n    have hdeg := M6.Transfer.layers_degree R W start start N hW\n    omega",
+          "imports": [
+            "M6TransferScatterReady"
+          ],
+          "name": "M6.Transfer.scalar_trace_polynomial",
+          "ancestors": [],
+          "spec_sha256": "f1bcb1fe1509c473eeb1ad9c00a96789bc38605d55b846887240e78348054a69"
+        },
+        "sha256": "89517841b20606745445f2f41cf2cd618b9d47bbdd57d8e34c0323a62ff2d17b"
+      }
+    }
+  }
+}

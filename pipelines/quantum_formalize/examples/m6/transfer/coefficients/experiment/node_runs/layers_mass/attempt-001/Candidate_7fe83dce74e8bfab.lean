@@ -1,0 +1,16 @@
+import FrozenTarget_7fe83dce74e8bfab
+theorem M6.Transfer.layers_mass : QuantumHarnessFrozenTarget := by
+  change ∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.layers W start n) ≤ 8 ^ n
+  intro R W start n hW
+  classical
+  induction n with
+  | zero =>
+      simp [M6.Transfer.layers, M6.Transfer.rowMass, apply_ite,
+        M6.Transfer.mass_basic.1, M6.Transfer.mass_basic.2.1]
+  | succ n ih =>
+      change M6.Transfer.rowMass (M6.Transfer.propagate (W n) (M6.Transfer.layers W start n)) ≤ 8 ^ (n + 1)
+      calc
+        _ ≤ 8 * M6.Transfer.rowMass (M6.Transfer.layers W start n) :=
+          M6.Transfer.propagate_mass R (W n) (M6.Transfer.layers W start n) (hW n)
+        _ ≤ 8 * 8 ^ n := Nat.mul_le_mul_left 8 ih
+        _ = 8 ^ (n + 1) := by rw [pow_succ, Nat.mul_comm]

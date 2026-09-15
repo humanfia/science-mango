@@ -1,0 +1,71 @@
+{
+  "id": "dual_cardinality",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Character.dual_cardinality",
+    "spec_sha256": "338d29bd92eee9a1f26f5be523dae56f4e7d3fb31ad1ff8984cc234ffeea1149",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-yy0la__g/attempt-001/Candidate_5628670b97439021.lean",
+        "target_path": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-yy0la__g/attempt-001/FrozenTarget_5628670b97439021.lean",
+        "feedback": "",
+        "target_sha256": "52aa45a2da599434ccdb9ac889a4ee8821eab7550f7c27d528351d5f43e1b102",
+        "target_olean_sha256": "66ecaf050d2f3726dbeabd832a7921d2d2bab5e359a9837bd6c4636aff931439",
+        "source_sha256": "e1dbae2654c64ce87115a14f73ec8b6e3e34f4d9d87b036caf236a6b75b0cdb5",
+        "olean_sha256": "26e5643ad465a6d6f13dbe7556f60a6ab55a1c12a5c002fb2c1077e14b6afac5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:27:43.202074+00:00",
+    "work": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-yy0la__g",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "54588349adc5ff9a6608bc623473494d307e381baf0bd1bd8281ebdc729b78c5",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-fiber-sum-formalization/.humanize-formal-runs/run-yy0la__g/attempt-001/Candidate_5628670b97439021.lean",
+    "environment_sha256": "ac932ef1e4bb05fe3067db86513d6d77ee46b3463f5af8f77ba4acd1d0fda600",
+    "artifacts": {
+      "constant_transform": {
+        "payload": {
+          "declaration": "theorem M6.Character.constant_transform : ∀ (m : ℕ) (q : M6.Character.Vector m), (q = 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = Polynomial.C ((2 : ℤ)^m)) ∧ (q ≠ 0 → M6.Character.localTransform (fun _ _ => (1 : Polynomial ℤ)) q = 0) := by\n  classical\n  change ∀ (m : ℕ) (q : M6.Character.Vector m), _\n  intro m q\n  have hu : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by decide\n  have hz : M6.Character.sign 0 = 1 :=\n    ((M6.Character.sign_eq_one 0).1).2 rfl\n  have hs (a : ZMod 2) :\n      (∑ b : ZMod 2, Polynomial.C (M6.Character.sign (a * b)) * (1 : Polynomial ℤ)) =\n        if a = 0 then 2 else 0 := by\n    by_cases ha : a = 0\n    · subst a\n      simp [hu, hz]\n    · have hn : M6.Character.sign a = -1 :=\n        ((M6.Character.sign_eq_one a).2).2 ha\n      simp [hu, hz, hn, ha]\n  constructor\n  · intro hq\n    subst q\n    simp only [M6.Character.localTransform, hs]\n    simp\n  · intro hq\n    have hi : ∃ i : Fin m, q i ≠ 0 := by\n      by_contra h\n      apply hq\n      funext i\n      simpa using (not_exists.mp h i)\n    obtain ⟨i, hi⟩ := hi\n    unfold M6.Character.localTransform\n    apply Finset.prod_eq_zero (Finset.mem_univ i)\n    rw [hs, if_neg hi]",
+          "imports": [
+            "M6CharacterAccepted",
+            "M6Normalization"
+          ],
+          "name": "M6.Character.constant_transform",
+          "ancestors": [],
+          "spec_sha256": "4a2421c6ab821350d664f9af71e10ac2bba15a62d933440911d414512f919cb2"
+        },
+        "sha256": "877e1ba71c1628186448e080637501b83f1fd3345202eae779e33727f9e95c41"
+      },
+      "dual_cardinality": {
+        "payload": {
+          "declaration": "theorem M6.Character.dual_cardinality : ∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)), (M6.Character.subspaceWords D).card * (M6.Character.dualWords D).card = 2^m := by\n  classical\n  change ∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)), _\n  intro m D\n  have hz : (0 : M6.Character.Vector m) ∈ M6.Character.subspaceWords D := by\n    simp [M6.Character.subspaceWords]\n  have hd : M6.Character.weightedDual D (fun _ _ => (1 : Polynomial ℤ)) =\n      Polynomial.C ((M6.Character.dualWords D).card : ℤ) := by\n    simp [M6.Character.weightedDual]\n  have ht : M6.Character.weightedTransform D (fun _ _ => (1 : Polynomial ℤ)) =\n      Polynomial.C ((2 : ℤ)^m) := by\n    unfold M6.Character.weightedTransform\n    rw [Finset.sum_eq_single (0 : M6.Character.Vector m)]\n    · exact (M6.Character.constant_transform m 0).1 rfl\n    · intro q hq hq0\n      exact (M6.Character.constant_transform m q).2 hq0\n    · intro h\n      exact (h hz).elim\n  have h := M6.Character.weighted_macwilliams m D (fun _ _ => (1 : Polynomial ℤ))\n  rw [hd, ht, ← map_mul] at h\n  have hi := Polynomial.C_injective h\n  exact_mod_cast hi",
+          "imports": [
+            "M6CharacterAccepted",
+            "M6Normalization"
+          ],
+          "name": "M6.Character.dual_cardinality",
+          "ancestors": [
+            "constant_transform"
+          ],
+          "spec_sha256": "ebdce5da472bf6835be43c9d81dfe4d8504716aba5c6636c0e06020fb49e0d3b"
+        },
+        "sha256": "2f2779f1650cf6c03c5bafa0907bc049b290064412aec03976117080496953a9"
+      }
+    }
+  }
+}

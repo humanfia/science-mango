@@ -1,0 +1,12 @@
+theorem M6.CSS.common_quantum_distance : ∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), (0 : M6.CSS.Vector m) ∈ BX → (0 : M6.CSS.Vector m) ∈ BZ → BX ⊆ CX → BZ ⊆ CZ → Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ M6.CSS.logical BX CX ↔ J v ∈ M6.CSS.logical BZ CZ) → M6.CSS.quantumDistance BX CX BZ CZ = M6.Pinned.distance (M6.CSS.logical BX CX) := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), (0 : M6.CSS.Vector m) ∈ BX → (0 : M6.CSS.Vector m) ∈ BZ → BX ⊆ CX → BZ ⊆ CZ → Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ M6.CSS.logical BX CX ↔ J v ∈ M6.CSS.logical BZ CZ) → M6.CSS.quantumDistance BX CX BZ CZ = M6.Pinned.distance (M6.CSS.logical BX CX)
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro m BX CX BZ CZ J hBX hBZ hBCX hBCZ hJ hw hmem
+  have hd := M6.CSS.involution_distance m (M6.CSS.logical BX CX)
+    (M6.CSS.logical BZ CZ) J hJ hw hmem
+  rw [M6.CSS.css_distance_min m BX CX BZ CZ hBX hBZ hBCX hBCZ, ← hd]
+  cases M6.Pinned.distance (M6.CSS.logical BX CX) <;>
+    simp [M6.CSS.minDistance]

@@ -1,0 +1,61 @@
+{
+  "id": "layers_degree",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.layers_degree",
+    "spec_sha256": "b873855a987324437095907d152577f513a41e415e0533321d79491d05150442",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-001/Candidate_e0450e04feb032f7.lean:6:9: error: unsolved goals\ncase zero\nR : ℕ\nW : ℕ → Memory R → Bit → Polynomial ℤ\nstart : Memory R\nhW : ∀ (i : ℕ) (m : Memory R) (t : Bit), (W i m t).natDegree ≤ 2\nfinish : Memory R\n⊢ (if finish = start then 1 else 0).natDegree = 0\n/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-001/Candidate_e0450e04feb032f7.lean:10:12: error(lean.unknownIdentifier): Unknown constant `Polynomial.natDegree_sum_le_of_forall`\n/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-001/Candidate_e0450e04feb032f7.lean:11:12: error: No goals to be solved\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-002/Candidate_69c9fa8796ffede0.lean",
+        "target_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-002/FrozenTarget_69c9fa8796ffede0.lean",
+        "feedback": "",
+        "target_sha256": "dc4e8ac18483e46a7e6cd621442e8225ffac9ca2a96269cd891ee16e2b6a9c3f",
+        "target_olean_sha256": "33d093c11310bce093e91bed67a76a35f5c98ff659aa75bf9006a29d55b0efa6",
+        "source_sha256": "f41ac9c5f1bb923dcb4f5ce82c545aa7095a1bd22e3ccd2ee8dbe3f1fbc50d81",
+        "olean_sha256": "aa83507d9cee5dc1af12f2685ff2684cbd2b785e91544e7582945a515daf034f",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:03:50.553428+00:00",
+    "work": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d633d06ae2c351b7b2a614f28f823515f0ae7d2b8d7d365a4647d98fa5e1dc07",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-002/Candidate_69c9fa8796ffede0.lean",
+    "environment_sha256": "bc84f854f6dc6272f8987d7732bdf45d5e3e68b2a7cfafc2c48eeddcee8f8f56",
+    "artifacts": {
+      "layers_degree": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.layers_degree : ∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start finish : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, (W i m t).natDegree ≤ 2) → (M6.Transfer.layers W start n finish).natDegree ≤ 2*n := by\n  classical\n  intro R W start finish n hW\n  induction n generalizing finish with\n  | zero =>\n      by_cases h : finish = start <;>\n        simp [M6.Transfer.layers, h]\n  | succ n ih =>\n      simp only [M6.Transfer.layers, M6.Transfer.propagate]\n      apply Polynomial.natDegree_sum_le_of_forall_le\n      intro m hm\n      apply Polynomial.natDegree_sum_le_of_forall_le\n      intro t ht\n      split_ifs with h\n      · have hmul := Polynomial.natDegree_mul_le (p := M6.Transfer.layers W start n m) (q := W n m t)\n        exact (hmul.trans (Nat.add_le_add (ih m) (hW n m t))).trans_eq (by simp [Nat.mul_succ])\n      · simp",
+          "imports": [
+            "M6TransferCoefficients"
+          ],
+          "name": "M6.Transfer.layers_degree",
+          "ancestors": [],
+          "spec_sha256": "b873855a987324437095907d152577f513a41e415e0533321d79491d05150442"
+        },
+        "sha256": "b3304c4fa89aea8c08892ae2e90255ef6adad8481aad901ffbb39f26a572de56"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "intro m LX LZ J hJ hw hmem\nhave hback : ∀ v, v ∈ LZ → J v ∈ LX := by\n  intro v hv\n  apply (hmem (J v)).mpr\n  simpa only [hJ v] using hv\ncases hd : M6.Pinned.distance LX with\n| none =>\n    have hX : LX = ∅ := (M6.Pinned.distance_spec m LX).1.mp hd\n    have hZ : LZ = ∅ := by\n      apply Finset.eq_empty_iff_forall_not_mem.mpr\n      intro v hv\n      have hx := hback v hv\n      simpa only [hX, Finset.not_mem_empty] using hx\n    exact ((M6.Pinned.distance_spec m LZ).1.mpr hZ).symm\n| some d =>\n    obtain ⟨⟨v, hv, hvw⟩, hmin⟩ := (M6.Pinned.distance_spec m LX).2 d |>.mp hd\n    symm\n    apply (M6.Pinned.distance_spec m LZ).2 d |>.mpr\n    constructor\n    · exact ⟨J v, (hmem v).mp hv, (hw v).trans hvw⟩\n    · intro u hu\n      have h := hmin (J u) (hback u hu)\n      simpa only [hw u] using h",
+  "queries": []
+}

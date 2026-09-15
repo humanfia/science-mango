@@ -1,0 +1,14 @@
+{
+  "name": "M6.Character.pinned_product",
+  "statement": "∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Character.Vector m), (∏ i, M6.Character.boundaryFactor P i (v i)) = M6.Character.pinnedMonomial P v",
+  "imports": [
+    "M6CharacterAccepted",
+    "M6PinnedCharacter"
+  ],
+  "context": "theorem M6.Character.weight_as_sum : ∀ (m : ℕ) (v : M6.Character.Vector m), M6.Pinned.weight v = ∑ i, (v i).val := by\n  change ∀ (m : ℕ) (v : M6.Character.Vector m), M6.Pinned.weight v = ∑ i, (v i).val\n  intro m v\n  classical\n  unfold M6.Pinned.weight\n  rw [Finset.card_eq_sum_ones, Finset.sum_filter]\n  apply Finset.sum_congr rfl\n  intro i hi\n  generalize hx : v i = x\n  have hx01 : x = 0 ∨ x = 1 := by\n    fin_cases x\n    · exact Or.inl rfl\n    · exact Or.inr rfl\n  rcases hx01 with rfl | rfl <;> norm_num [ZMod.val_zero, ZMod.val_one_eq_one_mod]",
+  "queries": [
+    "binary weight finite sum polynomial product",
+    "Fintype ZMod two finite sum"
+  ],
+  "guidance": "If agrees then every local factor is X^val; combine using pow_sum and weight_as_sum. If not, extract a pinned coordinate which disagrees and use product zero. Inspect Option pin; no extra pin assumptions. Return tactic lines only, no leading by."
+}

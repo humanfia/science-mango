@@ -1,0 +1,15 @@
+theorem M6.Transfer.boundary_factor_bounds : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (i : Fin m) (s : ZMod 2), M6.Transfer.polynomialMass (M6.Character.boundaryFactor P i s) ≤ 1 ∧ (M6.Character.boundaryFactor P i s).natDegree ≤ 1 := by
+  classical
+  intro m P i s
+  by_cases h : P i = none ∨ P i = some s
+  · simp only [M6.Character.boundaryFactor, if_pos h]
+    constructor
+    · have hx : (Polynomial.X : Polynomial ℤ) ^ s.val = Polynomial.monomial s.val 1 := by
+        ext n
+        simp [Polynomial.coeff_monomial, eq_comm]
+      rw [hx, M6.Transfer.mass_basic.2.2.1]
+      norm_num
+    · have hs := ZMod.val_lt s
+      rw [Polynomial.natDegree_X_pow]
+      omega
+  · simp [M6.Character.boundaryFactor, h, M6.Transfer.mass_basic.1]

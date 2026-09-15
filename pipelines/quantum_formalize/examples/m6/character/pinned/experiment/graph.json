@@ -1,0 +1,108 @@
+{
+  "title": "M6 exact pinned dual enumerator in shared Option-pin representation",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "pending_dependency": "../experiment accepted weighted_macwilliams closure; do not launch before verified promotion",
+  "nodes": [
+    {
+      "id": "weight_as_sum",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Character.weight_as_sum",
+        "statement": "∀ (m : ℕ) (v : M6.Character.Vector m), M6.Pinned.weight v = ∑ i, (v i).val",
+        "imports": [
+          "M6PinnedCharacter",
+          "M6CharacterAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "binary weight finite sum polynomial product",
+          "Fintype ZMod two finite sum"
+        ],
+        "guidance": "Express filtered card as sum of indicators; each ZMod2 value is0 or1. fin_cases the coordinate value, with norm_num [ZMod.val_zero,ZMod.val_one]. Return tactic lines only, no leading by."
+      },
+      "metadata": {
+        "source_section": "M6 section5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "pinned_product",
+      "dependencies": [
+        "weight_as_sum"
+      ],
+      "spec": {
+        "name": "M6.Character.pinned_product",
+        "statement": "∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Character.Vector m), (∏ i, M6.Character.boundaryFactor P i (v i)) = M6.Character.pinnedMonomial P v",
+        "imports": [
+          "M6PinnedCharacter",
+          "M6CharacterAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "binary weight finite sum polynomial product",
+          "Fintype ZMod two finite sum"
+        ],
+        "guidance": "If agrees then every local factor is X^val; combine using pow_sum and weight_as_sum. If not, extract a pinned coordinate which disagrees and use product zero. Inspect Option pin; no extra pin assumptions. Return tactic lines only, no leading by."
+      },
+      "metadata": {
+        "source_section": "M6 section5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "free_character_factor",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Character.free_character_factor",
+        "statement": "∀ (m : ℕ) (i : Fin m) (s : ZMod 2), M6.Character.pinnedCharacterFactor (M6.Pinned.free m) i s = 1 + Polynomial.C (M6.Character.sign s) * Polynomial.X",
+        "imports": [
+          "M6PinnedCharacter",
+          "M6CharacterAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "binary weight finite sum polynomial product",
+          "Fintype ZMod two finite sum"
+        ],
+        "guidance": "Expand the sum over ZMod2 explicitly, evaluate local factors of0 and1, simplify signs at0 and multiplication by1. Return tactic lines only, no leading by."
+      },
+      "metadata": {
+        "source_section": "M6 section5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "pinned_macwilliams",
+      "dependencies": [
+        "pinned_product"
+      ],
+      "spec": {
+        "name": "M6.Character.pinned_macwilliams",
+        "statement": "∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)) (P : M6.Pinned.Pins m), Polynomial.C ((M6.Character.subspaceWords D).card : ℤ) * M6.Pinned.enumerator (M6.Character.dualWords D) P = M6.Character.pinnedTransform D P",
+        "imports": [
+          "M6PinnedCharacter",
+          "M6CharacterAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "binary weight finite sum polynomial product",
+          "Fintype ZMod two finite sum"
+        ],
+        "guidance": "Use imported accepted weighted_macwilliams with w=boundaryFactor P. Its weightedDual is exactly Pinned.enumerator by pinned_product; transform unfolds pinnedCharacterFactor. Preserve actual Option pins and integer polynomials. Return tactic lines only, no leading by."
+      },
+      "metadata": {
+        "source_section": "M6 section5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

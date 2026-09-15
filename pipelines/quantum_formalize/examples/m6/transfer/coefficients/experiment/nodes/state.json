@@ -1,0 +1,778 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T13:19:20.658460+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "layers_degree": {
+      "id": "layers_degree",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.layers_degree",
+        "spec_sha256": "b873855a987324437095907d152577f513a41e415e0533321d79491d05150442",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-001/Candidate_e0450e04feb032f7.lean:6:9: error: unsolved goals\ncase zero\nR : ℕ\nW : ℕ → Memory R → Bit → Polynomial ℤ\nstart : Memory R\nhW : ∀ (i : ℕ) (m : Memory R) (t : Bit), (W i m t).natDegree ≤ 2\nfinish : Memory R\n⊢ (if finish = start then 1 else 0).natDegree = 0\n/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-001/Candidate_e0450e04feb032f7.lean:10:12: error(lean.unknownIdentifier): Unknown constant `Polynomial.natDegree_sum_le_of_forall`\n/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-001/Candidate_e0450e04feb032f7.lean:11:12: error: No goals to be solved\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-002/Candidate_69c9fa8796ffede0.lean",
+            "target_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-002/FrozenTarget_69c9fa8796ffede0.lean",
+            "feedback": "",
+            "target_sha256": "dc4e8ac18483e46a7e6cd621442e8225ffac9ca2a96269cd891ee16e2b6a9c3f",
+            "target_olean_sha256": "33d093c11310bce093e91bed67a76a35f5c98ff659aa75bf9006a29d55b0efa6",
+            "source_sha256": "f41ac9c5f1bb923dcb4f5ce82c545aa7095a1bd22e3ccd2ee8dbe3f1fbc50d81",
+            "olean_sha256": "aa83507d9cee5dc1af12f2685ff2684cbd2b785e91544e7582945a515daf034f",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T13:03:50.553428+00:00",
+        "work": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "d633d06ae2c351b7b2a614f28f823515f0ae7d2b8d7d365a4647d98fa5e1dc07",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-zuxb75up/attempt-002/Candidate_69c9fa8796ffede0.lean",
+        "environment_sha256": "bc84f854f6dc6272f8987d7732bdf45d5e3e68b2a7cfafc2c48eeddcee8f8f56",
+        "artifacts": {
+          "layers_degree": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.layers_degree : ∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start finish : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, (W i m t).natDegree ≤ 2) → (M6.Transfer.layers W start n finish).natDegree ≤ 2*n := by\n  classical\n  intro R W start finish n hW\n  induction n generalizing finish with\n  | zero =>\n      by_cases h : finish = start <;>\n        simp [M6.Transfer.layers, h]\n  | succ n ih =>\n      simp only [M6.Transfer.layers, M6.Transfer.propagate]\n      apply Polynomial.natDegree_sum_le_of_forall_le\n      intro m hm\n      apply Polynomial.natDegree_sum_le_of_forall_le\n      intro t ht\n      split_ifs with h\n      · have hmul := Polynomial.natDegree_mul_le (p := M6.Transfer.layers W start n m) (q := W n m t)\n        exact (hmul.trans (Nat.add_le_add (ih m) (hW n m t))).trans_eq (by simp [Nat.mul_succ])\n      · simp",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.layers_degree",
+              "ancestors": [],
+              "spec_sha256": "b873855a987324437095907d152577f513a41e415e0533321d79491d05150442"
+            },
+            "sha256": "b3304c4fa89aea8c08892ae2e90255ef6adad8481aad901ffbb39f26a572de56"
+          }
+        }
+      }
+    },
+    "mass_add": {
+      "id": "mass_add",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.mass_add",
+        "spec_sha256": "ae0679b8ec44bc3ecc1e3b543422fec0d352d15d93a4aff844487054e57376c6",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-f_0l90gn/attempt-001/Candidate_f081fd572457db1f.lean:7:47: error: Application type mismatch: The argument\n  fun x c => c.natAbs\nhas type\n  ℤ → ℤ → ℕ\nbut is expected to have type\n  ℕ → ℤ → ℕ\nin the application\n  Polynomial.sum_eq_of_subset fun x c => c.natAbs\n/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-f_0l90gn/attempt-001/Candidate_f081fd572457db1f.lean:7:89: error: Function expected at\n  Polynomial.support_add ?m.41\nbut this term has type\n  ?m.40 ∈ Polynomial.support ?m.38 ∪ Polynomial.support ?m.39\n\nNote: Expected a function because this term is being applied to the argument\n  q\n/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-f_0l90gn/attempt-001/Candidate_f081fd572457db1f.lean:2:61: error: unsolved goals\np q : Polynomial ℤ\n⊢ ((p + q).sum fun x c => c.natAbs) ≤ (p.sum fun x c => c.natAbs) + q.sum fun x c => c.natAbs\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-f_0l90gn/attempt-002/Candidate_040d22b50a341560.lean",
+            "target_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-f_0l90gn/attempt-002/FrozenTarget_040d22b50a341560.lean",
+            "feedback": "",
+            "target_sha256": "e488df3746139fe3788260dc3feb685a089739cc205d0d0d3ab96672843fface",
+            "target_olean_sha256": "0464ed0d76d9f8de45e3ffabd3afe9b8c336a636f22ce1a2fde1efd319a97506",
+            "source_sha256": "2a937ee3377e6e787789fc475d8321b789bf8293414e77b79cb9c34f840a70c7",
+            "olean_sha256": "f59cc8a7f5bcaa82139e7c67d631d8ac6bc698a54f4ea908b9e1b0b1374c6b69",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T13:03:50.562531+00:00",
+        "work": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-f_0l90gn",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "d633d06ae2c351b7b2a614f28f823515f0ae7d2b8d7d365a4647d98fa5e1dc07",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-f_0l90gn/attempt-002/Candidate_040d22b50a341560.lean",
+        "environment_sha256": "bc84f854f6dc6272f8987d7732bdf45d5e3e68b2a7cfafc2c48eeddcee8f8f56",
+        "artifacts": {
+          "mass_add": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_add : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p+q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p + q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  unfold M6.Transfer.polynomialMass\n  have hp : p.support ⊆ p.support ∪ q.support := Finset.subset_union_left\n  have hq : q.support ⊆ p.support ∪ q.support := Finset.subset_union_right\n  have hpq : (p + q).support ⊆ p.support ∪ q.support := Polynomial.support_add\n  rw [Polynomial.sum_eq_of_subset (p := p + q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hpq,\n      Polynomial.sum_eq_of_subset (p := p) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hp,\n      Polynomial.sum_eq_of_subset (p := q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hq,\n      ← Finset.sum_add_distrib]\n  apply Finset.sum_le_sum\n  intro i hi\n  simpa only [Polynomial.coeff_add] using Int.natAbs_add_le (p.coeff i) (q.coeff i)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_add",
+              "ancestors": [],
+              "spec_sha256": "ae0679b8ec44bc3ecc1e3b543422fec0d352d15d93a4aff844487054e57376c6"
+            },
+            "sha256": "0c9b1860e794c6d6c94bf3fba4f5c65dc452b64a9aa2d3b761d0dc36230a7ad6"
+          }
+        }
+      }
+    },
+    "mass_basic": {
+      "id": "mass_basic",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.mass_basic",
+        "spec_sha256": "451cf8308b20ea3e524b34bc1348ff1623d8b76276f681460485a2f54bc2e80e",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-ya21lmp3/attempt-001/Candidate_9b3d510911fda70c.lean:16:6: error: Type mismatch\n  Finset.single_le_sum (fun i hi => Nat.zero_le (?m.103 i)) (Polynomial.mem_support_iff.mpr h)\nhas type\n  ?m.103 d ≤ ∑ x ∈ p.support, ?m.103 x\nbut is expected to have type\n  (p.coeff d).natAbs ≤ ∑ n ∈ p.support, (p.coeff n).natAbs\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-ya21lmp3/attempt-002/Candidate_d554351dc580c000.lean",
+            "target_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-ya21lmp3/attempt-002/FrozenTarget_d554351dc580c000.lean",
+            "feedback": "",
+            "target_sha256": "ed75abd96ce2e67645ddc52d05ee2768a79eae111ef67d3d5b0f84a7d539983a",
+            "target_olean_sha256": "e4146f628b49dbc028ae4ddbcc4026d800bfcdf0a913843a73078278e195f42d",
+            "source_sha256": "7221785195efbdc358087810102c8926193e2a83b2af331e0f8c9f0828119e51",
+            "olean_sha256": "e06a9aa7721bbd6a492d9632b0622f2e21004329ed1d6ae218ff7862833c1a5e",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T13:03:50.570836+00:00",
+        "work": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-ya21lmp3",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "d633d06ae2c351b7b2a614f28f823515f0ae7d2b8d7d365a4647d98fa5e1dc07",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-ya21lmp3/attempt-002/Candidate_d554351dc580c000.lean",
+        "environment_sha256": "bc84f854f6dc6272f8987d7732bdf45d5e3e68b2a7cfafc2c48eeddcee8f8f56",
+        "artifacts": {
+          "mass_basic": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_basic : M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  have hm : ∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs := by\n    intro n c\n    simp [M6.Transfer.polynomialMass, Polynomial.sum_monomial_index]\n  refine ⟨?_, ?_, hm, ?_⟩\n  · simp [M6.Transfer.polynomialMass]\n  · simpa using hm 0 1\n  · intro p d\n    by_cases h : p.coeff d = 0\n    · simp [h]\n    · change (p.coeff d).natAbs ≤ ∑ n ∈ p.support, (p.coeff n).natAbs\n      exact Finset.single_le_sum\n        (f := fun n => (p.coeff n).natAbs)\n        (fun n _ => Nat.zero_le ((p.coeff n).natAbs))\n        (Polynomial.mem_support_iff.mpr h)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_basic",
+              "ancestors": [],
+              "spec_sha256": "451cf8308b20ea3e524b34bc1348ff1623d8b76276f681460485a2f54bc2e80e"
+            },
+            "sha256": "95b1a3252c282bc976a08597b378c86f37b7aac9a3c4b6fd5ef10f6953e1599f"
+          }
+        }
+      }
+    },
+    "mass_sum": {
+      "id": "mass_sum",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.mass_sum",
+        "spec_sha256": "395584ca655eeaf566f4c197bd93e262b4ae929df62f400364bc16f181a7c755",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-494bazi9/attempt-001/Candidate_9b8cc50242c2da04.lean",
+            "target_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-494bazi9/attempt-001/FrozenTarget_9b8cc50242c2da04.lean",
+            "feedback": "",
+            "target_sha256": "275781410541a5eb85040b080fe6773afb7defca57a682ef25beb947343ff1b2",
+            "target_olean_sha256": "dd865e6a7b05cbd5dbc5c02df3fc4a3dc6bcd04d40dbdab56b37640efe602ea7",
+            "source_sha256": "4362a3e3b65bfa4cfb050b5c468118b28bdd786a321939f7b6839ed686359aa6",
+            "olean_sha256": "dda8cb5b95f04038798d28ad7e1f97e07fe8c3290f761dc10ea3c288a526ed1e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:08:40.451945+00:00",
+        "work": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-494bazi9",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "d633d06ae2c351b7b2a614f28f823515f0ae7d2b8d7d365a4647d98fa5e1dc07",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-494bazi9/attempt-001/Candidate_9b8cc50242c2da04.lean",
+        "environment_sha256": "bc84f854f6dc6272f8987d7732bdf45d5e3e68b2a7cfafc2c48eeddcee8f8f56",
+        "artifacts": {
+          "mass_basic": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_basic : M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  have hm : ∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs := by\n    intro n c\n    simp [M6.Transfer.polynomialMass, Polynomial.sum_monomial_index]\n  refine ⟨?_, ?_, hm, ?_⟩\n  · simp [M6.Transfer.polynomialMass]\n  · simpa using hm 0 1\n  · intro p d\n    by_cases h : p.coeff d = 0\n    · simp [h]\n    · change (p.coeff d).natAbs ≤ ∑ n ∈ p.support, (p.coeff n).natAbs\n      exact Finset.single_le_sum\n        (f := fun n => (p.coeff n).natAbs)\n        (fun n _ => Nat.zero_le ((p.coeff n).natAbs))\n        (Polynomial.mem_support_iff.mpr h)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_basic",
+              "ancestors": [],
+              "spec_sha256": "451cf8308b20ea3e524b34bc1348ff1623d8b76276f681460485a2f54bc2e80e"
+            },
+            "sha256": "95b1a3252c282bc976a08597b378c86f37b7aac9a3c4b6fd5ef10f6953e1599f"
+          },
+          "mass_add": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_add : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p+q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p + q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  unfold M6.Transfer.polynomialMass\n  have hp : p.support ⊆ p.support ∪ q.support := Finset.subset_union_left\n  have hq : q.support ⊆ p.support ∪ q.support := Finset.subset_union_right\n  have hpq : (p + q).support ⊆ p.support ∪ q.support := Polynomial.support_add\n  rw [Polynomial.sum_eq_of_subset (p := p + q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hpq,\n      Polynomial.sum_eq_of_subset (p := p) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hp,\n      Polynomial.sum_eq_of_subset (p := q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hq,\n      ← Finset.sum_add_distrib]\n  apply Finset.sum_le_sum\n  intro i hi\n  simpa only [Polynomial.coeff_add] using Int.natAbs_add_le (p.coeff i) (q.coeff i)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_add",
+              "ancestors": [],
+              "spec_sha256": "ae0679b8ec44bc3ecc1e3b543422fec0d352d15d93a4aff844487054e57376c6"
+            },
+            "sha256": "0c9b1860e794c6d6c94bf3fba4f5c65dc452b64a9aa2d3b761d0dc36230a7ad6"
+          },
+          "mass_sum": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_sum : ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i) := by\n  change ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i)\n  intro I s f\n  classical\n  induction s using Finset.induction_on with\n  | empty =>\n      simp only [Finset.sum_empty, M6.Transfer.mass_basic.1, le_refl]\n  | @insert a s ha ih =>\n      simp only [Finset.sum_insert ha]\n      exact (M6.Transfer.mass_add (f a) (∑ i ∈ s, f i)).trans\n        (Nat.add_le_add_left ih (M6.Transfer.polynomialMass (f a)))",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_sum",
+              "ancestors": [
+                "mass_add",
+                "mass_basic"
+              ],
+              "spec_sha256": "484f61f9411ec9daa557fd9a0775bd436f71e0a9ba286c65df44db53560a181c"
+            },
+            "sha256": "a598f6626c7c394022fd63419d217468713bfab5f9461b04e50c09c8de05c6aa"
+          }
+        }
+      }
+    },
+    "mass_mul": {
+      "id": "mass_mul",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.mass_mul",
+        "spec_sha256": "d221ae961e932dba7649fd0d01154ab1f6ccc323db0520c898003d46620cc4b2",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-flqsuf1a/attempt-001/Candidate_2ac9ad3c9e21c2e2.lean",
+            "target_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-flqsuf1a/attempt-001/FrozenTarget_2ac9ad3c9e21c2e2.lean",
+            "feedback": "",
+            "target_sha256": "355ff44dc6582f120c332b6b10052631773f7a2b26609f053d8af72f154b51bd",
+            "target_olean_sha256": "3c348593dc481a9bfe107aa2eb59308b4b378c566b3a86182413eda76ad258e9",
+            "source_sha256": "0f6633126545418a1cd6e7b8de0b0f248792f4212bf9146678c964f5431d38f9",
+            "olean_sha256": "2557685de90db5efe4bcffe2c055f4b054acd081c087eea159b1a766f9d860ea",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:10:45.106818+00:00",
+        "work": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-flqsuf1a",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "d633d06ae2c351b7b2a614f28f823515f0ae7d2b8d7d365a4647d98fa5e1dc07",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-flqsuf1a/attempt-001/Candidate_2ac9ad3c9e21c2e2.lean",
+        "environment_sha256": "bc84f854f6dc6272f8987d7732bdf45d5e3e68b2a7cfafc2c48eeddcee8f8f56",
+        "artifacts": {
+          "mass_basic": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_basic : M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  have hm : ∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs := by\n    intro n c\n    simp [M6.Transfer.polynomialMass, Polynomial.sum_monomial_index]\n  refine ⟨?_, ?_, hm, ?_⟩\n  · simp [M6.Transfer.polynomialMass]\n  · simpa using hm 0 1\n  · intro p d\n    by_cases h : p.coeff d = 0\n    · simp [h]\n    · change (p.coeff d).natAbs ≤ ∑ n ∈ p.support, (p.coeff n).natAbs\n      exact Finset.single_le_sum\n        (f := fun n => (p.coeff n).natAbs)\n        (fun n _ => Nat.zero_le ((p.coeff n).natAbs))\n        (Polynomial.mem_support_iff.mpr h)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_basic",
+              "ancestors": [],
+              "spec_sha256": "451cf8308b20ea3e524b34bc1348ff1623d8b76276f681460485a2f54bc2e80e"
+            },
+            "sha256": "95b1a3252c282bc976a08597b378c86f37b7aac9a3c4b6fd5ef10f6953e1599f"
+          },
+          "mass_add": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_add : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p+q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p + q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  unfold M6.Transfer.polynomialMass\n  have hp : p.support ⊆ p.support ∪ q.support := Finset.subset_union_left\n  have hq : q.support ⊆ p.support ∪ q.support := Finset.subset_union_right\n  have hpq : (p + q).support ⊆ p.support ∪ q.support := Polynomial.support_add\n  rw [Polynomial.sum_eq_of_subset (p := p + q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hpq,\n      Polynomial.sum_eq_of_subset (p := p) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hp,\n      Polynomial.sum_eq_of_subset (p := q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hq,\n      ← Finset.sum_add_distrib]\n  apply Finset.sum_le_sum\n  intro i hi\n  simpa only [Polynomial.coeff_add] using Int.natAbs_add_le (p.coeff i) (q.coeff i)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_add",
+              "ancestors": [],
+              "spec_sha256": "ae0679b8ec44bc3ecc1e3b543422fec0d352d15d93a4aff844487054e57376c6"
+            },
+            "sha256": "0c9b1860e794c6d6c94bf3fba4f5c65dc452b64a9aa2d3b761d0dc36230a7ad6"
+          },
+          "mass_sum": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_sum : ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i) := by\n  change ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i)\n  intro I s f\n  classical\n  induction s using Finset.induction_on with\n  | empty =>\n      simp only [Finset.sum_empty, M6.Transfer.mass_basic.1, le_refl]\n  | @insert a s ha ih =>\n      simp only [Finset.sum_insert ha]\n      exact (M6.Transfer.mass_add (f a) (∑ i ∈ s, f i)).trans\n        (Nat.add_le_add_left ih (M6.Transfer.polynomialMass (f a)))",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_sum",
+              "ancestors": [
+                "mass_add",
+                "mass_basic"
+              ],
+              "spec_sha256": "484f61f9411ec9daa557fd9a0775bd436f71e0a9ba286c65df44db53560a181c"
+            },
+            "sha256": "a598f6626c7c394022fd63419d217468713bfab5f9461b04e50c09c8de05c6aa"
+          },
+          "mass_mul": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_mul : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p*q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p * q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  rw [Polynomial.mul_eq_sum_sum]\n  refine (M6.Transfer.mass_sum ℕ p.support _).trans ?_\n  calc\n    _ ≤ ∑ i ∈ p.support, (p.coeff i).natAbs * M6.Transfer.polynomialMass q := by\n      apply Finset.sum_le_sum\n      intro i hi\n      change M6.Transfer.polynomialMass (∑ j ∈ q.support, Polynomial.monomial (i + j) (p.coeff i * q.coeff j)) ≤ (p.coeff i).natAbs * M6.Transfer.polynomialMass q\n      refine (M6.Transfer.mass_sum ℕ q.support _).trans ?_\n      simp only [M6.Transfer.mass_basic.2.2.1, Int.natAbs_mul]\n      change (∑ j ∈ q.support, (p.coeff i).natAbs * (q.coeff j).natAbs) ≤ (p.coeff i).natAbs * (∑ j ∈ q.support, (q.coeff j).natAbs)\n      rw [Finset.mul_sum]\n    _ = M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q := by\n      change (∑ i ∈ p.support, (p.coeff i).natAbs * M6.Transfer.polynomialMass q) = (∑ i ∈ p.support, (p.coeff i).natAbs) * M6.Transfer.polynomialMass q\n      rw [Finset.sum_mul]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_mul",
+              "ancestors": [
+                "mass_add",
+                "mass_basic",
+                "mass_sum"
+              ],
+              "spec_sha256": "82455dfc243a464032d848e8d362d0672faae3ab0095a5dc348005e0d660e7b6"
+            },
+            "sha256": "70258dfa5c08e3a0f8bea017fa16a91ff3b18406660b8c8dbc3b505acc16102d"
+          }
+        }
+      }
+    },
+    "propagate_mass": {
+      "id": "propagate_mass",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.propagate_mass",
+        "spec_sha256": "62d8d8c53be2372b486882a01bb1cbc96e29d06676685b192b286f4063214ac5",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-pko1xyv5/attempt-001/Candidate_14925f2fe5c991c4.lean",
+            "target_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-pko1xyv5/attempt-001/FrozenTarget_14925f2fe5c991c4.lean",
+            "feedback": "",
+            "target_sha256": "9c802c2a3361b393dc359a84ac70bb85908bb19fcd8f7a3b2c6042ba323cc91c",
+            "target_olean_sha256": "c8eded3a33296fa3f7e26beeab360af7309713fd5c09752af83e596d815c8823",
+            "source_sha256": "e0d6362722f4874bb6ae83936c91fba613eaf3aec9c97e7830b2393c2010756e",
+            "olean_sha256": "3b829b485c250f9885b388a7d9eb4f1232934d42bda05f11b07b05502bb6ee96",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:12:51.636197+00:00",
+        "work": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-pko1xyv5",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "d633d06ae2c351b7b2a614f28f823515f0ae7d2b8d7d365a4647d98fa5e1dc07",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-pko1xyv5/attempt-001/Candidate_14925f2fe5c991c4.lean",
+        "environment_sha256": "bc84f854f6dc6272f8987d7732bdf45d5e3e68b2a7cfafc2c48eeddcee8f8f56",
+        "artifacts": {
+          "mass_basic": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_basic : M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  have hm : ∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs := by\n    intro n c\n    simp [M6.Transfer.polynomialMass, Polynomial.sum_monomial_index]\n  refine ⟨?_, ?_, hm, ?_⟩\n  · simp [M6.Transfer.polynomialMass]\n  · simpa using hm 0 1\n  · intro p d\n    by_cases h : p.coeff d = 0\n    · simp [h]\n    · change (p.coeff d).natAbs ≤ ∑ n ∈ p.support, (p.coeff n).natAbs\n      exact Finset.single_le_sum\n        (f := fun n => (p.coeff n).natAbs)\n        (fun n _ => Nat.zero_le ((p.coeff n).natAbs))\n        (Polynomial.mem_support_iff.mpr h)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_basic",
+              "ancestors": [],
+              "spec_sha256": "451cf8308b20ea3e524b34bc1348ff1623d8b76276f681460485a2f54bc2e80e"
+            },
+            "sha256": "95b1a3252c282bc976a08597b378c86f37b7aac9a3c4b6fd5ef10f6953e1599f"
+          },
+          "mass_add": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_add : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p+q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p + q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  unfold M6.Transfer.polynomialMass\n  have hp : p.support ⊆ p.support ∪ q.support := Finset.subset_union_left\n  have hq : q.support ⊆ p.support ∪ q.support := Finset.subset_union_right\n  have hpq : (p + q).support ⊆ p.support ∪ q.support := Polynomial.support_add\n  rw [Polynomial.sum_eq_of_subset (p := p + q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hpq,\n      Polynomial.sum_eq_of_subset (p := p) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hp,\n      Polynomial.sum_eq_of_subset (p := q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hq,\n      ← Finset.sum_add_distrib]\n  apply Finset.sum_le_sum\n  intro i hi\n  simpa only [Polynomial.coeff_add] using Int.natAbs_add_le (p.coeff i) (q.coeff i)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_add",
+              "ancestors": [],
+              "spec_sha256": "ae0679b8ec44bc3ecc1e3b543422fec0d352d15d93a4aff844487054e57376c6"
+            },
+            "sha256": "0c9b1860e794c6d6c94bf3fba4f5c65dc452b64a9aa2d3b761d0dc36230a7ad6"
+          },
+          "mass_sum": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_sum : ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i) := by\n  change ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i)\n  intro I s f\n  classical\n  induction s using Finset.induction_on with\n  | empty =>\n      simp only [Finset.sum_empty, M6.Transfer.mass_basic.1, le_refl]\n  | @insert a s ha ih =>\n      simp only [Finset.sum_insert ha]\n      exact (M6.Transfer.mass_add (f a) (∑ i ∈ s, f i)).trans\n        (Nat.add_le_add_left ih (M6.Transfer.polynomialMass (f a)))",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_sum",
+              "ancestors": [
+                "mass_add",
+                "mass_basic"
+              ],
+              "spec_sha256": "484f61f9411ec9daa557fd9a0775bd436f71e0a9ba286c65df44db53560a181c"
+            },
+            "sha256": "a598f6626c7c394022fd63419d217468713bfab5f9461b04e50c09c8de05c6aa"
+          },
+          "mass_mul": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_mul : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p*q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p * q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  rw [Polynomial.mul_eq_sum_sum]\n  refine (M6.Transfer.mass_sum ℕ p.support _).trans ?_\n  calc\n    _ ≤ ∑ i ∈ p.support, (p.coeff i).natAbs * M6.Transfer.polynomialMass q := by\n      apply Finset.sum_le_sum\n      intro i hi\n      change M6.Transfer.polynomialMass (∑ j ∈ q.support, Polynomial.monomial (i + j) (p.coeff i * q.coeff j)) ≤ (p.coeff i).natAbs * M6.Transfer.polynomialMass q\n      refine (M6.Transfer.mass_sum ℕ q.support _).trans ?_\n      simp only [M6.Transfer.mass_basic.2.2.1, Int.natAbs_mul]\n      change (∑ j ∈ q.support, (p.coeff i).natAbs * (q.coeff j).natAbs) ≤ (p.coeff i).natAbs * (∑ j ∈ q.support, (q.coeff j).natAbs)\n      rw [Finset.mul_sum]\n    _ = M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q := by\n      change (∑ i ∈ p.support, (p.coeff i).natAbs * M6.Transfer.polynomialMass q) = (∑ i ∈ p.support, (p.coeff i).natAbs) * M6.Transfer.polynomialMass q\n      rw [Finset.sum_mul]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_mul",
+              "ancestors": [
+                "mass_add",
+                "mass_basic",
+                "mass_sum"
+              ],
+              "spec_sha256": "82455dfc243a464032d848e8d362d0672faae3ab0095a5dc348005e0d660e7b6"
+            },
+            "sha256": "70258dfa5c08e3a0f8bea017fa16a91ff3b18406660b8c8dbc3b505acc16102d"
+          },
+          "propagate_mass": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.propagate_mass : ∀ (R : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.propagate W v) ≤ 8 * M6.Transfer.rowMass v := by\n  change ∀ (R : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.propagate W v) ≤ 8 * M6.Transfer.rowMass v\n  intro R W v hW\n  classical\n  have hc : Fintype.card M6.Transfer.Bit = 2 := by\n    simp [M6.Transfer.Bit]\n  calc\n    M6.Transfer.rowMass (M6.Transfer.propagate W v)\n        ≤ ∑ n : M6.Transfer.Memory R, ∑ m : M6.Transfer.Memory R,\n            ∑ t : M6.Transfer.Bit, M6.Transfer.polynomialMass\n              (if M6.Transfer.shift m t = n then v m * W m t else 0) := by\n      unfold M6.Transfer.rowMass M6.Transfer.propagate\n      apply Finset.sum_le_sum\n      intro n hn\n      refine (M6.Transfer.mass_sum _ Finset.univ _).trans ?_\n      apply Finset.sum_le_sum\n      intro m hm\n      exact M6.Transfer.mass_sum _ Finset.univ _\n    _ = ∑ m : M6.Transfer.Memory R, ∑ t : M6.Transfer.Bit,\n          M6.Transfer.polynomialMass (v m * W m t) := by\n      rw [Finset.sum_comm]\n      apply Finset.sum_congr rfl\n      intro m hm\n      rw [Finset.sum_comm]\n      apply Finset.sum_congr rfl\n      intro t ht\n      simp only [apply_ite, M6.Transfer.mass_basic.1]\n      simp\n    _ ≤ ∑ m : M6.Transfer.Memory R, ∑ t : M6.Transfer.Bit,\n          M6.Transfer.polynomialMass (v m) * 4 := by\n      apply Finset.sum_le_sum\n      intro m hm\n      apply Finset.sum_le_sum\n      intro t ht\n      exact (M6.Transfer.mass_mul (v m) (W m t)).trans\n        (Nat.mul_le_mul_left _ (hW m t))\n    _ = ∑ m : M6.Transfer.Memory R, 8 * M6.Transfer.polynomialMass (v m) := by\n      apply Finset.sum_congr rfl\n      intro m hm\n      simp only [Finset.sum_const, Finset.card_univ, hc, nsmul_eq_mul]\n      ring\n    _ = 8 * M6.Transfer.rowMass v := by\n      unfold M6.Transfer.rowMass\n      rw [Finset.mul_sum]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.propagate_mass",
+              "ancestors": [
+                "mass_add",
+                "mass_basic",
+                "mass_mul",
+                "mass_sum"
+              ],
+              "spec_sha256": "781430b4ac02e29a00607569ebd61a27499f0d04e14fb1df54e4fe2173a676e1"
+            },
+            "sha256": "ba56309e11db0146c425ee2816e16436152be9a4cd4225ef9c5a4830df1771a2"
+          }
+        }
+      }
+    },
+    "layers_mass": {
+      "id": "layers_mass",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.layers_mass",
+        "spec_sha256": "cee513db5da23b1b62bfbc06cd847b73323f678417585ca7ba647474c7979928",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-lz78cfwi/attempt-001/Candidate_7fe83dce74e8bfab.lean",
+            "target_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-lz78cfwi/attempt-001/FrozenTarget_7fe83dce74e8bfab.lean",
+            "feedback": "",
+            "target_sha256": "c317ee4c96bfe8c91018638ad5c2387c07d1ea4a1b2b2ffb395b0de355441ea1",
+            "target_olean_sha256": "dac6e7c4e992ea2942f8abea9ec6b0e764d52ef45a0a2067552559356bcf10f0",
+            "source_sha256": "83701e31ad4b6dd14be939694414280b024b8ef18131025122bd3083c6e0ad01",
+            "olean_sha256": "9ccb3ed5d297732db1bb11cdd69fa46e452f505cc81752036cf1f080743917e6",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:14:37.490273+00:00",
+        "work": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-lz78cfwi",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "d633d06ae2c351b7b2a614f28f823515f0ae7d2b8d7d365a4647d98fa5e1dc07",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-lz78cfwi/attempt-001/Candidate_7fe83dce74e8bfab.lean",
+        "environment_sha256": "bc84f854f6dc6272f8987d7732bdf45d5e3e68b2a7cfafc2c48eeddcee8f8f56",
+        "artifacts": {
+          "mass_basic": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_basic : M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  have hm : ∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs := by\n    intro n c\n    simp [M6.Transfer.polynomialMass, Polynomial.sum_monomial_index]\n  refine ⟨?_, ?_, hm, ?_⟩\n  · simp [M6.Transfer.polynomialMass]\n  · simpa using hm 0 1\n  · intro p d\n    by_cases h : p.coeff d = 0\n    · simp [h]\n    · change (p.coeff d).natAbs ≤ ∑ n ∈ p.support, (p.coeff n).natAbs\n      exact Finset.single_le_sum\n        (f := fun n => (p.coeff n).natAbs)\n        (fun n _ => Nat.zero_le ((p.coeff n).natAbs))\n        (Polynomial.mem_support_iff.mpr h)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_basic",
+              "ancestors": [],
+              "spec_sha256": "451cf8308b20ea3e524b34bc1348ff1623d8b76276f681460485a2f54bc2e80e"
+            },
+            "sha256": "95b1a3252c282bc976a08597b378c86f37b7aac9a3c4b6fd5ef10f6953e1599f"
+          },
+          "mass_add": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_add : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p+q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p + q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  unfold M6.Transfer.polynomialMass\n  have hp : p.support ⊆ p.support ∪ q.support := Finset.subset_union_left\n  have hq : q.support ⊆ p.support ∪ q.support := Finset.subset_union_right\n  have hpq : (p + q).support ⊆ p.support ∪ q.support := Polynomial.support_add\n  rw [Polynomial.sum_eq_of_subset (p := p + q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hpq,\n      Polynomial.sum_eq_of_subset (p := p) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hp,\n      Polynomial.sum_eq_of_subset (p := q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hq,\n      ← Finset.sum_add_distrib]\n  apply Finset.sum_le_sum\n  intro i hi\n  simpa only [Polynomial.coeff_add] using Int.natAbs_add_le (p.coeff i) (q.coeff i)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_add",
+              "ancestors": [],
+              "spec_sha256": "ae0679b8ec44bc3ecc1e3b543422fec0d352d15d93a4aff844487054e57376c6"
+            },
+            "sha256": "0c9b1860e794c6d6c94bf3fba4f5c65dc452b64a9aa2d3b761d0dc36230a7ad6"
+          },
+          "mass_sum": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_sum : ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i) := by\n  change ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i)\n  intro I s f\n  classical\n  induction s using Finset.induction_on with\n  | empty =>\n      simp only [Finset.sum_empty, M6.Transfer.mass_basic.1, le_refl]\n  | @insert a s ha ih =>\n      simp only [Finset.sum_insert ha]\n      exact (M6.Transfer.mass_add (f a) (∑ i ∈ s, f i)).trans\n        (Nat.add_le_add_left ih (M6.Transfer.polynomialMass (f a)))",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_sum",
+              "ancestors": [
+                "mass_add",
+                "mass_basic"
+              ],
+              "spec_sha256": "484f61f9411ec9daa557fd9a0775bd436f71e0a9ba286c65df44db53560a181c"
+            },
+            "sha256": "a598f6626c7c394022fd63419d217468713bfab5f9461b04e50c09c8de05c6aa"
+          },
+          "mass_mul": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_mul : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p*q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p * q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  rw [Polynomial.mul_eq_sum_sum]\n  refine (M6.Transfer.mass_sum ℕ p.support _).trans ?_\n  calc\n    _ ≤ ∑ i ∈ p.support, (p.coeff i).natAbs * M6.Transfer.polynomialMass q := by\n      apply Finset.sum_le_sum\n      intro i hi\n      change M6.Transfer.polynomialMass (∑ j ∈ q.support, Polynomial.monomial (i + j) (p.coeff i * q.coeff j)) ≤ (p.coeff i).natAbs * M6.Transfer.polynomialMass q\n      refine (M6.Transfer.mass_sum ℕ q.support _).trans ?_\n      simp only [M6.Transfer.mass_basic.2.2.1, Int.natAbs_mul]\n      change (∑ j ∈ q.support, (p.coeff i).natAbs * (q.coeff j).natAbs) ≤ (p.coeff i).natAbs * (∑ j ∈ q.support, (q.coeff j).natAbs)\n      rw [Finset.mul_sum]\n    _ = M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q := by\n      change (∑ i ∈ p.support, (p.coeff i).natAbs * M6.Transfer.polynomialMass q) = (∑ i ∈ p.support, (p.coeff i).natAbs) * M6.Transfer.polynomialMass q\n      rw [Finset.sum_mul]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_mul",
+              "ancestors": [
+                "mass_add",
+                "mass_basic",
+                "mass_sum"
+              ],
+              "spec_sha256": "82455dfc243a464032d848e8d362d0672faae3ab0095a5dc348005e0d660e7b6"
+            },
+            "sha256": "70258dfa5c08e3a0f8bea017fa16a91ff3b18406660b8c8dbc3b505acc16102d"
+          },
+          "propagate_mass": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.propagate_mass : ∀ (R : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.propagate W v) ≤ 8 * M6.Transfer.rowMass v := by\n  change ∀ (R : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.propagate W v) ≤ 8 * M6.Transfer.rowMass v\n  intro R W v hW\n  classical\n  have hc : Fintype.card M6.Transfer.Bit = 2 := by\n    simp [M6.Transfer.Bit]\n  calc\n    M6.Transfer.rowMass (M6.Transfer.propagate W v)\n        ≤ ∑ n : M6.Transfer.Memory R, ∑ m : M6.Transfer.Memory R,\n            ∑ t : M6.Transfer.Bit, M6.Transfer.polynomialMass\n              (if M6.Transfer.shift m t = n then v m * W m t else 0) := by\n      unfold M6.Transfer.rowMass M6.Transfer.propagate\n      apply Finset.sum_le_sum\n      intro n hn\n      refine (M6.Transfer.mass_sum _ Finset.univ _).trans ?_\n      apply Finset.sum_le_sum\n      intro m hm\n      exact M6.Transfer.mass_sum _ Finset.univ _\n    _ = ∑ m : M6.Transfer.Memory R, ∑ t : M6.Transfer.Bit,\n          M6.Transfer.polynomialMass (v m * W m t) := by\n      rw [Finset.sum_comm]\n      apply Finset.sum_congr rfl\n      intro m hm\n      rw [Finset.sum_comm]\n      apply Finset.sum_congr rfl\n      intro t ht\n      simp only [apply_ite, M6.Transfer.mass_basic.1]\n      simp\n    _ ≤ ∑ m : M6.Transfer.Memory R, ∑ t : M6.Transfer.Bit,\n          M6.Transfer.polynomialMass (v m) * 4 := by\n      apply Finset.sum_le_sum\n      intro m hm\n      apply Finset.sum_le_sum\n      intro t ht\n      exact (M6.Transfer.mass_mul (v m) (W m t)).trans\n        (Nat.mul_le_mul_left _ (hW m t))\n    _ = ∑ m : M6.Transfer.Memory R, 8 * M6.Transfer.polynomialMass (v m) := by\n      apply Finset.sum_congr rfl\n      intro m hm\n      simp only [Finset.sum_const, Finset.card_univ, hc, nsmul_eq_mul]\n      ring\n    _ = 8 * M6.Transfer.rowMass v := by\n      unfold M6.Transfer.rowMass\n      rw [Finset.mul_sum]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.propagate_mass",
+              "ancestors": [
+                "mass_add",
+                "mass_basic",
+                "mass_mul",
+                "mass_sum"
+              ],
+              "spec_sha256": "781430b4ac02e29a00607569ebd61a27499f0d04e14fb1df54e4fe2173a676e1"
+            },
+            "sha256": "ba56309e11db0146c425ee2816e16436152be9a4cd4225ef9c5a4830df1771a2"
+          },
+          "layers_mass": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.layers_mass : ∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.layers W start n) ≤ 8^n := by\n  change ∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.layers W start n) ≤ 8 ^ n\n  intro R W start n hW\n  classical\n  induction n with\n  | zero =>\n      simp [M6.Transfer.layers, M6.Transfer.rowMass, apply_ite,\n        M6.Transfer.mass_basic.1, M6.Transfer.mass_basic.2.1]\n  | succ n ih =>\n      change M6.Transfer.rowMass (M6.Transfer.propagate (W n) (M6.Transfer.layers W start n)) ≤ 8 ^ (n + 1)\n      calc\n        _ ≤ 8 * M6.Transfer.rowMass (M6.Transfer.layers W start n) :=\n          M6.Transfer.propagate_mass R (W n) (M6.Transfer.layers W start n) (hW n)\n        _ ≤ 8 * 8 ^ n := Nat.mul_le_mul_left 8 ih\n        _ = 8 ^ (n + 1) := by rw [pow_succ, Nat.mul_comm]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.layers_mass",
+              "ancestors": [
+                "mass_add",
+                "mass_basic",
+                "mass_mul",
+                "mass_sum",
+                "propagate_mass"
+              ],
+              "spec_sha256": "5e15b898eb3200d49b7ee5f19d2fcaf441d1c06dc62c74ccc2be6634441d19a9"
+            },
+            "sha256": "a09cb149c3eb379b28c7cab960c002f27d9c29b74d2cc66f9353f862a8a28b8e"
+          }
+        }
+      }
+    },
+    "trace_coefficient_bound": {
+      "id": "trace_coefficient_bound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.trace_coefficient_bound",
+        "spec_sha256": "9b14d6a1c330a8a1bda089f99f643873eb55e33f067b2ee60ed5fb4d57f941c3",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-lt6jeild/attempt-001/Candidate_92dfc6bcce2cac52.lean:26:25: error: unsolved goals\nR N : ℕ\nW : ℕ → Memory R → Bit → Polynomial ℤ\nd : ℕ\nhW : ∀ (i : ℕ) (m : Memory R) (t : Bit), polynomialMass (W i m t) ≤ 4\nhc : Fintype.card (Memory R) = 2 ^ R\n⊢ ↑(2 ^ R) * 8 ^ N = 2 ^ R * 8 ^ N\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-lt6jeild/attempt-002/Candidate_5a6a70c8c2fca681.lean",
+            "target_path": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-lt6jeild/attempt-002/FrozenTarget_5a6a70c8c2fca681.lean",
+            "feedback": "",
+            "target_sha256": "181436d7948fa5179a5d343d59c37f17ab8bb0aa313123ca4c2d28ffb65e8d64",
+            "target_olean_sha256": "a6d28a011e54b48a01fcdf4cc1e39bbb8ec6f979cc5a1e965d7c961cf785056d",
+            "source_sha256": "78edf50011e7667e96f05a224e08f27b2a538df66ed7d5e1a644b04dd794ac46",
+            "olean_sha256": "7f3e3dda53c49db057ceb97d57e65a39cba56bc2564a0a75841b614237704c08",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T13:15:38.004431+00:00",
+        "work": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-lt6jeild",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "d633d06ae2c351b7b2a614f28f823515f0ae7d2b8d7d365a4647d98fa5e1dc07",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m6-lean-transfer-coefficients-formalization/.humanize-formal-runs/run-lt6jeild/attempt-002/Candidate_5a6a70c8c2fca681.lean",
+        "environment_sha256": "bc84f854f6dc6272f8987d7732bdf45d5e3e68b2a7cfafc2c48eeddcee8f8f56",
+        "artifacts": {
+          "mass_basic": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_basic : M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  have hm : ∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs := by\n    intro n c\n    simp [M6.Transfer.polynomialMass, Polynomial.sum_monomial_index]\n  refine ⟨?_, ?_, hm, ?_⟩\n  · simp [M6.Transfer.polynomialMass]\n  · simpa using hm 0 1\n  · intro p d\n    by_cases h : p.coeff d = 0\n    · simp [h]\n    · change (p.coeff d).natAbs ≤ ∑ n ∈ p.support, (p.coeff n).natAbs\n      exact Finset.single_le_sum\n        (f := fun n => (p.coeff n).natAbs)\n        (fun n _ => Nat.zero_le ((p.coeff n).natAbs))\n        (Polynomial.mem_support_iff.mpr h)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_basic",
+              "ancestors": [],
+              "spec_sha256": "451cf8308b20ea3e524b34bc1348ff1623d8b76276f681460485a2f54bc2e80e"
+            },
+            "sha256": "95b1a3252c282bc976a08597b378c86f37b7aac9a3c4b6fd5ef10f6953e1599f"
+          },
+          "mass_add": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_add : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p+q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p + q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  unfold M6.Transfer.polynomialMass\n  have hp : p.support ⊆ p.support ∪ q.support := Finset.subset_union_left\n  have hq : q.support ⊆ p.support ∪ q.support := Finset.subset_union_right\n  have hpq : (p + q).support ⊆ p.support ∪ q.support := Polynomial.support_add\n  rw [Polynomial.sum_eq_of_subset (p := p + q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hpq,\n      Polynomial.sum_eq_of_subset (p := p) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hp,\n      Polynomial.sum_eq_of_subset (p := q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hq,\n      ← Finset.sum_add_distrib]\n  apply Finset.sum_le_sum\n  intro i hi\n  simpa only [Polynomial.coeff_add] using Int.natAbs_add_le (p.coeff i) (q.coeff i)",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_add",
+              "ancestors": [],
+              "spec_sha256": "ae0679b8ec44bc3ecc1e3b543422fec0d352d15d93a4aff844487054e57376c6"
+            },
+            "sha256": "0c9b1860e794c6d6c94bf3fba4f5c65dc452b64a9aa2d3b761d0dc36230a7ad6"
+          },
+          "mass_sum": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_sum : ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i) := by\n  change ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i)\n  intro I s f\n  classical\n  induction s using Finset.induction_on with\n  | empty =>\n      simp only [Finset.sum_empty, M6.Transfer.mass_basic.1, le_refl]\n  | @insert a s ha ih =>\n      simp only [Finset.sum_insert ha]\n      exact (M6.Transfer.mass_add (f a) (∑ i ∈ s, f i)).trans\n        (Nat.add_le_add_left ih (M6.Transfer.polynomialMass (f a)))",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_sum",
+              "ancestors": [
+                "mass_add",
+                "mass_basic"
+              ],
+              "spec_sha256": "484f61f9411ec9daa557fd9a0775bd436f71e0a9ba286c65df44db53560a181c"
+            },
+            "sha256": "a598f6626c7c394022fd63419d217468713bfab5f9461b04e50c09c8de05c6aa"
+          },
+          "mass_mul": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.mass_mul : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p*q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q := by\n  change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p * q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q\n  intro p q\n  classical\n  rw [Polynomial.mul_eq_sum_sum]\n  refine (M6.Transfer.mass_sum ℕ p.support _).trans ?_\n  calc\n    _ ≤ ∑ i ∈ p.support, (p.coeff i).natAbs * M6.Transfer.polynomialMass q := by\n      apply Finset.sum_le_sum\n      intro i hi\n      change M6.Transfer.polynomialMass (∑ j ∈ q.support, Polynomial.monomial (i + j) (p.coeff i * q.coeff j)) ≤ (p.coeff i).natAbs * M6.Transfer.polynomialMass q\n      refine (M6.Transfer.mass_sum ℕ q.support _).trans ?_\n      simp only [M6.Transfer.mass_basic.2.2.1, Int.natAbs_mul]\n      change (∑ j ∈ q.support, (p.coeff i).natAbs * (q.coeff j).natAbs) ≤ (p.coeff i).natAbs * (∑ j ∈ q.support, (q.coeff j).natAbs)\n      rw [Finset.mul_sum]\n    _ = M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q := by\n      change (∑ i ∈ p.support, (p.coeff i).natAbs * M6.Transfer.polynomialMass q) = (∑ i ∈ p.support, (p.coeff i).natAbs) * M6.Transfer.polynomialMass q\n      rw [Finset.sum_mul]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.mass_mul",
+              "ancestors": [
+                "mass_add",
+                "mass_basic",
+                "mass_sum"
+              ],
+              "spec_sha256": "82455dfc243a464032d848e8d362d0672faae3ab0095a5dc348005e0d660e7b6"
+            },
+            "sha256": "70258dfa5c08e3a0f8bea017fa16a91ff3b18406660b8c8dbc3b505acc16102d"
+          },
+          "propagate_mass": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.propagate_mass : ∀ (R : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.propagate W v) ≤ 8 * M6.Transfer.rowMass v := by\n  change ∀ (R : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.propagate W v) ≤ 8 * M6.Transfer.rowMass v\n  intro R W v hW\n  classical\n  have hc : Fintype.card M6.Transfer.Bit = 2 := by\n    simp [M6.Transfer.Bit]\n  calc\n    M6.Transfer.rowMass (M6.Transfer.propagate W v)\n        ≤ ∑ n : M6.Transfer.Memory R, ∑ m : M6.Transfer.Memory R,\n            ∑ t : M6.Transfer.Bit, M6.Transfer.polynomialMass\n              (if M6.Transfer.shift m t = n then v m * W m t else 0) := by\n      unfold M6.Transfer.rowMass M6.Transfer.propagate\n      apply Finset.sum_le_sum\n      intro n hn\n      refine (M6.Transfer.mass_sum _ Finset.univ _).trans ?_\n      apply Finset.sum_le_sum\n      intro m hm\n      exact M6.Transfer.mass_sum _ Finset.univ _\n    _ = ∑ m : M6.Transfer.Memory R, ∑ t : M6.Transfer.Bit,\n          M6.Transfer.polynomialMass (v m * W m t) := by\n      rw [Finset.sum_comm]\n      apply Finset.sum_congr rfl\n      intro m hm\n      rw [Finset.sum_comm]\n      apply Finset.sum_congr rfl\n      intro t ht\n      simp only [apply_ite, M6.Transfer.mass_basic.1]\n      simp\n    _ ≤ ∑ m : M6.Transfer.Memory R, ∑ t : M6.Transfer.Bit,\n          M6.Transfer.polynomialMass (v m) * 4 := by\n      apply Finset.sum_le_sum\n      intro m hm\n      apply Finset.sum_le_sum\n      intro t ht\n      exact (M6.Transfer.mass_mul (v m) (W m t)).trans\n        (Nat.mul_le_mul_left _ (hW m t))\n    _ = ∑ m : M6.Transfer.Memory R, 8 * M6.Transfer.polynomialMass (v m) := by\n      apply Finset.sum_congr rfl\n      intro m hm\n      simp only [Finset.sum_const, Finset.card_univ, hc, nsmul_eq_mul]\n      ring\n    _ = 8 * M6.Transfer.rowMass v := by\n      unfold M6.Transfer.rowMass\n      rw [Finset.mul_sum]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.propagate_mass",
+              "ancestors": [
+                "mass_add",
+                "mass_basic",
+                "mass_mul",
+                "mass_sum"
+              ],
+              "spec_sha256": "781430b4ac02e29a00607569ebd61a27499f0d04e14fb1df54e4fe2173a676e1"
+            },
+            "sha256": "ba56309e11db0146c425ee2816e16436152be9a4cd4225ef9c5a4830df1771a2"
+          },
+          "layers_mass": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.layers_mass : ∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.layers W start n) ≤ 8^n := by\n  change ∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.layers W start n) ≤ 8 ^ n\n  intro R W start n hW\n  classical\n  induction n with\n  | zero =>\n      simp [M6.Transfer.layers, M6.Transfer.rowMass, apply_ite,\n        M6.Transfer.mass_basic.1, M6.Transfer.mass_basic.2.1]\n  | succ n ih =>\n      change M6.Transfer.rowMass (M6.Transfer.propagate (W n) (M6.Transfer.layers W start n)) ≤ 8 ^ (n + 1)\n      calc\n        _ ≤ 8 * M6.Transfer.rowMass (M6.Transfer.layers W start n) :=\n          M6.Transfer.propagate_mass R (W n) (M6.Transfer.layers W start n) (hW n)\n        _ ≤ 8 * 8 ^ n := Nat.mul_le_mul_left 8 ih\n        _ = 8 ^ (n + 1) := by rw [pow_succ, Nat.mul_comm]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.layers_mass",
+              "ancestors": [
+                "mass_add",
+                "mass_basic",
+                "mass_mul",
+                "mass_sum",
+                "propagate_mass"
+              ],
+              "spec_sha256": "5e15b898eb3200d49b7ee5f19d2fcaf441d1c06dc62c74ccc2be6634441d19a9"
+            },
+            "sha256": "a09cb149c3eb379b28c7cab960c002f27d9c29b74d2cc66f9353f862a8a28b8e"
+          },
+          "trace_coefficient_bound": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.trace_coefficient_bound : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → ((M6.Transfer.arrayTrace W N).coeff d).natAbs ≤ 2^R * 8^N := by\n  change ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → ((M6.Transfer.arrayTrace W N).coeff d).natAbs ≤ 2 ^ R * 8 ^ N\n  intro R N W d hW\n  classical\n  have hc : Fintype.card (M6.Transfer.Memory R) = 2 ^ R := by\n    simp [M6.Transfer.Memory, M6.Transfer.Bit]\n  calc\n    ((M6.Transfer.arrayTrace W N).coeff d).natAbs\n        ≤ M6.Transfer.polynomialMass (M6.Transfer.arrayTrace W N) :=\n      M6.Transfer.mass_basic.2.2.2 _ d\n    _ ≤ ∑ start : M6.Transfer.Memory R,\n          M6.Transfer.polynomialMass (M6.Transfer.layers W start N start) := by\n      unfold M6.Transfer.arrayTrace\n      exact M6.Transfer.mass_sum _ Finset.univ _\n    _ ≤ ∑ _start : M6.Transfer.Memory R, (8 ^ N : ℕ) := by\n      apply Finset.sum_le_sum\n      intro start hstart\n      have hd : M6.Transfer.polynomialMass (M6.Transfer.layers W start N start) ≤\n          M6.Transfer.rowMass (M6.Transfer.layers W start N) := by\n        unfold M6.Transfer.rowMass\n        exact Finset.single_le_sum\n          (fun m _ => Nat.zero_le (M6.Transfer.polynomialMass (M6.Transfer.layers W start N m)))\n          (Finset.mem_univ start)\n      exact hd.trans (M6.Transfer.layers_mass R W start N hW)\n    _ = 2 ^ R * 8 ^ N := by\n      simp [hc, nsmul_eq_mul]",
+              "imports": [
+                "M6TransferCoefficients"
+              ],
+              "name": "M6.Transfer.trace_coefficient_bound",
+              "ancestors": [
+                "layers_mass",
+                "mass_add",
+                "mass_basic",
+                "mass_mul",
+                "mass_sum",
+                "propagate_mass"
+              ],
+              "spec_sha256": "2109fe9bc5e8786a7c88ad4116f8bcc3da4bff3dcf366ffd5961e724f5921efe"
+            },
+            "sha256": "b0dc6a3961cc3f07274a595b3f3e438a68da517e8997bb2fc64ae50d98b52c5e"
+          }
+        }
+      }
+    }
+  }
+}

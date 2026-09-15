@@ -1,0 +1,13 @@
+{
+  "name": "M6.Flatten.J_involution",
+  "statement": "∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2*N)), M6.Flatten.J N (M6.Flatten.J N v) = v",
+  "imports": [
+    "M6Flatten"
+  ],
+  "context": "theorem M6.Flatten.flatten_left : ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N), M6.Flatten.unflatten N (M6.Flatten.flatten N z) = z := by\n  intro N _ z\n  apply Prod.ext\n  · funext i\n    have hi : i.val < N := ZMod.val_lt i\n    simp [M6.Flatten.unflatten, M6.Flatten.flatten, hi]\n  · funext i\n    have hi : ¬ N + i.val < N := by omega\n    simp [M6.Flatten.unflatten, M6.Flatten.flatten, hi, Nat.add_sub_cancel_left]\n\ntheorem M6.Flatten.flatten_right : ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2*N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v := by\n  change ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2 * N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v\n  intro N inst v\n  funext i\n  by_cases h : i.val < N\n  · simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_pos h, dif_pos h]\n    apply congrArg v\n    apply Fin.ext\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt h]\n  · have hi : i.val - N < N := by omega\n    simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_neg h, dif_neg h]\n    apply congrArg v\n    apply Fin.ext\n    simp only [Fin.val_mk, ZMod.val_natCast, Nat.mod_eq_of_lt hi]\n    omega",
+  "queries": [
+    "Fin sum_univ_add finite sum equivalence ZMod",
+    "Finset card filter sum indicator"
+  ],
+  "guidance": "Unfold J then flatten_left, Physical.J_involution, flatten_right. Return tactic lines only without leading by."
+}

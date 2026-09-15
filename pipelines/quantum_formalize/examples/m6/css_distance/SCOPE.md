@@ -1,0 +1,7 @@
+# Generic CSS Pauli distance bridge
+
+This module defines an actual Pauli pair (x,z), its physical support where either component is nonzero, the admissible Cartesian product CX × CZ, and its nontrivial subset excluding BX × BZ. Its quantumDistance is independently the minimum support cardinality of that finite Pauli set. It is not defined as the minimum of component distances.
+
+The proof route shows that a nontrivial Pauli has a nonboundary component, each component support is contained in the Pauli support, and a minimum logical component yields an admissible pure Pauli because zero belongs to each boundary subspace and each boundary is contained in its cycle space. This gives quantumDistance = minDistance dX dZ, including empty spaces (none). A weight-preserving involution exchanging the two logical sets identifies dX=dZ and yields the common quantum distance.
+
+All vector, pin, and component weight semantics are imported from the frozen M6Pinned module. The M6 root must instantiate the finite sets by actual cycle/boundary subspaces and supply its proved coordinate involution. No cyclic linear algebra or transfer trace facts are assumed here. The complete fourteen-theorem pinned closure has been verified against canonical receipts, original frozen types, source hashes and dependency payloads and promoted unchanged. All seven exact targets passed type/loader preflight. The live experiment is recorded in LAUNCH.json; no new CSS target is counted as proved at preflight.

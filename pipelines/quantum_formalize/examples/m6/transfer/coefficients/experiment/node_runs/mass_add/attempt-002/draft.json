@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p + q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q\nintro p q\nclassical\nunfold M6.Transfer.polynomialMass\nhave hp : p.support ⊆ p.support ∪ q.support := Finset.subset_union_left\nhave hq : q.support ⊆ p.support ∪ q.support := Finset.subset_union_right\nhave hpq : (p + q).support ⊆ p.support ∪ q.support := Polynomial.support_add\nrw [Polynomial.sum_eq_of_subset (p := p + q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hpq,\n    Polynomial.sum_eq_of_subset (p := p) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hp,\n    Polynomial.sum_eq_of_subset (p := q) (fun (_ : ℕ) (c : ℤ) => c.natAbs) (by intro i; rfl) hq,\n    ← Finset.sum_add_distrib]\napply Finset.sum_le_sum\nintro i hi\nsimpa only [Polynomial.coeff_add] using Int.natAbs_add_le (p.coeff i) (q.coeff i)",
+  "queries": []
+}

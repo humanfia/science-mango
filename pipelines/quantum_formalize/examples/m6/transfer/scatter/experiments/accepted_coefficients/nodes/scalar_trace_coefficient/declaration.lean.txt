@@ -1,0 +1,9 @@
+theorem M6.Transfer.scalar_trace_coefficient : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : Fin (2*N+1)), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarTraceCoefficient W N d = (M6.Transfer.arrayTrace W N).coeff d.val := by
+  classical
+  intro R N W d hW
+  unfold M6.Transfer.scalarTraceCoefficient M6.Transfer.arrayTrace
+  rw [Polynomial.finset_sum_coeff]
+  apply Finset.sum_congr rfl
+  intro start hstart
+  rw [M6.Transfer.scalar_layers_exact R N W start N hW]
+  rfl

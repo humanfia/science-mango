@@ -1,0 +1,67 @@
+{
+  "id": "recipe_divides",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.FixedSpan.recipe_divides",
+    "spec_sha256": "4192ffdcddafc8545ee9c6d19238cd8958e37288ad394c238bf77f03a5edb30e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-g4b84jm5/attempt-001/Candidate_5def6f3cdab136b2.lean:6:47: error: unsolved goals\nk : ℕ\n⊢ 2 = 0\n/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-g4b84jm5/attempt-001/Candidate_5def6f3cdab136b2.lean:18:2: error: 'change' tactic failed, pattern\n  recipe ∣ Polynomial.X ^ (3 * k) - 1\nis not definitionally equal to target\n  recipe ∣ Cyclic.modulus (3 * k)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-g4b84jm5/attempt-002/Candidate_46d01fefa514f457.lean:9:4: error: 'calc' expression has type\n  -(1 : ℤ) = 1\nbut is expected to have type\n  -(1 : Cyclic.BinaryPolynomial) = 1\n/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-g4b84jm5/attempt-002/Candidate_46d01fefa514f457.lean:10:28: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  2\nin the target expression\n  -1 = -1 + 2\n\nk : ℕ\nhtwo : 2 = 0\n⊢ -1 = -1 + 2\n",
+        "attempt": 2
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-g4b84jm5/attempt-003/Candidate_be1baead37c8965c.lean",
+        "target_path": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-g4b84jm5/attempt-003/FrozenTarget_be1baead37c8965c.lean",
+        "feedback": "",
+        "target_sha256": "ea0ee10729b4f8c1a46168a32c19052a08a9405d021b51e76923bf2601237b8c",
+        "target_olean_sha256": "72c481aa7b2f089981ccaea5e8232544545e177cf3618213016a2e3a54efbb53",
+        "source_sha256": "10a2058101c209a5a1d70e63e6a8277cc7d002c120ed54a300fdf8710637935c",
+        "olean_sha256": "88fa220db5973c5c61c669d5de4ca1896822fe95587b1b9b20ea42a77d2d94a8",
+        "attempt": 3
+      }
+    ],
+    "created_at": "2026-09-15T13:22:21.075147+00:00",
+    "work": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-g4b84jm5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c90f483acc9a32e662db88fff485f0f7a2e3b2af07e86537e9d735c2c4e27165",
+    "phase": "finished",
+    "round": 3,
+    "proof": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-g4b84jm5/attempt-003/Candidate_be1baead37c8965c.lean",
+    "environment_sha256": "a68f2247b68e465aee6aaa2091aa45034f4c5f81e753bd67d7096f7d13898375",
+    "artifacts": {
+      "recipe_divides": {
+        "payload": {
+          "declaration": "theorem M6.FixedSpan.recipe_divides : ∀ N : ℕ, 3 ∣ N → M6.FixedSpan.recipe ∣ M6.Cyclic.modulus N := by\n  change ∀ N : ℕ, 3 ∣ N → M6.FixedSpan.recipe ∣ M6.Cyclic.modulus N\n  intro N hN\n  obtain ⟨k, rfl⟩ := hN\n  have htwo : (2 : M6.Cyclic.BinaryPolynomial) = 0 :=\n    CharP.cast_eq_zero M6.Cyclic.BinaryPolynomial 2\n  have hneg : -(1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n    calc\n      -(1 : M6.Cyclic.BinaryPolynomial) = -1 + 2 := by rw [htwo]; simp\n      _ = 1 := by ring\n  have hfactor : M6.FixedSpan.recipe ∣ (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ 3 - 1 := by\n    refine ⟨Polynomial.X + 1, ?_⟩\n    symm\n    calc\n      M6.FixedSpan.recipe * (Polynomial.X + 1) =\n          Polynomial.X ^ 3 + 1 + (2 : M6.Cyclic.BinaryPolynomial) *\n            (Polynomial.X ^ 2 + Polynomial.X) := by\n        unfold M6.FixedSpan.recipe\n        ring\n      _ = Polynomial.X ^ 3 - 1 := by\n        rw [htwo]\n        simp [sub_eq_add_neg, hneg]\n  apply dvd_trans hfactor\n  simpa [M6.Cyclic.modulus, pow_mul, sub_eq_add_neg, hneg] using\n    (sub_dvd_pow_sub_pow ((Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ 3) 1 k)",
+          "imports": [
+            "M6FixedSpan"
+          ],
+          "name": "M6.FixedSpan.recipe_divides",
+          "ancestors": [],
+          "spec_sha256": "4192ffdcddafc8545ee9c6d19238cd8958e37288ad394c238bf77f03a5edb30e"
+        },
+        "sha256": "0141a270a7e3b67164cf073143952f6524e7b721ece878ad851cc786fff9e8cb"
+      }
+    }
+  }
+}

@@ -1,0 +1,182 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Matrix mul_apply trace finite product",
+    "status": "ok",
+    "results": [
+      {
+        "id": 249877,
+        "name": "Matrix.trace_single_mul",
+        "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L255-L258",
+        "source_text": "theorem trace_single_mul [NonUnitalNonAssocSemiring R] [Fintype m]\n    (i : n) (j : m) (a : R) (x : Matrix m n R) :\n    (single i j a * x).trace = a • x j i := by\n  simp [trace, mul_apply, single, ite_and]\n",
+        "docstring": null
+      },
+      {
+        "id": 320177,
+        "name": "Algebra.traceMatrix_of_matrix_mulVec",
+        "module": "Mathlib.RingTheory.Trace.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Trace/Basic.lean#L374-L378",
+        "source_text": "theorem traceMatrix_of_matrix_mulVec [Fintype κ] (b : κ → B) (P : Matrix κ κ A) :\n    traceMatrix A (P.map (algebraMap A B) *ᵥ b) = P * traceMatrix A b * Pᵀ := by\n  refine AddEquiv.injective (transposeAddEquiv κ κ A) ?_\n  rw [transposeAddEquiv_apply, transposeAddEquiv_apply, ← vecMul_transpose, ← transpose_map,\n    traceMatrix_of_matrix_vecMul, transpose_transpose]\n",
+        "docstring": null
+      },
+      {
+        "id": 249838,
+        "name": "Matrix.trace",
+        "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L41-L46",
+        "source_text": "/-- The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n-/\ndef trace (A : Matrix n n R) : R :=\n  ∑ i, diag A i\n",
+        "docstring": "The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n"
+      },
+      {
+        "id": 320176,
+        "name": "Algebra.traceMatrix_of_matrix_vecMul",
+        "module": "Mathlib.RingTheory.Trace.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Trace/Basic.lean#L354-L372",
+        "source_text": "theorem traceMatrix_of_matrix_vecMul [Fintype κ] (b : κ → B) (P : Matrix κ κ A) :\n    traceMatrix A (b ᵥ* P.map (algebraMap A B)) = Pᵀ * traceMatrix A b * P := by\n  ext (α β)\n  rw [traceMatrix_apply, vecMul, dotProduct, vecMul, dotProduct, Matrix.mul_apply,\n    BilinForm.sum_left,\n    Fintype.sum_congr _ _ fun i : κ =>\n      BilinForm.sum_right _ _ (b i * P.map (algebraMap A B) i α) fun y : κ =>\n        b y * P.map (algebraMap A B) y β,\n    sum_comm]\n  congr; ext x\n  rw [Matrix.mul_apply, sum_mul]\n  congr; ext y\n  rw [map_apply, traceForm_apply, mul_comm (b y), ← smul_def]\n  simp only [smul_eq_mul, RingHom.id_apply, map_apply, transpose_apply, map_smulₛₗ,\n    Algebra.smul_mul_assoc]\n  rw [mul_comm (b x), ← smul_def]\n  ring_nf\n  rw [mul_assoc]\n  simp [mul_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 320174,
+        "name": "Algebra.traceMatrix_apply",
+        "module": "Mathlib.RingTheory.Trace.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Trace/Basic.lean#L345-L347",
+        "source_text": "@[simp]\ntheorem traceMatrix_apply (b : κ → B) (i j) : traceMatrix A b i j = traceForm A B (b i) (b j) :=\n  rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Matrix mul_apply trace finite product",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391389,
+        "name": "PauliMatrix.trace_pauliMatrix_mul_selfAdjoint_re",
+        "module": "Physlib.Relativity.PauliMatrices.SelfAdjoint",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/SelfAdjoint.lean#L20-L25",
+        "source_text": "/-- The trace of a pauli-matrix multiplied by a self-adjoint `2×2` matrix is real. -/\nlemma trace_pauliMatrix_mul_selfAdjoint_re (μ : Fin 1 ⊕ Fin 3)\n    (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) :\n    (Matrix.trace (pauliMatrix μ * A.1)).re = Matrix.trace (pauliMatrix μ * A.1) := by\n  rw [← Complex.conj_eq_iff_re, starRingEnd_apply, ← trace_conjTranspose, conjTranspose_mul,\n    pauliMatrix_selfAdjoint μ, ← star_eq_conjTranspose, A.2, trace_mul_comm]\n",
+        "docstring": "The trace of a pauli-matrix multiplied by a self-adjoint `2×2` matrix is real. "
+      },
+      {
+        "id": 391362,
+        "name": "PauliMatrix.σ1_σ0_trace",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L138-L139",
+        "source_text": "/-- The trace of `σ1` multiplied by `σ0` is equal to `0`. -/\nlemma σ1_σ0_trace : Matrix.trace (σ1 * σ0) = 0 := by simp [pauliMatrix]\n",
+        "docstring": "The trace of `σ1` multiplied by `σ0` is equal to `0`. "
+      },
+      {
+        "id": 391372,
+        "name": "PauliMatrix.σ3_σ2_trace",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L175-L176",
+        "source_text": "/-- The trace of `σ3` multiplied by `σ2` is equal to `0`. -/\nlemma σ3_σ2_trace : Matrix.trace (σ3 * σ2) = 0 := by simp\n",
+        "docstring": "The trace of `σ3` multiplied by `σ2` is equal to `0`. "
+      },
+      {
+        "id": 391365,
+        "name": "PauliMatrix.σ1_σ3_trace",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L149-L152",
+        "source_text": "/-- The trace of `σ1` multiplied by `σ3` is equal to `0`. -/\n@[simp]\nlemma σ1_σ3_trace : Matrix.trace (σ1 * σ3) = 0 := by\n  simp [pauliMatrix]\n",
+        "docstring": "The trace of `σ1` multiplied by `σ3` is equal to `0`. "
+      },
+      {
+        "id": 391371,
+        "name": "PauliMatrix.σ3_σ1_trace",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L172-L173",
+        "source_text": "/-- The trace of `σ3` multiplied by `σ1` is equal to `0`. -/\nlemma σ3_σ1_trace : Matrix.trace (σ3 * σ1) = 0 := by simp\n",
+        "docstring": "The trace of `σ3` multiplied by `σ1` is equal to `0`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Fintype prod_sum sum_equiv",
+    "status": "ok",
+    "results": [
+      {
+        "id": 59079,
+        "name": "Fintype.prod_sum",
+        "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L300-L302",
+        "source_text": "/-- A product of sums can be written as a sum of products. -/\nlemma prod_sum {κ : ι → Type*} [∀ i, Fintype (κ i)] (f : ∀ i, κ i → R) :\n    ∏ i, ∑ j, f i j = ∑ x : ∀ i, κ i, ∏ i, f i (x i) := Finset.prod_univ_sum _ _\n",
+        "docstring": "A product of sums can be written as a sum of products. "
+      },
+      {
+        "id": 205826,
+        "name": "Fintype.prod_sumElim",
+        "module": "Mathlib.Data.Fintype.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L259-L262",
+        "source_text": "@[to_additive]\ntheorem Fintype.prod_sumElim (f : α₁ → M) (g : α₂ → M) :\n    ∏ x, Sum.elim f g x = (∏ a₁, f a₁) * ∏ a₂, g a₂ :=\n  prod_disjSum _ _ _",
+        "docstring": null
+      },
+      {
+        "id": 58402,
+        "name": "Fintype.sum_equiv",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L738-L741",
+        "source_text": "@[to_additive /-- `Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. -/]\nlemma prod_equiv (e : ι ≃ κ) (f : ι → M) (g : κ → M) (h : ∀ x, f x = g (e x)) :\n    ∏ x, f x = ∏ x, g x := prod_bijective _ e.bijective _ _ h",
+        "docstring": "`Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. "
+      },
+      {
+        "id": 58223,
+        "name": "Finset.sum_map_equiv",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L856-L856",
+        "source_text": "@[to_additive]\ntheorem prod_map_equiv (e : ι ≃ κ) : (s.map e).prod (f ∘ e.symm) = s.prod f := by simp",
+        "docstring": null
+      },
+      {
+        "id": 255290,
+        "name": "Equiv.psigmaCongrRight",
+        "module": "Mathlib.Logic.Equiv.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Defs.lean#L606-L613",
+        "source_text": "/-- A family of equivalences `Π a, β₁ a ≃ β₂ a` generates an equivalence between `Σ' a, β₁ a` and\n`Σ' a, β₂ a`. -/\n@[simps (attr := grind =) apply]\ndef psigmaCongrRight {β₁ β₂ : α → Sort*} (F : ∀ a, β₁ a ≃ β₂ a) : (Σ' a, β₁ a) ≃ Σ' a, β₂ a where\n  toFun a := ⟨a.1, F a.1 a.2⟩\n  invFun a := ⟨a.1, (F a.1).symm a.2⟩\n  left_inv := by grind\n  right_inv := by grind\n",
+        "docstring": "A family of equivalences `Π a, β₁ a ≃ β₂ a` generates an equivalence between `Σ' a, β₁ a` and\n`Σ' a, β₂ a`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Fintype prod_sum sum_equiv",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386530,
+        "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+        "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+        "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+        "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+      },
+      {
+        "id": 386825,
+        "name": "Equiv.sumEquivSigmalCond",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L38-L43",
+        "source_text": "/-- An alternative form of `Equiv.sumEquivSigmaBool` where `Bool.casesOn` is replaced by `cond`. -/\ndef sumEquivSigmalCond : Fin m ⊕ Fin n ≃ Σ b, cond b (Fin m) (Fin n) :=\n  calc Fin m ⊕ Fin n\n    _ ≃ Fin n ⊕ Fin m := sumComm ..\n    _ ≃ Σ b, bif b then (Fin m) else (Fin n) := sumEquivSigmaBool ..\n    _ ≃ Σ b, cond b (Fin m) (Fin n) := sigmaCongrRight (fun | true | false => Equiv.refl _)\n",
+        "docstring": "An alternative form of `Equiv.sumEquivSigmaBool` where `Bool.casesOn` is replaced by `cond`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

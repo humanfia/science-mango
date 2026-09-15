@@ -1,0 +1,23 @@
+import FrozenTarget_5628670b97439021
+theorem M6.Character.dual_cardinality : QuantumHarnessFrozenTarget := by
+  classical
+  change ∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)), _
+  intro m D
+  have hz : (0 : M6.Character.Vector m) ∈ M6.Character.subspaceWords D := by
+    simp [M6.Character.subspaceWords]
+  have hd : M6.Character.weightedDual D (fun _ _ => (1 : Polynomial ℤ)) =
+      Polynomial.C ((M6.Character.dualWords D).card : ℤ) := by
+    simp [M6.Character.weightedDual]
+  have ht : M6.Character.weightedTransform D (fun _ _ => (1 : Polynomial ℤ)) =
+      Polynomial.C ((2 : ℤ)^m) := by
+    unfold M6.Character.weightedTransform
+    rw [Finset.sum_eq_single (0 : M6.Character.Vector m)]
+    · exact (M6.Character.constant_transform m 0).1 rfl
+    · intro q hq hq0
+      exact (M6.Character.constant_transform m q).2 hq0
+    · intro h
+      exact (h hz).elim
+  have h := M6.Character.weighted_macwilliams m D (fun _ _ => (1 : Polynomial ℤ))
+  rw [hd, ht, ← map_mul] at h
+  have hi := Polynomial.C_injective h
+  exact_mod_cast hi

@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (k : ℕ), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarLayers (N := N) W start k = M6.Transfer.encodeCoefficients (M6.Transfer.layers W start k)\nintro R N W start k hW\ninduction k with\n| zero =>\n    funext addr\n    by_cases hm : addr.1 = start <;>\n      by_cases hd : addr.2.val = 0 <;>\n      simp [M6.Transfer.scalarLayers, M6.Transfer.encodeCoefficients,\n        M6.Transfer.layers, hm, hd]\n| succ k ih =>\n    change M6.Transfer.scatterLayer (W k) (M6.Transfer.scalarLayers W start k) =\n      M6.Transfer.encodeCoefficients (M6.Transfer.propagate (W k) (M6.Transfer.layers W start k))\n    rw [ih]\n    funext addr\n    exact M6.Transfer.scatter_polynomial_coeff R N (W k)\n      (M6.Transfer.layers W start k) addr (hW k)",
+  "queries": []
+}

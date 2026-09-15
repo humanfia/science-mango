@@ -1,0 +1,55 @@
+{
+  "id": "actual_trace_work_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.actual_trace_work_bound",
+    "spec_sha256": "698f7c7334f4ae7e9f2dd4dc22dd9b20b25ca124a611be4dfe8c1853cf4d6032",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-actual-resources-formalization/.humanize-formal-runs/run-h76fjkuo/attempt-001/Candidate_bb4169e74fcfc44b.lean",
+        "target_path": "/home/jing/m6-lean-transfer-actual-resources-formalization/.humanize-formal-runs/run-h76fjkuo/attempt-001/FrozenTarget_bb4169e74fcfc44b.lean",
+        "feedback": "",
+        "target_sha256": "a77643b54e5fc8c348dd3382bbf854759e5c2a3345f74f2e9763a11f74f41f81",
+        "target_olean_sha256": "4410aa3a21ea8d44a0e252a2c43c2673c201161fb3ac90a303ade3d04da5776b",
+        "source_sha256": "f7a6274fd8983f41c13b400f26db718cebccf31941504659278feffedabe0470",
+        "olean_sha256": "b45c378fb7963ff23c12eb0b5b86ecc1dd573f82b244745b9812751443c11397",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:33:17.392433+00:00",
+    "work": "/home/jing/m6-lean-transfer-actual-resources-formalization/.humanize-formal-runs/run-h76fjkuo",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "006e46a878c34cb3335131b31c72a6130859e677d7f7a02d7819788ecbc9e2ff",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-actual-resources-formalization/.humanize-formal-runs/run-h76fjkuo/attempt-001/Candidate_bb4169e74fcfc44b.lean",
+    "environment_sha256": "8b9164746d13a753bd0177cef06e070d34e36dc9d4a9e3a60ad39ad210f2e443",
+    "artifacts": {
+      "actual_trace_work_bound": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.actual_trace_work_bound : ∀ R N : ℕ, R < N → M6.Transfer.actualTraceWork R N ≤ 16384 * N^3 * 4^R := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.actualTraceWork R N ≤ 16384 * N^3 * 4^R\n  intro R N hRN\n  classical\n  have hN : 1 ≤ N := by omega\n  have hslots : 2 * N + 1 ≤ 3 * N := by omega\n  have hcharge : M6.Transfer.actualEventBitCharge R N ≤ 616 * N := by\n    unfold M6.Transfer.actualEventBitCharge M6.Transfer.coefficientBits M6.Transfer.actualAddressBits\n    omega\n  have hevents :\n      Fintype.card (M6.Transfer.Memory R) * N *\n        (M6.Transfer.scatterEventList R N).length =\n        6 * N * (2 * N + 1) * 4^R := by\n    simpa only [M6.Transfer.traceCoefficientOps, M6.Transfer.scatterEventList,\n      Finset.length_toList, Finset.card_univ] using\n      M6.Transfer.scatter_loop_count R N\n  have hpow : (2^R)^2 = (4 : ℕ)^R := by\n    calc\n      (2^R)^2 = (2^2)^R := by\n        rw [← pow_mul, ← pow_mul, Nat.mul_comm R 2]\n      _ = 4^R := by norm_num\n  have hcount :\n      Fintype.card (M6.Transfer.Memory R) * N *\n          (M6.Transfer.scatterEventList R N).length +\n        (2^R)^2 * N * (2*N+1) ≤ 21 * N^2 * 4^R := by\n    rw [hevents, hpow]\n    calc\n      6 * N * (2*N+1) * 4^R + 4^R * N * (2*N+1) =\n          7 * N * (2*N+1) * 4^R := by ring\n      _ ≤ 7 * N * (3*N) * 4^R :=\n        Nat.mul_le_mul_right _ (Nat.mul_le_mul_left (7 * N) hslots)\n      _ = 21 * N^2 * 4^R := by ring\n  unfold M6.Transfer.actualTraceWork\n  calc\n    _ ≤ (21 * N^2 * 4^R) * (616 * N) := Nat.mul_le_mul hcount hcharge\n    _ = 12936 * (N^3 * 4^R) := by ring\n    _ ≤ 16384 * (N^3 * 4^R) := Nat.mul_le_mul_right _ (by norm_num)\n    _ = 16384 * N^3 * 4^R := by ring",
+          "imports": [
+            "M6TransferActualResources"
+          ],
+          "name": "M6.Transfer.actual_trace_work_bound",
+          "ancestors": [],
+          "spec_sha256": "698f7c7334f4ae7e9f2dd4dc22dd9b20b25ca124a611be4dfe8c1853cf4d6032"
+        },
+        "sha256": "d81e399684f80d5a655028257c55cd05c8614c4e1ea847d2ebe8dfea88b190d9"
+      }
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "title": "M6 exact integer coefficient normalization",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Actual signed coefficient division; later actual trace scale identities discharge exactness.",
+  "nodes": [
+    {
+      "id": "divide_coeff",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Normalize.divide_coeff",
+        "statement": "\u2200 (k : \u2124) (p : Polynomial \u2124) (d : \u2115), (M6.Normalize.divide k p).coeff d = p.coeff d / k",
+        "imports": [
+          "M6Normalize"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Expand coefficient of monomial sum, split membership d\u2208p.support; coeff0 outside support. Exact allintegerk including0. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "source_section": 4
+      }
+    },
+    {
+      "id": "divide_scaled",
+      "dependencies": [
+        "divide_coeff"
+      ],
+      "spec": {
+        "name": "M6.Normalize.divide_scaled",
+        "statement": "\u2200 (k : \u2124) (p : Polynomial \u2124), k \u2260 0 \u2192 M6.Normalize.divide k (Polynomial.C k * p) = p",
+        "imports": [
+          "M6Normalize"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Polynomial.ext, divide_coeff, coeff_C_mul; Int.mul_ediv_cancel_left withnonzerok. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "source_section": 4
+      }
+    },
+    {
+      "id": "scaled_coeff_divisible",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Normalize.scaled_coeff_divisible",
+        "statement": "\u2200 (k : \u2124) (p : Polynomial \u2124) (d : \u2115), k \u2223 (Polynomial.C k * p).coeff d",
+        "imports": [
+          "M6Normalize"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "coeff_C_mul and obvious product divisibility. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "source_section": 4
+      }
+    },
+    {
+      "id": "divide_degree",
+      "dependencies": [
+        "divide_coeff"
+      ],
+      "spec": {
+        "name": "M6.Normalize.divide_degree",
+        "statement": "\u2200 (k : \u2124) (p : Polynomial \u2124) (n : \u2115), (\u2200 d, n < d \u2192 p.coeff d = 0) \u2192 \u2200 d, n < d \u2192 (M6.Normalize.divide k p).coeff d = 0",
+        "imports": [
+          "M6Normalize"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Use divide_coeff then originalcoefficientzero, zero_ediv. This justifies finite degreecutoff after exactnormalization. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "source_section": 4
+      }
+    }
+  ]
+}

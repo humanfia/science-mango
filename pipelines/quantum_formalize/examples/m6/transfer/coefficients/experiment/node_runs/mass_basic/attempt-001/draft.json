@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p\nhave hm : ∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs := by\n  intro n c\n  simp [M6.Transfer.polynomialMass, Polynomial.sum_monomial_index]\nrefine ⟨?_, ?_, hm, ?_⟩\n· simp [M6.Transfer.polynomialMass]\n· simpa using hm 0 1\n· intro p d\n  by_cases h : p.coeff d = 0\n  · simp [h]\n  · unfold M6.Transfer.polynomialMass\n    rw [Polynomial.sum_eq_of_subset _ (by intro i; rfl) (by intro i hi; exact hi : p.support ⊆ p.support)]\n    exact Finset.single_le_sum (fun i hi => Nat.zero_le _) (Polynomial.mem_support_iff.mpr h)",
+  "queries": []
+}

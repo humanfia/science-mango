@@ -1,0 +1,4 @@
+{
+  "proof": "intro m LX LZ J hJ hweight hmem\nhave hback (v : M6.CSS.Vector m) (hv : v ∈ LZ) : J v ∈ LX := by\n  apply (hmem (J v)).mpr\n  simpa only [hJ v] using hv\ncases hd : M6.Pinned.distance LX with\n| none =>\n    have hx : LX = ∅ := (M6.Pinned.distance_spec m LX).1.mp hd\n    have hz : LZ = ∅ := by\n      apply Finset.ext\n      intro v\n      constructor\n      · intro hv\n        have hvx := hback v hv\n        rw [hx] at hvx\n        exact False.elim (Finset.not_mem_empty (J v) hvx)\n      · intro hv\n        exact False.elim (Finset.not_mem_empty v hv)\n    exact ((M6.Pinned.distance_spec m LZ).1.mpr hz).symm\n| some d =>\n    obtain ⟨⟨v, hv, hw⟩, hmin⟩ := (M6.Pinned.distance_spec m LX).2 d |>.mp hd\n    symm\n    apply (M6.Pinned.distance_spec m LZ).2 d |>.mpr\n    constructor\n    · exact ⟨J v, (hmem v).mp hv, (hweight v).trans hw⟩\n    · intro u hu\n      have h := hmin (J u) (hback u hu)\n      simpa only [hweight u] using h",
+  "queries": []
+}

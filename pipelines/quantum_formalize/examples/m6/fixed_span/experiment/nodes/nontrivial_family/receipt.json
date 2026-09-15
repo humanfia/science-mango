@@ -1,0 +1,116 @@
+{
+  "id": "nontrivial_family",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.FixedSpan.nontrivial_family",
+    "spec_sha256": "5dc85c0b7dc67fbd953c4824806be0028658a9d2b9a941efb8d0174ff7211103",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-9r26toyi/attempt-001/Candidate_22ed598cf3e15fb5.lean:5:9: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\nk : ℕ\ndsimp : ℕ := 3 * (k + 1)\n⊢ 2 < dsimp ∧\n    (Polynomial.support recipe).card = 3 ∧\n      0 ∈ Polynomial.support recipe ∧\n        dsimp.gcd ((Polynomial.support recipe).gcd id) = 1 ∧\n          Polynomial.natDegree (Cyclic.signature recipe recipe (Cyclic.modulus dsimp)) = 2\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-9r26toyi/attempt-002/Candidate_93d6a88515562725.lean",
+        "target_path": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-9r26toyi/attempt-002/FrozenTarget_93d6a88515562725.lean",
+        "feedback": "",
+        "target_sha256": "5f1772143f64f6316b7f93cf5c95a9fd11e24b0dfcb565d8a11f40154e800bc6",
+        "target_olean_sha256": "21d85277f6511d259d1d23676b71e6ae36e6641ad4d4654792dbae44fc6de2d8",
+        "source_sha256": "1814072a6eebb2963440f65de426aaf36c21d50e6c2202042204a05c4a66c790",
+        "olean_sha256": "8844599c4f9142b2ff5c456852cd59c23af98055d545253a0249986d96311688",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:27:05.683012+00:00",
+    "work": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-9r26toyi",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c90f483acc9a32e662db88fff485f0f7a2e3b2af07e86537e9d735c2c4e27165",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-9r26toyi/attempt-002/Candidate_93d6a88515562725.lean",
+    "environment_sha256": "a68f2247b68e465aee6aaa2091aa45034f4c5f81e753bd67d7096f7d13898375",
+    "artifacts": {
+      "recipe_support": {
+        "payload": {
+          "declaration": "theorem M6.FixedSpan.recipe_support : M6.FixedSpan.recipe.support = {0,1,2} := by\n  classical\n  change M6.FixedSpan.recipe.support = {0, 1, 2}\n  ext n\n  by_cases h0 : n = 0 <;> by_cases h1 : n = 1 <;> by_cases h2 : n = 2 <;>\n    simp_all [M6.FixedSpan.recipe, Polynomial.mem_support_iff,\n      Polynomial.coeff_add, Polynomial.coeff_one, Polynomial.coeff_X,\n      Polynomial.coeff_X_pow, eq_comm]",
+          "imports": [
+            "M6FixedSpan"
+          ],
+          "name": "M6.FixedSpan.recipe_support",
+          "ancestors": [],
+          "spec_sha256": "02534a82546e9d9ab710e0fd704a38ba03eab04da80b3da66c7b5d21708801aa"
+        },
+        "sha256": "7a468ddb433d88bee49692f6a731b78fe79470bb954a0a3df164d84b6e9f35fa"
+      },
+      "recipe_degree": {
+        "payload": {
+          "declaration": "theorem M6.FixedSpan.recipe_degree : M6.FixedSpan.recipe.Monic ∧ M6.FixedSpan.recipe.natDegree = 2 := by\n  change M6.FixedSpan.recipe.Monic ∧ M6.FixedSpan.recipe.natDegree = 2\n  unfold M6.FixedSpan.recipe\n  constructor\n  · monicity!\n  · compute_degree!",
+          "imports": [
+            "M6FixedSpan"
+          ],
+          "name": "M6.FixedSpan.recipe_degree",
+          "ancestors": [],
+          "spec_sha256": "a40fc27419d381a6f74c77e050051fcb44196c7ae4e59dc341866334921b632a"
+        },
+        "sha256": "4aac06e34388d8de1414bd39868eeedf34ade7a0b7fc822e31b06db65ce522cb"
+      },
+      "recipe_divides": {
+        "payload": {
+          "declaration": "theorem M6.FixedSpan.recipe_divides : ∀ N : ℕ, 3 ∣ N → M6.FixedSpan.recipe ∣ M6.Cyclic.modulus N := by\n  change ∀ N : ℕ, 3 ∣ N → M6.FixedSpan.recipe ∣ M6.Cyclic.modulus N\n  intro N hN\n  obtain ⟨k, rfl⟩ := hN\n  have htwo : (2 : M6.Cyclic.BinaryPolynomial) = 0 :=\n    CharP.cast_eq_zero M6.Cyclic.BinaryPolynomial 2\n  have hneg : -(1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n    calc\n      -(1 : M6.Cyclic.BinaryPolynomial) = -1 + 2 := by rw [htwo]; simp\n      _ = 1 := by ring\n  have hfactor : M6.FixedSpan.recipe ∣ (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ 3 - 1 := by\n    refine ⟨Polynomial.X + 1, ?_⟩\n    symm\n    calc\n      M6.FixedSpan.recipe * (Polynomial.X + 1) =\n          Polynomial.X ^ 3 + 1 + (2 : M6.Cyclic.BinaryPolynomial) *\n            (Polynomial.X ^ 2 + Polynomial.X) := by\n        unfold M6.FixedSpan.recipe\n        ring\n      _ = Polynomial.X ^ 3 - 1 := by\n        rw [htwo]\n        simp [sub_eq_add_neg, hneg]\n  apply dvd_trans hfactor\n  simpa [M6.Cyclic.modulus, pow_mul, sub_eq_add_neg, hneg] using\n    (sub_dvd_pow_sub_pow ((Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ 3) 1 k)",
+          "imports": [
+            "M6FixedSpan"
+          ],
+          "name": "M6.FixedSpan.recipe_divides",
+          "ancestors": [],
+          "spec_sha256": "4192ffdcddafc8545ee9c6d19238cd8958e37288ad394c238bf77f03a5edb30e"
+        },
+        "sha256": "0141a270a7e3b67164cf073143952f6524e7b721ece878ad851cc786fff9e8cb"
+      },
+      "recipe_signature": {
+        "payload": {
+          "declaration": "theorem M6.FixedSpan.recipe_signature : ∀ N : ℕ, 3 ∣ N → M6.Cyclic.signature M6.FixedSpan.recipe M6.FixedSpan.recipe (M6.Cyclic.modulus N) = M6.FixedSpan.recipe := by\n  change ∀ N : ℕ, 3 ∣ N → M6.Cyclic.signature M6.FixedSpan.recipe M6.FixedSpan.recipe (M6.Cyclic.modulus N) = M6.FixedSpan.recipe\n  intro N hN\n  simp [M6.Cyclic.signature, EuclideanDomain.gcd_self, EuclideanDomain.gcd_eq_left, M6.FixedSpan.recipe_divides N hN]",
+          "imports": [
+            "M6FixedSpan"
+          ],
+          "name": "M6.FixedSpan.recipe_signature",
+          "ancestors": [
+            "recipe_divides"
+          ],
+          "spec_sha256": "095b72e0ada18d8c56d052767338b46de573f857f55c8cff19b7c2b91f737f3c"
+        },
+        "sha256": "46e8e2e0e00bcbf795873bbd9b70011698bd607448308d8e8b75118c7eff2b1b"
+      },
+      "nontrivial_family": {
+        "payload": {
+          "declaration": "theorem M6.FixedSpan.nontrivial_family : ∀ k : ℕ, let N := 3*(k+1); 2 < N ∧ M6.FixedSpan.recipe.support.card = 3 ∧ 0 ∈ M6.FixedSpan.recipe.support ∧ Nat.gcd N (M6.FixedSpan.recipe.support.gcd id) = 1 ∧ (M6.Cyclic.signature M6.FixedSpan.recipe M6.FixedSpan.recipe (M6.Cyclic.modulus N)).natDegree = 2 := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ k : ℕ, let N := 3*(k+1); 2 < N ∧ M6.FixedSpan.recipe.support.card = 3 ∧ 0 ∈ M6.FixedSpan.recipe.support ∧ Nat.gcd N (M6.FixedSpan.recipe.support.gcd id) = 1 ∧ (M6.Cyclic.signature M6.FixedSpan.recipe M6.FixedSpan.recipe (M6.Cyclic.modulus N)).natDegree = 2\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro k\n  dsimp only\n  refine ⟨by omega, ?_, ?_, ?_, ?_⟩\n  · rw [M6.FixedSpan.recipe_support]\n    decide\n  · rw [M6.FixedSpan.recipe_support]\n    decide\n  · rw [M6.FixedSpan.recipe_support]\n    have hg : ({0, 1, 2} : Finset ℕ).gcd id = 1 := by decide\n    rw [hg]\n    simp\n  · rw [M6.FixedSpan.recipe_signature (3 * (k + 1)) ⟨k + 1, rfl⟩]\n    exact M6.FixedSpan.recipe_degree.2",
+          "imports": [
+            "M6FixedSpan"
+          ],
+          "name": "M6.FixedSpan.nontrivial_family",
+          "ancestors": [
+            "recipe_degree",
+            "recipe_divides",
+            "recipe_signature",
+            "recipe_support"
+          ],
+          "spec_sha256": "237e8295ac6f44bb24f8d1ef2e0f3de5f88beb73f5311eff822e45d15950219f"
+        },
+        "sha256": "735366b964213f505de56d45e0c2867e4a90c50d1facb0866d0652fe7823792d"
+      }
+    }
+  }
+}

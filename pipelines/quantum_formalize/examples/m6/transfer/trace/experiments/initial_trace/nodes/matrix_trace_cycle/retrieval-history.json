@@ -1,0 +1,1201 @@
+[
+  {
+    "queries": [
+      "Matrix mul_apply trace finite product",
+      "Fintype prod_sum sum_equiv"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Matrix mul_apply trace finite product",
+        "status": "ok",
+        "results": [
+          {
+            "id": 249877,
+            "name": "Matrix.trace_single_mul",
+            "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L255-L258",
+            "source_text": "theorem trace_single_mul [NonUnitalNonAssocSemiring R] [Fintype m]\n    (i : n) (j : m) (a : R) (x : Matrix m n R) :\n    (single i j a * x).trace = a • x j i := by\n  simp [trace, mul_apply, single, ite_and]\n",
+            "docstring": null
+          },
+          {
+            "id": 320177,
+            "name": "Algebra.traceMatrix_of_matrix_mulVec",
+            "module": "Mathlib.RingTheory.Trace.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Trace/Basic.lean#L374-L378",
+            "source_text": "theorem traceMatrix_of_matrix_mulVec [Fintype κ] (b : κ → B) (P : Matrix κ κ A) :\n    traceMatrix A (P.map (algebraMap A B) *ᵥ b) = P * traceMatrix A b * Pᵀ := by\n  refine AddEquiv.injective (transposeAddEquiv κ κ A) ?_\n  rw [transposeAddEquiv_apply, transposeAddEquiv_apply, ← vecMul_transpose, ← transpose_map,\n    traceMatrix_of_matrix_vecMul, transpose_transpose]\n",
+            "docstring": null
+          },
+          {
+            "id": 249838,
+            "name": "Matrix.trace",
+            "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L41-L46",
+            "source_text": "/-- The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n-/\ndef trace (A : Matrix n n R) : R :=\n  ∑ i, diag A i\n",
+            "docstring": "The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n"
+          },
+          {
+            "id": 320176,
+            "name": "Algebra.traceMatrix_of_matrix_vecMul",
+            "module": "Mathlib.RingTheory.Trace.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Trace/Basic.lean#L354-L372",
+            "source_text": "theorem traceMatrix_of_matrix_vecMul [Fintype κ] (b : κ → B) (P : Matrix κ κ A) :\n    traceMatrix A (b ᵥ* P.map (algebraMap A B)) = Pᵀ * traceMatrix A b * P := by\n  ext (α β)\n  rw [traceMatrix_apply, vecMul, dotProduct, vecMul, dotProduct, Matrix.mul_apply,\n    BilinForm.sum_left,\n    Fintype.sum_congr _ _ fun i : κ =>\n      BilinForm.sum_right _ _ (b i * P.map (algebraMap A B) i α) fun y : κ =>\n        b y * P.map (algebraMap A B) y β,\n    sum_comm]\n  congr; ext x\n  rw [Matrix.mul_apply, sum_mul]\n  congr; ext y\n  rw [map_apply, traceForm_apply, mul_comm (b y), ← smul_def]\n  simp only [smul_eq_mul, RingHom.id_apply, map_apply, transpose_apply, map_smulₛₗ,\n    Algebra.smul_mul_assoc]\n  rw [mul_comm (b x), ← smul_def]\n  ring_nf\n  rw [mul_assoc]\n  simp [mul_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 320174,
+            "name": "Algebra.traceMatrix_apply",
+            "module": "Mathlib.RingTheory.Trace.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Trace/Basic.lean#L345-L347",
+            "source_text": "@[simp]\ntheorem traceMatrix_apply (b : κ → B) (i j) : traceMatrix A b i j = traceForm A B (b i) (b j) :=\n  rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Matrix mul_apply trace finite product",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391389,
+            "name": "PauliMatrix.trace_pauliMatrix_mul_selfAdjoint_re",
+            "module": "Physlib.Relativity.PauliMatrices.SelfAdjoint",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/SelfAdjoint.lean#L20-L25",
+            "source_text": "/-- The trace of a pauli-matrix multiplied by a self-adjoint `2×2` matrix is real. -/\nlemma trace_pauliMatrix_mul_selfAdjoint_re (μ : Fin 1 ⊕ Fin 3)\n    (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) :\n    (Matrix.trace (pauliMatrix μ * A.1)).re = Matrix.trace (pauliMatrix μ * A.1) := by\n  rw [← Complex.conj_eq_iff_re, starRingEnd_apply, ← trace_conjTranspose, conjTranspose_mul,\n    pauliMatrix_selfAdjoint μ, ← star_eq_conjTranspose, A.2, trace_mul_comm]\n",
+            "docstring": "The trace of a pauli-matrix multiplied by a self-adjoint `2×2` matrix is real. "
+          },
+          {
+            "id": 391362,
+            "name": "PauliMatrix.σ1_σ0_trace",
+            "module": "Physlib.Relativity.PauliMatrices.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L138-L139",
+            "source_text": "/-- The trace of `σ1` multiplied by `σ0` is equal to `0`. -/\nlemma σ1_σ0_trace : Matrix.trace (σ1 * σ0) = 0 := by simp [pauliMatrix]\n",
+            "docstring": "The trace of `σ1` multiplied by `σ0` is equal to `0`. "
+          },
+          {
+            "id": 391372,
+            "name": "PauliMatrix.σ3_σ2_trace",
+            "module": "Physlib.Relativity.PauliMatrices.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L175-L176",
+            "source_text": "/-- The trace of `σ3` multiplied by `σ2` is equal to `0`. -/\nlemma σ3_σ2_trace : Matrix.trace (σ3 * σ2) = 0 := by simp\n",
+            "docstring": "The trace of `σ3` multiplied by `σ2` is equal to `0`. "
+          },
+          {
+            "id": 391365,
+            "name": "PauliMatrix.σ1_σ3_trace",
+            "module": "Physlib.Relativity.PauliMatrices.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L149-L152",
+            "source_text": "/-- The trace of `σ1` multiplied by `σ3` is equal to `0`. -/\n@[simp]\nlemma σ1_σ3_trace : Matrix.trace (σ1 * σ3) = 0 := by\n  simp [pauliMatrix]\n",
+            "docstring": "The trace of `σ1` multiplied by `σ3` is equal to `0`. "
+          },
+          {
+            "id": 391371,
+            "name": "PauliMatrix.σ3_σ1_trace",
+            "module": "Physlib.Relativity.PauliMatrices.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L172-L173",
+            "source_text": "/-- The trace of `σ3` multiplied by `σ1` is equal to `0`. -/\nlemma σ3_σ1_trace : Matrix.trace (σ3 * σ1) = 0 := by simp\n",
+            "docstring": "The trace of `σ3` multiplied by `σ1` is equal to `0`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype prod_sum sum_equiv",
+        "status": "ok",
+        "results": [
+          {
+            "id": 59079,
+            "name": "Fintype.prod_sum",
+            "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L300-L302",
+            "source_text": "/-- A product of sums can be written as a sum of products. -/\nlemma prod_sum {κ : ι → Type*} [∀ i, Fintype (κ i)] (f : ∀ i, κ i → R) :\n    ∏ i, ∑ j, f i j = ∑ x : ∀ i, κ i, ∏ i, f i (x i) := Finset.prod_univ_sum _ _\n",
+            "docstring": "A product of sums can be written as a sum of products. "
+          },
+          {
+            "id": 205826,
+            "name": "Fintype.prod_sumElim",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L259-L262",
+            "source_text": "@[to_additive]\ntheorem Fintype.prod_sumElim (f : α₁ → M) (g : α₂ → M) :\n    ∏ x, Sum.elim f g x = (∏ a₁, f a₁) * ∏ a₂, g a₂ :=\n  prod_disjSum _ _ _",
+            "docstring": null
+          },
+          {
+            "id": 58402,
+            "name": "Fintype.sum_equiv",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L738-L741",
+            "source_text": "@[to_additive /-- `Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. -/]\nlemma prod_equiv (e : ι ≃ κ) (f : ι → M) (g : κ → M) (h : ∀ x, f x = g (e x)) :\n    ∏ x, f x = ∏ x, g x := prod_bijective _ e.bijective _ _ h",
+            "docstring": "`Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. "
+          },
+          {
+            "id": 58223,
+            "name": "Finset.sum_map_equiv",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L856-L856",
+            "source_text": "@[to_additive]\ntheorem prod_map_equiv (e : ι ≃ κ) : (s.map e).prod (f ∘ e.symm) = s.prod f := by simp",
+            "docstring": null
+          },
+          {
+            "id": 255290,
+            "name": "Equiv.psigmaCongrRight",
+            "module": "Mathlib.Logic.Equiv.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Defs.lean#L606-L613",
+            "source_text": "/-- A family of equivalences `Π a, β₁ a ≃ β₂ a` generates an equivalence between `Σ' a, β₁ a` and\n`Σ' a, β₂ a`. -/\n@[simps (attr := grind =) apply]\ndef psigmaCongrRight {β₁ β₂ : α → Sort*} (F : ∀ a, β₁ a ≃ β₂ a) : (Σ' a, β₁ a) ≃ Σ' a, β₂ a where\n  toFun a := ⟨a.1, F a.1 a.2⟩\n  invFun a := ⟨a.1, (F a.1).symm a.2⟩\n  left_inv := by grind\n  right_inv := by grind\n",
+            "docstring": "A family of equivalences `Π a, β₁ a ≃ β₂ a` generates an equivalence between `Σ' a, β₁ a` and\n`Σ' a, β₂ a`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fintype prod_sum sum_equiv",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386530,
+            "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+            "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+            "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+          },
+          {
+            "id": 386825,
+            "name": "Equiv.sumEquivSigmalCond",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L38-L43",
+            "source_text": "/-- An alternative form of `Equiv.sumEquivSigmaBool` where `Bool.casesOn` is replaced by `cond`. -/\ndef sumEquivSigmalCond : Fin m ⊕ Fin n ≃ Σ b, cond b (Fin m) (Fin n) :=\n  calc Fin m ⊕ Fin n\n    _ ≃ Fin n ⊕ Fin m := sumComm ..\n    _ ≃ Σ b, bif b then (Fin m) else (Fin n) := sumEquivSigmaBool ..\n    _ ≃ Σ b, cond b (Fin m) (Fin n) := sigmaCongrRight (fun | true | false => Equiv.refl _)\n",
+            "docstring": "An alternative form of `Equiv.sumEquivSigmaBool` where `Bool.casesOn` is replaced by `cond`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "layers_matrix",
+    "receipts_sha256": "c489b98748600c3d0ade2af5f00987c454289499bfc874a8ff974d711e832273"
+  },
+  {
+    "queries": [
+      "Fin.snoc Fin.prod_univ_castSucc simp castSucc succ",
+      "Fintype.sum_prod_type sum over functions Fin.snoc",
+      "ZMod.val_natCast ZMod.natCast_zmod_val ZMod.natCast_self"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fin.snoc Fin.prod_univ_castSucc simp castSucc succ",
+        "status": "ok",
+        "results": [
+          {
+            "id": 201241,
+            "name": "Fin.range_castSucc",
+            "module": "Mathlib.Data.Fin.SuccPred",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/SuccPred.lean#L247-L249",
+            "source_text": "@[simp]\ntheorem range_castSucc {n : ℕ} : Set.range (castSucc : Fin n → Fin n.succ) =\n    ({ i | (i : ℕ) < n } : Set (Fin n.succ)) := range_castLE (by lia)",
+            "docstring": null
+          },
+          {
+            "id": 201632,
+            "name": "Fin.Embedding.snoc_castSucc",
+            "module": "Mathlib.Data.Fin.Tuple.Embedding",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Embedding.lean#L72-L74",
+            "source_text": "theorem snoc_castSucc {n : ℕ} {x : Fin n ↪ α} {a : α} {ha : a ∉ range x} {i : Fin n} :\n    snoc x ha i.castSucc = x i := by\n  rw [coe_snoc, Fin.snoc_castSucc]\n",
+            "docstring": null
+          },
+          {
+            "id": 57410,
+            "name": "Fin.prod_univ_castSucc",
+            "module": "Mathlib.Algebra.BigOperators.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L80-L86",
+            "source_text": "/-- A product of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)`\nis the product of `f (Fin.last n)` times the remaining product -/\n@[to_additive /-- A sum of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)` is the sum of\n`f (Fin.last n)` plus the remaining sum -/]\ntheorem prod_univ_castSucc (f : Fin (n + 1) → M) :\n    ∏ i, f i = (∏ i : Fin n, f (Fin.castSucc i)) * f (last n) := by\n  simpa [mul_comm] using prod_univ_succAbove f (last n)\n",
+            "docstring": "A product of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)`\nis the product of `f (Fin.last n)` times the remaining product "
+          },
+          {
+            "id": 201467,
+            "name": "Fin.snoc_castSucc",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L515-L518",
+            "source_text": "@[simp]\ntheorem snoc_castSucc : snoc p x i.castSucc = p i := by\n  simp only [snoc, val_castSucc, is_lt, dite_true]\n  convert! cast_eq rfl (p i)",
+            "docstring": null
+          },
+          {
+            "id": 201224,
+            "name": "Fin.castSucc_lt_succ_iff",
+            "module": "Mathlib.Data.Fin.SuccPred",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/SuccPred.lean#L175-L176",
+            "source_text": "@[simp] theorem castSucc_lt_succ_iff {a b : Fin n} : castSucc a < succ b ↔ a ≤ b := by\n  rw [castSucc_lt_iff_succ_le, succ_le_succ_iff]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fin.snoc Fin.prod_univ_castSucc simp castSucc succ",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391929,
+            "name": "Fin.succSuccAbove",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L51-L61",
+            "source_text": "/-- The embedding of `Fin n` into `Fin (n + 1 + 1)` which leaves a hole\n  at `i` and `j`. -/\ndef succSuccAbove (i j : Fin (n + 1 + 1)) (m : Fin n) : Fin (n + 1 + 1) :=\n  if m.1 < i.1 ∧ m.1 < j.1 then\n    ⟨m, by omega⟩\n  else if m.1 + 1 < i.1 ∧ j.1 ≤ m.1 then\n    ⟨m + 1, by omega⟩\n  else if i.1 ≤ m.1 ∧ m.1 + 1 < j.1 then\n    ⟨m + 1, by omega⟩\n  else\n    ⟨m + 2, by omega⟩\n",
+            "docstring": "The embedding of `Fin n` into `Fin (n + 1 + 1)` which leaves a hole\nat `i` and `j`. "
+          },
+          {
+            "id": 391938,
+            "name": "Fin.succSuccAbove_monotone",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L126-L130",
+            "source_text": "@[simp]\nlemma succSuccAbove_monotone {n : ℕ} (i j : Fin (n + 1 + 1)) :\n    Monotone (succSuccAbove i j) := by\n  intro a b\n  simp",
+            "docstring": null
+          },
+          {
+            "id": 391952,
+            "name": "Fin.succSuccAbove_natAdd_apply_castAdd",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L227-L232",
+            "source_text": "lemma succSuccAbove_natAdd_apply_castAdd {n n1 : ℕ}\n    (i j : Fin (n + 1 + 1)) (m : Fin n1) :\n    (succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j))\n    (Fin.castAdd n m) = Fin.castAdd (n + 1 + 1) (m) := by\n  simp only [Fin.ext_iff, succSuccAbove_val, natAdd, castAdd]\n  grind (splits := 20)\n",
+            "docstring": null
+          },
+          {
+            "id": 391953,
+            "name": "Fin.succSuccAbove_natAdd_image_range_castAdd",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L234-L246",
+            "source_text": "lemma succSuccAbove_natAdd_image_range_castAdd {n n1 : ℕ}\n    (i j : Fin (n + 1 + 1)) :\n    (succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j)) ''\n    (Set.range (Fin.castAdd (m := n) (n := n1))) = {i | i.1 < n1} := by\n  ext a\n  simp only [Set.mem_image, Set.mem_range, exists_exists_eq_and, Set.mem_setOf_eq]\n  conv_lhs =>\n    enter [1, b]\n    rw [succSuccAbove_natAdd_apply_castAdd i j]\n  apply Iff.intro\n  · rintro ⟨b, rfl⟩\n    simp\n  · exact fun h ↦ ⟨⟨a, by omega⟩, by simp⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 391940,
+            "name": "Fin.succSuccAbove_range",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L136-L153",
+            "source_text": "@[simp]\nlemma succSuccAbove_range {i j : Fin (n + 1 + 1)} (hij : i ≠ j) :\n    Set.range (succSuccAbove i j) = {i, j}ᶜ := by\n  rcases Fin.eq_self_or_eq_succAbove i j with rfl | ⟨j, rfl⟩\n  · simp_all\n  rw [succSuccAbove_eq_succAbove_succAbove, Set.range_comp, Fin.range_succAbove]\n  ext a\n  simp only [Set.mem_compl_iff, Set.mem_singleton_iff, Set.mem_image]\n  apply Iff.intro\n  · intro h\n    obtain ⟨b, h1, rfl⟩ := h\n    simpa using h1\n  · intro h\n    simp at h\n    rcases Fin.eq_self_or_eq_succAbove i a with rfl | ⟨a, rfl⟩\n    · simp_all\n    use a\n    simp_all",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype.sum_prod_type sum over functions Fin.snoc",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205833,
+            "name": "Fintype.sum_prod_type'",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L279-L280",
+            "source_text": "@[to_additive Fintype.sum_prod_type' /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. -/]\ntheorem Fintype.prod_prod_type' [CommMonoid γ] (f : α₁ → α₂ → γ) :\n    ∏ x : α₁ × α₂, f x.1 x.2 = ∏ x, ∏ y, f x y :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. "
+          },
+          {
+            "id": 205828,
+            "name": "Fintype.prod_sum_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L264-L267",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem Fintype.prod_sum_type (f : α₁ ⊕ α₂ → M) :\n    ∏ x, f x = (∏ a₁, f (Sum.inl a₁)) * ∏ a₂, f (Sum.inr a₂) :=\n  prod_disjSum _ _ _",
+            "docstring": null
+          },
+          {
+            "id": 58579,
+            "name": "Finset.prod_sigma",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L30-L40",
+            "source_text": "/-- The product over a sigma type equals the product of the fiberwise products.\nFor rewriting in the reverse direction, use `Finset.prod_sigma'`.\n\nSee also `Fintype.prod_sigma` for the product over the whole type. -/\n@[to_additive /-- The sum over a sigma type equals the sum of the fiberwise sums. For rewriting\nin the reverse direction, use `Finset.sum_sigma'`.\n\nSee also `Fintype.sum_sigma` for the sum over the whole type. -/]\ntheorem prod_sigma {σ : α → Type*} (s : Finset α) (t : ∀ a, Finset (σ a)) (f : Sigma σ → β) :\n    ∏ x ∈ s.sigma t, f x = ∏ a ∈ s, ∏ s ∈ t a, f ⟨a, s⟩ := by\n  simp_rw [← disjiUnion_map_sigma_mk, prod_disjiUnion, prod_map, Function.Embedding.sigmaMk_apply]\n",
+            "docstring": "The product over a sigma type equals the product of the fiberwise products.\nFor rewriting in the reverse direction, use `Finset.prod_sigma'`.\n\nSee also `Fintype.prod_sigma` for the product over the whole type. "
+          },
+          {
+            "id": 205045,
+            "name": "Finsupp.sigma_sum",
+            "module": "Mathlib.Data.Finsupp.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Basic.lean#L1359-L1361",
+            "source_text": "theorem sigma_sum [AddCommMonoid N] (f : (Σ i : ι, αs i) → M → N) :\n    l.sum f = ∑ i ∈ splitSupport l, (split l i).sum fun (a : αs i) b => f ⟨i, a⟩ b := by\n  simp only [sum, sigma_support, sum_sigma, split_apply]\n",
+            "docstring": null
+          },
+          {
+            "id": 201465,
+            "name": "Fin.snoc",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L503-L507",
+            "source_text": "/-- Adding an element at the end of an `n`-tuple, to get an `n+1`-tuple. The name `snoc` comes from\n`cons` (i.e., adding an element to the left of a tuple) read in reverse order. -/\ndef snoc (p : ∀ i : Fin n, α i.castSucc) (x : α (last n)) (i : Fin (n + 1)) : α i :=\n  if h : i.val < n then _root_.cast (by rw [Fin.castSucc_castLT i h]) (p (castLT i h))\n  else _root_.cast (by rw [eq_last_of_not_lt h]) x\n",
+            "docstring": "Adding an element at the end of an `n`-tuple, to get an `n+1`-tuple. The name `snoc` comes from\n`cons` (i.e., adding an element to the left of a tuple) read in reverse order. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fintype.sum_prod_type sum over functions Fin.snoc",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386548,
+            "name": "generalizedKroneckerDelta_sum_snoc",
+            "module": "Physlib.Mathematics.KroneckerDelta.Contraction",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Contraction.lean#L156-L203",
+            "source_text": "/-- **Generalized Kronecker delta contraction.** Summing a `generalizedKroneckerDelta` over one\nshared index appended at the end lowers the rank by one and pulls out a factor of `card α - n`.\nThis is the reusable combinatorial fact behind all epsilon-epsilon identities. -/\nlemma generalizedKroneckerDelta_sum_snoc {n : ℕ} (μ ν : Fin n → α) :\n    ∑ a : α, generalizedKroneckerDelta (Fin.snoc μ a) (Fin.snoc ν a)\n      = ((Fintype.card α : ℤ) - n) * generalizedKroneckerDelta μ ν := by\n  set A : Matrix (Fin n) (Fin n) ℤ :=\n    Matrix.of fun i j => ((kroneckerDelta (μ i) (ν j) : ℕ) : ℤ) with hA\n  set b : α → Fin n → ℤ := fun a j => ((kroneckerDelta a (ν j) : ℕ) : ℤ) with hb\n  -- Bordering the δ-matrix with the appended index (`Matrix.det_fromBlocks_one₂₂`) and the\n  -- rank-one update `Matrix.det_add_rankOne` express each summand through row updates of `A`.\n  have key (a : α) : generalizedKroneckerDelta (Fin.snoc μ a) (Fin.snoc ν a)\n      = A.det - ∑ i, ((kroneckerDelta (μ i) a : ℕ) : ℤ) * (A.updateRow i (b a)).det := by\n    set B : Matrix (Fin n) (Fin 1) ℤ :=\n      Matrix.of fun i _ => ((kroneckerDelta (μ i) a : ℕ) : ℤ) with hB\n    set C : Matrix (Fin 1) (Fin n) ℤ := Matrix.of fun _ j => b a j with hC\n    have hblk : (Matrix.of fun (i j : Fin (n + 1)) =>\n          ((kroneckerDelta ((Fin.snoc μ a : Fin (n + 1) → α) i)\n            ((Fin.snoc ν a : Fin (n + 1) → α) j) : ℕ) : ℤ)).submatrix\n          finSumFinEquiv finSumFinEquiv = Matrix.fromBlocks A B C 1 := by\n      simp only [← Fin.append_right_eq_snoc μ (fun _ => a), ← Fin.append_right_eq_snoc ν\n        (fun _ => a)]\n      ext (i | i) (j | j)\n      · simp [hA]\n      · simp [hB]\n      · simp [hC, hb]\n      · simp [Subsingleton.elim i j]\n    have hBC : A - B * C\n        = A + Matrix.of fun i j => -((kroneckerDelta (μ i) a : ℕ) : ℤ) * b a j := by\n      ext i j\n      simp [hB, hC, Matrix.mul_apply, sub_eq_add_neg]\n    rw [show generalizedKroneckerDelta (Fin.snoc μ a) (Fin.snoc ν a)\n          = ((Matrix.of fun (i j : Fin (n + 1)) =>\n            ((kroneckerDelta ((Fin.snoc μ a : Fin (n + 1) → α) i)\n              ((Fin.snoc ν a : Fin (n + 1) → α) j) : ℕ) : ℤ)).submatrix\n            finSumFinEquiv finSumFinEquiv).det from (Matrix.det_submatrix_equiv_self _ _).symm,\n      hblk, Matrix.det_fromBlocks_one₂₂, hBC, Matrix.det_add_rankOne]\n    simp only [neg_mul, Finset.sum_neg_distrib, ← sub_eq_add_neg]\n  -- Summing the row updates over the shared index restores `A` itself, once per row.\n  have hrow (i : Fin n) :\n      ∑ a : α, ((kroneckerDelta (μ i) a : ℕ) : ℤ) * (A.updateRow i (b a)).det = A.det := by\n    simp_rw [← nsmul_eq_mul, KroneckerDelta.sum_smul]\n    exact congrArg Matrix.det (A.updateRow_eq_self i)\n  rw [Finset.sum_congr rfl fun a _ => key a, Finset.sum_sub_distrib, Finset.sum_comm,\n    Finset.sum_congr rfl fun i _ => hrow i, Finset.sum_const, Finset.sum_const,\n    Finset.card_univ, Finset.card_univ, Fintype.card_fin,\n    show generalizedKroneckerDelta μ ν = A.det from rfl]\n  simp only [nsmul_eq_mul, ← sub_mul]\n",
+            "docstring": "**Generalized Kronecker delta contraction.** Summing a `generalizedKroneckerDelta` over one\nshared index appended at the end lowers the rank by one and pulls out a factor of `card α - n`.\nThis is the reusable combinatorial fact behind all epsilon-epsilon identities. "
+          },
+          {
+            "id": 386530,
+            "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+            "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+            "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod.val_natCast ZMod.natCast_zmod_val ZMod.natCast_self",
+        "status": "ok",
+        "results": [
+          {
+            "id": 222980,
+            "name": "ZMod.val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+            "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+            "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+          },
+          {
+            "id": 223006,
+            "name": "ZMod.natCast_zmod_val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L203-L208",
+            "source_text": "/-- So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. -/\ntheorem natCast_zmod_val {n : ℕ} [NeZero n] (a : ZMod n) : (a.val : ZMod n) = a := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.cast_val_eq_self\n",
+            "docstring": "So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. "
+          },
+          {
+            "id": 223018,
+            "name": "ZMod.natCast_val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L262-L264",
+            "source_text": "@[simp]\ntheorem natCast_val [NeZero n] (i : ZMod n) : (i.val : R) = cast i :=\n  congr_fun (natCast_comp_val R) i",
+            "docstring": null
+          },
+          {
+            "id": 223189,
+            "name": "Fin.val_intCast",
+            "module": "Mathlib.Data.ZMod.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L53-L65",
+            "source_text": "@[simp] theorem val_intCast {n : Nat} [NeZero n] (x : Int) :\n    (x : Fin n).val = (x % n).toNat := by\n  rw [Fin.intCast_def']\n  split <;> rename_i h\n  · simp [Int.emod_natAbs_of_nonneg h]\n  · simp only [Fin.val_neg, Fin.natCast_eq_zero, Fin.val_natCast]\n    split <;> rename_i h\n    · rw [← Int.natCast_dvd] at h\n      rw [Int.emod_eq_zero_of_dvd h, Int.toNat_zero]\n    · rw [Int.emod_natAbs_of_neg (by lia) (NeZero.ne n),\n        if_neg (by rwa [← Int.natCast_dvd] at h)]\n      have : x % n < n := Int.emod_lt_of_pos x (by have := NeZero.ne n; lia)\n      lia",
+            "docstring": null
+          },
+          {
+            "id": 214283,
+            "name": "ZNum.div_to_int",
+            "module": "Mathlib.Data.Num.ZNum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L654-L674",
+            "source_text": "@[simp, norm_cast]\ntheorem div_to_int : ∀ n d, ((n / d : ZNum) : ℤ) = n / d\n  | 0, 0 => by simp [Int.ediv_zero]\n  | 0, pos _ => (Int.zero_ediv _).symm\n  | 0, neg _ => (Int.zero_ediv _).symm\n  | pos _, 0 => (Int.ediv_zero _).symm\n  | neg _, 0 => (Int.ediv_zero _).symm\n  | pos n, pos d => (Num.cast_toZNum _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | pos n, neg d => (Num.cast_toZNumNeg _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | neg n, pos d =>\n    show -_ = -_ / ↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change -[n.pred' / ↑d+1] = -[n.pred' / (d.pred' + 1)+1]\n      rw [d.to_nat_eq_succ_pred]\n  | neg n, neg d =>\n    show ↑(PosNum.pred' n / Num.pos d).succ' = -_ / -↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change (Nat.succ (_ / d) : ℤ) = Nat.succ (n.pred' / (d.pred' + 1))\n      rw [d.to_nat_eq_succ_pred]\n\n@[simp, norm_cast]\ntheorem mod_to_int : ∀ n d, ((n % d : ZNum) : ℤ) = n % d\n  | 0, _ => (Int.zero_emod _).symm\n  | pos n, d =>\n    (Num.cast_toZNum _).trans <| by\n      rw [← Num.to_nat_to_int, cast_pos, Num.mod_to_nat, ← PosNum.to_nat_to_int, abs_to_nat]\n      rfl\n  | neg n, d =>\n    (Num.cast_sub' _ _).trans <| by\n      rw [← Num.to_nat_to_int, cast_neg, ← Num.to_nat_to_int, Num.succ_to_nat, Num.mod_to_nat,\n          abs_to_nat, ← Int.subNatNat_eq_coe, n.to_int_eq_succ_pred]\n      rfl\n\n@[simp]\ntheorem gcd_to_nat (a b) : (gcd a b : ℕ) = Int.gcd a b :=",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod.val_natCast ZMod.natCast_zmod_val ZMod.natCast_self",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393466,
+            "name": "Time.natCast_val",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L105-L106",
+            "source_text": "@[simp]\nlemma natCast_val {n : ℕ} : val n = n := rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Equiv.sum_comp Equiv.prod_comp Fintype.sum_prod_type'",
+      "Fin.snoc_last Fin.snoc_castSucc Fin.lastCases",
+      "ZMod.val_natCast ZMod.natCast_self"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Equiv.sum_comp Equiv.prod_comp Fintype.sum_prod_type'",
+        "status": "ok",
+        "results": [
+          {
+            "id": 255923,
+            "name": "Equiv.sumPiEquivProdPi",
+            "module": "Mathlib.Logic.Equiv.Prod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Prod.lean#L349-L356",
+            "source_text": "/-- The type of dependent functions on a sum type `ι ⊕ ι'` is equivalent to the type of pairs of\nfunctions on `ι` and on `ι'`. This is a dependent version of `Equiv.sumArrowEquivProdArrow`. -/\n@[simps (attr := grind =)]\ndef sumPiEquivProdPi {ι ι'} (π : ι ⊕ ι' → Type*) :\n    (∀ i, π i) ≃ (∀ i, π (inl i)) × ∀ i', π (inr i') where\n  toFun f := ⟨fun i => f (inl i), fun i' => f (inr i')⟩\n  invFun g := Sum.rec g.1 g.2\n  left_inv f := by ext (i | i) <;> rfl\n",
+            "docstring": "The type of dependent functions on a sum type `ι ⊕ ι'` is equivalent to the type of pairs of\nfunctions on `ι` and on `ι'`. This is a dependent version of `Equiv.sumArrowEquivProdArrow`. "
+          },
+          {
+            "id": 205831,
+            "name": "Fintype.sum_prod_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L271-L272",
+            "source_text": "@[to_additive Fintype.sum_prod_type /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. -/]\ntheorem Fintype.prod_prod_type [CommMonoid γ] (f : α₁ × α₂ → γ) :\n    ∏ x, f x = ∏ x, ∏ y, f (x, y) :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. "
+          },
+          {
+            "id": 58402,
+            "name": "Fintype.sum_equiv",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L738-L741",
+            "source_text": "@[to_additive /-- `Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. -/]\nlemma prod_equiv (e : ι ≃ κ) (f : ι → M) (g : κ → M) (h : ∀ x, f x = g (e x)) :\n    ∏ x, f x = ∏ x, g x := prod_bijective _ e.bijective _ _ h",
+            "docstring": "`Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. "
+          },
+          {
+            "id": 205833,
+            "name": "Fintype.sum_prod_type'",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L279-L280",
+            "source_text": "@[to_additive Fintype.sum_prod_type' /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. -/]\ntheorem Fintype.prod_prod_type' [CommMonoid γ] (f : α₁ → α₂ → γ) :\n    ∏ x : α₁ × α₂, f x.1 x.2 = ∏ x, ∏ y, f x y :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. "
+          },
+          {
+            "id": 255911,
+            "name": "Equiv.sigmaEquivProd_sigmaCongrRight",
+            "module": "Mathlib.Logic.Equiv.Prod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Prod.lean#L287-L292",
+            "source_text": "theorem sigmaEquivProd_sigmaCongrRight :\n    (sigmaEquivProd α₁ β₁).symm.trans (sigmaCongrRight e)\n    = (prodCongrRight e).trans (sigmaEquivProd α₁ β₂).symm := by\n  ext ⟨a, b⟩ : 1\n  simp only [trans_apply, sigmaCongrRight_apply, prodCongrRight_apply]\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Equiv.sum_comp Equiv.prod_comp Fintype.sum_prod_type'",
+        "status": "ok",
+        "results": [
+          {
+            "id": 392082,
+            "name": "TensorSpecies.Tensor.Pure.prodP_apply_finSumFinEquiv",
+            "module": "Physlib.Relativity.Tensors.Product",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Product.lean#L134-L147",
+            "source_text": "lemma Pure.prodP_apply_finSumFinEquiv {n1 n2} {c : Fin n1 → C} {c1 : Fin n2 → C}\n    (p1 : Pure S c) (p2 : Pure S c1) (i : Fin n1 ⊕ Fin n2) :\n    Pure.prodP p1 p2 (finSumFinEquiv i) =\n    match i with\n    | Sum.inl i => LinearEquiv.cast (R := k) (by simp) (p1 i)\n    | Sum.inr i => LinearEquiv.cast (R := k) (by simp) (p2 i) := by\n  rw [Pure.prodP]\n  match i with\n  | Sum.inl i =>\n    simp only [finSumFinEquiv_apply_left, LinearEquiv.cast_apply, Fin.addCases_left]\n    rfl\n  | Sum.inr i =>\n    simp only [finSumFinEquiv_apply_right, LinearEquiv.cast_apply, Fin.addCases_right]\n    rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fin.snoc_last Fin.snoc_castSucc Fin.lastCases",
+        "status": "ok",
+        "results": [
+          {
+            "id": 201476,
+            "name": "Fin.update_snoc_last",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L563-L567",
+            "source_text": "/-- Adding an element at the beginning of a tuple and then updating it amounts to adding it\ndirectly. -/\ntheorem update_snoc_last : update (snoc p x) (last n) z = snoc p z := by\n  ext j\n  cases j using lastCases <;> simp\n",
+            "docstring": "Adding an element at the beginning of a tuple and then updating it amounts to adding it\ndirectly. "
+          },
+          {
+            "id": 201633,
+            "name": "Fin.Embedding.snoc_last",
+            "module": "Mathlib.Data.Fin.Tuple.Embedding",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Embedding.lean#L76-L78",
+            "source_text": "theorem snoc_last {n : ℕ} {x : Fin n ↪ α} {a : α} {ha : a ∉ range x} :\n    snoc x ha (last n) = a := by\n  rw [coe_snoc, Fin.snoc_last]\n",
+            "docstring": null
+          },
+          {
+            "id": 201470,
+            "name": "Fin.snoc_last",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L528-L529",
+            "source_text": "@[simp]\ntheorem snoc_last : snoc p x (last n) = x := by simp [snoc]",
+            "docstring": null
+          },
+          {
+            "id": 255404,
+            "name": "finSuccEquiv_last",
+            "module": "Mathlib.Logic.Equiv.Fin.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Fin/Basic.lean#L129-L130",
+            "source_text": "@[simp]\ntheorem finSuccEquiv_last (n : ℕ) : finSuccEquiv (n + 1) (Fin.last (n + 1)) = Fin.last n := rfl",
+            "docstring": null
+          },
+          {
+            "id": 201224,
+            "name": "Fin.castSucc_lt_succ_iff",
+            "module": "Mathlib.Data.Fin.SuccPred",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/SuccPred.lean#L175-L176",
+            "source_text": "@[simp] theorem castSucc_lt_succ_iff {a b : Fin n} : castSucc a < succ b ↔ a ≤ b := by\n  rw [castSucc_lt_iff_succ_le, succ_le_succ_iff]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fin.snoc_last Fin.snoc_castSucc Fin.lastCases",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390017,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftZero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L154-L157",
+            "source_text": "/-- The element representing the `1` in `Fin (1 + n + n)`.\n  This is then casted to `Fin (2 * n + 1)`. -/\ndef oddShiftZero : Fin (2 * n + 1) :=\n  Fin.cast (odd_shift_eq n) (Fin.castAdd n (Fin.castAdd n 1))\n",
+            "docstring": "The element representing the `1` in `Fin (1 + n + n)`.\nThis is then casted to `Fin (2 * n + 1)`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod.val_natCast ZMod.natCast_self",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223006,
+            "name": "ZMod.natCast_zmod_val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L203-L208",
+            "source_text": "/-- So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. -/\ntheorem natCast_zmod_val {n : ℕ} [NeZero n] (a : ZMod n) : (a.val : ZMod n) = a := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.cast_val_eq_self\n",
+            "docstring": "So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. "
+          },
+          {
+            "id": 222987,
+            "name": "ZMod.val_natCast",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L88-L93",
+            "source_text": "@[simp]\ntheorem val_natCast (n a : ℕ) : (a : ZMod n).val = a % n := by\n  cases n\n  · rw [Nat.mod_zero]\n    exact Int.natAbs_natCast a\n  · apply Fin.val_natCast",
+            "docstring": null
+          },
+          {
+            "id": 222980,
+            "name": "ZMod.val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+            "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+            "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+          },
+          {
+            "id": 223018,
+            "name": "ZMod.natCast_val",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L262-L264",
+            "source_text": "@[simp]\ntheorem natCast_val [NeZero n] (i : ZMod n) : (i.val : R) = cast i :=\n  congr_fun (natCast_comp_val R) i",
+            "docstring": null
+          },
+          {
+            "id": 223001,
+            "name": "ZMod.cast",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L167-L172",
+            "source_text": "/-- Cast an integer modulo `n` to another semiring.\nThis function is a morphism if the characteristic of `R` divides `n`.\nSee `ZMod.castHom` for a bundled version. -/\ndef cast : ∀ {n : ℕ}, ZMod n → R\n  | 0 => Int.cast\n  | _ + 1 => fun i => i.val\n",
+            "docstring": "Cast an integer modulo `n` to another semiring.\nThis function is a morphism if the characteristic of `R` divides `n`.\nSee `ZMod.castHom` for a bundled version. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod.val_natCast ZMod.natCast_self",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393466,
+            "name": "Time.natCast_val",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L105-L106",
+            "source_text": "@[simp]\nlemma natCast_val {n : ℕ} : val n = n := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393478,
+            "name": "Time.realCast_of_natCast",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L146-L147",
+            "source_text": "@[simp]\nlemma realCast_of_natCast {n : ℕ} : ((n : ℝ) : Time) = n := rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Fin.prod_univ_castSucc Fin.snoc_castSucc",
+      "Fin.snoc sum Fin zero function Fintype.sum_unique",
+      "Matrix.mul_assoc Matrix.trace"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fin.prod_univ_castSucc Fin.snoc_castSucc",
+        "status": "ok",
+        "results": [
+          {
+            "id": 57410,
+            "name": "Fin.prod_univ_castSucc",
+            "module": "Mathlib.Algebra.BigOperators.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L80-L86",
+            "source_text": "/-- A product of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)`\nis the product of `f (Fin.last n)` times the remaining product -/\n@[to_additive /-- A sum of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)` is the sum of\n`f (Fin.last n)` plus the remaining sum -/]\ntheorem prod_univ_castSucc (f : Fin (n + 1) → M) :\n    ∏ i, f i = (∏ i : Fin n, f (Fin.castSucc i)) * f (last n) := by\n  simpa [mul_comm] using prod_univ_succAbove f (last n)\n",
+            "docstring": "A product of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)`\nis the product of `f (Fin.last n)` times the remaining product "
+          },
+          {
+            "id": 201632,
+            "name": "Fin.Embedding.snoc_castSucc",
+            "module": "Mathlib.Data.Fin.Tuple.Embedding",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Embedding.lean#L72-L74",
+            "source_text": "theorem snoc_castSucc {n : ℕ} {x : Fin n ↪ α} {a : α} {ha : a ∉ range x} {i : Fin n} :\n    snoc x ha i.castSucc = x i := by\n  rw [coe_snoc, Fin.snoc_castSucc]\n",
+            "docstring": null
+          },
+          {
+            "id": 201467,
+            "name": "Fin.snoc_castSucc",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L515-L518",
+            "source_text": "@[simp]\ntheorem snoc_castSucc : snoc p x i.castSucc = p i := by\n  simp only [snoc, val_castSucc, is_lt, dite_true]\n  convert! cast_eq rfl (p i)",
+            "docstring": null
+          },
+          {
+            "id": 201224,
+            "name": "Fin.castSucc_lt_succ_iff",
+            "module": "Mathlib.Data.Fin.SuccPred",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/SuccPred.lean#L175-L176",
+            "source_text": "@[simp] theorem castSucc_lt_succ_iff {a b : Fin n} : castSucc a < succ b ↔ a ≤ b := by\n  rw [castSucc_lt_iff_succ_le, succ_le_succ_iff]",
+            "docstring": null
+          },
+          {
+            "id": 201469,
+            "name": "Fin.snoc_comp_castSucc",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L523-L526",
+            "source_text": "@[simp]\ntheorem snoc_comp_castSucc {α : Sort*} {a : α} {f : Fin n → α} :\n    (snoc f a : Fin (n + 1) → α) ∘ castSucc = f :=\n  funext fun i ↦ by rw [Function.comp_apply, snoc_castSucc]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fin.prod_univ_castSucc Fin.snoc_castSucc",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391929,
+            "name": "Fin.succSuccAbove",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L51-L61",
+            "source_text": "/-- The embedding of `Fin n` into `Fin (n + 1 + 1)` which leaves a hole\n  at `i` and `j`. -/\ndef succSuccAbove (i j : Fin (n + 1 + 1)) (m : Fin n) : Fin (n + 1 + 1) :=\n  if m.1 < i.1 ∧ m.1 < j.1 then\n    ⟨m, by omega⟩\n  else if m.1 + 1 < i.1 ∧ j.1 ≤ m.1 then\n    ⟨m + 1, by omega⟩\n  else if i.1 ≤ m.1 ∧ m.1 + 1 < j.1 then\n    ⟨m + 1, by omega⟩\n  else\n    ⟨m + 2, by omega⟩\n",
+            "docstring": "The embedding of `Fin n` into `Fin (n + 1 + 1)` which leaves a hole\nat `i` and `j`. "
+          },
+          {
+            "id": 391952,
+            "name": "Fin.succSuccAbove_natAdd_apply_castAdd",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L227-L232",
+            "source_text": "lemma succSuccAbove_natAdd_apply_castAdd {n n1 : ℕ}\n    (i j : Fin (n + 1 + 1)) (m : Fin n1) :\n    (succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j))\n    (Fin.castAdd n m) = Fin.castAdd (n + 1 + 1) (m) := by\n  simp only [Fin.ext_iff, succSuccAbove_val, natAdd, castAdd]\n  grind (splits := 20)\n",
+            "docstring": null
+          },
+          {
+            "id": 391953,
+            "name": "Fin.succSuccAbove_natAdd_image_range_castAdd",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L234-L246",
+            "source_text": "lemma succSuccAbove_natAdd_image_range_castAdd {n n1 : ℕ}\n    (i j : Fin (n + 1 + 1)) :\n    (succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j)) ''\n    (Set.range (Fin.castAdd (m := n) (n := n1))) = {i | i.1 < n1} := by\n  ext a\n  simp only [Set.mem_image, Set.mem_range, exists_exists_eq_and, Set.mem_setOf_eq]\n  conv_lhs =>\n    enter [1, b]\n    rw [succSuccAbove_natAdd_apply_castAdd i j]\n  apply Iff.intro\n  · rintro ⟨b, rfl⟩\n    simp\n  · exact fun h ↦ ⟨⟨a, by omega⟩, by simp⟩\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fin.snoc sum Fin zero function Fintype.sum_unique",
+        "status": "ok",
+        "results": [
+          {
+            "id": 57419,
+            "name": "Fin.sum_snoc",
+            "module": "Mathlib.Algebra.BigOperators.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L102-L102",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem prod_snoc (x : M) (f : Fin n → M) :",
+            "docstring": null
+          },
+          {
+            "id": 58265,
+            "name": "Fintype.sum_unique",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L1017-L1017",
+            "source_text": "@[to_additive]\ntheorem prod_unique [Unique ι] (f : ι → M) : ∏ x : ι, f x = f default := by",
+            "docstring": null
+          },
+          {
+            "id": 201465,
+            "name": "Fin.snoc",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L503-L507",
+            "source_text": "/-- Adding an element at the end of an `n`-tuple, to get an `n+1`-tuple. The name `snoc` comes from\n`cons` (i.e., adding an element to the left of a tuple) read in reverse order. -/\ndef snoc (p : ∀ i : Fin n, α i.castSucc) (x : α (last n)) (i : Fin (n + 1)) : α i :=\n  if h : i.val < n then _root_.cast (by rw [Fin.castSucc_castLT i h]) (p (castLT i h))\n  else _root_.cast (by rw [eq_last_of_not_lt h]) x\n",
+            "docstring": "Adding an element at the end of an `n`-tuple, to get an `n+1`-tuple. The name `snoc` comes from\n`cons` (i.e., adding an element to the left of a tuple) read in reverse order. "
+          },
+          {
+            "id": 57587,
+            "name": "finsum_unique",
+            "module": "Mathlib.Algebra.BigOperators.Finprod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L217-L217",
+            "source_text": "@[to_additive]\ntheorem finprod_unique [Unique α] (f : α → M) : ∏ᶠ i, f i = f default :=",
+            "docstring": null
+          },
+          {
+            "id": 332425,
+            "name": "hasSum_unique",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Basic.lean#L160-L160",
+            "source_text": "@[to_additive (attr := simp)]\nlemma hasProd_unique [Unique β] (f : β → α) (L := unconditional β) [L.LeAtTop] :",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fin.snoc sum Fin zero function Fintype.sum_unique",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386530,
+            "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+            "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+            "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+          },
+          {
+            "id": 386548,
+            "name": "generalizedKroneckerDelta_sum_snoc",
+            "module": "Physlib.Mathematics.KroneckerDelta.Contraction",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Contraction.lean#L156-L203",
+            "source_text": "/-- **Generalized Kronecker delta contraction.** Summing a `generalizedKroneckerDelta` over one\nshared index appended at the end lowers the rank by one and pulls out a factor of `card α - n`.\nThis is the reusable combinatorial fact behind all epsilon-epsilon identities. -/\nlemma generalizedKroneckerDelta_sum_snoc {n : ℕ} (μ ν : Fin n → α) :\n    ∑ a : α, generalizedKroneckerDelta (Fin.snoc μ a) (Fin.snoc ν a)\n      = ((Fintype.card α : ℤ) - n) * generalizedKroneckerDelta μ ν := by\n  set A : Matrix (Fin n) (Fin n) ℤ :=\n    Matrix.of fun i j => ((kroneckerDelta (μ i) (ν j) : ℕ) : ℤ) with hA\n  set b : α → Fin n → ℤ := fun a j => ((kroneckerDelta a (ν j) : ℕ) : ℤ) with hb\n  -- Bordering the δ-matrix with the appended index (`Matrix.det_fromBlocks_one₂₂`) and the\n  -- rank-one update `Matrix.det_add_rankOne` express each summand through row updates of `A`.\n  have key (a : α) : generalizedKroneckerDelta (Fin.snoc μ a) (Fin.snoc ν a)\n      = A.det - ∑ i, ((kroneckerDelta (μ i) a : ℕ) : ℤ) * (A.updateRow i (b a)).det := by\n    set B : Matrix (Fin n) (Fin 1) ℤ :=\n      Matrix.of fun i _ => ((kroneckerDelta (μ i) a : ℕ) : ℤ) with hB\n    set C : Matrix (Fin 1) (Fin n) ℤ := Matrix.of fun _ j => b a j with hC\n    have hblk : (Matrix.of fun (i j : Fin (n + 1)) =>\n          ((kroneckerDelta ((Fin.snoc μ a : Fin (n + 1) → α) i)\n            ((Fin.snoc ν a : Fin (n + 1) → α) j) : ℕ) : ℤ)).submatrix\n          finSumFinEquiv finSumFinEquiv = Matrix.fromBlocks A B C 1 := by\n      simp only [← Fin.append_right_eq_snoc μ (fun _ => a), ← Fin.append_right_eq_snoc ν\n        (fun _ => a)]\n      ext (i | i) (j | j)\n      · simp [hA]\n      · simp [hB]\n      · simp [hC, hb]\n      · simp [Subsingleton.elim i j]\n    have hBC : A - B * C\n        = A + Matrix.of fun i j => -((kroneckerDelta (μ i) a : ℕ) : ℤ) * b a j := by\n      ext i j\n      simp [hB, hC, Matrix.mul_apply, sub_eq_add_neg]\n    rw [show generalizedKroneckerDelta (Fin.snoc μ a) (Fin.snoc ν a)\n          = ((Matrix.of fun (i j : Fin (n + 1)) =>\n            ((kroneckerDelta ((Fin.snoc μ a : Fin (n + 1) → α) i)\n              ((Fin.snoc ν a : Fin (n + 1) → α) j) : ℕ) : ℤ)).submatrix\n            finSumFinEquiv finSumFinEquiv).det from (Matrix.det_submatrix_equiv_self _ _).symm,\n      hblk, Matrix.det_fromBlocks_one₂₂, hBC, Matrix.det_add_rankOne]\n    simp only [neg_mul, Finset.sum_neg_distrib, ← sub_eq_add_neg]\n  -- Summing the row updates over the shared index restores `A` itself, once per row.\n  have hrow (i : Fin n) :\n      ∑ a : α, ((kroneckerDelta (μ i) a : ℕ) : ℤ) * (A.updateRow i (b a)).det = A.det := by\n    simp_rw [← nsmul_eq_mul, KroneckerDelta.sum_smul]\n    exact congrArg Matrix.det (A.updateRow_eq_self i)\n  rw [Finset.sum_congr rfl fun a _ => key a, Finset.sum_sub_distrib, Finset.sum_comm,\n    Finset.sum_congr rfl fun i _ => hrow i, Finset.sum_const, Finset.sum_const,\n    Finset.card_univ, Finset.card_univ, Fintype.card_fin,\n    show generalizedKroneckerDelta μ ν = A.det from rfl]\n  simp only [nsmul_eq_mul, ← sub_mul]\n",
+            "docstring": "**Generalized Kronecker delta contraction.** Summing a `generalizedKroneckerDelta` over one\nshared index appended at the end lowers the rank by one and pulls out a factor of `card α - n`.\nThis is the reusable combinatorial fact behind all epsilon-epsilon identities. "
+          },
+          {
+            "id": 386367,
+            "name": "Physlib.Fin.involutionNoFixedEquivSum",
+            "module": "Physlib.Mathematics.Fin.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L234-L243",
+            "source_text": "/-- Fixed point free involutions of `Fin n.succ` can be separated based on where they sent\n  `0`. -/\ndef involutionNoFixedEquivSum {n : ℕ} :\n    {f : Fin n.succ → Fin n.succ // Function.Involutive f\n    ∧ ∀ i, f i ≠ i} ≃ Σ (k : Fin n), {f : Fin n.succ → Fin n.succ // Function.Involutive f\n    ∧ (∀ i, f i ≠ i) ∧ f 0 = k.succ} where\n  toFun f := ⟨(f.1 0).pred (f.2.2 0), ⟨f.1, f.2.1, by simpa using f.2.2⟩⟩\n  invFun f := ⟨f.2.1, ⟨f.2.2.1, f.2.2.2.1⟩⟩\n  left_inv f := rfl\n  right_inv f := by ext <;> try aesop\n",
+            "docstring": "Fixed point free involutions of `Fin n.succ` can be separated based on where they sent\n`0`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Matrix.mul_assoc Matrix.trace",
+        "status": "ok",
+        "results": [
+          {
+            "id": 249860,
+            "name": "Matrix.trace_mul_comm",
+            "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L158-L159",
+            "source_text": "theorem trace_mul_comm [AddCommMonoid R] [CommMagma R] (A : Matrix m n R) (B : Matrix n m R) :\n    trace (A * B) = trace (B * A) := by rw [← trace_transpose, ← trace_transpose_mul, transpose_mul]\n",
+            "docstring": null
+          },
+          {
+            "id": 249838,
+            "name": "Matrix.trace",
+            "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L41-L46",
+            "source_text": "/-- The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n-/\ndef trace (A : Matrix n n R) : R :=\n  ∑ i, diag A i\n",
+            "docstring": "The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n"
+          },
+          {
+            "id": 249861,
+            "name": "Matrix.trace_mul_cycle",
+            "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L161-L163",
+            "source_text": "theorem trace_mul_cycle [NonUnitalCommSemiring R] (A : Matrix m n R) (B : Matrix n p R)\n    (C : Matrix p m R) : trace (A * B * C) = trace (C * A * B) := by\n  rw [trace_mul_comm, Matrix.mul_assoc]\n",
+            "docstring": null
+          },
+          {
+            "id": 249859,
+            "name": "Matrix.trace_transpose_mul",
+            "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L153-L156",
+            "source_text": "@[simp]\ntheorem trace_transpose_mul [AddCommMonoid R] [Mul R] (A : Matrix m n R) (B : Matrix n m R) :\n    trace (Aᵀ * Bᵀ) = trace (A * B) :=\n  Finset.sum_comm",
+            "docstring": null
+          },
+          {
+            "id": 249874,
+            "name": "Matrix.trace_fin_three_of",
+            "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L235-L238",
+            "source_text": "@[simp]\ntheorem trace_fin_three_of (a b c d e f g h i : R) :\n    trace !![a, b, c; d, e, f; g, h, i] = a + e + i :=\n  trace_fin_three _",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Matrix.mul_assoc Matrix.trace",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391389,
+            "name": "PauliMatrix.trace_pauliMatrix_mul_selfAdjoint_re",
+            "module": "Physlib.Relativity.PauliMatrices.SelfAdjoint",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/SelfAdjoint.lean#L20-L25",
+            "source_text": "/-- The trace of a pauli-matrix multiplied by a self-adjoint `2×2` matrix is real. -/\nlemma trace_pauliMatrix_mul_selfAdjoint_re (μ : Fin 1 ⊕ Fin 3)\n    (A : selfAdjoint (Matrix (Fin 2) (Fin 2) ℂ)) :\n    (Matrix.trace (pauliMatrix μ * A.1)).re = Matrix.trace (pauliMatrix μ * A.1) := by\n  rw [← Complex.conj_eq_iff_re, starRingEnd_apply, ← trace_conjTranspose, conjTranspose_mul,\n    pauliMatrix_selfAdjoint μ, ← star_eq_conjTranspose, A.2, trace_mul_comm]\n",
+            "docstring": "The trace of a pauli-matrix multiplied by a self-adjoint `2×2` matrix is real. "
+          },
+          {
+            "id": 391358,
+            "name": "PauliMatrix.σ0_σ0_trace",
+            "module": "Physlib.Relativity.PauliMatrices.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L126-L127",
+            "source_text": "/-- The trace of `σ0` multiplied by `σ0` is equal to `2`. -/\nlemma σ0_σ0_trace : Matrix.trace (σ0 * σ0) = 2 := by simp\n",
+            "docstring": "The trace of `σ0` multiplied by `σ0` is equal to `2`. "
+          },
+          {
+            "id": 391372,
+            "name": "PauliMatrix.σ3_σ2_trace",
+            "module": "Physlib.Relativity.PauliMatrices.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L175-L176",
+            "source_text": "/-- The trace of `σ3` multiplied by `σ2` is equal to `0`. -/\nlemma σ3_σ2_trace : Matrix.trace (σ3 * σ2) = 0 := by simp\n",
+            "docstring": "The trace of `σ3` multiplied by `σ2` is equal to `0`. "
+          },
+          {
+            "id": 391365,
+            "name": "PauliMatrix.σ1_σ3_trace",
+            "module": "Physlib.Relativity.PauliMatrices.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L149-L152",
+            "source_text": "/-- The trace of `σ1` multiplied by `σ3` is equal to `0`. -/\n@[simp]\nlemma σ1_σ3_trace : Matrix.trace (σ1 * σ3) = 0 := by\n  simp [pauliMatrix]\n",
+            "docstring": "The trace of `σ1` multiplied by `σ3` is equal to `0`. "
+          },
+          {
+            "id": 391371,
+            "name": "PauliMatrix.σ3_σ1_trace",
+            "module": "Physlib.Relativity.PauliMatrices.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L172-L173",
+            "source_text": "/-- The trace of `σ3` multiplied by `σ1` is equal to `0`. -/\nlemma σ3_σ1_trace : Matrix.trace (σ3 * σ1) = 0 := by simp\n",
+            "docstring": "The trace of `σ3` multiplied by `σ1` is equal to `0`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Fin.val_add Fin.val_one",
+      "Fintype.sum_equiv Fintype.sum_prod_type",
+      "Fin.snoc_last Fin.snoc_castSucc Fin.lastCases"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fin.val_add Fin.val_one",
+        "status": "ok",
+        "results": [
+          {
+            "id": 99548,
+            "name": "ArchimedeanClass.FiniteElement.val_one",
+            "module": "Mathlib.Algebra.Order.Ring.StandardPart",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Ring/StandardPart.lean#L56-L56",
+            "source_text": "@[simp] theorem val_one : (1 : FiniteElement K).1 = 1 := rfl\n@[simp] theorem val_add (x y : FiniteElement K) : (x + y).1 = x.1 + y.1 := rfl",
+            "docstring": null
+          },
+          {
+            "id": 201030,
+            "name": "Fin.val_one'",
+            "module": "Mathlib.Data.Fin.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Basic.lean#L286-L287",
+            "source_text": "theorem val_one' (n : ℕ) [NeZero n] : ((1 : Fin n) : ℕ) = 1 % n :=\n  rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 306265,
+            "name": "IsDiscreteValuationRing.addVal",
+            "module": "Mathlib.RingTheory.DiscreteValuationRing.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/DiscreteValuationRing/Basic.lean#L404-L407",
+            "source_text": "/-- The `ℕ∞`-valued additive valuation on a DVR. -/\nnoncomputable def addVal (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R] :\n    AddValuation R ℕ∞ :=\n  multiplicity_addValuation (Classical.choose_spec (exists_prime R))\n",
+            "docstring": "The `ℕ∞`-valued additive valuation on a DVR. "
+          },
+          {
+            "id": 320931,
+            "name": "AddValuation.IsEquiv.ne_top",
+            "module": "Mathlib.RingTheory.Valuation.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Valuation/Basic.lean#L1316-L1317",
+            "source_text": "theorem ne_top (h : v₁.IsEquiv v₂) {r : R} : v₁ r ≠ (⊤ : Γ₀) ↔ v₂ r ≠ (⊤ : Γ'₀) :=\n  (Valuation.IsEquiv.eq_zero h).ne\n",
+            "docstring": null
+          },
+          {
+            "id": 201075,
+            "name": "Fin.valEmbedding",
+            "module": "Mathlib.Data.Fin.Embedding",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Embedding.lean#L46-L49",
+            "source_text": "/-- The inclusion map `Fin n → ℕ` is an embedding. -/\n@[simps -fullyApplied apply]\ndef valEmbedding : Fin n ↪ ℕ :=\n  ⟨val, val_injective⟩\n",
+            "docstring": "The inclusion map `Fin n → ℕ` is an embedding. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fin.val_add Fin.val_one",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390017,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftZero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L154-L157",
+            "source_text": "/-- The element representing the `1` in `Fin (1 + n + n)`.\n  This is then casted to `Fin (2 * n + 1)`. -/\ndef oddShiftZero : Fin (2 * n + 1) :=\n  Fin.cast (odd_shift_eq n) (Fin.castAdd n (Fin.castAdd n 1))\n",
+            "docstring": "The element representing the `1` in `Fin (1 + n + n)`.\nThis is then casted to `Fin (2 * n + 1)`. "
+          },
+          {
+            "id": 390020,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftShiftZero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L177-L180",
+            "source_text": "/-- The element representing the first `1` in `Fin (1 + n + 1 + n.succ)` casted\n  to `Fin (2 * n.succ + 1)`. -/\ndef oddShiftShiftZero : Fin (2 * n.succ + 1) :=\n  Fin.cast (odd_shift_shift_eq n) (Fin.castAdd n.succ (Fin.castAdd 1 (Fin.castAdd n 1)))\n",
+            "docstring": "The element representing the first `1` in `Fin (1 + n + 1 + n.succ)` casted\nto `Fin (2 * n.succ + 1)`. "
+          },
+          {
+            "id": 391930,
+            "name": "Fin.succSuccAbove_val",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L63-L69",
+            "source_text": "lemma succSuccAbove_val (i j : Fin (n + 1 + 1)) (m : Fin n) :\n    (succSuccAbove i j m).val = if m.1 < i.1 ∧ m.1 < j.1 then m.1\n    else if m.1 + 1 < i.1 ∧ j.1 ≤ m.1 then m.1 + 1\n    else if i.1 ≤ m.1 ∧ m.1 + 1 < j.1 then m.1 + 1\n    else m.1 + 2 := by\n  simp only [succSuccAbove]\n  grind\n",
+            "docstring": null
+          },
+          {
+            "id": 389891,
+            "name": "PureU1.VectorLikeEvenPlane.evenShiftLast",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L161-L163",
+            "source_text": "/-- The element of `Fin (1 + (n + n + 1))` corresponding to the second `1`,\n  casted into `Fin (2 * n.succ)`. -/\ndef evenShiftLast : Fin (2 * n.succ) := (Fin.cast (n_cond₂ n) (Fin.natAdd 1 (Fin.natAdd (n + n) 0)))\n",
+            "docstring": "The element of `Fin (1 + (n + n + 1))` corresponding to the second `1`,\ncasted into `Fin (2 * n.succ)`. "
+          },
+          {
+            "id": 391956,
+            "name": "Fin.predPredAbove_val",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L274-L281",
+            "source_text": "lemma predPredAbove_val (i j : Fin (n + 1 + 1)) (hij : i ≠ j) (m : Fin (n + 1 + 1))\n    (hm : m ≠ i ∧ m ≠ j) :\n    (predPredAbove i j hij m hm).val = if m.1 < i.1 ∧ m.1 < j.1 then m.1\n    else if m.1 - 1 < i.1 ∧ j.1 ≤ m.1 then m.1 - 1\n    else if i.1 - 1 ≤ m.1 ∧ m.1 < j.1 then m.1 - 1\n    else m.1 - 2 := by\n  simp only [predPredAbove]\n  grind\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype.sum_equiv Fintype.sum_prod_type",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205831,
+            "name": "Fintype.sum_prod_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L271-L272",
+            "source_text": "@[to_additive Fintype.sum_prod_type /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. -/]\ntheorem Fintype.prod_prod_type [CommMonoid γ] (f : α₁ × α₂ → γ) :\n    ∏ x, f x = ∏ x, ∏ y, f (x, y) :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. "
+          },
+          {
+            "id": 205944,
+            "name": "Fintype",
+            "module": "Mathlib.Data.Fintype.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Defs.lean#L53-L61",
+            "source_text": "/-- `Fintype α` means that `α` is finite, i.e. there are only\n  finitely many distinct elements of type `α`. The evidence of this\n  is a finset `elems` (a list up to permutation without duplicates),\n  together with a proof that everything of type `α` is in the list. -/\nclass Fintype (α : Type*) where\n  /-- The `Finset` containing all elements of a `Fintype` -/\n  elems : Finset α\n  /-- A proof that `elems` contains every element of the type -/\n  complete : ∀ x : α, x ∈ elems\n",
+            "docstring": "`Fintype α` means that `α` is finite, i.e. there are only\nfinitely many distinct elements of type `α`. The evidence of this\nis a finset `elems` (a list up to permutation without duplicates),\ntogether with a proof that everything of type `α` is in the list. "
+          },
+          {
+            "id": 58402,
+            "name": "Fintype.sum_equiv",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L738-L741",
+            "source_text": "@[to_additive /-- `Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. -/]\nlemma prod_equiv (e : ι ≃ κ) (f : ι → M) (g : κ → M) (h : ∀ x, f x = g (e x)) :\n    ∏ x, f x = ∏ x, g x := prod_bijective _ e.bijective _ _ h",
+            "docstring": "`Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. "
+          },
+          {
+            "id": 205833,
+            "name": "Fintype.sum_prod_type'",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L279-L280",
+            "source_text": "@[to_additive Fintype.sum_prod_type' /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. -/]\ntheorem Fintype.prod_prod_type' [CommMonoid γ] (f : α₁ → α₂ → γ) :\n    ∏ x : α₁ × α₂, f x.1 x.2 = ∏ x, ∏ y, f x y :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. "
+          },
+          {
+            "id": 332683,
+            "name": "Summable.tsum_sigma",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Constructions",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Constructions.lean#L249-L249",
+            "source_text": "@[to_additive]\nprotected theorem Multipliable.tprod_sigma {γ : β → Type*} {f : (Σ b : β, γ b) → α}",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fintype.sum_equiv Fintype.sum_prod_type",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fin.snoc_last Fin.snoc_castSucc Fin.lastCases",
+        "status": "ok",
+        "results": [
+          {
+            "id": 201476,
+            "name": "Fin.update_snoc_last",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L563-L567",
+            "source_text": "/-- Adding an element at the beginning of a tuple and then updating it amounts to adding it\ndirectly. -/\ntheorem update_snoc_last : update (snoc p x) (last n) z = snoc p z := by\n  ext j\n  cases j using lastCases <;> simp\n",
+            "docstring": "Adding an element at the beginning of a tuple and then updating it amounts to adding it\ndirectly. "
+          },
+          {
+            "id": 201633,
+            "name": "Fin.Embedding.snoc_last",
+            "module": "Mathlib.Data.Fin.Tuple.Embedding",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Embedding.lean#L76-L78",
+            "source_text": "theorem snoc_last {n : ℕ} {x : Fin n ↪ α} {a : α} {ha : a ∉ range x} :\n    snoc x ha (last n) = a := by\n  rw [coe_snoc, Fin.snoc_last]\n",
+            "docstring": null
+          },
+          {
+            "id": 201470,
+            "name": "Fin.snoc_last",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L528-L529",
+            "source_text": "@[simp]\ntheorem snoc_last : snoc p x (last n) = x := by simp [snoc]",
+            "docstring": null
+          },
+          {
+            "id": 255404,
+            "name": "finSuccEquiv_last",
+            "module": "Mathlib.Logic.Equiv.Fin.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Fin/Basic.lean#L129-L130",
+            "source_text": "@[simp]\ntheorem finSuccEquiv_last (n : ℕ) : finSuccEquiv (n + 1) (Fin.last (n + 1)) = Fin.last n := rfl",
+            "docstring": null
+          },
+          {
+            "id": 201224,
+            "name": "Fin.castSucc_lt_succ_iff",
+            "module": "Mathlib.Data.Fin.SuccPred",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/SuccPred.lean#L175-L176",
+            "source_text": "@[simp] theorem castSucc_lt_succ_iff {a b : Fin n} : castSucc a < succ b ↔ a ≤ b := by\n  rw [castSucc_lt_iff_succ_le, succ_le_succ_iff]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fin.snoc_last Fin.snoc_castSucc Fin.lastCases",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390017,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftZero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L154-L157",
+            "source_text": "/-- The element representing the `1` in `Fin (1 + n + n)`.\n  This is then casted to `Fin (2 * n + 1)`. -/\ndef oddShiftZero : Fin (2 * n + 1) :=\n  Fin.cast (odd_shift_eq n) (Fin.castAdd n (Fin.castAdd n 1))\n",
+            "docstring": "The element representing the `1` in `Fin (1 + n + n)`.\nThis is then casted to `Fin (2 * n + 1)`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

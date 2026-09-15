@@ -1,0 +1,69 @@
+{
+  "id": "recipe_signature",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.FixedSpan.recipe_signature",
+    "spec_sha256": "cbb5392e624c58a5c47556da9851df1b4f11639ab522fca6edc37428dcc82487",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-js_4cegf/attempt-001/Candidate_10113c542db6d943.lean",
+        "target_path": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-js_4cegf/attempt-001/FrozenTarget_10113c542db6d943.lean",
+        "feedback": "",
+        "target_sha256": "20f3ad3182aaa2a484978f71d801f68b99e9ba87fcf681aee0999efa5d94f306",
+        "target_olean_sha256": "8b45d1161de18711fdfe7d4541b66ef94f98d917de5af2196c084397e8d584be",
+        "source_sha256": "6a8934a27f3b593240d1628407d4e3a5057194a826f9cf95859346d9dee04482",
+        "olean_sha256": "519cd30fd9b825c27283315d5c59c9fd95903b8c70deced21470c0be29e2250f",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:26:03.483251+00:00",
+    "work": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-js_4cegf",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c90f483acc9a32e662db88fff485f0f7a2e3b2af07e86537e9d735c2c4e27165",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-fixed-span-formalization/.humanize-formal-runs/run-js_4cegf/attempt-001/Candidate_10113c542db6d943.lean",
+    "environment_sha256": "a68f2247b68e465aee6aaa2091aa45034f4c5f81e753bd67d7096f7d13898375",
+    "artifacts": {
+      "recipe_divides": {
+        "payload": {
+          "declaration": "theorem M6.FixedSpan.recipe_divides : ∀ N : ℕ, 3 ∣ N → M6.FixedSpan.recipe ∣ M6.Cyclic.modulus N := by\n  change ∀ N : ℕ, 3 ∣ N → M6.FixedSpan.recipe ∣ M6.Cyclic.modulus N\n  intro N hN\n  obtain ⟨k, rfl⟩ := hN\n  have htwo : (2 : M6.Cyclic.BinaryPolynomial) = 0 :=\n    CharP.cast_eq_zero M6.Cyclic.BinaryPolynomial 2\n  have hneg : -(1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n    calc\n      -(1 : M6.Cyclic.BinaryPolynomial) = -1 + 2 := by rw [htwo]; simp\n      _ = 1 := by ring\n  have hfactor : M6.FixedSpan.recipe ∣ (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ 3 - 1 := by\n    refine ⟨Polynomial.X + 1, ?_⟩\n    symm\n    calc\n      M6.FixedSpan.recipe * (Polynomial.X + 1) =\n          Polynomial.X ^ 3 + 1 + (2 : M6.Cyclic.BinaryPolynomial) *\n            (Polynomial.X ^ 2 + Polynomial.X) := by\n        unfold M6.FixedSpan.recipe\n        ring\n      _ = Polynomial.X ^ 3 - 1 := by\n        rw [htwo]\n        simp [sub_eq_add_neg, hneg]\n  apply dvd_trans hfactor\n  simpa [M6.Cyclic.modulus, pow_mul, sub_eq_add_neg, hneg] using\n    (sub_dvd_pow_sub_pow ((Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ 3) 1 k)",
+          "imports": [
+            "M6FixedSpan"
+          ],
+          "name": "M6.FixedSpan.recipe_divides",
+          "ancestors": [],
+          "spec_sha256": "4192ffdcddafc8545ee9c6d19238cd8958e37288ad394c238bf77f03a5edb30e"
+        },
+        "sha256": "0141a270a7e3b67164cf073143952f6524e7b721ece878ad851cc786fff9e8cb"
+      },
+      "recipe_signature": {
+        "payload": {
+          "declaration": "theorem M6.FixedSpan.recipe_signature : ∀ N : ℕ, 3 ∣ N → M6.Cyclic.signature M6.FixedSpan.recipe M6.FixedSpan.recipe (M6.Cyclic.modulus N) = M6.FixedSpan.recipe := by\n  change ∀ N : ℕ, 3 ∣ N → M6.Cyclic.signature M6.FixedSpan.recipe M6.FixedSpan.recipe (M6.Cyclic.modulus N) = M6.FixedSpan.recipe\n  intro N hN\n  simp [M6.Cyclic.signature, EuclideanDomain.gcd_self, EuclideanDomain.gcd_eq_left, M6.FixedSpan.recipe_divides N hN]",
+          "imports": [
+            "M6FixedSpan"
+          ],
+          "name": "M6.FixedSpan.recipe_signature",
+          "ancestors": [
+            "recipe_divides"
+          ],
+          "spec_sha256": "095b72e0ada18d8c56d052767338b46de573f857f55c8cff19b7c2b91f737f3c"
+        },
+        "sha256": "46e8e2e0e00bcbf795873bbd9b70011698bd607448308d8e8b75118c7eff2b1b"
+      }
+    }
+  }
+}

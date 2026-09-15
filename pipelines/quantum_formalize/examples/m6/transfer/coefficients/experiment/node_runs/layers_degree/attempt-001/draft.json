@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro R W start finish n hW\ninduction n generalizing finish with\n| zero =>\n    simp [M6.Transfer.layers]\n| succ n ih =>\n    simp only [M6.Transfer.layers, M6.Transfer.propagate]\n    apply Polynomial.natDegree_sum_le_of_forall\n    intro m hm\n    apply Polynomial.natDegree_sum_le_of_forall\n    intro t ht\n    split_ifs\n    · calc\n        (M6.Transfer.layers W start n m * W n m t).natDegree ≤\n            (M6.Transfer.layers W start n m).natDegree + (W n m t).natDegree :=\n          Polynomial.natDegree_mul_le _ _\n        _ ≤ 2 * n + 2 := Nat.add_le_add (ih m) (hW n m t)\n        _ = 2 * (n + 1) := by omega\n    · simp",
+  "queries": [
+    "Polynomial.natDegree_sum_le_of_forall",
+    "Polynomial.natDegree_mul_le"
+  ]
+}

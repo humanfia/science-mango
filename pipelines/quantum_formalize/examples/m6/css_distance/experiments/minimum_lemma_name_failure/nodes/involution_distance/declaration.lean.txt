@@ -1,0 +1,30 @@
+theorem M6.CSS.involution_distance : ∀ (m : ℕ) (LX LZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ LX ↔ J v ∈ LZ) → M6.Pinned.distance LX = M6.Pinned.distance LZ := by
+  classical
+  change ∀ (m : ℕ) (LX LZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ LX ↔ J v ∈ LZ) → M6.Pinned.distance LX = M6.Pinned.distance LZ
+  intro m LX LZ J hJ hw hmem
+  have hback (v : M6.CSS.Vector m) (hv : v ∈ LZ) : J v ∈ LX := by
+    apply (hmem (J v)).mpr
+    simpa only [hJ v] using hv
+  cases hd : M6.Pinned.distance LX with
+  | none =>
+      have hX : LX = ∅ := (M6.Pinned.distance_spec m LX).1.mp hd
+      have hZ : LZ = ∅ := by
+        apply Finset.ext
+        intro v
+        constructor
+        · intro hv
+          have hx := hback v hv
+          rw [hX] at hx
+          simp at hx
+        · intro hv
+          simp at hv
+      exact ((M6.Pinned.distance_spec m LZ).1.mpr hZ).symm
+  | some d =>
+      obtain ⟨⟨v, hv, hvw⟩, hmin⟩ := (M6.Pinned.distance_spec m LX).2 d |>.mp hd
+      symm
+      apply (M6.Pinned.distance_spec m LZ).2 d |>.mpr
+      constructor
+      · exact ⟨J v, (hmem v).mp hv, (hw v).trans hvw⟩
+      · intro u hu
+        have h := hmin (J u) (hback u hu)
+        simpa only [hw u] using h

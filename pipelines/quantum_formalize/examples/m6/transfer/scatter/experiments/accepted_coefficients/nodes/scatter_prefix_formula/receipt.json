@@ -1,0 +1,55 @@
+{
+  "id": "scatter_prefix_formula",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.scatter_prefix_formula",
+    "spec_sha256": "a8e35a5b123d435065e241f927a98ff4f6e4a73a307ec31d55e0c3c3f1b8eaa6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-6g1funw0/attempt-001/Candidate_1dbcda701b24ed9a.lean",
+        "target_path": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-6g1funw0/attempt-001/FrozenTarget_1dbcda701b24ed9a.lean",
+        "feedback": "",
+        "target_sha256": "9e34003cd2adf4e7692bd1ccc2cdfd8095809cd761db6ff1538b6da91220b978",
+        "target_olean_sha256": "83ae751fa7c210450ae82d5154caf83f2c14aa763d3f6ffacd38654d5440c39d",
+        "source_sha256": "f2918663e7a8d33ca67f2d80c4ba417141eaf9c366269f1bc18dc7f2f91c3cf1",
+        "olean_sha256": "ee842ca4c06f38583f0d97031454d36497fe7378ed58475d98132c6ac178fec2",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:17:41.125430+00:00",
+    "work": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-6g1funw0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0ae7531f0762f0becffafc3ec83f3134cddd7710eaa5ed4676e07b68d9fc6638",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-scatter-formalization/.humanize-formal-runs/run-6g1funw0/attempt-001/Candidate_1dbcda701b24ed9a.lean",
+    "environment_sha256": "c1d3d7153dc7ea9ded3e35f72e00bf11abccc8f1cabcb7c14737462a67ffd68d",
+    "artifacts": {
+      "scatter_prefix_formula": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.scatter_prefix_formula : ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input initial : M6.Transfer.CoefficientArray R N) (l : List (M6.Transfer.ScatterEvent R N)) (addr : M6.Transfer.CoefficientAddress R N), (l.foldl (M6.Transfer.scatterUpdate W input) initial) addr = initial addr + (l.map (fun e => if M6.Transfer.eventDestination e = some addr then M6.Transfer.eventTerm W input e else 0)).sum := by\n  classical\n  intro R N W input initial l addr\n  induction l generalizing initial with\n  | nil => simp\n  | cons e l ih =>\n      rw [List.foldl_cons, ih, List.map_cons, List.sum_cons]\n      cases h : M6.Transfer.eventDestination e with\n      | none =>\n          simp [M6.Transfer.scatterUpdate, h]\n      | some a =>\n          by_cases ha : a = addr\n          · subst a\n            simp [M6.Transfer.scatterUpdate, h, add_assoc]\n          · simp [M6.Transfer.scatterUpdate, h, Function.update_apply, ha, Ne.symm ha]",
+          "imports": [
+            "M6TransferScatter"
+          ],
+          "name": "M6.Transfer.scatter_prefix_formula",
+          "ancestors": [],
+          "spec_sha256": "a8e35a5b123d435065e241f927a98ff4f6e4a73a307ec31d55e0c3c3f1b8eaa6"
+        },
+        "sha256": "85a51d8580f97e883801251e83efece43a95645b8b0d0fe4c86b2f7640034e90"
+      }
+    }
+  }
+}

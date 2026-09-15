@@ -1,0 +1,13 @@
+{
+  "name": "M6.Flatten.cycle_orthogonal",
+  "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 ↔ ∀ h : M6.Physical.Block N, M6.Character.dot (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))) v = 0",
+  "imports": [
+    "M6Flatten"
+  ],
+  "context": "theorem M6.Flatten.flatten_dot : ∀ (N : ℕ) [NeZero N] (z w : M6.Physical.Word N), M6.Character.dot (M6.Flatten.flatten N z) (M6.Flatten.flatten N w) = M6.Physical.pairing N z w := by\n  change ∀ (N : ℕ) [NeZero N] (z w : M6.Physical.Word N), M6.Character.dot (M6.Flatten.flatten N z) (M6.Flatten.flatten N w) = M6.Physical.pairing N z w\n  intro N inst z w\n  classical\n  let e : Fin N ≃ ZMod N :=\n    { toFun := fun i => (i.val : ZMod N)\n      invFun := fun i => ⟨i.val, ZMod.val_lt i⟩\n      left_inv := by\n        intro i\n        apply Fin.ext\n        change ((i.val : ZMod N).val) = i.val\n        rw [ZMod.val_natCast, Nat.mod_eq_of_lt i.is_lt]\n      right_inv := by\n        intro i\n        simp }\n  have hsum (f : ZMod N → ZMod 2) :\n      (∑ i : Fin N, f (i.val : ZMod N)) = ∑ i : ZMod N, f i :=\n    e.sum_comp f\n  have hleft (i : Fin N) : i.val < N := i.is_lt\n  have hright (i : Fin N) : ¬ N + i.val < N := by omega\n  unfold M6.Character.dot M6.Flatten.flatten M6.Physical.pairing M6.Physical.dot\n  rw [two_mul, Fin.sum_univ_add]\n  simpa [Fin.val_castAdd, Fin.val_natAdd, hleft, hright] using\n    congrArg₂ (fun a b : ZMod 2 => a + b)\n      (hsum (fun i => z.1 i * w.1 i))\n      (hsum (fun i => z.2 i * w.2 i))\n\ntheorem M6.Flatten.flatten_right : ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2*N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v := by\n  change ∀ (N : ℕ) [NeZero N] (v : M6.Pinned.Vector (2 * N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v\n  intro N inst v\n  funext i\n  by_cases h : i.val < N\n  · simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_pos h, dif_pos h]\n    apply congrArg v\n    apply Fin.ext\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt h]\n  · have hi : i.val - N < N := by omega\n    simp only [M6.Flatten.flatten, M6.Flatten.unflatten, if_neg h, dif_neg h]\n    apply congrArg v\n    apply Fin.ext\n    simp only [Fin.val_mk, ZMod.val_natCast, Nat.mod_eq_of_lt hi]\n    omega",
+  "queries": [
+    "Fin sum_univ_add finite sum equivalence ZMod",
+    "Finset card filter sum indicator"
+  ],
+  "guidance": "Use Physical.cycle_orthogonal and flatten_dot with z=J boundary, w=unflattenv; flatten_right rewrites second argument. Return tactic lines only without leading by."
+}

@@ -1,0 +1,174 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.val_natCast ZMod.val_lt ZMod.natCast_zmod_val",
+    "status": "ok",
+    "results": [
+      {
+        "id": 222987,
+        "name": "ZMod.val_natCast",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L88-L93",
+        "source_text": "@[simp]\ntheorem val_natCast (n a : ℕ) : (a : ZMod n).val = a % n := by\n  cases n\n  · rw [Nat.mod_zero]\n    exact Int.natAbs_natCast a\n  · apply Fin.val_natCast",
+        "docstring": null
+      },
+      {
+        "id": 223199,
+        "name": "ZMod",
+        "module": "Mathlib.Data.ZMod.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+        "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+        "docstring": "The integers modulo `n : ℕ`. "
+      },
+      {
+        "id": 223018,
+        "name": "ZMod.natCast_val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L262-L264",
+        "source_text": "@[simp]\ntheorem natCast_val [NeZero n] (i : ZMod n) : (i.val : R) = cast i :=\n  congr_fun (natCast_comp_val R) i",
+        "docstring": null
+      },
+      {
+        "id": 223189,
+        "name": "Fin.val_intCast",
+        "module": "Mathlib.Data.ZMod.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L53-L65",
+        "source_text": "@[simp] theorem val_intCast {n : Nat} [NeZero n] (x : Int) :\n    (x : Fin n).val = (x % n).toNat := by\n  rw [Fin.intCast_def']\n  split <;> rename_i h\n  · simp [Int.emod_natAbs_of_nonneg h]\n  · simp only [Fin.val_neg, Fin.natCast_eq_zero, Fin.val_natCast]\n    split <;> rename_i h\n    · rw [← Int.natCast_dvd] at h\n      rw [Int.emod_eq_zero_of_dvd h, Int.toNat_zero]\n    · rw [Int.emod_natAbs_of_neg (by lia) (NeZero.ne n),\n        if_neg (by rwa [← Int.natCast_dvd] at h)]\n      have : x % n < n := Int.emod_lt_of_pos x (by have := NeZero.ne n; lia)\n      lia",
+        "docstring": null
+      },
+      {
+        "id": 214283,
+        "name": "ZNum.div_to_int",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L654-L674",
+        "source_text": "@[simp, norm_cast]\ntheorem div_to_int : ∀ n d, ((n / d : ZNum) : ℤ) = n / d\n  | 0, 0 => by simp [Int.ediv_zero]\n  | 0, pos _ => (Int.zero_ediv _).symm\n  | 0, neg _ => (Int.zero_ediv _).symm\n  | pos _, 0 => (Int.ediv_zero _).symm\n  | neg _, 0 => (Int.ediv_zero _).symm\n  | pos n, pos d => (Num.cast_toZNum _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | pos n, neg d => (Num.cast_toZNumNeg _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | neg n, pos d =>\n    show -_ = -_ / ↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change -[n.pred' / ↑d+1] = -[n.pred' / (d.pred' + 1)+1]\n      rw [d.to_nat_eq_succ_pred]\n  | neg n, neg d =>\n    show ↑(PosNum.pred' n / Num.pos d).succ' = -_ / -↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change (Nat.succ (_ / d) : ℤ) = Nat.succ (n.pred' / (d.pred' + 1))\n      rw [d.to_nat_eq_succ_pred]\n\n@[simp, norm_cast]\ntheorem mod_to_int : ∀ n d, ((n % d : ZNum) : ℤ) = n % d\n  | 0, _ => (Int.zero_emod _).symm\n  | pos n, d =>\n    (Num.cast_toZNum _).trans <| by\n      rw [← Num.to_nat_to_int, cast_pos, Num.mod_to_nat, ← PosNum.to_nat_to_int, abs_to_nat]\n      rfl\n  | neg n, d =>\n    (Num.cast_sub' _ _).trans <| by\n      rw [← Num.to_nat_to_int, cast_neg, ← Num.to_nat_to_int, Num.succ_to_nat, Num.mod_to_nat,\n          abs_to_nat, ← Int.subNatNat_eq_coe, n.to_int_eq_succ_pred]\n      rfl\n\n@[simp]\ntheorem gcd_to_nat (a b) : (gcd a b : ℕ) = Int.gcd a b :=",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.val_natCast ZMod.val_lt ZMod.natCast_zmod_val",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393466,
+        "name": "Time.natCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L105-L106",
+        "source_text": "@[simp]\nlemma natCast_val {n : ℕ} : val n = n := rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Fin.sum_univ_add Fin.castAdd Fin.natAdd",
+    "status": "ok",
+    "results": [
+      {
+        "id": 57443,
+        "name": "Fin.sum_univ_add",
+        "module": "Mathlib.Algebra.BigOperators.Fin",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L158-L158",
+        "source_text": "@[to_additive]\ntheorem prod_univ_add {a b : ℕ} (f : Fin (a + b) → M) :\n    (∏ i : Fin (a + b), f i) = (∏ i : Fin a, f (castAdd b i)) * ∏ i : Fin b, f (natAdd a i) := by",
+        "docstring": null
+      },
+      {
+        "id": 57485,
+        "name": "Fin.sum_Ico_castAdd",
+        "module": "Mathlib.Algebra.BigOperators.Fin",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L303-L303",
+        "source_text": "@[to_additive]\ntheorem prod_Ico_castAdd (m : ℕ) (f : Fin (n + m) → M) (a b : Fin n) :\n    ∏ i ∈ Ico (a.castAdd m) (b.castAdd m), f i = ∏ i ∈ Ico a b, f (i.castAdd m) := by",
+        "docstring": null
+      },
+      {
+        "id": 201036,
+        "name": "Fin.val_add_eq_ite",
+        "module": "Mathlib.Data.Fin.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Basic.lean#L322-L325",
+        "source_text": "theorem val_add_eq_ite {n : ℕ} (a b : Fin n) :\n    (↑(a + b) : ℕ) = if n ≤ a + b then a + b - n else a + b := by\n  rw [Fin.val_add, Nat.add_mod_eq_ite, Nat.mod_eq_of_lt (show ↑a < n from a.2),\n    Nat.mod_eq_of_lt (show ↑b < n from b.2)]\n",
+        "docstring": null
+      },
+      {
+        "id": 211990,
+        "name": "Nat.cast_add",
+        "module": "Mathlib.Data.Nat.Cast.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Cast/Defs.lean#L98-L102",
+        "source_text": "@[simp, norm_cast]\ntheorem cast_add (m n : ℕ) : ((m + n : ℕ) : R) = m + n := by\n  induction n with\n  | zero => simp\n  | succ n ih => rw [add_succ, cast_succ, ih, cast_succ, add_assoc]",
+        "docstring": null
+      },
+      {
+        "id": 57495,
+        "name": "Fin.sum_Iio_castAdd",
+        "module": "Mathlib.Algebra.BigOperators.Fin",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L328-L328",
+        "source_text": "@[to_additive]\ntheorem prod_Iio_castAdd (m : ℕ) (f : Fin (n + m) → M) (a : Fin n) :\n    ∏ i < a.castAdd m, f i = ∏ i < a, f (i.castAdd m) := by",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Fin.sum_univ_add Fin.castAdd Fin.natAdd",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391954,
+        "name": "Fin.succSuccAbove_comm_natAdd",
+        "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L248-L253",
+        "source_text": "lemma succSuccAbove_comm_natAdd {n n1 : ℕ}\n    (i j : Fin (n + 1 + 1)) (m : Fin n) :\n    succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j) (Fin.natAdd n1 m)\n    = Fin.natAdd (n1) (succSuccAbove i j m) := by\n  simp only [succSuccAbove, val_natAdd, add_lt_add_iff_left, add_le_add_iff_left, Fin.ext_iff]\n  grind\n",
+        "docstring": null
+      },
+      {
+        "id": 391953,
+        "name": "Fin.succSuccAbove_natAdd_image_range_castAdd",
+        "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L234-L246",
+        "source_text": "lemma succSuccAbove_natAdd_image_range_castAdd {n n1 : ℕ}\n    (i j : Fin (n + 1 + 1)) :\n    (succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j)) ''\n    (Set.range (Fin.castAdd (m := n) (n := n1))) = {i | i.1 < n1} := by\n  ext a\n  simp only [Set.mem_image, Set.mem_range, exists_exists_eq_and, Set.mem_setOf_eq]\n  conv_lhs =>\n    enter [1, b]\n    rw [succSuccAbove_natAdd_apply_castAdd i j]\n  apply Iff.intro\n  · rintro ⟨b, rfl⟩\n    simp\n  · exact fun h ↦ ⟨⟨a, by omega⟩, by simp⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 391952,
+        "name": "Fin.succSuccAbove_natAdd_apply_castAdd",
+        "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L227-L232",
+        "source_text": "lemma succSuccAbove_natAdd_apply_castAdd {n n1 : ℕ}\n    (i j : Fin (n + 1 + 1)) (m : Fin n1) :\n    (succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j))\n    (Fin.castAdd n m) = Fin.castAdd (n + 1 + 1) (m) := by\n  simp only [Fin.ext_iff, succSuccAbove_val, natAdd, castAdd]\n  grind (splits := 20)\n",
+        "docstring": null
+      },
+      {
+        "id": 386365,
+        "name": "Physlib.Fin.involutionAddEquiv_cast'",
+        "module": "Physlib.Mathematics.Fin.Involutions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L207-L214",
+        "source_text": "lemma involutionAddEquiv_cast' {m : ℕ} {f1 f2 : {f : Fin m → Fin m // Function.Involutive f}}\n    {N : ℕ} (hf : f1 = f2) (n : Option (Fin N))\n    (hn1 : N = (Finset.filter (fun i => f1.1 i = i) Finset.univ).card)\n    (hn2 : N = (Finset.filter (fun i => f2.1 i = i) Finset.univ).card) :\n    HEq ((involutionAddEquiv f1).symm (Option.map (finCongr hn1) n))\n    ((involutionAddEquiv f2).symm (Option.map (finCongr hn2) n)) := by\n  subst hf\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 386364,
+        "name": "Physlib.Fin.involutionAddEquiv_cast",
+        "module": "Physlib.Mathematics.Fin.Involutions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L199-L205",
+        "source_text": "lemma involutionAddEquiv_cast {n : ℕ} {f1 f2 : {f : Fin n → Fin n // Function.Involutive f}}\n    (hf : f1 = f2) :\n    involutionAddEquiv f1 = (Equiv.subtypeEquivRight (by rw [hf]; simp)).trans\n      ((involutionAddEquiv f2).trans (Equiv.optionCongr (finCongr (by rw [hf])))) := by\n  subst hf\n  rw [finCongr_refl, Equiv.optionCongr_refl]\n  rfl\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,112 @@
+{
+  "id": "logical_words_iff",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Spaces.logical_words_iff",
+    "spec_sha256": "be1a5b916c81dec36c1d9185c27f18e9bee0e7c9ebf3a02b54489d99ad9d5253",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-56oykbl6/attempt-001/Candidate_952bb9b8a2ba682a.lean",
+        "target_path": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-56oykbl6/attempt-001/FrozenTarget_952bb9b8a2ba682a.lean",
+        "feedback": "",
+        "target_sha256": "36b159b3a9f8746f69a513cd5818ecd640ee1403b1ff41e020dc57548b40a2d9",
+        "target_olean_sha256": "94b12daac13a72043ed4fab7e4f706a4bfbcd07f63b4bb9975ba1d2306e4e0cd",
+        "source_sha256": "427c418b6a848c64a8a314f4790d9d59df73e97fc05a8cdfeb5ce91f6628bfcd",
+        "olean_sha256": "3cc9ff174d3e388c66765f6cddf1082a226bfe6c88dd132c2b7b6a1fac953492",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:35:26.840509+00:00",
+    "work": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-56oykbl6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "aef03b789111dbfaa4b0b1b3a0e238a4bb16f03f5d27d9e12522ce617f6ec5d1",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-56oykbl6/attempt-001/Candidate_952bb9b8a2ba682a.lean",
+    "environment_sha256": "eedb6f45d70c9d95b80fadc41c1c732e09ab966c14665922ac806b32146da181",
+    "artifacts": {
+      "boundary_eval": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.boundary_eval : ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.boundary N a b h = M6.Flatten.flatten N (M6.Physical.boundary N a b h) := by\n  intro N inst a b h\n  rfl",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.boundary_eval",
+          "ancestors": [],
+          "spec_sha256": "649ae2bd9830f2e0cc091a6c754f4e30d9e0e38fc49ab766b1b3e2e000fddeeb"
+        },
+        "sha256": "5539db7ea3239a1d515188394def2dda5b53667ec94f67fe140c9e69f4b5282e"
+      },
+      "boundary_words_iff": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.boundary_words_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.boundaryWords N a b ↔ ∃ h : M6.Physical.Block N, M6.Flatten.flatten N (M6.Physical.boundary N a b h) = v := by\n  intro N inst a b v\n  classical\n  simp [M6.Spaces.boundaryWords, M6.Character.subspaceWords, M6.Spaces.B,\n    LinearMap.mem_range, M6.Spaces.boundary_eval]",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.boundary_words_iff",
+          "ancestors": [
+            "boundary_eval"
+          ],
+          "spec_sha256": "b2a09049582e1327737d76b20776416cde7ff32fca24f94ddfebfafee053cf76"
+        },
+        "sha256": "633b11b9b3fc2e7dcc7dd1a4083e035ff7bae8bd5c0f82f5b23354f196dafd69"
+      },
+      "dual_boundary_eval": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.dual_boundary_eval : ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.dualBoundary N a b h = M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.dualBoundary N a b h = M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst a b h\n  rfl",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.dual_boundary_eval",
+          "ancestors": [],
+          "spec_sha256": "5514d0245ab330c0983d79a14bb875929eaecc9e2d828b894d1be84799054e1d"
+        },
+        "sha256": "9f19889272f4d9142deb31c821e8337d758ce966eb24da8952160e5fee8d4678"
+      },
+      "cycle_words_iff": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.cycle_words_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst a b v\n  classical\n  change v ∈ Finset.filter (M6.Character.Orthogonal (M6.Spaces.dualBoundary N a b).range) Finset.univ ↔ _\n  rw [Finset.mem_filter]\n  simp only [Finset.mem_univ, true_and]\n  change (∀ q, q ∈ (M6.Spaces.dualBoundary N a b).range → M6.Character.dot q v = 0) ↔ _\n  rw [M6.Flatten.cycle_orthogonal]\n  constructor\n  · intro hv h\n    exact hv _ ⟨h, rfl⟩\n  · intro hv q hq\n    obtain ⟨h, rfl⟩ := hq\n    exact hv h",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.cycle_words_iff",
+          "ancestors": [
+            "dual_boundary_eval"
+          ],
+          "spec_sha256": "108fd8867a59cdd191958f1c4f83cad22fb143a29800125e61de1c31e7aba9f5"
+        },
+        "sha256": "00e75f00f715ec64ce6af155b406046af563d9299d181a6c736490ba647a22b7"
+      },
+      "logical_words_iff": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.logical_words_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.logicalWords N a b ↔ M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 ∧ ¬ ∃ h : M6.Physical.Block N, M6.Flatten.flatten N (M6.Physical.boundary N a b h) = v := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.logicalWords N a b ↔ M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 ∧ ¬ ∃ h : M6.Physical.Block N, M6.Flatten.flatten N (M6.Physical.boundary N a b h) = v\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst a b v\n  classical\n  simp only [M6.Spaces.logicalWords, Finset.mem_sdiff,\n    M6.Spaces.cycle_words_iff, M6.Spaces.boundary_words_iff]",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.logical_words_iff",
+          "ancestors": [
+            "boundary_eval",
+            "boundary_words_iff",
+            "cycle_words_iff",
+            "dual_boundary_eval"
+          ],
+          "spec_sha256": "5ea13a6a9ab2f0242bdebf494c08b075b0fa0199c75a20e9fd53a93763976b1d"
+        },
+        "sha256": "005a1257117b19e89b215c680625e7c299675fc4159981962795290474c0ce19"
+      }
+    }
+  }
+}

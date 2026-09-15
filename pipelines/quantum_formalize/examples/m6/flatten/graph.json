@@ -1,0 +1,224 @@
+{
+  "title": "M6 concrete two-block flattening into character and pin coordinates",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Explicit physical coordinate bijection with weight and dot preservation.",
+  "nodes": [
+    {
+      "id": "flatten_left",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Flatten.flatten_left",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (z : M6.Physical.Word N), M6.Flatten.unflatten N (M6.Flatten.flatten N z) = z",
+        "imports": [
+          "M6Flatten"
+        ],
+        "context": "",
+        "queries": [
+          "Fin sum_univ_add finite sum equivalence ZMod",
+          "Finset card filter sum indicator"
+        ],
+        "guidance": "Ext both function blocks; ZMod.val_lt, cast_val, Nat.add_sub_cancel. First branch i.val<N, second N+i.val\u2265N. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "flatten_right",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Flatten.flatten_right",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (v : M6.Pinned.Vector (2*N)), M6.Flatten.flatten N (M6.Flatten.unflatten N v) = v",
+        "imports": [
+          "M6Flatten"
+        ],
+        "context": "",
+        "queries": [
+          "Fin sum_univ_add finite sum equivalence ZMod",
+          "Finset card filter sum indicator"
+        ],
+        "guidance": "Ext i, split i.val<N; cast residue val=i or i-N by val_natCast and mod_eq_of_lt; Fin.ext, omega. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "flatten_add",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Flatten.flatten_add",
+        "statement": "\u2200 (N : \u2115) (z w : M6.Physical.Word N), M6.Flatten.flatten N (z+w) = M6.Flatten.flatten N z + M6.Flatten.flatten N w",
+        "imports": [
+          "M6Flatten"
+        ],
+        "context": "",
+        "queries": [
+          "Fin sum_univ_add finite sum equivalence ZMod",
+          "Finset card filter sum indicator"
+        ],
+        "guidance": "Ext coordinate and split if; pointwise additions are definitionally equal. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "flatten_smul",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Flatten.flatten_smul",
+        "statement": "\u2200 (N : \u2115) (c : ZMod 2) (z : M6.Physical.Word N), M6.Flatten.flatten N (c \u2022 z) = c \u2022 M6.Flatten.flatten N z",
+        "imports": [
+          "M6Flatten"
+        ],
+        "context": "",
+        "queries": [
+          "Fin sum_univ_add finite sum equivalence ZMod",
+          "Finset card filter sum indicator"
+        ],
+        "guidance": "Ext coordinate and split if; pointwise scalar multiplication. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "flatten_weight",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Flatten.flatten_weight",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (z : M6.Physical.Word N), M6.Pinned.weight (M6.Flatten.flatten N z) = M6.Physical.wordWeight N z",
+        "imports": [
+          "M6Flatten"
+        ],
+        "context": "",
+        "queries": [
+          "Fin sum_univ_add finite sum equivalence ZMod",
+          "Finset card filter sum indicator"
+        ],
+        "guidance": "Convert filtered card to sum of indicator, split Fin(2N) into FinN+FinN via Fin.sum_univ_add after 2*N=N+N, then finite sums FinN\u2194ZModN via cast. No division or support assumptions. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "flatten_dot",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Flatten.flatten_dot",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (z w : M6.Physical.Word N), M6.Character.dot (M6.Flatten.flatten N z) (M6.Flatten.flatten N w) = M6.Physical.pairing N z w",
+        "imports": [
+          "M6Flatten"
+        ],
+        "context": "",
+        "queries": [
+          "Fin sum_univ_add finite sum equivalence ZMod",
+          "Finset card filter sum indicator"
+        ],
+        "guidance": "Split finite sum into two halves, identify indices with ZModN using val/cast bijection, unfolds dot and pairing. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "J_involution",
+      "dependencies": [
+        "flatten_left",
+        "flatten_right"
+      ],
+      "spec": {
+        "name": "M6.Flatten.J_involution",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (v : M6.Pinned.Vector (2*N)), M6.Flatten.J N (M6.Flatten.J N v) = v",
+        "imports": [
+          "M6Flatten"
+        ],
+        "context": "",
+        "queries": [
+          "Fin sum_univ_add finite sum equivalence ZMod",
+          "Finset card filter sum indicator"
+        ],
+        "guidance": "Unfold J then flatten_left, Physical.J_involution, flatten_right. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "J_weight",
+      "dependencies": [
+        "flatten_weight",
+        "flatten_right"
+      ],
+      "spec": {
+        "name": "M6.Flatten.J_weight",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (v : M6.Pinned.Vector (2*N)), M6.Pinned.weight (M6.Flatten.J N v) = M6.Pinned.weight v",
+        "imports": [
+          "M6Flatten"
+        ],
+        "context": "",
+        "queries": [
+          "Fin sum_univ_add finite sum equivalence ZMod",
+          "Finset card filter sum indicator"
+        ],
+        "guidance": "Use flatten_weight twice, actual Physical.J_weight and flatten_right. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "cycle_orthogonal",
+      "dependencies": [
+        "flatten_dot",
+        "flatten_right"
+      ],
+      "spec": {
+        "name": "M6.Flatten.cycle_orthogonal",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 \u2194 \u2200 h : M6.Physical.Block N, M6.Character.dot (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))) v = 0",
+        "imports": [
+          "M6Flatten"
+        ],
+        "context": "",
+        "queries": [
+          "Fin sum_univ_add finite sum equivalence ZMod",
+          "Finset card filter sum indicator"
+        ],
+        "guidance": "Use Physical.cycle_orthogonal and flatten_dot with z=J boundary, w=unflattenv; flatten_right rewrites second argument. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    }
+  ]
+}

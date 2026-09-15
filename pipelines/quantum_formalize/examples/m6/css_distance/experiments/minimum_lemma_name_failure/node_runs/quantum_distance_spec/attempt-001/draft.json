@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro m BX CX BZ CZ\nlet L := M6.CSS.logicalPaulis BX CX BZ CZ\nhave hdef : M6.CSS.logicalPaulis BX CX BZ CZ = L := rfl\nby_cases hL : L.Nonempty\n· have hs : (L.image M6.CSS.weight).Nonempty := hL.image M6.CSS.weight\n  have hne : L ≠ ∅ := hL.ne_empty\n  have hsne : L.image M6.CSS.weight ≠ ∅ := hs.ne_empty\n  have hmin : ∀ d : ℕ,\n      (L.image M6.CSS.weight).min' hs = d ↔\n        (∃ p ∈ L, M6.CSS.weight p = d) ∧\n          ∀ p ∈ L, d ≤ M6.CSS.weight p := by\n    intro d\n    constructor\n    · intro hd\n      subst d\n      obtain ⟨p, hp, hw⟩ := Finset.mem_image.mp\n        (Finset.min'_mem (L.image M6.CSS.weight) hs)\n      refine ⟨⟨p, hp, hw⟩, ?_⟩\n      intro q hq\n      exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨q, hq, rfl⟩)\n    · rintro ⟨⟨p, hp, hw⟩, hb⟩\n      apply le_antisymm\n      · rw [← hw]\n        exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨p, hp, rfl⟩)\n      · obtain ⟨q, hq, hqw⟩ := Finset.mem_image.mp\n          (Finset.min'_mem (L.image M6.CSS.weight) hs)\n        rw [← hqw]\n        exact hb q hq\n  simp [M6.CSS.quantumDistance, hdef, hL, hs, hne, hsne, hmin]\n· have he : L = ∅ := Finset.not_nonempty_iff_eq_empty.mp hL\n  simp [M6.CSS.quantumDistance, hdef, he]",
+  "queries": [
+    "Finset.min'_mem Finset.min'_le",
+    "Finset.not_nonempty_iff_eq_empty"
+  ]
+}

@@ -1,0 +1,139 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial natDegree_mul_le natDegree_sum_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101460,
+        "name": "Polynomial.natDegree_mul_le",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L468-L472",
+        "source_text": "theorem natDegree_mul_le {p q : R[X]} : natDegree (p * q) ≤ natDegree p + natDegree q := by\n  apply natDegree_le_of_degree_le\n  apply le_trans (degree_mul_le p q)\n  rw [Nat.cast_add]\n  apply add_le_add <;> apply degree_le_natDegree\n",
+        "docstring": null
+      },
+      {
+        "id": 101148,
+        "name": "Polynomial.natDegree_sum_le",
+        "module": "Mathlib.Algebra.Polynomial.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/BigOperators.lean#L61-L63",
+        "source_text": "theorem natDegree_sum_le (f : ι → S[X]) :\n    natDegree (∑ i ∈ s, f i) ≤ s.fold max 0 (natDegree ∘ f) := by\n  simpa using! natDegree_multiset_sum_le (s.val.map f)\n",
+        "docstring": null
+      },
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      },
+      {
+        "id": 101525,
+        "name": "Polynomial.natDegree_add_le_iff_left",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L81-L86",
+        "source_text": "theorem natDegree_add_le_iff_left {n : ℕ} (p q : R[X]) (qn : q.natDegree ≤ n) :\n    (p + q).natDegree ≤ n ↔ p.natDegree ≤ n := by\n  refine ⟨fun h => ?_, fun h => natDegree_add_le_of_degree_le h qn⟩\n  refine natDegree_le_iff_coeff_eq_zero.mpr fun m hm => ?_\n  convert! natDegree_le_iff_coeff_eq_zero.mp h m hm using 1\n  rw [coeff_add, natDegree_le_iff_coeff_eq_zero.mp qn _ hm, add_zero]\n",
+        "docstring": null
+      },
+      {
+        "id": 101640,
+        "name": "Polynomial.natDegree_mul'",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L325-L330",
+        "source_text": "theorem natDegree_mul' (h : leadingCoeff p * leadingCoeff q ≠ 0) :\n    natDegree (p * q) = natDegree p + natDegree q :=\n  have hp : p ≠ 0 := mt leadingCoeff_eq_zero.2 fun h₁ => h <| by rw [h₁, zero_mul]\n  have hq : q ≠ 0 := mt leadingCoeff_eq_zero.2 fun h₁ => h <| by rw [h₁, mul_zero]\n  natDegree_eq_of_degree_eq_some <| by\n    rw [degree_mul' h, Nat.cast_add, degree_eq_natDegree hp, degree_eq_natDegree hq]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod val_lt monomial polynomial coefficient",
+    "status": "ok",
+    "results": [
+      {
+        "id": 222981,
+        "name": "ZMod.val_lt",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L61-L64",
+        "source_text": "theorem val_lt {n : ℕ} [NeZero n] (a : ZMod n) : a.val < n := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  exact Fin.is_lt a\n",
+        "docstring": null
+      },
+      {
+        "id": 223142,
+        "name": "ZMod.val_cast_zmod_lt",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L1005-L1013",
+        "source_text": "theorem val_cast_zmod_lt {m : ℕ} [NeZero m] (n : ℕ) [NeZero n] (a : ZMod m) :\n    (a.cast : ZMod n).val < m := by\n  obtain ⟨m, rfl⟩ := Nat.exists_eq_add_one_of_ne_zero (NeZero.ne m)\n  by_cases! h : m < n\n  · obtain ⟨n, rfl⟩ := Nat.exists_eq_add_one_of_ne_zero (NeZero.ne n)\n    rw [← natCast_val, val_cast_of_lt]\n    · apply a.val_lt\n    apply lt_of_le_of_lt (Nat.le_of_lt_succ (ZMod.val_lt a)) h\n  · apply lt_of_lt_of_le (ZMod.val_lt _) (le_trans h (Nat.le_succ m))\n",
+        "docstring": null
+      },
+      {
+        "id": 90761,
+        "name": "MvPolynomial.coeff_modMonomial_of_le",
+        "module": "Mathlib.Algebra.MvPolynomial.Division",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Division.lean#L103-L106",
+        "source_text": "@[simp]\ntheorem coeff_modMonomial_of_le {s' s : σ →₀ ℕ} (x : MvPolynomial σ R) (h : s ≤ s') :\n    coeff s' (x %ᵐᵒⁿᵒᵐⁱᵃˡ s) = 0 :=\n  x.coeff_modOf_of_exists_add _ _ <| exists_add_of_le h",
+        "docstring": null
+      },
+      {
+        "id": 90760,
+        "name": "MvPolynomial.coeff_modMonomial_of_not_le",
+        "module": "Mathlib.Algebra.MvPolynomial.Division",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Division.lean#L98-L101",
+        "source_text": "@[simp]\ntheorem coeff_modMonomial_of_not_le {s' s : σ →₀ ℕ} (x : MvPolynomial σ R) (h : ¬s ≤ s') :\n    coeff s' (x %ᵐᵒⁿᵒᵐⁱᵃˡ s) = coeff s' x :=\n  x.coeff_modOf_of_not_exists_add s s' <| by rintro ⟨d, rfl⟩; exact h le_self_add",
+        "docstring": null
+      },
+      {
+        "id": 100953,
+        "name": "Polynomial.monomial",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L379-L383",
+        "source_text": "/-- `monomial s a` is the monomial `a * X^s` -/\ndef monomial (n : ℕ) : R →ₗ[R] R[X] where\n  toFun t := ⟨.single n t⟩\n  map_add' x y := by simp [← ofFinsupp_add]\n  map_smul' r x := by simp [← ofFinsupp_smul]\n",
+        "docstring": "`monomial s a` is the monomial `a * X^s` "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

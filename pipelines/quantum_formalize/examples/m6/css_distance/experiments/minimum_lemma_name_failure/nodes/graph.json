@@ -1,0 +1,171 @@
+[
+  {
+    "id": "support_bounds",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.CSS.support_bounds",
+      "statement": "∀ (m : ℕ) (p : M6.CSS.Pauli m), M6.Pinned.weight p.1 ≤ M6.CSS.weight p ∧ M6.Pinned.weight p.2 ≤ M6.CSS.weight p",
+      "imports": [
+        "M6CSSDistance",
+        "M6PinnedAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Use filtered-univ set inclusion and Finset.card_le_card, one disjunct for each component. Preserve the exact frozen target, default limits and allowed axioms. Return proof tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "M6 original §1 CSS distance and J isometry",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "pure_weights",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.CSS.pure_weights",
+      "statement": "∀ (m : ℕ) (v : M6.CSS.Vector m), M6.CSS.weight (v, 0) = M6.Pinned.weight v ∧ M6.CSS.weight (0, v) = M6.Pinned.weight v",
+      "imports": [
+        "M6CSSDistance",
+        "M6PinnedAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Unfold both weights/supports and prove the filtered finite sets equal. Zero functions evaluate to zero. Preserve the exact frozen target, default limits and allowed axioms. Return proof tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "M6 original §1 CSS distance and J isometry",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "logical_pauli_components",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.CSS.logical_pauli_components",
+      "statement": "∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)) (p : M6.CSS.Pauli m), p ∈ M6.CSS.logicalPaulis BX CX BZ CZ ↔ p.1 ∈ CX ∧ p.2 ∈ CZ ∧ (p.1 ∈ M6.CSS.logical BX CX ∨ p.2 ∈ M6.CSS.logical BZ CZ)",
+      "imports": [
+        "M6CSSDistance",
+        "M6PinnedAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Expand product/filter/sdiff membership and propositional logic. No inclusion hypotheses needed. Preserve the exact frozen target, default limits and allowed axioms. Return proof tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "M6 original §1 CSS distance and J isometry",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "quantum_distance_spec",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.CSS.quantum_distance_spec",
+      "statement": "∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)), (M6.CSS.quantumDistance BX CX BZ CZ = none ↔ M6.CSS.logicalPaulis BX CX BZ CZ = ∅) ∧ ∀ d : ℕ, (M6.CSS.quantumDistance BX CX BZ CZ = some d ↔ (∃ p ∈ M6.CSS.logicalPaulis BX CX BZ CZ, M6.CSS.weight p = d) ∧ ∀ p ∈ M6.CSS.logicalPaulis BX CX BZ CZ, d ≤ M6.CSS.weight p)",
+      "imports": [
+        "M6CSSDistance",
+        "M6PinnedAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Same finite minimum argument as imported M6.Pinned.distance_spec, but independently over Pauli pairs and physical union-support weight. Split finite nonemptiness and use Finset.min_prime image membership and minimality. Preserve the exact frozen target, default limits and allowed axioms. Return proof tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "M6 original §1 CSS distance and J isometry",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "css_distance_min",
+    "dependencies": [
+      "support_bounds",
+      "pure_weights",
+      "logical_pauli_components",
+      "quantum_distance_spec"
+    ],
+    "spec": {
+      "name": "M6.CSS.css_distance_min",
+      "statement": "∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)), (0 : M6.CSS.Vector m) ∈ BX → (0 : M6.CSS.Vector m) ∈ BZ → BX ⊆ CX → BZ ⊆ CZ → M6.CSS.quantumDistance BX CX BZ CZ = M6.CSS.minDistance (M6.Pinned.distance (M6.CSS.logical BX CX)) (M6.Pinned.distance (M6.CSS.logical BZ CZ))",
+      "imports": [
+        "M6CSSDistance",
+        "M6PinnedAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Use M6.Pinned.distance_spec for both component logical sets and quantum_distance_spec for pairs. Each nontrivial pair has a logical component, and support_bounds gives lower bounds. A minimum component yields pure pair (v,0) or (0,v), using zero boundary membership and inclusions. Split component Option distances into none/some; none means empty. Preserve both empty and one empty cases; no nonemptiness assumptions. Preserve the exact frozen target, default limits and allowed axioms. Return proof tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "M6 original §1 CSS distance and J isometry",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "involution_distance",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.CSS.involution_distance",
+      "statement": "∀ (m : ℕ) (LX LZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ LX ↔ J v ∈ LZ) → M6.Pinned.distance LX = M6.Pinned.distance LZ",
+      "imports": [
+        "M6CSSDistance",
+        "M6PinnedAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Use imported distance_spec; J maps witnesses and lower bounds in both directions because it is involutive and preserves weight. Empty sets correspond as well. Do not posit the distance equality as a premise. Preserve the exact frozen target, default limits and allowed axioms. Return proof tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "M6 original §1 CSS distance and J isometry",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "common_quantum_distance",
+    "dependencies": [
+      "css_distance_min",
+      "involution_distance"
+    ],
+    "spec": {
+      "name": "M6.CSS.common_quantum_distance",
+      "statement": "∀ (m : ℕ) (BX CX BZ CZ : Finset (M6.CSS.Vector m)) (J : M6.CSS.Vector m → M6.CSS.Vector m), (0 : M6.CSS.Vector m) ∈ BX → (0 : M6.CSS.Vector m) ∈ BZ → BX ⊆ CX → BZ ⊆ CZ → Function.Involutive J → (∀ v, M6.Pinned.weight (J v) = M6.Pinned.weight v) → (∀ v, v ∈ M6.CSS.logical BX CX ↔ J v ∈ M6.CSS.logical BZ CZ) → M6.CSS.quantumDistance BX CX BZ CZ = M6.Pinned.distance (M6.CSS.logical BX CX)",
+      "imports": [
+        "M6CSSDistance",
+        "M6PinnedAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Apply css_distance_min, involution_distance to logical sets, then minDistance d d=d by Option cases. This is the genuine Pauli support minimum equality, not a definition. Preserve the exact frozen target, default limits and allowed axioms. Return proof tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "M6 original §1 CSS distance and J isometry",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  }
+]
