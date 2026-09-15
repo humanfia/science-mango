@@ -1,16 +1,23 @@
 # Current M5 formalization progress
 
-Stages 1–6: 37 individual lemmas accepted, with combined Lean compilation in each batch.
-- Stage 1: 9 auxiliary lemmas.
-- Stage 2: 8 lift and bounded-progression lemmas.
-- Stage 3: 6 exact mathematical period-law lemmas.
-- Stage 4: 2 quotient-cardinality and period-bound lemmas.
-- Stage 5: 5 bounded CRT connectivity-repair lemmas.
-- Stage 6: 7 faithful occurrence-tag packing lemmas.
+Stages 1–9 are complete: 52 unique component lemmas accepted by Lean, including combined compilation of each batch.
 
-Stage 7 character identities are in progress; an initial numerical-simplification failure is being repaired without changing statements. Stage 8 support-polynomial bridge is preparing verified imports. Stage 9 integer Mobius connectivity indicator is running four targets.
+| Stage | Accepted | Component |
+|---|---:|---|
+| 1 | 9 | auxiliary bounds and packing arithmetic |
+| 2 | 8 | conditional lift and bounded progression |
+| 3 | 6 | exact mathematical period law |
+| 4 | 2 | quotient cardinality and period bound |
+| 5 | 5 | bounded CRT repair |
+| 6 | 7 | occurrence-tag support packing |
+| 7 | 5 | binary character identities and finite fibre count |
+| 8 | 6 | support polynomial and full quotient congruence |
+| 9 | 4 | integer Mobius connectivity indicator |
 
-Stage 9 launcher: /home/jing/m5-lean-integer-mobius-formalization/.humanize-formal-runs/dag-launcher-c7ma1gmt
+Stage 10 actual support replacement is preparing its verified dependency import.
+Stage 11 signed binomial coefficient evaluation is running four targets.
+Stage 11 launcher: /home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/dag-launcher-d8opdqq6
+A coherent cross-batch integrated Lean checkpoint is being compiled separately.
 Settings: gpt-6-astra / medium, concurrency ceiling 16, five attempts per node.
 
-Full M5 is not yet formally verified. Counting, reconstruction integration and executable arithmetic refinements remain. Accepted component proofs remain distinct from main roadmap obligations.
+Full M5 is not yet formally verified. Polynomial inclusion-exclusion, the full counting/reconstruction chain, support-construction integration and executable arithmetic refinements remain. Mathematical component successes are preserved separately from these remaining obligations.

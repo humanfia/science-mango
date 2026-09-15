@@ -1,0 +1,194 @@
+{
+  "title": "M5 stage8: support polynomials and residue-preserving packing",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Six support-polynomial targets with verified accepted stage6 packing injectivity imported",
+  "nodes": [
+    {
+      "id": "support_coeff_zero",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.SupportPolynomial.support_coeff_zero",
+        "statement": "∀ S : Finset ℕ, (M5.SupportPolynomial.ofSupport S).coeff 0 = if 0 ∈ S then 1 else 0",
+        "imports": [
+          "M5SupportPolynomial",
+          "M5PackingInjective"
+        ],
+        "context": "open scoped BigOperators",
+        "queries": [
+          "polynomial coefficient sum",
+          "AdjoinRoot polynomial quotient"
+        ],
+        "guidance": "Unfold ofSupport, move coeff through the finite sum, and use coeff_X_pow. Exactly exponent zero contributes, since S is a Finset. Finset.sum_ite_eq or simp handles absent and present zero. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "support_polynomial_and_packing_residue_bridge",
+        "upstream_dependencies": [],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "anchored_support_nonzero",
+      "dependencies": [
+        "support_coeff_zero"
+      ],
+      "spec": {
+        "name": "M5.SupportPolynomial.anchored_support_nonzero",
+        "statement": "∀ S : Finset ℕ, 0 ∈ S → M5.SupportPolynomial.ofSupport S ≠ 0",
+        "imports": [
+          "M5SupportPolynomial",
+          "M5PackingInjective"
+        ],
+        "context": "open scoped BigOperators",
+        "queries": [
+          "polynomial coefficient sum",
+          "AdjoinRoot polynomial quotient"
+        ],
+        "guidance": "Use support_coeff_zero to get coefficient zero equal one. A zero polynomial would have this coefficient zero; ZMod 2 is nontrivial. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "support_polynomial_and_packing_residue_bridge",
+        "upstream_dependencies": [],
+        "dependency_declarations": [
+          "M5.SupportPolynomial.support_coeff_zero"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "support_degree_bound",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.SupportPolynomial.support_degree_bound",
+        "statement": "∀ (S : Finset ℕ) (K : ℕ), 0 < K → (∀ e ∈ S, e < K) → (M5.SupportPolynomial.ofSupport S).natDegree < K",
+        "imports": [
+          "M5SupportPolynomial",
+          "M5PackingInjective"
+        ],
+        "context": "open scoped BigOperators",
+        "queries": [
+          "polynomial coefficient sum",
+          "AdjoinRoot polynomial quotient"
+        ],
+        "guidance": "Bound degree of the finite sum of X^e. A Finset induction with Polynomial.natDegree_add_le and natDegree_X_pow is a direct route. The empty sum is zero with natDegree zero, so retain K>0 and do not require the polynomial to be nonzero. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "support_polynomial_and_packing_residue_bridge",
+        "upstream_dependencies": [],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "packed_sum_image",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.SupportPolynomial.packed_sum_image",
+        "statement": "∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r) → M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r) = ∑ i : Fin w, (Polynomial.X : M5.BinaryPolynomial) ^ M5.Packing.packedValue r i",
+        "imports": [
+          "M5SupportPolynomial",
+          "M5PackingInjective"
+        ],
+        "context": "open scoped BigOperators",
+        "queries": [
+          "polynomial coefficient sum",
+          "AdjoinRoot polynomial quotient"
+        ],
+        "guidance": "Unfold packedSupport and ofSupport, then use Finset.sum_image with injectivity. This helper explicitly assumes injectivity of the packed values, not injectivity of the original residues. The final bridge discharges it using the accepted stage6 theorem. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "support_polynomial_and_packing_residue_bridge",
+        "upstream_dependencies": [],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "quotient_monomial_period",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.SupportPolynomial.quotient_monomial_period",
+        "statement": "∀ T a j : ℕ, AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ (a + j * T)) = AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ a)",
+        "imports": [
+          "M5SupportPolynomial",
+          "M5PackingInjective"
+        ],
+        "context": "open scoped BigOperators",
+        "queries": [
+          "polynomial coefficient sum",
+          "AdjoinRoot polynomial quotient"
+        ],
+        "guidance": "The quotient map kills cyclicModulus T=X^T+1 by AdjoinRoot.mk_self. Mapping the sum and characteristic two yield root^T=1. Use map_pow, AdjoinRoot.mk_X, pow_add and pow_mul to reduce exponent a+j*T. This holds also T=0; no irreducibility or nontrivial quotient assumption is permitted. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "support_polynomial_and_packing_residue_bridge",
+        "upstream_dependencies": [],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "packed_polynomial_residue",
+      "dependencies": [
+        "packed_sum_image",
+        "quotient_monomial_period"
+      ],
+      "spec": {
+        "name": "M5.SupportPolynomial.packed_polynomial_residue",
+        "statement": "∀ (w T : ℕ) (r : Fin w → Fin T), AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r)) = AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofResidueTuple r)",
+        "imports": [
+          "M5SupportPolynomial",
+          "M5PackingInjective"
+        ],
+        "context": "open scoped BigOperators",
+        "queries": [
+          "polynomial coefficient sum",
+          "AdjoinRoot polynomial quotient"
+        ],
+        "guidance": "Rewrite packed_sum_image using the verified stage6 M5.Packing.packed_value_injective theorem. Map finite sums and apply quotient_monomial_period termwise after unfolding packedValue: a=(r i).val, j=occurrenceTag r i. The RHS remains a sum over tuple indices, so repeated residues and binary cancellations, including zero residue polynomials, are preserved. Do not replace it with an image of residue values. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "support_polynomial_and_packing_residue_bridge",
+        "upstream_dependencies": [
+          "M5.Packing.packed_value_injective"
+        ],
+        "dependency_declarations": [
+          "M5.SupportPolynomial.packed_sum_image",
+          "M5.SupportPolynomial.quotient_monomial_period",
+          "M5.Packing.packed_value_injective"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ],
+  "imported_verified_dependencies": [
+    "M5.Packing.equal_residue_tag_strict",
+    "M5.Packing.packed_value_mod",
+    "M5.Packing.packed_value_injective"
+  ]
+}

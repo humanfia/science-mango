@@ -1,0 +1,190 @@
+[
+  {
+    "queries": [
+      "finite sum product distributivity",
+      "additive character orthogonality"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum product distributivity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 57975,
+            "name": "Finsupp.prod_finset_sum_index",
+            "module": "Mathlib.Algebra.BigOperators.Finsupp.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finsupp/Basic.lean#L499-L500",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-04-08\")]\nalias prod_finset_sum_index := prod_finsetSum_index",
+            "docstring": "**Alias** of `Finsupp.prod_finsetSum_index`."
+          },
+          {
+            "id": 210049,
+            "name": "dotProduct_sum",
+            "module": "Mathlib.Data.Matrix.Mul",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Matrix/Mul.lean#L147-L150",
+            "source_text": "theorem dotProduct_sum {ι : Type*} (u : m → α) (s : Finset ι) (v : ι → (m → α)) :\n    u ⬝ᵥ ∑ i ∈ s, v i = ∑ i ∈ s, u ⬝ᵥ v i := by\n  simp only [dotProduct, Finset.sum_apply, Finset.mul_sum]\n  rw [Finset.sum_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 59052,
+            "name": "Finset.mul_sum",
+            "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L59-L60",
+            "source_text": "lemma mul_sum (s : Finset ι) (f : ι → R) (a : R) :\n    a * ∑ i ∈ s, f i = ∑ i ∈ s, a * f i := map_sum (AddMonoidHom.mulLeft a) _ s\n",
+            "docstring": null
+          },
+          {
+            "id": 210050,
+            "name": "sum_dotProduct",
+            "module": "Mathlib.Data.Matrix.Mul",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Matrix/Mul.lean#L152-L155",
+            "source_text": "theorem sum_dotProduct {ι : Type*} (s : Finset ι) (u : ι → (m → α)) (v : m → α) :\n    (∑ i ∈ s, u i) ⬝ᵥ v = ∑ i ∈ s, u i ⬝ᵥ v := by\n  simp only [dotProduct, Finset.sum_apply, Finset.sum_mul]\n  rw [Finset.sum_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 253563,
+            "name": "TensorProduct",
+            "module": "Mathlib.LinearAlgebra.TensorProduct.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/TensorProduct/Defs.lean#L79-L83",
+            "source_text": "/-- The tensor product of two modules `M` and `N` over the same commutative semiring `R`.\nThe localized notations are `M ⊗ N` and `M ⊗[R] N`, accessed by `open scoped TensorProduct`. -/\ndef TensorProduct : Type _ :=\n  (addConGen (TensorProduct.Eqv R M N)).Quotient\nderiving Zero, Add, AddZeroClass, AddSemigroup\n",
+            "docstring": "The tensor product of two modules `M` and `N` over the same commutative semiring `R`.\nThe localized notations are `M ⊗ N` and `M ⊗[R] N`, accessed by `open scoped TensorProduct`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite sum product distributivity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386195,
+            "name": "Matrix.crossProductMatrix",
+            "module": "Physlib.Mathematics.CrossProductMatrix",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/CrossProductMatrix.lean#L26-L29",
+            "source_text": "/-- The hat map `[ω]ₓ`: the skew-symmetric `3 × 3` matrix acting as the cross product with `ω`,\ni.e. `[ω]ₓ *ᵥ v = ω ⨯₃ v`. -/\ndef crossProductMatrix (ω : Fin 3 → ℝ) : Matrix (Fin 3) (Fin 3) ℝ :=\n  !![0, -ω 2, ω 1; ω 2, 0, -ω 0; -ω 1, ω 0, 0]\n",
+            "docstring": "The hat map `[ω]ₓ`: the skew-symmetric `3 × 3` matrix acting as the cross product with `ω`,\ni.e. `[ω]ₓ *ᵥ v = ω ⨯₃ v`. "
+          },
+          {
+            "id": 386467,
+            "name": "InnerProductSpace'",
+            "module": "Physlib.Mathematics.InnerProductSpace.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Basic.lean#L48-L81",
+            "source_text": "/-- Effectively as `InnerProductSpace 𝕜 E` but it does not requires that `‖x‖^2 = ⟪x,x⟫`. It is\nonly required that they are equivalent `∃ (c > 0) (d > 0), c • ‖x‖^2 ≤ ⟪x,x⟫ ≤ d • ‖x‖^2`. The main\npurpose of this class is to provide inner product space structure on product types `ExF` and\npi types `ι → E` without using `WithLp` gadget.\n\nIf you want to access L₂ norm use `‖x‖₂ := √⟪x,x⟫`.\n\nThis class induces `InnerProductSpace 𝕜 (WithLp 2 E)` which equips `‖·‖` on `X` with L₂ norm.\nThis is very useful when translating results from `InnerProductSpace` to `InnerProductSpace'`\ntogether with `toL2 : E →L[𝕜] (WithLp 2 E)` and `fromL2 : (WithL2 2 E) →L[𝕜] E`.\n\nIn short we have these implications:\n```\n  InnerProductSpace 𝕜 E → InnerProductSpace' 𝕜 E\n  InnerProductSpace' 𝕜 E → InnerProductSpace 𝕜 (WithLp 2 E)\n```\n\nThe reason behind this type class is that with current mathlib design the requirement\n`‖x‖^2 = ⟪x,x⟫` prevents us to give inner product space structure on product type `E×F` and pi\ntype `ι → E` as they are equipped with max norm. One has to work with `WithLp 2 (E×F)` and\n`WithLp 2 (ι → E)`. This places quite a bit inconvenience on users in certain scenarios.\nIn particular, the main motivation behind this class is to make computations of `adjFDeriv` and\n`gradient` easy.\n-/\nclass InnerProductSpace' (𝕜 : Type*) (E : Type*) [RCLike 𝕜] [NormedAddCommGroup E] [NormedSpace 𝕜 E]\n    extends Norm₂ E where\n  /-- Core inner product properties. -/\n  core : InnerProductSpace.Core 𝕜 E\n  /-- The inner product induces the L₂ norm. -/\n  norm₂_sq_eq_re_inner : ∀ x : E, ‖x‖₂ ^ 2 = re (core.inner x x)\n  /-- Norm induced by inner product is topologically equivalent to the given norm on E. -/\n  inner_top_equiv_norm : ∃ c d : ℝ,\n    0 < c ∧ 0 < d ∧\n    ∀ x : E, (c • ‖x‖^2 ≤ re (core.inner x x)) ∧ (re (core.inner x x) ≤ d • ‖x‖^2)\n",
+            "docstring": "Effectively as `InnerProductSpace 𝕜 E` but it does not requires that `‖x‖^2 = ⟪x,x⟫`. It is\nonly required that they are equivalent `∃ (c > 0) (d > 0), c • ‖x‖^2 ≤ ⟪x,x⟫ ≤ d • ‖x‖^2`. The main\npurpose of this class is to provide inner product space structure on product types `ExF` and\npi types `ι → E` without using `WithLp` gadget.\n\nIf you want to access L₂ norm use `‖x‖₂ := √⟪x,x⟫`.\n\nThis class induces `InnerProductSpace 𝕜 (WithLp 2 E)` which equips `‖·‖` on `X` with L₂ norm.\nThis is very useful when translating results from `InnerProductSpace` to `InnerProductSpace'`\ntogether with `toL2 : E →L[𝕜] (WithLp 2 E)` and `fromL2 : (WithL2 2 E) →L[𝕜] E`.\n\nIn short we have these implications:\n```\n  InnerProductSpace 𝕜 E → InnerProductSpace' 𝕜 E\n  InnerProductSpace' 𝕜 E → InnerProductSpace 𝕜 (WithLp 2 E)\n```\n\nThe reason behind this type class is that with current mathlib design the requirement\n`‖x‖^2 = ⟪x,x⟫` prevents us to give inner product space structure on product type `E×F` and pi\ntype `ι → E` as they are equipped with max norm. One has to work with `WithLp 2 (E×F)` and\n`WithLp 2 (ι → E)`. This places quite a bit inconvenience on users in certain scenarios.\nIn particular, the main motivation behind this class is to make computations of `adjFDeriv` and\n`gradient` easy.\n"
+          },
+          {
+            "id": 390254,
+            "name": "QuantumMechanics.FiniteHilbertSpace.instInnerProductSpaceComplex",
+            "module": "Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/HilbertSpaces/FiniteTarget/Basic.lean#L126-L127",
+            "source_text": "noncomputable instance : InnerProductSpace ℂ (FiniteHilbertSpace d) :=\n  InnerProductSpace.induced linearEquivEuclidean.toLinearMap\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "additive character orthogonality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67079,
+            "name": "AddChar.sum_eq_ite",
+            "module": "Mathlib.Algebra.Group.AddChar",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/AddChar.lean#L329-L336",
+            "source_text": "lemma sum_eq_ite (ψ : AddChar A R) [Decidable (ψ = 0)] :\n    ∑ a, ψ a = if ψ = 0 then ↑(card A) else 0 := by\n  split_ifs with h\n  · simp [h]\n  obtain ⟨x, hx⟩ := ne_one_iff.1 h\n  refine eq_zero_of_mul_eq_self_left hx ?_\n  rw [Finset.mul_sum]\n  exact Fintype.sum_equiv (Equiv.addLeft x) _ _ fun y ↦ (map_add_eq_mul ..).symm\n",
+            "docstring": null
+          },
+          {
+            "id": 273314,
+            "name": "AddChar.sum_eq_zero_of_ne_one",
+            "module": "Mathlib.NumberTheory.LegendreSymbol.AddCharacter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LegendreSymbol/AddCharacter.lean#L239-L248",
+            "source_text": "/-- The sum over the values of a nontrivial additive character vanishes if the target ring\nis a domain. -/\ntheorem sum_eq_zero_of_ne_one [IsDomain R'] {ψ : AddChar R R'} (hψ : ψ ≠ 1) : ∑ a, ψ a = 0 := by\n  rcases ne_one_iff.1 hψ with ⟨b, hb⟩\n  have h₁ : ∑ a : R, ψ (b + a) = ∑ a : R, ψ a :=\n    Fintype.sum_bijective _ (AddGroup.addLeft_bijective b) _ _ fun x => rfl\n  simp_rw [map_add_eq_mul] at h₁\n  have h₂ : ∑ a : R, ψ a = Finset.univ.sum ↑ψ := rfl\n  rw [← Finset.mul_sum, h₂] at h₁\n  exact eq_zero_of_mul_eq_self_left hb h₁\n",
+            "docstring": "The sum over the values of a nontrivial additive character vanishes if the target ring\nis a domain. "
+          },
+          {
+            "id": 86741,
+            "name": "CharacterModule",
+            "module": "Mathlib.Algebra.Module.CharacterModule",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/CharacterModule.lean#L43-L46",
+            "source_text": "/--\nThe character module of an abelian group `A` in the unit rational circle is `A⋆ := Hom_ℤ(A, ℚ ⧸ ℤ)`.\n-/\ndef CharacterModule : Type uA := A →+ AddCircle (1 : ℚ)\n",
+            "docstring": "The character module of an abelian group `A` in the unit rational circle is `A⋆ := Hom_ℤ(A, ℚ ⧸ ℤ)`.\n"
+          },
+          {
+            "id": 271677,
+            "name": "cyclotomicCharacter",
+            "module": "Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Cyclotomic/CyclotomicCharacter.lean#L300-L321",
+            "source_text": "/--\nSuppose `L` is a domain containing all `pⁱ`-th primitive roots with `p` a (rational) prime.\nIf `g` is a ring automorphism of `L`, then `cyclotomicCharacter L p g` is the unique `j : ℤₚ` such\nthat `g(ζ) = ζ ^ (j mod pⁱ)` for all `pⁱ`-th roots of unity `ζ`.\n\nNote: This is the trivial character when `L` does not contain all `pⁱ`-th primitive roots.\n-/\nnoncomputable def cyclotomicCharacter (p : ℕ) [Fact p.Prime] :\n    (L ≃+* L) →* ℤ_[p]ˣ := .toHomUnits\n  { toFun g := cyclotomicCharacter.toFun p g\n    map_one' := by\n      by_cases H : ∀ (i : ℕ), ∃ ζ : L, IsPrimitiveRoot ζ (p ^ i)\n      · haveI _ (i) : HasEnoughRootsOfUnity L (p ^ i) := ⟨H i, rootsOfUnity.isCyclic _ _⟩\n        refine PadicInt.ext_of_toZModPow.mp fun n ↦ ?_\n        simp [cyclotomicCharacter.toZModPow_toFun]\n      · simp [cyclotomicCharacter.toFun, dif_neg H]\n    map_mul' f g := by\n      by_cases H : ∀ (i : ℕ), ∃ ζ : L, IsPrimitiveRoot ζ (p ^ i)\n      · haveI _ (i) : HasEnoughRootsOfUnity L (p ^ i) := ⟨H i, rootsOfUnity.isCyclic _ _⟩\n        refine PadicInt.ext_of_toZModPow.mp fun n ↦ ?_\n        simp [cyclotomicCharacter.toZModPow_toFun]\n      · simp [cyclotomicCharacter.toFun, dif_neg H] }\n",
+            "docstring": "Suppose `L` is a domain containing all `pⁱ`-th primitive roots with `p` a (rational) prime.\nIf `g` is a ring automorphism of `L`, then `cyclotomicCharacter L p g` is the unique `j : ℤₚ` such\nthat `g(ζ) = ζ ^ (j mod pⁱ)` for all `pⁱ`-th roots of unity `ζ`.\n\nNote: This is the trivial character when `L` does not contain all `pⁱ`-th primitive roots.\n"
+          },
+          {
+            "id": 75781,
+            "name": "Additive",
+            "module": "Mathlib.Algebra.Group.TypeTags.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/TypeTags/Basic.lean#L40-L42",
+            "source_text": "/-- If `α` carries some multiplicative structure, then `Additive α` carries the corresponding\nadditive structure. -/\ndef Additive (α : Type*) := α\n",
+            "docstring": "If `α` carries some multiplicative structure, then `Additive α` carries the corresponding\nadditive structure. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "additive character orthogonality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 392354,
+            "name": "Lorentz.Vector.CausalCharacter",
+            "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L25-L31",
+            "source_text": "/-- Classification of lorentz vectors based on their causal character. -/\ninductive CausalCharacter\n  | timeLike\n  | lightLike\n  | spaceLike\n\nderiving DecidableEq\n",
+            "docstring": "Classification of lorentz vectors based on their causal character. "
+          },
+          {
+            "id": 392360,
+            "name": "Lorentz.Vector.causalCharacter_invariant",
+            "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L45-L49",
+            "source_text": "/-- `causalCharacter` are invariant under an action of the Lorentz group. -/\nlemma causalCharacter_invariant {d : ℕ} (p : Vector d) (Λ : LorentzGroup d) :\n    causalCharacter (Λ • p) = causalCharacter p := by\n  simp only [causalCharacter]\n  rw [minkowskiProduct_invariant]\n",
+            "docstring": "`causalCharacter` are invariant under an action of the Lorentz group. "
+          },
+          {
+            "id": 392359,
+            "name": "Lorentz.Vector.causalCharacter",
+            "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L33-L43",
+            "source_text": "/-- A Lorentz vector `p` is\n- `lightLike` if `⟪p, p⟫ₘ = 0`.\n- `timeLike` if `0 < ⟪p, p⟫ₘ`.\n- `spaceLike` if `⟪p, p⟫ₘ < 0`.\nNote that `⟪p, p⟫ₘ` is defined in the +--- convention.\n-/\ndef causalCharacter {d : ℕ} (p : Vector d) : CausalCharacter :=\n  let v0 := ⟪p, p⟫ₘ\n  if v0 = 0 then CausalCharacter.lightLike\n  else if 0 < v0 then CausalCharacter.timeLike\n  else CausalCharacter.spaceLike\n",
+            "docstring": "A Lorentz vector `p` is\n- `lightLike` if `⟪p, p⟫ₘ = 0`.\n- `timeLike` if `0 < ⟪p, p⟫ₘ`.\n- `spaceLike` if `⟪p, p⟫ₘ < 0`.\nNote that `⟪p, p⟫ₘ` is defined in the +--- convention.\n"
+          },
+          {
+            "id": 392377,
+            "name": "Lorentz.Vector.causalCharacter_zero",
+            "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.LightLike",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/LightLike.lean#L31-L34",
+            "source_text": "@[simp]\nlemma causalCharacter_zero {d : ℕ} : causalCharacter (0 : Vector d) =\n    CausalCharacter.lightLike := by\n  simp [causalCharacter]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

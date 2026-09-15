@@ -1,0 +1,118 @@
+{
+  "title": "M5 stage 11: explicit signed binomial coefficient evaluation",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Section2 coefficient evaluation from sign counts; character/subset count identification is separate",
+  "nodes": [
+    {
+      "id": "negative_coeff",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Binomial.negative_coeff",
+        "statement": "\u2200 m j : \u2115, (((1 : Polynomial \u2124) - Polynomial.X) ^ m).coeff j = (-1 : \u2124) ^ j * (m.choose j : \u2124)",
+        "imports": [
+          "M5Binomial"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial binomial coefficient power",
+          "finite product filter"
+        ],
+        "guidance": "Expand (1-X)^m with add_pow after rewriting 1-X=(-X)+1. Like Polynomial.coeff_X_add_C_pow, apply coeff_sum and use (-X)^i=(-1)^i*X^i; only index j contributes. Handle j>m using choose_eq_zero_of_lt. An induction with binomial recursion is also valid. Return only tactic lines without a leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_BINOM_EVAL",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "signed_product_split",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Binomial.signed_product_split",
+        "statement": "\u2200 (S : Finset \u2115) (f : \u2115 \u2192 \u2124), (\u2200 s \u2208 S, f s = 1 \u2228 f s = -1) \u2192 M5.Binomial.signedProduct S f = (1 - Polynomial.X) ^ M5.Binomial.negativeCount S f * (1 + Polynomial.X) ^ (S.card - M5.Binomial.negativeCount S f)",
+        "imports": [
+          "M5Binomial"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial binomial coefficient power",
+          "finite product filter"
+        ],
+        "guidance": "Split product with Finset.prod_filter_mul_prod_filter_not at predicate f s=-1. On negative filter each factor is 1-X; on complement supplied sign hypothesis makes each factor 1+X. Products of constants are powers, and Finset.card_filter_not gives complement count as S.card-negativeCount. Empty S is included. Return only tactic lines without a leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_BINOM_EVAL",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "binomial_convolution",
+      "dependencies": [
+        "negative_coeff"
+      ],
+      "spec": {
+        "name": "M5.Binomial.binomial_convolution",
+        "statement": "\u2200 m n k : \u2115, (((1 - Polynomial.X : Polynomial \u2124) ^ m) * (1 + Polynomial.X) ^ n).coeff k = \u2211 j \u2208 Finset.range (k + 1), (-1 : \u2124) ^ j * (m.choose j : \u2124) * (n.choose (k-j) : \u2124)",
+        "imports": [
+          "M5Binomial"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial binomial coefficient power",
+          "finite product filter"
+        ],
+        "guidance": "Use Polynomial.coeff_mul, then Finset.Nat.sum_antidiagonal_eq_sum_range_succ. Rewrite coefficients using negative_coeff and Polynomial.coeff_one_add_X_pow. No assumptions k\u2264m+n: out-of-range chooses vanish automatically. Return only tactic lines without a leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_BINOM_EVAL",
+        "dependency_declarations": [
+          "M5.Binomial.negative_coeff"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "signed_coefficient_eval",
+      "dependencies": [
+        "signed_product_split",
+        "binomial_convolution"
+      ],
+      "spec": {
+        "name": "M5.Binomial.signed_coefficient_eval",
+        "statement": "\u2200 (S : Finset \u2115) (f : \u2115 \u2192 \u2124) (k : \u2115), (\u2200 s \u2208 S, f s = 1 \u2228 f s = -1) \u2192 (M5.Binomial.signedProduct S f).coeff k = \u2211 j \u2208 Finset.range (k + 1), (-1 : \u2124) ^ j * ((M5.Binomial.negativeCount S f).choose j : \u2124) * ((S.card - M5.Binomial.negativeCount S f).choose (k-j) : \u2124)",
+        "imports": [
+          "M5Binomial"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial binomial coefficient power",
+          "finite product filter"
+        ],
+        "guidance": "Rewrite with accepted signed_product_split then apply binomial_convolution. This is the exact original explicit coefficient formula. Return no enumeration of subsets. Return only tactic lines without a leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_BINOM_EVAL",
+        "dependency_declarations": [
+          "M5.Binomial.signed_product_split",
+          "M5.Binomial.binomial_convolution"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

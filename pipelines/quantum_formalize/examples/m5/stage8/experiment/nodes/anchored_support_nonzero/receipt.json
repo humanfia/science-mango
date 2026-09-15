@@ -1,0 +1,70 @@
+{
+  "id": "anchored_support_nonzero",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.SupportPolynomial.anchored_support_nonzero",
+    "spec_sha256": "90968a75ab4b65bd77a9d0297d621287959609413614569a497ea7df42aaa169",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-by5b1lww/attempt-001/Candidate_f2637704cc6a2275.lean",
+        "target_path": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-by5b1lww/attempt-001/FrozenTarget_f2637704cc6a2275.lean",
+        "feedback": "",
+        "target_sha256": "a3938ad04b98547410fcb2c1d569f855d5cbf399984f7fbb3ce470b199e40fa2",
+        "target_olean_sha256": "f35991edaa04bb8f1bb26b4e54fd8b82c05e8b08b682ced1e91a715a0ec60717",
+        "source_sha256": "6ece8f4a9b431cf4652da050e4fb435b510939a5c72dd7c1cdaefab8aae48e77",
+        "olean_sha256": "3d9c4e36067d91af00dec0079568c9a4e0717846c58b9ecd2d73224883c99054",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:05:12.140246+00:00",
+    "work": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-by5b1lww",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-by5b1lww/attempt-001/Candidate_f2637704cc6a2275.lean",
+    "environment_sha256": "ba328315687cd0a540fc223da064db7d5f9669cbe777aa5873b6a3b2c0f240e0",
+    "artifacts": {
+      "support_coeff_zero": {
+        "payload": {
+          "declaration": "theorem M5.SupportPolynomial.support_coeff_zero : ∀ S : Finset ℕ, (M5.SupportPolynomial.ofSupport S).coeff 0 = if 0 ∈ S then 1 else 0 := by\n  classical\n  intro S\n  simp [M5.SupportPolynomial.ofSupport, Polynomial.coeff_X_pow]",
+          "imports": [
+            "M5PackingInjective",
+            "M5SupportPolynomial"
+          ],
+          "name": "M5.SupportPolynomial.support_coeff_zero",
+          "ancestors": [],
+          "spec_sha256": "9a3455b6ea793e7f288741d321286f271e69e7414bc8f169f0a654556cd0f6c5"
+        },
+        "sha256": "ed76d00b75af04dab9e61b009e623b12f6b707be96625bb6bd664abe5e7a84d0"
+      },
+      "anchored_support_nonzero": {
+        "payload": {
+          "declaration": "theorem M5.SupportPolynomial.anchored_support_nonzero : ∀ S : Finset ℕ, 0 ∈ S → M5.SupportPolynomial.ofSupport S ≠ 0 := by\n  change ∀ S : Finset ℕ, 0 ∈ S → M5.SupportPolynomial.ofSupport S ≠ 0\n  intro S hS hzero\n  have hcoeff := M5.SupportPolynomial.support_coeff_zero S\n  simpa [hzero, hS] using hcoeff",
+          "imports": [
+            "M5PackingInjective",
+            "M5SupportPolynomial"
+          ],
+          "name": "M5.SupportPolynomial.anchored_support_nonzero",
+          "ancestors": [
+            "support_coeff_zero"
+          ],
+          "spec_sha256": "247ae4a5ae652e7a5165584413d2ffe7371bbbab14db7b7872879f0fab90b4aa"
+        },
+        "sha256": "90f10987dcf863e8c4a99072c55352587b11992d0bc10a8b06dc91eedf20d85d"
+      }
+    }
+  }
+}

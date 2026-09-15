@@ -1,0 +1,61 @@
+{
+  "id": "quotient_monomial_period",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.SupportPolynomial.quotient_monomial_period",
+    "spec_sha256": "9995ebf227edf00d1bbbb18d37d0e9fad36c4281fc347f6756ee9ce535c576cc",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-na80_5pr/attempt-001/Candidate_b9fabae2551196e9.lean:5:51: error: unsolved goals\ncase pos\nT a j : ℕ\nq : Polynomial (ZMod 2) →+* AdjoinRoot (cyclicModulus T) := AdjoinRoot.mk (cyclicModulus T)\nn : ℕ\nh : n = 0\n⊢ 2 = 0\n\ncase neg\nT a j : ℕ\nq : Polynomial (ZMod 2) →+* AdjoinRoot (cyclicModulus T) := AdjoinRoot.mk (cyclicModulus T)\nn : ℕ\nh : ¬n = 0\n⊢ Polynomial.coeff 2 n = 0\n/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-na80_5pr/attempt-001/Candidate_b9fabae2551196e9.lean:11:14: error: Function expected at\n  AdjoinRoot.mk_self\nbut this term has type\n  (AdjoinRoot.mk ?m.100) ?m.100 = 0\n\nNote: Expected a function because this term is being applied to the argument\n  (M5.cyclicModulus T)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-na80_5pr/attempt-002/Candidate_3b8fb1926b2bcdba.lean",
+        "target_path": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-na80_5pr/attempt-002/FrozenTarget_3b8fb1926b2bcdba.lean",
+        "feedback": "",
+        "target_sha256": "bb96b0de7d624743442ca8f293d45a0162a979a2af8f1315fcfd50b41937c3b5",
+        "target_olean_sha256": "1fcf19809c3ac345a8bee8c953e42a8bf7eed84115a33c9cf22d7206493a267e",
+        "source_sha256": "5d3b97ea5c327225c0b21bc178891fc0d6ea6d69856940dd9167a47662a649c9",
+        "olean_sha256": "6dd20ebb63fb5154532a2f9d278c5d7acee1c49a87552823f22e3381c5412b68",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T07:03:44.989147+00:00",
+    "work": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-na80_5pr",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-na80_5pr/attempt-002/Candidate_3b8fb1926b2bcdba.lean",
+    "environment_sha256": "ba328315687cd0a540fc223da064db7d5f9669cbe777aa5873b6a3b2c0f240e0",
+    "artifacts": {
+      "quotient_monomial_period": {
+        "payload": {
+          "declaration": "theorem M5.SupportPolynomial.quotient_monomial_period : ∀ T a j : ℕ, AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ (a + j * T)) = AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ a) := by\n  change ∀ T a j : ℕ, AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ (a + j * T)) = AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ a)\n  intro T a j\n  let q := AdjoinRoot.mk (M5.cyclicModulus T)\n  have htwo : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n    have h : (1 : ZMod 2) + 1 = 0 := by decide\n    simpa only [map_add, Polynomial.C_1, map_zero] using congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) h\n  have htwoq : (1 : AdjoinRoot (M5.cyclicModulus T)) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using congrArg q htwo\n  have hmod : q ((Polynomial.X : M5.BinaryPolynomial) ^ T + 1) = 0 := by\n    change AdjoinRoot.mk (M5.cyclicModulus T) (M5.cyclicModulus T) = 0\n    exact AdjoinRoot.mk_self\n  have hsum : q Polynomial.X ^ T + 1 = 0 := by\n    simpa only [map_add, map_pow, map_one] using hmod\n  have hpow : q Polynomial.X ^ T = 1 := by\n    apply add_right_cancel (b := (1 : AdjoinRoot (M5.cyclicModulus T)))\n    exact hsum.trans htwoq.symm\n  change q (Polynomial.X ^ (a + j * T)) = q (Polynomial.X ^ a)\n  rw [map_pow, map_pow, pow_add, Nat.mul_comm j T, pow_mul, hpow, one_pow, mul_one]",
+          "imports": [
+            "M5PackingInjective",
+            "M5SupportPolynomial"
+          ],
+          "name": "M5.SupportPolynomial.quotient_monomial_period",
+          "ancestors": [],
+          "spec_sha256": "d4922fe309873208ed455c8ceba9b5a05e173fe8307fe0b7779c8f9ebaa4c5a0"
+        },
+        "sha256": "b26c9caca4986fe86e1d02dc5f6da24f6d3acec0dab5b5789e2a4e59db838731"
+      }
+    }
+  }
+}

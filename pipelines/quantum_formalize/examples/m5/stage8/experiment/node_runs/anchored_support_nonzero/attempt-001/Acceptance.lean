@@ -1,0 +1,3 @@
+import Candidate_f2637704cc6a2275
+example : QuantumHarnessFrozenTarget := M5.SupportPolynomial.anchored_support_nonzero
+#print axioms M5.SupportPolynomial.anchored_support_nonzero

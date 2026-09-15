@@ -1,0 +1,4 @@
+{
+  "proof": "intro T a j\nlet q := AdjoinRoot.mk (M5.cyclicModulus T)\nhave htwo : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n  ext n\n  by_cases h : n = 0 <;> norm_num [Polynomial.coeff_add, Polynomial.coeff_one, h]\nhave hone : (1 : AdjoinRoot (M5.cyclicModulus T)) + 1 = 0 := by\n  simpa only [map_add, map_one, map_zero] using congrArg q htwo\nhave hsum : q ((Polynomial.X : M5.BinaryPolynomial) ^ T) + 1 = 0 := by\n  have h := AdjoinRoot.mk_self (M5.cyclicModulus T)\n  change q ((Polynomial.X : M5.BinaryPolynomial) ^ T + 1) = 0 at h\n  simpa only [map_add, map_one] using h\nhave hp : q ((Polynomial.X : M5.BinaryPolynomial) ^ T) = 1 :=\n  add_right_cancel (hsum.trans hone.symm)\nchange q ((Polynomial.X : M5.BinaryPolynomial) ^ (a + j * T)) =\n  q ((Polynomial.X : M5.BinaryPolynomial) ^ a)\nsimp only [map_pow] at hp ⊢\nrw [pow_add, Nat.mul_comm j T, pow_mul, hp, one_pow, mul_one]",
+  "queries": []
+}

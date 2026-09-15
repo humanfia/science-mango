@@ -1,0 +1,3 @@
+import Candidate_a51063b895433c99
+example : QuantumHarnessFrozenTarget := M5.SupportPolynomial.packed_polynomial_residue
+#print axioms M5.SupportPolynomial.packed_polynomial_residue

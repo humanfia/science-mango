@@ -1,0 +1,13 @@
+{
+  "name": "M5.Character.finite_fibre_count",
+  "statement": "∀ (D n : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * ∑ u : Fin n, M5.Character.value lam (f u)) = (2 : ℤ) ^ D * ((Finset.univ.filter (fun u : Fin n => f u = z)).card : ℤ)",
+  "imports": [
+    "M5Character"
+  ],
+  "context": "theorem M5.Character.bit_add : ∀ a b c : ZMod 2, M5.Character.bitSign a (b + c) = M5.Character.bitSign a b * M5.Character.bitSign a c := by\n  change ∀ a b c : ZMod 2, M5.Character.bitSign a (b + c) = M5.Character.bitSign a b * M5.Character.bitSign a c\n  decide\n\ntheorem M5.Character.bit_orthogonality : ∀ b : ZMod 2, (∑ a : ZMod 2, M5.Character.bitSign a b) = if b = 0 then 2 else 0 := by\n  change ∀ b : ZMod 2, (∑ a : ZMod 2, M5.Character.bitSign a b) = if b = 0 then 2 else 0\n  decide\n\ntheorem M5.Character.character_add : ∀ (D : ℕ) (lam z u : M5.Character.BinaryVector D), M5.Character.value lam (z + u) = M5.Character.value lam z * M5.Character.value lam u := by\n  change ∀ (D : ℕ) (lam z u : M5.Character.BinaryVector D), M5.Character.value lam (z + u) = M5.Character.value lam z * M5.Character.value lam u\n  intro D lam z u\n  simp only [M5.Character.value, Pi.add_apply, M5.Character.bit_add, Finset.prod_mul_distrib]\n\ntheorem M5.Character.character_orthogonality : ∀ (D : ℕ) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z) = if z = 0 then (2 : ℤ) ^ D else 0 := by\n  change ∀ (D : ℕ) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z) = if z = 0 then (2 : ℤ) ^ D else 0\n  intro D z\n  classical\n  change (∑ lam : Fin D → ZMod 2, ∏ i : Fin D, M5.Character.bitSign (lam i) (z i)) = if z = 0 then (2 : ℤ) ^ D else 0\n  rw [← Fintype.prod_sum (fun (i : Fin D) (a : ZMod 2) => M5.Character.bitSign a (z i))]\n  simp_rw [M5.Character.bit_orthogonality]\n  by_cases h : z = 0\n  · subst z\n    simp\n  · rw [if_neg h]\n    have hex : ∃ i : Fin D, z i ≠ 0 := by\n      by_contra hn\n      apply h\n      funext i\n      by_contra hi\n      exact hn ⟨i, hi⟩\n    obtain ⟨i, hi⟩ := hex\n    exact Finset.prod_eq_zero (Finset.mem_univ i) (if_neg hi)",
+  "queries": [
+    "finite sum product distributivity",
+    "additive character orthogonality"
+  ],
+  "guidance": "Distribute multiplication over inner sum, commute finite sums, reverse character_add and apply character_orthogonality to z+f u. In characteristic two z+f u=0 iff f u=z. Sum the resulting indicators as the filter cardinality. Use actual accepted ancestor lemmas; n=0 and D=0 are allowed. Return tactic lines only, without a leading by; preserve exact target."
+}

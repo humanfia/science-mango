@@ -1,0 +1,13 @@
+{
+  "name": "M5.Connectivity.support_divisor_filter",
+  "statement": "∀ (N : ℕ) (A B : Finset ℕ), 0 < N → N.divisors.filter (fun d => (∀ a ∈ A, d ∣ a) ∧ (∀ b ∈ B, d ∣ b)) = (M5.Connectivity.supportGcd N A B).divisors",
+  "imports": [
+    "M5IntegerMobius"
+  ],
+  "context": "theorem M5.Connectivity.support_gcd_dvd : ∀ (N d : ℕ) (A B : Finset ℕ), d ∣ M5.Connectivity.supportGcd N A B ↔ d ∣ N ∧ (∀ a ∈ A, d ∣ a) ∧ (∀ b ∈ B, d ∣ b) := by\n  intro N d A B\n  simp [M5.Connectivity.supportGcd, Nat.dvd_gcd_iff, Finset.dvd_gcd_iff, and_assoc]",
+  "queries": [
+    "Mobius function sum divisors",
+    "Finset gcd divisibility"
+  ],
+  "guidance": "Extensionality plus Nat.mem_divisors and support_gcd_dvd. The support gcd divides positive N and hence is nonzero. Prove that auxiliary fact directly from Nat.gcd_dvd_left. Return tactic lines only, without a leading by; preserve exact target."
+}

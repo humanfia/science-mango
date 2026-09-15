@@ -1,0 +1,236 @@
+[
+  {
+    "queries": [
+      "Mobius function sum divisors",
+      "Finset gcd divisibility"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Mobius function sum divisors",
+        "status": "ok",
+        "results": [
+          {
+            "id": 271329,
+            "name": "ArithmeticFunction.sum_eq_iff_sum_smul_moebius_eq",
+            "module": "Mathlib.NumberTheory.ArithmeticFunction.Moebius",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ArithmeticFunction/Moebius.lean#L206-L234",
+            "source_text": "/-- Möbius inversion for functions to an `AddCommGroup`. -/\ntheorem sum_eq_iff_sum_smul_moebius_eq [AddCommGroup R] {f g : ℕ → R} :\n    (∀ n > 0, ∑ i ∈ n.divisors, f i = g n) ↔\n      ∀ n > 0, ∑ x ∈ n.divisorsAntidiagonal, μ x.fst • g x.snd = f n := by\n  let f' : ArithmeticFunction R := ⟨fun x => if x = 0 then 0 else f x, if_pos rfl⟩\n  let g' : ArithmeticFunction R := ⟨fun x => if x = 0 then 0 else g x, if_pos rfl⟩\n  trans (ζ : ArithmeticFunction ℤ) • f' = g'\n  · rw [ArithmeticFunction.ext_iff]\n    apply forall_congr'\n    intro n\n    cases n with\n    | zero => simp\n    | succ n =>\n      rw [coe_zeta_smul_apply]\n      simp only [forall_prop_of_true, succ_pos', f', g', coe_mk, succ_ne_zero, ite_false]\n      rw [sum_congr rfl fun x hx => if_neg (pos_of_mem_divisors hx).ne']\n  trans μ • g' = f'\n  · constructor <;> intro h <;>\n      simp only [← h, ← mul_smul, moebius_mul_coe_zeta, coe_zeta_mul_moebius, one_smul]\n  · rw [ArithmeticFunction.ext_iff]\n    apply forall_congr'\n    intro n\n    cases n with\n    | zero => simp\n    | succ n =>\n      simp only [forall_prop_of_true, succ_pos', smul_apply, f', g', coe_mk, succ_ne_zero,\n        ite_false]\n      rw [sum_congr rfl fun x hx => ?_]\n      rw [if_neg (pos_of_mem_divisors (snd_mem_divisors_of_mem_antidiagonal hx)).ne']\n",
+            "docstring": "Möbius inversion for functions to an `AddCommGroup`. "
+          },
+          {
+            "id": 271356,
+            "name": "ArithmeticFunction.sum_moebius_mul_log_eq",
+            "module": "Mathlib.NumberTheory.ArithmeticFunction.VonMangoldt",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ArithmeticFunction/VonMangoldt.lean#L133-L149",
+            "source_text": "theorem sum_moebius_mul_log_eq {n : ℕ} : (∑ d ∈ n.divisors, (μ d : ℝ) * log d) = -Λ n := by\n  simp only [← log_mul_moebius_eq_vonMangoldt, mul_comm log, mul_apply, log_apply, intCoe_apply, ←\n    Finset.sum_neg_distrib, neg_mul_eq_mul_neg]\n  rw [sum_divisorsAntidiagonal fun i j => (μ i : ℝ) * -Real.log j]\n  have : (∑ i ∈ n.divisors, (μ i : ℝ) * -Real.log (n / i : ℕ)) =\n      ∑ i ∈ n.divisors, ((μ i : ℝ) * Real.log i - μ i * Real.log n) := by\n    apply sum_congr rfl\n    simp only [and_imp, Ne, mem_divisors]\n    intro m mn hn\n    have : (m : ℝ) ≠ 0 := by\n      rw [cast_ne_zero]\n      rintro rfl\n      exact hn (by simpa using mn)\n    rw [Nat.cast_div mn this, Real.log_div (cast_ne_zero.2 hn) this, neg_sub, mul_sub]\n  rw [this, sum_sub_distrib, ← sum_mul, ← Int.cast_sum, ← coe_mul_zeta_apply, eq_comm, sub_eq_self,\n    moebius_mul_coe_zeta]\n  rcases eq_or_ne n 1 with (hn | hn) <;> simp [hn]\n",
+            "docstring": null
+          },
+          {
+            "id": 271266,
+            "name": "Nat.sum_divisors",
+            "module": "Mathlib.NumberTheory.ArithmeticFunction.Misc",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ArithmeticFunction/Misc.lean#L252-L256",
+            "source_text": "theorem _root_.Nat.sum_divisors {n : ℕ} (hn : n ≠ 0) :\n    ∑ d ∈ n.divisors, d = ∏ p ∈ n.primeFactors, ∑ k ∈ .range (n.factorization p + 1), p ^ k := by\n  rw [← sigma_one_apply, isMultiplicative_sigma.multiplicative_factorization _ hn]\n  exact prod_congr n.support_factorization fun _ h =>\n    sigma_one_apply_prime_pow <| prime_of_mem_primeFactors h\n",
+            "docstring": null
+          },
+          {
+            "id": 271366,
+            "name": "ArithmeticFunction.sum_divisorsAntidiagonal_eq_sum_divisors",
+            "module": "Mathlib.NumberTheory.ArithmeticFunction.Zeta",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ArithmeticFunction/Zeta.lean#L69-L75",
+            "source_text": "/-- `@[simp]`-normal form of `coe_zeta_smul_apply`. -/\n@[simp]\ntheorem sum_divisorsAntidiagonal_eq_sum_divisors {M} [Semiring R] [AddCommMonoid M] [MulAction R M]\n    {f : ArithmeticFunction M} {x : ℕ} :\n    (∑ x ∈ x.divisorsAntidiagonal, if x.1 = 0 then (0 : R) • f x.2 else f x.2) =\n      ∑ i ∈ divisors x, f i := by\n  simp [← coe_zeta_smul_apply (R := R)]\n",
+            "docstring": "`@[simp]`-normal form of `coe_zeta_smul_apply`. "
+          },
+          {
+            "id": 271959,
+            "name": "Nat.divisors",
+            "module": "Mathlib.NumberTheory.Divisors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Divisors.lean#L51-L52",
+            "source_text": "/-- `divisors n` is the `Finset` of divisors of `n`. By convention, we set `divisors 0 = ∅`. -/\ndef divisors : Finset ℕ := {d ∈ Ico 1 (n + 1) | d ∣ n}\n",
+            "docstring": "`divisors n` is the `Finset` of divisors of `n`. By convention, we set `divisors 0 = ∅`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Mobius function sum divisors",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387018,
+            "name": "IsTestFunction.sum",
+            "module": "Physlib.Mathematics.VariationalCalculus.IsTestFunction",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsTestFunction.lean#L194-L196",
+            "source_text": "@[fun_prop]\nlemma IsTestFunction.sum {ι} [Fintype ι] {φ : X → ι → U} {hφ : ∀ i, IsTestFunction (φ · i)} :\n    IsTestFunction (fun x => ∑ i, φ x i) := by fun_prop (disch:=simp)",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset gcd divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66034,
+            "name": "Finset.gcd_dvd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L141-L142",
+            "source_text": "theorem gcd_dvd {b : β} (hb : b ∈ s) : s.gcd f ∣ f b :=\n  dvd_gcd_iff.1 dvd_rfl _ hb\n",
+            "docstring": null
+          },
+          {
+            "id": 66030,
+            "name": "Finset.gcd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L123-L125",
+            "source_text": "/-- Greatest common divisor of a finite set -/\ndef gcd (s : Finset β) (f : β → α) : α :=\n  s.fold GCDMonoid.gcd 0 f\n",
+            "docstring": "Greatest common divisor of a finite set "
+          },
+          {
+            "id": 66043,
+            "name": "Finset.gcd_mono",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L178-L179",
+            "source_text": "theorem gcd_mono (h : s₁ ⊆ s₂) : s₂.gcd f ∣ s₁.gcd f :=\n  dvd_gcd fun _ hb ↦ gcd_dvd (h hb)\n",
+            "docstring": null
+          },
+          {
+            "id": 66033,
+            "name": "Finset.dvd_gcd_iff",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L136-L139",
+            "source_text": "theorem dvd_gcd_iff {a : α} : a ∣ s.gcd f ↔ ∀ b ∈ s, a ∣ f b := by\n  apply Iff.trans Multiset.dvd_gcd\n  simp only [Multiset.mem_map, and_imp, exists_imp]\n  exact ⟨fun k b hb ↦ k _ _ hb rfl, fun k a' b hb h ↦ h ▸ k _ hb⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 66035,
+            "name": "Finset.dvd_gcd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L144-L145",
+            "source_text": "theorem dvd_gcd {a : α} : (∀ b ∈ s, a ∣ f b) → a ∣ s.gcd f :=\n  dvd_gcd_iff.2\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset gcd divisibility",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Mobius function sum divisors",
+      "Finset gcd divisibility"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

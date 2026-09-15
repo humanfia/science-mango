@@ -1,0 +1,84 @@
+{
+  "id": "packed_polynomial_residue",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.SupportPolynomial.packed_polynomial_residue",
+    "spec_sha256": "72dd0f0732ef3d97095c40e8c2de5cdf404148f441f22bad7cb91d9ef5e45bb8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-xalsnr_q/attempt-001/Candidate_a51063b895433c99.lean",
+        "target_path": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-xalsnr_q/attempt-001/FrozenTarget_a51063b895433c99.lean",
+        "feedback": "",
+        "target_sha256": "d5505e09669f2a285de56dd32c7f13e7bd679d4f4aa0640df1192fda8e461cbb",
+        "target_olean_sha256": "95ed87df3e8a3d7751d783ef9d5c990f62928abf32ef37afbe8306e77ccbee05",
+        "source_sha256": "08f3f04cc19607edc06d077364de438c254a671c535872a7a36d7e0cafc5e12a",
+        "olean_sha256": "59a744d4df564b479828be0c93ff665e3264e85e7ae38b5bcf51d98df8e05613",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:07:10.270084+00:00",
+    "work": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-xalsnr_q",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-xalsnr_q/attempt-001/Candidate_a51063b895433c99.lean",
+    "environment_sha256": "ba328315687cd0a540fc223da064db7d5f9669cbe777aa5873b6a3b2c0f240e0",
+    "artifacts": {
+      "packed_sum_image": {
+        "payload": {
+          "declaration": "theorem M5.SupportPolynomial.packed_sum_image : ∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r) → M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r) = ∑ i : Fin w, (Polynomial.X : M5.BinaryPolynomial) ^ M5.Packing.packedValue r i := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r) → M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r) = ∑ i : Fin w, (Polynomial.X : M5.BinaryPolynomial) ^ M5.Packing.packedValue r i\n  intro w T r hinj\n  classical\n  unfold M5.SupportPolynomial.ofSupport M5.Packing.packedSupport\n  apply Finset.sum_image\n  intro i hi j hj hij\n  exact hinj hij",
+          "imports": [
+            "M5PackingInjective",
+            "M5SupportPolynomial"
+          ],
+          "name": "M5.SupportPolynomial.packed_sum_image",
+          "ancestors": [],
+          "spec_sha256": "6a47e8173d32c625e79ead0031ac420a4d16b96384b11d2958b2f42bde04c30a"
+        },
+        "sha256": "1f4c86bb13fdde08145a4ed0d075670613faa8cf01c76f95c4965b123ad0c521"
+      },
+      "quotient_monomial_period": {
+        "payload": {
+          "declaration": "theorem M5.SupportPolynomial.quotient_monomial_period : ∀ T a j : ℕ, AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ (a + j * T)) = AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ a) := by\n  change ∀ T a j : ℕ, AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ (a + j * T)) = AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ a)\n  intro T a j\n  let q := AdjoinRoot.mk (M5.cyclicModulus T)\n  have htwo : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n    have h : (1 : ZMod 2) + 1 = 0 := by decide\n    simpa only [map_add, Polynomial.C_1, map_zero] using congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) h\n  have htwoq : (1 : AdjoinRoot (M5.cyclicModulus T)) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using congrArg q htwo\n  have hmod : q ((Polynomial.X : M5.BinaryPolynomial) ^ T + 1) = 0 := by\n    change AdjoinRoot.mk (M5.cyclicModulus T) (M5.cyclicModulus T) = 0\n    exact AdjoinRoot.mk_self\n  have hsum : q Polynomial.X ^ T + 1 = 0 := by\n    simpa only [map_add, map_pow, map_one] using hmod\n  have hpow : q Polynomial.X ^ T = 1 := by\n    apply add_right_cancel (b := (1 : AdjoinRoot (M5.cyclicModulus T)))\n    exact hsum.trans htwoq.symm\n  change q (Polynomial.X ^ (a + j * T)) = q (Polynomial.X ^ a)\n  rw [map_pow, map_pow, pow_add, Nat.mul_comm j T, pow_mul, hpow, one_pow, mul_one]",
+          "imports": [
+            "M5PackingInjective",
+            "M5SupportPolynomial"
+          ],
+          "name": "M5.SupportPolynomial.quotient_monomial_period",
+          "ancestors": [],
+          "spec_sha256": "d4922fe309873208ed455c8ceba9b5a05e173fe8307fe0b7779c8f9ebaa4c5a0"
+        },
+        "sha256": "b26c9caca4986fe86e1d02dc5f6da24f6d3acec0dab5b5789e2a4e59db838731"
+      },
+      "packed_polynomial_residue": {
+        "payload": {
+          "declaration": "theorem M5.SupportPolynomial.packed_polynomial_residue : ∀ (w T : ℕ) (r : Fin w → Fin T), AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r)) = AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofResidueTuple r) := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T), AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r)) = AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofResidueTuple r)\n  intro w T r\n  classical\n  rw [M5.SupportPolynomial.packed_sum_image w T r (by apply M5.Packing.packed_value_injective)]\n  unfold M5.SupportPolynomial.ofResidueTuple\n  simp only [map_sum]\n  apply Finset.sum_congr rfl\n  intro i hi\n  unfold M5.Packing.packedValue\n  apply M5.SupportPolynomial.quotient_monomial_period",
+          "imports": [
+            "M5PackingInjective",
+            "M5SupportPolynomial"
+          ],
+          "name": "M5.SupportPolynomial.packed_polynomial_residue",
+          "ancestors": [
+            "packed_sum_image",
+            "quotient_monomial_period"
+          ],
+          "spec_sha256": "ae7a5a6d8dbb5fabc80cc5db07cbf08c2889eb5589ee79fad32dc7f0db09cfef"
+        },
+        "sha256": "641fab082207d5fd58492af7db60172251eb95751a96d3756edfe769aaeab24a"
+      }
+    }
+  }
+}

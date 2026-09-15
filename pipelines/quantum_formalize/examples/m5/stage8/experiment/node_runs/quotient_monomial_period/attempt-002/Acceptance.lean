@@ -1,0 +1,3 @@
+import Candidate_3b8fb1926b2bcdba
+example : QuantumHarnessFrozenTarget := M5.SupportPolynomial.quotient_monomial_period
+#print axioms M5.SupportPolynomial.quotient_monomial_period

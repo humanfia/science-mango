@@ -1,0 +1,111 @@
+{
+  "id": "finite_fibre_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Character.finite_fibre_count",
+    "spec_sha256": "3367fa3e3319b6a4d2aba9892c2aef4077c3ba7aa330ebeaf59e5554e170ae9b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-character-formalization/.humanize-formal-runs/run-l6sey28x/attempt-001/Candidate_834ebd08efa2346b.lean",
+        "target_path": "/home/jing/m5-lean-character-formalization/.humanize-formal-runs/run-l6sey28x/attempt-001/FrozenTarget_834ebd08efa2346b.lean",
+        "feedback": "",
+        "target_sha256": "8fe6c9a9ec6e3d3cdee6550b05280cbe48438c9ab696a5194c3715eb97054013",
+        "target_olean_sha256": "4de0cf095cf28b1a99870f698a55b9428b5b16317b0ed9d2b104a3367405b51b",
+        "source_sha256": "3fb87ab3a7823b3b1ee19d25cce7c74a5c03324305b2123a11efacb648d2d062",
+        "olean_sha256": "9bf5e4ba9d0f84360ae16997710f701806dec69033e217d87b907fb80561c7c8",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:04:56.834790+00:00",
+    "work": "/home/jing/m5-lean-character-formalization/.humanize-formal-runs/run-l6sey28x",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-character-formalization/.humanize-formal-runs/run-l6sey28x/attempt-001/Candidate_834ebd08efa2346b.lean",
+    "environment_sha256": "131311c88e916433120aafd3f25a5428c7a2a767e8da2d8d5eaf008d52958a66",
+    "artifacts": {
+      "bit_add": {
+        "payload": {
+          "declaration": "theorem M5.Character.bit_add : ∀ a b c : ZMod 2, M5.Character.bitSign a (b + c) = M5.Character.bitSign a b * M5.Character.bitSign a c := by\n  change ∀ a b c : ZMod 2, M5.Character.bitSign a (b + c) = M5.Character.bitSign a b * M5.Character.bitSign a c\n  decide",
+          "imports": [
+            "M5Character"
+          ],
+          "name": "M5.Character.bit_add",
+          "ancestors": [],
+          "spec_sha256": "43b3252c8d4f65f9fd10d0a9207fc0bf89a11c12f69fccee6b3f7624449bb3f3"
+        },
+        "sha256": "c7661e9f534dab0c0e997d860448fcfbd5e80098e809c534187c4beac16c2dda"
+      },
+      "character_add": {
+        "payload": {
+          "declaration": "theorem M5.Character.character_add : ∀ (D : ℕ) (lam z u : M5.Character.BinaryVector D), M5.Character.value lam (z + u) = M5.Character.value lam z * M5.Character.value lam u := by\n  change ∀ (D : ℕ) (lam z u : M5.Character.BinaryVector D), M5.Character.value lam (z + u) = M5.Character.value lam z * M5.Character.value lam u\n  intro D lam z u\n  simp only [M5.Character.value, Pi.add_apply, M5.Character.bit_add, Finset.prod_mul_distrib]",
+          "imports": [
+            "M5Character"
+          ],
+          "name": "M5.Character.character_add",
+          "ancestors": [
+            "bit_add"
+          ],
+          "spec_sha256": "d16c051ac85b2ec511fcd63bbe8ffac6ff11f63b017ed94292d1ac6378563a05"
+        },
+        "sha256": "b0a685b06c1714efd6c353e007655aa619e09e158f2601c98f8ec57098a21eb5"
+      },
+      "bit_orthogonality": {
+        "payload": {
+          "declaration": "theorem M5.Character.bit_orthogonality : ∀ b : ZMod 2, (∑ a : ZMod 2, M5.Character.bitSign a b) = if b = 0 then 2 else 0 := by\n  change ∀ b : ZMod 2, (∑ a : ZMod 2, M5.Character.bitSign a b) = if b = 0 then 2 else 0\n  decide",
+          "imports": [
+            "M5Character"
+          ],
+          "name": "M5.Character.bit_orthogonality",
+          "ancestors": [],
+          "spec_sha256": "fe96fe3d4aa68bff0a052504a634b6735d2cdead034c07b2a58e90945196e296"
+        },
+        "sha256": "b2e0999c39d16351906cd86426482cb9f8aaf3657e3173012102f8f5cb0dbe13"
+      },
+      "character_orthogonality": {
+        "payload": {
+          "declaration": "theorem M5.Character.character_orthogonality : ∀ (D : ℕ) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z) = if z = 0 then (2 : ℤ) ^ D else 0 := by\n  change ∀ (D : ℕ) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z) = if z = 0 then (2 : ℤ) ^ D else 0\n  intro D z\n  classical\n  change (∑ lam : Fin D → ZMod 2, ∏ i : Fin D, M5.Character.bitSign (lam i) (z i)) = if z = 0 then (2 : ℤ) ^ D else 0\n  rw [← Fintype.prod_sum (fun (i : Fin D) (a : ZMod 2) => M5.Character.bitSign a (z i))]\n  simp_rw [M5.Character.bit_orthogonality]\n  by_cases h : z = 0\n  · subst z\n    simp\n  · rw [if_neg h]\n    have hex : ∃ i : Fin D, z i ≠ 0 := by\n      by_contra hn\n      apply h\n      funext i\n      by_contra hi\n      exact hn ⟨i, hi⟩\n    obtain ⟨i, hi⟩ := hex\n    exact Finset.prod_eq_zero (Finset.mem_univ i) (if_neg hi)",
+          "imports": [
+            "M5Character"
+          ],
+          "name": "M5.Character.character_orthogonality",
+          "ancestors": [
+            "bit_orthogonality"
+          ],
+          "spec_sha256": "bfb810ef43ce32b4da9d54af5b4eea0609d85d1010b4005a17cb0eea5cfc8c15"
+        },
+        "sha256": "1922ce60ff1df3dd5e3bac9f3bbef80d747421666f2172fcdeb7c2fd5b9db65a"
+      },
+      "finite_fibre_count": {
+        "payload": {
+          "declaration": "theorem M5.Character.finite_fibre_count : ∀ (D n : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * ∑ u : Fin n, M5.Character.value lam (f u)) = (2 : ℤ) ^ D * ((Finset.univ.filter (fun u : Fin n => f u = z)).card : ℤ) := by\n  change ∀ (D n : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * ∑ u : Fin n, M5.Character.value lam (f u)) = (2 : ℤ) ^ D * ((Finset.univ.filter (fun u : Fin n => f u = z)).card : ℤ)\n  intro D n f z\n  classical\n  have hbit : ∀ a b : ZMod 2, a + b = 0 ↔ b = a := by\n    decide\n  have hz (u : Fin n) : z + f u = 0 ↔ f u = z := by\n    constructor\n    · intro h\n      funext i\n      exact (hbit (z i) (f u i)).mp (congrFun h i)\n    · intro h\n      funext i\n      exact (hbit (z i) (f u i)).mpr (congrFun h i)\n  simp_rw [Finset.mul_sum]\n  rw [Finset.sum_comm]\n  simp_rw [← M5.Character.character_add, M5.Character.character_orthogonality, hz]\n  rw [← Finset.sum_filter]\n  simp [mul_comm]",
+          "imports": [
+            "M5Character"
+          ],
+          "name": "M5.Character.finite_fibre_count",
+          "ancestors": [
+            "bit_add",
+            "bit_orthogonality",
+            "character_add",
+            "character_orthogonality"
+          ],
+          "spec_sha256": "36b662c993dd38791081c5219d0820a0d79a1df99669516e63b2828df24d59f1"
+        },
+        "sha256": "22a4578cf11fe27bd26b329dde2b59de50c65e2ca9964033b68d5e4accc4a8f3"
+      }
+    }
+  }
+}

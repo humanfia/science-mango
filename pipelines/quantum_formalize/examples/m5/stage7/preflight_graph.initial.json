@@ -1,0 +1,147 @@
+{
+  "title": "M5 stage 7: explicit binary additive-character counting kernel",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Section 2 binary coordinate character identities, without claiming quotient-coordinate identification or complete M5 counts",
+  "nodes": [
+    {
+      "id": "bit_add",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Character.bit_add",
+        "statement": "\u2200 a b c : ZMod 2, M5.Character.bitSign a (b + c) = M5.Character.bitSign a b * M5.Character.bitSign a c",
+        "imports": [
+          "M5Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product distributivity",
+          "additive character orthogonality"
+        ],
+        "guidance": "Finite case split over a,b,c : ZMod 2 using fin_cases, then decide or norm_num after unfolding bitSign. Return tactic lines only, without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_ORTHO",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "bit_orthogonality",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Character.bit_orthogonality",
+        "statement": "\u2200 b : ZMod 2, (\u2211 a : ZMod 2, M5.Character.bitSign a b) = if b = 0 then 2 else 0",
+        "imports": [
+          "M5Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product distributivity",
+          "additive character orthogonality"
+        ],
+        "guidance": "Use fin_cases b; finite sum ZMod 2 can be reduced using decide or explicit evaluation; bitSign is computable. Return tactic lines only, without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_ORTHO",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "character_add",
+      "dependencies": [
+        "bit_add"
+      ],
+      "spec": {
+        "name": "M5.Character.character_add",
+        "statement": "\u2200 (D : \u2115) (\u03bb z u : M5.Character.BinaryVector D), M5.Character.value \u03bb (z + u) = M5.Character.value \u03bb z * M5.Character.value \u03bb u",
+        "imports": [
+          "M5Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product distributivity",
+          "additive character orthogonality"
+        ],
+        "guidance": "Unfold value, Pi addition; use accepted bit_add pointwise and Finset.prod_mul_distrib. Return tactic lines only, without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_ORTHO",
+        "dependency_declarations": [
+          "M5.Character.bit_add"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "character_orthogonality",
+      "dependencies": [
+        "bit_orthogonality"
+      ],
+      "spec": {
+        "name": "M5.Character.character_orthogonality",
+        "statement": "\u2200 (D : \u2115) (z : M5.Character.BinaryVector D), (\u2211 \u03bb : M5.Character.BinaryVector D, M5.Character.value \u03bb z) = if z = 0 then (2 : \u2124) ^ D else 0",
+        "imports": [
+          "M5Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product distributivity",
+          "additive character orthogonality"
+        ],
+        "guidance": "Unfold value. Reverse Fintype.prod_sum to factor the sum over all binary vectors as product over coordinates of local sums. Apply bit_orthogonality. If z=0 product is 2^D; otherwise some coordinate is nonzero and Finset.prod_eq_zero applies. D=0 must remain included. Return tactic lines only, without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_ORTHO",
+        "dependency_declarations": [
+          "M5.Character.bit_orthogonality"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "finite_fibre_count",
+      "dependencies": [
+        "character_add",
+        "character_orthogonality"
+      ],
+      "spec": {
+        "name": "M5.Character.finite_fibre_count",
+        "statement": "\u2200 (D n : \u2115) (f : Fin n \u2192 M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (\u2211 \u03bb : M5.Character.BinaryVector D, M5.Character.value \u03bb z * \u2211 u : Fin n, M5.Character.value \u03bb (f u)) = (2 : \u2124) ^ D * ((Finset.univ.filter (fun u : Fin n => f u = z)).card : \u2124)",
+        "imports": [
+          "M5Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product distributivity",
+          "additive character orthogonality"
+        ],
+        "guidance": "Distribute multiplication over inner sum, commute finite sums, reverse character_add and apply character_orthogonality to z+f u. In characteristic two z+f u=0 iff f u=z. Sum the resulting indicators as the filter cardinality. Use actual accepted ancestor lemmas; n=0 and D=0 are allowed. Return tactic lines only, without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_ORTHO",
+        "dependency_declarations": [
+          "M5.Character.character_add",
+          "M5.Character.character_orthogonality"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

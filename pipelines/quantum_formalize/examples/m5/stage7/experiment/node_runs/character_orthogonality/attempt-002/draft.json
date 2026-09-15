@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (D : ℕ) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z) = if z = 0 then (2 : ℤ) ^ D else 0\nintro D z\nclassical\nchange (∑ lam : Fin D → ZMod 2, ∏ i : Fin D, M5.Character.bitSign (lam i) (z i)) = if z = 0 then (2 : ℤ) ^ D else 0\nrw [← Fintype.prod_sum (fun (i : Fin D) (a : ZMod 2) => M5.Character.bitSign a (z i))]\nsimp_rw [M5.Character.bit_orthogonality]\nby_cases h : z = 0\n· subst z\n  simp\n· rw [if_neg h]\n  have hex : ∃ i : Fin D, z i ≠ 0 := by\n    by_contra hn\n    apply h\n    funext i\n    by_contra hi\n    exact hn ⟨i, hi⟩\n  obtain ⟨i, hi⟩ := hex\n  exact Finset.prod_eq_zero (Finset.mem_univ i) (if_neg hi)",
+  "queries": []
+}

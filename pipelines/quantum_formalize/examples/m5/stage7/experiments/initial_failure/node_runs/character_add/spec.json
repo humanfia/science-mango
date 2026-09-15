@@ -1,0 +1,13 @@
+{
+  "name": "M5.Character.character_add",
+  "statement": "∀ (D : ℕ) (λ z u : M5.Character.BinaryVector D), M5.Character.value λ (z + u) = M5.Character.value λ z * M5.Character.value λ u",
+  "imports": [
+    "M5Character"
+  ],
+  "context": "theorem M5.Character.bit_add : ∀ a b c : ZMod 2, M5.Character.bitSign a (b + c) = M5.Character.bitSign a b * M5.Character.bitSign a c := by\n  change ∀ a b c : ZMod 2, M5.Character.bitSign a (b + c) = M5.Character.bitSign a b * M5.Character.bitSign a c\n  intro a b c\n  fin_cases a <;> fin_cases b <;> fin_cases c\n  all_goals\n    unfold M5.Character.bitSign\n    first\n    | change (-1 : _) ^ (0 : ℕ) = (-1) ^ (0 : ℕ) * (-1) ^ (0 : ℕ)\n    | change (-1 : _) ^ (1 : ℕ) = (-1) ^ (0 : ℕ) * (-1) ^ (1 : ℕ)\n    | change (-1 : _) ^ (1 : ℕ) = (-1) ^ (1 : ℕ) * (-1) ^ (0 : ℕ)\n    | change (-1 : _) ^ (0 : ℕ) = (-1) ^ (1 : ℕ) * (-1) ^ (1 : ℕ)\n  all_goals norm_num",
+  "queries": [
+    "finite sum product distributivity",
+    "additive character orthogonality"
+  ],
+  "guidance": "Unfold value, Pi addition; use accepted bit_add pointwise and Finset.prod_mul_distrib. Return tactic lines only, without a leading by; preserve exact target."
+}

@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (S : Finset ℕ) (K : ℕ), 0 < K → (∀ e ∈ S, e < K) → (M5.SupportPolynomial.ofSupport S).natDegree < K\nintro S K hK\ninduction S using Finset.induction_on with\n| empty =>\n    intro hS\n    simpa [M5.SupportPolynomial.ofSupport] using hK\n| @insert a S ha ih =>\n    intro hS\n    rw [M5.SupportPolynomial.ofSupport, Finset.sum_insert ha]\n    apply lt_of_le_of_lt (Polynomial.natDegree_add_le _ _)\n    apply max_lt_iff.mpr\n    constructor\n    · simpa only [Polynomial.natDegree_X_pow] using hS a (Finset.mem_insert_self a S)\n    · simpa only [M5.SupportPolynomial.ofSupport] using\n        ih (fun e he => hS e (Finset.mem_insert_of_mem he))",
+  "queries": [
+    "Polynomial.natDegree_add_le",
+    "Polynomial.natDegree_X_pow"
+  ]
+}

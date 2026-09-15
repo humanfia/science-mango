@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ b : ZMod 2, (∑ a : ZMod 2, M5.Character.bitSign a b) = if b = 0 then 2 else 0\nintro b\nhave huniv : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by decide\nrw [huniv]\nsimp only [Finset.sum_insert (by decide : (0 : ZMod 2) ∉ ({1} : Finset (ZMod 2))), Finset.sum_singleton]\nfin_cases b\n· change M5.Character.bitSign 0 0 + M5.Character.bitSign 1 0 = 2\n  norm_num [M5.Character.bitSign]\n· change M5.Character.bitSign 0 1 + M5.Character.bitSign 1 1 = 0\n  norm_num [M5.Character.bitSign]",
+  "queries": []
+}

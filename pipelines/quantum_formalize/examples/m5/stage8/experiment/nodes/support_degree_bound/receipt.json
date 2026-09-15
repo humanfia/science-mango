@@ -1,0 +1,55 @@
+{
+  "id": "support_degree_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.SupportPolynomial.support_degree_bound",
+    "spec_sha256": "e6c547a570cbeffd10548a60bc002f7ee45dfe6ae58a50770ace9e3e777483af",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-_4v8ed42/attempt-001/Candidate_d81a6267eb6056d4.lean",
+        "target_path": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-_4v8ed42/attempt-001/FrozenTarget_d81a6267eb6056d4.lean",
+        "feedback": "",
+        "target_sha256": "614550ffc8ba368349676b1e3cdf832c047873485ce39953f1c7929f3d70a4b0",
+        "target_olean_sha256": "3009d51f251416deab4aa4798cf5f760a51195da9a19c9d2a41ffc7d8eaa79de",
+        "source_sha256": "0d79100499aba625c364e8c968d812145fe6b6c99f32362b84ea21343af4866b",
+        "olean_sha256": "94971bbd63806f86f2572cdafc06ff9f6be3784d6330a5e566db186b75eb1a70",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:03:44.997300+00:00",
+    "work": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-_4v8ed42",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-support-polynomial-formalization/.humanize-formal-runs/run-_4v8ed42/attempt-001/Candidate_d81a6267eb6056d4.lean",
+    "environment_sha256": "ba328315687cd0a540fc223da064db7d5f9669cbe777aa5873b6a3b2c0f240e0",
+    "artifacts": {
+      "support_degree_bound": {
+        "payload": {
+          "declaration": "theorem M5.SupportPolynomial.support_degree_bound : ∀ (S : Finset ℕ) (K : ℕ), 0 < K → (∀ e ∈ S, e < K) → (M5.SupportPolynomial.ofSupport S).natDegree < K := by\n  change ∀ (S : Finset ℕ) (K : ℕ), 0 < K → (∀ e ∈ S, e < K) → (M5.SupportPolynomial.ofSupport S).natDegree < K\n  intro S K hK\n  induction S using Finset.induction_on with\n  | empty =>\n      intro hS\n      simpa [M5.SupportPolynomial.ofSupport] using hK\n  | @insert a S ha ih =>\n      intro hS\n      rw [M5.SupportPolynomial.ofSupport, Finset.sum_insert ha]\n      apply lt_of_le_of_lt (Polynomial.natDegree_add_le _ _)\n      apply max_lt_iff.mpr\n      constructor\n      · simpa only [Polynomial.natDegree_X_pow] using hS a (Finset.mem_insert_self a S)\n      · simpa only [M5.SupportPolynomial.ofSupport] using\n          ih (fun e he => hS e (Finset.mem_insert_of_mem he))",
+          "imports": [
+            "M5PackingInjective",
+            "M5SupportPolynomial"
+          ],
+          "name": "M5.SupportPolynomial.support_degree_bound",
+          "ancestors": [],
+          "spec_sha256": "78e0bce06c2f0b79204f435935db0b99dd49d23dc6063062c4662a9380c11751"
+        },
+        "sha256": "b99c329fa849e71d5a6c41eb336ba7884385167fe96d3f1c1015f10d424c301a"
+      }
+    }
+  }
+}

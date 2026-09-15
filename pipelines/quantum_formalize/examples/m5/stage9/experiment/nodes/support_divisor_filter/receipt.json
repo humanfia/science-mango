@@ -1,0 +1,68 @@
+{
+  "id": "support_divisor_filter",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Connectivity.support_divisor_filter",
+    "spec_sha256": "b63fb9324c7cd1c516347543e26f33f79d2490f536d6036823d0c1d15fa02d70",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-integer-mobius-formalization/.humanize-formal-runs/run-d0_apqgm/attempt-001/Candidate_5c55ca996c002a66.lean",
+        "target_path": "/home/jing/m5-lean-integer-mobius-formalization/.humanize-formal-runs/run-d0_apqgm/attempt-001/FrozenTarget_5c55ca996c002a66.lean",
+        "feedback": "",
+        "target_sha256": "982667c64de76e6541a01a9210d038b4616e3b8424af7a0f9d4ff51303d62eed",
+        "target_olean_sha256": "0de2fa54f594a89cdddee44e04149e78a48f3d3a891ad7f97fa0847c5c53c265",
+        "source_sha256": "cddb2fd6f06ce8bb4acdbd627b9d8710f8c6b1fca3c9fd6eca59ea7527a5c21f",
+        "olean_sha256": "94dd3679b9364f27581f65d9b6bd6cc14e585ec505025803a322de24d64e99ad",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:59:27.418093+00:00",
+    "work": "/home/jing/m5-lean-integer-mobius-formalization/.humanize-formal-runs/run-d0_apqgm",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-integer-mobius-formalization/.humanize-formal-runs/run-d0_apqgm/attempt-001/Candidate_5c55ca996c002a66.lean",
+    "environment_sha256": "8faae016a10dc85f6b94a65d56bbf4a875f4121457c6d1aeae9f2e514e354ba7",
+    "artifacts": {
+      "support_gcd_dvd": {
+        "payload": {
+          "declaration": "theorem M5.Connectivity.support_gcd_dvd : ∀ (N d : ℕ) (A B : Finset ℕ), d ∣ M5.Connectivity.supportGcd N A B ↔ d ∣ N ∧ (∀ a ∈ A, d ∣ a) ∧ (∀ b ∈ B, d ∣ b) := by\n  intro N d A B\n  simp [M5.Connectivity.supportGcd, Nat.dvd_gcd_iff, Finset.dvd_gcd_iff, and_assoc]",
+          "imports": [
+            "M5IntegerMobius"
+          ],
+          "name": "M5.Connectivity.support_gcd_dvd",
+          "ancestors": [],
+          "spec_sha256": "9e17cef50a9f130b9c6f208d1a4eed8adaebadb9fad113108983bdc5da05bdef"
+        },
+        "sha256": "98356063792647057da6a891af45a45615820c8bcc739739d254b4ca999095fb"
+      },
+      "support_divisor_filter": {
+        "payload": {
+          "declaration": "theorem M5.Connectivity.support_divisor_filter : ∀ (N : ℕ) (A B : Finset ℕ), 0 < N → N.divisors.filter (fun d => (∀ a ∈ A, d ∣ a) ∧ (∀ b ∈ B, d ∣ b)) = (M5.Connectivity.supportGcd N A B).divisors := by\n  intro N A B hN\n  have hdiv : M5.Connectivity.supportGcd N A B ∣ N :=\n    ((M5.Connectivity.support_gcd_dvd N\n      (M5.Connectivity.supportGcd N A B) A B).mp dvd_rfl).1\n  have hg : M5.Connectivity.supportGcd N A B ≠ 0 := by\n    intro hz\n    rw [hz] at hdiv\n    exact (Nat.ne_of_gt hN) (Nat.zero_dvd.mp hdiv)\n  ext d\n  simp [Finset.mem_filter, Nat.mem_divisors, Nat.ne_of_gt hN, hg,\n    M5.Connectivity.support_gcd_dvd, and_assoc]",
+          "imports": [
+            "M5IntegerMobius"
+          ],
+          "name": "M5.Connectivity.support_divisor_filter",
+          "ancestors": [
+            "support_gcd_dvd"
+          ],
+          "spec_sha256": "97ff9b8eb3c3a47719510ce0b8e6e47b5b2d013a2d7bfebcd3ab24a6e93f0094"
+        },
+        "sha256": "abcb5d05f7e82ec91c7d1e06e06bd9433322c724466a6e55b2c6987406fd5719"
+      }
+    }
+  }
+}

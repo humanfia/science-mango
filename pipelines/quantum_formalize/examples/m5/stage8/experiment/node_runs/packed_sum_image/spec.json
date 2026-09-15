@@ -1,0 +1,14 @@
+{
+  "name": "M5.SupportPolynomial.packed_sum_image",
+  "statement": "∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r) → M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r) = ∑ i : Fin w, (Polynomial.X : M5.BinaryPolynomial) ^ M5.Packing.packedValue r i",
+  "imports": [
+    "M5PackingInjective",
+    "M5SupportPolynomial"
+  ],
+  "context": "",
+  "queries": [
+    "polynomial coefficient sum",
+    "AdjoinRoot polynomial quotient"
+  ],
+  "guidance": "Unfold packedSupport and ofSupport, then use Finset.sum_image with injectivity. This helper explicitly assumes injectivity of the packed values, not injectivity of the original residues. The final bridge discharges it using the accepted stage6 theorem. Return only tactic lines without a leading by. Preserve the exact target."
+}

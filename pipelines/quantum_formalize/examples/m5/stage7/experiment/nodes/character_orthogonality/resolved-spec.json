@@ -1,0 +1,13 @@
+{
+  "name": "M5.Character.character_orthogonality",
+  "statement": "∀ (D : ℕ) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z) = if z = 0 then (2 : ℤ) ^ D else 0",
+  "imports": [
+    "M5Character"
+  ],
+  "context": "theorem M5.Character.bit_orthogonality : ∀ b : ZMod 2, (∑ a : ZMod 2, M5.Character.bitSign a b) = if b = 0 then 2 else 0 := by\n  change ∀ b : ZMod 2, (∑ a : ZMod 2, M5.Character.bitSign a b) = if b = 0 then 2 else 0\n  decide",
+  "queries": [
+    "finite sum product distributivity",
+    "additive character orthogonality"
+  ],
+  "guidance": "Unfold value. Reverse Fintype.prod_sum to factor the sum over all binary vectors as product over coordinates of local sums. Apply bit_orthogonality. If z=0 product is 2^D; otherwise some coordinate is nonzero and Finset.prod_eq_zero applies. D=0 must remain included. Return tactic lines only, without a leading by; preserve exact target."
+}
