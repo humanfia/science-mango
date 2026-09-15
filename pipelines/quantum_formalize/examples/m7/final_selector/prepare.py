@@ -9,8 +9,16 @@ for stage,module in parents:
 if not(P/'.lake/packages').exists():(P/'.lake/packages').symlink_to('/home/jing/lean-1st-proof/.lake/packages',target_is_directory=True)
 sys.path.insert(0,str(R))
 from pipelines.quantum_formalize.engine import Spec,render,digest
+from pipelines.quantum_formalize.accepted_order import order_only_equivalent
 from pipelines.quantum_formalize.dag_runner import load_graph,portable_declaration
-sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();provs={}
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();provs={};order_reconciliations=[]
+def promote(source, name, parent):
+ dest=P/name
+ if dest.exists() and dest.read_bytes()!=source.read_bytes():
+  assert name.endswith('Accepted.lean') and order_only_equivalent(dest.read_text(),source.read_text()), ('source collision',parent,name)
+  order_reconciliations.append({'module':name,'parent':parent,'kept_sha256':sha(dest),'incoming_sha256':sha(source),'rule':'exact theorem names and complete bodies; import multiset identical; only declaration order and allowed local #print axioms differ'})
+  return
+ for d in [P,H/'lean']:(d/name).write_bytes(source.read_bytes())
 for stage,module in parents:
  B=H.parent/stage;A=B/'experiment';m=json.loads((A/'MANIFEST.json').read_text());files=m.get('files',m);assert all(sha(A/n)==v for n,v in files.items());res=json.loads((A/'result.json').read_text());assert all(res[k] for k in ['experiment_passed','assembly_accepted','environment_unchanged']);env=json.loads((A/'environment.json').read_text());g,nodes=load_graph(A/'graph.json');s=json.loads((A/'nodes/state.json').read_text());proofs={}
  for n in nodes:
@@ -22,11 +30,9 @@ for stage,module in parents:
    for q in list((B/'lean').glob('*.lean'))+[A/'AcceptedExperiment.lean']:
     if q.name in env or q==A/'AcceptedExperiment.lean':assert f.stem not in [t for line in re.findall(r'(?m)^\s*import\s+([^\n]+)',q.read_text())for t in line.split()]
    continue
-  if (P/f.name).exists():assert(P/f.name).read_bytes()==f.read_bytes(),('collision',stage,f.name)
-  shutil.copy2(f,P/f.name);shutil.copy2(f,H/'lean'/f.name)
+  promote(f,f.name,stage)
  f=A/'AcceptedExperiment.lean'
- if(P/(module+'.lean')).exists():assert(P/(module+'.lean')).read_bytes()==f.read_bytes(),('accepted collision',stage,module)
- for dest in [P,H/'lean']:(dest/(module+'.lean')).write_bytes(f.read_bytes())
+ promote(f,module+'.lean',stage)
  provs[stage]={'canonical_manifest_sha256':sha(A/'MANIFEST.json'),'verified_count':len(nodes),'source_environment_verified':True,'accepted_module_sha256':sha(f),'nodes':proofs}
 
 for name in ['M7FinalSelector.lean','GraphPreflight.lean']:
@@ -40,6 +46,7 @@ lake='name = "M7FinalSelectorProject"\nversion = "0.1.0"\ndefaultTargets = ["M7F
 for f in sorted(P.glob('*.lean')):
  if f.stem!='GraphPreflight':lake+='\n[[lean_lib]]\nname = "'+f.stem+'"\n'
 for d in [P,H]:(d/'lakefile.toml').write_text(lake)
+(H/'ORDER_ONLY_RECONCILIATIONS.json').write_text(json.dumps(order_reconciliations,indent=2)+'\n')
 (H/'IMPORT_PROVENANCE.json').write_text(json.dumps(provs,indent=2)+'\n')
 (H/'DEPENDENCY_GATE.json').write_text(json.dumps({'resolved':True,'pending':[],'all_parent_receipts_and_payloads_verified':True,'normal_closed_type_preflight_required':True},indent=2)+'\n')
 print('parents verified',sum(v['verified_count']for v in provs.values()))

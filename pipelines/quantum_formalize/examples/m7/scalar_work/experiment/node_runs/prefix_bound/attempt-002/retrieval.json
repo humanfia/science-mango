@@ -1,0 +1,186 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalCount.restricted",
+    "status": "ok",
+    "results": [
+      {
+        "id": 189186,
+        "name": "Nat.Partition.countRestricted",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Basic.lean#L212-L214",
+        "source_text": "/-- The finset of those partitions in which every part is used less than `m` times. -/\ndef countRestricted (n : ℕ) (m : ℕ) : Finset n.Partition :=\n  Finset.univ.filter fun x ↦ ∀ i ∈ x.parts, x.parts.count i < m\n",
+        "docstring": "The finset of those partitions in which every part is used less than `m` times. "
+      },
+      {
+        "id": 190806,
+        "name": "Matroid.restrict",
+        "module": "Mathlib.Combinatorics.Matroid.Minor.Restrict",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Minor/Restrict.lean#L119-L122",
+        "source_text": "/-- Change the ground set of a matroid to some `R : Set α`. The independent sets of the restriction\nare the independent subsets of the new ground set. Most commonly used when `R ⊆ M.E`,\nbut it is convenient not to require this. The elements of `R \\ M.E` become 'loops'. -/\ndef restrict (M : Matroid α) (R : Set α) : Matroid α := (M.restrictIndepMatroid R).matroid\n",
+        "docstring": "Change the ground set of a matroid to some `R : Set α`. The independent sets of the restriction\nare the independent subsets of the new ground set. Most commonly used when `R ⊆ M.E`,\nbut it is convenient not to require this. The elements of `R \\ M.E` become 'loops'. "
+      },
+      {
+        "id": 336423,
+        "name": "RestrictedProduct",
+        "module": "Mathlib.Topology.Algebra.RestrictedProduct.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/RestrictedProduct/Basic.lean#L69-L79",
+        "source_text": "/-- The **restricted product** of a family `R : ι → Type*` of types, relative to subsets\n`A : (i : ι) → Set (R i)` and the filter `𝓕 : Filter ι`, is the set of all `x : Π i, R i`\nsuch that the set `{j | x j ∈ A j}` belongs to `𝓕`. We denote it by `Πʳ i, [R i, A i]_[𝓕]`.\n\nThe most common use case is with `𝓕 = cofinite`, in which case the restricted product is the set\nof all `x : Π i, R i` such that `x j ∈ A j` for all but finitely many `j`. We denote it simply\nby `Πʳ i, [R i, A i]`.\n\nSimilarly, if `S` is a principal filter, the restricted product `Πʳ i, [R i, A i]_[𝓟 s]`\nis the set of all `x : Π i, R i` such that `∀ j ∈ S, x j ∈ A j`. -/\ndef RestrictedProduct (𝓕 : Filter ι) : Type _ := {x : Π i, R i // ∀ᶠ i in 𝓕, x i ∈ A i}\n",
+        "docstring": "The **restricted product** of a family `R : ι → Type*` of types, relative to subsets\n`A : (i : ι) → Set (R i)` and the filter `𝓕 : Filter ι`, is the set of all `x : Π i, R i`\nsuch that the set `{j | x j ∈ A j}` belongs to `𝓕`. We denote it by `Πʳ i, [R i, A i]_[𝓕]`.\n\nThe most common use case is with `𝓕 = cofinite`, in which case the restricted product is the set\nof all `x : Π i, R i` such that `x j ∈ A j` for all but finitely many `j`. We denote it simply\nby `Πʳ i, [R i, A i]`.\n\nSimilarly, if `S` is a principal filter, the restricted product `Πʳ i, [R i, A i]_[𝓟 s]`\nis the set of all `x : Π i, R i` such that `∀ j ∈ S, x j ∈ A j`. "
+      },
+      {
+        "id": 190862,
+        "name": "Matroid.restrict_isStrictRestriction",
+        "module": "Mathlib.Combinatorics.Matroid.Minor.Restrict",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Minor/Restrict.lean#L329-L332",
+        "source_text": "theorem restrict_isStrictRestriction {M : Matroid α} (hR : R ⊂ M.E) : M ↾ R <r M := by\n  refine (M.restrict_isRestriction R hR.subset).isStrictRestriction_of_ne (fun h ↦ ?_)\n  rw [← h, restrict_ground_eq] at hR\n  exact hR.ne rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 190834,
+        "name": "Matroid.«term_<r_»",
+        "module": "Mathlib.Combinatorics.Matroid.Minor.Restrict",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Minor/Restrict.lean#L231-L232",
+        "source_text": "/-- `N <r M` means that `N` is a `IsStrictRestriction` of `M`. -/\nscoped infix:50 \" <r \" => IsStrictRestriction\n",
+        "docstring": "`N <r M` means that `N` is a `IsStrictRestriction` of `M`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.ConditionalCount.restricted",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386624,
+        "name": "LinearPMap.compRestricted",
+        "module": "Physlib.Mathematics.LinearPMap",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/LinearPMap.lean#L175-L184",
+        "source_text": "/-- `g ∘ᵣ f` is the composition of `g` with `f` restricted to a domain consisting of exactly those\n  `x : f.domain` for which `f x ∈ g.domain`. -/\ndef compRestricted : E →ₗ.[R] G :=\n  g.comp (f.domRestrict <| (g.domain.comap f.toFun).map f.domain.subtype) (by\n    intro ⟨x, h, _⟩\n    simp only [map_coe, subtype_apply, comap_coe, Set.mem_image, Set.mem_preimage,\n      toFun_eq_coe, SetLike.mem_coe] at h\n    obtain ⟨y, hy, hy'⟩ := h\n    rw [domRestrict_apply hy'.symm]\n    exact hy)\n",
+        "docstring": "`g ∘ᵣ f` is the composition of `g` with `f` restricted to a domain consisting of exactly those\n`x : f.domain` for which `f x ∈ g.domain`. "
+      },
+      {
+        "id": 391278,
+        "name": "LorentzGroup.restricted",
+        "module": "Physlib.Relativity.LorentzGroup.Restricted.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzGroup/Restricted/Basic.lean#L24-L45",
+        "source_text": "/-- The restricted Lorentz group comprises the proper and orthochronous elements of the\nLorentz group. -/\ndef restricted (d : ℕ) : Subgroup (LorentzGroup d) where\n  carrier := { Λ : LorentzGroup d | IsProper Λ ∧ IsOrthochronous Λ }\n  one_mem' := ⟨\n    by rw [IsProper]; exact det_one,\n    by rw [IsOrthochronous]; exact zero_le_one⟩\n  mul_mem' := by\n    rintro Λ₁ Λ₂ ⟨Λ₁_proper, Λ₁_ortho⟩ ⟨Λ₂_proper, Λ₂_ortho⟩\n    exact ⟨\n      by exact isProper_mul Λ₁_proper Λ₂_proper,\n      by exact isOrthochronous_mul Λ₁_ortho Λ₂_ortho⟩\n  inv_mem' := by\n    rintro Λ ⟨Λ_proper, Λ_ortho⟩\n\n    have h_η₀₀ : @minkowskiMatrix d (Sum.inl 0) (Sum.inl 0) = 1 := by rfl\n    have h_dual : (dual Λ.1) (Sum.inl 0) (Sum.inl 0) = Λ.1 (Sum.inl 0) (Sum.inl 0) := by\n      rw [dual_apply, h_η₀₀, one_mul, mul_one]\n\n    exact ⟨\n      by rw [IsProper, inv_eq_dual, det_dual, Λ_proper],\n      by simp [IsOrthochronous, inv_eq_dual, h_dual]; exact Λ_ortho⟩\n",
+        "docstring": "The restricted Lorentz group comprises the proper and orthochronous elements of the\nLorentz group. "
+      },
+      {
+        "id": 386829,
+        "name": "instFintypeCond_physlib",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L65-L66",
+        "source_text": "/-- The type family parameterized by `Bool` is finite if each type variant is finite. -/\ninstance [M : Fintype m] [N : Fintype n] (b : Bool) : Fintype (cond b m n) := b.rec N M\n",
+        "docstring": "The type family parameterized by `Bool` is finite if each type variant is finite. "
+      },
+      {
+        "id": 387051,
+        "name": "Physlib.noLemmas",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L185-L189",
+        "source_text": "/-- Number of definitions. -/\ndef noLemmas : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return !c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.PrefixCompleted.Base",
+    "status": "ok",
+    "results": [
+      {
+        "id": 303215,
+        "name": "IsPrecomplete.map_algebraMap_iff",
+        "module": "Mathlib.RingTheory.AdicCompletion.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdicCompletion/Basic.lean#L152-L155",
+        "source_text": "theorem IsPrecomplete.map_algebraMap_iff [CommRing S] [Module S M] [Algebra R S]\n    [IsScalarTower R S M] : IsPrecomplete (I.map (algebraMap R S)) M ↔ IsPrecomplete I M := by\n  simp [isPrecomplete_iff, ← Ideal.map_pow, ← SModEq.restrictScalars R,\n    restrictScalars_map_smul_eq]\n",
+        "docstring": null
+      },
+      {
+        "id": 273282,
+        "name": "ZMod.completedLFunction₀",
+        "module": "Mathlib.NumberTheory.LSeries.ZMod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/ZMod.lean#L329-L335",
+        "source_text": "/--\nThe completed L-function of a function `ZMod N → ℂ`, modified by adding multiples of `N ^ (-s) / s`\nand `N ^ (-s) / (1 - s)` to make it entire.\n-/\nnoncomputable def completedLFunction₀ (Φ : ZMod N → ℂ) (s : ℂ) : ℂ :=\n  N ^ (-s) * ∑ j : ZMod N, Φ j * completedHurwitzZetaEven₀ (toAddCircle j) s\n  + N ^ (-s) * ∑ j : ZMod N, Φ j * completedHurwitzZetaOdd (toAddCircle j) s\n",
+        "docstring": "The completed L-function of a function `ZMod N → ℂ`, modified by adding multiples of `N ^ (-s) / s`\nand `N ^ (-s) / (1 - s)` to make it entire.\n"
+      },
+      {
+        "id": 273220,
+        "name": "completedRiemannZeta",
+        "module": "Mathlib.NumberTheory.LSeries.RiemannZeta",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/RiemannZeta.lean#L66-L68",
+        "source_text": "/-- The completed Riemann zeta function, `Λ(s)`, which satisfies\n`Λ(s) = π ^ (-s / 2) Γ(s / 2) ζ(s)` (up to a minor correction at `s = 0`). -/\ndef completedRiemannZeta (s : ℂ) : ℂ := completedHurwitzZetaEven 0 s\n",
+        "docstring": "The completed Riemann zeta function, `Λ(s)`, which satisfies\n`Λ(s) = π ^ (-s / 2) Γ(s / 2) ζ(s)` (up to a minor correction at `s = 0`). "
+      },
+      {
+        "id": 273226,
+        "name": "differentiable_completedZeta₀",
+        "module": "Mathlib.NumberTheory.LSeries.RiemannZeta",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/RiemannZeta.lean#L89-L91",
+        "source_text": "/-- The modified completed Riemann zeta function `Λ(s) + 1 / s + 1 / (1 - s)` is entire. -/\ntheorem differentiable_completedZeta₀ : Differentiable ℂ completedRiemannZeta₀ :=\n  differentiable_completedHurwitzZetaEven₀ 0\n",
+        "docstring": "The modified completed Riemann zeta function `Λ(s) + 1 / s + 1 / (1 - s)` is entire. "
+      },
+      {
+        "id": 243685,
+        "name": "Module.Basis.coe_mkFinSnoc",
+        "module": "Mathlib.LinearAlgebra.Basis.Fin",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Basis/Fin.lean#L98-L103",
+        "source_text": "@[simp]\ntheorem coe_mkFinSnoc {n : ℕ} {N : Submodule R M} (b : Basis (Fin n) R N) (y : M)\n    (hli : ∀ (c : R), ∀ x ∈ N, c • y + x = 0 → c = 0) (hsp : ∀ z : M, ∃ c : R, z + c • y ∈ N) :\n    (mkFinSnoc b y hli hsp : Fin (n + 1) → M) = Fin.snoc ((↑) ∘ b) y := by\n  unfold mkFinSnoc\n  exact coe_mk (v := Fin.snoc (N.subtype ∘ b) y) _ _",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "M7.PrefixCompleted.Base",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M7.PrefixCompleted.Base",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

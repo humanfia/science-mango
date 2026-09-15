@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst w E hE\nhave hx := M7.CompactCorrectness.generate_exact N w E hE\nhave hc : (M7.CompactGeneration.generate (N := N) w E).finalResidual =\n    M7.CompactGeneration.residual w E\n      (M7.CompactGeneration.generate (N := N) w E).finalBases [] := by\n  simpa only [M7.CompactGeneration.generate] using\n    (M7.CompactCorrectness.run_cache N w E ∅\n      (M7.CompactGeneration.residual (N := N) w E ∅ []).toNat\n      (M7.CompactGeneration.residual (N := N) w E ∅ []) rfl)\napply (M7.RecoveryInstance.root_zero N w E\n  (M7.CompactGeneration.generate (N := N) w E).finalBases hE hx.1).mp\nrw [M7.CompactCorrectness.residual_eq] at hc\nexact hc.symm.trans hx.2.1",
+  "queries": []
+}

@@ -1,0 +1,55 @@
+{
+  "id": "run_records",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CompactCorrectness.run_records",
+    "spec_sha256": "df24e42a89fa227d3b908751304e5981211657a11e4a71170be0844dc7e2fe7f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-0g1evxcf/attempt-001/Candidate_fd5e7e9865cbe0b3.lean",
+        "target_path": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-0g1evxcf/attempt-001/FrozenTarget_fd5e7e9865cbe0b3.lean",
+        "feedback": "",
+        "target_sha256": "197f72360c22d749674f705d6080ff95268abbfe521081dc2b04d3cf4c5a4172",
+        "target_olean_sha256": "c2a8a9f6b6b99f79fc755eeb581d5ac1de05fc29d726e3004010cd6f608f354f",
+        "source_sha256": "2c5c1c7964e51f785414448929c85ea078371590b0f8ee337531d19f62465437",
+        "olean_sha256": "322ad2674cc272db2632249910893429e185cdd21557e600b2c005e14daeca25",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:02:58.155214+00:00",
+    "work": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-0g1evxcf",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "160bd68d65b1260e99f87e275f04f2ff5495747c15c3ef002c33df770d494b87",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-0g1evxcf/attempt-001/Candidate_fd5e7e9865cbe0b3.lean",
+    "environment_sha256": "183a2203adbc704eefc5c78969d0f34c5f47443ba116fcd223a4d207f1b22301",
+    "artifacts": {
+      "run_records": {
+        "payload": {
+          "declaration": "theorem M7.CompactCorrectness.run_records : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), ∀ e ∈ (M7.CompactGeneration.run w E fuel bases root).emitted, M7.Action.act e.action e.leaf = e.representative ∧ M7.Action.act (M7.Action.inverse e.action) e.representative = e.leaf ∧ e.leafSignature = M7.RecipeSignature.signature e.leaf ∧ e.representativeSignature = M7.RecipeSignature.signature e.representative ∧ e.stabilizer = M7.ActualFactorized.stabilizerNumerator e.representative ∧ 0 < e.stabilizer := by\n  classical\n  intro N inst w E bases fuel root e he\n  induction fuel generalizing bases root with\n  | zero =>\n      simpa [M7.CompactGeneration.run] using he\n  | succ fuel ih =>\n      simp only [M7.CompactGeneration.run] at he\n      split at he <;> simp only [List.mem_cons, List.not_mem_nil] at he\n      all_goals first | contradiction | skip\n      all_goals rcases he with rfl | he\n      · exact ⟨(M7.CompactGeneration.emission_action N w E bases).1,\n          (M7.CompactGeneration.emission_action N w E bases).2,\n          rfl, rfl, rfl,\n          (M7.CompactGeneration.emission_stabilizer N w E bases).1⟩\n      · exact ih _ _ he",
+          "imports": [
+            "M7CompactCorrectness"
+          ],
+          "name": "M7.CompactCorrectness.run_records",
+          "ancestors": [],
+          "spec_sha256": "df24e42a89fa227d3b908751304e5981211657a11e4a71170be0844dc7e2fe7f"
+        },
+        "sha256": "df271cb1c20817608d0633f24b20ad2473775fcee00836803abc5ca8a7f017f4"
+      }
+    }
+  }
+}

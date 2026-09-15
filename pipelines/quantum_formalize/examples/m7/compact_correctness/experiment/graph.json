@@ -1,0 +1,244 @@
+{
+  "title": "M7 actual arithmetic finite generation correctness and anchored completeness",
+  "nodes": [
+    {
+      "id": "residual_eq",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CompactCorrectness.residual_eq",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (p : List Bool), M7.CompactGeneration.residual w E bases p = M7.RecoveryInstance.count w E bases p",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "emission_eq",
+      "dependencies": [
+        "residual_eq"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.emission_eq",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ bases : Finset (M7.Action.Recipe N), (M7.CompactGeneration.emission w E bases).leaf = M7.RecoveryInstance.recoverLeaf w E bases ∧ insert (M7.CompactGeneration.emission w E bases).representative bases = M7.RecoveryInstance.insertedBases w E bases",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "run_cache",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CompactCorrectness.run_cache",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), root = M7.CompactGeneration.residual w E bases [] → (M7.CompactGeneration.run w E fuel bases root).finalResidual = M7.CompactGeneration.residual w E (M7.CompactGeneration.run w E fuel bases root).finalBases []",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "run_records",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CompactCorrectness.run_records",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), ∀ e ∈ (M7.CompactGeneration.run w E fuel bases root).emitted, M7.Action.act e.action e.leaf = e.representative ∧ M7.Action.act (M7.Action.inverse e.action) e.representative = e.leaf ∧ e.leafSignature = M7.RecipeSignature.signature e.leaf ∧ e.representativeSignature = M7.RecipeSignature.signature e.representative ∧ e.stabilizer = M7.ActualFactorized.stabilizerNumerator e.representative ∧ 0 < e.stabilizer",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "run_good",
+      "dependencies": [
+        "residual_eq",
+        "emission_eq"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.run_good",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), M7.RecoveryInstance.GoodBases w bases → root = M7.CompactGeneration.residual w E bases [] → M7.RecoveryInstance.GoodBases w (M7.CompactGeneration.run w E fuel bases root).finalBases",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "run_disjoint",
+      "dependencies": [
+        "residual_eq",
+        "emission_eq"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.run_disjoint",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), M7.RecoveryInstance.GoodBases w bases → root = M7.CompactGeneration.residual w E bases [] → ∀ e ∈ (M7.CompactGeneration.run w E fuel bases root).emitted, e.representative ∉ bases",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "run_nodup",
+      "dependencies": [
+        "run_disjoint",
+        "residual_eq",
+        "emission_eq"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.run_nodup",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), M7.RecoveryInstance.GoodBases w bases → root = M7.CompactGeneration.residual w E bases [] → ((M7.CompactGeneration.run w E fuel bases root).emitted.map (fun e => e.representative)).Nodup",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "run_leaves",
+      "dependencies": [
+        "residual_eq",
+        "emission_eq"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.run_leaves",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), M7.RecoveryInstance.GoodBases w bases → root = M7.CompactGeneration.residual w E bases [] → ∀ e ∈ (M7.CompactGeneration.run w E fuel bases root).emitted, e.leaf ∈ M7.RecoveryPrefix.completed N w E []",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "run_zero",
+      "dependencies": [
+        "residual_eq",
+        "emission_eq"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.run_zero",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), M7.RecoveryInstance.GoodBases w bases → root = M7.CompactGeneration.residual w E bases [] → root.toNat ≤ fuel → (M7.CompactGeneration.run w E fuel bases root).finalResidual = 0 ∧ (M7.CompactGeneration.run w E fuel bases root).fuelExhausted = false",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "initial",
+      "dependencies": [
+        "residual_eq"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.initial",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w (∅ : Finset (M7.Action.Recipe N)) ∧ 0 ≤ M7.CompactGeneration.residual w E (∅ : Finset (M7.Action.Recipe N)) []",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "generate_exact",
+      "dependencies": [
+        "initial",
+        "run_good",
+        "run_zero",
+        "run_nodup"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.generate_exact",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w (M7.CompactGeneration.generate (N := N) w E).finalBases ∧ (M7.CompactGeneration.generate (N := N) w E).finalResidual = 0 ∧ (M7.CompactGeneration.generate (N := N) w E).fuelExhausted = false ∧ ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).Nodup",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "generate_coverage",
+      "dependencies": [
+        "generate_exact",
+        "run_cache",
+        "residual_eq"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.generate_coverage",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ y ∈ M7.RecoveryPrefix.completed N w E [], y ∈ M7.OrbitResidual.covered (M7.CompactGeneration.generate (N := N) w E).finalBases",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    },
+    {
+      "id": "generate_card",
+      "dependencies": [
+        "generate_exact"
+      ],
+      "spec": {
+        "name": "M7.CompactCorrectness.generate_card",
+        "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → (M7.CompactGeneration.generate (N := N) w E).finalBases.card = (M7.CompactGeneration.generate (N := N) w E).emitted.length",
+        "imports": [
+          "M7CompactCorrectness"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is actual original M7 compact generation correctness, using frozen CompactGeneration.run/generate and accepted RecoveryInstance. residual_eq and emission_eq unfold the SAME arithmetic count/sourceCount/Within/encode/path/endpoint/leaf definitions; no count oracle is added. The internal run cache root is permitted as an intermediate argument, but run_cache preserves equality to the actual residual and generate computes it concretely once. Induct fuel generalizing bases root. For positive branches accepted recovery gives a fresh actual leaf, GoodBases after insertion, and a strict decrease of the actual root.toNat. For run_zero the fuel bound and nonnegativity force zero at fuel 0; the positive step gives enough fuel for the next actual root. The nonpositive branch is zero by actual nonnegativity. run_records uses structural induction and the accepted actual emission action/inverse/stabilizer theorems; signature fields and stabilizer field are their literal definitions. run_disjoint/Nodup use freshness relative to current bases and the induction statement at inserted bases. run_leaves uses actual recovered root membership. generate discharges the empty-base invariant and uses exactly initial count.toNat fuel. generate_coverage combines final zero cache with accepted root_zero; generate_card uses frozen run_fold, Nodup and Finset/List fold insertion identities. Never assume a complete transversal, free count identity or successful exhaustion. These targets close anchored generation only; raw coverage, full default query, replay and original resource accounting remain downstream. Return tactic body only.\n"
+      }
+    }
+  ]
+}

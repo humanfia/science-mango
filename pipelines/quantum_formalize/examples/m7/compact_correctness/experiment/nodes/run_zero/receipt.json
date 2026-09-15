@@ -1,0 +1,84 @@
+{
+  "id": "run_zero",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CompactCorrectness.run_zero",
+    "spec_sha256": "454a3497b02c29bb43ea4d0d5c9e56663d85d50ae822fb32b5e9c7fedf617d35",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-gujy4lwi/attempt-001/Candidate_0c7b375d844b09dc.lean",
+        "target_path": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-gujy4lwi/attempt-001/FrozenTarget_0c7b375d844b09dc.lean",
+        "feedback": "",
+        "target_sha256": "7ee9224781709c86a957ea39d08d912f3ff11bbf7eeb4586c00d90987e204bdd",
+        "target_olean_sha256": "c6bb30c07c8c63a47c977801e490f2172cbba6ca025bc35028d3e804e30d4348",
+        "source_sha256": "1a2d327b720f91c87b4d7054a98dc1c0512e6bd209b24afe32324fe5ea0d3137",
+        "olean_sha256": "44afbb3b8af833652879b720c703851aa0e0cccd412c3866bd3519374ec35875",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:03:53.203982+00:00",
+    "work": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-gujy4lwi",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "160bd68d65b1260e99f87e275f04f2ff5495747c15c3ef002c33df770d494b87",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-gujy4lwi/attempt-001/Candidate_0c7b375d844b09dc.lean",
+    "environment_sha256": "183a2203adbc704eefc5c78969d0f34c5f47443ba116fcd223a4d207f1b22301",
+    "artifacts": {
+      "residual_eq": {
+        "payload": {
+          "declaration": "theorem M7.CompactCorrectness.residual_eq : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (p : List Bool), M7.CompactGeneration.residual w E bases p = M7.RecoveryInstance.count w E bases p := by\n  intro N inst w E bases p\n  rfl",
+          "imports": [
+            "M7CompactCorrectness"
+          ],
+          "name": "M7.CompactCorrectness.residual_eq",
+          "ancestors": [],
+          "spec_sha256": "3fe3f5abb7bb2d6679bf5f0e12a4f6a0eca49544adfda2c94011df5da96accfe"
+        },
+        "sha256": "969766474854ee15b8a40c59ba8af2d31b08820d85f82f16fb5eff609150f009"
+      },
+      "emission_eq": {
+        "payload": {
+          "declaration": "theorem M7.CompactCorrectness.emission_eq : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ bases : Finset (M7.Action.Recipe N), (M7.CompactGeneration.emission w E bases).leaf = M7.RecoveryInstance.recoverLeaf w E bases ∧ insert (M7.CompactGeneration.emission w E bases).representative bases = M7.RecoveryInstance.insertedBases w E bases := by\n  intro N inst w E bases\n  constructor <;> rfl",
+          "imports": [
+            "M7CompactCorrectness"
+          ],
+          "name": "M7.CompactCorrectness.emission_eq",
+          "ancestors": [
+            "residual_eq"
+          ],
+          "spec_sha256": "4563eca1f5f826d019f469a8e3340dcd7f45c39b265ecc91164d5b068ca02c32"
+        },
+        "sha256": "31079de75295c6a54f0597d5a62781b93c2adb983ea823e819f29c28dd173f44"
+      },
+      "run_zero": {
+        "payload": {
+          "declaration": "theorem M7.CompactCorrectness.run_zero : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), M7.RecoveryInstance.GoodBases w bases → root = M7.CompactGeneration.residual w E bases [] → root.toNat ≤ fuel → (M7.CompactGeneration.run w E fuel bases root).finalResidual = 0 ∧ (M7.CompactGeneration.run w E fuel bases root).fuelExhausted = false := by\n  intro N inst w E hE bases fuel root hb hr hf\n  classical\n  induction fuel generalizing bases root with\n  | zero =>\n      have hn := (M7.RecoveryInstance.count_card N w E bases hE hb []).2.2\n      have hc : root = M7.RecoveryInstance.count w E bases [] :=\n        hr.trans (M7.CompactCorrectness.residual_eq N w E bases [])\n      have hz : root = 0 := by omega\n      have hs := M7.CompactGeneration.stop N w E bases 0 root (by omega)\n      exact ⟨hs.2.2.1.trans hz, hs.2.2.2⟩\n  | succ fuel ih =>\n      have hc : root = M7.RecoveryInstance.count w E bases [] :=\n        hr.trans (M7.CompactCorrectness.residual_eq N w E bases [])\n      by_cases hp : 0 < root\n      · have hpos : 0 < M7.RecoveryInstance.count w E bases [] := by omega\n        have hg := (M7.RecoveryInstance.insert_good N w E bases hE hb hpos).1\n        have hd := (M7.RecoveryInstance.strict_decrease N w E bases hE hb hpos).2\n        have hbound :\n            (M7.CompactGeneration.residual w E\n              (M7.RecoveryInstance.insertedBases w E bases) []).toNat ≤ fuel := by\n          rw [M7.CompactCorrectness.residual_eq N w E]\n          omega\n        have hi := ih (M7.RecoveryInstance.insertedBases w E bases)\n          (M7.CompactGeneration.residual w E\n            (M7.RecoveryInstance.insertedBases w E bases) []) hg rfl hbound\n        simpa only [M7.CompactGeneration.run, if_pos hp,\n          (M7.CompactCorrectness.emission_eq N w E bases).2] using hi\n      · have hn := (M7.RecoveryInstance.count_card N w E bases hE hb []).2.2\n        have hz : root = 0 := by omega\n        have hs := M7.CompactGeneration.stop N w E bases (fuel + 1) root (by omega)\n        exact ⟨hs.2.2.1.trans hz, hs.2.2.2⟩",
+          "imports": [
+            "M7CompactCorrectness"
+          ],
+          "name": "M7.CompactCorrectness.run_zero",
+          "ancestors": [
+            "emission_eq",
+            "residual_eq"
+          ],
+          "spec_sha256": "f96f4cc8ced13ebaac77ac4a96dc8562545ee48611a419b29c19e455285f99b6"
+        },
+        "sha256": "ab3bf0119af16bf8266be0b8e55c4e1f1d9e94dcc6951a195291c3c1ca5148d5"
+      }
+    }
+  }
+}

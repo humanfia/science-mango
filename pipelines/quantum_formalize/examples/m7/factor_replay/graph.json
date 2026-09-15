@@ -1,0 +1,72 @@
+{
+  "title": "Actual finite polynomial-factor certificate verification",
+  "nodes": [
+    {
+      "id": "pool_complete",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.FactorReplay.pool_complete",
+        "statement": "\u2200 (n : \u2115) (p : M7.FactorReplay.BP), p \u2208 M7.FactorReplay.pool n \u2194 p.natDegree \u2264 n",
+        "imports": [
+          "M7FactorReplay"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Unfold actual pool and Finset.mem_image. Forward use Polynomial.ofFn_natDegree_lt (show 1\u2264n+1 by omega). Backward choose Polynomial.toFn (n+1) p and Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt using p.natDegree<n+1. This is complete explicit coefficient-vector enumeration, not assumed finite factor coverage. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "irreducible_check_exact",
+      "dependencies": [
+        "pool_complete"
+      ],
+      "spec": {
+        "name": "M7.FactorReplay.irreducible_check_exact",
+        "statement": "\u2200 p : M7.FactorReplay.BP, M7.FactorReplay.irreducibleCheck p = true \u2194 p.Monic \u2227 Irreducible p",
+        "imports": [
+          "M7FactorReplay"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Split actual Monic and p=1 guards. In the monic nonone case use Polynomial.Monic.irreducible_iff_lt_natDegree_lt. List.all_eq_true/Finset.mem_toList turns actual finite loop into absence of bounded monic divisors. pool_complete provides every candidate of natDegree\u2264p.natDegree/2. EuclideanDomain.mod_eq_zero identifies actual remainder=0 with divisibility. No Irreducible decidability oracle occurs in the implementation. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "factor_check_exact",
+      "dependencies": [
+        "irreducible_check_exact"
+      ],
+      "spec": {
+        "name": "M7.FactorReplay.factor_check_exact",
+        "statement": "\u2200 (F : M7.FactorReplay.BP) (factors : List (M7.FactorReplay.BP \u00d7 \u2115)), M7.FactorReplay.check F factors = true \u2194 (factors.map Prod.fst).Nodup \u2227 (\u2200 t \u2208 factors, t.1.Monic \u2227 Irreducible t.1 \u2227 0 < t.2) \u2227 M7.FactorReplay.product factors = F",
+        "imports": [
+          "M7FactorReplay"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Unfold finite list check; Bool.and_eq_true and List.all_eq_true identify each actual factor check. Rewrite irreducible_check_exact pointwise. Keep positive exponents, distinct factors and exact power product. Empty list accepts exactly F=1. Repeated irreducible multiplicities belong in the positive exponent and are not dropped. This is certificate verification, not a new factor discovery algorithm. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    }
+  ]
+}

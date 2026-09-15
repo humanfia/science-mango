@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N w A B WA WB hN hw hBase E hE\nchange M7.ScalarWork.sector N w E A B WA WB ≤ _\nunfold M7.ScalarWork.sector\ncalc\n  _ ≤ ∑ F ∈ E, (1024 * N^4 * M7.ArithmeticLoops.divisorCount N *\n      2^(M7.ArithmeticLoops.factorCount N + N)) := by\n    apply Finset.sum_le_sum\n    intro F hFE\n    apply M7.ScalarWork.prefix_bound N w A B WA WB hN hw hBase F\n    · unfold M7.PrefixSector.ValidSector at hE\n      aesop\n    · unfold M7.PrefixSector.ValidSector at hE\n      aesop\n  _ = 1024 * N^4 * E.card * M7.ArithmeticLoops.divisorCount N *\n      2^(M7.ArithmeticLoops.factorCount N + N) := by\n    simp only [Finset.sum_const, nsmul_eq_mul]\n    ring",
+  "queries": []
+}

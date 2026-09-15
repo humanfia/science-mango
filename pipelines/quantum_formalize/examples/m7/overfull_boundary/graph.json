@@ -1,0 +1,73 @@
+{
+  "title": "M7 original overfull-weight and empty-sector boundaries",
+  "nodes": [
+    {
+      "id": "class_impossible",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OverfullBoundary.class_impossible",
+        "statement": "\u2200 (N w : \u2115) [NeZero N], N < w \u2192 \u2200 c : M7.Action.Recipe N, \u00ac M7.PrefixOrbit.ClassValid w c",
+        "imports": [
+          "M7OverfullBoundary"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 positive-weight empty-answer boundaries only. class_impossible: Finset.card_le_univ bounds support card by Fintype.card(ZMod N)=N, contradict N<w and ClassValid cardinality. overfull_generate: CompactCorrectness.generate_exact gives GoodBases final, zero residual and false exhausted; ext/membership plus class_impossible forces finalBases=empty. CompactCorrectness.generate_card then gives emitted.length=0, hence emitted=nil. empty_root: unfold CompactGeneration.residual at empty bases and PrefixBits.count, use (PrefixSector.empty_sector N w ...).1. empty_generate: unfold CompactGeneration.generate, rewrite empty_root, simplify Int.toNat_zero and CompactGeneration.run at zero fuel/root. No new restriction, no w=0 classification task, no free count/transversal premise. Return tactic lines only, no leading by.\nimport M7CompactCorrectnessAccepted\n\n/- Original positive-weight empty-domain boundaries; no new input restriction. -/\n"
+      }
+    },
+    {
+      "id": "overfull_generate",
+      "dependencies": [
+        "class_impossible"
+      ],
+      "spec": {
+        "name": "M7.OverfullBoundary.overfull_generate",
+        "statement": "\u2200 (N w : \u2115) [NeZero N], \u2200 E : Finset M5.BinaryPolynomial, M7.PrefixSector.ValidSector N E \u2192 N < w \u2192 (M7.CompactGeneration.generate (N := N) w E).finalBases = \u2205 \u2227 (M7.CompactGeneration.generate (N := N) w E).emitted = [] \u2227 (M7.CompactGeneration.generate (N := N) w E).finalResidual = 0 \u2227 (M7.CompactGeneration.generate (N := N) w E).fuelExhausted = false",
+        "imports": [
+          "M7OverfullBoundary"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 positive-weight empty-answer boundaries only. class_impossible: Finset.card_le_univ bounds support card by Fintype.card(ZMod N)=N, contradict N<w and ClassValid cardinality. overfull_generate: CompactCorrectness.generate_exact gives GoodBases final, zero residual and false exhausted; ext/membership plus class_impossible forces finalBases=empty. CompactCorrectness.generate_card then gives emitted.length=0, hence emitted=nil. empty_root: unfold CompactGeneration.residual at empty bases and PrefixBits.count, use (PrefixSector.empty_sector N w ...).1. empty_generate: unfold CompactGeneration.generate, rewrite empty_root, simplify Int.toNat_zero and CompactGeneration.run at zero fuel/root. No new restriction, no w=0 classification task, no free count/transversal premise. Return tactic lines only, no leading by.\nimport M7CompactCorrectnessAccepted\n\n/- Original positive-weight empty-domain boundaries; no new input restriction. -/\n"
+      }
+    },
+    {
+      "id": "empty_root",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OverfullBoundary.empty_root",
+        "statement": "\u2200 (N w : \u2115) [NeZero N], 0 < w \u2192 M7.CompactGeneration.residual (N := N) w \u2205 \u2205 [] = 0",
+        "imports": [
+          "M7OverfullBoundary"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 positive-weight empty-answer boundaries only. class_impossible: Finset.card_le_univ bounds support card by Fintype.card(ZMod N)=N, contradict N<w and ClassValid cardinality. overfull_generate: CompactCorrectness.generate_exact gives GoodBases final, zero residual and false exhausted; ext/membership plus class_impossible forces finalBases=empty. CompactCorrectness.generate_card then gives emitted.length=0, hence emitted=nil. empty_root: unfold CompactGeneration.residual at empty bases and PrefixBits.count, use (PrefixSector.empty_sector N w ...).1. empty_generate: unfold CompactGeneration.generate, rewrite empty_root, simplify Int.toNat_zero and CompactGeneration.run at zero fuel/root. No new restriction, no w=0 classification task, no free count/transversal premise. Return tactic lines only, no leading by.\nimport M7CompactCorrectnessAccepted\n\n/- Original positive-weight empty-domain boundaries; no new input restriction. -/\n"
+      }
+    },
+    {
+      "id": "empty_generate",
+      "dependencies": [
+        "empty_root"
+      ],
+      "spec": {
+        "name": "M7.OverfullBoundary.empty_generate",
+        "statement": "\u2200 (N w : \u2115) [NeZero N], 0 < w \u2192 (M7.CompactGeneration.generate (N := N) w \u2205).finalBases = \u2205 \u2227 (M7.CompactGeneration.generate (N := N) w \u2205).emitted = [] \u2227 (M7.CompactGeneration.generate (N := N) w \u2205).finalResidual = 0 \u2227 (M7.CompactGeneration.generate (N := N) w \u2205).fuelExhausted = false",
+        "imports": [
+          "M7OverfullBoundary"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 positive-weight empty-answer boundaries only. class_impossible: Finset.card_le_univ bounds support card by Fintype.card(ZMod N)=N, contradict N<w and ClassValid cardinality. overfull_generate: CompactCorrectness.generate_exact gives GoodBases final, zero residual and false exhausted; ext/membership plus class_impossible forces finalBases=empty. CompactCorrectness.generate_card then gives emitted.length=0, hence emitted=nil. empty_root: unfold CompactGeneration.residual at empty bases and PrefixBits.count, use (PrefixSector.empty_sector N w ...).1. empty_generate: unfold CompactGeneration.generate, rewrite empty_root, simplify Int.toNat_zero and CompactGeneration.run at zero fuel/root. No new restriction, no w=0 classification task, no free count/transversal premise. Return tactic lines only, no leading by.\nimport M7CompactCorrectnessAccepted\n\n/- Original positive-weight empty-domain boundaries; no new input restriction. -/\n"
+      }
+    }
+  ]
+}

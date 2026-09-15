@@ -1,0 +1,16 @@
+theorem M7.CompactCorrectness.run_records : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), ∀ e ∈ (M7.CompactGeneration.run w E fuel bases root).emitted, M7.Action.act e.action e.leaf = e.representative ∧ M7.Action.act (M7.Action.inverse e.action) e.representative = e.leaf ∧ e.leafSignature = M7.RecipeSignature.signature e.leaf ∧ e.representativeSignature = M7.RecipeSignature.signature e.representative ∧ e.stabilizer = M7.ActualFactorized.stabilizerNumerator e.representative ∧ 0 < e.stabilizer := by
+  classical
+  intro N inst w E bases fuel root e he
+  induction fuel generalizing bases root with
+  | zero =>
+      simpa [M7.CompactGeneration.run] using he
+  | succ fuel ih =>
+      simp only [M7.CompactGeneration.run] at he
+      split at he <;> simp only [List.mem_cons, List.not_mem_nil] at he
+      all_goals first | contradiction | skip
+      all_goals rcases he with rfl | he
+      · exact ⟨(M7.CompactGeneration.emission_action N w E bases).1,
+          (M7.CompactGeneration.emission_action N w E bases).2,
+          rfl, rfl, rfl,
+          (M7.CompactGeneration.emission_stabilizer N w E bases).1⟩
+      · exact ih _ _ he

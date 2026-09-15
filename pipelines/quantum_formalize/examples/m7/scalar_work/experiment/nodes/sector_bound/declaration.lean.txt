@@ -1,0 +1,17 @@
+theorem M7.ScalarWork.sector_bound : ∀ (N w : ℕ) (A B WA WB : Finset ℕ), 0 < N → w ≤ N → M7.PrefixCompleted.Base N A B WA WB → ∀ E : Finset M5.BinaryPolynomial, M7.PrefixSector.ValidSector N E → M7.ScalarWork.sector N w E A B WA WB ≤ 1024 * N^4 * E.card * M7.ArithmeticLoops.divisorCount N * 2^(M7.ArithmeticLoops.factorCount N + N) := by
+  classical
+  intro N w A B WA WB hN hw hBase E hE
+  change M7.ScalarWork.sector N w E A B WA WB ≤ _
+  let C : ℕ := 1024 * N^4 * M7.ArithmeticLoops.divisorCount N * 2^(M7.ArithmeticLoops.factorCount N + N)
+  calc
+    M7.ScalarWork.sector N w E A B WA WB ≤ ∑ F ∈ E, C := by
+      unfold M7.ScalarWork.sector
+      apply Finset.sum_le_sum
+      intro F hF
+      exact M7.ScalarWork.prefix_bound N w A B WA WB hN hw hBase F
+        (hE F hF).1 (hE F hF).2
+    _ = E.card * C := by
+      simp [Finset.sum_const, nsmul_eq_mul]
+    _ = 1024 * N^4 * E.card * M7.ArithmeticLoops.divisorCount N * 2^(M7.ArithmeticLoops.factorCount N + N) := by
+      dsimp [C]
+      ring

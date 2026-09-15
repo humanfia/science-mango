@@ -1,0 +1,100 @@
+{
+  "id": "run_nodup",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CompactCorrectness.run_nodup",
+    "spec_sha256": "95346ce59620c79b6c7e4ada815bbcf1bed45fe91174aebf1cdb05601ce2bf85",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-3zdzb6v_/attempt-001/Candidate_1d2ecd110be68dac.lean",
+        "target_path": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-3zdzb6v_/attempt-001/FrozenTarget_1d2ecd110be68dac.lean",
+        "feedback": "",
+        "target_sha256": "c988859c02da0e72dd3736b0a86e3ec6742f53dc983dae06a18ca2b421c57528",
+        "target_olean_sha256": "9d30230f13f7d79ec695ab9e0c366c61d49cfd5998e80d6694aeb586ef9c7b13",
+        "source_sha256": "db6f7e12bb4640da50aff38560cdd7fc975253a69256f45ea0f90b4b5d612c6c",
+        "olean_sha256": "9df490d5fe7b1dcd899443b417d71ad3001610de8c80eff1f20020181df2a279",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:02:49.679203+00:00",
+    "work": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-3zdzb6v_",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "160bd68d65b1260e99f87e275f04f2ff5495747c15c3ef002c33df770d494b87",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-compact-correctness-formalization/.humanize-formal-runs/run-3zdzb6v_/attempt-001/Candidate_1d2ecd110be68dac.lean",
+    "environment_sha256": "183a2203adbc704eefc5c78969d0f34c5f47443ba116fcd223a4d207f1b22301",
+    "artifacts": {
+      "residual_eq": {
+        "payload": {
+          "declaration": "theorem M7.CompactCorrectness.residual_eq : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (p : List Bool), M7.CompactGeneration.residual w E bases p = M7.RecoveryInstance.count w E bases p := by\n  intro N inst w E bases p\n  rfl",
+          "imports": [
+            "M7CompactCorrectness"
+          ],
+          "name": "M7.CompactCorrectness.residual_eq",
+          "ancestors": [],
+          "spec_sha256": "3fe3f5abb7bb2d6679bf5f0e12a4f6a0eca49544adfda2c94011df5da96accfe"
+        },
+        "sha256": "969766474854ee15b8a40c59ba8af2d31b08820d85f82f16fb5eff609150f009"
+      },
+      "emission_eq": {
+        "payload": {
+          "declaration": "theorem M7.CompactCorrectness.emission_eq : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ bases : Finset (M7.Action.Recipe N), (M7.CompactGeneration.emission w E bases).leaf = M7.RecoveryInstance.recoverLeaf w E bases ∧ insert (M7.CompactGeneration.emission w E bases).representative bases = M7.RecoveryInstance.insertedBases w E bases := by\n  intro N inst w E bases\n  constructor <;> rfl",
+          "imports": [
+            "M7CompactCorrectness"
+          ],
+          "name": "M7.CompactCorrectness.emission_eq",
+          "ancestors": [
+            "residual_eq"
+          ],
+          "spec_sha256": "4563eca1f5f826d019f469a8e3340dcd7f45c39b265ecc91164d5b068ca02c32"
+        },
+        "sha256": "31079de75295c6a54f0597d5a62781b93c2adb983ea823e819f29c28dd173f44"
+      },
+      "run_disjoint": {
+        "payload": {
+          "declaration": "theorem M7.CompactCorrectness.run_disjoint : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), M7.RecoveryInstance.GoodBases w bases → root = M7.CompactGeneration.residual w E bases [] → ∀ e ∈ (M7.CompactGeneration.run w E fuel bases root).emitted, e.representative ∉ bases := by\n  classical\n  intro N inst w E hE bases fuel\n  induction fuel generalizing bases with\n  | zero =>\n      intro root hb hr e he\n      simpa [M7.CompactGeneration.run] using he\n  | succ fuel ih =>\n      intro root hb hr e he\n      by_cases hp : 0 < root\n      · have hc : 0 < M7.RecoveryInstance.count w E bases [] := by\n          rw [hr, M7.CompactCorrectness.residual_eq] at hp\n          exact hp\n        have hg := M7.RecoveryInstance.insert_good N w E bases hE hb hc\n        have hb' : M7.RecoveryInstance.GoodBases w\n            (insert (M7.CompactGeneration.emission w E bases).representative bases) := by\n          rw [(M7.CompactCorrectness.emission_eq N w E bases).2]\n          exact hg.1\n        simp only [M7.CompactGeneration.run, if_pos hp, List.mem_cons] at he\n        rcases he with he | he\n        · subst e\n          exact hg.2\n        · have hf := ih\n              (insert (M7.CompactGeneration.emission w E bases).representative bases)\n              (M7.CompactGeneration.residual w E\n                (insert (M7.CompactGeneration.emission w E bases).representative bases) [])\n              hb' rfl e he\n          intro hm\n          exact hf (Finset.mem_insert_of_mem hm)\n      · simp [M7.CompactGeneration.run, hp] at he",
+          "imports": [
+            "M7CompactCorrectness"
+          ],
+          "name": "M7.CompactCorrectness.run_disjoint",
+          "ancestors": [
+            "emission_eq",
+            "residual_eq"
+          ],
+          "spec_sha256": "9ffca6141c21f417c2df6ede9a602832763e68ec8501bf59431fa61c52feef54"
+        },
+        "sha256": "0fd5ee1f63446e0fa5a6ad6e1279f89f13578ec90aeff47b92cdeea381dc1f40"
+      },
+      "run_nodup": {
+        "payload": {
+          "declaration": "theorem M7.CompactCorrectness.run_nodup : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), M7.RecoveryInstance.GoodBases w bases → root = M7.CompactGeneration.residual w E bases [] → ((M7.CompactGeneration.run w E fuel bases root).emitted.map (fun e => e.representative)).Nodup := by\n  classical\n  intro N inst w E hE bases fuel\n  induction fuel generalizing bases with\n  | zero =>\n      intro root hb hr\n      simp [M7.CompactGeneration.run]\n  | succ fuel ih =>\n      intro root hb hr\n      by_cases hp : 0 < root\n      · have hc : 0 < M7.RecoveryInstance.count w E bases [] := by\n          rw [hr, M7.CompactCorrectness.residual_eq] at hp\n          exact hp\n        have hg := M7.RecoveryInstance.insert_good N w E bases hE hb hc\n        have hb' : M7.RecoveryInstance.GoodBases w\n            (insert (M7.CompactGeneration.emission w E bases).representative bases) := by\n          rw [(M7.CompactCorrectness.emission_eq N w E bases).2]\n          exact hg.1\n        simp only [M7.CompactGeneration.run, if_pos hp, List.map_cons, List.nodup_cons]\n        constructor\n        · intro hm\n          rcases List.mem_map.mp hm with ⟨e, he, heq⟩\n          have hf := M7.CompactCorrectness.run_disjoint N w E hE\n            (insert (M7.CompactGeneration.emission w E bases).representative bases)\n            fuel\n            (M7.CompactGeneration.residual w E\n              (insert (M7.CompactGeneration.emission w E bases).representative bases) [])\n            hb' rfl e he\n          apply hf\n          rw [heq]\n          exact Finset.mem_insert_self _ _\n        · exact ih _ _ hb' rfl\n      · simp [M7.CompactGeneration.run, hp]",
+          "imports": [
+            "M7CompactCorrectness"
+          ],
+          "name": "M7.CompactCorrectness.run_nodup",
+          "ancestors": [
+            "emission_eq",
+            "residual_eq",
+            "run_disjoint"
+          ],
+          "spec_sha256": "69fcf90b1fd4f29b7b473498135989141ed04ffbe5048ebd16352da885d0304e"
+        },
+        "sha256": "b29234a95adeb5341e33816628c3af76e43efcfbe59aefc52c96deb1ce6917dc"
+      }
+    }
+  }
+}

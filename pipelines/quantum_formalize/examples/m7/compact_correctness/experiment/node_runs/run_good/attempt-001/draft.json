@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst w E hE bases fuel root hgood hroot\ninduction fuel generalizing bases root with\n| zero =>\n    simpa [M7.CompactGeneration.run] using hgood\n| succ fuel ih =>\n    simp only [M7.CompactGeneration.run]\n    split\n    all_goals first\n    | exact hgood\n    | have hpos : 0 < M7.RecoveryInstance.count w E bases [] := by\n        change 0 < M7.CompactGeneration.residual w E bases []\n        omega\n      have hins := (M7.RecoveryInstance.insert_good N w E bases hE hgood hpos).1\n      apply ih\n      · change M7.RecoveryInstance.GoodBases w (M7.RecoveryInstance.insertedBases w E bases)\n        exact hins\n      · rfl",
+  "queries": [
+    "M7.CompactGeneration.run definition",
+    "M7.CompactGeneration.residual definition",
+    "M7.RecoveryInstance.insert_good"
+  ]
+}

@@ -1,0 +1,31 @@
+import FrozenTarget_cd4417c0a296c174
+theorem M7.CompactCorrectness.run_disjoint : QuantumHarnessFrozenTarget := by
+  classical
+  intro N inst w E hE bases fuel
+  induction fuel generalizing bases with
+  | zero =>
+      intro root hb hr e he
+      simpa [M7.CompactGeneration.run] using he
+  | succ fuel ih =>
+      intro root hb hr e he
+      by_cases hp : 0 < root
+      · have hc : 0 < M7.RecoveryInstance.count w E bases [] := by
+          rw [hr, M7.CompactCorrectness.residual_eq] at hp
+          exact hp
+        have hg := M7.RecoveryInstance.insert_good N w E bases hE hb hc
+        have hb' : M7.RecoveryInstance.GoodBases w
+            (insert (M7.CompactGeneration.emission w E bases).representative bases) := by
+          rw [(M7.CompactCorrectness.emission_eq N w E bases).2]
+          exact hg.1
+        simp only [M7.CompactGeneration.run, if_pos hp, List.mem_cons] at he
+        rcases he with he | he
+        · subst e
+          exact hg.2
+        · have hf := ih
+              (insert (M7.CompactGeneration.emission w E bases).representative bases)
+              (M7.CompactGeneration.residual w E
+                (insert (M7.CompactGeneration.emission w E bases).representative bases) [])
+              hb' rfl e he
+          intro hm
+          exact hf (Finset.mem_insert_of_mem hm)
+      · simp [M7.CompactGeneration.run, hp] at he

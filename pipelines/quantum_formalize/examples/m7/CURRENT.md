@@ -2,7 +2,7 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**348 targets in 43 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+**365 targets in 45 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -49,15 +49,19 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [raw_coverage](raw_coverage/experiment/result.json) | 6 | Original M7 raw structural orbit coverage from actual root exhaustion |
 | [streaming_indices](streaming_indices/experiment/result.json) | 6 | M7 actual streaming action-index cursors and exact winners |
 | [generation_calls](generation_calls/experiment/result.json) | 8 | M7 actual compact generator projection and original call bounds |
+| [compact_correctness](compact_correctness/experiment/result.json) | 13 | M7 actual arithmetic finite generation correctness and anchored completeness |
+| [scalar_work](scalar_work/experiment/result.json) | 4 | M7 original charged scalar arithmetic and factorized mask-loop bounds |
 
 Active work:
 
-- `compact_correctness`: thirteen exact actual-generator invariants running after parent acceptance.
-- `generated_family` and `final_selector`: dependency-gated integration of the actual generated classes with raw global optima and unique presentations.
-- `scalar_work` and `compact_storage`: original arithmetic and concrete bit-representation bounds, with preprocessing/bookkeeping/path exceptions explicit.
-- `generation_replay`: concrete sequential certificate replay in preparation.
+- `generated_family`: integrating the accepted actual generator with complete raw class coverage.
+- `final_selector` and `generated_labels`: gated on the generated family; exact raw optima, unique presentations and actual M6 labels/witnesses.
+- `generation_replay` and `overfull_boundary`: concrete sequential replay and original empty-domain boundaries in preflight.
+- `compact_storage`, `streaming_cost` and `objective_comparison`: concrete encoding/cursor/comparison proofs running.
+- `label_replay` and `factor_replay`: concrete arithmetic certificate checks in preparation; no additional worker peak beyond sixteen.
+- `final_resources`: gated composition of actual generation, storage, class-label and comparison costs.
 
-Original remaining integration gates include actual compact residual generation and structural coverage, complete default-query/global-optimum integration, replay and original resource bounds. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
+Original remaining integration gates include complete generated raw-family coverage, complete default-query/global-optimum integration, replay and original resource bounds. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 
 The frozen definitions and goals are preserved through repairs. Successful late live proofs are retained. Explicit local tactic repairs are independently checked and then pass normal exact-target replay; their origins and all failures are preserved. LeanExplore broader-query recovery records the actual fallback query and original unavailable requests; persistent failures remain unavailable.
 

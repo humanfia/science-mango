@@ -1,0 +1,17 @@
+import FrozenTarget_f7d244dc67485772
+theorem M7.ScalarWork.term_bound : QuantumHarnessFrozenTarget := by
+  intro N D k W hN hD hk hW
+  change M7.ScalarWork.term D W k ≤ 128 * N^4
+  simp only [M7.ScalarWork.term, M7.ScalarWork.negative,
+    M7.ScalarWork.character, Finset.sum_const, Finset.card_range, nsmul_eq_mul]
+  have hneg : W.card * (2 + (1 + 4 * D)) ≤ N * (3 + 4 * N) :=
+    Nat.mul_le_mul hW (by omega)
+  have hfactor : 8 + 2 * (W.card * (2 + (1 + 4 * D))) ≤
+      8 + 2 * (N * (3 + 4 * N)) := by omega
+  have hprod := Nat.mul_le_mul (show k + 1 ≤ N + 1 by omega) hfactor
+  have h12 : N ≤ N^2 := by nlinarith
+  have h23 : N^2 ≤ N^3 := by
+    nlinarith only [Nat.mul_le_mul_left N h12]
+  have h34 : N^3 ≤ N^4 := by
+    nlinarith only [Nat.mul_le_mul_left N h23]
+  nlinarith only [hprod, hD, hN, h12, h23, h34]

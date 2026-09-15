@@ -1,0 +1,3 @@
+# Actual finite factor checker
+
+All definitions use actual finite coefficient-vector enumeration, polynomial remainder, list all, positive exponents and exact factor-power product equality. Polynomial.ofFn constructs the enumerated coefficients; its standard completeness lemma removes any assumed factor-search oracle. No Classical.decide Irreducible, hash-only verification or squarefree assumption occurs. Signature1 is represented by the empty factor list. Only a verifier is formalized; no new factor-discovery, serializer or runtime extraction obligation is added. Model work remains explicitly budget-gated behind LabelReplay.

@@ -1,0 +1,1 @@
+Original positive-weight empty-answer boundaries: weights larger than N cannot form ClassValid supports; actual generation therefore emits nothing. An empty signature sector also yields actual empty generation. No w=0 classification, parser/runtime requirement, or extra efficiency gate is introduced.
