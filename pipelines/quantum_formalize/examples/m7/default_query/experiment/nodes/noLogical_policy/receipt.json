@@ -1,0 +1,63 @@
+{
+  "id": "noLogical_policy",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.DefaultQuery.noLogical_policy",
+    "spec_sha256": "6f497f644a382c44ac8ed6e960018bb139a81e47b20e40994864b5a40a9300f3",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-default-query-formalization/.humanize-formal-runs/run-031fmndc/attempt-001/Candidate_cc2eeb589eb90273.lean:7:4: warning: Try `simp at hfeasible` instead of `simpa using hfeasible`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m7-lean-default-query-formalization/.humanize-formal-runs/run-031fmndc/attempt-001/Candidate_cc2eeb589eb90273.lean:8:2: error: unsolved goals\ncase right\nN : ℕ\ninst : NeZero N\nq : Query\nbase placed : Action.Recipe N\nhfloor : q.distanceFloor = none\nhobjectives : Coordinate.negativeDistance ∉ q.objectives\n⊢ valid N q →\n    dimension placed ∈ q.dimensions →\n      sectorTest q base placed →\n        (((match q.localityCap with\n            | none => True\n            | some cap => locality placed ≤ cap) ∧\n            match q.radiusCap with\n            | none => True\n            | some cap => radius placed ≤ cap) ↔\n          (match q.localityCap with\n            | none => True\n            | some cap => locality placed ≤ cap) ∧\n            match q.radiusCap with\n            | none => True\n            | some cap => radius placed ≤ cap)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-default-query-formalization/.humanize-formal-runs/run-031fmndc/attempt-002/Candidate_43210a7fa3fdb5e7.lean",
+        "target_path": "/home/jing/m7-lean-default-query-formalization/.humanize-formal-runs/run-031fmndc/attempt-002/FrozenTarget_43210a7fa3fdb5e7.lean",
+        "feedback": "",
+        "target_sha256": "4e761cfcd7512d33d92ac9321d03dab41ca51ef7f1cac90b61b9224fe7d895e8",
+        "target_olean_sha256": "efdb23d535f1f78d4e7f871985d0d86e8cddcda5bfbc17bc46dcf04498ddf16a",
+        "source_sha256": "421c3fe3d16a344317cf5fdbd39f931a631350937cf158bf7158862f9500d893",
+        "olean_sha256": "40f60396122f8e9893db84561b1f9666002f4ad15b437a16f7ccedc3a4e03f52",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T17:42:23.252897+00:00",
+    "work": "/home/jing/m7-lean-default-query-formalization/.humanize-formal-runs/run-031fmndc",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "98859662cfb9efa4606a299c0d93ae488a1180065ab8d01781dbbded2922d432",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-default-query-formalization/.humanize-formal-runs/run-031fmndc/attempt-002/Candidate_43210a7fa3fdb5e7.lean",
+    "environment_sha256": "30b0949e939017b4b24f25b6cf95c1c0c68d1f2dbd2e6bbdf48a231171d56333",
+    "artifacts": {
+      "noLogical_policy": {
+        "payload": {
+          "declaration": "theorem M7.DefaultQuery.noLogical_policy : ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N), (M7.DefaultQuery.needsDistance q → M7.DefaultQuery.distance placed = none → ¬ M7.DefaultQuery.feasible q base placed) ∧ (q.distanceFloor = none → M7.DefaultQuery.Coordinate.negativeDistance ∉ q.objectives → (M7.DefaultQuery.feasible q base placed ↔ M7.DefaultQuery.valid N q ∧ M7.DefaultQuery.dimension placed ∈ q.dimensions ∧ M7.DefaultQuery.sectorTest q base placed ∧ (match q.localityCap with | none => True | some cap => M7.DefaultQuery.locality placed ≤ cap) ∧ (match q.radiusCap with | none => True | some cap => M7.DefaultQuery.radius placed ≤ cap))) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N), (M7.DefaultQuery.needsDistance q → M7.DefaultQuery.distance placed = none → ¬ M7.DefaultQuery.feasible q base placed) ∧ (q.distanceFloor = none → M7.DefaultQuery.Coordinate.negativeDistance ∉ q.objectives → (M7.DefaultQuery.feasible q base placed ↔ M7.DefaultQuery.valid N q ∧ M7.DefaultQuery.dimension placed ∈ q.dimensions ∧ M7.DefaultQuery.sectorTest q base placed ∧ (match q.localityCap with | none => True | some cap => M7.DefaultQuery.locality placed ≤ cap) ∧ (match q.radiusCap with | none => True | some cap => M7.DefaultQuery.radius placed ≤ cap)))\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst q base placed\n  constructor\n  · intro hneed hdist hfeasible\n    simp [M7.DefaultQuery.feasible, hneed, hdist] at hfeasible\n  · intro hfloor hobjectives\n    cases hlocality : q.localityCap <;>\n      cases hradius : q.radiusCap <;>\n      simp [M7.DefaultQuery.feasible, M7.DefaultQuery.needsDistance,\n        M7.DefaultQuery.floorTest, hfloor, hobjectives, hlocality, hradius]",
+          "imports": [
+            "M7ActualPresentationAccepted",
+            "M7DefaultQuery",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.DefaultQuery.noLogical_policy",
+          "ancestors": [],
+          "spec_sha256": "c69996cc0b8852ba5d7d6ca253f2e16a21a840fc71731148d2033c51ab2a4191"
+        },
+        "sha256": "8e3dff080427cd7a913cb0c2385c6954d788210d70c00ac2879b3dbf9c714e8f"
+      }
+    }
+  }
+}

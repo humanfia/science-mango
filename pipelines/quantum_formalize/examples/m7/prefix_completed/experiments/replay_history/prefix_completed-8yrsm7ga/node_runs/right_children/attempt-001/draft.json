@@ -1,0 +1,4 @@
+{
+  "proof": "intro N w E A B WA WB i hi h\nunfold M7.PrefixCompleted.Base at h ⊢\nrcases h with ⟨hA0, hB0, hA, hB, hWA, hWB, hDA, hDB⟩\nhave hWB' : WB.erase i ⊆ Finset.range N := by\n  intro x hx\n  exact hWB (Finset.mem_erase.mp hx).2\nhave hDB' : Disjoint B (WB.erase i) := by\n  apply Finset.disjoint_left.mpr\n  intro x hx hy\n  exact Finset.disjoint_left.mp hDB hx (Finset.mem_erase.mp hy).2\nconstructor\n· exact ⟨hA0, hB0, hA, hB, hWA, hWB', hDA, hDB'⟩\n· refine ⟨hA0, Finset.mem_insert_of_mem hB0, hA, ?_, hWA, hWB', hDA, ?_⟩\n  · intro x hx\n    rcases Finset.mem_insert.mp hx with hx | hx\n    · subst x\n      exact hWB hi\n    · exact hB hx\n  · apply Finset.disjoint_left.mpr\n    intro x hx hy\n    rcases Finset.mem_insert.mp hx with hx | hx\n    · subst x\n      exact (Finset.mem_erase.mp hy).1 rfl\n    · exact Finset.disjoint_left.mp hDB' hx hy",
+  "queries": []
+}

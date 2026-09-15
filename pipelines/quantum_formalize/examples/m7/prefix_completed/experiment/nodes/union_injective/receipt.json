@@ -1,0 +1,55 @@
+{
+  "id": "union_injective",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.PrefixCompleted.union_injective",
+    "spec_sha256": "8244f1fcd319e9d79eb35725bacd4369c8c8e5ea0882a9f7eab8c940f99bf1f7",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-5yucqxe_/attempt-001/Candidate_2211a08291ebef05.lean",
+        "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-5yucqxe_/attempt-001/FrozenTarget_2211a08291ebef05.lean",
+        "feedback": "",
+        "target_sha256": "a1f1184a665a3ae2506a52886dcac238af13d29bc21e667307ce843df43e50bd",
+        "target_olean_sha256": "6cf271e04e6f1e98d4356bb3930a80536287e34b96228bf761b6ae1ae65150c7",
+        "source_sha256": "bd0f1facdab6a65b22971f50bf380fb2682a66c9689667d3e34ddbbad90641b0",
+        "olean_sha256": "82aba0eda2b5fad4ac683fb2c563d9dca99902396217ad0639f82084a56af4e9",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:44:04.056951+00:00",
+    "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-5yucqxe_",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-5yucqxe_/attempt-001/Candidate_2211a08291ebef05.lean",
+    "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+    "artifacts": {
+      "union_injective": {
+        "payload": {
+          "declaration": "theorem M7.PrefixCompleted.union_injective : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ))\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hA hB\n  have hsub : ∀ x ∈ M7.PrefixSector.completions N w E A B WA WB,\n      x.1 ⊆ WA ∧ x.2 ⊆ WB := by\n    intro x hx\n    obtain ⟨F, hF, hx⟩ :=\n      (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard] at hx\n    aesop\n  intro x hx y hy hxy\n  have hsx := hsub x hx\n  have hsy := hsub y hy\n  have hAx : Disjoint A x.1 := hA.mono_right hsx.1\n  have hAy : Disjoint A y.1 := hA.mono_right hsy.1\n  have hBx : Disjoint B x.2 := hB.mono_right hsx.2\n  have hBy : Disjoint B y.2 := hB.mono_right hsy.2\n  apply Prod.ext\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.1 \\ A) hxy\n    simpa only [Finset.union_sdiff_cancel_left hAx,\n      Finset.union_sdiff_cancel_left hAy] using h\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.2 \\ B) hxy\n    simpa only [Finset.union_sdiff_cancel_left hBx,\n      Finset.union_sdiff_cancel_left hBy] using h",
+          "imports": [
+            "M7PrefixCompleted"
+          ],
+          "name": "M7.PrefixCompleted.union_injective",
+          "ancestors": [],
+          "spec_sha256": "8244f1fcd319e9d79eb35725bacd4369c8c8e5ea0882a9f7eab8c940f99bf1f7"
+        },
+        "sha256": "4ed0eb6c2f2e84a32a81ffefd6a1991d6b955a870e5545f94b9a56255c54f94b"
+      }
+    }
+  }
+}

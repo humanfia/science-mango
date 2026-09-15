@@ -1,0 +1,93 @@
+{
+  "id": "monic_injective",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.SignatureIdeal.monic_injective",
+    "spec_sha256": "cd71034fc84364ada091fde13c9323db70a1280ca8750da9e686e86509382131",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps/attempt-001/Candidate_8f90184389f8465b.lean:2:74: error: unsolved goals\n⊢ QuantumHarnessFrozenTarget\n/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps/attempt-001/Candidate_8f90184389f8465b.lean:3:2: error: unexpected token 'by'; expected command\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps/attempt-002/Candidate_8a18f52023d1b29e.lean:21:12: error(lean.unknownIdentifier): Unknown constant `Polynomial.dvd_antisymm`\n",
+        "attempt": 2
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps/attempt-003/Candidate_d1c2ce84c43f76f6.lean:15:14: error(lean.invalidField): Invalid field `dvd_antisymm`: The environment does not contain `Eq.dvd_antisymm`, so it is not possible to project the field `dvd_antisymm` from an expression\n  hFm\nof type `Polynomial.leadingCoeff F = 1`\n",
+        "attempt": 3
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps/attempt-004/Candidate_89e5146c7cfd030c.lean:17:56: error: Application type mismatch: The argument\n  hFm\nhas type\n  Polynomial.Monic F\nbut is expected to have type\n  Polynomial.Monic E\nin the application\n  Polynomial.eq_of_monic_of_dvd_of_natDegree_le hFm\n/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps/attempt-004/Candidate_89e5146c7cfd030c.lean:18:38: error: Application type mismatch: The argument\n  Polynomial.Monic.ne_zero hFm\nhas type\n  F ≠ 0\nbut is expected to have type\n  F ∣ E\nin the application\n  Polynomial.natDegree_le_of_dvd (Polynomial.Monic.ne_zero hFm)\n",
+        "attempt": 4
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps/attempt-005/Candidate_a4749d8bddc89bc0.lean",
+        "target_path": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps/attempt-005/FrozenTarget_a4749d8bddc89bc0.lean",
+        "feedback": "",
+        "target_sha256": "afaa8bf8bca052fae445eeace5272022f742282060140b0774b0af8786619677",
+        "target_olean_sha256": "48610271f645c29b76c60eed8a43ef525b3801f133314de229571739130250b8",
+        "source_sha256": "f091afeb2681933518305f5f368ff6a62ce39bc8188f63097accfdf5025a0833",
+        "olean_sha256": "1d73b373aa2b300ec79f44b365b39c1d1d7df550378e19a8d27d412bbbea99ac",
+        "attempt": 5
+      }
+    ],
+    "created_at": "2026-09-15T17:25:25.237504+00:00",
+    "work": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "fbf6ead8811bdacac1a375987c79a87302b1659cf0869c45cab12c75440d53ef",
+    "phase": "finished",
+    "round": 5,
+    "proof": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-r9eve_ps/attempt-005/Candidate_a4749d8bddc89bc0.lean",
+    "environment_sha256": "aa040ee74b3108068f8092ca66403026fe60a7f6009c9d7fcb2946e3ec4b5c57",
+    "artifacts": {
+      "quotient_membership": {
+        "payload": {
+          "declaration": "theorem M7.SignatureIdeal.quotient_membership : ∀ (N : ℕ) [NeZero N], ∀ F p : M6.Cyclic.BinaryPolynomial, F ∣ M6.Cyclic.modulus N → (M6.Cyclic.image N p ∈ M7.SignatureIdeal.principal N F ↔ F ∣ p) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ F p : M6.Cyclic.BinaryPolynomial, F ∣ M6.Cyclic.modulus N → (M6.Cyclic.image N p ∈ M7.SignatureIdeal.principal N F ↔ F ∣ p)\n  intro N inst F p hF\n  change M6.Cyclic.image N p ∈ Ideal.span ({M6.Cyclic.image N F} : Set (M6.Cyclic.CycleRing N)) ↔ F ∣ p\n  rw [Ideal.mem_span_singleton]\n  constructor\n  · rintro ⟨x, hx⟩\n    obtain ⟨q, hq⟩ := AdjoinRoot.mk_surjective x\n    subst x\n    change AdjoinRoot.mk (M6.Cyclic.modulus N) p = AdjoinRoot.mk (M6.Cyclic.modulus N) F * AdjoinRoot.mk (M6.Cyclic.modulus N) q at hx\n    have hz : AdjoinRoot.mk (M6.Cyclic.modulus N) (p - F * q) = 0 := by\n      rw [map_sub, map_mul, hx, sub_self]\n    have hd : M6.Cyclic.modulus N ∣ p - F * q := AdjoinRoot.mk_eq_zero.mp hz\n    have hs : F ∣ (p - F * q) + F * q := dvd_add (hF.trans hd) (dvd_mul_right F q)\n    simpa only [sub_add_cancel] using hs\n  · rintro ⟨q, rfl⟩\n    refine ⟨M6.Cyclic.image N q, ?_⟩\n    change AdjoinRoot.mk (M6.Cyclic.modulus N) (F * q) = AdjoinRoot.mk (M6.Cyclic.modulus N) F * AdjoinRoot.mk (M6.Cyclic.modulus N) q\n    exact map_mul _ _ _",
+          "imports": [
+            "M7SignatureIdeal"
+          ],
+          "name": "M7.SignatureIdeal.quotient_membership",
+          "ancestors": [],
+          "spec_sha256": "3363e03e22c5bcef15f095ba8c1ae7f1552405a93f58d9b347734f373820a50e"
+        },
+        "sha256": "222f53388e34bf5f367f7b898eb9b38989333a1773770bb67ef3e7f6be0cca59"
+      },
+      "monic_injective": {
+        "payload": {
+          "declaration": "theorem M7.SignatureIdeal.monic_injective : ∀ (N : ℕ) [NeZero N], ∀ F E : M6.Cyclic.BinaryPolynomial, F.Monic → E.Monic → F ∣ M6.Cyclic.modulus N → E ∣ M6.Cyclic.modulus N → (M7.SignatureIdeal.principal N F = M7.SignatureIdeal.principal N E ↔ F = E) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ F E : M6.Cyclic.BinaryPolynomial, F.Monic → E.Monic → F ∣ M6.Cyclic.modulus N → E ∣ M6.Cyclic.modulus N → (M7.SignatureIdeal.principal N F = M7.SignatureIdeal.principal N E ↔ F = E)\n  intro N inst F E hFm hEm hF hE\n  constructor\n  · intro h\n    have hFE : F ∣ E := by\n      apply (M7.SignatureIdeal.quotient_membership N F E hF).mp\n      rw [h]\n      exact (M7.SignatureIdeal.quotient_membership N E E hE).mpr (dvd_refl E)\n    have hEF : E ∣ F := by\n      apply (M7.SignatureIdeal.quotient_membership N E F hE).mp\n      rw [← h]\n      exact (M7.SignatureIdeal.quotient_membership N F F hF).mpr (dvd_refl F)\n    exact Polynomial.eq_of_monic_of_dvd_of_natDegree_le hEm hFm hEF\n      (Polynomial.natDegree_le_of_dvd hFE hEm.ne_zero)\n  · intro h\n    subst E\n    rfl",
+          "imports": [
+            "M7SignatureIdeal"
+          ],
+          "name": "M7.SignatureIdeal.monic_injective",
+          "ancestors": [
+            "quotient_membership"
+          ],
+          "spec_sha256": "2f9a1994c98a1274b0a2d1c4d9abdf38f0073087f1d4b2eece11172ed5d4cad8"
+        },
+        "sha256": "e3b7606d4280b6fedca088480a711e7bc05719b8f0b58ec454b75787effaf052"
+      }
+    }
+  }
+}

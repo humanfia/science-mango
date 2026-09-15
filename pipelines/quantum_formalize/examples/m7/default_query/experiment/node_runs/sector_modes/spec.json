@@ -1,0 +1,14 @@
+{
+  "name": "M7.DefaultQuery.sector_modes",
+  "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N), (q.sectorMode = M7.DefaultQuery.SectorMode.classSector → (M7.DefaultQuery.sectorTest q base placed ↔ ∃ g : M7.Action.Record N, M7.DefaultQuery.allows q (M7.DefaultQuery.signature (M7.Action.act g base)))) ∧ (q.sectorMode = M7.DefaultQuery.SectorMode.placementSector → (M7.DefaultQuery.sectorTest q base placed ↔ M7.DefaultQuery.allows q (M7.DefaultQuery.signature placed)))",
+  "imports": [
+    "M7ActualPresentationAccepted",
+    "M7DefaultQuery",
+    "M7SelectionAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Unfold sectorTest and rewrite the explicit mode. Class-sector witness is allowed at a different placement; placement-sector tests the returned literal pair. No signature transport assumption replaces the literal predicate. Return tactic proof lines without leading by; retain exact target and default limits."
+}

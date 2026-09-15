@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst F p hF\nchange M6.Cyclic.image N p ∈ Ideal.span ({M6.Cyclic.image N F} : Set (M6.Cyclic.CycleRing N)) ↔ F ∣ p\nrw [Ideal.mem_span_singleton]\nchange AdjoinRoot.mk (M6.Cyclic.modulus N) F ∣ AdjoinRoot.mk (M6.Cyclic.modulus N) p ↔ F ∣ p\nconstructor\n· rintro ⟨x, hx⟩\n  obtain ⟨q, rfl⟩ := AdjoinRoot.mk_surjective (M6.Cyclic.modulus N) x\n  have heq : AdjoinRoot.mk (M6.Cyclic.modulus N) p = AdjoinRoot.mk (M6.Cyclic.modulus N) (F * q) := by\n    simpa only [map_mul] using hx\n  have hd : F ∣ p - F * q := hF.trans (AdjoinRoot.mk_eq_mk.mp heq)\n  have hprod : F ∣ F * q := ⟨q, rfl⟩\n  simpa only [sub_add_cancel] using hd.add hprod\n· rintro ⟨q, hq⟩\n  refine ⟨AdjoinRoot.mk (M6.Cyclic.modulus N) q, ?_⟩\n  rw [hq, map_mul]",
+  "queries": []
+}

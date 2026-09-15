@@ -1,0 +1,14 @@
+{
+  "name": "M7.DefaultQuery.winners_exact",
+  "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (∀ g : M7.Action.Record N, g ∈ M7.DefaultQuery.winners q base ↔ M7.DefaultQuery.feasible q base (M7.Action.act g base) ∧ ∀ h : M7.Action.Record N, M7.DefaultQuery.feasible q base (M7.Action.act h base) → ¬ M7.Selection.better q.order (M7.DefaultQuery.objective q (M7.Action.act h base)) (M7.DefaultQuery.objective q (M7.Action.act g base))) ∧ (M7.DefaultQuery.winners q base = ∅ ↔ ¬ ∃ g : M7.Action.Record N, M7.DefaultQuery.feasible q base (M7.Action.act g base))",
+  "imports": [
+    "M7ActualPresentationAccepted",
+    "M7DefaultQuery",
+    "M7SelectionAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Instantiate accepted M7.Selection.selector_exact on actual Action.Record univ with the concrete feasible/objective functions. Simplify only univ membership and feasibleSet emptiness; preserve all ties and modes. This is an actual query application, not an assumed evaluator. Return tactic proof lines without leading by; retain exact target and default limits."
+}

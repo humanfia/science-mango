@@ -1,0 +1,14 @@
+{
+  "name": "M7.DefaultQuery.invalid_rejection",
+  "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (¬ M7.DefaultQuery.valid N q → M7.DefaultQuery.answer q base = Except.error M7.DefaultQuery.QueryError.invalidSignature ∧ M7.DefaultQuery.winners q base = ∅) ∧ (M7.DefaultQuery.valid N q → M7.DefaultQuery.answer q base = Except.ok (M7.DefaultQuery.winners q base))",
+  "imports": [
+    "M7ActualPresentationAccepted",
+    "M7DefaultQuery",
+    "M7SelectionAccepted"
+  ],
+  "context": "theorem M7.DefaultQuery.winners_exact : ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (∀ g : M7.Action.Record N, g ∈ M7.DefaultQuery.winners q base ↔ M7.DefaultQuery.feasible q base (M7.Action.act g base) ∧ ∀ h : M7.Action.Record N, M7.DefaultQuery.feasible q base (M7.Action.act h base) → ¬ M7.Selection.better q.order (M7.DefaultQuery.objective q (M7.Action.act h base)) (M7.DefaultQuery.objective q (M7.Action.act g base))) ∧ (M7.DefaultQuery.winners q base = ∅ ↔ ¬ ∃ g : M7.Action.Record N, M7.DefaultQuery.feasible q base (M7.Action.act g base)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (∀ g : M7.Action.Record N, g ∈ M7.DefaultQuery.winners q base ↔ M7.DefaultQuery.feasible q base (M7.Action.act g base) ∧ ∀ h : M7.Action.Record N, M7.DefaultQuery.feasible q base (M7.Action.act h base) → ¬ M7.Selection.better q.order (M7.DefaultQuery.objective q (M7.Action.act h base)) (M7.DefaultQuery.objective q (M7.Action.act g base))) ∧ (M7.DefaultQuery.winners q base = ∅ ↔ ¬ ∃ g : M7.Action.Record N, M7.DefaultQuery.feasible q base (M7.Action.act g base))\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N inst q base\n  simpa [M7.DefaultQuery.winners, M7.ActualPresentation.selected,\n    M7.Selection.feasibleSet, Finset.filter_eq_empty_iff] using\n    (M7.Selection.selector_exact (M7.Action.Record N) q.objectives.length\n      (Finset.univ : Finset (M7.Action.Record N))\n      (fun g => M7.DefaultQuery.feasible q base (M7.Action.act g base))\n      (fun g => M7.DefaultQuery.objective q (M7.Action.act g base)) q.order)",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Unfold answer and split the validity branch. Invalid signatures return an explicit error, distinguished from a valid empty answer. For the no-winners component use winners_exact and the first valid conjunct of feasible. A valid query returns ok with its actual finite winner set. Return tactic proof lines without leading by; retain exact target and default limits."
+}

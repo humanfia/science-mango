@@ -1,0 +1,1 @@
+Accepted: eight actual factorized numerator/full-stabilizer targets, plus assembly/environment; see RESULTS.md and canonical experiment. No active model run remains in this batch. Actual full-signature E/tau specialization is a downstream gate.

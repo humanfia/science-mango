@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N w E A B WA WB hDA hDB i hi\nhave hD0 : Disjoint A (WA.erase i) :=\n  hDA.mono_right (Finset.erase_subset i WA)\nhave hD1 : Disjoint (insert i A) (WA.erase i) := by\n  apply Finset.disjoint_left.mpr\n  intro j hj hk\n  rcases Finset.mem_insert.mp hj with rfl | hj\n  · exact (Finset.mem_erase.mp hk).1 rfl\n  · exact Finset.disjoint_left.mp hDA hj (Finset.mem_erase.mp hk).2\napply Finset.disjoint_left.mpr\nintro x hx hy\nobtain ⟨⟨hAX, hXA, hBX, hXB⟩, hv⟩ :=\n  (M7.PrefixCompleted.completed_membership N w E A B (WA.erase i) WB hD0 hDB x).mp hx\nobtain ⟨⟨hIX, hXI, hBX', hXB'⟩, hv'⟩ :=\n  (M7.PrefixCompleted.completed_membership N w E (insert i A) B (WA.erase i) WB hD1 hDB x).mp hy\nhave hiX : i ∈ x.1 := hIX (Finset.mem_insert_self i A)\nrcases Finset.mem_union.mp (hXA hiX) with hiA | hiW\n· exact Finset.disjoint_left.mp hDA hiA hi\n· exact (Finset.mem_erase.mp hiW).1 rfl",
+  "queries": []
+}

@@ -1,0 +1,200 @@
+[
+  {
+    "id": "record_coordinates",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ActualFactorized.record_coordinates",
+      "statement": "∀ (N : ℕ) [NeZero N], Function.Bijective (@M7.ActualFactorized.toRecord N _)",
+      "imports": [
+        "M7ActualFactorizedReady"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card bijection filter",
+        "MulAction orbit stabilizer cardinality"
+      ],
+      "guidance": "Use fromRecord as actual inverse; structure eta by cases and product eta. No identification of duplicate images. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section5 actual factorized numerator/full stabilizer",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "numerator_record_count",
+    "dependencies": [
+      "record_coordinates"
+    ],
+    "spec": {
+      "name": "M7.ActualFactorized.numerator_record_count",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (sector : M7.ActualFactorized.Outer N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.numerator c sector L R = M7.ActualFactorized.recordCount c sector L R",
+      "imports": [
+        "M7ActualFactorizedReady"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card bijection filter",
+        "MulAction orbit stabilizer cardinality"
+      ],
+      "guidance": "Use Factorized.numerator_record_card then actual toRecord bijection. Finset.card_bij transports actual records to triple coordinates. act projections reduce to leftImage/rightImage. Preserve arbitrary outer-sector and duplicate action images. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section5 actual factorized numerator/full stabilizer",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "stabilizer_numerator",
+    "dependencies": [
+      "numerator_record_count"
+    ],
+    "spec": {
+      "name": "M7.ActualFactorized.stabilizer_numerator",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.ActualFactorized.stabilizerNumerator c = M7.ActualOrbit.stabilizerCount c",
+      "imports": [
+        "M7ActualFactorizedReady"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card bijection filter",
+        "MulAction orbit stabilizer cardinality"
+      ],
+      "guidance": "Use numerator_record_count with sector True and predicates equal to c.1/c.2; pair equality means both projected equalities. ExactTargetNumerator definition equals this numerator. Transport filter deciders using Finset.ext. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section5 actual factorized numerator/full stabilizer",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "translate_outer",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ActualFactorized.translate_outer",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.ActualFactorized.outerImage c (g.unit,g.exchange))",
+      "imports": [
+        "M7ActualFactorizedReady"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card bijection filter",
+        "MulAction orbit stabilizer cardinality"
+      ],
+      "guidance": "Use reverse act_compose and show compose(translate s t)(unit/exchange with shifts0)=g via Record cases and simp compose/translate. Actual images, no abstract factorization hypothesis. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section5 actual factorized numerator/full stabilizer",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "sector_compatibility",
+    "dependencies": [
+      "translate_outer"
+    ],
+    "spec": {
+      "name": "M7.ActualFactorized.sector_compatibility",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ E : M7.Action.Recipe N → Prop, M7.ActualFactorized.TranslationInvariant E → ∀ g : M7.Action.Record N, E (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) ↔ E (M7.Action.act g c)",
+      "imports": [
+        "M7ActualFactorizedReady"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card bijection filter",
+        "MulAction orbit stabilizer cardinality"
+      ],
+      "guidance": "Apply translation invariance to outerImage and rewrite translate_outer. This explicit compositional condition must later be discharged for actual signature sector; it is not a free final-M7 oracle. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section5 actual factorized numerator/full stabilizer",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "numerator_action_count",
+    "dependencies": [
+      "numerator_record_count",
+      "sector_compatibility"
+    ],
+    "spec": {
+      "name": "M7.ActualFactorized.numerator_action_count",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (E : M7.Action.Recipe N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.TranslationInvariant E → M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R = M7.ActualOrbit.actionCount c (fun y => E y ∧ L y.1 ∧ R y.2)",
+      "imports": [
+        "M7ActualFactorizedReady"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card bijection filter",
+        "MulAction orbit stabilizer cardinality"
+      ],
+      "guidance": "Rewrite numerator_record_count and use sector_compatibility under Finset.ext; direct unfolding actionCount/recordCount. No orbit enumeration in arithmetic numerator. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section5 actual factorized numerator/full stabilizer",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "positive_denominator",
+    "dependencies": [
+      "stabilizer_numerator"
+    ],
+    "spec": {
+      "name": "M7.ActualFactorized.positive_denominator",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, 0 < M7.ActualFactorized.stabilizerNumerator c",
+      "imports": [
+        "M7ActualFactorizedReady"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card bijection filter",
+        "MulAction orbit stabilizer cardinality"
+      ],
+      "guidance": "Rewrite actual stabilizer_numerator and use accepted ActualOrbit.stabilizer_positive. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section5 actual factorized numerator/full stabilizer",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "exact_orbit_quotient",
+    "dependencies": [
+      "numerator_action_count",
+      "stabilizer_numerator"
+    ],
+    "spec": {
+      "name": "M7.ActualFactorized.exact_orbit_quotient",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (E : M7.Action.Recipe N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.TranslationInvariant E → (M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R / M7.ActualFactorized.stabilizerNumerator c = M7.ActualOrbit.distinctCount c (fun y => E y ∧ L y.1 ∧ R y.2) ∧ M7.ActualFactorized.stabilizerNumerator c ∣ M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R)",
+      "imports": [
+        "M7ActualFactorizedReady"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card bijection filter",
+        "MulAction orbit stabilizer cardinality"
+      ],
+      "guidance": "Use numerator_action_count and stabilizer_numerator then accepted ActualOrbit.exact_division. Parentheses explicitly enclose conjunction under hypotheses. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section5 actual factorized numerator/full stabilizer",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

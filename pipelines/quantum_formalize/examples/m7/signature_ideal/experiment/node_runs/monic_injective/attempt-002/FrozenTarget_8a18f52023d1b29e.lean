@@ -1,0 +1,23 @@
+import M7SignatureIdeal
+
+theorem M7.SignatureIdeal.quotient_membership : ∀ (N : ℕ) [NeZero N], ∀ F p : M6.Cyclic.BinaryPolynomial, F ∣ M6.Cyclic.modulus N → (M6.Cyclic.image N p ∈ M7.SignatureIdeal.principal N F ↔ F ∣ p) := by
+  change ∀ (N : ℕ) [NeZero N], ∀ F p : M6.Cyclic.BinaryPolynomial, F ∣ M6.Cyclic.modulus N → (M6.Cyclic.image N p ∈ M7.SignatureIdeal.principal N F ↔ F ∣ p)
+  intro N inst F p hF
+  change M6.Cyclic.image N p ∈ Ideal.span ({M6.Cyclic.image N F} : Set (M6.Cyclic.CycleRing N)) ↔ F ∣ p
+  rw [Ideal.mem_span_singleton]
+  constructor
+  · rintro ⟨x, hx⟩
+    obtain ⟨q, hq⟩ := AdjoinRoot.mk_surjective x
+    subst x
+    change AdjoinRoot.mk (M6.Cyclic.modulus N) p = AdjoinRoot.mk (M6.Cyclic.modulus N) F * AdjoinRoot.mk (M6.Cyclic.modulus N) q at hx
+    have hz : AdjoinRoot.mk (M6.Cyclic.modulus N) (p - F * q) = 0 := by
+      rw [map_sub, map_mul, hx, sub_self]
+    have hd : M6.Cyclic.modulus N ∣ p - F * q := AdjoinRoot.mk_eq_zero.mp hz
+    have hs : F ∣ (p - F * q) + F * q := dvd_add (hF.trans hd) (dvd_mul_right F q)
+    simpa only [sub_add_cancel] using hs
+  · rintro ⟨q, rfl⟩
+    refine ⟨M6.Cyclic.image N q, ?_⟩
+    change AdjoinRoot.mk (M6.Cyclic.modulus N) (F * q) = AdjoinRoot.mk (M6.Cyclic.modulus N) F * AdjoinRoot.mk (M6.Cyclic.modulus N) q
+    exact map_mul _ _ _
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N : ℕ) [NeZero N], ∀ F E : M6.Cyclic.BinaryPolynomial, F.Monic → E.Monic → F ∣ M6.Cyclic.modulus N → E ∣ M6.Cyclic.modulus N → (M7.SignatureIdeal.principal N F = M7.SignatureIdeal.principal N E ↔ F = E)

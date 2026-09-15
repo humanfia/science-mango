@@ -1,0 +1,27 @@
+import FrozenTarget_2211a08291ebef05
+theorem M7.PrefixCompleted.union_injective : QuantumHarnessFrozenTarget := by
+  classical
+  unfold QuantumHarnessFrozenTarget
+  intro N w E A B WA WB hA hB
+  have hsub : ∀ x ∈ M7.PrefixSector.completions N w E A B WA WB,
+      x.1 ⊆ WA ∧ x.2 ⊆ WB := by
+    intro x hx
+    obtain ⟨F, hF, hx⟩ :=
+      (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx
+    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,
+      Finset.mem_product, Finset.mem_powersetCard] at hx
+    aesop
+  intro x hx y hy hxy
+  have hsx := hsub x hx
+  have hsy := hsub y hy
+  have hAx : Disjoint A x.1 := hA.mono_right hsx.1
+  have hAy : Disjoint A y.1 := hA.mono_right hsy.1
+  have hBx : Disjoint B x.2 := hB.mono_right hsx.2
+  have hBy : Disjoint B y.2 := hB.mono_right hsy.2
+  apply Prod.ext
+  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.1 \ A) hxy
+    simpa only [Finset.union_sdiff_cancel_left hAx,
+      Finset.union_sdiff_cancel_left hAy] using h
+  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.2 \ B) hxy
+    simpa only [Finset.union_sdiff_cancel_left hBx,
+      Finset.union_sdiff_cancel_left hBy] using h

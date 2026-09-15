@@ -1,0 +1,55 @@
+{
+  "id": "right_children",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.PrefixCompleted.right_children",
+    "spec_sha256": "a4c60dc028e0f5c6ad613f0558ee61a494874f056050511accc0aa46212d27e8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-vfimybcn/attempt-001/Candidate_3a71f3fbf16686d4.lean",
+        "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-vfimybcn/attempt-001/FrozenTarget_3a71f3fbf16686d4.lean",
+        "feedback": "",
+        "target_sha256": "5f6b28fe4bccf13228daae04204ebc22329a58f76481a973b40a5ae91eb0f0e4",
+        "target_olean_sha256": "949bfb2d5eb16703e7ed1642a8a5f2db820b96c492187c85701f6c302d06d6f6",
+        "source_sha256": "a6c4a620477839dac53cadad787d6bad6333b9a4e96d4bc7cd8a9eb8240a022b",
+        "olean_sha256": "91675f1a9415477c0e7711a476349a7a66ce90e7a12251132b6e121503ede8fe",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:41:36.689015+00:00",
+    "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-vfimybcn",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-vfimybcn/attempt-001/Candidate_3a71f3fbf16686d4.lean",
+    "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+    "artifacts": {
+      "right_children": {
+        "payload": {
+          "declaration": "theorem M7.PrefixCompleted.right_children : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), ∀ i ∈ WB, M7.PrefixCompleted.Base N A B WA WB → M7.PrefixCompleted.Base N A B WA (WB.erase i) ∧ M7.PrefixCompleted.Base N A (insert i B) WA (WB.erase i) := by\n  intro N w E A B WA WB i hi h\n  unfold M7.PrefixCompleted.Base at h ⊢\n  rcases h with ⟨hA0, hB0, hA, hB, hWA, hWB, hDA, hDB⟩\n  have hWB' : WB.erase i ⊆ Finset.range N := by\n    intro x hx\n    exact hWB (Finset.mem_erase.mp hx).2\n  have hDB' : Disjoint B (WB.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    exact Finset.disjoint_left.mp hDB hx (Finset.mem_erase.mp hy).2\n  constructor\n  · exact ⟨hA0, hB0, hA, hB, hWA, hWB', hDA, hDB'⟩\n  · refine ⟨hA0, Finset.mem_insert_of_mem hB0, hA, ?_, hWA, hWB', hDA, ?_⟩\n    · intro x hx\n      rcases Finset.mem_insert.mp hx with hx | hx\n      · subst x\n        exact hWB hi\n      · exact hB hx\n    · apply Finset.disjoint_left.mpr\n      intro x hx hy\n      rcases Finset.mem_insert.mp hx with hx | hx\n      · subst x\n        exact (Finset.mem_erase.mp hy).1 rfl\n      · exact Finset.disjoint_left.mp hDB' hx hy",
+          "imports": [
+            "M7PrefixCompleted"
+          ],
+          "name": "M7.PrefixCompleted.right_children",
+          "ancestors": [],
+          "spec_sha256": "a4c60dc028e0f5c6ad613f0558ee61a494874f056050511accc0aa46212d27e8"
+        },
+        "sha256": "24b6696240dbab32c730dc55a047e35d9c255894f53de0d0a6d2ff051ec6b059"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "M7.QuotientAuto.substitution_scalars",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (r : ZMod 2), M7.QuotientAuto.substitution u ((AdjoinRoot.of (M6.Cyclic.modulus N)) r) = (AdjoinRoot.of (M6.Cyclic.modulus N)) r",
+  "imports": [
+    "M7QuotientAuto"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "substitution supplies the accepted point_root proof itself: no free well-definedness assumption. AdjoinRoot.ringHom_ext checks coefficients via comp(of) and root; hom_root/hom_polynomial and point_one/point_mul/point_inverse are accepted. AdjoinRoot.lift_of takes the root-condition proof explicitly (other arguments implicit). For composition use map_pow and point_mul, with commutativity of units. Polynomial composition evaluates at rho^u.val; preserve quotient ring type instead of globally unfolding modulus under its type. Covers N=1 and nonreduced even-N quotient. Return tactic lines only.\nimport M7CyclicSubstitutionAccepted\n\nnamespace M7.QuotientAuto\nnoncomputable def substitution {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) :\n    M6.Cyclic.CycleRing N →+* M6.Cyclic.CycleRing N :=\n  M7.CyclicSubstitution.hom u (M7.CyclicSubstitution.point_root N u)\nend M7.QuotientAuto\n"
+}

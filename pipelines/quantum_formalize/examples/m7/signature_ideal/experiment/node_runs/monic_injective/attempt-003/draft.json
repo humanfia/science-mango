@@ -1,0 +1,6 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ F E : M6.Cyclic.BinaryPolynomial, F.Monic → E.Monic → F ∣ M6.Cyclic.modulus N → E ∣ M6.Cyclic.modulus N → (M7.SignatureIdeal.principal N F = M7.SignatureIdeal.principal N E ↔ F = E)\nintro N inst F E hFm hEm hF hE\nconstructor\n· intro h\n  have hFE : F ∣ E := by\n    apply (M7.SignatureIdeal.quotient_membership N F E hF).mp\n    rw [h]\n    exact (M7.SignatureIdeal.quotient_membership N E E hE).mpr (dvd_refl E)\n  have hEF : E ∣ F := by\n    apply (M7.SignatureIdeal.quotient_membership N E F hE).mp\n    rw [← h]\n    exact (M7.SignatureIdeal.quotient_membership N F F hF).mpr (dvd_refl F)\n  exact hFm.dvd_antisymm hEm hFE hEF\n· intro h\n  subst E\n  rfl",
+  "queries": [
+    "Polynomial.Monic.dvd_antisymm"
+  ]
+}

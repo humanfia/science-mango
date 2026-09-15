@@ -1,0 +1,112 @@
+{
+  "id": "numerator_action_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ActualFactorized.numerator_action_count",
+    "spec_sha256": "cbc059f6c318ec1221f72d3c0ee18b2e4a0becf574d30d5ca07c9f34db4193cf",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-c1y08827/attempt-001/Candidate_e24bd54ff15e73b7.lean",
+        "target_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-c1y08827/attempt-001/FrozenTarget_e24bd54ff15e73b7.lean",
+        "feedback": "",
+        "target_sha256": "4eec94c8062172d422d1b6bffbaaeabe6f3d128ea918958533e8ec52860fe94b",
+        "target_olean_sha256": "24cfa04ae1086f90ad910161283c4bff52f957e8bc716c3ef1bd3c8402a13684",
+        "source_sha256": "f657ed44bc207ca458ff8370455944801ebf2a92b9f1868a412240923bb2c149",
+        "olean_sha256": "3ec66f268a498e5260b97f7fcf421a64499b55a379270d0bdc1d2a7e033e9070",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:46:22.944721+00:00",
+    "work": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-c1y08827",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "6b25fd5539b755842605569dda8fb3e9e23e161a6fab1ba2eac9b3964d01cc17",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-c1y08827/attempt-001/Candidate_e24bd54ff15e73b7.lean",
+    "environment_sha256": "84aed382288ca3e2dd5d5104ece4fbdae363c62315b30833f3d1f93a7fac4f33",
+    "artifacts": {
+      "record_coordinates": {
+        "payload": {
+          "declaration": "theorem M7.ActualFactorized.record_coordinates : ∀ (N : ℕ) [NeZero N], Function.Bijective (@M7.ActualFactorized.toRecord N _) := by\n  change ∀ (N : ℕ) [NeZero N], Function.Bijective (@M7.ActualFactorized.toRecord N _)\n  intro N inst\n  have hleft : Function.LeftInverse (@M7.ActualFactorized.fromRecord N _) (@M7.ActualFactorized.toRecord N _) := by\n    rintro ⟨⟨u, e⟩, s, t⟩\n    rfl\n  have hright : Function.RightInverse (@M7.ActualFactorized.fromRecord N _) (@M7.ActualFactorized.toRecord N _) := by\n    intro g\n    cases g\n    rfl\n  exact ⟨hleft.injective, hright.surjective⟩",
+          "imports": [
+            "M7ActualFactorizedReady"
+          ],
+          "name": "M7.ActualFactorized.record_coordinates",
+          "ancestors": [],
+          "spec_sha256": "77ad245f63c4d2b66e986c813b39d2ee19e3e062f81f6f7c57662fd81512c21b"
+        },
+        "sha256": "605447436d106575e0ed36e15f89e51909e26b813b3646c7dc997d3b184cfbba"
+      },
+      "numerator_record_count": {
+        "payload": {
+          "declaration": "theorem M7.ActualFactorized.numerator_record_count : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (sector : M7.ActualFactorized.Outer N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.numerator c sector L R = M7.ActualFactorized.recordCount c sector L R := by\n  intro N inst c sector L R\n  classical\n  unfold M7.ActualFactorized.numerator M7.ActualFactorized.recordCount\n  rw [M7.Factorized.numerator_record_card]\n  refine Finset.card_bij (fun a _ => M7.ActualFactorized.toRecord a) ?_ ?_ ?_\n  · rintro ⟨⟨u, e⟩, s, t⟩ ha\n    simp only [M7.Factorized.records, Finset.mem_filter, Finset.mem_univ, true_and] at ha ⊢\n    exact ha\n  · intro a ha b hb hab\n    exact (M7.ActualFactorized.record_coordinates N).1 hab\n  · intro g hg\n    refine ⟨M7.ActualFactorized.fromRecord g, ?_, ?_⟩\n    · simp only [M7.Factorized.records, Finset.mem_filter, Finset.mem_univ, true_and] at hg ⊢\n      exact hg\n    · cases g\n      rfl",
+          "imports": [
+            "M7ActualFactorizedReady"
+          ],
+          "name": "M7.ActualFactorized.numerator_record_count",
+          "ancestors": [
+            "record_coordinates"
+          ],
+          "spec_sha256": "e014059b1d4868007f6b5596fd53f9c52c8fba9b4a9e7be8492e5c67adaec2ec"
+        },
+        "sha256": "7c33ca5e1c254479bd7efdc0c7c9b94b81aa321570b770f7e424303a20230b5b"
+      },
+      "translate_outer": {
+        "payload": {
+          "declaration": "theorem M7.ActualFactorized.translate_outer : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) := by\n  intro N inst c g\n  change M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.Action.act { unit := g.unit, exchange := g.exchange, leftShift := 0, rightShift := 0 } c)\n  rw [← M7.Action.act_compose]\n  congr 1\n  cases g\n  simp [M7.Action.compose, M7.Action.translate]",
+          "imports": [
+            "M7ActualFactorizedReady"
+          ],
+          "name": "M7.ActualFactorized.translate_outer",
+          "ancestors": [],
+          "spec_sha256": "33232ef605abac75ec0776b1caece198320543ac790284c52fd9be2d12f06dcf"
+        },
+        "sha256": "cacd129c702c2a45273612ba1d13dfa70a335ae7d8495990f3729bbc281c6da2"
+      },
+      "sector_compatibility": {
+        "payload": {
+          "declaration": "theorem M7.ActualFactorized.sector_compatibility : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ E : M7.Action.Recipe N → Prop, M7.ActualFactorized.TranslationInvariant E → ∀ g : M7.Action.Record N, E (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) ↔ E (M7.Action.act g c) := by\n  intro N inst c E hE g\n  rw [M7.ActualFactorized.translate_outer N c g]\n  unfold M7.ActualFactorized.TranslationInvariant at hE\n  first\n  | exact hE _ _ _\n  | exact (hE _ _ _).symm",
+          "imports": [
+            "M7ActualFactorizedReady"
+          ],
+          "name": "M7.ActualFactorized.sector_compatibility",
+          "ancestors": [
+            "translate_outer"
+          ],
+          "spec_sha256": "9089e73b4fa5666461b536732a184c8515434206d47c39cb9b864f033df9e798"
+        },
+        "sha256": "093d8a192eedc7c93608b0b9f965d796ef3d5a2baf98ea5aeac1553e243628f7"
+      },
+      "numerator_action_count": {
+        "payload": {
+          "declaration": "theorem M7.ActualFactorized.numerator_action_count : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (E : M7.Action.Recipe N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.TranslationInvariant E → M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R = M7.ActualOrbit.actionCount c (fun y => E y ∧ L y.1 ∧ R y.2) := by\n  intro N inst c E L R hE\n  classical\n  rw [M7.ActualFactorized.numerator_record_count N]\n  unfold M7.ActualFactorized.recordCount M7.ActualOrbit.actionCount\n  apply congrArg Finset.card\n  ext g\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and]\n  rw [M7.ActualFactorized.sector_compatibility N c E hE g] <;>\n    simp [M7.ActualFactorized.leftImage, M7.ActualFactorized.rightImage,\n      M7.ActualFactorized.toRecord, M7.Action.act]",
+          "imports": [
+            "M7ActualFactorizedReady"
+          ],
+          "name": "M7.ActualFactorized.numerator_action_count",
+          "ancestors": [
+            "numerator_record_count",
+            "record_coordinates",
+            "sector_compatibility",
+            "translate_outer"
+          ],
+          "spec_sha256": "078bf3e6c79424bf2dbf71c8f8b325341cb6c6796c688e1b08db05f51599f682"
+        },
+        "sha256": "6c7da0eab088af3824e50fc9ad78b9385a920aab47bbd8e1ea3adaeb26154012"
+      }
+    }
+  }
+}

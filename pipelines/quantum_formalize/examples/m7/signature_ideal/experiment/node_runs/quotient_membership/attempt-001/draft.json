@@ -1,0 +1,8 @@
+{
+  "proof": "by\n  intro N inst F p hF\n  unfold M7.SignatureIdeal.principal\n  rw [Ideal.mem_span_singleton]\n  constructor\n  · rintro ⟨x, hx⟩\n    have hs : Function.Surjective (AdjoinRoot.mk (M6.Cyclic.modulus N)) := by\n      first\n      | exact AdjoinRoot.mk_surjective _\n      | exact AdjoinRoot.mk_surjective\n    obtain ⟨q, rfl⟩ := hs x\n    change AdjoinRoot.mk (M6.Cyclic.modulus N) p =\n      AdjoinRoot.mk (M6.Cyclic.modulus N) F *\n        AdjoinRoot.mk (M6.Cyclic.modulus N) q at hx\n    have hz : AdjoinRoot.mk (M6.Cyclic.modulus N) (p - F * q) = 0 := by\n      rw [map_sub, map_mul, hx, sub_self]\n    have hm : M6.Cyclic.modulus N ∣ p - F * q :=\n      (AdjoinRoot.mk_eq_zero).mp hz\n    have hd : F ∣ p - F * q := dvd_trans hF hm\n    have ha := dvd_add hd (dvd_mul_right F q)\n    simpa only [sub_add_cancel] using ha\n  · rintro ⟨q, rfl⟩\n    refine ⟨M6.Cyclic.image N q, ?_⟩\n    change AdjoinRoot.mk (M6.Cyclic.modulus N) (F * q) =\n      AdjoinRoot.mk (M6.Cyclic.modulus N) F *\n        AdjoinRoot.mk (M6.Cyclic.modulus N) q\n    exact map_mul _ _ _",
+  "queries": [
+    "AdjoinRoot.mk_eq_zero",
+    "AdjoinRoot.mk_surjective",
+    "Ideal.mem_span_singleton"
+  ]
+}

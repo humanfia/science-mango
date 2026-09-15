@@ -1,0 +1,264 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.mem_powersetCard",
+    "status": "ok",
+    "results": [
+      {
+        "id": 204050,
+        "name": "Finset.mem_powersetCard",
+        "module": "Mathlib.Data.Finset.Powerset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Powerset.lean#L202-L203",
+        "source_text": "@[simp, grind =] lemma mem_powersetCard : s ∈ powersetCard n t ↔ s ⊆ t ∧ card s = n := by\n  cases s; simp [powersetCard, val_le_iff.symm]",
+        "docstring": null
+      },
+      {
+        "id": 204052,
+        "name": "Finset.card_powersetCard",
+        "module": "Mathlib.Data.Finset.Powerset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Powerset.lean#L210-L214",
+        "source_text": "/-- **Formula for the Number of Combinations** -/\n@[simp]\ntheorem card_powersetCard (n : ℕ) (s : Finset α) :\n    card (powersetCard n s) = Nat.choose (card s) n :=\n  (card_pmap _ _ _).trans (Multiset.card_powersetCard n s.1)\n",
+        "docstring": "**Formula for the Number of Combinations** "
+      },
+      {
+        "id": 202306,
+        "name": "Finset.card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+        "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+        "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+      },
+      {
+        "id": 220245,
+        "name": "Set.powersetCard.coe_finset",
+        "module": "Mathlib.Data.Set.PowersetCard",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/PowersetCard.lean#L209-L211",
+        "source_text": "theorem coe_finset [Fintype α] :\n    powersetCard α n = Finset.powersetCard n (Finset.univ : Finset α) := by\n  ext; simp\n",
+        "docstring": null
+      },
+      {
+        "id": 218228,
+        "name": "Set.term𝒫_",
+        "module": "Mathlib.Data.Set.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Defs.lean#L256-L256",
+        "source_text": "@[inherit_doc] prefix:100 \"𝒫 \" => powerset\n\nuniverse v in\n/-- The image of `s : Set α` by `f : α → β`, written `f '' s`, is the set of `b : β` such that\n`f a = b` for some `a ∈ s`. -/\ndef image {β : Type v} (f : α → β) (s : Set α) : Set β := {f a | a ∈ s}",
+        "docstring": "`𝒫 s` is the set of all subsets of `s`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.mem_powersetCard",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388420,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.powerset_mono",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L323-L329",
+        "source_text": "lemma powerset_mono {x y : ChargeSpectrum 𝓩} :\n    powerset x ⊆ powerset y ↔ x ⊆ y := by\n  constructor\n  · intro h\n    exact mem_powerset_iff_subset.mp (h (self_mem_powerset x))\n  · intro h z hz\n    exact mem_powerset_iff_subset.mpr (subset_trans (mem_powerset_iff_subset.mp hz) h)\n",
+        "docstring": null
+      },
+      {
+        "id": 388416,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.mem_powerset_iff_subset",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L306-L309",
+        "source_text": "@[simp]\nlemma mem_powerset_iff_subset {x y : ChargeSpectrum 𝓩} :\n    x ∈ powerset y ↔ x ⊆ y := by\n  simp [mem_powerset_iff, subset_def]",
+        "docstring": null
+      },
+      {
+        "id": 388413,
+        "name": "Option.mem_powerset_iff",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L287-L290",
+        "source_text": "@[simp]\nlemma _root_.Option.mem_powerset_iff {x : Option 𝓩} (y : Option 𝓩) :\n    y ∈ x.powerset ↔ y.toFinset ⊆ x.toFinset := by\n  cases x <;> cases y <;> simp [Option.powerset]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.disjoint_left",
+    "status": "ok",
+    "results": [
+      {
+        "id": 202619,
+        "name": "Finset.disjoint_left",
+        "module": "Mathlib.Data.Finset.Disjoint",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Disjoint.lean#L47-L50",
+        "source_text": "theorem disjoint_left : Disjoint s t ↔ ∀ ⦃a⦄, a ∈ s → a ∉ t :=\n  ⟨fun h a hs ht => notMem_empty a <|\n    singleton_subset_iff.mp (h (singleton_subset_iff.mpr hs) (singleton_subset_iff.mpr ht)),\n    fun h _ hs ht _ ha => (h (hs ha) (ht ha)).elim⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 203372,
+        "name": "Finset.disjoint_sup_left",
+        "module": "Mathlib.Data.Finset.Lattice.Fold",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Lattice/Fold.lean#L368-L370",
+        "source_text": "@[to_dual]\nprotected theorem disjoint_sup_left : Disjoint (s.sup f) a ↔ ∀ ⦃i⦄, i ∈ s → Disjoint (f i) a := by\n  simp only [disjoint_iff, sup_inf_distrib_right, Finset.sup_eq_bot_iff]",
+        "docstring": null
+      },
+      {
+        "id": 204460,
+        "name": "Finset.toLeft_inter",
+        "module": "Mathlib.Data.Finset.Sum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Sum.lean#L216-L216",
+        "source_text": "lemma toLeft_inter : (u ∩ v).toLeft = u.toLeft ∩ v.toLeft := by ext x; simp\n",
+        "docstring": null
+      },
+      {
+        "id": 204464,
+        "name": "Finset.toLeft_sdiff",
+        "module": "Mathlib.Data.Finset.Sum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Sum.lean#L222-L222",
+        "source_text": "lemma toLeft_sdiff : (u \\ v).toLeft = u.toLeft \\ v.toLeft := by ext x; simp\n",
+        "docstring": null
+      },
+      {
+        "id": 283085,
+        "name": "Disjoint",
+        "module": "Mathlib.Order.Disjoint",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Disjoint.lean#L37-L49",
+        "source_text": "/-- Two elements of a lattice are disjoint if their inf is the bottom element.\n  (This generalizes disjoint sets, viewed as members of the subset lattice.)\n\nNote that we define this without reference to `⊓`, as this allows us to talk about orders where\nthe infimum is not unique, or where implementing `Inf` would require additional `Decidable`\narguments. -/\n@[to_dual /-- Two elements of a lattice are codisjoint if their sup is the top element.\n\nNote that we define this without reference to `⊔`, as this allows us to talk about orders where\nthe supremum is not unique, or where implementing `Sup` would require additional `Decidable`\narguments. -/]\ndef Disjoint (a b : α) : Prop :=\n  ∀ ⦃x⦄, x ≤ a → x ≤ b → x ≤ ⊥\n",
+        "docstring": "Two elements of a lattice are disjoint if their inf is the bottom element.\n  (This generalizes disjoint sets, viewed as members of the subset lattice.)\n\nNote that we define this without reference to `⊓`, as this allows us to talk about orders where\nthe infimum is not unique, or where implementing `Inf` would require additional `Decidable`\narguments. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.disjoint_left",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389798,
+        "name": "WickContraction.uncontractedListEmd_finset_disjoint_left",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.UncontractedList",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/UncontractedList.lean#L372-L382",
+        "source_text": "@[simp]\nlemma uncontractedListEmd_finset_disjoint_left {φs : List 𝓕.FieldOp}\n    {φsΛ : WickContraction φs.length} (a : Finset (Fin [φsΛ]ᵘᶜ.length))\n    (b : Finset (Fin φs.length)) (hb : b ∈ φsΛ.1) : Disjoint (a.map uncontractedListEmd) b := by\n  rw [Finset.disjoint_left]\n  intro x hx\n  simp only [Finset.mem_map] at hx\n  obtain ⟨x, hx, rfl⟩ := hx\n  have h1 := uncontractedListEmd_mem_uncontracted x\n  rw [mem_uncontracted_iff_not_contracted] at h1\n  exact h1 b hb",
+        "docstring": null
+      },
+      {
+        "id": 389111,
+        "name": "FieldStatistic.ofFinset_union_disjoint",
+        "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L108-L112",
+        "source_text": "lemma ofFinset_union_disjoint (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a b : Finset (Fin φs.length))\n    (h : Disjoint a b) :\n    ofFinset q φs.get a * ofFinset q φs.get b = ofFinset q φs.get (a ∪ b) := by\n  rw [ofFinset_union, Finset.disjoint_iff_inter_eq_empty.mp h]\n  simp\n",
+        "docstring": null
+      },
+      {
+        "id": 389477,
+        "name": "WickContraction.finset_succAbove_succ_disjoint",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.Card",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Card.lean#L59-L66",
+        "source_text": "lemma finset_succAbove_succ_disjoint (a : Finset (Fin n)) (i : Fin n.succ) :\n    Disjoint ((Finset.map (Fin.succEmb (n + 1))) ((Finset.map i.succAboveEmb) a)) {0, i.succ} := by\n  simp only [succ_eq_add_one, Finset.disjoint_insert_right, Finset.mem_map, Fin.succAboveEmb_apply,\n    Fin.coe_succEmb, exists_exists_and_eq_and, not_exists, not_and, Finset.disjoint_singleton_right,\n    Fin.succ_inj]\n  apply And.intro\n  · exact fun x hx => Fin.succ_ne_zero (i.succAbove x)\n  · exact fun x hx => Fin.succAbove_ne i x\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.union_left_cancel",
+    "status": "ok",
+    "results": [
+      {
+        "id": 278764,
+        "name": "Set.union_diff_cancel_left",
+        "module": "Mathlib.Order.BooleanAlgebra.Set",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/BooleanAlgebra/Set.lean#L253-L253",
+        "source_text": "@[deprecated (since := \"2026-06-03\")] alias union_diff_cancel_left := union_sdiff_cancel_left",
+        "docstring": "**Alias** of `Set.union_sdiff_cancel_left`."
+      },
+      {
+        "id": 203227,
+        "name": "Finset.union_inter_cancel_left",
+        "module": "Mathlib.Data.Finset.Lattice.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Lattice/Basic.lean#L218-L219",
+        "source_text": "@[simp]\ntheorem union_inter_cancel_left {s t : Finset α} : (s ∪ t) ∩ s = s := by grind",
+        "docstring": null
+      },
+      {
+        "id": 204265,
+        "name": "Finset.sdiff_union_sdiff_cancel",
+        "module": "Mathlib.Data.Finset.SDiff",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/SDiff.lean#L214-L215",
+        "source_text": "theorem sdiff_union_sdiff_cancel (hts : t ⊆ s) (hut : u ⊆ t) : s \\ t ∪ t \\ u = s \\ u :=\n  sdiff_sup_sdiff_cancel hts hut\n",
+        "docstring": null
+      },
+      {
+        "id": 204239,
+        "name": "Finset.union_sdiff_cancel_left",
+        "module": "Mathlib.Data.Finset.SDiff",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/SDiff.lean#L137-L138",
+        "source_text": "theorem union_sdiff_cancel_left (h : Disjoint s t) : (s ∪ t) \\ s = t :=\n  h.sup_sdiff_cancel_left\n",
+        "docstring": null
+      },
+      {
+        "id": 204462,
+        "name": "Finset.toLeft_union",
+        "module": "Mathlib.Data.Finset.Sum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Sum.lean#L219-L219",
+        "source_text": "lemma toLeft_union : (u ∪ v).toLeft = u.toLeft ∪ v.toLeft := by ext x; simp\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Finset.union_left_cancel",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.union_left_cancel",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

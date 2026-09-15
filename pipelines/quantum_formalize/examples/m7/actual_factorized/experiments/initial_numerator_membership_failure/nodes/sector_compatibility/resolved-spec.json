@@ -1,0 +1,13 @@
+{
+  "name": "M7.ActualFactorized.sector_compatibility",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ E : M7.Action.Recipe N → Prop, M7.ActualFactorized.TranslationInvariant E → ∀ g : M7.Action.Record N, E (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) ↔ E (M7.Action.act g c)",
+  "imports": [
+    "M7ActualFactorizedReady"
+  ],
+  "context": "theorem M7.ActualFactorized.translate_outer : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) := by\n  intro N inst c g\n  change M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.Action.act { unit := g.unit, exchange := g.exchange, leftShift := 0, rightShift := 0 } c)\n  rw [← M7.Action.act_compose]\n  congr 1\n  cases g\n  simp [M7.Action.compose, M7.Action.translate]",
+  "queries": [
+    "Finset card bijection filter",
+    "MulAction orbit stabilizer cardinality"
+  ],
+  "guidance": "Apply translation invariance to outerImage and rewrite translate_outer. This explicit compositional condition must later be discharged for actual signature sector; it is not a free final-M7 oracle. Return tactic lines without leading by."
+}

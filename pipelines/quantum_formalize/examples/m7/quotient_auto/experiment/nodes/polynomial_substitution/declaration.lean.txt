@@ -1,0 +1,9 @@
+theorem M7.QuotientAuto.polynomial_substitution : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (p : M6.Cyclic.BinaryPolynomial), M6.Cyclic.image N (p.comp (Polynomial.X ^ (u : ZMod N).val)) = M7.QuotientAuto.substitution u (M6.Cyclic.image N p) := by
+  intro N inst u p
+  unfold M7.QuotientAuto.substitution
+  rw [M7.CyclicSubstitution.hom_polynomial]
+  unfold M6.Cyclic.image
+  rw [← AdjoinRoot.aeval_eq]
+  simp only [Polynomial.aeval_def, AdjoinRoot.algebraMap_eq,
+    Polynomial.eval₂_comp, Polynomial.eval₂_pow, Polynomial.eval₂_X]
+  rfl

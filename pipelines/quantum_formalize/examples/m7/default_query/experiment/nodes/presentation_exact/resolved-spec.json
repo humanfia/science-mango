@@ -1,0 +1,14 @@
+{
+  "name": "M7.DefaultQuery.presentation_exact",
+  "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (∀ g ∈ M7.DefaultQuery.winners q base, ∃! h : M7.Action.Record N, M7.DefaultQuery.present q base h ∧ M7.Action.act h base = M7.Action.act g base ) ∧ (∀ g : M7.Action.Record N, M7.DefaultQuery.present q base g → g ∈ M7.DefaultQuery.winners q base ∧ ∀ h : M7.Action.Record N, M7.Action.act h base = M7.Action.act g base → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h)",
+  "imports": [
+    "M7ActualPresentationAccepted",
+    "M7DefaultQuery",
+    "M7SelectionAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Instantiate verified actual_presentation9 presentation_exact and presentation_sound with concrete DefaultQuery.feasible q base and objective q. winners and actual selected are definitionally the same. The dependency gate must be resolved by canonical actual_presentation9 before launching; no placeholder proof or free presentation oracle is allowed. Return tactic proof lines without leading by; retain exact target and default limits."
+}

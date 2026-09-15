@@ -1,0 +1,6 @@
+{
+  "proof": "classical\nintro N w E A B WA WB h\nchange (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A ∪ x.1, B ∪ x.2)) = ∅\nhave hempty : M7.PrefixSector.completions N w E A B WA WB = ∅ := by\n  apply Finset.eq_empty_iff_forall_not_mem.mpr\n  intro x hx\n  obtain ⟨F, hF, hx⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n  have hA : A.card ≤ (A ∪ x.1).card := Finset.card_le_card Finset.subset_union_left\n  have hB : B.card ≤ (B ∪ x.2).card := Finset.card_le_card Finset.subset_union_left\n  unfold M5.ConditionalCount.validCompletions at hx\n  split_ifs at hx <;>\n    simp_all [Finset.mem_filter, Finset.mem_product, Finset.mem_powersetCard] <;>\n    omega\nrw [hempty]\nsimp",
+  "queries": [
+    "M5.ConditionalCount.validCompletions"
+  ]
+}

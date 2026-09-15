@@ -1,0 +1,8 @@
+theorem M7.DefaultQuery.empty_objectives : ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), q.objectives = [] → M7.DefaultQuery.winners q base = M7.Selection.feasibleSet Finset.univ (fun g : M7.Action.Record N => M7.DefaultQuery.feasible q base (M7.Action.act g base)) := by
+  intro N inst q base h
+  cases q
+  dsimp only at h
+  cases h
+  unfold M7.DefaultQuery.winners
+  change M7.Selection.select _ _ _ _ = _
+  exact M7.Selection.empty_objectives _ _ _ _ _

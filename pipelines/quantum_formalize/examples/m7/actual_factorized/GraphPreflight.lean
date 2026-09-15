@@ -1,0 +1,9 @@
+import M7ActualFactorizedReady
+#check (∀ (N : ℕ) [NeZero N], Function.Bijective (@M7.ActualFactorized.toRecord N _))
+#check (∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (sector : M7.ActualFactorized.Outer N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.numerator c sector L R = M7.ActualFactorized.recordCount c sector L R)
+#check (∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.ActualFactorized.stabilizerNumerator c = M7.ActualOrbit.stabilizerCount c)
+#check (∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.ActualFactorized.outerImage c (g.unit,g.exchange)))
+#check (∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ E : M7.Action.Recipe N → Prop, M7.ActualFactorized.TranslationInvariant E → ∀ g : M7.Action.Record N, E (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) ↔ E (M7.Action.act g c))
+#check (∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (E : M7.Action.Recipe N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.TranslationInvariant E → M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R = M7.ActualOrbit.actionCount c (fun y => E y ∧ L y.1 ∧ R y.2))
+#check (∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, 0 < M7.ActualFactorized.stabilizerNumerator c)
+#check (∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (E : M7.Action.Recipe N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.TranslationInvariant E → (M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R / M7.ActualFactorized.stabilizerNumerator c = M7.ActualOrbit.distinctCount c (fun y => E y ∧ L y.1 ∧ R y.2) ∧ M7.ActualFactorized.stabilizerNumerator c ∣ M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R))

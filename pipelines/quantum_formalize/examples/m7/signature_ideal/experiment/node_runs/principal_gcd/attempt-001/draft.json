@@ -1,0 +1,7 @@
+{
+  "proof": "intro N inst F\nlet f : M6.Cyclic.BinaryPolynomial →+* M6.Cyclic.CycleRing N := AdjoinRoot.mk (M6.Cyclic.modulus N)\nchange Ideal.span ({f F} : Set (M6.Cyclic.CycleRing N)) = Ideal.span ({f (EuclideanDomain.gcd F (M6.Cyclic.modulus N))} : Set (M6.Cyclic.CycleRing N))\napply le_antisymm\n· apply Ideal.span_le.mpr\n  intro x hx\n  simp only [Set.mem_singleton_iff] at hx\n  subst x\n  rcases EuclideanDomain.gcd_dvd_left F (M6.Cyclic.modulus N) with ⟨u, hu⟩\n  apply Ideal.mem_span_singleton.mpr\n  refine ⟨f u, ?_⟩\n  exact (congrArg f hu).trans (map_mul f _ _)\n· apply Ideal.span_le.mpr\n  intro x hx\n  simp only [Set.mem_singleton_iff] at hx\n  subst x\n  have hz : f (M6.Cyclic.modulus N) = 0 := AdjoinRoot.mk_self\n  have he := congrArg f (EuclideanDomain.gcd_eq_gcd_ab F (M6.Cyclic.modulus N))\n  simp only [map_add, map_mul, hz, zero_mul, mul_zero, add_zero, zero_add] at he\n  rw [he]\n  first\n  | apply Ideal.mul_mem_left\n    exact Ideal.subset_span (by simp)\n  | rw [mul_comm]\n    apply Ideal.mul_mem_left\n    exact Ideal.subset_span (by simp)",
+  "queries": [
+    "EuclideanDomain.gcd_eq_gcd_ab",
+    "EuclideanDomain.gcd_dvd_left"
+  ]
+}

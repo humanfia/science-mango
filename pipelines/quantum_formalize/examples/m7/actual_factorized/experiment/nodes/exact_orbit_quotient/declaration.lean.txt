@@ -1,0 +1,5 @@
+theorem M7.ActualFactorized.exact_orbit_quotient : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (E : M7.Action.Recipe N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.TranslationInvariant E → (M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R / M7.ActualFactorized.stabilizerNumerator c = M7.ActualOrbit.distinctCount c (fun y => E y ∧ L y.1 ∧ R y.2) ∧ M7.ActualFactorized.stabilizerNumerator c ∣ M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R) := by
+  intro N inst c E L R hE
+  rw [M7.ActualFactorized.numerator_action_count N c E L R hE,
+    M7.ActualFactorized.stabilizer_numerator N c]
+  exact M7.ActualOrbit.exact_division N c (fun y => E y ∧ L y.1 ∧ R y.2)

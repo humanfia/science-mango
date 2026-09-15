@@ -1,0 +1,69 @@
+{
+  "id": "sector_compatibility",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ActualFactorized.sector_compatibility",
+    "spec_sha256": "67c89942d7c008cab7f755ddb2f1fe64912a498018978fc4162588729a44d54f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-64sf529y/attempt-001/Candidate_c8d8c5109f8c2fa4.lean",
+        "target_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-64sf529y/attempt-001/FrozenTarget_c8d8c5109f8c2fa4.lean",
+        "feedback": "",
+        "target_sha256": "07c5c32f3fa6968471cde81186dde9c2a82a8a433c4891b86179858e4f92c47f",
+        "target_olean_sha256": "f845244eac44a19033190460eeade3882a180a2b606dd588419be7b830c586ff",
+        "source_sha256": "4645b8e06fa399e55843380043a03ef52b245d3fa7148a4bfba1fe064b4e875a",
+        "olean_sha256": "e485250c76eea9aaa0b173b61235069ecb2141224880b6db8ffaf0093b20a808",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:44:01.250787+00:00",
+    "work": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-64sf529y",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "6b25fd5539b755842605569dda8fb3e9e23e161a6fab1ba2eac9b3964d01cc17",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-64sf529y/attempt-001/Candidate_c8d8c5109f8c2fa4.lean",
+    "environment_sha256": "84aed382288ca3e2dd5d5104ece4fbdae363c62315b30833f3d1f93a7fac4f33",
+    "artifacts": {
+      "translate_outer": {
+        "payload": {
+          "declaration": "theorem M7.ActualFactorized.translate_outer : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) := by\n  intro N inst c g\n  change M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.Action.act { unit := g.unit, exchange := g.exchange, leftShift := 0, rightShift := 0 } c)\n  rw [← M7.Action.act_compose]\n  congr 1\n  cases g\n  simp [M7.Action.compose, M7.Action.translate]",
+          "imports": [
+            "M7ActualFactorizedReady"
+          ],
+          "name": "M7.ActualFactorized.translate_outer",
+          "ancestors": [],
+          "spec_sha256": "33232ef605abac75ec0776b1caece198320543ac790284c52fd9be2d12f06dcf"
+        },
+        "sha256": "cacd129c702c2a45273612ba1d13dfa70a335ae7d8495990f3729bbc281c6da2"
+      },
+      "sector_compatibility": {
+        "payload": {
+          "declaration": "theorem M7.ActualFactorized.sector_compatibility : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ E : M7.Action.Recipe N → Prop, M7.ActualFactorized.TranslationInvariant E → ∀ g : M7.Action.Record N, E (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) ↔ E (M7.Action.act g c) := by\n  intro N inst c E hE g\n  rw [M7.ActualFactorized.translate_outer N c g]\n  unfold M7.ActualFactorized.TranslationInvariant at hE\n  first\n  | exact hE _ _ _\n  | exact (hE _ _ _).symm",
+          "imports": [
+            "M7ActualFactorizedReady"
+          ],
+          "name": "M7.ActualFactorized.sector_compatibility",
+          "ancestors": [
+            "translate_outer"
+          ],
+          "spec_sha256": "9089e73b4fa5666461b536732a184c8515434206d47c39cb9b864f033df9e798"
+        },
+        "sha256": "093d8a192eedc7c93608b0b9f965d796ef3d5a2baf98ea5aeac1553e243628f7"
+      }
+    }
+  }
+}

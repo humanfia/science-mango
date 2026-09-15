@@ -1,0 +1,9 @@
+theorem M7.DefaultQuery.presentation_exact : ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (∀ g ∈ M7.DefaultQuery.winners q base, ∃! h : M7.Action.Record N, M7.DefaultQuery.present q base h ∧ M7.Action.act h base = M7.Action.act g base ) ∧ (∀ g : M7.Action.Record N, M7.DefaultQuery.present q base g → g ∈ M7.DefaultQuery.winners q base ∧ ∀ h : M7.Action.Record N, M7.Action.act h base = M7.Action.act g base → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h) := by
+  intro N inst q base
+  constructor
+  · intro g hg
+    exact M7.ActualPresentation.presentation_exact N base q.objectives.length
+      (M7.DefaultQuery.feasible q base) (M7.DefaultQuery.objective q) _ g hg
+  · intro g hg
+    exact M7.ActualPresentation.presentation_sound N base q.objectives.length
+      (M7.DefaultQuery.feasible q base) (M7.DefaultQuery.objective q) _ g hg

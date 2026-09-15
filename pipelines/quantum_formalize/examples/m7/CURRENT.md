@@ -2,8 +2,7 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**107 targets in 12 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
-
+**148 targets in 17 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
 | [supports](supports/experiment/result.json) | 6 | Actual support polynomials |
@@ -18,16 +17,22 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [canonical_block](canonical_block/experiment/result.json) | 13 | Exact single-block normalization and translation equivalence |
 | [cyclic_substitution](cyclic_substitution/experiment/result.json) | 8 | Full-modulus quotient root and unit-power identities |
 | [actual_presentation](actual_presentation/experiment/result.json) | 9 | Actual four-field record order and unique winning presentations |
+| [signature_ideal](signature_ideal/experiment/result.json) | 5 | Full multiplicity-preserving gcd ideals and monic uniqueness |
+| [quotient_auto](quotient_auto/experiment/result.json) | 8 | Concrete unit substitution composition, inverses and polynomial action |
+| [prefix_completed](prefix_completed/experiment/result.json) | 12 | Actual support completions and arithmetic binary child partitions |
+| [actual_factorized](actual_factorized/experiment/result.json) | 8 | Actual separated numerator and computed full-stabilizer quotient |
+| [default_query](default_query/experiment/result.json) | 8 | Actual labels, distance, locality, sector modes and explicit invalid-input rejection |
 
 Active work:
 
-- `canonical_outer`: actual unit/exchange canonical representative, realizing action and complete invariant (17 targets; preflight).
-- `actual_factorized`: actual separated shift numerator and full-stabilizer quotient (8 targets; running).
-- `prefix_completed`: literal completed supports and actual binary arithmetic child partitions (12 targets; running/repair).
-- `signature_ideal`: full gcd via actual cyclic quotient ideals, preserving multiplicities (5 targets; running).
-- `quotient_auto`: actual substitution composition, inverse and polynomial action (8 targets; preflight).
+- `canonical_outer`: actual unit/exchange canonical representative, realizing action and complete invariant (17 targets; running, one local syntax repair under exact verification).
 - `transport`: actual M6 logical, distance and minimum-witness action transport (7 targets; running).
-- `default_query`: literal signatures, actual M6 distance, joint locality, two sector modes and explicit invalid-input rejection (8 targets; preflight).
+
+- `affine_polynomial`: literal support-polynomial images under the actual affine action (7 targets; running).
+
+- `quotient_degree`: cardinality of the full polynomial quotient and induced degree invariance (5 targets; preflight).
+
+- `global_query`: optimum and all ties across the complete supplied class/action family (9 targets; running; generation completeness remains downstream).
 
 Original remaining integration gates include the subgroup-connectedness/anchored-gcd equivalence, full signature and degree transport, actual compact residual generation and structural coverage, complete default-query/global-optimum integration, replay and original resource bounds. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 

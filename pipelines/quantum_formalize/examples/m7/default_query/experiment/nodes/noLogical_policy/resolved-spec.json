@@ -1,0 +1,14 @@
+{
+  "name": "M7.DefaultQuery.noLogical_policy",
+  "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N), (M7.DefaultQuery.needsDistance q → M7.DefaultQuery.distance placed = none → ¬ M7.DefaultQuery.feasible q base placed) ∧ (q.distanceFloor = none → M7.DefaultQuery.Coordinate.negativeDistance ∉ q.objectives → (M7.DefaultQuery.feasible q base placed ↔ M7.DefaultQuery.valid N q ∧ M7.DefaultQuery.dimension placed ∈ q.dimensions ∧ M7.DefaultQuery.sectorTest q base placed ∧ (match q.localityCap with | none => True | some cap => M7.DefaultQuery.locality placed ≤ cap) ∧ (match q.radiusCap with | none => True | some cap => M7.DefaultQuery.radius placed ≤ cap)))",
+  "imports": [
+    "M7ActualPresentationAccepted",
+    "M7DefaultQuery",
+    "M7SelectionAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Unfold feasible and needsDistance. A demanded distance conflicts with Option.isSome none. When floor is none and no negativeDistance coordinate is requested, both distance guards reduce to True; all other query tests remain. This explicitly permits NoLogical when no numerical distance is requested, and assigns no infinite distance. Return tactic proof lines without leading by; retain exact target and default limits."
+}

@@ -1,0 +1,950 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T17:48:12.305736+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "completed_membership": {
+      "id": "completed_membership",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.completed_membership",
+        "spec_sha256": "9e3afb4465a1c81bf31abd1949769a54670629e46100fab54976b3ab9104dd0d",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-b181dlth/attempt-001/Candidate_344cdeaf6273fb9c.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-b181dlth/attempt-001/FrozenTarget_344cdeaf6273fb9c.lean",
+            "feedback": "",
+            "target_sha256": "834db7c3ebf0baf32baa74825873955c3f5866b5ab9e415c1dfdf616425e1572",
+            "target_olean_sha256": "67cde1e67b0b430026b48f255d68390deac3f4fd87a27fd4dab208605f66c6a7",
+            "source_sha256": "a7ded69705f742de0abd742ad6ed88068185cd48d2b7d42308d409a71b9163db",
+            "olean_sha256": "b8074ae1f0b860c76423cc4fb2aa9091ac523dd010485d4df5deffc8b6f57be0",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:39:08.679326+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-b181dlth",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-b181dlth/attempt-001/Candidate_344cdeaf6273fb9c.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "completed_membership": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.completed_membership : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ x, x ∈ M7.PrefixCompleted.completed N w E A B WA WB ↔ M7.PrefixCompleted.Within A B WA WB x ∧ M7.PrefixCompleted.Valid N w E x := by\n  classical\n  intro N w E A B WA WB hDA hDB x\n  change x ∈ (M7.PrefixSector.completions N w E A B WA WB).image (fun y => (A ∪ y.1, B ∪ y.2)) ↔ _\n  constructor\n  · intro hx\n    obtain ⟨⟨U, V⟩, huv, rfl⟩ := Finset.mem_image.mp hx\n    obtain ⟨F, hFE, hF⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB (U, V)).mp huv\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard, Prod.fst, Prod.snd] at hF\n    have hU : U ⊆ WA := by aesop\n    have hV : V ⊆ WB := by aesop\n    have hdU : Disjoint A U := hDA.mono_right hU\n    have hdV : Disjoint B V := hDB.mono_right hV\n    have hcU := Finset.card_union_of_disjoint hdU\n    have hcV := Finset.card_union_of_disjoint hdV\n    constructor\n    · change A ⊆ A ∪ U ∧ A ∪ U ⊆ A ∪ WA ∧ B ⊆ B ∪ V ∧ B ∪ V ⊆ B ∪ WB\n      exact ⟨Finset.subset_union_left, Finset.union_subset_union (by rfl) hU,\n        Finset.subset_union_left, Finset.union_subset_union (by rfl) hV⟩\n    · change (A ∪ U).card = w ∧ (B ∪ V).card = w ∧ _\n      refine ⟨by omega, by omega, ?_⟩\n      aesop\n  · rintro ⟨hWithin, hValid⟩\n    rcases hWithin with ⟨hAX, hXA, hBX, hXB⟩\n    rcases hValid with ⟨hcA, hcB, hg, hs⟩\n    have hRA : x.1 \\ A ⊆ WA := by\n      intro i hi\n      obtain ⟨hiX, hiA⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXA hiX)).resolve_left hiA\n    have hRB : x.2 \\ B ⊆ WB := by\n      intro i hi\n      obtain ⟨hiX, hiB⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXB hiX)).resolve_left hiB\n    have hUA : A ∪ (x.1 \\ A) = x.1 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hAX hi\n        · exact hi\n      · intro hi\n        by_cases ha : i ∈ A\n        · exact Or.inl ha\n        · exact Or.inr ⟨hi, ha⟩\n    have hUB : B ∪ (x.2 \\ B) = x.2 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hBX hi\n        · exact hi\n      · intro hi\n        by_cases hb : i ∈ B\n        · exact Or.inl hb\n        · exact Or.inr ⟨hi, hb⟩\n    have hCA : (x.1 \\ A).card = w - A.card := by\n      rw [Finset.card_sdiff_of_subset hAX, hcA]\n    have hCB : (x.2 \\ B).card = w - B.card := by\n      rw [Finset.card_sdiff_of_subset hBX, hcB]\n    apply Finset.mem_image.mpr\n    refine ⟨(x.1 \\ A, x.2 \\ B), ?_, ?_⟩\n    · apply (M7.PrefixSector.completion_membership N w E A B WA WB _).mpr\n      refine ⟨M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N, hs, ?_⟩\n      simp [M5.ConditionalCount.validCompletions, hRA, hRB, hCA, hCB, hUA, hUB, hcA, hcB, hg]\n    · simpa only [hUA, hUB] using (Prod.eta x)",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.completed_membership",
+              "ancestors": [],
+              "spec_sha256": "9e3afb4465a1c81bf31abd1949769a54670629e46100fab54976b3ab9104dd0d"
+            },
+            "sha256": "29f759864179fc169afa5f25d4a8169c7024e3756862c9495db56c22a511b2d7"
+          }
+        }
+      }
+    },
+    "left_children": {
+      "id": "left_children",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.left_children",
+        "spec_sha256": "ab974c0ff09a5ea657b7a0c862be8c843bad45f3831475e8077c73889e656974",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-pi7n4x6l/attempt-001/Candidate_d055de38f2df8368.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-pi7n4x6l/attempt-001/FrozenTarget_d055de38f2df8368.lean",
+            "feedback": "",
+            "target_sha256": "38167f744f1db256475e017b7aecae752b9ce7ce01d999834e42def4f501a734",
+            "target_olean_sha256": "f2f383e9ddda33b20c893317f0c75f914aab21a790c5ca7568759ef6ee4e1826",
+            "source_sha256": "75ea745ba3376b3af685ac896c914033179255f69ef77f20cb944ea393b51298",
+            "olean_sha256": "fcdaba190b77067a5fd0d56414d245a8f79a350713d146b00cc48bff30d33aa2",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:39:08.771617+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-pi7n4x6l",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-pi7n4x6l/attempt-001/Candidate_d055de38f2df8368.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "left_children": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.left_children : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), ∀ i ∈ WA, M7.PrefixCompleted.Base N A B WA WB → M7.PrefixCompleted.Base N A B (WA.erase i) WB ∧ M7.PrefixCompleted.Base N (insert i A) B (WA.erase i) WB := by\n  classical\n  intro N w E A B WA WB i hi h\n  unfold M7.PrefixCompleted.Base at h ⊢\n  rcases h with ⟨hA0, hB0, hA, hB, hWA, hWB, hDA, hDB⟩\n  have hErase : WA.erase i ⊆ Finset.range N := by\n    intro a ha\n    exact hWA (Finset.mem_of_mem_erase ha)\n  have hDisj : Disjoint A (WA.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro a ha hw\n    exact Finset.disjoint_left.mp hDA ha (Finset.mem_of_mem_erase hw)\n  constructor\n  · exact ⟨hA0, hB0, hA, hB, hErase, hWB, hDisj, hDB⟩\n  · refine ⟨Finset.mem_insert_of_mem hA0, hB0, ?_, hB, hErase, hWB, ?_, hDB⟩\n    · intro a ha\n      rcases Finset.mem_insert.mp ha with rfl | ha\n      · exact hWA hi\n      · exact hA ha\n    · apply Finset.disjoint_left.mpr\n      intro a ha hw\n      rcases Finset.mem_insert.mp ha with rfl | ha\n      · exact (Finset.mem_erase.mp hw).1 rfl\n      · exact Finset.disjoint_left.mp hDisj ha hw",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.left_children",
+              "ancestors": [],
+              "spec_sha256": "ab974c0ff09a5ea657b7a0c862be8c843bad45f3831475e8077c73889e656974"
+            },
+            "sha256": "a0ef7ec36d1438c4d700a13c3c30add59e876cf26ebe3ea401497492358a9717"
+          }
+        }
+      }
+    },
+    "left_disjoint": {
+      "id": "left_disjoint",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.left_disjoint",
+        "spec_sha256": "6b2372fda37dac7a209c618720d475cf5a39f5f6a752d14d233fbc394675c8d1",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-eprh0h27/attempt-001/Candidate_559d7929de7f98b7.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-eprh0h27/attempt-001/FrozenTarget_559d7929de7f98b7.lean",
+            "feedback": "",
+            "target_sha256": "c92eb33e0f8878ad3fb6a4180ca2e1e8cf18b69b40555acfdeb0511e3a79959c",
+            "target_olean_sha256": "9dbeee8a06770076e2df4460584907d615f55f42599d13deaea1718c9b24884b",
+            "source_sha256": "06a4dc87d801e20944a604ad89e5c8617b632b94a72beabcab84c78e7339f730",
+            "olean_sha256": "5ab4f3f0eb62850d229b37b445f67385da2b6d284d09b070fdb3bf18e0a2b7c3",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:40:30.658177+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-eprh0h27",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-eprh0h27/attempt-001/Candidate_559d7929de7f98b7.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "completed_membership": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.completed_membership : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ x, x ∈ M7.PrefixCompleted.completed N w E A B WA WB ↔ M7.PrefixCompleted.Within A B WA WB x ∧ M7.PrefixCompleted.Valid N w E x := by\n  classical\n  intro N w E A B WA WB hDA hDB x\n  change x ∈ (M7.PrefixSector.completions N w E A B WA WB).image (fun y => (A ∪ y.1, B ∪ y.2)) ↔ _\n  constructor\n  · intro hx\n    obtain ⟨⟨U, V⟩, huv, rfl⟩ := Finset.mem_image.mp hx\n    obtain ⟨F, hFE, hF⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB (U, V)).mp huv\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard, Prod.fst, Prod.snd] at hF\n    have hU : U ⊆ WA := by aesop\n    have hV : V ⊆ WB := by aesop\n    have hdU : Disjoint A U := hDA.mono_right hU\n    have hdV : Disjoint B V := hDB.mono_right hV\n    have hcU := Finset.card_union_of_disjoint hdU\n    have hcV := Finset.card_union_of_disjoint hdV\n    constructor\n    · change A ⊆ A ∪ U ∧ A ∪ U ⊆ A ∪ WA ∧ B ⊆ B ∪ V ∧ B ∪ V ⊆ B ∪ WB\n      exact ⟨Finset.subset_union_left, Finset.union_subset_union (by rfl) hU,\n        Finset.subset_union_left, Finset.union_subset_union (by rfl) hV⟩\n    · change (A ∪ U).card = w ∧ (B ∪ V).card = w ∧ _\n      refine ⟨by omega, by omega, ?_⟩\n      aesop\n  · rintro ⟨hWithin, hValid⟩\n    rcases hWithin with ⟨hAX, hXA, hBX, hXB⟩\n    rcases hValid with ⟨hcA, hcB, hg, hs⟩\n    have hRA : x.1 \\ A ⊆ WA := by\n      intro i hi\n      obtain ⟨hiX, hiA⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXA hiX)).resolve_left hiA\n    have hRB : x.2 \\ B ⊆ WB := by\n      intro i hi\n      obtain ⟨hiX, hiB⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXB hiX)).resolve_left hiB\n    have hUA : A ∪ (x.1 \\ A) = x.1 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hAX hi\n        · exact hi\n      · intro hi\n        by_cases ha : i ∈ A\n        · exact Or.inl ha\n        · exact Or.inr ⟨hi, ha⟩\n    have hUB : B ∪ (x.2 \\ B) = x.2 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hBX hi\n        · exact hi\n      · intro hi\n        by_cases hb : i ∈ B\n        · exact Or.inl hb\n        · exact Or.inr ⟨hi, hb⟩\n    have hCA : (x.1 \\ A).card = w - A.card := by\n      rw [Finset.card_sdiff_of_subset hAX, hcA]\n    have hCB : (x.2 \\ B).card = w - B.card := by\n      rw [Finset.card_sdiff_of_subset hBX, hcB]\n    apply Finset.mem_image.mpr\n    refine ⟨(x.1 \\ A, x.2 \\ B), ?_, ?_⟩\n    · apply (M7.PrefixSector.completion_membership N w E A B WA WB _).mpr\n      refine ⟨M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N, hs, ?_⟩\n      simp [M5.ConditionalCount.validCompletions, hRA, hRB, hCA, hCB, hUA, hUB, hcA, hcB, hg]\n    · simpa only [hUA, hUB] using (Prod.eta x)",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.completed_membership",
+              "ancestors": [],
+              "spec_sha256": "9e3afb4465a1c81bf31abd1949769a54670629e46100fab54976b3ab9104dd0d"
+            },
+            "sha256": "29f759864179fc169afa5f25d4a8169c7024e3756862c9495db56c22a511b2d7"
+          },
+          "left_disjoint": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.left_disjoint : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ i ∈ WA, Disjoint (M7.PrefixCompleted.completed N w E A B (WA.erase i) WB) (M7.PrefixCompleted.completed N w E (insert i A) B (WA.erase i) WB) := by\n  classical\n  intro N w E A B WA WB hDA hDB i hi\n  have hD0 : Disjoint A (WA.erase i) :=\n    hDA.mono_right (Finset.erase_subset i WA)\n  have hD1 : Disjoint (insert i A) (WA.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro j hj hk\n    rcases Finset.mem_insert.mp hj with rfl | hj\n    · exact (Finset.mem_erase.mp hk).1 rfl\n    · exact Finset.disjoint_left.mp hDA hj (Finset.mem_erase.mp hk).2\n  apply Finset.disjoint_left.mpr\n  intro x hx hy\n  obtain ⟨⟨hAX, hXA, hBX, hXB⟩, hv⟩ :=\n    (M7.PrefixCompleted.completed_membership N w E A B (WA.erase i) WB hD0 hDB x).mp hx\n  obtain ⟨⟨hIX, hXI, hBX', hXB'⟩, hv'⟩ :=\n    (M7.PrefixCompleted.completed_membership N w E (insert i A) B (WA.erase i) WB hD1 hDB x).mp hy\n  have hiX : i ∈ x.1 := hIX (Finset.mem_insert_self i A)\n  rcases Finset.mem_union.mp (hXA hiX) with hiA | hiW\n  · exact Finset.disjoint_left.mp hDA hiA hi\n  · exact (Finset.mem_erase.mp hiW).1 rfl",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.left_disjoint",
+              "ancestors": [
+                "completed_membership"
+              ],
+              "spec_sha256": "3f49c2ad507f399c399bc5e1767db01a6983fe9514d6d29117d53118a65f2e08"
+            },
+            "sha256": "4cb3a7376b1a4329c76a8a6e9ad71b3ca2926607fafd99cd10717f0642a937cb"
+          }
+        }
+      }
+    },
+    "left_sets": {
+      "id": "left_sets",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.left_sets",
+        "spec_sha256": "f41e6326b1ecdfe8a869c0686b106a88fb800956e5e7bbca7517ba0f08ca7655",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-ixiir80n/attempt-001/Candidate_096b73c59b8975ed.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-ixiir80n/attempt-001/FrozenTarget_096b73c59b8975ed.lean",
+            "feedback": "",
+            "target_sha256": "10b91e91cc35abf68a9ba75732c42a7f331f8a6e9cee173ee7a1c6e5306e2b4b",
+            "target_olean_sha256": "c96d640c6bd6a3bd74e2c5b9e5f74e9f057084fbab440c8371397f29efe62138",
+            "source_sha256": "cb26dbe4dd71da0ca11854da83518b2b8c6eeefc43dc71a21a1aa7c8bb4ca96a",
+            "olean_sha256": "788fc0e8a58268eeefb4a3dc05f68aa355fffd79e2c64724f085032159e73566",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:41:30.902739+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-ixiir80n",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-ixiir80n/attempt-001/Candidate_096b73c59b8975ed.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "completed_membership": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.completed_membership : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ x, x ∈ M7.PrefixCompleted.completed N w E A B WA WB ↔ M7.PrefixCompleted.Within A B WA WB x ∧ M7.PrefixCompleted.Valid N w E x := by\n  classical\n  intro N w E A B WA WB hDA hDB x\n  change x ∈ (M7.PrefixSector.completions N w E A B WA WB).image (fun y => (A ∪ y.1, B ∪ y.2)) ↔ _\n  constructor\n  · intro hx\n    obtain ⟨⟨U, V⟩, huv, rfl⟩ := Finset.mem_image.mp hx\n    obtain ⟨F, hFE, hF⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB (U, V)).mp huv\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard, Prod.fst, Prod.snd] at hF\n    have hU : U ⊆ WA := by aesop\n    have hV : V ⊆ WB := by aesop\n    have hdU : Disjoint A U := hDA.mono_right hU\n    have hdV : Disjoint B V := hDB.mono_right hV\n    have hcU := Finset.card_union_of_disjoint hdU\n    have hcV := Finset.card_union_of_disjoint hdV\n    constructor\n    · change A ⊆ A ∪ U ∧ A ∪ U ⊆ A ∪ WA ∧ B ⊆ B ∪ V ∧ B ∪ V ⊆ B ∪ WB\n      exact ⟨Finset.subset_union_left, Finset.union_subset_union (by rfl) hU,\n        Finset.subset_union_left, Finset.union_subset_union (by rfl) hV⟩\n    · change (A ∪ U).card = w ∧ (B ∪ V).card = w ∧ _\n      refine ⟨by omega, by omega, ?_⟩\n      aesop\n  · rintro ⟨hWithin, hValid⟩\n    rcases hWithin with ⟨hAX, hXA, hBX, hXB⟩\n    rcases hValid with ⟨hcA, hcB, hg, hs⟩\n    have hRA : x.1 \\ A ⊆ WA := by\n      intro i hi\n      obtain ⟨hiX, hiA⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXA hiX)).resolve_left hiA\n    have hRB : x.2 \\ B ⊆ WB := by\n      intro i hi\n      obtain ⟨hiX, hiB⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXB hiX)).resolve_left hiB\n    have hUA : A ∪ (x.1 \\ A) = x.1 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hAX hi\n        · exact hi\n      · intro hi\n        by_cases ha : i ∈ A\n        · exact Or.inl ha\n        · exact Or.inr ⟨hi, ha⟩\n    have hUB : B ∪ (x.2 \\ B) = x.2 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hBX hi\n        · exact hi\n      · intro hi\n        by_cases hb : i ∈ B\n        · exact Or.inl hb\n        · exact Or.inr ⟨hi, hb⟩\n    have hCA : (x.1 \\ A).card = w - A.card := by\n      rw [Finset.card_sdiff_of_subset hAX, hcA]\n    have hCB : (x.2 \\ B).card = w - B.card := by\n      rw [Finset.card_sdiff_of_subset hBX, hcB]\n    apply Finset.mem_image.mpr\n    refine ⟨(x.1 \\ A, x.2 \\ B), ?_, ?_⟩\n    · apply (M7.PrefixSector.completion_membership N w E A B WA WB _).mpr\n      refine ⟨M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N, hs, ?_⟩\n      simp [M5.ConditionalCount.validCompletions, hRA, hRB, hCA, hCB, hUA, hUB, hcA, hcB, hg]\n    · simpa only [hUA, hUB] using (Prod.eta x)",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.completed_membership",
+              "ancestors": [],
+              "spec_sha256": "9e3afb4465a1c81bf31abd1949769a54670629e46100fab54976b3ab9104dd0d"
+            },
+            "sha256": "29f759864179fc169afa5f25d4a8169c7024e3756862c9495db56c22a511b2d7"
+          },
+          "left_sets": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.left_sets : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ i ∈ WA, M7.PrefixCompleted.completed N w E A B WA WB = M7.PrefixCompleted.completed N w E A B (WA.erase i) WB ∪ M7.PrefixCompleted.completed N w E (insert i A) B (WA.erase i) WB := by\n  classical\n  intro N w E A B WA WB hDA hDB i hi\n  have hDE : Disjoint A (WA.erase i) := hDA.mono_right (Finset.erase_subset i WA)\n  have hDI : Disjoint (insert i A) (WA.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro j hj hk\n    rcases Finset.mem_insert.mp hj with rfl | hj\n    · exact (Finset.mem_erase.mp hk).1 rfl\n    · exact Finset.disjoint_left.mp hDA hj (Finset.mem_erase.mp hk).2\n  have hUnion : insert i A ∪ WA.erase i = A ∪ WA := by\n    ext j\n    simp only [Finset.mem_union, Finset.mem_insert, Finset.mem_erase]\n    by_cases h : j = i <;> simp_all\n  apply Finset.ext\n  intro x\n  rw [Finset.mem_union,\n    M7.PrefixCompleted.completed_membership N w E A B WA WB hDA hDB x,\n    M7.PrefixCompleted.completed_membership N w E A B (WA.erase i) WB hDE hDB x,\n    M7.PrefixCompleted.completed_membership N w E (insert i A) B (WA.erase i) WB hDI hDB x]\n  unfold M7.PrefixCompleted.Within\n  constructor\n  · rintro ⟨⟨hAX, hXA, hBX, hXB⟩, hv⟩\n    by_cases hx : i ∈ x.1\n    · right\n      refine ⟨⟨?_, ?_, hBX, hXB⟩, hv⟩\n      · exact Finset.insert_subset_iff.mpr ⟨hx, hAX⟩\n      · simpa only [hUnion] using hXA\n    · left\n      refine ⟨⟨hAX, ?_, hBX, hXB⟩, hv⟩\n      intro j hj\n      rcases Finset.mem_union.mp (hXA hj) with ha | hw\n      · exact Finset.mem_union.mpr (Or.inl ha)\n      · apply Finset.mem_union.mpr\n        right\n        apply Finset.mem_erase.mpr\n        refine ⟨?_, hw⟩\n        intro hji\n        subst j\n        exact hx hj\n  · rintro (⟨⟨hAX, hXA, hBX, hXB⟩, hv⟩ | ⟨⟨hAX, hXA, hBX, hXB⟩, hv⟩)\n    · refine ⟨⟨hAX, ?_, hBX, hXB⟩, hv⟩\n      exact hXA.trans (Finset.union_subset_union (by rfl) (Finset.erase_subset i WA))\n    · refine ⟨⟨?_, ?_, hBX, hXB⟩, hv⟩\n      · intro j hj\n        exact hAX (Finset.mem_insert.mpr (Or.inr hj))\n      · simpa only [hUnion] using hXA",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.left_sets",
+              "ancestors": [
+                "completed_membership"
+              ],
+              "spec_sha256": "2cc3da68946620ae2f473819e306c97ce8edcb60a39b2f05fa394a95577dcd82"
+            },
+            "sha256": "9a7a50fe1eefa1b71e6eb8d21cc25d858126ee0543657b8d496bcd7da346f952"
+          }
+        }
+      }
+    },
+    "overfull_empty": {
+      "id": "overfull_empty",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.overfull_empty",
+        "spec_sha256": "5b416797751bd0641a84678230d19cf4c90a4da405daadc4babada786822706c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-i42dpnz4/attempt-001/Candidate_a2212f7f7c9680c2.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-i42dpnz4/attempt-001/FrozenTarget_a2212f7f7c9680c2.lean",
+            "feedback": "",
+            "target_sha256": "8fb402d9f78c7794686521b2eac8b5ea57ca132b0fe7539f6c15bc8c40c0c238",
+            "target_olean_sha256": "85dea9a9f14a93590f6640f0bbda775d632c82e49c0d2928049b5c847977a31f",
+            "source_sha256": "7e9e40418763fcb88712bd709a63096274632178c97e271e59f4c0ebb1423ee9",
+            "olean_sha256": "88a944cf2ce6494f1b3236a89ccc39fd41d12b0227e9b955172c8926fbaa7730",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:40:22.152123+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-i42dpnz4",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-i42dpnz4/attempt-001/Candidate_a2212f7f7c9680c2.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "overfull_empty": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.overfull_empty : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), (w < A.card ∨ w < B.card) → M7.PrefixCompleted.completed N w E A B WA WB = ∅ := by\n  classical\n  intro N w E A B WA WB h\n  apply Finset.ext\n  intro y\n  simp only [Finset.notMem_empty]\n  constructor\n  · intro hy\n    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.mp hy\n    obtain ⟨F, hF, hx⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n    have hA := Finset.card_le_card (Finset.subset_union_left : A ⊆ A ∪ x.1)\n    have hB := Finset.card_le_card (Finset.subset_union_left : B ⊆ B ∪ x.2)\n    unfold M5.ConditionalCount.validCompletions at hx\n    simp_all [Finset.mem_filter, Finset.mem_product, Finset.mem_powersetCard] <;> omega\n  · intro hy\n    exact hy.elim",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.overfull_empty",
+              "ancestors": [],
+              "spec_sha256": "5b416797751bd0641a84678230d19cf4c90a4da405daadc4babada786822706c"
+            },
+            "sha256": "f8dcd88c9385de7bb70db8cbba8bd05eb04f2f0c52a8cd1f215c0bf2fca5898d"
+          }
+        }
+      }
+    },
+    "right_children": {
+      "id": "right_children",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.right_children",
+        "spec_sha256": "a4c60dc028e0f5c6ad613f0558ee61a494874f056050511accc0aa46212d27e8",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-vfimybcn/attempt-001/Candidate_3a71f3fbf16686d4.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-vfimybcn/attempt-001/FrozenTarget_3a71f3fbf16686d4.lean",
+            "feedback": "",
+            "target_sha256": "5f6b28fe4bccf13228daae04204ebc22329a58f76481a973b40a5ae91eb0f0e4",
+            "target_olean_sha256": "949bfb2d5eb16703e7ed1642a8a5f2db820b96c492187c85701f6c302d06d6f6",
+            "source_sha256": "a6c4a620477839dac53cadad787d6bad6333b9a4e96d4bc7cd8a9eb8240a022b",
+            "olean_sha256": "91675f1a9415477c0e7711a476349a7a66ce90e7a12251132b6e121503ede8fe",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:41:36.689015+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-vfimybcn",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-vfimybcn/attempt-001/Candidate_3a71f3fbf16686d4.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "right_children": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.right_children : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), ∀ i ∈ WB, M7.PrefixCompleted.Base N A B WA WB → M7.PrefixCompleted.Base N A B WA (WB.erase i) ∧ M7.PrefixCompleted.Base N A (insert i B) WA (WB.erase i) := by\n  intro N w E A B WA WB i hi h\n  unfold M7.PrefixCompleted.Base at h ⊢\n  rcases h with ⟨hA0, hB0, hA, hB, hWA, hWB, hDA, hDB⟩\n  have hWB' : WB.erase i ⊆ Finset.range N := by\n    intro x hx\n    exact hWB (Finset.mem_erase.mp hx).2\n  have hDB' : Disjoint B (WB.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    exact Finset.disjoint_left.mp hDB hx (Finset.mem_erase.mp hy).2\n  constructor\n  · exact ⟨hA0, hB0, hA, hB, hWA, hWB', hDA, hDB'⟩\n  · refine ⟨hA0, Finset.mem_insert_of_mem hB0, hA, ?_, hWA, hWB', hDA, ?_⟩\n    · intro x hx\n      rcases Finset.mem_insert.mp hx with hx | hx\n      · subst x\n        exact hWB hi\n      · exact hB hx\n    · apply Finset.disjoint_left.mpr\n      intro x hx hy\n      rcases Finset.mem_insert.mp hx with hx | hx\n      · subst x\n        exact (Finset.mem_erase.mp hy).1 rfl\n      · exact Finset.disjoint_left.mp hDB' hx hy",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.right_children",
+              "ancestors": [],
+              "spec_sha256": "a4c60dc028e0f5c6ad613f0558ee61a494874f056050511accc0aa46212d27e8"
+            },
+            "sha256": "24b6696240dbab32c730dc55a047e35d9c255894f53de0d0a6d2ff051ec6b059"
+          }
+        }
+      }
+    },
+    "right_disjoint": {
+      "id": "right_disjoint",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.right_disjoint",
+        "spec_sha256": "da6cc47fe9157c34d69e80afd04e71e13364f4bbfd8b8a62234df7eb4981374e",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-d2vc1e5u/attempt-001/Candidate_7c20288b460321cf.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-d2vc1e5u/attempt-001/FrozenTarget_7c20288b460321cf.lean",
+            "feedback": "",
+            "target_sha256": "92729b61569db20c17831dfc6662dde2c349b40bbf643790a232d315b8c9acd8",
+            "target_olean_sha256": "a70c029bf96e8518081839f1b6c172d56fab40b3469259307aaad9faf628f01b",
+            "source_sha256": "7ba889220746ed9170ec42cf48f40b8d0cd7e537375c24554516aad67168ff16",
+            "olean_sha256": "e9c86935d9240f70087505253ad88e0c17fcbe331489011ef99009c03e73ff20",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:42:50.111931+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-d2vc1e5u",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-d2vc1e5u/attempt-001/Candidate_7c20288b460321cf.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "completed_membership": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.completed_membership : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ x, x ∈ M7.PrefixCompleted.completed N w E A B WA WB ↔ M7.PrefixCompleted.Within A B WA WB x ∧ M7.PrefixCompleted.Valid N w E x := by\n  classical\n  intro N w E A B WA WB hDA hDB x\n  change x ∈ (M7.PrefixSector.completions N w E A B WA WB).image (fun y => (A ∪ y.1, B ∪ y.2)) ↔ _\n  constructor\n  · intro hx\n    obtain ⟨⟨U, V⟩, huv, rfl⟩ := Finset.mem_image.mp hx\n    obtain ⟨F, hFE, hF⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB (U, V)).mp huv\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard, Prod.fst, Prod.snd] at hF\n    have hU : U ⊆ WA := by aesop\n    have hV : V ⊆ WB := by aesop\n    have hdU : Disjoint A U := hDA.mono_right hU\n    have hdV : Disjoint B V := hDB.mono_right hV\n    have hcU := Finset.card_union_of_disjoint hdU\n    have hcV := Finset.card_union_of_disjoint hdV\n    constructor\n    · change A ⊆ A ∪ U ∧ A ∪ U ⊆ A ∪ WA ∧ B ⊆ B ∪ V ∧ B ∪ V ⊆ B ∪ WB\n      exact ⟨Finset.subset_union_left, Finset.union_subset_union (by rfl) hU,\n        Finset.subset_union_left, Finset.union_subset_union (by rfl) hV⟩\n    · change (A ∪ U).card = w ∧ (B ∪ V).card = w ∧ _\n      refine ⟨by omega, by omega, ?_⟩\n      aesop\n  · rintro ⟨hWithin, hValid⟩\n    rcases hWithin with ⟨hAX, hXA, hBX, hXB⟩\n    rcases hValid with ⟨hcA, hcB, hg, hs⟩\n    have hRA : x.1 \\ A ⊆ WA := by\n      intro i hi\n      obtain ⟨hiX, hiA⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXA hiX)).resolve_left hiA\n    have hRB : x.2 \\ B ⊆ WB := by\n      intro i hi\n      obtain ⟨hiX, hiB⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXB hiX)).resolve_left hiB\n    have hUA : A ∪ (x.1 \\ A) = x.1 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hAX hi\n        · exact hi\n      · intro hi\n        by_cases ha : i ∈ A\n        · exact Or.inl ha\n        · exact Or.inr ⟨hi, ha⟩\n    have hUB : B ∪ (x.2 \\ B) = x.2 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hBX hi\n        · exact hi\n      · intro hi\n        by_cases hb : i ∈ B\n        · exact Or.inl hb\n        · exact Or.inr ⟨hi, hb⟩\n    have hCA : (x.1 \\ A).card = w - A.card := by\n      rw [Finset.card_sdiff_of_subset hAX, hcA]\n    have hCB : (x.2 \\ B).card = w - B.card := by\n      rw [Finset.card_sdiff_of_subset hBX, hcB]\n    apply Finset.mem_image.mpr\n    refine ⟨(x.1 \\ A, x.2 \\ B), ?_, ?_⟩\n    · apply (M7.PrefixSector.completion_membership N w E A B WA WB _).mpr\n      refine ⟨M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N, hs, ?_⟩\n      simp [M5.ConditionalCount.validCompletions, hRA, hRB, hCA, hCB, hUA, hUB, hcA, hcB, hg]\n    · simpa only [hUA, hUB] using (Prod.eta x)",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.completed_membership",
+              "ancestors": [],
+              "spec_sha256": "9e3afb4465a1c81bf31abd1949769a54670629e46100fab54976b3ab9104dd0d"
+            },
+            "sha256": "29f759864179fc169afa5f25d4a8169c7024e3756862c9495db56c22a511b2d7"
+          },
+          "right_disjoint": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.right_disjoint : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ i ∈ WB, Disjoint (M7.PrefixCompleted.completed N w E A B WA (WB.erase i)) (M7.PrefixCompleted.completed N w E A (insert i B) WA (WB.erase i)) := by\n  classical\n  intro N w E A B WA WB hDA hDB i hi\n  have hDB' : Disjoint B (WB.erase i) :=\n    hDB.mono_right (Finset.erase_subset i WB)\n  have hDI : Disjoint (insert i B) (WB.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro j hj hk\n    rcases Finset.mem_insert.mp hj with hji | hjB\n    · subst j\n      simp at hk\n    · exact Finset.disjoint_left.mp hDB hjB (Finset.mem_of_mem_erase hk)\n  apply Finset.disjoint_left.mpr\n  intro x hx hy\n  have hxW := ((M7.PrefixCompleted.completed_membership N w E A B WA (WB.erase i) hDA hDB' x).mp hx).1\n  have hyW := ((M7.PrefixCompleted.completed_membership N w E A (insert i B) WA (WB.erase i) hDA hDI x).mp hy).1\n  have hiX : i ∈ x.2 := hyW.2.2.1 (Finset.mem_insert_self i B)\n  rcases Finset.mem_union.mp (hxW.2.2.2 hiX) with hiB | hiE\n  · exact Finset.disjoint_left.mp hDB hiB hi\n  · simp at hiE",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.right_disjoint",
+              "ancestors": [
+                "completed_membership"
+              ],
+              "spec_sha256": "433e319297835d99b6ba47614223707a6ae0a732220fd23ac4a5067472787554"
+            },
+            "sha256": "3fbab01cd30ccd64744c6b8352a8eb137c5b6a415592bfe093168e22406fb3ab"
+          }
+        }
+      }
+    },
+    "right_sets": {
+      "id": "right_sets",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.right_sets",
+        "spec_sha256": "db047384b2db0e721483dd1207db9e4811e78679eaa2723567df2e1896c6e54a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-3zkhamyc/attempt-001/Candidate_7499eb537259f959.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-3zkhamyc/attempt-001/FrozenTarget_7499eb537259f959.lean",
+            "feedback": "",
+            "target_sha256": "606286f9aaf574d9413d73add479ef4f3b5f7209b6b28c84eb29135e2d0c57ea",
+            "target_olean_sha256": "8e138e798d88994655713a8c7baaa707d11e4094055855c88bb935a1110b3d71",
+            "source_sha256": "9681e563bc2c1944bbda2323099c246ea976c904cb5085f68ec21b225fdd446b",
+            "olean_sha256": "b4ae2301e4d4e4bfd0c2ac57ed260aebf1bbc9b4ee120cfd457edef4829a09f7",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:42:53.517286+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-3zkhamyc",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-3zkhamyc/attempt-001/Candidate_7499eb537259f959.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "completed_membership": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.completed_membership : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ x, x ∈ M7.PrefixCompleted.completed N w E A B WA WB ↔ M7.PrefixCompleted.Within A B WA WB x ∧ M7.PrefixCompleted.Valid N w E x := by\n  classical\n  intro N w E A B WA WB hDA hDB x\n  change x ∈ (M7.PrefixSector.completions N w E A B WA WB).image (fun y => (A ∪ y.1, B ∪ y.2)) ↔ _\n  constructor\n  · intro hx\n    obtain ⟨⟨U, V⟩, huv, rfl⟩ := Finset.mem_image.mp hx\n    obtain ⟨F, hFE, hF⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB (U, V)).mp huv\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard, Prod.fst, Prod.snd] at hF\n    have hU : U ⊆ WA := by aesop\n    have hV : V ⊆ WB := by aesop\n    have hdU : Disjoint A U := hDA.mono_right hU\n    have hdV : Disjoint B V := hDB.mono_right hV\n    have hcU := Finset.card_union_of_disjoint hdU\n    have hcV := Finset.card_union_of_disjoint hdV\n    constructor\n    · change A ⊆ A ∪ U ∧ A ∪ U ⊆ A ∪ WA ∧ B ⊆ B ∪ V ∧ B ∪ V ⊆ B ∪ WB\n      exact ⟨Finset.subset_union_left, Finset.union_subset_union (by rfl) hU,\n        Finset.subset_union_left, Finset.union_subset_union (by rfl) hV⟩\n    · change (A ∪ U).card = w ∧ (B ∪ V).card = w ∧ _\n      refine ⟨by omega, by omega, ?_⟩\n      aesop\n  · rintro ⟨hWithin, hValid⟩\n    rcases hWithin with ⟨hAX, hXA, hBX, hXB⟩\n    rcases hValid with ⟨hcA, hcB, hg, hs⟩\n    have hRA : x.1 \\ A ⊆ WA := by\n      intro i hi\n      obtain ⟨hiX, hiA⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXA hiX)).resolve_left hiA\n    have hRB : x.2 \\ B ⊆ WB := by\n      intro i hi\n      obtain ⟨hiX, hiB⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXB hiX)).resolve_left hiB\n    have hUA : A ∪ (x.1 \\ A) = x.1 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hAX hi\n        · exact hi\n      · intro hi\n        by_cases ha : i ∈ A\n        · exact Or.inl ha\n        · exact Or.inr ⟨hi, ha⟩\n    have hUB : B ∪ (x.2 \\ B) = x.2 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hBX hi\n        · exact hi\n      · intro hi\n        by_cases hb : i ∈ B\n        · exact Or.inl hb\n        · exact Or.inr ⟨hi, hb⟩\n    have hCA : (x.1 \\ A).card = w - A.card := by\n      rw [Finset.card_sdiff_of_subset hAX, hcA]\n    have hCB : (x.2 \\ B).card = w - B.card := by\n      rw [Finset.card_sdiff_of_subset hBX, hcB]\n    apply Finset.mem_image.mpr\n    refine ⟨(x.1 \\ A, x.2 \\ B), ?_, ?_⟩\n    · apply (M7.PrefixSector.completion_membership N w E A B WA WB _).mpr\n      refine ⟨M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N, hs, ?_⟩\n      simp [M5.ConditionalCount.validCompletions, hRA, hRB, hCA, hCB, hUA, hUB, hcA, hcB, hg]\n    · simpa only [hUA, hUB] using (Prod.eta x)",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.completed_membership",
+              "ancestors": [],
+              "spec_sha256": "9e3afb4465a1c81bf31abd1949769a54670629e46100fab54976b3ab9104dd0d"
+            },
+            "sha256": "29f759864179fc169afa5f25d4a8169c7024e3756862c9495db56c22a511b2d7"
+          },
+          "right_sets": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.right_sets : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ i ∈ WB, M7.PrefixCompleted.completed N w E A B WA WB = M7.PrefixCompleted.completed N w E A B WA (WB.erase i) ∪ M7.PrefixCompleted.completed N w E A (insert i B) WA (WB.erase i) := by\n  classical\n  intro N w E A B WA WB hDA hDB i hi\n  have hDE : Disjoint B (WB.erase i) :=\n    hDB.mono_right (Finset.erase_subset i WB)\n  have hDI : Disjoint (insert i B) (WB.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro j hj hjW\n    rcases Finset.mem_insert.mp hj with rfl | hjB\n    · exact (Finset.mem_erase.mp hjW).1 rfl\n    · exact Finset.disjoint_left.mp hDB hjB (Finset.mem_erase.mp hjW).2\n  have hcap : insert i B ∪ WB.erase i = B ∪ WB := by\n    apply Finset.ext\n    intro j\n    simp only [Finset.mem_union, Finset.mem_insert, Finset.mem_erase]\n    by_cases hji : j = i\n    · subst j\n      simp [hi]\n    · simp [hji]\n  apply Finset.ext\n  intro x\n  rw [Finset.mem_union,\n    M7.PrefixCompleted.completed_membership N w E A B WA WB hDA hDB x,\n    M7.PrefixCompleted.completed_membership N w E A B WA (WB.erase i) hDA hDE x,\n    M7.PrefixCompleted.completed_membership N w E A (insert i B) WA (WB.erase i) hDA hDI x]\n  unfold M7.PrefixCompleted.Within\n  rw [hcap]\n  constructor\n  · rintro ⟨⟨hAX, hXA, hBX, hXB⟩, hV⟩\n    by_cases hix : i ∈ x.2\n    · right\n      refine ⟨⟨hAX, hXA, ?_, hXB⟩, hV⟩\n      intro j hj\n      rcases Finset.mem_insert.mp hj with rfl | hj\n      · exact hix\n      · exact hBX hj\n    · left\n      refine ⟨⟨hAX, hXA, hBX, ?_⟩, hV⟩\n      intro j hj\n      rcases Finset.mem_union.mp (hXB hj) with hjB | hjW\n      · exact Finset.mem_union.mpr (Or.inl hjB)\n      · apply Finset.mem_union.mpr\n        right\n        apply Finset.mem_erase.mpr\n        refine ⟨?_, hjW⟩\n        intro hji\n        subst j\n        exact hix hj\n  · rintro (⟨⟨hAX, hXA, hBX, hXB⟩, hV⟩ | ⟨⟨hAX, hXA, hBX, hXB⟩, hV⟩)\n    · refine ⟨⟨hAX, hXA, hBX, ?_⟩, hV⟩\n      intro j hj\n      rcases Finset.mem_union.mp (hXB hj) with hjB | hjW\n      · exact Finset.mem_union.mpr (Or.inl hjB)\n      · exact Finset.mem_union.mpr (Or.inr (Finset.mem_erase.mp hjW).2)\n    · refine ⟨⟨hAX, hXA, ?_, hXB⟩, hV⟩\n      intro j hj\n      exact hBX (Finset.mem_insert_of_mem hj)",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.right_sets",
+              "ancestors": [
+                "completed_membership"
+              ],
+              "spec_sha256": "120b60c9ad8a9031bc1fe8333eaed2c754d640454a6e04a5af821e482a00e8d1"
+            },
+            "sha256": "b2c152e01884a010133e4a3bafacf8bedefe5569870ab2a39e012380e0195ab0"
+          }
+        }
+      }
+    },
+    "union_injective": {
+      "id": "union_injective",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.union_injective",
+        "spec_sha256": "8244f1fcd319e9d79eb35725bacd4369c8c8e5ea0882a9f7eab8c940f99bf1f7",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-5yucqxe_/attempt-001/Candidate_2211a08291ebef05.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-5yucqxe_/attempt-001/FrozenTarget_2211a08291ebef05.lean",
+            "feedback": "",
+            "target_sha256": "a1f1184a665a3ae2506a52886dcac238af13d29bc21e667307ce843df43e50bd",
+            "target_olean_sha256": "6cf271e04e6f1e98d4356bb3930a80536287e34b96228bf761b6ae1ae65150c7",
+            "source_sha256": "bd0f1facdab6a65b22971f50bf380fb2682a66c9689667d3e34ddbbad90641b0",
+            "olean_sha256": "82aba0eda2b5fad4ac683fb2c563d9dca99902396217ad0639f82084a56af4e9",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:44:04.056951+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-5yucqxe_",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-5yucqxe_/attempt-001/Candidate_2211a08291ebef05.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "union_injective": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.union_injective : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ))\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hA hB\n  have hsub : ∀ x ∈ M7.PrefixSector.completions N w E A B WA WB,\n      x.1 ⊆ WA ∧ x.2 ⊆ WB := by\n    intro x hx\n    obtain ⟨F, hF, hx⟩ :=\n      (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard] at hx\n    aesop\n  intro x hx y hy hxy\n  have hsx := hsub x hx\n  have hsy := hsub y hy\n  have hAx : Disjoint A x.1 := hA.mono_right hsx.1\n  have hAy : Disjoint A y.1 := hA.mono_right hsy.1\n  have hBx : Disjoint B x.2 := hB.mono_right hsx.2\n  have hBy : Disjoint B y.2 := hB.mono_right hsy.2\n  apply Prod.ext\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.1 \\ A) hxy\n    simpa only [Finset.union_sdiff_cancel_left hAx,\n      Finset.union_sdiff_cancel_left hAy] using h\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.2 \\ B) hxy\n    simpa only [Finset.union_sdiff_cancel_left hBx,\n      Finset.union_sdiff_cancel_left hBy] using h",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.union_injective",
+              "ancestors": [],
+              "spec_sha256": "8244f1fcd319e9d79eb35725bacd4369c8c8e5ea0882a9f7eab8c940f99bf1f7"
+            },
+            "sha256": "4ed0eb6c2f2e84a32a81ffefd6a1991d6b955a870e5545f94b9a56255c54f94b"
+          }
+        }
+      }
+    },
+    "count_completed": {
+      "id": "count_completed",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.count_completed",
+        "spec_sha256": "2524afdeba9ed817a5364ad768a43af6268c6146511f3db574fbe96f378d8686",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-4onuag7l/attempt-001/Candidate_27b4005764069712.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-4onuag7l/attempt-001/FrozenTarget_27b4005764069712.lean",
+            "feedback": "",
+            "target_sha256": "71533e81fc28123453e1f3c19ad87bcc5ccfcb119dde9842ba27e24f89d88d5e",
+            "target_olean_sha256": "bb6919f492930defd8efd433c60f01c234e51238549324a98f1aaa5a8d2d2dcc",
+            "source_sha256": "2c2eadc0c22de8ff466c8ac6ec1c5a6baf74b8127c96b3d5abea78e52d6c9cba",
+            "olean_sha256": "78264a4a36a54650b95b030dab4db7022e68fb4ca3c77b339d2af9d91e073569",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:45:08.092568+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-4onuag7l",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-4onuag7l/attempt-001/Candidate_27b4005764069712.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "union_injective": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.union_injective : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ))\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hA hB\n  have hsub : ∀ x ∈ M7.PrefixSector.completions N w E A B WA WB,\n      x.1 ⊆ WA ∧ x.2 ⊆ WB := by\n    intro x hx\n    obtain ⟨F, hF, hx⟩ :=\n      (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard] at hx\n    aesop\n  intro x hx y hy hxy\n  have hsx := hsub x hx\n  have hsy := hsub y hy\n  have hAx : Disjoint A x.1 := hA.mono_right hsx.1\n  have hAy : Disjoint A y.1 := hA.mono_right hsy.1\n  have hBx : Disjoint B x.2 := hB.mono_right hsx.2\n  have hBy : Disjoint B y.2 := hB.mono_right hsy.2\n  apply Prod.ext\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.1 \\ A) hxy\n    simpa only [Finset.union_sdiff_cancel_left hAx,\n      Finset.union_sdiff_cancel_left hAy] using h\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.2 \\ B) hxy\n    simpa only [Finset.union_sdiff_cancel_left hBx,\n      Finset.union_sdiff_cancel_left hBy] using h",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.union_injective",
+              "ancestors": [],
+              "spec_sha256": "8244f1fcd319e9d79eb35725bacd4369c8c8e5ea0882a9f7eab8c940f99bf1f7"
+            },
+            "sha256": "4ed0eb6c2f2e84a32a81ffefd6a1991d6b955a870e5545f94b9a56255c54f94b"
+          },
+          "overfull_empty": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.overfull_empty : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), (w < A.card ∨ w < B.card) → M7.PrefixCompleted.completed N w E A B WA WB = ∅ := by\n  classical\n  intro N w E A B WA WB h\n  apply Finset.ext\n  intro y\n  simp only [Finset.notMem_empty]\n  constructor\n  · intro hy\n    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.mp hy\n    obtain ⟨F, hF, hx⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n    have hA := Finset.card_le_card (Finset.subset_union_left : A ⊆ A ∪ x.1)\n    have hB := Finset.card_le_card (Finset.subset_union_left : B ⊆ B ∪ x.2)\n    unfold M5.ConditionalCount.validCompletions at hx\n    simp_all [Finset.mem_filter, Finset.mem_product, Finset.mem_powersetCard] <;> omega\n  · intro hy\n    exact hy.elim",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.overfull_empty",
+              "ancestors": [],
+              "spec_sha256": "5b416797751bd0641a84678230d19cf4c90a4da405daadc4babada786822706c"
+            },
+            "sha256": "f8dcd88c9385de7bb70db8cbba8bd05eb04f2f0c52a8cd1f215c0bf2fca5898d"
+          },
+          "count_completed": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.count_completed : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → M7.PrefixSector.count N w E A B WA WB = (M7.PrefixCompleted.completed N w E A B WA WB).card := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → M7.PrefixSector.count N w E A B WA WB = (M7.PrefixCompleted.completed N w E A B WA WB).card\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hN hE hBase\n  by_cases hOver : w < A.card ∨ w < B.card\n  · rw [M7.PrefixSector.overfull_zero N w E A B WA WB hOver,\n      M7.PrefixCompleted.overfull_empty N w E A B WA WB hOver]\n    simp\n  · have hAw : A.card ≤ w := by omega\n    have hBw : B.card ≤ w := by omega\n    obtain ⟨hA0, hB0, hAN, hBN, hWAN, hWBN, hDA, hDB⟩ := hBase\n    have hOK : M5.ConditionalCount.PrefixOK N w A B WA WB := by\n      unfold M5.ConditionalCount.PrefixOK\n      aesop\n    rw [M7.PrefixSector.exact_sector_count N w E A B WA WB hN hE hOK]\n    unfold M7.PrefixCompleted.completed\n    rw [Finset.card_image_of_injOn\n      (M7.PrefixCompleted.union_injective N w E A B WA WB hDA hDB)]",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.count_completed",
+              "ancestors": [
+                "overfull_empty",
+                "union_injective"
+              ],
+              "spec_sha256": "71d1b91e5455218f181ba691541ac4e04ad35602134ccf0708f8b3d24e9d9b4f"
+            },
+            "sha256": "0a191c3a3355911abf3ec07a99106d321c88d8dd2896b9eca368231684b9c681"
+          }
+        }
+      }
+    },
+    "left_count_split": {
+      "id": "left_count_split",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.left_count_split",
+        "spec_sha256": "d879849be2288bec9ebd85ac4fa45d2fe434034ec0199374ed93846bdef18533",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-rinpyi22/attempt-001/Candidate_9e49b46ce9a370cd.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-rinpyi22/attempt-001/FrozenTarget_9e49b46ce9a370cd.lean",
+            "feedback": "",
+            "target_sha256": "e7beb8d4e2a6b647b114dfeebf72c8e5ff99ce2a81a7824a2f74843ac3d84abf",
+            "target_olean_sha256": "01e0df6d80e1cbe6a6925c937b43b56fcc73e5498b4b8a74721afba73f012008",
+            "source_sha256": "667f5de9f1246042304deaf40efd0c4f4bb2a1efce119a3b389837d1a58f2dd7",
+            "olean_sha256": "42c3c0193ba352fb81041408f50c5fc97e572171ed717de37136e3d4633091f3",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:46:34.486888+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-rinpyi22",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-rinpyi22/attempt-001/Candidate_9e49b46ce9a370cd.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "union_injective": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.union_injective : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ))\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hA hB\n  have hsub : ∀ x ∈ M7.PrefixSector.completions N w E A B WA WB,\n      x.1 ⊆ WA ∧ x.2 ⊆ WB := by\n    intro x hx\n    obtain ⟨F, hF, hx⟩ :=\n      (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard] at hx\n    aesop\n  intro x hx y hy hxy\n  have hsx := hsub x hx\n  have hsy := hsub y hy\n  have hAx : Disjoint A x.1 := hA.mono_right hsx.1\n  have hAy : Disjoint A y.1 := hA.mono_right hsy.1\n  have hBx : Disjoint B x.2 := hB.mono_right hsx.2\n  have hBy : Disjoint B y.2 := hB.mono_right hsy.2\n  apply Prod.ext\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.1 \\ A) hxy\n    simpa only [Finset.union_sdiff_cancel_left hAx,\n      Finset.union_sdiff_cancel_left hAy] using h\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.2 \\ B) hxy\n    simpa only [Finset.union_sdiff_cancel_left hBx,\n      Finset.union_sdiff_cancel_left hBy] using h",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.union_injective",
+              "ancestors": [],
+              "spec_sha256": "8244f1fcd319e9d79eb35725bacd4369c8c8e5ea0882a9f7eab8c940f99bf1f7"
+            },
+            "sha256": "4ed0eb6c2f2e84a32a81ffefd6a1991d6b955a870e5545f94b9a56255c54f94b"
+          },
+          "overfull_empty": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.overfull_empty : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), (w < A.card ∨ w < B.card) → M7.PrefixCompleted.completed N w E A B WA WB = ∅ := by\n  classical\n  intro N w E A B WA WB h\n  apply Finset.ext\n  intro y\n  simp only [Finset.notMem_empty]\n  constructor\n  · intro hy\n    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.mp hy\n    obtain ⟨F, hF, hx⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n    have hA := Finset.card_le_card (Finset.subset_union_left : A ⊆ A ∪ x.1)\n    have hB := Finset.card_le_card (Finset.subset_union_left : B ⊆ B ∪ x.2)\n    unfold M5.ConditionalCount.validCompletions at hx\n    simp_all [Finset.mem_filter, Finset.mem_product, Finset.mem_powersetCard] <;> omega\n  · intro hy\n    exact hy.elim",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.overfull_empty",
+              "ancestors": [],
+              "spec_sha256": "5b416797751bd0641a84678230d19cf4c90a4da405daadc4babada786822706c"
+            },
+            "sha256": "f8dcd88c9385de7bb70db8cbba8bd05eb04f2f0c52a8cd1f215c0bf2fca5898d"
+          },
+          "count_completed": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.count_completed : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → M7.PrefixSector.count N w E A B WA WB = (M7.PrefixCompleted.completed N w E A B WA WB).card := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → M7.PrefixSector.count N w E A B WA WB = (M7.PrefixCompleted.completed N w E A B WA WB).card\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hN hE hBase\n  by_cases hOver : w < A.card ∨ w < B.card\n  · rw [M7.PrefixSector.overfull_zero N w E A B WA WB hOver,\n      M7.PrefixCompleted.overfull_empty N w E A B WA WB hOver]\n    simp\n  · have hAw : A.card ≤ w := by omega\n    have hBw : B.card ≤ w := by omega\n    obtain ⟨hA0, hB0, hAN, hBN, hWAN, hWBN, hDA, hDB⟩ := hBase\n    have hOK : M5.ConditionalCount.PrefixOK N w A B WA WB := by\n      unfold M5.ConditionalCount.PrefixOK\n      aesop\n    rw [M7.PrefixSector.exact_sector_count N w E A B WA WB hN hE hOK]\n    unfold M7.PrefixCompleted.completed\n    rw [Finset.card_image_of_injOn\n      (M7.PrefixCompleted.union_injective N w E A B WA WB hDA hDB)]",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.count_completed",
+              "ancestors": [
+                "overfull_empty",
+                "union_injective"
+              ],
+              "spec_sha256": "71d1b91e5455218f181ba691541ac4e04ad35602134ccf0708f8b3d24e9d9b4f"
+            },
+            "sha256": "0a191c3a3355911abf3ec07a99106d321c88d8dd2896b9eca368231684b9c681"
+          },
+          "left_children": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.left_children : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), ∀ i ∈ WA, M7.PrefixCompleted.Base N A B WA WB → M7.PrefixCompleted.Base N A B (WA.erase i) WB ∧ M7.PrefixCompleted.Base N (insert i A) B (WA.erase i) WB := by\n  classical\n  intro N w E A B WA WB i hi h\n  unfold M7.PrefixCompleted.Base at h ⊢\n  rcases h with ⟨hA0, hB0, hA, hB, hWA, hWB, hDA, hDB⟩\n  have hErase : WA.erase i ⊆ Finset.range N := by\n    intro a ha\n    exact hWA (Finset.mem_of_mem_erase ha)\n  have hDisj : Disjoint A (WA.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro a ha hw\n    exact Finset.disjoint_left.mp hDA ha (Finset.mem_of_mem_erase hw)\n  constructor\n  · exact ⟨hA0, hB0, hA, hB, hErase, hWB, hDisj, hDB⟩\n  · refine ⟨Finset.mem_insert_of_mem hA0, hB0, ?_, hB, hErase, hWB, ?_, hDB⟩\n    · intro a ha\n      rcases Finset.mem_insert.mp ha with rfl | ha\n      · exact hWA hi\n      · exact hA ha\n    · apply Finset.disjoint_left.mpr\n      intro a ha hw\n      rcases Finset.mem_insert.mp ha with rfl | ha\n      · exact (Finset.mem_erase.mp hw).1 rfl\n      · exact Finset.disjoint_left.mp hDisj ha hw",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.left_children",
+              "ancestors": [],
+              "spec_sha256": "ab974c0ff09a5ea657b7a0c862be8c843bad45f3831475e8077c73889e656974"
+            },
+            "sha256": "a0ef7ec36d1438c4d700a13c3c30add59e876cf26ebe3ea401497492358a9717"
+          },
+          "completed_membership": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.completed_membership : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ x, x ∈ M7.PrefixCompleted.completed N w E A B WA WB ↔ M7.PrefixCompleted.Within A B WA WB x ∧ M7.PrefixCompleted.Valid N w E x := by\n  classical\n  intro N w E A B WA WB hDA hDB x\n  change x ∈ (M7.PrefixSector.completions N w E A B WA WB).image (fun y => (A ∪ y.1, B ∪ y.2)) ↔ _\n  constructor\n  · intro hx\n    obtain ⟨⟨U, V⟩, huv, rfl⟩ := Finset.mem_image.mp hx\n    obtain ⟨F, hFE, hF⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB (U, V)).mp huv\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard, Prod.fst, Prod.snd] at hF\n    have hU : U ⊆ WA := by aesop\n    have hV : V ⊆ WB := by aesop\n    have hdU : Disjoint A U := hDA.mono_right hU\n    have hdV : Disjoint B V := hDB.mono_right hV\n    have hcU := Finset.card_union_of_disjoint hdU\n    have hcV := Finset.card_union_of_disjoint hdV\n    constructor\n    · change A ⊆ A ∪ U ∧ A ∪ U ⊆ A ∪ WA ∧ B ⊆ B ∪ V ∧ B ∪ V ⊆ B ∪ WB\n      exact ⟨Finset.subset_union_left, Finset.union_subset_union (by rfl) hU,\n        Finset.subset_union_left, Finset.union_subset_union (by rfl) hV⟩\n    · change (A ∪ U).card = w ∧ (B ∪ V).card = w ∧ _\n      refine ⟨by omega, by omega, ?_⟩\n      aesop\n  · rintro ⟨hWithin, hValid⟩\n    rcases hWithin with ⟨hAX, hXA, hBX, hXB⟩\n    rcases hValid with ⟨hcA, hcB, hg, hs⟩\n    have hRA : x.1 \\ A ⊆ WA := by\n      intro i hi\n      obtain ⟨hiX, hiA⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXA hiX)).resolve_left hiA\n    have hRB : x.2 \\ B ⊆ WB := by\n      intro i hi\n      obtain ⟨hiX, hiB⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXB hiX)).resolve_left hiB\n    have hUA : A ∪ (x.1 \\ A) = x.1 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hAX hi\n        · exact hi\n      · intro hi\n        by_cases ha : i ∈ A\n        · exact Or.inl ha\n        · exact Or.inr ⟨hi, ha⟩\n    have hUB : B ∪ (x.2 \\ B) = x.2 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hBX hi\n        · exact hi\n      · intro hi\n        by_cases hb : i ∈ B\n        · exact Or.inl hb\n        · exact Or.inr ⟨hi, hb⟩\n    have hCA : (x.1 \\ A).card = w - A.card := by\n      rw [Finset.card_sdiff_of_subset hAX, hcA]\n    have hCB : (x.2 \\ B).card = w - B.card := by\n      rw [Finset.card_sdiff_of_subset hBX, hcB]\n    apply Finset.mem_image.mpr\n    refine ⟨(x.1 \\ A, x.2 \\ B), ?_, ?_⟩\n    · apply (M7.PrefixSector.completion_membership N w E A B WA WB _).mpr\n      refine ⟨M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N, hs, ?_⟩\n      simp [M5.ConditionalCount.validCompletions, hRA, hRB, hCA, hCB, hUA, hUB, hcA, hcB, hg]\n    · simpa only [hUA, hUB] using (Prod.eta x)",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.completed_membership",
+              "ancestors": [],
+              "spec_sha256": "9e3afb4465a1c81bf31abd1949769a54670629e46100fab54976b3ab9104dd0d"
+            },
+            "sha256": "29f759864179fc169afa5f25d4a8169c7024e3756862c9495db56c22a511b2d7"
+          },
+          "left_sets": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.left_sets : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ i ∈ WA, M7.PrefixCompleted.completed N w E A B WA WB = M7.PrefixCompleted.completed N w E A B (WA.erase i) WB ∪ M7.PrefixCompleted.completed N w E (insert i A) B (WA.erase i) WB := by\n  classical\n  intro N w E A B WA WB hDA hDB i hi\n  have hDE : Disjoint A (WA.erase i) := hDA.mono_right (Finset.erase_subset i WA)\n  have hDI : Disjoint (insert i A) (WA.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro j hj hk\n    rcases Finset.mem_insert.mp hj with rfl | hj\n    · exact (Finset.mem_erase.mp hk).1 rfl\n    · exact Finset.disjoint_left.mp hDA hj (Finset.mem_erase.mp hk).2\n  have hUnion : insert i A ∪ WA.erase i = A ∪ WA := by\n    ext j\n    simp only [Finset.mem_union, Finset.mem_insert, Finset.mem_erase]\n    by_cases h : j = i <;> simp_all\n  apply Finset.ext\n  intro x\n  rw [Finset.mem_union,\n    M7.PrefixCompleted.completed_membership N w E A B WA WB hDA hDB x,\n    M7.PrefixCompleted.completed_membership N w E A B (WA.erase i) WB hDE hDB x,\n    M7.PrefixCompleted.completed_membership N w E (insert i A) B (WA.erase i) WB hDI hDB x]\n  unfold M7.PrefixCompleted.Within\n  constructor\n  · rintro ⟨⟨hAX, hXA, hBX, hXB⟩, hv⟩\n    by_cases hx : i ∈ x.1\n    · right\n      refine ⟨⟨?_, ?_, hBX, hXB⟩, hv⟩\n      · exact Finset.insert_subset_iff.mpr ⟨hx, hAX⟩\n      · simpa only [hUnion] using hXA\n    · left\n      refine ⟨⟨hAX, ?_, hBX, hXB⟩, hv⟩\n      intro j hj\n      rcases Finset.mem_union.mp (hXA hj) with ha | hw\n      · exact Finset.mem_union.mpr (Or.inl ha)\n      · apply Finset.mem_union.mpr\n        right\n        apply Finset.mem_erase.mpr\n        refine ⟨?_, hw⟩\n        intro hji\n        subst j\n        exact hx hj\n  · rintro (⟨⟨hAX, hXA, hBX, hXB⟩, hv⟩ | ⟨⟨hAX, hXA, hBX, hXB⟩, hv⟩)\n    · refine ⟨⟨hAX, ?_, hBX, hXB⟩, hv⟩\n      exact hXA.trans (Finset.union_subset_union (by rfl) (Finset.erase_subset i WA))\n    · refine ⟨⟨?_, ?_, hBX, hXB⟩, hv⟩\n      · intro j hj\n        exact hAX (Finset.mem_insert.mpr (Or.inr hj))\n      · simpa only [hUnion] using hXA",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.left_sets",
+              "ancestors": [
+                "completed_membership"
+              ],
+              "spec_sha256": "2cc3da68946620ae2f473819e306c97ce8edcb60a39b2f05fa394a95577dcd82"
+            },
+            "sha256": "9a7a50fe1eefa1b71e6eb8d21cc25d858126ee0543657b8d496bcd7da346f952"
+          },
+          "left_disjoint": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.left_disjoint : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ i ∈ WA, Disjoint (M7.PrefixCompleted.completed N w E A B (WA.erase i) WB) (M7.PrefixCompleted.completed N w E (insert i A) B (WA.erase i) WB) := by\n  classical\n  intro N w E A B WA WB hDA hDB i hi\n  have hD0 : Disjoint A (WA.erase i) :=\n    hDA.mono_right (Finset.erase_subset i WA)\n  have hD1 : Disjoint (insert i A) (WA.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro j hj hk\n    rcases Finset.mem_insert.mp hj with rfl | hj\n    · exact (Finset.mem_erase.mp hk).1 rfl\n    · exact Finset.disjoint_left.mp hDA hj (Finset.mem_erase.mp hk).2\n  apply Finset.disjoint_left.mpr\n  intro x hx hy\n  obtain ⟨⟨hAX, hXA, hBX, hXB⟩, hv⟩ :=\n    (M7.PrefixCompleted.completed_membership N w E A B (WA.erase i) WB hD0 hDB x).mp hx\n  obtain ⟨⟨hIX, hXI, hBX', hXB'⟩, hv'⟩ :=\n    (M7.PrefixCompleted.completed_membership N w E (insert i A) B (WA.erase i) WB hD1 hDB x).mp hy\n  have hiX : i ∈ x.1 := hIX (Finset.mem_insert_self i A)\n  rcases Finset.mem_union.mp (hXA hiX) with hiA | hiW\n  · exact Finset.disjoint_left.mp hDA hiA hi\n  · exact (Finset.mem_erase.mp hiW).1 rfl",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.left_disjoint",
+              "ancestors": [
+                "completed_membership"
+              ],
+              "spec_sha256": "3f49c2ad507f399c399bc5e1767db01a6983fe9514d6d29117d53118a65f2e08"
+            },
+            "sha256": "4cb3a7376b1a4329c76a8a6e9ad71b3ca2926607fafd99cd10717f0642a937cb"
+          },
+          "left_count_split": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.left_count_split : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → ∀ i ∈ WA, M7.PrefixSector.count N w E A B WA WB = M7.PrefixSector.count N w E A B (WA.erase i) WB + M7.PrefixSector.count N w E (insert i A) B (WA.erase i) WB := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → ∀ i ∈ WA, M7.PrefixSector.count N w E A B WA WB = M7.PrefixSector.count N w E A B (WA.erase i) WB + M7.PrefixSector.count N w E (insert i A) B (WA.erase i) WB\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hN hE hBase i hi\n  obtain ⟨hLeft, hRight⟩ :=\n    M7.PrefixCompleted.left_children N w E A B WA WB i hi hBase\n  rw [M7.PrefixCompleted.count_completed N w E A B WA WB hN hE hBase,\n    M7.PrefixCompleted.count_completed N w E A B (WA.erase i) WB hN hE hLeft,\n    M7.PrefixCompleted.count_completed N w E (insert i A) B (WA.erase i) WB hN hE hRight]\n  rcases hBase with ⟨hA0, hB0, hA, hB, hWA, hWB, hDA, hDB⟩\n  rw [M7.PrefixCompleted.left_sets N w E A B WA WB hDA hDB i hi,\n    Finset.card_union_of_disjoint\n      (M7.PrefixCompleted.left_disjoint N w E A B WA WB hDA hDB i hi),\n    Nat.cast_add]",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.left_count_split",
+              "ancestors": [
+                "completed_membership",
+                "count_completed",
+                "left_children",
+                "left_disjoint",
+                "left_sets",
+                "overfull_empty",
+                "union_injective"
+              ],
+              "spec_sha256": "06b008996b067208c0015edb952407e86d4030d0483969d3f33705f1e81075e0"
+            },
+            "sha256": "1b2be04da8386b77399ca9ec106b138d60bd0432b791cc69fb50773647c4d692"
+          }
+        }
+      }
+    },
+    "right_count_split": {
+      "id": "right_count_split",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixCompleted.right_count_split",
+        "spec_sha256": "9e7115c3de712a9b3f1b519e2c2408e604cd6605f18f9fcfbd6530a53466eb6c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-azwlqt_8/attempt-001/Candidate_4b6591e9c291b5ca.lean",
+            "target_path": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-azwlqt_8/attempt-001/FrozenTarget_4b6591e9c291b5ca.lean",
+            "feedback": "",
+            "target_sha256": "07215be668735540962ee997d8d702205b0f089b02f2602854f18592f1481344",
+            "target_olean_sha256": "cc06c63872713b40932aba5115f8c8443863b619c953e6747df576890e0d5e3a",
+            "source_sha256": "2bc9baa36dd0a13fe48cfba975598afc17103b03811eced778448beed096990f",
+            "olean_sha256": "baa6c3f020b148b5400cb3a69b188403b46a42004243016c4feabc473ccad2e5",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:46:34.594442+00:00",
+        "work": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-azwlqt_8",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "63f93c85724fc22bb47f6d42d77f4f3ebbe2fb7ebcace909c67769c28243cc5f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-completed-formalization/.humanize-formal-runs/run-azwlqt_8/attempt-001/Candidate_4b6591e9c291b5ca.lean",
+        "environment_sha256": "555149b65fe6335a52daf927140210bba3e8c154a9b727d847dcaf2db8a6555f",
+        "artifacts": {
+          "union_injective": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.union_injective : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → Set.InjOn (fun x : Finset ℕ × Finset ℕ => (A ∪ x.1, B ∪ x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset ℕ × Finset ℕ))\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hA hB\n  have hsub : ∀ x ∈ M7.PrefixSector.completions N w E A B WA WB,\n      x.1 ⊆ WA ∧ x.2 ⊆ WB := by\n    intro x hx\n    obtain ⟨F, hF, hx⟩ :=\n      (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard] at hx\n    aesop\n  intro x hx y hy hxy\n  have hsx := hsub x hx\n  have hsy := hsub y hy\n  have hAx : Disjoint A x.1 := hA.mono_right hsx.1\n  have hAy : Disjoint A y.1 := hA.mono_right hsy.1\n  have hBx : Disjoint B x.2 := hB.mono_right hsx.2\n  have hBy : Disjoint B y.2 := hB.mono_right hsy.2\n  apply Prod.ext\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.1 \\ A) hxy\n    simpa only [Finset.union_sdiff_cancel_left hAx,\n      Finset.union_sdiff_cancel_left hAy] using h\n  · have h := congrArg (fun z : Finset ℕ × Finset ℕ => z.2 \\ B) hxy\n    simpa only [Finset.union_sdiff_cancel_left hBx,\n      Finset.union_sdiff_cancel_left hBy] using h",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.union_injective",
+              "ancestors": [],
+              "spec_sha256": "8244f1fcd319e9d79eb35725bacd4369c8c8e5ea0882a9f7eab8c940f99bf1f7"
+            },
+            "sha256": "4ed0eb6c2f2e84a32a81ffefd6a1991d6b955a870e5545f94b9a56255c54f94b"
+          },
+          "overfull_empty": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.overfull_empty : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), (w < A.card ∨ w < B.card) → M7.PrefixCompleted.completed N w E A B WA WB = ∅ := by\n  classical\n  intro N w E A B WA WB h\n  apply Finset.ext\n  intro y\n  simp only [Finset.notMem_empty]\n  constructor\n  · intro hy\n    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.mp hy\n    obtain ⟨F, hF, hx⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n    have hA := Finset.card_le_card (Finset.subset_union_left : A ⊆ A ∪ x.1)\n    have hB := Finset.card_le_card (Finset.subset_union_left : B ⊆ B ∪ x.2)\n    unfold M5.ConditionalCount.validCompletions at hx\n    simp_all [Finset.mem_filter, Finset.mem_product, Finset.mem_powersetCard] <;> omega\n  · intro hy\n    exact hy.elim",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.overfull_empty",
+              "ancestors": [],
+              "spec_sha256": "5b416797751bd0641a84678230d19cf4c90a4da405daadc4babada786822706c"
+            },
+            "sha256": "f8dcd88c9385de7bb70db8cbba8bd05eb04f2f0c52a8cd1f215c0bf2fca5898d"
+          },
+          "count_completed": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.count_completed : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → M7.PrefixSector.count N w E A B WA WB = (M7.PrefixCompleted.completed N w E A B WA WB).card := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → M7.PrefixSector.count N w E A B WA WB = (M7.PrefixCompleted.completed N w E A B WA WB).card\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hN hE hBase\n  by_cases hOver : w < A.card ∨ w < B.card\n  · rw [M7.PrefixSector.overfull_zero N w E A B WA WB hOver,\n      M7.PrefixCompleted.overfull_empty N w E A B WA WB hOver]\n    simp\n  · have hAw : A.card ≤ w := by omega\n    have hBw : B.card ≤ w := by omega\n    obtain ⟨hA0, hB0, hAN, hBN, hWAN, hWBN, hDA, hDB⟩ := hBase\n    have hOK : M5.ConditionalCount.PrefixOK N w A B WA WB := by\n      unfold M5.ConditionalCount.PrefixOK\n      aesop\n    rw [M7.PrefixSector.exact_sector_count N w E A B WA WB hN hE hOK]\n    unfold M7.PrefixCompleted.completed\n    rw [Finset.card_image_of_injOn\n      (M7.PrefixCompleted.union_injective N w E A B WA WB hDA hDB)]",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.count_completed",
+              "ancestors": [
+                "overfull_empty",
+                "union_injective"
+              ],
+              "spec_sha256": "71d1b91e5455218f181ba691541ac4e04ad35602134ccf0708f8b3d24e9d9b4f"
+            },
+            "sha256": "0a191c3a3355911abf3ec07a99106d321c88d8dd2896b9eca368231684b9c681"
+          },
+          "right_children": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.right_children : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), ∀ i ∈ WB, M7.PrefixCompleted.Base N A B WA WB → M7.PrefixCompleted.Base N A B WA (WB.erase i) ∧ M7.PrefixCompleted.Base N A (insert i B) WA (WB.erase i) := by\n  intro N w E A B WA WB i hi h\n  unfold M7.PrefixCompleted.Base at h ⊢\n  rcases h with ⟨hA0, hB0, hA, hB, hWA, hWB, hDA, hDB⟩\n  have hWB' : WB.erase i ⊆ Finset.range N := by\n    intro x hx\n    exact hWB (Finset.mem_erase.mp hx).2\n  have hDB' : Disjoint B (WB.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    exact Finset.disjoint_left.mp hDB hx (Finset.mem_erase.mp hy).2\n  constructor\n  · exact ⟨hA0, hB0, hA, hB, hWA, hWB', hDA, hDB'⟩\n  · refine ⟨hA0, Finset.mem_insert_of_mem hB0, hA, ?_, hWA, hWB', hDA, ?_⟩\n    · intro x hx\n      rcases Finset.mem_insert.mp hx with hx | hx\n      · subst x\n        exact hWB hi\n      · exact hB hx\n    · apply Finset.disjoint_left.mpr\n      intro x hx hy\n      rcases Finset.mem_insert.mp hx with hx | hx\n      · subst x\n        exact (Finset.mem_erase.mp hy).1 rfl\n      · exact Finset.disjoint_left.mp hDB' hx hy",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.right_children",
+              "ancestors": [],
+              "spec_sha256": "a4c60dc028e0f5c6ad613f0558ee61a494874f056050511accc0aa46212d27e8"
+            },
+            "sha256": "24b6696240dbab32c730dc55a047e35d9c255894f53de0d0a6d2ff051ec6b059"
+          },
+          "completed_membership": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.completed_membership : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ x, x ∈ M7.PrefixCompleted.completed N w E A B WA WB ↔ M7.PrefixCompleted.Within A B WA WB x ∧ M7.PrefixCompleted.Valid N w E x := by\n  classical\n  intro N w E A B WA WB hDA hDB x\n  change x ∈ (M7.PrefixSector.completions N w E A B WA WB).image (fun y => (A ∪ y.1, B ∪ y.2)) ↔ _\n  constructor\n  · intro hx\n    obtain ⟨⟨U, V⟩, huv, rfl⟩ := Finset.mem_image.mp hx\n    obtain ⟨F, hFE, hF⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB (U, V)).mp huv\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard, Prod.fst, Prod.snd] at hF\n    have hU : U ⊆ WA := by aesop\n    have hV : V ⊆ WB := by aesop\n    have hdU : Disjoint A U := hDA.mono_right hU\n    have hdV : Disjoint B V := hDB.mono_right hV\n    have hcU := Finset.card_union_of_disjoint hdU\n    have hcV := Finset.card_union_of_disjoint hdV\n    constructor\n    · change A ⊆ A ∪ U ∧ A ∪ U ⊆ A ∪ WA ∧ B ⊆ B ∪ V ∧ B ∪ V ⊆ B ∪ WB\n      exact ⟨Finset.subset_union_left, Finset.union_subset_union (by rfl) hU,\n        Finset.subset_union_left, Finset.union_subset_union (by rfl) hV⟩\n    · change (A ∪ U).card = w ∧ (B ∪ V).card = w ∧ _\n      refine ⟨by omega, by omega, ?_⟩\n      aesop\n  · rintro ⟨hWithin, hValid⟩\n    rcases hWithin with ⟨hAX, hXA, hBX, hXB⟩\n    rcases hValid with ⟨hcA, hcB, hg, hs⟩\n    have hRA : x.1 \\ A ⊆ WA := by\n      intro i hi\n      obtain ⟨hiX, hiA⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXA hiX)).resolve_left hiA\n    have hRB : x.2 \\ B ⊆ WB := by\n      intro i hi\n      obtain ⟨hiX, hiB⟩ := Finset.mem_sdiff.mp hi\n      exact (Finset.mem_union.mp (hXB hiX)).resolve_left hiB\n    have hUA : A ∪ (x.1 \\ A) = x.1 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hAX hi\n        · exact hi\n      · intro hi\n        by_cases ha : i ∈ A\n        · exact Or.inl ha\n        · exact Or.inr ⟨hi, ha⟩\n    have hUB : B ∪ (x.2 \\ B) = x.2 := by\n      ext i\n      simp only [Finset.mem_union, Finset.mem_sdiff]\n      constructor\n      · rintro (hi | ⟨hi, _⟩)\n        · exact hBX hi\n        · exact hi\n      · intro hi\n        by_cases hb : i ∈ B\n        · exact Or.inl hb\n        · exact Or.inr ⟨hi, hb⟩\n    have hCA : (x.1 \\ A).card = w - A.card := by\n      rw [Finset.card_sdiff_of_subset hAX, hcA]\n    have hCB : (x.2 \\ B).card = w - B.card := by\n      rw [Finset.card_sdiff_of_subset hBX, hcB]\n    apply Finset.mem_image.mpr\n    refine ⟨(x.1 \\ A, x.2 \\ B), ?_, ?_⟩\n    · apply (M7.PrefixSector.completion_membership N w E A B WA WB _).mpr\n      refine ⟨M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N, hs, ?_⟩\n      simp [M5.ConditionalCount.validCompletions, hRA, hRB, hCA, hCB, hUA, hUB, hcA, hcB, hg]\n    · simpa only [hUA, hUB] using (Prod.eta x)",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.completed_membership",
+              "ancestors": [],
+              "spec_sha256": "9e3afb4465a1c81bf31abd1949769a54670629e46100fab54976b3ab9104dd0d"
+            },
+            "sha256": "29f759864179fc169afa5f25d4a8169c7024e3756862c9495db56c22a511b2d7"
+          },
+          "right_sets": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.right_sets : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ i ∈ WB, M7.PrefixCompleted.completed N w E A B WA WB = M7.PrefixCompleted.completed N w E A B WA (WB.erase i) ∪ M7.PrefixCompleted.completed N w E A (insert i B) WA (WB.erase i) := by\n  classical\n  intro N w E A B WA WB hDA hDB i hi\n  have hDE : Disjoint B (WB.erase i) :=\n    hDB.mono_right (Finset.erase_subset i WB)\n  have hDI : Disjoint (insert i B) (WB.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro j hj hjW\n    rcases Finset.mem_insert.mp hj with rfl | hjB\n    · exact (Finset.mem_erase.mp hjW).1 rfl\n    · exact Finset.disjoint_left.mp hDB hjB (Finset.mem_erase.mp hjW).2\n  have hcap : insert i B ∪ WB.erase i = B ∪ WB := by\n    apply Finset.ext\n    intro j\n    simp only [Finset.mem_union, Finset.mem_insert, Finset.mem_erase]\n    by_cases hji : j = i\n    · subst j\n      simp [hi]\n    · simp [hji]\n  apply Finset.ext\n  intro x\n  rw [Finset.mem_union,\n    M7.PrefixCompleted.completed_membership N w E A B WA WB hDA hDB x,\n    M7.PrefixCompleted.completed_membership N w E A B WA (WB.erase i) hDA hDE x,\n    M7.PrefixCompleted.completed_membership N w E A (insert i B) WA (WB.erase i) hDA hDI x]\n  unfold M7.PrefixCompleted.Within\n  rw [hcap]\n  constructor\n  · rintro ⟨⟨hAX, hXA, hBX, hXB⟩, hV⟩\n    by_cases hix : i ∈ x.2\n    · right\n      refine ⟨⟨hAX, hXA, ?_, hXB⟩, hV⟩\n      intro j hj\n      rcases Finset.mem_insert.mp hj with rfl | hj\n      · exact hix\n      · exact hBX hj\n    · left\n      refine ⟨⟨hAX, hXA, hBX, ?_⟩, hV⟩\n      intro j hj\n      rcases Finset.mem_union.mp (hXB hj) with hjB | hjW\n      · exact Finset.mem_union.mpr (Or.inl hjB)\n      · apply Finset.mem_union.mpr\n        right\n        apply Finset.mem_erase.mpr\n        refine ⟨?_, hjW⟩\n        intro hji\n        subst j\n        exact hix hj\n  · rintro (⟨⟨hAX, hXA, hBX, hXB⟩, hV⟩ | ⟨⟨hAX, hXA, hBX, hXB⟩, hV⟩)\n    · refine ⟨⟨hAX, hXA, hBX, ?_⟩, hV⟩\n      intro j hj\n      rcases Finset.mem_union.mp (hXB hj) with hjB | hjW\n      · exact Finset.mem_union.mpr (Or.inl hjB)\n      · exact Finset.mem_union.mpr (Or.inr (Finset.mem_erase.mp hjW).2)\n    · refine ⟨⟨hAX, hXA, ?_, hXB⟩, hV⟩\n      intro j hj\n      exact hBX (Finset.mem_insert_of_mem hj)",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.right_sets",
+              "ancestors": [
+                "completed_membership"
+              ],
+              "spec_sha256": "120b60c9ad8a9031bc1fe8333eaed2c754d640454a6e04a5af821e482a00e8d1"
+            },
+            "sha256": "b2c152e01884a010133e4a3bafacf8bedefe5569870ab2a39e012380e0195ab0"
+          },
+          "right_disjoint": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.right_disjoint : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), Disjoint A WA → Disjoint B WB → ∀ i ∈ WB, Disjoint (M7.PrefixCompleted.completed N w E A B WA (WB.erase i)) (M7.PrefixCompleted.completed N w E A (insert i B) WA (WB.erase i)) := by\n  classical\n  intro N w E A B WA WB hDA hDB i hi\n  have hDB' : Disjoint B (WB.erase i) :=\n    hDB.mono_right (Finset.erase_subset i WB)\n  have hDI : Disjoint (insert i B) (WB.erase i) := by\n    apply Finset.disjoint_left.mpr\n    intro j hj hk\n    rcases Finset.mem_insert.mp hj with hji | hjB\n    · subst j\n      simp at hk\n    · exact Finset.disjoint_left.mp hDB hjB (Finset.mem_of_mem_erase hk)\n  apply Finset.disjoint_left.mpr\n  intro x hx hy\n  have hxW := ((M7.PrefixCompleted.completed_membership N w E A B WA (WB.erase i) hDA hDB' x).mp hx).1\n  have hyW := ((M7.PrefixCompleted.completed_membership N w E A (insert i B) WA (WB.erase i) hDA hDI x).mp hy).1\n  have hiX : i ∈ x.2 := hyW.2.2.1 (Finset.mem_insert_self i B)\n  rcases Finset.mem_union.mp (hxW.2.2.2 hiX) with hiB | hiE\n  · exact Finset.disjoint_left.mp hDB hiB hi\n  · simp at hiE",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.right_disjoint",
+              "ancestors": [
+                "completed_membership"
+              ],
+              "spec_sha256": "433e319297835d99b6ba47614223707a6ae0a732220fd23ac4a5067472787554"
+            },
+            "sha256": "3fbab01cd30ccd64744c6b8352a8eb137c5b6a415592bfe093168e22406fb3ab"
+          },
+          "right_count_split": {
+            "payload": {
+              "declaration": "theorem M7.PrefixCompleted.right_count_split : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → ∀ i ∈ WB, M7.PrefixSector.count N w E A B WA WB = M7.PrefixSector.count N w E A B WA (WB.erase i) + M7.PrefixSector.count N w E A (insert i B) WA (WB.erase i) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → ∀ i ∈ WB, M7.PrefixSector.count N w E A B WA WB = M7.PrefixSector.count N w E A B WA (WB.erase i) + M7.PrefixSector.count N w E A (insert i B) WA (WB.erase i)\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w E A B WA WB hN hE hBase i hi\n  obtain ⟨hLeft, hRight⟩ :=\n    M7.PrefixCompleted.right_children N w E A B WA WB i hi hBase\n  rw [M7.PrefixCompleted.count_completed N w E A B WA WB hN hE hBase,\n    M7.PrefixCompleted.count_completed N w E A B WA (WB.erase i) hN hE hLeft,\n    M7.PrefixCompleted.count_completed N w E A (insert i B) WA (WB.erase i) hN hE hRight]\n  rcases hBase with ⟨hA0, hB0, hA, hB, hWA, hWB, hDA, hDB⟩\n  rw [M7.PrefixCompleted.right_sets N w E A B WA WB hDA hDB i hi,\n    Finset.card_union_of_disjoint\n      (M7.PrefixCompleted.right_disjoint N w E A B WA WB hDA hDB i hi)]\n  simp only [Nat.cast_add]",
+              "imports": [
+                "M7PrefixCompleted"
+              ],
+              "name": "M7.PrefixCompleted.right_count_split",
+              "ancestors": [
+                "completed_membership",
+                "count_completed",
+                "overfull_empty",
+                "right_children",
+                "right_disjoint",
+                "right_sets",
+                "union_injective"
+              ],
+              "spec_sha256": "97084a7928e9f8e353fc62d14bb6fb9ddc2d48dbd8ca32e64920a574ebf04bdc"
+            },
+            "sha256": "32d901c574be844ab2c7e427732e6316952f9f8b6ce31a501f7949c267048752"
+          }
+        }
+      }
+    }
+  }
+}

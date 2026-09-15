@@ -1,0 +1,5 @@
+theorem M7.QuotientAuto.substitution_left_inverse : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (x : M6.Cyclic.CycleRing N), M7.QuotientAuto.substitution (u⁻¹) (M7.QuotientAuto.substitution u x) = x := by
+  intro N inst u x
+  change ((M7.QuotientAuto.substitution (u⁻¹)).comp (M7.QuotientAuto.substitution u)) x = x
+  rw [M7.QuotientAuto.substitution_comp N u (u⁻¹), inv_mul_cancel, M7.QuotientAuto.substitution_one N]
+  rfl

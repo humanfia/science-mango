@@ -1,0 +1,272 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T17:39:58.195802+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "record_coordinates": {
+      "id": "record_coordinates",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.ActualFactorized.record_coordinates",
+        "spec_sha256": "77ad245f63c4d2b66e986c813b39d2ee19e3e062f81f6f7c57662fd81512c21b",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ix55wmgg/attempt-001/Candidate_052a3bf26e8fe521.lean",
+            "target_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ix55wmgg/attempt-001/FrozenTarget_052a3bf26e8fe521.lean",
+            "feedback": "",
+            "target_sha256": "2e6f0155c3a2c28e1ef001d6069eed92111b4b247525644832f48b0a24ce8caf",
+            "target_olean_sha256": "7e1d3240e98ab085410c1cdd39cf0c4176414fa1993b0e844cc6573d75c239ba",
+            "source_sha256": "30e65f372ecee8f39f59cbd9f0b915242545c93639e7302c8aa068ffe3cd6ae1",
+            "olean_sha256": "79ad9c3c2d23842a73493ce515473e438350a863810c5330af49bc25608a42b9",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:25:47.796848+00:00",
+        "work": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ix55wmgg",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "6b25fd5539b755842605569dda8fb3e9e23e161a6fab1ba2eac9b3964d01cc17",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ix55wmgg/attempt-001/Candidate_052a3bf26e8fe521.lean",
+        "environment_sha256": "84aed382288ca3e2dd5d5104ece4fbdae363c62315b30833f3d1f93a7fac4f33",
+        "artifacts": {
+          "record_coordinates": {
+            "payload": {
+              "declaration": "theorem M7.ActualFactorized.record_coordinates : ∀ (N : ℕ) [NeZero N], Function.Bijective (@M7.ActualFactorized.toRecord N _) := by\n  change ∀ (N : ℕ) [NeZero N], Function.Bijective (@M7.ActualFactorized.toRecord N _)\n  intro N inst\n  have hleft : Function.LeftInverse (@M7.ActualFactorized.fromRecord N _) (@M7.ActualFactorized.toRecord N _) := by\n    rintro ⟨⟨u, e⟩, s, t⟩\n    rfl\n  have hright : Function.RightInverse (@M7.ActualFactorized.fromRecord N _) (@M7.ActualFactorized.toRecord N _) := by\n    intro g\n    cases g\n    rfl\n  exact ⟨hleft.injective, hright.surjective⟩",
+              "imports": [
+                "M7ActualFactorizedReady"
+              ],
+              "name": "M7.ActualFactorized.record_coordinates",
+              "ancestors": [],
+              "spec_sha256": "77ad245f63c4d2b66e986c813b39d2ee19e3e062f81f6f7c57662fd81512c21b"
+            },
+            "sha256": "605447436d106575e0ed36e15f89e51909e26b813b3646c7dc997d3b184cfbba"
+          }
+        }
+      }
+    },
+    "numerator_record_count": {
+      "id": "numerator_record_count",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M7.ActualFactorized.numerator_record_count",
+        "spec_sha256": "ff308210c298735e45a5474037489bf51916e53ca3ee25ae6c503d95039b5cbb",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-001/Candidate_11e5257a6b6f840d.lean:11:16: error: Type mismatch: After simplification, term\n  ha\n has type\n  ((u, false), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  { unit := u, exchange := false, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-001/Candidate_11e5257a6b6f840d.lean:11:16: error: Type mismatch: After simplification, term\n  ha\n has type\n  ((u, true), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  { unit := u, exchange := true, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-001/Candidate_11e5257a6b6f840d.lean:18:16: error: Type mismatch: After simplification, term\n  hg\n has type\n  { unit := u, exchange := false, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  ((u, false), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-001/Candidate_11e5257a6b6f840d.lean:18:16: error: Type mismatch: After simplification, term\n  hg\n has type\n  { unit := u, exchange := true, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  ((u, true), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-002/Candidate_64f2c613a795d674.lean:10:16: error: Type mismatch: After simplification, term\n  ha\n has type\n  ((u, false), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  { unit := u, exchange := false, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-002/Candidate_64f2c613a795d674.lean:10:16: error: Type mismatch: After simplification, term\n  ha\n has type\n  ((u, true), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  { unit := u, exchange := true, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-002/Candidate_64f2c613a795d674.lean:17:16: error: Type mismatch: After simplification, term\n  hg\n has type\n  { unit := u, exchange := false, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  ((u, false), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-002/Candidate_64f2c613a795d674.lean:17:16: error: Type mismatch: After simplification, term\n  hg\n has type\n  { unit := u, exchange := true, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  ((u, true), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-003/Candidate_8a46427431b422e9.lean:10:16: error: Type mismatch: After simplification, term\n  ha\n has type\n  ((u, false), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  { unit := u, exchange := false, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-003/Candidate_8a46427431b422e9.lean:10:16: error: Type mismatch: After simplification, term\n  ha\n has type\n  ((u, true), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  { unit := u, exchange := true, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-003/Candidate_8a46427431b422e9.lean:17:16: error: Type mismatch: After simplification, term\n  hg\n has type\n  { unit := u, exchange := false, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  ((u, false), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-003/Candidate_8a46427431b422e9.lean:17:16: error: Type mismatch: After simplification, term\n  hg\n has type\n  { unit := u, exchange := true, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  ((u, true), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-004/Candidate_76128b91cbe209d6.lean:12:6: error: Type mismatch: After simplification, term\n  ha\n has type\n  ((u, false), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  { unit := u, exchange := false, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-004/Candidate_76128b91cbe209d6.lean:12:6: error: Type mismatch: After simplification, term\n  ha\n has type\n  ((u, true), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  { unit := u, exchange := true, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-004/Candidate_76128b91cbe209d6.lean:22:6: error: Type mismatch: After simplification, term\n  hg\n has type\n  { unit := u, exchange := false, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  ((u, false), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-004/Candidate_76128b91cbe209d6.lean:22:6: error: Type mismatch: After simplification, term\n  hg\n has type\n  { unit := u, exchange := true, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  ((u, true), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-005/Candidate_e7370f4eecb43e84.lean:11:4: error: Type mismatch: After simplification, term\n  ha\n has type\n  ((u, e), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  { unit := u, exchange := e, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\n/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g/attempt-005/Candidate_e7370f4eecb43e84.lean:18:4: error: Type mismatch: After simplification, term\n  hg\n has type\n  { unit := u, exchange := e, leftShift := s, rightShift := t } ∈\n    Finset.filter\n      (fun (g : Action.Record N) =>\n        sector (g.unit, g.exchange) ∧\n          L (Finset.image (Action.affine g.unit g.leftShift) (if g.exchange = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine g.unit g.rightShift) (if g.exchange = true then c.1 else c.2)))\n      Finset.univ\nbut is expected to have type\n  ((u, e), s, t) ∈\n    Finset.filter\n      (fun (r : Outer N × ZMod N × ZMod N) =>\n        sector r.1 ∧\n          L (Finset.image (Action.affine r.1.1 r.2.1) (if r.1.2 = true then c.2 else c.1)) ∧\n            R (Finset.image (Action.affine r.1.1 r.2.2) (if r.1.2 = true then c.1 else c.2)))\n      Finset.univ\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T17:28:50.630678+00:00",
+        "work": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-ohwp_t_g",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "6b25fd5539b755842605569dda8fb3e9e23e161a6fab1ba2eac9b3964d01cc17",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "stabilizer_numerator": {
+      "id": "stabilizer_numerator",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "numerator_record_count"
+      ]
+    },
+    "positive_denominator": {
+      "id": "positive_denominator",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "stabilizer_numerator"
+      ]
+    },
+    "translate_outer": {
+      "id": "translate_outer",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.ActualFactorized.translate_outer",
+        "spec_sha256": "33232ef605abac75ec0776b1caece198320543ac790284c52fd9be2d12f06dcf",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-11zcb0bq/attempt-001/Candidate_53f82b4f9721eef2.lean",
+            "target_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-11zcb0bq/attempt-001/FrozenTarget_53f82b4f9721eef2.lean",
+            "feedback": "",
+            "target_sha256": "f646834a2567d18c51b5c1fee48f8074b69589a9df7e930987205921a02f221d",
+            "target_olean_sha256": "ca377cd785c1d02574a7666ad55601f5e81da3f4b82e8dd5e8178aa043fba169",
+            "source_sha256": "d51b389d240740fe87c00889baabdb2a17c0a4c4ea9faa82b45ea0ee181a4e94",
+            "olean_sha256": "3829d7ade4f64a24eb517a7147ac57b2c41fc1b48b648fc1792dc0b82fa901ff",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:25:47.819985+00:00",
+        "work": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-11zcb0bq",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "6b25fd5539b755842605569dda8fb3e9e23e161a6fab1ba2eac9b3964d01cc17",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-11zcb0bq/attempt-001/Candidate_53f82b4f9721eef2.lean",
+        "environment_sha256": "84aed382288ca3e2dd5d5104ece4fbdae363c62315b30833f3d1f93a7fac4f33",
+        "artifacts": {
+          "translate_outer": {
+            "payload": {
+              "declaration": "theorem M7.ActualFactorized.translate_outer : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) := by\n  intro N inst c g\n  change M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.Action.act { unit := g.unit, exchange := g.exchange, leftShift := 0, rightShift := 0 } c)\n  rw [← M7.Action.act_compose]\n  congr 1\n  cases g\n  simp [M7.Action.compose, M7.Action.translate]",
+              "imports": [
+                "M7ActualFactorizedReady"
+              ],
+              "name": "M7.ActualFactorized.translate_outer",
+              "ancestors": [],
+              "spec_sha256": "33232ef605abac75ec0776b1caece198320543ac790284c52fd9be2d12f06dcf"
+            },
+            "sha256": "cacd129c702c2a45273612ba1d13dfa70a335ae7d8495990f3729bbc281c6da2"
+          }
+        }
+      }
+    },
+    "sector_compatibility": {
+      "id": "sector_compatibility",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.ActualFactorized.sector_compatibility",
+        "spec_sha256": "67c89942d7c008cab7f755ddb2f1fe64912a498018978fc4162588729a44d54f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-zro98601/attempt-001/Candidate_4ab5661c0fd2ebfd.lean",
+            "target_path": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-zro98601/attempt-001/FrozenTarget_4ab5661c0fd2ebfd.lean",
+            "feedback": "",
+            "target_sha256": "07c5c32f3fa6968471cde81186dde9c2a82a8a433c4891b86179858e4f92c47f",
+            "target_olean_sha256": "d6fda4bb452dc5ccd56d2629d43367a619f7901243ddfc69cb6471266a21fd9e",
+            "source_sha256": "37dc5a1dd8868a4da6b673cbb21a6316d0423256e47df780e83e029ec4833034",
+            "olean_sha256": "dbda829cb614d3ebec1db9f31d0c378acb5d975b5e145ebdf480c22b8ad8c80d",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T17:28:42.473208+00:00",
+        "work": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-zro98601",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "6b25fd5539b755842605569dda8fb3e9e23e161a6fab1ba2eac9b3964d01cc17",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-actual-factorized-formalization/.humanize-formal-runs/run-zro98601/attempt-001/Candidate_4ab5661c0fd2ebfd.lean",
+        "environment_sha256": "84aed382288ca3e2dd5d5104ece4fbdae363c62315b30833f3d1f93a7fac4f33",
+        "artifacts": {
+          "translate_outer": {
+            "payload": {
+              "declaration": "theorem M7.ActualFactorized.translate_outer : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) := by\n  intro N inst c g\n  change M7.Action.act g c = M7.Action.act (M7.Action.translate g.leftShift g.rightShift) (M7.Action.act { unit := g.unit, exchange := g.exchange, leftShift := 0, rightShift := 0 } c)\n  rw [← M7.Action.act_compose]\n  congr 1\n  cases g\n  simp [M7.Action.compose, M7.Action.translate]",
+              "imports": [
+                "M7ActualFactorizedReady"
+              ],
+              "name": "M7.ActualFactorized.translate_outer",
+              "ancestors": [],
+              "spec_sha256": "33232ef605abac75ec0776b1caece198320543ac790284c52fd9be2d12f06dcf"
+            },
+            "sha256": "cacd129c702c2a45273612ba1d13dfa70a335ae7d8495990f3729bbc281c6da2"
+          },
+          "sector_compatibility": {
+            "payload": {
+              "declaration": "theorem M7.ActualFactorized.sector_compatibility : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ E : M7.Action.Recipe N → Prop, M7.ActualFactorized.TranslationInvariant E → ∀ g : M7.Action.Record N, E (M7.ActualFactorized.outerImage c (g.unit,g.exchange)) ↔ E (M7.Action.act g c) := by\n  intro N inst c E hE g\n  rw [M7.ActualFactorized.translate_outer N c g]\n  unfold M7.ActualFactorized.TranslationInvariant at hE\n  first\n  | exact hE _ _ _\n  | exact (hE _ _ _).symm",
+              "imports": [
+                "M7ActualFactorizedReady"
+              ],
+              "name": "M7.ActualFactorized.sector_compatibility",
+              "ancestors": [
+                "translate_outer"
+              ],
+              "spec_sha256": "9089e73b4fa5666461b536732a184c8515434206d47c39cb9b864f033df9e798"
+            },
+            "sha256": "093d8a192eedc7c93608b0b9f965d796ef3d5a2baf98ea5aeac1553e243628f7"
+          }
+        }
+      }
+    },
+    "numerator_action_count": {
+      "id": "numerator_action_count",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "numerator_record_count"
+      ]
+    },
+    "exact_orbit_quotient": {
+      "id": "exact_orbit_quotient",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "numerator_action_count",
+        "stabilizer_numerator"
+      ]
+    }
+  }
+}

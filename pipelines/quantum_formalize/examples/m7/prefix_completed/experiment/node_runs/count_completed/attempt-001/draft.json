@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nunfold QuantumHarnessFrozenTarget\nintro N w E A B WA WB hN hE hBase\nby_cases hOver : w < A.card ∨ w < B.card\n· rw [M7.PrefixSector.overfull_zero N w E A B WA WB hOver,\n    M7.PrefixCompleted.overfull_empty N w E A B WA WB hOver]\n  simp\n· have hAw : A.card ≤ w := by omega\n  have hBw : B.card ≤ w := by omega\n  obtain ⟨hA0, hB0, hAN, hBN, hWAN, hWBN, hDA, hDB⟩ := hBase\n  have hOK : M5.ConditionalCount.PrefixOK N w A B WA WB := by\n    unfold M5.ConditionalCount.PrefixOK\n    aesop\n  rw [M7.PrefixSector.exact_sector_count N w E A B WA WB hN hE hOK]\n  unfold M7.PrefixCompleted.completed\n  rw [Finset.card_image_of_injOn\n    (M7.PrefixCompleted.union_injective N w E A B WA WB hDA hDB)]",
+  "queries": []
+}

@@ -1,0 +1,202 @@
+{
+  "title": "M7 default query using literal signature/locality and actual M6 quantum distance",
+  "source": "/home/jing/quantum_code_discovery_proof/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md",
+  "source_sha256": "8ad32a3432f4b7fd3ad15aa4467e0f01255ce593ac9e474b1af38c9424addf19",
+  "scope": "Actual default query semantics, NoLogical policy, all finite Pareto/lex ties and unique actual physical presentations. Full structural coverage and class-label cached evaluation remain root integration.",
+  "nodes": [
+    {
+      "id": "sector_modes",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.DefaultQuery.sector_modes",
+        "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N), (q.sectorMode = M7.DefaultQuery.SectorMode.classSector → (M7.DefaultQuery.sectorTest q base placed ↔ ∃ g : M7.Action.Record N, M7.DefaultQuery.allows q (M7.DefaultQuery.signature (M7.Action.act g base)))) ∧ (q.sectorMode = M7.DefaultQuery.SectorMode.placementSector → (M7.DefaultQuery.sectorTest q base placed ↔ M7.DefaultQuery.allows q (M7.DefaultQuery.signature placed)))",
+        "imports": [
+          "M7DefaultQuery",
+          "M7SelectionAccepted",
+          "M7ActualPresentationAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite set minimum lexicographic order"
+        ],
+        "guidance": "Unfold sectorTest and rewrite the explicit mode. Class-sector witness is allowed at a different placement; placement-sector tests the returned literal pair. No signature transport assumption replaces the literal predicate. Return tactic proof lines without leading by; retain exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §2/8/9 actual default query and physical ties",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "noLogical_policy",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.DefaultQuery.noLogical_policy",
+        "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N), (M7.DefaultQuery.needsDistance q → M7.DefaultQuery.distance placed = none → ¬ M7.DefaultQuery.feasible q base placed) ∧ (q.distanceFloor = none → M7.DefaultQuery.Coordinate.negativeDistance ∉ q.objectives → (M7.DefaultQuery.feasible q base placed ↔ M7.DefaultQuery.valid N q ∧ M7.DefaultQuery.dimension placed ∈ q.dimensions ∧ M7.DefaultQuery.sectorTest q base placed ∧ (match q.localityCap with | none => True | some cap => M7.DefaultQuery.locality placed ≤ cap) ∧ (match q.radiusCap with | none => True | some cap => M7.DefaultQuery.radius placed ≤ cap)))",
+        "imports": [
+          "M7DefaultQuery",
+          "M7SelectionAccepted",
+          "M7ActualPresentationAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite set minimum lexicographic order"
+        ],
+        "guidance": "Unfold feasible and needsDistance. A demanded distance conflicts with Option.isSome none. When floor is none and no negativeDistance coordinate is requested, both distance guards reduce to True; all other query tests remain. This explicitly permits NoLogical when no numerical distance is requested, and assigns no infinite distance. Return tactic proof lines without leading by; retain exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §2/8/9 actual default query and physical ties",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "literal_fiber",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.DefaultQuery.literal_fiber",
+        "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N) (g h : M7.Action.Record N), M7.Action.act g base = M7.Action.act h base → ((M7.DefaultQuery.feasible q base (M7.Action.act g base) ↔ M7.DefaultQuery.feasible q base (M7.Action.act h base)) ∧ M7.DefaultQuery.objective q (M7.Action.act g base) = M7.DefaultQuery.objective q (M7.Action.act h base))",
+        "imports": [
+          "M7DefaultQuery",
+          "M7SelectionAccepted",
+          "M7ActualPresentationAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite set minimum lexicographic order"
+        ],
+        "guidance": "Every label is computed from the literal pair: signature is actual M6 polynomial gcd, dimension twice its degree, distance actual M6.Final.quantumDistance, locality/radius from that same pair. Rewrite the image equality; class-sector term uses the common base and is constant. No unconnected label-oracle premise is present. Return tactic proof lines without leading by; retain exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §2/8/9 actual default query and physical ties",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "winners_exact",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.DefaultQuery.winners_exact",
+        "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (∀ g : M7.Action.Record N, g ∈ M7.DefaultQuery.winners q base ↔ M7.DefaultQuery.feasible q base (M7.Action.act g base) ∧ ∀ h : M7.Action.Record N, M7.DefaultQuery.feasible q base (M7.Action.act h base) → ¬ M7.Selection.better q.order (M7.DefaultQuery.objective q (M7.Action.act h base)) (M7.DefaultQuery.objective q (M7.Action.act g base))) ∧ (M7.DefaultQuery.winners q base = ∅ ↔ ¬ ∃ g : M7.Action.Record N, M7.DefaultQuery.feasible q base (M7.Action.act g base))",
+        "imports": [
+          "M7DefaultQuery",
+          "M7SelectionAccepted",
+          "M7ActualPresentationAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite set minimum lexicographic order"
+        ],
+        "guidance": "Instantiate accepted M7.Selection.selector_exact on actual Action.Record univ with the concrete feasible/objective functions. Simplify only univ membership and feasibleSet emptiness; preserve all ties and modes. This is an actual query application, not an assumed evaluator. Return tactic proof lines without leading by; retain exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §2/8/9 actual default query and physical ties",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "invalid_rejection",
+      "dependencies": [
+        "winners_exact"
+      ],
+      "spec": {
+        "name": "M7.DefaultQuery.invalid_rejection",
+        "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (¬ M7.DefaultQuery.valid N q → M7.DefaultQuery.answer q base = Except.error M7.DefaultQuery.QueryError.invalidSignature ∧ M7.DefaultQuery.winners q base = ∅) ∧ (M7.DefaultQuery.valid N q → M7.DefaultQuery.answer q base = Except.ok (M7.DefaultQuery.winners q base))",
+        "imports": [
+          "M7DefaultQuery",
+          "M7SelectionAccepted",
+          "M7ActualPresentationAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite set minimum lexicographic order"
+        ],
+        "guidance": "Unfold answer and split the validity branch. Invalid signatures return an explicit error, distinguished from a valid empty answer. For the no-winners component use winners_exact and the first valid conjunct of feasible. A valid query returns ok with its actual finite winner set. Return tactic proof lines without leading by; retain exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §2/8/9 actual default query and physical ties",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "strict_dominator",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.DefaultQuery.strict_dominator",
+        "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N) (g : M7.Action.Record N), M7.DefaultQuery.feasible q base (M7.Action.act g base) → g ∉ M7.DefaultQuery.winners q base → ∃ h ∈ M7.DefaultQuery.winners q base, M7.Selection.better q.order (M7.DefaultQuery.objective q (M7.Action.act h base)) (M7.DefaultQuery.objective q (M7.Action.act g base))",
+        "imports": [
+          "M7DefaultQuery",
+          "M7SelectionAccepted",
+          "M7ActualPresentationAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite set minimum lexicographic order"
+        ],
+        "guidance": "Apply accepted selector_strict_dominator with actual Action.Record univ, concrete literal-support query predicates and objectives. All strict-order premises were already discharged for actual Pareto/lex in Selection12. Return tactic proof lines without leading by; retain exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §2/8/9 actual default query and physical ties",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "empty_objectives",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.DefaultQuery.empty_objectives",
+        "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), q.objectives = [] → M7.DefaultQuery.winners q base = M7.Selection.feasibleSet Finset.univ (fun g : M7.Action.Record N => M7.DefaultQuery.feasible q base (M7.Action.act g base))",
+        "imports": [
+          "M7DefaultQuery",
+          "M7SelectionAccepted",
+          "M7ActualPresentationAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite set minimum lexicographic order"
+        ],
+        "guidance": "Use accepted M7.Selection.empty_objectives. Destructure Query or generalize/rewrite its objectives field so its dependent Fin length becomes Fin0; no objective coordinate can be strictly better. Keep every feasible action tie. Return tactic proof lines without leading by; retain exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §2/8/9 actual default query and physical ties",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "presentation_exact",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.DefaultQuery.presentation_exact",
+        "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (∀ g ∈ M7.DefaultQuery.winners q base, ∃! h : M7.Action.Record N, M7.DefaultQuery.present q base h ∧ M7.Action.act h base = M7.Action.act g base ) ∧ (∀ g : M7.Action.Record N, M7.DefaultQuery.present q base g → g ∈ M7.DefaultQuery.winners q base ∧ ∀ h : M7.Action.Record N, M7.Action.act h base = M7.Action.act g base → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h)",
+        "imports": [
+          "M7DefaultQuery",
+          "M7SelectionAccepted",
+          "M7ActualPresentationAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite set minimum lexicographic order"
+        ],
+        "guidance": "Instantiate verified actual_presentation9 presentation_exact and presentation_sound with concrete DefaultQuery.feasible q base and objective q. winners and actual selected are definitionally the same. The dependency gate must be resolved by canonical actual_presentation9 before launching; no placeholder proof or free presentation oracle is allowed. Return tactic proof lines without leading by; retain exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §2/8/9 actual default query and physical ties",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+theorem M7.DefaultQuery.invalid_rejection : ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (¬ M7.DefaultQuery.valid N q → M7.DefaultQuery.answer q base = Except.error M7.DefaultQuery.QueryError.invalidSignature ∧ M7.DefaultQuery.winners q base = ∅) ∧ (M7.DefaultQuery.valid N q → M7.DefaultQuery.answer q base = Except.ok (M7.DefaultQuery.winners q base)) := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), (¬ M7.DefaultQuery.valid N q → M7.DefaultQuery.answer q base = Except.error M7.DefaultQuery.QueryError.invalidSignature ∧ M7.DefaultQuery.winners q base = ∅) ∧ (M7.DefaultQuery.valid N q → M7.DefaultQuery.answer q base = Except.ok (M7.DefaultQuery.winners q base))
+  )
+  change QuantumHarnessFrozenTarget
+  classical
+  unfold QuantumHarnessFrozenTarget
+  intro N inst q base
+  constructor
+  · intro hInvalid
+    constructor
+    · simp [M7.DefaultQuery.answer, hInvalid]
+    · apply (M7.DefaultQuery.winners_exact N q base).2.mpr
+      rintro ⟨g, hg⟩
+      exact hInvalid hg.1
+  · intro hValid
+    simp [M7.DefaultQuery.answer, hValid]

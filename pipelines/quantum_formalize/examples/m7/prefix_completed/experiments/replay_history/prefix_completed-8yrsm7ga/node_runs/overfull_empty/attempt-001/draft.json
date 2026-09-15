@@ -1,0 +1,6 @@
+{
+  "proof": "classical\nintro N w E A B WA WB h\nunfold M7.PrefixCompleted.completed\nhave hempty : M7.PrefixSector.completions N w E A B WA WB = ∅ := by\n  apply Finset.eq_empty_iff_forall_not_mem.mpr\n  intro x hx\n  obtain ⟨F, hF, hx⟩ := (M7.PrefixSector.completion_membership N w E A B WA WB x).mp hx\n  rcases h with hA | hB\n  · have hA' : ¬ A.card ≤ w := Nat.not_le.mpr hA\n    simp_all [M5.ConditionalCount.validCompletions]\n  · have hB' : ¬ B.card ≤ w := Nat.not_le.mpr hB\n    simp_all [M5.ConditionalCount.validCompletions]\nrw [hempty]\nsimp",
+  "queries": [
+    "M5.ConditionalCount.validCompletions"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "id": "principal_gcd",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.SignatureIdeal.principal_gcd",
+    "spec_sha256": "0b078338d950ebd23ea701d5ca5262ea98f8054fc93c882fc1da40f98a28047d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-zga0mbe2/attempt-001/Candidate_65c8511ed114cb76.lean:25:31: error: unsolved goals\nN : ℕ\ninst : NeZero N\nF : M6.Cyclic.BinaryPolynomial\nf : M6.Cyclic.BinaryPolynomial →+* M6.Cyclic.CycleRing N := AdjoinRoot.mk (M6.Cyclic.modulus N)\nhz : f (M6.Cyclic.modulus N) = 0\nhe : f (EuclideanDomain.gcd F (M6.Cyclic.modulus N)) = f F * f (EuclideanDomain.gcdA F (M6.Cyclic.modulus N))\n⊢ f (EuclideanDomain.gcdA F (M6.Cyclic.modulus N)) = f F\n/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-zga0mbe2/attempt-001/Candidate_65c8511ed114cb76.lean:21:47: warning: This simp argument is unused:\n  mul_zero\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [map_add, map_mul, hz, zero_mul, add_zero, zero_add] at he\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-zga0mbe2/attempt-001/Candidate_65c8511ed114cb76.lean:21:67: warning: This simp argument is unused:\n  zero_add\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [map_add, map_mul, hz, zero_mul, mul_zero, add_zero] at he\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-zga0mbe2/attempt-002/Candidate_0d1ceb299f77d4db.lean",
+        "target_path": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-zga0mbe2/attempt-002/FrozenTarget_0d1ceb299f77d4db.lean",
+        "feedback": "",
+        "target_sha256": "220cfe8c910395d10b32e72f417da966058a332679675b5412c2470caeeb12fd",
+        "target_olean_sha256": "b24f2addfb2d3aa9025a5f564847e3951185bf820ee76a9403f8b12c8dd6910d",
+        "source_sha256": "ba3ed1fa3acfb8537ce165d7102cd594b67f6f11a011d362f9af364ebebcc992",
+        "olean_sha256": "2e02d0ab24aa115daa2db575f7c63812b0a60b82635562f25ce38ec66053ab15",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T17:28:55.202422+00:00",
+    "work": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-zga0mbe2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "fbf6ead8811bdacac1a375987c79a87302b1659cf0869c45cab12c75440d53ef",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-signature-ideal-formalization/.humanize-formal-runs/run-zga0mbe2/attempt-002/Candidate_0d1ceb299f77d4db.lean",
+    "environment_sha256": "aa040ee74b3108068f8092ca66403026fe60a7f6009c9d7fcb2946e3ec4b5c57",
+    "artifacts": {
+      "modulus_zero": {
+        "payload": {
+          "declaration": "theorem M7.SignatureIdeal.modulus_zero : ∀ (N : ℕ) [NeZero N], M6.Cyclic.image N (M6.Cyclic.modulus N) = 0 := by\n  intro N inst\n  change AdjoinRoot.mk (M6.Cyclic.modulus N) (M6.Cyclic.modulus N) = 0\n  exact AdjoinRoot.mk_self",
+          "imports": [
+            "M7SignatureIdeal"
+          ],
+          "name": "M7.SignatureIdeal.modulus_zero",
+          "ancestors": [],
+          "spec_sha256": "e254454991b2a721b4931f2e8962229495b2121fdd7438f6008a3d9420a4fee2"
+        },
+        "sha256": "a8612bfb51c41c90c3655a965458f60e34edc16edc1543ff949010975a1c72a6"
+      },
+      "full_signature_ideal": {
+        "payload": {
+          "declaration": "theorem M7.SignatureIdeal.full_signature_ideal : ∀ (N : ℕ) [NeZero N], ∀ a b : M6.Cyclic.BinaryPolynomial, M7.SignatureIdeal.pairIdeal N a b = M7.SignatureIdeal.principal N (M6.Cyclic.signature a b (M6.Cyclic.modulus N)) := by\n  intro N inst a b\n  let f : M6.Cyclic.BinaryPolynomial →+* M6.Cyclic.CycleRing N := AdjoinRoot.mk (M6.Cyclic.modulus N)\n  change Ideal.span ({f a, f b} : Set (M6.Cyclic.CycleRing N)) = Ideal.span ({f (M6.Cyclic.signature a b (M6.Cyclic.modulus N))} : Set (M6.Cyclic.CycleRing N))\n  rcases M6.Cyclic.signature_divides a b (M6.Cyclic.modulus N) with ⟨ha, hb, hm⟩\n  apply le_antisymm\n  · apply Ideal.span_le.mpr\n    intro x hx\n    have hmap : ∀ c : M6.Cyclic.BinaryPolynomial, M6.Cyclic.signature a b (M6.Cyclic.modulus N) ∣ c → f c ∈ Ideal.span ({f (M6.Cyclic.signature a b (M6.Cyclic.modulus N))} : Set (M6.Cyclic.CycleRing N)) := by\n      intro c hc\n      rcases hc with ⟨u, hu⟩\n      apply Ideal.mem_span_singleton.mpr\n      refine ⟨f u, ?_⟩\n      exact (congrArg f hu).trans (map_mul f _ _)\n    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx\n    rcases hx with rfl | rfl\n    · exact hmap a ha\n    · exact hmap b hb\n  · apply Ideal.span_le.mpr\n    intro x hx\n    simp only [Set.mem_singleton_iff] at hx\n    subst x\n    rcases M6.Cyclic.signature_bezout a b (M6.Cyclic.modulus N) with ⟨p, q, r, h⟩\n    have hz : f (M6.Cyclic.modulus N) = 0 := AdjoinRoot.mk_self\n    have he := congrArg f h\n    simp only [map_add, map_mul, hz, mul_zero, add_zero] at he\n    rw [he]\n    apply Ideal.add_mem\n    · apply Ideal.mul_mem_left\n      exact Ideal.subset_span (by simp)\n    · apply Ideal.mul_mem_left\n      exact Ideal.subset_span (by simp)",
+          "imports": [
+            "M7SignatureIdeal"
+          ],
+          "name": "M7.SignatureIdeal.full_signature_ideal",
+          "ancestors": [
+            "modulus_zero"
+          ],
+          "spec_sha256": "66bc733d402193d67c46cc9fd2b03de0111aae22c3ecbd6092f22f64bbb01691"
+        },
+        "sha256": "bd3cc707d899eed5bd5875350fe4b68f0633d7a24af5467d5f80cd6ed18ca045"
+      },
+      "principal_gcd": {
+        "payload": {
+          "declaration": "theorem M7.SignatureIdeal.principal_gcd : ∀ (N : ℕ) [NeZero N], ∀ F : M6.Cyclic.BinaryPolynomial, M7.SignatureIdeal.principal N F = M7.SignatureIdeal.principal N (EuclideanDomain.gcd F (M6.Cyclic.modulus N)) := by\n  intro N inst F\n  let f : M6.Cyclic.BinaryPolynomial →+* M6.Cyclic.CycleRing N := AdjoinRoot.mk (M6.Cyclic.modulus N)\n  change Ideal.span ({f F} : Set (M6.Cyclic.CycleRing N)) = Ideal.span ({f (EuclideanDomain.gcd F (M6.Cyclic.modulus N))} : Set (M6.Cyclic.CycleRing N))\n  apply le_antisymm\n  · apply Ideal.span_le.mpr\n    intro x hx\n    simp only [Set.mem_singleton_iff] at hx\n    subst x\n    apply Ideal.mem_span_singleton.mpr\n    rcases EuclideanDomain.gcd_dvd_left F (M6.Cyclic.modulus N) with ⟨u, hu⟩\n    refine ⟨f u, ?_⟩\n    exact (congrArg f hu).trans (map_mul f _ _)\n  · apply Ideal.span_le.mpr\n    intro x hx\n    simp only [Set.mem_singleton_iff] at hx\n    subst x\n    have hz : f (M6.Cyclic.modulus N) = 0 := AdjoinRoot.mk_self\n    have he := congrArg f (EuclideanDomain.gcd_eq_gcd_ab F (M6.Cyclic.modulus N))\n    simp only [map_add, map_mul, hz, zero_mul, add_zero] at he\n    apply Ideal.mem_span_singleton.mpr\n    exact ⟨f (EuclideanDomain.gcdA F (M6.Cyclic.modulus N)), he⟩",
+          "imports": [
+            "M7SignatureIdeal"
+          ],
+          "name": "M7.SignatureIdeal.principal_gcd",
+          "ancestors": [
+            "full_signature_ideal",
+            "modulus_zero"
+          ],
+          "spec_sha256": "4de86d3dcd55c9ba17c4a4f7b519dfbf06db0eb8d2538ea9da6c76c4823149b0"
+        },
+        "sha256": "bafb12de2f7f2a8cf14f3812409c6bab0b6f86de29a2badce0060e8b080a290a"
+      }
+    }
+  }
+}

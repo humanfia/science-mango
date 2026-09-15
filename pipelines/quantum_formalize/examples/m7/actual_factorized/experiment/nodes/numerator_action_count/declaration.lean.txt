@@ -1,0 +1,11 @@
+theorem M7.ActualFactorized.numerator_action_count : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ (E : M7.Action.Recipe N → Prop) (L R : Finset (ZMod N) → Prop), M7.ActualFactorized.TranslationInvariant E → M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R = M7.ActualOrbit.actionCount c (fun y => E y ∧ L y.1 ∧ R y.2) := by
+  intro N inst c E L R hE
+  classical
+  rw [M7.ActualFactorized.numerator_record_count N]
+  unfold M7.ActualFactorized.recordCount M7.ActualOrbit.actionCount
+  apply congrArg Finset.card
+  ext g
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+  rw [M7.ActualFactorized.sector_compatibility N c E hE g] <;>
+    simp [M7.ActualFactorized.leftImage, M7.ActualFactorized.rightImage,
+      M7.ActualFactorized.toRecord, M7.Action.act]

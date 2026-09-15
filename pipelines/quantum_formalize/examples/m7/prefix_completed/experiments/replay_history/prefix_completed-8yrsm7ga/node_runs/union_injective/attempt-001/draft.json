@@ -1,0 +1,8 @@
+{
+  "proof": "by\n  classical\n  intro N w E A B WA WB hA hB\n  have bounds : ∀ z ∈ M7.PrefixSector.completions N w E A B WA WB,\n      z.1 ⊆ WA ∧ z.2 ⊆ WB := by\n    intro z hz\n    obtain ⟨F, hF, hz⟩ :=\n      (M7.PrefixSector.completion_membership N w E A B WA WB z).mp hz\n    simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter,\n      Finset.mem_product, Finset.mem_powersetCard] at hz\n    aesop\n  have cancel : ∀ (S W U V : Finset ℕ), Disjoint S W →\n      U ⊆ W → V ⊆ W → S ∪ U = S ∪ V → U = V := by\n    intro S W U V hd hU hV he\n    have hd' := Finset.disjoint_left.mp hd\n    apply Finset.ext\n    intro i\n    constructor\n    · intro hi\n      have hm : i ∈ S ∪ V := he ▸ Finset.mem_union_right S hi\n      rcases Finset.mem_union.mp hm with hs | hv\n      · exact False.elim (hd' hs (hU hi))\n      · exact hv\n    · intro hi\n      have hm : i ∈ S ∪ U := he.symm ▸ Finset.mem_union_right S hi\n      rcases Finset.mem_union.mp hm with hs | hu\n      · exact False.elim (hd' hs (hV hi))\n      · exact hu\n  intro x hx y hy hxy\n  obtain ⟨hxA, hxB⟩ := bounds x hx\n  obtain ⟨hyA, hyB⟩ := bounds y hy\n  apply Prod.ext\n  · exact cancel A WA x.1 y.1 hA hxA hyA (congrArg Prod.fst hxy)\n  · exact cancel B WB x.2 y.2 hB hxB hyB (congrArg Prod.snd hxy)",
+  "queries": [
+    "Finset.mem_powersetCard",
+    "Finset.disjoint_left",
+    "Finset.union_left_cancel"
+  ]
+}
