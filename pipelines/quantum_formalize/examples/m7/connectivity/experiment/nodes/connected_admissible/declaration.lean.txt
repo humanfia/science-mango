@@ -1,0 +1,5 @@
+theorem M7.Connectivity.connected_admissible : ∀ (N w : ℕ) [NeZero N] (c : M7.Connectivity.Recipe N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → M6.Final.Admissible N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) := by
+  change ∀ (N w : ℕ) [NeZero N] (c : M7.Connectivity.Recipe N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → M6.Final.Admissible N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)
+  intro N w inst c hcardA hcardB hA hB hc
+  apply M7.Domain.admissible N w c.1 c.2 hcardA hcardB hA hB
+  exact (M7.Connectivity.anchored_gcd N c.1 c.2 hA hB).mp hc

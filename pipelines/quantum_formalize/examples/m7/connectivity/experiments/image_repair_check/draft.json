@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst A B\nclassical\next x\nchange (\u2203 n : \u2115, n \u2208 (A.image ZMod.val \u222a B.image ZMod.val) \u2227 (n : ZMod N) = x) \u2194 (x \u2208 A \u2228 x \u2208 B)\nconstructor\n\u00b7 rintro \u27e8n, hn, rfl\u27e9\n  rcases Finset.mem_union.mp hn with hn | hn\n  \u00b7 rcases Finset.mem_image.mp hn with \u27e8a, ha, rfl\u27e9\n    exact Or.inl (by simpa only [ZMod.natCast_zmod_val] using ha)\n  \u00b7 rcases Finset.mem_image.mp hn with \u27e8b, hb, rfl\u27e9\n    exact Or.inr (by simpa only [ZMod.natCast_zmod_val] using hb)\n\u00b7 intro hx\n  refine \u27e8x.val, ?_, ZMod.natCast_zmod_val x\u27e9\n  rcases hx with hx | hx\n  \u00b7 exact Finset.mem_union.mpr (Or.inl (Finset.mem_image.mpr \u27e8x, hx, rfl\u27e9))\n  \u00b7 exact Finset.mem_union.mpr (Or.inr (Finset.mem_image.mpr \u27e8x, hx, rfl\u27e9))\n",
+  "queries": []
+}

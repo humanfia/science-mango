@@ -1,0 +1,7 @@
+import FrozenTarget_d420a49adb4d6ba0
+theorem M7.Connectivity.anchored_gcd : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → (M7.Connectivity.connected (A, B) ↔ M7.Domain.connectivityGcd A B = 1)
+  intro N inst A B hA hB
+  change AddSubgroup.closure (M7.Connectivity.differences A ∪ M7.Connectivity.differences B) = ⊤ ↔ Nat.gcd N ((M7.Supports.natSupport A ∪ M7.Supports.natSupport B).gcd id) = 1
+  rw [M7.Connectivity.anchored_closure N A B hA hB, ← M7.Connectivity.nat_support_image N A B]
+  exact M7.Connectivity.finite_generation_gcd N (M7.Supports.natSupport A ∪ M7.Supports.natSupport B)

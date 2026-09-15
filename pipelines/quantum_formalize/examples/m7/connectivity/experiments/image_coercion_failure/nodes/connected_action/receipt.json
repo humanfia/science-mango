@@ -1,0 +1,82 @@
+{
+  "id": "connected_action",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Connectivity.connected_action",
+    "spec_sha256": "718ab769ac5b4b96c6900fc69ff3bf4625e9efab1b6d5e9da9e845e31c47cf62",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-mgk7dmnw/attempt-001/Candidate_7e3c300a4c556f8b.lean",
+        "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-mgk7dmnw/attempt-001/FrozenTarget_7e3c300a4c556f8b.lean",
+        "feedback": "",
+        "target_sha256": "ae13dea001b7e32f5b18c1ba978e5700ab61736be614d0abe02ba1c47cf8b113",
+        "target_olean_sha256": "a068db79e38529b0c65473fe5958cbd88a135dba415d31f5f70a60a173f21ab2",
+        "source_sha256": "c4258992c6fdce3393eb5847f4e29c3b4578b71b1a5aab65ad620a47cf45b852",
+        "olean_sha256": "0cc749e23a7f5dc61a871375be3c8f4b0816587dc1714dfdefb5c9563f527b5c",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:26:59.821238+00:00",
+    "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-mgk7dmnw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-mgk7dmnw/attempt-001/Candidate_7e3c300a4c556f8b.lean",
+    "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+    "artifacts": {
+      "difference_affine": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.difference_affine : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), M7.Connectivity.differences (A.image (M7.Action.affine u s)) = (fun x : ZMod N => (u : ZMod N)*x) '' M7.Connectivity.differences A := by\n  intro N inst A u s\n  classical\n  apply Set.ext\n  intro x\n  simp only [M7.Connectivity.differences, Set.mem_setOf_eq, Set.mem_image,\n    Finset.mem_image]\n  constructor\n  · rintro ⟨a, ⟨a₀, ha₀, rfl⟩, b, ⟨b₀, hb₀, rfl⟩, hx⟩\n    refine ⟨a₀ - b₀, ⟨a₀, ha₀, b₀, hb₀, rfl⟩, ?_⟩\n    first\n    | simpa [M7.Action.affine, mul_sub] using hx\n    | simpa [M7.Action.affine, mul_sub] using hx.symm\n  · rintro ⟨y, ⟨a, ha, b, hb, rfl⟩, hx⟩\n    refine ⟨M7.Action.affine u s a, ⟨a, ha, rfl⟩,\n      M7.Action.affine u s b, ⟨b, hb, rfl⟩, ?_⟩\n    first\n    | simpa [M7.Action.affine, mul_sub] using hx\n    | simpa [M7.Action.affine, mul_sub] using hx.symm",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.difference_affine",
+          "ancestors": [],
+          "spec_sha256": "9c6c10f870763a0f006afda191dd2dc69f6c31ebf91dcabf04f9dc26bae43c86"
+        },
+        "sha256": "cb6e001c9a22ab9cd24711ec08d7d086c995d79eefaa5b4159fe4d08f6a9698b"
+      },
+      "closure_equiv_top": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.closure_equiv_top : ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤\n  intro N inst e S\n  constructor\n  · intro h\n    have hle : AddSubgroup.closure (e '' S) ≤\n        (AddSubgroup.closure S).comap e.symm.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      rintro y ⟨x, hx, rfl⟩\n      change e.symm (e x) ∈ AddSubgroup.closure S\n      simpa using (AddSubgroup.subset_closure hx)\n    apply top_unique\n    intro x hx\n    have hm : e x ∈ AddSubgroup.closure (e '' S) := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e.symm (e x) ∈ AddSubgroup.closure S at hm'\n    simpa using hm'\n  · intro h\n    have hle : AddSubgroup.closure S ≤\n        (AddSubgroup.closure (e '' S)).comap e.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      intro x hx\n      change e x ∈ AddSubgroup.closure (e '' S)\n      exact AddSubgroup.subset_closure ⟨x, hx, rfl⟩\n    apply top_unique\n    intro x hx\n    have hm : e.symm x ∈ AddSubgroup.closure S := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e (e.symm x) ∈ AddSubgroup.closure (e '' S) at hm'\n    simpa using hm'",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.closure_equiv_top",
+          "ancestors": [],
+          "spec_sha256": "311f071974818ff75ca1230f938072de1288f0f5140c9c4042a122aa55e91eea"
+        },
+        "sha256": "27e4595ea06d1f30f2a2305692548f656de232e34242fbdb5087779daa99c939"
+      },
+      "connected_action": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.connected_action : ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Connectivity.Recipe N), M7.Connectivity.connected (M7.Action.act g c) ↔ M7.Connectivity.connected c := by\n  change ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Connectivity.Recipe N), M7.Connectivity.connected (M7.Action.act g c) ↔ M7.Connectivity.connected c\n  intro N inst g c\n  classical\n  have h (S : Set (ZMod N)) :\n      AddSubgroup.closure ((fun x : ZMod N => (g.unit : ZMod N) * x) '' S) = ⊤ ↔\n        AddSubgroup.closure S = ⊤ := by\n    exact M7.Connectivity.closure_equiv_top N (M7.Connectivity.unitEquiv g.unit) S\n  cases he : g.exchange <;>\n    simpa [M7.Connectivity.connected, M7.Action.act, he,\n      M7.Connectivity.difference_affine, Set.image_union, Set.union_comm] using\n      h (M7.Connectivity.differences c.1 ∪ M7.Connectivity.differences c.2)",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.connected_action",
+          "ancestors": [
+            "closure_equiv_top",
+            "difference_affine"
+          ],
+          "spec_sha256": "f5b327994fd64f6ac210b6b464ead3a87c171cf315ff334f81e94f7f79791c63"
+        },
+        "sha256": "e4baaf054f7dfcad5076fbeecf918d24f7a008910f1ced897a7efe1d5a8a2258"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤\nintro N _ e S\nhave transport (f : ZMod N ≃+ ZMod N) (T : Set (ZMod N))\n    (h : AddSubgroup.closure T = ⊤) : AddSubgroup.closure (f '' T) = ⊤ := by\n  have hle : AddSubgroup.closure T ≤\n      (AddSubgroup.closure (f '' T)).comap f.toAddMonoidHom := by\n    apply AddSubgroup.closure_le.mpr\n    intro x hx\n    exact AddSubgroup.subset_closure ⟨x, hx, rfl⟩\n  apply top_unique\n  intro y _\n  have hx : f.symm y ∈ AddSubgroup.closure T := by\n    rw [h]\n    trivial\n  have hy := hle hx\n  change f (f.symm y) ∈ AddSubgroup.closure (f '' T) at hy\n  simpa using hy\nconstructor\n· intro h\n  simpa [Set.image_image] using transport e.symm (e '' S) h\n· exact transport e S",
+  "queries": []
+}

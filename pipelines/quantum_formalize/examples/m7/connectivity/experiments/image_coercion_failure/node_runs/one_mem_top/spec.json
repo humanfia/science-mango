@@ -1,0 +1,13 @@
+{
+  "name": "M7.Connectivity.one_mem_top",
+  "statement": "∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤",
+  "imports": [
+    "M7Connectivity"
+  ],
+  "context": "theorem M7.Connectivity.scalar_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r*a ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r * a ∈ H\n  intro N inst H a r ha\n  simpa only [nsmul_eq_mul, ZMod.natCast_zmod_val] using H.nsmul_mem ha r.val",
+  "queries": [
+    "AddSubgroup closure image additive equivalence",
+    "ZMod isUnit_iff_coprime Finset gcd Bezout"
+  ],
+  "guidance": "If H contains one, scalar_mem with scalar x puts every x in H. Reverse top membership. N=1 is retained. Use original exact statement. Return tactic lines without leading by."
+}

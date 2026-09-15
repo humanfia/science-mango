@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H\nintro N _ H S\nclassical\ninduction S using Finset.induction_on with\n| empty =>\n    intro _\n    simpa using H.zero_mem\n| @insert a S ha ih =>\n    intro h\n    have haH : (a : ZMod N) ∈ H := h a (Finset.mem_insert_self a S)\n    have hgH : (S.gcd id : ZMod N) ∈ H :=\n      ih (fun b hb => h b (Finset.mem_insert_of_mem hb))\n    simp only [Finset.gcd_insert, id_eq]\n    have hb := congrArg (fun z : ℤ => (z : ZMod N))\n      (Nat.gcd_eq_gcd_ab a (S.gcd id))\n    push_cast at hb\n    rw [hb]\n    simpa only [zsmul_eq_mul, mul_comm] using\n      H.add_mem (H.zsmul_mem haH (Nat.gcdA a (S.gcd id)))\n        (H.zsmul_mem hgH (Nat.gcdB a (S.gcd id)))",
+  "queries": [
+    "Nat.gcd_eq_gcd_ab",
+    "AddSubgroup.zsmul_mem",
+    "Finset.gcd_insert"
+  ]
+}

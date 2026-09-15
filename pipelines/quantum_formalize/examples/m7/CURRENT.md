@@ -2,7 +2,7 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**273 targets in 31 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+**287 targets in 32 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -37,14 +37,16 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [orbit_residual](orbit_residual/experiment/result.json) | 12 | M7 actual disjoint-orbit residual invariant and strict insertion descent |
 | [prefix_bits](prefix_bits/experiment/result.json) | 9 | M7 concrete binary prefix states and actual arithmetic descent partitions |
 | [query_certificate](query_certificate/experiment/result.json) | 8 | M7 actual finite query certificate checker |
+| [connectivity](connectivity/experiment/result.json) | 14 | M7 original within-block generated subgroup connectivity bridge |
 
 Active work:
 
-- `connectivity`: the full anchored gcd equivalence has passed; the final actual M6 domain interfaces are running.
-- `prefix_orbit`: actual arithmetic residual and orbit-count integration, gated on canonical parent acceptance.
-- `recovery_instance`: preparing the actual arithmetic recovery instance and fresh-class insertion proofs.
+- `prefix_orbit`: actual arithmetic orbit-prefix residual integration; canonical parents are complete and preflight is running.
+- `recovery_prefix` / `recovery_instance`: actual prefix geometry and arithmetic recovery, fresh insertion and strict decrease.
+- `compact_core`: actual emission records and finite recurrence; eight closed target types are in preflight.
+- Raw structural coverage: extending anchored final coverage to all connected queried raw orbits.
 
-Original remaining integration gates include closing the actual domain interfaces, actual compact residual generation and structural coverage, complete default-query/global-optimum integration, replay and original resource bounds. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
+Original remaining integration gates include actual compact residual generation and structural coverage, complete default-query/global-optimum integration, replay and original resource bounds. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 
 The frozen definitions and goals are preserved through repairs. Successful late live proofs are retained. Explicit local tactic repairs are independently checked and then pass normal exact-target replay; their origins and all failures are preserved. LeanExplore broader-query recovery records the actual fallback query and original unavailable requests; persistent failures remain unavailable.
 

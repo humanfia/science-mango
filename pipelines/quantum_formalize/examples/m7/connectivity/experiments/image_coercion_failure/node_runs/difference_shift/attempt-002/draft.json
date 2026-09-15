@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (s : ZMod N), M7.Connectivity.differences (M7.Domain.shift A s) = M7.Connectivity.differences A\nintro N inst A s\nclassical\next x\nchange (∃ a ∈ M7.Domain.shift A s, ∃ b ∈ M7.Domain.shift A s, x = a - b) ↔ (∃ a ∈ A, ∃ b ∈ A, x = a - b)\nconstructor\n· rintro ⟨a, ha, b, hb, h⟩\n  have ha' : a + -s ∈ A := by simpa [M7.Domain.shift] using ha\n  have hb' : b + -s ∈ A := by simpa [M7.Domain.shift] using hb\n  refine ⟨a + -s, ha', b + -s, hb', ?_⟩\n  calc\n    x = a - b := h\n    _ = (a + -s) - (b + -s) := by ring\n· rintro ⟨a, ha, b, hb, h⟩\n  have ha' : a + s ∈ M7.Domain.shift A s := by simpa [M7.Domain.shift] using ha\n  have hb' : b + s ∈ M7.Domain.shift A s := by simpa [M7.Domain.shift] using hb\n  refine ⟨a + s, ha', b + s, hb', ?_⟩\n  calc\n    x = a - b := h\n    _ = (a + s) - (b + s) := by ring",
+  "queries": []
+}

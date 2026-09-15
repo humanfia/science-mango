@@ -1,0 +1,69 @@
+{
+  "id": "one_mem_top",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Connectivity.one_mem_top",
+    "spec_sha256": "997c34706b4a49f96b6d9dcdceeead038b6b5dbf14769bd9f9f4cfa9a25b5e5c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-e4a2gkj2/attempt-001/Candidate_b7db9ba61c14ac37.lean",
+        "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-e4a2gkj2/attempt-001/FrozenTarget_b7db9ba61c14ac37.lean",
+        "feedback": "",
+        "target_sha256": "1d603cba702a9ab3503d83b76f6b0799ee95fe973361f7596985874e7d619de6",
+        "target_olean_sha256": "0a3e2e2a0a0587784349890f671a0a5334cc0496c15200bb6b60aa0e4aaa724b",
+        "source_sha256": "3551f0a6bb3927f702b4324745e8fd1cffdff9c24fc14e7e01e33e23e08fd943",
+        "olean_sha256": "5640ae518deb72a2ab6c1b09a0fd059d9d6092e0869bcbc85939e9e65768a9b5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:51:44.511487+00:00",
+    "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-e4a2gkj2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-e4a2gkj2/attempt-001/Candidate_b7db9ba61c14ac37.lean",
+    "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+    "artifacts": {
+      "scalar_mem": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.scalar_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r*a ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r * a ∈ H\n  intro N inst H a r ha\n  simpa only [nsmul_eq_mul, ZMod.natCast_zmod_val] using H.nsmul_mem ha r.val",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.scalar_mem",
+          "ancestors": [],
+          "spec_sha256": "5274ec289881ac6c07709f67bab8df75ad82fbad8c43d8bd91783765f17db3cf"
+        },
+        "sha256": "410e4b11ba664a225842b4fae4447db527d31b6b491140305b69984624a6de04"
+      },
+      "one_mem_top": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.one_mem_top : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤\n  intro N inst H\n  constructor\n  · intro h\n    apply le_antisymm le_top\n    intro x hx\n    simpa only [mul_one] using M7.Connectivity.scalar_mem N H 1 x h\n  · intro h\n    rw [h]\n    trivial",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.one_mem_top",
+          "ancestors": [
+            "scalar_mem"
+          ],
+          "spec_sha256": "024ec607afd349a205116a392f2f2421cddaba1431f1ecbb520fc09962678487"
+        },
+        "sha256": "5fa45c986b3d1b421f2ad64e5066e9f7ee86b8d9fcb05eb3aca446c349a514ce"
+      }
+    }
+  }
+}

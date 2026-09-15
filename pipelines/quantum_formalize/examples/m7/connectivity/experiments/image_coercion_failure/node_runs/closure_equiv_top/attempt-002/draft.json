@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤\nintro N inst e S\nconstructor\n· intro h\n  have hle : AddSubgroup.closure (e '' S) ≤\n      (AddSubgroup.closure S).comap e.symm.toAddMonoidHom := by\n    apply (AddSubgroup.closure_le _).mpr\n    rintro y ⟨x, hx, rfl⟩\n    change e.symm (e x) ∈ AddSubgroup.closure S\n    simpa using (AddSubgroup.subset_closure hx)\n  apply top_unique\n  intro x hx\n  have hm : e x ∈ AddSubgroup.closure (e '' S) := by\n    rw [h]\n    trivial\n  have hm' := hle hm\n  change e.symm (e x) ∈ AddSubgroup.closure S at hm'\n  simpa using hm'\n· intro h\n  have hle : AddSubgroup.closure S ≤\n      (AddSubgroup.closure (e '' S)).comap e.toAddMonoidHom := by\n    apply (AddSubgroup.closure_le _).mpr\n    intro x hx\n    change e x ∈ AddSubgroup.closure (e '' S)\n    exact AddSubgroup.subset_closure ⟨x, hx, rfl⟩\n  apply top_unique\n  intro x hx\n  have hm : e.symm x ∈ AddSubgroup.closure S := by\n    rw [h]\n    trivial\n  have hm' := hle hm\n  change e (e.symm x) ∈ AddSubgroup.closure (e '' S) at hm'\n  simpa using hm'",
+  "queries": [
+    "AddSubgroup.closure_le",
+    "AddSubgroup.map_closure"
+  ]
+}

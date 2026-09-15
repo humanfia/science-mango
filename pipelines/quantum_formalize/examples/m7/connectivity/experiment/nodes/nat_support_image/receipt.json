@@ -1,0 +1,55 @@
+{
+  "id": "nat_support_image",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Connectivity.nat_support_image",
+    "spec_sha256": "ea3f363ac40f0377526ff41dc32c6a483a30129a19ff8ad30cdfafaed2a1c450",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-_mldy34h/attempt-001/Candidate_e079a294f3cc7491.lean",
+        "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-_mldy34h/attempt-001/FrozenTarget_e079a294f3cc7491.lean",
+        "feedback": "",
+        "target_sha256": "4d29fc0606185ba3f151581c3cda55d4358843fbd9f2874d61aab95db8a17e6b",
+        "target_olean_sha256": "ed39d7d4dd47896bc804835bc2df55968e6da9a4a5a60b69c1fe7a1515a3632c",
+        "source_sha256": "fa214d7524dc7ad3eabbca5cc82eb1de6bb911d392d3a6d56e66c980a2e618cc",
+        "olean_sha256": "c2bad6da2efdaa7c59e6b5f6e09056eebd76a116caab18789851f815862ea8fc",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:49:46.246710+00:00",
+    "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-_mldy34h",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-_mldy34h/attempt-001/Candidate_e079a294f3cc7491.lean",
+    "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+    "artifacts": {
+      "nat_support_image": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.nat_support_image : ∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (fun a : ℕ => (a : ZMod N)) '' ((M7.Supports.natSupport A ∪ M7.Supports.natSupport B : Finset ℕ) : Set ℕ) = (A : Set (ZMod N)) ∪ (B : Set (ZMod N)) := by\n  intro N inst A B\n  classical\n  ext x\n  change (∃ n : ℕ, n ∈ (A.image ZMod.val ∪ B.image ZMod.val) ∧ (n : ZMod N) = x) ↔ (x ∈ A ∨ x ∈ B)\n  constructor\n  · rintro ⟨n, hn, rfl⟩\n    rcases Finset.mem_union.mp hn with hn | hn\n    · rcases Finset.mem_image.mp hn with ⟨a, ha, rfl⟩\n      exact Or.inl (by simpa only [ZMod.natCast_zmod_val] using ha)\n    · rcases Finset.mem_image.mp hn with ⟨b, hb, rfl⟩\n      exact Or.inr (by simpa only [ZMod.natCast_zmod_val] using hb)\n  · intro hx\n    refine ⟨x.val, ?_, ZMod.natCast_zmod_val x⟩\n    rcases hx with hx | hx\n    · exact Finset.mem_union.mpr (Or.inl (Finset.mem_image.mpr ⟨x, hx, rfl⟩))\n    · exact Finset.mem_union.mpr (Or.inr (Finset.mem_image.mpr ⟨x, hx, rfl⟩))",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.nat_support_image",
+          "ancestors": [],
+          "spec_sha256": "ea3f363ac40f0377526ff41dc32c6a483a30129a19ff8ad30cdfafaed2a1c450"
+        },
+        "sha256": "f6af5261f8cbe70195dedde887c17432b55108b47a5ba7817cd50920f4881233"
+      }
+    }
+  }
+}

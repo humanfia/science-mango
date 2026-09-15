@@ -1,0 +1,12 @@
+theorem M7.Connectivity.connected_action : ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Connectivity.Recipe N), M7.Connectivity.connected (M7.Action.act g c) ↔ M7.Connectivity.connected c := by
+  change ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Connectivity.Recipe N), M7.Connectivity.connected (M7.Action.act g c) ↔ M7.Connectivity.connected c
+  intro N inst g c
+  classical
+  have h (S : Set (ZMod N)) :
+      AddSubgroup.closure ((fun x : ZMod N => (g.unit : ZMod N) * x) '' S) = ⊤ ↔
+        AddSubgroup.closure S = ⊤ := by
+    exact M7.Connectivity.closure_equiv_top N (M7.Connectivity.unitEquiv g.unit) S
+  cases he : g.exchange <;>
+    simpa [M7.Connectivity.connected, M7.Action.act, he,
+      M7.Connectivity.difference_affine, Set.image_union, Set.union_comm] using
+      h (M7.Connectivity.differences c.1 ∪ M7.Connectivity.differences c.2)

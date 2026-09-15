@@ -1,0 +1,55 @@
+{
+  "id": "closure_equiv_top",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Connectivity.closure_equiv_top",
+    "spec_sha256": "311f071974818ff75ca1230f938072de1288f0f5140c9c4042a122aa55e91eea",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-zen3_g3c/attempt-001/Candidate_ed48e17028e13f77.lean",
+        "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-zen3_g3c/attempt-001/FrozenTarget_ed48e17028e13f77.lean",
+        "feedback": "",
+        "target_sha256": "db5d0570e8d73b5af13456df413c53baba6fea6480683b978c0324159c91dc81",
+        "target_olean_sha256": "aae0c4cf2c3ee8adc294f3eeaf4f52596cd9410540681f39ff270681ff189889",
+        "source_sha256": "786b8cff62b3a28111ec72adfe1498d0d16a825abfc44e5cc6c2148ff5067607",
+        "olean_sha256": "03d95a855d2eee3d229d9e0fdfef67be06a84816e7eb56aa9dbe21f17eab248e",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:43:54.012263+00:00",
+    "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-zen3_g3c",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-zen3_g3c/attempt-001/Candidate_ed48e17028e13f77.lean",
+    "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+    "artifacts": {
+      "closure_equiv_top": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.closure_equiv_top : ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤\n  intro N inst e S\n  constructor\n  · intro h\n    have hle : AddSubgroup.closure (e '' S) ≤\n        (AddSubgroup.closure S).comap e.symm.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      rintro y ⟨x, hx, rfl⟩\n      change e.symm (e x) ∈ AddSubgroup.closure S\n      simpa using (AddSubgroup.subset_closure hx)\n    apply top_unique\n    intro x hx\n    have hm : e x ∈ AddSubgroup.closure (e '' S) := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e.symm (e x) ∈ AddSubgroup.closure S at hm'\n    simpa using hm'\n  · intro h\n    have hle : AddSubgroup.closure S ≤\n        (AddSubgroup.closure (e '' S)).comap e.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      intro x hx\n      change e x ∈ AddSubgroup.closure (e '' S)\n      exact AddSubgroup.subset_closure ⟨x, hx, rfl⟩\n    apply top_unique\n    intro x hx\n    have hm : e.symm x ∈ AddSubgroup.closure S := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e (e.symm x) ∈ AddSubgroup.closure (e '' S) at hm'\n    simpa using hm'",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.closure_equiv_top",
+          "ancestors": [],
+          "spec_sha256": "311f071974818ff75ca1230f938072de1288f0f5140c9c4042a122aa55e91eea"
+        },
+        "sha256": "27e4595ea06d1f30f2a2305692548f656de232e34242fbdb5087779daa99c939"
+      }
+    }
+  }
+}

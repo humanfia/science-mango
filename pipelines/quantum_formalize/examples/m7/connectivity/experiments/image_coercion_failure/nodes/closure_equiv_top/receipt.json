@@ -1,0 +1,61 @@
+{
+  "id": "closure_equiv_top",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Connectivity.closure_equiv_top",
+    "spec_sha256": "311f071974818ff75ca1230f938072de1288f0f5140c9c4042a122aa55e91eea",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-001/Candidate_af4e5b5911130b8d.lean:9:12: error(lean.unknownIdentifier): Unknown constant `AddSubgroup.closure_le.mpr`\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-001/Candidate_af4e5b5911130b8d.lean:10:12: error: No goals to be solved\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-002/Candidate_ebbdcc927e350b6d.lean",
+        "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-002/FrozenTarget_ebbdcc927e350b6d.lean",
+        "feedback": "",
+        "target_sha256": "db5d0570e8d73b5af13456df413c53baba6fea6480683b978c0324159c91dc81",
+        "target_olean_sha256": "1f611dd0a9f6c875d2d7d96ef25b8415ba2448a55eda7eeba8573391dde25ac5",
+        "source_sha256": "ec75e7221d92f6dffbd00e135ed9acbcc80652af079ce9c68b4c5c315a9c7fec",
+        "olean_sha256": "172d194b33ed83cff74b58ab3cf65f380373e39b5a5374b8fcaa365bb0e797e9",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T18:20:35.755838+00:00",
+    "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-002/Candidate_ebbdcc927e350b6d.lean",
+    "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+    "artifacts": {
+      "closure_equiv_top": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.closure_equiv_top : ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤\n  intro N inst e S\n  constructor\n  · intro h\n    have hle : AddSubgroup.closure (e '' S) ≤\n        (AddSubgroup.closure S).comap e.symm.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      rintro y ⟨x, hx, rfl⟩\n      change e.symm (e x) ∈ AddSubgroup.closure S\n      simpa using (AddSubgroup.subset_closure hx)\n    apply top_unique\n    intro x hx\n    have hm : e x ∈ AddSubgroup.closure (e '' S) := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e.symm (e x) ∈ AddSubgroup.closure S at hm'\n    simpa using hm'\n  · intro h\n    have hle : AddSubgroup.closure S ≤\n        (AddSubgroup.closure (e '' S)).comap e.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      intro x hx\n      change e x ∈ AddSubgroup.closure (e '' S)\n      exact AddSubgroup.subset_closure ⟨x, hx, rfl⟩\n    apply top_unique\n    intro x hx\n    have hm : e.symm x ∈ AddSubgroup.closure S := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e (e.symm x) ∈ AddSubgroup.closure (e '' S) at hm'\n    simpa using hm'",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.closure_equiv_top",
+          "ancestors": [],
+          "spec_sha256": "311f071974818ff75ca1230f938072de1288f0f5140c9c4042a122aa55e91eea"
+        },
+        "sha256": "27e4595ea06d1f30f2a2305692548f656de232e34242fbdb5087779daa99c939"
+      }
+    }
+  }
+}

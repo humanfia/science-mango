@@ -1,0 +1,344 @@
+[
+  {
+    "id": "difference_shift",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Connectivity.difference_shift",
+      "statement": "∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (s : ZMod N), M7.Connectivity.differences (M7.Domain.shift A s) = M7.Connectivity.differences A",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Extensionality and literal finite image membership. The two translations cancel in differences. Both directions, including empty A. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "difference_affine",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Connectivity.difference_affine",
+      "statement": "∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), M7.Connectivity.differences (A.image (M7.Action.affine u s)) = (fun x : ZMod N => (u : ZMod N)*x) '' M7.Connectivity.differences A",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Unpack two image members and subtract; distributivity cancels s. Reverse chooses original two support members. Set image, not multiset. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "closure_equiv_top",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Connectivity.closure_equiv_top",
+      "statement": "∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Use AddSubgroup.map_closure for e.toAddMonoidHom and inverse/surjectivity. This is used only for the literal unitEquiv, not a free final action isometry premise. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "connected_action",
+    "dependencies": [
+      "difference_affine",
+      "closure_equiv_top"
+    ],
+    "spec": {
+      "name": "M7.Connectivity.connected_action",
+      "statement": "∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Connectivity.Recipe N), M7.Connectivity.connected (M7.Action.act g c) ↔ M7.Connectivity.connected c",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Unfold connected and act, rewrite difference_affine both blocks. Split g.exchange Bool; Set.image_union combines images, union_comm handles exchange, closure_equiv_top instantiated with unitEquiv g.unit removes the literal unit image. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "connected_shift",
+    "dependencies": [
+      "difference_shift"
+    ],
+    "spec": {
+      "name": "M7.Connectivity.connected_shift",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Connectivity.Recipe N) (s t : ZMod N), M7.Connectivity.connected (M7.Domain.shift c.1 s, M7.Domain.shift c.2 t) ↔ M7.Connectivity.connected c",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Unfold connected and rewrite difference_shift twice. This is actual independent translation invariance of differences, not raw exponent gcd invariance. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "scalar_mem",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Connectivity.scalar_mem",
+      "statement": "∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r*a ∈ H",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Every r is natural cast r.val. H.nsmul_mem ha r.val gives r*a using nsmul_eq_mul and ZMod.natCast_zmod_val. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "one_mem_top",
+    "dependencies": [
+      "scalar_mem"
+    ],
+    "spec": {
+      "name": "M7.Connectivity.one_mem_top",
+      "statement": "∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "If H contains one, scalar_mem with scalar x puts every x in H. Reverse top membership. N=1 is retained. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "gcd_mem",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Connectivity.gcd_mem",
+      "statement": "∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Finset induction, gcd_empty=0 and gcd_insert. For insert use Nat.gcd_eq_gcd_ab (integer Bezout), cast to ZMod N and H.zsmul_mem on the two previous members, then add_mem. Preserve empty S, no coprimality assumed. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "finite_generation_gcd",
+    "dependencies": [
+      "gcd_mem",
+      "scalar_mem",
+      "one_mem_top"
+    ],
+    "spec": {
+      "name": "M7.Connectivity.finite_generation_gcd",
+      "statement": "∀ (N : ℕ) [NeZero N] (S : Finset ℕ), AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ)) = ⊤ ↔ Nat.gcd N (S.gcd id) = 1",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Let g=S.gcd id. gcd_mem puts cast g in generated H. All generators lie in zmultiples(cast g) by Finset.gcd_dvd; thus H≤zmultiples g. H=top implies one is an integer multiple of g, hence IsUnit(cast g); use ZMod.isUnit_iff_coprime and Nat.gcd_comm. Conversely gcd1 supplies IsUnit g and scalar_mem with inverse puts one in H, then one_mem_top. Do not assume a generator individually coprime; only joint gcd suffices. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "anchored_closure",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Connectivity.anchored_closure",
+      "statement": "∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → AddSubgroup.closure (M7.Connectivity.differences A ∪ M7.Connectivity.differences B) = AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N)))",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Two closure inclusions. Difference of support elements belongs to subgroup generated by union. Conversely a=a-0 gives a difference in its own anchored block. No raw unanchored gcd claim. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "nat_support_image",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Connectivity.nat_support_image",
+      "statement": "∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (fun a : ℕ => (a : ZMod N)) '' ((M7.Supports.natSupport A ∪ M7.Supports.natSupport B : Finset ℕ) : Set ℕ) = (A : Set (ZMod N)) ∪ (B : Set (ZMod N))",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Unpack Finset union/image memberships and use ZMod.natCast_zmod_val. This directly identifies literal residue supports, not chosen encodings. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "anchored_gcd",
+    "dependencies": [
+      "anchored_closure",
+      "nat_support_image",
+      "finite_generation_gcd"
+    ],
+    "spec": {
+      "name": "M7.Connectivity.anchored_gcd",
+      "statement": "∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → (M7.Connectivity.connected (A,B) ↔ M7.Domain.connectivityGcd A B = 1)",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Unfold connected and anchored arithmetic connectivityGcd. Rewrite anchored_closure and backwards nat_support_image; exact finite_generation_gcd. Both directions required, especially connected→gcd. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "connected_admissible",
+    "dependencies": [
+      "anchored_gcd"
+    ],
+    "spec": {
+      "name": "M7.Connectivity.connected_admissible",
+      "statement": "∀ (N w : ℕ) [NeZero N] (c : M7.Connectivity.Recipe N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → M6.Final.Admissible N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Use full anchored_gcd forward direction, then accepted M7.Domain.admissible. The public premise is the original generated subgroup connectedness, not supplied gcd. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "anchor_admissible",
+    "dependencies": [
+      "connected_shift",
+      "connected_admissible"
+    ],
+    "spec": {
+      "name": "M7.Connectivity.anchor_admissible",
+      "statement": "∀ (N w : ℕ) [NeZero N] (c : M7.Connectivity.Recipe N), 0 < w → c.1.card = w → c.2.card = w → M7.Connectivity.connected c → ∃ q ∈ c.1, ∃ r ∈ c.2, M6.Final.Admissible N (M7.Supports.polynomial (M7.Domain.shift c.1 (-q))) (M7.Supports.polynomial (M7.Domain.shift c.2 (-r)))",
+      "imports": [
+        "M7Connectivity"
+      ],
+      "context": "",
+      "queries": [
+        "AddSubgroup closure image additive equivalence",
+        "ZMod isUnit_iff_coprime Finset gcd Bezout"
+      ],
+      "guidance": "Positive card supplies actual members q,r. Existing Domain.shift_card and shift_anchor give equal weight and anchors; connected_shift preserves original connectedness. Apply connected_admissible. Includes w=1,N=1; no given normalization witness premise. Use original exact statement. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ORIGINAL_CONNECTED_INPUT",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst A B\nclassical\napply Set.ext\nintro x\nchange (∃ n : ℕ, n ∈ (A.image (fun a => a.val) ∪ B.image (fun b => b.val)) ∧ (n : ZMod N) = x) ↔ (x ∈ A ∨ x ∈ B)\nconstructor\n· rintro ⟨n, hn, hnx⟩\n  rcases Finset.mem_union.mp hn with ha | hb\n  · rcases Finset.mem_image.mp ha with ⟨a, ha, rfl⟩\n    have hax : a = x := by\n      simpa only [ZMod.natCast_zmod_val] using hnx\n    exact Or.inl (hax ▸ ha)\n  · rcases Finset.mem_image.mp hb with ⟨b, hb, rfl⟩\n    have hbx : b = x := by\n      simpa only [ZMod.natCast_zmod_val] using hnx\n    exact Or.inr (hbx ▸ hb)\n· intro hx\n  refine ⟨x.val, ?_, ZMod.natCast_zmod_val x⟩\n  rcases hx with ha | hb\n  · exact Finset.mem_union.mpr (Or.inl (Finset.mem_image.mpr ⟨x, ha, rfl⟩))\n  · exact Finset.mem_union.mpr (Or.inr (Finset.mem_image.mpr ⟨x, hb, rfl⟩))",
+  "queries": []
+}

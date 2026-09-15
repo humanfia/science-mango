@@ -1,0 +1,55 @@
+{
+  "id": "anchored_closure",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Connectivity.anchored_closure",
+    "spec_sha256": "9d6d2c60c42d45afb0dd627d84d704041bf0f737379de12b0291651ce2717134",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-0pq1ie5b/attempt-001/Candidate_09120d0290e14fcf.lean",
+        "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-0pq1ie5b/attempt-001/FrozenTarget_09120d0290e14fcf.lean",
+        "feedback": "",
+        "target_sha256": "1a815b7c5272b8004a7aaf561a873da81caf815e33e941db7339d150b8d35f08",
+        "target_olean_sha256": "bc8484934448dea2fe88b6ca041baa2c0d769aee1ac39151e20bce42d682715b",
+        "source_sha256": "853ff07d01e4addb486b680fb14e6c43cae463b74daade600fc5b5db849ea664",
+        "olean_sha256": "57ef288a5e7a2ccfcf7332fba7046b221b282d715dee5e30caed23b00b779ab5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:20:35.709175+00:00",
+    "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-0pq1ie5b",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-0pq1ie5b/attempt-001/Candidate_09120d0290e14fcf.lean",
+    "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+    "artifacts": {
+      "anchored_closure": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.anchored_closure : ∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → AddSubgroup.closure (M7.Connectivity.differences A ∪ M7.Connectivity.differences B) = AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N))) := by\n  intro N inst A B hA hB\n  apply le_antisymm\n  · apply (AddSubgroup.closure_le _).2\n    intro x hx\n    rcases hx with hx | hx\n    · rcases hx with ⟨a, ha, b, hb, h⟩\n      subst x\n      exact (AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N)))).sub_mem\n        (AddSubgroup.subset_closure (Or.inl ha))\n        (AddSubgroup.subset_closure (Or.inl hb))\n    · rcases hx with ⟨a, ha, b, hb, h⟩\n      subst x\n      exact (AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N)))).sub_mem\n        (AddSubgroup.subset_closure (Or.inr ha))\n        (AddSubgroup.subset_closure (Or.inr hb))\n  · apply (AddSubgroup.closure_le _).2\n    intro x hx\n    apply AddSubgroup.subset_closure\n    rcases hx with hx | hx\n    · left\n      refine ⟨x, hx, 0, hA, ?_⟩\n      simp\n    · right\n      refine ⟨x, hx, 0, hB, ?_⟩\n      simp",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.anchored_closure",
+          "ancestors": [],
+          "spec_sha256": "9d6d2c60c42d45afb0dd627d84d704041bf0f737379de12b0291651ce2717134"
+        },
+        "sha256": "9e66c0c41106dc46266faf64f95e3781034af039d9455a3a9a4fe01f4fb79470"
+      }
+    }
+  }
+}

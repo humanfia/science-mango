@@ -1,0 +1,773 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T18:40:59.960308+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "anchored_closure": {
+      "id": "anchored_closure",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.anchored_closure",
+        "spec_sha256": "9d6d2c60c42d45afb0dd627d84d704041bf0f737379de12b0291651ce2717134",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-0pq1ie5b/attempt-001/Candidate_09120d0290e14fcf.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-0pq1ie5b/attempt-001/FrozenTarget_09120d0290e14fcf.lean",
+            "feedback": "",
+            "target_sha256": "1a815b7c5272b8004a7aaf561a873da81caf815e33e941db7339d150b8d35f08",
+            "target_olean_sha256": "bc8484934448dea2fe88b6ca041baa2c0d769aee1ac39151e20bce42d682715b",
+            "source_sha256": "853ff07d01e4addb486b680fb14e6c43cae463b74daade600fc5b5db849ea664",
+            "olean_sha256": "57ef288a5e7a2ccfcf7332fba7046b221b282d715dee5e30caed23b00b779ab5",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:20:35.709175+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-0pq1ie5b",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-0pq1ie5b/attempt-001/Candidate_09120d0290e14fcf.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "anchored_closure": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.anchored_closure : ∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → AddSubgroup.closure (M7.Connectivity.differences A ∪ M7.Connectivity.differences B) = AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N))) := by\n  intro N inst A B hA hB\n  apply le_antisymm\n  · apply (AddSubgroup.closure_le _).2\n    intro x hx\n    rcases hx with hx | hx\n    · rcases hx with ⟨a, ha, b, hb, h⟩\n      subst x\n      exact (AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N)))).sub_mem\n        (AddSubgroup.subset_closure (Or.inl ha))\n        (AddSubgroup.subset_closure (Or.inl hb))\n    · rcases hx with ⟨a, ha, b, hb, h⟩\n      subst x\n      exact (AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N)))).sub_mem\n        (AddSubgroup.subset_closure (Or.inr ha))\n        (AddSubgroup.subset_closure (Or.inr hb))\n  · apply (AddSubgroup.closure_le _).2\n    intro x hx\n    apply AddSubgroup.subset_closure\n    rcases hx with hx | hx\n    · left\n      refine ⟨x, hx, 0, hA, ?_⟩\n      simp\n    · right\n      refine ⟨x, hx, 0, hB, ?_⟩\n      simp",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.anchored_closure",
+              "ancestors": [],
+              "spec_sha256": "9d6d2c60c42d45afb0dd627d84d704041bf0f737379de12b0291651ce2717134"
+            },
+            "sha256": "9e66c0c41106dc46266faf64f95e3781034af039d9455a3a9a4fe01f4fb79470"
+          }
+        }
+      }
+    },
+    "closure_equiv_top": {
+      "id": "closure_equiv_top",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.closure_equiv_top",
+        "spec_sha256": "311f071974818ff75ca1230f938072de1288f0f5140c9c4042a122aa55e91eea",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-001/Candidate_af4e5b5911130b8d.lean:9:12: error(lean.unknownIdentifier): Unknown constant `AddSubgroup.closure_le.mpr`\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-001/Candidate_af4e5b5911130b8d.lean:10:12: error: No goals to be solved\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-002/Candidate_ebbdcc927e350b6d.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-002/FrozenTarget_ebbdcc927e350b6d.lean",
+            "feedback": "",
+            "target_sha256": "db5d0570e8d73b5af13456df413c53baba6fea6480683b978c0324159c91dc81",
+            "target_olean_sha256": "1f611dd0a9f6c875d2d7d96ef25b8415ba2448a55eda7eeba8573391dde25ac5",
+            "source_sha256": "ec75e7221d92f6dffbd00e135ed9acbcc80652af079ce9c68b4c5c315a9c7fec",
+            "olean_sha256": "172d194b33ed83cff74b58ab3cf65f380373e39b5a5374b8fcaa365bb0e797e9",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T18:20:35.755838+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-cmmjr3c2/attempt-002/Candidate_ebbdcc927e350b6d.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "closure_equiv_top": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.closure_equiv_top : ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤\n  intro N inst e S\n  constructor\n  · intro h\n    have hle : AddSubgroup.closure (e '' S) ≤\n        (AddSubgroup.closure S).comap e.symm.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      rintro y ⟨x, hx, rfl⟩\n      change e.symm (e x) ∈ AddSubgroup.closure S\n      simpa using (AddSubgroup.subset_closure hx)\n    apply top_unique\n    intro x hx\n    have hm : e x ∈ AddSubgroup.closure (e '' S) := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e.symm (e x) ∈ AddSubgroup.closure S at hm'\n    simpa using hm'\n  · intro h\n    have hle : AddSubgroup.closure S ≤\n        (AddSubgroup.closure (e '' S)).comap e.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      intro x hx\n      change e x ∈ AddSubgroup.closure (e '' S)\n      exact AddSubgroup.subset_closure ⟨x, hx, rfl⟩\n    apply top_unique\n    intro x hx\n    have hm : e.symm x ∈ AddSubgroup.closure S := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e (e.symm x) ∈ AddSubgroup.closure (e '' S) at hm'\n    simpa using hm'",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.closure_equiv_top",
+              "ancestors": [],
+              "spec_sha256": "311f071974818ff75ca1230f938072de1288f0f5140c9c4042a122aa55e91eea"
+            },
+            "sha256": "27e4595ea06d1f30f2a2305692548f656de232e34242fbdb5087779daa99c939"
+          }
+        }
+      }
+    },
+    "difference_affine": {
+      "id": "difference_affine",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.difference_affine",
+        "spec_sha256": "9c6c10f870763a0f006afda191dd2dc69f6c31ebf91dcabf04f9dc26bae43c86",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc/attempt-001/Candidate_3d6c9322e5661e13.lean:13:11: error(lean.unknownIdentifier): Unknown constant `Set.mem_image.mpr`\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc/attempt-001/Candidate_3d6c9322e5661e13.lean:14:4: error: No goals to be solved\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc/attempt-001/Candidate_3d6c9322e5661e13.lean:16:11: error(lean.unknownIdentifier): Unknown constant `Set.mem_image.mp`\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc/attempt-001/Candidate_3d6c9322e5661e13.lean:16:36: error: Tactic `rcases` failed: `x✝ : ?m.132` is not an inductive datatype\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc/attempt-002/Candidate_f1f71014ec3155d6.lean:12:23: error: Application type mismatch: The argument\n  ha\nhas type\n  Action.affine u s a ∈ Finset.image (Action.affine u s) A\nbut is expected to have type\n  a ∈ A\nin the application\n  And.intro ha\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc/attempt-002/Candidate_f1f71014ec3155d6.lean:12:30: error: Application type mismatch: The argument\n  hb\nhas type\n  Action.affine u s b ∈ Finset.image (Action.affine u s) A\nbut is expected to have type\n  b ∈ A\nin the application\n  And.intro hb\n",
+            "attempt": 2
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc/attempt-003/Candidate_d2e7b7ae06843012.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc/attempt-003/FrozenTarget_d2e7b7ae06843012.lean",
+            "feedback": "",
+            "target_sha256": "c713baac8f5b20531261dee55f57cb0e660be95af44893616fb17028013e88e2",
+            "target_olean_sha256": "11ed2507128d6bfb29c85cd60f9ac75e18a6ff7b577af45398fec7a194aae0a7",
+            "source_sha256": "c723f2264069e0035a1e2fb23348c505d5961b77d05a7b62e0a55eca017222e5",
+            "olean_sha256": "897eeb333025b021c1975efab5d1464393eb39c5dd2619fa2c8a35ad3d2f0c84",
+            "attempt": 3
+          }
+        ],
+        "created_at": "2026-09-15T18:22:44.602412+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 3,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-ksx539oc/attempt-003/Candidate_d2e7b7ae06843012.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "difference_affine": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.difference_affine : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), M7.Connectivity.differences (A.image (M7.Action.affine u s)) = (fun x : ZMod N => (u : ZMod N)*x) '' M7.Connectivity.differences A := by\n  intro N inst A u s\n  classical\n  apply Set.ext\n  intro x\n  simp only [M7.Connectivity.differences, Set.mem_setOf_eq, Set.mem_image,\n    Finset.mem_image]\n  constructor\n  · rintro ⟨a, ⟨a₀, ha₀, rfl⟩, b, ⟨b₀, hb₀, rfl⟩, hx⟩\n    refine ⟨a₀ - b₀, ⟨a₀, ha₀, b₀, hb₀, rfl⟩, ?_⟩\n    first\n    | simpa [M7.Action.affine, mul_sub] using hx\n    | simpa [M7.Action.affine, mul_sub] using hx.symm\n  · rintro ⟨y, ⟨a, ha, b, hb, rfl⟩, hx⟩\n    refine ⟨M7.Action.affine u s a, ⟨a, ha, rfl⟩,\n      M7.Action.affine u s b, ⟨b, hb, rfl⟩, ?_⟩\n    first\n    | simpa [M7.Action.affine, mul_sub] using hx\n    | simpa [M7.Action.affine, mul_sub] using hx.symm",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.difference_affine",
+              "ancestors": [],
+              "spec_sha256": "9c6c10f870763a0f006afda191dd2dc69f6c31ebf91dcabf04f9dc26bae43c86"
+            },
+            "sha256": "cb6e001c9a22ab9cd24711ec08d7d086c995d79eefaa5b4159fe4d08f6a9698b"
+          }
+        }
+      }
+    },
+    "connected_action": {
+      "id": "connected_action",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.connected_action",
+        "spec_sha256": "718ab769ac5b4b96c6900fc69ff3bf4625e9efab1b6d5e9da9e845e31c47cf62",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-mgk7dmnw/attempt-001/Candidate_7e3c300a4c556f8b.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-mgk7dmnw/attempt-001/FrozenTarget_7e3c300a4c556f8b.lean",
+            "feedback": "",
+            "target_sha256": "ae13dea001b7e32f5b18c1ba978e5700ab61736be614d0abe02ba1c47cf8b113",
+            "target_olean_sha256": "a068db79e38529b0c65473fe5958cbd88a135dba415d31f5f70a60a173f21ab2",
+            "source_sha256": "c4258992c6fdce3393eb5847f4e29c3b4578b71b1a5aab65ad620a47cf45b852",
+            "olean_sha256": "0cc749e23a7f5dc61a871375be3c8f4b0816587dc1714dfdefb5c9563f527b5c",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:26:59.821238+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-mgk7dmnw",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-mgk7dmnw/attempt-001/Candidate_7e3c300a4c556f8b.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "difference_affine": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.difference_affine : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), M7.Connectivity.differences (A.image (M7.Action.affine u s)) = (fun x : ZMod N => (u : ZMod N)*x) '' M7.Connectivity.differences A := by\n  intro N inst A u s\n  classical\n  apply Set.ext\n  intro x\n  simp only [M7.Connectivity.differences, Set.mem_setOf_eq, Set.mem_image,\n    Finset.mem_image]\n  constructor\n  · rintro ⟨a, ⟨a₀, ha₀, rfl⟩, b, ⟨b₀, hb₀, rfl⟩, hx⟩\n    refine ⟨a₀ - b₀, ⟨a₀, ha₀, b₀, hb₀, rfl⟩, ?_⟩\n    first\n    | simpa [M7.Action.affine, mul_sub] using hx\n    | simpa [M7.Action.affine, mul_sub] using hx.symm\n  · rintro ⟨y, ⟨a, ha, b, hb, rfl⟩, hx⟩\n    refine ⟨M7.Action.affine u s a, ⟨a, ha, rfl⟩,\n      M7.Action.affine u s b, ⟨b, hb, rfl⟩, ?_⟩\n    first\n    | simpa [M7.Action.affine, mul_sub] using hx\n    | simpa [M7.Action.affine, mul_sub] using hx.symm",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.difference_affine",
+              "ancestors": [],
+              "spec_sha256": "9c6c10f870763a0f006afda191dd2dc69f6c31ebf91dcabf04f9dc26bae43c86"
+            },
+            "sha256": "cb6e001c9a22ab9cd24711ec08d7d086c995d79eefaa5b4159fe4d08f6a9698b"
+          },
+          "closure_equiv_top": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.closure_equiv_top : ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (e : ZMod N ≃+ ZMod N) (S : Set (ZMod N)), AddSubgroup.closure (e '' S) = ⊤ ↔ AddSubgroup.closure S = ⊤\n  intro N inst e S\n  constructor\n  · intro h\n    have hle : AddSubgroup.closure (e '' S) ≤\n        (AddSubgroup.closure S).comap e.symm.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      rintro y ⟨x, hx, rfl⟩\n      change e.symm (e x) ∈ AddSubgroup.closure S\n      simpa using (AddSubgroup.subset_closure hx)\n    apply top_unique\n    intro x hx\n    have hm : e x ∈ AddSubgroup.closure (e '' S) := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e.symm (e x) ∈ AddSubgroup.closure S at hm'\n    simpa using hm'\n  · intro h\n    have hle : AddSubgroup.closure S ≤\n        (AddSubgroup.closure (e '' S)).comap e.toAddMonoidHom := by\n      apply (AddSubgroup.closure_le _).mpr\n      intro x hx\n      change e x ∈ AddSubgroup.closure (e '' S)\n      exact AddSubgroup.subset_closure ⟨x, hx, rfl⟩\n    apply top_unique\n    intro x hx\n    have hm : e.symm x ∈ AddSubgroup.closure S := by\n      rw [h]\n      trivial\n    have hm' := hle hm\n    change e (e.symm x) ∈ AddSubgroup.closure (e '' S) at hm'\n    simpa using hm'",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.closure_equiv_top",
+              "ancestors": [],
+              "spec_sha256": "311f071974818ff75ca1230f938072de1288f0f5140c9c4042a122aa55e91eea"
+            },
+            "sha256": "27e4595ea06d1f30f2a2305692548f656de232e34242fbdb5087779daa99c939"
+          },
+          "connected_action": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.connected_action : ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Connectivity.Recipe N), M7.Connectivity.connected (M7.Action.act g c) ↔ M7.Connectivity.connected c := by\n  change ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Connectivity.Recipe N), M7.Connectivity.connected (M7.Action.act g c) ↔ M7.Connectivity.connected c\n  intro N inst g c\n  classical\n  have h (S : Set (ZMod N)) :\n      AddSubgroup.closure ((fun x : ZMod N => (g.unit : ZMod N) * x) '' S) = ⊤ ↔\n        AddSubgroup.closure S = ⊤ := by\n    exact M7.Connectivity.closure_equiv_top N (M7.Connectivity.unitEquiv g.unit) S\n  cases he : g.exchange <;>\n    simpa [M7.Connectivity.connected, M7.Action.act, he,\n      M7.Connectivity.difference_affine, Set.image_union, Set.union_comm] using\n      h (M7.Connectivity.differences c.1 ∪ M7.Connectivity.differences c.2)",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.connected_action",
+              "ancestors": [
+                "closure_equiv_top",
+                "difference_affine"
+              ],
+              "spec_sha256": "f5b327994fd64f6ac210b6b464ead3a87c171cf315ff334f81e94f7f79791c63"
+            },
+            "sha256": "e4baaf054f7dfcad5076fbeecf918d24f7a008910f1ced897a7efe1d5a8a2258"
+          }
+        }
+      }
+    },
+    "difference_shift": {
+      "id": "difference_shift",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.difference_shift",
+        "spec_sha256": "51e18c24e94d591a779bdc02717b14b45bdbbbfdd932619953f3afc8d9643f1f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven/attempt-001/Candidate_2e122ea1ce14ae28.lean:8:69: warning: aesop: failed to prove the goal after exhaustive search.\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven/attempt-001/Candidate_2e122ea1ce14ae28.lean:2:73: error: unsolved goals\ncase mp\nN : ℕ\ninst : NeZero N\nA : Finset (ZMod N)\ns w : ZMod N\nleft : w + -s ∈ A\nw_1 : ZMod N\nleft_1 : w_1 + -s ∈ A\n⊢ ∃ a ∈ A, ∃ b ∈ A, w - w_1 = a - b\n\ncase mpr\nN : ℕ\ninst : NeZero N\nA : Finset (ZMod N)\ns w : ZMod N\nleft : w ∈ A\nw_1 : ZMod N\nleft_1 : w_1 ∈ A\n⊢ ∃ a, a + -s ∈ A ∧ ∃ b, b + -s ∈ A ∧ w - w_1 = a - b\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven/attempt-001/Candidate_2e122ea1ce14ae28.lean:7:54: warning: This simp argument is unused:\n  Finset.mem_image\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Connectivity.differences, M7.Domain.shift, exists_and_left, exists_and_right,\n    add_sub_add_right_eq_sub]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven/attempt-001/Candidate_2e122ea1ce14ae28.lean:8:4: warning: This simp argument is unused:\n  exists_and_left\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Connectivity.differences, M7.Domain.shift, Finset.mem_image, exists_and_right,\n    add_sub_add_right_eq_sub]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven/attempt-001/Candidate_2e122ea1ce14ae28.lean:8:21: warning: This simp argument is unused:\n  exists_and_right\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Connectivity.differences, M7.Domain.shift, Finset.mem_image, exists_and_left,\n    add_sub_add_right_eq_sub]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven/attempt-001/Candidate_2e122ea1ce14ae28.lean:8:39: warning: This simp argument is unused:\n  add_sub_add_right_eq_sub\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Connectivity.differences, M7.Domain.shift, Finset.mem_image, exists_and_left, exists_and_right]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven/attempt-002/Candidate_f235ff3ee66df5db.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven/attempt-002/FrozenTarget_f235ff3ee66df5db.lean",
+            "feedback": "",
+            "target_sha256": "bdc848f92d751a2a614fd136554faa7e5ae6650cd5ad3275365e29d49a44c759",
+            "target_olean_sha256": "183799dd64702f957321b863133dbb8e2a757274a742c247fc8e13e41df6de8c",
+            "source_sha256": "64441685fc167fa87f21c7c4101f09f6b8c6d4be245334fb0e31b7c8a5eabaa8",
+            "olean_sha256": "a8b7aa66ec7f92d0fa7767a20fd5df1d06a6219226694e4f0844605ec39e2124",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T18:23:59.830217+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-h10rzven/attempt-002/Candidate_f235ff3ee66df5db.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "difference_shift": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.difference_shift : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (s : ZMod N), M7.Connectivity.differences (M7.Domain.shift A s) = M7.Connectivity.differences A := by\n  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (s : ZMod N), M7.Connectivity.differences (M7.Domain.shift A s) = M7.Connectivity.differences A\n  intro N inst A s\n  classical\n  ext x\n  change (∃ a ∈ M7.Domain.shift A s, ∃ b ∈ M7.Domain.shift A s, x = a - b) ↔ (∃ a ∈ A, ∃ b ∈ A, x = a - b)\n  constructor\n  · rintro ⟨a, ha, b, hb, h⟩\n    have ha' : a + -s ∈ A := by simpa [M7.Domain.shift] using ha\n    have hb' : b + -s ∈ A := by simpa [M7.Domain.shift] using hb\n    refine ⟨a + -s, ha', b + -s, hb', ?_⟩\n    calc\n      x = a - b := h\n      _ = (a + -s) - (b + -s) := by ring\n  · rintro ⟨a, ha, b, hb, h⟩\n    have ha' : a + s ∈ M7.Domain.shift A s := by simpa [M7.Domain.shift] using ha\n    have hb' : b + s ∈ M7.Domain.shift A s := by simpa [M7.Domain.shift] using hb\n    refine ⟨a + s, ha', b + s, hb', ?_⟩\n    calc\n      x = a - b := h\n      _ = (a + s) - (b + s) := by ring",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.difference_shift",
+              "ancestors": [],
+              "spec_sha256": "51e18c24e94d591a779bdc02717b14b45bdbbbfdd932619953f3afc8d9643f1f"
+            },
+            "sha256": "d0bc3e412c86186c29d2110499456107f812b52a4bfec32485850fbeecf770e8"
+          }
+        }
+      }
+    },
+    "connected_shift": {
+      "id": "connected_shift",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.connected_shift",
+        "spec_sha256": "fbec3ff174a052f27d70029517beb3f16d68daeda12eb870add3bc3244c4a965",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-pjoeariv/attempt-001/Candidate_7e78eeb180e012d8.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-pjoeariv/attempt-001/FrozenTarget_7e78eeb180e012d8.lean",
+            "feedback": "",
+            "target_sha256": "0aef692b06592725dc64530a4b3485a3c57fe82645e1776cac41487d94b5cc99",
+            "target_olean_sha256": "31b49cbf49cb11f7da1e0e1b69afffee4a99724a5c0e2a213d2c17260292edeb",
+            "source_sha256": "c062337b3b6ded509ca7b52cfd98a2de476623271405e2d09e7c31a14dc260c1",
+            "olean_sha256": "d7cbf0ba9beafc0663325934742508b1fc53ae1ef562939d114acd6e49fbc496",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:27:16.108991+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-pjoeariv",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-pjoeariv/attempt-001/Candidate_7e78eeb180e012d8.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "difference_shift": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.difference_shift : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (s : ZMod N), M7.Connectivity.differences (M7.Domain.shift A s) = M7.Connectivity.differences A := by\n  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (s : ZMod N), M7.Connectivity.differences (M7.Domain.shift A s) = M7.Connectivity.differences A\n  intro N inst A s\n  classical\n  ext x\n  change (∃ a ∈ M7.Domain.shift A s, ∃ b ∈ M7.Domain.shift A s, x = a - b) ↔ (∃ a ∈ A, ∃ b ∈ A, x = a - b)\n  constructor\n  · rintro ⟨a, ha, b, hb, h⟩\n    have ha' : a + -s ∈ A := by simpa [M7.Domain.shift] using ha\n    have hb' : b + -s ∈ A := by simpa [M7.Domain.shift] using hb\n    refine ⟨a + -s, ha', b + -s, hb', ?_⟩\n    calc\n      x = a - b := h\n      _ = (a + -s) - (b + -s) := by ring\n  · rintro ⟨a, ha, b, hb, h⟩\n    have ha' : a + s ∈ M7.Domain.shift A s := by simpa [M7.Domain.shift] using ha\n    have hb' : b + s ∈ M7.Domain.shift A s := by simpa [M7.Domain.shift] using hb\n    refine ⟨a + s, ha', b + s, hb', ?_⟩\n    calc\n      x = a - b := h\n      _ = (a + s) - (b + s) := by ring",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.difference_shift",
+              "ancestors": [],
+              "spec_sha256": "51e18c24e94d591a779bdc02717b14b45bdbbbfdd932619953f3afc8d9643f1f"
+            },
+            "sha256": "d0bc3e412c86186c29d2110499456107f812b52a4bfec32485850fbeecf770e8"
+          },
+          "connected_shift": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.connected_shift : ∀ (N : ℕ) [NeZero N] (c : M7.Connectivity.Recipe N) (s t : ZMod N), M7.Connectivity.connected (M7.Domain.shift c.1 s, M7.Domain.shift c.2 t) ↔ M7.Connectivity.connected c := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Connectivity.Recipe N) (s t : ZMod N), M7.Connectivity.connected (M7.Domain.shift c.1 s, M7.Domain.shift c.2 t) ↔ M7.Connectivity.connected c\n  intro N inst c s t\n  simp only [M7.Connectivity.connected, M7.Connectivity.difference_shift]",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.connected_shift",
+              "ancestors": [
+                "difference_shift"
+              ],
+              "spec_sha256": "1754d4c2aeabfa069e330458697f42e8928de723f6669ebec03a137a1fbf3d67"
+            },
+            "sha256": "33c7b7a1043186ad579c42ecb90ab4002c5352258d1aa16764e12e61ff5fcd49"
+          }
+        }
+      }
+    },
+    "gcd_mem": {
+      "id": "gcd_mem",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.gcd_mem",
+        "spec_sha256": "d6483bc3be42bdd1ed131adc343ad5e6029031d681a6554972ff592446e9f3f7",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-unh7rce7/attempt-001/Candidate_1f3b66a1f205b3cd.lean:9:6: warning: try 'simp' instead of 'simpa'\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-unh7rce7/attempt-001/Candidate_1f3b66a1f205b3cd.lean:13:18: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  NormalizedGCDMonoid (ZMod N)\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-unh7rce7/attempt-001/Candidate_1f3b66a1f205b3cd.lean:13:24: error: Application type mismatch: The argument\n  id\nhas type\n  ?m.62 → ?m.62\nbut is expected to have type\n  ℕ → ZMod N\nin the application\n  S.gcd id\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-unh7rce7/attempt-002/Candidate_d403142b60fac8b7.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-unh7rce7/attempt-002/FrozenTarget_d403142b60fac8b7.lean",
+            "feedback": "",
+            "target_sha256": "e83b3cc6d75a74942df4c710b698d3f5c7e649be5fa1dd234946fda0fe7dc357",
+            "target_olean_sha256": "f5f81afd1deeb3d8a9e570275e62f3f7be51b3dd1224a80a5d3223fc0a2f3db6",
+            "source_sha256": "e73dcd13206d792a5bcb597ecadaa878f62c156fae5493273fc3dbe041435950",
+            "olean_sha256": "d1092ed89a7859fbe73fe278a2d79355c1f44dd1fc5555320e4b7380645906ba",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T18:28:10.766124+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-unh7rce7",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-unh7rce7/attempt-002/Candidate_d403142b60fac8b7.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "gcd_mem": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.gcd_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H\n  intro N inst H S\n  induction S using Finset.induction_on with\n  | empty =>\n      intro h\n      simpa using H.zero_mem\n  | @insert a S ha ih =>\n      intro h\n      have haH : (a : ZMod N) ∈ H := h a (Finset.mem_insert_self a S)\n      have hSH : ((S.gcd id : ℕ) : ZMod N) ∈ H :=\n        ih (fun b hb => h b (Finset.mem_insert_of_mem hb))\n      rw [Finset.gcd_insert]\n      change ((Nat.gcd a (S.gcd id) : ℕ) : ZMod N) ∈ H\n      have hbez := congrArg (fun z : ℤ => (z : ZMod N))\n        (Nat.gcd_eq_gcd_ab a (S.gcd id))\n      simp only [Int.cast_add, Int.cast_mul, Int.cast_natCast] at hbez\n      rw [hbez]\n      simpa only [zsmul_eq_mul, mul_comm] using\n        H.add_mem (H.zsmul_mem haH (Nat.gcdA a (S.gcd id)))\n          (H.zsmul_mem hSH (Nat.gcdB a (S.gcd id)))",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.gcd_mem",
+              "ancestors": [],
+              "spec_sha256": "d6483bc3be42bdd1ed131adc343ad5e6029031d681a6554972ff592446e9f3f7"
+            },
+            "sha256": "97b59513b55c5bdf51c4b2be426adae30625d1fc15d91e27430ecdafde97ad21"
+          }
+        }
+      }
+    },
+    "nat_support_image": {
+      "id": "nat_support_image",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M7.Connectivity.nat_support_image",
+        "spec_sha256": "ea3f363ac40f0377526ff41dc32c6a483a30129a19ff8ad30cdfafaed2a1c450",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-001/Candidate_7e91053cfd754b36.lean:11:23: error: Type mismatch: After simplification, term\n  ha\n has type\n  a ∈ A\nbut is expected to have type\n  a ∈ ↑A\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-001/Candidate_7e91053cfd754b36.lean:13:23: error: Type mismatch: After simplification, term\n  hb\n has type\n  b ∈ B\nbut is expected to have type\n  b ∈ ↑B\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-002/Candidate_8b608b6f89ef6e01.lean:15:6: error: Type mismatch: After simplification, term\n  ha\n has type\n  a.val ∈ Finset.image (fun a => a.val) A\nbut is expected to have type\n  a ∈ A\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-002/Candidate_8b608b6f89ef6e01.lean:19:6: error: Type mismatch: After simplification, term\n  hb\n has type\n  b.val ∈ Finset.image (fun b => b.val) B\nbut is expected to have type\n  b ∈ B\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-003/Candidate_ed82b7d7bc0b751e.lean:14:6: error: Type mismatch: After simplification, term\n  ha\n has type\n  a.val ∈ Finset.image (fun a => a.val) A\nbut is expected to have type\n  a ∈ A\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-003/Candidate_ed82b7d7bc0b751e.lean:18:6: error: Type mismatch: After simplification, term\n  hb\n has type\n  b.val ∈ Finset.image (fun b => b.val) B\nbut is expected to have type\n  b ∈ B\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-004/Candidate_1a11f5fee557a3b4.lean:14:26: error: Type mismatch\n  ha\nhas type\n  a.val ∈ Finset.image (fun a => a.val) A\nbut is expected to have type\n  a ∈ A\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-004/Candidate_1a11f5fee557a3b4.lean:18:26: error: Type mismatch\n  hb\nhas type\n  b.val ∈ Finset.image (fun b => b.val) B\nbut is expected to have type\n  b ∈ B\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-005/Candidate_2dbe67d475878128.lean:14:6: error: Type mismatch: After simplification, term\n  ha\n has type\n  a.val ∈ Finset.image (fun a => a.val) A\nbut is expected to have type\n  a ∈ ↑A\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy/attempt-005/Candidate_2dbe67d475878128.lean:17:6: error: Type mismatch: After simplification, term\n  hb\n has type\n  b.val ∈ Finset.image (fun b => b.val) B\nbut is expected to have type\n  b ∈ ↑B\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T18:28:50.000556+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-own0nrgy",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "scalar_mem": {
+      "id": "scalar_mem",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.scalar_mem",
+        "spec_sha256": "5274ec289881ac6c07709f67bab8df75ad82fbad8c43d8bd91783765f17db3cf",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-i25had8n/attempt-001/Candidate_81816693382e6488.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-i25had8n/attempt-001/FrozenTarget_81816693382e6488.lean",
+            "feedback": "",
+            "target_sha256": "1f5945a378c5b10f1d2a2f49052fe703e7159cdde514ff677eba0edf353faaaf",
+            "target_olean_sha256": "2472e6c0e0e3e460756af21db1c1d022e581734da707a726287c8bfb9257b98c",
+            "source_sha256": "93518abd93591a93560d414b8739887136951bc3806968abf1521c83d0d18acd",
+            "olean_sha256": "547bc10b7c9eed9106198f4661f08a09d061d12f3e58ed1494bbc81cf2868ba0",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:31:17.218364+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-i25had8n",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-i25had8n/attempt-001/Candidate_81816693382e6488.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "scalar_mem": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.scalar_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r*a ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r * a ∈ H\n  intro N inst H a r ha\n  simpa only [nsmul_eq_mul, ZMod.natCast_zmod_val] using H.nsmul_mem ha r.val",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.scalar_mem",
+              "ancestors": [],
+              "spec_sha256": "5274ec289881ac6c07709f67bab8df75ad82fbad8c43d8bd91783765f17db3cf"
+            },
+            "sha256": "410e4b11ba664a225842b4fae4447db527d31b6b491140305b69984624a6de04"
+          }
+        }
+      }
+    },
+    "one_mem_top": {
+      "id": "one_mem_top",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.one_mem_top",
+        "spec_sha256": "997c34706b4a49f96b6d9dcdceeead038b6b5dbf14769bd9f9f4cfa9a25b5e5c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-g92u6yd6/attempt-001/Candidate_b7c797b3461bdd19.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-g92u6yd6/attempt-001/FrozenTarget_b7c797b3461bdd19.lean",
+            "feedback": "",
+            "target_sha256": "1d603cba702a9ab3503d83b76f6b0799ee95fe973361f7596985874e7d619de6",
+            "target_olean_sha256": "bbac6d680af129d499cff61d161375f954825e76fe879f9c7f44b3c402018cd3",
+            "source_sha256": "635219db0c97511dc2db52c8557e35ea668d7512fb910e8cccda88cb7752fb04",
+            "olean_sha256": "5820e31ee6100eb91314a0f8fc75c52e589b7c35fe9a8733e009c28d1530014b",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:32:31.478247+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-g92u6yd6",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-g92u6yd6/attempt-001/Candidate_b7c797b3461bdd19.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "scalar_mem": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.scalar_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r*a ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r * a ∈ H\n  intro N inst H a r ha\n  simpa only [nsmul_eq_mul, ZMod.natCast_zmod_val] using H.nsmul_mem ha r.val",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.scalar_mem",
+              "ancestors": [],
+              "spec_sha256": "5274ec289881ac6c07709f67bab8df75ad82fbad8c43d8bd91783765f17db3cf"
+            },
+            "sha256": "410e4b11ba664a225842b4fae4447db527d31b6b491140305b69984624a6de04"
+          },
+          "one_mem_top": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.one_mem_top : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤\n  intro N inst H\n  constructor\n  · intro h\n    apply le_antisymm le_top\n    intro x hx\n    simpa only [mul_one] using M7.Connectivity.scalar_mem N H 1 x h\n  · intro h\n    rw [h]\n    trivial",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.one_mem_top",
+              "ancestors": [
+                "scalar_mem"
+              ],
+              "spec_sha256": "024ec607afd349a205116a392f2f2421cddaba1431f1ecbb520fc09962678487"
+            },
+            "sha256": "5fa45c986b3d1b421f2ad64e5066e9f7ee86b8d9fcb05eb3aca446c349a514ce"
+          }
+        }
+      }
+    },
+    "finite_generation_gcd": {
+      "id": "finite_generation_gcd",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Connectivity.finite_generation_gcd",
+        "spec_sha256": "642ff37cdeb23debf7777e69c6698aa7c774091a4b335052db28303cc96e3ba3",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-p1xckqht/attempt-001/Candidate_fdcf580d4ec89c34.lean:24:12: error(lean.unknownIdentifier): Unknown constant `AddSubgroup.closure_le.mpr`\n/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-p1xckqht/attempt-001/Candidate_fdcf580d4ec89c34.lean:25:6: error: No goals to be solved\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-p1xckqht/attempt-002/Candidate_562b097b5a357b31.lean:24:8: error: Tactic `apply` failed: could not unify the conclusion of `@AddSubgroup.closure_le`\n  ∀ (K : AddSubgroup ?G) {k : Set ?G}, AddSubgroup.closure k ≤ K ↔ k ⊆ ↑K\nwith the goal\n  AddSubgroup.closure ((fun a => ↑a) '' ↑S) ≤ K\n\nNote: The full type of `@AddSubgroup.closure_le` is\n  ∀ {G : Type ?u.85} [inst : AddGroup G] (K : AddSubgroup G) {k : Set G}, AddSubgroup.closure k ≤ K ↔ k ⊆ ↑K\n\nN : ℕ\ninst : NeZero N\nS : Finset ℕ\nH : AddSubgroup (ZMod N) := AddSubgroup.closure ((fun a => ↑a) '' ↑S)\ng : ZMod N := ↑(S.gcd id)\nhg : g ∈ H\nhtop : H = ⊤\nK : AddSubgroup (ZMod N) := { carrier := {x | ∃ r, r * g = x}, add_mem' := ⋯, zero_mem' := ⋯, neg_mem' := ⋯ }\n⊢ AddSubgroup.closure ((fun a => ↑a) '' ↑S) ≤ K\n",
+            "attempt": 2
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-p1xckqht/attempt-003/Candidate_e51b698cc681b961.lean",
+            "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-p1xckqht/attempt-003/FrozenTarget_e51b698cc681b961.lean",
+            "feedback": "",
+            "target_sha256": "4ad9fd81ab47deddc55998406a07b9ac9271c713164123c0ab2dc6ef3a93fee1",
+            "target_olean_sha256": "5b38b59a9a80556db1f3557f91f5b246db0dcdaa69896cf1aa0f1716800cac3f",
+            "source_sha256": "99a77dd96a28a8c9096df5ac306ba3cc333bc822b72b7e79f80d4ae1c7351981",
+            "olean_sha256": "887801331efcd8225adecd9a9d5a208f81971de879c8ab9d71a4f794debd8285",
+            "attempt": 3
+          }
+        ],
+        "created_at": "2026-09-15T18:34:35.006590+00:00",
+        "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-p1xckqht",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+        "phase": "finished",
+        "round": 3,
+        "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-p1xckqht/attempt-003/Candidate_e51b698cc681b961.lean",
+        "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+        "artifacts": {
+          "gcd_mem": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.gcd_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H\n  intro N inst H S\n  induction S using Finset.induction_on with\n  | empty =>\n      intro h\n      simpa using H.zero_mem\n  | @insert a S ha ih =>\n      intro h\n      have haH : (a : ZMod N) ∈ H := h a (Finset.mem_insert_self a S)\n      have hSH : ((S.gcd id : ℕ) : ZMod N) ∈ H :=\n        ih (fun b hb => h b (Finset.mem_insert_of_mem hb))\n      rw [Finset.gcd_insert]\n      change ((Nat.gcd a (S.gcd id) : ℕ) : ZMod N) ∈ H\n      have hbez := congrArg (fun z : ℤ => (z : ZMod N))\n        (Nat.gcd_eq_gcd_ab a (S.gcd id))\n      simp only [Int.cast_add, Int.cast_mul, Int.cast_natCast] at hbez\n      rw [hbez]\n      simpa only [zsmul_eq_mul, mul_comm] using\n        H.add_mem (H.zsmul_mem haH (Nat.gcdA a (S.gcd id)))\n          (H.zsmul_mem hSH (Nat.gcdB a (S.gcd id)))",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.gcd_mem",
+              "ancestors": [],
+              "spec_sha256": "d6483bc3be42bdd1ed131adc343ad5e6029031d681a6554972ff592446e9f3f7"
+            },
+            "sha256": "97b59513b55c5bdf51c4b2be426adae30625d1fc15d91e27430ecdafde97ad21"
+          },
+          "scalar_mem": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.scalar_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r*a ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r * a ∈ H\n  intro N inst H a r ha\n  simpa only [nsmul_eq_mul, ZMod.natCast_zmod_val] using H.nsmul_mem ha r.val",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.scalar_mem",
+              "ancestors": [],
+              "spec_sha256": "5274ec289881ac6c07709f67bab8df75ad82fbad8c43d8bd91783765f17db3cf"
+            },
+            "sha256": "410e4b11ba664a225842b4fae4447db527d31b6b491140305b69984624a6de04"
+          },
+          "one_mem_top": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.one_mem_top : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤\n  intro N inst H\n  constructor\n  · intro h\n    apply le_antisymm le_top\n    intro x hx\n    simpa only [mul_one] using M7.Connectivity.scalar_mem N H 1 x h\n  · intro h\n    rw [h]\n    trivial",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.one_mem_top",
+              "ancestors": [
+                "scalar_mem"
+              ],
+              "spec_sha256": "024ec607afd349a205116a392f2f2421cddaba1431f1ecbb520fc09962678487"
+            },
+            "sha256": "5fa45c986b3d1b421f2ad64e5066e9f7ee86b8d9fcb05eb3aca446c349a514ce"
+          },
+          "finite_generation_gcd": {
+            "payload": {
+              "declaration": "theorem M7.Connectivity.finite_generation_gcd : ∀ (N : ℕ) [NeZero N] (S : Finset ℕ), AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ)) = ⊤ ↔ Nat.gcd N (S.gcd id) = 1 := by\n  change ∀ (N : ℕ) [NeZero N] (S : Finset ℕ), AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ)) = ⊤ ↔ Nat.gcd N (S.gcd id) = 1\n  intro N inst S\n  let H : AddSubgroup (ZMod N) := AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ))\n  let g : ZMod N := (S.gcd id : ℕ)\n  have hg : g ∈ H := M7.Connectivity.gcd_mem N H S (fun a ha => AddSubgroup.subset_closure ⟨a, ha, rfl⟩)\n  change H = ⊤ ↔ Nat.gcd N (S.gcd id) = 1\n  constructor\n  · intro htop\n    let K : AddSubgroup (ZMod N) :=\n      { carrier := {x | ∃ r : ZMod N, r * g = x}\n        zero_mem' := ⟨0, zero_mul g⟩\n        add_mem' := by\n          intro x y hx hy\n          rcases hx with ⟨r, hr⟩\n          rcases hy with ⟨s, hs⟩\n          exact ⟨r + s, by rw [add_mul, hr, hs]⟩\n        neg_mem' := by\n          intro x hx\n          rcases hx with ⟨r, hr⟩\n          exact ⟨-r, by rw [neg_mul, hr]⟩ }\n    have hHK : H ≤ K := by\n      change AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ)) ≤ K\n      apply (AddSubgroup.closure_le K).2\n      rintro x ⟨a, ha, rfl⟩\n      have hd : S.gcd id ∣ a := Finset.gcd_dvd ha\n      rcases hd with ⟨b, hb⟩\n      change ∃ r : ZMod N, r * g = (a : ZMod N)\n      refine ⟨(b : ZMod N), ?_⟩\n      dsimp [g]\n      rw [hb, Nat.cast_mul, mul_comm]\n    have h1 : (1 : ZMod N) ∈ H := (M7.Connectivity.one_mem_top N H).2 htop\n    obtain ⟨r, hr⟩ := hHK h1\n    have hu : IsUnit g := ⟨⟨g, r, by rw [mul_comm]; exact hr, hr⟩, rfl⟩\n    have hc := (ZMod.isUnit_iff_coprime (S.gcd id) N).1 hu\n    simpa only [Nat.coprime_iff_gcd_eq_one, Nat.gcd_comm] using hc\n  · intro h\n    have hc : (S.gcd id).Coprime N := by\n      rw [Nat.coprime_iff_gcd_eq_one, Nat.gcd_comm]\n      exact h\n    have hu : IsUnit g := (ZMod.isUnit_iff_coprime (S.gcd id) N).2 hc\n    rcases hu with ⟨u, hu⟩\n    apply (M7.Connectivity.one_mem_top N H).1\n    have hm := M7.Connectivity.scalar_mem N H g (↑(u⁻¹) : ZMod N) hg\n    rw [← hu] at hm\n    simpa using hm",
+              "imports": [
+                "M7Connectivity"
+              ],
+              "name": "M7.Connectivity.finite_generation_gcd",
+              "ancestors": [
+                "gcd_mem",
+                "one_mem_top",
+                "scalar_mem"
+              ],
+              "spec_sha256": "bea4186b9155a9db8ea6cf661cda3bf7e6020f138b03797c742711560b6b21b4"
+            },
+            "sha256": "73f8c9895c7f74ff459f6b0b3ddb6d9943c82db0c4fef06cd2ac400eb5cfcf5c"
+          }
+        }
+      }
+    },
+    "anchored_gcd": {
+      "id": "anchored_gcd",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "nat_support_image"
+      ]
+    },
+    "connected_admissible": {
+      "id": "connected_admissible",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "anchored_gcd"
+      ]
+    },
+    "anchor_admissible": {
+      "id": "anchor_admissible",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "connected_admissible"
+      ]
+    }
+  }
+}

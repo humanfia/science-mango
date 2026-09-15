@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst A B hA hB\napply le_antisymm\n· apply (AddSubgroup.closure_le _).2\n  intro x hx\n  rcases hx with hx | hx\n  · rcases hx with ⟨a, ha, b, hb, h⟩\n    subst x\n    exact (AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N)))).sub_mem\n      (AddSubgroup.subset_closure (Or.inl ha))\n      (AddSubgroup.subset_closure (Or.inl hb))\n  · rcases hx with ⟨a, ha, b, hb, h⟩\n    subst x\n    exact (AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N)))).sub_mem\n      (AddSubgroup.subset_closure (Or.inr ha))\n      (AddSubgroup.subset_closure (Or.inr hb))\n· apply (AddSubgroup.closure_le _).2\n  intro x hx\n  apply AddSubgroup.subset_closure\n  rcases hx with hx | hx\n  · left\n    refine ⟨x, hx, 0, hA, ?_⟩\n    simp\n  · right\n    refine ⟨x, hx, 0, hB, ?_⟩\n    simp",
+  "queries": [
+    "AddSubgroup.closure_le",
+    "AddSubgroup.subset_closure",
+    "M7.Connectivity.differences"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "M7.Connectivity.gcd_mem",
+  "statement": "∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H",
+  "imports": [
+    "M7Connectivity"
+  ],
+  "context": "",
+  "queries": [
+    "AddSubgroup closure image additive equivalence",
+    "ZMod isUnit_iff_coprime Finset gcd Bezout"
+  ],
+  "guidance": "Finset induction, gcd_empty=0 and gcd_insert. For insert use Nat.gcd_eq_gcd_ab (integer Bezout), cast to ZMod N and H.zsmul_mem on the two previous members, then add_mem. Preserve empty S, no coprimality assumed. Use original exact statement. Return tactic lines without leading by."
+}

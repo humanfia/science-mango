@@ -1,0 +1,13 @@
+{
+  "name": "M7.Connectivity.finite_generation_gcd",
+  "statement": "∀ (N : ℕ) [NeZero N] (S : Finset ℕ), AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ)) = ⊤ ↔ Nat.gcd N (S.gcd id) = 1",
+  "imports": [
+    "M7Connectivity"
+  ],
+  "context": "theorem M7.Connectivity.gcd_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H\n  intro N inst H S\n  induction S using Finset.induction_on with\n  | empty =>\n      intro h\n      simpa using H.zero_mem\n  | @insert a S ha ih =>\n      intro h\n      have haH : (a : ZMod N) ∈ H := h a (Finset.mem_insert_self a S)\n      have hSH : ((S.gcd id : ℕ) : ZMod N) ∈ H :=\n        ih (fun b hb => h b (Finset.mem_insert_of_mem hb))\n      rw [Finset.gcd_insert]\n      change ((Nat.gcd a (S.gcd id) : ℕ) : ZMod N) ∈ H\n      have hbez := congrArg (fun z : ℤ => (z : ZMod N))\n        (Nat.gcd_eq_gcd_ab a (S.gcd id))\n      simp only [Int.cast_add, Int.cast_mul, Int.cast_natCast] at hbez\n      rw [hbez]\n      simpa only [zsmul_eq_mul, mul_comm] using\n        H.add_mem (H.zsmul_mem haH (Nat.gcdA a (S.gcd id)))\n          (H.zsmul_mem hSH (Nat.gcdB a (S.gcd id)))\n\ntheorem M7.Connectivity.scalar_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r*a ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r * a ∈ H\n  intro N inst H a r ha\n  simpa only [nsmul_eq_mul, ZMod.natCast_zmod_val] using H.nsmul_mem ha r.val\n\ntheorem M7.Connectivity.one_mem_top : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤\n  intro N inst H\n  constructor\n  · intro h\n    apply le_antisymm le_top\n    intro x hx\n    simpa only [mul_one] using M7.Connectivity.scalar_mem N H 1 x h\n  · intro h\n    rw [h]\n    trivial",
+  "queries": [
+    "AddSubgroup closure image additive equivalence",
+    "ZMod isUnit_iff_coprime Finset gcd Bezout"
+  ],
+  "guidance": "Let g=S.gcd id. gcd_mem puts cast g in generated H. All generators lie in zmultiples(cast g) by Finset.gcd_dvd; thus H≤zmultiples g. H=top implies one is an integer multiple of g, hence IsUnit(cast g); use ZMod.isUnit_iff_coprime and Nat.gcd_comm. Conversely gcd1 supplies IsUnit g and scalar_mem with inverse puts one in H, then one_mem_top. Do not assume a generator individually coprime; only joint gcd suffices. Use original exact statement. Return tactic lines without leading by."
+}

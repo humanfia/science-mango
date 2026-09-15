@@ -1,0 +1,140 @@
+{
+  "id": "anchored_gcd",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Connectivity.anchored_gcd",
+    "spec_sha256": "10982336ab0c2f3d0915deab8ad89a5304d8ec255991ee16c4c44b057f94458d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-1ol1r36i/attempt-001/Candidate_d420a49adb4d6ba0.lean",
+        "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-1ol1r36i/attempt-001/FrozenTarget_d420a49adb4d6ba0.lean",
+        "feedback": "",
+        "target_sha256": "6db056b6378ed1040eb002de738585e6ab37dea05be5285464afcda079897fdb",
+        "target_olean_sha256": "9e896d8b6552b5877afca9241b2dad1a98713aa1cee400b47642ebe5ff874118",
+        "source_sha256": "c04e1c3478b71904f019b88dd86bd361cfea1721acb9c31e5121bf43a8f99bae",
+        "olean_sha256": "9009c921044cdb300cf54f3447efc26bf1e70fb76c4a61f3fcad1e68729af00b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:53:45.027875+00:00",
+    "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-1ol1r36i",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-1ol1r36i/attempt-001/Candidate_d420a49adb4d6ba0.lean",
+    "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+    "artifacts": {
+      "anchored_closure": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.anchored_closure : ∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → AddSubgroup.closure (M7.Connectivity.differences A ∪ M7.Connectivity.differences B) = AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N))) := by\n  intro N inst A B hA hB\n  apply le_antisymm\n  · apply (AddSubgroup.closure_le _).2\n    intro x hx\n    rcases hx with hx | hx\n    · rcases hx with ⟨a, ha, b, hb, h⟩\n      subst x\n      exact (AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N)))).sub_mem\n        (AddSubgroup.subset_closure (Or.inl ha))\n        (AddSubgroup.subset_closure (Or.inl hb))\n    · rcases hx with ⟨a, ha, b, hb, h⟩\n      subst x\n      exact (AddSubgroup.closure ((A : Set (ZMod N)) ∪ (B : Set (ZMod N)))).sub_mem\n        (AddSubgroup.subset_closure (Or.inr ha))\n        (AddSubgroup.subset_closure (Or.inr hb))\n  · apply (AddSubgroup.closure_le _).2\n    intro x hx\n    apply AddSubgroup.subset_closure\n    rcases hx with hx | hx\n    · left\n      refine ⟨x, hx, 0, hA, ?_⟩\n      simp\n    · right\n      refine ⟨x, hx, 0, hB, ?_⟩\n      simp",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.anchored_closure",
+          "ancestors": [],
+          "spec_sha256": "9d6d2c60c42d45afb0dd627d84d704041bf0f737379de12b0291651ce2717134"
+        },
+        "sha256": "9e66c0c41106dc46266faf64f95e3781034af039d9455a3a9a4fe01f4fb79470"
+      },
+      "nat_support_image": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.nat_support_image : ∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (fun a : ℕ => (a : ZMod N)) '' ((M7.Supports.natSupport A ∪ M7.Supports.natSupport B : Finset ℕ) : Set ℕ) = (A : Set (ZMod N)) ∪ (B : Set (ZMod N)) := by\n  intro N inst A B\n  classical\n  ext x\n  change (∃ n : ℕ, n ∈ (A.image ZMod.val ∪ B.image ZMod.val) ∧ (n : ZMod N) = x) ↔ (x ∈ A ∨ x ∈ B)\n  constructor\n  · rintro ⟨n, hn, rfl⟩\n    rcases Finset.mem_union.mp hn with hn | hn\n    · rcases Finset.mem_image.mp hn with ⟨a, ha, rfl⟩\n      exact Or.inl (by simpa only [ZMod.natCast_zmod_val] using ha)\n    · rcases Finset.mem_image.mp hn with ⟨b, hb, rfl⟩\n      exact Or.inr (by simpa only [ZMod.natCast_zmod_val] using hb)\n  · intro hx\n    refine ⟨x.val, ?_, ZMod.natCast_zmod_val x⟩\n    rcases hx with hx | hx\n    · exact Finset.mem_union.mpr (Or.inl (Finset.mem_image.mpr ⟨x, hx, rfl⟩))\n    · exact Finset.mem_union.mpr (Or.inr (Finset.mem_image.mpr ⟨x, hx, rfl⟩))",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.nat_support_image",
+          "ancestors": [],
+          "spec_sha256": "ea3f363ac40f0377526ff41dc32c6a483a30129a19ff8ad30cdfafaed2a1c450"
+        },
+        "sha256": "f6af5261f8cbe70195dedde887c17432b55108b47a5ba7817cd50920f4881233"
+      },
+      "gcd_mem": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.gcd_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (S : Finset ℕ), (∀ a ∈ S, (a : ZMod N) ∈ H) → ((S.gcd id : ℕ) : ZMod N) ∈ H\n  intro N inst H S\n  induction S using Finset.induction_on with\n  | empty =>\n      intro h\n      simpa using H.zero_mem\n  | @insert a S ha ih =>\n      intro h\n      have haH : (a : ZMod N) ∈ H := h a (Finset.mem_insert_self a S)\n      have hSH : ((S.gcd id : ℕ) : ZMod N) ∈ H :=\n        ih (fun b hb => h b (Finset.mem_insert_of_mem hb))\n      rw [Finset.gcd_insert]\n      change ((Nat.gcd a (S.gcd id) : ℕ) : ZMod N) ∈ H\n      have hbez := congrArg (fun z : ℤ => (z : ZMod N))\n        (Nat.gcd_eq_gcd_ab a (S.gcd id))\n      simp only [Int.cast_add, Int.cast_mul, Int.cast_natCast] at hbez\n      rw [hbez]\n      simpa only [zsmul_eq_mul, mul_comm] using\n        H.add_mem (H.zsmul_mem haH (Nat.gcdA a (S.gcd id)))\n          (H.zsmul_mem hSH (Nat.gcdB a (S.gcd id)))",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.gcd_mem",
+          "ancestors": [],
+          "spec_sha256": "d6483bc3be42bdd1ed131adc343ad5e6029031d681a6554972ff592446e9f3f7"
+        },
+        "sha256": "97b59513b55c5bdf51c4b2be426adae30625d1fc15d91e27430ecdafde97ad21"
+      },
+      "scalar_mem": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.scalar_mem : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r*a ∈ H := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)) (a r : ZMod N), a ∈ H → r * a ∈ H\n  intro N inst H a r ha\n  simpa only [nsmul_eq_mul, ZMod.natCast_zmod_val] using H.nsmul_mem ha r.val",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.scalar_mem",
+          "ancestors": [],
+          "spec_sha256": "5274ec289881ac6c07709f67bab8df75ad82fbad8c43d8bd91783765f17db3cf"
+        },
+        "sha256": "410e4b11ba664a225842b4fae4447db527d31b6b491140305b69984624a6de04"
+      },
+      "one_mem_top": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.one_mem_top : ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤ := by\n  change ∀ (N : ℕ) [NeZero N] (H : AddSubgroup (ZMod N)), (1 : ZMod N) ∈ H ↔ H = ⊤\n  intro N inst H\n  constructor\n  · intro h\n    apply le_antisymm le_top\n    intro x hx\n    simpa only [mul_one] using M7.Connectivity.scalar_mem N H 1 x h\n  · intro h\n    rw [h]\n    trivial",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.one_mem_top",
+          "ancestors": [
+            "scalar_mem"
+          ],
+          "spec_sha256": "024ec607afd349a205116a392f2f2421cddaba1431f1ecbb520fc09962678487"
+        },
+        "sha256": "5fa45c986b3d1b421f2ad64e5066e9f7ee86b8d9fcb05eb3aca446c349a514ce"
+      },
+      "finite_generation_gcd": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.finite_generation_gcd : ∀ (N : ℕ) [NeZero N] (S : Finset ℕ), AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ)) = ⊤ ↔ Nat.gcd N (S.gcd id) = 1 := by\n  change ∀ (N : ℕ) [NeZero N] (S : Finset ℕ), AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ)) = ⊤ ↔ Nat.gcd N (S.gcd id) = 1\n  intro N inst S\n  let H : AddSubgroup (ZMod N) := AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ))\n  let g : ZMod N := (S.gcd id : ℕ)\n  have hg : g ∈ H := M7.Connectivity.gcd_mem N H S (fun a ha => AddSubgroup.subset_closure ⟨a, ha, rfl⟩)\n  change H = ⊤ ↔ Nat.gcd N (S.gcd id) = 1\n  constructor\n  · intro htop\n    let K : AddSubgroup (ZMod N) :=\n      { carrier := {x | ∃ r : ZMod N, r * g = x}\n        zero_mem' := ⟨0, zero_mul g⟩\n        add_mem' := by\n          intro x y hx hy\n          rcases hx with ⟨r, hr⟩\n          rcases hy with ⟨s, hs⟩\n          exact ⟨r + s, by rw [add_mul, hr, hs]⟩\n        neg_mem' := by\n          intro x hx\n          rcases hx with ⟨r, hr⟩\n          exact ⟨-r, by rw [neg_mul, hr]⟩ }\n    have hHK : H ≤ K := by\n      change AddSubgroup.closure ((fun a : ℕ => (a : ZMod N)) '' (S : Set ℕ)) ≤ K\n      apply (AddSubgroup.closure_le K).2\n      rintro x ⟨a, ha, rfl⟩\n      have hd : S.gcd id ∣ a := Finset.gcd_dvd ha\n      rcases hd with ⟨b, hb⟩\n      change ∃ r : ZMod N, r * g = (a : ZMod N)\n      refine ⟨(b : ZMod N), ?_⟩\n      dsimp [g]\n      rw [hb, Nat.cast_mul, mul_comm]\n    have h1 : (1 : ZMod N) ∈ H := (M7.Connectivity.one_mem_top N H).2 htop\n    obtain ⟨r, hr⟩ := hHK h1\n    have hu : IsUnit g := ⟨⟨g, r, by rw [mul_comm]; exact hr, hr⟩, rfl⟩\n    have hc := (ZMod.isUnit_iff_coprime (S.gcd id) N).1 hu\n    simpa only [Nat.coprime_iff_gcd_eq_one, Nat.gcd_comm] using hc\n  · intro h\n    have hc : (S.gcd id).Coprime N := by\n      rw [Nat.coprime_iff_gcd_eq_one, Nat.gcd_comm]\n      exact h\n    have hu : IsUnit g := (ZMod.isUnit_iff_coprime (S.gcd id) N).2 hc\n    rcases hu with ⟨u, hu⟩\n    apply (M7.Connectivity.one_mem_top N H).1\n    have hm := M7.Connectivity.scalar_mem N H g (↑(u⁻¹) : ZMod N) hg\n    rw [← hu] at hm\n    simpa using hm",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.finite_generation_gcd",
+          "ancestors": [
+            "gcd_mem",
+            "one_mem_top",
+            "scalar_mem"
+          ],
+          "spec_sha256": "bea4186b9155a9db8ea6cf661cda3bf7e6020f138b03797c742711560b6b21b4"
+        },
+        "sha256": "73f8c9895c7f74ff459f6b0b3ddb6d9943c82db0c4fef06cd2ac400eb5cfcf5c"
+      },
+      "anchored_gcd": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.anchored_gcd : ∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → (M7.Connectivity.connected (A,B) ↔ M7.Domain.connectivityGcd A B = 1) := by\n  change ∀ (N : ℕ) [NeZero N] (A B : Finset (ZMod N)), (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → (M7.Connectivity.connected (A, B) ↔ M7.Domain.connectivityGcd A B = 1)\n  intro N inst A B hA hB\n  change AddSubgroup.closure (M7.Connectivity.differences A ∪ M7.Connectivity.differences B) = ⊤ ↔ Nat.gcd N ((M7.Supports.natSupport A ∪ M7.Supports.natSupport B).gcd id) = 1\n  rw [M7.Connectivity.anchored_closure N A B hA hB, ← M7.Connectivity.nat_support_image N A B]\n  exact M7.Connectivity.finite_generation_gcd N (M7.Supports.natSupport A ∪ M7.Supports.natSupport B)",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.anchored_gcd",
+          "ancestors": [
+            "anchored_closure",
+            "finite_generation_gcd",
+            "gcd_mem",
+            "nat_support_image",
+            "one_mem_top",
+            "scalar_mem"
+          ],
+          "spec_sha256": "e64a44fb448698bcad923f9ac786ac14408adcd0c3e581b2ba3532f0ce18f6bf"
+        },
+        "sha256": "32ccf36c6187a72be2e6c7bc680c31cea9f3799b4efd407e2267a5c5c1483414"
+      }
+    }
+  }
+}

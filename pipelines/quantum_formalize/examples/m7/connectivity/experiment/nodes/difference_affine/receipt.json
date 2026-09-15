@@ -1,0 +1,55 @@
+{
+  "id": "difference_affine",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Connectivity.difference_affine",
+    "spec_sha256": "9c6c10f870763a0f006afda191dd2dc69f6c31ebf91dcabf04f9dc26bae43c86",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-nnose324/attempt-001/Candidate_31e74ea2e4879b67.lean",
+        "target_path": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-nnose324/attempt-001/FrozenTarget_31e74ea2e4879b67.lean",
+        "feedback": "",
+        "target_sha256": "c713baac8f5b20531261dee55f57cb0e660be95af44893616fb17028013e88e2",
+        "target_olean_sha256": "8725b858d7597e86a7d9e6e3613103677e1dcd1e7aa88c21388989b484496c77",
+        "source_sha256": "877420d958ba36d44106ea1202e5e09667c63940e82227ff4eeba16b445f726c",
+        "olean_sha256": "935d46d746dbfddba048de059023707daabbbc5815c487a31e0873f6996abb4a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:46:09.309661+00:00",
+    "work": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-nnose324",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2accb84de7ecb00ba71e0f1fea2b5fb7db5536750e6f4599194ebff1e1ecc514",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-connectivity-formalization/.humanize-formal-runs/run-nnose324/attempt-001/Candidate_31e74ea2e4879b67.lean",
+    "environment_sha256": "111de7844916265338390ee3750970a4b39f58548f7e39ca0e22ef9f09fae1e4",
+    "artifacts": {
+      "difference_affine": {
+        "payload": {
+          "declaration": "theorem M7.Connectivity.difference_affine : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), M7.Connectivity.differences (A.image (M7.Action.affine u s)) = (fun x : ZMod N => (u : ZMod N)*x) '' M7.Connectivity.differences A := by\n  intro N inst A u s\n  classical\n  apply Set.ext\n  intro x\n  simp only [M7.Connectivity.differences, Set.mem_setOf_eq, Set.mem_image,\n    Finset.mem_image]\n  constructor\n  · rintro ⟨a, ⟨a₀, ha₀, rfl⟩, b, ⟨b₀, hb₀, rfl⟩, hx⟩\n    refine ⟨a₀ - b₀, ⟨a₀, ha₀, b₀, hb₀, rfl⟩, ?_⟩\n    first\n    | simpa [M7.Action.affine, mul_sub] using hx\n    | simpa [M7.Action.affine, mul_sub] using hx.symm\n  · rintro ⟨y, ⟨a, ha, b, hb, rfl⟩, hx⟩\n    refine ⟨M7.Action.affine u s a, ⟨a, ha, rfl⟩,\n      M7.Action.affine u s b, ⟨b, hb, rfl⟩, ?_⟩\n    first\n    | simpa [M7.Action.affine, mul_sub] using hx\n    | simpa [M7.Action.affine, mul_sub] using hx.symm",
+          "imports": [
+            "M7Connectivity"
+          ],
+          "name": "M7.Connectivity.difference_affine",
+          "ancestors": [],
+          "spec_sha256": "9c6c10f870763a0f006afda191dd2dc69f6c31ebf91dcabf04f9dc26bae43c86"
+        },
+        "sha256": "cb6e001c9a22ab9cd24711ec08d7d086c995d79eefaa5b4159fe4d08f6a9698b"
+      }
+    }
+  }
+}
