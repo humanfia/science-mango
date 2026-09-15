@@ -1,0 +1,973 @@
+[
+  {
+    "queries": [
+      "list prefix get length equality",
+      "finset cardinality sum fibers"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "list prefix get length equality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 209393,
+            "name": "List.take_eq_self_iff",
+            "module": "Mathlib.Data.List.TakeDrop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L43-L44",
+            "source_text": "@[simp] lemma take_eq_self_iff (x : List α) {n : ℕ} : x.take n = x ↔ x.length ≤ n :=\n  ⟨by grind, take_of_length_le⟩",
+            "docstring": null
+          },
+          {
+            "id": 208144,
+            "name": "List.take_isPrefix_take",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L58-L59",
+            "source_text": "@[simp] lemma take_isPrefix_take {m n : ℕ} : l.take m <+: l.take n ↔ m ≤ n ∨ l.length ≤ n := by\n  simp [prefix_take_iff, take_prefix]; omega",
+            "docstring": null
+          },
+          {
+            "id": 208143,
+            "name": "List.isPrefix_append_of_length",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L54-L56",
+            "source_text": "lemma isPrefix_append_of_length (h : l₁.length ≤ l₂.length) : l₁ <+: l₂ ++ l₃ ↔ l₁ <+: l₂ :=\n  ⟨fun h ↦ by rw [prefix_iff_eq_take] at *; nth_rw 1 [h, take_eq_left_iff]; tauto,\n   fun h ↦ h.trans <| l₂.prefix_append l₃⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 208156,
+            "name": "List.concat_get_prefix",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L115-L120",
+            "source_text": "theorem concat_get_prefix {x y : List α} (h : x <+: y) (hl : x.length < y.length) :\n    x ++ [y.get ⟨x.length, hl⟩] <+: y := by\n  use y.drop (x.length + 1)\n  nth_rw 1 [List.prefix_iff_eq_take.mp h]\n  convert! List.take_append_drop (x.length + 1) y using 2\n  rw [← List.take_concat_get, List.concat_eq_append]; rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 207494,
+            "name": "List.getElem?_length",
+            "module": "Mathlib.Data.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L613-L613",
+            "source_text": "theorem getElem?_length (l : List α) : l[l.length]? = none := getElem?_eq_none (Nat.le_refl _)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "list prefix get length equality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386738,
+            "name": "Physlib.List.orderedInsert_length",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L146-L150",
+            "source_text": "@[simp]\nlemma orderedInsert_length {α : Type} (r : α → α → Prop) [DecidableRel r] (a : α) (l : List α) :\n    (List.orderedInsert r a l).length = (a :: l).length := by\n  apply List.Perm.length_eq\n  exact List.perm_orderedInsert r a l",
+            "docstring": null
+          },
+          {
+            "id": 386740,
+            "name": "Physlib.List.takeWhile_orderedInsert'",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L170-L186",
+            "source_text": "lemma takeWhile_orderedInsert' {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r b c)) (List.orderedInsert r a l)).length =\n    (List.takeWhile (fun c => !decide (r b c)) l).length\n  | [] => by\n    simp [List.orderedInsert, (Std.Total.total a b).resolve_left hr]\n  | c :: l => by\n    have hrba : r b a := (Std.Total.total a b).resolve_left hr\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · by_cases hac : r a c <;> simp [h, hac, hrba]\n    · by_cases hac : r a c\n      · exact absurd (IsTrans.trans _ _ _ hrba hac) h\n      · simp only [hac, ↓reduceIte, h, decide_false, Bool.not_false, List.takeWhile_cons_of_pos,\n        List.length_cons, add_left_inj]\n        exact takeWhile_orderedInsert' r a b hr l\n",
+            "docstring": null
+          },
+          {
+            "id": 386739,
+            "name": "Physlib.List.takeWhile_orderedInsert",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L152-L168",
+            "source_text": "lemma takeWhile_orderedInsert {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r a c)) (List.orderedInsert r b l)).length =\n    (List.takeWhile (fun c => !decide (r a c)) l).length + 1\n  | [] => by\n    simp [hr]\n  | c :: l => by\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · simp [h, hr]\n    · simp only [h, ↓reduceIte]\n      have hl : ¬ r a c :=\n        fun hn => h (IsTrans.trans _ _ _ ((Std.Total.total a b).resolve_left hr) hn)\n      simp only [hl, decide_false, Bool.not_false, List.takeWhile_cons_of_pos, List.length_cons,\n        add_left_inj]\n      exact takeWhile_orderedInsert r a b hr l\n",
+            "docstring": null
+          },
+          {
+            "id": 386668,
+            "name": "Physlib.List.orderedInsertPos_take",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L196-L199",
+            "source_text": "lemma orderedInsertPos_take {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r = List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  rw [orderedInsertPos_take_eq_orderedInsert,orderedInsertPos_take_orderedInsert]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finset cardinality sum fibers",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58256,
+            "name": "Finset.card_eq_sum_card_fiberwise",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L979-L981",
+            "source_text": "theorem card_eq_sum_card_fiberwise [DecidableEq M] {f : ι → M} {s : Finset ι} {t : Finset M}\n    (H : (s : Set ι).MapsTo f t) : #s = ∑ b ∈ t, #{a ∈ s | f a = b} := by\n  simp only [card_eq_sum_ones, sum_fiberwise_of_maps_to H]\n",
+            "docstring": null
+          },
+          {
+            "id": 58257,
+            "name": "Finset.card_eq_sum_card_image",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L983-L985",
+            "source_text": "theorem card_eq_sum_card_image [DecidableEq M] (f : ι → M) (s : Finset ι) :\n    #s = ∑ b ∈ s.image f, #{a ∈ s | f a = b} :=\n  card_eq_sum_card_fiberwise fun _ => mem_image_of_mem _\n",
+            "docstring": null
+          },
+          {
+            "id": 58295,
+            "name": "Finset.sum",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+            "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+            "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+          },
+          {
+            "id": 323027,
+            "name": "Cardinal.sum",
+            "module": "Mathlib.SetTheory.Cardinal.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Defs.lean#L333-L336",
+            "source_text": "/-- The indexed sum of cardinals is the cardinality of the\n  indexed disjoint union, i.e. sigma type. -/\ndef sum {ι} (f : ι → Cardinal) : Cardinal :=\n  mk (Σ i, (f i).out)\n",
+            "docstring": "The indexed sum of cardinals is the cardinality of the\nindexed disjoint union, i.e. sigma type. "
+          },
+          {
+            "id": 156513,
+            "name": "HasFibers",
+            "module": "Mathlib.CategoryTheory.FiberedCategory.HasFibers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/FiberedCategory/HasFibers.lean#L62-L76",
+            "source_text": "/-- HasFibers is an extrinsic notion of fibers on a functor `p : 𝒳 ⥤ 𝒮`. It is given by a\ncollection of categories `Fib S` for every `S : 𝒮` (the fiber categories), each equipped with a\nfunctors `ι : Fib S ⥤ 𝒳` which map constantly to `S` on the base such that the induced functor\n`Fib S ⥤ Fiber p S` is an equivalence. -/\nclass HasFibers (p : 𝒳 ⥤ 𝒮) where\n  /-- The type of objects of the category `Fib S` for each `S`. -/\n  Fib (S : 𝒮) : Type u₃\n  /-- `Fib S` is a category. -/\n  category (S : 𝒮) : Category.{v₃} (Fib S) := by infer_instance\n  /-- The functor `ι : Fib S ⥤ 𝒳`. -/\n  ι (S : 𝒮) : Fib S ⥤ 𝒳\n  /-- The composition with the functor `p` is *equal* to the constant functor mapping to `S`. -/\n  comp_const (S : 𝒮) : ι S ⋙ p = (const (Fib S)).obj S\n  /-- The induced functor from `Fib S` to the fiber of `𝒳 ⥤ 𝒮` over `S` is an equivalence. -/\n  equiv (S : 𝒮) : Functor.IsEquivalence (inducedFunctor (comp_const S)) := by infer_instance\n",
+            "docstring": "HasFibers is an extrinsic notion of fibers on a functor `p : 𝒳 ⥤ 𝒮`. It is given by a\ncollection of categories `Fib S` for every `S : 𝒮` (the fiber categories), each equipped with a\nfunctors `ι : Fib S ⥤ 𝒳` which map constantly to `S` on the base such that the induced functor\n`Fib S ⥤ Fiber p S` is an equivalence. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finset cardinality sum fibers",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386221,
+            "name": "Physlib.FourTree.Branch.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L140-L143",
+            "source_text": "/-- The cardinality of a `Branch` is the total number of leafs. -/\ndef Branch.card {α2 α3 α4 : Type} (T : Branch α2 α3 α4) : Nat :=\n  match T with\n  | .branch _ twigs => (twigs.map Twig.card).sum\n",
+            "docstring": "The cardinality of a `Branch` is the total number of leafs. "
+          },
+          {
+            "id": 386222,
+            "name": "Physlib.FourTree.Trunk.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L145-L148",
+            "source_text": "/-- The cardinality of a `Trunk` is the total number of leafs. -/\ndef Trunk.card {α1 α2 α3 α4 : Type} (T : Trunk α1 α2 α3 α4) : Nat :=\n  match T with\n  | .trunk _ branches => (branches.map Branch.card).sum\n",
+            "docstring": "The cardinality of a `Trunk` is the total number of leafs. "
+          },
+          {
+            "id": 388428,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.ofFinsetCard",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L400-L402",
+            "source_text": "/-- The cardinality of `ofFinset S5 S10`. -/\ndef ofFinsetCard (S5 S10 : Finset 𝓩) : ℕ :=\n    (S5.card + 1) * (S5.card + 1) * (2 ^ S5.card : ℕ) * (2 ^ S10.card : ℕ)\n",
+            "docstring": "The cardinality of `ofFinset S5 S10`. "
+          },
+          {
+            "id": 386223,
+            "name": "Physlib.FourTree.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L150-L153",
+            "source_text": "/-- The cardinality of a `FourTree` is the total number of leafs. -/\ndef card {α1 α2 α3 α4 : Type} (T : FourTree α1 α2 α3 α4) : Nat :=\n  match T with\n  | .root trunks => (trunks.map Trunk.card).sum\n",
+            "docstring": "The cardinality of a `FourTree` is the total number of leafs. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "count_empty",
+    "receipts_sha256": "71a8d64bd294e5af942e885be167ff86b717f611ac671c556f5eb7407c3dd18c"
+  },
+  {
+    "queries": [
+      "list prefix get length equality",
+      "finset cardinality sum fibers"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "list prefix get length equality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 209393,
+            "name": "List.take_eq_self_iff",
+            "module": "Mathlib.Data.List.TakeDrop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L43-L44",
+            "source_text": "@[simp] lemma take_eq_self_iff (x : List α) {n : ℕ} : x.take n = x ↔ x.length ≤ n :=\n  ⟨by grind, take_of_length_le⟩",
+            "docstring": null
+          },
+          {
+            "id": 208144,
+            "name": "List.take_isPrefix_take",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L58-L59",
+            "source_text": "@[simp] lemma take_isPrefix_take {m n : ℕ} : l.take m <+: l.take n ↔ m ≤ n ∨ l.length ≤ n := by\n  simp [prefix_take_iff, take_prefix]; omega",
+            "docstring": null
+          },
+          {
+            "id": 208143,
+            "name": "List.isPrefix_append_of_length",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L54-L56",
+            "source_text": "lemma isPrefix_append_of_length (h : l₁.length ≤ l₂.length) : l₁ <+: l₂ ++ l₃ ↔ l₁ <+: l₂ :=\n  ⟨fun h ↦ by rw [prefix_iff_eq_take] at *; nth_rw 1 [h, take_eq_left_iff]; tauto,\n   fun h ↦ h.trans <| l₂.prefix_append l₃⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 208156,
+            "name": "List.concat_get_prefix",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L115-L120",
+            "source_text": "theorem concat_get_prefix {x y : List α} (h : x <+: y) (hl : x.length < y.length) :\n    x ++ [y.get ⟨x.length, hl⟩] <+: y := by\n  use y.drop (x.length + 1)\n  nth_rw 1 [List.prefix_iff_eq_take.mp h]\n  convert! List.take_append_drop (x.length + 1) y using 2\n  rw [← List.take_concat_get, List.concat_eq_append]; rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 207494,
+            "name": "List.getElem?_length",
+            "module": "Mathlib.Data.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L613-L613",
+            "source_text": "theorem getElem?_length (l : List α) : l[l.length]? = none := getElem?_eq_none (Nat.le_refl _)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "list prefix get length equality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386738,
+            "name": "Physlib.List.orderedInsert_length",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L146-L150",
+            "source_text": "@[simp]\nlemma orderedInsert_length {α : Type} (r : α → α → Prop) [DecidableRel r] (a : α) (l : List α) :\n    (List.orderedInsert r a l).length = (a :: l).length := by\n  apply List.Perm.length_eq\n  exact List.perm_orderedInsert r a l",
+            "docstring": null
+          },
+          {
+            "id": 386740,
+            "name": "Physlib.List.takeWhile_orderedInsert'",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L170-L186",
+            "source_text": "lemma takeWhile_orderedInsert' {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r b c)) (List.orderedInsert r a l)).length =\n    (List.takeWhile (fun c => !decide (r b c)) l).length\n  | [] => by\n    simp [List.orderedInsert, (Std.Total.total a b).resolve_left hr]\n  | c :: l => by\n    have hrba : r b a := (Std.Total.total a b).resolve_left hr\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · by_cases hac : r a c <;> simp [h, hac, hrba]\n    · by_cases hac : r a c\n      · exact absurd (IsTrans.trans _ _ _ hrba hac) h\n      · simp only [hac, ↓reduceIte, h, decide_false, Bool.not_false, List.takeWhile_cons_of_pos,\n        List.length_cons, add_left_inj]\n        exact takeWhile_orderedInsert' r a b hr l\n",
+            "docstring": null
+          },
+          {
+            "id": 386739,
+            "name": "Physlib.List.takeWhile_orderedInsert",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L152-L168",
+            "source_text": "lemma takeWhile_orderedInsert {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r a c)) (List.orderedInsert r b l)).length =\n    (List.takeWhile (fun c => !decide (r a c)) l).length + 1\n  | [] => by\n    simp [hr]\n  | c :: l => by\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · simp [h, hr]\n    · simp only [h, ↓reduceIte]\n      have hl : ¬ r a c :=\n        fun hn => h (IsTrans.trans _ _ _ ((Std.Total.total a b).resolve_left hr) hn)\n      simp only [hl, decide_false, Bool.not_false, List.takeWhile_cons_of_pos, List.length_cons,\n        add_left_inj]\n      exact takeWhile_orderedInsert r a b hr l\n",
+            "docstring": null
+          },
+          {
+            "id": 386668,
+            "name": "Physlib.List.orderedInsertPos_take",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L196-L199",
+            "source_text": "lemma orderedInsertPos_take {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r = List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  rw [orderedInsertPos_take_eq_orderedInsert,orderedInsertPos_take_orderedInsert]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finset cardinality sum fibers",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58256,
+            "name": "Finset.card_eq_sum_card_fiberwise",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L979-L981",
+            "source_text": "theorem card_eq_sum_card_fiberwise [DecidableEq M] {f : ι → M} {s : Finset ι} {t : Finset M}\n    (H : (s : Set ι).MapsTo f t) : #s = ∑ b ∈ t, #{a ∈ s | f a = b} := by\n  simp only [card_eq_sum_ones, sum_fiberwise_of_maps_to H]\n",
+            "docstring": null
+          },
+          {
+            "id": 58257,
+            "name": "Finset.card_eq_sum_card_image",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L983-L985",
+            "source_text": "theorem card_eq_sum_card_image [DecidableEq M] (f : ι → M) (s : Finset ι) :\n    #s = ∑ b ∈ s.image f, #{a ∈ s | f a = b} :=\n  card_eq_sum_card_fiberwise fun _ => mem_image_of_mem _\n",
+            "docstring": null
+          },
+          {
+            "id": 58295,
+            "name": "Finset.sum",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+            "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+            "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+          },
+          {
+            "id": 323027,
+            "name": "Cardinal.sum",
+            "module": "Mathlib.SetTheory.Cardinal.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Defs.lean#L333-L336",
+            "source_text": "/-- The indexed sum of cardinals is the cardinality of the\n  indexed disjoint union, i.e. sigma type. -/\ndef sum {ι} (f : ι → Cardinal) : Cardinal :=\n  mk (Σ i, (f i).out)\n",
+            "docstring": "The indexed sum of cardinals is the cardinality of the\nindexed disjoint union, i.e. sigma type. "
+          },
+          {
+            "id": 156513,
+            "name": "HasFibers",
+            "module": "Mathlib.CategoryTheory.FiberedCategory.HasFibers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/FiberedCategory/HasFibers.lean#L62-L76",
+            "source_text": "/-- HasFibers is an extrinsic notion of fibers on a functor `p : 𝒳 ⥤ 𝒮`. It is given by a\ncollection of categories `Fib S` for every `S : 𝒮` (the fiber categories), each equipped with a\nfunctors `ι : Fib S ⥤ 𝒳` which map constantly to `S` on the base such that the induced functor\n`Fib S ⥤ Fiber p S` is an equivalence. -/\nclass HasFibers (p : 𝒳 ⥤ 𝒮) where\n  /-- The type of objects of the category `Fib S` for each `S`. -/\n  Fib (S : 𝒮) : Type u₃\n  /-- `Fib S` is a category. -/\n  category (S : 𝒮) : Category.{v₃} (Fib S) := by infer_instance\n  /-- The functor `ι : Fib S ⥤ 𝒳`. -/\n  ι (S : 𝒮) : Fib S ⥤ 𝒳\n  /-- The composition with the functor `p` is *equal* to the constant functor mapping to `S`. -/\n  comp_const (S : 𝒮) : ι S ⋙ p = (const (Fib S)).obj S\n  /-- The induced functor from `Fib S` to the fiber of `𝒳 ⥤ 𝒮` over `S` is an equivalence. -/\n  equiv (S : 𝒮) : Functor.IsEquivalence (inducedFunctor (comp_const S)) := by infer_instance\n",
+            "docstring": "HasFibers is an extrinsic notion of fibers on a functor `p : 𝒳 ⥤ 𝒮`. It is given by a\ncollection of categories `Fib S` for every `S : 𝒮` (the fiber categories), each equipped with a\nfunctors `ι : Fib S ⥤ 𝒳` which map constantly to `S` on the base such that the induced functor\n`Fib S ⥤ Fiber p S` is an equivalence. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finset cardinality sum fibers",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386221,
+            "name": "Physlib.FourTree.Branch.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L140-L143",
+            "source_text": "/-- The cardinality of a `Branch` is the total number of leafs. -/\ndef Branch.card {α2 α3 α4 : Type} (T : Branch α2 α3 α4) : Nat :=\n  match T with\n  | .branch _ twigs => (twigs.map Twig.card).sum\n",
+            "docstring": "The cardinality of a `Branch` is the total number of leafs. "
+          },
+          {
+            "id": 386222,
+            "name": "Physlib.FourTree.Trunk.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L145-L148",
+            "source_text": "/-- The cardinality of a `Trunk` is the total number of leafs. -/\ndef Trunk.card {α1 α2 α3 α4 : Type} (T : Trunk α1 α2 α3 α4) : Nat :=\n  match T with\n  | .trunk _ branches => (branches.map Branch.card).sum\n",
+            "docstring": "The cardinality of a `Trunk` is the total number of leafs. "
+          },
+          {
+            "id": 388428,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.ofFinsetCard",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L400-L402",
+            "source_text": "/-- The cardinality of `ofFinset S5 S10`. -/\ndef ofFinsetCard (S5 S10 : Finset 𝓩) : ℕ :=\n    (S5.card + 1) * (S5.card + 1) * (2 ^ S5.card : ℕ) * (2 ^ S10.card : ℕ)\n",
+            "docstring": "The cardinality of `ofFinset S5 S10`. "
+          },
+          {
+            "id": 386223,
+            "name": "Physlib.FourTree.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L150-L153",
+            "source_text": "/-- The cardinality of a `FourTree` is the total number of leafs. -/\ndef card {α1 α2 α3 α4 : Type} (T : FourTree α1 α2 α3 α4) : Nat :=\n  match T with\n  | .root trunks => (trunks.map Trunk.card).sum\n",
+            "docstring": "The cardinality of a `FourTree` is the total number of leafs. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "count_empty",
+    "receipts_sha256": "71a8d64bd294e5af942e885be167ff86b717f611ac671c556f5eb7407c3dd18c"
+  },
+  {
+    "queries": [
+      "M5.PrefixPartition.count definition"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.PrefixPartition.count definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 189209,
+            "name": "Nat.Partition.card_restricted_eq_card_countRestricted",
+            "module": "Mathlib.Combinatorics.Enumerative.Partition.Glaisher",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Glaisher.lean#L153-L156",
+            "source_text": "theorem card_restricted_eq_card_countRestricted (n : ℕ) {m : ℕ} (hm : 0 < m) :\n    #(restricted n (¬ m ∣ ·)) = #(countRestricted n m) := by\n  simpa using PowerSeries.ext_iff.mp\n    (powerSeriesMk_card_restricted_eq_powerSeriesMk_card_countRestricted ℤ hm) n\n",
+            "docstring": null
+          },
+          {
+            "id": 189186,
+            "name": "Nat.Partition.countRestricted",
+            "module": "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Basic.lean#L212-L214",
+            "source_text": "/-- The finset of those partitions in which every part is used less than `m` times. -/\ndef countRestricted (n : ℕ) (m : ℕ) : Finset n.Partition :=\n  Finset.univ.filter fun x ↦ ∀ i ∈ x.parts, x.parts.count i < m\n",
+            "docstring": "The finset of those partitions in which every part is used less than `m` times. "
+          },
+          {
+            "id": 194444,
+            "name": "SzemerediRegularity.card_chunk",
+            "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Chunk",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Chunk.lean#L173-L178",
+            "source_text": "theorem card_chunk (hm : m ≠ 0) : #(chunk hP G ε hU).parts = 4 ^ #P.parts := by\n  unfold chunk\n  split_ifs\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le]\n    exact le_of_lt a_add_one_le_four_pow_parts_card\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le a_add_one_le_four_pow_parts_card]\n",
+            "docstring": null
+          },
+          {
+            "id": 194460,
+            "name": "Finpartition.card_filter_equitabilise_small",
+            "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L166-L181",
+            "source_text": "theorem card_filter_equitabilise_small (hm : m ≠ 0) :\n    #{u ∈ (P.equitabilise h).parts | #u = m} = a := by\n  refine (mul_eq_mul_right_iff.1 <| (add_left_inj (b * (m + 1))).1 ?_).resolve_right hm\n  rw [h, ← (P.equitabilise h).sum_card_parts]\n  have hunion :\n    (P.equitabilise h).parts =\n      {u ∈ (P.equitabilise h).parts | #u = m} ∪ {u ∈ (P.equitabilise h).parts | #u = m + 1} := by\n    rw [← filter_or, filter_true_of_mem]\n    exact fun x => card_eq_of_mem_parts_equitabilise\n  nth_rw 2 [hunion]\n  rw [sum_union, sum_const_nat fun x hx => (mem_filter.1 hx).2,\n    sum_const_nat fun x hx => (mem_filter.1 hx).2, P.card_filter_equitabilise_big]\n  refine disjoint_filter_filter' _ _ ?_\n  intro x ha hb i h\n  apply succ_ne_self m _\n  exact (hb i h).symm.trans (ha i h)\n",
+            "docstring": null
+          },
+          {
+            "id": 194461,
+            "name": "Finpartition.card_parts_equitabilise",
+            "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L183-L186",
+            "source_text": "theorem card_parts_equitabilise (hm : m ≠ 0) : #(P.equitabilise h).parts = a + b := by\n  rw [← filter_true_of_mem fun x => card_eq_of_mem_parts_equitabilise, filter_or,\n    card_union_of_disjoint, P.card_filter_equitabilise_small _ hm, P.card_filter_equitabilise_big]\n  aesop (add norm disjoint_filter)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.PrefixPartition.count definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Finset.card_eq_sum_ones",
+      "Finset.sum_ite_eq Finset.sum_ite_eq'",
+      "M5.PrefixPartition.count"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.card_eq_sum_ones",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58250,
+            "name": "Finset.card_eq_sum_ones",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L952-L952",
+            "source_text": "lemma card_eq_sum_ones (s : Finset ι) : #s = ∑ _ ∈ s, 1 := by simp\n",
+            "docstring": null
+          },
+          {
+            "id": 205785,
+            "name": "Fintype.card_eq_sum_ones",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L45-L46",
+            "source_text": "theorem card_eq_sum_ones {α} [Fintype α] : Fintype.card α = ∑ _a : α, 1 :=\n  Finset.card_eq_sum_ones _\n",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 205861,
+            "name": "Finset.card_compl_add_card",
+            "module": "Mathlib.Data.Fintype.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L143-L146",
+            "source_text": "@[simp]\ntheorem Finset.card_compl_add_card [DecidableEq α] [Fintype α] (s : Finset α) :\n    #sᶜ + #s = Fintype.card α := by\n  rw [Nat.add_comm, card_add_card_compl]",
+            "docstring": null
+          },
+          {
+            "id": 58198,
+            "name": "Finset.eq_of_card_le_one_of_sum_eq",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L722-L723",
+            "source_text": "@[to_additive eq_of_card_le_one_of_sum_eq /-- If a sum of a `Finset` of size at most 1 has a given\nvalue, so do the terms in that sum. -/]\ntheorem eq_of_card_le_one_of_prod_eq {s : Finset ι} (hc : #s ≤ 1) {f : ι → M} {b : M}\n    (h : ∏ x ∈ s, f x = b) : ∀ x ∈ s, f x = b := by",
+            "docstring": "If a sum of a `Finset` of size at most 1 has a given\nvalue, so do the terms in that sum. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.card_eq_sum_ones",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.sum_ite_eq Finset.sum_ite_eq'",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58508,
+            "name": "Finset.sum_ite_eq",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Piecewise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Piecewise.lean#L139-L139",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem prod_ite_eq [DecidableEq ι] (s : Finset ι) (a : ι) (b : ι → M) :",
+            "docstring": null
+          },
+          {
+            "id": 57673,
+            "name": "finsum_mem_eq_toFinset_sum",
+            "module": "Mathlib.Algebra.BigOperators.Finprod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L520-L520",
+            "source_text": "@[to_additive]\ntheorem finprod_mem_eq_toFinset_prod (f : α → M) (s : Set α) [Fintype s] :\n    ∏ᶠ i ∈ s, f i = ∏ i ∈ s.toFinset, f i :=",
+            "docstring": null
+          },
+          {
+            "id": 58112,
+            "name": "Finset.sum_eq_ite",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L359-L359",
+            "source_text": "@[to_additive]\nlemma prod_eq_ite [DecidableEq ι] {s : Finset ι} {f : ι → M} (a : ι)\n    (h₀ : ∀ b ∈ s, b ≠ a → f b = 1) :\n    ∏ x ∈ s, f x = if a ∈ s then f a else 1 := by",
+            "docstring": null
+          },
+          {
+            "id": 58510,
+            "name": "Finset.sum_ite_eq'",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Piecewise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Piecewise.lean#L148-L151",
+            "source_text": "@[to_additive (attr := simp) /-- A sum taken over a conditional whose condition is an equality\ntest on the index and whose alternative is `0` has value either the term at that index or `0`.\n\nThe difference with `Finset.sum_ite_eq` is that the arguments to `Eq` are swapped. -/]\ntheorem prod_ite_eq' [DecidableEq ι] (s : Finset ι) (a : ι) (b : ι → M) :",
+            "docstring": "A sum taken over a conditional whose condition is an equality\ntest on the index and whose alternative is `0` has value either the term at that index or `0`.\n\nThe difference with `Finset.sum_ite_eq` is that the arguments to `Eq` are swapped. "
+          },
+          {
+            "id": 58223,
+            "name": "Finset.sum_map_equiv",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L856-L856",
+            "source_text": "@[to_additive]\ntheorem prod_map_equiv (e : ι ≃ κ) : (s.map e).prod (f ∘ e.symm) = s.prod f := by simp",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.sum_ite_eq Finset.sum_ite_eq'",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.PrefixPartition.count",
+        "status": "ok",
+        "results": [
+          {
+            "id": 189209,
+            "name": "Nat.Partition.card_restricted_eq_card_countRestricted",
+            "module": "Mathlib.Combinatorics.Enumerative.Partition.Glaisher",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Glaisher.lean#L153-L156",
+            "source_text": "theorem card_restricted_eq_card_countRestricted (n : ℕ) {m : ℕ} (hm : 0 < m) :\n    #(restricted n (¬ m ∣ ·)) = #(countRestricted n m) := by\n  simpa using PowerSeries.ext_iff.mp\n    (powerSeriesMk_card_restricted_eq_powerSeriesMk_card_countRestricted ℤ hm) n\n",
+            "docstring": null
+          },
+          {
+            "id": 189186,
+            "name": "Nat.Partition.countRestricted",
+            "module": "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Basic.lean#L212-L214",
+            "source_text": "/-- The finset of those partitions in which every part is used less than `m` times. -/\ndef countRestricted (n : ℕ) (m : ℕ) : Finset n.Partition :=\n  Finset.univ.filter fun x ↦ ∀ i ∈ x.parts, x.parts.count i < m\n",
+            "docstring": "The finset of those partitions in which every part is used less than `m` times. "
+          },
+          {
+            "id": 194444,
+            "name": "SzemerediRegularity.card_chunk",
+            "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Chunk",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Chunk.lean#L173-L178",
+            "source_text": "theorem card_chunk (hm : m ≠ 0) : #(chunk hP G ε hU).parts = 4 ^ #P.parts := by\n  unfold chunk\n  split_ifs\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le]\n    exact le_of_lt a_add_one_le_four_pow_parts_card\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le a_add_one_le_four_pow_parts_card]\n",
+            "docstring": null
+          },
+          {
+            "id": 194460,
+            "name": "Finpartition.card_filter_equitabilise_small",
+            "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L166-L181",
+            "source_text": "theorem card_filter_equitabilise_small (hm : m ≠ 0) :\n    #{u ∈ (P.equitabilise h).parts | #u = m} = a := by\n  refine (mul_eq_mul_right_iff.1 <| (add_left_inj (b * (m + 1))).1 ?_).resolve_right hm\n  rw [h, ← (P.equitabilise h).sum_card_parts]\n  have hunion :\n    (P.equitabilise h).parts =\n      {u ∈ (P.equitabilise h).parts | #u = m} ∪ {u ∈ (P.equitabilise h).parts | #u = m + 1} := by\n    rw [← filter_or, filter_true_of_mem]\n    exact fun x => card_eq_of_mem_parts_equitabilise\n  nth_rw 2 [hunion]\n  rw [sum_union, sum_const_nat fun x hx => (mem_filter.1 hx).2,\n    sum_const_nat fun x hx => (mem_filter.1 hx).2, P.card_filter_equitabilise_big]\n  refine disjoint_filter_filter' _ _ ?_\n  intro x ha hb i h\n  apply succ_ne_self m _\n  exact (hb i h).symm.trans (ha i h)\n",
+            "docstring": null
+          },
+          {
+            "id": 194461,
+            "name": "Finpartition.card_parts_equitabilise",
+            "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L183-L186",
+            "source_text": "theorem card_parts_equitabilise (hm : m ≠ 0) : #(P.equitabilise h).parts = a + b := by\n  rw [← filter_true_of_mem fun x => card_eq_of_mem_parts_equitabilise, filter_or,\n    card_union_of_disjoint, P.card_filter_equitabilise_small _ hm, P.card_filter_equitabilise_big]\n  aesop (add norm disjoint_filter)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.PrefixPartition.count",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset.card_eq_sum_ones",
+      "Finset.sum_ite_eq Finset.sum_ite_eq'",
+      "M5.PrefixPartition.count"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "list prefix get length equality",
+      "finset cardinality sum fibers"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "list prefix get length equality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 209393,
+            "name": "List.take_eq_self_iff",
+            "module": "Mathlib.Data.List.TakeDrop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L43-L44",
+            "source_text": "@[simp] lemma take_eq_self_iff (x : List α) {n : ℕ} : x.take n = x ↔ x.length ≤ n :=\n  ⟨by grind, take_of_length_le⟩",
+            "docstring": null
+          },
+          {
+            "id": 208144,
+            "name": "List.take_isPrefix_take",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L58-L59",
+            "source_text": "@[simp] lemma take_isPrefix_take {m n : ℕ} : l.take m <+: l.take n ↔ m ≤ n ∨ l.length ≤ n := by\n  simp [prefix_take_iff, take_prefix]; omega",
+            "docstring": null
+          },
+          {
+            "id": 208143,
+            "name": "List.isPrefix_append_of_length",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L54-L56",
+            "source_text": "lemma isPrefix_append_of_length (h : l₁.length ≤ l₂.length) : l₁ <+: l₂ ++ l₃ ↔ l₁ <+: l₂ :=\n  ⟨fun h ↦ by rw [prefix_iff_eq_take] at *; nth_rw 1 [h, take_eq_left_iff]; tauto,\n   fun h ↦ h.trans <| l₂.prefix_append l₃⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 208156,
+            "name": "List.concat_get_prefix",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L115-L120",
+            "source_text": "theorem concat_get_prefix {x y : List α} (h : x <+: y) (hl : x.length < y.length) :\n    x ++ [y.get ⟨x.length, hl⟩] <+: y := by\n  use y.drop (x.length + 1)\n  nth_rw 1 [List.prefix_iff_eq_take.mp h]\n  convert! List.take_append_drop (x.length + 1) y using 2\n  rw [← List.take_concat_get, List.concat_eq_append]; rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 207494,
+            "name": "List.getElem?_length",
+            "module": "Mathlib.Data.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L613-L613",
+            "source_text": "theorem getElem?_length (l : List α) : l[l.length]? = none := getElem?_eq_none (Nat.le_refl _)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "list prefix get length equality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386738,
+            "name": "Physlib.List.orderedInsert_length",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L146-L150",
+            "source_text": "@[simp]\nlemma orderedInsert_length {α : Type} (r : α → α → Prop) [DecidableRel r] (a : α) (l : List α) :\n    (List.orderedInsert r a l).length = (a :: l).length := by\n  apply List.Perm.length_eq\n  exact List.perm_orderedInsert r a l",
+            "docstring": null
+          },
+          {
+            "id": 386740,
+            "name": "Physlib.List.takeWhile_orderedInsert'",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L170-L186",
+            "source_text": "lemma takeWhile_orderedInsert' {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r b c)) (List.orderedInsert r a l)).length =\n    (List.takeWhile (fun c => !decide (r b c)) l).length\n  | [] => by\n    simp [List.orderedInsert, (Std.Total.total a b).resolve_left hr]\n  | c :: l => by\n    have hrba : r b a := (Std.Total.total a b).resolve_left hr\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · by_cases hac : r a c <;> simp [h, hac, hrba]\n    · by_cases hac : r a c\n      · exact absurd (IsTrans.trans _ _ _ hrba hac) h\n      · simp only [hac, ↓reduceIte, h, decide_false, Bool.not_false, List.takeWhile_cons_of_pos,\n        List.length_cons, add_left_inj]\n        exact takeWhile_orderedInsert' r a b hr l\n",
+            "docstring": null
+          },
+          {
+            "id": 386739,
+            "name": "Physlib.List.takeWhile_orderedInsert",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L152-L168",
+            "source_text": "lemma takeWhile_orderedInsert {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r a c)) (List.orderedInsert r b l)).length =\n    (List.takeWhile (fun c => !decide (r a c)) l).length + 1\n  | [] => by\n    simp [hr]\n  | c :: l => by\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · simp [h, hr]\n    · simp only [h, ↓reduceIte]\n      have hl : ¬ r a c :=\n        fun hn => h (IsTrans.trans _ _ _ ((Std.Total.total a b).resolve_left hr) hn)\n      simp only [hl, decide_false, Bool.not_false, List.takeWhile_cons_of_pos, List.length_cons,\n        add_left_inj]\n      exact takeWhile_orderedInsert r a b hr l\n",
+            "docstring": null
+          },
+          {
+            "id": 386668,
+            "name": "Physlib.List.orderedInsertPos_take",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L196-L199",
+            "source_text": "lemma orderedInsertPos_take {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r = List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  rw [orderedInsertPos_take_eq_orderedInsert,orderedInsertPos_take_orderedInsert]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finset cardinality sum fibers",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58256,
+            "name": "Finset.card_eq_sum_card_fiberwise",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L979-L981",
+            "source_text": "theorem card_eq_sum_card_fiberwise [DecidableEq M] {f : ι → M} {s : Finset ι} {t : Finset M}\n    (H : (s : Set ι).MapsTo f t) : #s = ∑ b ∈ t, #{a ∈ s | f a = b} := by\n  simp only [card_eq_sum_ones, sum_fiberwise_of_maps_to H]\n",
+            "docstring": null
+          },
+          {
+            "id": 58257,
+            "name": "Finset.card_eq_sum_card_image",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L983-L985",
+            "source_text": "theorem card_eq_sum_card_image [DecidableEq M] (f : ι → M) (s : Finset ι) :\n    #s = ∑ b ∈ s.image f, #{a ∈ s | f a = b} :=\n  card_eq_sum_card_fiberwise fun _ => mem_image_of_mem _\n",
+            "docstring": null
+          },
+          {
+            "id": 58295,
+            "name": "Finset.sum",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+            "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+            "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+          },
+          {
+            "id": 323027,
+            "name": "Cardinal.sum",
+            "module": "Mathlib.SetTheory.Cardinal.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Defs.lean#L333-L336",
+            "source_text": "/-- The indexed sum of cardinals is the cardinality of the\n  indexed disjoint union, i.e. sigma type. -/\ndef sum {ι} (f : ι → Cardinal) : Cardinal :=\n  mk (Σ i, (f i).out)\n",
+            "docstring": "The indexed sum of cardinals is the cardinality of the\nindexed disjoint union, i.e. sigma type. "
+          },
+          {
+            "id": 156513,
+            "name": "HasFibers",
+            "module": "Mathlib.CategoryTheory.FiberedCategory.HasFibers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/FiberedCategory/HasFibers.lean#L62-L76",
+            "source_text": "/-- HasFibers is an extrinsic notion of fibers on a functor `p : 𝒳 ⥤ 𝒮`. It is given by a\ncollection of categories `Fib S` for every `S : 𝒮` (the fiber categories), each equipped with a\nfunctors `ι : Fib S ⥤ 𝒳` which map constantly to `S` on the base such that the induced functor\n`Fib S ⥤ Fiber p S` is an equivalence. -/\nclass HasFibers (p : 𝒳 ⥤ 𝒮) where\n  /-- The type of objects of the category `Fib S` for each `S`. -/\n  Fib (S : 𝒮) : Type u₃\n  /-- `Fib S` is a category. -/\n  category (S : 𝒮) : Category.{v₃} (Fib S) := by infer_instance\n  /-- The functor `ι : Fib S ⥤ 𝒳`. -/\n  ι (S : 𝒮) : Fib S ⥤ 𝒳\n  /-- The composition with the functor `p` is *equal* to the constant functor mapping to `S`. -/\n  comp_const (S : 𝒮) : ι S ⋙ p = (const (Fib S)).obj S\n  /-- The induced functor from `Fib S` to the fiber of `𝒳 ⥤ 𝒮` over `S` is an equivalence. -/\n  equiv (S : 𝒮) : Functor.IsEquivalence (inducedFunctor (comp_const S)) := by infer_instance\n",
+            "docstring": "HasFibers is an extrinsic notion of fibers on a functor `p : 𝒳 ⥤ 𝒮`. It is given by a\ncollection of categories `Fib S` for every `S : 𝒮` (the fiber categories), each equipped with a\nfunctors `ι : Fib S ⥤ 𝒳` which map constantly to `S` on the base such that the induced functor\n`Fib S ⥤ Fiber p S` is an equivalence. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finset cardinality sum fibers",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386221,
+            "name": "Physlib.FourTree.Branch.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L140-L143",
+            "source_text": "/-- The cardinality of a `Branch` is the total number of leafs. -/\ndef Branch.card {α2 α3 α4 : Type} (T : Branch α2 α3 α4) : Nat :=\n  match T with\n  | .branch _ twigs => (twigs.map Twig.card).sum\n",
+            "docstring": "The cardinality of a `Branch` is the total number of leafs. "
+          },
+          {
+            "id": 386222,
+            "name": "Physlib.FourTree.Trunk.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L145-L148",
+            "source_text": "/-- The cardinality of a `Trunk` is the total number of leafs. -/\ndef Trunk.card {α1 α2 α3 α4 : Type} (T : Trunk α1 α2 α3 α4) : Nat :=\n  match T with\n  | .trunk _ branches => (branches.map Branch.card).sum\n",
+            "docstring": "The cardinality of a `Trunk` is the total number of leafs. "
+          },
+          {
+            "id": 388428,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.ofFinsetCard",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L400-L402",
+            "source_text": "/-- The cardinality of `ofFinset S5 S10`. -/\ndef ofFinsetCard (S5 S10 : Finset 𝓩) : ℕ :=\n    (S5.card + 1) * (S5.card + 1) * (2 ^ S5.card : ℕ) * (2 ^ S10.card : ℕ)\n",
+            "docstring": "The cardinality of `ofFinset S5 S10`. "
+          },
+          {
+            "id": 386223,
+            "name": "Physlib.FourTree.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L150-L153",
+            "source_text": "/-- The cardinality of a `FourTree` is the total number of leafs. -/\ndef card {α1 α2 α3 α4 : Type} (T : FourTree α1 α2 α3 α4) : Nat :=\n  match T with\n  | .root trunks => (trunks.map Trunk.card).sum\n",
+            "docstring": "The cardinality of a `FourTree` is the total number of leafs. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "count_empty",
+    "receipts_sha256": "71a8d64bd294e5af942e885be167ff86b717f611ac671c556f5eb7407c3dd18c"
+  }
+]

@@ -9,7 +9,7 @@ This is a status map of the original reviewed proof, not a strengthened theorem 
 | §2 explicit repeated-tuple R formula | Exact identity, integer division and nonnegativity accepted | [stage24](stage24/RESULTS.md) |
 | §3 integer connectivity indicator | Accepted | [stage9](stage9/RESULTS.md) |
 | §3 polynomial exact-signature exclusion | Finite Boolean exclusion and factor products accepted; Exact finite factor-subset signature indicator accepted | [stage17](stage17/RESULTS.md), [stage18](stage18/RESULTS.md), [stage16](stage16/RESULTS.md) → stage23 |
-| §3 anchored C and conditional recovery | Exact C accepted; conditional recovery open | [stage27](stage27/RESULTS.md); conditional formula stage34 and recovery connection remain |
+| §3 anchored C and conditional recovery | Exact C and conditional formula accepted; actual recovery connection open | [stage27](stage27/RESULTS.md); [stage34](stage34/RESULTS.md); actual recovery connection stage46 remains |
 | §4 feasible-pattern A, necessity and recovery | Exact arithmetic A and necessity accepted; conditional recovery open | [stage31](stage31/RESULTS.md), [stage35](stage35/RESULTS.md); generic recovery [stage37](stage37/RESULTS.md) |
 | §4–5 global arithmetic existence criterion | Accepted, including bounded source and infinite progression | [stage39](stage39/RESULTS.md) |
 | §5 packing and signature preservation | Accepted components | [stage6](stage6/RESULTS.md), [stage8](stage8/RESULTS.md), [stage21](stage21/RESULTS.md) |
@@ -39,4 +39,4 @@ flowchart TD
   global --> final
 ```
 
-The scheduler only releases proved dependencies. Independent ready nodes may run in parallel; the configured proof-worker ceiling is16. Noncomputable character coordinates currently support algebraic correctness; a terminating executable realization remains part of the original arithmetic procedure, not an extra efficiency goal. No distance, inherited-intersection, or anchored-sorting goal is added.
+The scheduler only releases proved dependencies. Independent ready nodes may run in parallel; the configured proof-worker ceiling is16. The final root must connect the finite arithmetic definitions to the structurally terminating actual recovery procedures; assumed oracle correctness is insufficient. Generated Lean runtime code is not an additional acceptance requirement. No distance, inherited-intersection, or anchored-sorting goal is added.

@@ -1,0 +1,154 @@
+[
+  {
+    "id": "restricted_subset_domain",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.ConditionalCount.restricted_subset_domain",
+      "statement": "∀ (W : Finset ℕ) (d k : ℕ), (M5.ConditionalCount.restricted W d).powersetCard k = (W.powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s)",
+      "imports": [
+        "M5ConditionalCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finset gcd union natural gcd"
+      ],
+      "guidance": "Extensionality and Finset.mem_powersetCard. Subset of W.filter means subset of W and every element satisfies divisibility. Return tactic lines only without leading by; keep exact target."
+    },
+    "metadata": {
+      "source_section": "3 conditional recovery",
+      "supports_obligation": "M5_ORDER_CONDITIONAL",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "two_block_completion_count",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.ConditionalCount.two_block_completion_count",
+      "statement": "∀ (P : M5.BinaryPolynomial) (A B WA WB : Finset ℕ) (kA kB : ℕ), P.Monic → Disjoint A WA → Disjoint B WB → M5.ConditionalCount.nSelected P A WA kA * M5.ConditionalCount.nSelected P B WB kB = M5.ConditionalCount.twoBlockIndicatorSum P A B WA WB kA kB",
+      "imports": [
+        "M5ConditionalCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finset gcd union natural gcd"
+      ],
+      "guidance": "Unfold nSelected using monicity and rewrite accepted M5.CompletionBlock.completion_count in both blocks. Distribute product of finite filter cardinalities into double indicator sum. Domains, selected residues and kA,kB are separate; do not replace them by a square. Return tactic lines only without leading by; keep exact target."
+    },
+    "metadata": {
+      "source_section": "3 conditional recovery",
+      "supports_obligation": "M5_ORDER_CONDITIONAL",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "selected_divisor_indicator",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.ConditionalCount.selected_divisor_indicator",
+      "statement": "∀ (N : ℕ) (A B U V : Finset ℕ), 0 < N → M5.ConditionalCount.selectedDivisorSum N A B U V = (if M5.Connectivity.supportGcd N (A ∪ U) (B ∪ V) = 1 then (1 : ℤ) else 0)",
+      "imports": [
+        "M5ConditionalCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finset gcd union natural gcd"
+      ],
+      "guidance": "The selected supportGcd divides positive N and is positive. Apply Connectivity.connected_indicator at that gcd to U,V. Identify resulting gcd with supportGcd N(A union U)(B union V), using Finset.gcd_union and Nat gcd associativity/commutativity, or divisibility antisymmetry with support_gcd_dvd. Return tactic lines only without leading by; keep exact target."
+    },
+    "metadata": {
+      "source_section": "3 conditional recovery",
+      "supports_obligation": "M5_ORDER_CONDITIONAL",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "conditional_arithmetic_expansion",
+    "dependencies": [
+      "restricted_subset_domain",
+      "two_block_completion_count"
+    ],
+    "spec": {
+      "name": "M5.ConditionalCount.conditional_arithmetic_expansion",
+      "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.ConditionalCount.PrefixOK N w A B WA WB → M5.ConditionalCount.rawCompletion N w F A B WA WB = ∑ U ∈ WA.powersetCard (w-A.card), ∑ V ∈ WB.powersetCard (w-B.card), M5.ConditionalCount.pairIndicator N F A B U V",
+      "imports": [
+        "M5ConditionalCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finset gcd union natural gcd"
+      ],
+      "guidance": "Use accepted PolynomialIndicator.residual_factors_regular to show each F*product monic. Restrictions of available sets remain disjoint from selected sets. Apply two_block_completion_count and restricted_subset_domain, distribute sums/indicators and perform explicit Finset.sum_comm permutations. Do not use simp[sum_comm], which loops. Pointwise conditional cases close the rearrangement. Prefix deficits are w-A.card and w-B.card exactly. Return tactic lines only without leading by; keep exact target."
+    },
+    "metadata": {
+      "source_section": "3 conditional recovery",
+      "supports_obligation": "M5_ORDER_CONDITIONAL",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "exact_completion_C",
+    "dependencies": [
+      "conditional_arithmetic_expansion",
+      "selected_divisor_indicator"
+    ],
+    "spec": {
+      "name": "M5.ConditionalCount.exact_completion_C",
+      "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.ConditionalCount.PrefixOK N w A B WA WB → M5.ConditionalCount.completionC N w F A B WA WB = (M5.ConditionalCount.validCompletions N w F A B WA WB).card",
+      "imports": [
+        "M5ConditionalCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finset gcd union natural gcd"
+      ],
+      "guidance": "PrefixOK supplies both cardinality guards, disjointness and physical prefix constraints. Expand rawCompletion, apply selected_divisor_indicator and accepted PolynomialIndicator.exact_signature_indicator. For U,V in powersetCard domains, disjointness and Nat.add_sub_of_le give union cardinality w. Identify double 0/1 sum with validCompletions filter cardinality. Multiplicities and cancellations retained. Return tactic lines only without leading by; keep exact target."
+    },
+    "metadata": {
+      "source_section": "3 conditional recovery",
+      "supports_obligation": "M5_ORDER_CONDITIONAL",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "completion_nonnegative_and_exists",
+    "dependencies": [
+      "exact_completion_C"
+    ],
+    "spec": {
+      "name": "M5.ConditionalCount.completion_nonnegative_and_exists",
+      "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.ConditionalCount.PrefixOK N w A B WA WB → (0 ≤ M5.ConditionalCount.completionC N w F A B WA WB ∧ (0 < M5.ConditionalCount.completionC N w F A B WA WB ↔ (M5.ConditionalCount.validCompletions N w F A B WA WB).Nonempty))",
+      "imports": [
+        "M5ConditionalCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finset gcd union natural gcd"
+      ],
+      "guidance": "Rewrite exact_completion_C. Natural cardinality is nonnegative and positive iff the finite completion set is nonempty. This is exact semantic existence; the branch recovery algorithm is a subsequent original obligation. Return tactic lines only without leading by; keep exact target."
+    },
+    "metadata": {
+      "source_section": "3 conditional recovery",
+      "supports_obligation": "M5_ORDER_CONDITIONAL",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  }
+]

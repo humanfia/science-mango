@@ -1,0 +1,3 @@
+import Candidate_e185eae85f558ae1
+example : QuantumHarnessFrozenTarget := M5.ConditionalCount.completion_nonnegative_and_exists
+#print axioms M5.ConditionalCount.completion_nonnegative_and_exists

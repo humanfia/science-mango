@@ -1,0 +1,3 @@
+import Candidate_340aa1c763a065e5
+example : QuantumHarnessFrozenTarget := M5.ConditionalCount.selected_divisor_indicator
+#print axioms M5.ConditionalCount.selected_divisor_indicator

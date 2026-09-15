@@ -1,0 +1,102 @@
+{
+  "title": "M5 stage44: semantic prefix partition for actual recovery",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Shared finite semantic partition lemma; actual arithmetic oracle identification remains mandatory.",
+  "nodes": [
+    {
+      "id": "prefix_next",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PrefixPartition.prefix_next",
+        "statement": "\u2200 (\u03b1 : Type) (p q : List \u03b1) (a : \u03b1) (h : p.length < q.length), (p ++ [a]).IsPrefix q \u2194 p.IsPrefix q \u2227 q.get \u27e8p.length, h\u27e9 = a",
+        "imports": [
+          "M5PrefixPartition"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix get length equality",
+          "finset cardinality sum fibers"
+        ],
+        "guidance": "Forward shorten the prefix and compare getElem at p.length. Reverse use List.concat_get_prefix (h : p <+: q) (hl : p.length < q.length). List.IsPrefix.getElem identifies entries. All symbols are core List definitions. Return tactic lines only, without leading by, preserve target."
+      },
+      "metadata": {
+        "source_section": "3,4 recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "count_empty",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PrefixPartition.count_empty",
+        "statement": "\u2200 (\u03b1 : Type) (W : Finset (List \u03b1)), M5.PrefixPartition.count W [] = (W.card : \u2124)",
+        "imports": [
+          "M5PrefixPartition"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix get length equality",
+          "finset cardinality sum fibers"
+        ],
+        "guidance": "Unfold count; every list has empty prefix. Return tactic lines only, without leading by, preserve target."
+      },
+      "metadata": {
+        "source_section": "3,4 recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "count_partition",
+      "dependencies": [
+        "prefix_next"
+      ],
+      "spec": {
+        "name": "M5.PrefixPartition.count_partition",
+        "statement": "\u2200 (\u03b1 : Type) [Fintype \u03b1] [DecidableEq \u03b1] (W : Finset (List \u03b1)) (m : \u2115) (p : List \u03b1), (\u2200 q \u2208 W, q.length = m) \u2192 p.length < m \u2192 M5.PrefixPartition.count W p = \u2211 a : \u03b1, M5.PrefixPartition.count W (p ++ [a])",
+        "imports": [
+          "M5PrefixPartition"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix get length equality",
+          "finset cardinality sum fibers"
+        ],
+        "guidance": "Partition W.filter(prefix p) by its next entry. Finset.card_eq_sum_card_fiberwise gives #s = sum b in t, #(s.filter (f \u00b7 = b)); t=univ. Use a total next-entry function defined with if h:p.length<q.length then q.get... else an arbitrary fallback; choose fallback from a word if needed, or split nonempty alpha / empty W. Alternatively commute finite sums of 0/1 indicators and use uniqueness of next letter from prefix_next. Preserve finite semantic helper only, no claim this defines arithmetic C/A. Return tactic lines only, without leading by, preserve target."
+      },
+      "metadata": {
+        "source_section": "3,4 recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "count_terminal",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PrefixPartition.count_terminal",
+        "statement": "\u2200 (\u03b1 : Type) [DecidableEq \u03b1] (W : Finset (List \u03b1)) (m : \u2115) (p : List \u03b1), (\u2200 q \u2208 W, q.length = m) \u2192 p.length = m \u2192 M5.PrefixPartition.count W p = (if p \u2208 W then 1 else 0)",
+        "imports": [
+          "M5PrefixPartition"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix get length equality",
+          "finset cardinality sum fibers"
+        ],
+        "guidance": "At equal length List.IsPrefix.eq_of_length shows prefix iff equality. Rewrite filtered W to singleton p or empty. No assumption that W is nonempty. Return tactic lines only, without leading by, preserve target."
+      },
+      "metadata": {
+        "source_section": "3,4 recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

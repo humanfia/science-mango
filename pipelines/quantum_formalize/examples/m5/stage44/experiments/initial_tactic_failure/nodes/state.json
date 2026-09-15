@@ -1,0 +1,222 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T09:22:15.455941+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "count_empty": {
+      "id": "count_empty",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PrefixPartition.count_empty",
+        "spec_sha256": "a5b64d425db2f167118545baa768920bb5b5f416caa6891e7e79184b0c5daf38",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-ebrwjmeb/attempt-001/Candidate_331ebf72ffb26829.lean",
+            "target_path": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-ebrwjmeb/attempt-001/FrozenTarget_331ebf72ffb26829.lean",
+            "feedback": "",
+            "target_sha256": "16774879c0b743682982cac7048f64fe10bb557cfa83cde71380e918c55b1bc1",
+            "target_olean_sha256": "17ea9d6e15a17d636181441694141545c62254f7741129ea8b76000aacbe282d",
+            "source_sha256": "14ae4a9234858fe1f90e4a411957227b5f777d1e4f7c894e3673c0157c0d451c",
+            "olean_sha256": "29f096f8846d5a0c775b1dec536f68a898e5d9be4a4a00f1da25b97fe846112c",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:14:08.747241+00:00",
+        "work": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-ebrwjmeb",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "41c6ea3b904e3c39600655a2304868ba935c7e4b0be04373bb2012163c63e126",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-ebrwjmeb/attempt-001/Candidate_331ebf72ffb26829.lean",
+        "environment_sha256": "835dd05ed6f89971e6bfa1f533212ac21e3d55712dc7bb72645ba6de0585afaa",
+        "artifacts": {
+          "count_empty": {
+            "payload": {
+              "declaration": "theorem M5.PrefixPartition.count_empty : ∀ (α : Type) (W : Finset (List α)), M5.PrefixPartition.count W [] = (W.card : ℤ) := by\n  change ∀ (α : Type) (W : Finset (List α)), M5.PrefixPartition.count W [] = (W.card : ℤ)\n  intro α W\n  classical\n  simp [M5.PrefixPartition.count]",
+              "imports": [
+                "M5PrefixPartition"
+              ],
+              "name": "M5.PrefixPartition.count_empty",
+              "ancestors": [],
+              "spec_sha256": "a5b64d425db2f167118545baa768920bb5b5f416caa6891e7e79184b0c5daf38"
+            },
+            "sha256": "33c57cb0b555f76a4ca28255c0c403a2553e6f051dcfe6ce9a60bb446f1e8b4f"
+          }
+        }
+      }
+    },
+    "count_terminal": {
+      "id": "count_terminal",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M5.PrefixPartition.count_terminal",
+        "spec_sha256": "2c58734afeb9c16050aa57c5653c79aa92b2a95b146a464276e338c1dfe39321",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-001/Candidate_6f8b4eabbab3545b.lean:5:4: error: 'change' tactic failed, pattern\n  ↑{q ∈ W | p <+: q}.card = if p ∈ W then 1 else 0\nis not definitionally equal to target\n  count W p = if p ∈ W then 1 else 0\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-002/Candidate_97396d444aa05e65.lean:2:74: error: unsolved goals\nα : Type\ninst : DecidableEq α\nW : Finset (List α)\nm : ℕ\np : List α\nhW : ∀ q ∈ W, q.length = m\nhp : p.length = m\nhprefix : ∀ q ∈ W, p <+: q ↔ q = p\nhtake : ∀ q ∈ W, List.take p.length q = q\nhf₁ : {q ∈ W | p <+: q} = {q ∈ W | q = p}\nhf₂ : {q ∈ W | List.take p.length q = p} = {q ∈ W | q = p}\nhf₃ : {q ∈ W | p = List.take p.length q} = {q ∈ W | q = p}\n⊢ ↑{x ∈ W | p = x}.card = if p ∈ W then 1 else 0\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-002/Candidate_97396d444aa05e65.lean:26:20: warning: This simp argument is unused:\n  hf₁\n\nHint: Omit it from the simp argument list.\n  [apply] simp +contextual [hf₂, hf₃, hprefix, htake, eq_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-002/Candidate_97396d444aa05e65.lean:26:25: warning: This simp argument is unused:\n  hf₂\n\nHint: Omit it from the simp argument list.\n  [apply] simp +contextual [hf₁, hf₃, hprefix, htake, eq_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-002/Candidate_97396d444aa05e65.lean:26:30: warning: This simp argument is unused:\n  hf₃\n\nHint: Omit it from the simp argument list.\n  [apply] simp +contextual [hf₁, hf₂, hprefix, htake, eq_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-002/Candidate_97396d444aa05e65.lean:26:44: warning: This simp argument is unused:\n  htake\n\nHint: Omit it from the simp argument list.\n  [apply] simp +contextual [hf₁, hf₂, hf₃, hprefix, eq_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-003/Candidate_4a1826fcdd4c71bd.lean:11:12: error(lean.unknownIdentifier): Unknown constant `List.IsPrefix.refl`\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-003/Candidate_4a1826fcdd4c71bd.lean:16:23: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-003/Candidate_4a1826fcdd4c71bd.lean:23:23: warning: `if_neg` has been deprecated: Use `ite_eq_right` instead\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-003/Candidate_4a1826fcdd4c71bd.lean:23:50: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-003/Candidate_4a1826fcdd4c71bd.lean:24:13: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ncase neg\nα : Type\ninst✝ : DecidableEq α\nW : Finset (List α)\nm : ℕ\np : List α\nhW : ∀ q ∈ W, q.length = m\nhp : p.length = m\nhprefix : ∀ q ∈ W, p <+: q ↔ q = p\nq : List α\nhmem : p ∉ W\n⊢ q ∈ W ∧ p = q ↔ q ∈ if False then {p} else ∅\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-003/Candidate_4a1826fcdd4c71bd.lean:23:23: warning: This simp argument is unused:\n  if_neg\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hmem, Finset.mem_filter, Finset.not_mem_empty, iff_false]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-003/Candidate_4a1826fcdd4c71bd.lean:23:72: warning: This simp argument is unused:\n  iff_false\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hmem, if_neg, Finset.mem_filter, Finset.not_mem_empty]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-004/Candidate_a50c783e9f3eb6dd.lean:13:2: error: 'change' tactic failed, pattern\n  ↑{q ∈ W | p <+: q}.card = if p ∈ W then 1 else 0\nis not definitionally equal to target\n  count W p = if p ∈ W then 1 else 0\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-005/Candidate_605d312dee75085b.lean:2:74: error: unsolved goals\nα : Type\ninst : DecidableEq α\nW : Finset (List α)\nm : ℕ\np : List α\nhW : ∀ q ∈ W, q.length = m\nhp : p.length = m\nht : ∀ q ∈ W, List.take p.length q = q\nhf : {q ∈ W | p <+: q} = {q ∈ W | q = p}\nhg : {q ∈ W | List.take p.length q = p} = {q ∈ W | q = p}\nhh : {q ∈ W | p = List.take p.length q} = {q ∈ W | q = p}\n⊢ ↑{q ∈ W | p <+: q}.card = if p ∈ W then 1 else 0\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-005/Candidate_605d312dee75085b.lean:20:34: warning: This simp argument is unused:\n  hf\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PrefixPartition.count, hg, hh]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-005/Candidate_605d312dee75085b.lean:20:38: warning: This simp argument is unused:\n  hg\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PrefixPartition.count, hf, hh]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a/attempt-005/Candidate_605d312dee75085b.lean:20:42: warning: This simp argument is unused:\n  hh\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PrefixPartition.count, hf, hg]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T09:14:08.753581+00:00",
+        "work": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-t_hfjb0a",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "41c6ea3b904e3c39600655a2304868ba935c7e4b0be04373bb2012163c63e126",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "prefix_next": {
+      "id": "prefix_next",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PrefixPartition.prefix_next",
+        "spec_sha256": "2fa432435b5aa37959dbf33940cbc7cf622df3497b56f6ce11fed966c6f01436",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-md_afn65/attempt-001/Candidate_cf32a72c8e294fe5.lean",
+            "target_path": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-md_afn65/attempt-001/FrozenTarget_cf32a72c8e294fe5.lean",
+            "feedback": "",
+            "target_sha256": "8875def1433d0f26f93d931b50ccf3320f452d3faacd655213e19ddc9b0bfa1a",
+            "target_olean_sha256": "c119e9e37e5958df0d4b2901df8c43bc3e5380a40e7f269bfd48494aaacba32d",
+            "source_sha256": "fd2c8e7cb9b0911143f5740353f081b166ca0b3c8cbe91925dad5c2258252fc6",
+            "olean_sha256": "98dbea909b4ec9847f53772b286d384ea8b3f461659382deeb306683addd5a53",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:14:08.760196+00:00",
+        "work": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-md_afn65",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "41c6ea3b904e3c39600655a2304868ba935c7e4b0be04373bb2012163c63e126",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-md_afn65/attempt-001/Candidate_cf32a72c8e294fe5.lean",
+        "environment_sha256": "835dd05ed6f89971e6bfa1f533212ac21e3d55712dc7bb72645ba6de0585afaa",
+        "artifacts": {
+          "prefix_next": {
+            "payload": {
+              "declaration": "theorem M5.PrefixPartition.prefix_next : ∀ (α : Type) (p q : List α) (a : α) (h : p.length < q.length), (p ++ [a]).IsPrefix q ↔ p.IsPrefix q ∧ q.get ⟨p.length, h⟩ = a := by\n  change ∀ (α : Type) (p q : List α) (a : α) (h : p.length < q.length), (p ++ [a]).IsPrefix q ↔ p.IsPrefix q ∧ q.get ⟨p.length, h⟩ = a\n  intro α p q a h\n  constructor\n  · rintro ⟨s, rfl⟩\n    constructor\n    · exact ⟨[a] ++ s, by simp [List.append_assoc]⟩\n    · simp [List.get_eq_getElem, List.append_assoc, List.getElem_append]\n  · rintro ⟨hp, ha⟩\n    simpa only [ha] using (List.concat_get_prefix hp h)",
+              "imports": [
+                "M5PrefixPartition"
+              ],
+              "name": "M5.PrefixPartition.prefix_next",
+              "ancestors": [],
+              "spec_sha256": "2fa432435b5aa37959dbf33940cbc7cf622df3497b56f6ce11fed966c6f01436"
+            },
+            "sha256": "e43a2de8bb71b24450968fdb30ea3d2521fe0b616424d6e269d5c822aacc7163"
+          }
+        }
+      }
+    },
+    "count_partition": {
+      "id": "count_partition",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M5.PrefixPartition.count_partition",
+        "spec_sha256": "db1bc90920992c5bf2f1e9e6515720d3d4700fe77892e29bd7103b23edf64915",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-buh_63bq/attempt-001/Candidate_4b92e8dd9b330d67.lean:30:2: error: 'change' tactic failed, pattern\n  ↑{q ∈ W | p <+: q}.card = ∑ a, ↑{q ∈ W | p ++ [a] <+: q}.card\nis not definitionally equal to target\n  count W p = ∑ a, count W (p ++ [a])\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-buh_63bq/attempt-002/Candidate_57c8028e282f9c03.lean:8:4: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-buh_63bq/attempt-003/Candidate_c9a171a06bb1c956.lean:7:4: error: Type mismatch: After simplification, term\n  congrArg (fun n => ↑n) hc\n has type\n  ↑{q ∈ W | p <+: q}.card = ∑ x, ↑{q ∈ W | p ++ [x] <+: q}.card\nbut is expected to have type\n  ↑{q ∈ W | p <+: q}.card = ∑ a, ↑{q ∈ W | p ++ [a] <+: q}.card\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-buh_63bq/attempt-003/Candidate_c9a171a06bb1c956.lean:15:34: warning: `if_true` has been deprecated: Use `ite_true` instead\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-buh_63bq/attempt-003/Candidate_c9a171a06bb1c956.lean:16:35: warning: `if_false` has been deprecated: Use `ite_false` instead\n/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-buh_63bq/attempt-003/Candidate_c9a171a06bb1c956.lean:15:62: warning: This simp argument is unused:\n  Finset.sum_ite_eq'\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [hprefix, true_and, if_true, Finset.sum_ite_eq, Finset.mem_univ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-buh_63bq/attempt-004/Candidate_ca29c6654a302cce.lean:22:2: error: 'change' tactic failed, pattern\n  ↑{q ∈ W | p <+: q}.card = ∑ a, ↑{q ∈ W | p ++ [a] <+: q}.card\nis not definitionally equal to target\n  count W p = ∑ a, count W (p ++ [a])\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-buh_63bq/attempt-005/Candidate_3768ac090dc8e644.lean:16:2: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T09:15:49.316867+00:00",
+        "work": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-buh_63bq",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "41c6ea3b904e3c39600655a2304868ba935c7e4b0be04373bb2012163c63e126",
+        "phase": "finished",
+        "round": 5
+      }
+    }
+  }
+}

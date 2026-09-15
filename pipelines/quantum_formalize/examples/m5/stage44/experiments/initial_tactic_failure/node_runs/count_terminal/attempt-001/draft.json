@@ -1,0 +1,7 @@
+{
+  "proof": "  classical\n  intro α _ W m p hW hp\n  change ((W.filter (fun q => p <+: q)).card : ℤ) = (if p ∈ W then 1 else 0)\n  have heq : ∀ q ∈ W, (p <+: q) ↔ q = p := by\n    intro q hq\n    constructor\n    · intro h\n      exact (h.eq_of_length (hp.trans (hW q hq).symm)).symm\n    · intro h\n      subst q\n      exact List.IsPrefix.refl _\n  by_cases hmem : p ∈ W\n  · have hf : W.filter (fun q => p <+: q) = {p} := by\n      ext q\n      simp only [Finset.mem_filter, Finset.mem_singleton]\n      constructor\n      · rintro ⟨hq, hprefix⟩\n        exact (heq q hq).mp hprefix\n      · intro h\n        subst q\n        exact ⟨hmem, List.IsPrefix.refl _⟩\n    simp [hf, hmem]\n  · have hf : W.filter (fun q => p <+: q) = ∅ := by\n      apply Finset.eq_empty_iff_forall_notMem.mpr\n      intro q hq\n      obtain ⟨hqW, hprefix⟩ := Finset.mem_filter.mp hq\n      have hqp := (heq q hqW).mp hprefix\n      subst q\n      exact hmem hqW\n    simp [hf, hmem]",
+  "queries": [
+    "List.IsPrefix.eq_of_length",
+    "List.IsPrefix.refl"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "two_block_completion_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ConditionalCount.two_block_completion_count",
+    "spec_sha256": "48d598bad578b14824267497ef86d05e1ae711e4720b00338bb7e2c1edc2a67e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-ia7oc7gy/attempt-001/Candidate_ba76c0af309daee2.lean",
+        "target_path": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-ia7oc7gy/attempt-001/FrozenTarget_ba76c0af309daee2.lean",
+        "feedback": "",
+        "target_sha256": "8183b0751a348b12a4aa3fb4c0cdec1fe144725d42c77375b3ca6b4f1dbc8fd8",
+        "target_olean_sha256": "b6bcd353d10a3e633e69007a864dc5980b255097a4cea57d7987f07bd86514c2",
+        "source_sha256": "9ac5cd51db58bb78ebe9fc0a926c37f96c0aa8018d3791a7aa703ce89a04aee4",
+        "olean_sha256": "751c6341031212801f9055029401cca7ae2271c43721aa2405dd4ee5660acbae",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:12:16.833199+00:00",
+    "work": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-ia7oc7gy",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4ec35bece8deb4bf1cc1baaf005d7f6c52593efd49fcf94458e754e4aaf40315",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-ia7oc7gy/attempt-001/Candidate_ba76c0af309daee2.lean",
+    "environment_sha256": "6bd5a51ce189d8b0b4eb9d2339417185d2af13d5c67d83b5f6bde181863cb456",
+    "artifacts": {
+      "two_block_completion_count": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalCount.two_block_completion_count : ∀ (P : M5.BinaryPolynomial) (A B WA WB : Finset ℕ) (kA kB : ℕ), P.Monic → Disjoint A WA → Disjoint B WB → M5.ConditionalCount.nSelected P A WA kA * M5.ConditionalCount.nSelected P B WB kB = M5.ConditionalCount.twoBlockIndicatorSum P A B WA WB kA kB := by\n  classical\n  intro P A B WA WB kA kB hP hA hB\n  simp only [M5.ConditionalCount.nSelected, dif_pos hP]\n  rw [M5.CompletionBlock.completion_count P hP A WA kA hA,\n    M5.CompletionBlock.completion_count P hP B WB kB hB]\n  unfold M5.CompletionBlock.count M5.ConditionalCount.twoBlockIndicatorSum\n  simp only [Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one, Finset.sum_filter]\n  rw [Finset.sum_mul]\n  simp_rw [Finset.mul_sum]\n  apply Finset.sum_congr rfl\n  intro U hU\n  apply Finset.sum_congr rfl\n  intro V hV\n  by_cases hUA : P ∣ M5.SupportPolynomial.ofSupport (A ∪ U) <;>\n    by_cases hVB : P ∣ M5.SupportPolynomial.ofSupport (B ∪ V) <;>\n    simp [hUA, hVB]",
+          "imports": [
+            "M5ConditionalCount"
+          ],
+          "name": "M5.ConditionalCount.two_block_completion_count",
+          "ancestors": [],
+          "spec_sha256": "48d598bad578b14824267497ef86d05e1ae711e4720b00338bb7e2c1edc2a67e"
+        },
+        "sha256": "810bda1f6297ccdc4de6801c69fb9b7045b7d595f6b71ed7c390a14c61697cfa"
+      }
+    }
+  }
+}

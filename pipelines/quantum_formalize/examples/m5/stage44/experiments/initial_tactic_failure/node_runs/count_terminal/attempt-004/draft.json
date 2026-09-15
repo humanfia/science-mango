@@ -1,0 +1,4 @@
+{
+  "proof": "intro α _ W m p hW hp\nclassical\nhave hprefix : ∀ q ∈ W, p <+: q ↔ q = p := by\n  intro q hq\n  constructor\n  · intro h\n    exact (h.eq_of_length (hp.trans (hW q hq).symm)).symm\n  · intro h\n    subst q\n    exact ⟨[], by simp⟩\nchange ((W.filter (fun q => p <+: q)).card : ℤ) = (if p ∈ W then 1 else 0)\nby_cases hmem : p ∈ W\n· have hf : W.filter (fun q => p <+: q) = {p} := by\n    ext q\n    simp only [Finset.mem_filter, Finset.mem_singleton]\n    constructor\n    · intro h\n      exact (hprefix q h.1).mp h.2\n    · intro h\n      subst q\n      exact ⟨hmem, ⟨[], by simp⟩⟩\n  rw [hf]\n  simp [hmem]\n· have hf : W.filter (fun q => p <+: q) = ∅ := by\n    ext q\n    constructor\n    · intro h\n      obtain ⟨hq, hpq⟩ := Finset.mem_filter.mp h\n      have he : q = p := (hprefix q hq).mp hpq\n      subst q\n      exact (hmem hq).elim\n    · intro h\n      simp at h\n  rw [hf]\n  simp [hmem]",
+  "queries": []
+}

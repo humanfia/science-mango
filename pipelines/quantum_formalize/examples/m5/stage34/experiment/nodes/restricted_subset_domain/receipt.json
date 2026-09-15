@@ -1,0 +1,55 @@
+{
+  "id": "restricted_subset_domain",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ConditionalCount.restricted_subset_domain",
+    "spec_sha256": "6abacd630ff95786ff37438544b086bfc00ff288c5138dc7a305921b1617816d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-ea981ypj/attempt-001/Candidate_0ab3f7841a7e820d.lean",
+        "target_path": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-ea981ypj/attempt-001/FrozenTarget_0ab3f7841a7e820d.lean",
+        "feedback": "",
+        "target_sha256": "1262f1cad18dee02f030c9c0310031565b6a48315e1488a0bd9b39d7bfe5a7dd",
+        "target_olean_sha256": "fc33d4e6e64233ff614a3b21fbacb565cccac9efb9fe0318b9776286d6065f88",
+        "source_sha256": "af12b81348fbcc94b31df65eb32042be199a33d4bb96865e1d763cb6869bde12",
+        "olean_sha256": "5c5e612595fb28662b8494d31424c708c47e2b69d7053250d2a8241cfcb0a9c5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:23:28.973466+00:00",
+    "work": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-ea981ypj",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4ec35bece8deb4bf1cc1baaf005d7f6c52593efd49fcf94458e754e4aaf40315",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-ea981ypj/attempt-001/Candidate_0ab3f7841a7e820d.lean",
+    "environment_sha256": "6bd5a51ce189d8b0b4eb9d2339417185d2af13d5c67d83b5f6bde181863cb456",
+    "artifacts": {
+      "restricted_subset_domain": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalCount.restricted_subset_domain : ∀ (W : Finset ℕ) (d k : ℕ), (M5.ConditionalCount.restricted W d).powersetCard k = (W.powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s) := by\n  intro W d k\n  classical\n  change (W.filter (fun s => d ∣ s)).powersetCard k =\n    (W.powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s)\n  apply Finset.ext\n  intro U\n  simp only [Finset.mem_powersetCard, Finset.mem_filter]\n  constructor\n  · rintro ⟨hU, hk⟩\n    refine ⟨⟨?_, hk⟩, ?_⟩\n    · intro s hs\n      exact (Finset.mem_filter.mp (hU hs)).1\n    · intro s hs\n      exact (Finset.mem_filter.mp (hU hs)).2\n  · rintro ⟨⟨hU, hk⟩, hd⟩\n    refine ⟨?_, hk⟩\n    intro s hs\n    exact Finset.mem_filter.mpr ⟨hU hs, hd s hs⟩",
+          "imports": [
+            "M5ConditionalCount"
+          ],
+          "name": "M5.ConditionalCount.restricted_subset_domain",
+          "ancestors": [],
+          "spec_sha256": "6abacd630ff95786ff37438544b086bfc00ff288c5138dc7a305921b1617816d"
+        },
+        "sha256": "eef6f25196adf19cad19115999fa44920020cf5983737fe003c210b2785aa931"
+      }
+    }
+  }
+}

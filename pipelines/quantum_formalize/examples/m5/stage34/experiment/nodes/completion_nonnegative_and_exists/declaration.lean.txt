@@ -1,0 +1,8 @@
+theorem M5.ConditionalCount.completion_nonnegative_and_exists : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.ConditionalCount.PrefixOK N w A B WA WB → (0 ≤ M5.ConditionalCount.completionC N w F A B WA WB ∧ (0 < M5.ConditionalCount.completionC N w F A B WA WB ↔ (M5.ConditionalCount.validCompletions N w F A B WA WB).Nonempty)) := by
+  intro N w F A B WA WB hN hF hFN hprefix
+  rw [M5.ConditionalCount.exact_completion_C N w F A B WA WB hN hF hFN hprefix]
+  constructor
+  · positivity
+  · exact_mod_cast (Finset.card_pos :
+      0 < (M5.ConditionalCount.validCompletions N w F A B WA WB).card ↔
+        (M5.ConditionalCount.validCompletions N w F A B WA WB).Nonempty)

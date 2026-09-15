@@ -1,0 +1,13 @@
+{
+  "name": "M5.PrefixPartition.prefix_next",
+  "statement": "∀ (α : Type) (p q : List α) (a : α) (h : p.length < q.length), (p ++ [a]).IsPrefix q ↔ p.IsPrefix q ∧ q.get ⟨p.length, h⟩ = a",
+  "imports": [
+    "M5PrefixPartition"
+  ],
+  "context": "",
+  "queries": [
+    "list prefix get length equality",
+    "finset cardinality sum fibers"
+  ],
+  "guidance": "Forward shorten the prefix and compare getElem at p.length. Reverse use List.concat_get_prefix (h : p <+: q) (hl : p.length < q.length). List.IsPrefix.getElem identifies entries. All symbols are core List definitions. Return tactic lines only, without leading by, preserve target."
+}

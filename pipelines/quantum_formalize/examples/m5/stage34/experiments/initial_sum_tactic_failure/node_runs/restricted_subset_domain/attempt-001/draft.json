@@ -1,0 +1,4 @@
+{
+  "proof": "intro W d k\nclassical\nchange (W.filter (fun s => d ∣ s)).powersetCard k =\n  (W.powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s)\napply Finset.ext\nintro U\nsimp only [Finset.mem_powersetCard, Finset.mem_filter]\nconstructor\n· rintro ⟨hU, hk⟩\n  refine ⟨⟨?_, hk⟩, ?_⟩\n  · intro s hs\n    exact (Finset.mem_filter.mp (hU hs)).1\n  · intro s hs\n    exact (Finset.mem_filter.mp (hU hs)).2\n· rintro ⟨⟨hU, hk⟩, hd⟩\n  refine ⟨?_, hk⟩\n  intro s hs\n  exact Finset.mem_filter.mpr ⟨hU hs, hd s hs⟩",
+  "queries": []
+}

@@ -1,0 +1,55 @@
+{
+  "id": "count_terminal",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PrefixPartition.count_terminal",
+    "spec_sha256": "2c58734afeb9c16050aa57c5653c79aa92b2a95b146a464276e338c1dfe39321",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-nvm5869x/attempt-001/Candidate_63fe06f493747fc2.lean",
+        "target_path": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-nvm5869x/attempt-001/FrozenTarget_63fe06f493747fc2.lean",
+        "feedback": "",
+        "target_sha256": "ab196488ebf49c96041c268a3ea7d1d73885d79b9a947471c5a8324b80c7b74a",
+        "target_olean_sha256": "09c23140b9ac6bf662fe9a6d0c65774b69b3aac47e50179805961a5b435a691a",
+        "source_sha256": "851563b9c11bd564ddae51d9cc5f0981ed37a50ccaf27936be7520a6e7ea2fa3",
+        "olean_sha256": "19b4a8bfc9da872cbfc8505b4faeeb9ca0effdc64843f20a1bd83cfc45347684",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:24:33.732701+00:00",
+    "work": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-nvm5869x",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "41c6ea3b904e3c39600655a2304868ba935c7e4b0be04373bb2012163c63e126",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-prefix-partition-formalization/.humanize-formal-runs/run-nvm5869x/attempt-001/Candidate_63fe06f493747fc2.lean",
+    "environment_sha256": "835dd05ed6f89971e6bfa1f533212ac21e3d55712dc7bb72645ba6de0585afaa",
+    "artifacts": {
+      "count_terminal": {
+        "payload": {
+          "declaration": "theorem M5.PrefixPartition.count_terminal : ∀ (α : Type) [DecidableEq α] (W : Finset (List α)) (m : ℕ) (p : List α), (∀ q ∈ W, q.length = m) → p.length = m → M5.PrefixPartition.count W p = (if p ∈ W then 1 else 0) := by\n  intro α inst W m p hW hp\n  classical\n  have hcount : M5.PrefixPartition.count W p = ((W.filter (fun q => p.IsPrefix q)).card : ℤ) := by\n    unfold M5.PrefixPartition.count\n    apply congrArg (fun s : Finset (List α) => (s.card : ℤ))\n    ext q\n    simp only [Finset.mem_filter]\n  have hf : W.filter (fun q => p.IsPrefix q) = W.filter (fun q => q = p) := by\n    apply Finset.filter_congr\n    intro q hq\n    constructor\n    · intro h\n      exact (h.eq_of_length (hp.trans (hW q hq).symm)).symm\n    · intro h\n      subst q\n      exact List.prefix_refl p\n  rw [hcount, hf]\n  by_cases h : p ∈ W\n  · have hs : W.filter (fun q => q = p) = {p} := by\n      ext q\n      simp only [Finset.mem_filter, Finset.mem_singleton]\n      constructor\n      · exact fun hq => hq.2\n      · intro hq\n        subst q\n        exact ⟨h, rfl⟩\n    rw [hs]\n    simp [h]\n  · simp [h]",
+          "imports": [
+            "M5PrefixPartition"
+          ],
+          "name": "M5.PrefixPartition.count_terminal",
+          "ancestors": [],
+          "spec_sha256": "2c58734afeb9c16050aa57c5653c79aa92b2a95b146a464276e338c1dfe39321"
+        },
+        "sha256": "6eea0a5a1e1dd6d93104a03dd53fb87f980d9c82b4797235e98c78b4f4ddd5df"
+      }
+    }
+  }
+}

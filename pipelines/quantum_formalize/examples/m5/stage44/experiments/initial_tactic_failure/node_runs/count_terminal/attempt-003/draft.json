@@ -1,0 +1,4 @@
+{
+  "proof": "intro α _ W m p hW hp\nclassical\nhave hprefix : ∀ q ∈ W, p <+: q ↔ q = p := by\n  intro q hq\n  constructor\n  · intro h\n    exact (h.eq_of_length (hp.trans (hW q hq).symm)).symm\n  · rintro rfl\n    exact List.IsPrefix.refl p\nhave hf : W.filter (fun q => p = q) =\n    (if p ∈ W then {p} else ∅) := by\n  ext q\n  by_cases hmem : p ∈ W\n  · simp only [hmem, if_pos, Finset.mem_filter, Finset.mem_singleton]\n    constructor\n    · intro h\n      exact h.2.symm\n    · intro h\n      subst q\n      exact ⟨hmem, rfl⟩\n  · simp only [hmem, if_neg, Finset.mem_filter, Finset.not_mem_empty, iff_false]\n    rintro ⟨hq, rfl⟩\n    exact hmem hq\nsimp +contextual [M5.PrefixPartition.count, hprefix, eq_comm]\nrw [hf]\nby_cases hmem : p ∈ W <;> simp [hmem]",
+  "queries": []
+}

@@ -1,0 +1,82 @@
+{
+  "id": "conditional_arithmetic_expansion",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ConditionalCount.conditional_arithmetic_expansion",
+    "spec_sha256": "de0f6dc866019f7db8fb7e0d268f6106b922e7df6a020d96a19d4c6a9004ddcf",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-odnf4w10/attempt-001/Candidate_69ea093d19161d61.lean",
+        "target_path": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-odnf4w10/attempt-001/FrozenTarget_69ea093d19161d61.lean",
+        "feedback": "",
+        "target_sha256": "1c5c23186060895f5d077e8dfd9e72178016ec9566e4bf7782a7af8a10238c9b",
+        "target_olean_sha256": "0de3e8787ea82fa62bab469be2e7052dd61ace7c9a9b8c10a9a66ac752c37ea5",
+        "source_sha256": "80e34440c45d677db88960973aca5b1476c8a59d558ea1a4b8dfbb0f29c69f3e",
+        "olean_sha256": "8d0a89ee9887c595560de808bc16db2915adc6c5a6aa5b452ac1a6d7577eb6c8",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:13:39.705683+00:00",
+    "work": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-odnf4w10",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4ec35bece8deb4bf1cc1baaf005d7f6c52593efd49fcf94458e754e4aaf40315",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-conditional-count-formalization/.humanize-formal-runs/run-odnf4w10/attempt-001/Candidate_69ea093d19161d61.lean",
+    "environment_sha256": "6bd5a51ce189d8b0b4eb9d2339417185d2af13d5c67d83b5f6bde181863cb456",
+    "artifacts": {
+      "restricted_subset_domain": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalCount.restricted_subset_domain : ∀ (W : Finset ℕ) (d k : ℕ), (M5.ConditionalCount.restricted W d).powersetCard k = (W.powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s) := by\n  intro W d k\n  classical\n  change (W.filter (fun s => d ∣ s)).powersetCard k =\n    (W.powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s)\n  apply Finset.ext\n  intro U\n  simp only [Finset.mem_powersetCard, Finset.mem_filter]\n  constructor\n  · rintro ⟨hU, hk⟩\n    refine ⟨⟨?_, hk⟩, ?_⟩\n    · intro s hs\n      exact (Finset.mem_filter.mp (hU hs)).1\n    · intro s hs\n      exact (Finset.mem_filter.mp (hU hs)).2\n  · rintro ⟨⟨hU, hk⟩, hd⟩\n    refine ⟨?_, hk⟩\n    intro s hs\n    exact Finset.mem_filter.mpr ⟨hU hs, hd s hs⟩",
+          "imports": [
+            "M5ConditionalCount"
+          ],
+          "name": "M5.ConditionalCount.restricted_subset_domain",
+          "ancestors": [],
+          "spec_sha256": "6abacd630ff95786ff37438544b086bfc00ff288c5138dc7a305921b1617816d"
+        },
+        "sha256": "eef6f25196adf19cad19115999fa44920020cf5983737fe003c210b2785aa931"
+      },
+      "two_block_completion_count": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalCount.two_block_completion_count : ∀ (P : M5.BinaryPolynomial) (A B WA WB : Finset ℕ) (kA kB : ℕ), P.Monic → Disjoint A WA → Disjoint B WB → M5.ConditionalCount.nSelected P A WA kA * M5.ConditionalCount.nSelected P B WB kB = M5.ConditionalCount.twoBlockIndicatorSum P A B WA WB kA kB := by\n  classical\n  intro P A B WA WB kA kB hP hA hB\n  simp only [M5.ConditionalCount.nSelected, dif_pos hP]\n  rw [M5.CompletionBlock.completion_count P hP A WA kA hA,\n    M5.CompletionBlock.completion_count P hP B WB kB hB]\n  unfold M5.CompletionBlock.count M5.ConditionalCount.twoBlockIndicatorSum\n  simp only [Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one, Finset.sum_filter]\n  rw [Finset.sum_mul]\n  simp_rw [Finset.mul_sum]\n  apply Finset.sum_congr rfl\n  intro U hU\n  apply Finset.sum_congr rfl\n  intro V hV\n  by_cases hUA : P ∣ M5.SupportPolynomial.ofSupport (A ∪ U) <;>\n    by_cases hVB : P ∣ M5.SupportPolynomial.ofSupport (B ∪ V) <;>\n    simp [hUA, hVB]",
+          "imports": [
+            "M5ConditionalCount"
+          ],
+          "name": "M5.ConditionalCount.two_block_completion_count",
+          "ancestors": [],
+          "spec_sha256": "48d598bad578b14824267497ef86d05e1ae711e4720b00338bb7e2c1edc2a67e"
+        },
+        "sha256": "810bda1f6297ccdc4de6801c69fb9b7045b7d595f6b71ed7c390a14c61697cfa"
+      },
+      "conditional_arithmetic_expansion": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalCount.conditional_arithmetic_expansion : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.ConditionalCount.PrefixOK N w A B WA WB → M5.ConditionalCount.rawCompletion N w F A B WA WB = ∑ U ∈ WA.powersetCard (w-A.card), ∑ V ∈ WB.powersetCard (w-B.card), M5.ConditionalCount.pairIndicator N F A B U V := by\n  classical\n  intro N w F A B WA WB hN hF hFN hprefix\n  have hA : Disjoint A WA := by\n    unfold M5.ConditionalCount.PrefixOK at hprefix\n    tauto\n  have hB : Disjoint B WB := by\n    unfold M5.ConditionalCount.PrefixOK at hprefix\n    tauto\n  have hAr (d : ℕ) : Disjoint A (M5.ConditionalCount.restricted WA d) := by\n    exact hA.mono_right (Finset.filter_subset _ _)\n  have hBr (d : ℕ) : Disjoint B (M5.ConditionalCount.restricted WB d) := by\n    exact hB.mono_right (Finset.filter_subset _ _)\n  have hprod (H : Finset M5.BinaryPolynomial)\n      (hH : ∀ p ∈ H, p.Monic) : (∏ p ∈ H, p).Monic := by\n    induction H using Finset.induction_on with\n    | empty => simp\n    | @insert p H hp ih =>\n        rw [Finset.prod_insert hp]\n        exact (hH p (Finset.mem_insert_self p H)).mul\n          (ih (fun q hq => hH q (Finset.mem_insert_of_mem hq)))\n  have hblock (d : ℕ) (H : Finset M5.BinaryPolynomial)\n      (hH : H ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset) :\n      M5.ConditionalCount.nSelected (F * ∏ p ∈ H, p) A\n          (M5.ConditionalCount.restricted WA d) (w - A.card) *\n        M5.ConditionalCount.nSelected (F * ∏ p ∈ H, p) B\n          (M5.ConditionalCount.restricted WB d) (w - B.card) =\n        M5.ConditionalCount.twoBlockIndicatorSum (F * ∏ p ∈ H, p) A B\n          (M5.ConditionalCount.restricted WA d)\n          (M5.ConditionalCount.restricted WB d) (w - A.card) (w - B.card) := by\n    apply M5.ConditionalCount.two_block_completion_count\n    · apply hF.mul\n      apply hprod\n      intro p hp\n      exact (M5.PolynomialIndicator.residual_factors_regular F N hN hF hFN p\n        ((Finset.mem_powerset.mp hH) hp)).1\n    · exact hAr d\n    · exact hBr d\n  unfold M5.ConditionalCount.rawCompletion\n  simp only [mul_assoc]\n  simp (disch := assumption) only [hblock]\n  unfold M5.ConditionalCount.twoBlockIndicatorSum M5.ConditionalCount.pairIndicator M5.PolynomialIndicator.factorExclusionSum\n  simp only [M5.ConditionalCount.restricted_subset_domain, Finset.sum_filter]\n  simp only [Finset.mul_sum, Finset.sum_mul, Finset.ite_sum_zero, ite_mul, mul_ite, mul_zero, zero_mul]\n  conv_lhs =>\n    rw [Finset.sum_comm]\n    arg 2\n    ext S\n    rw [Finset.sum_comm]\n    arg 2\n    ext U\n    rw [Finset.sum_comm]\n  conv_lhs =>\n    rw [Finset.sum_comm]\n    arg 2\n    ext U\n    rw [Finset.sum_comm]\n  apply Finset.sum_congr rfl\n  intro U hU\n  apply Finset.sum_congr rfl\n  intro V hV\n  apply Finset.sum_congr rfl\n  intro S hS\n  apply Finset.sum_congr rfl\n  intro d hd\n  simp only [mul_one]\n  split_ifs <;> simp_all",
+          "imports": [
+            "M5ConditionalCount"
+          ],
+          "name": "M5.ConditionalCount.conditional_arithmetic_expansion",
+          "ancestors": [
+            "restricted_subset_domain",
+            "two_block_completion_count"
+          ],
+          "spec_sha256": "a19898eb0c6d7571cd59e60669faad4d62dbbb1bfc56fa3dd7483c3920179a99"
+        },
+        "sha256": "37e403cc27134255031071209cb5c05bfebe210042439d016cf0e4f22af441b0"
+      }
+    }
+  }
+}

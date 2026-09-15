@@ -1,0 +1,3 @@
+import Candidate_32791cdf5a1c5b56
+example : QuantumHarnessFrozenTarget := M5.ConditionalCount.conditional_arithmetic_expansion
+#print axioms M5.ConditionalCount.conditional_arithmetic_expansion

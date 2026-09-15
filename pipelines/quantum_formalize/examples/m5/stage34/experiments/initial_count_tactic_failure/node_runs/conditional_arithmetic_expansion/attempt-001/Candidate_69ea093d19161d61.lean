@@ -1,0 +1,68 @@
+import FrozenTarget_69ea093d19161d61
+theorem M5.ConditionalCount.conditional_arithmetic_expansion : QuantumHarnessFrozenTarget := by
+  classical
+  intro N w F A B WA WB hN hF hFN hprefix
+  have hA : Disjoint A WA := by
+    unfold M5.ConditionalCount.PrefixOK at hprefix
+    tauto
+  have hB : Disjoint B WB := by
+    unfold M5.ConditionalCount.PrefixOK at hprefix
+    tauto
+  have hAr (d : ℕ) : Disjoint A (M5.ConditionalCount.restricted WA d) := by
+    exact hA.mono_right (Finset.filter_subset _ _)
+  have hBr (d : ℕ) : Disjoint B (M5.ConditionalCount.restricted WB d) := by
+    exact hB.mono_right (Finset.filter_subset _ _)
+  have hprod (H : Finset M5.BinaryPolynomial)
+      (hH : ∀ p ∈ H, p.Monic) : (∏ p ∈ H, p).Monic := by
+    induction H using Finset.induction_on with
+    | empty => simp
+    | @insert p H hp ih =>
+        rw [Finset.prod_insert hp]
+        exact (hH p (Finset.mem_insert_self p H)).mul
+          (ih (fun q hq => hH q (Finset.mem_insert_of_mem hq)))
+  have hblock (d : ℕ) (H : Finset M5.BinaryPolynomial)
+      (hH : H ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset) :
+      M5.ConditionalCount.nSelected (F * ∏ p ∈ H, p) A
+          (M5.ConditionalCount.restricted WA d) (w - A.card) *
+        M5.ConditionalCount.nSelected (F * ∏ p ∈ H, p) B
+          (M5.ConditionalCount.restricted WB d) (w - B.card) =
+        M5.ConditionalCount.twoBlockIndicatorSum (F * ∏ p ∈ H, p) A B
+          (M5.ConditionalCount.restricted WA d)
+          (M5.ConditionalCount.restricted WB d) (w - A.card) (w - B.card) := by
+    apply M5.ConditionalCount.two_block_completion_count
+    · apply hF.mul
+      apply hprod
+      intro p hp
+      exact (M5.PolynomialIndicator.residual_factors_regular F N hN hF hFN p
+        ((Finset.mem_powerset.mp hH) hp)).1
+    · exact hAr d
+    · exact hBr d
+  unfold M5.ConditionalCount.rawCompletion
+  simp only [mul_assoc]
+  simp (disch := assumption) only [hblock]
+  unfold M5.ConditionalCount.twoBlockIndicatorSum M5.ConditionalCount.pairIndicator M5.PolynomialIndicator.factorExclusionSum
+  simp only [M5.ConditionalCount.restricted_subset_domain, Finset.sum_filter]
+  simp only [Finset.mul_sum, Finset.sum_mul, Finset.ite_sum_zero, ite_mul, mul_ite, mul_zero, zero_mul]
+  conv_lhs =>
+    rw [Finset.sum_comm]
+    arg 2
+    ext S
+    rw [Finset.sum_comm]
+    arg 2
+    ext U
+    rw [Finset.sum_comm]
+  conv_lhs =>
+    rw [Finset.sum_comm]
+    arg 2
+    ext U
+    rw [Finset.sum_comm]
+  apply Finset.sum_congr rfl
+  intro U hU
+  apply Finset.sum_congr rfl
+  intro V hV
+  apply Finset.sum_congr rfl
+  intro S hS
+  apply Finset.sum_congr rfl
+  intro d hd
+  simp only [mul_one]
+  split_ifs <;> simp_all

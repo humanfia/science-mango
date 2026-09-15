@@ -1,0 +1,13 @@
+{
+  "name": "M5.ConditionalCount.selected_divisor_indicator",
+  "statement": "∀ (N : ℕ) (A B U V : Finset ℕ), 0 < N → M5.ConditionalCount.selectedDivisorSum N A B U V = (if M5.Connectivity.supportGcd N (A ∪ U) (B ∪ V) = 1 then (1 : ℤ) else 0)",
+  "imports": [
+    "M5ConditionalCount"
+  ],
+  "context": "",
+  "queries": [
+    "finite sum product cardinality filter",
+    "finset gcd union natural gcd"
+  ],
+  "guidance": "The selected supportGcd divides positive N and is positive. Apply Connectivity.connected_indicator at that gcd to U,V. Identify resulting gcd with supportGcd N(A union U)(B union V), using Finset.gcd_union and Nat gcd associativity/commutativity, or divisibility antisymmetry with support_gcd_dvd. Return tactic lines only without leading by; keep exact target."
+}

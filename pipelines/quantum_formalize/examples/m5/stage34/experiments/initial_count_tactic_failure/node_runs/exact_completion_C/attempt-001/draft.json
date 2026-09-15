@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N w F A B WA WB hN hF hFN hprefix\nhave hp := hprefix\nunfold M5.ConditionalCount.PrefixOK at hp\nhave hAw : A.card ≤ w := by tauto\nhave hBw : B.card ≤ w := by tauto\nhave hA : Disjoint A WA := by tauto\nhave hB : Disjoint B WB := by tauto\nhave hc : M5.ConditionalCount.completionC N w F A B WA WB =\n    M5.ConditionalCount.rawCompletion N w F A B WA WB := by\n  unfold M5.ConditionalCount.completionC\n  split_ifs <;> omega\nrw [hc, M5.ConditionalCount.conditional_arithmetic_expansion N w F A B WA WB hN hF hFN hprefix]\nunfold M5.ConditionalCount.validCompletions\nsimp only [Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one,\n  Finset.sum_filter, Finset.sum_product]\napply Finset.sum_congr rfl\nintro U hU\napply Finset.sum_congr rfl\nintro V hV\nobtain ⟨hUsub, hUcard⟩ := Finset.mem_powersetCard.mp hU\nobtain ⟨hVsub, hVcard⟩ := Finset.mem_powersetCard.mp hV\nhave hAU : (A ∪ U).card = w := by\n  rw [Finset.card_union_of_disjoint (hA.mono_right hUsub), hUcard,\n    Nat.add_sub_of_le hAw]\nhave hBV : (B ∪ V).card = w := by\n  rw [Finset.card_union_of_disjoint (hB.mono_right hVsub), hVcard,\n    Nat.add_sub_of_le hBw]\nunfold M5.ConditionalCount.pairIndicator\nrw [M5.ConditionalCount.selected_divisor_indicator N A B U V hN,\n  M5.PolynomialIndicator.exact_signature_indicator\n    (M5.SupportPolynomial.ofSupport (A ∪ U))\n    (M5.SupportPolynomial.ofSupport (B ∪ V)) F N hN hF hFN]\nsplit_ifs <;>\n  simp_all [Finset.subset_iff, Finset.mem_union, or_imp, forall_and] <;>\n  aesop",
+  "queries": [
+    "Finset.sum_product",
+    "Finset.card_union_of_disjoint",
+    "Finset.card_filter"
+  ]
+}

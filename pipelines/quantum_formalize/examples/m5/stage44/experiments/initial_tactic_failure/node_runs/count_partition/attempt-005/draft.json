@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (α : Type) [Fintype α] [DecidableEq α] (W : Finset (List α)) (m : ℕ) (p : List α), (∀ q ∈ W, q.length = m) → p.length < m → M5.PrefixPartition.count W p = ∑ a : α, M5.PrefixPartition.count W (p ++ [a])\nintro α _ _ W m p hW hp\nclassical\nhave hword : ∀ q ∈ W, (if p.IsPrefix q then (1 : ℤ) else 0) = ∑ a : α, if (p ++ [a]).IsPrefix q then (1 : ℤ) else 0 := by\n  intro q hq\n  have hlen : p.length < q.length := by simpa only [hW q hq] using hp\n  have he (a : α) := M5.PrefixPartition.prefix_next α p q a hlen\n  simp only [he]\n  by_cases hprefix : p.IsPrefix q\n  · simp [hprefix, eq_comm]\n  · simp [hprefix]\nhave hsum := Finset.sum_congr rfl hword\nrw [Finset.sum_comm] at hsum\nsimpa [M5.PrefixPartition.count, Finset.card_eq_sum_ones, Finset.sum_filter] using hsum",
+  "queries": [
+    "M5.PrefixPartition.count definition",
+    "Finset.sum_ite_eq Finset.sum_ite_eq'"
+  ]
+}

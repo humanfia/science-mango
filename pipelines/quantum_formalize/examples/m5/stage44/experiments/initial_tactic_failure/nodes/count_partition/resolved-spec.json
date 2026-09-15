@@ -1,0 +1,13 @@
+{
+  "name": "M5.PrefixPartition.count_partition",
+  "statement": "∀ (α : Type) [Fintype α] [DecidableEq α] (W : Finset (List α)) (m : ℕ) (p : List α), (∀ q ∈ W, q.length = m) → p.length < m → M5.PrefixPartition.count W p = ∑ a : α, M5.PrefixPartition.count W (p ++ [a])",
+  "imports": [
+    "M5PrefixPartition"
+  ],
+  "context": "theorem M5.PrefixPartition.prefix_next : ∀ (α : Type) (p q : List α) (a : α) (h : p.length < q.length), (p ++ [a]).IsPrefix q ↔ p.IsPrefix q ∧ q.get ⟨p.length, h⟩ = a := by\n  change ∀ (α : Type) (p q : List α) (a : α) (h : p.length < q.length), (p ++ [a]).IsPrefix q ↔ p.IsPrefix q ∧ q.get ⟨p.length, h⟩ = a\n  intro α p q a h\n  constructor\n  · rintro ⟨s, rfl⟩\n    constructor\n    · exact ⟨[a] ++ s, by simp [List.append_assoc]⟩\n    · simp [List.get_eq_getElem, List.append_assoc, List.getElem_append]\n  · rintro ⟨hp, ha⟩\n    simpa only [ha] using (List.concat_get_prefix hp h)",
+  "queries": [
+    "list prefix get length equality",
+    "finset cardinality sum fibers"
+  ],
+  "guidance": "Partition W.filter(prefix p) by its next entry. Finset.card_eq_sum_card_fiberwise gives #s = sum b in t, #(s.filter (f · = b)); t=univ. Use a total next-entry function defined with if h:p.length<q.length then q.get... else an arbitrary fallback; choose fallback from a word if needed, or split nonempty alpha / empty W. Alternatively commute finite sums of 0/1 indicators and use uniqueness of next letter from prefix_next. Preserve finite semantic helper only, no claim this defines arithmetic C/A. Return tactic lines only, without leading by, preserve target."
+}

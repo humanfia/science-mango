@@ -1,0 +1,8 @@
+{
+  "proof": "intro α inst W m p hW hp\nclassical\nhave hprefix (q : List α) (hq : q ∈ W) : p <+: q ↔ q = p := by\n  constructor\n  · intro h\n    exact (h.eq_of_length (hp.trans (hW q hq).symm)).symm\n  · rintro rfl\n    exact List.prefix_rfl\nhave htake (q : List α) (hq : q ∈ W) : q.take p.length = q := by\n  rw [hp, ← hW q hq, List.take_length]\nhave hf₁ : W.filter (fun q => p <+: q) = W.filter (fun q => q = p) := by\n  apply Finset.filter_congr\n  intro q hq\n  exact hprefix q hq\nhave hf₂ : W.filter (fun q => q.take p.length = p) = W.filter (fun q => q = p) := by\n  apply Finset.filter_congr\n  intro q hq\n  rw [htake q hq]\nhave hf₃ : W.filter (fun q => p = q.take p.length) = W.filter (fun q => q = p) := by\n  apply Finset.filter_congr\n  intro q hq\n  rw [htake q hq, eq_comm]\nunfold M5.PrefixPartition.count\nsimp +contextual [hf₁, hf₂, hf₃, hprefix, htake, eq_comm]",
+  "queries": [
+    "M5.PrefixPartition.count definition",
+    "Finset.filter_eq card singleton",
+    "Finset.sum_ite_eq"
+  ]
+}

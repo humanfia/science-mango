@@ -1,0 +1,3 @@
+import Candidate_d0691f8e8a56c704
+example : QuantumHarnessFrozenTarget := M5.ConditionalCount.two_block_completion_count
+#print axioms M5.ConditionalCount.two_block_completion_count

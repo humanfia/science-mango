@@ -1,0 +1,8 @@
+{
+  "proof": "intro α inst W m p hW hp\nclassical\nhave ht : ∀ q ∈ W, q.take p.length = q := by\n  intro q hq\n  rw [hp, ← hW q hq, List.take_length]\nhave hf : W.filter (fun q => p <+: q) = W.filter (fun q => q = p) := by\n  apply Finset.filter_congr\n  intro q hq\n  simp [List.prefix_iff_eq_take, ht q hq, eq_comm]\nhave hg : W.filter (fun q => q.take p.length = p) = W.filter (fun q => q = p) := by\n  apply Finset.filter_congr\n  intro q hq\n  rw [ht q hq]\nhave hh : W.filter (fun q => p = q.take p.length) = W.filter (fun q => q = p) := by\n  apply Finset.filter_congr\n  intro q hq\n  simp [ht q hq, eq_comm]\nsimp [M5.PrefixPartition.count, hf, hg, hh]",
+  "queries": [
+    "M5.PrefixPartition.count definition",
+    "List.isPrefixOf_eq_true",
+    "Finset.filter_eq singleton cardinality"
+  ]
+}

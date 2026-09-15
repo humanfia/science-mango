@@ -1,0 +1,236 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PrefixPartition.count definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 189209,
+        "name": "Nat.Partition.card_restricted_eq_card_countRestricted",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Glaisher",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Glaisher.lean#L153-L156",
+        "source_text": "theorem card_restricted_eq_card_countRestricted (n : ℕ) {m : ℕ} (hm : 0 < m) :\n    #(restricted n (¬ m ∣ ·)) = #(countRestricted n m) := by\n  simpa using PowerSeries.ext_iff.mp\n    (powerSeriesMk_card_restricted_eq_powerSeriesMk_card_countRestricted ℤ hm) n\n",
+        "docstring": null
+      },
+      {
+        "id": 189186,
+        "name": "Nat.Partition.countRestricted",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Basic.lean#L212-L214",
+        "source_text": "/-- The finset of those partitions in which every part is used less than `m` times. -/\ndef countRestricted (n : ℕ) (m : ℕ) : Finset n.Partition :=\n  Finset.univ.filter fun x ↦ ∀ i ∈ x.parts, x.parts.count i < m\n",
+        "docstring": "The finset of those partitions in which every part is used less than `m` times. "
+      },
+      {
+        "id": 194444,
+        "name": "SzemerediRegularity.card_chunk",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Chunk",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Chunk.lean#L173-L178",
+        "source_text": "theorem card_chunk (hm : m ≠ 0) : #(chunk hP G ε hU).parts = 4 ^ #P.parts := by\n  unfold chunk\n  split_ifs\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le]\n    exact le_of_lt a_add_one_le_four_pow_parts_card\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le a_add_one_le_four_pow_parts_card]\n",
+        "docstring": null
+      },
+      {
+        "id": 194460,
+        "name": "Finpartition.card_filter_equitabilise_small",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L166-L181",
+        "source_text": "theorem card_filter_equitabilise_small (hm : m ≠ 0) :\n    #{u ∈ (P.equitabilise h).parts | #u = m} = a := by\n  refine (mul_eq_mul_right_iff.1 <| (add_left_inj (b * (m + 1))).1 ?_).resolve_right hm\n  rw [h, ← (P.equitabilise h).sum_card_parts]\n  have hunion :\n    (P.equitabilise h).parts =\n      {u ∈ (P.equitabilise h).parts | #u = m} ∪ {u ∈ (P.equitabilise h).parts | #u = m + 1} := by\n    rw [← filter_or, filter_true_of_mem]\n    exact fun x => card_eq_of_mem_parts_equitabilise\n  nth_rw 2 [hunion]\n  rw [sum_union, sum_const_nat fun x hx => (mem_filter.1 hx).2,\n    sum_const_nat fun x hx => (mem_filter.1 hx).2, P.card_filter_equitabilise_big]\n  refine disjoint_filter_filter' _ _ ?_\n  intro x ha hb i h\n  apply succ_ne_self m _\n  exact (hb i h).symm.trans (ha i h)\n",
+        "docstring": null
+      },
+      {
+        "id": 194461,
+        "name": "Finpartition.card_parts_equitabilise",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L183-L186",
+        "source_text": "theorem card_parts_equitabilise (hm : m ≠ 0) : #(P.equitabilise h).parts = a + b := by\n  rw [← filter_true_of_mem fun x => card_eq_of_mem_parts_equitabilise, filter_or,\n    card_union_of_disjoint, P.card_filter_equitabilise_small _ hm, P.card_filter_equitabilise_big]\n  aesop (add norm disjoint_filter)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PrefixPartition.count definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.filter_eq card singleton",
+    "status": "ok",
+    "results": [
+      {
+        "id": 202161,
+        "name": "Finset.filter_singleton",
+        "module": "Mathlib.Data.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L301-L301",
+        "source_text": "theorem filter_singleton (a : α) : filter p {a} = if p a then {a} else ∅ := by grind\n",
+        "docstring": null
+      },
+      {
+        "id": 202321,
+        "name": "Finset.card_singleton",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L89-L91",
+        "source_text": "@[simp, grind =]\ntheorem card_singleton (a : α) : #{a} = 1 :=\n  Multiset.card_singleton _",
+        "docstring": null
+      },
+      {
+        "id": 202371,
+        "name": "Finset.filter_card_eq",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L300-L300",
+        "source_text": "alias ⟨filter_card_eq, _⟩ := card_filter_eq_iff\n",
+        "docstring": "**Alias** of the forward direction of `Finset.card_filter_eq_iff`."
+      },
+      {
+        "id": 202306,
+        "name": "Finset.card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+        "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+        "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+      },
+      {
+        "id": 283950,
+        "name": "Filter.generate_singleton",
+        "module": "Mathlib.Order.Filter.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Basic.lean#L179-L181",
+        "source_text": "@[simp] lemma generate_singleton (s : Set α) : generate {s} = 𝓟 s :=\n  le_antisymm (fun _t ht ↦ mem_of_superset (mem_generate_of_mem <| mem_singleton _) ht) <|\n    le_generate_iff.2 <| singleton_subset_iff.2 Subset.rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.filter_eq card singleton",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389664,
+        "name": "WickContraction.join_singleton_signFinset_eq_filter",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.Sign.Join",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Sign/Join.lean#L114-L154",
+        "source_text": "lemma join_singleton_signFinset_eq_filter {φs : List 𝓕.FieldOp}\n    {i j : Fin φs.length} (h : i < j)\n    (φsucΛ : WickContraction [singleton h]ᵘᶜ.length) :\n    (join (singleton h) φsucΛ).signFinset i j =\n    ((singleton h).signFinset i j).filter (fun c => ¬\n    (((join (singleton h) φsucΛ).getDual? c).isSome ∧\n    ((h1 : ((join (singleton h) φsucΛ).getDual? c).isSome) →\n    (((join (singleton h) φsucΛ).getDual? c).get h1) < i))) := by\n  ext a\n  simp only [signFinset, Finset.mem_filter, Finset.mem_univ, true_and, not_and, not_forall, not_lt,\n    and_assoc, and_congr_right_iff]\n  intro h1 h2\n  have h1 : (singleton h).getDual? a = none := by\n    rw [singleton_getDual?_eq_none_iff_neq]\n    omega\n  simp only [h1, Option.isSome_none, Bool.false_eq_true, IsEmpty.forall_iff, or_self, true_and]\n  apply Iff.intro\n  · intro h1 h2\n    rcases h1 with h1 | h1\n    · simp only [h1, Option.isSome_none, Bool.false_eq_true, IsEmpty.exists_iff]\n      have h2' : ¬ (((singleton h).join φsucΛ).getDual? a).isSome := by\n        exact Option.not_isSome_iff_eq_none.mpr h1\n      exact h2' h2\n    use h2\n    have h1 := h1 h2\n    omega\n  · intro h2\n    by_cases h2' : (((singleton h).join φsucΛ).getDual? a).isSome = true\n    · have h2 := h2 h2'\n      obtain ⟨hb, h2⟩ := h2\n      right\n      intro hl\n      apply lt_of_le_of_ne h2\n      by_contra hn\n      have hij : ((singleton h).join φsucΛ).getDual? i = j := by\n        rw [@getDual?_eq_some_iff_mem]\n        simp [join, singleton]\n      simp only [hn, getDual?_getDual?_get_get, Option.some.injEq] at hij\n      omega\n    · simp only [Bool.not_eq_true] at h2'\n      simp [h2']\n",
+        "docstring": null
+      },
+      {
+        "id": 389665,
+        "name": "WickContraction.join_singleton_left_signFinset_eq_filter",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.Sign.Join",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Sign/Join.lean#L156-L169",
+        "source_text": "lemma join_singleton_left_signFinset_eq_filter {φs : List 𝓕.FieldOp}\n    {i j : Fin φs.length} (h : i < j)\n    (φsucΛ : WickContraction [singleton h]ᵘᶜ.length) :\n    (𝓕 |>ₛ ⟨φs.get, (singleton h).signFinset i j⟩)\n    = (𝓕 |>ₛ ⟨φs.get, (join (singleton h) φsucΛ).signFinset i j⟩) *\n      (𝓕 |>ₛ ⟨φs.get, ((singleton h).signFinset i j).filter (fun c =>\n      (((join (singleton h) φsucΛ).getDual? c).isSome ∧\n      ((h1 : ((join (singleton h) φsucΛ).getDual? c).isSome) →\n      (((join (singleton h) φsucΛ).getDual? c).get h1) < i)))⟩) := by\n  conv_rhs =>\n    left\n    rw [join_singleton_signFinset_eq_filter]\n  rw [mul_comm]\n  exact (ofFinset_filter_mul_neg 𝓕.fieldOpStatistic _ _ _).symm\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_ite_eq",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58508,
+        "name": "Finset.sum_ite_eq",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Piecewise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Piecewise.lean#L139-L139",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem prod_ite_eq [DecidableEq ι] (s : Finset ι) (a : ι) (b : ι → M) :",
+        "docstring": null
+      },
+      {
+        "id": 58510,
+        "name": "Finset.sum_ite_eq'",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Piecewise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Piecewise.lean#L148-L151",
+        "source_text": "@[to_additive (attr := simp) /-- A sum taken over a conditional whose condition is an equality\ntest on the index and whose alternative is `0` has value either the term at that index or `0`.\n\nThe difference with `Finset.sum_ite_eq` is that the arguments to `Eq` are swapped. -/]\ntheorem prod_ite_eq' [DecidableEq ι] (s : Finset ι) (a : ι) (b : ι → M) :",
+        "docstring": "A sum taken over a conditional whose condition is an equality\ntest on the index and whose alternative is `0` has value either the term at that index or `0`.\n\nThe difference with `Finset.sum_ite_eq` is that the arguments to `Eq` are swapped. "
+      },
+      {
+        "id": 58112,
+        "name": "Finset.sum_eq_ite",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L359-L359",
+        "source_text": "@[to_additive]\nlemma prod_eq_ite [DecidableEq ι] {s : Finset ι} {f : ι → M} (a : ι)\n    (h₀ : ∀ b ∈ s, b ≠ a → f b = 1) :\n    ∏ x ∈ s, f x = if a ∈ s then f a else 1 := by",
+        "docstring": null
+      },
+      {
+        "id": 58223,
+        "name": "Finset.sum_map_equiv",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L856-L856",
+        "source_text": "@[to_additive]\ntheorem prod_map_equiv (e : ι ≃ κ) : (s.map e).prod (f ∘ e.symm) = s.prod f := by simp",
+        "docstring": null
+      },
+      {
+        "id": 57661,
+        "name": "finsum_cond_eq_sum_of_cond_iff",
+        "module": "Mathlib.Algebra.BigOperators.Finprod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L466-L466",
+        "source_text": "@[to_additive]\ntheorem finprod_cond_eq_prod_of_cond_iff (f : α → M) {p : α → Prop} {t : Finset α}\n    (h : ∀ {x}, f x ≠ 1 → (p x ↔ x ∈ t)) : (∏ᶠ (i) (_ : p i), f i) = ∏ i ∈ t, f i := by",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.sum_ite_eq",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386542,
+        "name": "KroneckerDelta.sum_sum_smul_eq_zero",
+        "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L156-L158",
+        "source_text": "lemma sum_sum_smul_eq_zero [Fintype α] {f : α → α → M} (hf : ∀ i : α, f i i = 0) :\n    ∑ i : α, ∑ j : α, δ[i,j] • f i j = 0 := by\n  simp [sum_smul, hf, sum_const_zero]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

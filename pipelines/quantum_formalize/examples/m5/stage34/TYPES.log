@@ -1,0 +1,35 @@
+∀ (W : Finset ℕ) (d k : ℕ),
+  Finset.powersetCard k (M5.ConditionalCount.restricted W d) = {U ∈ Finset.powersetCard k W | ∀ s ∈ U, d ∣ s} : Prop
+∀ (P : M5.BinaryPolynomial) (A B WA WB : Finset ℕ) (kA kB : ℕ),
+  Polynomial.Monic P →
+    Disjoint A WA →
+      Disjoint B WB →
+        M5.ConditionalCount.nSelected P A WA kA * M5.ConditionalCount.nSelected P B WB kB =
+          M5.ConditionalCount.twoBlockIndicatorSum P A B WA WB kA kB : Prop
+∀ (N : ℕ) (A B U V : Finset ℕ),
+  0 < N →
+    M5.ConditionalCount.selectedDivisorSum N A B U V =
+      if M5.Connectivity.supportGcd N (A ∪ U) (B ∪ V) = 1 then 1 else 0 : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B WA WB : Finset ℕ),
+  0 < N →
+    Polynomial.Monic F →
+      F ∣ M5.cyclicModulus N →
+        M5.ConditionalCount.PrefixOK N w A B WA WB →
+          M5.ConditionalCount.rawCompletion N w F A B WA WB =
+            ∑ U ∈ Finset.powersetCard (w - A.card) WA,
+              ∑ V ∈ Finset.powersetCard (w - B.card) WB, M5.ConditionalCount.pairIndicator N F A B U V : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B WA WB : Finset ℕ),
+  0 < N →
+    Polynomial.Monic F →
+      F ∣ M5.cyclicModulus N →
+        M5.ConditionalCount.PrefixOK N w A B WA WB →
+          M5.ConditionalCount.completionC N w F A B WA WB =
+            ↑(M5.ConditionalCount.validCompletions N w F A B WA WB).card : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B WA WB : Finset ℕ),
+  0 < N →
+    Polynomial.Monic F →
+      F ∣ M5.cyclicModulus N →
+        M5.ConditionalCount.PrefixOK N w A B WA WB →
+          0 ≤ M5.ConditionalCount.completionC N w F A B WA WB ∧
+            (0 < M5.ConditionalCount.completionC N w F A B WA WB ↔
+              (M5.ConditionalCount.validCompletions N w F A B WA WB).Nonempty) : Prop

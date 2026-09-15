@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (α : Type) (p q : List α) (a : α) (h : p.length < q.length), (p ++ [a]).IsPrefix q ↔ p.IsPrefix q ∧ q.get ⟨p.length, h⟩ = a\nintro α p q a h\nconstructor\n· rintro ⟨s, rfl⟩\n  constructor\n  · exact ⟨[a] ++ s, by simp [List.append_assoc]⟩\n  · simp [List.get_eq_getElem, List.append_assoc, List.getElem_append]\n· rintro ⟨hp, ha⟩\n  simpa only [ha] using (List.concat_get_prefix hp h)",
+  "queries": [
+    "List.getElem_append",
+    "List.get_eq_getElem"
+  ]
+}

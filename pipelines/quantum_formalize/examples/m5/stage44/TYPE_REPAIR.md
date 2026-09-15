@@ -1,0 +1,1 @@
+The initial definition omitted the explicit Nat-to-Int cast on a finite cardinality. Added that cast; proposition targets and semantic count are unchanged. Original compiler error is preserved in initial-definition-type-failure.log. No proof experiment had started.

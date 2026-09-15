@@ -1,0 +1,4 @@
+{
+  "proof": "intro \u03b1 inst W m p hW hp\nclassical\nhave hcount : M5.PrefixPartition.count W p = ((W.filter (fun q => p.IsPrefix q)).card : \u2124) := by\n  unfold M5.PrefixPartition.count\n  apply congrArg (fun s : Finset (List \u03b1) => (s.card : \u2124))\n  ext q\n  simp only [Finset.mem_filter]\nhave hf : W.filter (fun q => p.IsPrefix q) = W.filter (fun q => q = p) := by\n  apply Finset.filter_congr\n  intro q hq\n  constructor\n  \u00b7 intro h\n    exact (h.eq_of_length (hp.trans (hW q hq).symm)).symm\n  \u00b7 intro h\n    subst q\n    exact List.prefix_refl p\nrw [hcount, hf]\nby_cases h : p \u2208 W\n\u00b7 have hs : W.filter (fun q => q = p) = {p} := by\n    ext q\n    simp only [Finset.mem_filter, Finset.mem_singleton]\n    constructor\n    \u00b7 exact fun hq => hq.2\n    \u00b7 intro hq\n      subst q\n      exact \u27e8h, rfl\u27e9\n  rw [hs]\n  simp [h]\n\u00b7 simp [h]\n",
+  "queries": []
+}

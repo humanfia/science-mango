@@ -1,0 +1,166 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_product'",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58594,
+        "name": "Finset.sum_product'",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L86-L87",
+        "source_text": "@[to_additive /-- The sum over a product set equals the sum of the fiberwise sums. For rewriting\nin the reverse direction, use `Finset.sum_product` -/]\ntheorem prod_product' (s : Finset γ) (t : Finset α) (f : γ → α → β) :\n    ∏ x ∈ s ×ˢ t, f x.1 x.2 = ∏ x ∈ s, ∏ y ∈ t, f x y :=",
+        "docstring": "The sum over a product set equals the sum of the fiberwise sums. For rewriting\nin the reverse direction, use `Finset.sum_product` "
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 58586,
+        "name": "Finset.sum_finset_product'",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L57-L57",
+        "source_text": "@[to_additive]\ntheorem prod_finset_product' (r : Finset (γ × α)) (s : Finset γ) (t : γ → Finset α)\n    (h : ∀ p : γ × α, p ∈ r ↔ p.1 ∈ s ∧ p.2 ∈ t p.1) {f : γ → α → β} :\n    ∏ p ∈ r, f p.1 p.2 = ∏ c ∈ s, ∏ a ∈ t c, f c a :=",
+        "docstring": null
+      },
+      {
+        "id": 58050,
+        "name": "Finset.sum_union",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L138-L138",
+        "source_text": "@[to_additive]\ntheorem prod_union [DecidableEq ι] (h : Disjoint s₁ s₂) :\n    ∏ x ∈ s₁ ∪ s₂, f x = (∏ x ∈ s₁, f x) * ∏ x ∈ s₂, f x := by",
+        "docstring": null
+      },
+      {
+        "id": 57408,
+        "name": "Fin.prod_univ_succ",
+        "module": "Mathlib.Algebra.BigOperators.Fin",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L72-L78",
+        "source_text": "/-- A product of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)`\nis the product of `f 0` times the remaining product -/\n@[to_additive /-- A sum of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)` is the sum of\n`f 0` plus the remaining sum -/]\ntheorem prod_univ_succ (f : Fin (n + 1) → M) :\n    ∏ i, f i = f 0 * ∏ i : Fin n, f i.succ :=\n  prod_univ_succAbove f 0\n",
+        "docstring": "A product of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)`\nis the product of `f 0` times the remaining product "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.add_sub_of_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 236953,
+        "name": "SubAddAction",
+        "module": "Mathlib.GroupTheory.GroupAction.SubMulAction",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction.lean#L192-L197",
+        "source_text": "/-- A SubAddAction is a set which is closed under scalar multiplication. -/\nstructure SubAddAction (R : Type u) (M : Type v) [VAdd R M] : Type v where\n  /-- The underlying set of a `SubAddAction`. -/\n  carrier : Set M\n  /-- The carrier set is closed under scalar multiplication. -/\n  vadd_mem' : ∀ (c : R) {x : M}, x ∈ carrier → c +ᵥ x ∈ carrier\n",
+        "docstring": "A SubAddAction is a set which is closed under scalar multiplication. "
+      },
+      {
+        "id": 88655,
+        "name": "AddSubmonoid.toNatSubmodule",
+        "module": "Mathlib.Algebra.Module.Submodule.Lattice",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/Submodule/Lattice.lean#L376-L380",
+        "source_text": "/-- An additive submonoid is equivalent to a ℕ-submodule. -/\ndef AddSubmonoid.toNatSubmodule : AddSubmonoid M ≃o Submodule ℕ M where\n  toFun S := { S with smul_mem' := fun r s hs ↦ show r • s ∈ S from nsmul_mem hs _ }\n  invFun := Submodule.toAddSubmonoid\n  map_rel_iff' := Iff.rfl\n",
+        "docstring": "An additive submonoid is equivalent to a ℕ-submodule. "
+      },
+      {
+        "id": 237074,
+        "name": "SubAddAction.closure",
+        "module": "Mathlib.GroupTheory.GroupAction.SubMulAction.Closure",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction/Closure.lean#L21-L21",
+        "source_text": "@[to_additive /-- The `SubAddAction` generated by a set `s`. -/]\ndef closure (R : Type*) {M : Type*} [SMul R M] (s : Set M) : SubMulAction R M :=",
+        "docstring": "The `SubAddAction` generated by a set `s`. "
+      },
+      {
+        "id": 72849,
+        "name": "AddSubgroup.Normal",
+        "module": "Mathlib.Algebra.Group.Subgroup.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Subgroup/Defs.lean#L615-L618",
+        "source_text": "/-- An AddSubgroup `H` is normal if whenever `n ∈ H`, then `g + n - g ∈ H` for every `g : A` -/\nstructure Normal (H : AddSubgroup A) : Prop where\n  /-- `H` is closed under additive conjugation -/\n  conj_mem : ∀ n, n ∈ H → ∀ g : A, g + n + -g ∈ H\n",
+        "docstring": "An AddSubgroup `H` is normal if whenever `n ∈ H`, then `g + n - g ∈ H` for every `g : A` \n\n[Wikidata Q743179](https://www.wikidata.org/wiki/Q743179)"
+      },
+      {
+        "id": 237777,
+        "name": "AddSubgroup.IsSubnormal",
+        "module": "Mathlib.GroupTheory.IsSubnormal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/IsSubnormal.lean#L72-L91",
+        "source_text": "/-- An additive subgroup `H` of an additive group `G` satisfies `IsSubnormal` if\n* either `H = ⊤`;\n* or there is an additive subgroup `K` of `G` containing `H` and such that `H` is normal in `K` and\n  `K` satisfies `IsSubnormal`.\n\nEquivalently, `H.IsSubnormal` means that there is a chain of additive subgroups\n`H₀ ≤ H₁ ≤ ... ≤ Hₙ` such that\n* `H = H₀`,\n* `G = Hₙ`,\n* for each `i ∈ {0, ..., n - 1}`, `Hᵢ` is a normal additive subgroup of `Hᵢ₊₁`.\n\nSee `isSubnormal_iff` for this characterisation.\n-/\ninductive _root_.AddSubgroup.IsSubnormal {G : Type*} [AddGroup G] : AddSubgroup G → Prop where\n  /-- The whole additive subgroup `G` is subnormal in itself. -/\n  | top : IsSubnormal (⊤ : AddSubgroup G)\n  /-- An additive subgroup `H` is subnormal if there is a subnormal additive subgroup `K`\n  containing `H` that is subnormal itself and such that `H` is normal in `K`. -/\n  | step : ∀ H K, (h_le : H ≤ K) → (hSubn : IsSubnormal K) → (hN : (H.addSubgroupOf K).Normal) →\n    IsSubnormal H\n",
+        "docstring": "An additive subgroup `H` of an additive group `G` satisfies `IsSubnormal` if\n* either `H = ⊤`;\n* or there is an additive subgroup `K` of `G` containing `H` and such that `H` is normal in `K` and\n  `K` satisfies `IsSubnormal`.\n\nEquivalently, `H.IsSubnormal` means that there is a chain of additive subgroups\n`H₀ ≤ H₁ ≤ ... ≤ Hₙ` such that\n* `H = H₀`,\n* `G = Hₙ`,\n* for each `i ∈ {0, ..., n - 1}`, `Hᵢ` is a normal additive subgroup of `Hᵢ₊₁`.\n\nSee `isSubnormal_iff` for this characterisation.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Nat.add_sub_of_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386611,
+        "name": "LinearPMap.sub_le_of_le_add",
+        "module": "Physlib.Mathematics.LinearPMap",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/LinearPMap.lean#L93-L97",
+        "source_text": "lemma sub_le_of_le_add (h : g ≤ g₁ + g₂) : g - g₂ ≤ g₁ := by\n  constructor\n  · exact (inf_le_of_left_le le_rfl).trans (le_inf_iff.mp <| add_domain g₁ g₂ ▸ h.1).1\n  · intro ⟨x, hx⟩ ⟨y, hy⟩ rfl\n    simp [sub_apply, @h.2 ⟨x, hx.1⟩ ⟨x, ⟨hy, hx.2⟩⟩ rfl, add_apply]\n",
+        "docstring": null
+      },
+      {
+        "id": 386613,
+        "name": "LinearPMap.add_le_of_le_sub",
+        "module": "Physlib.Mathematics.LinearPMap",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/LinearPMap.lean#L102-L103",
+        "source_text": "lemma add_le_of_le_sub (h : g ≤ g₁ - g₂) : g + g₂ ≤ g₁ :=\n  sub_neg_eq_add g g₂ ▸ sub_le_of_le_add (sub_eq_add_neg g₁ g₂ ▸ h)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]
