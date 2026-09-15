@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst g h\nhave eq_le {α : Type*} [PartialOrder α] (a b : α) :\n    a = b ↔ a ≤ b ∧ b ≤ a := by\n  constructor\n  · intro h\n    subst b\n    exact ⟨le_rfl, le_rfl⟩\n  · exact fun h => le_antisymm h.1 h.2\nsimp only [M7.ActualPresentation.encode, M7.Presentation.mk,\n  Prod.Lex.toLex_le_toLex, Prod.Lex.toLex_lt_toLex, eq_le]\nlet a := (g.unit : ZMod N).val\nlet b := (h.unit : ZMod N).val\nlet s := g.leftShift.val\nlet t := h.leftShift.val\nlet r := g.rightShift.val\nlet u := h.rightShift.val\nchange\n  ((a < b ∨ (a ≤ b ∧ b ≤ a) ∧ g.exchange < h.exchange) ∨\n    ((a < b ∨ (a ≤ b ∧ b ≤ a) ∧ g.exchange ≤ h.exchange) ∧\n      (b < a ∨ (b ≤ a ∧ a ≤ b) ∧ h.exchange ≤ g.exchange)) ∧\n    (s < t ∨ (s ≤ t ∧ t ≤ s) ∧ r ≤ u)) ↔\n  (a < b ∨ (a ≤ b ∧ b ≤ a) ∧\n    (g.exchange < h.exchange ∨\n      (g.exchange ≤ h.exchange ∧ h.exchange ≤ g.exchange) ∧\n      (s < t ∨ (s ≤ t ∧ t ≤ s) ∧ r ≤ u)))\nomega",
+  "queries": [
+    "Prod.Lex.toLex_le_toLex",
+    "Prod.Lex.toLex_lt_toLex",
+    "ZMod.val_injective"
+  ]
+}

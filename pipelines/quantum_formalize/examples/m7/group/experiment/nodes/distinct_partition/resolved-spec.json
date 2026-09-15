@@ -1,0 +1,13 @@
+{
+  "name": "M7.ActualOrbit.distinct_partition",
+  "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (P : M7.Action.Recipe N → Prop) (test : M7.Action.Recipe N → Bool), M7.ActualOrbit.distinctCount c P = M7.ActualOrbit.distinctCount c (fun y => P y ∧ test y = false) + M7.ActualOrbit.distinctCount c (fun y => P y ∧ test y = true)",
+  "imports": [
+    "M7ActualOrbit"
+  ],
+  "context": "",
+  "queries": [
+    "MulAction orbit stabilizer cardinality",
+    "Nat mul div cancel"
+  ],
+  "guidance": "Instantiate already accepted M7.OrbitFibers.orbit_partition with G=M7.Action.Record N, X=M7.Action.Recipe N and actual c. M7ActionGroup installs actual group and SMul=act. Actual count definitions are deliberately the same finite filters/image as generic ones; unfold M7.ActualOrbit definitions if needed for definitional equality or use Finset.ext if classical decider transport is needed. Do not introduce Group, faithfulness or assumed fiber hypotheses. Return tactic lines without leading by."
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ u : (ZMod N)ˣ, M7.CyclicSubstitution.RootCondition u\nintro N _ u\nchange (Polynomial.X ^ N + 1 : M6.Cyclic.BinaryPolynomial).eval₂\n  (AdjoinRoot.of (M6.Cyclic.modulus N))\n  (M7.CyclicSubstitution.rho N ^ (u : ZMod N).val) = 0\nrw [Polynomial.eval₂_add, Polynomial.eval₂_X_pow, Polynomial.eval₂_one]\nhave hp : (M7.CyclicSubstitution.rho N ^ (u : ZMod N).val) ^ N = 1 := by\n  rw [← pow_mul, Nat.mul_comm, pow_mul, M7.CyclicSubstitution.root_power, one_pow]\nrw [hp]\nhave h := congrArg (AdjoinRoot.of (M6.Cyclic.modulus N))\n  (show (1 : ZMod 2) + 1 = 0 by decide)\nsimpa only [map_add, map_one, map_zero] using h",
+  "queries": []
+}

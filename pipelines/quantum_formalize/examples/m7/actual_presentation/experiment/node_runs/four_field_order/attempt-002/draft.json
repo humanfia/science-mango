@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst g h\nhave unit_eq (a b : M7.ActualPresentation.UnitKey N) :\n    a = b ↔ (a.unit : ZMod N).val = (b.unit : ZMod N).val := by\n  constructor\n  · rintro rfl\n    rfl\n  · intro hv\n    have hu : a.unit = b.unit := Units.ext ((ZMod.val_injective N) hv)\n    cases a\n    cases b\n    cases hu\n    rfl\nhave unit_lt (a b : M7.ActualPresentation.UnitKey N) :\n    a < b ↔ (a.unit : ZMod N).val < (b.unit : ZMod N).val := Iff.rfl\nsimp only [M7.ActualPresentation.encode, M7.Presentation.mk,\n  Prod.Lex.toLex_le_toLex, Prod.Lex.toLex_lt_toLex]\nsimp [toLex, unit_eq, unit_lt, Fin.ext_iff, Fin.lt_iff_val_lt_val,\n  Fin.le_iff_val_le_val]\n<;> tauto",
+  "queries": []
+}

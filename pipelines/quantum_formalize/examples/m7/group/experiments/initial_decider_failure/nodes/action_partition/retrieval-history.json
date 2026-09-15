@@ -1,0 +1,418 @@
+[
+  {
+    "queries": [
+      "MulAction orbit stabilizer cardinality",
+      "Nat mul div cancel"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "MulAction orbit stabilizer cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 235922,
+            "name": "MulAction.stabilizer_orbit_eq",
+            "module": "Mathlib.GroupTheory.GroupAction.Blocks",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Blocks.lean#L548-L563",
+            "source_text": "/-- A subgroup containing the stabilizer of `a`\n  is the stabilizer of the orbit of `a` under that subgroup -/\n@[to_additive\n  /-- A subgroup containing the stabilizer of `a`\n  is the stabilizer of the orbit of `a` under that subgroup -/]\ntheorem stabilizer_orbit_eq {a : X} {H : Subgroup G} (hH : stabilizer G a ≤ H) :\n    stabilizer G (orbit H a) = H := by\n  ext g\n  constructor\n  · intro hg\n    obtain ⟨-, ⟨b, rfl⟩, h⟩ := hg.symm ▸ mem_orbit_self a\n    simp_rw [H.toSubmonoid.smul_def, ← mul_smul, ← mem_stabilizer_iff] at h\n    exact (mul_mem_cancel_right b.2).mp (hH h)\n  · intro hg\n    rw [mem_stabilizer_iff, ← Subgroup.coe_mk H g hg, ← Submonoid.smul_def (S := H.toSubmonoid)]\n    apply smul_orbit (G := H)\n",
+            "docstring": "A subgroup containing the stabilizer of `a`\nis the stabilizer of the orbit of `a` under that subgroup "
+          },
+          {
+            "id": 236875,
+            "name": "AddAction.card_orbit_mul_card_stabilizer_eq_card_addGroup",
+            "module": "Mathlib.GroupTheory.GroupAction.Quotient",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Quotient.lean#L187-L188",
+            "source_text": "@[to_additive AddAction.card_orbit_mul_card_stabilizer_eq_card_addGroup\n/-- Orbit-stabilizer theorem. -/]\ntheorem card_orbit_mul_card_stabilizer_eq_card_group (b : X) [Fintype G] [Fintype <| orbit G b]\n    [Fintype <| stabilizer G b] :\n    Fintype.card (orbit G b) * Fintype.card (stabilizer G b) = Fintype.card G := by",
+            "docstring": "Orbit-stabilizer theorem. "
+          },
+          {
+            "id": 236870,
+            "name": "MulAction.orbitEquivQuotientStabilizer",
+            "module": "Mathlib.GroupTheory.GroupAction.Quotient",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Quotient.lean#L172-L178",
+            "source_text": "/-- **Orbit-stabilizer theorem**. -/\n@[to_additive /-- Orbit-stabilizer theorem. -/]\nnoncomputable def orbitEquivQuotientStabilizer (b : X) : orbit G b ≃ G ⧸ stabilizer G b :=\n  Equiv.symm <|\n    Equiv.ofBijective (fun g => ⟨ofQuotientStabilizer G b g, ofQuotientStabilizer_mem_orbit G b g⟩)\n      ⟨fun x y hxy => injective_ofQuotientStabilizer G b (by convert! congr_arg Subtype.val hxy),\n        fun ⟨_, ⟨g, hgb⟩⟩ => ⟨g, Subtype.ext hgb⟩⟩\n",
+            "docstring": "**Orbit-stabilizer theorem**. "
+          },
+          {
+            "id": 236126,
+            "name": "MulAction.stabilizer",
+            "module": "Mathlib.GroupTheory.GroupAction.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Defs.lean#L500-L506",
+            "source_text": "/-- The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. -/\n@[to_additive /-- The stabilizer of an element under an action, i.e. what sends the element to\nitself. An additive subgroup. -/]\ndef stabilizer (a : α) : Subgroup G :=\n  { stabilizerSubmonoid G a with\n    inv_mem' := fun {m} (ha : m • a = a) => show m⁻¹ • a = a by rw [inv_smul_eq_iff, ha] }\n",
+            "docstring": "The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. "
+          },
+          {
+            "id": 237036,
+            "name": "SubMulAction.mem_orbit_subMul_iff",
+            "module": "Mathlib.GroupTheory.GroupAction.SubMulAction",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction.lean#L434-L437",
+            "source_text": "@[to_additive]\nlemma mem_orbit_subMul_iff {p : SubMulAction R M} {x m : p} :\n    x ∈ MulAction.orbit R m ↔ (x : M) ∈ MulAction.orbit R (m : M) := by\n  rw [← val_preimage_orbit, Set.mem_preimage]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "MulAction orbit stabilizer cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394042,
+            "name": "FTheory.SU5.FluxesFive.subset_le_mem_of_card_eq_succ",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Completeness",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Completeness.lean#L113-L133",
+            "source_text": "lemma subset_le_mem_of_card_eq_succ {n : ℕ} {F : FluxesFive} (hF : F.NoExotics) (hnZ : F.HasNoZero)\n    (S : Multiset Fluxes) (hcard : S.card = n.succ) (hS : S ≤ F) {Y X : Finset (Multiset Fluxes)}\n    (hY : ∀ (S : Multiset Fluxes), S.card = n → S ≤ F → S ∈ Y)\n    (hX : ∀ a ∈ ({⟨0, 1⟩, ⟨0, 2⟩, ⟨0, 3⟩, ⟨1, -1⟩, ⟨1, 0⟩, ⟨1, 1⟩, ⟨1, 2⟩,\n      ⟨2, -2⟩, ⟨2, -1⟩, ⟨2, 0⟩, ⟨2, 1⟩, ⟨3, -3⟩, ⟨3, -2⟩, ⟨3, -1⟩, ⟨3, 0⟩} : Finset Fluxes),\n      ∀ y ∈ Y,\n      (Multiset.map (fun x => x.M + x.N) (a ::ₘ y)).sum ≤ 3 →\n      (Multiset.map (fun x => x.M) (a ::ₘ y)).sum ≤ 3 →\n      a ::ₘ y ∈ X) :\n    S ∈ X := by\n  have hSum1 := chiralIndicesOfL_subset_sum_le_three_of_noExotics F hF S hS\n  have hSum2 := chiralIndicesOfD_subset_sum_le_three_of_noExotics F hF S hS\n  revert S\n  apply Multiset.induction\n  · simp\n  intro a S ih hcard hle hsum1 hsum2\n  have hsub : S ≤ F := (S.le_cons_self a).trans hle\n  have ha : a ∈ F := Multiset.mem_of_le hle (S.mem_cons_self a)\n  rw [Multiset.card_cons] at hcard\n  simp at hcard\n  exact hX a (mem_mem_finset_of_noExotics F hF hnZ a ha) S (hY S hcard hsub) hsum1 hsum2\n",
+            "docstring": null
+          },
+          {
+            "id": 394058,
+            "name": "FTheory.SU5.FluxesFive.elemsNoExotics_card",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L109-L110",
+            "source_text": "lemma elemsNoExotics_card : elemsNoExotics.card = 31 := by\n  decide\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Nat mul div cancel",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67514,
+            "name": "mul_div_cancel",
+            "module": "Mathlib.Algebra.Group.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Basic.lean#L948-L950",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem mul_div_cancel (a b : G) : a * (b / a) = b := by\n  rw [← mul_div_assoc, mul_div_cancel_left]",
+            "docstring": null
+          },
+          {
+            "id": 77290,
+            "name": "MulDivCancelClass",
+            "module": "Mathlib.Algebra.GroupWithZero.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Defs.lean#L198-L203",
+            "source_text": "/-- Prop-valued mixin for a monoid with zero to be equipped with a cancelling division.\n\nThe obvious use case is groups with zero, but this condition is also satisfied by `ℕ`, `ℤ` and, more\ngenerally, any Euclidean domain. -/\nclass MulDivCancelClass (M₀ : Type*) [MonoidWithZero M₀] [Div M₀] : Prop where\n  protected mul_div_cancel (a b : M₀) : b ≠ 0 → a * b / b = a\n",
+            "docstring": "Prop-valued mixin for a monoid with zero to be equipped with a cancelling division.\n\nThe obvious use case is groups with zero, but this condition is also satisfied by `ℕ`, `ℤ` and, more\ngenerally, any Euclidean domain. "
+          },
+          {
+            "id": 211433,
+            "name": "NNRat.divNat",
+            "module": "Mathlib.Data.NNRat.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/NNRat/Defs.lean#L355-L359",
+            "source_text": "/-- Form the quotient `n / d` where `n d : ℕ`.\n\nSee also `Rat.divInt` and `mkRat`. -/\ndef divNat (n d : ℕ) : ℚ≥0 :=\n  ⟨.divInt n d, Rat.divInt_nonneg (Int.natCast_nonneg n) (Int.natCast_nonneg d)⟩\n",
+            "docstring": "Form the quotient `n / d` where `n d : ℕ`.\n\nSee also `Rat.divInt` and `mkRat`. "
+          },
+          {
+            "id": 213162,
+            "name": "Nat.maxPowDvdDiv",
+            "module": "Mathlib.Data.Nat.MaxPowDiv",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/MaxPowDiv.lean#L27-L52",
+            "source_text": "/--\nFind largest `k : ℕ` such that `p ^ k ∣ n` for any `p : ℕ`, as well as the ratio `n / p ^ k`.\n\nThe implementation recurses from `(p, n)` to `(p * p, n)`,\nso the recursion depth is $$O(\\log(\\nu_p(n)))$$, thus it is $$O(\\log(\\log(n)))$$.\n-/\ndef maxPowDvdDiv (p n : ℕ) : ℕ × ℕ :=\n  if H : 1 < p ∧ n ≠ 0 then\n    go p H\n  else\n    (0, n)\n  where\n  /-- Auxiliary definition for `Nat.maxPowDvdDiv`. -/\n  go (p : ℕ) (hp : 1 < p ∧ n ≠ 0) :=\n    if hmod : n % p = 0 then\n      let (e, q) := go (p * p) <| by simp [Nat.one_lt_mul_iff, hp, Nat.lt_trans Nat.one_pos]\n      if q % p = 0 then (2 * e + 1, q / p) else (2 * e, q)\n    else\n      (0, n)\n  termination_by n / p\n  decreasing_by\n    rw [← Nat.dvd_iff_mod_eq_zero] at hmod\n    rcases hmod with ⟨m, rfl⟩\n    have hp₀ : 0 < p := Nat.lt_trans Nat.one_pos hp.1\n    rw [Nat.mul_div_mul_left _ _ hp₀, Nat.mul_div_cancel_left _ hp₀]\n    exact Nat.div_lt_self (by grind) hp.1\n",
+            "docstring": "Find largest `k : ℕ` such that `p ^ k ∣ n` for any `p : ℕ`, as well as the ratio `n / p ^ k`.\n\nThe implementation recurses from `(p, n)` to `(p * p, n)`,\nso the recursion depth is $$O(\\log(\\nu_p(n)))$$, thus it is $$O(\\log(\\log(n)))$$.\n"
+          },
+          {
+            "id": 211839,
+            "name": "Nat.div2",
+            "module": "Mathlib.Data.Nat.Bits",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bits.lean#L45-L46",
+            "source_text": "/-- `div2 n = ⌊n/2⌋` the greatest integer smaller than `n/2` -/\n@[inline, grind =] def div2 (n : ℕ) : ℕ := n / 2\n",
+            "docstring": "`div2 n = ⌊n/2⌋` the greatest integer smaller than `n/2` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Nat mul div cancel",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "MulAction orbit stabilizer cardinality",
+      "Nat mul div cancel"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "MulAction orbit stabilizer cardinality",
+      "Nat mul div cancel"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "MulAction orbit stabilizer cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 235922,
+            "name": "MulAction.stabilizer_orbit_eq",
+            "module": "Mathlib.GroupTheory.GroupAction.Blocks",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Blocks.lean#L548-L563",
+            "source_text": "/-- A subgroup containing the stabilizer of `a`\n  is the stabilizer of the orbit of `a` under that subgroup -/\n@[to_additive\n  /-- A subgroup containing the stabilizer of `a`\n  is the stabilizer of the orbit of `a` under that subgroup -/]\ntheorem stabilizer_orbit_eq {a : X} {H : Subgroup G} (hH : stabilizer G a ≤ H) :\n    stabilizer G (orbit H a) = H := by\n  ext g\n  constructor\n  · intro hg\n    obtain ⟨-, ⟨b, rfl⟩, h⟩ := hg.symm ▸ mem_orbit_self a\n    simp_rw [H.toSubmonoid.smul_def, ← mul_smul, ← mem_stabilizer_iff] at h\n    exact (mul_mem_cancel_right b.2).mp (hH h)\n  · intro hg\n    rw [mem_stabilizer_iff, ← Subgroup.coe_mk H g hg, ← Submonoid.smul_def (S := H.toSubmonoid)]\n    apply smul_orbit (G := H)\n",
+            "docstring": "A subgroup containing the stabilizer of `a`\nis the stabilizer of the orbit of `a` under that subgroup "
+          },
+          {
+            "id": 236875,
+            "name": "AddAction.card_orbit_mul_card_stabilizer_eq_card_addGroup",
+            "module": "Mathlib.GroupTheory.GroupAction.Quotient",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Quotient.lean#L187-L188",
+            "source_text": "@[to_additive AddAction.card_orbit_mul_card_stabilizer_eq_card_addGroup\n/-- Orbit-stabilizer theorem. -/]\ntheorem card_orbit_mul_card_stabilizer_eq_card_group (b : X) [Fintype G] [Fintype <| orbit G b]\n    [Fintype <| stabilizer G b] :\n    Fintype.card (orbit G b) * Fintype.card (stabilizer G b) = Fintype.card G := by",
+            "docstring": "Orbit-stabilizer theorem. "
+          },
+          {
+            "id": 236870,
+            "name": "MulAction.orbitEquivQuotientStabilizer",
+            "module": "Mathlib.GroupTheory.GroupAction.Quotient",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Quotient.lean#L172-L178",
+            "source_text": "/-- **Orbit-stabilizer theorem**. -/\n@[to_additive /-- Orbit-stabilizer theorem. -/]\nnoncomputable def orbitEquivQuotientStabilizer (b : X) : orbit G b ≃ G ⧸ stabilizer G b :=\n  Equiv.symm <|\n    Equiv.ofBijective (fun g => ⟨ofQuotientStabilizer G b g, ofQuotientStabilizer_mem_orbit G b g⟩)\n      ⟨fun x y hxy => injective_ofQuotientStabilizer G b (by convert! congr_arg Subtype.val hxy),\n        fun ⟨_, ⟨g, hgb⟩⟩ => ⟨g, Subtype.ext hgb⟩⟩\n",
+            "docstring": "**Orbit-stabilizer theorem**. "
+          },
+          {
+            "id": 236126,
+            "name": "MulAction.stabilizer",
+            "module": "Mathlib.GroupTheory.GroupAction.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Defs.lean#L500-L506",
+            "source_text": "/-- The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. -/\n@[to_additive /-- The stabilizer of an element under an action, i.e. what sends the element to\nitself. An additive subgroup. -/]\ndef stabilizer (a : α) : Subgroup G :=\n  { stabilizerSubmonoid G a with\n    inv_mem' := fun {m} (ha : m • a = a) => show m⁻¹ • a = a by rw [inv_smul_eq_iff, ha] }\n",
+            "docstring": "The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. "
+          },
+          {
+            "id": 237036,
+            "name": "SubMulAction.mem_orbit_subMul_iff",
+            "module": "Mathlib.GroupTheory.GroupAction.SubMulAction",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction.lean#L434-L437",
+            "source_text": "@[to_additive]\nlemma mem_orbit_subMul_iff {p : SubMulAction R M} {x m : p} :\n    x ∈ MulAction.orbit R m ↔ (x : M) ∈ MulAction.orbit R (m : M) := by\n  rw [← val_preimage_orbit, Set.mem_preimage]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "MulAction orbit stabilizer cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394042,
+            "name": "FTheory.SU5.FluxesFive.subset_le_mem_of_card_eq_succ",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Completeness",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Completeness.lean#L113-L133",
+            "source_text": "lemma subset_le_mem_of_card_eq_succ {n : ℕ} {F : FluxesFive} (hF : F.NoExotics) (hnZ : F.HasNoZero)\n    (S : Multiset Fluxes) (hcard : S.card = n.succ) (hS : S ≤ F) {Y X : Finset (Multiset Fluxes)}\n    (hY : ∀ (S : Multiset Fluxes), S.card = n → S ≤ F → S ∈ Y)\n    (hX : ∀ a ∈ ({⟨0, 1⟩, ⟨0, 2⟩, ⟨0, 3⟩, ⟨1, -1⟩, ⟨1, 0⟩, ⟨1, 1⟩, ⟨1, 2⟩,\n      ⟨2, -2⟩, ⟨2, -1⟩, ⟨2, 0⟩, ⟨2, 1⟩, ⟨3, -3⟩, ⟨3, -2⟩, ⟨3, -1⟩, ⟨3, 0⟩} : Finset Fluxes),\n      ∀ y ∈ Y,\n      (Multiset.map (fun x => x.M + x.N) (a ::ₘ y)).sum ≤ 3 →\n      (Multiset.map (fun x => x.M) (a ::ₘ y)).sum ≤ 3 →\n      a ::ₘ y ∈ X) :\n    S ∈ X := by\n  have hSum1 := chiralIndicesOfL_subset_sum_le_three_of_noExotics F hF S hS\n  have hSum2 := chiralIndicesOfD_subset_sum_le_three_of_noExotics F hF S hS\n  revert S\n  apply Multiset.induction\n  · simp\n  intro a S ih hcard hle hsum1 hsum2\n  have hsub : S ≤ F := (S.le_cons_self a).trans hle\n  have ha : a ∈ F := Multiset.mem_of_le hle (S.mem_cons_self a)\n  rw [Multiset.card_cons] at hcard\n  simp at hcard\n  exact hX a (mem_mem_finset_of_noExotics F hF hnZ a ha) S (hY S hcard hsub) hsum1 hsum2\n",
+            "docstring": null
+          },
+          {
+            "id": 394058,
+            "name": "FTheory.SU5.FluxesFive.elemsNoExotics_card",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L109-L110",
+            "source_text": "lemma elemsNoExotics_card : elemsNoExotics.card = 31 := by\n  decide\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Nat mul div cancel",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67514,
+            "name": "mul_div_cancel",
+            "module": "Mathlib.Algebra.Group.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Basic.lean#L948-L950",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem mul_div_cancel (a b : G) : a * (b / a) = b := by\n  rw [← mul_div_assoc, mul_div_cancel_left]",
+            "docstring": null
+          },
+          {
+            "id": 77290,
+            "name": "MulDivCancelClass",
+            "module": "Mathlib.Algebra.GroupWithZero.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Defs.lean#L198-L203",
+            "source_text": "/-- Prop-valued mixin for a monoid with zero to be equipped with a cancelling division.\n\nThe obvious use case is groups with zero, but this condition is also satisfied by `ℕ`, `ℤ` and, more\ngenerally, any Euclidean domain. -/\nclass MulDivCancelClass (M₀ : Type*) [MonoidWithZero M₀] [Div M₀] : Prop where\n  protected mul_div_cancel (a b : M₀) : b ≠ 0 → a * b / b = a\n",
+            "docstring": "Prop-valued mixin for a monoid with zero to be equipped with a cancelling division.\n\nThe obvious use case is groups with zero, but this condition is also satisfied by `ℕ`, `ℤ` and, more\ngenerally, any Euclidean domain. "
+          },
+          {
+            "id": 211433,
+            "name": "NNRat.divNat",
+            "module": "Mathlib.Data.NNRat.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/NNRat/Defs.lean#L355-L359",
+            "source_text": "/-- Form the quotient `n / d` where `n d : ℕ`.\n\nSee also `Rat.divInt` and `mkRat`. -/\ndef divNat (n d : ℕ) : ℚ≥0 :=\n  ⟨.divInt n d, Rat.divInt_nonneg (Int.natCast_nonneg n) (Int.natCast_nonneg d)⟩\n",
+            "docstring": "Form the quotient `n / d` where `n d : ℕ`.\n\nSee also `Rat.divInt` and `mkRat`. "
+          },
+          {
+            "id": 213162,
+            "name": "Nat.maxPowDvdDiv",
+            "module": "Mathlib.Data.Nat.MaxPowDiv",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/MaxPowDiv.lean#L27-L52",
+            "source_text": "/--\nFind largest `k : ℕ` such that `p ^ k ∣ n` for any `p : ℕ`, as well as the ratio `n / p ^ k`.\n\nThe implementation recurses from `(p, n)` to `(p * p, n)`,\nso the recursion depth is $$O(\\log(\\nu_p(n)))$$, thus it is $$O(\\log(\\log(n)))$$.\n-/\ndef maxPowDvdDiv (p n : ℕ) : ℕ × ℕ :=\n  if H : 1 < p ∧ n ≠ 0 then\n    go p H\n  else\n    (0, n)\n  where\n  /-- Auxiliary definition for `Nat.maxPowDvdDiv`. -/\n  go (p : ℕ) (hp : 1 < p ∧ n ≠ 0) :=\n    if hmod : n % p = 0 then\n      let (e, q) := go (p * p) <| by simp [Nat.one_lt_mul_iff, hp, Nat.lt_trans Nat.one_pos]\n      if q % p = 0 then (2 * e + 1, q / p) else (2 * e, q)\n    else\n      (0, n)\n  termination_by n / p\n  decreasing_by\n    rw [← Nat.dvd_iff_mod_eq_zero] at hmod\n    rcases hmod with ⟨m, rfl⟩\n    have hp₀ : 0 < p := Nat.lt_trans Nat.one_pos hp.1\n    rw [Nat.mul_div_mul_left _ _ hp₀, Nat.mul_div_cancel_left _ hp₀]\n    exact Nat.div_lt_self (by grind) hp.1\n",
+            "docstring": "Find largest `k : ℕ` such that `p ^ k ∣ n` for any `p : ℕ`, as well as the ratio `n / p ^ k`.\n\nThe implementation recurses from `(p, n)` to `(p * p, n)`,\nso the recursion depth is $$O(\\log(\\nu_p(n)))$$, thus it is $$O(\\log(\\log(n)))$$.\n"
+          },
+          {
+            "id": 211839,
+            "name": "Nat.div2",
+            "module": "Mathlib.Data.Nat.Bits",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bits.lean#L45-L46",
+            "source_text": "/-- `div2 n = ⌊n/2⌋` the greatest integer smaller than `n/2` -/\n@[inline, grind =] def div2 (n : ℕ) : ℕ := n / 2\n",
+            "docstring": "`div2 n = ⌊n/2⌋` the greatest integer smaller than `n/2` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "action_partition",
+    "receipts_sha256": "13575ec6ab1b9b2421eedac0283c1deb267d2fea3a22e0ae7e2bc491ca95674a"
+  }
+]

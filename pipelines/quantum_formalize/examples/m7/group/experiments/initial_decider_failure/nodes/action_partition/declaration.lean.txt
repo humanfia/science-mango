@@ -1,0 +1,13 @@
+theorem M7.ActualOrbit.action_partition : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (P : M7.Action.Recipe N → Prop) (test : M7.Action.Recipe N → Bool), M7.ActualOrbit.actionCount c P = M7.ActualOrbit.actionCount c (fun y => P y ∧ test y = false) + M7.ActualOrbit.actionCount c (fun y => P y ∧ test y = true) := by
+  intro N inst c P test
+  classical
+  have hcount (Q : M7.Action.Recipe N → Prop) :
+      M7.ActualOrbit.actionCount c Q =
+        M7.OrbitFibers.actionCount (M7.Action.Record N) c Q := by
+    unfold M7.ActualOrbit.actionCount M7.OrbitFibers.actionCount
+    apply congrArg Finset.card
+    ext g
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+    rfl
+  simp only [hcount]
+  exact M7.OrbitFibers.action_partition (M7.Action.Record N) (M7.Action.Recipe N) c P test

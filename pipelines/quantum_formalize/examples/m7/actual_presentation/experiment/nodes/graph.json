@@ -1,0 +1,219 @@
+[
+  {
+    "id": "decode_encode",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ActualPresentation.decode_encode",
+      "statement": "∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N), M7.ActualPresentation.decode (M7.ActualPresentation.encode g) = g",
+      "imports": [
+        "M7ActualPresentation",
+        "M7PresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Destructure the actual four-field action record. Unit and exchange fields are unchanged; ZMod.natCast_zmod_val recovers each shift. No group law or distance invariant is assumed. Return tactic proof lines without leading by; preserve exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §9 actual four-field record and literal supports",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "encode_decode",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ActualPresentation.encode_decode",
+      "statement": "∀ (N : ℕ) [NeZero N] (a : M7.ActualPresentation.Encoded N), M7.ActualPresentation.encode (M7.ActualPresentation.decode a) = a",
+      "imports": [
+        "M7ActualPresentation",
+        "M7PresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Destructure both nested Lex pairs and UnitKey. Each finite shift returns from its natural-code cast using ZMod.val_natCast and Nat.mod_eq_of_lt from Fin.isLt; use Fin.ext. This proves a genuine full action encoding equivalence including N=1. Return tactic proof lines without leading by; preserve exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §9 actual four-field record and literal supports",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "four_field_order",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ActualPresentation.four_field_order",
+      "statement": "∀ (N : ℕ) [NeZero N] (g h : M7.Action.Record N), (M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h ↔ (g.unit : ZMod N).val < (h.unit : ZMod N).val ∨ (g.unit : ZMod N).val = (h.unit : ZMod N).val ∧ (g.exchange < h.exchange ∨ g.exchange = h.exchange ∧ (g.leftShift.val < h.leftShift.val ∨ g.leftShift.val = h.leftShift.val ∧ g.rightShift.val ≤ h.rightShift.val)))",
+      "imports": [
+        "M7ActualPresentation",
+        "M7PresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Unfold encode and nested Prod.Lex.toLex_le_toLex. UnitKey order is explicitly lifted from unit.val; equality of unit codes iff unit equality uses ZMod.val_injective and Units.ext. Fin comparisons use their natural val. This is exactly the original four-field lex order, not product partial order. Return tactic proof lines without leading by; preserve exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §9 actual four-field record and literal supports",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "realize_decode",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ActualPresentation.realize_decode",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (a : M7.ActualPresentation.Encoded N), M7.Presentation.realize (M7.ActualPresentation.leftImage c) (M7.ActualPresentation.rightImage c) a = M7.Action.act (M7.ActualPresentation.decode a) c",
+      "imports": [
+        "M7ActualPresentation",
+        "M7PresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "The two actual affine images are exactly the generic left/right realization by definition. Unfold realize,leftImage,rightImage,decode,act; both fields agree, including exchange. Return tactic proof lines without leading by; preserve exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §9 actual four-field record and literal supports",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "domain_univ",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ActualPresentation.domain_univ",
+      "statement": "∀ (N : ℕ) [NeZero N], M7.Presentation.domain (Finset.univ : Finset (M7.ActualPresentation.Outer N)) (Finset.univ : Finset (Fin N)) (Finset.univ : Finset (Fin N)) = (Finset.univ : Finset (M7.ActualPresentation.Encoded N))",
+      "imports": [
+        "M7ActualPresentation",
+        "M7PresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Use the accepted generic domain_membership and Finset.ext; all three coordinate memberships are in univ. This is finite action-record enumeration, not structural support-pair generation. Return tactic proof lines without leading by; preserve exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §9 actual four-field record and literal supports",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "leastAction_spec",
+    "dependencies": [
+      "decode_encode",
+      "encode_decode",
+      "realize_decode",
+      "domain_univ"
+    ],
+    "spec": {
+      "name": "M7.ActualPresentation.leastAction_spec",
+      "statement": "∀ (N : ℕ) [NeZero N] (c q : M7.Action.Recipe N), (∀ g : M7.Action.Record N, M7.ActualPresentation.leastAction c q = some g ↔ M7.Action.act g c = q ∧ ∀ h : M7.Action.Record N, M7.Action.act h c = q → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h) ∧ (M7.ActualPresentation.leastAction c q = none ↔ ¬ ∃ g : M7.Action.Record N, M7.Action.act g c = q)",
+      "imports": [
+        "M7ActualPresentation",
+        "M7PresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Instantiate accepted targetLeast_spec with the actual Outer/FinN domains and left/right affine image functions. Rewrite domain_univ and realize_decode. encode/decode are inverse, so Option.map decode preserves the exact least-preimage specification; use encode g to transport any actual record back to the encoded domain. Algorithm remains factorized. Return tactic proof lines without leading by; preserve exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §9 actual four-field record and literal supports",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "winning_fiber",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ActualPresentation.winning_fiber",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (m : ℕ) (feasible : M7.Action.Recipe N → Prop) (objective : M7.Action.Recipe N → Fin m → ℤ) (mode : M7.Selection.Mode) (g h : M7.Action.Record N), M7.Action.act g c = M7.Action.act h c → (g ∈ M7.ActualPresentation.selected c feasible objective mode ↔ h ∈ M7.ActualPresentation.selected c feasible objective mode)",
+      "imports": [
+        "M7ActualPresentation",
+        "M7PresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Unfold actual selected and use accepted M7.Selection.selector_exact, or its win_sound_complete predicate. Both feasibility and objective are functions of the literal realized recipe. Same physical pair implies the same comparisons. This does not assume action-invariance of an unconnected label. Return tactic proof lines without leading by; preserve exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §9 actual four-field record and literal supports",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "presentation_exact",
+    "dependencies": [
+      "leastAction_spec",
+      "winning_fiber"
+    ],
+    "spec": {
+      "name": "M7.ActualPresentation.presentation_exact",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (m : ℕ) (feasible : M7.Action.Recipe N → Prop) (objective : M7.Action.Recipe N → Fin m → ℤ) (mode : M7.Selection.Mode) (g : M7.Action.Record N), g ∈ M7.ActualPresentation.selected c feasible objective mode → ∃! h : M7.Action.Record N, M7.ActualPresentation.present c feasible objective mode h ∧ M7.Action.act h c = M7.Action.act g c",
+      "imports": [
+        "M7ActualPresentation",
+        "M7PresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "leastAction at the winning image has a preimage, hence is some h by leastAction_spec. It has the same literal image, so winning_fiber makes h winning; it is present by its leastAction equality. Any other present record with that image gives the same Option result, hence uniqueness. Every actual tied presentation is returned once. Return tactic proof lines without leading by; preserve exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §9 actual four-field record and literal supports",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "presentation_sound",
+    "dependencies": [
+      "leastAction_spec"
+    ],
+    "spec": {
+      "name": "M7.ActualPresentation.presentation_sound",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (m : ℕ) (feasible : M7.Action.Recipe N → Prop) (objective : M7.Action.Recipe N → Fin m → ℤ) (mode : M7.Selection.Mode) (g : M7.Action.Record N), M7.ActualPresentation.present c feasible objective mode g → g ∈ M7.ActualPresentation.selected c feasible objective mode ∧ ∀ h : M7.Action.Record N, M7.Action.act h c = M7.Action.act g c → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h",
+      "imports": [
+        "M7ActualPresentation",
+        "M7PresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Unfold present; retain actual winning membership and apply leastAction_spec to get least-preimage minimality. No default-query label hypothesis is added here; the next batch instantiates feasible/objective with literal signature, locality and actual M6 distance. Return tactic proof lines without leading by; preserve exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §9 actual four-field record and literal supports",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

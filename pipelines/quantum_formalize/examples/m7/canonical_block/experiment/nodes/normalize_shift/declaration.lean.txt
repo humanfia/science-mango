@@ -1,0 +1,33 @@
+theorem M7.CanonicalBlock.normalize_shift : ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), M7.CanonicalBlock.normalize (M7.CanonicalBlock.shift s A) = M7.CanonicalBlock.normalize A := by
+  change ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), M7.CanonicalBlock.normalize (M7.CanonicalBlock.shift s A) = M7.CanonicalBlock.normalize A
+  intro N inst s A
+  classical
+  by_cases hA : A.Nonempty
+  · have hB : (M7.CanonicalBlock.shift s A).Nonempty := by
+      obtain ⟨q, hq⟩ := hA
+      exact ⟨q + s, Finset.mem_image.mpr ⟨q, hq, rfl⟩⟩
+    apply M7.CanonicalBlock.key_injective N
+    apply le_antisymm
+    · have hm : M7.CanonicalBlock.bestAnchor A + s ∈ M7.CanonicalBlock.shift s A := by
+        exact Finset.mem_image.mpr ⟨M7.CanonicalBlock.bestAnchor A,
+          M7.CanonicalBlock.best_anchor_member N A hA, rfl⟩
+      have hmin := M7.CanonicalBlock.normalize_minimal N
+        (M7.CanonicalBlock.shift s A) hB (M7.CanonicalBlock.bestAnchor A + s) hm
+      have hs : -(M7.CanonicalBlock.bestAnchor A + s) + s = -M7.CanonicalBlock.bestAnchor A := by
+        abel
+      rw [M7.CanonicalBlock.shift_add, hs] at hmin
+      exact hmin
+    · have hm := M7.CanonicalBlock.best_anchor_member N (M7.CanonicalBlock.shift s A) hB
+      change M7.CanonicalBlock.bestAnchor (M7.CanonicalBlock.shift s A) ∈ A.image (fun q => q + s) at hm
+      obtain ⟨q, hq, heq⟩ := Finset.mem_image.mp hm
+      have hmin := M7.CanonicalBlock.normalize_minimal N A hA q hq
+      have hs : M7.CanonicalBlock.shift (-q) A = M7.CanonicalBlock.normalize (M7.CanonicalBlock.shift s A) := by
+        unfold M7.CanonicalBlock.normalize
+        rw [M7.CanonicalBlock.shift_add, ← heq]
+        have he : -(q + s) + s = -q := by abel
+        rw [he]
+      rw [hs] at hmin
+      exact hmin
+  · have he : A = ∅ := Finset.not_nonempty_iff_eq_empty.mp hA
+    subst A
+    simp [M7.CanonicalBlock.normalize, M7.CanonicalBlock.shift]

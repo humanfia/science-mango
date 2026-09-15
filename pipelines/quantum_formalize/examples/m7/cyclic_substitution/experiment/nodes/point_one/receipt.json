@@ -1,0 +1,96 @@
+{
+  "id": "point_one",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CyclicSubstitution.point_one",
+    "spec_sha256": "eec3edfe761a4976602f0458ac4b106913e3dfea7e82014679d2cf74c6e734c6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-3zxtrq7v/attempt-001/Candidate_644c3da7b76bd328.lean:5:2: error: 'change' tactic failed, pattern\n  rho N ^ (↑1).val = rho N\nis not definitionally equal to target\n  point 1 = rho N\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-3zxtrq7v/attempt-002/Candidate_3b4b3f39de0fd5b0.lean:6:2: error: 'change' tactic failed, pattern\n  rho N ^ (↑1).val = rho N\nis not definitionally equal to target\n  rho N ^ (↑1).val = rho N\n",
+        "attempt": 2
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-3zxtrq7v/attempt-003/Candidate_91d47442411c815b.lean",
+        "target_path": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-3zxtrq7v/attempt-003/FrozenTarget_91d47442411c815b.lean",
+        "feedback": "",
+        "target_sha256": "27cf485fecc3b94f241561410cabe9737d35463b99b3c5e49d362609a10ccdd6",
+        "target_olean_sha256": "9e9909c8b70bf68b2ea60c2921ceae58f0e2cfce29c130f69908764d3a0f14ac",
+        "source_sha256": "ea7d758d5b4311ef20c4ca38946d00086f5df8d799ab9144ae2fef7d5780a8c6",
+        "olean_sha256": "9c79e50bd9b2779c98b50045c0fc8a5f013647286a7bf61d3b9455a7ad3509c5",
+        "attempt": 3
+      }
+    ],
+    "created_at": "2026-09-15T17:21:05.047039+00:00",
+    "work": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-3zxtrq7v",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "f4b32daa3acc2fbe9dcc8c965f722331d89d86d7c9f2de27217cdadccecc3ebe",
+    "phase": "finished",
+    "round": 3,
+    "proof": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-3zxtrq7v/attempt-003/Candidate_91d47442411c815b.lean",
+    "environment_sha256": "0af89d47b258d0fec79ff77305324203ae1f06b65dee6e7443d0cc084fc0341c",
+    "artifacts": {
+      "root_power": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.root_power : ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1 := by\n  change ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1\n  intro N _\n  have hroot := AdjoinRoot.eval₂_root (M6.Cyclic.modulus N)\n  change (Polynomial.X ^ N + 1 : M6.Cyclic.BinaryPolynomial).eval₂\n    (AdjoinRoot.of (M6.Cyclic.modulus N)) (M7.CyclicSubstitution.rho N) = 0 at hroot\n  rw [Polynomial.eval₂_add, Polynomial.eval₂_X_pow, Polynomial.eval₂_one] at hroot\n  have htwo : (1 : M6.Cyclic.CycleRing N) + 1 = 0 := by\n    have h := congrArg (AdjoinRoot.of (M6.Cyclic.modulus N))\n      (show (1 : ZMod 2) + 1 = 0 by decide)\n    simpa only [map_add, map_one, map_zero] using h\n  exact add_right_cancel (hroot.trans htwo.symm)",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.root_power",
+          "ancestors": [],
+          "spec_sha256": "0c33c63073df6c06f061ebf166753733009118948ab6dea2f45503e611f40bfb"
+        },
+        "sha256": "ff9f3031f97fbc1e97585296f9ca0ebbf3f4d90d42ccaffaca0e138dcdeb9626"
+      },
+      "power_mod": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.power_mod : ∀ (N : ℕ) [NeZero N], ∀ k : ℕ, M7.CyclicSubstitution.rho N ^ k = M7.CyclicSubstitution.rho N ^ (k % N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ k : ℕ, M7.CyclicSubstitution.rho N ^ k = M7.CyclicSubstitution.rho N ^ (k % N)\n  intro N _ k\n  calc\n    M7.CyclicSubstitution.rho N ^ k =\n        M7.CyclicSubstitution.rho N ^ (k % N + N * (k / N)) :=\n      congrArg (fun n : ℕ => M7.CyclicSubstitution.rho N ^ n) (Nat.mod_add_div k N).symm\n    _ = M7.CyclicSubstitution.rho N ^ (k % N) := by\n      rw [pow_add, pow_mul, M7.CyclicSubstitution.root_power N, one_pow, mul_one]",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.power_mod",
+          "ancestors": [
+            "root_power"
+          ],
+          "spec_sha256": "cff14ff85e4df50b5f0f833ee953f67190fa3b9ac6fe28fe633275f52f765147"
+        },
+        "sha256": "a746abea48c5c0d48faf9cc724b3082f1722af61290b2a4efcc23eccc0a8b0d8"
+      },
+      "point_one": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.point_one : ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.point (1 : (ZMod N)ˣ) = M7.CyclicSubstitution.rho N := by\n  change ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.point (1 : (ZMod N)ˣ) = M7.CyclicSubstitution.rho N\n  intro N _\n  unfold M7.CyclicSubstitution.point\n  simp only [Units.val_one]\n  have h : (1 : ZMod N).val = 1 % N := by\n    simpa only [Nat.cast_one] using (ZMod.val_natCast N 1)\n  rw [h]\n  exact (M7.CyclicSubstitution.power_mod N 1).symm.trans (pow_one _)",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.point_one",
+          "ancestors": [
+            "power_mod",
+            "root_power"
+          ],
+          "spec_sha256": "460ccc60acb3312925a6a7edfd0d72016bff254f5a51c3ab681dd6e3f169d99d"
+        },
+        "sha256": "ed057004a87322f761ba6b015603a580a1333ca8d96332348a10cd1564509826"
+      }
+    }
+  }
+}

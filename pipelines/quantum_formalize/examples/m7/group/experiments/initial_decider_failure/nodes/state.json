@@ -1,0 +1,357 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T17:08:45.404092+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "action_partition": {
+      "id": "action_partition",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.ActualOrbit.action_partition",
+        "spec_sha256": "f2f03d1863bcd957d6d780ba8104f1e2df9a057bd796fa423471211afcaacc57",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-avlc7v4p/attempt-001/Candidate_26f9e5d7f9549a90.lean:5:2: error: Type mismatch: After simplification, term\n  OrbitFibers.action_partition (Action.Record N) (Action.Recipe N) c P test\n has type\n  @Eq ℕ {g | P (g • c)}.card ({x | P (x • c) ∧ test (x • c) = false}.card + {x | P (x • c) ∧ test (x • c) = true}.card)\nbut is expected to have type\n  @Eq ℕ {g | P (Action.act g c)}.card\n    ({x | P (Action.act x c) ∧ test (Action.act x c) = false}.card +\n      {x | P (Action.act x c) ∧ test (Action.act x c) = true}.card)\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-avlc7v4p/attempt-002/Candidate_f5b826b533e75e45.lean",
+            "target_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-avlc7v4p/attempt-002/FrozenTarget_f5b826b533e75e45.lean",
+            "feedback": "",
+            "target_sha256": "d8dfb7e49a0eea0fde5b2761ef8aa46d73d27af82a124058b19875a545436ca4",
+            "target_olean_sha256": "ff0b8e90ddb2d8681dce099171b2746d5256621f51ff0b1f21765e2a1fc3f6db",
+            "source_sha256": "faf4c34e98dbe07073b09b6c935325b42c848113d9e908b2471c859168f3d8c1",
+            "olean_sha256": "b332bbf06ecfac2ae17d8ebdf77d032cd20d713576eb3538b2ea08dc09e17cca",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T16:51:27.407740+00:00",
+        "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-avlc7v4p",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-avlc7v4p/attempt-002/Candidate_f5b826b533e75e45.lean",
+        "environment_sha256": "3ceda1df08df0e7a5399eb1eb8f57c7d4e5d12c24b7dd00be31b46465a38e081",
+        "artifacts": {
+          "action_partition": {
+            "payload": {
+              "declaration": "theorem M7.ActualOrbit.action_partition : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (P : M7.Action.Recipe N → Prop) (test : M7.Action.Recipe N → Bool), M7.ActualOrbit.actionCount c P = M7.ActualOrbit.actionCount c (fun y => P y ∧ test y = false) + M7.ActualOrbit.actionCount c (fun y => P y ∧ test y = true) := by\n  intro N inst c P test\n  classical\n  have hcount (Q : M7.Action.Recipe N → Prop) :\n      M7.ActualOrbit.actionCount c Q =\n        M7.OrbitFibers.actionCount (M7.Action.Record N) c Q := by\n    unfold M7.ActualOrbit.actionCount M7.OrbitFibers.actionCount\n    apply congrArg Finset.card\n    ext g\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and]\n    rfl\n  simp only [hcount]\n  exact M7.OrbitFibers.action_partition (M7.Action.Record N) (M7.Action.Recipe N) c P test",
+              "imports": [
+                "M7ActualOrbit"
+              ],
+              "name": "M7.ActualOrbit.action_partition",
+              "ancestors": [],
+              "spec_sha256": "f2f03d1863bcd957d6d780ba8104f1e2df9a057bd796fa423471211afcaacc57"
+            },
+            "sha256": "be4a7140f9a56ea73ce7da93b8410f099e0e85108089087aa282b6faa858cec1"
+          }
+        }
+      }
+    },
+    "count_product": {
+      "id": "count_product",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M7.ActualOrbit.count_product",
+        "spec_sha256": "3f9c9d618c4c482cf89f57783729bcf2c0e2fb665d8298a903588ef6ea2e9f9c",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-t99hnly_/attempt-001/Candidate_1400efa6d2f6196a.lean:5:2: error: Type mismatch: After simplification, term\n  OrbitFibers.action_count_product (Action.Record N) (Action.Recipe N) c P\n has type\n  {g | P (g • c)}.card =\n    (Finset.filter P\n          (@Finset.image (Action.Record N) (Action.Recipe N) (fun a b => Classical.propDecidable (a = b))\n            (fun g => g • c) Finset.univ)).card *\n      {g | g • c = c}.card\nbut is expected to have type\n  {g | P (Action.act g c)}.card =\n    (Finset.filter P\n          (@Finset.image (Action.Record N) (Action.Recipe N) (fun a b => instDecidableEqProd a b)\n            (fun g => Action.act g c) Finset.univ)).card *\n      {g | Action.act g c = c}.card\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-t99hnly_/attempt-002/Candidate_5b41766848fdb7a5.lean:9:2: error: Type mismatch: After simplification, term\n  OrbitFibers.action_count_product (Action.Record N) (Action.Recipe N) c P\n has type\n  {g | P (g • c)}.card = (Finset.filter P (OrbitFibers.orbit (Action.Record N) c)).card * {g | g • c = c}.card\nbut is expected to have type\n  {g | P (Action.act g c)}.card =\n    (Finset.filter P (OrbitFibers.orbit (Action.Record N) c)).card * {g | Action.act g c = c}.card\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-t99hnly_/attempt-003/Candidate_1de5689b01f3c259.lean:5:2: error: 'change' tactic failed, pattern\n  OrbitFibers.actionCount (Action.Record N) c P =\n    OrbitFibers.orbitCount (Action.Record N) c P * OrbitFibers.stabilizerCount (Action.Record N) c\nis not definitionally equal to target\n  actionCount c P = distinctCount c P * stabilizerCount c\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-t99hnly_/attempt-004/Candidate_15a3767ff209c32b.lean:8:4: error: No goals to be solved\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-t99hnly_/attempt-005/Candidate_a278465b291cf5e0.lean:5:2: error: Type mismatch: After simplification, term\n  OrbitFibers.action_count_product (Action.Record N) (Action.Recipe N) c P\n has type\n  {g | P (g • c)}.card =\n    (Finset.filter P\n          (@Finset.image (Action.Record N) (Action.Recipe N) (fun a b => Classical.propDecidable (a = b))\n            (fun g => g • c) Finset.univ)).card *\n      {g | g • c = c}.card\nbut is expected to have type\n  {g | P (Action.act g c)}.card =\n    (Finset.filter P\n          (@Finset.image (Action.Record N) (Action.Recipe N) (fun a b => instDecidableEqProd a b)\n            (fun g => Action.act g c) Finset.univ)).card *\n      {g | Action.act g c = c}.card\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T16:51:27.426399+00:00",
+        "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-t99hnly_",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "distinct_partition": {
+      "id": "distinct_partition",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.ActualOrbit.distinct_partition",
+        "spec_sha256": "049ad08422b8012a4032a41b988d4f7ab96c996238ce520ef7e01d61721bd364",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy/attempt-001/Candidate_ffccadb8e429c88f.lean:5:2: error: Type mismatch: After simplification, term\n  OrbitFibers.orbit_partition (Action.Record N) (Action.Recipe N) c P test\n has type\n  (Finset.filter P\n        (@Finset.image (Action.Record N) (Action.Recipe N) (fun a b => Classical.propDecidable (a = b)) (fun g => g • c)\n          Finset.univ)).card =\n    {y ∈ Finset.image (fun g => g • c) Finset.univ | P y ∧ test y = false}.card +\n      {y ∈ Finset.image (fun g => g • c) Finset.univ | P y ∧ test y = true}.card\nbut is expected to have type\n  (Finset.filter P\n        (@Finset.image (Action.Record N) (Action.Recipe N) (fun a b => instDecidableEqProd a b)\n          (fun g => Action.act g c) Finset.univ)).card =\n    {y ∈ Finset.image (fun g => Action.act g c) Finset.univ | P y ∧ test y = false}.card +\n      {y ∈ Finset.image (fun g => Action.act g c) Finset.univ | P y ∧ test y = true}.card\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy/attempt-002/Candidate_0712d8774b5c2bfe.lean",
+            "target_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy/attempt-002/FrozenTarget_0712d8774b5c2bfe.lean",
+            "feedback": "",
+            "target_sha256": "90dd0f018da3c259fb9511c76ae98a63ff3051e965b252aebbfd2c16d3d9ee7b",
+            "target_olean_sha256": "c859dd17c16f5a78565a9b7849bc5c9f4428fcc6488ed93b121e3dff7d7ef65b",
+            "source_sha256": "6efaf41684db94522fd6f95059e45b5444d4d0e1cb07abd47879658718cb3c80",
+            "olean_sha256": "addcecc12d27ffb6644783eefddba2498c3524b2efbc8cbee90defa74bf76385",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T16:56:55.076952+00:00",
+        "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy/attempt-002/Candidate_0712d8774b5c2bfe.lean",
+        "environment_sha256": "3ceda1df08df0e7a5399eb1eb8f57c7d4e5d12c24b7dd00be31b46465a38e081",
+        "artifacts": {
+          "distinct_partition": {
+            "payload": {
+              "declaration": "theorem M7.ActualOrbit.distinct_partition : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (P : M7.Action.Recipe N → Prop) (test : M7.Action.Recipe N → Bool), M7.ActualOrbit.distinctCount c P = M7.ActualOrbit.distinctCount c (fun y => P y ∧ test y = false) + M7.ActualOrbit.distinctCount c (fun y => P y ∧ test y = true) := by\n  classical\n  intro N _ c P test\n  have hcount (Q : M7.Action.Recipe N → Prop) :\n      M7.ActualOrbit.distinctCount c Q =\n        M7.OrbitFibers.orbitCount (M7.Action.Record N) c Q := by\n    unfold M7.ActualOrbit.distinctCount M7.OrbitFibers.orbitCount\n    apply congrArg Finset.card\n    apply Finset.ext\n    intro y\n    simp only [Finset.mem_filter, M7.ActualOrbit.orbit,\n      M7.OrbitFibers.orbit, Finset.mem_image]\n    rfl\n  simpa only [hcount] using\n    (M7.OrbitFibers.orbit_partition (M7.Action.Record N)\n      (M7.Action.Recipe N) c P test)",
+              "imports": [
+                "M7ActualOrbit"
+              ],
+              "name": "M7.ActualOrbit.distinct_partition",
+              "ancestors": [],
+              "spec_sha256": "049ad08422b8012a4032a41b988d4f7ab96c996238ce520ef7e01d61721bd364"
+            },
+            "sha256": "59d263f859f68d8b0635a0186dbec5d31161f0b86dff7b906a9428040d113b93"
+          }
+        }
+      }
+    },
+    "exact_division": {
+      "id": "exact_division",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.ActualOrbit.exact_division",
+        "spec_sha256": "08c7d6a467b8a5577a94bce8b6867a027f0c2deb720943d2768dfb530236434a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2kbplbmp/attempt-001/Candidate_b57aff7232211f9c.lean:5:2: error: Type mismatch: After simplification, term\n  OrbitFibers.orbit_count_div (Action.Record N) (Action.Recipe N) c P\n has type\n  {g | P (g • c)}.card / {g | g • c = c}.card = (Finset.filter P (Finset.image (fun g => g • c) Finset.univ)).card ∧\n    {g | g • c = c}.card ∣ {g | P (g • c)}.card\nbut is expected to have type\n  {g | P (Action.act g c)}.card / {g | Action.act g c = c}.card =\n      (Finset.filter P (Finset.image (fun g => Action.act g c) Finset.univ)).card ∧\n    {g | Action.act g c = c}.card ∣ {g | P (Action.act g c)}.card\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2kbplbmp/attempt-002/Candidate_03cc50b08d213356.lean",
+            "target_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2kbplbmp/attempt-002/FrozenTarget_03cc50b08d213356.lean",
+            "feedback": "",
+            "target_sha256": "cdec98a99223c9b44ad4611c73102fc20977c8755eafd666e5969fadd1d4f1ce",
+            "target_olean_sha256": "b5800dd7bccef4226147b06b19f4adf668f98b5ceb9802ef98379bfb878e8005",
+            "source_sha256": "56b02a87c1260aa87e95f1fad2f744faa9c2715ed76af8cb90616b74e44b5247",
+            "olean_sha256": "3f06de22e37660a6c7737b45b68555b128fb68e488aa47a84fc3643ac785c52b",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T17:00:32.613314+00:00",
+        "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2kbplbmp",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2kbplbmp/attempt-002/Candidate_03cc50b08d213356.lean",
+        "environment_sha256": "3ceda1df08df0e7a5399eb1eb8f57c7d4e5d12c24b7dd00be31b46465a38e081",
+        "artifacts": {
+          "exact_division": {
+            "payload": {
+              "declaration": "theorem M7.ActualOrbit.exact_division : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ P : M7.Action.Recipe N → Prop, M7.ActualOrbit.actionCount c P / M7.ActualOrbit.stabilizerCount c = M7.ActualOrbit.distinctCount c P ∧ M7.ActualOrbit.stabilizerCount c ∣ M7.ActualOrbit.actionCount c P := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ P : M7.Action.Recipe N → Prop, M7.ActualOrbit.actionCount c P / M7.ActualOrbit.stabilizerCount c = M7.ActualOrbit.distinctCount c P ∧ M7.ActualOrbit.stabilizerCount c ∣ M7.ActualOrbit.actionCount c P\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst c P\n  classical\n  have ha : M7.ActualOrbit.actionCount c P = M7.OrbitFibers.actionCount (M7.Action.Record N) c P := by\n    unfold M7.ActualOrbit.actionCount M7.OrbitFibers.actionCount\n    apply congrArg Finset.card\n    ext g\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and] <;> rfl\n  have hs : M7.ActualOrbit.stabilizerCount c = M7.OrbitFibers.stabilizerCount (M7.Action.Record N) c := by\n    unfold M7.ActualOrbit.stabilizerCount M7.ActualOrbit.fullStabilizer M7.OrbitFibers.stabilizerCount\n    apply congrArg Finset.card\n    ext g\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and] <;> rfl\n  have hd : M7.ActualOrbit.distinctCount c P = M7.OrbitFibers.orbitCount (M7.Action.Record N) c P := by\n    unfold M7.ActualOrbit.distinctCount M7.ActualOrbit.orbit M7.OrbitFibers.orbitCount M7.OrbitFibers.orbit\n    apply congrArg Finset.card\n    ext y\n    simp only [Finset.mem_filter, Finset.mem_image, Finset.mem_univ, true_and] <;> rfl\n  rw [ha, hs, hd]\n  exact M7.OrbitFibers.orbit_count_div (M7.Action.Record N) (M7.Action.Recipe N) c P",
+              "imports": [
+                "M7ActualOrbit"
+              ],
+              "name": "M7.ActualOrbit.exact_division",
+              "ancestors": [],
+              "spec_sha256": "08c7d6a467b8a5577a94bce8b6867a027f0c2deb720943d2768dfb530236434a"
+            },
+            "sha256": "d8b3a68fb523647a65a4c1be688d76e118e7757272796712af51b5731edc1769"
+          }
+        }
+      }
+    },
+    "fiber_count": {
+      "id": "fiber_count",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M7.ActualOrbit.fiber_count",
+        "spec_sha256": "2bea90360f4fd32bf83c383d58750e9cf38112368cd9f63e263d099e6389cdff",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-yqa47c8j/attempt-001/Candidate_b169af8ae44b4dc1.lean:5:2: error: 'change' tactic failed, pattern\n  y ∈ OrbitFibers.orbit (Action.Record N) c\nis not definitionally equal to target\n  y ∈ orbit c\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-yqa47c8j/attempt-002/Candidate_14fbd2854c669f73.lean:6:4: error: Type mismatch: After simplification, term\n  hy\n has type\n  ∃ a, Action.act a c = y\nbut is expected to have type\n  ∃ a, a • c = y\n/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-yqa47c8j/attempt-002/Candidate_14fbd2854c669f73.lean:11:2: error: unsolved goals\ncase e'_2\nN : ℕ\ninst : NeZero N\nc y : Action.Recipe N\nhy : y ∈ orbit c\nhy' : y ∈ OrbitFibers.orbit (Action.Record N) c\nh : OrbitFibers.fiberCount (Action.Record N) c y = OrbitFibers.stabilizerCount (Action.Record N) c\ng : Action.Record N\n⊢ g ∈ Finset.univ ∧ Action.act g c = y ↔ g ∈ Finset.univ ∧ g • c = y\n/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-yqa47c8j/attempt-002/Candidate_14fbd2854c669f73.lean:15:2: error: unsolved goals\ncase e'_3\nN : ℕ\ninst : NeZero N\nc y : Action.Recipe N\nhy : y ∈ orbit c\nhy' : y ∈ OrbitFibers.orbit (Action.Record N) c\nh : OrbitFibers.fiberCount (Action.Record N) c y = OrbitFibers.stabilizerCount (Action.Record N) c\ng : Action.Record N\n⊢ g ∈ Finset.univ ∧ Action.act g c = c ↔ g ∈ Finset.univ ∧ g • c = c\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-yqa47c8j/attempt-003/Candidate_cd1a7a09a765c416.lean:7:4: error: Type mismatch: After simplification, term\n  hy\n has type\n  y ∈\n    @Finset.image (Action.Record N) (Action.Recipe N) (fun a b => instDecidableEqProd a b) (fun g => Action.act g c)\n      Finset.univ\nbut is expected to have type\n  y ∈\n    @Finset.image (Action.Record N) (Action.Recipe N) (fun a b => Classical.propDecidable (a = b))\n      (fun g => Action.act g c) Finset.univ\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-yqa47c8j/attempt-004/Candidate_60609a47862fd822.lean:6:4: error: Type mismatch: After simplification, term\n  hy\n has type\n  ∃ a ∈ Finset.univ, Action.act a c = y\nbut is expected to have type\n  ∃ a ∈ Finset.univ, a • c = y\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-yqa47c8j/attempt-005/Candidate_0a1cffbf3a7be5fa.lean:8:4: error: Type mismatch: After simplification, term\n  hy\n has type\n  y ∈\n    @Finset.image (Action.Record N) (Action.Recipe N) (fun a b => instDecidableEqProd a b) (fun g => Action.act g c)\n      Finset.univ\nbut is expected to have type\n  y ∈\n    @Finset.image (Action.Record N) (Action.Recipe N) (fun a b => Classical.propDecidable (a = b))\n      (fun g => Action.act g c) Finset.univ\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T17:00:43.910807+00:00",
+        "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-yqa47c8j",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "stabilizer_positive": {
+      "id": "stabilizer_positive",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.ActualOrbit.stabilizer_positive",
+        "spec_sha256": "eb77c8dd035afe561dfdf3302e364522beb94eff43cee8d7bd12bee0fd49f3a2",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx/attempt-001/Candidate_67ff66c935128673.lean:5:2: error: Type mismatch\n  OrbitFibers.stabilizer_positive (Action.Record N) (Action.Recipe N) c\nhas type\n  0 < OrbitFibers.stabilizerCount (Action.Record N) c\nbut is expected to have type\n  0 < stabilizerCount c\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx/attempt-002/Candidate_9a583bd5ae9623d4.lean",
+            "target_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx/attempt-002/FrozenTarget_9a583bd5ae9623d4.lean",
+            "feedback": "",
+            "target_sha256": "6cbcde71c2f0140cb09b21421aa6cd84e35cae75c74d59d75d6294693ba0d5be",
+            "target_olean_sha256": "b06d97b3050940849742dac9902b20ee098f1d979c85e5d89f583297d94d8944",
+            "source_sha256": "53378861434ddeab80f3aaad7264deb89d309fd3de947c3576f36cfd3f389189",
+            "olean_sha256": "055ac15f80c663efb2d64c08ded5d313fe02f4949fe5d77075d793d4454686d6",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T17:04:46.746271+00:00",
+        "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx/attempt-002/Candidate_9a583bd5ae9623d4.lean",
+        "environment_sha256": "3ceda1df08df0e7a5399eb1eb8f57c7d4e5d12c24b7dd00be31b46465a38e081",
+        "artifacts": {
+          "stabilizer_positive": {
+            "payload": {
+              "declaration": "theorem M7.ActualOrbit.stabilizer_positive : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), 0 < M7.ActualOrbit.stabilizerCount c := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), 0 < M7.ActualOrbit.stabilizerCount c\n  intro N inst c\n  classical\n  have h := M7.OrbitFibers.stabilizer_positive (M7.Action.Record N) (M7.Action.Recipe N) c\n  have heq : M7.ActualOrbit.stabilizerCount c = M7.OrbitFibers.stabilizerCount (M7.Action.Record N) c := by\n    unfold M7.ActualOrbit.stabilizerCount M7.ActualOrbit.fullStabilizer M7.OrbitFibers.stabilizerCount\n    apply congrArg Finset.card\n    ext g\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and] <;> rfl\n  rw [heq]\n  exact h",
+              "imports": [
+                "M7ActualOrbit"
+              ],
+              "name": "M7.ActualOrbit.stabilizer_positive",
+              "ancestors": [],
+              "spec_sha256": "eb77c8dd035afe561dfdf3302e364522beb94eff43cee8d7bd12bee0fd49f3a2"
+            },
+            "sha256": "c2b3c467cf55683985985ef03b84c008e304ae4e7e39f49a055f48a458ce0b13"
+          }
+        }
+      }
+    }
+  }
+}

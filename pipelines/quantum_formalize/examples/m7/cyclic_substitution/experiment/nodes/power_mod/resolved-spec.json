@@ -1,0 +1,12 @@
+{
+  "name": "M7.CyclicSubstitution.power_mod",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ k : ℕ, M7.CyclicSubstitution.rho N ^ k = M7.CyclicSubstitution.rho N ^ (k % N)",
+  "imports": [
+    "M7CyclicSubstitution"
+  ],
+  "context": "theorem M7.CyclicSubstitution.root_power : ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1 := by\n  change ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1\n  intro N _\n  have hroot := AdjoinRoot.eval₂_root (M6.Cyclic.modulus N)\n  change (Polynomial.X ^ N + 1 : M6.Cyclic.BinaryPolynomial).eval₂\n    (AdjoinRoot.of (M6.Cyclic.modulus N)) (M7.CyclicSubstitution.rho N) = 0 at hroot\n  rw [Polynomial.eval₂_add, Polynomial.eval₂_X_pow, Polynomial.eval₂_one] at hroot\n  have htwo : (1 : M6.Cyclic.CycleRing N) + 1 = 0 := by\n    have h := congrArg (AdjoinRoot.of (M6.Cyclic.modulus N))\n      (show (1 : ZMod 2) + 1 = 0 by decide)\n    simpa only [map_add, map_one, map_zero] using h\n  exact add_right_cancel (hroot.trans htwo.symm)",
+  "queries": [
+    "addition commutativity"
+  ],
+  "guidance": "Use actual AdjoinRoot(X^N+1) over ZMod2. root_power follows eval₂_root and characteristic2; pow_mod follows k=k%N+N*(k/N); point_mul uses ZMod.val_mul and commutativity. Includes N=1: unit.val can be0, but rho=1. AdjoinRoot.lift_root/lift_mk prove hom interfaces. No odd-N, squarefree or field quotient assumption. Return tactic lines only.\nimport M6Cyclic\n\nnamespace M7.CyclicSubstitution\nnoncomputable def rho (N : ℕ) : M6.Cyclic.CycleRing N :=\n  AdjoinRoot.root (M6.Cyclic.modulus N)\nnoncomputable def point {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : M6.Cyclic.CycleRing N :=\n  rho N ^ (u : ZMod N).val\ndef RootCondition {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Prop :=\n  (M6.Cyclic.modulus N).eval₂ (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) = 0\nnoncomputable def hom {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (h : RootCondition u) :\n    M6.Cyclic.CycleRing N →+* M6.Cyclic.CycleRing N :=\n  AdjoinRoot.lift (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) h\nend M7.CyclicSubstitution\n"
+}

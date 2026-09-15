@@ -1,0 +1,55 @@
+{
+  "id": "count_product",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ActualOrbit.count_product",
+    "spec_sha256": "3f9c9d618c4c482cf89f57783729bcf2c0e2fb665d8298a903588ef6ea2e9f9c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-z2_m77cz/attempt-001/Candidate_c7740198da1ae1f4.lean",
+        "target_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-z2_m77cz/attempt-001/FrozenTarget_c7740198da1ae1f4.lean",
+        "feedback": "",
+        "target_sha256": "d7417bb53be75ce33abd4343a308090a1b3f3db5581fc55c70c50d3d10c4c129",
+        "target_olean_sha256": "b643a715fe58b8efeaeaf6b7baa24a9e44a5f110d5f77525389d15141adb520a",
+        "source_sha256": "e0a7df325b7bae01f3c9bef239960f2fe6af712d79655aa6a689963a9e53c8f2",
+        "olean_sha256": "4f341b16130a7e3b73152c7993faffd805496368fcba0c39066a2d690a45e0e1",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:12:18.629183+00:00",
+    "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-z2_m77cz",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-z2_m77cz/attempt-001/Candidate_c7740198da1ae1f4.lean",
+    "environment_sha256": "3ceda1df08df0e7a5399eb1eb8f57c7d4e5d12c24b7dd00be31b46465a38e081",
+    "artifacts": {
+      "count_product": {
+        "payload": {
+          "declaration": "theorem M7.ActualOrbit.count_product : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ P : M7.Action.Recipe N → Prop, M7.ActualOrbit.actionCount c P = M7.ActualOrbit.distinctCount c P * M7.ActualOrbit.stabilizerCount c := by\n  intro N inst c P\n  classical\n  have hA : M7.ActualOrbit.actionCount c P = M7.OrbitFibers.actionCount (M7.Action.Record N) c P := by\n    unfold M7.ActualOrbit.actionCount M7.OrbitFibers.actionCount\n    apply congrArg Finset.card\n    ext g\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and]\n    rfl\n  have hD : M7.ActualOrbit.distinctCount c P = M7.OrbitFibers.orbitCount (M7.Action.Record N) c P := by\n    unfold M7.ActualOrbit.distinctCount M7.OrbitFibers.orbitCount\n    apply congrArg Finset.card\n    ext y\n    simp only [Finset.mem_filter, M7.ActualOrbit.orbit, M7.OrbitFibers.orbit, Finset.mem_image]\n    rfl\n  have hS : M7.ActualOrbit.stabilizerCount c = M7.OrbitFibers.stabilizerCount (M7.Action.Record N) c := by\n    unfold M7.ActualOrbit.stabilizerCount M7.ActualOrbit.fullStabilizer M7.OrbitFibers.stabilizerCount\n    apply congrArg Finset.card\n    ext g\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and]\n    rfl\n  rw [hA, hD, hS]\n  exact M7.OrbitFibers.action_count_product (M7.Action.Record N) (M7.Action.Recipe N) c P",
+          "imports": [
+            "M7ActualOrbit"
+          ],
+          "name": "M7.ActualOrbit.count_product",
+          "ancestors": [],
+          "spec_sha256": "3f9c9d618c4c482cf89f57783729bcf2c0e2fb665d8298a903588ef6ea2e9f9c"
+        },
+        "sha256": "9bb7bdab0338eabd98a75317f213aa1602613d87ce7a26a968467ab41a00ffe7"
+      }
+    }
+  }
+}

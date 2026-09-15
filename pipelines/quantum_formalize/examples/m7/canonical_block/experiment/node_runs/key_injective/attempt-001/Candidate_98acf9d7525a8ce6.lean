@@ -1,0 +1,7 @@
+import FrozenTarget_98acf9d7525a8ce6
+theorem M7.CanonicalBlock.key_injective : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], Function.Injective (M7.CanonicalBlock.key (N := N))
+  intro N inst A B h
+  have hd := congrArg (M7.CanonicalBlock.decode N) h
+  rw [M7.CanonicalBlock.decode_key N A, M7.CanonicalBlock.decode_key N B] at hd
+  exact hd

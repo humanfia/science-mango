@@ -1,0 +1,9 @@
+# M7 actual action presentation accepted
+
+All nine frozen targets passed normal compilation, independent exact-type/axiom audit, complete assembly and unchanged-environment checks. The canonical experiment retains every failed candidate and every accepted proof. The mathematical definitions and targets were unchanged throughout.
+
+The explicit encode/decode equivalence connects the generic factorized minima to the actual four-field Action.Record. Its order is exactly unit residue value, exchange flag, left-shift residue value, then right-shift residue value. The factorized algorithm computes a minimum separately in each left and right shift fiber for each unit/exchange, then chooses the least outer candidate. leastAction_spec proves that the result is exactly the least actual preimage, and that none means no actual preimage exists. It does not enumerate translation pairs to compute this minimum.
+
+Winning-fiber consistency follows from actual action images and the concrete Pareto/lex selector. Every winning physical image has exactly one presented record, which is winning and least among all actual preimages. All nine proofs were produced by the live harness; no local backup replaced a successful live proof. encode_decode required three drafts to handle nested Lex/Fin casting, and four_field_order required four drafts to normalize pair equality and supply the explicit modulus to ZMod.val_injective. All other attempt counts are recorded in ATTEMPTS.json.
+
+The accepted selection12 and presentation12 closures were verified by manifest, receipt, frozen statement, original candidate/target source, payload and portable-declaration hashes before import. The inherited 600-second compilation limit and concurrency two change resources only. This batch establishes actual record reconstruction and presentation semantics; the literal default-query batch and whole-M7 structural/physical integration remain separate obligations.

@@ -1,26 +1,36 @@
 # M7 formalization status
 
-In progress; complete M7 Lean acceptance is pending. All 56 frozen natural-language source files were hash-checked; `SOURCE.json` records their identities.
+In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-Eight completed batches contain **71 accepted targets**, each with combined compilation, unchanged environment and exact target/axiom checks:
+**107 targets in 12 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
-| [supports](supports/experiment/result.json) | 6 | Actual support polynomials and coefficients |
-| [selection](selection/experiment/result.json) | 12 | Pareto/lex selection, all ties, empty answers and winning dominators |
-| [factorized](factorized/experiment/result.json) | 6 | Independent-shift arithmetic numerator and partitions |
-| [action](action/experiment/result.json) | 13 | Actual unit/exchange/two-shift records and action laws, including N=1 |
-| [domain](domain/experiment/result.json) | 6 | Support-to-M6 polynomial, anchored admissibility and shift interfaces |
-| [orbit_fibers](orbit_fibers/experiment/result.json) | 7 | Full-stabilizer fibers, multiplication/division count identities and partitions |
-| [presentation](presentation/experiment/result.json) | 12 | Factored least-preimage computation and unique winning physical outputs |
-| [prefix_sector](prefix_sector/experiment/result.json) | 9 | Actual M5 arithmetic sector counts, positivity and leaf rules |
+| [supports](supports/experiment/result.json) | 6 | Actual support polynomials |
+| [selection](selection/experiment/result.json) | 12 | Pareto/lex winners, ties, emptiness and dominators |
+| [factorized](factorized/experiment/result.json) | 6 | Independent-shift arithmetic numerator |
+| [action](action/experiment/result.json) | 13 | Actual unit/exchange/two-shift laws and cardinality |
+| [domain](domain/experiment/result.json) | 6 | Support-to-M6 domain interfaces |
+| [orbit_fibers](orbit_fibers/experiment/result.json) | 7 | Full stabilizer fibers and exact division |
+| [presentation](presentation/experiment/result.json) | 12 | Factored least-preimage algorithm and unique images |
+| [prefix_sector](prefix_sector/experiment/result.json) | 9 | Actual M5 arithmetic sector counts and leaf rules |
+| [group](group/experiment/result.json) | 6 | Actual group instances and stabilizer count specialization |
+| [canonical_block](canonical_block/experiment/result.json) | 13 | Exact single-block normalization and translation equivalence |
+| [cyclic_substitution](cyclic_substitution/experiment/result.json) | 8 | Full-modulus quotient root and unit-power identities |
+| [actual_presentation](actual_presentation/experiment/result.json) | 9 | Actual four-field record order and unique winning presentations |
 
-Active batches: `transport` prepares actual M6 distance and witness transport (7 targets); `group` specializes the accepted fiber laws to the actual action records (6 targets); the presentation adapter connects those accepted results to actual ordered action records and default queries; `canonical_block` runs 13 exact targets after compiled definitions/types and empty-context DAG validation. `prefix_sector` has completed all 9 targets, with 37 inherited source modules checked against M5's canonical manifest; literal completion images and child partitions remain downstream. `cyclic_substitution` runs 8 full-modulus quotient substitution foundation targets, with the initial retrieval failure preserved and unchanged drafts replayed. See `PREFIX_BRIDGE_PLAN.md` for the remaining actual prefix and residual connections.
+Active work:
 
-Shared-host load caused compilation/startup timeouts in otherwise preserved proof attempts. Replays retain the frozen targets and drafts and adjust execution resources only. A timeout is not an accepted proof or a mathematical counterexample; canonical receipts remain authoritative.
+- `canonical_outer`: actual unit/exchange canonical representative, realizing action and complete invariant (17 targets; preflight).
+- `actual_factorized`: actual separated shift numerator and full-stabilizer quotient (8 targets; running).
+- `prefix_completed`: literal completed supports and actual binary arithmetic child partitions (12 targets; running/repair).
+- `signature_ideal`: full gcd via actual cyclic quotient ideals, preserving multiplicities (5 targets; running).
+- `quotient_auto`: actual substitution composition, inverse and polynomial action (8 targets; preflight).
+- `transport`: actual M6 logical, distance and minimum-witness action transport (7 targets; running).
+- `default_query`: literal signatures, actual M6 distance, joint locality, two sector modes and explicit invalid-input rejection (8 targets; preflight).
 
-Full signature transport, outer canonicalization, actual M5 prefix arithmetic, compact residual generation, physical labels, complete query integration, replay and original resource bounds remain downstream gates. Generic selector, decoder and numerator lemmas do not close these actual interfaces. No supplied complete transversal or unresolved distance oracle may remain in the final root.
+Original remaining integration gates include the subgroup-connectedness/anchored-gcd equivalence, full signature and degree transport, actual compact residual generation and structural coverage, complete default-query/global-optimum integration, replay and original resource bounds. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 
-The pipeline ceiling is 16 workers per DAG, with reduced concurrency under shared load. Model: gpt-6-astra / medium; five proof attempts per target; Mathlib/Physlib retrieval; frozen exact targets and Lean/standard-axiom acceptance. Historical scheduler field `m5_formalized` is unrelated to M7 completion. No full-M7 acceptance record has been issued.
+The frozen definitions and goals are preserved through repairs. Successful late live proofs are retained. Explicit local tactic repairs are independently checked and then pass normal exact-target replay; their origins and all failures are preserved. LeanExplore broader-query recovery records the actual fallback query and original unavailable requests; persistent failures remain unavailable.
 
-Specific LeanExplore queries can return HTTP500 in Physlib. The opt-in broader-query recovery preserves every failed request and the actual fallback query/library receipt. Persistent failures remain unavailable; neither proof targets nor Lean acceptance are bypassed.
+Model gpt-6-astra / medium, two workers per active batch under the shared-host load, five live attempts per run and 600-second compiler calls, within the authorized 16-worker pipeline ceiling. Both Mathlib and Physlib are searched. The legacy `m5_formalized` scheduler field is not an M7 result. No complete-M7 acceptance record has been issued.

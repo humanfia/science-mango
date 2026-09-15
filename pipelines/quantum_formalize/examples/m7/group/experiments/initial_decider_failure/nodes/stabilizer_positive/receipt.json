@@ -1,0 +1,61 @@
+{
+  "id": "stabilizer_positive",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ActualOrbit.stabilizer_positive",
+    "spec_sha256": "eb77c8dd035afe561dfdf3302e364522beb94eff43cee8d7bd12bee0fd49f3a2",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx/attempt-001/Candidate_67ff66c935128673.lean:5:2: error: Type mismatch\n  OrbitFibers.stabilizer_positive (Action.Record N) (Action.Recipe N) c\nhas type\n  0 < OrbitFibers.stabilizerCount (Action.Record N) c\nbut is expected to have type\n  0 < stabilizerCount c\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx/attempt-002/Candidate_9a583bd5ae9623d4.lean",
+        "target_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx/attempt-002/FrozenTarget_9a583bd5ae9623d4.lean",
+        "feedback": "",
+        "target_sha256": "6cbcde71c2f0140cb09b21421aa6cd84e35cae75c74d59d75d6294693ba0d5be",
+        "target_olean_sha256": "b06d97b3050940849742dac9902b20ee098f1d979c85e5d89f583297d94d8944",
+        "source_sha256": "53378861434ddeab80f3aaad7264deb89d309fd3de947c3576f36cfd3f389189",
+        "olean_sha256": "055ac15f80c663efb2d64c08ded5d313fe02f4949fe5d77075d793d4454686d6",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T17:04:46.746271+00:00",
+    "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-kku1q6wx/attempt-002/Candidate_9a583bd5ae9623d4.lean",
+    "environment_sha256": "3ceda1df08df0e7a5399eb1eb8f57c7d4e5d12c24b7dd00be31b46465a38e081",
+    "artifacts": {
+      "stabilizer_positive": {
+        "payload": {
+          "declaration": "theorem M7.ActualOrbit.stabilizer_positive : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), 0 < M7.ActualOrbit.stabilizerCount c := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), 0 < M7.ActualOrbit.stabilizerCount c\n  intro N inst c\n  classical\n  have h := M7.OrbitFibers.stabilizer_positive (M7.Action.Record N) (M7.Action.Recipe N) c\n  have heq : M7.ActualOrbit.stabilizerCount c = M7.OrbitFibers.stabilizerCount (M7.Action.Record N) c := by\n    unfold M7.ActualOrbit.stabilizerCount M7.ActualOrbit.fullStabilizer M7.OrbitFibers.stabilizerCount\n    apply congrArg Finset.card\n    ext g\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and] <;> rfl\n  rw [heq]\n  exact h",
+          "imports": [
+            "M7ActualOrbit"
+          ],
+          "name": "M7.ActualOrbit.stabilizer_positive",
+          "ancestors": [],
+          "spec_sha256": "eb77c8dd035afe561dfdf3302e364522beb94eff43cee8d7bd12bee0fd49f3a2"
+        },
+        "sha256": "c2b3c467cf55683985985ef03b84c008e304ae4e7e39f49a055f48a458ce0b13"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "M7.ActualPresentation.four_field_order",
+  "statement": "∀ (N : ℕ) [NeZero N] (g h : M7.Action.Record N), (M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h ↔ (g.unit : ZMod N).val < (h.unit : ZMod N).val ∨ (g.unit : ZMod N).val = (h.unit : ZMod N).val ∧ (g.exchange < h.exchange ∨ g.exchange = h.exchange ∧ (g.leftShift.val < h.leftShift.val ∨ g.leftShift.val = h.leftShift.val ∧ g.rightShift.val ≤ h.rightShift.val)))",
+  "imports": [
+    "M7ActualPresentation",
+    "M7PresentationAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Unfold encode and nested Prod.Lex.toLex_le_toLex. UnitKey order is explicitly lifted from unit.val; equality of unit codes iff unit equality uses ZMod.val_injective and Units.ext. Fin comparisons use their natural val. This is exactly the original four-field lex order, not product partial order. Return tactic proof lines without leading by; preserve exact target and default limits."
+}

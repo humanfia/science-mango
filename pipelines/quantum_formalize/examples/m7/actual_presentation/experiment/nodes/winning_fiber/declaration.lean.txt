@@ -1,0 +1,7 @@
+theorem M7.ActualPresentation.winning_fiber : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (m : ℕ) (feasible : M7.Action.Recipe N → Prop) (objective : M7.Action.Recipe N → Fin m → ℤ) (mode : M7.Selection.Mode) (g h : M7.Action.Record N), M7.Action.act g c = M7.Action.act h c → (g ∈ M7.ActualPresentation.selected c feasible objective mode ↔ h ∈ M7.ActualPresentation.selected c feasible objective mode) := by
+  intro N inst c m feasible objective mode g h heq
+  classical
+  unfold M7.ActualPresentation.selected
+  rw [(M7.Selection.selector_exact _ _ _ _ _ _).1 g,
+      (M7.Selection.selector_exact _ _ _ _ _ _).1 h]
+  simp only [Finset.mem_univ, true_and, heq]

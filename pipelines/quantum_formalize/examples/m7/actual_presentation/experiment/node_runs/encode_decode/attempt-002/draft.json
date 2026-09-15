@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (a : M7.ActualPresentation.Encoded N), M7.ActualPresentation.encode (M7.ActualPresentation.decode a) = a\nintro N inst a\nhave h (s : Fin N) : ((s.val : ZMod N).val) = s.val := by\n  rw [ZMod.val_natCast, Nat.mod_eq_of_lt s.isLt]\nrcases a with ⟨k, s, t⟩\nrcases k with ⟨u, b⟩\ncases u <;> cases b <;>\n  simp [M7.ActualPresentation.encode, M7.ActualPresentation.decode,\n    M7.Presentation.mk, M7.Presentation.outer, M7.Presentation.left,\n    M7.Presentation.right, Fin.ext_iff, h]",
+  "queries": [
+    "ZMod.val_natCast",
+    "M7.ActualPresentation.UnitKey M7.ActualPresentation.Outer definitions"
+  ]
+}

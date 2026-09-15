@@ -1,0 +1,116 @@
+{
+  "id": "point_inverse",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CyclicSubstitution.point_inverse",
+    "spec_sha256": "73f34f5eb1dcd7c3a9e148ff383887d1c82c0aae13c329d0d62694d5e99c3838",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-0zg0v1bz/attempt-001/Candidate_855843b27ee10aae.lean",
+        "target_path": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-0zg0v1bz/attempt-001/FrozenTarget_855843b27ee10aae.lean",
+        "feedback": "",
+        "target_sha256": "b9cf16fe1bd2edbf1e01ad047ec0871da38956be4ab3730369fafff4a646952a",
+        "target_olean_sha256": "403fb1bf8cbe1dcc912a5fa7ffec47e2b5a06b635111c4a7c0d4ad93d489aa6f",
+        "source_sha256": "f9154ec6b06f873b1b59b156de68a5aabf4a51b5cbe5f6b36a4d47f1dd3dee7a",
+        "olean_sha256": "d8c95b565b35a2a08450284cd09927bceefab65ad44c6853a8538bfe255beef7",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:26:26.986439+00:00",
+    "work": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-0zg0v1bz",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "f4b32daa3acc2fbe9dcc8c965f722331d89d86d7c9f2de27217cdadccecc3ebe",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-0zg0v1bz/attempt-001/Candidate_855843b27ee10aae.lean",
+    "environment_sha256": "0af89d47b258d0fec79ff77305324203ae1f06b65dee6e7443d0cc084fc0341c",
+    "artifacts": {
+      "root_power": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.root_power : ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1 := by\n  change ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1\n  intro N _\n  have hroot := AdjoinRoot.eval₂_root (M6.Cyclic.modulus N)\n  change (Polynomial.X ^ N + 1 : M6.Cyclic.BinaryPolynomial).eval₂\n    (AdjoinRoot.of (M6.Cyclic.modulus N)) (M7.CyclicSubstitution.rho N) = 0 at hroot\n  rw [Polynomial.eval₂_add, Polynomial.eval₂_X_pow, Polynomial.eval₂_one] at hroot\n  have htwo : (1 : M6.Cyclic.CycleRing N) + 1 = 0 := by\n    have h := congrArg (AdjoinRoot.of (M6.Cyclic.modulus N))\n      (show (1 : ZMod 2) + 1 = 0 by decide)\n    simpa only [map_add, map_one, map_zero] using h\n  exact add_right_cancel (hroot.trans htwo.symm)",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.root_power",
+          "ancestors": [],
+          "spec_sha256": "0c33c63073df6c06f061ebf166753733009118948ab6dea2f45503e611f40bfb"
+        },
+        "sha256": "ff9f3031f97fbc1e97585296f9ca0ebbf3f4d90d42ccaffaca0e138dcdeb9626"
+      },
+      "power_mod": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.power_mod : ∀ (N : ℕ) [NeZero N], ∀ k : ℕ, M7.CyclicSubstitution.rho N ^ k = M7.CyclicSubstitution.rho N ^ (k % N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ k : ℕ, M7.CyclicSubstitution.rho N ^ k = M7.CyclicSubstitution.rho N ^ (k % N)\n  intro N _ k\n  calc\n    M7.CyclicSubstitution.rho N ^ k =\n        M7.CyclicSubstitution.rho N ^ (k % N + N * (k / N)) :=\n      congrArg (fun n : ℕ => M7.CyclicSubstitution.rho N ^ n) (Nat.mod_add_div k N).symm\n    _ = M7.CyclicSubstitution.rho N ^ (k % N) := by\n      rw [pow_add, pow_mul, M7.CyclicSubstitution.root_power N, one_pow, mul_one]",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.power_mod",
+          "ancestors": [
+            "root_power"
+          ],
+          "spec_sha256": "cff14ff85e4df50b5f0f833ee953f67190fa3b9ac6fe28fe633275f52f765147"
+        },
+        "sha256": "a746abea48c5c0d48faf9cc724b3082f1722af61290b2a4efcc23eccc0a8b0d8"
+      },
+      "point_mul": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.point_mul : ∀ (N : ℕ) [NeZero N], ∀ u v : (ZMod N)ˣ, M7.CyclicSubstitution.point u ^ (v : ZMod N).val = M7.CyclicSubstitution.point (v*u) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ u v : (ZMod N)ˣ, M7.CyclicSubstitution.point u ^ (v : ZMod N).val = M7.CyclicSubstitution.point (v * u)\n  intro N _ u v\n  change (M7.CyclicSubstitution.rho N ^ (u : ZMod N).val) ^ (v : ZMod N).val = M7.CyclicSubstitution.rho N ^ ((v : ZMod N) * (u : ZMod N)).val\n  rw [← pow_mul, ZMod.val_mul]\n  simpa only [Nat.mul_comm] using M7.CyclicSubstitution.power_mod N ((u : ZMod N).val * (v : ZMod N).val)",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.point_mul",
+          "ancestors": [
+            "power_mod",
+            "root_power"
+          ],
+          "spec_sha256": "bc3ea3df01a9163049a30dd8ee90abe99b5755e55e078ec48621ab33134ae489"
+        },
+        "sha256": "027a6875db6aaad5fa047af28e8472485e35428aa3ac11d1675fb42ab3d6707b"
+      },
+      "point_one": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.point_one : ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.point (1 : (ZMod N)ˣ) = M7.CyclicSubstitution.rho N := by\n  change ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.point (1 : (ZMod N)ˣ) = M7.CyclicSubstitution.rho N\n  intro N _\n  unfold M7.CyclicSubstitution.point\n  simp only [Units.val_one]\n  have h : (1 : ZMod N).val = 1 % N := by\n    simpa only [Nat.cast_one] using (ZMod.val_natCast N 1)\n  rw [h]\n  exact (M7.CyclicSubstitution.power_mod N 1).symm.trans (pow_one _)",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.point_one",
+          "ancestors": [
+            "power_mod",
+            "root_power"
+          ],
+          "spec_sha256": "460ccc60acb3312925a6a7edfd0d72016bff254f5a51c3ab681dd6e3f169d99d"
+        },
+        "sha256": "ed057004a87322f761ba6b015603a580a1333ca8d96332348a10cd1564509826"
+      },
+      "point_inverse": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.point_inverse : ∀ (N : ℕ) [NeZero N], ∀ u : (ZMod N)ˣ, M7.CyclicSubstitution.point u ^ ((u⁻¹ : (ZMod N)ˣ) : ZMod N).val = M7.CyclicSubstitution.rho N := by\n  change ∀ (N : ℕ) [NeZero N], ∀ u : (ZMod N)ˣ, M7.CyclicSubstitution.point u ^ ((u⁻¹ : (ZMod N)ˣ) : ZMod N).val = M7.CyclicSubstitution.rho N\n  intro N _ u\n  rw [M7.CyclicSubstitution.point_mul N u u⁻¹, inv_mul_cancel, M7.CyclicSubstitution.point_one N]",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.point_inverse",
+          "ancestors": [
+            "point_mul",
+            "point_one",
+            "power_mod",
+            "root_power"
+          ],
+          "spec_sha256": "f24fc970c458d8ca49edd8e42f08315e42cd32f7edf2584b90d8e09d3fc9843f"
+        },
+        "sha256": "2db38f40b84acfde3ed8d53564a551ffacf0a4cfc7b2916c2769d0ddfd38b2c8"
+      }
+    }
+  }
+}

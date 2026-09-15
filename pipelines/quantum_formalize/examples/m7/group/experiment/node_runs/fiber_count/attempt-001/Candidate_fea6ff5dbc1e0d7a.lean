@@ -1,0 +1,22 @@
+import FrozenTarget_fea6ff5dbc1e0d7a
+theorem M7.ActualOrbit.fiber_count : QuantumHarnessFrozenTarget := by
+  intro N inst c y hy
+  classical
+  have hO : M7.ActualOrbit.orbit c = M7.OrbitFibers.orbit (M7.Action.Record N) c := by
+    ext z
+    simp only [M7.ActualOrbit.orbit, M7.OrbitFibers.orbit, Finset.mem_image]
+    rfl
+  have hF : M7.ActualOrbit.fiberCount c y = M7.OrbitFibers.fiberCount (M7.Action.Record N) c y := by
+    unfold M7.ActualOrbit.fiberCount M7.OrbitFibers.fiberCount
+    apply congrArg Finset.card
+    ext g
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+    rfl
+  have hS : M7.ActualOrbit.stabilizerCount c = M7.OrbitFibers.stabilizerCount (M7.Action.Record N) c := by
+    unfold M7.ActualOrbit.stabilizerCount M7.ActualOrbit.fullStabilizer M7.OrbitFibers.stabilizerCount
+    apply congrArg Finset.card
+    ext g
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+    rfl
+  rw [hF, hS]
+  exact M7.OrbitFibers.fiber_count (M7.Action.Record N) (M7.Action.Recipe N) c y (hO ▸ hy)

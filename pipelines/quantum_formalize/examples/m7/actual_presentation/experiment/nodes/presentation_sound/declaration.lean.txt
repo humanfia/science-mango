@@ -1,0 +1,10 @@
+theorem M7.ActualPresentation.presentation_sound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (m : ℕ) (feasible : M7.Action.Recipe N → Prop) (objective : M7.Action.Recipe N → Fin m → ℤ) (mode : M7.Selection.Mode) (g : M7.Action.Record N), M7.ActualPresentation.present c feasible objective mode g → g ∈ M7.ActualPresentation.selected c feasible objective mode ∧ ∀ h : M7.Action.Record N, M7.Action.act h c = M7.Action.act g c → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (m : ℕ) (feasible : M7.Action.Recipe N → Prop) (objective : M7.Action.Recipe N → Fin m → ℤ) (mode : M7.Selection.Mode) (g : M7.Action.Record N), M7.ActualPresentation.present c feasible objective mode g → g ∈ M7.ActualPresentation.selected c feasible objective mode ∧ ∀ h : M7.Action.Record N, M7.Action.act h c = M7.Action.act g c → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N inst c m feasible objective mode g hg
+  unfold M7.ActualPresentation.present at hg
+  refine ⟨hg.1, ?_⟩
+  exact (((M7.ActualPresentation.leastAction_spec N c (M7.Action.act g c)).1 g).mp hg.2).2

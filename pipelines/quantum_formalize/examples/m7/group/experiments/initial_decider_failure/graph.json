@@ -1,0 +1,144 @@
+{
+  "title": "Actual M7 Record action: full stabilizer and filtered orbit counting",
+  "scope": "Concrete translation/unit/exchange Record action, including nonfaithful N=1. Actual Group/MulAction instances are installed from thirteen verified laws. No free action or stabilizer oracle. Production numerator bridge remains next integration step.",
+  "nodes": [
+    {
+      "id": "stabilizer_positive",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ActualOrbit.stabilizer_positive",
+        "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), 0 < M7.ActualOrbit.stabilizerCount c",
+        "imports": [
+          "M7ActualOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer cardinality",
+          "Nat mul div cancel"
+        ],
+        "guidance": "Instantiate already accepted M7.OrbitFibers.stabilizer_positive with G=M7.Action.Record N, X=M7.Action.Recipe N and actual c. M7ActionGroup installs actual group and SMul=act. Actual count definitions are deliberately the same finite filters/image as generic ones; unfold M7.ActualOrbit definitions if needed for definitional equality or use Finset.ext if classical decider transport is needed. Do not introduce Group, faithfulness or assumed fiber hypotheses. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 actual full stabilizer fibers",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "fiber_count",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ActualOrbit.fiber_count",
+        "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ y ∈ M7.ActualOrbit.orbit c, M7.ActualOrbit.fiberCount c y = M7.ActualOrbit.stabilizerCount c",
+        "imports": [
+          "M7ActualOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer cardinality",
+          "Nat mul div cancel"
+        ],
+        "guidance": "Instantiate already accepted M7.OrbitFibers.fiber_count with G=M7.Action.Record N, X=M7.Action.Recipe N and actual c. M7ActionGroup installs actual group and SMul=act. Actual count definitions are deliberately the same finite filters/image as generic ones; unfold M7.ActualOrbit definitions if needed for definitional equality or use Finset.ext if classical decider transport is needed. Do not introduce Group, faithfulness or assumed fiber hypotheses. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 actual full stabilizer fibers",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "count_product",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ActualOrbit.count_product",
+        "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ P : M7.Action.Recipe N → Prop, M7.ActualOrbit.actionCount c P = M7.ActualOrbit.distinctCount c P * M7.ActualOrbit.stabilizerCount c",
+        "imports": [
+          "M7ActualOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer cardinality",
+          "Nat mul div cancel"
+        ],
+        "guidance": "Instantiate already accepted M7.OrbitFibers.action_count_product with G=M7.Action.Record N, X=M7.Action.Recipe N and actual c. M7ActionGroup installs actual group and SMul=act. Actual count definitions are deliberately the same finite filters/image as generic ones; unfold M7.ActualOrbit definitions if needed for definitional equality or use Finset.ext if classical decider transport is needed. Do not introduce Group, faithfulness or assumed fiber hypotheses. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 actual full stabilizer fibers",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "exact_division",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ActualOrbit.exact_division",
+        "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ P : M7.Action.Recipe N → Prop, M7.ActualOrbit.actionCount c P / M7.ActualOrbit.stabilizerCount c = M7.ActualOrbit.distinctCount c P ∧ M7.ActualOrbit.stabilizerCount c ∣ M7.ActualOrbit.actionCount c P",
+        "imports": [
+          "M7ActualOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer cardinality",
+          "Nat mul div cancel"
+        ],
+        "guidance": "Instantiate already accepted M7.OrbitFibers.orbit_count_div with G=M7.Action.Record N, X=M7.Action.Recipe N and actual c. M7ActionGroup installs actual group and SMul=act. Actual count definitions are deliberately the same finite filters/image as generic ones; unfold M7.ActualOrbit definitions if needed for definitional equality or use Finset.ext if classical decider transport is needed. Do not introduce Group, faithfulness or assumed fiber hypotheses. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 actual full stabilizer fibers",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "distinct_partition",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ActualOrbit.distinct_partition",
+        "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (P : M7.Action.Recipe N → Prop) (test : M7.Action.Recipe N → Bool), M7.ActualOrbit.distinctCount c P = M7.ActualOrbit.distinctCount c (fun y => P y ∧ test y = false) + M7.ActualOrbit.distinctCount c (fun y => P y ∧ test y = true)",
+        "imports": [
+          "M7ActualOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer cardinality",
+          "Nat mul div cancel"
+        ],
+        "guidance": "Instantiate already accepted M7.OrbitFibers.orbit_partition with G=M7.Action.Record N, X=M7.Action.Recipe N and actual c. M7ActionGroup installs actual group and SMul=act. Actual count definitions are deliberately the same finite filters/image as generic ones; unfold M7.ActualOrbit definitions if needed for definitional equality or use Finset.ext if classical decider transport is needed. Do not introduce Group, faithfulness or assumed fiber hypotheses. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 actual full stabilizer fibers",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "action_partition",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ActualOrbit.action_partition",
+        "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (P : M7.Action.Recipe N → Prop) (test : M7.Action.Recipe N → Bool), M7.ActualOrbit.actionCount c P = M7.ActualOrbit.actionCount c (fun y => P y ∧ test y = false) + M7.ActualOrbit.actionCount c (fun y => P y ∧ test y = true)",
+        "imports": [
+          "M7ActualOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer cardinality",
+          "Nat mul div cancel"
+        ],
+        "guidance": "Instantiate already accepted M7.OrbitFibers.action_partition with G=M7.Action.Record N, X=M7.Action.Recipe N and actual c. M7ActionGroup installs actual group and SMul=act. Actual count definitions are deliberately the same finite filters/image as generic ones; unfold M7.ActualOrbit definitions if needed for definitional equality or use Finset.ext if classical decider transport is needed. Do not introduce Group, faithfulness or assumed fiber hypotheses. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 actual full stabilizer fibers",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

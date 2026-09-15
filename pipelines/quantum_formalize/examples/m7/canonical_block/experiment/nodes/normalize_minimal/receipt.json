@@ -1,0 +1,69 @@
+{
+  "id": "normalize_minimal",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalBlock.normalize_minimal",
+    "spec_sha256": "b866952f87b35ec6b73b72d552bafbc87ac35bc10e880d69ed5a32c616376b26",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-kj8i23n0/attempt-001/Candidate_4364cc4ef108d675.lean",
+        "target_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-kj8i23n0/attempt-001/FrozenTarget_4364cc4ef108d675.lean",
+        "feedback": "",
+        "target_sha256": "7ca576d67f23da575fdecb6d7bc68e0fd54ad826ca8af1d01e975356ba4a24f4",
+        "target_olean_sha256": "b9364c264ff4ac2c401099579cfefab0972e8356f57b207e608c7de60f8ba65d",
+        "source_sha256": "a355980fac222af75c7ada8e09d0c578bd309d38e57ad1c51a12aa3a67f89059",
+        "olean_sha256": "64c419baac14c73f1c89108428d4718b66b81507011b0c8c10f5ec8262120723",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:09:55.908827+00:00",
+    "work": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-kj8i23n0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b4f2aaadb2e87b82f34d5a14b5097529c8d8621030fe4daf3b4d1824d8d17bae",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-kj8i23n0/attempt-001/Candidate_4364cc4ef108d675.lean",
+    "environment_sha256": "77cdf2eb212edeb43c5708f80c22e1959ff3cb68a437dfe12ab06097d2496fca",
+    "artifacts": {
+      "best_key_agrees": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.best_key_agrees : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → (ofLex (M7.CanonicalBlock.bestKey A)).1 = M7.CanonicalBlock.key (M7.CanonicalBlock.normalize A) := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → _\n  intro N inst A hA\n  have hc : (M7.CanonicalBlock.candidates A).Nonempty := by\n    rcases hA with ⟨q, hq⟩\n    exact ⟨_, Finset.mem_image.mpr ⟨q, hq, rfl⟩⟩\n  have hm : M7.CanonicalBlock.bestKey A ∈ M7.CanonicalBlock.candidates A := by\n    unfold M7.CanonicalBlock.bestKey\n    rw [dif_pos hc]\n    exact Finset.min'_mem _ hc\n  change M7.CanonicalBlock.bestKey A ∈ A.image (fun q => toLex (M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A), q.val)) at hm\n  rcases Finset.mem_image.mp hm with ⟨q, hq, heq⟩\n  unfold M7.CanonicalBlock.normalize M7.CanonicalBlock.bestAnchor\n  rw [← heq]\n  simp",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.best_key_agrees",
+          "ancestors": [],
+          "spec_sha256": "084c4abb573cd4f58f18af2fa26a3ab6923b2b11bd0fdb49ad1e60137099729b"
+        },
+        "sha256": "a5d07eb8a34af3fdcd30a27644c4b2962a427637fa714e0c0049a3dc4e47227a"
+      },
+      "normalize_minimal": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.normalize_minimal : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → ∀ q ∈ A, M7.CanonicalBlock.key (M7.CanonicalBlock.normalize A) ≤ M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A) := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → ∀ q ∈ A, _\n  intro N inst A hA q hq\n  have hq' : toLex (M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A), q.val) ∈ M7.CanonicalBlock.candidates A := by\n    exact Finset.mem_image.mpr ⟨q, hq, rfl⟩\n  have hc : (M7.CanonicalBlock.candidates A).Nonempty := ⟨_, hq'⟩\n  have hm : M7.CanonicalBlock.bestKey A ≤ toLex (M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A), q.val) := by\n    unfold M7.CanonicalBlock.bestKey\n    rw [dif_pos hc]\n    exact Finset.min'_le _ _ hq'\n  rw [← M7.CanonicalBlock.best_key_agrees N A hA]\n  exact Prod.Lex.monotone_fst _ _ hm",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.normalize_minimal",
+          "ancestors": [
+            "best_key_agrees"
+          ],
+          "spec_sha256": "7a6bd1dff1264a3073e25dbd94a90c85bb9008b412166336f18a9839bae2cf89"
+        },
+        "sha256": "f370a546901d37631c7da1d7b7afb7d04b9af03edbab72df21b65ab11b8c888e"
+      }
+    }
+  }
+}

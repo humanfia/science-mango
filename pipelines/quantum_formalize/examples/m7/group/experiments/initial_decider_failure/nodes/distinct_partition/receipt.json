@@ -1,0 +1,61 @@
+{
+  "id": "distinct_partition",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ActualOrbit.distinct_partition",
+    "spec_sha256": "049ad08422b8012a4032a41b988d4f7ab96c996238ce520ef7e01d61721bd364",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy/attempt-001/Candidate_ffccadb8e429c88f.lean:5:2: error: Type mismatch: After simplification, term\n  OrbitFibers.orbit_partition (Action.Record N) (Action.Recipe N) c P test\n has type\n  (Finset.filter P\n        (@Finset.image (Action.Record N) (Action.Recipe N) (fun a b => Classical.propDecidable (a = b)) (fun g => g • c)\n          Finset.univ)).card =\n    {y ∈ Finset.image (fun g => g • c) Finset.univ | P y ∧ test y = false}.card +\n      {y ∈ Finset.image (fun g => g • c) Finset.univ | P y ∧ test y = true}.card\nbut is expected to have type\n  (Finset.filter P\n        (@Finset.image (Action.Record N) (Action.Recipe N) (fun a b => instDecidableEqProd a b)\n          (fun g => Action.act g c) Finset.univ)).card =\n    {y ∈ Finset.image (fun g => Action.act g c) Finset.univ | P y ∧ test y = false}.card +\n      {y ∈ Finset.image (fun g => Action.act g c) Finset.univ | P y ∧ test y = true}.card\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy/attempt-002/Candidate_0712d8774b5c2bfe.lean",
+        "target_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy/attempt-002/FrozenTarget_0712d8774b5c2bfe.lean",
+        "feedback": "",
+        "target_sha256": "90dd0f018da3c259fb9511c76ae98a63ff3051e965b252aebbfd2c16d3d9ee7b",
+        "target_olean_sha256": "c859dd17c16f5a78565a9b7849bc5c9f4428fcc6488ed93b121e3dff7d7ef65b",
+        "source_sha256": "6efaf41684db94522fd6f95059e45b5444d4d0e1cb07abd47879658718cb3c80",
+        "olean_sha256": "addcecc12d27ffb6644783eefddba2498c3524b2efbc8cbee90defa74bf76385",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T16:56:55.076952+00:00",
+    "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-2prg_8uy/attempt-002/Candidate_0712d8774b5c2bfe.lean",
+    "environment_sha256": "3ceda1df08df0e7a5399eb1eb8f57c7d4e5d12c24b7dd00be31b46465a38e081",
+    "artifacts": {
+      "distinct_partition": {
+        "payload": {
+          "declaration": "theorem M7.ActualOrbit.distinct_partition : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (P : M7.Action.Recipe N → Prop) (test : M7.Action.Recipe N → Bool), M7.ActualOrbit.distinctCount c P = M7.ActualOrbit.distinctCount c (fun y => P y ∧ test y = false) + M7.ActualOrbit.distinctCount c (fun y => P y ∧ test y = true) := by\n  classical\n  intro N _ c P test\n  have hcount (Q : M7.Action.Recipe N → Prop) :\n      M7.ActualOrbit.distinctCount c Q =\n        M7.OrbitFibers.orbitCount (M7.Action.Record N) c Q := by\n    unfold M7.ActualOrbit.distinctCount M7.OrbitFibers.orbitCount\n    apply congrArg Finset.card\n    apply Finset.ext\n    intro y\n    simp only [Finset.mem_filter, M7.ActualOrbit.orbit,\n      M7.OrbitFibers.orbit, Finset.mem_image]\n    rfl\n  simpa only [hcount] using\n    (M7.OrbitFibers.orbit_partition (M7.Action.Record N)\n      (M7.Action.Recipe N) c P test)",
+          "imports": [
+            "M7ActualOrbit"
+          ],
+          "name": "M7.ActualOrbit.distinct_partition",
+          "ancestors": [],
+          "spec_sha256": "049ad08422b8012a4032a41b988d4f7ab96c996238ce520ef7e01d61721bd364"
+        },
+        "sha256": "59d263f859f68d8b0635a0186dbec5d31161f0b86dff7b906a9428040d113b93"
+      }
+    }
+  }
+}

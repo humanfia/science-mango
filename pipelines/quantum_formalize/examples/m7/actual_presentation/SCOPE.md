@@ -1,0 +1,7 @@
+# Actual M7 presentation reconstruction
+
+This batch connects the actual Action.Record fields unit/exchange/leftShift/rightShift and literal support action to the accepted factorized least-preimage construction. UnitKey is a private wrapper ordered by its natural residue value, and shifts use Fin N codes; no global ZMod/Units order instance is changed. Explicit encode/decode inverse theorems and the four-field lex characterization specify the deterministic action order, including N=1.
+
+leastAction calls the two independent fiber minima and outer minimum through targetLeast, then maps the result through decode. Actual selected and present use Action.act on literal ordered supports. The final exact theorem returns each winning realized pair once and only once, with its least actual record; soundness preserves winning status. The feasible/objective inputs remain realization-based functions here. A separate default_query batch binds them to literal full signature, joint locality and actual M6 quantum distance; these intermediate APIs do not claim default-label or complete M7 integration by themselves.
+
+The imported selection12/presentation12 closure and Action definition hashes were verified. No group law or distance-invariance premise is needed for this finite encoding and presentation bridge. The previously authorized resource settings are two workers and 600 seconds per compiler invocation, retaining gpt-6-astra medium, five rounds, dual-library retrieval and unchanged exact-type/axiom checks.

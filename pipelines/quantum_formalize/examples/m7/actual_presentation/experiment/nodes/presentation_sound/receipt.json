@@ -1,0 +1,132 @@
+{
+  "id": "presentation_sound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ActualPresentation.presentation_sound",
+    "spec_sha256": "bbfa62a216670340fcf9aebdf4a3f703e86dc89c305e63a3b865b16a3475307b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-actual-presentation-formalization/.humanize-formal-runs/run-b329s5gs/attempt-001/Candidate_8b8b30774d1c782a.lean",
+        "target_path": "/home/jing/m7-lean-actual-presentation-formalization/.humanize-formal-runs/run-b329s5gs/attempt-001/FrozenTarget_8b8b30774d1c782a.lean",
+        "feedback": "",
+        "target_sha256": "442bc7cf472750a53ee7e3fc1f73943c6acc66b1436caefa5462ca95d73d2599",
+        "target_olean_sha256": "e7accaa941562fc60269b3dd60e14aeaf46298a73214cc5bff08de33c909a5ff",
+        "source_sha256": "6eeffd4f8deb2eb3963574c347260184fb1ea2c97a1d7448e49102e60d73fbbf",
+        "olean_sha256": "019124636a803a33274eafc9442a6d8159c4b81233194640c7f86b7826eb9be3",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:28:54.139644+00:00",
+    "work": "/home/jing/m7-lean-actual-presentation-formalization/.humanize-formal-runs/run-b329s5gs",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7d2de1ca21792046345fb865524f80abf3bb47f316aec17658db19914fa55ee6",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-actual-presentation-formalization/.humanize-formal-runs/run-b329s5gs/attempt-001/Candidate_8b8b30774d1c782a.lean",
+    "environment_sha256": "eba6c700535d750312c0ddd647ab523ebc75520871ff00f2adedd223642ead07",
+    "artifacts": {
+      "decode_encode": {
+        "payload": {
+          "declaration": "theorem M7.ActualPresentation.decode_encode : ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N), M7.ActualPresentation.decode (M7.ActualPresentation.encode g) = g := by\n  change ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N), M7.ActualPresentation.decode (M7.ActualPresentation.encode g) = g\n  intro N inst g\n  rcases g with ⟨u, s, t, e⟩\n  simp [M7.ActualPresentation.decode, M7.ActualPresentation.encode,\n    M7.Presentation.mk, M7.Presentation.outer, M7.Presentation.left,\n    M7.Presentation.right, ZMod.natCast_zmod_val]",
+          "imports": [
+            "M7ActualPresentation",
+            "M7PresentationAccepted"
+          ],
+          "name": "M7.ActualPresentation.decode_encode",
+          "ancestors": [],
+          "spec_sha256": "fab730ed2fb824ecdfff333661148c02818346be7a6e93d03f18f89146e3e27f"
+        },
+        "sha256": "2bd615c1900c2639584a556c08dd1940c5831b9bfa6f41df10356dbf72ef8960"
+      },
+      "encode_decode": {
+        "payload": {
+          "declaration": "theorem M7.ActualPresentation.encode_decode : ∀ (N : ℕ) [NeZero N] (a : M7.ActualPresentation.Encoded N), M7.ActualPresentation.encode (M7.ActualPresentation.decode a) = a := by\n  change ∀ (N : ℕ) [NeZero N] (a : M7.ActualPresentation.Encoded N), M7.ActualPresentation.encode (M7.ActualPresentation.decode a) = a\n  intro N inst a\n  have h : ∀ s : Fin N, ((s.val : ZMod N).val) = s.val := by\n    intro s\n    rw [ZMod.val_natCast, Nat.mod_eq_of_lt s.isLt]\n  rcases a with ⟨⟨u, b⟩, s, t⟩\n  cases u\n  cases b <;>\n    simp [M7.ActualPresentation.encode, M7.ActualPresentation.decode,\n      M7.Presentation.mk, M7.Presentation.outer,\n      M7.Presentation.left, M7.Presentation.right, h] <;> rfl",
+          "imports": [
+            "M7ActualPresentation",
+            "M7PresentationAccepted"
+          ],
+          "name": "M7.ActualPresentation.encode_decode",
+          "ancestors": [],
+          "spec_sha256": "55f08f93555e2fff97b64c0152184f5fdfabfdbc2c0e5cc269025a5b0b90bb47"
+        },
+        "sha256": "6a700358303ab07fa5cd3f2a0c09dec8b50c3dc824958f25c2a6337dae1802b3"
+      },
+      "realize_decode": {
+        "payload": {
+          "declaration": "theorem M7.ActualPresentation.realize_decode : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (a : M7.ActualPresentation.Encoded N), M7.Presentation.realize (M7.ActualPresentation.leftImage c) (M7.ActualPresentation.rightImage c) a = M7.Action.act (M7.ActualPresentation.decode a) c := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (a : M7.ActualPresentation.Encoded N), M7.Presentation.realize (M7.ActualPresentation.leftImage c) (M7.ActualPresentation.rightImage c) a = M7.Action.act (M7.ActualPresentation.decode a) c\n  intro N inst c a\n  rfl",
+          "imports": [
+            "M7ActualPresentation",
+            "M7PresentationAccepted"
+          ],
+          "name": "M7.ActualPresentation.realize_decode",
+          "ancestors": [],
+          "spec_sha256": "31bbb1dafbab9fc621d1a467018130bf26e0d7dd3f9e083568d28d78b3140362"
+        },
+        "sha256": "accba9cb9555febd849f064242e9c7942442cf2fda1b6337f6a4c626de6363c7"
+      },
+      "domain_univ": {
+        "payload": {
+          "declaration": "theorem M7.ActualPresentation.domain_univ : ∀ (N : ℕ) [NeZero N], M7.Presentation.domain (Finset.univ : Finset (M7.ActualPresentation.Outer N)) (Finset.univ : Finset (Fin N)) (Finset.univ : Finset (Fin N)) = (Finset.univ : Finset (M7.ActualPresentation.Encoded N)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N], M7.Presentation.domain (Finset.univ : Finset (M7.ActualPresentation.Outer N)) (Finset.univ : Finset (Fin N)) (Finset.univ : Finset (Fin N)) = (Finset.univ : Finset (M7.ActualPresentation.Encoded N))\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N hN\n  classical\n  apply Finset.ext\n  intro a\n  rw [M7.Presentation.domain_membership]\n  simp",
+          "imports": [
+            "M7ActualPresentation",
+            "M7PresentationAccepted"
+          ],
+          "name": "M7.ActualPresentation.domain_univ",
+          "ancestors": [],
+          "spec_sha256": "49892409b0a4f7c9182f5f3f68769e550dd0e6150465b93bf5da2467ab1e4c74"
+        },
+        "sha256": "a5a9b1874e4cb2f6fed5f2ce66c89a2a4f64b3e0bfe759dac3ef512131a50e31"
+      },
+      "leastAction_spec": {
+        "payload": {
+          "declaration": "theorem M7.ActualPresentation.leastAction_spec : ∀ (N : ℕ) [NeZero N] (c q : M7.Action.Recipe N), (∀ g : M7.Action.Record N, M7.ActualPresentation.leastAction c q = some g ↔ M7.Action.act g c = q ∧ ∀ h : M7.Action.Record N, M7.Action.act h c = q → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h) ∧ (M7.ActualPresentation.leastAction c q = none ↔ ¬ ∃ g : M7.Action.Record N, M7.Action.act g c = q) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (c q : M7.Action.Recipe N), (∀ g : M7.Action.Record N, M7.ActualPresentation.leastAction c q = some g ↔ M7.Action.act g c = q ∧ ∀ h : M7.Action.Record N, M7.Action.act h c = q → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h) ∧ (M7.ActualPresentation.leastAction c q = none ↔ ¬ ∃ g : M7.Action.Record N, M7.Action.act g c = q)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst c q\n  classical\n  let t := M7.Presentation.targetLeast\n    (Finset.univ : Finset (M7.ActualPresentation.Outer N))\n    (Finset.univ : Finset (Fin N)) (Finset.univ : Finset (Fin N))\n    (M7.ActualPresentation.leftImage c) (M7.ActualPresentation.rightImage c) q\n  have hs :\n      (∀ a : M7.ActualPresentation.Encoded N, t = some a ↔\n        M7.Action.act (M7.ActualPresentation.decode a) c = q ∧\n        ∀ b : M7.ActualPresentation.Encoded N,\n          M7.Action.act (M7.ActualPresentation.decode b) c = q → a ≤ b) ∧\n      (t = none ↔ ¬ ∃ a : M7.ActualPresentation.Encoded N,\n        M7.Action.act (M7.ActualPresentation.decode a) c = q) := by\n    simpa [t, M7.ActualPresentation.domain_univ,\n      M7.ActualPresentation.realize_decode] using\n      (M7.Presentation.targetLeast_spec\n        (M7.ActualPresentation.Outer N) (Fin N) (Fin N)\n        (Finset (ZMod N)) (Finset (ZMod N))\n        Finset.univ Finset.univ Finset.univ\n        (M7.ActualPresentation.leftImage c)\n        (M7.ActualPresentation.rightImage c) q)\n  have hm (g : M7.Action.Record N) :\n      M7.ActualPresentation.leastAction c q = some g ↔\n        t = some (M7.ActualPresentation.encode g) := by\n    change Option.map M7.ActualPresentation.decode t = some g ↔\n      t = some (M7.ActualPresentation.encode g)\n    cases t with\n    | none => simp\n    | some a =>\n      simp only [Option.map_some, Option.some.injEq]\n      constructor\n      · intro h\n        rw [← h, M7.ActualPresentation.encode_decode N a]\n      · intro h\n        rw [h, M7.ActualPresentation.decode_encode N g]\n  have hn : M7.ActualPresentation.leastAction c q = none ↔ t = none := by\n    change Option.map M7.ActualPresentation.decode t = none ↔ t = none\n    cases t <;> simp\n  constructor\n  · intro g\n    rw [hm g, hs.1 (M7.ActualPresentation.encode g),\n      M7.ActualPresentation.decode_encode N g]\n    constructor\n    · rintro ⟨hg, hmin⟩\n      refine ⟨hg, ?_⟩\n      intro h hh\n      apply hmin (M7.ActualPresentation.encode h)\n      simpa only [M7.ActualPresentation.decode_encode N h] using hh\n    · rintro ⟨hg, hmin⟩\n      refine ⟨hg, ?_⟩\n      intro b hb\n      simpa only [M7.ActualPresentation.encode_decode N b] using\n        hmin (M7.ActualPresentation.decode b) hb\n  · rw [hn, hs.2]\n    constructor\n    · intro h hex\n      rcases hex with ⟨g, hg⟩\n      apply h\n      refine ⟨M7.ActualPresentation.encode g, ?_⟩\n      simpa only [M7.ActualPresentation.decode_encode N g] using hg\n    · intro h hex\n      rcases hex with ⟨a, ha⟩\n      exact h ⟨M7.ActualPresentation.decode a, ha⟩",
+          "imports": [
+            "M7ActualPresentation",
+            "M7PresentationAccepted"
+          ],
+          "name": "M7.ActualPresentation.leastAction_spec",
+          "ancestors": [
+            "decode_encode",
+            "domain_univ",
+            "encode_decode",
+            "realize_decode"
+          ],
+          "spec_sha256": "5abda4d556705fe06d3c99c2b25551e49e32369a73fa6da5465dc3089fa063e5"
+        },
+        "sha256": "d744e2dd1dc3d09ec587edfdaf75eb27e9593933c472760f0836ee89415d4119"
+      },
+      "presentation_sound": {
+        "payload": {
+          "declaration": "theorem M7.ActualPresentation.presentation_sound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (m : ℕ) (feasible : M7.Action.Recipe N → Prop) (objective : M7.Action.Recipe N → Fin m → ℤ) (mode : M7.Selection.Mode) (g : M7.Action.Record N), M7.ActualPresentation.present c feasible objective mode g → g ∈ M7.ActualPresentation.selected c feasible objective mode ∧ ∀ h : M7.Action.Record N, M7.Action.act h c = M7.Action.act g c → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (m : ℕ) (feasible : M7.Action.Recipe N → Prop) (objective : M7.Action.Recipe N → Fin m → ℤ) (mode : M7.Selection.Mode) (g : M7.Action.Record N), M7.ActualPresentation.present c feasible objective mode g → g ∈ M7.ActualPresentation.selected c feasible objective mode ∧ ∀ h : M7.Action.Record N, M7.Action.act h c = M7.Action.act g c → M7.ActualPresentation.encode g ≤ M7.ActualPresentation.encode h\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst c m feasible objective mode g hg\n  unfold M7.ActualPresentation.present at hg\n  refine ⟨hg.1, ?_⟩\n  exact (((M7.ActualPresentation.leastAction_spec N c (M7.Action.act g c)).1 g).mp hg.2).2",
+          "imports": [
+            "M7ActualPresentation",
+            "M7PresentationAccepted"
+          ],
+          "name": "M7.ActualPresentation.presentation_sound",
+          "ancestors": [
+            "decode_encode",
+            "domain_univ",
+            "encode_decode",
+            "leastAction_spec",
+            "realize_decode"
+          ],
+          "spec_sha256": "d491370caa6772527ab8941808eed682bfdf90ae049513aac0d846ede6aaae6d"
+        },
+        "sha256": "43bebd9f9269bd57eb83971a54c523c40f6c9f8f59864824bb789fea53e4bc8f"
+      }
+    }
+  }
+}

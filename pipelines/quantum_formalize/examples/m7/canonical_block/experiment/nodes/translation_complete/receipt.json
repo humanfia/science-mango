@@ -1,0 +1,201 @@
+{
+  "id": "translation_complete",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalBlock.translation_complete",
+    "spec_sha256": "9f265fff0b44779c0be49f3d47124d7a8d63329f0b403a2197e2dce8cbcf958c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-cvh3o012/attempt-001/Candidate_10f674b9fc998cfc.lean",
+        "target_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-cvh3o012/attempt-001/FrozenTarget_10f674b9fc998cfc.lean",
+        "feedback": "",
+        "target_sha256": "01c82d1e3c5441a19593522587aa291e1f0847fc251b326c447206fff42c4c5e",
+        "target_olean_sha256": "c617761db3ddcbe67a122cec0a1c8896f5b6fa5cf4fc791fca78641d6b0dc0b0",
+        "source_sha256": "141b83f27903af13537b4b59531cb0b8ecea69b50e2272c02c9f082dd8aa8fa2",
+        "olean_sha256": "acf38c44f6160f25acba9c50a84af5b14b1469070d204c08df09fa0b2fb6349a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:18:01.855076+00:00",
+    "work": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-cvh3o012",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b4f2aaadb2e87b82f34d5a14b5097529c8d8621030fe4daf3b4d1824d8d17bae",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-cvh3o012/attempt-001/Candidate_10f674b9fc998cfc.lean",
+    "environment_sha256": "77cdf2eb212edeb43c5708f80c22e1959ff3cb68a437dfe12ab06097d2496fca",
+    "artifacts": {
+      "best_key_agrees": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.best_key_agrees : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → (ofLex (M7.CanonicalBlock.bestKey A)).1 = M7.CanonicalBlock.key (M7.CanonicalBlock.normalize A) := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → _\n  intro N inst A hA\n  have hc : (M7.CanonicalBlock.candidates A).Nonempty := by\n    rcases hA with ⟨q, hq⟩\n    exact ⟨_, Finset.mem_image.mpr ⟨q, hq, rfl⟩⟩\n  have hm : M7.CanonicalBlock.bestKey A ∈ M7.CanonicalBlock.candidates A := by\n    unfold M7.CanonicalBlock.bestKey\n    rw [dif_pos hc]\n    exact Finset.min'_mem _ hc\n  change M7.CanonicalBlock.bestKey A ∈ A.image (fun q => toLex (M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A), q.val)) at hm\n  rcases Finset.mem_image.mp hm with ⟨q, hq, heq⟩\n  unfold M7.CanonicalBlock.normalize M7.CanonicalBlock.bestAnchor\n  rw [← heq]\n  simp",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.best_key_agrees",
+          "ancestors": [],
+          "spec_sha256": "084c4abb573cd4f58f18af2fa26a3ab6923b2b11bd0fdb49ad1e60137099729b"
+        },
+        "sha256": "a5d07eb8a34af3fdcd30a27644c4b2962a427637fa714e0c0049a3dc4e47227a"
+      },
+      "normalize_minimal": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.normalize_minimal : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → ∀ q ∈ A, M7.CanonicalBlock.key (M7.CanonicalBlock.normalize A) ≤ M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A) := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → ∀ q ∈ A, _\n  intro N inst A hA q hq\n  have hq' : toLex (M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A), q.val) ∈ M7.CanonicalBlock.candidates A := by\n    exact Finset.mem_image.mpr ⟨q, hq, rfl⟩\n  have hc : (M7.CanonicalBlock.candidates A).Nonempty := ⟨_, hq'⟩\n  have hm : M7.CanonicalBlock.bestKey A ≤ toLex (M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A), q.val) := by\n    unfold M7.CanonicalBlock.bestKey\n    rw [dif_pos hc]\n    exact Finset.min'_le _ _ hq'\n  rw [← M7.CanonicalBlock.best_key_agrees N A hA]\n  exact Prod.Lex.monotone_fst _ _ hm",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.normalize_minimal",
+          "ancestors": [
+            "best_key_agrees"
+          ],
+          "spec_sha256": "7a6bd1dff1264a3073e25dbd94a90c85bb9008b412166336f18a9839bae2cf89"
+        },
+        "sha256": "f370a546901d37631c7da1d7b7afb7d04b9af03edbab72df21b65ab11b8c888e"
+      },
+      "shift_add": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.shift_add : ∀ (N : ℕ) [NeZero N], ∀ (s t : ZMod N) (A : M7.CanonicalBlock.Support N), M7.CanonicalBlock.shift s (M7.CanonicalBlock.shift t A) = M7.CanonicalBlock.shift (s+t) A := by\n  intro N inst s t A\n  classical\n  simp only [M7.CanonicalBlock.shift, Finset.image_image, Function.comp_def, add_assoc, add_comm t s]",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.shift_add",
+          "ancestors": [],
+          "spec_sha256": "ffda1e70b93e771c7f65423939a469dcce5f6ff7dcd027d61ed2ed4c460eb467"
+        },
+        "sha256": "b437294b0e0fa32f5208b97299aad34d56f8ba359020aeb4173ab5bb86a14274"
+      },
+      "anchor_keys_shift": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.anchor_keys_shift : ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), (M7.CanonicalBlock.candidates (M7.CanonicalBlock.shift s A)).image (fun v => (ofLex v).1) = (M7.CanonicalBlock.candidates A).image (fun v => (ofLex v).1) := by\n  intro N inst s A\n  classical\n  simp only [M7.CanonicalBlock.candidates, Finset.image_image]\n  change (A.image (fun q => q + s)).image (fun q => M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) (M7.CanonicalBlock.shift s A))) = A.image (fun q => M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A))\n  rw [Finset.image_image]\n  apply Finset.image_congr\n  intro q hq\n  change M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-(q + s)) (M7.CanonicalBlock.shift s A)) = M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A)\n  rw [M7.CanonicalBlock.shift_add]\n  have h : -(q + s) + s = -q := by abel\n  rw [h]",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.anchor_keys_shift",
+          "ancestors": [
+            "shift_add"
+          ],
+          "spec_sha256": "05d2ad8d147c72c91738316b97839830a578697621620a81b94de0ddadca8332"
+        },
+        "sha256": "08f515d7e3f2abd8a74ab99ae084148c438bc56cff764189cbad11436705be78"
+      },
+      "decode_key": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.decode_key : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, M7.CanonicalBlock.decode N (M7.CanonicalBlock.key A) = A := by\n  change ∀ (N : ℕ) [NeZero N] (A : M7.CanonicalBlock.Support N), M7.CanonicalBlock.decode N (M7.CanonicalBlock.key A) = A\n  intro N inst A\n  classical\n  simp [M7.CanonicalBlock.decode, M7.CanonicalBlock.key, Finset.image_image]",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.decode_key",
+          "ancestors": [],
+          "spec_sha256": "29897101059892b4ed60d0ac7b2e02d0758b456890dcd346db3cfd9cf363573c"
+        },
+        "sha256": "ac957cecadf98cc48dfe98ff072c66435006d07539d2fcff52402011eb6d2ed4"
+      },
+      "key_injective": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.key_injective : ∀ (N : ℕ) [NeZero N], Function.Injective (M7.CanonicalBlock.key (N := N)) := by\n  change ∀ (N : ℕ) [NeZero N], Function.Injective (M7.CanonicalBlock.key (N := N))\n  intro N inst A B h\n  have hd := congrArg (M7.CanonicalBlock.decode N) h\n  rw [M7.CanonicalBlock.decode_key N A, M7.CanonicalBlock.decode_key N B] at hd\n  exact hd",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.key_injective",
+          "ancestors": [
+            "decode_key"
+          ],
+          "spec_sha256": "274c8b9da51556c72da2f78339a2f24a5ad6205a58fbe63a4e8d69c6c8cd2174"
+        },
+        "sha256": "1e9d7b24c4e2bc78b04e3e8578606a36bdb704aa4c109b1eeca919a7dde21342"
+      },
+      "best_anchor_member": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.best_anchor_member : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → M7.CanonicalBlock.bestAnchor A ∈ A := by\n  change ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → M7.CanonicalBlock.bestAnchor A ∈ A\n  intro N _ A hA\n  classical\n  have hc : (M7.CanonicalBlock.candidates A).Nonempty := by\n    obtain ⟨q, hq⟩ := hA\n    unfold M7.CanonicalBlock.candidates\n    exact ⟨_, Finset.mem_image.mpr ⟨q, hq, rfl⟩⟩\n  have hk : M7.CanonicalBlock.bestKey A ∈ M7.CanonicalBlock.candidates A := by\n    rw [M7.CanonicalBlock.bestKey, dif_pos hc]\n    exact Finset.min'_mem _ _\n  unfold M7.CanonicalBlock.candidates at hk\n  obtain ⟨q, hq, heq⟩ := Finset.mem_image.mp hk\n  unfold M7.CanonicalBlock.bestAnchor\n  rw [← heq]\n  simpa using hq",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.best_anchor_member",
+          "ancestors": [],
+          "spec_sha256": "4fb8a7a6f263f9dd29d81ce44bf88b0252a328333c72b6d983d70f626c007a84"
+        },
+        "sha256": "a2eb0193af485956a22f8db47a3b4d9f574b5b4119fdcded46c40eb04c20a97b"
+      },
+      "shift_card": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.shift_card : ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), (M7.CanonicalBlock.shift s A).card = A.card := by\n  intro N inst s A\n  classical\n  change (A.image (fun i => i + s)).card = A.card\n  apply Finset.card_image_of_injective\n  intro a b h\n  exact add_right_cancel h",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.shift_card",
+          "ancestors": [],
+          "spec_sha256": "d14d6f65c8625e439b138439c7367823d904c5a213746936052b7071789fab55"
+        },
+        "sha256": "4743d045b67ad52c55a25c2ce3982175d93c52f649d32184e02e1bdf61d56b34"
+      },
+      "normalize_shift": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.normalize_shift : ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), M7.CanonicalBlock.normalize (M7.CanonicalBlock.shift s A) = M7.CanonicalBlock.normalize A := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), M7.CanonicalBlock.normalize (M7.CanonicalBlock.shift s A) = M7.CanonicalBlock.normalize A\n  intro N inst s A\n  classical\n  by_cases hA : A.Nonempty\n  · have hB : (M7.CanonicalBlock.shift s A).Nonempty := by\n      obtain ⟨q, hq⟩ := hA\n      exact ⟨q + s, Finset.mem_image.mpr ⟨q, hq, rfl⟩⟩\n    apply M7.CanonicalBlock.key_injective N\n    apply le_antisymm\n    · have hm : M7.CanonicalBlock.bestAnchor A + s ∈ M7.CanonicalBlock.shift s A := by\n        exact Finset.mem_image.mpr ⟨M7.CanonicalBlock.bestAnchor A,\n          M7.CanonicalBlock.best_anchor_member N A hA, rfl⟩\n      have hmin := M7.CanonicalBlock.normalize_minimal N\n        (M7.CanonicalBlock.shift s A) hB (M7.CanonicalBlock.bestAnchor A + s) hm\n      have hs : -(M7.CanonicalBlock.bestAnchor A + s) + s = -M7.CanonicalBlock.bestAnchor A := by\n        abel\n      rw [M7.CanonicalBlock.shift_add, hs] at hmin\n      exact hmin\n    · have hm := M7.CanonicalBlock.best_anchor_member N (M7.CanonicalBlock.shift s A) hB\n      change M7.CanonicalBlock.bestAnchor (M7.CanonicalBlock.shift s A) ∈ A.image (fun q => q + s) at hm\n      obtain ⟨q, hq, heq⟩ := Finset.mem_image.mp hm\n      have hmin := M7.CanonicalBlock.normalize_minimal N A hA q hq\n      have hs : M7.CanonicalBlock.shift (-q) A = M7.CanonicalBlock.normalize (M7.CanonicalBlock.shift s A) := by\n        unfold M7.CanonicalBlock.normalize\n        rw [M7.CanonicalBlock.shift_add, ← heq]\n        have he : -(q + s) + s = -q := by abel\n        rw [he]\n      rw [hs] at hmin\n      exact hmin\n  · have he : A = ∅ := Finset.not_nonempty_iff_eq_empty.mp hA\n    subst A\n    simp [M7.CanonicalBlock.normalize, M7.CanonicalBlock.shift]",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.normalize_shift",
+          "ancestors": [
+            "anchor_keys_shift",
+            "best_anchor_member",
+            "best_key_agrees",
+            "decode_key",
+            "key_injective",
+            "normalize_minimal",
+            "shift_add",
+            "shift_card"
+          ],
+          "spec_sha256": "ad37f0ddba8343ceb87ff23ac55a40ba39013f0b923eafc2dd3761cb2433ea90"
+        },
+        "sha256": "bc20ef7f787e1671981a781c0fc46a7d33c928732c17328fe4d8ddcbb65fe802"
+      },
+      "shift_identity": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.shift_identity : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, M7.CanonicalBlock.shift 0 A = A := by\n  intro N inst A\n  simp [M7.CanonicalBlock.shift]",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.shift_identity",
+          "ancestors": [],
+          "spec_sha256": "d5f66de08b9f3bd8a639348c22cba30a6f210cfc13f7b5c14ec24ddf143f8520"
+        },
+        "sha256": "21154f0447b4892186e218bb7c0e05ee8fd7b22fd6527206f3e4c3d7bf33e626"
+      },
+      "translation_complete": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.translation_complete : ∀ (N : ℕ) [NeZero N], ∀ A B : M7.CanonicalBlock.Support N, (∃ s : ZMod N, M7.CanonicalBlock.shift s A = B) ↔ M7.CanonicalBlock.normalize A = M7.CanonicalBlock.normalize B := by\n  change ∀ (N : ℕ) [NeZero N], ∀ A B : M7.CanonicalBlock.Support N, (∃ s : ZMod N, M7.CanonicalBlock.shift s A = B) ↔ M7.CanonicalBlock.normalize A = M7.CanonicalBlock.normalize B\n  intro N inst A B\n  constructor\n  · rintro ⟨s, rfl⟩\n    exact (M7.CanonicalBlock.normalize_shift N s A).symm\n  · intro h\n    refine ⟨M7.CanonicalBlock.bestAnchor B + (-M7.CanonicalBlock.bestAnchor A), ?_⟩\n    have hs := congrArg (M7.CanonicalBlock.shift (M7.CanonicalBlock.bestAnchor B)) h\n    unfold M7.CanonicalBlock.normalize at hs\n    simpa only [M7.CanonicalBlock.shift_add, add_neg_cancel, M7.CanonicalBlock.shift_identity] using hs",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.translation_complete",
+          "ancestors": [
+            "anchor_keys_shift",
+            "best_anchor_member",
+            "best_key_agrees",
+            "decode_key",
+            "key_injective",
+            "normalize_minimal",
+            "normalize_shift",
+            "shift_add",
+            "shift_card",
+            "shift_identity"
+          ],
+          "spec_sha256": "1ce3828099f2a2b29afc954e88aad9d49e2eb368893f35b2fc1cdb3e9c2fa769"
+        },
+        "sha256": "d146a9a3921fa860b2175f707d16f26251baf03a47e85a901f8a6f546f11d26b"
+      }
+    }
+  }
+}

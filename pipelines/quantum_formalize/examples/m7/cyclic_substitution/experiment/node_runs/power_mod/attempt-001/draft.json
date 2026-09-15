@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ k : ℕ, M7.CyclicSubstitution.rho N ^ k = M7.CyclicSubstitution.rho N ^ (k % N)\nintro N _ k\ncalc\n  M7.CyclicSubstitution.rho N ^ k =\n      M7.CyclicSubstitution.rho N ^ (k % N + N * (k / N)) :=\n    congrArg (fun n : ℕ => M7.CyclicSubstitution.rho N ^ n) (Nat.mod_add_div k N).symm\n  _ = M7.CyclicSubstitution.rho N ^ (k % N) := by\n    rw [pow_add, pow_mul, M7.CyclicSubstitution.root_power N, one_pow, mul_one]",
+  "queries": []
+}

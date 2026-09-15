@@ -1,0 +1,55 @@
+{
+  "id": "best_anchor_member",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalBlock.best_anchor_member",
+    "spec_sha256": "4fb8a7a6f263f9dd29d81ce44bf88b0252a328333c72b6d983d70f626c007a84",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-xsmg2vye/attempt-001/Candidate_760a065d6c1540b5.lean",
+        "target_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-xsmg2vye/attempt-001/FrozenTarget_760a065d6c1540b5.lean",
+        "feedback": "",
+        "target_sha256": "65b0c346df6a669ded9958ad3e6dd3cb63c07a9d9eef09ac1ba115fc061f2d8c",
+        "target_olean_sha256": "7ce60b8c5d21975e9bf44ffd3bcd86a9d9020aada42db08dd9637f4a03fffbde",
+        "source_sha256": "5e50c1a0f074c04b4a1850b50aac6333c20db487aeaf5be800afd125b4f7efdb",
+        "olean_sha256": "78bcf88419165bb2660269a32a548f1ffb62e4f97767fd3165a7de2d30f04e99",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:07:49.824334+00:00",
+    "work": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-xsmg2vye",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b4f2aaadb2e87b82f34d5a14b5097529c8d8621030fe4daf3b4d1824d8d17bae",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-xsmg2vye/attempt-001/Candidate_760a065d6c1540b5.lean",
+    "environment_sha256": "77cdf2eb212edeb43c5708f80c22e1959ff3cb68a437dfe12ab06097d2496fca",
+    "artifacts": {
+      "best_anchor_member": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.best_anchor_member : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → M7.CanonicalBlock.bestAnchor A ∈ A := by\n  change ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → M7.CanonicalBlock.bestAnchor A ∈ A\n  intro N _ A hA\n  classical\n  have hc : (M7.CanonicalBlock.candidates A).Nonempty := by\n    obtain ⟨q, hq⟩ := hA\n    unfold M7.CanonicalBlock.candidates\n    exact ⟨_, Finset.mem_image.mpr ⟨q, hq, rfl⟩⟩\n  have hk : M7.CanonicalBlock.bestKey A ∈ M7.CanonicalBlock.candidates A := by\n    rw [M7.CanonicalBlock.bestKey, dif_pos hc]\n    exact Finset.min'_mem _ _\n  unfold M7.CanonicalBlock.candidates at hk\n  obtain ⟨q, hq, heq⟩ := Finset.mem_image.mp hk\n  unfold M7.CanonicalBlock.bestAnchor\n  rw [← heq]\n  simpa using hq",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.best_anchor_member",
+          "ancestors": [],
+          "spec_sha256": "4fb8a7a6f263f9dd29d81ce44bf88b0252a328333c72b6d983d70f626c007a84"
+        },
+        "sha256": "a2eb0193af485956a22f8db47a3b4d9f574b5b4119fdcded46c40eb04c20a97b"
+      }
+    }
+  }
+}

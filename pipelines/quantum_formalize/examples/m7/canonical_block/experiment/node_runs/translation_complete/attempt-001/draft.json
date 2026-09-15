@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ A B : M7.CanonicalBlock.Support N, (∃ s : ZMod N, M7.CanonicalBlock.shift s A = B) ↔ M7.CanonicalBlock.normalize A = M7.CanonicalBlock.normalize B\nintro N inst A B\nconstructor\n· rintro ⟨s, rfl⟩\n  exact (M7.CanonicalBlock.normalize_shift N s A).symm\n· intro h\n  refine ⟨M7.CanonicalBlock.bestAnchor B + (-M7.CanonicalBlock.bestAnchor A), ?_⟩\n  have hs := congrArg (M7.CanonicalBlock.shift (M7.CanonicalBlock.bestAnchor B)) h\n  unfold M7.CanonicalBlock.normalize at hs\n  simpa only [M7.CanonicalBlock.shift_add, add_neg_cancel, M7.CanonicalBlock.shift_identity] using hs",
+  "queries": []
+}

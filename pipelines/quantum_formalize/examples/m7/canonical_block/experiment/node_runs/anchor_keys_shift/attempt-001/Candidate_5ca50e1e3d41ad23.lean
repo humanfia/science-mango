@@ -1,0 +1,13 @@
+import FrozenTarget_5ca50e1e3d41ad23
+theorem M7.CanonicalBlock.anchor_keys_shift : QuantumHarnessFrozenTarget := by
+  intro N inst s A
+  classical
+  simp only [M7.CanonicalBlock.candidates, Finset.image_image]
+  change (A.image (fun q => q + s)).image (fun q => M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) (M7.CanonicalBlock.shift s A))) = A.image (fun q => M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A))
+  rw [Finset.image_image]
+  apply Finset.image_congr
+  intro q hq
+  change M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-(q + s)) (M7.CanonicalBlock.shift s A)) = M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A)
+  rw [M7.CanonicalBlock.shift_add]
+  have h : -(q + s) + s = -q := by abel
+  rw [h]

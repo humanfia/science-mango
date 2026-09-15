@@ -1,0 +1,69 @@
+{
+  "id": "normalize_card",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalBlock.normalize_card",
+    "spec_sha256": "d532356c99cfddbccb3306d1203318154d651ac1f9b2f2007be6f771946e448e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-zf8x98tv/attempt-001/Candidate_c8e2cab10805fb63.lean",
+        "target_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-zf8x98tv/attempt-001/FrozenTarget_c8e2cab10805fb63.lean",
+        "feedback": "",
+        "target_sha256": "4661e82fb254dacca2420ef8ceaedacc1422ced5846a04659628eabbaa230c07",
+        "target_olean_sha256": "a52522d8d783e15c0f5b7214025aee01934409e5fb02af029d9e320fa4959745",
+        "source_sha256": "376cbf88b3df3114fb8f7c5808e6864c80ad9c519d3bc2a8963ddf1a03e42051",
+        "olean_sha256": "612433c7d7649ca5332d8924ceb0ad57db5559633b129522608301c3d13ad90a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:12:54.156800+00:00",
+    "work": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-zf8x98tv",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b4f2aaadb2e87b82f34d5a14b5097529c8d8621030fe4daf3b4d1824d8d17bae",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-zf8x98tv/attempt-001/Candidate_c8e2cab10805fb63.lean",
+    "environment_sha256": "77cdf2eb212edeb43c5708f80c22e1959ff3cb68a437dfe12ab06097d2496fca",
+    "artifacts": {
+      "shift_card": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.shift_card : ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), (M7.CanonicalBlock.shift s A).card = A.card := by\n  intro N inst s A\n  classical\n  change (A.image (fun i => i + s)).card = A.card\n  apply Finset.card_image_of_injective\n  intro a b h\n  exact add_right_cancel h",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.shift_card",
+          "ancestors": [],
+          "spec_sha256": "d14d6f65c8625e439b138439c7367823d904c5a213746936052b7071789fab55"
+        },
+        "sha256": "4743d045b67ad52c55a25c2ce3982175d93c52f649d32184e02e1bdf61d56b34"
+      },
+      "normalize_card": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.normalize_card : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, (M7.CanonicalBlock.normalize A).card = A.card := by\n  intro N inst A\n  change (M7.CanonicalBlock.shift (-M7.CanonicalBlock.bestAnchor A) A).card = A.card\n  exact M7.CanonicalBlock.shift_card N (-M7.CanonicalBlock.bestAnchor A) A",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.normalize_card",
+          "ancestors": [
+            "shift_card"
+          ],
+          "spec_sha256": "4f93d6ae1d9a9578bb229b2ab97ac5b7b5892968ce8b0edbe33ebcc6d0ea73bc"
+        },
+        "sha256": "825ae6b3ba7f5139674b8ba17edd045105c6a08cbf7a0a35ee30cc9f06082c0a"
+      }
+    }
+  }
+}

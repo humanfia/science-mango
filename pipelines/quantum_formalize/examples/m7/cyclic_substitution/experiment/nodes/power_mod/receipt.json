@@ -1,0 +1,69 @@
+{
+  "id": "power_mod",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CyclicSubstitution.power_mod",
+    "spec_sha256": "d8e2ad8599124dbb088897667dff7225dc059fd4a1f98a63cd1aac2484657c2e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-ppkk5j3h/attempt-001/Candidate_23b3420477d969a4.lean",
+        "target_path": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-ppkk5j3h/attempt-001/FrozenTarget_23b3420477d969a4.lean",
+        "feedback": "",
+        "target_sha256": "c872a5afd79663236f1f120ac9dcfbf5c41d09f41a4ae2c998e071c3e2c4d1db",
+        "target_olean_sha256": "fb66f9dee61cdd04d0b92f17743778fc6f4f69a6b56919c8bbc173a383686a35",
+        "source_sha256": "ad1c3f665b68d8d327711adbd235a0b3db0537873a4324c2040421d1985addf2",
+        "olean_sha256": "da07125d489175985784679cd29a342b5f8cb051e555c832830e55a07a07eaea",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:17:49.792662+00:00",
+    "work": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-ppkk5j3h",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "f4b32daa3acc2fbe9dcc8c965f722331d89d86d7c9f2de27217cdadccecc3ebe",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-cyclic-substitution-formalization/.humanize-formal-runs/run-ppkk5j3h/attempt-001/Candidate_23b3420477d969a4.lean",
+    "environment_sha256": "0af89d47b258d0fec79ff77305324203ae1f06b65dee6e7443d0cc084fc0341c",
+    "artifacts": {
+      "root_power": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.root_power : ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1 := by\n  change ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1\n  intro N _\n  have hroot := AdjoinRoot.eval₂_root (M6.Cyclic.modulus N)\n  change (Polynomial.X ^ N + 1 : M6.Cyclic.BinaryPolynomial).eval₂\n    (AdjoinRoot.of (M6.Cyclic.modulus N)) (M7.CyclicSubstitution.rho N) = 0 at hroot\n  rw [Polynomial.eval₂_add, Polynomial.eval₂_X_pow, Polynomial.eval₂_one] at hroot\n  have htwo : (1 : M6.Cyclic.CycleRing N) + 1 = 0 := by\n    have h := congrArg (AdjoinRoot.of (M6.Cyclic.modulus N))\n      (show (1 : ZMod 2) + 1 = 0 by decide)\n    simpa only [map_add, map_one, map_zero] using h\n  exact add_right_cancel (hroot.trans htwo.symm)",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.root_power",
+          "ancestors": [],
+          "spec_sha256": "0c33c63073df6c06f061ebf166753733009118948ab6dea2f45503e611f40bfb"
+        },
+        "sha256": "ff9f3031f97fbc1e97585296f9ca0ebbf3f4d90d42ccaffaca0e138dcdeb9626"
+      },
+      "power_mod": {
+        "payload": {
+          "declaration": "theorem M7.CyclicSubstitution.power_mod : ∀ (N : ℕ) [NeZero N], ∀ k : ℕ, M7.CyclicSubstitution.rho N ^ k = M7.CyclicSubstitution.rho N ^ (k % N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ k : ℕ, M7.CyclicSubstitution.rho N ^ k = M7.CyclicSubstitution.rho N ^ (k % N)\n  intro N _ k\n  calc\n    M7.CyclicSubstitution.rho N ^ k =\n        M7.CyclicSubstitution.rho N ^ (k % N + N * (k / N)) :=\n      congrArg (fun n : ℕ => M7.CyclicSubstitution.rho N ^ n) (Nat.mod_add_div k N).symm\n    _ = M7.CyclicSubstitution.rho N ^ (k % N) := by\n      rw [pow_add, pow_mul, M7.CyclicSubstitution.root_power N, one_pow, mul_one]",
+          "imports": [
+            "M7CyclicSubstitution"
+          ],
+          "name": "M7.CyclicSubstitution.power_mod",
+          "ancestors": [
+            "root_power"
+          ],
+          "spec_sha256": "cff14ff85e4df50b5f0f833ee953f67190fa3b9ac6fe28fe633275f52f765147"
+        },
+        "sha256": "a746abea48c5c0d48faf9cc724b3082f1722af61290b2a4efcc23eccc0a8b0d8"
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "exact_division",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ActualOrbit.exact_division",
+    "spec_sha256": "08c7d6a467b8a5577a94bce8b6867a027f0c2deb720943d2768dfb530236434a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-szldl6rs/attempt-001/Candidate_d913a16069f65242.lean",
+        "target_path": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-szldl6rs/attempt-001/FrozenTarget_d913a16069f65242.lean",
+        "feedback": "",
+        "target_sha256": "cdec98a99223c9b44ad4611c73102fc20977c8755eafd666e5969fadd1d4f1ce",
+        "target_olean_sha256": "7fc15ecfb870bc6fc55eba35b131e4e4cdf2807aa4473b75d136996493154de2",
+        "source_sha256": "bffa9ca162cf6b6df1f7d515128653276498d806b0df853ab55a3eec2d071f82",
+        "olean_sha256": "277fa0a37832a3e7138353ec45d23ee58580d9e778def2fd394d027370e4faec",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:14:04.134693+00:00",
+    "work": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-szldl6rs",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "98f5ee88730feadf1f29225c586dac23452cd035b364c654095ae326933e0fe2",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-group-formalization/.humanize-formal-runs/run-szldl6rs/attempt-001/Candidate_d913a16069f65242.lean",
+    "environment_sha256": "3ceda1df08df0e7a5399eb1eb8f57c7d4e5d12c24b7dd00be31b46465a38e081",
+    "artifacts": {
+      "exact_division": {
+        "payload": {
+          "declaration": "theorem M7.ActualOrbit.exact_division : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ P : M7.Action.Recipe N → Prop, M7.ActualOrbit.actionCount c P / M7.ActualOrbit.stabilizerCount c = M7.ActualOrbit.distinctCount c P ∧ M7.ActualOrbit.stabilizerCount c ∣ M7.ActualOrbit.actionCount c P := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ P : M7.Action.Recipe N → Prop, M7.ActualOrbit.actionCount c P / M7.ActualOrbit.stabilizerCount c = M7.ActualOrbit.distinctCount c P ∧ M7.ActualOrbit.stabilizerCount c ∣ M7.ActualOrbit.actionCount c P\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst c P\n  classical\n  have ha : M7.ActualOrbit.actionCount c P = M7.OrbitFibers.actionCount (M7.Action.Record N) c P := by\n    unfold M7.ActualOrbit.actionCount M7.OrbitFibers.actionCount\n    apply congrArg Finset.card\n    ext g\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and] <;> rfl\n  have hs : M7.ActualOrbit.stabilizerCount c = M7.OrbitFibers.stabilizerCount (M7.Action.Record N) c := by\n    unfold M7.ActualOrbit.stabilizerCount M7.ActualOrbit.fullStabilizer M7.OrbitFibers.stabilizerCount\n    apply congrArg Finset.card\n    ext g\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and] <;> rfl\n  have hd : M7.ActualOrbit.distinctCount c P = M7.OrbitFibers.orbitCount (M7.Action.Record N) c P := by\n    unfold M7.ActualOrbit.distinctCount M7.ActualOrbit.orbit M7.OrbitFibers.orbitCount M7.OrbitFibers.orbit\n    apply congrArg Finset.card\n    ext y\n    simp only [Finset.mem_filter, Finset.mem_image, Finset.mem_univ, true_and] <;> rfl\n  rw [ha, hs, hd]\n  exact M7.OrbitFibers.orbit_count_div (M7.Action.Record N) (M7.Action.Recipe N) c P",
+          "imports": [
+            "M7ActualOrbit"
+          ],
+          "name": "M7.ActualOrbit.exact_division",
+          "ancestors": [],
+          "spec_sha256": "08c7d6a467b8a5577a94bce8b6867a027f0c2deb720943d2768dfb530236434a"
+        },
+        "sha256": "d8b3a68fb523647a65a4c1be688d76e118e7757272796712af51b5731edc1769"
+      }
+    }
+  }
+}

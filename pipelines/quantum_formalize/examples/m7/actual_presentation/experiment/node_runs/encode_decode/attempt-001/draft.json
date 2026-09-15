@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (a : M7.ActualPresentation.Encoded N), M7.ActualPresentation.encode (M7.ActualPresentation.decode a) = a\nintro N inst a\nhave h (s : Fin N) : ((s.val : ZMod N)).val = s.val := by\n  rw [ZMod.val_natCast, Nat.mod_eq_of_lt s.isLt]\nrepeat' match goal with\n  | x : Prod _ _ ⊢ _ => cases x\n  | x : M7.ActualPresentation.UnitKey _ ⊢ _ => cases x\ndsimp [M7.ActualPresentation.encode, M7.ActualPresentation.decode,\n  M7.Presentation.mk, M7.Presentation.outer,\n  M7.Presentation.left, M7.Presentation.right]\nrepeat' first | rfl | apply Prod.ext | apply Fin.ext\nall_goals simp only [h]",
+  "queries": []
+}

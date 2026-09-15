@@ -1,0 +1,69 @@
+{
+  "id": "anchor_keys_shift",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalBlock.anchor_keys_shift",
+    "spec_sha256": "d74414311c856f56cb434c5e80b5d7790a65b7a8ebcf8c123571dbc7223d2e0e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-4f44uc4d/attempt-001/Candidate_5ca50e1e3d41ad23.lean",
+        "target_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-4f44uc4d/attempt-001/FrozenTarget_5ca50e1e3d41ad23.lean",
+        "feedback": "",
+        "target_sha256": "9796469cfeaeb891c80c32fc99f51a0e14fea1a74ded0ecf96f4dec925e7e8c4",
+        "target_olean_sha256": "bd10e8ce00207bffce49b2d06dd8df7d02a5cf425edb5ebca713971a1d3e797b",
+        "source_sha256": "9987aeeeb974b0f16abef59d54ecc58f1811c01515c9c43263137e232e9779f7",
+        "olean_sha256": "855748124666751b572d9f38d24c22bd9672e96991eadd524bf67a72eefceaa5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:13:03.611034+00:00",
+    "work": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-4f44uc4d",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b4f2aaadb2e87b82f34d5a14b5097529c8d8621030fe4daf3b4d1824d8d17bae",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-4f44uc4d/attempt-001/Candidate_5ca50e1e3d41ad23.lean",
+    "environment_sha256": "77cdf2eb212edeb43c5708f80c22e1959ff3cb68a437dfe12ab06097d2496fca",
+    "artifacts": {
+      "shift_add": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.shift_add : ∀ (N : ℕ) [NeZero N], ∀ (s t : ZMod N) (A : M7.CanonicalBlock.Support N), M7.CanonicalBlock.shift s (M7.CanonicalBlock.shift t A) = M7.CanonicalBlock.shift (s+t) A := by\n  intro N inst s t A\n  classical\n  simp only [M7.CanonicalBlock.shift, Finset.image_image, Function.comp_def, add_assoc, add_comm t s]",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.shift_add",
+          "ancestors": [],
+          "spec_sha256": "ffda1e70b93e771c7f65423939a469dcce5f6ff7dcd027d61ed2ed4c460eb467"
+        },
+        "sha256": "b437294b0e0fa32f5208b97299aad34d56f8ba359020aeb4173ab5bb86a14274"
+      },
+      "anchor_keys_shift": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.anchor_keys_shift : ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), (M7.CanonicalBlock.candidates (M7.CanonicalBlock.shift s A)).image (fun v => (ofLex v).1) = (M7.CanonicalBlock.candidates A).image (fun v => (ofLex v).1) := by\n  intro N inst s A\n  classical\n  simp only [M7.CanonicalBlock.candidates, Finset.image_image]\n  change (A.image (fun q => q + s)).image (fun q => M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) (M7.CanonicalBlock.shift s A))) = A.image (fun q => M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A))\n  rw [Finset.image_image]\n  apply Finset.image_congr\n  intro q hq\n  change M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-(q + s)) (M7.CanonicalBlock.shift s A)) = M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A)\n  rw [M7.CanonicalBlock.shift_add]\n  have h : -(q + s) + s = -q := by abel\n  rw [h]",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.anchor_keys_shift",
+          "ancestors": [
+            "shift_add"
+          ],
+          "spec_sha256": "05d2ad8d147c72c91738316b97839830a578697621620a81b94de0ddadca8332"
+        },
+        "sha256": "08f515d7e3f2abd8a74ab99ae084148c438bc56cff764189cbad11436705be78"
+      }
+    }
+  }
+}
