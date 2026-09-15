@@ -1,5 +1,6 @@
 import Mathlib
 namespace M7.FactorReplay
+noncomputable section
 abbrev BP := Polynomial (ZMod 2)
 /-- Enumerate actual finite coefficient vectors, then build their polynomial. -/
 def pool (n : ℕ) : Finset BP :=
@@ -14,4 +15,9 @@ def check (F : BP) (factors : List (BP × ℕ)) : Bool :=
   decide ((factors.map Prod.fst).Nodup) &&
   factors.all (fun t => irreducibleCheck t.1 && decide (0 < t.2)) &&
   decide (product factors = F)
+/-- Retain the exact multiset multiplicity while storing each normalized factor once. -/
+def expected (F : BP) : List (BP × ℕ) :=
+  let fs := UniqueFactorizationMonoid.normalizedFactors F
+  fs.toFinset.toList.map (fun p => (p,fs.count p))
+end
 end M7.FactorReplay

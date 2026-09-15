@@ -1,0 +1,138 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T20:29:14.053390+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "pool_complete": {
+      "id": "pool_complete",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.FactorReplay.pool_complete",
+        "spec_sha256": "06c17c590db1494c17d8f92a347fe413baf8a93ab82e9ae3d42a86add0effb88",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-yzht8e71/attempt-001/Candidate_cb3deebd18e9aa2d.lean:10:30: error: Application type mismatch: The argument\n  v\nhas type\n  Fin (n + 1) → ZMod 2\nbut is expected to have type\n  ℕ\nin the application\n  Polynomial.ofFn v\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-yzht8e71/attempt-002/Candidate_e50470581338b392.lean",
+            "target_path": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-yzht8e71/attempt-002/FrozenTarget_e50470581338b392.lean",
+            "feedback": "",
+            "target_sha256": "63aa79298a2357d5c14acb4d89cdb27da21ef527741cd55e756b1a6e6bbcc451",
+            "target_olean_sha256": "e4caf68037fa2e0951e57d53b65db0e1f2896897ff95cbe6c15459ce93e0edaf",
+            "source_sha256": "07219eb4bebb2132a903441a83c963a1b0b9ef5bb350f606452a26ff7a97555f",
+            "olean_sha256": "b1241dada10a0925d05ddc0ddb567ff80aa9fd8ec3ba9cd5eed779eb10002462",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T20:21:44.070460+00:00",
+        "work": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-yzht8e71",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7ba863ae5db19ea418a65f021b503a98540d4d8fe820538d799b1b4b37b44152",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-yzht8e71/attempt-002/Candidate_e50470581338b392.lean",
+        "environment_sha256": "685995a0229356689cdc623b99f1a4c73c02067a3a30b4da69d56d732459643c",
+        "artifacts": {
+          "pool_complete": {
+            "payload": {
+              "declaration": "theorem M7.FactorReplay.pool_complete : ∀ (n : ℕ) (p : M7.FactorReplay.BP), p ∈ M7.FactorReplay.pool n ↔ p.natDegree ≤ n := by\n  change ∀ (n : ℕ) (p : M7.FactorReplay.BP), p ∈ M7.FactorReplay.pool n ↔ p.natDegree ≤ n\n  intro n p\n  classical\n  unfold M7.FactorReplay.pool\n  rw [Finset.mem_image]\n  constructor\n  · rintro ⟨v, _, rfl⟩\n    have h := Polynomial.ofFn_natDegree_lt (show 1 ≤ n + 1 by omega) v\n    omega\n  · intro hp\n    refine ⟨Polynomial.toFn (n + 1) p, Finset.mem_univ _, ?_⟩\n    exact Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt (by omega)",
+              "imports": [
+                "M7FactorReplay"
+              ],
+              "name": "M7.FactorReplay.pool_complete",
+              "ancestors": [],
+              "spec_sha256": "06c17c590db1494c17d8f92a347fe413baf8a93ab82e9ae3d42a86add0effb88"
+            },
+            "sha256": "d3a58eca0a0ed8939dce2f7c882f54228e9e2e79c9971e4be09dbcf4ce67ab62"
+          }
+        }
+      }
+    },
+    "irreducible_check_exact": {
+      "id": "irreducible_check_exact",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M7.FactorReplay.irreducible_check_exact",
+        "spec_sha256": "bd6c112baeffa748dbb2d8ed159b5e12ceb210cf6f08b4fce51c178e72e38be1",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-aleh3xnv/attempt-001/Candidate_4f7de926d703b106.lean:14:16: error: Tactic `simp` failed with a nested error:\n(deterministic) timeout at `isDefEq`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-aleh3xnv/attempt-001/Candidate_4f7de926d703b106.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "proof_body",
+            "feedback": "proof body contains an unfinished proof or unsupported metaprogramming/command escape",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-aleh3xnv/attempt-003/Candidate_c62509774ddd0af3.lean:10:6: error: failed to synthesize\n  SetLike ?S ?m.53\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-aleh3xnv/attempt-004/Candidate_64ab9ad5ed493b0b.lean:14:10: error: Tactic `simp` failed with a nested error:\n(deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-aleh3xnv/attempt-004/Candidate_64ab9ad5ed493b0b.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-aleh3xnv/attempt-004/Candidate_64ab9ad5ed493b0b.lean:13:37: warning: This simp argument is unused:\n  ite_eq_iff\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.FactorReplay.irreducibleCheck, hp, hp1, List.all_eq_true, Finset.mem_toList,\n    M7.FactorReplay.pool_complete, Finset.mem_Ioc, EuclideanDomain.mod_eq_zero]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "proof_body",
+            "feedback": "proof body contains an unfinished proof or unsupported metaprogramming/command escape",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T20:23:52.380358+00:00",
+        "work": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-aleh3xnv",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7ba863ae5db19ea418a65f021b503a98540d4d8fe820538d799b1b4b37b44152",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "factor_check_exact": {
+      "id": "factor_check_exact",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "irreducible_check_exact"
+      ]
+    },
+    "self_check": {
+      "id": "self_check",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "factor_check_exact"
+      ]
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "polynomial_injective",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CompactStorage.polynomial_injective",
+    "spec_sha256": "9aef7f9e58f6d119affd41441c9aefa5fe0da03d3204202134db424ee6f05266",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-compact-storage-formalization/.humanize-formal-runs/run-9wlxc_em/attempt-001/Candidate_568a88c90206af76.lean",
+        "target_path": "/home/jing/m7-lean-compact-storage-formalization/.humanize-formal-runs/run-9wlxc_em/attempt-001/FrozenTarget_568a88c90206af76.lean",
+        "feedback": "",
+        "target_sha256": "77c38dc54da83d45a9a4924531b7c7335ed5e8c7720e04234c73b362fb908a8c",
+        "target_olean_sha256": "b5dc9792725c50761ae5892f709b7984196c4ebd32e2fe24b1c1459e6d076914",
+        "source_sha256": "39814e759ed43352a6f3fb3346496eddd0c83cb80f2fa12bc17d825017c03242",
+        "olean_sha256": "a8bcc6937dc81fa28d89bf2296451ddd408fb103b0647df412647f1dbd50e12d",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:04:52.330761+00:00",
+    "work": "/home/jing/m7-lean-compact-storage-formalization/.humanize-formal-runs/run-9wlxc_em",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4f433d8a446ed57931bbbc84f8f5af822945a435e238e031eacaa7067093a687",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-compact-storage-formalization/.humanize-formal-runs/run-9wlxc_em/attempt-001/Candidate_568a88c90206af76.lean",
+    "environment_sha256": "0e5a514c199fb8f614c43661504b3bcf1c4491031671ee03e9dd7669c7da26b8",
+    "artifacts": {
+      "polynomial_injective": {
+        "payload": {
+          "declaration": "theorem M7.CompactStorage.polynomial_injective : ∀ (N : ℕ) (F G : M5.BinaryPolynomial), F.natDegree ≤ N → G.natDegree ≤ N → M7.CompactStorage.polynomialBits N F = M7.CompactStorage.polynomialBits N G → F = G := by\n  change ∀ (N : ℕ) (F G : M5.BinaryPolynomial), F.natDegree ≤ N → G.natDegree ≤ N → M7.CompactStorage.polynomialBits N F = M7.CompactStorage.polynomialBits N G → F = G\n  intro N F G hF hG hbits\n  have hinj : ∀ a b : ZMod 2, decide (a = 1) = decide (b = 1) → a = b := by\n    decide\n  apply Polynomial.ext\n  intro i\n  by_cases hi : i ≤ N\n  · have h := congrFun hbits (⟨i, by omega⟩ : Fin (N + 1))\n    change decide (F.coeff i = 1) = decide (G.coeff i = 1) at h\n    exact hinj (F.coeff i) (G.coeff i) h\n  · rw [Polynomial.coeff_eq_zero_of_natDegree_lt (show F.natDegree < i by omega),\n      Polynomial.coeff_eq_zero_of_natDegree_lt (show G.natDegree < i by omega)]",
+          "imports": [
+            "M7CompactStorage"
+          ],
+          "name": "M7.CompactStorage.polynomial_injective",
+          "ancestors": [],
+          "spec_sha256": "9aef7f9e58f6d119affd41441c9aefa5fe0da03d3204202134db424ee6f05266"
+        },
+        "sha256": "71ba90f2a6d21f2cc4463570b65d82a37439ed0cc289db29ebd9ca3c8618da2d"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+import FrozenTarget_e50470581338b392
+theorem M7.FactorReplay.pool_complete : QuantumHarnessFrozenTarget := by
+  change ∀ (n : ℕ) (p : M7.FactorReplay.BP), p ∈ M7.FactorReplay.pool n ↔ p.natDegree ≤ n
+  intro n p
+  classical
+  unfold M7.FactorReplay.pool
+  rw [Finset.mem_image]
+  constructor
+  · rintro ⟨v, _, rfl⟩
+    have h := Polynomial.ofFn_natDegree_lt (show 1 ≤ n + 1 by omega) v
+    omega
+  · intro hp
+    refine ⟨Polynomial.toFn (n + 1) p, Finset.mem_univ _, ?_⟩
+    exact Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt (by omega)

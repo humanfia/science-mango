@@ -4,6 +4,7 @@ Formalization has started and has not yet passed the full-root gate. The source 
 
 - [Current status](CURRENT.md)
 - [Concrete compact-generation integration](COMPACT_INTEGRATION_PLAN.md)
+- [Final integration plan](FINAL_INTEGRATION_PLAN.md)
 - [Dependency DAG](GRAPH.md)
 - [Frozen source hashes](SOURCE.json)
 - [Original scope review](SCOPE_REVIEW.md)

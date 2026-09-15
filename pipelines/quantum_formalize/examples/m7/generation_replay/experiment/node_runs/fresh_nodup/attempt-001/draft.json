@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst w E bases es\ninduction es generalizing bases with\n| nil =>\n    intro h\n    simp\n| cons e es ih =>\n    intro h\n    change e.representative ∉ bases ∧ _ ∧ _ ∧ M7.GenerationReplay.FreshFrom w E (insert e.representative bases) es at h\n    rcases h with ⟨hfresh, _, _, htail⟩\n    obtain ⟨hnd, hdisjoint⟩ := ih (insert e.representative bases) htail\n    constructor\n    · simp only [List.map_cons, List.nodup_cons]\n      refine ⟨?_, hnd⟩\n      intro hm\n      obtain ⟨a, ha, heq⟩ := List.mem_map.mp hm\n      exact hdisjoint a ha (by simp [heq])\n    · intro a ha\n      rcases List.mem_cons.mp ha with rfl | ha\n      · exact hfresh\n      · intro hb\n        exact hdisjoint a ha (Finset.mem_insert_of_mem hb)",
+  "queries": []
+}

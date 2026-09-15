@@ -1,0 +1,88 @@
+[
+  {
+    "id": "trace_recover",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.LabelReplay.trace_recover",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (d : ℕ) (P : M6.Pinned.Pins (2*N)) (xs : List (Fin (2*N))), (M7.LabelReplay.endpoint P (M7.LabelReplay.trace c d P xs), M7.LabelReplay.queryCount (M7.LabelReplay.trace c d P xs)) = M6.Pinned.recover (fun P => (M7.LabelReplay.Q c P).coeff d) P xs",
+      "imports": [
+        "M7LabelReplay"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Induct xs generalizing P. trace calls the exact existing Pinned.choose, as does recover. The endpoint foldl uses the recorded after state and the queryCount list sum uses that same chosen step query count. Rewrite the induction hypothesis on next.1. Preassigned pins are included (step queries0), no correctness oracle required. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "check_sound",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.LabelReplay.check_sound",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (r : M7.LabelReplay.Certificate N), M7.LabelReplay.check c r = true → r.signature = M7.RecipeSignature.signature c ∧ (∀ i : Fin (2*N+1), r.coefficients i = (M7.LabelReplay.Q c (M6.Pinned.free (2*N))).coeff i.val) ∧ r.answer = M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) ∧ r.pins = M7.LabelReplay.pinData c",
+      "imports": [
+        "M7LabelReplay"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "The checker compares actual finite Certificate data with expected built from the literal full gcd signature, actual scatter-based Q recurrence, actual solve, and full pin data. Extract equality using of_decide_eq_true then substitute and unfold expected. This checks computations, not a hash or a supplied correctness predicate. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "self_check",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.LabelReplay.self_check",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M7.LabelReplay.check c (M7.LabelReplay.expected c) = true",
+      "imports": [
+        "M7LabelReplay"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Unfold check, simp. The self-produced record actually recomputes all expected fields; no proof property or supplied certificate hash is accepted as an oracle. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "checked_physical_answer",
+    "dependencies": [
+      "check_sound"
+    ],
+    "spec": {
+      "name": "M7.LabelReplay.checked_physical_answer",
+      "statement": "∀ (N w : ℕ) [NeZero N] (c : M7.Action.Recipe N) (r : M7.LabelReplay.Certificate N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → M7.LabelReplay.check c r = true → (r.answer = none ↔ (M7.RecipeSignature.signature c).natDegree = 0) ∧ (∀ (d k : ℕ) (v : M6.Pinned.Vector (2*N)), r.answer = some (d,v,k) → M7.DefaultQuery.distance c = some d ∧ v ∈ M7.Transport.LX c ∧ M6.Pinned.weight v = d ∧ M6.Flatten.J N v ∈ M7.Transport.LZ c ∧ M6.Pinned.weight (M6.Flatten.J N v) = d ∧ k ≤ 2*N)",
+      "imports": [
+        "M7LabelReplay"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Use check_sound to identify recorded answer with actual solve. ClosedSolve.closed_pointwise gives AnswerCorrect at h.2.2.1; its first field gives NoLogical iff f=0, and its .2.2.1 gives each actual result. f is definitionally the actual signature natDegree. DefaultQuery.distance/Transport.distance is the same quantumDistance. Convert physical LX/LZ by unfolding only Final.LX/CX/BX/CZ/BZ and Transport definitions plus Domain.coefficients_indicator, exactly as existing Transport.actual_witness. Do not unfold Q or solve arithmetic. No PointwiseCorrect/AnswerCorrect/free-distance hypothesis remains. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

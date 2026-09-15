@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) (F G : M5.BinaryPolynomial), F.natDegree ≤ N → G.natDegree ≤ N → M7.CompactStorage.polynomialBits N F = M7.CompactStorage.polynomialBits N G → F = G\nintro N F G hF hG hbits\nhave hinj : ∀ a b : ZMod 2, decide (a = 1) = decide (b = 1) → a = b := by\n  decide\napply Polynomial.ext\nintro i\nby_cases hi : i ≤ N\n· have h := congrFun hbits (⟨i, by omega⟩ : Fin (N + 1))\n  change decide (F.coeff i = 1) = decide (G.coeff i = 1) at h\n  exact hinj (F.coeff i) (G.coeff i) h\n· rw [Polynomial.coeff_eq_zero_of_natDegree_lt (show F.natDegree < i by omega),\n    Polynomial.coeff_eq_zero_of_natDegree_lt (show G.natDegree < i by omega)]",
+  "queries": []
+}

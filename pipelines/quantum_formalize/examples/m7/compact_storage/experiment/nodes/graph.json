@@ -1,0 +1,156 @@
+[
+  {
+    "id": "support_value_injective",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.CompactStorage.support_value_injective",
+      "statement": "∀ (N : ℕ) [NeZero N], Function.Injective (@M7.CompactStorage.supportBits N) ∧ Function.Injective (@M7.CompactStorage.valueBits N)",
+      "imports": [
+        "M7CompactStorage"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "For either code, evaluate equality at index ⟨x.val, ZMod.val_lt x⟩. Nat cast of val is x. decide_eq_true_eq recovers membership/equality. Finset.ext gives support equality. Includes N=1 and empty supports. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "polynomial_injective",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.CompactStorage.polynomial_injective",
+      "statement": "∀ (N : ℕ) (F G : M5.BinaryPolynomial), F.natDegree ≤ N → G.natDegree ≤ N → M7.CompactStorage.polynomialBits N F = M7.CompactStorage.polynomialBits N G → F = G",
+      "imports": [
+        "M7CompactStorage"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Polynomial.ext: for i≤N evaluate the bit function at ⟨i,by omega⟩. Over ZMod2 each coefficient is 0 or 1 (fin_cases, or val_lt plus ZMod.val_injective), so equality of the equals-one bits gives coefficient equality. For i>N use coeff_eq_zero_of_natDegree_lt. This recovers full polynomials including multiplicities, not roots. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "field_bounds",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.CompactStorage.field_bounds",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (M7.RecipeSignature.signature c).natDegree ≤ N ∧ M7.ActualOrbit.stabilizerCount c < 2^(1+3*N)",
+      "imports": [
+        "M7CompactStorage"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "signature_properties gives monic and divides the nonzero cyclic modulus; natDegree_le_of_dvd and natDegree(X^N+1)≤N give the degree bound. fullStabilizer is a filtered univ so its card≤Fintype.card Record. Accepted Action.record_card = totient N*2*N*N; totient≤N yields≤2*N^3. Use N<2^N and strict monotonicity of cubic powers, then pow_add/pow_mul, to obtain <2^(1+3*N). Do not assume stabilizer size or signature degree as oracle. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "emission_valid",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.CompactStorage.emission_valid",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.CompactStorage.Valid (M7.CompactGeneration.emission w E bases)",
+      "imports": [
+        "M7CompactStorage"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Use accepted emission_action first clause and emission_stabilizer second clause. Both literal signature fields equal actual signatures by unfolding emission projections; no positive residual or ClassValid assumption is needed merely for field consistency. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "encode_core",
+    "dependencies": [
+      "support_value_injective",
+      "polynomial_injective",
+      "field_bounds"
+    ],
+    "spec": {
+      "name": "M7.CompactStorage.encode_core",
+      "statement": "∀ (N : ℕ) [NeZero N] (e f : M7.CompactGeneration.Emission N), M7.CompactStorage.Valid e → M7.CompactStorage.Valid f → M7.CompactStorage.encode e = M7.CompactStorage.encode f → M7.CompactStorage.coreView e = M7.CompactStorage.coreView f",
+      "imports": [
+        "M7CompactStorage"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Extract Code fields via congrArg. support_value_injective gives four support equalities and three residue equalities; Units.ext and Record ext give actual action equality including exchange. Valid and field_bounds give both polynomial degree bounds and stabilizer <2^width. polynomial_injective recovers both full signatures. Apply congrArg BitVec.toNat to stabilizer code equality and BitVec.toNat_ofNat plus Nat.mod_eq_of_lt to recover actual integer stabilizer. Assemble coreView equality. The optional path is intentionally excluded and not recoverable from this code. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "unit_table_recovery",
+    "dependencies": [
+      "polynomial_injective",
+      "field_bounds"
+    ],
+    "spec": {
+      "name": "M7.CompactStorage.unit_table_recovery",
+      "statement": "∀ (N : ℕ) [NeZero N] (e : M7.CompactGeneration.Emission N) (u : (ZMod N)ˣ) (F : M5.BinaryPolynomial), F.natDegree ≤ N → (M7.CompactStorage.unitTable e u = M7.CompactStorage.polynomialBits N F ↔ M7.RecipeSignature.signature (M7.Action.act (⟨u,false,0,0⟩ : M7.Action.Record N) e.representative) = F)",
+      "imports": [
+        "M7CompactStorage"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Actual unit table entry encodes the actual full signature on the zero-shift multiplier image. Forward polynomial_injective uses field_bounds for that literal image; reverse substitutes equality. Existing action_signature identifies this with sourceTau of representative signature, so no separate unit action oracle is introduced. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "storage_bounds",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.CompactStorage.storage_bounds",
+      "statement": "∀ (N H : ℕ) [NeZero N], M7.CompactStorage.coreBits N = 12*N+4 ∧ M7.CompactStorage.coreBits N ≤ 16*N ∧ M7.CompactStorage.tableBits N = Nat.totient N*(N+1) ∧ M7.CompactStorage.storedCoreBits N H ≤ 16*H*N ∧ M7.CompactStorage.storedWithTablesBits N H ≤ 16*H*N + 2*H*Nat.totient N*N",
+      "imports": [
+        "M7CompactStorage"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Unfold actual field-width sum. NeZero.pos gives N≥1, hence12N+4≤16N and N+1≤2N. ZMod.card_units_eq_totient gives exact optional table index count. Multiply bounds by H and combine algebraically. This is finite logical bit representation, not Lean object/runtime byte usage. Do not include full path/transcript in this core bound. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

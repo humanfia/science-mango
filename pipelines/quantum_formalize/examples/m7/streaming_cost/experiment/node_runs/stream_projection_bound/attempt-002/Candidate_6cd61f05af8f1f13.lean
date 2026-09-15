@@ -1,0 +1,22 @@
+import FrozenTarget_6cd61f05af8f1f13
+theorem M7.StreamingCost.stream_projection_bound : QuantumHarnessFrozenTarget := by
+  change ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∀ x : M7.GlobalQuery.Index H N, (M7.StreamingCost.streamWin q bases x).result = M7.StreamingIndices.streamWin q bases x ∧ (M7.StreamingCost.streamWin q bases x).outer = 0 ∧ (M7.StreamingCost.streamWin q bases x).inner ≤ H * M7.StreamingCost.recordCount N
+  intro H N inst q bases x
+  classical
+  have hb : ∀ p : M7.GlobalQuery.Index H N → M7.StreamingCost.Eval,
+      (∀ y, (p y).outer ≤ 0 ∧ (p y).inner ≤ 1) →
+      (M7.StreamingCost.allIndices H N p).outer = 0 ∧
+      (M7.StreamingCost.allIndices H N p).inner ≤ H * M7.StreamingCost.recordCount N := by
+    intro p hp
+    have h := M7.StreamingCost.index_bound H N p 0 1 hp
+    simpa only [Nat.mul_zero, Nat.mul_one, Nat.le_zero] using h
+  by_cases hx : M7.GlobalQuery.feasible q bases x
+  · simp only [M7.StreamingCost.streamWin, M7.StreamingIndices.streamWin, hx, ↓reduceIte]
+    constructor
+    · rw [M7.StreamingCost.index_projection]
+      rfl
+    · apply hb
+      intro y
+      dsimp only
+      first | omega | (split_ifs <;> simp)
+  · simp [M7.StreamingCost.streamWin, M7.StreamingIndices.streamWin, hx]

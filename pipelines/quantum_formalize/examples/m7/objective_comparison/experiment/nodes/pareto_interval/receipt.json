@@ -1,0 +1,55 @@
+{
+  "id": "pareto_interval",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ObjectiveComparison.pareto_interval",
+    "spec_sha256": "bdbd445233580a3bdb624cd4abf32ded980302b1ad000b014e8b9937ff752b9b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-fj39dhet/attempt-001/Candidate_30841a2911abdfc8.lean",
+        "target_path": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-fj39dhet/attempt-001/FrozenTarget_30841a2911abdfc8.lean",
+        "feedback": "",
+        "target_sha256": "81d004908e2d96c05fbd5d591a31964042ef612535ca2f737c1868ebb524ce5f",
+        "target_olean_sha256": "a06b43c94c5e7f65df6a65fc8318a983abe9b5d6916cb8a99d3b3b1c264e523c",
+        "source_sha256": "56c7d7a346df8bdd7b304d004bbb6bfc6a5509174927c5dff460327132eb12e3",
+        "olean_sha256": "365160853bd891641ca4638c2282142d18d5d6e6b0edeb120da460964a049d29",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:14:58.181569+00:00",
+    "work": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-fj39dhet",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "258af4bb88a0998d171f57b4963055e1bfeffcf30754e4c479a7d6ebdbd32954",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-fj39dhet/attempt-001/Candidate_30841a2911abdfc8.lean",
+    "environment_sha256": "261cfe153ff871b7018f5ca9bde4a7e3b4db1cd08345cacf649e60f52c330aee",
+    "artifacts": {
+      "pareto_interval": {
+        "payload": {
+          "declaration": "theorem M7.ObjectiveComparison.pareto_interval : ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).1 = true ↔ (∀ j : Fin m, i ≤ j.val ∧ j.val < i+fuel → a j ≤ b j) ∧ (seen = true ∨ ∃ j : Fin m, (i ≤ j.val ∧ j.val < i+fuel) ∧ a j < b j) := by\n  change ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), _\n  intro m a b i fuel seen\n  induction fuel generalizing i seen with\n  | zero =>\n      have hempty : ∀ j : Fin m, ¬ (i ≤ j.val ∧ j.val < i + 0) := by\n        intro j\n        omega\n      simp [M7.ObjectiveComparison.paretoFrom, hempty]\n  | succ fuel ih =>\n      by_cases hi : i < m\n      · let k : Fin m := ⟨i, hi⟩\n        have hk : k.val = i := rfl\n        have hall :\n            (∀ j : Fin m, i ≤ j.val ∧ j.val < i + Nat.succ fuel → a j ≤ b j) ↔\n            a k ≤ b k ∧\n              (∀ j : Fin m, i + 1 ≤ j.val ∧ j.val < (i + 1) + fuel → a j ≤ b j) := by\n          constructor\n          · intro h\n            constructor\n            · exact h k (by omega)\n            · intro j hj\n              exact h j (by omega)\n          · rintro ⟨hhead, htail⟩ j hj\n            by_cases heq : j.val = i\n            · have hjk : j = k := Fin.ext (by omega)\n              simpa [hjk] using hhead\n            · exact htail j (by omega)\n        have hex :\n            (∃ j : Fin m, (i ≤ j.val ∧ j.val < i + Nat.succ fuel) ∧ a j < b j) ↔\n            a k < b k ∨\n              (∃ j : Fin m, (i + 1 ≤ j.val ∧ j.val < (i + 1) + fuel) ∧ a j < b j) := by\n          constructor\n          · rintro ⟨j, hj, hstrict⟩\n            by_cases heq : j.val = i\n            · left\n              have hjk : j = k := Fin.ext (by omega)\n              simpa [hjk] using hstrict\n            · exact Or.inr ⟨j, by omega, hstrict⟩\n          · intro h\n            rcases h with hhead | ⟨j, hj, hstrict⟩\n            · exact ⟨k, by omega, hhead⟩\n            · exact ⟨j, by omega, hstrict⟩\n        rw [hall, hex]\n        by_cases hle : a k ≤ b k\n        · simp [M7.ObjectiveComparison.paretoFrom, hi, k, hle, ih, or_assoc] at *\n        · simp [M7.ObjectiveComparison.paretoFrom, hi, k, hle] at *\n      · have hempty : ∀ j : Fin m, ¬ (i ≤ j.val ∧ j.val < i + Nat.succ fuel) := by\n          intro j hj\n          have hjm := j.isLt\n          omega\n        simp [M7.ObjectiveComparison.paretoFrom, hi, hempty]",
+          "imports": [
+            "M7ObjectiveComparison"
+          ],
+          "name": "M7.ObjectiveComparison.pareto_interval",
+          "ancestors": [],
+          "spec_sha256": "bdbd445233580a3bdb624cd4abf32ded980302b1ad000b014e8b9937ff752b9b"
+        },
+        "sha256": "2f6579a696603a3f8835c5bc4614944f757efc7faf462c7246b322ab051f33a6"
+      }
+    }
+  }
+}

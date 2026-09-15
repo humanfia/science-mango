@@ -1,0 +1,5 @@
+theorem M7.OverfullBoundary.empty_generate : ∀ (N w : ℕ) [NeZero N], 0 < w → (M7.CompactGeneration.generate (N := N) w ∅).finalBases = ∅ ∧ (M7.CompactGeneration.generate (N := N) w ∅).emitted = [] ∧ (M7.CompactGeneration.generate (N := N) w ∅).finalResidual = 0 ∧ (M7.CompactGeneration.generate (N := N) w ∅).fuelExhausted = false := by
+  intro N w inst hw
+  classical
+  unfold M7.CompactGeneration.generate
+  simp [M7.OverfullBoundary.empty_root N w hw, M7.CompactGeneration.run]

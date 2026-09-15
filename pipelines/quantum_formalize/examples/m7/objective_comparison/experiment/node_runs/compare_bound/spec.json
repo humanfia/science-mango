@@ -1,0 +1,12 @@
+{
+  "name": "M7.ObjectiveComparison.compare_bound",
+  "statement": "∀ (m : ℕ) (mode : M7.Selection.Mode) (a b : Fin m → ℤ), (M7.ObjectiveComparison.compare mode a b).2 ≤ 2*m ∧ (M7.ObjectiveComparison.compare mode a b).2 ≤ 2*(m+1)",
+  "imports": [
+    "M7ObjectiveComparison"
+  ],
+  "context": "theorem M7.ObjectiveComparison.lex_comparisons : ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ), (M7.ObjectiveComparison.lexFrom a b i fuel).2 ≤ 2*fuel := by\n  change ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ), (M7.ObjectiveComparison.lexFrom a b i fuel).2 ≤ 2 * fuel\n  intro m a b i fuel\n  induction fuel generalizing i with\n  | zero => simp [M7.ObjectiveComparison.lexFrom]\n  | succ fuel ih =>\n      have h := ih (i + 1)\n      simp only [M7.ObjectiveComparison.lexFrom]\n      repeat' split\n      all_goals\n        dsimp only at *\n        omega\n\ntheorem M7.ObjectiveComparison.pareto_comparisons : ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).2 ≤ 2*fuel := by\n  change ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).2 ≤ 2 * fuel\n  intro m a b i fuel seen\n  induction fuel generalizing i seen with\n  | zero => simp [M7.ObjectiveComparison.paretoFrom]\n  | succ fuel ih =>\n      simp only [M7.ObjectiveComparison.paretoFrom]\n      split\n      next h =>\n        split\n        next hab =>\n          have hrec := ih (i + 1) (seen || decide (a ⟨i, h⟩ < b ⟨i, h⟩))\n          simp only [Prod.snd]\n          omega\n        next hab =>\n          simp only [Prod.snd]\n          omega\n      next h =>\n        simp only [Prod.snd]\n        omega",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Specialize exact measured comparison bounds for each mode and weaken once by natural arithmetic. This is integer comparison count only, not a runtime or free bit-cost assertion. Return tactic lines only, no leading by."
+}

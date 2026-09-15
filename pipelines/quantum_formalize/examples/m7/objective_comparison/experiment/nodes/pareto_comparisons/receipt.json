@@ -1,0 +1,60 @@
+{
+  "id": "pareto_comparisons",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ObjectiveComparison.pareto_comparisons",
+    "spec_sha256": "04de8c9777dbb4a53e10a09d49b12bb6852bfe54c5665fbd760927d05f3a9425",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-gezn1v4l/attempt-001/Candidate_941a83987400ac36.lean:11:33: error: unknown tactic\n/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-gezn1v4l/attempt-001/Candidate_941a83987400ac36.lean:7:17: error: unsolved goals\ncase succ.false\nm : ℕ\na b : Fin m → ℤ\nfuel : ℕ\nih : ∀ (i : ℕ) (seen : Bool), (paretoFrom a b i fuel seen).2 ≤ 2 * fuel\ni : ℕ\nht : (paretoFrom a b (i + 1) fuel true).2 ≤ 2 * fuel\nhf : (paretoFrom a b (i + 1) fuel false).2 ≤ 2 * fuel\n⊢ (if h : i < m then\n        if a ⟨i, ⋯⟩ ≤ b ⟨i, ⋯⟩ then\n          ((paretoFrom a b (i + 1) fuel (false || decide (a ⟨i, ⋯⟩ < b ⟨i, ⋯⟩))).1,\n            2 + (paretoFrom a b (i + 1) fuel (false || decide (a ⟨i, ⋯⟩ < b ⟨i, ⋯⟩))).2)\n        else (false, 1)\n      else (false, 0)).2 ≤\n    2 * (fuel + 1)\n\ncase succ.true\nm : ℕ\na b : Fin m → ℤ\nfuel : ℕ\nih : ∀ (i : ℕ) (seen : Bool), (paretoFrom a b i fuel seen).2 ≤ 2 * fuel\ni : ℕ\nht : (paretoFrom a b (i + 1) fuel true).2 ≤ 2 * fuel\nhf : (paretoFrom a b (i + 1) fuel false).2 ≤ 2 * fuel\n⊢ (if h : i < m then\n        if a ⟨i, ⋯⟩ ≤ b ⟨i, ⋯⟩ then\n          ((paretoFrom a b (i + 1) fuel (true || decide (a ⟨i, ⋯⟩ < b ⟨i, ⋯⟩))).1,\n            2 + (paretoFrom a b (i + 1) fuel (true || decide (a ⟨i, ⋯⟩ < b ⟨i, ⋯⟩))).2)\n        else (false, 1)\n      else (true, 0)).2 ≤\n    2 * (fuel + 1)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-gezn1v4l/attempt-002/Candidate_784dccfc582fb9f1.lean",
+        "target_path": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-gezn1v4l/attempt-002/FrozenTarget_784dccfc582fb9f1.lean",
+        "feedback": "",
+        "target_sha256": "b260de18b94fa48f03c483ae01e9778ddf15e6892e78899a10cdcbec3e4a2af4",
+        "target_olean_sha256": "feb9d2afb572bec64b7bd4737c069996eeb783723afeee8d631a9d8e49cf47c4",
+        "source_sha256": "199691b1ff8620d86e44b44eee57d28af6d3d73ddd4725349fce4e8160e3fecc",
+        "olean_sha256": "044b8fe34e0e69d2e6e9188919279da641cd01ae589f804994586287e5d84932",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T20:08:37.482748+00:00",
+    "work": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-gezn1v4l",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "258af4bb88a0998d171f57b4963055e1bfeffcf30754e4c479a7d6ebdbd32954",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-gezn1v4l/attempt-002/Candidate_784dccfc582fb9f1.lean",
+    "environment_sha256": "261cfe153ff871b7018f5ca9bde4a7e3b4db1cd08345cacf649e60f52c330aee",
+    "artifacts": {
+      "pareto_comparisons": {
+        "payload": {
+          "declaration": "theorem M7.ObjectiveComparison.pareto_comparisons : ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).2 ≤ 2*fuel := by\n  change ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).2 ≤ 2 * fuel\n  intro m a b i fuel seen\n  induction fuel generalizing i seen with\n  | zero => simp [M7.ObjectiveComparison.paretoFrom]\n  | succ fuel ih =>\n      simp only [M7.ObjectiveComparison.paretoFrom]\n      split\n      next h =>\n        split\n        next hab =>\n          have hrec := ih (i + 1) (seen || decide (a ⟨i, h⟩ < b ⟨i, h⟩))\n          simp only [Prod.snd]\n          omega\n        next hab =>\n          simp only [Prod.snd]\n          omega\n      next h =>\n        simp only [Prod.snd]\n        omega",
+          "imports": [
+            "M7ObjectiveComparison"
+          ],
+          "name": "M7.ObjectiveComparison.pareto_comparisons",
+          "ancestors": [],
+          "spec_sha256": "04de8c9777dbb4a53e10a09d49b12bb6852bfe54c5665fbd760927d05f3a9425"
+        },
+        "sha256": "31769f5d6db2c9aaa2acda7247a12fcd9e656888b10c354a313af6401b197411"
+      }
+    }
+  }
+}

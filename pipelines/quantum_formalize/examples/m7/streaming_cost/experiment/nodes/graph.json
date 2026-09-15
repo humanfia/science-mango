@@ -1,0 +1,171 @@
+[
+  {
+    "id": "cursor_projection",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.StreamingCost.cursor_projection",
+      "statement": "∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel : ℕ), (M7.StreamingCost.allFinFrom n p i fuel).result = M7.StreamingIndices.allFinFrom n (fun j => (p j).result) i fuel",
+      "imports": [
+        "M7StreamingCost"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Induct fuel generalizing i, split i<n and (p current).result. Projection follows the identical recursion and short-circuit branch. Return tactic lines only; no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "cursor_bound",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.StreamingCost.cursor_bound",
+      "statement": "∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel a b : ℕ), (∀ j, (p j).outer ≤ a ∧ (p j).inner ≤ b) → (M7.StreamingCost.allFinFrom n p i fuel).outer ≤ fuel*a ∧ (M7.StreamingCost.allFinFrom n p i fuel).inner ≤ fuel*b",
+      "imports": [
+        "M7StreamingCost"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Induct fuel generalizing i; zero/out-of-range cost is zero. True branch adds the actual current two charges to induction bounds, false branch returns only current charges. omega/nlinarith or Nat arithmetic. No abstract evaluator cost is asserted; these are explicit counters. Return tactic lines only; no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "record_projection",
+    "dependencies": [
+      "cursor_projection"
+    ],
+    "spec": {
+      "name": "M7.StreamingCost.record_projection",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ p : M7.Action.Record N → M7.StreamingCost.Eval, (M7.StreamingCost.allRecords N p).result = M7.StreamingIndices.allRecords N (fun g => (p g).result)",
+      "imports": [
+        "M7StreamingCost"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Unfold both allRecords and allFin, apply cursor_projection at each nested coordinate and congruence. Return tactic lines only; no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "record_bound",
+    "dependencies": [
+      "cursor_bound"
+    ],
+    "spec": {
+      "name": "M7.StreamingCost.record_bound",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (p : M7.Action.Record N → M7.StreamingCost.Eval) (a b : ℕ), (∀ g, (p g).outer ≤ a ∧ (p g).inner ≤ b) → (M7.StreamingCost.allRecords N p).outer ≤ M7.StreamingCost.recordCount N*a ∧ (M7.StreamingCost.allRecords N p).inner ≤ M7.StreamingCost.recordCount N*b",
+      "imports": [
+        "M7StreamingCost"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Apply cursor_bound four times to exact nested decodeRecord loops. Reassociate/multiply natural caps; recordCount=2*unitcard*N^2. No full record collection is built. Return tactic lines only; no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "index_projection",
+    "dependencies": [
+      "cursor_projection",
+      "record_projection"
+    ],
+    "spec": {
+      "name": "M7.StreamingCost.index_projection",
+      "statement": "∀ (H N : ℕ) [NeZero N], ∀ p : M7.GlobalQuery.Index H N → M7.StreamingCost.Eval, (M7.StreamingCost.allIndices H N p).result = M7.StreamingIndices.allIndices H N (fun x => (p x).result)",
+      "imports": [
+        "M7StreamingCost"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Unfold allIndices and allFin; cursor projection followed by record projection. Return tactic lines only; no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "index_bound",
+    "dependencies": [
+      "cursor_bound",
+      "record_bound"
+    ],
+    "spec": {
+      "name": "M7.StreamingCost.index_bound",
+      "statement": "∀ (H N : ℕ) [NeZero N], ∀ (p : M7.GlobalQuery.Index H N → M7.StreamingCost.Eval) (a b : ℕ), (∀ x, (p x).outer ≤ a ∧ (p x).inner ≤ b) → (M7.StreamingCost.allIndices H N p).outer ≤ (H * M7.StreamingCost.recordCount N)*a ∧ (M7.StreamingCost.allIndices H N p).inner ≤ (H * M7.StreamingCost.recordCount N)*b",
+      "imports": [
+        "M7StreamingCost"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Apply cursor_bound to the H loop, record_bound for its actual inner record scan, and reassociate products. Return tactic lines only; no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "stream_projection_bound",
+    "dependencies": [
+      "index_projection",
+      "index_bound"
+    ],
+    "spec": {
+      "name": "M7.StreamingCost.stream_projection_bound",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∀ x : M7.GlobalQuery.Index H N, (M7.StreamingCost.streamWin q bases x).result = M7.StreamingIndices.streamWin q bases x ∧ (M7.StreamingCost.streamWin q bases x).outer = 0 ∧ (M7.StreamingCost.streamWin q bases x).inner ≤ (H * M7.StreamingCost.recordCount N)",
+      "imports": [
+        "M7StreamingCost"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Split actual GlobalQuery.feasible. False branch is zero cost/false result. True branch projection is original streamWin; index_bound with caps 0,1 bounds its actual candidate visits. This counts visits, not the internal cost of labels, feasibility or integer comparison. Return tactic lines only; no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "scan_bound",
+    "dependencies": [
+      "stream_projection_bound",
+      "index_bound"
+    ],
+    "spec": {
+      "name": "M7.StreamingCost.scan_bound",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), (M7.StreamingCost.scanWins q bases).outer ≤ (H * M7.StreamingCost.recordCount N) ∧ (M7.StreamingCost.scanWins q bases).inner ≤ (H * M7.StreamingCost.recordCount N)^2",
+      "imports": [
+        "M7StreamingCost"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Apply index_bound with outer cap1 and inner cap H*recordCount from actual stream_projection_bound. Both counters are accumulated in one nested recursion; no duplicate scan or index ledger. This proves at most K outer and K^2 inner candidate visits. Return tactic lines only; no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "record_cardinality",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.StreamingCost.record_cardinality",
+      "statement": "∀ (N : ℕ) [NeZero N], M7.StreamingCost.recordCount N = Fintype.card (M7.Action.Record N) ∧ M7.StreamingCost.recordCount N = 2 * Nat.totient N * N^2",
+      "imports": [
+        "M7StreamingCost"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Use accepted M7.Action.record_card (already in actual ancestor closure), ZMod.card_units_eq_totient and ring arithmetic. Return tactic lines only; no leading by."
+    },
+    "metadata": {}
+  }
+]

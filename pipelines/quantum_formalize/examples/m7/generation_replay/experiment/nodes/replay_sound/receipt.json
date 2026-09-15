@@ -1,0 +1,69 @@
+{
+  "id": "replay_sound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.GenerationReplay.replay_sound",
+    "spec_sha256": "006028df67545c93cb7e58dba5eae689c952290bb47a617aa35e945b21d5f5e0",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-gmcxq2gf/attempt-001/Candidate_cde46a8941f63810.lean",
+        "target_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-gmcxq2gf/attempt-001/FrozenTarget_cde46a8941f63810.lean",
+        "feedback": "",
+        "target_sha256": "bf3f75be9dbff649505774c9b00c157a5825019490a04a83fc0d53cc09896d00",
+        "target_olean_sha256": "bbc0cf245368d6d71624f11d82e07536306983f8be862cd3efdc18a5f5c5dacb",
+        "source_sha256": "39a79ede52bd9ee4a9b994bf914b6ca0365cfb3116e291ac8519d5dec5eb6a81",
+        "olean_sha256": "d5ca7635e9c3706abf73105c973051278e685b11d83197cf1b99f6f3d9a2c985",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:23:31.553580+00:00",
+    "work": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-gmcxq2gf",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7c16f4ee519669210ada45c9bbb1263cab892abd4ea1b710274a5537a76f8b1f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-gmcxq2gf/attempt-001/Candidate_cde46a8941f63810.lean",
+    "environment_sha256": "fc49bf2e5b5a4081752ff55086c9ebb327484d645e675e6a10a09a49a3399ee3",
+    "artifacts": {
+      "step_exact": {
+        "payload": {
+          "declaration": "theorem M7.GenerationReplay.step_exact : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (e : M7.CompactGeneration.Emission N), M7.GenerationReplay.stepPass w E bases e = true ↔ 0 < M7.CompactGeneration.residual w E bases [] ∧ e = M7.CompactGeneration.emission w E bases := by\n  classical\n  intro N inst w E bases e\n  change M7.GenerationReplay.stepPass w E bases e = true ↔ _\n  constructor\n  · intro h\n    simp only [M7.GenerationReplay.stepPass, Bool.and_eq_true, decide_eq_true_eq] at h\n    rcases h with ⟨⟨hpos, hcheck⟩, hdepth, hleaf, hrep, haction, hleafSig, hrepSig, hstab⟩\n    have hpath := M7.DescentTrace.check_unique\n      (M7.CompactGeneration.residual w E bases) [] e.path hcheck\n    rw [hdepth] at hpath\n    refine ⟨hpos, ?_⟩\n    cases e\n    dsimp only at *\n    simp_all [M7.CompactGeneration.emission, M7.DescentTrace.endpoint_recover]\n  · rintro ⟨hpos, rfl⟩\n    simp [M7.GenerationReplay.stepPass, M7.CompactGeneration.emission,\n      M7.DescentTrace.trace_length, M7.DescentTrace.check_trace,\n      M7.DescentTrace.endpoint_recover, hpos]",
+          "imports": [
+            "M7GenerationReplay"
+          ],
+          "name": "M7.GenerationReplay.step_exact",
+          "ancestors": [],
+          "spec_sha256": "ad513618ddf30e46dd65581ab4da87c7f305857d5df79307e74f5f3168f8d12c"
+        },
+        "sha256": "177b15230c6f61e507bb791ffb93ce09e0bc913629dd823380cf5e524408fa40"
+      },
+      "replay_sound": {
+        "payload": {
+          "declaration": "theorem M7.GenerationReplay.replay_sound : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases final : Finset (M7.Action.Recipe N)) (es : List (M7.CompactGeneration.Emission N)), M7.RecoveryInstance.GoodBases w bases → M7.GenerationReplay.replay w E bases es = some final → M7.RecoveryInstance.GoodBases w final ∧ M7.GenerationReplay.FreshFrom w E bases es := by\n  classical\n  intro N inst w E hE bases final es\n  induction es generalizing bases final with\n  | nil =>\n      intro hb hr\n      simp only [M7.GenerationReplay.replay] at hr\n      split at hr\n      · cases Option.some.inj hr\n        exact ⟨hb, trivial⟩\n      · cases hr\n  | cons e es ih =>\n      intro hb hr\n      simp only [M7.GenerationReplay.replay] at hr\n      split at hr\n      · rename_i hs\n        rcases (M7.GenerationReplay.step_exact N w E bases e).mp hs with ⟨hp, rfl⟩\n        have hp' : 0 < M7.RecoveryInstance.count w E bases [] := by\n          simpa only [M7.CompactCorrectness.residual_eq] using hp\n        have he := M7.CompactCorrectness.emission_eq N w E bases\n        have hg := M7.RecoveryInstance.insert_good N w E bases hE hb hp'\n        have hb' : M7.RecoveryInstance.GoodBases w\n            (insert (M7.CompactGeneration.emission w E bases).representative bases) := by\n          rw [he.2]\n          exact hg.1\n        have hn : (M7.CompactGeneration.emission w E bases).representative ∉ bases := by\n          change M7.CanonicalOuter.canonical (M7.CompactGeneration.emission w E bases).leaf ∉ bases\n          rw [he.1]\n          exact hg.2\n        have hv : M7.PrefixOrbit.ClassValid w\n            (M7.CompactGeneration.emission w E bases).representative := by\n          have hh := hb'\n          unfold M7.RecoveryInstance.GoodBases at hh\n          rcases hh with ⟨h₁, h₂⟩\n          first\n          | exact h₂ _ (Finset.mem_insert_self _ _)\n          | exact h₁ _ (Finset.mem_insert_self _ _)\n        have hl : (M7.CompactGeneration.emission w E bases).leaf ∈\n            M7.RecoveryPrefix.completed N w E [] := by\n          rw [he.1]\n          have hf := (M7.RecoveryInstance.fresh_leaf N w E bases hE hb hp').1\n          simp only [M7.RecoveryInstance.remaining, M7.OrbitResidual.remaining,\n            Finset.mem_sdiff, Finset.mem_filter] at hf\n          exact hf.1\n        obtain ⟨hfinal, htail⟩ := ih _ _ hb' hr\n        exact ⟨hfinal, hn, hv, hl, htail⟩\n      · cases hr",
+          "imports": [
+            "M7GenerationReplay"
+          ],
+          "name": "M7.GenerationReplay.replay_sound",
+          "ancestors": [
+            "step_exact"
+          ],
+          "spec_sha256": "b76545c6bfff8ba2da7d72f12c963c01d1e492b78c606a8ecfb44f40c93dbe4a"
+        },
+        "sha256": "7fe741ac99065fd8e9656a67760d2a6a9981317250a469dd810228af4860ae79"
+      }
+    }
+  }
+}

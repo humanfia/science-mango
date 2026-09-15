@@ -1,0 +1,81 @@
+{
+  "id": "compare_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ObjectiveComparison.compare_bound",
+    "spec_sha256": "20468e2849e452f08733e5131fc3e54e2c7db0255ffb84d41885cee0c6a23c53",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-hr5x89fd/attempt-001/Candidate_b5f92b6951ffab1c.lean",
+        "target_path": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-hr5x89fd/attempt-001/FrozenTarget_b5f92b6951ffab1c.lean",
+        "feedback": "",
+        "target_sha256": "5e324c9dea22c63c025c2192a0692ebd61965df77a56cc2fa5e8cf4e6170bdd0",
+        "target_olean_sha256": "7fcd102f9964995c2492e585969d6189dd4881fac4157d1f9744db954cfa4665",
+        "source_sha256": "77a5029c4d421d3d05f9aabbe9b6e214a110cee578ccfddcd6eb8fe5c6276de7",
+        "olean_sha256": "610e55434b4e612bac3c6ddccade317e11bd2830b924bc615e2566b516ede8dd",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:14:27.056893+00:00",
+    "work": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-hr5x89fd",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "258af4bb88a0998d171f57b4963055e1bfeffcf30754e4c479a7d6ebdbd32954",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-hr5x89fd/attempt-001/Candidate_b5f92b6951ffab1c.lean",
+    "environment_sha256": "261cfe153ff871b7018f5ca9bde4a7e3b4db1cd08345cacf649e60f52c330aee",
+    "artifacts": {
+      "pareto_comparisons": {
+        "payload": {
+          "declaration": "theorem M7.ObjectiveComparison.pareto_comparisons : ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).2 ≤ 2*fuel := by\n  change ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).2 ≤ 2 * fuel\n  intro m a b i fuel seen\n  induction fuel generalizing i seen with\n  | zero => simp [M7.ObjectiveComparison.paretoFrom]\n  | succ fuel ih =>\n      simp only [M7.ObjectiveComparison.paretoFrom]\n      split\n      next h =>\n        split\n        next hab =>\n          have hrec := ih (i + 1) (seen || decide (a ⟨i, h⟩ < b ⟨i, h⟩))\n          simp only [Prod.snd]\n          omega\n        next hab =>\n          simp only [Prod.snd]\n          omega\n      next h =>\n        simp only [Prod.snd]\n        omega",
+          "imports": [
+            "M7ObjectiveComparison"
+          ],
+          "name": "M7.ObjectiveComparison.pareto_comparisons",
+          "ancestors": [],
+          "spec_sha256": "04de8c9777dbb4a53e10a09d49b12bb6852bfe54c5665fbd760927d05f3a9425"
+        },
+        "sha256": "31769f5d6db2c9aaa2acda7247a12fcd9e656888b10c354a313af6401b197411"
+      },
+      "lex_comparisons": {
+        "payload": {
+          "declaration": "theorem M7.ObjectiveComparison.lex_comparisons : ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ), (M7.ObjectiveComparison.lexFrom a b i fuel).2 ≤ 2*fuel := by\n  change ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ), (M7.ObjectiveComparison.lexFrom a b i fuel).2 ≤ 2 * fuel\n  intro m a b i fuel\n  induction fuel generalizing i with\n  | zero => simp [M7.ObjectiveComparison.lexFrom]\n  | succ fuel ih =>\n      have h := ih (i + 1)\n      simp only [M7.ObjectiveComparison.lexFrom]\n      repeat' split\n      all_goals\n        dsimp only at *\n        omega",
+          "imports": [
+            "M7ObjectiveComparison"
+          ],
+          "name": "M7.ObjectiveComparison.lex_comparisons",
+          "ancestors": [],
+          "spec_sha256": "d812901e8eab57f64aa2741cf2875af98efc73a85a18cb8bed57c404bd435360"
+        },
+        "sha256": "9e3d5d022b49425d52dc6eaa57e2abc2132388b39f5fe26a0d3e7931683b274d"
+      },
+      "compare_bound": {
+        "payload": {
+          "declaration": "theorem M7.ObjectiveComparison.compare_bound : ∀ (m : ℕ) (mode : M7.Selection.Mode) (a b : Fin m → ℤ), (M7.ObjectiveComparison.compare mode a b).2 ≤ 2*m ∧ (M7.ObjectiveComparison.compare mode a b).2 ≤ 2*(m+1) := by\n  change ∀ (m : ℕ) (mode : M7.Selection.Mode) (a b : Fin m → ℤ), (M7.ObjectiveComparison.compare mode a b).2 ≤ 2 * m ∧ (M7.ObjectiveComparison.compare mode a b).2 ≤ 2 * (m + 1)\n  intro m mode a b\n  have h : (M7.ObjectiveComparison.compare mode a b).2 ≤ 2 * m := by\n    cases mode <;> first\n      | simpa only [M7.ObjectiveComparison.compare] using M7.ObjectiveComparison.lex_comparisons m a b 0 m\n      | simpa only [M7.ObjectiveComparison.compare] using M7.ObjectiveComparison.pareto_comparisons m a b 0 m false\n  constructor\n  · exact h\n  · omega",
+          "imports": [
+            "M7ObjectiveComparison"
+          ],
+          "name": "M7.ObjectiveComparison.compare_bound",
+          "ancestors": [
+            "lex_comparisons",
+            "pareto_comparisons"
+          ],
+          "spec_sha256": "19517a348ef54862512190abdd2f3213494a0637688b437eb1417a19f46ea412"
+        },
+        "sha256": "083760e0019bc33d23aa1e150613f01ff7c7c44b820893286ea0afe681b39892"
+      }
+    }
+  }
+}

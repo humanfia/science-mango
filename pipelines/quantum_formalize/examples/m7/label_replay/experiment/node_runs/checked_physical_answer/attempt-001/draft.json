@@ -1,0 +1,8 @@
+{
+  "proof": "intro N w inst c r hA hB h0A h0B hconn hcheck\nhave hs := (M7.LabelReplay.check_sound N c r hcheck).2.2.1\nhave hp := M7.ClosedSolve.closed_pointwise N w c hA hB h0A h0B hconn\nhave ha := hp.2.2.1\nrw [hs]\nconstructor\n· exact ha.1\n· intro d k v hv\n  have hw := ha.2.2.1\n  first\n  | specialize hw d k v hv\n  | specialize hw d v k hv\n  simpa only [M7.DefaultQuery.distance, M7.Transport.distance,\n    M6.Final.LX, M6.Final.CX, M6.Final.BX, M6.Final.CZ, M6.Final.BZ,\n    M7.Transport.LX, M7.Transport.CX, M7.Transport.BX,\n    M7.Transport.LZ, M7.Transport.CZ, M7.Transport.BZ,\n    M7.Domain.coefficients_indicator] using hw",
+  "queries": [
+    "M6.Final.AnswerCorrect",
+    "M6.Final.PointwiseCorrect",
+    "M7.Transport.actual_witness"
+  ]
+}

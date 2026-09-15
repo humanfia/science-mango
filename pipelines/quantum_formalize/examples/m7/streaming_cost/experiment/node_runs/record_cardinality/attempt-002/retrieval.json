@@ -1,0 +1,158 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Action.record_card",
+    "status": "ok",
+    "results": [
+      {
+        "id": 237090,
+        "name": "Set.powersetCard.subAddAction",
+        "module": "Mathlib.GroupTheory.GroupAction.SubMulAction.Combination",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction/Combination.lean#L57-L57",
+        "source_text": "@[to_additive /--`Set.powersetCard α n` as a `SubAddAction` of `Finsetα`.-/]\ndef subMulAction : SubMulAction G (Finset α) where\n  carrier := powersetCard α n",
+        "docstring": "`Set.powersetCard α n` as a `SubAddAction` of `Finsetα`."
+      },
+      {
+        "id": 237089,
+        "name": "Set.powersetCard.subMulAction",
+        "module": "Mathlib.GroupTheory.GroupAction.SubMulAction.Combination",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction/Combination.lean#L56-L60",
+        "source_text": "/-- `Set.powersetCard α n` as a `SubMulAction` of `Finset α`. -/\n@[to_additive /--`Set.powersetCard α n` as a `SubAddAction` of `Finsetα`.-/]\ndef subMulAction : SubMulAction G (Finset α) where\n  carrier := powersetCard α n\n  smul_mem' g s := (card_smul_finset g s).trans\n",
+        "docstring": "`Set.powersetCard α n` as a `SubMulAction` of `Finset α`. "
+      },
+      {
+        "id": 175009,
+        "name": "CategoryTheory.MonObj.«termγ[_]»",
+        "module": "Mathlib.CategoryTheory.Monoidal.Mod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Monoidal/Mod.lean#L83-L83",
+        "source_text": "@[inherit_doc] scoped[CategoryTheory.MonObj] notation \"γ[\" Y \"]\" => ModObj.smul (X := Y)\n@[inherit_doc] scoped[CategoryTheory.MonObj] notation \"γ[\" N \",\" Y \"]\" =>",
+        "docstring": "The action map "
+      },
+      {
+        "id": 202306,
+        "name": "Finset.card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+        "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+        "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+      },
+      {
+        "id": 237099,
+        "name": "Set.powersetCard.mulAction_faithful",
+        "module": "Mathlib.GroupTheory.GroupAction.SubMulAction.Combination",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction/Combination.lean#L108-L122",
+        "source_text": "theorem mulAction_faithful (hn : 1 ≤ n) (hα : n < ENat.card α) {g : G} :\n    toPerm g = (1 : Perm (powersetCard α n)) ↔ toPerm g = (1 : Perm α) := by\n  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩\n  · contrapose h with h\n    have : ∃ a, (g • a : α) ≠ a := by simpa [Equiv.ext_iff] using h\n    obtain ⟨a, ha⟩ := this\n    obtain ⟨s, has, has'⟩ := exists_mem_notMem hn hα (Ne.symm ha)\n    rw [Equiv.ext_iff, not_forall]\n    use s\n    contrapose! has'\n    simp only [toPerm_apply, coe_one, id_eq] at has'\n    rw [← has']\n    simpa only [coe_smul, smul_mem_smul_finset_iff, ← mem_coe_iff]\n  · simp only [Equiv.ext_iff, toPerm_apply] at h ⊢\n    simp [Subtype.ext_iff, Finset.ext_iff, mem_smul_finset, h]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.Action.record_card",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387072,
+        "name": "WantedInfo",
+        "module": "Physlib.Meta.Informal.SemiFormal",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/SemiFormal.lean#L29-L40",
+        "source_text": "/-- The information from a `TODO ...` command. -/\nstructure WantedInfo where\n  /-- The content of the note. -/\n  content : String\n  /-- Name of result. -/\n  name : Name\n  /-- The file name where the note came from. -/\n  fileName : Name\n  /-- The line from where the note came from. -/\n  line : Nat\n  /-- The tag of the TODO item -/\n  tag : String\n",
+        "docstring": "The information from a `TODO ...` command. "
+      },
+      {
+        "id": 387116,
+        "name": "Physlib.RemarkInfo.getRemarkInfo",
+        "module": "Physlib.Meta.Remark.Properties",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Remark/Properties.lean#L38-L43",
+        "source_text": "/-- Gets the remarkInfo from a name corresponding to a remark.. -/\nmeta def RemarkInfo.getRemarkInfo (n : Name) : m RemarkInfo := do\n  let allRemarks ← allRemarkInfo\n  match allRemarks.find? fun r => r.toFullName == n with\n  | some r => return r\n  | none => throwError s!\"No remark named {n}\"\n",
+        "docstring": "Gets the remarkInfo from a name corresponding to a remark.. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.card_units_eq_totient",
+    "status": "ok",
+    "results": [
+      {
+        "id": 213790,
+        "name": "ZMod.card_units_eq_totient",
+        "module": "Mathlib.Data.Nat.Totient",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Totient.lean#L109-L121",
+        "source_text": "/-- Note this takes an explicit `Fintype ((ZMod n)ˣ)` argument to avoid trouble with instance\ndiamonds. -/\n@[simp]\ntheorem _root_.ZMod.card_units_eq_totient (n : ℕ) [NeZero n] [Fintype (ZMod n)ˣ] :\n    Fintype.card (ZMod n)ˣ = φ n :=\n  calc\n    Fintype.card (ZMod n)ˣ = Fintype.card { x : ZMod n // x.val.Coprime n } :=\n      Fintype.card_congr ZMod.unitsEquivCoprime\n    _ = φ n := by\n      obtain ⟨m, rfl⟩ : ∃ m, n = m + 1 := exists_eq_succ_of_ne_zero NeZero.out\n      simp only [totient, Finset.card_eq_sum_ones, Fintype.card_subtype, Finset.sum_filter, ←\n        Fin.sum_univ_eq_sum_range, @Nat.coprime_comm (m + 1)]\n      rfl\n",
+        "docstring": "Note this takes an explicit `Fintype ((ZMod n)ˣ)` argument to avoid trouble with instance\ndiamonds. "
+      },
+      {
+        "id": 224393,
+        "name": "ZMod.card_units",
+        "module": "Mathlib.FieldTheory.Finite.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/FieldTheory/Finite/Basic.lean#L604-L605",
+        "source_text": "theorem card_units (p : ℕ) [Fact p.Prime] : Fintype.card (ZMod p)ˣ = p - 1 := by\n  rw [Fintype.card_units, card]\n",
+        "docstring": null
+      },
+      {
+        "id": 223199,
+        "name": "ZMod",
+        "module": "Mathlib.Data.ZMod.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+        "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+        "docstring": "The integers modulo `n : ℕ`. "
+      },
+      {
+        "id": 224386,
+        "name": "ZMod.pow_totient",
+        "module": "Mathlib.FieldTheory.Finite.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/FieldTheory/Finite/Basic.lean#L554-L560",
+        "source_text": "/-- The **Fermat-Euler totient theorem**. `Nat.ModEq.pow_totient` is an alternative statement\n  of the same theorem. -/\n@[simp]\ntheorem ZMod.pow_totient {n : ℕ} (x : (ZMod n)ˣ) : x ^ φ n = 1 := by\n  cases n\n  · rw [Nat.totient_zero, pow_zero]\n  · rw [← card_units_eq_totient, pow_card_eq_one]\n",
+        "docstring": "The **Fermat-Euler totient theorem**. `Nat.ModEq.pow_totient` is an alternative statement\nof the same theorem. "
+      },
+      {
+        "id": 213800,
+        "name": "Nat.card_units_zmod_lt_sub_one",
+        "module": "Mathlib.Data.Nat.Totient",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Totient.lean#L232-L236",
+        "source_text": "theorem card_units_zmod_lt_sub_one {p : ℕ} (hp : 1 < p) [Fintype (ZMod p)ˣ] :\n    Fintype.card (ZMod p)ˣ ≤ p - 1 := by\n  haveI : NeZero p := ⟨(pos_of_gt hp).ne'⟩\n  rw [ZMod.card_units_eq_totient p]\n  exact Nat.le_sub_one_of_lt (Nat.totient_lt p hp)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.card_units_eq_totient",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388470,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.preimageOfFinset_card_eq",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Map",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Map.lean#L494-L500",
+        "source_text": "lemma preimageOfFinset_card_eq (S5 S10 : Finset 𝓩) (f : 𝓩 →+ 𝓩1) (x : ChargeSpectrum 𝓩1) :\n    preimageOfFinsetCard S5 S10 f x =\n    (preimageOfFinset S5 S10 f x).card := by\n  rw [preimageOfFinset, Finset.card_map]\n  simp only [Option.map_eq_map, Finset.product_eq_sprod]\n  repeat rw [Finset.card_product]\n  simp [preimageOfFinsetCard, mul_assoc]\n",
+        "docstring": null
+      },
+      {
+        "id": 388469,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.preimageOfFinsetCard",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Map",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Map.lean#L474-L486",
+        "source_text": "/-- The cardinality of the\n  preimage of a charge `Charges 𝓩1` in `ofFinset S5 S10 ⊆ Charges 𝓩` under\n  mapping charges through `f : 𝓩 →+ 𝓩1`. -/\ndef preimageOfFinsetCard (S5 S10 : Finset 𝓩) (f : 𝓩 →+ 𝓩1) (x : ChargeSpectrum 𝓩1) : ℕ :=\n  let SHd := (S5.map ⟨Option.some, Option.some_injective 𝓩⟩ ∪ {none} : Finset (Option 𝓩)).filter\n    fun y => f <$> y = x.qHd\n  let SHu := (S5.map ⟨Option.some, Option.some_injective 𝓩⟩ ∪ {none} : Finset (Option 𝓩)).filter\n    fun y => f <$> y = x.qHu\n  let SQ5' := S5.filter fun y => f y ∈ x.Q5\n  let SQ5 : Finset (Finset 𝓩) := SQ5'.powerset.filter fun y => y.image f = x.Q5\n  let SQ10' := S10.filter fun y => f y ∈ x.Q10\n  let SQ10 : Finset (Finset 𝓩) := SQ10'.powerset.filter fun y => y.image f = x.Q10\n  SHd.card * SHu.card * SQ5.card * SQ10.card\n",
+        "docstring": "The cardinality of the\npreimage of a charge `Charges 𝓩1` in `ofFinset S5 S10 ⊆ Charges 𝓩` under\nmapping charges through `f : 𝓩 →+ 𝓩1`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

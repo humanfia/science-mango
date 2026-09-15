@@ -1,0 +1,69 @@
+{
+  "id": "overfull_generate",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.OverfullBoundary.overfull_generate",
+    "spec_sha256": "aaa8c4462f87722bb6311bcf18c2ad00991f802cc293b497c3e182d6c42d3316",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-overfull-boundary-formalization/.humanize-formal-runs/run-ffywjbl2/attempt-001/Candidate_2e49cbdbfdab957f.lean",
+        "target_path": "/home/jing/m7-lean-overfull-boundary-formalization/.humanize-formal-runs/run-ffywjbl2/attempt-001/FrozenTarget_2e49cbdbfdab957f.lean",
+        "feedback": "",
+        "target_sha256": "fe2a8d6b76c476492d0bd1ae21ab1968cd73e025c6c460b5eadddf083f22ad6f",
+        "target_olean_sha256": "1437f6f25c9f805c7cc3656a10d499976e4f4aba956d6bdb3d3ede943a825aea",
+        "source_sha256": "9738789f9efc68689cc88275c246f280b004640026d22147af2a171ae65a3418",
+        "olean_sha256": "fad51f8a0e44b12886e80700d64fb3f4938f4a47f509a9e19300906f0a777fd9",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:29:28.104184+00:00",
+    "work": "/home/jing/m7-lean-overfull-boundary-formalization/.humanize-formal-runs/run-ffywjbl2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "70b9299de8082f4ef327082b639aec023bbef01d6543a575a69eb7551e323b7c",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-overfull-boundary-formalization/.humanize-formal-runs/run-ffywjbl2/attempt-001/Candidate_2e49cbdbfdab957f.lean",
+    "environment_sha256": "eeda13b867082462313911cbefda3947e46b28101feeb374c19cc9abb7761737",
+    "artifacts": {
+      "class_impossible": {
+        "payload": {
+          "declaration": "theorem M7.OverfullBoundary.class_impossible : ∀ (N w : ℕ) [NeZero N], N < w → ∀ c : M7.Action.Recipe N, ¬ M7.PrefixOrbit.ClassValid w c := by\n  change ∀ (N w : ℕ) [NeZero N], N < w → ∀ c : M7.Action.Recipe N, ¬ M7.PrefixOrbit.ClassValid w c\n  intro N w inst hN c hc\n  have hcard : c.1.card = w := by\n    unfold M7.PrefixOrbit.ClassValid at hc\n    aesop\n  have hbound := Finset.card_le_univ c.1\n  have hle : c.1.card ≤ N := by\n    simpa only [ZMod.card] using hbound\n  omega",
+          "imports": [
+            "M7OverfullBoundary"
+          ],
+          "name": "M7.OverfullBoundary.class_impossible",
+          "ancestors": [],
+          "spec_sha256": "cc26dabb8e826a3ec71d0b491ed9dc9f09665b2df0cdf192d066ecc0c3ec29d9"
+        },
+        "sha256": "fd22461fdd9a26c63c24815b6f6edf07cfa31270f457e4b9f321eb73a14df8cd"
+      },
+      "overfull_generate": {
+        "payload": {
+          "declaration": "theorem M7.OverfullBoundary.overfull_generate : ∀ (N w : ℕ) [NeZero N], ∀ E : Finset M5.BinaryPolynomial, M7.PrefixSector.ValidSector N E → N < w → (M7.CompactGeneration.generate (N := N) w E).finalBases = ∅ ∧ (M7.CompactGeneration.generate (N := N) w E).emitted = [] ∧ (M7.CompactGeneration.generate (N := N) w E).finalResidual = 0 ∧ (M7.CompactGeneration.generate (N := N) w E).fuelExhausted = false := by\n  change ∀ (N w : ℕ) [NeZero N], ∀ E : Finset M5.BinaryPolynomial, M7.PrefixSector.ValidSector N E → N < w → (M7.CompactGeneration.generate (N := N) w E).finalBases = ∅ ∧ (M7.CompactGeneration.generate (N := N) w E).emitted = [] ∧ (M7.CompactGeneration.generate (N := N) w E).finalResidual = 0 ∧ (M7.CompactGeneration.generate (N := N) w E).fuelExhausted = false\n  intro N w inst E hE hN\n  classical\n  have hex := M7.CompactCorrectness.generate_exact N w E hE\n  have hgood : M7.RecoveryInstance.GoodBases w (M7.CompactGeneration.generate (N := N) w E).finalBases := hex.1\n  have hb : (M7.CompactGeneration.generate (N := N) w E).finalBases = ∅ := by\n    ext c\n    constructor\n    · intro hc\n      have hv : M7.PrefixOrbit.ClassValid w c := by\n        unfold M7.RecoveryInstance.GoodBases at hgood\n        aesop\n      exact False.elim (M7.OverfullBoundary.class_impossible N w hN c hv)\n    · intro hc\n      simpa using hc\n  have hcard := M7.CompactCorrectness.generate_card N w E hE\n  have he : (M7.CompactGeneration.generate (N := N) w E).emitted = [] := by\n    cases hl : (M7.CompactGeneration.generate (N := N) w E).emitted with\n    | nil => rfl\n    | cons a l => simp [hb, hl] at hcard\n  exact ⟨hb, he, hex.2.1, hex.2.2.1⟩",
+          "imports": [
+            "M7OverfullBoundary"
+          ],
+          "name": "M7.OverfullBoundary.overfull_generate",
+          "ancestors": [
+            "class_impossible"
+          ],
+          "spec_sha256": "fbb92d925e698441f1d498e1bce3786de357484138b3a51454154c74219d0d57"
+        },
+        "sha256": "fecd6aa12601429259e12b22d0a24683c1da98b3b77e1f6fdcca1b3becf35ee6"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "M7.ObjectiveComparison.lex_interval",
+  "statement": "∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ), (M7.ObjectiveComparison.lexFrom a b i fuel).1 = true ↔ ∃ j : Fin m, (i ≤ j.val ∧ j.val < i+fuel) ∧ (∀ k : Fin m, i ≤ k.val → k < j → a k = b k) ∧ a j < b j",
+  "imports": [
+    "M7ObjectiveComparison"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Induct fuel generalizing i; split current < in both directions. Strictly smaller current is first witness; greater current blocks every possible later witness by required prefix equality. Otherwise integer total order gives equality and reduces to tail. No skipped coordinate or arbitrary comparison oracle. Return tactic lines only, no leading by."
+}

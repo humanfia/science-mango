@@ -1,0 +1,1 @@
+Completed: 7/7 normal live proof successes, six first drafts and checked_coverage second draft. Assembly/environment/experiment true; canonical experiment has 142 verified files. Actual generation is accepted and successful replay from empty bases implies sequential freshness, good classes, no repetitions and final anchored/raw coverage.

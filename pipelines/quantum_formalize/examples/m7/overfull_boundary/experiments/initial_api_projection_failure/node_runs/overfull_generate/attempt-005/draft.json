@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N w : ℕ) [NeZero N], ∀ E : Finset M5.BinaryPolynomial, M7.PrefixSector.ValidSector N E → N < w → _\nintro N w inst E hE hN\nhave hex := M7.CompactCorrectness.generate_exact N w E hE\nhave hgood : M7.RecoveryInstance.GoodBases w (M7.CompactGeneration.generate (N := N) w E).finalBases := by\n  aesop\nhave hb : (M7.CompactGeneration.generate (N := N) w E).finalBases = ∅ := by\n  apply Finset.eq_empty_iff_forall_not_mem.mpr\n  intro c hc\n  apply M7.OverfullBoundary.class_impossible N w hN c\n  unfold M7.RecoveryInstance.GoodBases at hgood\n  aesop\nhave hcard := M7.CompactCorrectness.generate_card N w E hE\nrw [hb] at hcard\nhave hem : (M7.CompactGeneration.generate (N := N) w E).emitted = [] := by\n  cases he : (M7.CompactGeneration.generate (N := N) w E).emitted with\n  | nil => rfl\n  | cons a l => simp [he] at hcard\nexact ⟨hb, hem, by aesop⟩",
+  "queries": []
+}

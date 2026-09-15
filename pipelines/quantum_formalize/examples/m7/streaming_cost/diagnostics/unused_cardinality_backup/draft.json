@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst\nclassical\nlet e : M7.Action.Record N \u2243 (ZMod N)\u02e3 \u00d7 Bool \u00d7 ZMod N \u00d7 ZMod N :=\n  { toFun := fun g => (g.unit, g.exchange, g.leftShift, g.rightShift)\n    invFun := fun p => \u27e8p.1, p.2.1, p.2.2.1, p.2.2.2\u27e9\n    left_inv := by intro g; cases g; rfl\n    right_inv := by intro p; rcases p with \u27e8u, b, s, t\u27e9; rfl }\nconstructor\n\u00b7 rw [Fintype.card_congr e]\n  simp [M7.StreamingCost.recordCount, Fintype.card_prod, ZMod.card, pow_two]\n  <;> ring\n\u00b7 simp [M7.StreamingCost.recordCount, ZMod.card_units_eq_totient]\n",
+  "queries": []
+}

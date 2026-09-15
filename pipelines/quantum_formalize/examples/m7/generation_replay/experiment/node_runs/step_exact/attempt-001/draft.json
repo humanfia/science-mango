@@ -1,0 +1,8 @@
+{
+  "proof": "  classical\n  intro N inst w E bases e\n  change M7.GenerationReplay.stepPass w E bases e = true ↔ _\n  constructor\n  · intro h\n    simp only [M7.GenerationReplay.stepPass, Bool.and_eq_true, decide_eq_true_eq] at h\n    rcases h with ⟨⟨hpos, hcheck⟩, hdepth, hleaf, hrep, haction, hleafSig, hrepSig, hstab⟩\n    have hpath := M7.DescentTrace.check_unique\n      (M7.CompactGeneration.residual w E bases) [] e.path hcheck\n    rw [hdepth] at hpath\n    refine ⟨hpos, ?_⟩\n    cases e\n    dsimp only at *\n    simp_all [M7.CompactGeneration.emission, M7.DescentTrace.endpoint_recover]\n  · rintro ⟨hpos, rfl⟩\n    simp [M7.GenerationReplay.stepPass, M7.CompactGeneration.emission,\n      M7.DescentTrace.trace_length, M7.DescentTrace.check_trace,\n      M7.DescentTrace.endpoint_recover, hpos]",
+  "queries": [
+    "M7.CompactGeneration.emission",
+    "M7.DescentTrace.check_unique",
+    "M7.DescentTrace.endpoint_recover"
+  ]
+}

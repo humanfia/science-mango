@@ -1,0 +1,1 @@
+Completed: 4/4 exact targets accepted with assembly/environment/experiment true. Canonical archive has 81 verified files; initial 106-file failure archive retained. Three successful live proofs were preserved; the fourth uses an independently accepted conjunction-projection repair followed by normal frozen replay.

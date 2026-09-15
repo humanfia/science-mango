@@ -1,0 +1,69 @@
+{
+  "id": "empty_generate",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.OverfullBoundary.empty_generate",
+    "spec_sha256": "65c3bdc47aec9af5bf5c73fc9269658eefb7ac39f086ac9e3b66bece62961bfe",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-overfull-boundary-formalization/.humanize-formal-runs/run-4_pj14fn/attempt-001/Candidate_22dbd0a4c012f59b.lean",
+        "target_path": "/home/jing/m7-lean-overfull-boundary-formalization/.humanize-formal-runs/run-4_pj14fn/attempt-001/FrozenTarget_22dbd0a4c012f59b.lean",
+        "feedback": "",
+        "target_sha256": "48ba93b8c12ef1c7c2eab85a9ce9a82c1143db627379aca8dd59006814159f5a",
+        "target_olean_sha256": "4accda1f55c7c4e1485caa55c76b39ab80a50313a41a6c0cd3e07119d0135b6e",
+        "source_sha256": "a67731e8ca59ca70e53333bf34d0eab99d192776e94add688d7ecf45eb3e67fe",
+        "olean_sha256": "5d6a7daea12e894c60aa4737fb92feccc06779c5bf8835b286a007b6810499ec",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:22:18.622070+00:00",
+    "work": "/home/jing/m7-lean-overfull-boundary-formalization/.humanize-formal-runs/run-4_pj14fn",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "70b9299de8082f4ef327082b639aec023bbef01d6543a575a69eb7551e323b7c",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-overfull-boundary-formalization/.humanize-formal-runs/run-4_pj14fn/attempt-001/Candidate_22dbd0a4c012f59b.lean",
+    "environment_sha256": "eeda13b867082462313911cbefda3947e46b28101feeb374c19cc9abb7761737",
+    "artifacts": {
+      "empty_root": {
+        "payload": {
+          "declaration": "theorem M7.OverfullBoundary.empty_root : ∀ (N w : ℕ) [NeZero N], 0 < w → M7.CompactGeneration.residual (N := N) w ∅ ∅ [] = 0 := by\n  intro N w inst hw\n  classical\n  simp only [M7.CompactGeneration.residual, Finset.sum_empty, sub_zero]\n  unfold M7.PrefixBits.count\n  first\n  | simpa using (M7.PrefixSector.empty_sector N w _ _ _ _ hw).1\n  | simpa using (M7.PrefixSector.empty_sector N w hw _ _ _ _).1\n  | simpa using (M7.PrefixSector.empty_sector N w _ _ _ _).1",
+          "imports": [
+            "M7OverfullBoundary"
+          ],
+          "name": "M7.OverfullBoundary.empty_root",
+          "ancestors": [],
+          "spec_sha256": "ee959ff7d6dbf062d6e660a0920199256a0d6d761cd84f5cd5bf93e3c24b6231"
+        },
+        "sha256": "cbd0388c3d82cc5278d41995f71ec35bcdb90576d76ef528bf114e108f3f886f"
+      },
+      "empty_generate": {
+        "payload": {
+          "declaration": "theorem M7.OverfullBoundary.empty_generate : ∀ (N w : ℕ) [NeZero N], 0 < w → (M7.CompactGeneration.generate (N := N) w ∅).finalBases = ∅ ∧ (M7.CompactGeneration.generate (N := N) w ∅).emitted = [] ∧ (M7.CompactGeneration.generate (N := N) w ∅).finalResidual = 0 ∧ (M7.CompactGeneration.generate (N := N) w ∅).fuelExhausted = false := by\n  intro N w inst hw\n  classical\n  unfold M7.CompactGeneration.generate\n  simp [M7.OverfullBoundary.empty_root N w hw, M7.CompactGeneration.run]",
+          "imports": [
+            "M7OverfullBoundary"
+          ],
+          "name": "M7.OverfullBoundary.empty_generate",
+          "ancestors": [
+            "empty_root"
+          ],
+          "spec_sha256": "786de1c621fb6b32e3619f7f8dac71cf037c12fdfaa69f9209622322f461f14c"
+        },
+        "sha256": "0f9cd8dc52f6c10908ea609b1863e8f90d2770cb72d8557f522efa540761a528"
+      }
+    }
+  }
+}

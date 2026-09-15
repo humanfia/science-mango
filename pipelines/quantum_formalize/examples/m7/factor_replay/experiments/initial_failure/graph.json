@@ -1,0 +1,95 @@
+{
+  "title": "Actual finite polynomial-factor certificate verification",
+  "nodes": [
+    {
+      "id": "pool_complete",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.FactorReplay.pool_complete",
+        "statement": "∀ (n : ℕ) (p : M7.FactorReplay.BP), p ∈ M7.FactorReplay.pool n ↔ p.natDegree ≤ n",
+        "imports": [
+          "M7FactorReplay"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Unfold actual pool and Finset.mem_image. Forward use Polynomial.ofFn_natDegree_lt (show 1≤n+1 by omega). Backward choose Polynomial.toFn (n+1) p and Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt using p.natDegree<n+1. This is complete explicit coefficient-vector enumeration, not assumed finite factor coverage. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "irreducible_check_exact",
+      "dependencies": [
+        "pool_complete"
+      ],
+      "spec": {
+        "name": "M7.FactorReplay.irreducible_check_exact",
+        "statement": "∀ p : M7.FactorReplay.BP, M7.FactorReplay.irreducibleCheck p = true ↔ p.Monic ∧ Irreducible p",
+        "imports": [
+          "M7FactorReplay"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Split actual Monic and p=1 guards. In the monic nonone case use Polynomial.Monic.irreducible_iff_lt_natDegree_lt. List.all_eq_true/Finset.mem_toList turns actual finite loop into absence of bounded monic divisors. pool_complete provides every candidate of natDegree≤p.natDegree/2. EuclideanDomain.mod_eq_zero identifies actual remainder=0 with divisibility. No Irreducible decidability oracle occurs in the implementation. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "factor_check_exact",
+      "dependencies": [
+        "irreducible_check_exact"
+      ],
+      "spec": {
+        "name": "M7.FactorReplay.factor_check_exact",
+        "statement": "∀ (F : M7.FactorReplay.BP) (factors : List (M7.FactorReplay.BP × ℕ)), M7.FactorReplay.check F factors = true ↔ (factors.map Prod.fst).Nodup ∧ (∀ t ∈ factors, t.1.Monic ∧ Irreducible t.1 ∧ 0 < t.2) ∧ M7.FactorReplay.product factors = F",
+        "imports": [
+          "M7FactorReplay"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Unfold finite list check; Bool.and_eq_true and List.all_eq_true identify each actual factor check. Rewrite irreducible_check_exact pointwise. Keep positive exponents, distinct factors and exact power product. Empty list accepts exactly F=1. Repeated irreducible multiplicities belong in the positive exponent and are not dropped. This is certificate verification, not a new factor discovery algorithm. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "self_check",
+      "dependencies": [
+        "factor_check_exact"
+      ],
+      "spec": {
+        "name": "M7.FactorReplay.self_check",
+        "statement": "∀ F : M7.FactorReplay.BP, F.Monic → M7.FactorReplay.check F (M7.FactorReplay.expected F) = true",
+        "imports": [
+          "M7FactorReplay"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Apply factor_check_exact to actual expected defined from UniqueFactorizationMonoid.normalizedFactors F. The distinct factor list is fs.toFinset.toList and each exponent is the original multiset count, so no multiplicity is dropped. Finset.prod_multiset_count recovers fs.prod from product of count powers. UniqueFactorizationMonoid.prod_normalizedFactors_eq hp.ne_zero gives normalize F, equal to F for monic F. prime_of_normalized_factor gives irreducibility; normalized factors are normalized/monic over the polynomial field, and count_pos follows membership. F=1 has empty factors and must pass. This constructs an actual complete certificate; no provided factor list correctness premise and no new factor-discovery runtime claim. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    }
+  ]
+}

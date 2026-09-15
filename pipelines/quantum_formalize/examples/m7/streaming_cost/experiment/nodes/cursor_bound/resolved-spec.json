@@ -1,0 +1,12 @@
+{
+  "name": "M7.StreamingCost.cursor_bound",
+  "statement": "∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel a b : ℕ), (∀ j, (p j).outer ≤ a ∧ (p j).inner ≤ b) → (M7.StreamingCost.allFinFrom n p i fuel).outer ≤ fuel*a ∧ (M7.StreamingCost.allFinFrom n p i fuel).inner ≤ fuel*b",
+  "imports": [
+    "M7StreamingCost"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Induct fuel generalizing i; zero/out-of-range cost is zero. True branch adds the actual current two charges to induction bounds, false branch returns only current charges. omega/nlinarith or Nat arithmetic. No abstract evaluator cost is asserted; these are explicit counters. Return tactic lines only; no leading by."
+}

@@ -1,0 +1,69 @@
+{
+  "id": "record_projection",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.StreamingCost.record_projection",
+    "spec_sha256": "7261513cf504486ff60b559974119089754d386ecc9e91b74f755a226d300271",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-streaming-cost-formalization/.humanize-formal-runs/run-yus7fph4/attempt-001/Candidate_ae6d4892e37d1aaf.lean",
+        "target_path": "/home/jing/m7-lean-streaming-cost-formalization/.humanize-formal-runs/run-yus7fph4/attempt-001/FrozenTarget_ae6d4892e37d1aaf.lean",
+        "feedback": "",
+        "target_sha256": "44eaf56329e94890df95d8856312d7709f4d466dd970c80ae3347eeae38184b9",
+        "target_olean_sha256": "eb662f7b3304f030c5a37223d0bdfe038e921b91890f4d28c11feff8332ee8ba",
+        "source_sha256": "62efacf797c629dfe17b60f9e3e3ab9193d492461fe95ab68b634037d5a9688b",
+        "olean_sha256": "4758e50d335065e5f64826974271c69c02d34b54b3a88f51ef4df17aafae2bc2",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:20:44.662792+00:00",
+    "work": "/home/jing/m7-lean-streaming-cost-formalization/.humanize-formal-runs/run-yus7fph4",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "18f955f6f6c987baf839e71e2bf339f01e62bfa2d222643ef38f80af431fdbf4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-streaming-cost-formalization/.humanize-formal-runs/run-yus7fph4/attempt-001/Candidate_ae6d4892e37d1aaf.lean",
+    "environment_sha256": "61ce49218b3ff17d0043d17951786d49f02520ad253ea2c2c64a7c5f5f905508",
+    "artifacts": {
+      "cursor_projection": {
+        "payload": {
+          "declaration": "theorem M7.StreamingCost.cursor_projection : ∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel : ℕ), (M7.StreamingCost.allFinFrom n p i fuel).result = M7.StreamingIndices.allFinFrom n (fun j => (p j).result) i fuel := by\n  change ∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel : ℕ), (M7.StreamingCost.allFinFrom n p i fuel).result = M7.StreamingIndices.allFinFrom n (fun j => (p j).result) i fuel\n  intro n p i fuel\n  induction fuel generalizing i with\n  | zero => rfl\n  | succ fuel ih =>\n      by_cases h : i < n\n      · cases hb : (p ⟨i, h⟩).result <;>\n          simp [M7.StreamingCost.allFinFrom, M7.StreamingIndices.allFinFrom, h, hb, ih]\n      · simp [M7.StreamingCost.allFinFrom, M7.StreamingIndices.allFinFrom, h]",
+          "imports": [
+            "M7StreamingCost"
+          ],
+          "name": "M7.StreamingCost.cursor_projection",
+          "ancestors": [],
+          "spec_sha256": "c08f00c3ab8c6cd6565d7b5280a04f7d3c065656fc84e1b210a435fe85cf7679"
+        },
+        "sha256": "ea2149c2f70148643cef73ac77e534e96183b9bb5f21a29e520fa186862ae36d"
+      },
+      "record_projection": {
+        "payload": {
+          "declaration": "theorem M7.StreamingCost.record_projection : ∀ (N : ℕ) [NeZero N], ∀ p : M7.Action.Record N → M7.StreamingCost.Eval, (M7.StreamingCost.allRecords N p).result = M7.StreamingIndices.allRecords N (fun g => (p g).result) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ p : M7.Action.Record N → M7.StreamingCost.Eval, (M7.StreamingCost.allRecords N p).result = M7.StreamingIndices.allRecords N (fun g => (p g).result)\n  intro N inst p\n  simp only [M7.StreamingCost.allRecords, M7.StreamingIndices.allRecords, M7.StreamingCost.allFin, M7.StreamingIndices.allFin, M7.StreamingCost.cursor_projection]",
+          "imports": [
+            "M7StreamingCost"
+          ],
+          "name": "M7.StreamingCost.record_projection",
+          "ancestors": [
+            "cursor_projection"
+          ],
+          "spec_sha256": "b58f8a858e432d19d52c15341f84d9e3e8395b27017cfdb5d0e2548f9215bbdc"
+        },
+        "sha256": "8b6ff7393b115b722d597eb21a9b7ff54abaacc4262bf5aa99077e6800fb612a"
+      }
+    }
+  }
+}

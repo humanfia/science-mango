@@ -1,0 +1,9 @@
+theorem M7.LabelReplay.trace_recover : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (d : ℕ) (P : M6.Pinned.Pins (2*N)) (xs : List (Fin (2*N))), (M7.LabelReplay.endpoint P (M7.LabelReplay.trace c d P xs), M7.LabelReplay.queryCount (M7.LabelReplay.trace c d P xs)) = M6.Pinned.recover (fun P => (M7.LabelReplay.Q c P).coeff d) P xs := by
+  intro N inst c d P xs
+  induction xs generalizing P with
+  | nil =>
+      rfl
+  | cons x xs ih =>
+      simp only [M7.LabelReplay.trace, M6.Pinned.recover]
+      rw [← ih]
+      simp [M7.LabelReplay.endpoint, M7.LabelReplay.queryCount, Nat.add_comm]

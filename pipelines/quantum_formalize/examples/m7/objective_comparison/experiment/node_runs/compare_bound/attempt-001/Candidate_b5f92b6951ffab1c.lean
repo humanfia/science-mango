@@ -1,0 +1,11 @@
+import FrozenTarget_b5f92b6951ffab1c
+theorem M7.ObjectiveComparison.compare_bound : QuantumHarnessFrozenTarget := by
+  change ∀ (m : ℕ) (mode : M7.Selection.Mode) (a b : Fin m → ℤ), (M7.ObjectiveComparison.compare mode a b).2 ≤ 2 * m ∧ (M7.ObjectiveComparison.compare mode a b).2 ≤ 2 * (m + 1)
+  intro m mode a b
+  have h : (M7.ObjectiveComparison.compare mode a b).2 ≤ 2 * m := by
+    cases mode <;> first
+      | simpa only [M7.ObjectiveComparison.compare] using M7.ObjectiveComparison.lex_comparisons m a b 0 m
+      | simpa only [M7.ObjectiveComparison.compare] using M7.ObjectiveComparison.pareto_comparisons m a b 0 m false
+  constructor
+  · exact h
+  · omega

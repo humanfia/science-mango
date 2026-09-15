@@ -1,0 +1,12 @@
+{
+  "name": "M7.OverfullBoundary.empty_generate",
+  "statement": "∀ (N w : ℕ) [NeZero N], 0 < w → (M7.CompactGeneration.generate (N := N) w ∅).finalBases = ∅ ∧ (M7.CompactGeneration.generate (N := N) w ∅).emitted = [] ∧ (M7.CompactGeneration.generate (N := N) w ∅).finalResidual = 0 ∧ (M7.CompactGeneration.generate (N := N) w ∅).fuelExhausted = false",
+  "imports": [
+    "M7OverfullBoundary"
+  ],
+  "context": "theorem M7.OverfullBoundary.empty_root : ∀ (N w : ℕ) [NeZero N], 0 < w → M7.CompactGeneration.residual (N := N) w ∅ ∅ [] = 0 := by\n  intro N w inst hw\n  classical\n  simp only [M7.CompactGeneration.residual, Finset.sum_empty, sub_zero]\n  unfold M7.PrefixBits.count\n  first\n  | simpa using (M7.PrefixSector.empty_sector N w _ _ _ _ hw).1\n  | simpa using (M7.PrefixSector.empty_sector N w hw _ _ _ _).1\n  | simpa using (M7.PrefixSector.empty_sector N w _ _ _ _).1",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Original M7 positive-weight empty-answer boundaries only. class_impossible: Finset.card_le_univ bounds support card by Fintype.card(ZMod N)=N, contradict N<w and ClassValid cardinality. overfull_generate: CompactCorrectness.generate_exact gives GoodBases final, zero residual and false exhausted; ext/membership plus class_impossible forces finalBases=empty. CompactCorrectness.generate_card then gives emitted.length=0, hence emitted=nil. empty_root: unfold CompactGeneration.residual at empty bases and PrefixBits.count, use (PrefixSector.empty_sector N w ...).1. empty_generate: unfold CompactGeneration.generate, rewrite empty_root, simplify Int.toNat_zero and CompactGeneration.run at zero fuel/root. No new restriction, no w=0 classification task, no free count/transversal premise. Return tactic lines only, no leading by.\nimport M7CompactCorrectnessAccepted\n\n/- Original positive-weight empty-domain boundaries; no new input restriction. -/\n"
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "id": "pareto_interval",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ObjectiveComparison.pareto_interval",
+      "statement": "∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).1 = true ↔ (∀ j : Fin m, i ≤ j.val ∧ j.val < i+fuel → a j ≤ b j) ∧ (seen = true ∨ ∃ j : Fin m, (i ≤ j.val ∧ j.val < i+fuel) ∧ a j < b j)",
+      "imports": [
+        "M7ObjectiveComparison"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Induct fuel generalizing i seen, split i<m and current <=. Interval splits current Fin i and tail [i+1,i+1+fuel). Use Fin.ext and omega; Boolean anyStrict update is exact disjunction. For failed <= the interval contains current, falsifying all_le. For out-of-range interval empty. Return tactic lines only, no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "lex_interval",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ObjectiveComparison.lex_interval",
+      "statement": "∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ), (M7.ObjectiveComparison.lexFrom a b i fuel).1 = true ↔ ∃ j : Fin m, (i ≤ j.val ∧ j.val < i+fuel) ∧ (∀ k : Fin m, i ≤ k.val → k < j → a k = b k) ∧ a j < b j",
+      "imports": [
+        "M7ObjectiveComparison"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Induct fuel generalizing i; split current < in both directions. Strictly smaller current is first witness; greater current blocks every possible later witness by required prefix equality. Otherwise integer total order gives equality and reduces to tail. No skipped coordinate or arbitrary comparison oracle. Return tactic lines only, no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "pareto_comparisons",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ObjectiveComparison.pareto_comparisons",
+      "statement": "∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).2 ≤ 2*fuel",
+      "imports": [
+        "M7ObjectiveComparison"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Induct fuel generalizing i seen; charged branches cost0,1 or2+recursive. These count the actual comparisons in the definition; arithmetic via omega. Return tactic lines only, no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "lex_comparisons",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.ObjectiveComparison.lex_comparisons",
+      "statement": "∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ), (M7.ObjectiveComparison.lexFrom a b i fuel).2 ≤ 2*fuel",
+      "imports": [
+        "M7ObjectiveComparison"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Induct fuel generalizing i, split the actual comparison branches; actual short-circuit costs1 or2 and recursion2. omega. Return tactic lines only, no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "compare_exact",
+    "dependencies": [
+      "pareto_interval",
+      "lex_interval"
+    ],
+    "spec": {
+      "name": "M7.ObjectiveComparison.compare_exact",
+      "statement": "∀ (m : ℕ) (mode : M7.Selection.Mode) (a b : Fin m → ℤ), (M7.ObjectiveComparison.compare mode a b).1 = true ↔ M7.Selection.better mode a b",
+      "imports": [
+        "M7ObjectiveComparison"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Split mode and specialize interval theorems at i=0 fuel=m (seen=false). Every Fin m lies in range; interval prefix equals the actual Selection.lex strict first-coordinate definition. Pareto matches all_le and exists_lt. m=0 and all ties follow without extra exceptions. Return tactic lines only, no leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "compare_bound",
+    "dependencies": [
+      "pareto_comparisons",
+      "lex_comparisons"
+    ],
+    "spec": {
+      "name": "M7.ObjectiveComparison.compare_bound",
+      "statement": "∀ (m : ℕ) (mode : M7.Selection.Mode) (a b : Fin m → ℤ), (M7.ObjectiveComparison.compare mode a b).2 ≤ 2*m ∧ (M7.ObjectiveComparison.compare mode a b).2 ≤ 2*(m+1)",
+      "imports": [
+        "M7ObjectiveComparison"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Specialize exact measured comparison bounds for each mode and weaken once by natural arithmetic. This is integer comparison count only, not a runtime or free bit-cost assertion. Return tactic lines only, no leading by."
+    },
+    "metadata": {}
+  }
+]

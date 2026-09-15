@@ -1,0 +1,20 @@
+import FrozenTarget_74ed3ff4406a05ca
+theorem M7.CompactStorage.storage_bounds : QuantumHarnessFrozenTarget := by
+  intro N H inst
+  have hN : 0 < N := NeZero.pos N
+  have hcore : M7.CompactStorage.coreBits N = 12 * N + 4 := by
+    unfold M7.CompactStorage.coreBits
+    ring
+  have hbound : M7.CompactStorage.coreBits N ≤ 16 * N := by
+    rw [hcore]
+    omega
+  have htable : M7.CompactStorage.tableBits N = Nat.totient N * (N + 1) := by
+    simp [M7.CompactStorage.tableBits, ZMod.card_units_eq_totient]
+  have hwidth : N + 1 ≤ 2 * N := by omega
+  have hstored := Nat.mul_le_mul_left H hbound
+  have htstored := Nat.mul_le_mul_left (H * Nat.totient N) hwidth
+  refine ⟨hcore, hbound, htable, ?_, ?_⟩
+  · unfold M7.CompactStorage.storedCoreBits
+    nlinarith [hstored]
+  · simp only [M7.CompactStorage.storedWithTablesBits, M7.CompactStorage.storedCoreBits, htable]
+    nlinarith [hstored, htstored]

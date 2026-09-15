@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), (M7.StreamingCost.scanWins q bases).outer ≤ H * M7.StreamingCost.recordCount N ∧ (M7.StreamingCost.scanWins q bases).inner ≤ (H * M7.StreamingCost.recordCount N)^2\nintro H N inst q bases\nclassical\nhave hb : ∀ p : M7.GlobalQuery.Index H N → M7.StreamingCost.Eval,\n    (∀ x, (p x).outer ≤ 1 ∧ (p x).inner ≤ H * M7.StreamingCost.recordCount N) →\n    (M7.StreamingCost.allIndices H N p).outer ≤ H * M7.StreamingCost.recordCount N ∧\n    (M7.StreamingCost.allIndices H N p).inner ≤ (H * M7.StreamingCost.recordCount N)^2 := by\n  intro p hp\n  simpa only [Nat.mul_one, pow_two] using\n    M7.StreamingCost.index_bound H N p 1 (H * M7.StreamingCost.recordCount N) hp\nunfold M7.StreamingCost.scanWins\napply hb\nintro x\nhave hs := M7.StreamingCost.stream_projection_bound H N q bases x\n dsimp only\nfirst | omega | (split <;> dsimp only <;> omega)",
+  "queries": []
+}

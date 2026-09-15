@@ -1,0 +1,10 @@
+import FrozenTarget_429bf459248c105d
+theorem M7.ObjectiveComparison.compare_exact : QuantumHarnessFrozenTarget := by
+  change ∀ (m : ℕ) (mode : M7.Selection.Mode) (a b : Fin m → ℤ), (M7.ObjectiveComparison.compare mode a b).1 = true ↔ M7.Selection.better mode a b
+  intro m mode a b
+  have hbound : ∀ j : Fin m, j.val < m := fun j => j.isLt
+  have hp := M7.ObjectiveComparison.pareto_interval m a b 0 m false
+  have hl := M7.ObjectiveComparison.lex_interval m a b 0 m
+  cases mode <;> first
+    | simpa [M7.ObjectiveComparison.compare, M7.Selection.better, M7.Selection.pareto, Nat.zero_add, hbound, and_comm, and_left_comm, and_assoc] using hp
+    | simpa [M7.ObjectiveComparison.compare, M7.Selection.better, M7.Selection.lex, Nat.zero_add, hbound, and_comm, and_left_comm, and_assoc] using hl

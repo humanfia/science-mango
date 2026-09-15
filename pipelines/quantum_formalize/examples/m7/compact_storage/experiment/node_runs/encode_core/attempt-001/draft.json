@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (e f : M7.CompactGeneration.Emission N), M7.CompactStorage.Valid e → M7.CompactStorage.Valid f → M7.CompactStorage.encode e = M7.CompactStorage.encode f → M7.CompactStorage.coreView e = M7.CompactStorage.coreView f\nintro N inst e f he hf h\nclassical\nobtain ⟨hs, hv⟩ := M7.CompactStorage.support_value_injective N\nhave hu : Function.Injective (fun u : (ZMod N)ˣ => M7.CompactStorage.valueBits (u : ZMod N)) := by\n  intro u v huv\n  exact Units.ext (hv huv)\ncases e\ncases f\ncases_type M7.Action.Record\n dsimp only [M7.CompactStorage.encode] at h\ninjection h\nsimp_all [M7.CompactStorage.Valid, M7.CompactStorage.coreView, hs.eq_iff, hv.eq_iff, hu.eq_iff]",
+  "queries": []
+}

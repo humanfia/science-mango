@@ -1,0 +1,260 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.Monic.irreducible_iff_lt_natDegree_lt",
+    "status": "ok",
+    "results": [
+      {
+        "id": 103234,
+        "name": "Polynomial.Monic.irreducible_iff_degree_lt",
+        "module": "Mathlib.Algebra.Polynomial.Roots",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Roots.lean#L873-L892",
+        "source_text": "/-- To check a monic polynomial is irreducible, it suffices to check only for\ndivisors that have smaller degree.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree`.\n-/\ntheorem Monic.irreducible_iff_degree_lt (p_monic : Monic p) (p_1 : p ≠ 1) :\n    Irreducible p ↔ ∀ q, degree q ≤ ↑(p.natDegree / 2) → q ∣ p → IsUnit q := by\n  simp only [p_monic.irreducible_iff_lt_natDegree_lt p_1, Finset.mem_Ioc, and_imp,\n    natDegree_pos_iff_degree_pos, natDegree_le_iff_degree_le]\n  constructor\n  · rintro h q deg_le dvd\n    by_contra q_unit\n    have := degree_pos_of_not_isUnit_of_dvd_monic p_monic q_unit dvd\n    have hu := p_monic.isUnit_leadingCoeff_of_dvd dvd\n    refine (h _ (monic_of_isUnit_leadingCoeff_inv_smul hu) ?_ ?_ (dvd_trans ?_ dvd)).elim\n    · rwa [degree_smul_of_smul_regular _ (isSMulRegular_of_group _)]\n    · rwa [degree_smul_of_smul_regular _ (isSMulRegular_of_group _)]\n    · rw [Units.smul_def, Polynomial.smul_eq_C_mul, (isUnit_C.mpr (Units.isUnit _)).mul_left_dvd]\n  · rintro h q _ deg_pos deg_le dvd\n    exact deg_pos.ne' <| degree_eq_zero_of_isUnit (h q deg_le dvd)\n",
+        "docstring": "To check a monic polynomial is irreducible, it suffices to check only for\ndivisors that have smaller degree.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree`.\n"
+      },
+      {
+        "id": 102942,
+        "name": "Polynomial.Monic.irreducible_iff_lt_natDegree_lt",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L350-L359",
+        "source_text": "/-- Alternate phrasing of `Polynomial.Monic.irreducible_iff_natDegree'` where we only have to check\none divisor at a time. -/\nlemma Monic.irreducible_iff_lt_natDegree_lt {p : R[X]} (hp : p.Monic) (hp1 : p ≠ 1) :\n    Irreducible p ↔ ∀ q, Monic q → natDegree q ∈ Finset.Ioc 0 (natDegree p / 2) → ¬ q ∣ p := by\n  rw [hp.irreducible_iff_natDegree', and_iff_right hp1]\n  constructor\n  · rintro h g hg hdg ⟨f, rfl⟩\n    exact h f g (hg.of_mul_monic_left hp) hg (mul_comm f g) hdg\n  · rintro h f g - hg rfl hdg\n    exact h g hg hdg (dvd_mul_left g f)\n",
+        "docstring": "Alternate phrasing of `Polynomial.Monic.irreducible_iff_natDegree'` where we only have to check\none divisor at a time. "
+      },
+      {
+        "id": 102521,
+        "name": "Polynomial.irreducible_iff_lt_natDegree_lt",
+        "module": "Mathlib.Algebra.Polynomial.FieldDivision",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/FieldDivision.lean#L677-L691",
+        "source_text": "/-- To check a polynomial `p` over a field is irreducible, it suffices to check there are no\ndivisors of degree `0 < d ≤ degree p / 2`.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree'`.\n-/\ntheorem irreducible_iff_lt_natDegree_lt {p : R[X]} (hp0 : p ≠ 0) (hpu : ¬ IsUnit p) :\n    Irreducible p ↔ ∀ q, Monic q → natDegree q ∈ Finset.Ioc 0 (natDegree p / 2) → ¬ q ∣ p := by\n  have : p * C (leadingCoeff p)⁻¹ ≠ 1 := by\n    contrapose hpu\n    exact .of_mul_eq_one _ hpu\n  rw [← irreducible_mul_leadingCoeff_inv,\n      (monic_mul_leadingCoeff_inv hp0).irreducible_iff_lt_natDegree_lt this,\n      natDegree_mul_leadingCoeff_inv _ hp0]\n  simp only [IsUnit.dvd_mul_right\n    (isUnit_C.mpr (IsUnit.mk0 (leadingCoeff p)⁻¹ (inv_ne_zero (leadingCoeff_ne_zero.mpr hp0))))]\n",
+        "docstring": "To check a polynomial `p` over a field is irreducible, it suffices to check there are no\ndivisors of degree `0 < d ≤ degree p / 2`.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree'`.\n"
+      },
+      {
+        "id": 102520,
+        "name": "Polynomial.irreducible_iff_degree_lt",
+        "module": "Mathlib.Algebra.Polynomial.FieldDivision",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/FieldDivision.lean#L664-L675",
+        "source_text": "/-- To check a polynomial over a field is irreducible, it suffices to check only for\ndivisors that have smaller degree.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree`.\n-/\ntheorem irreducible_iff_degree_lt (p : R[X]) (hp0 : p ≠ 0) (hpu : ¬ IsUnit p) :\n    Irreducible p ↔ ∀ q, q.degree ≤ ↑(natDegree p / 2) → q ∣ p → IsUnit q := by\n  rw [← irreducible_mul_leadingCoeff_inv,\n      (monic_mul_leadingCoeff_inv hp0).irreducible_iff_degree_lt]\n  · simp [hp0, natDegree_mul_leadingCoeff_inv]\n  · contrapose hpu\n    exact .of_mul_eq_one _ hpu\n",
+        "docstring": "To check a polynomial over a field is irreducible, it suffices to check only for\ndivisors that have smaller degree.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree`.\n"
+      },
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Polynomial.Monic.irreducible_iff_lt_natDegree_lt",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.Monic.irreducible_iff_lt_natDegree_lt",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.FactorReplay.irreducibleCheck",
+    "status": "ok",
+    "results": [
+      {
+        "id": 227012,
+        "name": "Polynomial.fact_irreducible_factor",
+        "module": "Mathlib.FieldTheory.SplittingField.Construction",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/FieldTheory/SplittingField/Construction.lean#L61-L63",
+        "source_text": "/-- See note [fact non-instances]. -/\ntheorem fact_irreducible_factor (f : K[X]) : Fact (Irreducible (factor f)) :=\n  ⟨irreducible_factor f⟩\n",
+        "docstring": "See note [fact non-instances]. "
+      },
+      {
+        "id": 227011,
+        "name": "Polynomial.irreducible_factor",
+        "module": "Mathlib.FieldTheory.SplittingField.Construction",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/FieldTheory/SplittingField/Construction.lean#L55-L59",
+        "source_text": "theorem irreducible_factor (f : K[X]) : Irreducible (factor f) := by\n  rw [factor]\n  split_ifs with H\n  · exact (Classical.choose_spec H).1\n  · exact irreducible_X\n",
+        "docstring": null
+      },
+      {
+        "id": 320468,
+        "name": "Associates.factors",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L211-L220",
+        "source_text": "/-- This returns the multiset of irreducible factors of an associate as a `FactorSet`,\n  a multiset of irreducible associates `WithTop`. -/\nnoncomputable def factors (a : Associates α) : FactorSet α := by\n  classical refine if h : a = 0 then ⊤ else Quotient.hrecOn a (fun x _ => factors' x) ?_ h\n  intro a b hab\n  apply Function.hfunext\n  · have : a ~ᵤ 0 ↔ b ~ᵤ 0 := Iff.intro (fun ha0 => hab.symm.trans ha0) fun hb0 => hab.trans hb0\n    simp only [associated_zero_iff_eq_zero] at this\n    simp only [quotient_mk_eq_mk, this, mk_eq_zero]\n  exact fun ha hb _ => heq_of_eq <| congr_arg some <| factors'_cong hab\n",
+        "docstring": "This returns the multiset of irreducible factors of an associate as a `FactorSet`,\na multiset of irreducible associates `WithTop`. "
+      },
+      {
+        "id": 70008,
+        "name": "Irreducible",
+        "module": "Mathlib.Algebra.Group.Irreducible.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Irreducible/Defs.lean#L39-L48",
+        "source_text": "/-- `Irreducible p` states that `p` is non-unit and only factors into units.\n\nWe explicitly avoid stating that `p` is non-zero, this would require a semiring. Assuming only a\nmonoid allows us to reuse irreducible for associated elements. -/\n@[to_additive (attr := wikidata Q2989575)]\nstructure Irreducible (p : M) : Prop where\n  /-- An irreducible element is not a unit. -/\n  not_isUnit : ¬IsUnit p\n  /-- If an irreducible element factors, then one factor is a unit. -/\n  isUnit_or_isUnit ⦃a b : M⦄ : p = a * b → IsUnit a ∨ IsUnit b\n",
+        "docstring": "`Irreducible p` states that `p` is non-unit and only factors into units.\n\nWe explicitly avoid stating that `p` is non-zero, this would require a semiring. Assuming only a\nmonoid allows us to reuse irreducible for associated elements. \n\n[Wikidata Q2989575](https://www.wikidata.org/wiki/Q2989575)"
+      },
+      {
+        "id": 70017,
+        "name": "irreducible_or_factor",
+        "module": "Mathlib.Algebra.Group.Irreducible.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Irreducible/Defs.lean#L64-L67",
+        "source_text": "@[to_additive]\nlemma irreducible_or_factor (hp : ¬IsUnit p) :\n    Irreducible p ∨ ∃ a b, ¬IsUnit a ∧ ¬IsUnit b ∧ p = a * b := by\n  simpa [irreducible_iff, hp, and_rotate] using em (∀ a b, p = a * b → IsUnit a ∨ IsUnit b)",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "M7.FactorReplay.irreducibleCheck",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M7.FactorReplay.irreducibleCheck",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "EuclideanDomain.mod_eq_zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 64651,
+        "name": "EuclideanDomain.mod_eq_zero",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L52-L61",
+        "source_text": "@[simp]\ntheorem mod_eq_zero {a b : R} : a % b = 0 ↔ b ∣ a :=\n  ⟨fun h => by\n    rw [← div_add_mod a b, h, add_zero]\n    exact dvd_mul_right _ _, fun ⟨c, e⟩ => by\n    rw [e, ← add_left_cancel_iff, div_add_mod, add_zero]\n    haveI := Classical.dec\n    by_cases b0 : b = 0\n    · simp only [b0, zero_mul]\n    · rw [mul_div_cancel_left₀ _ b0]⟩",
+        "docstring": null
+      },
+      {
+        "id": 64655,
+        "name": "EuclideanDomain.zero_mod",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L74-L76",
+        "source_text": "@[simp]\ntheorem zero_mod (b : R) : 0 % b = 0 :=\n  mod_eq_zero.2 (dvd_zero _)",
+        "docstring": null
+      },
+      {
+        "id": 213210,
+        "name": "Nat.ModEq",
+        "module": "Mathlib.Data.Nat.ModEq",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L35-L37",
+        "source_text": "/-- Modular equality. `n.ModEq a b`, or `a ≡ b [MOD n]`, means that `a % n = b % n`. -/\ndef Nat.ModEq (n a b : ℕ) :=\n  a % n = b % n\n",
+        "docstring": "Modular equality. `n.ModEq a b`, or `a ≡ b [MOD n]`, means that `a % n = b % n`. "
+      },
+      {
+        "id": 64718,
+        "name": "EuclideanDomain.mod_zero",
+        "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L151-L152",
+        "source_text": "@[simp]\ntheorem mod_zero (a : R) : a % 0 = a := by simpa only [zero_mul, zero_add] using div_add_mod a 0",
+        "docstring": null
+      },
+      {
+        "id": 207089,
+        "name": "Int.ModEq",
+        "module": "Mathlib.Data.Int.ModEq",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/ModEq.lean#L28-L31",
+        "source_text": "/-- `a ≡ b [ZMOD n]` when `a % n = b % n`. -/\n@[wikidata Q3773677]\ndef Int.ModEq (n a b : ℤ) :=\n  a % n = b % n\n",
+        "docstring": "`a ≡ b [ZMOD n]` when `a % n = b % n`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "EuclideanDomain.mod_eq_zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393016,
+        "name": "EuclideanGroup.translation_zero",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L155-L158",
+        "source_text": "/-- The translation by the zero vector is the identity of the Euclidean group. -/\nlemma translation_zero : translationVector.incl n\n    (Multiplicative.ofAdd (0 : EuclideanSpace ℝ (Fin n))) = 1 := by\n  simp\n",
+        "docstring": "The translation by the zero vector is the identity of the Euclidean group. "
+      },
+      {
+        "id": 393027,
+        "name": "EuclideanGroup.RotationsAbout_zero",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L274-L286",
+        "source_text": "/-- API feature: the degenerate identity that `RotationsAbout 0 = RotationGroup n` -/\nlemma RotationsAbout_zero : RotationsAbout (0 : EuclideanSpace ℝ (Fin n)) = RotationGroup n := by\n  apply Subgroup.ext\n  intro g\n  constructor\n  · intro hg\n    obtain ⟨g1, hg1⟩ := hg\n    simp at hg1\n    rw [hg1]\n    simp\n  · intro hg\n    use ⟨g, hg⟩\n    simp\n",
+        "docstring": "API feature: the degenerate identity that `RotationsAbout 0 = RotationGroup n` "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

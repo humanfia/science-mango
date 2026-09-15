@@ -1,0 +1,12 @@
+{
+  "name": "M7.CompactStorage.field_bounds",
+  "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (M7.RecipeSignature.signature c).natDegree ≤ N ∧ M7.ActualOrbit.stabilizerCount c < 2^(1+3*N)",
+  "imports": [
+    "M7CompactStorage"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "signature_properties gives monic and divides the nonzero cyclic modulus; natDegree_le_of_dvd and natDegree(X^N+1)≤N give the degree bound. fullStabilizer is a filtered univ so its card≤Fintype.card Record. Accepted Action.record_card = totient N*2*N*N; totient≤N yields≤2*N^3. Use N<2^N and strict monotonicity of cubic powers, then pow_add/pow_mul, to obtain <2^(1+3*N). Do not assume stabilizer size or signature degree as oracle. Return tactic lines without leading by."
+}

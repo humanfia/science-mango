@@ -1,0 +1,12 @@
+{
+  "name": "M7.CompactStorage.polynomial_injective",
+  "statement": "∀ (N : ℕ) (F G : M5.BinaryPolynomial), F.natDegree ≤ N → G.natDegree ≤ N → M7.CompactStorage.polynomialBits N F = M7.CompactStorage.polynomialBits N G → F = G",
+  "imports": [
+    "M7CompactStorage"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Polynomial.ext: for i≤N evaluate the bit function at ⟨i,by omega⟩. Over ZMod2 each coefficient is 0 or 1 (fin_cases, or val_lt plus ZMod.val_injective), so equality of the equals-one bits gives coefficient equality. For i>N use coeff_eq_zero_of_natDegree_lt. This recovers full polynomials including multiplicities, not roots. Return tactic lines without leading by."
+}

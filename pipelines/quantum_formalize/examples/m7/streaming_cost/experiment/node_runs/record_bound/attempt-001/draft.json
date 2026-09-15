@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst p a b hp\nhave hb : ∀ (n : ℕ) (q : Fin n → M7.StreamingCost.Eval) (c d : ℕ),\n    (∀ j, (q j).outer ≤ c ∧ (q j).inner ≤ d) →\n    (M7.StreamingCost.allFin n q).outer ≤ n * c ∧\n    (M7.StreamingCost.allFin n q).inner ≤ n * d := by\n  intro n q c d hq\n  simpa only [M7.StreamingCost.allFin] using\n    M7.StreamingCost.cursor_bound n q 0 n c d hq\nhave h :\n    (M7.StreamingCost.allRecords N p).outer ≤\n      Fintype.card ((ZMod N)ˣ) * (2 * (N * (N * a))) ∧\n    (M7.StreamingCost.allRecords N p).inner ≤\n      Fintype.card ((ZMod N)ˣ) * (2 * (N * (N * b))) := by\n  unfold M7.StreamingCost.allRecords\n  apply hb\n  intro u\n  apply hb\n  intro e\n  apply hb\n  intro s\n  apply hb\n  intro t\n  exact hp _\nsimpa only [M7.StreamingCost.recordCount, pow_two, Nat.mul_assoc,\n  Nat.mul_comm, Nat.mul_left_comm] using h",
+  "queries": []
+}

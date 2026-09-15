@@ -1,0 +1,5 @@
+The actual short-circuit Boolean projection and simultaneous two-counter bounds establish at most K outer candidate visits and K squared inner candidate visits, where K=H*P and P=card Record=2*totient(N)*N squared. This is one measured traversal without a complete index ledger. These are candidate visits only; labels, feasibility and integer-bit operations retain their separate costs.
+
+All frozen targets passed normal independent exact-type and axiom audits, full assembly and unchanged-environment checks. Canonical original drafts, rendered candidate/target hashes, receipts and portable payloads were checked again during archive. Full candidate histories are retained.
+
+All nine accepted proofs came from the original live run: six first drafts, cursor_bound third, stream_projection_bound second, and record_cardinality fifth. The fifth live record-cardinality success was retained. Its independently normal-verified scratch backup is archived under diagnostics/unused_cardinality_backup and was never substituted. No proof replay was needed.

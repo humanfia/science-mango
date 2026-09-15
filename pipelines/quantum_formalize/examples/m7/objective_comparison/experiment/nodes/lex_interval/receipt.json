@@ -1,0 +1,67 @@
+{
+  "id": "lex_interval",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ObjectiveComparison.lex_interval",
+    "spec_sha256": "ad71310bdbb72a570dd53613b00153e57c4ea0ee36a80bbf8a7bac0124352e82",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-l_j6op7c/attempt-001/Candidate_fb54807a6d29ff81.lean:9:27: warning: Try `simp at h` instead of `simpa using h`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-l_j6op7c/attempt-001/Candidate_fb54807a6d29ff81.lean:20:48: error: No goals to be solved\n/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-l_j6op7c/attempt-001/Candidate_fb54807a6d29ff81.lean:57:54: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  h ≥ 0\n  f - g ≥ 1\n  e ≥ 0\n  d ≥ 0\n  d - h ≤ -1\n  c ≥ 0\n  c - d ≥ 1\n  c - h ≥ 1\nwhere\n c := ↑m\n d := ↑↑j\n e := ↑fuel\n f := b j\n g := a j\n h := ↑↑⟨i, hi⟩\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-l_j6op7c/attempt-002/Candidate_b365b536d05c6e93.lean:17:41: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  h ≥ 0\n  g ≥ 0\n  e - f ≥ 1\n  d ≥ 0\n  d - g + h ≤ -1\n  c ≥ 0\n  c - d ≥ 1\n  c - g ≥ 1\nwhere\n c := ↑m\n d := ↑i\n e := b ⟨i, hi⟩\n f := a ⟨i, hi⟩\n g := ↑↑⟨i, hi⟩\n h := ↑fuel\n",
+        "attempt": 2
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-l_j6op7c/attempt-003/Candidate_a633ff9b85244cb5.lean",
+        "target_path": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-l_j6op7c/attempt-003/FrozenTarget_a633ff9b85244cb5.lean",
+        "feedback": "",
+        "target_sha256": "25e17f6c69bbc727b56e1d8a554991472cb5ab9aa7b2c35f46bb91da15c5e0be",
+        "target_olean_sha256": "2bbe452017c4f836e56933205c8d4eeed34318c97d14afdfadbd0b94a3cb9ced",
+        "source_sha256": "765283be81a99cea8f74d04a77fdf8106d9273d1fa3541bca4fc216f65c028b4",
+        "olean_sha256": "397e38231b80276ac3715090707ce9b4f41ff4121ba36908784fa52c06716f83",
+        "attempt": 3
+      }
+    ],
+    "created_at": "2026-09-15T20:07:27.267152+00:00",
+    "work": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-l_j6op7c",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "258af4bb88a0998d171f57b4963055e1bfeffcf30754e4c479a7d6ebdbd32954",
+    "phase": "finished",
+    "round": 3,
+    "proof": "/home/jing/m7-lean-objective-comparison-formalization/.humanize-formal-runs/run-l_j6op7c/attempt-003/Candidate_a633ff9b85244cb5.lean",
+    "environment_sha256": "261cfe153ff871b7018f5ca9bde4a7e3b4db1cd08345cacf649e60f52c330aee",
+    "artifacts": {
+      "lex_interval": {
+        "payload": {
+          "declaration": "theorem M7.ObjectiveComparison.lex_interval : ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ), (M7.ObjectiveComparison.lexFrom a b i fuel).1 = true ↔ ∃ j : Fin m, (i ≤ j.val ∧ j.val < i+fuel) ∧ (∀ k : Fin m, i ≤ k.val → k < j → a k = b k) ∧ a j < b j := by\n  intro m a b i fuel\n  induction fuel generalizing i with\n  | zero =>\n      constructor\n      · intro h\n        have hf : False := by simpa [M7.ObjectiveComparison.lexFrom] using h\n        exact hf.elim\n      · rintro ⟨j, hj, hp, hl⟩\n        omega\n  | succ fuel ih =>\n      by_cases hi : i < m\n      · by_cases hab : a ⟨i, hi⟩ < b ⟨i, hi⟩\n        · constructor\n          · intro h\n            refine ⟨⟨i, hi⟩, ?_, ?_, hab⟩\n            · change i ≤ i ∧ i < i + (fuel + 1)\n              omega\n            · intro k hk hkj\n              have hk' : k.val < i := hkj\n              omega\n          · intro h\n            simp [M7.ObjectiveComparison.lexFrom, hi, hab]\n        · by_cases hba : b ⟨i, hi⟩ < a ⟨i, hi⟩\n          · constructor\n            · intro h\n              have hf : False := by\n                simpa [M7.ObjectiveComparison.lexFrom, hi, hab, hba] using h\n              exact hf.elim\n            · rintro ⟨j, hj, hp, hl⟩\n              exfalso\n              by_cases hji : j.val = i\n              · have he : j = ⟨i, hi⟩ := Fin.ext hji\n                have hl' : a ⟨i, hi⟩ < b ⟨i, hi⟩ := by simpa [he] using hl\n                omega\n              · have hij : (⟨i, hi⟩ : Fin m) < j := by\n                  change i < j.val\n                  omega\n                have he := hp ⟨i, hi⟩ (Nat.le_refl i) hij\n                omega\n          · have heq : a ⟨i, hi⟩ = b ⟨i, hi⟩ := by omega\n            have hs : (M7.ObjectiveComparison.lexFrom a b i (fuel + 1)).1 =\n                (M7.ObjectiveComparison.lexFrom a b (i + 1) fuel).1 := by\n              simp [M7.ObjectiveComparison.lexFrom, hi, hab, hba]\n            rw [hs, ih]\n            constructor\n            · rintro ⟨j, hj, hp, hl⟩\n              refine ⟨j, ?_, ?_, hl⟩\n              · omega\n              · intro k hk hkj\n                by_cases hki : k.val = i\n                · have he : k = ⟨i, hi⟩ := Fin.ext hki\n                  simpa [he] using heq\n                · exact hp k (by omega) hkj\n            · rintro ⟨j, hj, hp, hl⟩\n              have hji : j.val ≠ i := by\n                intro hji\n                have he : j = ⟨i, hi⟩ := Fin.ext hji\n                have hl' : a ⟨i, hi⟩ < b ⟨i, hi⟩ := by simpa [he] using hl\n                omega\n              refine ⟨j, ?_, ?_, hl⟩\n              · omega\n              · intro k hk hkj\n                exact hp k (by omega) hkj\n      · constructor\n        · intro h\n          have hf : False := by\n            simpa [M7.ObjectiveComparison.lexFrom, hi] using h\n          exact hf.elim\n        · rintro ⟨j, hj, hp, hl⟩\n          have hjm := j.isLt\n          omega",
+          "imports": [
+            "M7ObjectiveComparison"
+          ],
+          "name": "M7.ObjectiveComparison.lex_interval",
+          "ancestors": [],
+          "spec_sha256": "ad71310bdbb72a570dd53613b00153e57c4ea0ee36a80bbf8a7bac0124352e82"
+        },
+        "sha256": "6d7a78d113462526bd52be025ac1476cd3ad3e2fabef50be2f7351e83567f8c4"
+      }
+    }
+  }
+}

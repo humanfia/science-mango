@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst w E hE\nhave hex := M7.CompactCorrectness.generate_exact N w E hE\nhave hz : (M7.CompactGeneration.generate (N := N) w E).finalResidual = 0 := by\n  tauto\nhave hf : (M7.CompactGeneration.generate (N := N) w E).fuelExhausted = false := by\n  tauto\nhave hr : M7.GenerationReplay.replay w E ∅\n    (M7.CompactGeneration.generate (N := N) w E).emitted =\n    some (M7.CompactGeneration.generate (N := N) w E).finalBases := by\n  unfold M7.CompactGeneration.generate\n  apply M7.GenerationReplay.run_replay N w E ∅\n  · rfl\n  · exact hz\nsimp [M7.GenerationReplay.check, hr, hz, hf]",
+  "queries": []
+}

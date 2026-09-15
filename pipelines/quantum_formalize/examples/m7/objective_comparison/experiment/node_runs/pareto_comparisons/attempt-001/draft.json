@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).2 ≤ 2 * fuel\nintro m a b i fuel seen\ninduction fuel generalizing i seen with\n| zero => simp [M7.ObjectiveComparison.paretoFrom]\n| succ fuel ih =>\n    have ht := ih (i + 1) true\n    have hf := ih (i + 1) false\n    cases seen <;> simp only [M7.ObjectiveComparison.paretoFrom]\n    all_goals repeat' first | progress dsimp only | split\n    all_goals simp_all <;> omega",
+  "queries": []
+}

@@ -1,0 +1,18 @@
+theorem M7.LabelReplay.checked_physical_answer : ∀ (N w : ℕ) [NeZero N] (c : M7.Action.Recipe N) (r : M7.LabelReplay.Certificate N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → M7.LabelReplay.check c r = true → (r.answer = none ↔ (M7.RecipeSignature.signature c).natDegree = 0) ∧ (∀ (d k : ℕ) (v : M6.Pinned.Vector (2*N)), r.answer = some (d,v,k) → M7.DefaultQuery.distance c = some d ∧ v ∈ M7.Transport.LX c ∧ M6.Pinned.weight v = d ∧ M6.Flatten.J N v ∈ M7.Transport.LZ c ∧ M6.Pinned.weight (M6.Flatten.J N v) = d ∧ k ≤ 2*N) := by
+  intro N w inst c r hA hB h0A h0B hconn hcheck
+  have hs := (M7.LabelReplay.check_sound N c r hcheck).2.2.1
+  have hp := M7.ClosedSolve.closed_pointwise N w c hA hB h0A h0B hconn
+  have ha := hp.2.2.1
+  rw [hs]
+  constructor
+  · exact ha.1
+  · intro d k v hv
+    have hw := ha.2.2.1
+    first
+    | specialize hw d k v hv
+    | specialize hw d v k hv
+    simpa only [M7.DefaultQuery.distance, M7.Transport.distance,
+      M6.Final.LX, M6.Final.CX, M6.Final.BX, M6.Final.CZ, M6.Final.BZ,
+      M7.Transport.LX, M7.Transport.CX, M7.Transport.BX,
+      M7.Transport.LZ, M7.Transport.CZ, M7.Transport.BZ,
+      M7.Domain.coefficients_indicator] using hw

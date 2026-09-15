@@ -2,7 +2,7 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**365 targets in 45 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+**402 targets in 51 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -51,15 +51,20 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [generation_calls](generation_calls/experiment/result.json) | 8 | M7 actual compact generator projection and original call bounds |
 | [compact_correctness](compact_correctness/experiment/result.json) | 13 | M7 actual arithmetic finite generation correctness and anchored completeness |
 | [scalar_work](scalar_work/experiment/result.json) | 4 | M7 original charged scalar arithmetic and factorized mask-loop bounds |
+| [compact_storage](compact_storage/experiment/result.json) | 7 | Original M7 compact record finite-bit storage, excluding optional full transcripts |
+| [objective_comparison](objective_comparison/experiment/result.json) | 6 | M7 actual sequential objective comparisons |
+| [label_replay](label_replay/experiment/result.json) | 4 | Actual recurrence and pin-data label certificate replay |
+| [generation_replay](generation_replay/experiment/result.json) | 7 | M7 actual finite generation certificate replay and coverage |
+| [streaming_cost](streaming_cost/experiment/result.json) | 9 | M7 measured actual streaming candidate visits |
+| [overfull_boundary](overfull_boundary/experiment/result.json) | 4 | M7 original overfull-weight and empty-sector boundaries |
 
 Active work:
 
-- `generated_family`: integrating the accepted actual generator with complete raw class coverage.
-- `final_selector` and `generated_labels`: gated on the generated family; exact raw optima, unique presentations and actual M6 labels/witnesses.
-- `generation_replay` and `overfull_boundary`: concrete sequential replay and original empty-domain boundaries in preflight.
-- `compact_storage`, `streaming_cost` and `objective_comparison`: concrete encoding/cursor/comparison proofs running.
-- `label_replay` and `factor_replay`: concrete arithmetic certificate checks in preparation; no additional worker peak beyond sixteen.
-- `final_resources`: gated composition of actual generation, storage, class-label and comparison costs.
+- `generated_family`: five live targets accepted, including complete raw orbit coverage; an exact list-index elaboration repair and its dependent separation proof await normal replay.
+- `final_selector` and `generated_labels`: gated on the complete generated-family receipt.
+- `factor_replay`: bounded-divisor irreducibility proof repaired under the original target; normal replay plus complete factor-table self-check running.
+- `final_replay` and `final_resources`: exact downstream composition, gated on complete canonical parents.
+- `final`: eight closed original-scope sections and the complete root are prepared, gated on final replay/resources and original boundaries. No full-M7 acceptance yet.
 
 Original remaining integration gates include complete generated raw-family coverage, complete default-query/global-optimum integration, replay and original resource bounds. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 

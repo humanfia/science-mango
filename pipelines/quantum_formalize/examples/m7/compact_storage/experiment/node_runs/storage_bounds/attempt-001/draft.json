@@ -1,0 +1,7 @@
+{
+  "proof": "intro N H inst\nhave hN : 0 < N := NeZero.pos N\nhave hcore : M7.CompactStorage.coreBits N = 12 * N + 4 := by\n  unfold M7.CompactStorage.coreBits\n  ring\nhave hbound : M7.CompactStorage.coreBits N ≤ 16 * N := by\n  rw [hcore]\n  omega\nhave htable : M7.CompactStorage.tableBits N = Nat.totient N * (N + 1) := by\n  simp [M7.CompactStorage.tableBits, ZMod.card_units_eq_totient]\nhave hwidth : N + 1 ≤ 2 * N := by omega\nhave hstored := Nat.mul_le_mul_left H hbound\nhave htstored := Nat.mul_le_mul_left (H * Nat.totient N) hwidth\nrefine ⟨hcore, hbound, htable, ?_, ?_⟩\n· unfold M7.CompactStorage.storedCoreBits\n  nlinarith [hstored]\n· simp only [M7.CompactStorage.storedWithTablesBits, M7.CompactStorage.storedCoreBits, htable]\n  nlinarith [hstored, htstored]",
+  "queries": [
+    "ZMod.card_units_eq_totient",
+    "Nat.mul_le_mul_left"
+  ]
+}

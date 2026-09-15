@@ -67,6 +67,29 @@
           "algebra"
         ]
       }
+    },
+    {
+      "id": "self_check",
+      "dependencies": [
+        "factor_check_exact"
+      ],
+      "spec": {
+        "name": "M7.FactorReplay.self_check",
+        "statement": "\u2200 F : M7.FactorReplay.BP, F.Monic \u2192 M7.FactorReplay.check F (M7.FactorReplay.expected F) = true",
+        "imports": [
+          "M7FactorReplay"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Apply factor_check_exact to actual expected defined from UniqueFactorizationMonoid.normalizedFactors F. The distinct factor list is fs.toFinset.toList and each exponent is the original multiset count, so no multiplicity is dropped. Finset.prod_multiset_count recovers fs.prod from product of count powers. UniqueFactorizationMonoid.prod_normalizedFactors_eq hp.ne_zero gives normalize F, equal to F for monic F. prime_of_normalized_factor gives irreducibility; normalized factors are normalized/monic over the polynomial field, and count_pos follows membership. F=1 has empty factors and must pass. This constructs an actual complete certificate; no provided factor list correctness premise and no new factor-discovery runtime claim. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
     }
   ]
 }

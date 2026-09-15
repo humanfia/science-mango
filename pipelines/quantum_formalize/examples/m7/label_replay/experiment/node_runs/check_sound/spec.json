@@ -1,0 +1,12 @@
+{
+  "name": "M7.LabelReplay.check_sound",
+  "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (r : M7.LabelReplay.Certificate N), M7.LabelReplay.check c r = true → r.signature = M7.RecipeSignature.signature c ∧ (∀ i : Fin (2*N+1), r.coefficients i = (M7.LabelReplay.Q c (M6.Pinned.free (2*N))).coeff i.val) ∧ r.answer = M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) ∧ r.pins = M7.LabelReplay.pinData c",
+  "imports": [
+    "M7LabelReplay"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "The checker compares actual finite Certificate data with expected built from the literal full gcd signature, actual scatter-based Q recurrence, actual solve, and full pin data. Extract equality using of_decide_eq_true then substitute and unfold expected. This checks computations, not a hash or a supplied correctness predicate. Return tactic lines without leading by."
+}

@@ -1,0 +1,11 @@
+import FrozenTarget_964d95c78d84a9e4
+theorem M7.OverfullBoundary.class_impossible : QuantumHarnessFrozenTarget := by
+  change ∀ (N w : ℕ) [NeZero N], N < w → ∀ c : M7.Action.Recipe N, ¬ M7.PrefixOrbit.ClassValid w c
+  intro N w inst hN c hc
+  have hcard : c.1.card = w := by
+    unfold M7.PrefixOrbit.ClassValid at hc
+    aesop
+  have hbound := Finset.card_le_univ c.1
+  have hle : c.1.card ≤ N := by
+    simpa only [ZMod.card] using hbound
+  omega

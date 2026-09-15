@@ -1,0 +1,8 @@
+theorem M7.CompactStorage.emission_valid : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.CompactStorage.Valid (M7.CompactGeneration.emission w E bases) := by
+  intro N inst w E bases
+  unfold M7.CompactStorage.Valid
+  repeat' apply And.intro
+  all_goals first
+    | exact (M7.CompactGeneration.emission_action N w E bases).1
+    | exact (M7.CompactGeneration.emission_stabilizer N w E bases).2
+    | rfl

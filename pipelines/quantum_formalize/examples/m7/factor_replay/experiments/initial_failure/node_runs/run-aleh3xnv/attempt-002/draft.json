@@ -1,0 +1,4 @@
+{
+  "proof": "set_option maxHeartbeats 0 in\n  change ∀ p : M7.FactorReplay.BP, M7.FactorReplay.irreducibleCheck p = true ↔ p.Monic ∧ Irreducible p\n  intro p\n  classical\n  by_cases hp : p.Monic\n  · by_cases hp1 : p = 1\n    · subst p\n      simp [M7.FactorReplay.irreducibleCheck]\n    · rw [and_iff_right hp, hp.irreducible_iff_lt_natDegree_lt hp1]\n      simp [M7.FactorReplay.irreducibleCheck, hp, hp1,\n        List.all_eq_true, Finset.mem_toList, M7.FactorReplay.pool_complete,\n        Finset.mem_Ioc, EuclideanDomain.mod_eq_zero]\n      <;> aesop\n  · simp [M7.FactorReplay.irreducibleCheck, hp]",
+  "queries": []
+}

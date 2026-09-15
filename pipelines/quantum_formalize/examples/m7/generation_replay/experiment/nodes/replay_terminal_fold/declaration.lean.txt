@@ -1,0 +1,19 @@
+theorem M7.GenerationReplay.replay_terminal_fold : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases final : Finset (M7.Action.Recipe N)) (es : List (M7.CompactGeneration.Emission N)), M7.GenerationReplay.replay w E bases es = some final → M7.CompactGeneration.residual w E final [] = 0 ∧ final = es.foldl (fun acc e => insert e.representative acc) bases := by
+  classical
+  intro N inst w E bases final es
+  induction es generalizing bases final with
+  | nil =>
+      intro h
+      unfold M7.GenerationReplay.replay at h
+      split at h
+      · rename_i hz
+        have heq : bases = final := Option.some.inj h
+        subst final
+        exact ⟨hz, rfl⟩
+      · simp at h
+  | cons e es ih =>
+      intro h
+      unfold M7.GenerationReplay.replay at h
+      split at h
+      · exact ih (insert e.representative bases) final h
+      · simp at h

@@ -1,0 +1,53 @@
+import FrozenTarget_30841a2911abdfc8
+theorem M7.ObjectiveComparison.pareto_interval : QuantumHarnessFrozenTarget := by
+    change ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), _
+    intro m a b i fuel seen
+    induction fuel generalizing i seen with
+    | zero =>
+        have hempty : ∀ j : Fin m, ¬ (i ≤ j.val ∧ j.val < i + 0) := by
+          intro j
+          omega
+        simp [M7.ObjectiveComparison.paretoFrom, hempty]
+    | succ fuel ih =>
+        by_cases hi : i < m
+        · let k : Fin m := ⟨i, hi⟩
+          have hk : k.val = i := rfl
+          have hall :
+              (∀ j : Fin m, i ≤ j.val ∧ j.val < i + Nat.succ fuel → a j ≤ b j) ↔
+              a k ≤ b k ∧
+                (∀ j : Fin m, i + 1 ≤ j.val ∧ j.val < (i + 1) + fuel → a j ≤ b j) := by
+            constructor
+            · intro h
+              constructor
+              · exact h k (by omega)
+              · intro j hj
+                exact h j (by omega)
+            · rintro ⟨hhead, htail⟩ j hj
+              by_cases heq : j.val = i
+              · have hjk : j = k := Fin.ext (by omega)
+                simpa [hjk] using hhead
+              · exact htail j (by omega)
+          have hex :
+              (∃ j : Fin m, (i ≤ j.val ∧ j.val < i + Nat.succ fuel) ∧ a j < b j) ↔
+              a k < b k ∨
+                (∃ j : Fin m, (i + 1 ≤ j.val ∧ j.val < (i + 1) + fuel) ∧ a j < b j) := by
+            constructor
+            · rintro ⟨j, hj, hstrict⟩
+              by_cases heq : j.val = i
+              · left
+                have hjk : j = k := Fin.ext (by omega)
+                simpa [hjk] using hstrict
+              · exact Or.inr ⟨j, by omega, hstrict⟩
+            · intro h
+              rcases h with hhead | ⟨j, hj, hstrict⟩
+              · exact ⟨k, by omega, hhead⟩
+              · exact ⟨j, by omega, hstrict⟩
+          rw [hall, hex]
+          by_cases hle : a k ≤ b k
+          · simp [M7.ObjectiveComparison.paretoFrom, hi, k, hle, ih, or_assoc] at *
+          · simp [M7.ObjectiveComparison.paretoFrom, hi, k, hle] at *
+        · have hempty : ∀ j : Fin m, ¬ (i ≤ j.val ∧ j.val < i + Nat.succ fuel) := by
+            intro j hj
+            have hjm := j.isLt
+            omega
+          simp [M7.ObjectiveComparison.paretoFrom, hi, hempty]

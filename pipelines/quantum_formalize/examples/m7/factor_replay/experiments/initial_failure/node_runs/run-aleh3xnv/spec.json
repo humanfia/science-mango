@@ -1,0 +1,12 @@
+{
+  "name": "M7.FactorReplay.irreducible_check_exact",
+  "statement": "∀ p : M7.FactorReplay.BP, M7.FactorReplay.irreducibleCheck p = true ↔ p.Monic ∧ Irreducible p",
+  "imports": [
+    "M7FactorReplay"
+  ],
+  "context": "theorem M7.FactorReplay.pool_complete : ∀ (n : ℕ) (p : M7.FactorReplay.BP), p ∈ M7.FactorReplay.pool n ↔ p.natDegree ≤ n := by\n  change ∀ (n : ℕ) (p : M7.FactorReplay.BP), p ∈ M7.FactorReplay.pool n ↔ p.natDegree ≤ n\n  intro n p\n  classical\n  unfold M7.FactorReplay.pool\n  rw [Finset.mem_image]\n  constructor\n  · rintro ⟨v, _, rfl⟩\n    have h := Polynomial.ofFn_natDegree_lt (show 1 ≤ n + 1 by omega) v\n    omega\n  · intro hp\n    refine ⟨Polynomial.toFn (n + 1) p, Finset.mem_univ _, ?_⟩\n    exact Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt (by omega)",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Split actual Monic and p=1 guards. In the monic nonone case use Polynomial.Monic.irreducible_iff_lt_natDegree_lt. List.all_eq_true/Finset.mem_toList turns actual finite loop into absence of bounded monic divisors. pool_complete provides every candidate of natDegree≤p.natDegree/2. EuclideanDomain.mod_eq_zero identifies actual remainder=0 with divisibility. No Irreducible decidability oracle occurs in the implementation. Return tactic lines without leading by."
+}

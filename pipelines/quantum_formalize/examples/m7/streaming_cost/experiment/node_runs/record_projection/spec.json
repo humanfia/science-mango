@@ -1,0 +1,12 @@
+{
+  "name": "M7.StreamingCost.record_projection",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ p : M7.Action.Record N → M7.StreamingCost.Eval, (M7.StreamingCost.allRecords N p).result = M7.StreamingIndices.allRecords N (fun g => (p g).result)",
+  "imports": [
+    "M7StreamingCost"
+  ],
+  "context": "theorem M7.StreamingCost.cursor_projection : ∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel : ℕ), (M7.StreamingCost.allFinFrom n p i fuel).result = M7.StreamingIndices.allFinFrom n (fun j => (p j).result) i fuel := by\n  change ∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel : ℕ), (M7.StreamingCost.allFinFrom n p i fuel).result = M7.StreamingIndices.allFinFrom n (fun j => (p j).result) i fuel\n  intro n p i fuel\n  induction fuel generalizing i with\n  | zero => rfl\n  | succ fuel ih =>\n      by_cases h : i < n\n      · cases hb : (p ⟨i, h⟩).result <;>\n          simp [M7.StreamingCost.allFinFrom, M7.StreamingIndices.allFinFrom, h, hb, ih]\n      · simp [M7.StreamingCost.allFinFrom, M7.StreamingIndices.allFinFrom, h]",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Unfold both allRecords and allFin, apply cursor_projection at each nested coordinate and congruence. Return tactic lines only; no leading by."
+}

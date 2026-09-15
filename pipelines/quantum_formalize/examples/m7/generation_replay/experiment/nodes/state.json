@@ -1,0 +1,512 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T20:27:13.425980+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "fresh_nodup": {
+      "id": "fresh_nodup",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.GenerationReplay.fresh_nodup",
+        "spec_sha256": "81f94f9f09edced1ae6c596b3a2a7b3ca4fd95392b0a0bdbec748e994a40f5b1",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-49z94ewp/attempt-001/Candidate_90b5e89c36e49a1f.lean",
+            "target_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-49z94ewp/attempt-001/FrozenTarget_90b5e89c36e49a1f.lean",
+            "feedback": "",
+            "target_sha256": "28ce39ca94e8aac25614ae13f35cdcf8fca145d135cfa832e84effff3d6b636c",
+            "target_olean_sha256": "315c07053299042a70c931b1677ec1a2d2549a8ee79b455c9c5ea577fcb050dd",
+            "source_sha256": "2467681453734cfb92d460016c29d6ddd2df66d939084782bd1a14771e1011b0",
+            "olean_sha256": "bd31a77433edd82d57658dadc5115069b1a709a94189022c76fb997993aa1407",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T20:20:45.685189+00:00",
+        "work": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-49z94ewp",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7c16f4ee519669210ada45c9bbb1263cab892abd4ea1b710274a5537a76f8b1f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-49z94ewp/attempt-001/Candidate_90b5e89c36e49a1f.lean",
+        "environment_sha256": "fc49bf2e5b5a4081752ff55086c9ebb327484d645e675e6a10a09a49a3399ee3",
+        "artifacts": {
+          "fresh_nodup": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.fresh_nodup : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (es : List (M7.CompactGeneration.Emission N)), M7.GenerationReplay.FreshFrom w E bases es → (es.map (fun e => e.representative)).Nodup ∧ ∀ e ∈ es, e.representative ∉ bases := by\n  classical\n  intro N inst w E bases es\n  induction es generalizing bases with\n  | nil =>\n      intro h\n      simp\n  | cons e es ih =>\n      intro h\n      change e.representative ∉ bases ∧ _ ∧ _ ∧ M7.GenerationReplay.FreshFrom w E (insert e.representative bases) es at h\n      rcases h with ⟨hfresh, _, _, htail⟩\n      obtain ⟨hnd, hdisjoint⟩ := ih (insert e.representative bases) htail\n      constructor\n      · simp only [List.map_cons, List.nodup_cons]\n        refine ⟨?_, hnd⟩\n        intro hm\n        obtain ⟨a, ha, heq⟩ := List.mem_map.mp hm\n        exact hdisjoint a ha (by simp [heq])\n      · intro a ha\n        rcases List.mem_cons.mp ha with rfl | ha\n        · exact hfresh\n        · intro hb\n          exact hdisjoint a ha (Finset.mem_insert_of_mem hb)",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.fresh_nodup",
+              "ancestors": [],
+              "spec_sha256": "81f94f9f09edced1ae6c596b3a2a7b3ca4fd95392b0a0bdbec748e994a40f5b1"
+            },
+            "sha256": "987538d8ce3152ee905d3f1019b65f9c8676ac40922abe0a16eb9ace06e3f273"
+          }
+        }
+      }
+    },
+    "replay_terminal_fold": {
+      "id": "replay_terminal_fold",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.GenerationReplay.replay_terminal_fold",
+        "spec_sha256": "46c08e35fe2c8ccea44994836c4e65094a5f6e8374c452c6a8f467d3655d803a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-kh44conf/attempt-001/Candidate_89faf5243e77205f.lean",
+            "target_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-kh44conf/attempt-001/FrozenTarget_89faf5243e77205f.lean",
+            "feedback": "",
+            "target_sha256": "e8ea392c92f691c282746786f723c4aa0eb3504f5c9a9343a9b55aef8a290f7b",
+            "target_olean_sha256": "a85313f044c0dfae15374e5662f31e9b1451787355fc82d72c7368772f0155c5",
+            "source_sha256": "2ebe7edce5b7b21954d3a6935f8ec749f4e8596b1dcfc4e2f90102b103e787ab",
+            "olean_sha256": "3d3b9877b5f53d577014f6531765a705e06b85df7a31bacb61ece4356c787d93",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T20:20:45.881287+00:00",
+        "work": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-kh44conf",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7c16f4ee519669210ada45c9bbb1263cab892abd4ea1b710274a5537a76f8b1f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-kh44conf/attempt-001/Candidate_89faf5243e77205f.lean",
+        "environment_sha256": "fc49bf2e5b5a4081752ff55086c9ebb327484d645e675e6a10a09a49a3399ee3",
+        "artifacts": {
+          "replay_terminal_fold": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.replay_terminal_fold : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases final : Finset (M7.Action.Recipe N)) (es : List (M7.CompactGeneration.Emission N)), M7.GenerationReplay.replay w E bases es = some final → M7.CompactGeneration.residual w E final [] = 0 ∧ final = es.foldl (fun acc e => insert e.representative acc) bases := by\n  classical\n  intro N inst w E bases final es\n  induction es generalizing bases final with\n  | nil =>\n      intro h\n      unfold M7.GenerationReplay.replay at h\n      split at h\n      · rename_i hz\n        have heq : bases = final := Option.some.inj h\n        subst final\n        exact ⟨hz, rfl⟩\n      · simp at h\n  | cons e es ih =>\n      intro h\n      unfold M7.GenerationReplay.replay at h\n      split at h\n      · exact ih (insert e.representative bases) final h\n      · simp at h",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.replay_terminal_fold",
+              "ancestors": [],
+              "spec_sha256": "46c08e35fe2c8ccea44994836c4e65094a5f6e8374c452c6a8f467d3655d803a"
+            },
+            "sha256": "a47701befdc3080f7789401ea53eef392e0e980074dac6de3cffd8068dc74ae9"
+          }
+        }
+      }
+    },
+    "step_exact": {
+      "id": "step_exact",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.GenerationReplay.step_exact",
+        "spec_sha256": "ad513618ddf30e46dd65581ab4da87c7f305857d5df79307e74f5f3168f8d12c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-t02zvr1c/attempt-001/Candidate_4b4adeea5246aa0c.lean",
+            "target_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-t02zvr1c/attempt-001/FrozenTarget_4b4adeea5246aa0c.lean",
+            "feedback": "",
+            "target_sha256": "ed344b848d76e38c8546511a6551e9f8b800cb534dfb2d9d77b84dba0b3edbc9",
+            "target_olean_sha256": "64ba852013bb79605feaae3f45a2e9b36fb35100565c7446c6d3007b06522038",
+            "source_sha256": "7e9e2ab117f3c2de10dcdf8446a3bbda87bc04ddd6f7dca1387dce6e798a7c3e",
+            "olean_sha256": "5f424cfa3082fd524c73de372aae2d44527d9137cc6956c44515dc0ebb0d351f",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T20:22:19.607524+00:00",
+        "work": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-t02zvr1c",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7c16f4ee519669210ada45c9bbb1263cab892abd4ea1b710274a5537a76f8b1f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-t02zvr1c/attempt-001/Candidate_4b4adeea5246aa0c.lean",
+        "environment_sha256": "fc49bf2e5b5a4081752ff55086c9ebb327484d645e675e6a10a09a49a3399ee3",
+        "artifacts": {
+          "step_exact": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.step_exact : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (e : M7.CompactGeneration.Emission N), M7.GenerationReplay.stepPass w E bases e = true ↔ 0 < M7.CompactGeneration.residual w E bases [] ∧ e = M7.CompactGeneration.emission w E bases := by\n  classical\n  intro N inst w E bases e\n  change M7.GenerationReplay.stepPass w E bases e = true ↔ _\n  constructor\n  · intro h\n    simp only [M7.GenerationReplay.stepPass, Bool.and_eq_true, decide_eq_true_eq] at h\n    rcases h with ⟨⟨hpos, hcheck⟩, hdepth, hleaf, hrep, haction, hleafSig, hrepSig, hstab⟩\n    have hpath := M7.DescentTrace.check_unique\n      (M7.CompactGeneration.residual w E bases) [] e.path hcheck\n    rw [hdepth] at hpath\n    refine ⟨hpos, ?_⟩\n    cases e\n    dsimp only at *\n    simp_all [M7.CompactGeneration.emission, M7.DescentTrace.endpoint_recover]\n  · rintro ⟨hpos, rfl⟩\n    simp [M7.GenerationReplay.stepPass, M7.CompactGeneration.emission,\n      M7.DescentTrace.trace_length, M7.DescentTrace.check_trace,\n      M7.DescentTrace.endpoint_recover, hpos]",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.step_exact",
+              "ancestors": [],
+              "spec_sha256": "ad513618ddf30e46dd65581ab4da87c7f305857d5df79307e74f5f3168f8d12c"
+            },
+            "sha256": "177b15230c6f61e507bb791ffb93ce09e0bc913629dd823380cf5e524408fa40"
+          }
+        }
+      }
+    },
+    "replay_sound": {
+      "id": "replay_sound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.GenerationReplay.replay_sound",
+        "spec_sha256": "006028df67545c93cb7e58dba5eae689c952290bb47a617aa35e945b21d5f5e0",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-gmcxq2gf/attempt-001/Candidate_cde46a8941f63810.lean",
+            "target_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-gmcxq2gf/attempt-001/FrozenTarget_cde46a8941f63810.lean",
+            "feedback": "",
+            "target_sha256": "bf3f75be9dbff649505774c9b00c157a5825019490a04a83fc0d53cc09896d00",
+            "target_olean_sha256": "bbc0cf245368d6d71624f11d82e07536306983f8be862cd3efdc18a5f5c5dacb",
+            "source_sha256": "39a79ede52bd9ee4a9b994bf914b6ca0365cfb3116e291ac8519d5dec5eb6a81",
+            "olean_sha256": "d5ca7635e9c3706abf73105c973051278e685b11d83197cf1b99f6f3d9a2c985",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T20:23:31.553580+00:00",
+        "work": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-gmcxq2gf",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7c16f4ee519669210ada45c9bbb1263cab892abd4ea1b710274a5537a76f8b1f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-gmcxq2gf/attempt-001/Candidate_cde46a8941f63810.lean",
+        "environment_sha256": "fc49bf2e5b5a4081752ff55086c9ebb327484d645e675e6a10a09a49a3399ee3",
+        "artifacts": {
+          "step_exact": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.step_exact : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (e : M7.CompactGeneration.Emission N), M7.GenerationReplay.stepPass w E bases e = true ↔ 0 < M7.CompactGeneration.residual w E bases [] ∧ e = M7.CompactGeneration.emission w E bases := by\n  classical\n  intro N inst w E bases e\n  change M7.GenerationReplay.stepPass w E bases e = true ↔ _\n  constructor\n  · intro h\n    simp only [M7.GenerationReplay.stepPass, Bool.and_eq_true, decide_eq_true_eq] at h\n    rcases h with ⟨⟨hpos, hcheck⟩, hdepth, hleaf, hrep, haction, hleafSig, hrepSig, hstab⟩\n    have hpath := M7.DescentTrace.check_unique\n      (M7.CompactGeneration.residual w E bases) [] e.path hcheck\n    rw [hdepth] at hpath\n    refine ⟨hpos, ?_⟩\n    cases e\n    dsimp only at *\n    simp_all [M7.CompactGeneration.emission, M7.DescentTrace.endpoint_recover]\n  · rintro ⟨hpos, rfl⟩\n    simp [M7.GenerationReplay.stepPass, M7.CompactGeneration.emission,\n      M7.DescentTrace.trace_length, M7.DescentTrace.check_trace,\n      M7.DescentTrace.endpoint_recover, hpos]",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.step_exact",
+              "ancestors": [],
+              "spec_sha256": "ad513618ddf30e46dd65581ab4da87c7f305857d5df79307e74f5f3168f8d12c"
+            },
+            "sha256": "177b15230c6f61e507bb791ffb93ce09e0bc913629dd823380cf5e524408fa40"
+          },
+          "replay_sound": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.replay_sound : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases final : Finset (M7.Action.Recipe N)) (es : List (M7.CompactGeneration.Emission N)), M7.RecoveryInstance.GoodBases w bases → M7.GenerationReplay.replay w E bases es = some final → M7.RecoveryInstance.GoodBases w final ∧ M7.GenerationReplay.FreshFrom w E bases es := by\n  classical\n  intro N inst w E hE bases final es\n  induction es generalizing bases final with\n  | nil =>\n      intro hb hr\n      simp only [M7.GenerationReplay.replay] at hr\n      split at hr\n      · cases Option.some.inj hr\n        exact ⟨hb, trivial⟩\n      · cases hr\n  | cons e es ih =>\n      intro hb hr\n      simp only [M7.GenerationReplay.replay] at hr\n      split at hr\n      · rename_i hs\n        rcases (M7.GenerationReplay.step_exact N w E bases e).mp hs with ⟨hp, rfl⟩\n        have hp' : 0 < M7.RecoveryInstance.count w E bases [] := by\n          simpa only [M7.CompactCorrectness.residual_eq] using hp\n        have he := M7.CompactCorrectness.emission_eq N w E bases\n        have hg := M7.RecoveryInstance.insert_good N w E bases hE hb hp'\n        have hb' : M7.RecoveryInstance.GoodBases w\n            (insert (M7.CompactGeneration.emission w E bases).representative bases) := by\n          rw [he.2]\n          exact hg.1\n        have hn : (M7.CompactGeneration.emission w E bases).representative ∉ bases := by\n          change M7.CanonicalOuter.canonical (M7.CompactGeneration.emission w E bases).leaf ∉ bases\n          rw [he.1]\n          exact hg.2\n        have hv : M7.PrefixOrbit.ClassValid w\n            (M7.CompactGeneration.emission w E bases).representative := by\n          have hh := hb'\n          unfold M7.RecoveryInstance.GoodBases at hh\n          rcases hh with ⟨h₁, h₂⟩\n          first\n          | exact h₂ _ (Finset.mem_insert_self _ _)\n          | exact h₁ _ (Finset.mem_insert_self _ _)\n        have hl : (M7.CompactGeneration.emission w E bases).leaf ∈\n            M7.RecoveryPrefix.completed N w E [] := by\n          rw [he.1]\n          have hf := (M7.RecoveryInstance.fresh_leaf N w E bases hE hb hp').1\n          simp only [M7.RecoveryInstance.remaining, M7.OrbitResidual.remaining,\n            Finset.mem_sdiff, Finset.mem_filter] at hf\n          exact hf.1\n        obtain ⟨hfinal, htail⟩ := ih _ _ hb' hr\n        exact ⟨hfinal, hn, hv, hl, htail⟩\n      · cases hr",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.replay_sound",
+              "ancestors": [
+                "step_exact"
+              ],
+              "spec_sha256": "b76545c6bfff8ba2da7d72f12c963c01d1e492b78c606a8ecfb44f40c93dbe4a"
+            },
+            "sha256": "7fe741ac99065fd8e9656a67760d2a6a9981317250a469dd810228af4860ae79"
+          }
+        }
+      }
+    },
+    "checked_coverage": {
+      "id": "checked_coverage",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.GenerationReplay.checked_coverage",
+        "spec_sha256": "8181e7cfe872b79cb7481cde099f3b7fbfbf858e459b4e22ccadbfc24cb70e9f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-xs7oa9ol/attempt-001/Candidate_3a4cedab35e076d6.lean:11:8: error: Type mismatch\n  Eq.trans he (congrArg some hh.left)\nhas type\n  replay w E ∅ o.emitted = some o.finalBases\nbut is expected to have type\n  some bases = some o.finalBases\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-xs7oa9ol/attempt-002/Candidate_d7e008f460ba451b.lean",
+            "target_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-xs7oa9ol/attempt-002/FrozenTarget_d7e008f460ba451b.lean",
+            "feedback": "",
+            "target_sha256": "0e1d051ce772291fa742081793d801d4a8a61f9bcec823b33d538a30cebafe3b",
+            "target_olean_sha256": "999c766864030d7c4423ce058e09f4d934dcb88d6a91ecf0ad2ddca06664abcc",
+            "source_sha256": "01e5204bfe952860a0b891e757bc060d288ef4217c21e06026e323e4230c742b",
+            "olean_sha256": "5cafae70793daf29ed8056d031ce35988e186f35647ee984d174c64282fa4cd1",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T20:24:54.586752+00:00",
+        "work": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-xs7oa9ol",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7c16f4ee519669210ada45c9bbb1263cab892abd4ea1b710274a5537a76f8b1f",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-xs7oa9ol/attempt-002/Candidate_d7e008f460ba451b.lean",
+        "environment_sha256": "fc49bf2e5b5a4081752ff55086c9ebb327484d645e675e6a10a09a49a3399ee3",
+        "artifacts": {
+          "replay_terminal_fold": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.replay_terminal_fold : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases final : Finset (M7.Action.Recipe N)) (es : List (M7.CompactGeneration.Emission N)), M7.GenerationReplay.replay w E bases es = some final → M7.CompactGeneration.residual w E final [] = 0 ∧ final = es.foldl (fun acc e => insert e.representative acc) bases := by\n  classical\n  intro N inst w E bases final es\n  induction es generalizing bases final with\n  | nil =>\n      intro h\n      unfold M7.GenerationReplay.replay at h\n      split at h\n      · rename_i hz\n        have heq : bases = final := Option.some.inj h\n        subst final\n        exact ⟨hz, rfl⟩\n      · simp at h\n  | cons e es ih =>\n      intro h\n      unfold M7.GenerationReplay.replay at h\n      split at h\n      · exact ih (insert e.representative bases) final h\n      · simp at h",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.replay_terminal_fold",
+              "ancestors": [],
+              "spec_sha256": "46c08e35fe2c8ccea44994836c4e65094a5f6e8374c452c6a8f467d3655d803a"
+            },
+            "sha256": "a47701befdc3080f7789401ea53eef392e0e980074dac6de3cffd8068dc74ae9"
+          },
+          "step_exact": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.step_exact : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (e : M7.CompactGeneration.Emission N), M7.GenerationReplay.stepPass w E bases e = true ↔ 0 < M7.CompactGeneration.residual w E bases [] ∧ e = M7.CompactGeneration.emission w E bases := by\n  classical\n  intro N inst w E bases e\n  change M7.GenerationReplay.stepPass w E bases e = true ↔ _\n  constructor\n  · intro h\n    simp only [M7.GenerationReplay.stepPass, Bool.and_eq_true, decide_eq_true_eq] at h\n    rcases h with ⟨⟨hpos, hcheck⟩, hdepth, hleaf, hrep, haction, hleafSig, hrepSig, hstab⟩\n    have hpath := M7.DescentTrace.check_unique\n      (M7.CompactGeneration.residual w E bases) [] e.path hcheck\n    rw [hdepth] at hpath\n    refine ⟨hpos, ?_⟩\n    cases e\n    dsimp only at *\n    simp_all [M7.CompactGeneration.emission, M7.DescentTrace.endpoint_recover]\n  · rintro ⟨hpos, rfl⟩\n    simp [M7.GenerationReplay.stepPass, M7.CompactGeneration.emission,\n      M7.DescentTrace.trace_length, M7.DescentTrace.check_trace,\n      M7.DescentTrace.endpoint_recover, hpos]",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.step_exact",
+              "ancestors": [],
+              "spec_sha256": "ad513618ddf30e46dd65581ab4da87c7f305857d5df79307e74f5f3168f8d12c"
+            },
+            "sha256": "177b15230c6f61e507bb791ffb93ce09e0bc913629dd823380cf5e524408fa40"
+          },
+          "replay_sound": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.replay_sound : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → ∀ (bases final : Finset (M7.Action.Recipe N)) (es : List (M7.CompactGeneration.Emission N)), M7.RecoveryInstance.GoodBases w bases → M7.GenerationReplay.replay w E bases es = some final → M7.RecoveryInstance.GoodBases w final ∧ M7.GenerationReplay.FreshFrom w E bases es := by\n  classical\n  intro N inst w E hE bases final es\n  induction es generalizing bases final with\n  | nil =>\n      intro hb hr\n      simp only [M7.GenerationReplay.replay] at hr\n      split at hr\n      · cases Option.some.inj hr\n        exact ⟨hb, trivial⟩\n      · cases hr\n  | cons e es ih =>\n      intro hb hr\n      simp only [M7.GenerationReplay.replay] at hr\n      split at hr\n      · rename_i hs\n        rcases (M7.GenerationReplay.step_exact N w E bases e).mp hs with ⟨hp, rfl⟩\n        have hp' : 0 < M7.RecoveryInstance.count w E bases [] := by\n          simpa only [M7.CompactCorrectness.residual_eq] using hp\n        have he := M7.CompactCorrectness.emission_eq N w E bases\n        have hg := M7.RecoveryInstance.insert_good N w E bases hE hb hp'\n        have hb' : M7.RecoveryInstance.GoodBases w\n            (insert (M7.CompactGeneration.emission w E bases).representative bases) := by\n          rw [he.2]\n          exact hg.1\n        have hn : (M7.CompactGeneration.emission w E bases).representative ∉ bases := by\n          change M7.CanonicalOuter.canonical (M7.CompactGeneration.emission w E bases).leaf ∉ bases\n          rw [he.1]\n          exact hg.2\n        have hv : M7.PrefixOrbit.ClassValid w\n            (M7.CompactGeneration.emission w E bases).representative := by\n          have hh := hb'\n          unfold M7.RecoveryInstance.GoodBases at hh\n          rcases hh with ⟨h₁, h₂⟩\n          first\n          | exact h₂ _ (Finset.mem_insert_self _ _)\n          | exact h₁ _ (Finset.mem_insert_self _ _)\n        have hl : (M7.CompactGeneration.emission w E bases).leaf ∈\n            M7.RecoveryPrefix.completed N w E [] := by\n          rw [he.1]\n          have hf := (M7.RecoveryInstance.fresh_leaf N w E bases hE hb hp').1\n          simp only [M7.RecoveryInstance.remaining, M7.OrbitResidual.remaining,\n            Finset.mem_sdiff, Finset.mem_filter] at hf\n          exact hf.1\n        obtain ⟨hfinal, htail⟩ := ih _ _ hb' hr\n        exact ⟨hfinal, hn, hv, hl, htail⟩\n      · cases hr",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.replay_sound",
+              "ancestors": [
+                "step_exact"
+              ],
+              "spec_sha256": "b76545c6bfff8ba2da7d72f12c963c01d1e492b78c606a8ecfb44f40c93dbe4a"
+            },
+            "sha256": "7fe741ac99065fd8e9656a67760d2a6a9981317250a469dd810228af4860ae79"
+          },
+          "fresh_nodup": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.fresh_nodup : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (es : List (M7.CompactGeneration.Emission N)), M7.GenerationReplay.FreshFrom w E bases es → (es.map (fun e => e.representative)).Nodup ∧ ∀ e ∈ es, e.representative ∉ bases := by\n  classical\n  intro N inst w E bases es\n  induction es generalizing bases with\n  | nil =>\n      intro h\n      simp\n  | cons e es ih =>\n      intro h\n      change e.representative ∉ bases ∧ _ ∧ _ ∧ M7.GenerationReplay.FreshFrom w E (insert e.representative bases) es at h\n      rcases h with ⟨hfresh, _, _, htail⟩\n      obtain ⟨hnd, hdisjoint⟩ := ih (insert e.representative bases) htail\n      constructor\n      · simp only [List.map_cons, List.nodup_cons]\n        refine ⟨?_, hnd⟩\n        intro hm\n        obtain ⟨a, ha, heq⟩ := List.mem_map.mp hm\n        exact hdisjoint a ha (by simp [heq])\n      · intro a ha\n        rcases List.mem_cons.mp ha with rfl | ha\n        · exact hfresh\n        · intro hb\n          exact hdisjoint a ha (Finset.mem_insert_of_mem hb)",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.fresh_nodup",
+              "ancestors": [],
+              "spec_sha256": "81f94f9f09edced1ae6c596b3a2a7b3ca4fd95392b0a0bdbec748e994a40f5b1"
+            },
+            "sha256": "987538d8ce3152ee905d3f1019b65f9c8676ac40922abe0a16eb9ace06e3f273"
+          },
+          "checked_coverage": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.checked_coverage : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → 0 < w → ∀ o : M7.CompactGeneration.Output N, M7.GenerationReplay.check w E o = true → M7.RecoveryInstance.GoodBases w o.finalBases ∧ M7.GenerationReplay.FreshFrom w E ∅ o.emitted ∧ (o.emitted.map (fun e => e.representative)).Nodup ∧ (∀ y ∈ M7.RecoveryPrefix.completed N w E [], y ∈ M7.OrbitResidual.covered o.finalBases) ∧ (∀ c : M7.Action.Recipe N, M7.RawCoverage.Queried w E c → M7.CanonicalOuter.canonical c ∈ o.finalBases ∧ ∃ b ∈ o.finalBases, ∃ g : M7.Action.Record N, M7.Action.act g b = c) := by\n  classical\n  intro N inst w E hE hw o hc\n  have hr : M7.GenerationReplay.replay w E ∅ o.emitted = some o.finalBases := by\n    unfold M7.GenerationReplay.check at hc\n    cases he : M7.GenerationReplay.replay w E ∅ o.emitted with\n    | none => simp [he] at hc\n    | some bases =>\n        simp only [he, decide_eq_true_eq] at hc\n        exact congrArg some hc.1\n  obtain ⟨hb, hf⟩ := M7.GenerationReplay.replay_sound N w E hE ∅ o.finalBases o.emitted\n    (M7.CompactCorrectness.initial N w E hE).1 hr\n  have hn := (M7.GenerationReplay.fresh_nodup N w E ∅ o.emitted hf).1\n  have hz := (M7.GenerationReplay.replay_terminal_fold N w E ∅ o.finalBases o.emitted hr).1\n  have hz' : M7.RecoveryInstance.count w E o.finalBases [] = 0 := by\n    simpa only [M7.CompactCorrectness.residual_eq] using hz\n  have hcov := (M7.RecoveryInstance.root_zero N w E o.finalBases hE hb).mp hz'\n  refine ⟨hb, hf, hn, ?_, ?_⟩\n  · intro y hy\n    exact hcov hy\n  · have hrem : M7.OrbitResidual.remaining (M7.RawCoverage.rootCompleted N w E) o.finalBases = ∅ := by\n      change M7.RecoveryInstance.remaining w E o.finalBases [] = ∅\n      apply Finset.card_eq_zero.mp\n      have hcard := (M7.RecoveryInstance.count_card N w E o.finalBases hE hb []).2.1\n      simpa only [hz', Int.toNat_zero] using hcard.symm\n    apply M7.RawCoverage.remaining_coverage N w E o.finalBases hw\n    · first | exact hb.1 | exact hb.2\n    · first | exact hb.2 | exact hb.1\n    · exact hrem",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.checked_coverage",
+              "ancestors": [
+                "fresh_nodup",
+                "replay_sound",
+                "replay_terminal_fold",
+                "step_exact"
+              ],
+              "spec_sha256": "2e0f0ef7b407b0f6eb0e0b1768ca5712b1b51dc76de464b4ed46d453c348516c"
+            },
+            "sha256": "69d7f1c1211431f1b5acf3e7c28a139fe8fd95f54f44c57149909da96dbf3b70"
+          }
+        }
+      }
+    },
+    "run_replay": {
+      "id": "run_replay",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.GenerationReplay.run_replay",
+        "spec_sha256": "f6627464766cff2f1da7fd9c1c530bb0437208eef920075901f974531b007cd7",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-w7kqf91z/attempt-001/Candidate_c468f9f2835d2033.lean",
+            "target_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-w7kqf91z/attempt-001/FrozenTarget_c468f9f2835d2033.lean",
+            "feedback": "",
+            "target_sha256": "4d0e445c98f83ad3b1ca3c7ef2997af0ccf347f5175f6d17159bb2bcad194be0",
+            "target_olean_sha256": "f7afcf3c51d9fc2e9d30520a54c5ee5b5bdb33538cb86b8024e6aade205ad97b",
+            "source_sha256": "ad7e2ce37beedf0173066522219e225323e859727cf2190c2a7e22ed53da652a",
+            "olean_sha256": "42e4acb3393f95f0423417846df44e0a450f300d5dae1f624bbcf2483d519d39",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T20:23:31.705762+00:00",
+        "work": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-w7kqf91z",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7c16f4ee519669210ada45c9bbb1263cab892abd4ea1b710274a5537a76f8b1f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-w7kqf91z/attempt-001/Candidate_c468f9f2835d2033.lean",
+        "environment_sha256": "fc49bf2e5b5a4081752ff55086c9ebb327484d645e675e6a10a09a49a3399ee3",
+        "artifacts": {
+          "step_exact": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.step_exact : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (e : M7.CompactGeneration.Emission N), M7.GenerationReplay.stepPass w E bases e = true ↔ 0 < M7.CompactGeneration.residual w E bases [] ∧ e = M7.CompactGeneration.emission w E bases := by\n  classical\n  intro N inst w E bases e\n  change M7.GenerationReplay.stepPass w E bases e = true ↔ _\n  constructor\n  · intro h\n    simp only [M7.GenerationReplay.stepPass, Bool.and_eq_true, decide_eq_true_eq] at h\n    rcases h with ⟨⟨hpos, hcheck⟩, hdepth, hleaf, hrep, haction, hleafSig, hrepSig, hstab⟩\n    have hpath := M7.DescentTrace.check_unique\n      (M7.CompactGeneration.residual w E bases) [] e.path hcheck\n    rw [hdepth] at hpath\n    refine ⟨hpos, ?_⟩\n    cases e\n    dsimp only at *\n    simp_all [M7.CompactGeneration.emission, M7.DescentTrace.endpoint_recover]\n  · rintro ⟨hpos, rfl⟩\n    simp [M7.GenerationReplay.stepPass, M7.CompactGeneration.emission,\n      M7.DescentTrace.trace_length, M7.DescentTrace.check_trace,\n      M7.DescentTrace.endpoint_recover, hpos]",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.step_exact",
+              "ancestors": [],
+              "spec_sha256": "ad513618ddf30e46dd65581ab4da87c7f305857d5df79307e74f5f3168f8d12c"
+            },
+            "sha256": "177b15230c6f61e507bb791ffb93ce09e0bc913629dd823380cf5e524408fa40"
+          },
+          "run_replay": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.run_replay : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), root = M7.CompactGeneration.residual w E bases [] → (M7.CompactGeneration.run w E fuel bases root).finalResidual = 0 → M7.GenerationReplay.replay w E bases (M7.CompactGeneration.run w E fuel bases root).emitted = some (M7.CompactGeneration.run w E fuel bases root).finalBases := by\n  classical\n  intro N inst w E bases fuel root\n  induction fuel generalizing bases root with\n  | zero =>\n      intro hroot hzero\n      by_cases hpos : 0 < root\n      · simp_all [M7.CompactGeneration.run, M7.GenerationReplay.replay,\n          not_le_of_gt hpos]\n      · simp_all [M7.CompactGeneration.run, M7.GenerationReplay.replay,\n          le_of_not_gt hpos]\n  | succ fuel ih =>\n      intro hroot hzero\n      by_cases hpos : 0 < root\n      · have hstep : M7.GenerationReplay.stepPass w E bases\n            (M7.CompactGeneration.emission w E bases) = true :=\n          (M7.GenerationReplay.step_exact N w E bases _).2\n            ⟨hroot ▸ hpos, rfl⟩\n        simp only [M7.CompactGeneration.run, if_pos hpos,\n          if_neg (not_le_of_gt hpos)] at hzero ⊢\n        simp only [M7.GenerationReplay.replay, hstep, if_true]\n        exact ih _ _ rfl hzero\n      · have hstop := M7.CompactGeneration.stop N w E bases\n          (fuel + 1) root (le_of_not_gt hpos)\n        rw [hstop.1, hstop.2.1]\n        have hres : M7.CompactGeneration.residual w E bases [] = 0 :=\n          hroot.symm.trans (hstop.2.2.1.symm.trans hzero)\n        simp [M7.GenerationReplay.replay, hres]",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.run_replay",
+              "ancestors": [
+                "step_exact"
+              ],
+              "spec_sha256": "bc59ea26dae1b737035ab49a467eaeb6edb2ed8bb8d5f40ac4415a3bece97da6"
+            },
+            "sha256": "304a389c4b486348db95df6475883bd38c1d07c67ddc284439f468e20ef58928"
+          }
+        }
+      }
+    },
+    "generate_checked": {
+      "id": "generate_checked",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.GenerationReplay.generate_checked",
+        "spec_sha256": "171b41bb0010b94ee43f99241983ddb683dabfc62f420f816ea2b6d9718be581",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-7r6dibya/attempt-001/Candidate_82e3a55b78ae122d.lean",
+            "target_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-7r6dibya/attempt-001/FrozenTarget_82e3a55b78ae122d.lean",
+            "feedback": "",
+            "target_sha256": "0f1760257b282662754caa211698e37681ac775be7cecdb6382187eca63d93d6",
+            "target_olean_sha256": "c284d9c32e6c1e72d53c6714ea40c2a7bda601d7b7367118bec69b6d896b4d6d",
+            "source_sha256": "d866dfc74c295e75d8e90243485bf89eea5e120924adb253d25eae34feb30bb5",
+            "olean_sha256": "7e148b6f007e8aeddce78b6e143e7876b1985ee255f217d9335da560f186923e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T20:24:51.122461+00:00",
+        "work": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-7r6dibya",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7c16f4ee519669210ada45c9bbb1263cab892abd4ea1b710274a5537a76f8b1f",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-7r6dibya/attempt-001/Candidate_82e3a55b78ae122d.lean",
+        "environment_sha256": "fc49bf2e5b5a4081752ff55086c9ebb327484d645e675e6a10a09a49a3399ee3",
+        "artifacts": {
+          "step_exact": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.step_exact : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (e : M7.CompactGeneration.Emission N), M7.GenerationReplay.stepPass w E bases e = true ↔ 0 < M7.CompactGeneration.residual w E bases [] ∧ e = M7.CompactGeneration.emission w E bases := by\n  classical\n  intro N inst w E bases e\n  change M7.GenerationReplay.stepPass w E bases e = true ↔ _\n  constructor\n  · intro h\n    simp only [M7.GenerationReplay.stepPass, Bool.and_eq_true, decide_eq_true_eq] at h\n    rcases h with ⟨⟨hpos, hcheck⟩, hdepth, hleaf, hrep, haction, hleafSig, hrepSig, hstab⟩\n    have hpath := M7.DescentTrace.check_unique\n      (M7.CompactGeneration.residual w E bases) [] e.path hcheck\n    rw [hdepth] at hpath\n    refine ⟨hpos, ?_⟩\n    cases e\n    dsimp only at *\n    simp_all [M7.CompactGeneration.emission, M7.DescentTrace.endpoint_recover]\n  · rintro ⟨hpos, rfl⟩\n    simp [M7.GenerationReplay.stepPass, M7.CompactGeneration.emission,\n      M7.DescentTrace.trace_length, M7.DescentTrace.check_trace,\n      M7.DescentTrace.endpoint_recover, hpos]",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.step_exact",
+              "ancestors": [],
+              "spec_sha256": "ad513618ddf30e46dd65581ab4da87c7f305857d5df79307e74f5f3168f8d12c"
+            },
+            "sha256": "177b15230c6f61e507bb791ffb93ce09e0bc913629dd823380cf5e524408fa40"
+          },
+          "run_replay": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.run_replay : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), root = M7.CompactGeneration.residual w E bases [] → (M7.CompactGeneration.run w E fuel bases root).finalResidual = 0 → M7.GenerationReplay.replay w E bases (M7.CompactGeneration.run w E fuel bases root).emitted = some (M7.CompactGeneration.run w E fuel bases root).finalBases := by\n  classical\n  intro N inst w E bases fuel root\n  induction fuel generalizing bases root with\n  | zero =>\n      intro hroot hzero\n      by_cases hpos : 0 < root\n      · simp_all [M7.CompactGeneration.run, M7.GenerationReplay.replay,\n          not_le_of_gt hpos]\n      · simp_all [M7.CompactGeneration.run, M7.GenerationReplay.replay,\n          le_of_not_gt hpos]\n  | succ fuel ih =>\n      intro hroot hzero\n      by_cases hpos : 0 < root\n      · have hstep : M7.GenerationReplay.stepPass w E bases\n            (M7.CompactGeneration.emission w E bases) = true :=\n          (M7.GenerationReplay.step_exact N w E bases _).2\n            ⟨hroot ▸ hpos, rfl⟩\n        simp only [M7.CompactGeneration.run, if_pos hpos,\n          if_neg (not_le_of_gt hpos)] at hzero ⊢\n        simp only [M7.GenerationReplay.replay, hstep, if_true]\n        exact ih _ _ rfl hzero\n      · have hstop := M7.CompactGeneration.stop N w E bases\n          (fuel + 1) root (le_of_not_gt hpos)\n        rw [hstop.1, hstop.2.1]\n        have hres : M7.CompactGeneration.residual w E bases [] = 0 :=\n          hroot.symm.trans (hstop.2.2.1.symm.trans hzero)\n        simp [M7.GenerationReplay.replay, hres]",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.run_replay",
+              "ancestors": [
+                "step_exact"
+              ],
+              "spec_sha256": "bc59ea26dae1b737035ab49a467eaeb6edb2ed8bb8d5f40ac4415a3bece97da6"
+            },
+            "sha256": "304a389c4b486348db95df6475883bd38c1d07c67ddc284439f468e20ef58928"
+          },
+          "generate_checked": {
+            "payload": {
+              "declaration": "theorem M7.GenerationReplay.generate_checked : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E → M7.GenerationReplay.check w E (M7.CompactGeneration.generate (N := N) w E) = true := by\n  classical\n  intro N inst w E hE\n  have hex := M7.CompactCorrectness.generate_exact N w E hE\n  have hz : (M7.CompactGeneration.generate (N := N) w E).finalResidual = 0 := by\n    tauto\n  have hf : (M7.CompactGeneration.generate (N := N) w E).fuelExhausted = false := by\n    tauto\n  have hr : M7.GenerationReplay.replay w E ∅\n      (M7.CompactGeneration.generate (N := N) w E).emitted =\n      some (M7.CompactGeneration.generate (N := N) w E).finalBases := by\n    unfold M7.CompactGeneration.generate\n    apply M7.GenerationReplay.run_replay N w E ∅\n    · rfl\n    · exact hz\n  simp [M7.GenerationReplay.check, hr, hz, hf]",
+              "imports": [
+                "M7GenerationReplay"
+              ],
+              "name": "M7.GenerationReplay.generate_checked",
+              "ancestors": [
+                "run_replay",
+                "step_exact"
+              ],
+              "spec_sha256": "c169698f1bca9f0d2fff46a8baa190cd02e9fcaa299dc2437f2cf3037d60246e"
+            },
+            "sha256": "215e91e0115f21054e3ec1386ab649a9c6176a4d1fe6c31fa6c6e7fe71d6d1ff"
+          }
+        }
+      }
+    }
+  }
+}

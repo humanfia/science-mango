@@ -1,0 +1,55 @@
+{
+  "id": "step_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.GenerationReplay.step_exact",
+    "spec_sha256": "ad513618ddf30e46dd65581ab4da87c7f305857d5df79307e74f5f3168f8d12c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-t02zvr1c/attempt-001/Candidate_4b4adeea5246aa0c.lean",
+        "target_path": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-t02zvr1c/attempt-001/FrozenTarget_4b4adeea5246aa0c.lean",
+        "feedback": "",
+        "target_sha256": "ed344b848d76e38c8546511a6551e9f8b800cb534dfb2d9d77b84dba0b3edbc9",
+        "target_olean_sha256": "64ba852013bb79605feaae3f45a2e9b36fb35100565c7446c6d3007b06522038",
+        "source_sha256": "7e9e2ab117f3c2de10dcdf8446a3bbda87bc04ddd6f7dca1387dce6e798a7c3e",
+        "olean_sha256": "5f424cfa3082fd524c73de372aae2d44527d9137cc6956c44515dc0ebb0d351f",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:22:19.607524+00:00",
+    "work": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-t02zvr1c",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7c16f4ee519669210ada45c9bbb1263cab892abd4ea1b710274a5537a76f8b1f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-generation-replay-formalization/.humanize-formal-runs/run-t02zvr1c/attempt-001/Candidate_4b4adeea5246aa0c.lean",
+    "environment_sha256": "fc49bf2e5b5a4081752ff55086c9ebb327484d645e675e6a10a09a49a3399ee3",
+    "artifacts": {
+      "step_exact": {
+        "payload": {
+          "declaration": "theorem M7.GenerationReplay.step_exact : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (e : M7.CompactGeneration.Emission N), M7.GenerationReplay.stepPass w E bases e = true ↔ 0 < M7.CompactGeneration.residual w E bases [] ∧ e = M7.CompactGeneration.emission w E bases := by\n  classical\n  intro N inst w E bases e\n  change M7.GenerationReplay.stepPass w E bases e = true ↔ _\n  constructor\n  · intro h\n    simp only [M7.GenerationReplay.stepPass, Bool.and_eq_true, decide_eq_true_eq] at h\n    rcases h with ⟨⟨hpos, hcheck⟩, hdepth, hleaf, hrep, haction, hleafSig, hrepSig, hstab⟩\n    have hpath := M7.DescentTrace.check_unique\n      (M7.CompactGeneration.residual w E bases) [] e.path hcheck\n    rw [hdepth] at hpath\n    refine ⟨hpos, ?_⟩\n    cases e\n    dsimp only at *\n    simp_all [M7.CompactGeneration.emission, M7.DescentTrace.endpoint_recover]\n  · rintro ⟨hpos, rfl⟩\n    simp [M7.GenerationReplay.stepPass, M7.CompactGeneration.emission,\n      M7.DescentTrace.trace_length, M7.DescentTrace.check_trace,\n      M7.DescentTrace.endpoint_recover, hpos]",
+          "imports": [
+            "M7GenerationReplay"
+          ],
+          "name": "M7.GenerationReplay.step_exact",
+          "ancestors": [],
+          "spec_sha256": "ad513618ddf30e46dd65581ab4da87c7f305857d5df79307e74f5f3168f8d12c"
+        },
+        "sha256": "177b15230c6f61e507bb791ffb93ce09e0bc913629dd823380cf5e524408fa40"
+      }
+    }
+  }
+}

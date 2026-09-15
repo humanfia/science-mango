@@ -1,0 +1,55 @@
+{
+  "id": "field_bounds",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CompactStorage.field_bounds",
+    "spec_sha256": "522f064a019e53de6be9d2da03b7f7db5994f9a66fe5e0f3998f496a26a25cc6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-compact-storage-formalization/.humanize-formal-runs/run-nylwy0w5/attempt-001/Candidate_bed53cec2ab5cf36.lean",
+        "target_path": "/home/jing/m7-lean-compact-storage-formalization/.humanize-formal-runs/run-nylwy0w5/attempt-001/FrozenTarget_bed53cec2ab5cf36.lean",
+        "feedback": "",
+        "target_sha256": "f96a6de7c01a31edea4da565622d4ed0e1a98a1c093c91b50f2d0d2338a2aa66",
+        "target_olean_sha256": "b075a0c0bf5fdad6bb489658fdcb90b1286317bcce1228c9f8308b59b6d77dca",
+        "source_sha256": "85327c5e98a76135b1274fbbcda61ec57b7dfb390c6ee6469d209680ba5974de",
+        "olean_sha256": "41226dacab0ede83659746a60609e5a247305c3558abed2dbf95ba74caf1394d",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:03:17.386778+00:00",
+    "work": "/home/jing/m7-lean-compact-storage-formalization/.humanize-formal-runs/run-nylwy0w5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4f433d8a446ed57931bbbc84f8f5af822945a435e238e031eacaa7067093a687",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-compact-storage-formalization/.humanize-formal-runs/run-nylwy0w5/attempt-001/Candidate_bed53cec2ab5cf36.lean",
+    "environment_sha256": "0e5a514c199fb8f614c43661504b3bcf1c4491031671ee03e9dd7669c7da26b8",
+    "artifacts": {
+      "field_bounds": {
+        "payload": {
+          "declaration": "theorem M7.CompactStorage.field_bounds : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (M7.RecipeSignature.signature c).natDegree ≤ N ∧ M7.ActualOrbit.stabilizerCount c < 2^(1+3*N) := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), _\n  intro N inst c\n  classical\n  constructor\n  · have hd := (M7.RecipeSignature.signature_properties N c).2\n    have hn := (M7.SignatureTau.modulus_monic N).ne_zero\n    refine (Polynomial.natDegree_le_of_dvd hd hn).trans ?_\n    change (Polynomial.X ^ N + 1 : M6.Cyclic.BinaryPolynomial).natDegree ≤ N\n    simpa using (Polynomial.natDegree_add_le\n      (Polynomial.X ^ N : M6.Cyclic.BinaryPolynomial) 1)\n  · have hcard : M7.ActualOrbit.stabilizerCount c ≤ Fintype.card (M7.Action.Record N) := by\n      change (M7.ActualOrbit.fullStabilizer c).card ≤ Fintype.card (M7.Action.Record N)\n      exact Finset.card_le_univ _\n    have hb : Fintype.card (M7.Action.Record N) ≤ 2 * N ^ 3 := by\n      calc\n        Fintype.card (M7.Action.Record N) = Nat.totient N * 2 * N * N := M7.Action.record_card N\n        _ ≤ N * 2 * N * N := by\n          gcongr <;> exact Nat.totient_le N\n        _ = 2 * N ^ 3 := by ring\n    have hp : ∀ n : ℕ, n < 2 ^ n := by\n      intro n\n      induction n with\n      | zero => norm_num\n      | succ n ih =>\n          rw [pow_succ]\n          have hpos : 0 < (2 : ℕ) ^ n := by positivity\n          omega\n    have hc : N ^ 3 < (2 ^ N) ^ 3 := by\n      have h := hp N\n      gcongr\n    calc\n      M7.ActualOrbit.stabilizerCount c ≤ 2 * N ^ 3 := hcard.trans hb\n      _ < 2 * (2 ^ N) ^ 3 := by omega\n      _ = 2 ^ (1 + 3 * N) := by\n        simp [← pow_mul, pow_add, Nat.mul_comm]",
+          "imports": [
+            "M7CompactStorage"
+          ],
+          "name": "M7.CompactStorage.field_bounds",
+          "ancestors": [],
+          "spec_sha256": "522f064a019e53de6be9d2da03b7f7db5994f9a66fe5e0f3998f496a26a25cc6"
+        },
+        "sha256": "7bb4c49263378f26270ad0ee668a8615385b455b569580776a3c1b839eafab16"
+      }
+    }
+  }
+}

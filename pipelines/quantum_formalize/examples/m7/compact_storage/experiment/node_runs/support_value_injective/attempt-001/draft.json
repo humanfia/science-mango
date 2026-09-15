@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nchange ∀ (N : ℕ) [NeZero N], Function.Injective (@M7.CompactStorage.supportBits N) ∧ Function.Injective (@M7.CompactStorage.valueBits N)\nintro N inst\nconstructor\n· intro A B h\n  apply Finset.ext\n  intro x\n  have hx := congrFun h (⟨x.val, ZMod.val_lt x⟩ : Fin N)\n  have hx' := congrArg (fun b : Bool => b = true) hx\n  simpa [M7.CompactStorage.supportBits, ZMod.natCast_zmod_val] using hx'\n· intro x y h\n  have hx := congrFun h (⟨x.val, ZMod.val_lt x⟩ : Fin N)\n  simpa [M7.CompactStorage.valueBits, ZMod.natCast_zmod_val, eq_comm] using hx",
+  "queries": [
+    "ZMod.natCast_zmod_val",
+    "decide_eq_true_eq"
+  ]
+}

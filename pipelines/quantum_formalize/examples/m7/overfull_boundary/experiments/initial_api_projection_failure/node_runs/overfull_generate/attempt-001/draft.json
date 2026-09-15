@@ -1,0 +1,4 @@
+{
+  "proof": "intro N w inst E hE hN\nhave hex := M7.CompactCorrectness.generate_exact N w E hE\nhave hgood : M7.RecoveryInstance.GoodBases w (M7.CompactGeneration.generate (N := N) w E).finalBases := by\n  aesop\nhave hb : (M7.CompactGeneration.generate (N := N) w E).finalBases = ∅ := by\n  apply Finset.eq_empty_iff_forall_not_mem.mpr\n  intro c hc\n  apply M7.OverfullBoundary.class_impossible N w hN c\n  unfold M7.RecoveryInstance.GoodBases at hgood\n  aesop\nhave hcard := M7.CompactCorrectness.generate_card N w E hE\nhave hlen : (M7.CompactGeneration.generate (N := N) w E).emitted.length = 0 := by\n  simp only [hb, Finset.card_empty] at hcard\n  omega\nhave hempty : (M7.CompactGeneration.generate (N := N) w E).emitted = [] := List.length_eq_zero.mp hlen\nexact ⟨hb, hempty, by aesop⟩",
+  "queries": []
+}

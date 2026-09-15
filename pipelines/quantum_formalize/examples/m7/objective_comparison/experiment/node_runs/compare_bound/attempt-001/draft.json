@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (m : ℕ) (mode : M7.Selection.Mode) (a b : Fin m → ℤ), (M7.ObjectiveComparison.compare mode a b).2 ≤ 2 * m ∧ (M7.ObjectiveComparison.compare mode a b).2 ≤ 2 * (m + 1)\nintro m mode a b\nhave h : (M7.ObjectiveComparison.compare mode a b).2 ≤ 2 * m := by\n  cases mode <;> first\n    | simpa only [M7.ObjectiveComparison.compare] using M7.ObjectiveComparison.lex_comparisons m a b 0 m\n    | simpa only [M7.ObjectiveComparison.compare] using M7.ObjectiveComparison.pareto_comparisons m a b 0 m false\nconstructor\n· exact h\n· omega",
+  "queries": []
+}

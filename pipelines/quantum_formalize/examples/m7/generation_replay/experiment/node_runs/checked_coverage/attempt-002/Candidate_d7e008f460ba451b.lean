@@ -1,0 +1,30 @@
+import FrozenTarget_d7e008f460ba451b
+theorem M7.GenerationReplay.checked_coverage : QuantumHarnessFrozenTarget := by
+  classical
+  intro N inst w E hE hw o hc
+  have hr : M7.GenerationReplay.replay w E ∅ o.emitted = some o.finalBases := by
+    unfold M7.GenerationReplay.check at hc
+    cases he : M7.GenerationReplay.replay w E ∅ o.emitted with
+    | none => simp [he] at hc
+    | some bases =>
+        simp only [he, decide_eq_true_eq] at hc
+        exact congrArg some hc.1
+  obtain ⟨hb, hf⟩ := M7.GenerationReplay.replay_sound N w E hE ∅ o.finalBases o.emitted
+    (M7.CompactCorrectness.initial N w E hE).1 hr
+  have hn := (M7.GenerationReplay.fresh_nodup N w E ∅ o.emitted hf).1
+  have hz := (M7.GenerationReplay.replay_terminal_fold N w E ∅ o.finalBases o.emitted hr).1
+  have hz' : M7.RecoveryInstance.count w E o.finalBases [] = 0 := by
+    simpa only [M7.CompactCorrectness.residual_eq] using hz
+  have hcov := (M7.RecoveryInstance.root_zero N w E o.finalBases hE hb).mp hz'
+  refine ⟨hb, hf, hn, ?_, ?_⟩
+  · intro y hy
+    exact hcov hy
+  · have hrem : M7.OrbitResidual.remaining (M7.RawCoverage.rootCompleted N w E) o.finalBases = ∅ := by
+      change M7.RecoveryInstance.remaining w E o.finalBases [] = ∅
+      apply Finset.card_eq_zero.mp
+      have hcard := (M7.RecoveryInstance.count_card N w E o.finalBases hE hb []).2.1
+      simpa only [hz', Int.toNat_zero] using hcard.symm
+    apply M7.RawCoverage.remaining_coverage N w E o.finalBases hw
+    · first | exact hb.1 | exact hb.2
+    · first | exact hb.2 | exact hb.1
+    · exact hrem

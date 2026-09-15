@@ -1,0 +1,12 @@
+{
+  "name": "M7.ObjectiveComparison.pareto_interval",
+  "statement": "∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).1 = true ↔ (∀ j : Fin m, i ≤ j.val ∧ j.val < i+fuel → a j ≤ b j) ∧ (seen = true ∨ ∃ j : Fin m, (i ≤ j.val ∧ j.val < i+fuel) ∧ a j < b j)",
+  "imports": [
+    "M7ObjectiveComparison"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Induct fuel generalizing i seen, split i<m and current <=. Interval splits current Fin i and tail [i+1,i+1+fuel). Use Fin.ext and omega; Boolean anyStrict update is exact disjunction. For failed <= the interval contains current, falsifying all_le. For out-of-range interval empty. Return tactic lines only, no leading by."
+}

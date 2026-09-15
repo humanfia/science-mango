@@ -1,0 +1,23 @@
+theorem M7.GenerationReplay.fresh_nodup : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (es : List (M7.CompactGeneration.Emission N)), M7.GenerationReplay.FreshFrom w E bases es → (es.map (fun e => e.representative)).Nodup ∧ ∀ e ∈ es, e.representative ∉ bases := by
+  classical
+  intro N inst w E bases es
+  induction es generalizing bases with
+  | nil =>
+      intro h
+      simp
+  | cons e es ih =>
+      intro h
+      change e.representative ∉ bases ∧ _ ∧ _ ∧ M7.GenerationReplay.FreshFrom w E (insert e.representative bases) es at h
+      rcases h with ⟨hfresh, _, _, htail⟩
+      obtain ⟨hnd, hdisjoint⟩ := ih (insert e.representative bases) htail
+      constructor
+      · simp only [List.map_cons, List.nodup_cons]
+        refine ⟨?_, hnd⟩
+        intro hm
+        obtain ⟨a, ha, heq⟩ := List.mem_map.mp hm
+        exact hdisjoint a ha (by simp [heq])
+      · intro a ha
+        rcases List.mem_cons.mp ha with rfl | ha
+        · exact hfresh
+        · intro hb
+          exact hdisjoint a ha (Finset.mem_insert_of_mem hb)

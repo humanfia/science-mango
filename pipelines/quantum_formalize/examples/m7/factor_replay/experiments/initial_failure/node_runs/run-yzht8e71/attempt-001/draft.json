@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (n : ℕ) (p : M7.FactorReplay.BP), p ∈ M7.FactorReplay.pool n ↔ p.natDegree ≤ n\nintro n p\nclassical\nunfold M7.FactorReplay.pool\nrw [Finset.mem_image]\nconstructor\n· rintro ⟨v, _, rfl⟩\n  have h : (Polynomial.ofFn v).natDegree < n + 1 := by\n    apply Polynomial.ofFn_natDegree_lt\n    omega\n  omega\n· intro hp\n  refine ⟨Polynomial.toFn (n + 1) p, Finset.mem_univ _, ?_⟩\n  apply Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt\n  omega",
+  "queries": [
+    "Polynomial.ofFn_natDegree_lt",
+    "Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt"
+  ]
+}

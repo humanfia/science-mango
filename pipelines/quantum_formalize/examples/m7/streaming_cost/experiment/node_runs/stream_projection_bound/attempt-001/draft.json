@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∀ x : M7.GlobalQuery.Index H N, _\nintro H N inst q bases x\nclassical\nby_cases hx : M7.GlobalQuery.feasible q bases x\n· constructor\n  · simp [M7.StreamingCost.streamWin, M7.StreamingIndices.streamWin, hx, M7.StreamingCost.index_projection]\n  · have hb :\n        (M7.StreamingCost.streamWin q bases x).outer ≤ (H * M7.StreamingCost.recordCount N) * 0 ∧\n        (M7.StreamingCost.streamWin q bases x).inner ≤ (H * M7.StreamingCost.recordCount N) * 1 := by\n      simp only [M7.StreamingCost.streamWin, if_pos hx]\n      apply M7.StreamingCost.index_bound\n      intro y\n      dsimp\n      split_ifs <;> simp\n    simpa only [Nat.mul_zero, Nat.mul_one, Nat.le_zero] using hb\n· simp [M7.StreamingCost.streamWin, M7.StreamingIndices.streamWin, hx]",
+  "queries": []
+}

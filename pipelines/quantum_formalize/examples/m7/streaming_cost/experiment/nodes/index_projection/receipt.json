@@ -1,0 +1,84 @@
+{
+  "id": "index_projection",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.StreamingCost.index_projection",
+    "spec_sha256": "ebbc31bc19271709bf31b77ba45f2a464850ba83c0f5cc7a873e580929da394c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-streaming-cost-formalization/.humanize-formal-runs/run-11ki9fw0/attempt-001/Candidate_e69b3168ea29d530.lean",
+        "target_path": "/home/jing/m7-lean-streaming-cost-formalization/.humanize-formal-runs/run-11ki9fw0/attempt-001/FrozenTarget_e69b3168ea29d530.lean",
+        "feedback": "",
+        "target_sha256": "66e20e764c98abfeb363a96e0a6a7fe82624344dacc7df375636666673bee8ce",
+        "target_olean_sha256": "809e13c2072b638f0bd3c3a401faa20e2d3dbf9825d62e2ea5c15f8f286ba40d",
+        "source_sha256": "528e1aafdf4184d51b90415b518632a4db59618e624d5d65779f88ac7f6e9dc0",
+        "olean_sha256": "fe70788c9975d3c07fdd601fe2f91caff0df87ad2421f9b94c9b15fa3d533c0f",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:22:19.597558+00:00",
+    "work": "/home/jing/m7-lean-streaming-cost-formalization/.humanize-formal-runs/run-11ki9fw0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "18f955f6f6c987baf839e71e2bf339f01e62bfa2d222643ef38f80af431fdbf4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-streaming-cost-formalization/.humanize-formal-runs/run-11ki9fw0/attempt-001/Candidate_e69b3168ea29d530.lean",
+    "environment_sha256": "61ce49218b3ff17d0043d17951786d49f02520ad253ea2c2c64a7c5f5f905508",
+    "artifacts": {
+      "cursor_projection": {
+        "payload": {
+          "declaration": "theorem M7.StreamingCost.cursor_projection : ∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel : ℕ), (M7.StreamingCost.allFinFrom n p i fuel).result = M7.StreamingIndices.allFinFrom n (fun j => (p j).result) i fuel := by\n  change ∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel : ℕ), (M7.StreamingCost.allFinFrom n p i fuel).result = M7.StreamingIndices.allFinFrom n (fun j => (p j).result) i fuel\n  intro n p i fuel\n  induction fuel generalizing i with\n  | zero => rfl\n  | succ fuel ih =>\n      by_cases h : i < n\n      · cases hb : (p ⟨i, h⟩).result <;>\n          simp [M7.StreamingCost.allFinFrom, M7.StreamingIndices.allFinFrom, h, hb, ih]\n      · simp [M7.StreamingCost.allFinFrom, M7.StreamingIndices.allFinFrom, h]",
+          "imports": [
+            "M7StreamingCost"
+          ],
+          "name": "M7.StreamingCost.cursor_projection",
+          "ancestors": [],
+          "spec_sha256": "c08f00c3ab8c6cd6565d7b5280a04f7d3c065656fc84e1b210a435fe85cf7679"
+        },
+        "sha256": "ea2149c2f70148643cef73ac77e534e96183b9bb5f21a29e520fa186862ae36d"
+      },
+      "record_projection": {
+        "payload": {
+          "declaration": "theorem M7.StreamingCost.record_projection : ∀ (N : ℕ) [NeZero N], ∀ p : M7.Action.Record N → M7.StreamingCost.Eval, (M7.StreamingCost.allRecords N p).result = M7.StreamingIndices.allRecords N (fun g => (p g).result) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ p : M7.Action.Record N → M7.StreamingCost.Eval, (M7.StreamingCost.allRecords N p).result = M7.StreamingIndices.allRecords N (fun g => (p g).result)\n  intro N inst p\n  simp only [M7.StreamingCost.allRecords, M7.StreamingIndices.allRecords, M7.StreamingCost.allFin, M7.StreamingIndices.allFin, M7.StreamingCost.cursor_projection]",
+          "imports": [
+            "M7StreamingCost"
+          ],
+          "name": "M7.StreamingCost.record_projection",
+          "ancestors": [
+            "cursor_projection"
+          ],
+          "spec_sha256": "b58f8a858e432d19d52c15341f84d9e3e8395b27017cfdb5d0e2548f9215bbdc"
+        },
+        "sha256": "8b6ff7393b115b722d597eb21a9b7ff54abaacc4262bf5aa99077e6800fb612a"
+      },
+      "index_projection": {
+        "payload": {
+          "declaration": "theorem M7.StreamingCost.index_projection : ∀ (H N : ℕ) [NeZero N], ∀ p : M7.GlobalQuery.Index H N → M7.StreamingCost.Eval, (M7.StreamingCost.allIndices H N p).result = M7.StreamingIndices.allIndices H N (fun x => (p x).result) := by\n  change ∀ (H N : ℕ) [NeZero N], ∀ p : M7.GlobalQuery.Index H N → M7.StreamingCost.Eval, (M7.StreamingCost.allIndices H N p).result = M7.StreamingIndices.allIndices H N (fun x => (p x).result)\n  intro H N inst p\n  simp only [M7.StreamingCost.allIndices, M7.StreamingIndices.allIndices, M7.StreamingCost.allFin, M7.StreamingIndices.allFin, M7.StreamingCost.cursor_projection, M7.StreamingCost.record_projection]",
+          "imports": [
+            "M7StreamingCost"
+          ],
+          "name": "M7.StreamingCost.index_projection",
+          "ancestors": [
+            "cursor_projection",
+            "record_projection"
+          ],
+          "spec_sha256": "8ab85a6a4acfc67d44e4ee01b530f454ffc55f2d92763f84d07821261717911f"
+        },
+        "sha256": "09b5243186ad0a84098ab073afac8b114d8ef26650ae031f7de477e70c4562d4"
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "launcher": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/explicit-replay-e6rjym9w",
+  "pid": 2436097,
+  "detached": true,
+  "config": {
+    "project": "/home/jing/m7-lean-factor-replay-formalization",
+    "graph": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/explicit-replay-e6rjym9w/graph.json",
+    "output": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/explicit-replay-e6rjym9w/experiment",
+    "result_path": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/explicit-replay-e6rjym9w/result.json",
+    "concurrency": 2,
+    "rounds": 5,
+    "compile_timeout": 600,
+    "turn_timeout": 600,
+    "seed_proofs": {
+      "pool_complete": {
+        "proof": "change \u2200 (n : \u2115) (p : M7.FactorReplay.BP), p \u2208 M7.FactorReplay.pool n \u2194 p.natDegree \u2264 n\nintro n p\nclassical\nunfold M7.FactorReplay.pool\nrw [Finset.mem_image]\nconstructor\n\u00b7 rintro \u27e8v, _, rfl\u27e9\n  have h := Polynomial.ofFn_natDegree_lt (show 1 \u2264 n + 1 by omega) v\n  omega\n\u00b7 intro hp\n  refine \u27e8Polynomial.toFn (n + 1) p, Finset.mem_univ _, ?_\u27e9\n  exact Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt (by omega)",
+        "queries": []
+      },
+      "irreducible_check_exact": {
+        "proof": "change \u2200 p : M7.FactorReplay.BP, M7.FactorReplay.irreducibleCheck p = true \u2194 p.Monic \u2227 Irreducible p\nintro p\nclassical\nby_cases hp : p.Monic\n\u00b7 by_cases hp1 : p = 1\n  \u00b7 subst p\n    simp [M7.FactorReplay.irreducibleCheck]\n  \u00b7 rw [and_iff_right hp, hp.irreducible_iff_lt_natDegree_lt hp1]\n    simp only [M7.FactorReplay.irreducibleCheck, Bool.and_eq_true, decide_eq_true_eq,\n      List.all_eq_true, Finset.mem_toList, M7.FactorReplay.pool_complete,\n      Bool.not_eq_true_eq_eq_false, decide_eq_false_iff_not, Finset.mem_Ioc, EuclideanDomain.mod_eq_zero]\n    constructor\n    \u00b7 rintro \u27e8\u27e8_, _\u27e9, h\u27e9 q hq hd\n      exact fun hdiv => h q hd.2 \u27e8hq, hd.1, hd.2, hdiv\u27e9\n    \u00b7 intro h\n      refine \u27e8\u27e8hp,hp1\u27e9, ?_\u27e9\n      intro q hq hh\n      exact h q hh.1 \u27e8hh.2.1,hh.2.2.1\u27e9 hh.2.2.2\n\u00b7 simp [M7.FactorReplay.irreducibleCheck, hp]",
+        "queries": []
+      }
+    }
+  }
+}

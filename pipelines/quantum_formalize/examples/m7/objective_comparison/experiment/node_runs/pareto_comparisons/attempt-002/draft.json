@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (m : ℕ) (a b : Fin m → ℤ) (i fuel : ℕ) (seen : Bool), (M7.ObjectiveComparison.paretoFrom a b i fuel seen).2 ≤ 2 * fuel\nintro m a b i fuel seen\ninduction fuel generalizing i seen with\n| zero => simp [M7.ObjectiveComparison.paretoFrom]\n| succ fuel ih =>\n    simp only [M7.ObjectiveComparison.paretoFrom]\n    split\n    next h =>\n      split\n      next hab =>\n        have hrec := ih (i + 1) (seen || decide (a ⟨i, h⟩ < b ⟨i, h⟩))\n        simp only [Prod.snd]\n        omega\n      next hab =>\n        simp only [Prod.snd]\n        omega\n    next h =>\n      simp only [Prod.snd]\n      omega",
+  "queries": []
+}

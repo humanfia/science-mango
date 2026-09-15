@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (n : ℕ) (p : Fin n → M7.StreamingCost.Eval) (i fuel : ℕ), (M7.StreamingCost.allFinFrom n p i fuel).result = M7.StreamingIndices.allFinFrom n (fun j => (p j).result) i fuel\nintro n p i fuel\ninduction fuel generalizing i with\n| zero => rfl\n| succ fuel ih =>\n    by_cases h : i < n\n    · cases hb : (p ⟨i, h⟩).result <;>\n        simp [M7.StreamingCost.allFinFrom, M7.StreamingIndices.allFinFrom, h, hb, ih]\n    · simp [M7.StreamingCost.allFinFrom, M7.StreamingIndices.allFinFrom, h]",
+  "queries": []
+}

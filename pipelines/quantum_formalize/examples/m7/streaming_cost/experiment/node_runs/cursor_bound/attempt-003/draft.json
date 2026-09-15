@@ -1,0 +1,4 @@
+{
+  "proof": "intro n p i fuel a b hp\ninduction fuel generalizing i with\n| zero =>\n    simp [M7.StreamingCost.allFinFrom]\n| succ fuel ih =>\n    by_cases h : i < n\n    · have hc := hp ⟨i, h⟩\n      have hr := ih (i + 1)\n      simp only [M7.StreamingCost.allFinFrom, dif_pos h]\n      split <;> (try dsimp only) <;>\n        simp only [Nat.succ_mul] <;> omega\n    · simp [M7.StreamingCost.allFinFrom, h]",
+  "queries": []
+}
