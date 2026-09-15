@@ -1,5 +1,7 @@
 # M5 proof and distance evidence
 
+Current follow-up: [M6 proof, algorithm and final acceptance](../quantum_m6/README.md).
+
 This snapshot accompanies the research and formalization harness in this repository.
 
 - [Full reviewed M5 proof](research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md)
