@@ -6,7 +6,7 @@ The core includes finite period search, exact/nonnegative order counts and posit
 
 The physical recovery wrapper assumes positive C, not F dividing M_N. It derives that divisibility from C's existing guard before applying stage46, then converts decoded range-subset/cardinality/anchor/gcd/signature properties into `PhysicalOrder.realizes`. The residue wrapper keeps the actual returned list, exact tail length and candidate-test bound. Its two blocks have implicit anchored zero and preserve repeated entries; no extra tuple representation or sorting requirement is introduced.
 
-Stage46 and stage47 proof imports remain explicit DAG gates. Their definitions are present for exact type checking, but their correctness theorems are not assumed. The root-local `M5ConditionalResidueCountAccepted` adapter initially imports definitions only while stage42/47 closure is pending. It provides no theorem or axiom. Accepted proof closure must replace this adapter and resolve the gate before final proof execution.
+The initial graph preserved explicit stage46/47 proof gates. Both were resolved by verified actual proof closures before the final graph ran. The initial definition-only stage42 adapter was replaced by its full accepted assembly. No correctness theorem was assumed. The final graph connects the accepted Core and actual recoveries to the unchanged original root.
 
 The Core nodes can run independently while these gates remain. Passing Core is not passing OriginalM5Spec. Conversely, once the actual OriginalM5Spec proof and root audit pass, a component controller's hardcoded `m5_formalized=false` is not a rejection. See ROOT_ACCEPTANCE.md and the final_scope contract.
 

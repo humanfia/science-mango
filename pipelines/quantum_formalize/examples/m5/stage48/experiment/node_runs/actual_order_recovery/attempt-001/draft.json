@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.Final.OrderRecoveryClause w F\nintro w F hw hmonic hcoeff\nunfold M5.Final.OrderRecoveryClause\nintro N hN hC\nclassical\nhave hdiv : F ∣ M5.cyclicModulus N := by\n  by_cases hd : F ∣ M5.cyclicModulus N\n  · exact hd\n  · simp [M5.OrderCount.C, hd] at hC\nhave hv := M5.PhysicalRecovery.recover_actual N w F hN hw hmonic hdiv hC\nunfold M5.PhysicalRecovery.wordValid at hv\nrcases hv with ⟨hlen, hs⟩\nconstructor\n· simpa [M5.PhysicalRecovery.decisionCount] using hlen\n· unfold M5.PhysicalRecovery.ValidSupports at hs\n  simp only [Finset.subset_iff, Finset.mem_range] at hs\n  unfold M5.PhysicalOrder.realizes\n  aesop",
+  "queries": [
+    "M5.PhysicalRecovery.ValidSupports definition",
+    "M5.PhysicalOrder.realizes definition",
+    "M5.OrderCount.C definition"
+  ]
+}

@@ -1,6 +1,8 @@
 # Current M5 formalization progress
 
-Stages 1–47 are complete: 231 named component lemmas accepted by Lean, with combined compilation per batch. Stage22 includes one retained accepted theorem plus three accepted retry targets. A union of90 components (stages1–15,17,18) also passed single-project compilation and independent exact-type/axiom audit in integrated90. Counts are not completion percentages.
+The original full M5 is formally verified. The fixed theorem `M5.Final.original_m5` passed Lean acceptance, combined compilation and independent exact-type/axiom checks. See [the final acceptance record](stage48/ROOT_ACCEPTANCE.json) and [results](stage48/RESULTS.md). No original proof obligations remain.
+
+Stages 1–48 are complete: 238 named targets accepted by Lean, with combined compilation per batch. The final root closure also compiled together, and the separate `RootAcceptance.lean` checked its exact public type. Stage22 includes one retained accepted theorem plus three accepted retry targets. A union of90 components (stages1–15,17,18) also passed single-project compilation and independent exact-type/axiom audit in integrated90. Counts are not completion percentages.
 
 The original §5 construction chain is now accepted: feasible anchored residue tuples yield a physical realization strictly below birthBound and the same supports realize an infinite arithmetic progression. No physical realizing witness is assumed at input. Explicit n/R identities, polynomial and integer exclusion indicators, and the anchored single-block / restricted tuple count bridges are also accepted.
 
@@ -24,8 +26,8 @@ Component status:
 - Stage45 complete: finite search through1..2^degree F returns exactly the mathematical period, including F=1.
 - Stage46 complete: actual conditional-C oracle, branch/terminal rules and physical support recovery; all12 targets and combined assembly accepted.
 - Stage47 complete: actual conditional-A oracle, prefix partition/terminal rules and residue recovery with its candidate-test bound; all8 targets and combined assembly accepted.
-- Stage48: four Core targets and combined assembly accepted; final recovery imports and the final three connections are being integrated.
+- Stage48 complete: four Core targets and three final connections accepted; the exact original root, actual recovery imports, combined compilation and independent public-type/axiom check all passed.
 
 Settings: gpt-6-astra / medium, proof concurrency ceiling16, five attempts per node. Prompts now include bounded hash-recorded local M5 declaration interfaces as untrusted references alongside Mathlib/Physlib retrieval. Exact target/source/axiom gates are unchanged.
 
-Full M5 is not yet formally verified. The final combined original-scope root remains. Finite factor-subset indexing is a valid arithmetic representation; literal squarefree-H reindexing is optional correspondence, not an added completion gate. No distance, inherited-intersection or anchored-sorting requirement has been added.
+The final root uses only `propext`, `Classical.choice` and `Quot.sound`. The source proof and all14 frozen primary definitions match their recorded hashes. Historical component receipts keep the scheduler constant `m5_formalized=false`; the dedicated `stage48/ROOT_ACCEPTANCE.json` records `original_m5_formalized=true` after actual root verification. Finite factor-subset indexing is a valid arithmetic representation; literal squarefree-H reindexing is optional correspondence, not an added completion gate. No distance, inherited-intersection or anchored-sorting requirement has been added.
