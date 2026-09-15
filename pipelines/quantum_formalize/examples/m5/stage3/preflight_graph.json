@@ -1,0 +1,210 @@
+{
+  "title": "M5 third experiment: finite quotient and exact signature period",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Six frozen period-foundation targets; cardinality bound and full M5 remain separate obligations",
+  "nodes": [
+    {
+      "id": "quotient_finite",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Period.quotient_finite",
+        "statement": "∀ (F : M5.BinaryPolynomial), F.Monic → Finite (AdjoinRoot F)",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Install the local instance F.Monic.finite_adjoinRoot, then use Module.finite_of_finite (ZMod 2). This must include monic F = 1; do not require a nontrivial quotient. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "The quotient is finite for every monic binary polynomial.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "root_is_unit",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Period.root_is_unit",
+        "statement": "∀ (F : M5.BinaryPolynomial), F.coeff 0 = 1 → IsUnit (AdjoinRoot.root F)",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Map Polynomial.X_mul_divX_add F through AdjoinRoot.mk F. AdjoinRoot.mk_self gives zero and the constant term maps to one. Thus the image of -F.divX is an inverse of root F; construct IsUnit using that inverse or isUnit_iff_exists_inv. No monicity, squarefreeness or irreducibility is necessary. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "Constant coefficient one supplies an explicit inverse for the residue of X.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "cyclic_dvd_iff_root_pow",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Period.cyclic_dvd_iff_root_pow",
+        "statement": "∀ (F : M5.BinaryPolynomial) (N : ℕ), F ∣ M5.cyclicModulus N ↔ (AdjoinRoot.root F) ^ N = 1",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Use AdjoinRoot.mk_eq_zero after unfolding cyclicModulus, and map_add/map_pow/map_one/mk_X. The quotient is characteristic two: CharTwo.neg_eq or add_eq_zero_iff_eq_neg removes minus one. This includes N = 0 and F = 1. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "Polynomial cyclic divisibility equals a power identity in the full quotient ring.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "period_law",
+      "dependencies": [
+        "quotient_finite",
+        "root_is_unit",
+        "cyclic_dvd_iff_root_pow"
+      ],
+      "spec": {
+        "name": "M5.Period.period_law",
+        "statement": "∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Install a local Finite (AdjoinRoot F) instance using quotient_finite. root_is_unit and IsUnit.isOfFinOrder give positive order. The equivalence follows from cyclic_dvd_iff_root_pow and orderOf_dvd_iff_pow_eq_one. This proves period existence and the exact all-order divisibility law for repeated factors too. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "The period is positive and cyclic occurrence orders are exactly its multiples.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [
+          "M5.Period.quotient_finite",
+          "M5.Period.root_is_unit",
+          "M5.Period.cyclic_dvd_iff_root_pow"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "period_one",
+      "dependencies": [
+        "period_law"
+      ],
+      "spec": {
+        "name": "M5.Period.period_one",
+        "statement": "M5.signaturePeriod (1 : M5.BinaryPolynomial) = 1",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Apply period_law to F = 1 at N = 1. Since 1 divides cyclicModulus 1, the resulting natural-number divisibility into 1 proves period equals 1. Avoid requiring a nontrivial ring instance. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "The degenerate quotient case agrees with the original convention t(1) = 1.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [
+          "M5.Period.period_law"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "period_dvd_of_dvd",
+      "dependencies": [
+        "period_law"
+      ],
+      "spec": {
+        "name": "M5.Period.period_dvd_of_dvd",
+        "statement": "∀ (F G : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → G.Monic → G.coeff 0 = 1 → F ∣ G → M5.signaturePeriod F ∣ M5.signaturePeriod G",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "By period_law, G divides its own cyclic modulus at signaturePeriod G. Compose F | G with this divisibility, and apply the period_law equivalence for F. This is the T | E step used in the packing/lift proof. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "Signature inclusion makes periods divide, supplying T | E for G = gcd(a,b).",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [
+          "M5.Period.period_law"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}
