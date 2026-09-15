@@ -1,0 +1,8 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro w T r s hw hT hr hs hg\nhave hrc : (M5.Packing.packedSupport r).card = w :=\n  M5.Packing.packed_support_card w T r\nhave hsc : (M5.Packing.packedSupport s).card = w :=\n  M5.Packing.packed_support_card w T s\nhave hrr : ∀ x ∈ M5.Packing.packedSupport r, x < w * T :=\n  M5.Packing.packed_support_range w T r\nhave hsr : ∀ x ∈ M5.Packing.packedSupport s, x < w * T :=\n  M5.Packing.packed_support_range w T s\nhave hr0 : 0 ∈ M5.Packing.packedSupport r := by\n  unfold M5.BoundedConstruction.anchoredTuple at hr\n  unfold M5.Packing.packedSupport\n  simp only [Finset.mem_image, Finset.mem_univ, true_and]\n  refine ⟨⟨0, by omega⟩, ?_⟩\n  simp_all\nhave hs0 : 0 ∈ M5.Packing.packedSupport s := by\n  unfold M5.BoundedConstruction.anchoredTuple at hs\n  unfold M5.Packing.packedSupport\n  simp only [Finset.mem_image, Finset.mem_univ, true_and]\n  refine ⟨⟨0, by omega⟩, ?_⟩\n  simp_all\nhave hp : ∃ e ∈ M5.Packing.packedSupport r, 0 < e := by\n  apply_rules [M5.PhysicalBridge.positive_member]\n  all_goals omega\nobtain ⟨e, he, hep⟩ := hp\nrefine ⟨e, he, hep, ?_, ?_, ?_⟩\n· have hb := M5.PhysicalBridge.remaining_gcd_bounds\n  aesop\n· have hb := M5.PhysicalBridge.remaining_gcd_bounds\n  aesop\n· apply_rules [M5.PhysicalBridge.remaining_gcd_feasible]\n  all_goals first | assumption | exact?",
+  "queries": [
+    "M5.PhysicalBridge.remaining_gcd_bounds M5.PhysicalBridge.remaining_gcd_feasible full signatures",
+    "M5.BoundedConstruction.anchoredTuple M5.Packing.packedSupport definitions",
+    "packed_combined_gcd accepted stage19 declaration namespace"
+  ]
+}

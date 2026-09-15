@@ -1,0 +1,4 @@
+{
+  "proof": "intro A B w T hw hT hA hB hBbound\nhave hAc : (M5.SupportPolynomial.ofSupport A).coeff 0 = 1 := by\n  simpa only [if_pos hA] using M5.SupportPolynomial.support_coeff_zero A\nhave hBc : (M5.SupportPolynomial.ofSupport B).coeff 0 = 1 := by\n  simpa only [if_pos hB] using M5.SupportPolynomial.support_coeff_zero B\nhave hwT : 0 < w * T := Nat.mul_pos (by omega) hT\nhave hdeg := M5.SupportPolynomial.support_degree_bound B (w * T) hwT hBbound\nhave hb := M5.Signature.ordinary_gcd_period_bound (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) hAc hBc\nhave hp := M5.Signature.ordinary_gcd_properties (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) hAc hBc\nunfold M5.PhysicalOrder.supportPeriod\nrefine ⟨hb.1, le_trans hb.2 (Nat.pow_le_pow_right (by decide) (Nat.le_of_lt hdeg)), ?_⟩\nexact ((M5.Period.period_law _ hp.1 hp.2.1).2 _).mpr (dvd_refl _)",
+  "queries": []
+}

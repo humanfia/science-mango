@@ -1,0 +1,742 @@
+[
+  {
+    "queries": [
+      "Finset erase insert cardinality gcd",
+      "natural gcd Chinese remainder connectivity"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset erase insert cardinality gcd",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202113,
+            "name": "Finset.erase_insert",
+            "module": "Mathlib.Data.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L134-L134",
+            "source_text": "theorem erase_insert {a : α} {s : Finset α} (h : a ∉ s) : (insert a s).erase a = s := by grind\n",
+            "docstring": null
+          },
+          {
+            "id": 66037,
+            "name": "Finset.gcd_insert",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L151-L157",
+            "source_text": "@[simp]\ntheorem gcd_insert [DecidableEq β] {b : β} :\n    (insert b s : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) := by\n  by_cases h : b ∈ s\n  · rw [insert_eq_of_mem h,\n      (gcd_eq_right_iff (f b) (s.gcd f) (Multiset.normalize_gcd (s.1.map f))).2 (gcd_dvd h)]\n  apply fold_insert h",
+            "docstring": null
+          },
+          {
+            "id": 66036,
+            "name": "Finset.gcd_cons",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L147-L149",
+            "source_text": "theorem gcd_cons {b : β} (h : b ∉ s) :\n    (cons b s h : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) :=\n  fold_cons h\n",
+            "docstring": null
+          },
+          {
+            "id": 202698,
+            "name": "Finset.erase",
+            "module": "Mathlib.Data.Finset.Erase",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Erase.lean#L47-L50",
+            "source_text": "/-- `erase s a` is the set `s - {a}`, that is, the elements of `s` which are\n  not equal to `a`. -/\ndef erase (s : Finset α) (a : α) : Finset α :=\n  ⟨_, s.2.erase a⟩\n",
+            "docstring": "`erase s a` is the set `s - {a}`, that is, the elements of `s` which are\nnot equal to `a`. "
+          },
+          {
+            "id": 202116,
+            "name": "Finset.insert_erase",
+            "module": "Mathlib.Data.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L142-L142",
+            "source_text": "@[simp] theorem insert_erase (h : a ∈ s) : insert a (s.erase a) = s := by grind",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset erase insert cardinality gcd",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389551,
+            "name": "WickContraction.erase_insert",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.InsertAndContractNat",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/InsertAndContractNat.lean#L367-L412",
+            "source_text": "@[simp]\nlemma erase_insert (c : WickContraction n.succ) (i : Fin n.succ) :\n    insertAndContractNat (erase c i) i (getDualErase c i) = c := by\n  match n with\n  | 0 =>\n    apply Subtype.ext\n    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, insertAndContractNat, getDualErase,\n      Finset.le_eq_subset]\n    ext a\n    simp only [Finset.mem_map, RelEmbedding.coe_toEmbedding]\n    constructor\n    · rintro ⟨a', ha', rfl⟩\n      exact (Finset.mem_filter.mp ha').2\n    · intro ha\n      obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isNone (a := a) i (by simp) ha\n      exact ⟨a', ha', rfl⟩\n  | Nat.succ n =>\n  apply Subtype.ext\n  by_cases hi : (c.getDual? i).isSome\n  · rw [insertAndContractNat_of_isSome]\n    simp only [Nat.succ_eq_add_one, getDualErase, hi, ↓reduceDIte, Option.get_some,\n      Finset.le_eq_subset]\n    rw [succsAbove_predAboveI]\n    · ext a\n      simp only [Finset.mem_insert, Finset.mem_map, RelEmbedding.coe_toEmbedding]\n      constructor\n      · rintro (rfl | ⟨a', ha', rfl⟩)\n        · simp\n        · exact (Finset.mem_filter.mp ha').2\n      · intro ha\n        by_cases hia : a = {i, (c.getDual? i).get hi}\n        · exact Or.inl hia\n        · obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isSome (a := a) i hi ha hia\n          exact Or.inr ⟨a', ha', rfl⟩\n    · simp\n    · exact (getDualErase_isSome_iff_getDual?_isSome c i).mpr hi\n  · simp only [Nat.succ_eq_add_one, insertAndContractNat, getDualErase, hi, Bool.false_eq_true,\n    ↓reduceDIte, Finset.le_eq_subset]\n    ext a\n    simp only [Finset.mem_map, RelEmbedding.coe_toEmbedding]\n    constructor\n    · rintro ⟨a', ha', rfl⟩\n      exact (Finset.mem_filter.mp ha').2\n    · intro ha\n      obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isNone (a := a) i (by simpa using hi) ha\n      exact ⟨a', ha', rfl⟩",
+            "docstring": null
+          },
+          {
+            "id": 389108,
+            "name": "FieldStatistic.ofFinset_erase",
+            "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L74-L83",
+            "source_text": "lemma ofFinset_erase (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a : Finset (Fin φs.length))\n    (i : Fin φs.length) (h : i ∈ a) :\n    ofFinset q φs.get (a.erase i) = (q φs[i]) * ofFinset q φs.get a := by\n  have ha : a = Insert.insert i (a.erase i) := by\n    exact Eq.symm (Finset.insert_erase h)\n  conv_rhs => rw [ha]\n  rw [ofFinset_insert]\n  rw [← mul_assoc]\n  simp only [Fin.getElem_fin, mul_self, one_mul]\n  simp\n",
+            "docstring": null
+          },
+          {
+            "id": 389121,
+            "name": "Wick.insertIdx_eraseIdx",
+            "module": "Physlib.QFT.PerturbationTheory.Koszul.KoszulSign",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/Koszul/KoszulSign.lean#L197-L206",
+            "source_text": "lemma insertIdx_eraseIdx {I : Type} : (n : ℕ) → (r : List I) → (hn : n < r.length) →\n    List.insertIdx (r.eraseIdx n) n (r.get ⟨n, hn⟩) = r\n  | n, [], hn => by\n    simp at hn\n  | 0, r0 :: r, hn => by\n    simp\n  | n + 1, r0 :: r, hn => by\n    simp only [List.length_cons, List.get_eq_getElem, List.getElem_cons_succ,\n      List.eraseIdx_cons_succ, List.insertIdx_succ_cons, List.cons.injEq, true_and]\n    exact insertIdx_eraseIdx n r _\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural gcd Chinese remainder connectivity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66105,
+            "name": "instStrongNormalizedGCDMonoidNat",
+            "module": "Mathlib.Algebra.GCDMonoid.Nat",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Nat.lean#L49-L53",
+            "source_text": "instance : StrongNormalizedGCDMonoid ℕ :=\n  { (inferInstance : GCDMonoid ℕ),\n    (inferInstance : StrongNormalizationMonoid ℕ) with\n    normalize_gcd := fun _ _ => normalize_eq _\n    normalize_lcm := fun _ _ => normalize_eq _ }\n",
+            "docstring": null
+          },
+          {
+            "id": 223127,
+            "name": "ZMod.chineseRemainder",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L877-L924",
+            "source_text": "/-- The **Chinese remainder theorem**. For a pair of coprime natural numbers, `m` and `n`,\n  the rings `ZMod (m * n)` and `ZMod m × ZMod n` are isomorphic.\n\nSee `Ideal.quotientInfRingEquivPiQuotient` for the Chinese remainder theorem for ideals in any\nring.\n-/\ndef chineseRemainder {m n : ℕ} (h : m.Coprime n) : ZMod (m * n) ≃+* ZMod m × ZMod n :=\n  let to_fun : ZMod (m * n) → ZMod m × ZMod n :=\n    ZMod.castHom (show m.lcm n ∣ m * n by simp [Nat.lcm_dvd_iff]) (ZMod m × ZMod n)\n  let inv_fun : ZMod m × ZMod n → ZMod (m * n) := fun x =>\n    if m * n = 0 then\n      if m = 1 then cast (RingHom.snd _ (ZMod n) x) else cast (RingHom.fst (ZMod m) _ x)\n    else Nat.chineseRemainder h x.1.val x.2.val\n  have inv : Function.LeftInverse inv_fun to_fun ∧ Function.RightInverse inv_fun to_fun :=\n    if hmn0 : m * n = 0 then by\n      rcases h.eq_of_mul_eq_zero hmn0 with (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩)\n      · constructor\n        · intro x; rfl\n        · rintro ⟨x, y⟩\n          fin_cases y\n          simp [to_fun, inv_fun, castHom, Prod.ext_iff, eq_iff_true_of_subsingleton]\n      · constructor\n        · intro x; rfl\n        · rintro ⟨x, y⟩\n          fin_cases x\n          simp [to_fun, inv_fun, castHom, Prod.ext_iff, eq_iff_true_of_subsingleton]\n    else by\n      haveI : NeZero (m * n) := ⟨hmn0⟩\n      haveI : NeZero m := ⟨left_ne_zero_of_mul hmn0⟩\n      haveI : NeZero n := ⟨right_ne_zero_of_mul hmn0⟩\n      have left_inv : Function.LeftInverse inv_fun to_fun := by\n        intro x\n        dsimp only [to_fun, inv_fun, ZMod.castHom_apply]\n        conv_rhs => rw [← ZMod.natCast_zmod_val x]\n        rw [if_neg hmn0, ZMod.natCast_eq_natCast_iff, ← Nat.modEq_and_modEq_iff_modEq_mul h,\n          Prod.fst_zmod_cast, Prod.snd_zmod_cast]\n        refine\n          ⟨(Nat.chineseRemainder h (cast x : ZMod m).val (cast x : ZMod n).val).2.left.trans ?_,\n            (Nat.chineseRemainder h (cast x : ZMod m).val (cast x : ZMod n).val).2.right.trans ?_⟩\n        · rw [← ZMod.natCast_eq_natCast_iff, ZMod.natCast_zmod_val, ZMod.natCast_val]\n        · rw [← ZMod.natCast_eq_natCast_iff, ZMod.natCast_zmod_val, ZMod.natCast_val]\n      exact ⟨left_inv, left_inv.rightInverse_of_card_le (by simp)⟩\n  { toFun := to_fun,\n    invFun := inv_fun,\n    map_mul' := map_mul _\n    map_add' := map_add _\n    left_inv := inv.1\n    right_inv := inv.2 }\n",
+            "docstring": "The **Chinese remainder theorem**. For a pair of coprime natural numbers, `m` and `n`,\n  the rings `ZMod (m * n)` and `ZMod m × ZMod n` are isomorphic.\n\nSee `Ideal.quotientInfRingEquivPiQuotient` for the Chinese remainder theorem for ideals in any\nring.\n"
+          },
+          {
+            "id": 213300,
+            "name": "Nat.chineseRemainder",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L463-L465",
+            "source_text": "/-- The natural number less than `n*m` congruent to `a` mod `n` and `b` mod `m` -/\ndef chineseRemainder (co : n.Coprime m) (a b : ℕ) : { k // k ≡ a [MOD n] ∧ k ≡ b [MOD m] } :=\n  chineseRemainder' (by convert! @modEq_one a b)\n",
+            "docstring": "The natural number less than `n*m` congruent to `a` mod `n` and `b` mod `m` "
+          },
+          {
+            "id": 213299,
+            "name": "Nat.chineseRemainder'",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L421-L461",
+            "source_text": "/-- The natural number less than `lcm n m` congruent to `a` mod `n` and `b` mod `m` -/\ndef chineseRemainder' (h : a ≡ b [MOD gcd n m]) : { k // k ≡ a [MOD n] ∧ k ≡ b [MOD m] } :=\n  if hn : n = 0 then ⟨a, by\n    rw [hn, gcd_zero_left] at h; constructor\n    · rfl\n    · exact h⟩\n  else\n    if hm : m = 0 then ⟨b, by\n      rw [hm, gcd_zero_right] at h; constructor\n      · exact h.symm\n      · rfl⟩\n    else\n      ⟨let (c, d) := xgcd n m; Int.toNat ((n * c * b + m * d * a) / gcd n m % lcm n m), by\n        rw [xgcd_val]\n        dsimp\n        rw [modEq_iff_dvd, modEq_iff_dvd,\n          Int.toNat_of_nonneg (Int.emod_nonneg _ (Int.natCast_ne_zero.2 (lcm_ne_zero hn hm)))]\n        have hnonzero : (gcd n m : ℤ) ≠ 0 := by\n          norm_cast\n          rw [Nat.gcd_eq_zero_iff, not_and]\n          exact fun _ => hm\n        have hcoedvd : ∀ t, (gcd n m : ℤ) ∣ t * (b - a) := fun t => h.dvd.mul_left _\n        have := gcd_eq_gcd_ab n m\n        constructor <;> rw [Int.emod_def, ← sub_add] <;>\n            refine Int.dvd_add ?_ (dvd_mul_of_dvd_left ?_ _) <;>\n          try norm_cast\n        · rw [← sub_eq_iff_eq_add'] at this\n          rw [← this, Int.sub_mul, ← add_sub_assoc, add_comm, add_sub_assoc, ← Int.mul_sub,\n            Int.add_ediv_of_dvd_left, Int.mul_ediv_cancel_left _ hnonzero,\n            Int.mul_ediv_assoc _ h.dvd, ← sub_sub, sub_self, zero_sub, Int.dvd_neg, mul_assoc]\n          · exact dvd_mul_right _ _\n          norm_cast\n          exact dvd_mul_right _ _\n        · exact dvd_lcm_left n m\n        · rw [← sub_eq_iff_eq_add] at this\n          rw [← this, Int.sub_mul, sub_add, ← Int.mul_sub, Int.sub_ediv_of_dvd,\n            Int.mul_ediv_cancel_left _ hnonzero, Int.mul_ediv_assoc _ h.dvd, ← sub_add, sub_self,\n            zero_add, mul_assoc]\n          · exact dvd_mul_right _ _\n          · exact hcoedvd _\n        · exact dvd_lcm_right n m⟩\n",
+            "docstring": "The natural number less than `lcm n m` congruent to `a` mod `n` and `b` mod `m` "
+          },
+          {
+            "id": 212089,
+            "name": "Nat.chineseRemainderOfFinset",
+            "module": "Mathlib.Data.Nat.ChineseRemainder",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ChineseRemainder.lean#L163-L168",
+            "source_text": "/-- The natural number less than `∏ i ∈ t, s i` congruent to\n`a i` mod `s i` for all  `i ∈ t`. -/\ndef chineseRemainderOfFinset (t : Finset ι)\n    (hs : ∀ i ∈ t, s i ≠ 0) (pp : Set.Pairwise t (Coprime on s)) :\n    { k // ∀ i ∈ t, k ≡ a i [MOD s i] } := by\n  simpa using chineseRemainderOfMultiset a s t.nodup (by simpa using hs) (by simpa using pp)\n",
+            "docstring": "The natural number less than `∏ i ∈ t, s i` congruent to\n`a i` mod `s i` for all  `i ∈ t`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "packed_repair_hypotheses",
+    "receipts_sha256": "4435e1bf8d240d5e2e3143798335dd3c3a835e17ba17f4e3d6ee08ca2da79389"
+  },
+  {
+    "queries": [
+      "M5 bounded_connectivity_repair",
+      "M5 packed_support_range repair_above_packing",
+      "M5 repaired_exponent_cutoff"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5 bounded_connectivity_repair",
+        "status": "ok",
+        "results": [
+          {
+            "id": 355814,
+            "name": "TotallyBounded",
+            "module": "Mathlib.Topology.UniformSpace.Cauchy",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/Cauchy.lean#L485-L488",
+            "source_text": "/-- A set `s` is totally bounded if for every entourage `d` there is a finite\n  set of points `t` such that every element of `s` is `d`-near to some element of `t`. -/\ndef TotallyBounded (s : Set α) : Prop :=\n  ∀ d ∈ 𝓤 α, ∃ t : Set α, t.Finite ∧ s ⊆ ⋃ y ∈ t, { x | (x, y) ∈ d }\n",
+            "docstring": "A set `s` is totally bounded if for every entourage `d` there is a finite\nset of points `t` such that every element of `s` is `d`-near to some element of `t`. "
+          },
+          {
+            "id": 337937,
+            "name": "Bornology.IsBounded",
+            "module": "Mathlib.Topology.Bornology.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Bornology/Basic.lean#L98-L100",
+            "source_text": "/-- `IsBounded` is the predicate that `s` is bounded relative to the ambient bornology on `α`. -/\ndef IsBounded [Bornology α] (s : Set α) : Prop :=\n  IsCobounded sᶜ\n",
+            "docstring": "`IsBounded` is the predicate that `s` is bounded relative to the ambient bornology on `α`. "
+          },
+          {
+            "id": 190367,
+            "name": "Matroid.closure_union_loops_eq",
+            "module": "Mathlib.Combinatorics.Matroid.Loop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Loop.lean#L183-L186",
+            "source_text": "@[simp]\nlemma closure_union_loops_eq (M : Matroid α) (X : Set α) :\n    M.closure (X ∪ M.loops) = M.closure X := by\n  rw [← closure_empty, closure_union_closure_right_eq, union_empty]",
+            "docstring": null
+          },
+          {
+            "id": 190515,
+            "name": "Matroid.restrict_univ_removeLoops_eq",
+            "module": "Mathlib.Combinatorics.Matroid.Loop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Loop.lean#L881-L884",
+            "source_text": "@[simp]\nlemma restrict_univ_removeLoops_eq : (M ↾ univ).removeLoops = M.removeLoops := by\n  rw [removeLoops_eq_restrict, restrict_restrict_eq _ (subset_univ _), removeLoops_eq_restrict]\n  simp",
+            "docstring": null
+          },
+          {
+            "id": 190806,
+            "name": "Matroid.restrict",
+            "module": "Mathlib.Combinatorics.Matroid.Minor.Restrict",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Minor/Restrict.lean#L119-L122",
+            "source_text": "/-- Change the ground set of a matroid to some `R : Set α`. The independent sets of the restriction\nare the independent subsets of the new ground set. Most commonly used when `R ⊆ M.E`,\nbut it is convenient not to require this. The elements of `R \\ M.E` become 'loops'. -/\ndef restrict (M : Matroid α) (R : Set α) : Matroid α := (M.restrictIndepMatroid R).matroid\n",
+            "docstring": "Change the ground set of a matroid to some `R : Set α`. The independent sets of the restriction\nare the independent subsets of the new ground set. Most commonly used when `R ⊆ M.E`,\nbut it is convenient not to require this. The elements of `R \\ M.E` become 'loops'. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5 bounded_connectivity_repair",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386892,
+            "name": "polynomial_tanh_bounded",
+            "module": "Physlib.Mathematics.Trigonometry.Tanh",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Trigonometry/Tanh.lean#L108-L122",
+            "source_text": "/-- For a polynomial P, show that P (tanh x) is bounded on the real line -/\nlemma polynomial_tanh_bounded (P : Polynomial ℝ) :\n    ∃ C : ℝ, ∀ x : ℝ, |P.eval (Real.tanh x)| ≤ C := by\n  -- Since tanh maps to (-1, 1), it maps to [-1+ε, 1-ε] for any ε > 0\n  -- But more directly, tanh maps to (-1, 1) ⊆ [-1, 1]\n  have h_range : ∀ x : ℝ, Real.tanh x ∈ Set.Icc (-1) 1 := by\n    intro x\n    constructor\n    · exact le_of_lt (neg_one_lt_tanh x)\n    · exact le_of_lt (tanh_lt_one x)\n  -- Apply polynomial boundedness on [-1, 1]\n  obtain ⟨M, hM⟩ := polynomial_bounded_on_interval P (-1) 1\n  use M\n  intro x\n  exact hM (Real.tanh x) (h_range x)\n",
+            "docstring": "For a polynomial P, show that P (tanh x) is bounded on the real line "
+          },
+          {
+            "id": 386893,
+            "name": "iteratedDeriv_tanh_bounded",
+            "module": "Physlib.Mathematics.Trigonometry.Tanh",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Trigonometry/Tanh.lean#L124-L132",
+            "source_text": "/-- The nth derivative of tanh is bounded on the real line -/\nlemma iteratedDeriv_tanh_bounded (n : ℕ) :\n    ∃ C : ℝ, ∀ x : ℝ, |iteratedDeriv n Real.tanh x| ≤ C := by\n  obtain ⟨P, hP⟩ := iteratedDeriv_tanh_is_polynomial_of_tanh n\n  obtain ⟨C, hC⟩ := polynomial_tanh_bounded P\n  use C\n  intro x\n  rw [hP]\n  exact hC x\n",
+            "docstring": "The nth derivative of tanh is bounded on the real line "
+          },
+          {
+            "id": 393073,
+            "name": "Space.IsDistBounded",
+            "module": "Physlib.SpaceAndTime.Space.IsDistBounded",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/IsDistBounded.lean#L86-L95",
+            "source_text": "/-- The boundedness condition on a function `Space d → F`\n  for it to form a distribution. -/\n@[fun_prop]\ndef IsDistBounded {d : ℕ} (f : Space d → F) : Prop :=\n  AEStronglyMeasurable (fun x => f x) volume ∧\n  ∃ n, ∃ c : Fin n → ℝ, ∃ g : Fin n → Space d,\n    ∃ p : Fin n → ℤ,\n    (∀ i, 0 ≤ c i) ∧\n    (∀ i, - (d - 1 : ℕ) ≤ p i) ∧\n    ∀ x, ‖f x‖ ≤ ∑ i, c i * ‖x + g i‖ ^ p i\n",
+            "docstring": "The boundedness condition on a function `Space d → F`\nfor it to form a distribution. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5 packed_support_range repair_above_packing",
+        "status": "ok",
+        "results": [
+          {
+            "id": 351110,
+            "name": "Continuous.bddAbove_range_of_hasCompactSupport",
+            "module": "Mathlib.Topology.Order.Compact",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Order/Compact.lean#L343-L343",
+            "source_text": "@[to_additive /-- A continuous function with compact support is bounded above. -/]\ntheorem Continuous.bddAbove_range_of_hasCompactMulSupport [ClosedIciTopology α] [One α]\n    {f : β → α} (hf : Continuous f) (h : HasCompactMulSupport f) : BddAbove (range f) :=",
+            "docstring": "A continuous function with compact support is bounded above. "
+          },
+          {
+            "id": 279650,
+            "name": "BddAbove",
+            "module": "Mathlib.Order.Bounds.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L37-L40",
+            "source_text": "/-- A set is bounded above if there exists an upper bound. -/\n@[to_dual /-- A set is bounded below if there exists a lower bound. -/]\ndef BddAbove (s : Set α) :=\n  (upperBounds s).Nonempty\n",
+            "docstring": "A set is bounded above if there exists an upper bound. "
+          },
+          {
+            "id": 351109,
+            "name": "Continuous.bddAbove_range_of_hasCompactMulSupport",
+            "module": "Mathlib.Topology.Order.Compact",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Order/Compact.lean#L342-L346",
+            "source_text": "/-- A continuous function with compact support is bounded above. -/\n@[to_additive /-- A continuous function with compact support is bounded above. -/]\ntheorem Continuous.bddAbove_range_of_hasCompactMulSupport [ClosedIciTopology α] [One α]\n    {f : β → α} (hf : Continuous f) (h : HasCompactMulSupport f) : BddAbove (range f) :=\n  Continuous.bddBelow_range_of_hasCompactMulSupport (α := αᵒᵈ) hf h\n",
+            "docstring": "A continuous function with compact support is bounded above. "
+          },
+          {
+            "id": 347862,
+            "name": "Metric.packingNumber_two_mul_le_externalCoveringNumber",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L328-L352",
+            "source_text": "/-- The packing number of a set `A` for radius `2 * ε` is at most the external covering number\nof `A` for radius `ε`. -/\ntheorem packingNumber_two_mul_le_externalCoveringNumber (ε : ℝ≥0) (A : Set X) :\n    packingNumber (2 * ε) A ≤ externalCoveringNumber ε A := by\n  simp only [packingNumber, ENNReal.coe_mul, ENNReal.coe_ofNat, externalCoveringNumber, le_iInf_iff,\n    iSup_le_iff]\n  intro C hC_cover D hD_subset hD_separated\n  -- For each point in D, choose a point in C which is ε-close to it\n  let f : D → C := fun x ↦\n    ⟨(hC_cover (hD_subset x.2)).choose, (hC_cover (hD_subset x.2)).choose_spec.1⟩\n  have hf' (x : D) : edist x.1 (f x) ≤ ε := (hC_cover (hD_subset x.2)).choose_spec.2\n  -- `⊢ D.encard ≤ C.encard`\n  -- It suffices to prove that `f` is injective\n  simp only [← Set.toENat_cardinalMk]\n  gcongr\n  refine Cardinal.mk_le_of_injective (f := f) fun x y hxy ↦ Subtype.ext ?_\n  apply Set.Pairwise.eq hD_separated x.2 y.2\n  simp only [not_lt]\n  calc\n    edist (x : X) y ≤ edist (x : X) (f x) + edist (f x : X) y := edist_triangle ..\n    _ ≤ 2 * ε := by\n      rw [two_mul]\n      gcongr\n      · exact hf' x\n      · simpa [edist_comm, hxy] using hf' y\n",
+            "docstring": "The packing number of a set `A` for radius `2 * ε` is at most the external covering number\nof `A` for radius `ε`. "
+          },
+          {
+            "id": 312002,
+            "name": "Module.supportDim_le_of_surjective",
+            "module": "Mathlib.RingTheory.KrullDimension.Module",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/KrullDimension/Module.lean#L74-L77",
+            "source_text": "lemma supportDim_le_of_surjective (f : M →ₗ[R] N) (h : Function.Surjective f) :\n    supportDim R N ≤ supportDim R M :=\n  krullDim_le_of_strictMono (fun a ↦ ⟨a.1, Module.support_subset_of_surjective f h a.2⟩)\n    (fun {_ _} lt ↦ lt)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5 packed_support_range repair_above_packing",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391955,
+            "name": "Fin.predPredAbove",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L261-L272",
+            "source_text": "/-- The preimage of `m` under `succSuccAbove i j hij` given that `m` is not equal\n  to `i` or `j`. -/\ndef predPredAbove (i j : Fin (n + 1 + 1)) (hij : i ≠ j) (m : Fin (n + 1 + 1))\n    (hm : m ≠ i ∧ m ≠ j) : Fin n :=\n  if h1 : m.1 < i.1 ∧ m.1 < j.1 then\n      ⟨m, by grind⟩\n    else if h2 : m.1 - 1 < i.1 ∧ j.1 ≤ m.1 then\n      ⟨m - 1, by grind⟩\n    else if h3 : i.1 - 1 ≤ m.1 ∧ m.1 < j.1 then\n      ⟨m - 1, by grind⟩\n    else\n      ⟨m - 2, by grind⟩\n",
+            "docstring": "The preimage of `m` under `succSuccAbove i j hij` given that `m` is not equal\nto `i` or `j`. "
+          },
+          {
+            "id": 391938,
+            "name": "Fin.succSuccAbove_monotone",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L126-L130",
+            "source_text": "@[simp]\nlemma succSuccAbove_monotone {n : ℕ} (i j : Fin (n + 1 + 1)) :\n    Monotone (succSuccAbove i j) := by\n  intro a b\n  simp",
+            "docstring": null
+          },
+          {
+            "id": 391929,
+            "name": "Fin.succSuccAbove",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L51-L61",
+            "source_text": "/-- The embedding of `Fin n` into `Fin (n + 1 + 1)` which leaves a hole\n  at `i` and `j`. -/\ndef succSuccAbove (i j : Fin (n + 1 + 1)) (m : Fin n) : Fin (n + 1 + 1) :=\n  if m.1 < i.1 ∧ m.1 < j.1 then\n    ⟨m, by omega⟩\n  else if m.1 + 1 < i.1 ∧ j.1 ≤ m.1 then\n    ⟨m + 1, by omega⟩\n  else if i.1 ≤ m.1 ∧ m.1 + 1 < j.1 then\n    ⟨m + 1, by omega⟩\n  else\n    ⟨m + 2, by omega⟩\n",
+            "docstring": "The embedding of `Fin n` into `Fin (n + 1 + 1)` which leaves a hole\nat `i` and `j`. "
+          },
+          {
+            "id": 391940,
+            "name": "Fin.succSuccAbove_range",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L136-L153",
+            "source_text": "@[simp]\nlemma succSuccAbove_range {i j : Fin (n + 1 + 1)} (hij : i ≠ j) :\n    Set.range (succSuccAbove i j) = {i, j}ᶜ := by\n  rcases Fin.eq_self_or_eq_succAbove i j with rfl | ⟨j, rfl⟩\n  · simp_all\n  rw [succSuccAbove_eq_succAbove_succAbove, Set.range_comp, Fin.range_succAbove]\n  ext a\n  simp only [Set.mem_compl_iff, Set.mem_singleton_iff, Set.mem_image]\n  apply Iff.intro\n  · intro h\n    obtain ⟨b, h1, rfl⟩ := h\n    simpa using h1\n  · intro h\n    simp at h\n    rcases Fin.eq_self_or_eq_succAbove i a with rfl | ⟨a, rfl⟩\n    · simp_all\n    use a\n    simp_all",
+            "docstring": null
+          },
+          {
+            "id": 391953,
+            "name": "Fin.succSuccAbove_natAdd_image_range_castAdd",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L234-L246",
+            "source_text": "lemma succSuccAbove_natAdd_image_range_castAdd {n n1 : ℕ}\n    (i j : Fin (n + 1 + 1)) :\n    (succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j)) ''\n    (Set.range (Fin.castAdd (m := n) (n := n1))) = {i | i.1 < n1} := by\n  ext a\n  simp only [Set.mem_image, Set.mem_range, exists_exists_eq_and, Set.mem_setOf_eq]\n  conv_lhs =>\n    enter [1, b]\n    rw [succSuccAbove_natAdd_apply_castAdd i j]\n  apply Iff.intro\n  · rintro ⟨b, rfl⟩\n    simp\n  · exact fun h ↦ ⟨⟨a, by omega⟩, by simp⟩\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5 repaired_exponent_cutoff",
+        "status": "ok",
+        "results": [
+          {
+            "id": 234702,
+            "name": "AddMonoid.exponent",
+            "module": "Mathlib.GroupTheory.Exponent",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L71-L73",
+            "source_text": "@[to_additive\n/-- The exponent of an additive group is the smallest positive integer `n` such that\n`n • g = 0` for all `g ∈ G` if it exists, otherwise it is zero by convention. -/]\nnoncomputable def exponent :=",
+            "docstring": "The exponent of an additive group is the smallest positive integer `n` such that\n`n • g = 0` for all `g ∈ G` if it exists, otherwise it is zero by convention. "
+          },
+          {
+            "id": 234701,
+            "name": "Monoid.exponent",
+            "module": "Mathlib.GroupTheory.Exponent",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L69-L75",
+            "source_text": "/-- The exponent of a group is the smallest positive integer `n` such that `g ^ n = 1` for all\n`g ∈ G` if it exists, otherwise it is zero by convention. -/\n@[to_additive\n/-- The exponent of an additive group is the smallest positive integer `n` such that\n`n • g = 0` for all `g ∈ G` if it exists, otherwise it is zero by convention. -/]\nnoncomputable def exponent :=\n  if h : ExponentExists G then Nat.find h else 0\n",
+            "docstring": "The exponent of a group is the smallest positive integer `n` such that `g ^ n = 1` for all\n`g ∈ G` if it exists, otherwise it is zero by convention. "
+          },
+          {
+            "id": 234749,
+            "name": "Monoid.exponent_dvd",
+            "module": "Mathlib.GroupTheory.Exponent",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L223-L225",
+            "source_text": "@[to_additive]\ntheorem exponent_dvd {n : ℕ} : exponent G ∣ n ↔ ∀ g : G, orderOf g ∣ n := by\n  simp_rw [exponent_dvd_iff_forall_pow_eq_one, orderOf_dvd_iff_pow_eq_one]",
+            "docstring": null
+          },
+          {
+            "id": 234706,
+            "name": "AddOpposite.exponent",
+            "module": "Mathlib.GroupTheory.Exponent",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L88-L88",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem _root_.MulOpposite.exponent : exponent (MulOpposite G) = exponent G := by",
+            "docstring": null
+          },
+          {
+            "id": 240804,
+            "name": "ZMod.exponent",
+            "module": "Mathlib.GroupTheory.SpecificGroups.Cyclic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/SpecificGroups/Cyclic.lean#L351-L353",
+            "source_text": "@[simp]\nprotected theorem ZMod.exponent (n : ℕ) : AddMonoid.exponent (ZMod n) = n := by\n  rw [IsAddCyclic.exponent_eq_card, Nat.card_zmod]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5 repaired_exponent_cutoff",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391099,
+            "name": "lorentzAlgebra.Matrix.exp_reindex",
+            "module": "Physlib.Relativity.LorentzAlgebra.ExponentialMap",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/ExponentialMap.lean#L116-L122",
+            "source_text": "@[simp]\nlemma exp_reindex {k : Type*}\n    [RCLike k] [Fintype ι] [DecidableEq ι] (e : n ≃ ι) (A : Matrix n n k) :\n    NormedSpace.exp (A.submatrix e.symm e.symm) = reindex e e (NormedSpace.exp A) := by\n  let f := reindexAlgEquiv k k e\n  have h_cont : Continuous f := f.toLinearEquiv.continuous_of_finiteDimensional\n  exact (NormedSpace.map_exp f.toAlgHom h_cont A).symm",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "bounded_connectivity_repair exact declaration namespace",
+      "packed_support_range exact declaration namespace",
+      "repaired_exponent_cutoff exact declaration namespace"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "bounded_connectivity_repair exact declaration namespace",
+        "status": "ok",
+        "results": [
+          {
+            "id": 355814,
+            "name": "TotallyBounded",
+            "module": "Mathlib.Topology.UniformSpace.Cauchy",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/Cauchy.lean#L485-L488",
+            "source_text": "/-- A set `s` is totally bounded if for every entourage `d` there is a finite\n  set of points `t` such that every element of `s` is `d`-near to some element of `t`. -/\ndef TotallyBounded (s : Set α) : Prop :=\n  ∀ d ∈ 𝓤 α, ∃ t : Set α, t.Finite ∧ s ⊆ ⋃ y ∈ t, { x | (x, y) ∈ d }\n",
+            "docstring": "A set `s` is totally bounded if for every entourage `d` there is a finite\nset of points `t` such that every element of `s` is `d`-near to some element of `t`. "
+          },
+          {
+            "id": 64741,
+            "name": "Function.Exact",
+            "module": "Mathlib.Algebra.Exact.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Exact/Basic.lean#L43-L44",
+            "source_text": "@[to_additive /-- The maps `f` and `g` form an exact pair:\n  `g y = 0` iff `y` belongs to the image of `f`. -/]\ndef MulExact [One P] : Prop := ∀ y, g y = 1 ↔ y ∈ Set.range f",
+            "docstring": "The maps `f` and `g` form an exact pair:\n`g y = 0` iff `y` belongs to the image of `f`. "
+          },
+          {
+            "id": 328126,
+            "name": "Mathlib.Linter.linter.dupNamespace",
+            "module": "Mathlib.Tactic.Linter.Lint",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Linter/Lint.lean#L72-L82",
+            "source_text": "/--\nThe `dupNamespace` linter produces a warning when a component of a declaration name is repeated\nseveral times. The repetition does not have to be consecutive. Examples: `Nat.Nat.foo`,\n`One.two.two`, `Nat.One.Nat`, `Nat.Prime.Nat.Prime.foo`, `Nat.Prime.Nat.bar`\n\nThe linter also warns about auto-generated declarations (such as, those generated by `to_additive`).\n-/\npublic register_option linter.dupNamespace : Bool := {\n  defValue := true\n  descr := \"enable the duplicated namespace linter\"\n}\n",
+            "docstring": "The `dupNamespace` linter produces a warning when a component of a declaration name is repeated\nseveral times. The repetition does not have to be consecutive. Examples: `Nat.Nat.foo`,\n`One.two.two`, `Nat.One.Nat`, `Nat.Prime.Nat.Prime.foo`, `Nat.Prime.Nat.bar`\n\nThe linter also warns about auto-generated declarations (such as, those generated by `to_additive`).\n"
+          },
+          {
+            "id": 337937,
+            "name": "Bornology.IsBounded",
+            "module": "Mathlib.Topology.Bornology.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Bornology/Basic.lean#L98-L100",
+            "source_text": "/-- `IsBounded` is the predicate that `s` is bounded relative to the ambient bornology on `α`. -/\ndef IsBounded [Bornology α] (s : Set α) : Prop :=\n  IsCobounded sᶜ\n",
+            "docstring": "`IsBounded` is the predicate that `s` is bounded relative to the ambient bornology on `α`. "
+          },
+          {
+            "id": 329966,
+            "name": "Mathlib.Tactic.UnfoldBoundary.UnfoldEntry.cast",
+            "module": "Mathlib.Tactic.Translate.UnfoldBoundary",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Translate/UnfoldBoundary.lean#L165-L165",
+            "source_text": "  | cast (declName : Name) (unfold refold unfold' refold' : Name)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "bounded_connectivity_repair exact declaration namespace",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386892,
+            "name": "polynomial_tanh_bounded",
+            "module": "Physlib.Mathematics.Trigonometry.Tanh",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Trigonometry/Tanh.lean#L108-L122",
+            "source_text": "/-- For a polynomial P, show that P (tanh x) is bounded on the real line -/\nlemma polynomial_tanh_bounded (P : Polynomial ℝ) :\n    ∃ C : ℝ, ∀ x : ℝ, |P.eval (Real.tanh x)| ≤ C := by\n  -- Since tanh maps to (-1, 1), it maps to [-1+ε, 1-ε] for any ε > 0\n  -- But more directly, tanh maps to (-1, 1) ⊆ [-1, 1]\n  have h_range : ∀ x : ℝ, Real.tanh x ∈ Set.Icc (-1) 1 := by\n    intro x\n    constructor\n    · exact le_of_lt (neg_one_lt_tanh x)\n    · exact le_of_lt (tanh_lt_one x)\n  -- Apply polynomial boundedness on [-1, 1]\n  obtain ⟨M, hM⟩ := polynomial_bounded_on_interval P (-1) 1\n  use M\n  intro x\n  exact hM (Real.tanh x) (h_range x)\n",
+            "docstring": "For a polynomial P, show that P (tanh x) is bounded on the real line "
+          },
+          {
+            "id": 387119,
+            "name": "Physlib.CollectSorry.collect",
+            "module": "Physlib.Meta.Sorry",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Sorry.lean#L89-L125",
+            "source_text": "/-- Given a `c : Name` updating the monad `M` based on which results which `c` uses\n  depend on the `sorryAx` axiom and the `Lean.ofReduceBool` axiom. -/\npartial def collect (c : Name) (parents : NameSet) : M Unit := do\n  let collectExpr (e : Expr) : M Unit := e.getUsedConstants.forM fun x =>\n    collect x (parents.insert c)\n  let s ← get\n  if s.containsSorry.contains c then\n    modify fun s => { s with containsSorry := s.containsSorry.append parents}\n  if s.containsOfReduceBool.contains c then\n    modify fun s => { s with containsOfReduceBool := s.containsOfReduceBool.append parents}\n  unless s.visited.contains c do\n    modify fun s => { s with visited := s.visited.insert c }\n    let env ← read\n    -- We should take the constant from the kernel env, which may differ from the one in the elab\n    -- env in case of (async) errors.\n    match env.checked.get.find? c with\n    | some (ConstantInfo.axiomInfo v) =>\n        if v.name == ``sorryAx then\n            modify fun s => { s with containsSorry := s.containsSorry.append (parents.insert c) }\n        if v.name == ``Lean.ofReduceBool || (toString v.name).contains \"native_decide\" then\n            modify fun s => { s with containsOfReduceBool :=\n              s.containsOfReduceBool.append (parents.insert c)}\n        collectExpr v.type\n    | some (ConstantInfo.defnInfo v) =>\n        collectExpr v.type *> collectExpr v.value\n    | some (ConstantInfo.thmInfo v) =>\n        collectExpr v.type *> collectExpr v.value\n    | some (ConstantInfo.opaqueInfo v) =>\n        collectExpr v.type *> collectExpr v.value\n    | some (ConstantInfo.quotInfo _) => pure ()\n    | some (ConstantInfo.ctorInfo v) =>\n        collectExpr v.type\n    | some (ConstantInfo.recInfo v) =>\n        collectExpr v.type\n    | some (ConstantInfo.inductInfo v) =>\n        collectExpr v.type *> v.ctors.forM fun x => collect x (parents.insert c)\n    | none => pure ()\n",
+            "docstring": "Given a `c : Name` updating the monad `M` based on which results which `c` uses\ndepend on the `sorryAx` axiom and the `Lean.ofReduceBool` axiom. "
+          },
+          {
+            "id": 387121,
+            "name": "Physlib.collectSorryPseudo",
+            "module": "Physlib.Meta.Sorry",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Sorry.lean#L146-L151",
+            "source_text": "/-- Given a `c : Array Name` the names of all results used to defined\n  the results in `c` with the `sorryAx` axiom and the `Lean.ofReduceBool` axiom. -/\ndef collectSorryPseudo (c : Array Name) : CoreM (Array Name × Array Name) := do\n  let env ← getEnv\n  let (_, s) := ((CollectSorry.allSorryPseudo c).run env).run {}\n  pure (s.containsSorry.toArray, s.containsOfReduceBool.toArray)\n",
+            "docstring": "Given a `c : Array Name` the names of all results used to defined\nthe results in `c` with the `sorryAx` axiom and the `Lean.ofReduceBool` axiom. "
+          },
+          {
+            "id": 387077,
+            "name": "sorryfulExtension",
+            "module": "Physlib.Meta.Linters.Sorry",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Linters/Sorry.lean#L50-L57",
+            "source_text": "/-- An environment extension containing the information of declarations\n  which carry the `sorryful` attribute. -/\ninitialize sorryfulExtension : SimplePersistentEnvExtension SorryfulInfo (Array SorryfulInfo) ←\n  registerSimplePersistentEnvExtension {\n    name := `sorryfulExtension\n    addEntryFn := fun arr info => arr.push info\n    addImportedFn := fun es => es.foldl (· ++ ·) #[]\n  }\n",
+            "docstring": "An environment extension containing the information of declarations\nwhich carry the `sorryful` attribute. "
+          },
+          {
+            "id": 387120,
+            "name": "Physlib.CollectSorry.allSorryPseudo",
+            "module": "Physlib.Meta.Sorry",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Sorry.lean#L133-L136",
+            "source_text": "/-- Given a `c : Array Name` updating the monad `M` based on which results\n  depend on the `sorryAx` axiom and the `Lean.ofReduceBool` axiom. -/\npartial def allSorryPseudo (c : Array Name) : M Unit := do\n  c.forM fun x => collect x {}\n",
+            "docstring": "Given a `c : Array Name` updating the monad `M` based on which results\ndepend on the `sorryAx` axiom and the `Lean.ofReduceBool` axiom. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "packed_support_range exact declaration namespace",
+        "status": "ok",
+        "results": [
+          {
+            "id": 319688,
+            "name": "Module.support_of_exact",
+            "module": "Mathlib.RingTheory.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Support.lean#L171-L186",
+            "source_text": "/-- Given an exact sequence `0 → M → N → P → 0` of `R`-modules, `Supp N = Supp M ∪ Supp P`. -/\n@[stacks 00L3 \"(4)\"]\nlemma Module.support_of_exact (h : Function.Exact f g)\n    (hf : Function.Injective f) (hg : Function.Surjective g) :\n    Module.support R N = Module.support R M ∪ Module.support R P := by\n  refine subset_antisymm ?_ (Set.union_subset (Module.support_subset_of_injective f hf)\n    (Module.support_subset_of_surjective g hg))\n  intro x\n  contrapose\n  simp only [Set.mem_union, not_or, and_imp, notMem_support_iff']\n  intro H₁ H₂ m\n  obtain ⟨r, hr, e₁⟩ := H₂ (g m)\n  rw [← map_smul, h] at e₁\n  obtain ⟨m', hm'⟩ := e₁\n  obtain ⟨s, hs, e₁⟩ := H₁ m'\n  exact ⟨_, x.asIdeal.primeCompl.mul_mem hs hr, by rw [mul_smul, ← hm', ← map_smul, e₁, map_zero]⟩\n",
+            "docstring": "Given an exact sequence `0 → M → N → P → 0` of `R`-modules, `Supp N = Supp M ∪ Supp P`. "
+          },
+          {
+            "id": 199091,
+            "name": "DFinsupp.support",
+            "module": "Mathlib.Data.DFinsupp.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/DFinsupp/Defs.lean#L804-L815",
+            "source_text": "/-- Set `{i | f x ≠ 0}` as a `Finset`. -/\ndef support (f : Π₀ i, β i) : Finset ι :=\n  (f.support'.lift fun xs => (Multiset.toFinset xs.1).filter fun i => f i ≠ 0) <| by\n    rintro ⟨sx, hx⟩ ⟨sy, hy⟩\n    dsimp only [Subtype.coe_mk, toFun_eq_coe] at *\n    ext i; constructor\n    · intro H\n      rcases Finset.mem_filter.1 H with ⟨_, h⟩\n      exact Finset.mem_filter.2 ⟨Multiset.mem_toFinset.2 <| (hy i).resolve_right h, h⟩\n    · intro H\n      rcases Finset.mem_filter.1 H with ⟨_, h⟩\n      exact Finset.mem_filter.2 ⟨Multiset.mem_toFinset.2 <| (hx i).resolve_right h, h⟩\n",
+            "docstring": "Set `{i | f x ≠ 0}` as a `Finset`. "
+          },
+          {
+            "id": 64755,
+            "name": "Function.Exact.rangeFactorization",
+            "module": "Mathlib.Algebra.Exact.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Exact/Basic.lean#L102-L106",
+            "source_text": "@[to_additive /-- If two maps `f : M → N` and `g : N → P` are exact, then the induced maps\n`Set.range f → N → Set.range g` are exact.\n\nNote that if you already have an instance `[Zero (Set.range g)]` (which is unlikely) this lemma\nmay not apply if the zero of `Set.range g` is not definitionally equal to `⟨0, hg⟩`. -/]\nlemma rangeFactorization [One P] (h : MulExact f g) (hg : 1 ∈ Set.range g) :",
+            "docstring": "If two maps `f : M → N` and `g : N → P` are exact, then the induced maps\n`Set.range f → N → Set.range g` are exact.\n\nNote that if you already have an instance `[Zero (Set.range g)]` (which is unlikely) this lemma\nmay not apply if the zero of `Set.range g` is not definitionally equal to `⟨0, hg⟩`. "
+          },
+          {
+            "id": 91697,
+            "name": "Function.support",
+            "module": "Mathlib.Algebra.Notation.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Support.lean#L31-L31",
+            "source_text": "@[to_additive /-- `support` of a function is the set of points `x` such that `f x ≠ 0`. -/]\ndef mulSupport (f : ι → M) : Set ι := {x | f x ≠ 1}",
+            "docstring": "`support` of a function is the set of points `x` such that `f x ≠ 0`. "
+          },
+          {
+            "id": 64741,
+            "name": "Function.Exact",
+            "module": "Mathlib.Algebra.Exact.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Exact/Basic.lean#L43-L44",
+            "source_text": "@[to_additive /-- The maps `f` and `g` form an exact pair:\n  `g y = 0` iff `y` belongs to the image of `f`. -/]\ndef MulExact [One P] : Prop := ∀ y, g y = 1 ↔ y ∈ Set.range f",
+            "docstring": "The maps `f` and `g` form an exact pair:\n`g y = 0` iff `y` belongs to the image of `f`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "packed_support_range exact declaration namespace",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387079,
+            "name": "PseudoInfo",
+            "module": "Physlib.Meta.Linters.Sorry",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Linters/Sorry.lean#L70-L73",
+            "source_text": "/-- The information for stored for a declaration marked with `pseudo`. -/\nstructure PseudoInfo where\n  /-- Name of result. -/\n  name : Name\n",
+            "docstring": "The information for stored for a declaration marked with `pseudo`. "
+          },
+          {
+            "id": 387042,
+            "name": "Lean.Name.lineNumber",
+            "module": "Physlib.Meta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L105-L109",
+            "source_text": "/-- Given a name, returns the line number. -/\ndef lineNumber (c : Name) : m Nat := do\n  match ← findDeclarationRanges? c with\n  | some decl => return decl.range.pos.line\n  | none => panic! s!\"{c} is a declaration without position\"\n",
+            "docstring": "Given a name, returns the line number. "
+          },
+          {
+            "id": 387076,
+            "name": "SorryfulInfo",
+            "module": "Physlib.Meta.Linters.Sorry",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Linters/Sorry.lean#L39-L48",
+            "source_text": "/-- The information for stored for a declaration marked with `sorryful`. -/\nstructure SorryfulInfo where\n  /-- Name of result. -/\n  name : Name\n  /-- The docstring of the result. -/\n  docstring : String\n  /-- The file name where the note came from. -/\n  fileName : Name\n  /-- The line from where the note came from. -/\n  line : Nat\n",
+            "docstring": "The information for stored for a declaration marked with `sorryful`. "
+          },
+          {
+            "id": 387045,
+            "name": "Lean.Name.hasPos",
+            "module": "Physlib.Meta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L128-L131",
+            "source_text": "/-- Determines if a name has a location. -/\ndef hasPos (c : Name) : m Bool := do\n  let ranges? ← findDeclarationRanges? c\n  return ranges?.isSome\n",
+            "docstring": "Determines if a name has a location. "
+          },
+          {
+            "id": 387077,
+            "name": "sorryfulExtension",
+            "module": "Physlib.Meta.Linters.Sorry",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Linters/Sorry.lean#L50-L57",
+            "source_text": "/-- An environment extension containing the information of declarations\n  which carry the `sorryful` attribute. -/\ninitialize sorryfulExtension : SimplePersistentEnvExtension SorryfulInfo (Array SorryfulInfo) ←\n  registerSimplePersistentEnvExtension {\n    name := `sorryfulExtension\n    addEntryFn := fun arr info => arr.push info\n    addImportedFn := fun es => es.foldl (· ++ ·) #[]\n  }\n",
+            "docstring": "An environment extension containing the information of declarations\nwhich carry the `sorryful` attribute. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "repaired_exponent_cutoff exact declaration namespace",
+        "status": "ok",
+        "results": [
+          {
+            "id": 128278,
+            "name": "Real.exp_approx_succ",
+            "module": "Mathlib.Analysis.Complex.Exponential",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Complex/Exponential.lean#L568-L579",
+            "source_text": "theorem exp_approx_succ {n} {x a₁ b₁ : ℝ} (m : ℕ) (e₁ : n + 1 = m) (a₂ b₂ : ℝ)\n    (e : |1 + x / m * a₂ - a₁| ≤ b₁ - |x| / m * b₂)\n    (h : |exp x - expNear m x a₂| ≤ |x| ^ m / m.factorial * b₂) :\n    |exp x - expNear n x a₁| ≤ |x| ^ n / n.factorial * b₁ := by\n  grw [abs_sub_le, h]\n  subst e₁; rw [expNear_succ, expNear_sub, abs_mul]\n  convert!\n    mul_le_mul_of_nonneg_left (a := |x| ^ n / ↑(Nat.factorial n)) (le_sub_iff_add_le'.1 e) ?_\n      using 1\n  · simp [mul_add, pow_succ', div_eq_mul_inv, abs_mul, abs_inv, Nat.factorial]\n    ac_rfl\n  · simp [div_nonneg, abs_nonneg]\n",
+            "docstring": null
+          },
+          {
+            "id": 234701,
+            "name": "Monoid.exponent",
+            "module": "Mathlib.GroupTheory.Exponent",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L69-L75",
+            "source_text": "/-- The exponent of a group is the smallest positive integer `n` such that `g ^ n = 1` for all\n`g ∈ G` if it exists, otherwise it is zero by convention. -/\n@[to_additive\n/-- The exponent of an additive group is the smallest positive integer `n` such that\n`n • g = 0` for all `g ∈ G` if it exists, otherwise it is zero by convention. -/]\nnoncomputable def exponent :=\n  if h : ExponentExists G then Nat.find h else 0\n",
+            "docstring": "The exponent of a group is the smallest positive integer `n` such that `g ^ n = 1` for all\n`g ∈ G` if it exists, otherwise it is zero by convention. "
+          },
+          {
+            "id": 234702,
+            "name": "AddMonoid.exponent",
+            "module": "Mathlib.GroupTheory.Exponent",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L71-L73",
+            "source_text": "@[to_additive\n/-- The exponent of an additive group is the smallest positive integer `n` such that\n`n • g = 0` for all `g ∈ G` if it exists, otherwise it is zero by convention. -/]\nnoncomputable def exponent :=",
+            "docstring": "The exponent of an additive group is the smallest positive integer `n` such that\n`n • g = 0` for all `g ∈ G` if it exists, otherwise it is zero by convention. "
+          },
+          {
+            "id": 328086,
+            "name": "Mathlib.Tactic.LinearCombinationPrime.expStx",
+            "module": "Mathlib.Tactic.LinearCombinationPrime",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/LinearCombinationPrime.lean#L170-L174",
+            "source_text": "/--\nThe `(exp := n)` syntax for `linear_combination'` says to take the goal to the `n`th power before\nsubtracting the given combination of hypotheses.\n-/\nsyntax expStx := atomic(\" (\" &\"exp\" \" := \") withoutPosition(num) \")\"\n",
+            "docstring": "The `(exp := n)` syntax for `linear_combination'` says to take the goal to the `n`th power before\nsubtracting the given combination of hypotheses.\n"
+          },
+          {
+            "id": 143619,
+            "name": "Complex.IsExpCmpFilter",
+            "module": "Mathlib.Analysis.SpecialFunctions.CompareExp",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/CompareExp.lean#L39-L48",
+            "source_text": "/-- We say that `l : Filter ℂ` is an *exponential comparison filter* if the real part tends to\ninfinity along `l` and the imaginary part grows subexponentially compared to the real part. These\nproperties guarantee that `(fun z ↦ z ^ a₁ * exp (b₁ * z)) =o[l] (fun z ↦ z ^ a₂ * exp (b₂ * z))`\nfor any complex `a₁`, `a₂` and real `b₁ < b₂`.\n\nIn particular, the second property is automatically satisfied if the imaginary part is bounded along\n`l`. -/\nstructure IsExpCmpFilter (l : Filter ℂ) : Prop where\n  tendsto_re : Tendsto re l atTop\n  isBigO_im_pow_re : ∀ n : ℕ, (fun z : ℂ => z.im ^ n) =O[l] fun z => Real.exp z.re\n",
+            "docstring": "We say that `l : Filter ℂ` is an *exponential comparison filter* if the real part tends to\ninfinity along `l` and the imaginary part grows subexponentially compared to the real part. These\nproperties guarantee that `(fun z ↦ z ^ a₁ * exp (b₁ * z)) =o[l] (fun z ↦ z ^ a₂ * exp (b₂ * z))`\nfor any complex `a₁`, `a₂` and real `b₁ < b₂`.\n\nIn particular, the second property is automatically satisfied if the imaginary part is bounded along\n`l`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "repaired_exponent_cutoff exact declaration namespace",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387037,
+            "name": "Physlib.Imports.getUserConsts",
+            "module": "Physlib.Meta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L62-L78",
+            "source_text": "/-- Gets all user defined constants from an import. -/\ndef Physlib.Imports.getUserConsts (imp : Import) : CoreM (Array ConstantInfo) := do\n  let env ← getEnv\n  let consts ← Imports.getConsts imp\n  consts.filterM fun c =>\n    let name := c.name\n    return !name.isInternal\n      && !isCasesOnRecursor env name\n      && !isRecOnRecursor env name\n      && !isNoConfusion env name\n      && !isBRecOnRecursor env name\n      && !isAuxRecursorWithSuffix env name brecOnSuffix\n      && !isAuxRecursorWithSuffix env name belowSuffix\n      && !isAuxRecursorWithSuffix env name belowSuffix\n      /- Removing syntax category declarations. -/\n      && name.toString != \"TensorTree.indexExprTT.quot\"\n      && name.toString != \"TensorTree.tensorExprTT.quot\"\n",
+            "docstring": "Gets all user defined constants from an import. "
+          },
+          {
+            "id": 387077,
+            "name": "sorryfulExtension",
+            "module": "Physlib.Meta.Linters.Sorry",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Linters/Sorry.lean#L50-L57",
+            "source_text": "/-- An environment extension containing the information of declarations\n  which carry the `sorryful` attribute. -/\ninitialize sorryfulExtension : SimplePersistentEnvExtension SorryfulInfo (Array SorryfulInfo) ←\n  registerSimplePersistentEnvExtension {\n    name := `sorryfulExtension\n    addEntryFn := fun arr info => arr.push info\n    addImportedFn := fun es => es.foldl (· ++ ·) #[]\n  }\n",
+            "docstring": "An environment extension containing the information of declarations\nwhich carry the `sorryful` attribute. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "proof": "set_option maxHeartbeats 2000000 in\n  classical\n  intro A B w T hw hT hA hB hBbound\n  have hAc : (M5.SupportPolynomial.ofSupport A).coeff 0 = 1 := by\n    simpa [hA] using M5.SupportPolynomial.support_coeff_zero A\n  have hBc : (M5.SupportPolynomial.ofSupport B).coeff 0 = 1 := by\n    simpa [hB] using M5.SupportPolynomial.support_coeff_zero B\n  have hdegree : (M5.SupportPolynomial.ofSupport B).natDegree ≤ w * T := by\n    first\n    | apply Nat.le_of_lt\n      apply M5.SupportPolynomial.support_degree_bound <;> first | assumption | positivity\n    | apply M5.SupportPolynomial.support_degree_bound <;> first | assumption | positivity\n  have hpow : 2 ^ (M5.SupportPolynomial.ofSupport B).natDegree ≤ 2 ^ (w * T) :=\n    Nat.pow_le_pow_right (by decide) hdegree\n  have hprops := M5.Signature.ordinary_gcd_properties\n    (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B)\n  have hbound := M5.Signature.ordinary_gcd_period_bound\n    (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B)\n  unfold M5.PhysicalOrder.supportPeriod\n  constructor\n  · aesop\n  constructor\n  · apply le_trans _ hpow\n    aesop\n  · aesop (add safe apply M5.Period.period_law)",
+  "queries": [
+    "M5.Signature.ordinary_gcd_period_bound",
+    "M5.Signature.ordinary_gcd_properties M5.Period.period_law",
+    "M5.SupportPolynomial.support_degree_bound"
+  ]
+}

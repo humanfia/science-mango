@@ -1,0 +1,132 @@
+{
+  "id": "finite_factor_criterion",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PolynomialExclusion.finite_factor_criterion",
+    "spec_sha256": "c54bf73ea32b43306590f4c7bab9ddbc100a14d4db9064be7516fd3e466d3bfd",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-kzbqzocw/attempt-001/Candidate_f113eed9d7d3d873.lean",
+        "target_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-kzbqzocw/attempt-001/FrozenTarget_f113eed9d7d3d873.lean",
+        "feedback": "",
+        "target_sha256": "60152a7266785f0dd71db28eb4d3112869eac27cb89a9504300ff8ff2881cbef",
+        "target_olean_sha256": "495f56b94407f0b88c13c7ece3d9010c1697b38f8a815742e2ec78137757eb04",
+        "source_sha256": "1627766d528c97e86b8a1260f0fd09a2238f443798018da6254873a2115cfe46",
+        "olean_sha256": "30f238f34210f4081fbed3aee5d8da1f381bb239849c8c5f584fbb49bac32fcb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:11:16.517715+00:00",
+    "work": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-kzbqzocw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-kzbqzocw/attempt-001/Candidate_f113eed9d7d3d873.lean",
+    "environment_sha256": "6c07b3bd70f3fbdeb2ff1bbc277ad0fcd5f2e84b7a8f705d5c73a9054eabf1d2",
+    "artifacts": {
+      "cyclic_quotient_nonzero": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.cyclic_quotient_nonzero : ∀ (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.cyclicModulus N / F ≠ 0 := by\n  change ∀ (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.cyclicModulus N / F ≠ 0\n  intro F N hN hmonic hdvd hquot\n  have hmul := EuclideanDomain.mul_div_cancel' hmonic.ne_zero hdvd\n  have hzero : M5.cyclicModulus N = 0 := by\n    rw [hquot, mul_zero] at hmul\n    exact hmul.symm\n  have hcoeff := congrArg (fun p : M5.BinaryPolynomial => p.coeff N) hzero\n  simp [M5.cyclicModulus, Polynomial.coeff_add, Polynomial.coeff_X_pow,\n    Polynomial.coeff_one, Nat.ne_of_gt hN] at hcoeff",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.cyclic_quotient_nonzero",
+          "ancestors": [],
+          "spec_sha256": "b0532c3169a505613547a5afe9875d28b297d14bd0d58335ec2106c544c8a1e0"
+        },
+        "sha256": "036811517bf41eac11a8dd2b92b8d60c29660b9fa842c056582bd36cb6c6bd89"
+      },
+      "factor_dvd_quotient": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.factor_dvd_quotient : ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P) := by\n  change ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)\n  intro F P p hF hFP\n  constructor\n  · rintro ⟨q, hq⟩\n    refine ⟨q, ?_⟩\n    calc\n      P = F * (P / F) := (EuclideanDomain.mul_div_cancel' hF hFP).symm\n      _ = F * (p * q) := congrArg (fun x => F * x) hq\n      _ = (F * p) * q := (mul_assoc F p q).symm\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.factor_dvd_quotient",
+          "ancestors": [],
+          "spec_sha256": "fa117181cf7ae4ffb25448c494910f01fa889efd6ac1ef0f5478148d7924c3f3"
+        },
+        "sha256": "a5195a496a5af2747443906cf0870491373d6eade2c749e2cfe44b5b2a3ecbfe"
+      },
+      "signature_contains": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.signature_contains : ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), F ∣ a → F ∣ b → F ∣ M5.cyclicModulus N → F ∣ M5.completeSignature a b N := by\n  change ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), F ∣ a → F ∣ b → F ∣ M5.cyclicModulus N → F ∣ M5.completeSignature a b N\n  intro a b F N ha hb hN\n  unfold M5.completeSignature\n  repeat' first | assumption | apply EuclideanDomain.dvd_gcd",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.signature_contains",
+          "ancestors": [],
+          "spec_sha256": "d1409a167ebd52f09bd1c81f71d359d84287fd41878fcd2d578214c0cc3ccfa3"
+        },
+        "sha256": "36afcc2b9ae099830fd175341b955f69565bf1203bdeb1b9f6a98192585c000d"
+      },
+      "strict_divisor_extra_factor": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.strict_divisor_extra_factor : ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G := by\n  change ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G\n  intro F G hFm hFG hG0 hGFne\n  have hF0 : F ≠ 0 := hFm.ne_zero\n  have hG : G = F * (G / F) :=\n    (EuclideanDomain.mul_div_cancel' hF0 hFG).symm\n  have hQ0 : G / F ≠ 0 := by\n    intro hQ\n    apply hG0\n    rw [hG, hQ, mul_zero]\n  have hQu : ¬ IsUnit (G / F) := by\n    rintro ⟨u, hu⟩\n    have hGF : G ∣ F := by\n      refine ⟨↑(u⁻¹), ?_⟩\n      rw [hG, ← hu]\n      simp [mul_assoc]\n    apply hGFne\n    exact M5.Signature.binary_dvd_antisymm G F hGF hFG\n  obtain ⟨p, hp, hpQ⟩ := WfDvdMonoid.exists_irreducible_factor hQu hQ0\n  exact ⟨p, hp, (M5.PolynomialExclusion.factor_dvd_quotient F G p hF0 hFG).mp hpQ⟩",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.strict_divisor_extra_factor",
+          "ancestors": [
+            "factor_dvd_quotient"
+          ],
+          "spec_sha256": "4db5f59ca17ce810cc08254bddcfe1e433ea7e6c673806e5dad0d49b7fcd58be"
+        },
+        "sha256": "37386f3b56ce581aa6c130a8c93360b2c3bf8901ffc119bd1c3f389378da034f"
+      },
+      "exact_signature_criterion": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.exact_signature_criterion : ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → (M5.completeSignature a b N = F ↔ ∀ p : M5.BinaryPolynomial, Irreducible p → p ∣ M5.cyclicModulus N / F → ¬ (F * p ∣ a ∧ F * p ∣ b)) := by\n  change ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → (M5.completeSignature a b N = F ↔ ∀ p : M5.BinaryPolynomial, Irreducible p → p ∣ M5.cyclicModulus N / F → ¬ (F * p ∣ a ∧ F * p ∣ b))\n  intro a b F N hN hFm hFM hFa hFb\n  have hF0 : F ≠ 0 := hFm.ne_zero\n  have hdiv : M5.completeSignature a b N ∣ a ∧ M5.completeSignature a b N ∣ b ∧ M5.completeSignature a b N ∣ M5.cyclicModulus N := by\n    change EuclideanDomain.gcd (EuclideanDomain.gcd a b) (M5.cyclicModulus N) ∣ a ∧ EuclideanDomain.gcd (EuclideanDomain.gcd a b) (M5.cyclicModulus N) ∣ b ∧ EuclideanDomain.gcd (EuclideanDomain.gcd a b) (M5.cyclicModulus N) ∣ M5.cyclicModulus N\n    have hleft := EuclideanDomain.gcd_dvd_left (EuclideanDomain.gcd a b) (M5.cyclicModulus N)\n    exact ⟨dvd_trans hleft (EuclideanDomain.gcd_dvd_left a b), dvd_trans hleft (EuclideanDomain.gcd_dvd_right a b), EuclideanDomain.gcd_dvd_right (EuclideanDomain.gcd a b) (M5.cyclicModulus N)⟩\n  constructor\n  · intro hEq p hp hpQ hab\n    have hpM : F * p ∣ M5.cyclicModulus N :=\n      (M5.PolynomialExclusion.factor_dvd_quotient F (M5.cyclicModulus N) p hF0 hFM).mp hpQ\n    have hpS := M5.PolynomialExclusion.signature_contains a b (F * p) N hab.1 hab.2 hpM\n    rw [hEq] at hpS\n    have hpFF : p ∣ F / F :=\n      (M5.PolynomialExclusion.factor_dvd_quotient F F p hF0 dvd_rfl).mpr hpS\n    have hp1 : p ∣ 1 := by\n      simpa only [EuclideanDomain.div_self hF0] using hpFF\n    exact hp.not_isUnit (isUnit_iff_dvd_one.mpr hp1)\n  · intro hexcl\n    have hM0 : M5.cyclicModulus N ≠ 0 := by\n      intro hz\n      have hc := congrArg (fun q : M5.BinaryPolynomial => q.coeff N) hz\n      simpa [M5.cyclicModulus, Polynomial.coeff_add, Polynomial.coeff_X_pow, Polynomial.coeff_one, Nat.ne_of_gt hN] using hc\n    have hS0 : M5.completeSignature a b N ≠ 0 := by\n      intro hz\n      apply hM0\n      have hd := hdiv.2.2\n      rw [hz] at hd\n      exact zero_dvd_iff.mp hd\n    have hFS := M5.PolynomialExclusion.signature_contains a b F N hFa hFb hFM\n    by_contra hne\n    obtain ⟨p, hp, hpS⟩ := M5.PolynomialExclusion.strict_divisor_extra_factor F (M5.completeSignature a b N) hFm hFS hS0 hne\n    have hpM := dvd_trans hpS hdiv.2.2\n    have hpQ := (M5.PolynomialExclusion.factor_dvd_quotient F (M5.cyclicModulus N) p hF0 hFM).mpr hpM\n    exact hexcl p hp hpQ ⟨dvd_trans hpS hdiv.1, dvd_trans hpS hdiv.2.1⟩",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.exact_signature_criterion",
+          "ancestors": [
+            "factor_dvd_quotient",
+            "signature_contains",
+            "strict_divisor_extra_factor"
+          ],
+          "spec_sha256": "934b70d584c261cc10ce2ee8a5ebfc346fe2c176f1e255af98acdc37f7809eaa"
+        },
+        "sha256": "9e12c757224d090b939caa7d6b516d4b64fceb0330fb1b04d846e7987fdb0d5d"
+      },
+      "finite_factor_criterion": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.finite_factor_criterion : ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → (M5.completeSignature a b N = F ↔ ∀ p ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F, ¬ (F * p ∣ a ∧ F * p ∣ b)) := by\n  change ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → (M5.completeSignature a b N = F ↔ ∀ p ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F, ¬ (F * p ∣ a ∧ F * p ∣ b))\n  intro a b F N hN hFm hFM hFa hFb\n  classical\n  rw [M5.PolynomialExclusion.exact_signature_criterion a b F N hN hFm hFM hFa hFb]\n  constructor\n  · intro h p hp\n    have hp' : p ∈ UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F) := by\n      simpa [M5.PolynomialExclusion.residualFactors] using hp\n    exact h p (UniqueFactorizationMonoid.irreducible_of_normalized_factor _ hp')\n      (UniqueFactorizationMonoid.dvd_of_mem_normalizedFactors hp')\n  · intro h p hp hpQ hab\n    have hQ : M5.cyclicModulus N / F ≠ 0 :=\n      M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hFm hFM\n    have hex : ∃ q ∈ UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F), Associated p q := by\n      apply UniqueFactorizationMonoid.exists_mem_normalizedFactors_of_dvd <;> assumption\n    obtain ⟨q, hq, hpq⟩ := hex\n    have hqmem : q ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F := by\n      simpa [M5.PolynomialExclusion.residualFactors] using hq\n    have hmul : F * q ∣ F * p := mul_dvd_mul (dvd_refl F) hpq.symm.dvd\n    exact h q hqmem ⟨dvd_trans hmul hab.1, dvd_trans hmul hab.2⟩",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.finite_factor_criterion",
+          "ancestors": [
+            "cyclic_quotient_nonzero",
+            "exact_signature_criterion",
+            "factor_dvd_quotient",
+            "signature_contains",
+            "strict_divisor_extra_factor"
+          ],
+          "spec_sha256": "21e43db6991feadd62d97272ee03f147a3b9f8edbd1706ab348aed661e33811a"
+        },
+        "sha256": "ad358a9e10b291396011a0ca4d0e14d447229e89aeb73c4f0eafa27c0dcddf24"
+      }
+    }
+  }
+}

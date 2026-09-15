@@ -1,0 +1,6 @@
+{
+  "proof": "change ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G\nintro F G hFm hFG hG0 hGFne\nhave hF0 : F ≠ 0 := hFm.ne_zero\nhave hG : G = F * (G / F) :=\n  (EuclideanDomain.mul_div_cancel' hF0 hFG).symm\nhave hQ0 : G / F ≠ 0 := by\n  intro hQ\n  apply hG0\n  rw [hG, hQ, mul_zero]\nhave hQu : ¬ IsUnit (G / F) := by\n  rintro ⟨u, hu⟩\n  have hGF : G ∣ F := by\n    refine ⟨↑(u⁻¹), ?_⟩\n    rw [hG, ← hu]\n    simp [mul_assoc]\n  apply hGFne\n  solve\n  | apply M5.BinaryDivisibility.binary_dvd_antisymm <;> assumption\n  | apply M5.binary_dvd_antisymm <;> assumption\n  | apply M5.PolynomialExclusion.binary_dvd_antisymm <;> assumption\n  | apply binary_dvd_antisymm <;> assumption\nobtain ⟨p, hp, hpQ⟩ := WfDvdMonoid.exists_irreducible_factor hQu hQ0\nexact ⟨p, hp, (M5.PolynomialExclusion.factor_dvd_quotient F G p hF0 hFG).mp hpQ⟩",
+  "queries": [
+    "binary_dvd_antisymm"
+  ]
+}

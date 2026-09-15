@@ -1,0 +1,13 @@
+{
+  "name": "M5.BoundedConstruction.repair_parameter",
+  "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T) (e : ℕ), 0 < T → e ∈ (M5.Packing.packedSupport r) → 0 < (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) → (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) < w * T → Nat.gcd (Nat.gcd T (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e)) e = 1 → ∃ k : ℕ, w ≤ k ∧ e + k * T ∉ (M5.Packing.packedSupport r) ∧ e + k * T < M5.packingCutoff w T ∧ Nat.gcd (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) (e + k * T) = 1",
+  "imports": [
+    "M5BoundedConstruction"
+  ],
+  "context": "",
+  "queries": [
+    "Finset erase insert cardinality gcd",
+    "natural gcd Chinese remainder connectivity"
+  ],
+  "guidance": "Use immutable72 bounded_connectivity_repair, packed_support_range, repair_above_packing, and stage19 repaired_exponent_cutoff. The CRT witness has k<w+delta; freshness follows from old exponents<w*T and new exponent>=w*T. Return only tactic lines without leading by; preserve exact target."
+}

@@ -1,0 +1,3 @@
+import Candidate_406fe191110b2fa9
+example : QuantumHarnessFrozenTarget := M5.BoundedConstruction.repaired_support_properties
+#print axioms M5.BoundedConstruction.repaired_support_properties

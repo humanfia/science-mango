@@ -1,0 +1,184 @@
+[
+  {
+    "queries": [
+      "natural power monotonicity",
+      "polynomial period divisibility"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural power monotonicity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 98346,
+            "name": "Monotone.pow_const",
+            "module": "Mathlib.Algebra.Order.Monoid.Unbundled.Pow",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Monoid/Unbundled/Pow.lean#L167-L172",
+            "source_text": "@[to_additive Monotone.const_nsmul]\ntheorem Monotone.pow_const {f : β → M} (hf : Monotone f) : ∀ n : ℕ, Monotone fun a => f a ^ n\n  | 0 => by simpa using monotone_const\n  | n + 1 => by\n    simp_rw [pow_succ]\n    exact (Monotone.pow_const hf _).mul' hf\n\n@[to_additive nsmul_right_mono]\ntheorem pow_left_mono (n : ℕ) : Monotone fun a : M => a ^ n := monotone_id.pow_const _",
+            "docstring": null
+          },
+          {
+            "id": 94345,
+            "name": "Nat.pow_left_strictMono",
+            "module": "Mathlib.Algebra.Order.Group.Nat",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Nat.lean#L48-L50",
+            "source_text": "/-- See also `pow_left_strictMonoOn₀`. -/\nprotected lemma pow_left_strictMono (hn : n ≠ 0) : StrictMono (· ^ n : ℕ → ℕ) :=\n  fun _ _ h ↦ Nat.pow_lt_pow_left h hn\n",
+            "docstring": "See also `pow_left_strictMonoOn₀`. "
+          },
+          {
+            "id": 292293,
+            "name": "Nat.pow_monotoneOn",
+            "module": "Mathlib.Order.Monotone.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Monotone/Basic.lean#L610-L611",
+            "source_text": "lemma pow_monotoneOn : MonotoneOn (fun p : ℕ × ℕ ↦ p.1 ^ p.2) {p | p.1 ≠ 0} := fun _p _ _q hq hpq ↦\n  (Nat.pow_le_pow_left hpq.1 _).trans (Nat.pow_le_pow_right (Nat.pos_iff_ne_zero.2 hq) hpq.2)\n",
+            "docstring": null
+          },
+          {
+            "id": 328295,
+            "name": "Mathlib.Tactic.Monotonicity.mono",
+            "module": "Mathlib.Tactic.Monotonicity.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Monotonicity/Basic.lean#L35-L46",
+            "source_text": "/--\n`mono` applies monotonicity rules and local hypotheses repetitively.  For example,\n```lean\nexample (x y z k : ℤ)\n    (h : 3 ≤ (4 : ℤ))\n    (h' : z ≤ y) :\n    (k + 3 + x) - y ≤ (k + 4 + x) - z := by\n  mono\n```\n-/\nsyntax (name := mono) \"mono\" \"*\"? (ppSpace mono.side)?\n  (\" with \" (colGt term),+)? (\" using \" (colGt simpArg),+)? : tactic\n",
+            "docstring": "`mono` applies monotonicity rules and local hypotheses repetitively.  For example,\n```lean\nexample (x y z k : ℤ)\n    (h : 3 ≤ (4 : ℤ))\n    (h' : z ≤ y) :\n    (k + 3 + x) - y ≤ (k + 4 + x) - z := by\n  mono\n```\n"
+          },
+          {
+            "id": 317200,
+            "name": "PowerSeries",
+            "module": "Mathlib.RingTheory.PowerSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PowerSeries/Basic.lean#L58-L61",
+            "source_text": "/-- Formal power series over a coefficient type `R` -/\n@[wikidata Q1003025]\nabbrev PowerSeries (R : Type*) :=\n  MvPowerSeries Unit R\n",
+            "docstring": "Formal power series over a coefficient type `R` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial period divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101995,
+            "name": "Polynomial.X_pow_dvd_iff",
+            "module": "Mathlib.Algebra.Polynomial.Div",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Div.lean#L44-L56",
+            "source_text": "theorem X_pow_dvd_iff {f : R[X]} {n : ℕ} : X ^ n ∣ f ↔ ∀ d < n, f.coeff d = 0 :=\n  ⟨fun ⟨g, hgf⟩ d hd => by\n    simp only [hgf, coeff_X_pow_mul', ite_eq_right_iff, not_le_of_gt hd, IsEmpty.forall_iff],\n    fun hd => by\n    induction n with\n    | zero => simp [pow_zero]\n    | succ n hn =>\n      obtain ⟨g, hgf⟩ := hn fun d : ℕ => fun H : d < n => hd _ (Nat.lt_succ_of_lt H)\n      have := coeff_X_pow_mul g n 0\n      rw [zero_add, ← hgf, hd n (Nat.lt_succ_self n)] at this\n      obtain ⟨k, hgk⟩ := Polynomial.X_dvd_iff.mpr this.symm\n      use k\n      rwa [pow_succ, mul_assoc, ← hgk]⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 223891,
+            "name": "MulAction.period",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L551-L557",
+            "source_text": "/--\nThe period of a multiplicative action of `g` on `a` is the smallest positive `n` such that\n`g ^ n • a = a`, or `0` if such an `n` does not exist.\n-/\n@[to_additive /-- The period of an additive action of `g` on `a` is the smallest positive `n`\nsuch that `(n • g) +ᵥ a = a`, or `0` if such an `n` does not exist. -/]\nnoncomputable def period (m : M) (a : α) : ℕ := minimalPeriod (fun x => m • x) a\n",
+            "docstring": "The period of a multiplicative action of `g` on `a` is the smallest positive `n` such that\n`g ^ n • a = a`, or `0` if such an `n` does not exist.\n"
+          },
+          {
+            "id": 223841,
+            "name": "Function.minimalPeriod",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L243-L246",
+            "source_text": "/-- Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. -/\ndef minimalPeriod (f : α → α) (x : α) :=\n  if h : x ∈ periodicPts f then Nat.find h else 0\n",
+            "docstring": "Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. "
+          },
+          {
+            "id": 144337,
+            "name": "PeriodPair",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L57-L65",
+            "source_text": "/-- A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. -/\nstructure PeriodPair : Type where\n  /-- The first period in a `PeriodPair`. -/\n  ω₁ : ℂ\n  /-- The second period in a `PeriodPair`. -/\n  ω₂ : ℂ\n  indep : LinearIndependent ℝ ![ω₁, ω₂]\n",
+            "docstring": "A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. "
+          },
+          {
+            "id": 144341,
+            "name": "PeriodPair.lattice",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L78-L79",
+            "source_text": "/-- The lattice spanned by a pair of periods. -/\ndef lattice : Submodule ℤ ℂ := Submodule.span ℤ {L.ω₁, L.ω₂}\n",
+            "docstring": "The lattice spanned by a pair of periods. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "polynomial period divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 385345,
+            "name": "ClassicalMechanics.HarmonicOscillator.period",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1059-L1062",
+            "source_text": "/--\nThe period of a harmonic oscillator is `2 * π / ω`.\n-/\nnoncomputable def period (S : HarmonicOscillator) : ℝ := 2 * π / S.ω\n",
+            "docstring": "The period of a harmonic oscillator is `2 * π / ω`.\n"
+          },
+          {
+            "id": 385347,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_eq",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1067-L1067",
+            "source_text": "lemma period_eq : T S = 2 * π / S.ω := rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 385348,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_pos",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1069-L1069",
+            "source_text": "lemma period_pos : 0 < T S := div_pos (by positivity) S.ω_pos\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "period_control",
+    "receipts_sha256": "b426749c76559ca79d4a6d559fcb1ac057daf4a0ad3a773589238b84c4b17746"
+  }
+]

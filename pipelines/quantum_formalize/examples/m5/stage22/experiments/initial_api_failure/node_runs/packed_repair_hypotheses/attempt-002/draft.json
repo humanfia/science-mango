@@ -1,0 +1,8 @@
+{
+  "proof": "intro w T r s hw hT hr hs hg\nhave hcr : (M5.Packing.packedSupport r).card = w := by exact?\nhave hcs : (M5.Packing.packedSupport s).card = w := by exact?\nhave hrr : ∀ x ∈ M5.Packing.packedSupport r, x < w * T := by exact?\nhave hsr : ∀ x ∈ M5.Packing.packedSupport s, x < w * T := by exact?\nhave hzr : 0 ∈ M5.Packing.packedSupport r := by\n  unfold M5.BoundedConstruction.anchoredTuple at hr\n  exact?\nhave hzs : 0 ∈ M5.Packing.packedSupport s := by\n  unfold M5.BoundedConstruction.anchoredTuple at hs\n  exact?\nhave hcr' : 2 ≤ (M5.Packing.packedSupport r).card := by omega\nhave hcs' : 2 ≤ (M5.Packing.packedSupport s).card := by omega\nobtain ⟨e, he, hepos⟩ : ∃ e ∈ M5.Packing.packedSupport r, 0 < e := by\n  apply_rules [M5.PhysicalBridge.positive_member]\nhave hb : 0 < M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e ∧\n    M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e < w * T := by\n  apply_rules [M5.PhysicalBridge.remaining_gcd_bounds]\nrefine ⟨e, he, hepos, hb.1, hb.2, ?_⟩\napply_rules [M5.PhysicalBridge.remaining_gcd_feasible,\n  M5.BoundedConstruction.packed_combined_gcd]",
+  "queries": [
+    "M5.PhysicalBridge positive_member remaining_gcd_bounds remaining_gcd_feasible exact declarations",
+    "M5.BoundedConstruction packed_combined_gcd",
+    "M5.Packing packedSupport cardinality range zero membership"
+  ]
+}

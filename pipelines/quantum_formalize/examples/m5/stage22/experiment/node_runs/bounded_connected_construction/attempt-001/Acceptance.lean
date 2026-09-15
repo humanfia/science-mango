@@ -1,0 +1,3 @@
+import Candidate_f62a9a164f547db9
+example : QuantumHarnessFrozenTarget := M5.BoundedConstruction.bounded_connected_construction
+#print axioms M5.BoundedConstruction.bounded_connected_construction

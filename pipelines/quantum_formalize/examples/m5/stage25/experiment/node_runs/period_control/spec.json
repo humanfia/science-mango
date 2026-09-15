@@ -1,0 +1,13 @@
+{
+  "name": "M5.PhysicalOrder.period_control",
+  "statement": "∀ (A B : Finset ℕ) (w T : ℕ), 2 ≤ w → 0 < T → 0 ∈ A → 0 ∈ B → (∀ b ∈ B, b < w * T) → 0 < M5.PhysicalOrder.supportPeriod A B ∧ M5.PhysicalOrder.supportPeriod A B ≤ 2 ^ (w * T) ∧ EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) ∣ M5.cyclicModulus (M5.PhysicalOrder.supportPeriod A B)",
+  "imports": [
+    "M5PhysicalOrder"
+  ],
+  "context": "",
+  "queries": [
+    "natural power monotonicity",
+    "polynomial period divisibility"
+  ],
+  "guidance": "Use M5.SupportPolynomial.support_coeff_zero, support_degree_bound; M5.Signature.ordinary_gcd_period_bound and ordinary_gcd_properties; M5.Period.period_law yields G dividing its period modulus. Exponent bound follows from Nat.pow_le_pow_right after degree bound. Fully qualify imported names. Return only tactic lines without leading by; preserve exact target."
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)\nintro F P p hF hFP\nconstructor\n· rintro ⟨q, hq⟩\n  refine ⟨q, ?_⟩\n  calc\n    P = F * (P / F) := (EuclideanDomain.mul_div_cancel' hF hFP).symm\n    _ = F * (p * q) := congrArg (fun x => F * x) hq\n    _ = (F * p) * q := (mul_assoc F p q).symm\n· intro h\n  exact EuclideanDomain.dvd_div_of_mul_dvd h",
+  "queries": []
+}

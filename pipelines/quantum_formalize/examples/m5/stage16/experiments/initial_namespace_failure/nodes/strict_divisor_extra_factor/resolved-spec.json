@@ -1,0 +1,14 @@
+{
+  "name": "M5.PolynomialExclusion.strict_divisor_extra_factor",
+  "statement": "∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G",
+  "imports": [
+    "M5BinaryDivisibility",
+    "M5PolynomialExclusion"
+  ],
+  "context": "theorem M5.PolynomialExclusion.factor_dvd_quotient : ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P) := by\n  change ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)\n  intro F P p hF hFP\n  constructor\n  · rintro ⟨q, hq⟩\n    refine ⟨q, ?_⟩\n    calc\n      P = F * (P / F) := (EuclideanDomain.mul_div_cancel' hF hFP).symm\n      _ = F * (p * q) := congrArg (fun x => F * x) hq\n      _ = (F * p) * q := (mul_assoc F p q).symm\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h",
+  "queries": [
+    "polynomial irreducible divisor",
+    "normalizedFactors divisibility"
+  ],
+  "guidance": "Set Q=G/F. Monicity and F|G reconstruct G=F*Q, implying Q≠0. If Q is a unit then G|F, so the verified stage12 binary_dvd_antisymm together with F|G gives G=F, contradiction. WfDvdMonoid.exists_irreducible_factor takes nonunit Q and Q≠0 and gives p irreducible with p|Q. Convert via factor_dvd_quotient. Do not add G monic, anchored, squarefree or irreducible premises. Return only tactic lines without a leading by. Preserve exact statements."
+}

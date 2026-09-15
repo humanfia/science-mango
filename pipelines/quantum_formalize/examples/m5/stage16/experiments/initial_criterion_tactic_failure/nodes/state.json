@@ -1,0 +1,443 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T08:00:41.730026+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "M5_DEFS": {
+      "id": "M5_DEFS",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_CHAR_ORTHO": {
+      "id": "M5_CHAR_ORTHO",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_INT_IE": {
+      "id": "M5_INT_IE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PACK": {
+      "id": "M5_PACK",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_CRT_REPAIR": {
+      "id": "M5_CRT_REPAIR",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_GCD_DEGREE": {
+      "id": "M5_GCD_DEGREE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PERIOD": {
+      "id": "M5_PERIOD",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LOWER_ORDERS": {
+      "id": "M5_LOWER_ORDERS",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PERIOD_BOUND": {
+      "id": "M5_PERIOD_BOUND",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LIFT": {
+      "id": "M5_LIFT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_SUBSET_COUNT": {
+      "id": "M5_SUBSET_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BINOM_EVAL": {
+      "id": "M5_BINOM_EVAL",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_TRANSLATE": {
+      "id": "M5_TRANSLATE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_TUPLE_COUNT": {
+      "id": "M5_TUPLE_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_WEIGHT_ONE": {
+      "id": "M5_WEIGHT_ONE",
+      "status": "planned",
+      "accepted": false
+    },
+    "cyclic_quotient_nonzero": {
+      "id": "cyclic_quotient_nonzero",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PolynomialExclusion.cyclic_quotient_nonzero",
+        "spec_sha256": "cdc5c4982c3aa5548507f16c26510de56e1038b78306d550047ac93ff64b9d89",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-vow24xf_/attempt-001/Candidate_adb16f2342d88758.lean",
+            "target_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-vow24xf_/attempt-001/FrozenTarget_adb16f2342d88758.lean",
+            "feedback": "",
+            "target_sha256": "9b498ff31fe479559fcdc7734e5d1cc7952e0eedab0bdec826a27760e0c56e98",
+            "target_olean_sha256": "70dc0caa056084fc0451314a13a5fef7e0a34e56266b7d1efbe9a4e16d5554f7",
+            "source_sha256": "68c4f1a32c8a402cdba1367ec5b0b4af290de9e8692dcef013b512e25e57bd79",
+            "olean_sha256": "df366c75bcf7d3181aec2d5474e4ea3501ea74ae550f2fcf2c6e542a1249d495",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:52:07.907759+00:00",
+        "work": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-vow24xf_",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-vow24xf_/attempt-001/Candidate_adb16f2342d88758.lean",
+        "environment_sha256": "6c07b3bd70f3fbdeb2ff1bbc277ad0fcd5f2e84b7a8f705d5c73a9054eabf1d2",
+        "artifacts": {
+          "cyclic_quotient_nonzero": {
+            "payload": {
+              "declaration": "theorem M5.PolynomialExclusion.cyclic_quotient_nonzero : ∀ (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.cyclicModulus N / F ≠ 0 := by\n  change ∀ (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.cyclicModulus N / F ≠ 0\n  intro F N hN hmonic hdvd hquot\n  have hmul := EuclideanDomain.mul_div_cancel' hmonic.ne_zero hdvd\n  have hzero : M5.cyclicModulus N = 0 := by\n    rw [hquot, mul_zero] at hmul\n    exact hmul.symm\n  have hcoeff := congrArg (fun p : M5.BinaryPolynomial => p.coeff N) hzero\n  simp [M5.cyclicModulus, Polynomial.coeff_add, Polynomial.coeff_X_pow,\n    Polynomial.coeff_one, Nat.ne_of_gt hN] at hcoeff",
+              "imports": [
+                "M5BinaryDivisibility",
+                "M5PolynomialExclusion"
+              ],
+              "name": "M5.PolynomialExclusion.cyclic_quotient_nonzero",
+              "ancestors": [],
+              "spec_sha256": "b0532c3169a505613547a5afe9875d28b297d14bd0d58335ec2106c544c8a1e0"
+            },
+            "sha256": "036811517bf41eac11a8dd2b92b8d60c29660b9fa842c056582bd36cb6c6bd89"
+          }
+        }
+      }
+    },
+    "factor_dvd_quotient": {
+      "id": "factor_dvd_quotient",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PolynomialExclusion.factor_dvd_quotient",
+        "spec_sha256": "5e188e00f05248fbc47b765fd8204d5b358f3c7ffd7d5bef92e2a41010d4f119",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-9hvl9wto/attempt-001/Candidate_c93f7c7e34528cb9.lean",
+            "target_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-9hvl9wto/attempt-001/FrozenTarget_c93f7c7e34528cb9.lean",
+            "feedback": "",
+            "target_sha256": "58c339a18c6f7d2ddf70a2279248ad011cb8a413094c99210fe8812e482f8526",
+            "target_olean_sha256": "855f8b3cab1220173675bd01d6bbedab5f2f235b07c475fea514db6f34f674c6",
+            "source_sha256": "620c204fb61d6395ec648410aee6cf3db2f3a678cd9c81bd9cd83ed18862df9d",
+            "olean_sha256": "f8239968c6fcc49f46ff6048b8f0c16069c4e3804403ce91a259525b1f994ca5",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:52:07.916487+00:00",
+        "work": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-9hvl9wto",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-9hvl9wto/attempt-001/Candidate_c93f7c7e34528cb9.lean",
+        "environment_sha256": "6c07b3bd70f3fbdeb2ff1bbc277ad0fcd5f2e84b7a8f705d5c73a9054eabf1d2",
+        "artifacts": {
+          "factor_dvd_quotient": {
+            "payload": {
+              "declaration": "theorem M5.PolynomialExclusion.factor_dvd_quotient : ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P) := by\n  change ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)\n  intro F P p hF hFP\n  constructor\n  · rintro ⟨q, hq⟩\n    refine ⟨q, ?_⟩\n    calc\n      P = F * (P / F) := (EuclideanDomain.mul_div_cancel' hF hFP).symm\n      _ = F * (p * q) := congrArg (fun x => F * x) hq\n      _ = (F * p) * q := (mul_assoc F p q).symm\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h",
+              "imports": [
+                "M5BinaryDivisibility",
+                "M5PolynomialExclusion"
+              ],
+              "name": "M5.PolynomialExclusion.factor_dvd_quotient",
+              "ancestors": [],
+              "spec_sha256": "fa117181cf7ae4ffb25448c494910f01fa889efd6ac1ef0f5478148d7924c3f3"
+            },
+            "sha256": "a5195a496a5af2747443906cf0870491373d6eade2c749e2cfe44b5b2a3ecbfe"
+          }
+        }
+      }
+    },
+    "signature_contains": {
+      "id": "signature_contains",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PolynomialExclusion.signature_contains",
+        "spec_sha256": "f407702c95461edc2a57e1f01dee9440fde9a4de2913fcbd4402a783a2d68d41",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-_9a6y2k8/attempt-001/Candidate_dc88850ddd92eff3.lean",
+            "target_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-_9a6y2k8/attempt-001/FrozenTarget_dc88850ddd92eff3.lean",
+            "feedback": "",
+            "target_sha256": "9c8cfa21d8fb153ba6960761832a053ee37eaa5c2272448d255ae23d60d57a71",
+            "target_olean_sha256": "0a725b57cb09d6e547ef3dda3f4b5b1d763411086909ae155f21a89203b4be41",
+            "source_sha256": "3bd1128009b242a84d473451b2d6905d00826a102c2ab325ff41d4d1e60bf590",
+            "olean_sha256": "996b4559c4ceaa24225e5f946d7cb0d926dde49e9f4eff76ad05e84334f0242e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:52:07.925803+00:00",
+        "work": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-_9a6y2k8",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-_9a6y2k8/attempt-001/Candidate_dc88850ddd92eff3.lean",
+        "environment_sha256": "6c07b3bd70f3fbdeb2ff1bbc277ad0fcd5f2e84b7a8f705d5c73a9054eabf1d2",
+        "artifacts": {
+          "signature_contains": {
+            "payload": {
+              "declaration": "theorem M5.PolynomialExclusion.signature_contains : ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), F ∣ a → F ∣ b → F ∣ M5.cyclicModulus N → F ∣ M5.completeSignature a b N := by\n  change ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), F ∣ a → F ∣ b → F ∣ M5.cyclicModulus N → F ∣ M5.completeSignature a b N\n  intro a b F N ha hb hN\n  unfold M5.completeSignature\n  repeat' first | assumption | apply EuclideanDomain.dvd_gcd",
+              "imports": [
+                "M5BinaryDivisibility",
+                "M5PolynomialExclusion"
+              ],
+              "name": "M5.PolynomialExclusion.signature_contains",
+              "ancestors": [],
+              "spec_sha256": "d1409a167ebd52f09bd1c81f71d359d84287fd41878fcd2d578214c0cc3ccfa3"
+            },
+            "sha256": "36afcc2b9ae099830fd175341b955f69565bf1203bdeb1b9f6a98192585c000d"
+          }
+        }
+      }
+    },
+    "strict_divisor_extra_factor": {
+      "id": "strict_divisor_extra_factor",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PolynomialExclusion.strict_divisor_extra_factor",
+        "spec_sha256": "cfd4be74574671a82a32f8baa385d036e15d7c19bd1e6c7c33aa718458cd9a4a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-jhz_p6pe/attempt-001/Candidate_e2fdf16cabff33c3.lean",
+            "target_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-jhz_p6pe/attempt-001/FrozenTarget_e2fdf16cabff33c3.lean",
+            "feedback": "",
+            "target_sha256": "13685aa7acc15c67ae96076ca7ebab9230a30ddc0837eee1fbfff2a9ed8bc473",
+            "target_olean_sha256": "95a7c687a22844e78bd44de76b68773ae373823f23a4c4bf52c37ca79f161951",
+            "source_sha256": "dc76b406635f14fe093683301faf071f6cf27ebbc20dd279d5dcacaee6e5a8a2",
+            "olean_sha256": "3f37ef9c56864cb08e46731158df609ac357e49af0bf9eaa716a38013faf6f0c",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:52:41.654981+00:00",
+        "work": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-jhz_p6pe",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-jhz_p6pe/attempt-001/Candidate_e2fdf16cabff33c3.lean",
+        "environment_sha256": "6c07b3bd70f3fbdeb2ff1bbc277ad0fcd5f2e84b7a8f705d5c73a9054eabf1d2",
+        "artifacts": {
+          "factor_dvd_quotient": {
+            "payload": {
+              "declaration": "theorem M5.PolynomialExclusion.factor_dvd_quotient : ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P) := by\n  change ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)\n  intro F P p hF hFP\n  constructor\n  · rintro ⟨q, hq⟩\n    refine ⟨q, ?_⟩\n    calc\n      P = F * (P / F) := (EuclideanDomain.mul_div_cancel' hF hFP).symm\n      _ = F * (p * q) := congrArg (fun x => F * x) hq\n      _ = (F * p) * q := (mul_assoc F p q).symm\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h",
+              "imports": [
+                "M5BinaryDivisibility",
+                "M5PolynomialExclusion"
+              ],
+              "name": "M5.PolynomialExclusion.factor_dvd_quotient",
+              "ancestors": [],
+              "spec_sha256": "fa117181cf7ae4ffb25448c494910f01fa889efd6ac1ef0f5478148d7924c3f3"
+            },
+            "sha256": "a5195a496a5af2747443906cf0870491373d6eade2c749e2cfe44b5b2a3ecbfe"
+          },
+          "strict_divisor_extra_factor": {
+            "payload": {
+              "declaration": "theorem M5.PolynomialExclusion.strict_divisor_extra_factor : ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G := by\n  change ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G\n  intro F G hFm hFG hG0 hGFne\n  have hF0 : F ≠ 0 := hFm.ne_zero\n  have hG : G = F * (G / F) :=\n    (EuclideanDomain.mul_div_cancel' hF0 hFG).symm\n  have hQ0 : G / F ≠ 0 := by\n    intro hQ\n    apply hG0\n    rw [hG, hQ, mul_zero]\n  have hQu : ¬ IsUnit (G / F) := by\n    rintro ⟨u, hu⟩\n    have hGF : G ∣ F := by\n      refine ⟨↑(u⁻¹), ?_⟩\n      rw [hG, ← hu]\n      simp [mul_assoc]\n    apply hGFne\n    exact M5.Signature.binary_dvd_antisymm G F hGF hFG\n  obtain ⟨p, hp, hpQ⟩ := WfDvdMonoid.exists_irreducible_factor hQu hQ0\n  exact ⟨p, hp, (M5.PolynomialExclusion.factor_dvd_quotient F G p hF0 hFG).mp hpQ⟩",
+              "imports": [
+                "M5BinaryDivisibility",
+                "M5PolynomialExclusion"
+              ],
+              "name": "M5.PolynomialExclusion.strict_divisor_extra_factor",
+              "ancestors": [
+                "factor_dvd_quotient"
+              ],
+              "spec_sha256": "4db5f59ca17ce810cc08254bddcfe1e433ea7e6c673806e5dad0d49b7fcd58be"
+            },
+            "sha256": "37386f3b56ce581aa6c130a8c93360b2c3bf8901ffc119bd1c3f389378da034f"
+          }
+        }
+      }
+    },
+    "exact_signature_criterion": {
+      "id": "exact_signature_criterion",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M5.PolynomialExclusion.exact_signature_criterion",
+        "spec_sha256": "5205754c6c26b2ad707c267c8ac7c321ec102146c07d1c86c79587f2d532cc0b",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-qfnwtu4o/attempt-001/Candidate_fc3e45a8917f5186.lean:10:14: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-qfnwtu4o/attempt-001/Candidate_fc3e45a8917f5186.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "proof_body",
+            "feedback": "proof body contains an unfinished proof or unsupported metaprogramming/command escape",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-qfnwtu4o/attempt-003/Candidate_2b4e269fe9d33735.lean:12:6: error: Type mismatch\n  signature_contains a b (F * p) N hab.left hab.right hpN\nhas type\n  F * p ∣ completeSignature a b N\nbut is expected to have type\n  completeSignature a b N * p ∣ completeSignature a b N\n/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-qfnwtu4o/attempt-003/Candidate_2b4e269fe9d33735.lean:26:16: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-qfnwtu4o/attempt-003/Candidate_2b4e269fe9d33735.lean:36:4: error: (deterministic) timeout at `«tactic execution»`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-qfnwtu4o/attempt-003/Candidate_2b4e269fe9d33735.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "proof_body",
+            "feedback": "proof body contains an unfinished proof or unsupported metaprogramming/command escape",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-qfnwtu4o/attempt-005/Candidate_5073736e8134bc06.lean:11:14: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-qfnwtu4o/attempt-005/Candidate_5073736e8134bc06.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T07:53:11.517424+00:00",
+        "work": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-qfnwtu4o",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "finite_factor_criterion": {
+      "id": "finite_factor_criterion",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "exact_signature_criterion"
+      ]
+    },
+    "M5_POLY_IE": {
+      "id": "M5_POLY_IE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_COUNT": {
+      "id": "M5_ORDER_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_CONDITIONAL": {
+      "id": "M5_ORDER_CONDITIONAL",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_RECOVER": {
+      "id": "M5_ORDER_RECOVER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LATER": {
+      "id": "M5_LATER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_COUNT": {
+      "id": "M5_RESIDUE_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_NECESSITY": {
+      "id": "M5_RESIDUE_NECESSITY",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_RECOVER": {
+      "id": "M5_RESIDUE_RECOVER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BOUNDED_SOURCE": {
+      "id": "M5_BOUNDED_SOURCE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BIRTH": {
+      "id": "M5_BIRTH",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ARITHMETIC": {
+      "id": "M5_ARITHMETIC",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_GLOBAL_IFF": {
+      "id": "M5_GLOBAL_IFF",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_COMPLETE": {
+      "id": "M5_COMPLETE",
+      "status": "planned",
+      "accepted": false
+    }
+  }
+}

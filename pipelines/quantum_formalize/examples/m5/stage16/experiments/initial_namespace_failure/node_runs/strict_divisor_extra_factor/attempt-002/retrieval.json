@@ -1,0 +1,104 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5 binary_dvd_antisymm",
+    "status": "ok",
+    "results": [
+      {
+        "id": 77335,
+        "name": "dvd_antisymm",
+        "module": "Mathlib.Algebra.GroupWithZero.Divisibility",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Divisibility.lean#L142-L145",
+        "source_text": "theorem dvd_antisymm : a ∣ b → b ∣ a → a = b := by\n  rintro ⟨c, rfl⟩ ⟨d, hcd⟩\n  rw [mul_assoc, eq_comm, mul_right_eq_self₀, mul_eq_one] at hcd\n  obtain ⟨rfl, -⟩ | rfl := hcd <;> simp\n",
+        "docstring": null
+      },
+      {
+        "id": 282849,
+        "name": "Std.Asymm.isAntisymm",
+        "module": "Mathlib.Order.Defs.Unbundled",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Defs/Unbundled.lean#L409-L409",
+        "source_text": "@[deprecated (since := \"2026-01-06\")] protected alias Std.Asymm.isAntisymm := Std.Asymm.antisymm",
+        "docstring": "**Alias** of `Std.Asymm.antisymm`."
+      },
+      {
+        "id": 270664,
+        "name": "FirstOrder.Language.Relations.realize_antisymmetric",
+        "module": "Mathlib.ModelTheory.Semantics",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Semantics.lean#L1044-L1048",
+        "source_text": "@[simp]\ntheorem realize_antisymmetric :\n    M ⊨ r.antisymmetric ↔ Std.Antisymm fun x y : M => RelMap r ![x, y] := by\n  rw [antisymm_def]\n  exact forall₂_congr fun _ _ ↦ imp_congr realize_rel₂ <| imp_congr realize_rel₂ .rfl",
+        "docstring": null
+      },
+      {
+        "id": 277925,
+        "name": "AntisymmRel",
+        "module": "Mathlib.Order.Antisymmetrization",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Antisymmetrization.lean#L38-L41",
+        "source_text": "/-- The antisymmetrization relation `AntisymmRel r` is defined so that\n`AntisymmRel r a b ↔ r a b ∧ r b a`. -/\ndef AntisymmRel (a b : α) : Prop :=\n  r a b ∧ r b a\n",
+        "docstring": "The antisymmetrization relation `AntisymmRel r` is defined so that\n`AntisymmRel r a b ↔ r a b ∧ r b a`. "
+      },
+      {
+        "id": 77337,
+        "name": "Dvd.dvd.antisymm",
+        "module": "Mathlib.Algebra.GroupWithZero.Divisibility",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Divisibility.lean#L150-L150",
+        "source_text": "alias Dvd.dvd.antisymm := dvd_antisymm\n",
+        "docstring": "**Alias** of `dvd_antisymm`."
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5 binary_dvd_antisymm",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391649,
+        "name": "complexLorentzTensor.rightMetric_antisymm",
+        "module": "Physlib.Relativity.Tensors.ComplexTensor.Metrics.Lemmas",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Metrics/Lemmas.lean#L63-L71",
+        "source_text": "/-- The right metric is antisymmetric `{εR | β β' = - εR | β' β}ᵀ`. -/\nlemma rightMetric_antisymm : {εR | β β' = - (εR| β' β)}ᵀ := by\n  apply (Tensor.basis _).repr.injective\n  ext b\n  rw [permT_basis_repr_symm_apply]\n  rw [rightMetric_eq_ofRat, ofRat_basis_repr_apply, ← map_neg, ofRat_basis_repr_apply]\n  congr 1\n  revert b\n  decide\n",
+        "docstring": "The right metric is antisymmetric `{εR | β β' = - εR | β' β}ᵀ`. "
+      },
+      {
+        "id": 391648,
+        "name": "complexLorentzTensor.leftMetric_antisymm",
+        "module": "Physlib.Relativity.Tensors.ComplexTensor.Metrics.Lemmas",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Metrics/Lemmas.lean#L53-L61",
+        "source_text": "/-- The left metric is antisymmetric `{εL | α α' = - εL | α' α}ᵀ`. -/\nlemma leftMetric_antisymm : {εL | α α' = - (εL| α' α)}ᵀ := by\n  apply (Tensor.basis _).repr.injective\n  ext b\n  rw [permT_basis_repr_symm_apply]\n  rw [leftMetric_eq_ofRat, ofRat_basis_repr_apply, ← map_neg, ofRat_basis_repr_apply]\n  congr 1\n  revert b\n  decide\n",
+        "docstring": "The left metric is antisymmetric `{εL | α α' = - εL | α' α}ᵀ`. "
+      },
+      {
+        "id": 391650,
+        "name": "complexLorentzTensor.dualLeftMetric_antisymm",
+        "module": "Physlib.Relativity.Tensors.ComplexTensor.Metrics.Lemmas",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Metrics/Lemmas.lean#L73-L81",
+        "source_text": "/-- The dual-left metric is antisymmetric `{εL' | α α' = - εL' | α' α}ᵀ`. -/\nlemma dualLeftMetric_antisymm : {εL' | α α' = - (εL' | α' α)}ᵀ := by\n  apply (Tensor.basis _).repr.injective\n  ext b\n  rw [permT_basis_repr_symm_apply]\n  rw [dualLeftMetric_eq_ofRat, ofRat_basis_repr_apply, ← map_neg, ofRat_basis_repr_apply]\n  congr 1\n  revert b\n  decide\n",
+        "docstring": "The dual-left metric is antisymmetric `{εL' | α α' = - εL' | α' α}ᵀ`. "
+      },
+      {
+        "id": 388182,
+        "name": "MSSMACCs.quadBiLin_toFun_apply",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L210-L210",
+        "source_text": "@[simps!]\ndef quadBiLin : BiLinearSymm MSSMCharges.Charges := BiLinearSymm.mk₂",
+        "docstring": null
+      },
+      {
+        "id": 387260,
+        "name": "SMRHN.SM.PlaneSeven.B₅_cubic",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Ordinary.DimSevenPlane",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Ordinary/DimSevenPlane.lean#L107-L111",
+        "source_text": "lemma B₅_cubic (S T : (SM 3).Charges) : cubeTriLin B₅ S T =\n    (S (15 : Fin 18) * T (15 : Fin 18) - S (16 : Fin 18) * T (16 : Fin 18)) := by\n  simp [B₅, cubeTriLin_toFun_apply_apply, finProdFinEquiv, Fin.divNat, Fin.modNat,\n    Fin.sum_univ_three]\n  ring\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

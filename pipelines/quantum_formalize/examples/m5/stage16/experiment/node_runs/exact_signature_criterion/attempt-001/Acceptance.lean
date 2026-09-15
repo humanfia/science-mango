@@ -1,0 +1,3 @@
+import Candidate_607b641bf29bab36
+example : QuantumHarnessFrozenTarget := M5.PolynomialExclusion.exact_signature_criterion
+#print axioms M5.PolynomialExclusion.exact_signature_criterion

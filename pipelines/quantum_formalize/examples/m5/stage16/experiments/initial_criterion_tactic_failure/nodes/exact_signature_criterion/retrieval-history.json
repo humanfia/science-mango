@@ -1,0 +1,1350 @@
+[
+  {
+    "queries": [
+      "polynomial irreducible divisor",
+      "normalizedFactors divisibility"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial irreducible divisor",
+        "status": "ok",
+        "results": [
+          {
+            "id": 102520,
+            "name": "Polynomial.irreducible_iff_degree_lt",
+            "module": "Mathlib.Algebra.Polynomial.FieldDivision",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/FieldDivision.lean#L664-L675",
+            "source_text": "/-- To check a polynomial over a field is irreducible, it suffices to check only for\ndivisors that have smaller degree.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree`.\n-/\ntheorem irreducible_iff_degree_lt (p : R[X]) (hp0 : p ≠ 0) (hpu : ¬ IsUnit p) :\n    Irreducible p ↔ ∀ q, q.degree ≤ ↑(natDegree p / 2) → q ∣ p → IsUnit q := by\n  rw [← irreducible_mul_leadingCoeff_inv,\n      (monic_mul_leadingCoeff_inv hp0).irreducible_iff_degree_lt]\n  · simp [hp0, natDegree_mul_leadingCoeff_inv]\n  · contrapose hpu\n    exact .of_mul_eq_one _ hpu\n",
+            "docstring": "To check a polynomial over a field is irreducible, it suffices to check only for\ndivisors that have smaller degree.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree`.\n"
+          },
+          {
+            "id": 224899,
+            "name": "Polynomial.irreducible_comp",
+            "module": "Mathlib.FieldTheory.IntermediateField.Adjoin.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/FieldTheory/IntermediateField/Adjoin/Basic.lean#L615-L663",
+            "source_text": "/-- Let `f, g` be monic polynomials over `K`. If `f` is irreducible, and `g(x) - α` is irreducible\nin `K⟮α⟯` with `α` a root of `f`, then `f(g(x))` is irreducible. -/\ntheorem _root_.Polynomial.irreducible_comp {f g : K[X]} (hfm : f.Monic) (hgm : g.Monic)\n    (hf : Irreducible f)\n    (hg : ∀ (E : Type u) [Field E] [Algebra K E] (x : E) (_ : minpoly K x = f),\n      Irreducible (g.map (algebraMap _ _) - C (AdjoinSimple.gen K x))) :\n    Irreducible (f.comp g) := by\n  have hf' : natDegree f ≠ 0 :=\n    fun e ↦ not_irreducible_C (f.coeff 0) (eq_C_of_natDegree_eq_zero e ▸ hf)\n  have hg' : natDegree g ≠ 0 := by\n    have := Fact.mk hf\n    intro e\n    apply not_irreducible_C ((g.map (algebraMap _ _)).coeff 0 - AdjoinSimple.gen K (root f))\n    -- Needed to specialize `map_sub` to avoid a timeout https://github.com/leanprover-community/mathlib4/pull/8386\n    rw [RingHom.map_sub, coeff_map, ← map_C, ← eq_C_of_natDegree_eq_zero e]\n    apply hg (AdjoinRoot f)\n    rw [AdjoinRoot.minpoly_root hf.ne_zero, hfm, inv_one, map_one, mul_one]\n  have H₁ : f.comp g ≠ 0 := fun h ↦ by simpa [hf', hg', natDegree_comp] using congr_arg natDegree h\n  have H₂ : ¬ IsUnit (f.comp g) := fun h ↦\n    by simpa [hf', hg', natDegree_comp] using natDegree_eq_zero_of_isUnit h\n  have ⟨p, hp₁, hp₂⟩ := WfDvdMonoid.exists_irreducible_factor H₂ H₁\n  suffices natDegree p = natDegree f * natDegree g from (associated_of_dvd_of_natDegree_le hp₂ H₁\n    (this.trans natDegree_comp.symm).ge).irreducible hp₁\n  have := Fact.mk hp₁\n  let Kx := AdjoinRoot p\n  letI := (AdjoinRoot.powerBasis hp₁.ne_zero).finite\n  have key₁ : f = minpoly K (aeval (root p) g) := by\n    refine minpoly.eq_of_irreducible_of_monic hf ?_ hfm\n    rw [← aeval_comp]\n    exact aeval_eq_zero_of_dvd_aeval_eq_zero hp₂ (AdjoinRoot.eval₂_root p)\n  have key₁' : finrank K K⟮aeval (root p) g⟯ = natDegree f := by\n    rw [adjoin.finrank, ← key₁]\n    exact IsIntegral.of_finite _ _\n  have key₂ : g.map (algebraMap _ _) - C (AdjoinSimple.gen K (aeval (root p) g)) =\n      minpoly K⟮aeval (root p) g⟯ (root p) :=\n    minpoly.eq_of_irreducible_of_monic (hg _ _ key₁.symm) (by simp [AdjoinSimple.gen])\n      (Monic.sub_of_left (hgm.map _) (degree_lt_degree (by simpa [Nat.pos_iff_ne_zero] using hg')))\n  have key₂' : finrank K⟮aeval (root p) g⟯ Kx = natDegree g := by\n    trans natDegree (minpoly K⟮aeval (root p) g⟯ (root p))\n    · have : K⟮aeval (root p) g⟯⟮root p⟯ = ⊤ := by\n        apply restrictScalars_injective K\n        rw [restrictScalars_top, adjoin_adjoin_left, Set.union_comm, ← adjoin_adjoin_left,\n          adjoin_root_eq_top p, restrictScalars_adjoin]\n        simp\n      rw [← finrank_top', ← this, adjoin.finrank]\n      exact IsIntegral.of_finite _ _\n    · simp [← key₂]\n  have := Module.finrank_mul_finrank K K⟮aeval (root p) g⟯ Kx\n  rwa [key₁', key₂', (AdjoinRoot.powerBasis hp₁.ne_zero).finrank, powerBasis_dim, eq_comm] at this\n",
+            "docstring": "Let `f, g` be monic polynomials over `K`. If `f` is irreducible, and `g(x) - α` is irreducible\nin `K⟮α⟯` with `α` a root of `f`, then `f(g(x))` is irreducible. "
+          },
+          {
+            "id": 304597,
+            "name": "DivisorChain.second_of_chain_is_irreducible",
+            "module": "Mathlib.RingTheory.ChainOfDivisors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/ChainOfDivisors.lean#L98-L108",
+            "source_text": "/-- The second element of a chain is irreducible. -/\ntheorem second_of_chain_is_irreducible {q : Associates M} {n : ℕ} (hn : n ≠ 0)\n    {c : Fin (n + 1) → Associates M} (h₁ : StrictMono c) (h₂ : ∀ {r}, r ≤ q ↔ ∃ i, r = c i)\n    (hq : q ≠ 0) : Irreducible (c 1) := by\n  rcases n with - | n; · contradiction\n  refine (Associates.isAtom_iff (ne_zero_of_dvd_ne_zero hq (h₂.2 ⟨1, rfl⟩))).mp ⟨?_, fun b hb => ?_⟩\n  · exact ne_bot_of_gt (h₁ zero_lt_one)\n  obtain ⟨⟨i, hi⟩, rfl⟩ := h₂.1 (hb.le.trans (h₂.2 ⟨1, rfl⟩))\n  cases i\n  · exact (Associates.isUnit_iff_eq_one _).mp (first_of_chain_isUnit h₁ @h₂)\n  · simpa [Fin.lt_def] using h₁.lt_iff_lt.mp hb\n",
+            "docstring": "The second element of a chain is irreducible. "
+          },
+          {
+            "id": 102521,
+            "name": "Polynomial.irreducible_iff_lt_natDegree_lt",
+            "module": "Mathlib.Algebra.Polynomial.FieldDivision",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/FieldDivision.lean#L677-L691",
+            "source_text": "/-- To check a polynomial `p` over a field is irreducible, it suffices to check there are no\ndivisors of degree `0 < d ≤ degree p / 2`.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree'`.\n-/\ntheorem irreducible_iff_lt_natDegree_lt {p : R[X]} (hp0 : p ≠ 0) (hpu : ¬ IsUnit p) :\n    Irreducible p ↔ ∀ q, Monic q → natDegree q ∈ Finset.Ioc 0 (natDegree p / 2) → ¬ q ∣ p := by\n  have : p * C (leadingCoeff p)⁻¹ ≠ 1 := by\n    contrapose hpu\n    exact .of_mul_eq_one _ hpu\n  rw [← irreducible_mul_leadingCoeff_inv,\n      (monic_mul_leadingCoeff_inv hp0).irreducible_iff_lt_natDegree_lt this,\n      natDegree_mul_leadingCoeff_inv _ hp0]\n  simp only [IsUnit.dvd_mul_right\n    (isUnit_C.mpr (IsUnit.mk0 (leadingCoeff p)⁻¹ (inv_ne_zero (leadingCoeff_ne_zero.mpr hp0))))]\n",
+            "docstring": "To check a polynomial `p` over a field is irreducible, it suffices to check there are no\ndivisors of degree `0 < d ≤ degree p / 2`.\n\nSee also: `Polynomial.Monic.irreducible_iff_natDegree'`.\n"
+          },
+          {
+            "id": 70008,
+            "name": "Irreducible",
+            "module": "Mathlib.Algebra.Group.Irreducible.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Irreducible/Defs.lean#L39-L48",
+            "source_text": "/-- `Irreducible p` states that `p` is non-unit and only factors into units.\n\nWe explicitly avoid stating that `p` is non-zero, this would require a semiring. Assuming only a\nmonoid allows us to reuse irreducible for associated elements. -/\n@[to_additive (attr := wikidata Q2989575)]\nstructure Irreducible (p : M) : Prop where\n  /-- An irreducible element is not a unit. -/\n  not_isUnit : ¬IsUnit p\n  /-- If an irreducible element factors, then one factor is a unit. -/\n  isUnit_or_isUnit ⦃a b : M⦄ : p = a * b → IsUnit a ∨ IsUnit b\n",
+            "docstring": "`Irreducible p` states that `p` is non-unit and only factors into units.\n\nWe explicitly avoid stating that `p` is non-zero, this would require a semiring. Assuming only a\nmonoid allows us to reuse irreducible for associated elements. \n\n[Wikidata Q2989575](https://www.wikidata.org/wiki/Q2989575)"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "normalizedFactors divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 320569,
+            "name": "UniqueFactorizationMonoid.normalizedFactors",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L34-L36",
+            "source_text": "/-- Noncomputably determines the multiset of prime factors. -/\nnoncomputable def normalizedFactors (a : α) : Multiset α :=\n  Multiset.map normalize <| factors a\n",
+            "docstring": "Noncomputably determines the multiset of prime factors. "
+          },
+          {
+            "id": 320577,
+            "name": "UniqueFactorizationMonoid.normalizedFactors_eq_of_dvd",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L94-L101",
+            "source_text": "theorem normalizedFactors_eq_of_dvd (a : α) :\n    ∀ᵉ (p ∈ normalizedFactors a) (q ∈ normalizedFactors a), p ∣ q → p = q := by\n  intro p hp q hq hdvd\n  convert!\n    normalize_eq_normalize hdvd\n      ((prime_of_normalized_factor _ hp).irreducible.dvd_symm\n        (prime_of_normalized_factor _ hq).irreducible hdvd) <;>\n    apply (normalize_normalized_factor _ ‹_›).symm\n",
+            "docstring": null
+          },
+          {
+            "id": 320592,
+            "name": "UniqueFactorizationMonoid.dvd_of_mem_normalizedFactors",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L225-L229",
+            "source_text": "theorem dvd_of_mem_normalizedFactors {a p : α} (H : p ∈ normalizedFactors a) : p ∣ a := by\n  by_cases hcases : a = 0\n  · rw [hcases]\n    exact dvd_zero p\n  · exact dvd_trans (Multiset.dvd_prod H) (Associated.dvd (prod_normalizedFactors hcases))\n",
+            "docstring": null
+          },
+          {
+            "id": 305980,
+            "name": "normalizedFactorsEquivSpanNormalizedFactors",
+            "module": "Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/DedekindDomain/Ideal/Lemmas.lean#L1085-L1087",
+            "source_text": "@[deprecated (since := \"2026-04-16\")]\nalias _root_.normalizedFactorsEquivSpanNormalizedFactors :=\n  normalizedFactorsEquivSpanNormalizedFactors",
+            "docstring": "**Alias** of `Ideal.normalizedFactorsEquivSpanNormalizedFactors`.\n\n---\n\nThe bijection between the (normalized) prime factors of `r` and the (normalized) prime factors\nof `span {r}` "
+          },
+          {
+            "id": 320584,
+            "name": "Irreducible.normalizedFactors_pow",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L174-L177",
+            "source_text": "theorem _root_.Irreducible.normalizedFactors_pow {p : α} (hp : Irreducible p) (k : ℕ) :\n    normalizedFactors (p ^ k) = Multiset.replicate k (normalize p) := by\n  rw [UniqueFactorizationMonoid.normalizedFactors_pow, normalizedFactors_irreducible hp,\n    Multiset.nsmul_singleton]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "normalizedFactors divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387662,
+            "name": "CKMMatrix.tRow_normalized",
+            "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L65-L71",
+            "source_text": "/-- The top-quark row of the CKM matrix is normalized to `1`. -/\nlemma tRow_normalized (V : CKMMatrix) : conj [V]t ⬝ᵥ [V]t = 1 := by\n  show ∑ k, conj (V.1 2 k) * V.1 2 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 2) 2\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+            "docstring": "The top-quark row of the CKM matrix is normalized to `1`. "
+          },
+          {
+            "id": 387618,
+            "name": "CKMMatrix.fst_row_normalized_abs",
+            "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Relations",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Relations.lean#L45-L48",
+            "source_text": "/-- The absolute value squared of the first row of a CKM matrix is `1`, in terms of `norm`. -/\nlemma fst_row_normalized_abs (V : CKMMatrix) :\n    norm [V]ud ^ 2 + norm [V]us ^ 2 + norm [V]ub ^ 2 = 1 :=\n  VAbs_sum_sq_row_eq_one ⟦V⟧ 0\n",
+            "docstring": "The absolute value squared of the first row of a CKM matrix is `1`, in terms of `norm`. "
+          },
+          {
+            "id": 387660,
+            "name": "CKMMatrix.uRow_normalized",
+            "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L49-L55",
+            "source_text": "/-- The up-quark row of the CKM matrix is normalized to `1`. -/\nlemma uRow_normalized (V : CKMMatrix) : conj [V]u ⬝ᵥ [V]u = 1 := by\n  show ∑ k, conj (V.1 0 k) * V.1 0 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 0) 0\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+            "docstring": "The up-quark row of the CKM matrix is normalized to `1`. "
+          },
+          {
+            "id": 387620,
+            "name": "CKMMatrix.thd_row_normalized_abs",
+            "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Relations",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Relations.lean#L55-L58",
+            "source_text": "/-- The absolute value squared of the third row of a CKM matrix is `1`, in terms of `norm`. -/\nlemma thd_row_normalized_abs (V : CKMMatrix) :\n    norm [V]td ^ 2 + norm [V]ts ^ 2 + norm [V]tb ^ 2 = 1 :=\n  VAbs_sum_sq_row_eq_one ⟦V⟧ 2\n",
+            "docstring": "The absolute value squared of the third row of a CKM matrix is `1`, in terms of `norm`. "
+          },
+          {
+            "id": 387661,
+            "name": "CKMMatrix.cRow_normalized",
+            "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L57-L63",
+            "source_text": "/-- The charm-quark row of the CKM matrix is normalized to `1`. -/\nlemma cRow_normalized (V : CKMMatrix) : conj [V]c ⬝ᵥ [V]c = 1 := by\n  show ∑ k, conj (V.1 1 k) * V.1 1 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 1) 1\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+            "docstring": "The charm-quark row of the CKM matrix is normalized to `1`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "cyclic_quotient_nonzero",
+    "receipts_sha256": "95a41370e52ab77f8e6553b237f687ff84f26d54ba3c7517a7ba7885770314c4"
+  },
+  {
+    "queries": [
+      "M5.cyclicModulus definition",
+      "M5.completeSignature definition",
+      "isUnit_iff_dvd_one"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.cyclicModulus definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 68141,
+            "name": "IsCyclic",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L1053-L1056",
+            "source_text": "/-- A group is called *cyclic* if it is generated by a single element. -/\n@[to_additive (attr := wikidata Q245462)]\nclass IsCyclic (G : Type u) [Pow G ℤ] : Prop where\n  protected exists_zpow_surjective : ∃ g : G, Function.Surjective (g ^ · : ℤ → G)\n",
+            "docstring": "A group is called *cyclic* if it is generated by a single element. \n\n[Wikidata Q245462](https://www.wikidata.org/wiki/Q245462)"
+          },
+          {
+            "id": 342377,
+            "name": "ContinuousMap.modulus",
+            "module": "Mathlib.Topology.ContinuousMap.Compact",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/ContinuousMap/Compact.lean#L430-L432",
+            "source_text": "/-- An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. -/\ndef modulus (f : C(α, β)) (ε : ℝ) (h : 0 < ε) : ℝ :=\n  Classical.choose (uniform_continuity f ε h)\n",
+            "docstring": "An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. "
+          },
+          {
+            "id": 245138,
+            "name": "rank_le_one",
+            "module": "Mathlib.LinearAlgebra.Dimension.Finite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dimension/Finite.lean#L523-L525",
+            "source_text": "theorem rank_le_one (v : M) (h : ∀ w : M, ∃ c : R, c • v = w) : Module.rank R M ≤ 1 := by\n  simpa using LinearMap.lift_rank_le_of_surjective _\n    (id h : Surjective (LinearMap.toSpanSingleton R M v))\n",
+            "docstring": null
+          },
+          {
+            "id": 253092,
+            "name": "Submodule.mem_span_singleton_trans",
+            "module": "Mathlib.LinearAlgebra.Span.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Defs.lean#L501-L503",
+            "source_text": "theorem mem_span_singleton_trans {x y z : M} (hxy : x ∈ R ∙ y) (hyz : y ∈ R ∙ z) : x ∈ R ∙ z := by\n  rw [← SetLike.mem_coe, ← singleton_subset_iff] at *\n  exact Submodule.subset_span_trans hxy hyz\n",
+            "docstring": null
+          },
+          {
+            "id": 245139,
+            "name": "finrank_le_one",
+            "module": "Mathlib.LinearAlgebra.Dimension.Finite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dimension/Finite.lean#L527-L530",
+            "source_text": "/-- If every vector is a multiple of some `v : M`, then `M` has dimension at most one. -/\ntheorem finrank_le_one (v : M) (h : ∀ w : M, ∃ c : R, c • v = w) : finrank R M ≤ 1 := by\n  rw [← map_one toNat, finrank]\n  exact toNat_le_toNat (rank_le_one v h) one_lt_aleph0\n",
+            "docstring": "If every vector is a multiple of some `v : M`, then `M` has dimension at most one. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.cyclicModulus definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.completeSignature definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 355792,
+            "name": "CompleteSpace",
+            "module": "Mathlib.Topology.UniformSpace.Cauchy",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/Cauchy.lean#L367-L372",
+            "source_text": "/-- A complete space is defined here using uniformities. A uniform space\n  is complete if every Cauchy filter converges. -/\n@[wikidata Q848569]\nclass CompleteSpace (α : Type u) [UniformSpace α] : Prop where\n  /-- In a complete uniform space, every Cauchy filter converges. -/\n  complete : ∀ {f : Filter α}, Cauchy f → ∃ x, f ≤ 𝓝 x\n",
+            "docstring": "A complete space is defined here using uniformities. A uniform space\nis complete if every Cauchy filter converges. "
+          },
+          {
+            "id": 281412,
+            "name": "CompleteLattice",
+            "module": "Mathlib.Order.CompleteLattice.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/CompleteLattice/Defs.lean#L136-L138",
+            "source_text": "/-- A complete lattice is a bounded lattice which has suprema and infima for every subset. -/\nclass CompleteLattice (α : Type*) extends Lattice α, CompleteSemilatticeSup α,\n    CompleteSemilatticeInf α, BoundedOrder α\n",
+            "docstring": "A complete lattice is a bounded lattice which has suprema and infima for every subset. "
+          },
+          {
+            "id": 327256,
+            "name": "Mathlib.Tactic.ExtractGoal.goalSignature",
+            "module": "Mathlib.Tactic.ExtractGoal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ExtractGoal.lean#L140-L193",
+            "source_text": "/-- Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n-/\ndef goalSignature (name : Name) (g : MVarId) : TermElabM (MessageData × Expr × Array Name × Bool) :=\n  withoutModifyingEnv <| withoutModifyingState do\n    let (g, _) ← g.renameInaccessibleFVars\n    -- Check if the original goal has foralls before reverting\n    -- We only consider it to have \"original foralls\" if it has a named forall,\n    -- not just implications (which have anonymous or internal hygienic names)\n    let originalTy ← instantiateMVars (← g.getType)\n    let hasOriginalForalls :=\n      originalTy.isForall &&\n      !originalTy.bindingName!.isAnonymous &&\n      !originalTy.bindingName!.isInternal\n    let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds\n    let ty ← instantiateMVars (← g.getType)\n    if ty.hasExprMVar then\n      -- TODO: turn metavariables into new hypotheses?\n      throwError \"Extracted goal has metavariables: {ty}\"\n    let ty ← Term.levelMVarToParam ty\n    let seenLevels := collectLevelParams {} ty\n    let levels := (← Term.getLevelNames).filter\n      fun u => seenLevels.visitedLevel.contains (.param u)\n    addAndCompile <| Declaration.axiomDecl\n      { name := name\n        levelParams := levels\n        isUnsafe := false\n        type := ty }\n    let sig ← addMessageContext <| MessageData.signature name\n    let context ← liftM (m := CoreM) <| read\n    let state ← get\n    let env ← getEnv\n    let (ts, _) ← ((Mathlib.Command.MinImports.getVisited name).run\n        { context with snap? := none }).run\n        { state with env, maxRecDepth := context.maxRecDepth }\n    let mut hm : Std.HashMap Nat Name := {}\n    for imp in env.header.moduleNames do\n      hm := hm.insert ((env.getModuleIdx? imp).getD default) imp\n    let mut fins : NameSet := {}\n    for t in ts do\n      let new := match env.getModuleIdxFor? t with\n        | some t => (hm.get? t).get!\n        | none   => .anonymous -- instead of `getMainModule`, we omit the current module\n      if !fins.contains new then fins := fins.insert new\n    let tot := Mathlib.Command.MinImports.getIrredundantImports (← getEnv) (fins.erase .anonymous)\n    let fileNames := tot.toArray.qsort Name.lt\n    return (sig, ty, fileNames, hasOriginalForalls)\n",
+            "docstring": "Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n"
+          },
+          {
+            "id": 270623,
+            "name": "FirstOrder.Language.mem_completeTheory",
+            "module": "Mathlib.ModelTheory.Semantics",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Semantics.lean#L714-L716",
+            "source_text": "@[simp]\ntheorem mem_completeTheory {φ : Sentence L} : φ ∈ L.completeTheory M ↔ M ⊨ φ :=\n  Iff.rfl",
+            "docstring": null
+          },
+          {
+            "id": 327372,
+            "name": "Mathlib.Tactic.FieldSimp.Sign.expr",
+            "module": "Mathlib.Tactic.FieldSimp.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/FieldSimp/Lemmas.lean#L391-L395",
+            "source_text": "/-- Given an expression `e : Q($M)`, construct an expression which is morally \"± `e`\", with the\nchoice between + and - determined by an object `g : Sign M`. -/\ndef Sign.expr : Sign M → Q($M) → Q($M)\n  | plus, a => a\n  | minus _, a => q(-$a)\n",
+            "docstring": "Given an expression `e : Q($M)`, construct an expression which is morally \"± `e`\", with the\nchoice between + and - determined by an object `g : Sign M`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.completeSignature definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 388434,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+            "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+            "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          },
+          {
+            "id": 393958,
+            "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_disjiont_viableChargesAdditional",
+            "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L382-L386",
+            "source_text": "lemma viableCompletions_disjiont_viableChargesAdditional (I : CodimensionOneConfig) :\n    Disjoint (viableCompletions I) (viableChargesAdditional I) := by\n  refine Multiset.inter_eq_zero_iff_disjoint.mp ?_\n  cases I\n  <;> decide +kernel\n",
+            "docstring": null
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "isUnit_iff_dvd_one",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64560,
+            "name": "isUnit_iff_dvd_one",
+            "module": "Mathlib.Algebra.Divisibility.Units",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L123-L124",
+            "source_text": "theorem isUnit_iff_dvd_one {x : α} : IsUnit x ↔ x ∣ 1 :=\n  ⟨IsUnit.dvd, fun ⟨y, h⟩ => ⟨⟨x, y, h.symm, by rw [h, mul_comm]⟩, rfl⟩⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 64561,
+            "name": "isUnit_iff_forall_dvd",
+            "module": "Mathlib.Algebra.Divisibility.Units",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L126-L127",
+            "source_text": "theorem isUnit_iff_forall_dvd {x : α} : IsUnit x ↔ ∀ y, x ∣ y :=\n  isUnit_iff_dvd_one.trans ⟨fun h _ => h.trans (one_dvd _), fun h => h _⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 64563,
+            "name": "isUnit_of_dvd_one",
+            "module": "Mathlib.Algebra.Divisibility.Units",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L132-L133",
+            "source_text": "theorem isUnit_of_dvd_one {a : α} (h : a ∣ 1) : IsUnit (a : α) :=\n  isUnit_iff_dvd_one.mpr h\n",
+            "docstring": null
+          },
+          {
+            "id": 76357,
+            "name": "IsUnit",
+            "module": "Mathlib.Algebra.Group.Units.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Units/Defs.lean#L358-L365",
+            "source_text": "/-- An element `a : M` of a `Monoid` is a unit if it has a two-sided inverse.\nThe actual definition says that `a` is equal to some `u : Mˣ`, where\n`Mˣ` is a bundled version of `IsUnit`. -/\n@[to_additive /-- An element `a : M` of an `AddMonoid` is an `AddUnit` if it has a two-sided\nadditive inverse. The actual definition says that `a` is equal to some `u : AddUnits M`,\nwhere `AddUnits M` is a bundled version of `IsAddUnit`. -/]\ndef IsUnit [Monoid M] (a : M) : Prop :=\n  ∃ u : Mˣ, (u : M) = a\n",
+            "docstring": "An element `a : M` of a `Monoid` is a unit if it has a two-sided inverse.\nThe actual definition says that `a` is equal to some `u : Mˣ`, where\n`Mˣ` is a bundled version of `IsUnit`. "
+          },
+          {
+            "id": 70350,
+            "name": "PUnit.div_eq",
+            "module": "Mathlib.Algebra.Group.PUnit",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/PUnit.lean#L48-L48",
+            "source_text": "@[to_additive (attr := simp)] lemma div_eq (x y : PUnit) : x / y = unit := rfl\n@[to_additive (attr := simp)] lemma inv_eq (x : PUnit) : x⁻¹ = unit := rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "isUnit_iff_dvd_one",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394367,
+            "name": "UnitDependent",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L34-L49",
+            "source_text": "/-- A type carries the instance `UnitDependent M` if it depends on a choice of units.\n  This dependence is manifested in `scaleUnit u1 u2` which describes how elements of `M` change\n  under a scaling of units which would take `u1` to `u2`.\n\n  This type is used for functions, and propositions etc.\n-/\nclass UnitDependent (M : Type) where\n  /-- `scaleUnit u1 u2` is the map transforming elements of `M` under a\n    scaling of units which would take the unit `u1` to the unit `u2`. This is not\n    to say that in `scaleUnit u1 u2 m` that `m` should be interpreted as being in the units `u1`,\n    although this is often the case.\n  -/\n  scaleUnit : UnitChoices → UnitChoices → M → M\n  scaleUnit_trans : ∀ u1 u2 u3 m, scaleUnit u2 u3 (scaleUnit u1 u2 m) = scaleUnit u1 u3 m\n  scaleUnit_trans' : ∀ u1 u2 u3 m, scaleUnit u1 u2 (scaleUnit u2 u3 m) = scaleUnit u1 u3 m\n  scaleUnit_id : ∀ u m, scaleUnit u u m = m\n",
+            "docstring": "A type carries the instance `UnitDependent M` if it depends on a choice of units.\nThis dependence is manifested in `scaleUnit u1 u2` which describes how elements of `M` change\nunder a scaling of units which would take `u1` to `u2`.\n\nThis type is used for functions, and propositions etc.\n"
+          },
+          {
+            "id": 394400,
+            "name": "isDimensionallyCorrect_iff",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L421-L423",
+            "source_text": "lemma isDimensionallyCorrect_iff {M : Type} [UnitDependent M] (m : M) :\n    IsDimensionallyCorrect m ↔ ∀ u1 u2 : UnitChoices,\n      scaleUnit u1 u2 m = m := by rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 394372,
+            "name": "UnitDependent.scaleUnit_injective",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L90-L94",
+            "source_text": "@[simp]\nlemma UnitDependent.scaleUnit_injective {M : Type} [UnitDependent M]\n    (u1 u2 : UnitChoices) (m1 m2 : M) :\n    scaleUnit u1 u2 m1 = scaleUnit u1 u2 m2 ↔ m1 = m2 :=\n  ⟨fun h => by simpa using congrArg (scaleUnit u2 u1) h, congrArg (scaleUnit u1 u2)⟩",
+            "docstring": null
+          },
+          {
+            "id": 394371,
+            "name": "UnitDependent.scaleUnit_symm_apply",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L84-L88",
+            "source_text": "@[simp]\nlemma UnitDependent.scaleUnit_symm_apply {M : Type} [UnitDependent M]\n    (u1 u2 : UnitChoices) (m : M) :\n    scaleUnit u2 u1 (scaleUnit u1 u2 m) = m := by\n  rw [scaleUnit_trans, scaleUnit_id]",
+            "docstring": null
+          },
+          {
+            "id": 394373,
+            "name": "UnitDependent.scaleUnitEquiv",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L103-L109",
+            "source_text": "/-- For an `M` with an instance of `UnitDependent M`, `scaleUnit u1 u2` as an equivalence. -/\ndef UnitDependent.scaleUnitEquiv {M : Type} [UnitDependent M]\n    (u1 u2 : UnitChoices) : M ≃ M where\n  toFun m := scaleUnit u1 u2 m\n  invFun m := scaleUnit u2 u1 m\n  right_inv m := by simp\n  left_inv m := by simp\n",
+            "docstring": "For an `M` with an instance of `UnitDependent M`, `scaleUnit u1 u2` as an equivalence. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Polynomial.coeff_X_pow",
+      "EuclideanDomain.gcd_dvd_left",
+      "mul_left_cancel₀"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial.coeff_X_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101310,
+            "name": "Polynomial.coeff_mul_X_pow",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L226-L233",
+            "source_text": "@[simp]\ntheorem coeff_mul_X_pow (p : R[X]) (n d : ℕ) :\n    coeff (p * Polynomial.X ^ n) (d + n) = coeff p d := by\n  rw [coeff_mul, Finset.sum_eq_single (d, n), coeff_X_pow, if_pos rfl, mul_one]\n  · rintro ⟨i, j⟩ h1 h2\n    rw [coeff_X_pow, if_neg, mul_zero]\n    grind [mem_antidiagonal]\n  · grind [mem_antidiagonal]",
+            "docstring": null
+          },
+          {
+            "id": 101304,
+            "name": "Polynomial.coeff_X_pow",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L187-L189",
+            "source_text": "@[simp, grind =]\ntheorem coeff_X_pow (k n : ℕ) : coeff (X ^ k : R[X]) n = if n = k then 1 else 0 := by\n  simp only [one_mul, map_one, ← coeff_C_mul_X_pow]",
+            "docstring": null
+          },
+          {
+            "id": 101312,
+            "name": "Polynomial.coeff_mul_X_pow'",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L240-L246",
+            "source_text": "theorem coeff_mul_X_pow' (p : R[X]) (n d : ℕ) :\n    (p * X ^ n).coeff d = ite (n ≤ d) (p.coeff (d - n)) 0 := by\n  split_ifs with h\n  · rw [← tsub_add_cancel_of_le h, coeff_mul_X_pow, add_tsub_cancel_right]\n  · refine (coeff_mul _ _ _).trans (Finset.sum_eq_zero fun x hx => ?_)\n    rw [coeff_X_pow, if_neg, mul_zero]\n    exact ((le_of_add_le_right (mem_antidiagonal.mp hx).le).trans_lt <| not_le.mp h).ne\n",
+            "docstring": null
+          },
+          {
+            "id": 101537,
+            "name": "Polynomial.coeff_pow_of_natDegree_le",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L150-L157",
+            "source_text": "theorem coeff_pow_of_natDegree_le (pn : p.natDegree ≤ n) :\n    (p ^ m).coeff (m * n) = p.coeff n ^ m := by\n  induction m with\n  | zero => simp\n  | succ m hm =>\n    rw [pow_succ, pow_succ, ← hm, Nat.succ_mul, coeff_mul_add_eq_of_natDegree_le _ pn]\n    refine natDegree_pow_le.trans (le_trans ?_ (le_refl _))\n    gcongr\n",
+            "docstring": null
+          },
+          {
+            "id": 100978,
+            "name": "Polynomial.X",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L479-L481",
+            "source_text": "/-- `X` is the polynomial variable (aka indeterminate). -/\ndef X : R[X] :=\n  monomial 1 1\n",
+            "docstring": "`X` is the polynomial variable (aka indeterminate). "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.coeff_X_pow",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "EuclideanDomain.gcd_dvd_left",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64672,
+            "name": "EuclideanDomain.gcd_eq_left",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L161-L164",
+            "source_text": "theorem gcd_eq_left {a b : R} : gcd a b = a ↔ a ∣ b :=\n  ⟨fun h => by\n    rw [← h]\n    apply gcd_dvd_right, fun h => by rw [gcd_val, mod_eq_zero.2 h, gcd_zero_left]⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 64667,
+            "name": "EuclideanDomain.gcd_dvd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L136-L143",
+            "source_text": "theorem gcd_dvd (a b : R) : gcd a b ∣ a ∧ gcd a b ∣ b :=\n  GCD.induction a b\n    (fun b => by\n      rw [gcd_zero_left]\n      exact ⟨dvd_zero _, dvd_rfl⟩)\n    fun a b _ ⟨IH₁, IH₂⟩ => by\n    rw [gcd_val]\n    exact ⟨IH₂, (dvd_mod_iff IH₂).1 IH₁⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 64722,
+            "name": "EuclideanDomain.gcd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+            "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+            "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+          },
+          {
+            "id": 64668,
+            "name": "EuclideanDomain.gcd_dvd_left",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L145-L146",
+            "source_text": "theorem gcd_dvd_left (a b : R) : gcd a b ∣ a :=\n  (gcd_dvd a b).left\n",
+            "docstring": null
+          },
+          {
+            "id": 64671,
+            "name": "EuclideanDomain.dvd_gcd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L156-L159",
+            "source_text": "theorem dvd_gcd {a b c : R} : c ∣ a → c ∣ b → c ∣ gcd a b :=\n  GCD.induction a b (fun _ _ H => by simpa only [gcd_zero_left] using H) fun a b _ IH ca cb => by\n    rw [gcd_val]\n    exact IH ((dvd_mod_iff ca).2 cb) ca\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "EuclideanDomain.gcd_dvd_left",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "mul_left_cancel₀",
+        "status": "ok",
+        "results": [
+          {
+            "id": 77262,
+            "name": "mul_left_cancel₀",
+            "module": "Mathlib.Algebra.GroupWithZero.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Defs.lean#L55-L56",
+            "source_text": "theorem mul_left_cancel₀ (ha : a ≠ 0) (h : a * b = a * c) : b = c :=\n  IsLeftCancelMulZero.mul_left_cancel_of_ne_zero ha h\n",
+            "docstring": null
+          },
+          {
+            "id": 67901,
+            "name": "IsLeftCancelMul",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L62-L65",
+            "source_text": "/-- A mixin for left cancellative multiplication. -/\n@[mk_iff] class IsLeftCancelMul (G : Type u) [Mul G] : Prop where\n  /-- Multiplication is left cancellative (i.e. left regular). -/\n  protected mul_left_cancel (a : G) : IsLeftRegular a\n",
+            "docstring": "A mixin for left cancellative multiplication. "
+          },
+          {
+            "id": 77260,
+            "name": "IsLeftCancelMulZero",
+            "module": "Mathlib.Algebra.GroupWithZero.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Defs.lean#L46-L49",
+            "source_text": "/-- A mixin for left cancellative multiplication by nonzero elements. -/\n@[mk_iff] class IsLeftCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀] : Prop where\n  /-- Multiplication by a nonzero element is left cancellative. -/\n  protected mul_left_cancel_of_ne_zero : ∀ {a : M₀}, a ≠ 0 → IsLeftRegular a\n",
+            "docstring": "A mixin for left cancellative multiplication by nonzero elements. "
+          },
+          {
+            "id": 77272,
+            "name": "IsCancelMulZero",
+            "module": "Mathlib.Algebra.GroupWithZero.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Defs.lean#L98-L100",
+            "source_text": "/-- A mixin for cancellative multiplication by nonzero elements. -/\n@[mk_iff] class IsCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀] : Prop\n  extends IsLeftCancelMulZero M₀, IsRightCancelMulZero M₀\n",
+            "docstring": "A mixin for cancellative multiplication by nonzero elements. "
+          },
+          {
+            "id": 77265,
+            "name": "mul_eq_mul_left_iff",
+            "module": "Mathlib.Algebra.GroupWithZero.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Defs.lean#L67-L68",
+            "source_text": "@[simp] lemma mul_eq_mul_left_iff : a * b = a * c ↔ b = c ∨ a = 0 := by\n  by_cases ha : a = 0 <;> [simp only [ha, zero_mul, or_true]; simp [mul_right_inj', ha]]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "mul_left_cancel₀",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Polynomial.coeff_X_pow",
+      "EuclideanDomain.gcd_dvd_left",
+      "mul_left_cancel₀"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "M5.cyclicModulus definition",
+      "M5.completeSignature definition",
+      "isUnit_iff_dvd_one"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.cyclicModulus definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 68141,
+            "name": "IsCyclic",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L1053-L1056",
+            "source_text": "/-- A group is called *cyclic* if it is generated by a single element. -/\n@[to_additive (attr := wikidata Q245462)]\nclass IsCyclic (G : Type u) [Pow G ℤ] : Prop where\n  protected exists_zpow_surjective : ∃ g : G, Function.Surjective (g ^ · : ℤ → G)\n",
+            "docstring": "A group is called *cyclic* if it is generated by a single element. \n\n[Wikidata Q245462](https://www.wikidata.org/wiki/Q245462)"
+          },
+          {
+            "id": 342377,
+            "name": "ContinuousMap.modulus",
+            "module": "Mathlib.Topology.ContinuousMap.Compact",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/ContinuousMap/Compact.lean#L430-L432",
+            "source_text": "/-- An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. -/\ndef modulus (f : C(α, β)) (ε : ℝ) (h : 0 < ε) : ℝ :=\n  Classical.choose (uniform_continuity f ε h)\n",
+            "docstring": "An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. "
+          },
+          {
+            "id": 245138,
+            "name": "rank_le_one",
+            "module": "Mathlib.LinearAlgebra.Dimension.Finite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dimension/Finite.lean#L523-L525",
+            "source_text": "theorem rank_le_one (v : M) (h : ∀ w : M, ∃ c : R, c • v = w) : Module.rank R M ≤ 1 := by\n  simpa using LinearMap.lift_rank_le_of_surjective _\n    (id h : Surjective (LinearMap.toSpanSingleton R M v))\n",
+            "docstring": null
+          },
+          {
+            "id": 253092,
+            "name": "Submodule.mem_span_singleton_trans",
+            "module": "Mathlib.LinearAlgebra.Span.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Defs.lean#L501-L503",
+            "source_text": "theorem mem_span_singleton_trans {x y z : M} (hxy : x ∈ R ∙ y) (hyz : y ∈ R ∙ z) : x ∈ R ∙ z := by\n  rw [← SetLike.mem_coe, ← singleton_subset_iff] at *\n  exact Submodule.subset_span_trans hxy hyz\n",
+            "docstring": null
+          },
+          {
+            "id": 245139,
+            "name": "finrank_le_one",
+            "module": "Mathlib.LinearAlgebra.Dimension.Finite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dimension/Finite.lean#L527-L530",
+            "source_text": "/-- If every vector is a multiple of some `v : M`, then `M` has dimension at most one. -/\ntheorem finrank_le_one (v : M) (h : ∀ w : M, ∃ c : R, c • v = w) : finrank R M ≤ 1 := by\n  rw [← map_one toNat, finrank]\n  exact toNat_le_toNat (rank_le_one v h) one_lt_aleph0\n",
+            "docstring": "If every vector is a multiple of some `v : M`, then `M` has dimension at most one. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.cyclicModulus definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.completeSignature definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 355792,
+            "name": "CompleteSpace",
+            "module": "Mathlib.Topology.UniformSpace.Cauchy",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/Cauchy.lean#L367-L372",
+            "source_text": "/-- A complete space is defined here using uniformities. A uniform space\n  is complete if every Cauchy filter converges. -/\n@[wikidata Q848569]\nclass CompleteSpace (α : Type u) [UniformSpace α] : Prop where\n  /-- In a complete uniform space, every Cauchy filter converges. -/\n  complete : ∀ {f : Filter α}, Cauchy f → ∃ x, f ≤ 𝓝 x\n",
+            "docstring": "A complete space is defined here using uniformities. A uniform space\nis complete if every Cauchy filter converges. "
+          },
+          {
+            "id": 281412,
+            "name": "CompleteLattice",
+            "module": "Mathlib.Order.CompleteLattice.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/CompleteLattice/Defs.lean#L136-L138",
+            "source_text": "/-- A complete lattice is a bounded lattice which has suprema and infima for every subset. -/\nclass CompleteLattice (α : Type*) extends Lattice α, CompleteSemilatticeSup α,\n    CompleteSemilatticeInf α, BoundedOrder α\n",
+            "docstring": "A complete lattice is a bounded lattice which has suprema and infima for every subset. "
+          },
+          {
+            "id": 327256,
+            "name": "Mathlib.Tactic.ExtractGoal.goalSignature",
+            "module": "Mathlib.Tactic.ExtractGoal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ExtractGoal.lean#L140-L193",
+            "source_text": "/-- Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n-/\ndef goalSignature (name : Name) (g : MVarId) : TermElabM (MessageData × Expr × Array Name × Bool) :=\n  withoutModifyingEnv <| withoutModifyingState do\n    let (g, _) ← g.renameInaccessibleFVars\n    -- Check if the original goal has foralls before reverting\n    -- We only consider it to have \"original foralls\" if it has a named forall,\n    -- not just implications (which have anonymous or internal hygienic names)\n    let originalTy ← instantiateMVars (← g.getType)\n    let hasOriginalForalls :=\n      originalTy.isForall &&\n      !originalTy.bindingName!.isAnonymous &&\n      !originalTy.bindingName!.isInternal\n    let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds\n    let ty ← instantiateMVars (← g.getType)\n    if ty.hasExprMVar then\n      -- TODO: turn metavariables into new hypotheses?\n      throwError \"Extracted goal has metavariables: {ty}\"\n    let ty ← Term.levelMVarToParam ty\n    let seenLevels := collectLevelParams {} ty\n    let levels := (← Term.getLevelNames).filter\n      fun u => seenLevels.visitedLevel.contains (.param u)\n    addAndCompile <| Declaration.axiomDecl\n      { name := name\n        levelParams := levels\n        isUnsafe := false\n        type := ty }\n    let sig ← addMessageContext <| MessageData.signature name\n    let context ← liftM (m := CoreM) <| read\n    let state ← get\n    let env ← getEnv\n    let (ts, _) ← ((Mathlib.Command.MinImports.getVisited name).run\n        { context with snap? := none }).run\n        { state with env, maxRecDepth := context.maxRecDepth }\n    let mut hm : Std.HashMap Nat Name := {}\n    for imp in env.header.moduleNames do\n      hm := hm.insert ((env.getModuleIdx? imp).getD default) imp\n    let mut fins : NameSet := {}\n    for t in ts do\n      let new := match env.getModuleIdxFor? t with\n        | some t => (hm.get? t).get!\n        | none   => .anonymous -- instead of `getMainModule`, we omit the current module\n      if !fins.contains new then fins := fins.insert new\n    let tot := Mathlib.Command.MinImports.getIrredundantImports (← getEnv) (fins.erase .anonymous)\n    let fileNames := tot.toArray.qsort Name.lt\n    return (sig, ty, fileNames, hasOriginalForalls)\n",
+            "docstring": "Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n"
+          },
+          {
+            "id": 270623,
+            "name": "FirstOrder.Language.mem_completeTheory",
+            "module": "Mathlib.ModelTheory.Semantics",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Semantics.lean#L714-L716",
+            "source_text": "@[simp]\ntheorem mem_completeTheory {φ : Sentence L} : φ ∈ L.completeTheory M ↔ M ⊨ φ :=\n  Iff.rfl",
+            "docstring": null
+          },
+          {
+            "id": 327372,
+            "name": "Mathlib.Tactic.FieldSimp.Sign.expr",
+            "module": "Mathlib.Tactic.FieldSimp.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/FieldSimp/Lemmas.lean#L391-L395",
+            "source_text": "/-- Given an expression `e : Q($M)`, construct an expression which is morally \"± `e`\", with the\nchoice between + and - determined by an object `g : Sign M`. -/\ndef Sign.expr : Sign M → Q($M) → Q($M)\n  | plus, a => a\n  | minus _, a => q(-$a)\n",
+            "docstring": "Given an expression `e : Q($M)`, construct an expression which is morally \"± `e`\", with the\nchoice between + and - determined by an object `g : Sign M`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.completeSignature definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 388434,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+            "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+            "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          },
+          {
+            "id": 393958,
+            "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_disjiont_viableChargesAdditional",
+            "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L382-L386",
+            "source_text": "lemma viableCompletions_disjiont_viableChargesAdditional (I : CodimensionOneConfig) :\n    Disjoint (viableCompletions I) (viableChargesAdditional I) := by\n  refine Multiset.inter_eq_zero_iff_disjoint.mp ?_\n  cases I\n  <;> decide +kernel\n",
+            "docstring": null
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "isUnit_iff_dvd_one",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64560,
+            "name": "isUnit_iff_dvd_one",
+            "module": "Mathlib.Algebra.Divisibility.Units",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L123-L124",
+            "source_text": "theorem isUnit_iff_dvd_one {x : α} : IsUnit x ↔ x ∣ 1 :=\n  ⟨IsUnit.dvd, fun ⟨y, h⟩ => ⟨⟨x, y, h.symm, by rw [h, mul_comm]⟩, rfl⟩⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 64561,
+            "name": "isUnit_iff_forall_dvd",
+            "module": "Mathlib.Algebra.Divisibility.Units",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L126-L127",
+            "source_text": "theorem isUnit_iff_forall_dvd {x : α} : IsUnit x ↔ ∀ y, x ∣ y :=\n  isUnit_iff_dvd_one.trans ⟨fun h _ => h.trans (one_dvd _), fun h => h _⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 64563,
+            "name": "isUnit_of_dvd_one",
+            "module": "Mathlib.Algebra.Divisibility.Units",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L132-L133",
+            "source_text": "theorem isUnit_of_dvd_one {a : α} (h : a ∣ 1) : IsUnit (a : α) :=\n  isUnit_iff_dvd_one.mpr h\n",
+            "docstring": null
+          },
+          {
+            "id": 76357,
+            "name": "IsUnit",
+            "module": "Mathlib.Algebra.Group.Units.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Units/Defs.lean#L358-L365",
+            "source_text": "/-- An element `a : M` of a `Monoid` is a unit if it has a two-sided inverse.\nThe actual definition says that `a` is equal to some `u : Mˣ`, where\n`Mˣ` is a bundled version of `IsUnit`. -/\n@[to_additive /-- An element `a : M` of an `AddMonoid` is an `AddUnit` if it has a two-sided\nadditive inverse. The actual definition says that `a` is equal to some `u : AddUnits M`,\nwhere `AddUnits M` is a bundled version of `IsAddUnit`. -/]\ndef IsUnit [Monoid M] (a : M) : Prop :=\n  ∃ u : Mˣ, (u : M) = a\n",
+            "docstring": "An element `a : M` of a `Monoid` is a unit if it has a two-sided inverse.\nThe actual definition says that `a` is equal to some `u : Mˣ`, where\n`Mˣ` is a bundled version of `IsUnit`. "
+          },
+          {
+            "id": 70350,
+            "name": "PUnit.div_eq",
+            "module": "Mathlib.Algebra.Group.PUnit",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/PUnit.lean#L48-L48",
+            "source_text": "@[to_additive (attr := simp)] lemma div_eq (x y : PUnit) : x / y = unit := rfl\n@[to_additive (attr := simp)] lemma inv_eq (x : PUnit) : x⁻¹ = unit := rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "isUnit_iff_dvd_one",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394367,
+            "name": "UnitDependent",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L34-L49",
+            "source_text": "/-- A type carries the instance `UnitDependent M` if it depends on a choice of units.\n  This dependence is manifested in `scaleUnit u1 u2` which describes how elements of `M` change\n  under a scaling of units which would take `u1` to `u2`.\n\n  This type is used for functions, and propositions etc.\n-/\nclass UnitDependent (M : Type) where\n  /-- `scaleUnit u1 u2` is the map transforming elements of `M` under a\n    scaling of units which would take the unit `u1` to the unit `u2`. This is not\n    to say that in `scaleUnit u1 u2 m` that `m` should be interpreted as being in the units `u1`,\n    although this is often the case.\n  -/\n  scaleUnit : UnitChoices → UnitChoices → M → M\n  scaleUnit_trans : ∀ u1 u2 u3 m, scaleUnit u2 u3 (scaleUnit u1 u2 m) = scaleUnit u1 u3 m\n  scaleUnit_trans' : ∀ u1 u2 u3 m, scaleUnit u1 u2 (scaleUnit u2 u3 m) = scaleUnit u1 u3 m\n  scaleUnit_id : ∀ u m, scaleUnit u u m = m\n",
+            "docstring": "A type carries the instance `UnitDependent M` if it depends on a choice of units.\nThis dependence is manifested in `scaleUnit u1 u2` which describes how elements of `M` change\nunder a scaling of units which would take `u1` to `u2`.\n\nThis type is used for functions, and propositions etc.\n"
+          },
+          {
+            "id": 394400,
+            "name": "isDimensionallyCorrect_iff",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L421-L423",
+            "source_text": "lemma isDimensionallyCorrect_iff {M : Type} [UnitDependent M] (m : M) :\n    IsDimensionallyCorrect m ↔ ∀ u1 u2 : UnitChoices,\n      scaleUnit u1 u2 m = m := by rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 394372,
+            "name": "UnitDependent.scaleUnit_injective",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L90-L94",
+            "source_text": "@[simp]\nlemma UnitDependent.scaleUnit_injective {M : Type} [UnitDependent M]\n    (u1 u2 : UnitChoices) (m1 m2 : M) :\n    scaleUnit u1 u2 m1 = scaleUnit u1 u2 m2 ↔ m1 = m2 :=\n  ⟨fun h => by simpa using congrArg (scaleUnit u2 u1) h, congrArg (scaleUnit u1 u2)⟩",
+            "docstring": null
+          },
+          {
+            "id": 394371,
+            "name": "UnitDependent.scaleUnit_symm_apply",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L84-L88",
+            "source_text": "@[simp]\nlemma UnitDependent.scaleUnit_symm_apply {M : Type} [UnitDependent M]\n    (u1 u2 : UnitChoices) (m : M) :\n    scaleUnit u2 u1 (scaleUnit u1 u2 m) = m := by\n  rw [scaleUnit_trans, scaleUnit_id]",
+            "docstring": null
+          },
+          {
+            "id": 394373,
+            "name": "UnitDependent.scaleUnitEquiv",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L103-L109",
+            "source_text": "/-- For an `M` with an instance of `UnitDependent M`, `scaleUnit u1 u2` as an equivalence. -/\ndef UnitDependent.scaleUnitEquiv {M : Type} [UnitDependent M]\n    (u1 u2 : UnitChoices) : M ≃ M where\n  toFun m := scaleUnit u1 u2 m\n  invFun m := scaleUnit u2 u1 m\n  right_inv m := by simp\n  left_inv m := by simp\n",
+            "docstring": "For an `M` with an instance of `UnitDependent M`, `scaleUnit u1 u2` as an equivalence. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "exact_signature_criterion",
+    "receipts_sha256": "85a8cb14c3ec572a68ae999ca3ee6fcafbf94483c640b480a0b1395cfae8e995"
+  },
+  {
+    "queries": [
+      "Polynomial.coeff_X_pow",
+      "EuclideanDomain.div_self"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial.coeff_X_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101310,
+            "name": "Polynomial.coeff_mul_X_pow",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L226-L233",
+            "source_text": "@[simp]\ntheorem coeff_mul_X_pow (p : R[X]) (n d : ℕ) :\n    coeff (p * Polynomial.X ^ n) (d + n) = coeff p d := by\n  rw [coeff_mul, Finset.sum_eq_single (d, n), coeff_X_pow, if_pos rfl, mul_one]\n  · rintro ⟨i, j⟩ h1 h2\n    rw [coeff_X_pow, if_neg, mul_zero]\n    grind [mem_antidiagonal]\n  · grind [mem_antidiagonal]",
+            "docstring": null
+          },
+          {
+            "id": 101304,
+            "name": "Polynomial.coeff_X_pow",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L187-L189",
+            "source_text": "@[simp, grind =]\ntheorem coeff_X_pow (k n : ℕ) : coeff (X ^ k : R[X]) n = if n = k then 1 else 0 := by\n  simp only [one_mul, map_one, ← coeff_C_mul_X_pow]",
+            "docstring": null
+          },
+          {
+            "id": 101312,
+            "name": "Polynomial.coeff_mul_X_pow'",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L240-L246",
+            "source_text": "theorem coeff_mul_X_pow' (p : R[X]) (n d : ℕ) :\n    (p * X ^ n).coeff d = ite (n ≤ d) (p.coeff (d - n)) 0 := by\n  split_ifs with h\n  · rw [← tsub_add_cancel_of_le h, coeff_mul_X_pow, add_tsub_cancel_right]\n  · refine (coeff_mul _ _ _).trans (Finset.sum_eq_zero fun x hx => ?_)\n    rw [coeff_X_pow, if_neg, mul_zero]\n    exact ((le_of_add_le_right (mem_antidiagonal.mp hx).le).trans_lt <| not_le.mp h).ne\n",
+            "docstring": null
+          },
+          {
+            "id": 101537,
+            "name": "Polynomial.coeff_pow_of_natDegree_le",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L150-L157",
+            "source_text": "theorem coeff_pow_of_natDegree_le (pn : p.natDegree ≤ n) :\n    (p ^ m).coeff (m * n) = p.coeff n ^ m := by\n  induction m with\n  | zero => simp\n  | succ m hm =>\n    rw [pow_succ, pow_succ, ← hm, Nat.succ_mul, coeff_mul_add_eq_of_natDegree_le _ pn]\n    refine natDegree_pow_le.trans (le_trans ?_ (le_refl _))\n    gcongr\n",
+            "docstring": null
+          },
+          {
+            "id": 100978,
+            "name": "Polynomial.X",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L479-L481",
+            "source_text": "/-- `X` is the polynomial variable (aka indeterminate). -/\ndef X : R[X] :=\n  monomial 1 1\n",
+            "docstring": "`X` is the polynomial variable (aka indeterminate). "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.coeff_X_pow",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "EuclideanDomain.div_self",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64657,
+            "name": "EuclideanDomain.div_self",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L83-L85",
+            "source_text": "@[simp]\ntheorem div_self {a : R} (a0 : a ≠ 0) : a / a = 1 := by\n  simpa only [one_mul] using mul_div_cancel_right₀ 1 a0",
+            "docstring": null
+          },
+          {
+            "id": 64700,
+            "name": "EuclideanDomain.div_div",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L376-L381",
+            "source_text": "theorem div_div {x y z : R} (h1 : y ∣ x) (h2 : z ∣ (x / y)) :\n    x / y / z = x / (y * z) := by\n  rcases eq_or_ne y 0 with rfl | hy\n  · simp only [div_zero, zero_div, zero_mul]\n  rw [← mul_dvd_mul_iff_left hy, EuclideanDomain.mul_div_cancel' hy h1] at h2\n  exact (div_mul h1 h2).symm\n",
+            "docstring": null
+          },
+          {
+            "id": 64652,
+            "name": "EuclideanDomain.mod_self",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L63-L65",
+            "source_text": "@[simp]\ntheorem mod_self (a : R) : a % a = 0 :=\n  mod_eq_zero.2 dvd_rfl",
+            "docstring": null
+          },
+          {
+            "id": 64722,
+            "name": "EuclideanDomain.gcd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+            "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+            "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+          },
+          {
+            "id": 227695,
+            "name": "EuclideanGeometry.oangle",
+            "module": "Mathlib.Geometry.Euclidean.Angle.Oriented.Affine",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Geometry/Euclidean/Angle/Oriented/Affine.lean#L41-L45",
+            "source_text": "/-- The oriented angle at `p₂` between the line segments to `p₁` and `p₃`, modulo `2 * π`. If\neither of those points equals `p₂`, this is 0. See `EuclideanGeometry.angle` for the\ncorresponding unoriented angle definition. -/\ndef oangle (p₁ p₂ p₃ : P) : Real.Angle :=\n  o.oangle (p₁ -ᵥ p₂) (p₃ -ᵥ p₂)\n",
+            "docstring": "The oriented angle at `p₂` between the line segments to `p₁` and `p₃`, modulo `2 * π`. If\neither of those points equals `p₂`, this is 0. See `EuclideanGeometry.angle` for the\ncorresponding unoriented angle definition. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "EuclideanDomain.div_self",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393002,
+            "name": "EuclideanGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L22-L30",
+            "source_text": "/-- An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n-/\n@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n",
+            "docstring": "An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n"
+          },
+          {
+            "id": 393145,
+            "name": "LengthUnit.div_self",
+            "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L73-L77",
+            "source_text": "@[simp]\nlemma div_self (x : LengthUnit) :\n    x / x = (1 : ℝ≥0) := by\n  simp [div_eq_val, x.val_ne_zero]\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 385575,
+            "name": "ChargeUnit.div_self",
+            "module": "Physlib.Electromagnetism.Charge.ChargeUnit",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Electromagnetism/Charge/ChargeUnit.lean#L79-L83",
+            "source_text": "@[simp]\nlemma div_self (x : ChargeUnit) :\n    x / x = (1 : ℝ≥0) := by\n  simp [div_eq_val, x.val_ne_zero]\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 393621,
+            "name": "TimeUnit.div_self",
+            "module": "Physlib.SpaceAndTime.Time.TimeUnit",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeUnit.lean#L76-L80",
+            "source_text": "@[simp]\nlemma div_self (x : TimeUnit) :\n    x / x = (1 : ℝ≥0) := by\n  simp [div_eq_val, x.val_ne_zero]\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 385368,
+            "name": "MassUnit.div_self",
+            "module": "Physlib.ClassicalMechanics.Mass.MassUnit",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/Mass/MassUnit.lean#L74-L78",
+            "source_text": "@[simp]\nlemma div_self (x : MassUnit) :\n    x / x = (1 : ℝ≥0) := by\n  simp [div_eq_val, x.val_ne_zero]\n  rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Polynomial.coeff_X_pow",
+      "EuclideanDomain.div_self"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

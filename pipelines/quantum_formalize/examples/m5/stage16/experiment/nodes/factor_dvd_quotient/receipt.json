@@ -1,0 +1,55 @@
+{
+  "id": "factor_dvd_quotient",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PolynomialExclusion.factor_dvd_quotient",
+    "spec_sha256": "5e188e00f05248fbc47b765fd8204d5b358f3c7ffd7d5bef92e2a41010d4f119",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-thi92eaa/attempt-001/Candidate_271f12d570dd7a46.lean",
+        "target_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-thi92eaa/attempt-001/FrozenTarget_271f12d570dd7a46.lean",
+        "feedback": "",
+        "target_sha256": "58c339a18c6f7d2ddf70a2279248ad011cb8a413094c99210fe8812e482f8526",
+        "target_olean_sha256": "511d370945e705f37414eb89a432ed6efb28cf4739ed7572936c1550b8c33b62",
+        "source_sha256": "061d06a5269f0e7a9c82a0e05c172d73c696b4694f40f900379176bd4551c8b6",
+        "olean_sha256": "a4c6229aa03043d9fc5844b2723e11c3795238985a8b8a536a07b3287c2b0ccc",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:07:46.878387+00:00",
+    "work": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-thi92eaa",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-thi92eaa/attempt-001/Candidate_271f12d570dd7a46.lean",
+    "environment_sha256": "6c07b3bd70f3fbdeb2ff1bbc277ad0fcd5f2e84b7a8f705d5c73a9054eabf1d2",
+    "artifacts": {
+      "factor_dvd_quotient": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.factor_dvd_quotient : ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P) := by\n  change ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)\n  intro F P p hF hFP\n  constructor\n  · rintro ⟨q, hq⟩\n    refine ⟨q, ?_⟩\n    calc\n      P = F * (P / F) := (EuclideanDomain.mul_div_cancel' hF hFP).symm\n      _ = F * (p * q) := congrArg (fun x => F * x) hq\n      _ = (F * p) * q := (mul_assoc F p q).symm\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.factor_dvd_quotient",
+          "ancestors": [],
+          "spec_sha256": "fa117181cf7ae4ffb25448c494910f01fa889efd6ac1ef0f5478148d7924c3f3"
+        },
+        "sha256": "a5195a496a5af2747443906cf0870491373d6eade2c749e2cfe44b5b2a3ecbfe"
+      }
+    }
+  }
+}

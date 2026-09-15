@@ -1,0 +1,8 @@
+{
+  "proof": "intro A B w T hw hT hA hB hBbound\nhave hAc : (M5.SupportPolynomial.ofSupport A).coeff 0 = 1 := by\n  apply M5.SupportPolynomial.support_coeff_zero\n  exact hA\nhave hBc : (M5.SupportPolynomial.ofSupport B).coeff 0 = 1 := by\n  apply M5.SupportPolynomial.support_coeff_zero\n  exact hB\nhave hwT : 0 < w * T := Nat.mul_pos (by omega) hT\nhave hdeg : (M5.SupportPolynomial.ofSupport B).natDegree < w * T := by\n  apply M5.SupportPolynomial.support_degree_bound <;> assumption\nunfold M5.PhysicalOrder.supportPeriod\nconstructor\n· solve_by_elim (maxDepth := 12) [M5.Signature.ordinary_gcd_properties, M5.Signature.ordinary_gcd_period_bound, M5.Period.period_law, And.left, And.right]\n· constructor\n  · calc\n      _ ≤ 2 ^ (M5.SupportPolynomial.ofSupport B).natDegree := by\n        solve_by_elim (maxDepth := 12) [M5.Signature.ordinary_gcd_period_bound, M5.Signature.ordinary_gcd_properties, And.left, And.right]\n      _ ≤ 2 ^ (w * T) := Nat.pow_le_pow_right (by decide) (Nat.le_of_lt hdeg)\n  · solve_by_elim (maxDepth := 14) [M5.Signature.ordinary_gcd_properties, M5.Period.period_law, And.left, And.right, Iff.mpr, dvd_refl]",
+  "queries": [
+    "M5.Signature.ordinary_gcd_period_bound exact declaration",
+    "M5.Signature.ordinary_gcd_properties exact declaration",
+    "M5.Period.period_law exact declaration"
+  ]
+}

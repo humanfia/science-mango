@@ -1,0 +1,252 @@
+[
+  {
+    "queries": [
+      "Finset erase insert cardinality gcd",
+      "natural gcd Chinese remainder connectivity"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset erase insert cardinality gcd",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202113,
+            "name": "Finset.erase_insert",
+            "module": "Mathlib.Data.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L134-L134",
+            "source_text": "theorem erase_insert {a : α} {s : Finset α} (h : a ∉ s) : (insert a s).erase a = s := by grind\n",
+            "docstring": null
+          },
+          {
+            "id": 66037,
+            "name": "Finset.gcd_insert",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L151-L157",
+            "source_text": "@[simp]\ntheorem gcd_insert [DecidableEq β] {b : β} :\n    (insert b s : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) := by\n  by_cases h : b ∈ s\n  · rw [insert_eq_of_mem h,\n      (gcd_eq_right_iff (f b) (s.gcd f) (Multiset.normalize_gcd (s.1.map f))).2 (gcd_dvd h)]\n  apply fold_insert h",
+            "docstring": null
+          },
+          {
+            "id": 66036,
+            "name": "Finset.gcd_cons",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L147-L149",
+            "source_text": "theorem gcd_cons {b : β} (h : b ∉ s) :\n    (cons b s h : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) :=\n  fold_cons h\n",
+            "docstring": null
+          },
+          {
+            "id": 202698,
+            "name": "Finset.erase",
+            "module": "Mathlib.Data.Finset.Erase",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Erase.lean#L47-L50",
+            "source_text": "/-- `erase s a` is the set `s - {a}`, that is, the elements of `s` which are\n  not equal to `a`. -/\ndef erase (s : Finset α) (a : α) : Finset α :=\n  ⟨_, s.2.erase a⟩\n",
+            "docstring": "`erase s a` is the set `s - {a}`, that is, the elements of `s` which are\nnot equal to `a`. "
+          },
+          {
+            "id": 202116,
+            "name": "Finset.insert_erase",
+            "module": "Mathlib.Data.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L142-L142",
+            "source_text": "@[simp] theorem insert_erase (h : a ∈ s) : insert a (s.erase a) = s := by grind",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset erase insert cardinality gcd",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389551,
+            "name": "WickContraction.erase_insert",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.InsertAndContractNat",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/InsertAndContractNat.lean#L367-L412",
+            "source_text": "@[simp]\nlemma erase_insert (c : WickContraction n.succ) (i : Fin n.succ) :\n    insertAndContractNat (erase c i) i (getDualErase c i) = c := by\n  match n with\n  | 0 =>\n    apply Subtype.ext\n    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, insertAndContractNat, getDualErase,\n      Finset.le_eq_subset]\n    ext a\n    simp only [Finset.mem_map, RelEmbedding.coe_toEmbedding]\n    constructor\n    · rintro ⟨a', ha', rfl⟩\n      exact (Finset.mem_filter.mp ha').2\n    · intro ha\n      obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isNone (a := a) i (by simp) ha\n      exact ⟨a', ha', rfl⟩\n  | Nat.succ n =>\n  apply Subtype.ext\n  by_cases hi : (c.getDual? i).isSome\n  · rw [insertAndContractNat_of_isSome]\n    simp only [Nat.succ_eq_add_one, getDualErase, hi, ↓reduceDIte, Option.get_some,\n      Finset.le_eq_subset]\n    rw [succsAbove_predAboveI]\n    · ext a\n      simp only [Finset.mem_insert, Finset.mem_map, RelEmbedding.coe_toEmbedding]\n      constructor\n      · rintro (rfl | ⟨a', ha', rfl⟩)\n        · simp\n        · exact (Finset.mem_filter.mp ha').2\n      · intro ha\n        by_cases hia : a = {i, (c.getDual? i).get hi}\n        · exact Or.inl hia\n        · obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isSome (a := a) i hi ha hia\n          exact Or.inr ⟨a', ha', rfl⟩\n    · simp\n    · exact (getDualErase_isSome_iff_getDual?_isSome c i).mpr hi\n  · simp only [Nat.succ_eq_add_one, insertAndContractNat, getDualErase, hi, Bool.false_eq_true,\n    ↓reduceDIte, Finset.le_eq_subset]\n    ext a\n    simp only [Finset.mem_map, RelEmbedding.coe_toEmbedding]\n    constructor\n    · rintro ⟨a', ha', rfl⟩\n      exact (Finset.mem_filter.mp ha').2\n    · intro ha\n      obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isNone (a := a) i (by simpa using hi) ha\n      exact ⟨a', ha', rfl⟩",
+            "docstring": null
+          },
+          {
+            "id": 389108,
+            "name": "FieldStatistic.ofFinset_erase",
+            "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L74-L83",
+            "source_text": "lemma ofFinset_erase (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a : Finset (Fin φs.length))\n    (i : Fin φs.length) (h : i ∈ a) :\n    ofFinset q φs.get (a.erase i) = (q φs[i]) * ofFinset q φs.get a := by\n  have ha : a = Insert.insert i (a.erase i) := by\n    exact Eq.symm (Finset.insert_erase h)\n  conv_rhs => rw [ha]\n  rw [ofFinset_insert]\n  rw [← mul_assoc]\n  simp only [Fin.getElem_fin, mul_self, one_mul]\n  simp\n",
+            "docstring": null
+          },
+          {
+            "id": 389121,
+            "name": "Wick.insertIdx_eraseIdx",
+            "module": "Physlib.QFT.PerturbationTheory.Koszul.KoszulSign",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/Koszul/KoszulSign.lean#L197-L206",
+            "source_text": "lemma insertIdx_eraseIdx {I : Type} : (n : ℕ) → (r : List I) → (hn : n < r.length) →\n    List.insertIdx (r.eraseIdx n) n (r.get ⟨n, hn⟩) = r\n  | n, [], hn => by\n    simp at hn\n  | 0, r0 :: r, hn => by\n    simp\n  | n + 1, r0 :: r, hn => by\n    simp only [List.length_cons, List.get_eq_getElem, List.getElem_cons_succ,\n      List.eraseIdx_cons_succ, List.insertIdx_succ_cons, List.cons.injEq, true_and]\n    exact insertIdx_eraseIdx n r _\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural gcd Chinese remainder connectivity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66105,
+            "name": "instStrongNormalizedGCDMonoidNat",
+            "module": "Mathlib.Algebra.GCDMonoid.Nat",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Nat.lean#L49-L53",
+            "source_text": "instance : StrongNormalizedGCDMonoid ℕ :=\n  { (inferInstance : GCDMonoid ℕ),\n    (inferInstance : StrongNormalizationMonoid ℕ) with\n    normalize_gcd := fun _ _ => normalize_eq _\n    normalize_lcm := fun _ _ => normalize_eq _ }\n",
+            "docstring": null
+          },
+          {
+            "id": 223127,
+            "name": "ZMod.chineseRemainder",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L877-L924",
+            "source_text": "/-- The **Chinese remainder theorem**. For a pair of coprime natural numbers, `m` and `n`,\n  the rings `ZMod (m * n)` and `ZMod m × ZMod n` are isomorphic.\n\nSee `Ideal.quotientInfRingEquivPiQuotient` for the Chinese remainder theorem for ideals in any\nring.\n-/\ndef chineseRemainder {m n : ℕ} (h : m.Coprime n) : ZMod (m * n) ≃+* ZMod m × ZMod n :=\n  let to_fun : ZMod (m * n) → ZMod m × ZMod n :=\n    ZMod.castHom (show m.lcm n ∣ m * n by simp [Nat.lcm_dvd_iff]) (ZMod m × ZMod n)\n  let inv_fun : ZMod m × ZMod n → ZMod (m * n) := fun x =>\n    if m * n = 0 then\n      if m = 1 then cast (RingHom.snd _ (ZMod n) x) else cast (RingHom.fst (ZMod m) _ x)\n    else Nat.chineseRemainder h x.1.val x.2.val\n  have inv : Function.LeftInverse inv_fun to_fun ∧ Function.RightInverse inv_fun to_fun :=\n    if hmn0 : m * n = 0 then by\n      rcases h.eq_of_mul_eq_zero hmn0 with (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩)\n      · constructor\n        · intro x; rfl\n        · rintro ⟨x, y⟩\n          fin_cases y\n          simp [to_fun, inv_fun, castHom, Prod.ext_iff, eq_iff_true_of_subsingleton]\n      · constructor\n        · intro x; rfl\n        · rintro ⟨x, y⟩\n          fin_cases x\n          simp [to_fun, inv_fun, castHom, Prod.ext_iff, eq_iff_true_of_subsingleton]\n    else by\n      haveI : NeZero (m * n) := ⟨hmn0⟩\n      haveI : NeZero m := ⟨left_ne_zero_of_mul hmn0⟩\n      haveI : NeZero n := ⟨right_ne_zero_of_mul hmn0⟩\n      have left_inv : Function.LeftInverse inv_fun to_fun := by\n        intro x\n        dsimp only [to_fun, inv_fun, ZMod.castHom_apply]\n        conv_rhs => rw [← ZMod.natCast_zmod_val x]\n        rw [if_neg hmn0, ZMod.natCast_eq_natCast_iff, ← Nat.modEq_and_modEq_iff_modEq_mul h,\n          Prod.fst_zmod_cast, Prod.snd_zmod_cast]\n        refine\n          ⟨(Nat.chineseRemainder h (cast x : ZMod m).val (cast x : ZMod n).val).2.left.trans ?_,\n            (Nat.chineseRemainder h (cast x : ZMod m).val (cast x : ZMod n).val).2.right.trans ?_⟩\n        · rw [← ZMod.natCast_eq_natCast_iff, ZMod.natCast_zmod_val, ZMod.natCast_val]\n        · rw [← ZMod.natCast_eq_natCast_iff, ZMod.natCast_zmod_val, ZMod.natCast_val]\n      exact ⟨left_inv, left_inv.rightInverse_of_card_le (by simp)⟩\n  { toFun := to_fun,\n    invFun := inv_fun,\n    map_mul' := map_mul _\n    map_add' := map_add _\n    left_inv := inv.1\n    right_inv := inv.2 }\n",
+            "docstring": "The **Chinese remainder theorem**. For a pair of coprime natural numbers, `m` and `n`,\n  the rings `ZMod (m * n)` and `ZMod m × ZMod n` are isomorphic.\n\nSee `Ideal.quotientInfRingEquivPiQuotient` for the Chinese remainder theorem for ideals in any\nring.\n"
+          },
+          {
+            "id": 213300,
+            "name": "Nat.chineseRemainder",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L463-L465",
+            "source_text": "/-- The natural number less than `n*m` congruent to `a` mod `n` and `b` mod `m` -/\ndef chineseRemainder (co : n.Coprime m) (a b : ℕ) : { k // k ≡ a [MOD n] ∧ k ≡ b [MOD m] } :=\n  chineseRemainder' (by convert! @modEq_one a b)\n",
+            "docstring": "The natural number less than `n*m` congruent to `a` mod `n` and `b` mod `m` "
+          },
+          {
+            "id": 213299,
+            "name": "Nat.chineseRemainder'",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L421-L461",
+            "source_text": "/-- The natural number less than `lcm n m` congruent to `a` mod `n` and `b` mod `m` -/\ndef chineseRemainder' (h : a ≡ b [MOD gcd n m]) : { k // k ≡ a [MOD n] ∧ k ≡ b [MOD m] } :=\n  if hn : n = 0 then ⟨a, by\n    rw [hn, gcd_zero_left] at h; constructor\n    · rfl\n    · exact h⟩\n  else\n    if hm : m = 0 then ⟨b, by\n      rw [hm, gcd_zero_right] at h; constructor\n      · exact h.symm\n      · rfl⟩\n    else\n      ⟨let (c, d) := xgcd n m; Int.toNat ((n * c * b + m * d * a) / gcd n m % lcm n m), by\n        rw [xgcd_val]\n        dsimp\n        rw [modEq_iff_dvd, modEq_iff_dvd,\n          Int.toNat_of_nonneg (Int.emod_nonneg _ (Int.natCast_ne_zero.2 (lcm_ne_zero hn hm)))]\n        have hnonzero : (gcd n m : ℤ) ≠ 0 := by\n          norm_cast\n          rw [Nat.gcd_eq_zero_iff, not_and]\n          exact fun _ => hm\n        have hcoedvd : ∀ t, (gcd n m : ℤ) ∣ t * (b - a) := fun t => h.dvd.mul_left _\n        have := gcd_eq_gcd_ab n m\n        constructor <;> rw [Int.emod_def, ← sub_add] <;>\n            refine Int.dvd_add ?_ (dvd_mul_of_dvd_left ?_ _) <;>\n          try norm_cast\n        · rw [← sub_eq_iff_eq_add'] at this\n          rw [← this, Int.sub_mul, ← add_sub_assoc, add_comm, add_sub_assoc, ← Int.mul_sub,\n            Int.add_ediv_of_dvd_left, Int.mul_ediv_cancel_left _ hnonzero,\n            Int.mul_ediv_assoc _ h.dvd, ← sub_sub, sub_self, zero_sub, Int.dvd_neg, mul_assoc]\n          · exact dvd_mul_right _ _\n          norm_cast\n          exact dvd_mul_right _ _\n        · exact dvd_lcm_left n m\n        · rw [← sub_eq_iff_eq_add] at this\n          rw [← this, Int.sub_mul, sub_add, ← Int.mul_sub, Int.sub_ediv_of_dvd,\n            Int.mul_ediv_cancel_left _ hnonzero, Int.mul_ediv_assoc _ h.dvd, ← sub_add, sub_self,\n            zero_add, mul_assoc]\n          · exact dvd_mul_right _ _\n          · exact hcoedvd _\n        · exact dvd_lcm_right n m⟩\n",
+            "docstring": "The natural number less than `lcm n m` congruent to `a` mod `n` and `b` mod `m` "
+          },
+          {
+            "id": 212089,
+            "name": "Nat.chineseRemainderOfFinset",
+            "module": "Mathlib.Data.Nat.ChineseRemainder",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ChineseRemainder.lean#L163-L168",
+            "source_text": "/-- The natural number less than `∏ i ∈ t, s i` congruent to\n`a i` mod `s i` for all  `i ∈ t`. -/\ndef chineseRemainderOfFinset (t : Finset ι)\n    (hs : ∀ i ∈ t, s i ≠ 0) (pp : Set.Pairwise t (Coprime on s)) :\n    { k // ∀ i ∈ t, k ≡ a i [MOD s i] } := by\n  simpa using chineseRemainderOfMultiset a s t.nodup (by simpa using hs) (by simpa using pp)\n",
+            "docstring": "The natural number less than `∏ i ∈ t, s i` congruent to\n`a i` mod `s i` for all  `i ∈ t`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "natural gcd Chinese remainder connectivity",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset erase insert cardinality gcd",
+      "natural gcd Chinese remainder connectivity"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

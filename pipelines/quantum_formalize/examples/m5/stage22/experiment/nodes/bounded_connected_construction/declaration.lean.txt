@@ -1,0 +1,18 @@
+theorem M5.BoundedConstruction.bounded_connected_construction : ∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → ∃ A : Finset ℕ, A.card = w ∧ (M5.Packing.packedSupport s).card = w ∧ 0 ∈ A ∧ 0 ∈ (M5.Packing.packedSupport s) ∧ (∀ a ∈ A, a < M5.packingCutoff w T) ∧ (∀ b ∈ (M5.Packing.packedSupport s), b < w * T) ∧ M5.RepairSupport.combinedGcd A (M5.Packing.packedSupport s) = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport s)) T = M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T := by
+  intro w T r s hw hT hr hs hg
+  have hw0 : 0 < w := by omega
+  obtain ⟨e, he, hepos, hpos, hlt, hfeas⟩ :=
+    M5.BoundedConstruction.packed_repair_hypotheses w T r s hw hT hr hs hg
+  obtain ⟨k, hk, hnew, hcut, hgcd⟩ :=
+    M5.BoundedConstruction.repair_parameter w T r s e hT he hpos hlt hfeas
+  obtain ⟨hcard, hzero, hrange, hconn⟩ :=
+    M5.BoundedConstruction.repaired_support_properties
+      w T r s hw hT hr hs e k he hepos hnew hcut hgcd
+  refine ⟨M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T),
+    hcard, M5.Packing.packed_support_card w T s, hzero,
+    M5.Packing.packed_support_anchor w T s hw0 (hs ⟨0, hw0⟩ rfl),
+    hrange, ?_, hconn, ?_⟩
+  · exact fun b hb => M5.Packing.packed_support_range w T s b hb
+  · exact (M5.SignatureCongruence.repaired_complete_signature
+      (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e k T he hnew).trans
+      (M5.SignatureCongruence.packed_complete_signature w T r s)

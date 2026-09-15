@@ -1,0 +1,292 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.completeSignature definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 355792,
+        "name": "CompleteSpace",
+        "module": "Mathlib.Topology.UniformSpace.Cauchy",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/Cauchy.lean#L367-L372",
+        "source_text": "/-- A complete space is defined here using uniformities. A uniform space\n  is complete if every Cauchy filter converges. -/\n@[wikidata Q848569]\nclass CompleteSpace (α : Type u) [UniformSpace α] : Prop where\n  /-- In a complete uniform space, every Cauchy filter converges. -/\n  complete : ∀ {f : Filter α}, Cauchy f → ∃ x, f ≤ 𝓝 x\n",
+        "docstring": "A complete space is defined here using uniformities. A uniform space\nis complete if every Cauchy filter converges. "
+      },
+      {
+        "id": 281412,
+        "name": "CompleteLattice",
+        "module": "Mathlib.Order.CompleteLattice.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/CompleteLattice/Defs.lean#L136-L138",
+        "source_text": "/-- A complete lattice is a bounded lattice which has suprema and infima for every subset. -/\nclass CompleteLattice (α : Type*) extends Lattice α, CompleteSemilatticeSup α,\n    CompleteSemilatticeInf α, BoundedOrder α\n",
+        "docstring": "A complete lattice is a bounded lattice which has suprema and infima for every subset. "
+      },
+      {
+        "id": 327256,
+        "name": "Mathlib.Tactic.ExtractGoal.goalSignature",
+        "module": "Mathlib.Tactic.ExtractGoal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ExtractGoal.lean#L140-L193",
+        "source_text": "/-- Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n-/\ndef goalSignature (name : Name) (g : MVarId) : TermElabM (MessageData × Expr × Array Name × Bool) :=\n  withoutModifyingEnv <| withoutModifyingState do\n    let (g, _) ← g.renameInaccessibleFVars\n    -- Check if the original goal has foralls before reverting\n    -- We only consider it to have \"original foralls\" if it has a named forall,\n    -- not just implications (which have anonymous or internal hygienic names)\n    let originalTy ← instantiateMVars (← g.getType)\n    let hasOriginalForalls :=\n      originalTy.isForall &&\n      !originalTy.bindingName!.isAnonymous &&\n      !originalTy.bindingName!.isInternal\n    let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds\n    let ty ← instantiateMVars (← g.getType)\n    if ty.hasExprMVar then\n      -- TODO: turn metavariables into new hypotheses?\n      throwError \"Extracted goal has metavariables: {ty}\"\n    let ty ← Term.levelMVarToParam ty\n    let seenLevels := collectLevelParams {} ty\n    let levels := (← Term.getLevelNames).filter\n      fun u => seenLevels.visitedLevel.contains (.param u)\n    addAndCompile <| Declaration.axiomDecl\n      { name := name\n        levelParams := levels\n        isUnsafe := false\n        type := ty }\n    let sig ← addMessageContext <| MessageData.signature name\n    let context ← liftM (m := CoreM) <| read\n    let state ← get\n    let env ← getEnv\n    let (ts, _) ← ((Mathlib.Command.MinImports.getVisited name).run\n        { context with snap? := none }).run\n        { state with env, maxRecDepth := context.maxRecDepth }\n    let mut hm : Std.HashMap Nat Name := {}\n    for imp in env.header.moduleNames do\n      hm := hm.insert ((env.getModuleIdx? imp).getD default) imp\n    let mut fins : NameSet := {}\n    for t in ts do\n      let new := match env.getModuleIdxFor? t with\n        | some t => (hm.get? t).get!\n        | none   => .anonymous -- instead of `getMainModule`, we omit the current module\n      if !fins.contains new then fins := fins.insert new\n    let tot := Mathlib.Command.MinImports.getIrredundantImports (← getEnv) (fins.erase .anonymous)\n    let fileNames := tot.toArray.qsort Name.lt\n    return (sig, ty, fileNames, hasOriginalForalls)\n",
+        "docstring": "Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n"
+      },
+      {
+        "id": 270623,
+        "name": "FirstOrder.Language.mem_completeTheory",
+        "module": "Mathlib.ModelTheory.Semantics",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Semantics.lean#L714-L716",
+        "source_text": "@[simp]\ntheorem mem_completeTheory {φ : Sentence L} : φ ∈ L.completeTheory M ↔ M ⊨ φ :=\n  Iff.rfl",
+        "docstring": null
+      },
+      {
+        "id": 327372,
+        "name": "Mathlib.Tactic.FieldSimp.Sign.expr",
+        "module": "Mathlib.Tactic.FieldSimp.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/FieldSimp/Lemmas.lean#L391-L395",
+        "source_text": "/-- Given an expression `e : Q($M)`, construct an expression which is morally \"± `e`\", with the\nchoice between + and - determined by an object `g : Sign M`. -/\ndef Sign.expr : Sign M → Q($M) → Q($M)\n  | plus, a => a\n  | minus _, a => q(-$a)\n",
+        "docstring": "Given an expression `e : Q($M)`, construct an expression which is morally \"± `e`\", with the\nchoice between + and - determined by an object `g : Sign M`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.completeSignature definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 388434,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+        "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+        "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      },
+      {
+        "id": 393958,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_disjiont_viableChargesAdditional",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L382-L386",
+        "source_text": "lemma viableCompletions_disjiont_viableChargesAdditional (I : CodimensionOneConfig) :\n    Disjoint (viableCompletions I) (viableChargesAdditional I) := by\n  refine Multiset.inter_eq_zero_iff_disjoint.mp ?_\n  cases I\n  <;> decide +kernel\n",
+        "docstring": null
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.cyclicModulus definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 68141,
+        "name": "IsCyclic",
+        "module": "Mathlib.Algebra.Group.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L1053-L1056",
+        "source_text": "/-- A group is called *cyclic* if it is generated by a single element. -/\n@[to_additive (attr := wikidata Q245462)]\nclass IsCyclic (G : Type u) [Pow G ℤ] : Prop where\n  protected exists_zpow_surjective : ∃ g : G, Function.Surjective (g ^ · : ℤ → G)\n",
+        "docstring": "A group is called *cyclic* if it is generated by a single element. \n\n[Wikidata Q245462](https://www.wikidata.org/wiki/Q245462)"
+      },
+      {
+        "id": 342377,
+        "name": "ContinuousMap.modulus",
+        "module": "Mathlib.Topology.ContinuousMap.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/ContinuousMap/Compact.lean#L430-L432",
+        "source_text": "/-- An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. -/\ndef modulus (f : C(α, β)) (ε : ℝ) (h : 0 < ε) : ℝ :=\n  Classical.choose (uniform_continuity f ε h)\n",
+        "docstring": "An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. "
+      },
+      {
+        "id": 245138,
+        "name": "rank_le_one",
+        "module": "Mathlib.LinearAlgebra.Dimension.Finite",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dimension/Finite.lean#L523-L525",
+        "source_text": "theorem rank_le_one (v : M) (h : ∀ w : M, ∃ c : R, c • v = w) : Module.rank R M ≤ 1 := by\n  simpa using LinearMap.lift_rank_le_of_surjective _\n    (id h : Surjective (LinearMap.toSpanSingleton R M v))\n",
+        "docstring": null
+      },
+      {
+        "id": 253092,
+        "name": "Submodule.mem_span_singleton_trans",
+        "module": "Mathlib.LinearAlgebra.Span.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Defs.lean#L501-L503",
+        "source_text": "theorem mem_span_singleton_trans {x y z : M} (hxy : x ∈ R ∙ y) (hyz : y ∈ R ∙ z) : x ∈ R ∙ z := by\n  rw [← SetLike.mem_coe, ← singleton_subset_iff] at *\n  exact Submodule.subset_span_trans hxy hyz\n",
+        "docstring": null
+      },
+      {
+        "id": 245139,
+        "name": "finrank_le_one",
+        "module": "Mathlib.LinearAlgebra.Dimension.Finite",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dimension/Finite.lean#L527-L530",
+        "source_text": "/-- If every vector is a multiple of some `v : M`, then `M` has dimension at most one. -/\ntheorem finrank_le_one (v : M) (h : ∀ w : M, ∃ c : R, c • v = w) : finrank R M ≤ 1 := by\n  rw [← map_one toNat, finrank]\n  exact toNat_le_toNat (rank_le_one v h) one_lt_aleph0\n",
+        "docstring": "If every vector is a multiple of some `v : M`, then `M` has dimension at most one. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.cyclicModulus definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "isUnit_of_dvd_one",
+    "status": "ok",
+    "results": [
+      {
+        "id": 64563,
+        "name": "isUnit_of_dvd_one",
+        "module": "Mathlib.Algebra.Divisibility.Units",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L132-L133",
+        "source_text": "theorem isUnit_of_dvd_one {a : α} (h : a ∣ 1) : IsUnit (a : α) :=\n  isUnit_iff_dvd_one.mpr h\n",
+        "docstring": null
+      },
+      {
+        "id": 64560,
+        "name": "isUnit_iff_dvd_one",
+        "module": "Mathlib.Algebra.Divisibility.Units",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L123-L124",
+        "source_text": "theorem isUnit_iff_dvd_one {x : α} : IsUnit x ↔ x ∣ 1 :=\n  ⟨IsUnit.dvd, fun ⟨y, h⟩ => ⟨⟨x, y, h.symm, by rw [h, mul_comm]⟩, rfl⟩⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 64562,
+        "name": "isUnit_of_dvd_unit",
+        "module": "Mathlib.Algebra.Divisibility.Units",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L129-L130",
+        "source_text": "theorem isUnit_of_dvd_unit {x y : α} (xy : x ∣ y) (hu : IsUnit y) : IsUnit x :=\n  isUnit_iff_dvd_one.2 <| xy.trans <| isUnit_iff_dvd_one.1 hu\n",
+        "docstring": null
+      },
+      {
+        "id": 64554,
+        "name": "IsUnit.dvd",
+        "module": "Mathlib.Algebra.Divisibility.Units",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Units.lean#L75-L79",
+        "source_text": "/-- Units of a monoid divide any element of the monoid. -/\n@[simp]\ntheorem dvd (hu : IsUnit u) : u ∣ a := by\n  rcases hu with ⟨u, rfl⟩\n  apply Units.coe_dvd\n",
+        "docstring": "Units of a monoid divide any element of the monoid. "
+      },
+      {
+        "id": 76357,
+        "name": "IsUnit",
+        "module": "Mathlib.Algebra.Group.Units.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Units/Defs.lean#L358-L365",
+        "source_text": "/-- An element `a : M` of a `Monoid` is a unit if it has a two-sided inverse.\nThe actual definition says that `a` is equal to some `u : Mˣ`, where\n`Mˣ` is a bundled version of `IsUnit`. -/\n@[to_additive /-- An element `a : M` of an `AddMonoid` is an `AddUnit` if it has a two-sided\nadditive inverse. The actual definition says that `a` is equal to some `u : AddUnits M`,\nwhere `AddUnits M` is a bundled version of `IsAddUnit`. -/]\ndef IsUnit [Monoid M] (a : M) : Prop :=\n  ∃ u : Mˣ, (u : M) = a\n",
+        "docstring": "An element `a : M` of a `Monoid` is a unit if it has a two-sided inverse.\nThe actual definition says that `a` is equal to some `u : Mˣ`, where\n`Mˣ` is a bundled version of `IsUnit`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "isUnit_of_dvd_one",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393626,
+        "name": "TimeUnit.scale_one",
+        "module": "Physlib.SpaceAndTime.Time.TimeUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeUnit.lean#L109-L111",
+        "source_text": "@[simp]\nlemma scale_one (x : TimeUnit) : scale 1 x = x := by\n  simp [scale]",
+        "docstring": null
+      },
+      {
+        "id": 394367,
+        "name": "UnitDependent",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L34-L49",
+        "source_text": "/-- A type carries the instance `UnitDependent M` if it depends on a choice of units.\n  This dependence is manifested in `scaleUnit u1 u2` which describes how elements of `M` change\n  under a scaling of units which would take `u1` to `u2`.\n\n  This type is used for functions, and propositions etc.\n-/\nclass UnitDependent (M : Type) where\n  /-- `scaleUnit u1 u2` is the map transforming elements of `M` under a\n    scaling of units which would take the unit `u1` to the unit `u2`. This is not\n    to say that in `scaleUnit u1 u2 m` that `m` should be interpreted as being in the units `u1`,\n    although this is often the case.\n  -/\n  scaleUnit : UnitChoices → UnitChoices → M → M\n  scaleUnit_trans : ∀ u1 u2 u3 m, scaleUnit u2 u3 (scaleUnit u1 u2 m) = scaleUnit u1 u3 m\n  scaleUnit_trans' : ∀ u1 u2 u3 m, scaleUnit u1 u2 (scaleUnit u2 u3 m) = scaleUnit u1 u3 m\n  scaleUnit_id : ∀ u m, scaleUnit u u m = m\n",
+        "docstring": "A type carries the instance `UnitDependent M` if it depends on a choice of units.\nThis dependence is manifested in `scaleUnit u1 u2` which describes how elements of `M` change\nunder a scaling of units which would take `u1` to `u2`.\n\nThis type is used for functions, and propositions etc.\n"
+      },
+      {
+        "id": 394371,
+        "name": "UnitDependent.scaleUnit_symm_apply",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L84-L88",
+        "source_text": "@[simp]\nlemma UnitDependent.scaleUnit_symm_apply {M : Type} [UnitDependent M]\n    (u1 u2 : UnitChoices) (m : M) :\n    scaleUnit u2 u1 (scaleUnit u1 u2 m) = m := by\n  rw [scaleUnit_trans, scaleUnit_id]",
+        "docstring": null
+      },
+      {
+        "id": 394372,
+        "name": "UnitDependent.scaleUnit_injective",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L90-L94",
+        "source_text": "@[simp]\nlemma UnitDependent.scaleUnit_injective {M : Type} [UnitDependent M]\n    (u1 u2 : UnitChoices) (m1 m2 : M) :\n    scaleUnit u1 u2 m1 = scaleUnit u1 u2 m2 ↔ m1 = m2 :=\n  ⟨fun h => by simpa using congrArg (scaleUnit u2 u1) h, congrArg (scaleUnit u1 u2)⟩",
+        "docstring": null
+      },
+      {
+        "id": 394302,
+        "name": "Dimension.one_length",
+        "module": "Physlib.Units.Dimension",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Dimension.lean#L86-L87",
+        "source_text": "@[simp]\nlemma one_length : (1 : Dimension).length = 0 := rfl\n@[simp]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

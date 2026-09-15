@@ -1,0 +1,13 @@
+# Stage 16: exact signature from next-factor exclusions
+
+This experiment isolates the multiplicity-sensitive criterion behind reviewed M5 section 3. Under N>0, F monic and F dividing a, b and M_N, completeSignature(a,b,N)=F exactly when no irreducible p dividing M_N/F has F*p dividing both a and b. The finite version replaces the universal irreducible quantifier by normalizedFactors(M_N/F).toFinset.
+
+No constant-coefficient assumptions on a or b are required for this criterion. Zero a or b are permitted. N>0 ensures M_N is nonzero in characteristic two, while F monic ensures F is nonzero. These are sufficient for the quotient and gcd arguments; adding anchoring, squarefreeness, irreducibility of F, or odd N would unnecessarily narrow the original target.
+
+The mechanism retains multiplicities: if p occurs in F with exponent r and its cyclic cap is larger, the forbidden event is divisibility by F*p, requiring one additional copy beyond r. If F is already at its cyclic cap, p is absent from the residual quotient and imposes no exclusion. Repeated entries in normalizedFactors are deduplicated only as an index set of forbidden events, not by replacing F with its radical.
+
+Six candidates cover nonzero cyclic quotient, factor/quotient divisibility equivalence, F dividing the complete signature, existence of an extra irreducible factor above a strict divisor, the universal criterion, and its finite normalized-factor version. The strict-divisor step uses the separately accepted stage12 binary polynomial divisibility antisymmetry; its actual proof and binary_monic ancestor are now verified and imported through M5BinaryDivisibility. DEPENDENCY_IMPORT.json and archived receipts record source, compiled, payload and ancestry checks. All other definitions/imports are copied from the immutable52 snapshot with hashes. The first three nodes have no new external proof dependency.
+
+Actual pinned APIs: EuclideanDomain.mul_div_cancel', EuclideanDomain.dvd_div_of_mul_dvd, EuclideanDomain.dvd_gcd and gcd_dvd_left/right; WfDvdMonoid.exists_irreducible_factor; UniqueFactorizationMonoid.exists_mem_normalizedFactors_of_dvd, irreducible_of_normalized_factor and dvd_of_mem_normalizedFactors. The finite version can transport divisibility along Associated representatives instead of requiring a typeclass asserting a trivial unit group.
+
+The remaining polynomial inclusion-exclusion sum over products of distinct residual factors is not proved by this criterion alone. These are preparation statements, not a claim that polynomial Möbius counting or full M5 is complete. Project: /home/jing/m5-lean-polynomial-exclusion-formalization. All contexts are empty and preflight is generated directly from graph imports/statements.

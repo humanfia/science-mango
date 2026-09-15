@@ -1,0 +1,241 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Signature.ordinary_gcd_period_bound exact declaration",
+    "status": "ok",
+    "results": [
+      {
+        "id": 208655,
+        "name": "List.HasPeriod.gcd",
+        "module": "Mathlib.Data.List.PeriodicityLemma",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/PeriodicityLemma.lean#L186-L234",
+        "source_text": "/-- The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n-/\ntheorem HasPeriod.gcd {w : List α} {p q : ℕ} (per_p : HasPeriod w p) (per_q : HasPeriod w q)\n    (len : p + q - p.gcd q ≤ w.length) : HasPeriod w (p.gcd q) := by\n  rcases Nat.eq_zero_or_pos p with rfl | p_pos\n  · simp_all [HasPeriod]\n  rcases Nat.eq_zero_or_pos q with rfl | q_pos\n  · simp_all\n  cases hyp : compare p q with\n  | lt => -- if `p` is less than `q`, switch the two periods\n      have p_lt_q := Nat.compare_eq_lt.mp hyp\n      exact (gcd_comm q p ▸ per_q.gcd) per_p (add_comm p q ▸ len)\n  | eq => simpa [(Nat.compare_eq_eq).mp hyp]\n  | gt =>\n      have q_lt_p : q < p := Nat.compare_eq_gt.mp hyp\n      have gcd_lt_p : p.gcd q < p := by\n        have : p.gcd q ≠ p := by\n          simp [gcd_eq_left_iff_dvd, not_dvd_of_pos_of_lt q_pos q_lt_p]\n        exact this.lt_of_le (gcd_le_left q p_pos)\n      have per_diff : HasPeriod (drop q w) (p - q) := by\n        have : p = (p - q) + q := by lia\n        exact per_q.drop_of_hasPeriod_add (this ▸ per_p)\n      have per_q' : HasPeriod (drop q w) q := by\n        apply @HasPeriod.factor _ (take q w) (drop q w) [] q\n        all_goals simp_all\n      have gcd_stable : (p - q).gcd q = p.gcd q := gcd_sub_self_left (le_of_lt q_lt_p)\n      have drop_len : q ≤ (drop q w).length := by\n        rw [length_drop]\n        have : p.gcd q ≤ p - q := by\n          rw [← gcd_stable]; apply gcd_le_left q; lia\n        lia\n      have take_eq : take q (drop q w) = take q w := by\n          let ⟨z, hz⟩ := per_q.drop_prefix\n          convert_to take q (drop q w) = take q (drop q w ++ z)\n          · rw [hz]\n          exact (take_append_of_le_length drop_len).symm\n      -- the induction step\n      have IH : HasPeriod (drop q w) ((p - q).gcd q) :=\n        per_diff.gcd per_q' (by simp; lia)\n      convert_to HasPeriod (take q (drop q w) ++ drop q w) (p.gcd q)\n      · rw [take_eq, take_append_drop q w]\n      · exact (gcd_stable ▸ IH).take_append (p.gcd q) q (drop q w)\n          (gcd_dvd_right p q) drop_len\n  termination_by (q, p)\n  decreasing_by\n    all_goals grind\n",
+        "docstring": "The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n"
+      },
+      {
+        "id": 273395,
+        "name": "qrSign",
+        "module": "Mathlib.NumberTheory.LegendreSymbol.JacobiSymbol",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LegendreSymbol/JacobiSymbol.lean#L360-L362",
+        "source_text": "/-- The bi-multiplicative map giving the sign in the Law of Quadratic Reciprocity -/\ndef qrSign (m n : ℕ) : ℤ :=\n  J(χ₄ m | n)\n",
+        "docstring": "The bi-multiplicative map giving the sign in the Law of Quadratic Reciprocity "
+      },
+      {
+        "id": 144365,
+        "name": "PeriodPair.weierstrassP_bound",
+        "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L186-L212",
+        "source_text": "lemma weierstrassP_bound (r : ℝ) (hr : 0 < r) (s : ℂ) (hs : ‖s‖ < r) (l : ℂ) (h : 2 * r ≤ ‖l‖) :\n    ‖1 / (s - l) ^ 2 - 1 / l ^ 2‖ ≤ 10 * r * ‖l‖ ^ (-3 : ℝ) := by\n  have : s ≠ ↑l := by rintro rfl; linarith\n  have : 0 < ‖l‖ := by linarith\n  calc\n    _ = ‖(↑l ^ 2 - (s - ↑l) ^ 2) / ((s - ↑l) ^ 2 * ↑l ^ 2)‖ := by\n      rw [div_sub_div, one_mul, mul_one]\n      · simpa [sub_eq_zero]\n      · simpa\n    _ = ‖l ^ 2 - (s - l) ^ 2‖ / (‖s - l‖ ^ 2 * ‖l‖ ^ 2) := by simp\n    _ ≤ ‖l ^ 2 - (s - l) ^ 2‖ / ((‖l‖ / 2) ^ 2 * ‖l‖ ^ 2) := by\n      gcongr\n      rw [norm_sub_rev]\n      exact .trans (by linarith) (norm_sub_norm_le l s)\n    _ = ‖s * (2 * l - s)‖ / (‖l‖ ^ 4 / 4) := by\n      congr 1\n      · rw [sq_sub_sq]; simp [← sub_add, two_mul, sub_add_eq_add_sub]\n      · ring\n    _ = (‖s‖ * ‖2 * l - s‖) / (‖l‖ ^ 4 / 4) := by simp\n    _ = (4 * ‖s‖ * ‖2 * l - s‖) / ‖l‖ ^ 4 := by field\n    _ ≤ (4 * r * (2.5 * ‖l‖)) / ‖l‖ ^ 4 := by\n      gcongr (4 * ?_ * ?_) / ‖l‖ ^ 4\n      refine (norm_sub_le _ _).trans ?_\n      simp only [Complex.norm_mul, Complex.norm_ofNat]\n      linarith\n    _ = 10 * r / ‖l‖ ^ 3 := by field\n    _ = _ := by norm_cast\n",
+        "docstring": null
+      },
+      {
+        "id": 251586,
+        "name": "sigPos_isGreatest",
+        "module": "Mathlib.LinearAlgebra.QuadraticForm.Signature",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/QuadraticForm/Signature.lean#L77-L85",
+        "source_text": "/-- Defining property of `sigPos`. -/\nlemma sigPos_isGreatest [Module.Finite R M] [StrongRankCondition R] : IsGreatest\n    {r | ∃ V : Submodule R M, Module.finrank R V = r ∧ (Q.restrict V).PosDef} (sigPos Q) := by\n  classical\n  refine ⟨(mem_filter.mp <| max'_mem _ _).2, ?_⟩\n  rintro _ ⟨V, rfl, hV⟩\n  apply le_max'\n  rw [mem_filter, mem_Iic]\n  exact ⟨V.finrank_le, V, rfl, hV⟩\n",
+        "docstring": "Defining property of `sigPos`. "
+      },
+      {
+        "id": 213296,
+        "name": "Nat.ModEq.cancel_right_div_gcd'",
+        "module": "Mathlib.Data.Nat.ModEq",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L402-L404",
+        "source_text": "lemma cancel_right_div_gcd' (hm : 0 < m) (hcd : c ≡ d [MOD m]) (h : a * c ≡ b * d [MOD m]) :\n    a ≡ b [MOD m / gcd m c] :=\n  (h.trans <| hcd.symm.mul_left b).cancel_right_div_gcd hm\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Signature.ordinary_gcd_properties exact declaration",
+    "status": "ok",
+    "results": [
+      {
+        "id": 206885,
+        "name": "Nat.gcdA",
+        "module": "Mathlib.Data.Int.GCD",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/GCD.lean#L65-L67",
+        "source_text": "/-- The extended GCD `a` value in the equation `gcd x y = x * a + y * b`. -/\ndef gcdA (x y : ℕ) : ℤ :=\n  (xgcd x y).1\n",
+        "docstring": "The extended GCD `a` value in the equation `gcd x y = x * a + y * b`. "
+      },
+      {
+        "id": 328497,
+        "name": "Tactic.NormNum.proveNatGCD",
+        "module": "Mathlib.Tactic.NormNum.GCD",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/GCD.lean#L95-L130",
+        "source_text": "/-- Given natural number literals `ex` and `ey`, return their GCD as a natural number literal\nand an equality proof. Panics if `ex` or `ey` aren't natural number literals. -/\ndef proveNatGCD (ex ey : Q(ℕ)) : (ed : Q(ℕ)) × Q(Nat.gcd $ex $ey = $ed) :=\n  match ex.natLit!, ey.natLit! with\n  | 0, _ => have : $ex =Q nat_lit 0 := ⟨⟩; ⟨ey, q(Nat.gcd_zero_left $ey)⟩\n  | _, 0 => have : $ey =Q nat_lit 0 := ⟨⟩; ⟨ex, q(Nat.gcd_zero_right $ex)⟩\n  | 1, _ => have : $ex =Q nat_lit 1 := ⟨⟩; ⟨q(nat_lit 1), q(Nat.gcd_one_left $ey)⟩\n  | _, 1 => have : $ey =Q nat_lit 1 := ⟨⟩; ⟨q(nat_lit 1), q(Nat.gcd_one_right $ex)⟩\n  | x, y =>\n    let (d, a, b) := Nat.xgcdAux x 1 0 y 0 1\n    if d = x then\n      have pq : Q(Nat.mod $ey $ex = 0) := (q(Eq.refl (nat_lit 0)) : Expr)\n      ⟨ex, q(nat_gcd_helper_dvd_left $ex $ey $pq)⟩\n    else if d = y then\n      have pq : Q(Nat.mod $ex $ey = 0) := (q(Eq.refl (nat_lit 0)) : Expr)\n      ⟨ey, q(nat_gcd_helper_dvd_right $ex $ey $pq)⟩\n    else\n      have ea' : Q(ℕ) := mkRawNatLit a.natAbs\n      have eb' : Q(ℕ) := mkRawNatLit b.natAbs\n      if d = 1 then\n        if a ≥ 0 then\n          have pt : Q($ex * $ea' = $ey * $eb' + 1) := (q(Eq.refl ($ex * $ea')) : Expr)\n          ⟨q(nat_lit 1), q(nat_gcd_helper_2' $ex $ey $ea' $eb' $pt)⟩\n        else\n          have pt : Q($ey * $eb' = $ex * $ea' + 1) := (q(Eq.refl ($ey * $eb')) : Expr)\n          ⟨q(nat_lit 1), q(nat_gcd_helper_1' $ex $ey $ea' $eb' $pt)⟩\n      else\n        have ed : Q(ℕ) := mkRawNatLit d\n        have pu : Q(Nat.mod $ex $ed = 0) := (q(Eq.refl (nat_lit 0)) : Expr)\n        have pv : Q(Nat.mod $ey $ed = 0) := (q(Eq.refl (nat_lit 0)) : Expr)\n        if a ≥ 0 then\n          have pt : Q($ex * $ea' = $ey * $eb' + $ed) := (q(Eq.refl ($ex * $ea')) : Expr)\n          ⟨ed, q(nat_gcd_helper_2 $ed $ex $ey $ea' $eb' $pu $pv $pt)⟩\n        else\n          have pt : Q($ey * $eb' = $ex * $ea' + $ed) := (q(Eq.refl ($ey * $eb')) : Expr)\n          ⟨ed, q(nat_gcd_helper_1 $ed $ex $ey $ea' $eb' $pu $pv $pt)⟩\n",
+        "docstring": "Given natural number literals `ex` and `ey`, return their GCD as a natural number literal\nand an equality proof. Panics if `ex` or `ey` aren't natural number literals. "
+      },
+      {
+        "id": 213296,
+        "name": "Nat.ModEq.cancel_right_div_gcd'",
+        "module": "Mathlib.Data.Nat.ModEq",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L402-L404",
+        "source_text": "lemma cancel_right_div_gcd' (hm : 0 < m) (hcd : c ≡ d [MOD m]) (h : a * c ≡ b * d [MOD m]) :\n    a ≡ b [MOD m / gcd m c] :=\n  (h.trans <| hcd.symm.mul_left b).cancel_right_div_gcd hm\n",
+        "docstring": null
+      },
+      {
+        "id": 145502,
+        "name": "ordinaryHypergeometric",
+        "module": "Mathlib.Analysis.SpecialFunctions.OrdinaryHypergeometric",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/OrdinaryHypergeometric.lean#L75-L81",
+        "source_text": "/-- `ordinaryHypergeometric (a b c : 𝕂) : 𝔸 → 𝔸`, denoted `₂F₁`, is the ordinary hypergeometric map,\ndefined as the sum of the `FormalMultilinearSeries` `ordinaryHypergeometricSeries 𝔸 a b c`.\n\nNote that this takes the junk value `0` outside the radius of convergence.\n-/\nnoncomputable def ordinaryHypergeometric (x : 𝔸) : 𝔸 :=\n  (ordinaryHypergeometricSeries 𝔸 a b c).sum x\n",
+        "docstring": "`ordinaryHypergeometric (a b c : 𝕂) : 𝔸 → 𝔸`, denoted `₂F₁`, is the ordinary hypergeometric map,\ndefined as the sum of the `FormalMultilinearSeries` `ordinaryHypergeometricSeries 𝔸 a b c`.\n\nNote that this takes the junk value `0` outside the radius of convergence.\n"
+      },
+      {
+        "id": 325814,
+        "name": "Mathlib.Tactic.Algebraize.addProperties",
+        "module": "Mathlib.Tactic.Algebraize",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Algebraize.lean#L171-L231",
+        "source_text": "/-- This function takes an array of expressions `t`, all of which are assumed to be `RingHom`s,\nand searches through the local context to find any additional properties of these `RingHoms`, after\nwhich it tries to add the corresponding `Algebra` properties to the context. It only looks for\nproperties that have been tagged with the `algebraize` attribute, and uses this tag to find the\ncorresponding `Algebra` property. -/\ndef addProperties (t : Array Expr) : TacticM Unit := withMainContext do\n  let ctx ← getLCtx\n  ctx.forM fun decl => do\n    if decl.isImplementationDetail then return\n    let (nm, args) := (← instantiateMVars decl.type).getAppFnArgs\n    -- Check if the type of the current hypothesis has been tagged with the `algebraize` attribute\n    match Attr.algebraizeAttr.getParam? (← getEnv) nm with\n    -- If it has, `p` will either be the name of the corresponding `Algebra` property, or a\n    -- lemma/constructor.\n    | some p =>\n      let cinfo ← try getConstInfo p catch _ =>\n        logWarning m!\"Hypothesis {decl.toExpr} has type{indentD decl.type}.\\n\\\n          Its head symbol {.ofConstName nm} is (effectively) tagged with `@[algebraize {p}]`, \\\n          but no constant{indentD p}\\nhas been found.\\n\\\n          Check for missing imports, missing namespaces or typos.\"\n        return\n      let p' ← mkConstWithFreshMVarLevels p\n      let (pargs, _, _) ← forallMetaTelescope (← inferType p')\n      let tp' := mkAppN p' pargs\n\n      let getValType : MetaM (Option (Expr × Expr)) := do\n        /- If the attribute points to the corresponding `Algebra` property itself, we assume that it\n        is definitionally the same as the `RingHom` property. Then, we just need to construct its\n        type and the local declaration will already give a valid term. -/\n        if cinfo.isInductive then\n          pargs[0]!.mvarId!.assignIfDefEq args[0]!\n          pargs[1]!.mvarId!.assignIfDefEq args[1]!\n          -- This should be the type `Algebra.Property A B`\n          let tp ← instantiateMVars tp'\n          if ← isDefEqGuarded decl.type tp then return (decl.toExpr, tp)\n          else return none\n        /- Otherwise, the attribute points to a lemma or a constructor for the `Algebra` property.\n        In this case, we assume that the `RingHom` property is the last argument of the lemma or\n        constructor (and that this is all we need to supply explicitly). -/\n        else\n          try pargs.back!.mvarId!.assignIfDefEq decl.toExpr catch _ => return none\n          let val ← instantiateMVars tp'\n          let tp ← inferType val -- This should be the type `Algebra.Property A B`.\n          return (val, tp)\n      let some (val, tp) ← getValType | return\n      /- Find all arguments to `Algebra.Property A B` or `Module.Property A B` which are\n        of the form `RingHom.toAlgebra f`, `RingHom.toModule f`\n        or `Algebra.toModule (RingHom.toAlgebra f)`. -/\n      let ringHom_args ← tp.getAppArgs.filterMapM <| fun x => liftMetaM do\n        let y := (← whnfUntil x ``Algebra.toModule) >>= (·.getAppArgs.back?)\n        return ((← whnfUntil (y.getD x) ``RingHom.toAlgebra) <|> (← whnfUntil x ``RingHom.toModule))\n          >>= (·.getAppArgs.back?)\n      /- Check that we're not reproving a local hypothesis, and that all involved `RingHom`s are\n        indeed arguments to the tactic. -/\n      unless (← synthInstance? tp).isSome || !(← ringHom_args.allM (fun z => t.anyM\n        (withoutModifyingMCtx <| isDefEq z ·))) do\n      liftMetaTactic fun mvarid => do\n        let nm ← mkFreshBinderNameForTactic `algebraizeInst\n        let (_, mvar) ← mvarid.note nm val tp\n        return [mvar]\n    | none => return\n",
+        "docstring": "This function takes an array of expressions `t`, all of which are assumed to be `RingHom`s,\nand searches through the local context to find any additional properties of these `RingHoms`, after\nwhich it tries to add the corresponding `Algebra` properties to the context. It only looks for\nproperties that have been tagged with the `algebraize` attribute, and uses this tag to find the\ncorresponding `Algebra` property. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Period.period_law exact declaration",
+    "status": "ok",
+    "results": [
+      {
+        "id": 144337,
+        "name": "PeriodPair",
+        "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L57-L65",
+        "source_text": "/-- A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. -/\nstructure PeriodPair : Type where\n  /-- The first period in a `PeriodPair`. -/\n  ω₁ : ℂ\n  /-- The second period in a `PeriodPair`. -/\n  ω₂ : ℂ\n  indep : LinearIndependent ℝ ![ω₁, ω₂]\n",
+        "docstring": "A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. "
+      },
+      {
+        "id": 236769,
+        "name": "AddAction.period_dvd_exponent",
+        "module": "Mathlib.GroupTheory.GroupAction.Period",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L104-L104",
+        "source_text": "@[to_additive]\ntheorem period_dvd_exponent (m : M) (a : α) : period m a ∣ Monoid.exponent M := by",
+        "docstring": null
+      },
+      {
+        "id": 223841,
+        "name": "Function.minimalPeriod",
+        "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L243-L246",
+        "source_text": "/-- Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. -/\ndef minimalPeriod (f : α → α) (x : α) :=\n  if h : x ∈ periodicPts f then Nat.find h else 0\n",
+        "docstring": "Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. "
+      },
+      {
+        "id": 236768,
+        "name": "MulAction.period_dvd_exponent",
+        "module": "Mathlib.GroupTheory.GroupAction.Period",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L104-L106",
+        "source_text": "@[to_additive]\ntheorem period_dvd_exponent (m : M) (a : α) : period m a ∣ Monoid.exponent M := by\n  rw [← pow_smul_eq_iff_period_dvd, Monoid.pow_exponent_eq_one, one_smul]",
+        "docstring": null
+      },
+      {
+        "id": 144367,
+        "name": "PeriodPair.«term℘[_-_]»",
+        "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L222-L223",
+        "source_text": "@[inherit_doc weierstrassPExcept]\nscoped notation3 \"℘[\" L:max \" - \" l₀ \"]\" => weierstrassPExcept L l₀\n\nlemma hasSumLocallyUniformly_weierstrassPExcept (l₀ : ℂ) :\n    HasSumLocallyUniformly\n      (fun (l : L.lattice) (z : ℂ) ↦ if l.1 = l₀ then 0 else (1 / (z - l) ^ 2 - 1 / l ^ 2))\n      ℘[L - l₀] := by",
+        "docstring": "The Weierstrass `℘` function with the `l₀`-term missing.\nThis is mainly a tool for calculations where one would want to omit a diverging term.\nThis has the notation `℘[L - l₀]` in the namespace `PeriodPairs`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.Period.period_law exact declaration",
+    "status": "ok",
+    "results": [
+      {
+        "id": 385345,
+        "name": "ClassicalMechanics.HarmonicOscillator.period",
+        "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1059-L1062",
+        "source_text": "/--\nThe period of a harmonic oscillator is `2 * π / ω`.\n-/\nnoncomputable def period (S : HarmonicOscillator) : ℝ := 2 * π / S.ω\n",
+        "docstring": "The period of a harmonic oscillator is `2 * π / ω`.\n"
+      },
+      {
+        "id": 385348,
+        "name": "ClassicalMechanics.HarmonicOscillator.period_pos",
+        "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1069-L1069",
+        "source_text": "lemma period_pos : 0 < T S := div_pos (by positivity) S.ω_pos\n",
+        "docstring": null
+      },
+      {
+        "id": 385347,
+        "name": "ClassicalMechanics.HarmonicOscillator.period_eq",
+        "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1067-L1067",
+        "source_text": "lemma period_eq : T S = 2 * π / S.ω := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 388314,
+        "name": "MSSM.toSpecies_sum_invariant",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Permutations",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Permutations.lean#L87-L91",
+        "source_text": "lemma toSpecies_sum_invariant (m : ℕ) (f : PermGroup) (S : MSSMCharges.Charges) (j : Fin 6) :\n    ∑ i, ((fun a => a ^ m) ∘ toSMSpecies j (repCharges f S)) i =\n    ∑ i, ((fun a => a ^ m) ∘ toSMSpecies j S) i := by\n  rw [repCharges_toSMSpecies]\n  exact Equiv.sum_comp (f⁻¹ j) ((fun a => a ^ m) ∘ (toSMSpecies j) S)\n",
+        "docstring": null
+      },
+      {
+        "id": 387259,
+        "name": "SMRHN.SM.PlaneSeven.B₅",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Ordinary.DimSevenPlane",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Ordinary/DimSevenPlane.lean#L99-L104",
+        "source_text": "/-- A charge assignment forming one of the basis elements of the plane. -/\ndef B₅ : (SM 3).Charges := toSpeciesEquiv.invFun (fun s => fun i =>\n  match s, i with\n  | 5, 0 => 1\n  | 5, 1 => - 1\n  | _, _ => 0)\n",
+        "docstring": "A charge assignment forming one of the basis elements of the plane. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

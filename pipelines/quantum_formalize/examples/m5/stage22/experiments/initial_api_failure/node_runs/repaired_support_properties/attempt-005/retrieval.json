@@ -1,0 +1,268 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Packing packedSupport cardinality zero membership packedValue bound occurrenceTag",
+    "status": "ok",
+    "results": [
+      {
+        "id": 347841,
+        "name": "Metric.packingNumber_zero",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L183-L186",
+        "source_text": "@[simp]\nlemma packingNumber_zero {E : Type*} [EMetricSpace E] (A : Set E) :\n    packingNumber 0 A = A.encard :=\n  le_antisymm (packingNumber_le_encard_self A) (le_iSup_of_le A (by simp))",
+        "docstring": null
+      },
+      {
+        "id": 347827,
+        "name": "Metric.packingNumber_eq_zero",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L115-L121",
+        "source_text": "@[simp]\nlemma packingNumber_eq_zero : packingNumber ε A = 0 ↔ A = ∅ := by\n  simp only [packingNumber, ENat.iSup_eq_zero, encard_eq_zero]\n  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩\n  by_contra!\n  obtain ⟨x, hx⟩ := this\n  simpa using h {x} (by simp [hx]) (by simp)",
+        "docstring": null
+      },
+      {
+        "id": 347835,
+        "name": "Metric.packingNumber_le_encard_self",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L148-L150",
+        "source_text": "lemma packingNumber_le_encard_self (A : Set X) : packingNumber ε A ≤ A.encard := by\n  simp only [packingNumber, iSup_le_iff]\n  exact fun _ hC _ ↦ encard_le_encard hC\n",
+        "docstring": null
+      },
+      {
+        "id": 347819,
+        "name": "Metric.packingNumber",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+        "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+        "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+      },
+      {
+        "id": 215519,
+        "name": "Part.Mem.right_unique",
+        "module": "Mathlib.Data.Part",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Part.lean#L143-L144",
+        "source_text": "theorem Mem.right_unique : Relator.RightUnique ((· ∈ ·) : α → Part α → Prop) := fun _ _ _ =>\n  mem_right_unique\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.Packing packedSupport cardinality zero membership packedValue bound occurrenceTag",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394425,
+        "name": "WithDim",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L21-L24",
+        "source_text": "/-- The type `M` carrying an instance of a dimension `d`. -/\nstructure WithDim (d : Dimension) (M : Type) where\n  /-- The underlying value of `M`. -/\n  val : M\n",
+        "docstring": "The type `M` carrying an instance of a dimension `d`. "
+      },
+      {
+        "id": 388412,
+        "name": "Option.powerset",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L280-L285",
+        "source_text": "/-- The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\n  and `{none, some y}` is `x` is `some y`. -/\ndef _root_.Option.powerset (x : Option 𝓩) : Finset (Option 𝓩) :=\n  match x with\n  | none => {none}\n  | some x => {none, some x}\n",
+        "docstring": "The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\nand `{none, some y}` is `x` is `some y`. "
+      },
+      {
+        "id": 387068,
+        "name": "Informal.getTag",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L53-L62",
+        "source_text": "/-- Gets the tag associated with an informal definition or lemma. -/\nunsafe def getTag (c : ConstantInfo) : CoreM String := do\n  if isInformalLemma c then\n    let i ← constantInfoToInformalLemma c\n    return i.tag\n  else if isInformalDef c then\n    let i ← constantInfoToInformalDefinition c\n    return i.tag\n  else\n    panic! \"getTag: Not an informal lemma or definition\"\n",
+        "docstring": "Gets the tag associated with an informal definition or lemma. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.RepairSupport.replacement_anchor replacement_range replacement_connected",
+    "status": "ok",
+    "results": [
+      {
+        "id": 340656,
+        "name": "IsConnected",
+        "module": "Mathlib.Topology.Connected.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Connected/Basic.lean#L54-L56",
+        "source_text": "/-- A connected set is one that is nonempty and where there is no non-trivial open partition. -/\ndef IsConnected (s : Set α) : Prop :=\n  s.Nonempty ∧ IsPreconnected s\n",
+        "docstring": "A connected set is one that is nonempty and where there is no non-trivial open partition. "
+      },
+      {
+        "id": 329854,
+        "name": "Mathlib.Tactic.Translate.ReplacementM",
+        "module": "Mathlib.Tactic.Translate.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Translate/Core.lean#L360-L365",
+        "source_text": "/-- Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. -/\nabbrev ReplacementM :=\n  ReaderT (Array FVarId) <| MonadCacheT ExprStructEq Expr StateRefT (Std.HashSet FVarId) MetaM\n",
+        "docstring": "Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. "
+      },
+      {
+        "id": 218565,
+        "name": "Finite.Set.finite_replacement",
+        "module": "Mathlib.Data.Set.Finite.Range",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Range.lean#L69-L71",
+        "source_text": "instance finite_replacement [Finite α] (f : α → β) :\n    Finite {f x | x : α} :=\n  Finite.Set.finite_range f\n",
+        "docstring": null
+      },
+      {
+        "id": 289796,
+        "name": "Set.OrdConnected",
+        "module": "Mathlib.Order.Interval.Set.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Interval/Set/Defs.lean#L83-L89",
+        "source_text": "/-- We say that a set `s : Set α` is `OrdConnected` if for all `x y ∈ s` it includes the\ninterval `[[x, y]]`. If `α` is a `DenselyOrdered` `ConditionallyCompleteLinearOrder` with\nthe `OrderTopology`, then this condition is equivalent to `IsPreconnected s`. If `α` is a\nlinearly ordered field, then this condition is also equivalent to `Convex α s`. -/\nclass OrdConnected (s : Set α) : Prop where\n  /-- `s : Set α` is `OrdConnected` if for all `x y ∈ s` it includes the interval `[[x, y]]`. -/\n  out' ⦃x : α⦄ (hx : x ∈ s) ⦃y : α⦄ (hy : y ∈ s) : Icc x y ⊆ s\n",
+        "docstring": "We say that a set `s : Set α` is `OrdConnected` if for all `x y ∈ s` it includes the\ninterval `[[x, y]]`. If `α` is a `DenselyOrdered` `ConditionallyCompleteLinearOrder` with\nthe `OrderTopology`, then this condition is equivalent to `IsPreconnected s`. If `α` is a\nlinearly ordered field, then this condition is also equivalent to `Convex α s`. "
+      },
+      {
+        "id": 329703,
+        "name": "Mathlib.TacticAnalysis.terminalReplacement",
+        "module": "Mathlib.Tactic.TacticAnalysis.Declarations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TacticAnalysis/Declarations.lean#L36-L110",
+        "source_text": "/--\nDefine a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n-/\ndef terminalReplacement (oldTacticName newTacticName : String) (oldTacticKind : SyntaxNodeKind)\n    (newTactic : ContextInfo → TacticInfo → Syntax → CommandElabM (TSyntax `tactic))\n    (reportFailure : Bool := true) (reportSuccess : Bool := false)\n    (reportSlowdown : Bool := false) (maxSlowdown : Float := 1) :\n    TacticAnalysis.Config := .ofComplex {\n  out := TerminalReplacementOutcome\n  ctx := Syntax\n  trigger _ stx := if stx.getKind == oldTacticKind\n    then .accept stx else .skip\n  test ctxI i stx goal := do\n    let tac ← newTactic ctxI i stx\n    try\n      let goalTypes ← ctxI.runTacticCode i goal tac ⟨Expr, MVarId.getType'⟩\n      match goalTypes with\n      | [] => return .success tac\n      | _ => do\n        let goalsMessages := goalTypes.map fun e => m!\"⊢ {MessageData.ofExpr e}\\n\"\n        return .remainingGoals tac goalsMessages\n    catch _e =>\n      let name ← mkAuxDeclName `extracted\n      -- Rerun in the original tactic context, since `omega` changes the state.\n      let ((sig, _, modules, _), _) ← ctxI.runTactic i goal (fun goal =>\n        (Mathlib.Tactic.ExtractGoal.goalSignature name goal).run)\n      let imports := modules.toList.map (s!\"import {·}\")\n      return .error tac m!\"{\"\\n\".intercalate imports}\\n\\ntheorem {sig} := by\\n  fail_if_success {tac}\\n  {stx}\"\n  tell stx old oldHeartbeats new newHeartbeats :=\n    -- If the original tactic failed, then we do not need to check the replacement.\n    if !old.isEmpty then\n      return none\n    else match new with\n    | .error _ msg =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` failed where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Counterexample:{indentD msg}\"\n        return msg\n      else\n        return none\n    | .remainingGoals newStx goals =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` left unsolved goals where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Replacement tactic:{indentD newStx}\\n\" ++\n          m!\"Unsolved goals:{indentD goals}\"\n        return msg\n      else\n        return none\n    | .success newStx => do\n      -- TODO: we should add a \"Try this:\" suggestion with code action.\n      let msg := if (← liftCoreM <| PrettyPrinter.ppTactic newStx).pretty = newTacticName then\n        m!\"`{newTacticName}` can replace `{stx}`\"\n      else\n        m!\"`{newTacticName}` can replace `{stx}` using `{newStx}`\"\n      if reportSlowdown ∧ maxSlowdown * oldHeartbeats.toFloat < newHeartbeats.toFloat then\n        return some m!\"{msg}, but is slower: {newHeartbeats / 1000} versus {oldHeartbeats / 1000} heartbeats\"\n      else if reportSuccess then\n        return some msg\n      else\n        return none\n    }\n",
+        "docstring": "Define a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.RepairSupport.replacement_anchor replacement_range replacement_connected",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388434,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+        "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+        "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+      },
+      {
+        "id": 388301,
+        "name": "MSSMACC.AnomalyFreePerp.toSol",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L361-L373",
+        "source_text": "/-- A solution from an element of `MSSMACC.AnomalyFreePerp × ℚ × ℚ × ℚ`. We will\nshow that this map is a surjection. -/\ndef toSol : MSSMACC.AnomalyFreePerp × ℚ × ℚ × ℚ → MSSMACC.Sols := fun (R, a, b, c) =>\n  if h₃ : LineEqProp R ∧ InQuadProp R ∧ InCubeProp R then\n    inQuadCubeToSol (⟨⟨⟨R, h₃.1⟩, h₃.2.1⟩, h₃.2.2⟩, a, b, c)\n  else\n    if h₂ : LineEqProp R ∧ InQuadProp R then\n      inQuadToSol (⟨⟨R, h₂.1⟩, h₂.2⟩, a, b, c)\n    else\n      if h₁ : LineEqProp R then\n        inLineEqToSol (⟨R, h₁⟩, a, b, c)\n      else\n        toSolNS ⟨R, a, b, c⟩\n",
+        "docstring": "A solution from an element of `MSSMACC.AnomalyFreePerp × ℚ × ℚ × ℚ`. We will\nshow that this map is a surjection. "
+      },
+      {
+        "id": 388292,
+        "name": "MSSMACC.AnomalyFreePerp.inLineEqToSol_proj",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L267-L284",
+        "source_text": "lemma inLineEqToSol_proj (T : InLineEqSol) : inLineEqToSol (inLineEqProj T) = T.val := by\n  rw [inLineEqProj, inLineEqTo_smul]\n  apply ACCSystem.Sols.ext\n  change _ • (lineQuad _ _ _ _).val = _\n  rw [lineQuad_val]\n  rw [planeY₃B₃_val]\n  rw [Y₃_plus_B₃_plus_proj]\n  rw [quad_proj, quad_Y₃_proj, quad_B₃_proj]\n  ring_nf\n  simp only [zero_smul, add_zero, zero_add]\n  have h1 : (quadBiLin Y₃.val T.val.val ^ 2 * dot Y₃.val B₃.val ^ 2 * 2 +\n      dot Y₃.val B₃.val ^ 2 * quadBiLin B₃.val T.val.val ^ 2 * 2) = quadCoeff T.val := by\n    rw [quadCoeff]\n    ring\n  rw [h1]\n  have h2 := (inQuadSolProp_iff_quadCoeff_zero T.val).mpr.mt T.prop.2\n  rw [← SemigroupAction.mul_smul, mul_comm, mul_inv_cancel₀ h2]\n  exact MulAction.one_smul T.1.val\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.packingCutoff definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 190020,
+        "name": "Matroid.closure",
+        "module": "Mathlib.Combinatorics.Matroid.Closure",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Closure.lean#L133-L135",
+        "source_text": "/-- The closure of `X ⊆ M.E` is the intersection of all the flats of `M` containing `X`.\nA set `X` that doesn't satisfy `X ⊆ M.E` has the junk value `M.closure X := M.closure (X ∩ M.E)`. -/\ndef closure (M : Matroid α) (X : Set α) : Set α := ⋂₀ {F | M.IsFlat F ∧ X ∩ M.E ⊆ F}\n",
+        "docstring": "The closure of `X ⊆ M.E` is the intersection of all the flats of `M` containing `X`.\nA set `X` that doesn't satisfy `X ⊆ M.E` has the junk value `M.closure X := M.closure (X ∩ M.E)`. "
+      },
+      {
+        "id": 190188,
+        "name": "Matroid.restrict_closure_eq",
+        "module": "Mathlib.Combinatorics.Matroid.Closure",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Closure.lean#L986-L988",
+        "source_text": "lemma restrict_closure_eq (M : Matroid α) (hXR : X ⊆ R) (hR : R ⊆ M.E := by aesop_mat) :\n    (M ↾ R).closure X = M.closure X ∩ R := by\n  rw [restrict_closure_eq', sdiff_eq_empty.mpr hR, union_empty, inter_eq_self_of_subset_left hXR]\n",
+        "docstring": null
+      },
+      {
+        "id": 190187,
+        "name": "Matroid.restrict_closure_eq'",
+        "module": "Mathlib.Combinatorics.Matroid.Closure",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Closure.lean#L974-L984",
+        "source_text": "@[simp] lemma restrict_closure_eq' (M : Matroid α) (X R : Set α) :\n    (M ↾ R).closure X = (M.closure (X ∩ R) ∩ R) ∪ (R \\ M.E) := by\n  obtain ⟨I, hI⟩ := (M ↾ R).exists_isBasis' X\n  obtain ⟨hI', hIR⟩ := isBasis'_restrict_iff.1 hI\n  ext e\n  rw [← hI.closure_eq_closure, ← hI'.closure_eq_closure, hI.indep.mem_closure_iff', mem_union,\n    mem_inter_iff, hI'.indep.mem_closure_iff', restrict_ground_eq, restrict_indep_iff, mem_sdiff]\n  by_cases he : M.Indep (insert e I)\n  · simp [he, and_comm, insert_subset_iff, hIR, (he.subset_ground (mem_insert ..)),\n      imp_or_left_iff_true]\n  tauto",
+        "docstring": null
+      },
+      {
+        "id": 189971,
+        "name": "Matroid.mem_closure_iff_exists_isCircuit",
+        "module": "Mathlib.Combinatorics.Matroid.Circuit",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Circuit.lean#L377-L380",
+        "source_text": "lemma mem_closure_iff_exists_isCircuit (he : e ∉ X) :\n    e ∈ M.closure X ↔ ∃ C ⊆ insert e X, M.IsCircuit C ∧ e ∈ C :=\n  ⟨fun h ↦ exists_isCircuit_of_mem_closure h he, fun ⟨C, hCX, hC, heC⟩ ↦ mem_of_mem_of_subset\n    (hC.mem_closure_sdiff_singleton_of_mem heC) (M.closure_subset_closure (by simpa))⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 189978,
+        "name": "Matroid.IsCircuit.strong_elimination",
+        "module": "Mathlib.Combinatorics.Matroid.Circuit",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Circuit.lean#L492-L499",
+        "source_text": "/-- The strong isCircuit elimination axiom. For any pair of distinct circuits `C₁, C₂` and all\n`e ∈ C₁ ∩ C₂` and `f ∈ C₁ \\ C₂`, there is a circuit `C` with `f ∈ C ⊆ (C₁ ∪ C₂) \\ {e}`. -/\nlemma IsCircuit.strong_elimination (hC₁ : M.IsCircuit C₁) (hC₂ : M.IsCircuit C₂) (heC₁ : e ∈ C₁)\n    (heC₂ : e ∈ C₂) (hfC₁ : f ∈ C₁) (hfC₂ : f ∉ C₂) :\n    ∃ C ⊆ (C₁ ∪ C₂) \\ {e}, M.IsCircuit C ∧ f ∈ C := by\n  obtain ⟨C, hCs, hC, hfC⟩ := hC₁.strong_multi_elimination (fun i : Unit ↦ e) (fun _ ↦ C₂) f\n    (by simpa) (by simpa) (by simpa) (by simp) (by simpa) (by simpa)\n  exact ⟨C, hCs.trans (sdiff_subset_sdiff (by simp) (by simp)), hC, hfC⟩\n",
+        "docstring": "The strong isCircuit elimination axiom. For any pair of distinct circuits `C₁, C₂` and all\n`e ∈ C₁ ∩ C₂` and `f ∈ C₁ \\ C₂`, there is a circuit `C` with `f ∈ C ⊆ (C₁ ∪ C₂) \\ {e}`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.packingCutoff definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      },
+      {
+        "id": 386458,
+        "name": "HasAdjoint.fst",
+        "module": "Physlib.Mathematics.InnerProductSpace.Adjoint",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Adjoint.lean#L108-L111",
+        "source_text": "lemma HasAdjoint.fst {f : E → F×G} {f'} (hf : HasAdjoint 𝕜 f f') :\n    HasAdjoint 𝕜 (fun x : E => (f x).1) (fun y => f' (y, 0)) := by\n  constructor; intros\n  simp[hf.adjoint_inner_left]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

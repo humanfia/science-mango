@@ -1,0 +1,8 @@
+{
+  "proof": "intro w T r s hw hT hr hs hg\nhave hrc : (M5.Packing.packedSupport r).card = w := by exact?\nhave hsc : (M5.Packing.packedSupport s).card = w := by exact?\nhave hrr : ∀ x ∈ M5.Packing.packedSupport r, x < w * T := by\n  intro x hx\n  exact?\nhave hsr : ∀ x ∈ M5.Packing.packedSupport s, x < w * T := by\n  intro x hx\n  exact?\nhave hr0 : 0 ∈ M5.Packing.packedSupport r := by\n  unfold M5.BoundedConstruction.anchoredTuple at hr\n  first | exact? | aesop\nhave hs0 : 0 ∈ M5.Packing.packedSupport s := by\n  unfold M5.BoundedConstruction.anchoredTuple at hs\n  first | exact? | aesop\nhave hrc2 : 2 ≤ (M5.Packing.packedSupport r).card := by omega\nhave hsc2 : 2 ≤ (M5.Packing.packedSupport s).card := by omega\nhave hp : ∃ e ∈ M5.Packing.packedSupport r, 0 < e := by\n  apply M5.PhysicalBridge.positive_member <;> assumption\nobtain ⟨e, he, hep⟩ := hp\nhave hb := M5.PhysicalBridge.remaining_gcd_bounds\n  (M5.Packing.packedSupport r) (M5.Packing.packedSupport s)\n  e (w * T) hsc2 hs0 hsr\nrefine ⟨e, he, hep, hb.1, hb.2, ?_⟩\nhave hcg := @M5.BoundedConstruction.packed_combined_gcd w T r s\napply M5.PhysicalBridge.remaining_gcd_feasible <;>\n  first\n  | assumption\n  | simpa only [hcg] using hg\n  | aesop",
+  "queries": [
+    "M5.BoundedConstruction.packed_combined_gcd exact declaration and argument order",
+    "M5.PhysicalBridge.remaining_gcd_feasible exact declaration",
+    "M5.BoundedConstruction.anchoredTuple packedSupport zero membership accepted lemma"
+  ]
+}

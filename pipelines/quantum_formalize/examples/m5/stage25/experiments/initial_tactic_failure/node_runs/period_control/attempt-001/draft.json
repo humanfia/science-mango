@@ -1,0 +1,8 @@
+{
+  "proof": "intro A B w T hw hT hA hB hBbound\nhave hA0 := M5.SupportPolynomial.support_coeff_zero A hA\nhave hB0 := M5.SupportPolynomial.support_coeff_zero B hB\nhave hdegree : (M5.SupportPolynomial.ofSupport B).natDegree < w * T := by\n  apply M5.SupportPolynomial.support_degree_bound <;> assumption\nhave hperiod : 0 < M5.PhysicalOrder.supportPeriod A B ∧\n    M5.PhysicalOrder.supportPeriod A B ≤ 2 ^ (M5.SupportPolynomial.ofSupport B).natDegree := by\n  unfold M5.PhysicalOrder.supportPeriod\n  apply M5.Signature.ordinary_gcd_period_bound <;> assumption\nrefine ⟨hperiod.1, hperiod.2.trans ?_, ?_⟩\n· exact Nat.pow_le_pow_right (by decide) (Nat.le_of_lt hdegree)\n· unfold M5.PhysicalOrder.supportPeriod\n  have hprops := M5.Signature.ordinary_gcd_properties\n  aesop (add safe apply [M5.Period.period_law])",
+  "queries": [
+    "M5.Signature.ordinary_gcd_period_bound M5.Signature.ordinary_gcd_properties",
+    "M5.SupportPolynomial.support_coeff_zero M5.SupportPolynomial.support_degree_bound",
+    "M5.Period.period_law M5.PhysicalOrder.supportPeriod"
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "title": "M5 stage22: actual bounded connected support construction",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Section 5 original physical support construction; second block kept unchanged, exact signature at T. Pending proof-import gates must be satisfied before dependent proof runs.",
+  "nodes": [
+    {
+      "id": "packed_repair_hypotheses",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.BoundedConstruction.packed_repair_hypotheses",
+        "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → ∃ e ∈ (M5.Packing.packedSupport r), 0 < e ∧ 0 < (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) ∧ (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) < w * T ∧ Nat.gcd (Nat.gcd T (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e)) e = 1",
+        "imports": [
+          "M5BoundedConstruction"
+        ],
+        "context": "",
+        "queries": [
+          "Finset erase insert cardinality gcd",
+          "natural gcd Chinese remainder connectivity"
+        ],
+        "guidance": "Use accepted packed support card/range/anchor, then stage19 positive_member, remaining_gcd_bounds, packed_combined_gcd and remaining_gcd_feasible. anchoredTuple is exactly designated index zero. This node requires accepted stage19 proof promotion. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_BOUNDED_SOURCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "repair_parameter",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.BoundedConstruction.repair_parameter",
+        "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T) (e : ℕ), 0 < T → e ∈ (M5.Packing.packedSupport r) → 0 < (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) → (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) < w * T → Nat.gcd (Nat.gcd T (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e)) e = 1 → ∃ k : ℕ, w ≤ k ∧ e + k * T ∉ (M5.Packing.packedSupport r) ∧ e + k * T < M5.packingCutoff w T ∧ Nat.gcd (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) (e + k * T) = 1",
+        "imports": [
+          "M5BoundedConstruction"
+        ],
+        "context": "",
+        "queries": [
+          "Finset erase insert cardinality gcd",
+          "natural gcd Chinese remainder connectivity"
+        ],
+        "guidance": "Use immutable72 bounded_connectivity_repair, packed_support_range, repair_above_packing, and stage19 repaired_exponent_cutoff. The CRT witness has k<w+delta; freshness follows from old exponents<w*T and new exponent>=w*T. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_BOUNDED_SOURCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "repaired_support_properties",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.BoundedConstruction.repaired_support_properties",
+        "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → ∀ e k : ℕ, e ∈ (M5.Packing.packedSupport r) → 0 < e → e + k * T ∉ (M5.Packing.packedSupport r) → e + k * T < M5.packingCutoff w T → Nat.gcd (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) (e + k * T) = 1 → (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)).card = w ∧ 0 ∈ (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)) ∧ (∀ a ∈ (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)), a < M5.packingCutoff w T) ∧ M5.RepairSupport.combinedGcd (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)) (M5.Packing.packedSupport s) = 1",
+        "imports": [
+          "M5BoundedConstruction"
+        ],
+        "context": "",
+        "queries": [
+          "Finset erase insert cardinality gcd",
+          "natural gcd Chinese remainder connectivity"
+        ],
+        "guidance": "Use immutable72 replacement_card/anchor/range/connected, packed support properties and arithmetic w*T<packingCutoff for T>0,w>=2. Unfold remainingGcd for replacement_connected. Only the first block changes. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_BOUNDED_SOURCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "bounded_connected_construction",
+      "dependencies": [
+        "packed_repair_hypotheses",
+        "repair_parameter",
+        "repaired_support_properties"
+      ],
+      "spec": {
+        "name": "M5.BoundedConstruction.bounded_connected_construction",
+        "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → ∃ A : Finset ℕ, A.card = w ∧ (M5.Packing.packedSupport s).card = w ∧ 0 ∈ A ∧ 0 ∈ (M5.Packing.packedSupport s) ∧ (∀ a ∈ A, a < M5.packingCutoff w T) ∧ (∀ b ∈ (M5.Packing.packedSupport s), b < w * T) ∧ M5.RepairSupport.combinedGcd A (M5.Packing.packedSupport s) = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport s)) T = M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T",
+        "imports": [
+          "M5BoundedConstruction"
+        ],
+        "context": "",
+        "queries": [
+          "Finset erase insert cardinality gcd",
+          "natural gcd Chinese remainder connectivity"
+        ],
+        "guidance": "Choose the positive e from packed_repair_hypotheses and k from repair_parameter. Set A to the literal repaired first packed support. Apply repaired_support_properties. Use accepted stage21 repaired_complete_signature followed by packed_complete_signature. B remains the packed second block, whose original <w*T bound is needed for the ordinary gcd degree bound. No squarefree or nonzero residue polynomial assumption. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_BOUNDED_SOURCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+[
+  {
+    "id": "period_control",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.PhysicalOrder.period_control",
+      "statement": "∀ (A B : Finset ℕ) (w T : ℕ), 2 ≤ w → 0 < T → 0 ∈ A → 0 ∈ B → (∀ b ∈ B, b < w * T) → 0 < M5.PhysicalOrder.supportPeriod A B ∧ M5.PhysicalOrder.supportPeriod A B ≤ 2 ^ (w * T) ∧ EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) ∣ M5.cyclicModulus (M5.PhysicalOrder.supportPeriod A B)",
+      "imports": [
+        "M5PhysicalOrder"
+      ],
+      "context": "",
+      "queries": [
+        "natural power monotonicity",
+        "polynomial period divisibility"
+      ],
+      "guidance": "Use M5.SupportPolynomial.support_coeff_zero, support_degree_bound; M5.Signature.ordinary_gcd_period_bound and ordinary_gcd_properties; M5.Period.period_law yields G dividing its period modulus. Exponent bound follows from Nat.pow_le_pow_right after degree bound. Fully qualify imported names. Return only tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": "5",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "literal_progression",
+    "dependencies": [
+      "period_control"
+    ],
+    "spec": {
+      "name": "M5.PhysicalOrder.literal_progression",
+      "statement": "∀ (A B : Finset ℕ) (w T : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → A.card = w → B.card = w → 0 ∈ A → 0 ∈ B → (∀ a ∈ A, a < M5.packingCutoff w T) → (∀ b ∈ B, b < w * T) → M5.RepairSupport.combinedGcd A B = 1 → M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T = F → ∀ j : ℕ, M5.packingCutoff w T ≤ T + j * M5.PhysicalOrder.supportPeriod A B → M5.PhysicalOrder.realizes (T + j * M5.PhysicalOrder.supportPeriod A B) w F A B",
+      "imports": [
+        "M5PhysicalOrder"
+      ],
+      "context": "",
+      "queries": [
+        "natural power monotonicity",
+        "polynomial period divisibility"
+      ],
+      "guidance": "Unfold realizes. Anchors/cards are unchanged. Range follows from the cutoff; w*T < packingCutoff when T>0,w>=2. Unfold Connectivity.supportGcd and RepairSupport.combinedGcd for connectivity. M5.Signature.exact_signature_lift using period_control proves the exact full signature at every progression order. Do not assume squarefreeness or prescribed birth. Return only tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": "5",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "bounded_order",
+    "dependencies": [
+      "period_control",
+      "literal_progression"
+    ],
+    "spec": {
+      "name": "M5.PhysicalOrder.bounded_order",
+      "statement": "∀ (A B : Finset ℕ) (w T : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → A.card = w → B.card = w → 0 ∈ A → 0 ∈ B → (∀ a ∈ A, a < M5.packingCutoff w T) → (∀ b ∈ B, b < w * T) → M5.RepairSupport.combinedGcd A B = 1 → M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T = F → ∃ N : ℕ, N < M5.birthBound w T ∧ M5.PhysicalOrder.realizes N w F A B",
+      "imports": [
+        "M5PhysicalOrder"
+      ],
+      "context": "",
+      "queries": [
+        "natural power monotonicity",
+        "polynomial period divisibility"
+      ],
+      "guidance": "Use period_control then M5.Lift.bounded_source_order to choose j with cutoff<=T+j*E<birthBound. Apply literal_progression to this same j. Return the actual physical order, keeping literal A,B unchanged. Return only tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": "5",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  }
+]

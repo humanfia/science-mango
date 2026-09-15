@@ -1,0 +1,84 @@
+{
+  "id": "bounded_order",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PhysicalOrder.bounded_order",
+    "spec_sha256": "db5fe8078a9999a35420136731e4b8cc56a1bd649ad22db0fafc2a760d5ec5d8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-physical-order-formalization/.humanize-formal-runs/run-m0s08360/attempt-001/Candidate_aa40dd387a2371f6.lean",
+        "target_path": "/home/jing/m5-lean-physical-order-formalization/.humanize-formal-runs/run-m0s08360/attempt-001/FrozenTarget_aa40dd387a2371f6.lean",
+        "feedback": "",
+        "target_sha256": "15ce5a5c01be546bbceb4367e80b0c5e0d5b40e1c3711ccc5c4ca4c213d152c0",
+        "target_olean_sha256": "94064e2752d6b28874911ce94323fccbd9f9da3b250b5325eb1abd342c0e39a0",
+        "source_sha256": "e1a45822bf6db05149062954392b344d0e7afa563a2d115da2f55349c24da6cd",
+        "olean_sha256": "801c484a9f2fce0a5fbb5b2e05ae93dbd98141a44a596c886767e7a5975a5e39",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:19:07.338430+00:00",
+    "work": "/home/jing/m5-lean-physical-order-formalization/.humanize-formal-runs/run-m0s08360",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "42d6fbfacb7ff0897c391047714cb69c3facc8c8f18d3d516719560598726859",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-physical-order-formalization/.humanize-formal-runs/run-m0s08360/attempt-001/Candidate_aa40dd387a2371f6.lean",
+    "environment_sha256": "781aa033e262eb1a7e31946f00d848b34e58ec51d354d56ca84b58f4d003c11b",
+    "artifacts": {
+      "period_control": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalOrder.period_control : ∀ (A B : Finset ℕ) (w T : ℕ), 2 ≤ w → 0 < T → 0 ∈ A → 0 ∈ B → (∀ b ∈ B, b < w * T) → 0 < M5.PhysicalOrder.supportPeriod A B ∧ M5.PhysicalOrder.supportPeriod A B ≤ 2 ^ (w * T) ∧ EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) ∣ M5.cyclicModulus (M5.PhysicalOrder.supportPeriod A B) := by\n  intro A B w T hw hT hA hB hBbound\n  have hAc : (M5.SupportPolynomial.ofSupport A).coeff 0 = 1 := by\n    simpa only [if_pos hA] using M5.SupportPolynomial.support_coeff_zero A\n  have hBc : (M5.SupportPolynomial.ofSupport B).coeff 0 = 1 := by\n    simpa only [if_pos hB] using M5.SupportPolynomial.support_coeff_zero B\n  have hwT : 0 < w * T := Nat.mul_pos (by omega) hT\n  have hdeg := M5.SupportPolynomial.support_degree_bound B (w * T) hwT hBbound\n  have hb := M5.Signature.ordinary_gcd_period_bound (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) hAc hBc\n  have hp := M5.Signature.ordinary_gcd_properties (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) hAc hBc\n  unfold M5.PhysicalOrder.supportPeriod\n  refine ⟨hb.1, le_trans hb.2 (Nat.pow_le_pow_right (by decide) (Nat.le_of_lt hdeg)), ?_⟩\n  exact ((M5.Period.period_law _ hp.1 hp.2.1).2 _).mpr (dvd_refl _)",
+          "imports": [
+            "M5PhysicalOrder"
+          ],
+          "name": "M5.PhysicalOrder.period_control",
+          "ancestors": [],
+          "spec_sha256": "6d6ff9b7278d9e3ba18f844064f1efff41905b6cfb2f8394fef7aa2196361f8e"
+        },
+        "sha256": "a6418573a6004f1e81d6ad8f674bbd8c97f457c3695d42f9e0449b3095349042"
+      },
+      "literal_progression": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalOrder.literal_progression : ∀ (A B : Finset ℕ) (w T : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → A.card = w → B.card = w → 0 ∈ A → 0 ∈ B → (∀ a ∈ A, a < M5.packingCutoff w T) → (∀ b ∈ B, b < w * T) → M5.RepairSupport.combinedGcd A B = 1 → M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T = F → ∀ j : ℕ, M5.packingCutoff w T ≤ T + j * M5.PhysicalOrder.supportPeriod A B → M5.PhysicalOrder.realizes (T + j * M5.PhysicalOrder.supportPeriod A B) w F A B := by\n  intro A B w T F hw hT hAcard hBcard hA hB hAbound hBbound hg hF j hj\n  have hcut : w * T < M5.packingCutoff w T := by\n    unfold M5.packingCutoff\n    nlinarith [Nat.mul_pos (by omega : 0 < w) hT]\n  have hN : 0 < T + j * M5.PhysicalOrder.supportPeriod A B := by omega\n  have hArange : ∀ a ∈ A, a < T + j * M5.PhysicalOrder.supportPeriod A B := by\n    intro a ha\n    exact lt_of_lt_of_le (hAbound a ha) hj\n  have hBrange : ∀ b ∈ B, b < T + j * M5.PhysicalOrder.supportPeriod A B := by\n    intro b hb\n    exact lt_of_lt_of_le (lt_trans (hBbound b hb) hcut) hj\n  have hconn : M5.Connectivity.supportGcd (T + j * M5.PhysicalOrder.supportPeriod A B) A B = 1 := by\n    unfold M5.RepairSupport.combinedGcd at hg\n    simpa [M5.Connectivity.supportGcd, Nat.gcd_assoc, hg]\n  have hsig : M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) (T + j * M5.PhysicalOrder.supportPeriod A B) = F := by\n    rw [M5.Signature.exact_signature_lift _ _ T (M5.PhysicalOrder.supportPeriod A B) j\n      (M5.PhysicalOrder.period_control A B w T hw hT hA hB hBbound).2.2]\n    exact hF\n  unfold M5.PhysicalOrder.realizes\n  simp_all only [Finset.subset_iff, Finset.mem_range]\n  <;> aesop",
+          "imports": [
+            "M5PhysicalOrder"
+          ],
+          "name": "M5.PhysicalOrder.literal_progression",
+          "ancestors": [
+            "period_control"
+          ],
+          "spec_sha256": "c380ba7e78d75c74cd129ebaa570d3e9291252f2c5f10fd0687b6e7f2abd9665"
+        },
+        "sha256": "f7285dfa077b06e32428550577344858200531ea14d55415c0b21f97687eb26f"
+      },
+      "bounded_order": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalOrder.bounded_order : ∀ (A B : Finset ℕ) (w T : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → A.card = w → B.card = w → 0 ∈ A → 0 ∈ B → (∀ a ∈ A, a < M5.packingCutoff w T) → (∀ b ∈ B, b < w * T) → M5.RepairSupport.combinedGcd A B = 1 → M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T = F → ∃ N : ℕ, N < M5.birthBound w T ∧ M5.PhysicalOrder.realizes N w F A B := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (A B : Finset ℕ) (w T : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → A.card = w → B.card = w → 0 ∈ A → 0 ∈ B → (∀ a ∈ A, a < M5.packingCutoff w T) → (∀ b ∈ B, b < w * T) → M5.RepairSupport.combinedGcd A B = 1 → M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T = F → ∃ N : ℕ, N < M5.birthBound w T ∧ M5.PhysicalOrder.realizes N w F A B\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro A B w T F hw hT hAcard hBcard hA hB hAbound hBbound hg hF\n  have hp := M5.PhysicalOrder.period_control A B w T hw hT hA hB hBbound\n  obtain ⟨j, hjcut, hjbound⟩ := M5.Lift.bounded_source_order w T (M5.PhysicalOrder.supportPeriod A B) hw hT hp.1 hp.2.1\n  refine ⟨T + j * M5.PhysicalOrder.supportPeriod A B, hjbound, ?_⟩\n  exact M5.PhysicalOrder.literal_progression A B w T F hw hT hAcard hBcard hA hB hAbound hBbound hg hF j hjcut",
+          "imports": [
+            "M5PhysicalOrder"
+          ],
+          "name": "M5.PhysicalOrder.bounded_order",
+          "ancestors": [
+            "literal_progression",
+            "period_control"
+          ],
+          "spec_sha256": "4edd035b717af6f9122cd976b23ede3c2f788bfc5a59ad245dbf11f88aaee70a"
+        },
+        "sha256": "76693f202d679d6b7c2148b15687f589839f7adfa67a08666bb54b4dbf5b42bf"
+      }
+    }
+  }
+}

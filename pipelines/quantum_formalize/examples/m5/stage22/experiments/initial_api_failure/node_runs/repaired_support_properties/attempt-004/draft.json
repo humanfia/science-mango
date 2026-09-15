@@ -1,0 +1,8 @@
+{
+  "proof": "intro w T r s hw hT hr hs e k he hepos hnew hbound hg\nhave hcard : (M5.Packing.packedSupport r).card = w := by\n  exact?\nhave hzero : 0 ∈ M5.Packing.packedSupport r := by\n  first\n  | exact?\n  | unfold M5.BoundedConstruction.anchoredTuple at hr\n    exact?\nhave hcut : w * T < M5.packingCutoff w T := by\n  first\n  | exact?\n  | unfold M5.packingCutoff\n    nlinarith\nhave hrange : ∀ a ∈ M5.Packing.packedSupport r, a < M5.packingCutoff w T := by\n  intro a ha\n  have ha' : a < w * T := by\n    exact?\n  exact lt_trans ha' hcut\nrefine ⟨?_, ?_, ?_, ?_⟩\n· calc\n    (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)).card =\n        (M5.Packing.packedSupport r).card :=\n      M5.RepairSupport.replacement_card _ _ _ he hnew\n    _ = w := hcard\n· apply M5.RepairSupport.replacement_anchor <;> first | assumption | omega\n· apply M5.RepairSupport.replacement_range <;> assumption\n· unfold M5.PhysicalBridge.remainingGcd at hg\n  apply M5.RepairSupport.replacement_connected <;> assumption",
+  "queries": [
+    "M5.Packing packedSupport cardinality zero membership packedValue bound occurrenceTag",
+    "M5.RepairSupport.replacement_anchor replacement_range replacement_connected",
+    "M5.packingCutoff definition"
+  ]
+}

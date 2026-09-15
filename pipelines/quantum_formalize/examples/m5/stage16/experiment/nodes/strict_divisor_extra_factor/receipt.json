@@ -1,0 +1,70 @@
+{
+  "id": "strict_divisor_extra_factor",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PolynomialExclusion.strict_divisor_extra_factor",
+    "spec_sha256": "cfd4be74574671a82a32f8baa385d036e15d7c19bd1e6c7c33aa718458cd9a4a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-omupf9k9/attempt-001/Candidate_43d6257474cd6b7d.lean",
+        "target_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-omupf9k9/attempt-001/FrozenTarget_43d6257474cd6b7d.lean",
+        "feedback": "",
+        "target_sha256": "13685aa7acc15c67ae96076ca7ebab9230a30ddc0837eee1fbfff2a9ed8bc473",
+        "target_olean_sha256": "8836220fedd704e74a26ba4b101255b568710f6bdaaeab31610bf42a6d6ceead",
+        "source_sha256": "d4fbce5660dd2ce4293c1e460634e887b64cf48b8dc327636073b69ada728a4d",
+        "olean_sha256": "e767247fe296491485f36d42ac8b797023fd037403ddca57e39503241908b194",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:08:52.031560+00:00",
+    "work": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-omupf9k9",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-omupf9k9/attempt-001/Candidate_43d6257474cd6b7d.lean",
+    "environment_sha256": "6c07b3bd70f3fbdeb2ff1bbc277ad0fcd5f2e84b7a8f705d5c73a9054eabf1d2",
+    "artifacts": {
+      "factor_dvd_quotient": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.factor_dvd_quotient : ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P) := by\n  change ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)\n  intro F P p hF hFP\n  constructor\n  · rintro ⟨q, hq⟩\n    refine ⟨q, ?_⟩\n    calc\n      P = F * (P / F) := (EuclideanDomain.mul_div_cancel' hF hFP).symm\n      _ = F * (p * q) := congrArg (fun x => F * x) hq\n      _ = (F * p) * q := (mul_assoc F p q).symm\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.factor_dvd_quotient",
+          "ancestors": [],
+          "spec_sha256": "fa117181cf7ae4ffb25448c494910f01fa889efd6ac1ef0f5478148d7924c3f3"
+        },
+        "sha256": "a5195a496a5af2747443906cf0870491373d6eade2c749e2cfe44b5b2a3ecbfe"
+      },
+      "strict_divisor_extra_factor": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.strict_divisor_extra_factor : ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G := by\n  change ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G\n  intro F G hFm hFG hG0 hGFne\n  have hF0 : F ≠ 0 := hFm.ne_zero\n  have hG : G = F * (G / F) :=\n    (EuclideanDomain.mul_div_cancel' hF0 hFG).symm\n  have hQ0 : G / F ≠ 0 := by\n    intro hQ\n    apply hG0\n    rw [hG, hQ, mul_zero]\n  have hQu : ¬ IsUnit (G / F) := by\n    rintro ⟨u, hu⟩\n    have hGF : G ∣ F := by\n      refine ⟨↑(u⁻¹), ?_⟩\n      rw [hG, ← hu]\n      simp [mul_assoc]\n    apply hGFne\n    exact M5.Signature.binary_dvd_antisymm G F hGF hFG\n  obtain ⟨p, hp, hpQ⟩ := WfDvdMonoid.exists_irreducible_factor hQu hQ0\n  exact ⟨p, hp, (M5.PolynomialExclusion.factor_dvd_quotient F G p hF0 hFG).mp hpQ⟩",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.strict_divisor_extra_factor",
+          "ancestors": [
+            "factor_dvd_quotient"
+          ],
+          "spec_sha256": "4db5f59ca17ce810cc08254bddcfe1e433ea7e6c673806e5dad0d49b7fcd58be"
+        },
+        "sha256": "37386f3b56ce581aa6c130a8c93360b2c3bf8901ffc119bd1c3f389378da034f"
+      }
+    }
+  }
+}

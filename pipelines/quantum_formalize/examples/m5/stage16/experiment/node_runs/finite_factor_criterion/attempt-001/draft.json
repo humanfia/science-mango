@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → (M5.completeSignature a b N = F ↔ ∀ p ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F, ¬ (F * p ∣ a ∧ F * p ∣ b))\nintro a b F N hN hFm hFM hFa hFb\nclassical\nrw [M5.PolynomialExclusion.exact_signature_criterion a b F N hN hFm hFM hFa hFb]\nconstructor\n· intro h p hp\n  have hp' : p ∈ UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F) := by\n    simpa [M5.PolynomialExclusion.residualFactors] using hp\n  exact h p (UniqueFactorizationMonoid.irreducible_of_normalized_factor _ hp')\n    (UniqueFactorizationMonoid.dvd_of_mem_normalizedFactors hp')\n· intro h p hp hpQ hab\n  have hQ : M5.cyclicModulus N / F ≠ 0 :=\n    M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hFm hFM\n  have hex : ∃ q ∈ UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F), Associated p q := by\n    apply UniqueFactorizationMonoid.exists_mem_normalizedFactors_of_dvd <;> assumption\n  obtain ⟨q, hq, hpq⟩ := hex\n  have hqmem : q ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F := by\n    simpa [M5.PolynomialExclusion.residualFactors] using hq\n  have hmul : F * q ∣ F * p := mul_dvd_mul (dvd_refl F) hpq.symm.dvd\n  exact h q hqmem ⟨dvd_trans hmul hab.1, dvd_trans hmul hab.2⟩",
+  "queries": [
+    "UniqueFactorizationMonoid.exists_mem_normalizedFactors_of_dvd",
+    "UniqueFactorizationMonoid.irreducible_of_normalized_factor",
+    "M5.PolynomialExclusion.residualFactors"
+  ]
+}

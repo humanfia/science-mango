@@ -1,0 +1,55 @@
+{
+  "id": "repaired_support_properties",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.BoundedConstruction.repaired_support_properties",
+    "spec_sha256": "d8d277387295f529455c85f42c5ff08a6aab5be18047945d1e152b34f3e894f1",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-bounded-construction-formalization/.humanize-formal-runs/run-y9nwb0q6/attempt-001/Candidate_406fe191110b2fa9.lean",
+        "target_path": "/home/jing/m5-lean-bounded-construction-formalization/.humanize-formal-runs/run-y9nwb0q6/attempt-001/FrozenTarget_406fe191110b2fa9.lean",
+        "feedback": "",
+        "target_sha256": "1d766cca36ac123e6fbe20dbd00823e6136c1a68743c8c6553a8db551432c3f0",
+        "target_olean_sha256": "b9d60386ab7b64593b038cf29a526b468539b0d749741740bbd13941fb46a882",
+        "source_sha256": "cb639c9b2b8b064f437ddbc770e2001ef1ce94ce942eb89a9b1dcb03c0d88d50",
+        "olean_sha256": "3ef1cb1fdc06d0e923094688e676b3e6627f38d273a51701677a2f9f8b3c9045",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:14:46.342323+00:00",
+    "work": "/home/jing/m5-lean-bounded-construction-formalization/.humanize-formal-runs/run-y9nwb0q6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8317ee3a9e6da6ade3c7a3ca7e068f8a616a363ac8155e7c5366b7a59df2db4e",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-bounded-construction-formalization/.humanize-formal-runs/run-y9nwb0q6/attempt-001/Candidate_406fe191110b2fa9.lean",
+    "environment_sha256": "0179bb9fce3ffff617ec3c1c6cf927c1c5cb711fe67e0339dd8352fee2d31d17",
+    "artifacts": {
+      "repaired_support_properties": {
+        "payload": {
+          "declaration": "theorem M5.BoundedConstruction.repaired_support_properties : ∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → ∀ e k : ℕ, e ∈ (M5.Packing.packedSupport r) → 0 < e → e + k * T ∉ (M5.Packing.packedSupport r) → e + k * T < M5.packingCutoff w T → Nat.gcd (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) (e + k * T) = 1 → (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)).card = w ∧ 0 ∈ (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)) ∧ (∀ a ∈ (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)), a < M5.packingCutoff w T) ∧ M5.RepairSupport.combinedGcd (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)) (M5.Packing.packedSupport s) = 1 := by\n  intro w T r s hw hT hr hs e k he hepos hnew hcut hgcd\n  have hw0 : 0 < w := by omega\n  refine ⟨?_, ?_, ?_, ?_⟩\n  · exact (M5.RepairSupport.replacement_card\n      (M5.Packing.packedSupport r) e (e + k * T) he hnew).trans\n      (M5.Packing.packed_support_card w T r)\n  · exact M5.RepairSupport.replacement_anchor\n      (M5.Packing.packedSupport r) e (e + k * T)\n      (by omega)\n      (M5.Packing.packed_support_anchor w T r hw0 (hr ⟨0, hw0⟩ rfl))\n  · apply M5.RepairSupport.replacement_range\n      (M5.Packing.packedSupport r) e (e + k * T) (M5.packingCutoff w T)\n    · intro a ha\n      have harange := M5.Packing.packed_support_range w T r a ha\n      simpa using M5.PhysicalBridge.repaired_exponent_cutoff\n        w T a 0 0 hT harange (Nat.mul_pos hw0 hT) (by omega)\n    · exact hcut\n  · apply M5.RepairSupport.replacement_connected\n      (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e (e + k * T)\n    simpa only [M5.PhysicalBridge.remainingGcd] using hgcd",
+          "imports": [
+            "M5BoundedConstructionReady"
+          ],
+          "name": "M5.BoundedConstruction.repaired_support_properties",
+          "ancestors": [],
+          "spec_sha256": "d8d277387295f529455c85f42c5ff08a6aab5be18047945d1e152b34f3e894f1"
+        },
+        "sha256": "a4a3d733c5bdff14f4c48901d626efcad20fe065bdf9c68d4f5fe07a91273198"
+      }
+    }
+  }
+}

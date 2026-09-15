@@ -1,0 +1,3 @@
+import Candidate_f113eed9d7d3d873
+example : QuantumHarnessFrozenTarget := M5.PolynomialExclusion.finite_factor_criterion
+#print axioms M5.PolynomialExclusion.finite_factor_criterion

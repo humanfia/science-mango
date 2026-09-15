@@ -1,0 +1,13 @@
+import FrozenTarget_271f12d570dd7a46
+theorem M5.PolynomialExclusion.factor_dvd_quotient : QuantumHarnessFrozenTarget := by
+  change ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)
+  intro F P p hF hFP
+  constructor
+  · rintro ⟨q, hq⟩
+    refine ⟨q, ?_⟩
+    calc
+      P = F * (P / F) := (EuclideanDomain.mul_div_cancel' hF hFP).symm
+      _ = F * (p * q) := congrArg (fun x => F * x) hq
+      _ = (F * p) * q := (mul_assoc F p q).symm
+  · intro h
+    exact EuclideanDomain.dvd_div_of_mul_dvd h

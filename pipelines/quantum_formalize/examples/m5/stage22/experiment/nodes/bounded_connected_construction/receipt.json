@@ -1,0 +1,82 @@
+{
+  "id": "bounded_connected_construction",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.BoundedConstruction.bounded_connected_construction",
+    "spec_sha256": "3cdc063d7f912df8aeefbddc9ce681f8373483541ca5b1a16e1af599e87b27a8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-bounded-construction-formalization/.humanize-formal-runs/run-xzqulpg4/attempt-001/Candidate_f62a9a164f547db9.lean",
+        "target_path": "/home/jing/m5-lean-bounded-construction-formalization/.humanize-formal-runs/run-xzqulpg4/attempt-001/FrozenTarget_f62a9a164f547db9.lean",
+        "feedback": "",
+        "target_sha256": "628b0f3fde49bc8e483017526d81b29daf6909a6b797b0a8999ca44b84d09e99",
+        "target_olean_sha256": "5ce56eea0faa5638ef3a0ea22168dd99cdba5fa8bfb070bebca321ac75af624c",
+        "source_sha256": "3510053038c8c7d98bb40ac435cb96633f49993c66fcdee613f547ccd5bbd397",
+        "olean_sha256": "72739829937feb50d81e2c8b21326e8f77eec5079214b0d7105e02e36f9a3dcd",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:16:30.596303+00:00",
+    "work": "/home/jing/m5-lean-bounded-construction-formalization/.humanize-formal-runs/run-xzqulpg4",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8317ee3a9e6da6ade3c7a3ca7e068f8a616a363ac8155e7c5366b7a59df2db4e",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-bounded-construction-formalization/.humanize-formal-runs/run-xzqulpg4/attempt-001/Candidate_f62a9a164f547db9.lean",
+    "environment_sha256": "0179bb9fce3ffff617ec3c1c6cf927c1c5cb711fe67e0339dd8352fee2d31d17",
+    "artifacts": {
+      "packed_repair_hypotheses": {
+        "payload": {
+          "declaration": "theorem M5.BoundedConstruction.packed_repair_hypotheses : ∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → ∃ e ∈ (M5.Packing.packedSupport r), 0 < e ∧ 0 < (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) ∧ (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) < w * T ∧ Nat.gcd (Nat.gcd T (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e)) e = 1 := by\n  intro w T r s hw hT hr hs hg\n  have hw0 : 0 < w := by omega\n  have hr0 : 0 ∈ M5.Packing.packedSupport r :=\n    M5.Packing.packed_support_anchor w T r hw0 (hr ⟨0, hw0⟩ rfl)\n  have hs0 : 0 ∈ M5.Packing.packedSupport s :=\n    M5.Packing.packed_support_anchor w T s hw0 (hs ⟨0, hw0⟩ rfl)\n  have hrc : 2 ≤ (M5.Packing.packedSupport r).card := by\n    rw [M5.Packing.packed_support_card w T r]\n    exact hw\n  have hsc : 2 ≤ (M5.Packing.packedSupport s).card := by\n    rw [M5.Packing.packed_support_card w T s]\n    exact hw\n  obtain ⟨e, he, hepos⟩ :=\n    M5.PhysicalBridge.positive_member (M5.Packing.packedSupport r) hrc hr0\n  obtain ⟨hpos, hlt⟩ :=\n    M5.PhysicalBridge.remaining_gcd_bounds\n      (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e (w * T)\n      hsc hs0 (fun b hb => M5.Packing.packed_support_range w T s b hb)\n  refine ⟨e, he, hepos, hpos, hlt, ?_⟩\n  apply M5.PhysicalBridge.remaining_gcd_feasible T\n    (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e he\n  rw [M5.PhysicalBridge.packed_combined_gcd w T r s]\n  simpa only [M5.BoundedConstruction.tupleSupportGcd] using hg",
+          "imports": [
+            "M5BoundedConstructionReady"
+          ],
+          "name": "M5.BoundedConstruction.packed_repair_hypotheses",
+          "ancestors": [],
+          "spec_sha256": "cecbde2787268b430e871e7c2aa565019ea347b617b0d5c9c5b53e1b46283eb6"
+        },
+        "sha256": "b61a10d187b070625caf05d7c15499e9fc935f7682750b6f2d7f71ee1b751aa1"
+      },
+      "repaired_support_properties": {
+        "payload": {
+          "declaration": "theorem M5.BoundedConstruction.repaired_support_properties : ∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → ∀ e k : ℕ, e ∈ (M5.Packing.packedSupport r) → 0 < e → e + k * T ∉ (M5.Packing.packedSupport r) → e + k * T < M5.packingCutoff w T → Nat.gcd (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) (e + k * T) = 1 → (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)).card = w ∧ 0 ∈ (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)) ∧ (∀ a ∈ (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)), a < M5.packingCutoff w T) ∧ M5.RepairSupport.combinedGcd (M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T)) (M5.Packing.packedSupport s) = 1 := by\n  intro w T r s hw hT hr hs e k he hepos hnew hcut hgcd\n  have hw0 : 0 < w := by omega\n  refine ⟨?_, ?_, ?_, ?_⟩\n  · exact (M5.RepairSupport.replacement_card\n      (M5.Packing.packedSupport r) e (e + k * T) he hnew).trans\n      (M5.Packing.packed_support_card w T r)\n  · exact M5.RepairSupport.replacement_anchor\n      (M5.Packing.packedSupport r) e (e + k * T)\n      (by omega)\n      (M5.Packing.packed_support_anchor w T r hw0 (hr ⟨0, hw0⟩ rfl))\n  · apply M5.RepairSupport.replacement_range\n      (M5.Packing.packedSupport r) e (e + k * T) (M5.packingCutoff w T)\n    · intro a ha\n      have harange := M5.Packing.packed_support_range w T r a ha\n      simpa using M5.PhysicalBridge.repaired_exponent_cutoff\n        w T a 0 0 hT harange (Nat.mul_pos hw0 hT) (by omega)\n    · exact hcut\n  · apply M5.RepairSupport.replacement_connected\n      (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e (e + k * T)\n    simpa only [M5.PhysicalBridge.remainingGcd] using hgcd",
+          "imports": [
+            "M5BoundedConstructionReady"
+          ],
+          "name": "M5.BoundedConstruction.repaired_support_properties",
+          "ancestors": [],
+          "spec_sha256": "d8d277387295f529455c85f42c5ff08a6aab5be18047945d1e152b34f3e894f1"
+        },
+        "sha256": "a4a3d733c5bdff14f4c48901d626efcad20fe065bdf9c68d4f5fe07a91273198"
+      },
+      "bounded_connected_construction": {
+        "payload": {
+          "declaration": "theorem M5.BoundedConstruction.bounded_connected_construction : ∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → ∃ A : Finset ℕ, A.card = w ∧ (M5.Packing.packedSupport s).card = w ∧ 0 ∈ A ∧ 0 ∈ (M5.Packing.packedSupport s) ∧ (∀ a ∈ A, a < M5.packingCutoff w T) ∧ (∀ b ∈ (M5.Packing.packedSupport s), b < w * T) ∧ M5.RepairSupport.combinedGcd A (M5.Packing.packedSupport s) = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport s)) T = M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T := by\n  intro w T r s hw hT hr hs hg\n  have hw0 : 0 < w := by omega\n  obtain ⟨e, he, hepos, hpos, hlt, hfeas⟩ :=\n    M5.BoundedConstruction.packed_repair_hypotheses w T r s hw hT hr hs hg\n  obtain ⟨k, hk, hnew, hcut, hgcd⟩ :=\n    M5.BoundedConstruction.repair_parameter w T r s e hT he hpos hlt hfeas\n  obtain ⟨hcard, hzero, hrange, hconn⟩ :=\n    M5.BoundedConstruction.repaired_support_properties\n      w T r s hw hT hr hs e k he hepos hnew hcut hgcd\n  refine ⟨M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T),\n    hcard, M5.Packing.packed_support_card w T s, hzero,\n    M5.Packing.packed_support_anchor w T s hw0 (hs ⟨0, hw0⟩ rfl),\n    hrange, ?_, hconn, ?_⟩\n  · exact fun b hb => M5.Packing.packed_support_range w T s b hb\n  · exact (M5.SignatureCongruence.repaired_complete_signature\n      (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e k T he hnew).trans\n      (M5.SignatureCongruence.packed_complete_signature w T r s)",
+          "imports": [
+            "M5BoundedConstructionReady"
+          ],
+          "name": "M5.BoundedConstruction.bounded_connected_construction",
+          "ancestors": [
+            "packed_repair_hypotheses",
+            "repaired_support_properties"
+          ],
+          "spec_sha256": "b5c6f4877c643412b93aaa21154eff3f4617d6fa6fa1b32b88e58204b534f471"
+        },
+        "sha256": "5c8cf5f28f45777525331a17971361c44b21dd83ffcf60c286873d3aca5ba54c"
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "cyclic_quotient_nonzero",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PolynomialExclusion.cyclic_quotient_nonzero",
+    "spec_sha256": "cdc5c4982c3aa5548507f16c26510de56e1038b78306d550047ac93ff64b9d89",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-h3m9ebpm/attempt-001/Candidate_785e3b92b41e5ca0.lean",
+        "target_path": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-h3m9ebpm/attempt-001/FrozenTarget_785e3b92b41e5ca0.lean",
+        "feedback": "",
+        "target_sha256": "9b498ff31fe479559fcdc7734e5d1cc7952e0eedab0bdec826a27760e0c56e98",
+        "target_olean_sha256": "7af6b9c98766a0916624d3e70823d4b2725efc082b20e2b9d8f0d25b9f582fae",
+        "source_sha256": "7d51b40cbaa5296a66bb9965000ae03c53d9a759111d207a598d28bc4d07e368",
+        "olean_sha256": "c9dc3923b551a6a8207aa8243349992d405ae1be669be5c9c135c8d5102dadda",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:02:13.218764+00:00",
+    "work": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-h3m9ebpm",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-polynomial-exclusion-formalization/.humanize-formal-runs/run-h3m9ebpm/attempt-001/Candidate_785e3b92b41e5ca0.lean",
+    "environment_sha256": "6c07b3bd70f3fbdeb2ff1bbc277ad0fcd5f2e84b7a8f705d5c73a9054eabf1d2",
+    "artifacts": {
+      "cyclic_quotient_nonzero": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialExclusion.cyclic_quotient_nonzero : ∀ (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.cyclicModulus N / F ≠ 0 := by\n  change ∀ (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.cyclicModulus N / F ≠ 0\n  intro F N hN hmonic hdvd hquot\n  have hmul := EuclideanDomain.mul_div_cancel' hmonic.ne_zero hdvd\n  have hzero : M5.cyclicModulus N = 0 := by\n    rw [hquot, mul_zero] at hmul\n    exact hmul.symm\n  have hcoeff := congrArg (fun p : M5.BinaryPolynomial => p.coeff N) hzero\n  simp [M5.cyclicModulus, Polynomial.coeff_add, Polynomial.coeff_X_pow,\n    Polynomial.coeff_one, Nat.ne_of_gt hN] at hcoeff",
+          "imports": [
+            "M5BinaryDivisibility",
+            "M5PolynomialExclusion"
+          ],
+          "name": "M5.PolynomialExclusion.cyclic_quotient_nonzero",
+          "ancestors": [],
+          "spec_sha256": "b0532c3169a505613547a5afe9875d28b297d14bd0d58335ec2106c544c8a1e0"
+        },
+        "sha256": "036811517bf41eac11a8dd2b92b8d60c29660b9fa842c056582bd36cb6c6bd89"
+      }
+    }
+  }
+}

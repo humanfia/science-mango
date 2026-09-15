@@ -1,0 +1,139 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.binary_dvd_antisymm M5.BinaryDivisibility.binary_dvd_antisymm",
+    "status": "ok",
+    "results": [
+      {
+        "id": 77336,
+        "name": "dvd_antisymm'",
+        "module": "Mathlib.Algebra.GroupWithZero.Divisibility",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Divisibility.lean#L147-L148",
+        "source_text": "theorem dvd_antisymm' : a ∣ b → b ∣ a → b = a :=\n  flip dvd_antisymm\n",
+        "docstring": null
+      },
+      {
+        "id": 77338,
+        "name": "Dvd.dvd.antisymm'",
+        "module": "Mathlib.Algebra.GroupWithZero.Divisibility",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Divisibility.lean#L152-L152",
+        "source_text": "alias Dvd.dvd.antisymm' := dvd_antisymm'\n",
+        "docstring": "**Alias** of `dvd_antisymm'`."
+      },
+      {
+        "id": 214119,
+        "name": "PosNum.dvd",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L477-L478",
+        "source_text": "instance dvd : Dvd PosNum :=\n  ⟨fun m n => pos m ∣ pos n⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 214113,
+        "name": "Num.dvd_to_nat",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L435-L437",
+        "source_text": "@[norm_cast]\ntheorem dvd_to_nat (m n : Num) : (m : ℕ) ∣ n ↔ m ∣ n :=\n  ⟨fun ⟨k, e⟩ => ⟨k, by rw [← of_to_nat n, e]; simp⟩, fun ⟨k, e⟩ => ⟨k, by simp [e, mul_to_nat]⟩⟩",
+        "docstring": null
+      },
+      {
+        "id": 222196,
+        "name": "BinaryTree",
+        "module": "Mathlib.Data.Tree.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Tree/Basic.lean#L32-L36",
+        "source_text": "/-- A binary tree with values stored in non-leaf nodes. -/\ninductive BinaryTree.{u} (α : Type u) : Type u\n  | nil : BinaryTree α\n  | node (value : α) (left : BinaryTree α) (right : BinaryTree α) : BinaryTree α\n  deriving DecidableEq, Repr\n",
+        "docstring": "A binary tree with values stored in non-leaf nodes. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "WfDvdMonoid.exists_irreducible_factor",
+    "status": "ok",
+    "results": [
+      {
+        "id": 320422,
+        "name": "WfDvdMonoid.exists_irreducible_factor",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/Defs.lean#L51-L59",
+        "source_text": "theorem exists_irreducible_factor {a : α} (ha : ¬IsUnit a) (ha0 : a ≠ 0) :\n    ∃ i, Irreducible i ∧ i ∣ a :=\n  let ⟨b, hs, hr⟩ := wellFounded_dvdNotUnit.has_min { b | b ∣ a ∧ ¬IsUnit b } ⟨a, dvd_rfl, ha⟩\n  ⟨b,\n    ⟨hs.2, fun c d he =>\n      let h := dvd_trans ⟨d, he⟩ hs.1\n      or_iff_not_imp_left.2 fun hc =>\n        of_not_not fun hd => hr c ⟨h, hc⟩ ⟨ne_zero_of_dvd_ne_zero ha0 h, d, hd, he⟩⟩,\n    hs.1⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 70008,
+        "name": "Irreducible",
+        "module": "Mathlib.Algebra.Group.Irreducible.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Irreducible/Defs.lean#L39-L48",
+        "source_text": "/-- `Irreducible p` states that `p` is non-unit and only factors into units.\n\nWe explicitly avoid stating that `p` is non-zero, this would require a semiring. Assuming only a\nmonoid allows us to reuse irreducible for associated elements. -/\n@[to_additive (attr := wikidata Q2989575)]\nstructure Irreducible (p : M) : Prop where\n  /-- An irreducible element is not a unit. -/\n  not_isUnit : ¬IsUnit p\n  /-- If an irreducible element factors, then one factor is a unit. -/\n  isUnit_or_isUnit ⦃a b : M⦄ : p = a * b → IsUnit a ∨ IsUnit b\n",
+        "docstring": "`Irreducible p` states that `p` is non-unit and only factors into units.\n\nWe explicitly avoid stating that `p` is non-zero, this would require a semiring. Assuming only a\nmonoid allows us to reuse irreducible for associated elements. \n\n[Wikidata Q2989575](https://www.wikidata.org/wiki/Q2989575)"
+      },
+      {
+        "id": 306254,
+        "name": "IsDiscreteValuationRing.HasUnitMulPowIrreducibleFactorization.of_ufd_of_unique_irreducible",
+        "module": "Mathlib.RingTheory.DiscreteValuationRing.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/DiscreteValuationRing/Basic.lean#L213-L230",
+        "source_text": "theorem of_ufd_of_unique_irreducible [UniqueFactorizationMonoid R] (h₁ : ∃ p : R, Irreducible p)\n    (h₂ : ∀ ⦃p q : R⦄, Irreducible p → Irreducible q → Associated p q) :\n    HasUnitMulPowIrreducibleFactorization R := by\n  obtain ⟨p, hp⟩ := h₁\n  refine ⟨p, hp, ?_⟩\n  intro x hx\n  obtain ⟨fx, hfx⟩ := WfDvdMonoid.exists_factors x hx\n  refine ⟨Multiset.card fx, ?_⟩\n  have H := hfx.2\n  rw [← Associates.mk_eq_mk_iff_associated] at H ⊢\n  rw [← H, ← Associates.prod_mk, Associates.mk_pow, ← Multiset.prod_replicate]\n  congr 1\n  symm\n  rw [Multiset.eq_replicate]\n  simp only [true_and, and_imp, Multiset.card_map, Multiset.mem_map, exists_imp]\n  rintro _ q hq rfl\n  rw [Associates.mk_eq_mk_iff_associated]\n  apply h₂ (hfx.1 _ hq) hp\n",
+        "docstring": null
+      },
+      {
+        "id": 320551,
+        "name": "WfDvdMonoid.max_power_factor'",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.Multiplicity",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/Multiplicity.lean#L32-L38",
+        "source_text": "theorem WfDvdMonoid.max_power_factor' [CommMonoidWithZero α] [WfDvdMonoid α] {a₀ x : α}\n    (h : a₀ ≠ 0) (hx : ¬IsUnit x) : ∃ (n : ℕ) (a : α), ¬x ∣ a ∧ a₀ = x ^ n * a := by\n  obtain ⟨a, ⟨n, rfl⟩, hm⟩ := wellFounded_dvdNotUnit.has_min\n    {a | ∃ n, x ^ n * a = a₀} ⟨a₀, 0, by rw [pow_zero, one_mul]⟩\n  refine ⟨n, a, ?_, rfl⟩; rintro ⟨d, rfl⟩\n  exact hm d ⟨n + 1, by rw [pow_succ, mul_assoc]⟩\n    ⟨(right_ne_zero_of_mul <| right_ne_zero_of_mul h), x, hx, mul_comm _ _⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 320500,
+        "name": "Associates.factors_one",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L443-L447",
+        "source_text": "@[simp]\ntheorem factors_one [Nontrivial α] : factors (1 : Associates α) = 0 := by\n  apply FactorSet.unique\n  rw [Associates.factors_prod]\n  exact Multiset.prod_zero",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

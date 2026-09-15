@@ -1,0 +1,191 @@
+{
+  "title": "M5 stage16: exact signature via next-factor exclusion",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Six criterion targets; stage12 antisymmetry promotion pending, polynomial inclusion-exclusion sum remains separate",
+  "nodes": [
+    {
+      "id": "cyclic_quotient_nonzero",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PolynomialExclusion.cyclic_quotient_nonzero",
+        "statement": "∀ (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.cyclicModulus N / F ≠ 0",
+        "imports": [
+          "M5PolynomialExclusion"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial irreducible divisor",
+          "normalizedFactors divisibility"
+        ],
+        "guidance": "Polynomial X_pow_add_C or coefficient at positive N shows cyclicModulus N≠0. Monicity gives F≠0. EuclideanDomain.mul_div_cancel' reconstructs F*(M_N/F)=M_N; a zero quotient would contradict nonzero modulus. No squarefreeness or N odd premise. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 3,
+        "supports_obligation": "M5_POLYNOMIAL_IE",
+        "scope": "multiplicity_sensitive_exclusion_criterion",
+        "upstream_dependencies": [],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "factor_dvd_quotient",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PolynomialExclusion.factor_dvd_quotient",
+        "statement": "∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)",
+        "imports": [
+          "M5PolynomialExclusion"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial irreducible divisor",
+          "normalizedFactors divisibility"
+        ],
+        "guidance": "Forward multiply a witness of p|P/F by F and use EuclideanDomain.mul_div_cancel'. Reverse use EuclideanDomain.dvd_div_of_mul_dvd. Handles P=0 and arbitrary p; no primality is needed. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 3,
+        "supports_obligation": "M5_POLYNOMIAL_IE",
+        "scope": "multiplicity_sensitive_exclusion_criterion",
+        "upstream_dependencies": [],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "signature_contains",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PolynomialExclusion.signature_contains",
+        "statement": "∀ (a b F : M5.BinaryPolynomial) (N : ℕ), F ∣ a → F ∣ b → F ∣ M5.cyclicModulus N → F ∣ M5.completeSignature a b N",
+        "imports": [
+          "M5PolynomialExclusion"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial irreducible divisor",
+          "normalizedFactors divisibility"
+        ],
+        "guidance": "Unfold completeSignature and apply EuclideanDomain.dvd_gcd twice. This requires no nonzero or anchored assumptions. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 3,
+        "supports_obligation": "M5_POLYNOMIAL_IE",
+        "scope": "multiplicity_sensitive_exclusion_criterion",
+        "upstream_dependencies": [],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "strict_divisor_extra_factor",
+      "dependencies": [
+        "factor_dvd_quotient"
+      ],
+      "spec": {
+        "name": "M5.PolynomialExclusion.strict_divisor_extra_factor",
+        "statement": "∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G",
+        "imports": [
+          "M5PolynomialExclusion"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial irreducible divisor",
+          "normalizedFactors divisibility"
+        ],
+        "guidance": "Set Q=G/F. Monicity and F|G reconstruct G=F*Q, implying Q≠0. If Q is a unit then G|F, so the verified stage12 binary_dvd_antisymm together with F|G gives G=F, contradiction. WfDvdMonoid.exists_irreducible_factor takes nonunit Q and Q≠0 and gives p irreducible with p|Q. Convert via factor_dvd_quotient. Do not add G monic, anchored, squarefree or irreducible premises. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 3,
+        "supports_obligation": "M5_POLYNOMIAL_IE",
+        "scope": "multiplicity_sensitive_exclusion_criterion",
+        "upstream_dependencies": [
+          "M5.Signature.binary_dvd_antisymm"
+        ],
+        "dependency_declarations": [
+          "M5.PolynomialExclusion.factor_dvd_quotient",
+          "M5.Signature.binary_dvd_antisymm"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "exact_signature_criterion",
+      "dependencies": [
+        "factor_dvd_quotient",
+        "signature_contains",
+        "strict_divisor_extra_factor"
+      ],
+      "spec": {
+        "name": "M5.PolynomialExclusion.exact_signature_criterion",
+        "statement": "∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → (M5.completeSignature a b N = F ↔ ∀ p : M5.BinaryPolynomial, Irreducible p → p ∣ M5.cyclicModulus N / F → ¬ (F * p ∣ a ∧ F * p ∣ b))",
+        "imports": [
+          "M5PolynomialExclusion"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial irreducible divisor",
+          "normalizedFactors divisibility"
+        ],
+        "guidance": "Forward: any forbidden F*p divides a,b,M_N using factor_dvd_quotient, hence divides the complete signature F. Since F≠0, cancel F to make p|1, contradicting irreducibility. Reverse: G=completeSignature contains F by signature_contains and is nonzero since G|M_N≠0. If G≠F, strict_divisor_extra_factor gives p with F*p|G. G divides a,b,M_N, so this p contradicts the forbidden-event predicate. All multiplicities remain in F*p; no radical or simple-root argument. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 3,
+        "supports_obligation": "M5_POLYNOMIAL_IE",
+        "scope": "multiplicity_sensitive_exclusion_criterion",
+        "upstream_dependencies": [],
+        "dependency_declarations": [
+          "M5.PolynomialExclusion.factor_dvd_quotient",
+          "M5.PolynomialExclusion.signature_contains",
+          "M5.PolynomialExclusion.strict_divisor_extra_factor"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "finite_factor_criterion",
+      "dependencies": [
+        "cyclic_quotient_nonzero",
+        "exact_signature_criterion"
+      ],
+      "spec": {
+        "name": "M5.PolynomialExclusion.finite_factor_criterion",
+        "statement": "∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → (M5.completeSignature a b N = F ↔ ∀ p ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F, ¬ (F * p ∣ a ∧ F * p ∣ b))",
+        "imports": [
+          "M5PolynomialExclusion"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial irreducible divisor",
+          "normalizedFactors divisibility"
+        ],
+        "guidance": "Bridge the universal irreducible predicate to normalizedFactors of nonzero M_N/F. Membership gives irreducibility and divisibility via UniqueFactorizationMonoid.irreducible_of_normalized_factor and dvd_of_mem_normalizedFactors. Conversely exists_mem_normalizedFactors_of_dvd produces a normalized q associated to any irreducible p dividing the quotient. Associated multiplication transports F*p divisibility to F*q. Thus quantifying over the finset is equivalent. Using associated representatives avoids assuming a Subsingleton unit group instance. Repeated occurrences of a factor in the residual multiset are intentionally deduplicated, while the F multiplier retains its existing multiplicity. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 3,
+        "supports_obligation": "M5_POLYNOMIAL_IE",
+        "scope": "multiplicity_sensitive_exclusion_criterion",
+        "upstream_dependencies": [],
+        "dependency_declarations": [
+          "M5.PolynomialExclusion.cyclic_quotient_nonzero",
+          "M5.PolynomialExclusion.exact_signature_criterion"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

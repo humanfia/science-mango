@@ -1,0 +1,8 @@
+{
+  "proof": "intro A B w T hw hT hA hB hBbound\nhave hA0 : (M5.SupportPolynomial.ofSupport A).coeff 0 = 1 := by\n  apply M5.SupportPolynomial.support_coeff_zero\n  exact hA\nhave hB0 : (M5.SupportPolynomial.ofSupport B).coeff 0 = 1 := by\n  apply M5.SupportPolynomial.support_coeff_zero\n  exact hB\nhave hA0' : (M5.SupportPolynomial.ofSupport A).coeff 0 ≠ 0 := by\n  rw [hA0]\n  exact one_ne_zero\nhave hB0' : (M5.SupportPolynomial.ofSupport B).coeff 0 ≠ 0 := by\n  rw [hB0]\n  exact one_ne_zero\nhave hwT : 0 < w * T := Nat.mul_pos (by omega) hT\nhave hdeg : (M5.SupportPolynomial.ofSupport B).natDegree < w * T := by\n  apply M5.SupportPolynomial.support_degree_bound <;> assumption\nhave hcontrol : 0 < M5.PhysicalOrder.supportPeriod A B ∧\n    M5.PhysicalOrder.supportPeriod A B ≤ 2 ^ (M5.SupportPolynomial.ofSupport B).natDegree := by\n  unfold M5.PhysicalOrder.supportPeriod\n  apply M5.Signature.ordinary_gcd_period_bound <;> assumption\nrefine ⟨hcontrol.1, hcontrol.2.trans ?_, ?_⟩\n· exact Nat.pow_le_pow_right (by decide) (Nat.le_of_lt hdeg)\n· unfold M5.PhysicalOrder.supportPeriod\n  aesop (add safe apply M5.Period.period_law)\n    (add safe forward M5.Signature.ordinary_gcd_properties)",
+  "queries": [
+    "M5.Signature.ordinary_gcd_period_bound",
+    "M5.Signature.ordinary_gcd_properties M5.Period.period_law",
+    "M5.SupportPolynomial.support_degree_bound"
+  ]
+}

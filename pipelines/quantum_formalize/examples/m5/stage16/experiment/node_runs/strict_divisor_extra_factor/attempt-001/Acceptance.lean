@@ -1,0 +1,3 @@
+import Candidate_43d6257474cd6b7d
+example : QuantumHarnessFrozenTarget := M5.PolynomialExclusion.strict_divisor_extra_factor
+#print axioms M5.PolynomialExclusion.strict_divisor_extra_factor

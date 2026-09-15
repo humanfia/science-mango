@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G\nintro F G hF hFG hG hGF\nhave hF0 : F ≠ 0 := hF.ne_zero\nlet Q := G / F\nhave hGQ : G = F * Q := (EuclideanDomain.mul_div_cancel' hF0 hFG).symm\nhave hQ0 : Q ≠ 0 := by\n  intro hQ\n  apply hG\n  simpa [hQ] using hGQ\nhave hQu : ¬ IsUnit Q := by\n  rintro ⟨u, hu⟩\n  have hGFdvd : G ∣ F := by\n    refine ⟨↑(u⁻¹), ?_⟩\n    rw [hGQ, ← hu, mul_assoc]\n    simp\n  apply hGF\n  first\n  | solve | apply M5.binary_dvd_antisymm <;> assumption\n  | solve | apply M5.BinaryDivisibility.binary_dvd_antisymm <;> assumption\n  | solve | apply M5.PolynomialExclusion.binary_dvd_antisymm <;> assumption\n  | solve | apply binary_dvd_antisymm <;> assumption\n  | solve | apply dvd_antisymm <;> assumption\nobtain ⟨p, hp, hpQ⟩ := WfDvdMonoid.exists_irreducible_factor hQu hQ0\nexact ⟨p, hp, (M5.PolynomialExclusion.factor_dvd_quotient F G p hF0 hFG).mp hpQ⟩",
+  "queries": [
+    "M5.binary_dvd_antisymm M5.BinaryDivisibility.binary_dvd_antisymm",
+    "WfDvdMonoid.exists_irreducible_factor"
+  ]
+}

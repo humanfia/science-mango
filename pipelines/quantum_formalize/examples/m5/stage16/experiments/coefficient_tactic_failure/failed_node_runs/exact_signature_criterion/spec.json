@@ -1,0 +1,14 @@
+{
+  "name": "M5.PolynomialExclusion.exact_signature_criterion",
+  "statement": "∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → (M5.completeSignature a b N = F ↔ ∀ p : M5.BinaryPolynomial, Irreducible p → p ∣ M5.cyclicModulus N / F → ¬ (F * p ∣ a ∧ F * p ∣ b))",
+  "imports": [
+    "M5BinaryDivisibility",
+    "M5PolynomialExclusion"
+  ],
+  "context": "theorem M5.PolynomialExclusion.factor_dvd_quotient : ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P) := by\n  change ∀ F P p : M5.BinaryPolynomial, F ≠ 0 → F ∣ P → (p ∣ P / F ↔ F * p ∣ P)\n  intro F P p hF hFP\n  constructor\n  · rintro ⟨q, hq⟩\n    refine ⟨q, ?_⟩\n    calc\n      P = F * (P / F) := (EuclideanDomain.mul_div_cancel' hF hFP).symm\n      _ = F * (p * q) := congrArg (fun x => F * x) hq\n      _ = (F * p) * q := (mul_assoc F p q).symm\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h\n\ntheorem M5.PolynomialExclusion.signature_contains : ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), F ∣ a → F ∣ b → F ∣ M5.cyclicModulus N → F ∣ M5.completeSignature a b N := by\n  change ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), F ∣ a → F ∣ b → F ∣ M5.cyclicModulus N → F ∣ M5.completeSignature a b N\n  intro a b F N ha hb hN\n  unfold M5.completeSignature\n  repeat' first | assumption | apply EuclideanDomain.dvd_gcd\n\ntheorem M5.PolynomialExclusion.strict_divisor_extra_factor : ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G := by\n  change ∀ F G : M5.BinaryPolynomial, F.Monic → F ∣ G → G ≠ 0 → G ≠ F → ∃ p : M5.BinaryPolynomial, Irreducible p ∧ F * p ∣ G\n  intro F G hFm hFG hG0 hGFne\n  have hF0 : F ≠ 0 := hFm.ne_zero\n  have hG : G = F * (G / F) :=\n    (EuclideanDomain.mul_div_cancel' hF0 hFG).symm\n  have hQ0 : G / F ≠ 0 := by\n    intro hQ\n    apply hG0\n    rw [hG, hQ, mul_zero]\n  have hQu : ¬ IsUnit (G / F) := by\n    rintro ⟨u, hu⟩\n    have hGF : G ∣ F := by\n      refine ⟨↑(u⁻¹), ?_⟩\n      rw [hG, ← hu]\n      simp [mul_assoc]\n    apply hGFne\n    exact M5.Signature.binary_dvd_antisymm G F hGF hFG\n  obtain ⟨p, hp, hpQ⟩ := WfDvdMonoid.exists_irreducible_factor hQu hQ0\n  exact ⟨p, hp, (M5.PolynomialExclusion.factor_dvd_quotient F G p hF0 hFG).mp hpQ⟩",
+  "queries": [
+    "polynomial irreducible divisor",
+    "normalizedFactors divisibility"
+  ],
+  "guidance": "Forward: any forbidden F*p divides a,b,M_N using factor_dvd_quotient, hence divides the complete signature F. Since F≠0, cancel F to make p|1, contradicting irreducibility. Reverse: G=completeSignature contains F by signature_contains and is nonzero since G|M_N≠0. If G≠F, strict_divisor_extra_factor gives p with F*p|G. G divides a,b,M_N, so this p contradicts the forbidden-event predicate. All multiplicities remain in F*p; no radical or simple-root argument. Return only tactic lines without a leading by. Preserve exact statements."
+}

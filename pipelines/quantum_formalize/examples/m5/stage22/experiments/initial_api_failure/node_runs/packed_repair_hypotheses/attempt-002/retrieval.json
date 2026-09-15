@@ -1,0 +1,284 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PhysicalBridge.positive_member M5.PhysicalBridge.remaining_gcd_bounds",
+    "status": "ok",
+    "results": [
+      {
+        "id": 279648,
+        "name": "upperBounds",
+        "module": "Mathlib.Order.Bounds.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L32-L35",
+        "source_text": "/-- The set of upper bounds of a set. -/\n@[to_dual /-- The set of lower bounds of a set. -/]\ndef upperBounds (s : Set α) : Set α :=\n  { x | ∀ ⦃a⦄, a ∈ s → a ≤ x }\n",
+        "docstring": "The set of upper bounds of a set. "
+      },
+      {
+        "id": 192829,
+        "name": "SimpleGraph.IsBridge",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Connectivity/Connected.lean#L757-L760",
+        "source_text": "/-- An edge of a graph is a *bridge* if without it, its incident vertices\nare not reachable from one another. -/\ndef IsBridge (G : SimpleGraph V) (e : Sym2 V) : Prop :=\n  Sym2.lift ⟨fun v w ↦ ¬ (G.deleteEdges {e}).Reachable v w, by simp [reachable_comm]⟩ e\n",
+        "docstring": "An edge of a graph is a *bridge* if without it, its incident vertices\nare not reachable from one another. "
+      },
+      {
+        "id": 279649,
+        "name": "lowerBounds",
+        "module": "Mathlib.Order.Bounds.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L33-L33",
+        "source_text": "@[to_dual /-- The set of lower bounds of a set. -/]\ndef upperBounds (s : Set α) : Set α :=",
+        "docstring": "The set of lower bounds of a set. "
+      },
+      {
+        "id": 92189,
+        "name": "existsUnique_sub_zsmul_mem_Ico",
+        "module": "Mathlib.Algebra.Order.Archimedean.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Archimedean/Basic.lean#L101-L101",
+        "source_text": "@[to_additive]\ntheorem existsUnique_div_zpow_mem_Ico {a : G} (ha : 1 < a) (b c : G) :\n    ∃! m : ℤ, b / a ^ m ∈ Set.Ico c (c * a) := by",
+        "docstring": null
+      },
+      {
+        "id": 192845,
+        "name": "SimpleGraph.IsBridge.anti",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Connectivity/Connected.lean#L883-L884",
+        "source_text": "theorem IsBridge.anti {G' : SimpleGraph V} {e : Sym2 V} (hG : G ≤ G') (h : G'.IsBridge e) :\n    G.IsBridge e := by obtain ⟨a, b⟩ := e; rw [isBridge_iff] at ⊢ h; grw [hG]; assumption\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PhysicalBridge.positive_member M5.PhysicalBridge.remaining_gcd_bounds",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393832,
+        "name": "CanonicalEnsemble.physicalProbability_add",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L784-L791",
+        "source_text": "lemma physicalProbability_add\n    {ι1} [MeasurableSpace ι1]\n    (𝓒1 : CanonicalEnsemble ι1) (T : Temperature) (i : ι × ι1)\n    (h : 𝓒.phaseSpaceunit = 𝓒1.phaseSpaceunit) :\n    (𝓒 + 𝓒1).physicalProbability T i\n      = 𝓒.physicalProbability T i.1 * 𝓒1.physicalProbability T i.2 := by\n  simp [physicalProbability, probability_add, phase_space_unit_add, dof_add, h, pow_add,\n    mul_mul_mul_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 393822,
+        "name": "CanonicalEnsemble.physicalProbability_def",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+        "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393831,
+        "name": "CanonicalEnsemble.physicalProbability_congr",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L779-L782",
+        "source_text": "lemma physicalProbability_congr (e : ι1 ≃ᵐ ι) (T : Temperature) (i : ι1) :\n    (𝓒.congr e).physicalProbability T i\n      = 𝓒.physicalProbability T (e i) := by\n  simp [physicalProbability, probability]\n",
+        "docstring": null
+      },
+      {
+        "id": 393826,
+        "name": "CanonicalEnsemble.log_physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L746-L751",
+        "source_text": "lemma log_physicalProbability\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    Real.log (𝓒.physicalProbability T i)\n      = Real.log (𝓒.probability T i) + (𝓒.dof : ℝ) * Real.log 𝓒.phaseSpaceunit := by\n  rw [physicalProbability, Real.log_mul (𝓒.probability_pos T i).ne' (pow_pos 𝓒.hPos _).ne',\n    Real.log_pow]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.BoundedConstruction.packed_combined_gcd M5.PhysicalBridge.remaining_gcd_feasible",
+    "status": "ok",
+    "results": [
+      {
+        "id": 66030,
+        "name": "Finset.gcd",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L123-L125",
+        "source_text": "/-- Greatest common divisor of a finite set -/\ndef gcd (s : Finset β) (f : β → α) : α :=\n  s.fold GCDMonoid.gcd 0 f\n",
+        "docstring": "Greatest common divisor of a finite set "
+      },
+      {
+        "id": 65922,
+        "name": "gcd_greatest",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L688-L692",
+        "source_text": "theorem gcd_greatest {α : Type*} [CommMonoidWithZero α] [NormalizedGCDMonoid α] {a b d : α}\n    (hda : d ∣ a) (hdb : d ∣ b) (hd : ∀ e : α, e ∣ a → e ∣ b → e ∣ d) :\n    gcd a b = normalize d :=\n  haveI h := hd _ (gcd_dvd_left a b) (gcd_dvd_right a b)\n  gcd_eq_normalize h (GCDMonoid.dvd_gcd hda hdb)\n",
+        "docstring": null
+      },
+      {
+        "id": 65925,
+        "name": "extract_gcd",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L708-L716",
+        "source_text": "theorem extract_gcd {α : Type*} [CommMonoidWithZero α] [GCDMonoid α] (x y : α) :\n    ∃ x' y', x = gcd x y * x' ∧ y = gcd x y * y' ∧ IsUnit (gcd x' y') := by\n  by_cases h : gcd x y = 0\n  · obtain ⟨rfl, rfl⟩ := (gcd_eq_zero_iff x y).1 h\n    simp_rw [← associated_one_iff_isUnit]\n    exact ⟨1, 1, by rw [h, zero_mul], by rw [h, zero_mul], gcd_one_left' 1⟩\n  obtain ⟨x', ex⟩ := gcd_dvd_left x y\n  obtain ⟨y', ey⟩ := gcd_dvd_right x y\n  exact ⟨x', y', ex, ey, isUnit_gcd_of_eq_mul_gcd ex ey h⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 65930,
+        "name": "gcd_neg'",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L738-L739",
+        "source_text": "lemma gcd_neg' [GCDMonoid α] {a b : α} : Associated (gcd a (-b)) (gcd a b) :=\n  Associated.gcd .rfl (.neg_left .rfl)\n",
+        "docstring": null
+      },
+      {
+        "id": 65897,
+        "name": "Associated.gcd",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L481-L484",
+        "source_text": "protected theorem Associated.gcd [GCDMonoid α]\n    {a₁ a₂ b₁ b₂ : α} (ha : Associated a₁ a₂) (hb : Associated b₁ b₂) :\n    Associated (gcd a₁ b₁) (gcd a₂ b₂) :=\n  associated_of_dvd_dvd (gcd_dvd_gcd ha.dvd hb.dvd) (gcd_dvd_gcd ha.dvd' hb.dvd')\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Packing.packedSupport cardinality range anchoredTuple zero membership",
+    "status": "ok",
+    "results": [
+      {
+        "id": 347841,
+        "name": "Metric.packingNumber_zero",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L183-L186",
+        "source_text": "@[simp]\nlemma packingNumber_zero {E : Type*} [EMetricSpace E] (A : Set E) :\n    packingNumber 0 A = A.encard :=\n  le_antisymm (packingNumber_le_encard_self A) (le_iSup_of_le A (by simp))",
+        "docstring": null
+      },
+      {
+        "id": 210602,
+        "name": "Multiset.card_attach",
+        "module": "Mathlib.Data.Multiset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Defs.lean#L295-L297",
+        "source_text": "@[simp]\ntheorem card_attach {m : Multiset α} : card (attach m) = card m :=\n  card_pmap _ _ _",
+        "docstring": null
+      },
+      {
+        "id": 347819,
+        "name": "Metric.packingNumber",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+        "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+        "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+      },
+      {
+        "id": 347827,
+        "name": "Metric.packingNumber_eq_zero",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L115-L121",
+        "source_text": "@[simp]\nlemma packingNumber_eq_zero : packingNumber ε A = 0 ↔ A = ∅ := by\n  simp only [packingNumber, ENat.iSup_eq_zero, encard_eq_zero]\n  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩\n  by_contra!\n  obtain ⟨x, hx⟩ := this\n  simpa using h {x} (by simp [hx]) (by simp)",
+        "docstring": null
+      },
+      {
+        "id": 347835,
+        "name": "Metric.packingNumber_le_encard_self",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L148-L150",
+        "source_text": "lemma packingNumber_le_encard_self (A : Set X) : packingNumber ε A ≤ A.encard := by\n  simp only [packingNumber, iSup_le_iff]\n  exact fun _ hC _ ↦ encard_le_encard hC\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.Packing.packedSupport cardinality range anchoredTuple zero membership",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394431,
+        "name": "WithDim.instZero",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L48-L49",
+        "source_text": "instance (d : Dimension) (M : Type) [Zero M] : Zero (WithDim d M) where\n  zero := ⟨0⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 394425,
+        "name": "WithDim",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L21-L24",
+        "source_text": "/-- The type `M` carrying an instance of a dimension `d`. -/\nstructure WithDim (d : Dimension) (M : Type) where\n  /-- The underlying value of `M`. -/\n  val : M\n",
+        "docstring": "The type `M` carrying an instance of a dimension `d`. "
+      },
+      {
+        "id": 394408,
+        "name": "instCarriesDimensionElemDimSet",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L492-L494",
+        "source_text": "instance (M : Type) [MulAction ℝ≥0 M] [MulUnitDependent M] (d : Dimension) :\n    CarriesDimension (DimSet M d) where\n  d := d\n",
+        "docstring": null
+      },
+      {
+        "id": 394279,
+        "name": "HasDim",
+        "module": "Physlib.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Basic.lean#L278-L282",
+        "source_text": "/-- This typeclass indicates that there is a dimension `dim M : Dimension`\n  associated with the type `M`. -/\nclass HasDim (M : Type) where\n  /-- The dimension associated with a type `M`. -/\n  d : Dimension\n",
+        "docstring": "This typeclass indicates that there is a dimension `dim M : Dimension`\nassociated with the type `M`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

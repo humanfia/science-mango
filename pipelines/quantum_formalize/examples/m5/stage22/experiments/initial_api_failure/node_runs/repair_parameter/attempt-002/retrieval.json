@@ -1,0 +1,260 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5 bounded_connectivity_repair",
+    "status": "ok",
+    "results": [
+      {
+        "id": 355814,
+        "name": "TotallyBounded",
+        "module": "Mathlib.Topology.UniformSpace.Cauchy",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/Cauchy.lean#L485-L488",
+        "source_text": "/-- A set `s` is totally bounded if for every entourage `d` there is a finite\n  set of points `t` such that every element of `s` is `d`-near to some element of `t`. -/\ndef TotallyBounded (s : Set α) : Prop :=\n  ∀ d ∈ 𝓤 α, ∃ t : Set α, t.Finite ∧ s ⊆ ⋃ y ∈ t, { x | (x, y) ∈ d }\n",
+        "docstring": "A set `s` is totally bounded if for every entourage `d` there is a finite\nset of points `t` such that every element of `s` is `d`-near to some element of `t`. "
+      },
+      {
+        "id": 337937,
+        "name": "Bornology.IsBounded",
+        "module": "Mathlib.Topology.Bornology.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Bornology/Basic.lean#L98-L100",
+        "source_text": "/-- `IsBounded` is the predicate that `s` is bounded relative to the ambient bornology on `α`. -/\ndef IsBounded [Bornology α] (s : Set α) : Prop :=\n  IsCobounded sᶜ\n",
+        "docstring": "`IsBounded` is the predicate that `s` is bounded relative to the ambient bornology on `α`. "
+      },
+      {
+        "id": 190367,
+        "name": "Matroid.closure_union_loops_eq",
+        "module": "Mathlib.Combinatorics.Matroid.Loop",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Loop.lean#L183-L186",
+        "source_text": "@[simp]\nlemma closure_union_loops_eq (M : Matroid α) (X : Set α) :\n    M.closure (X ∪ M.loops) = M.closure X := by\n  rw [← closure_empty, closure_union_closure_right_eq, union_empty]",
+        "docstring": null
+      },
+      {
+        "id": 190515,
+        "name": "Matroid.restrict_univ_removeLoops_eq",
+        "module": "Mathlib.Combinatorics.Matroid.Loop",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Loop.lean#L881-L884",
+        "source_text": "@[simp]\nlemma restrict_univ_removeLoops_eq : (M ↾ univ).removeLoops = M.removeLoops := by\n  rw [removeLoops_eq_restrict, restrict_restrict_eq _ (subset_univ _), removeLoops_eq_restrict]\n  simp",
+        "docstring": null
+      },
+      {
+        "id": 190806,
+        "name": "Matroid.restrict",
+        "module": "Mathlib.Combinatorics.Matroid.Minor.Restrict",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Minor/Restrict.lean#L119-L122",
+        "source_text": "/-- Change the ground set of a matroid to some `R : Set α`. The independent sets of the restriction\nare the independent subsets of the new ground set. Most commonly used when `R ⊆ M.E`,\nbut it is convenient not to require this. The elements of `R \\ M.E` become 'loops'. -/\ndef restrict (M : Matroid α) (R : Set α) : Matroid α := (M.restrictIndepMatroid R).matroid\n",
+        "docstring": "Change the ground set of a matroid to some `R : Set α`. The independent sets of the restriction\nare the independent subsets of the new ground set. Most commonly used when `R ⊆ M.E`,\nbut it is convenient not to require this. The elements of `R \\ M.E` become 'loops'. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5 bounded_connectivity_repair",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386892,
+        "name": "polynomial_tanh_bounded",
+        "module": "Physlib.Mathematics.Trigonometry.Tanh",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Trigonometry/Tanh.lean#L108-L122",
+        "source_text": "/-- For a polynomial P, show that P (tanh x) is bounded on the real line -/\nlemma polynomial_tanh_bounded (P : Polynomial ℝ) :\n    ∃ C : ℝ, ∀ x : ℝ, |P.eval (Real.tanh x)| ≤ C := by\n  -- Since tanh maps to (-1, 1), it maps to [-1+ε, 1-ε] for any ε > 0\n  -- But more directly, tanh maps to (-1, 1) ⊆ [-1, 1]\n  have h_range : ∀ x : ℝ, Real.tanh x ∈ Set.Icc (-1) 1 := by\n    intro x\n    constructor\n    · exact le_of_lt (neg_one_lt_tanh x)\n    · exact le_of_lt (tanh_lt_one x)\n  -- Apply polynomial boundedness on [-1, 1]\n  obtain ⟨M, hM⟩ := polynomial_bounded_on_interval P (-1) 1\n  use M\n  intro x\n  exact hM (Real.tanh x) (h_range x)\n",
+        "docstring": "For a polynomial P, show that P (tanh x) is bounded on the real line "
+      },
+      {
+        "id": 386893,
+        "name": "iteratedDeriv_tanh_bounded",
+        "module": "Physlib.Mathematics.Trigonometry.Tanh",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Trigonometry/Tanh.lean#L124-L132",
+        "source_text": "/-- The nth derivative of tanh is bounded on the real line -/\nlemma iteratedDeriv_tanh_bounded (n : ℕ) :\n    ∃ C : ℝ, ∀ x : ℝ, |iteratedDeriv n Real.tanh x| ≤ C := by\n  obtain ⟨P, hP⟩ := iteratedDeriv_tanh_is_polynomial_of_tanh n\n  obtain ⟨C, hC⟩ := polynomial_tanh_bounded P\n  use C\n  intro x\n  rw [hP]\n  exact hC x\n",
+        "docstring": "The nth derivative of tanh is bounded on the real line "
+      },
+      {
+        "id": 393073,
+        "name": "Space.IsDistBounded",
+        "module": "Physlib.SpaceAndTime.Space.IsDistBounded",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/IsDistBounded.lean#L86-L95",
+        "source_text": "/-- The boundedness condition on a function `Space d → F`\n  for it to form a distribution. -/\n@[fun_prop]\ndef IsDistBounded {d : ℕ} (f : Space d → F) : Prop :=\n  AEStronglyMeasurable (fun x => f x) volume ∧\n  ∃ n, ∃ c : Fin n → ℝ, ∃ g : Fin n → Space d,\n    ∃ p : Fin n → ℤ,\n    (∀ i, 0 ≤ c i) ∧\n    (∀ i, - (d - 1 : ℕ) ≤ p i) ∧\n    ∀ x, ‖f x‖ ≤ ∑ i, c i * ‖x + g i‖ ^ p i\n",
+        "docstring": "The boundedness condition on a function `Space d → F`\nfor it to form a distribution. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5 packed_support_range repair_above_packing",
+    "status": "ok",
+    "results": [
+      {
+        "id": 351110,
+        "name": "Continuous.bddAbove_range_of_hasCompactSupport",
+        "module": "Mathlib.Topology.Order.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Order/Compact.lean#L343-L343",
+        "source_text": "@[to_additive /-- A continuous function with compact support is bounded above. -/]\ntheorem Continuous.bddAbove_range_of_hasCompactMulSupport [ClosedIciTopology α] [One α]\n    {f : β → α} (hf : Continuous f) (h : HasCompactMulSupport f) : BddAbove (range f) :=",
+        "docstring": "A continuous function with compact support is bounded above. "
+      },
+      {
+        "id": 279650,
+        "name": "BddAbove",
+        "module": "Mathlib.Order.Bounds.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L37-L40",
+        "source_text": "/-- A set is bounded above if there exists an upper bound. -/\n@[to_dual /-- A set is bounded below if there exists a lower bound. -/]\ndef BddAbove (s : Set α) :=\n  (upperBounds s).Nonempty\n",
+        "docstring": "A set is bounded above if there exists an upper bound. "
+      },
+      {
+        "id": 351109,
+        "name": "Continuous.bddAbove_range_of_hasCompactMulSupport",
+        "module": "Mathlib.Topology.Order.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Order/Compact.lean#L342-L346",
+        "source_text": "/-- A continuous function with compact support is bounded above. -/\n@[to_additive /-- A continuous function with compact support is bounded above. -/]\ntheorem Continuous.bddAbove_range_of_hasCompactMulSupport [ClosedIciTopology α] [One α]\n    {f : β → α} (hf : Continuous f) (h : HasCompactMulSupport f) : BddAbove (range f) :=\n  Continuous.bddBelow_range_of_hasCompactMulSupport (α := αᵒᵈ) hf h\n",
+        "docstring": "A continuous function with compact support is bounded above. "
+      },
+      {
+        "id": 347862,
+        "name": "Metric.packingNumber_two_mul_le_externalCoveringNumber",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L328-L352",
+        "source_text": "/-- The packing number of a set `A` for radius `2 * ε` is at most the external covering number\nof `A` for radius `ε`. -/\ntheorem packingNumber_two_mul_le_externalCoveringNumber (ε : ℝ≥0) (A : Set X) :\n    packingNumber (2 * ε) A ≤ externalCoveringNumber ε A := by\n  simp only [packingNumber, ENNReal.coe_mul, ENNReal.coe_ofNat, externalCoveringNumber, le_iInf_iff,\n    iSup_le_iff]\n  intro C hC_cover D hD_subset hD_separated\n  -- For each point in D, choose a point in C which is ε-close to it\n  let f : D → C := fun x ↦\n    ⟨(hC_cover (hD_subset x.2)).choose, (hC_cover (hD_subset x.2)).choose_spec.1⟩\n  have hf' (x : D) : edist x.1 (f x) ≤ ε := (hC_cover (hD_subset x.2)).choose_spec.2\n  -- `⊢ D.encard ≤ C.encard`\n  -- It suffices to prove that `f` is injective\n  simp only [← Set.toENat_cardinalMk]\n  gcongr\n  refine Cardinal.mk_le_of_injective (f := f) fun x y hxy ↦ Subtype.ext ?_\n  apply Set.Pairwise.eq hD_separated x.2 y.2\n  simp only [not_lt]\n  calc\n    edist (x : X) y ≤ edist (x : X) (f x) + edist (f x : X) y := edist_triangle ..\n    _ ≤ 2 * ε := by\n      rw [two_mul]\n      gcongr\n      · exact hf' x\n      · simpa [edist_comm, hxy] using hf' y\n",
+        "docstring": "The packing number of a set `A` for radius `2 * ε` is at most the external covering number\nof `A` for radius `ε`. "
+      },
+      {
+        "id": 312002,
+        "name": "Module.supportDim_le_of_surjective",
+        "module": "Mathlib.RingTheory.KrullDimension.Module",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/KrullDimension/Module.lean#L74-L77",
+        "source_text": "lemma supportDim_le_of_surjective (f : M →ₗ[R] N) (h : Function.Surjective f) :\n    supportDim R N ≤ supportDim R M :=\n  krullDim_le_of_strictMono (fun a ↦ ⟨a.1, Module.support_subset_of_surjective f h a.2⟩)\n    (fun {_ _} lt ↦ lt)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5 packed_support_range repair_above_packing",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391955,
+        "name": "Fin.predPredAbove",
+        "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L261-L272",
+        "source_text": "/-- The preimage of `m` under `succSuccAbove i j hij` given that `m` is not equal\n  to `i` or `j`. -/\ndef predPredAbove (i j : Fin (n + 1 + 1)) (hij : i ≠ j) (m : Fin (n + 1 + 1))\n    (hm : m ≠ i ∧ m ≠ j) : Fin n :=\n  if h1 : m.1 < i.1 ∧ m.1 < j.1 then\n      ⟨m, by grind⟩\n    else if h2 : m.1 - 1 < i.1 ∧ j.1 ≤ m.1 then\n      ⟨m - 1, by grind⟩\n    else if h3 : i.1 - 1 ≤ m.1 ∧ m.1 < j.1 then\n      ⟨m - 1, by grind⟩\n    else\n      ⟨m - 2, by grind⟩\n",
+        "docstring": "The preimage of `m` under `succSuccAbove i j hij` given that `m` is not equal\nto `i` or `j`. "
+      },
+      {
+        "id": 391938,
+        "name": "Fin.succSuccAbove_monotone",
+        "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L126-L130",
+        "source_text": "@[simp]\nlemma succSuccAbove_monotone {n : ℕ} (i j : Fin (n + 1 + 1)) :\n    Monotone (succSuccAbove i j) := by\n  intro a b\n  simp",
+        "docstring": null
+      },
+      {
+        "id": 391929,
+        "name": "Fin.succSuccAbove",
+        "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L51-L61",
+        "source_text": "/-- The embedding of `Fin n` into `Fin (n + 1 + 1)` which leaves a hole\n  at `i` and `j`. -/\ndef succSuccAbove (i j : Fin (n + 1 + 1)) (m : Fin n) : Fin (n + 1 + 1) :=\n  if m.1 < i.1 ∧ m.1 < j.1 then\n    ⟨m, by omega⟩\n  else if m.1 + 1 < i.1 ∧ j.1 ≤ m.1 then\n    ⟨m + 1, by omega⟩\n  else if i.1 ≤ m.1 ∧ m.1 + 1 < j.1 then\n    ⟨m + 1, by omega⟩\n  else\n    ⟨m + 2, by omega⟩\n",
+        "docstring": "The embedding of `Fin n` into `Fin (n + 1 + 1)` which leaves a hole\nat `i` and `j`. "
+      },
+      {
+        "id": 391940,
+        "name": "Fin.succSuccAbove_range",
+        "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L136-L153",
+        "source_text": "@[simp]\nlemma succSuccAbove_range {i j : Fin (n + 1 + 1)} (hij : i ≠ j) :\n    Set.range (succSuccAbove i j) = {i, j}ᶜ := by\n  rcases Fin.eq_self_or_eq_succAbove i j with rfl | ⟨j, rfl⟩\n  · simp_all\n  rw [succSuccAbove_eq_succAbove_succAbove, Set.range_comp, Fin.range_succAbove]\n  ext a\n  simp only [Set.mem_compl_iff, Set.mem_singleton_iff, Set.mem_image]\n  apply Iff.intro\n  · intro h\n    obtain ⟨b, h1, rfl⟩ := h\n    simpa using h1\n  · intro h\n    simp at h\n    rcases Fin.eq_self_or_eq_succAbove i a with rfl | ⟨a, rfl⟩\n    · simp_all\n    use a\n    simp_all",
+        "docstring": null
+      },
+      {
+        "id": 391953,
+        "name": "Fin.succSuccAbove_natAdd_image_range_castAdd",
+        "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L234-L246",
+        "source_text": "lemma succSuccAbove_natAdd_image_range_castAdd {n n1 : ℕ}\n    (i j : Fin (n + 1 + 1)) :\n    (succSuccAbove (n := n1 + n) (Fin.natAdd n1 i) (Fin.natAdd n1 j)) ''\n    (Set.range (Fin.castAdd (m := n) (n := n1))) = {i | i.1 < n1} := by\n  ext a\n  simp only [Set.mem_image, Set.mem_range, exists_exists_eq_and, Set.mem_setOf_eq]\n  conv_lhs =>\n    enter [1, b]\n    rw [succSuccAbove_natAdd_apply_castAdd i j]\n  apply Iff.intro\n  · rintro ⟨b, rfl⟩\n    simp\n  · exact fun h ↦ ⟨⟨a, by omega⟩, by simp⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5 repaired_exponent_cutoff",
+    "status": "ok",
+    "results": [
+      {
+        "id": 234702,
+        "name": "AddMonoid.exponent",
+        "module": "Mathlib.GroupTheory.Exponent",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L71-L73",
+        "source_text": "@[to_additive\n/-- The exponent of an additive group is the smallest positive integer `n` such that\n`n • g = 0` for all `g ∈ G` if it exists, otherwise it is zero by convention. -/]\nnoncomputable def exponent :=",
+        "docstring": "The exponent of an additive group is the smallest positive integer `n` such that\n`n • g = 0` for all `g ∈ G` if it exists, otherwise it is zero by convention. "
+      },
+      {
+        "id": 234701,
+        "name": "Monoid.exponent",
+        "module": "Mathlib.GroupTheory.Exponent",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L69-L75",
+        "source_text": "/-- The exponent of a group is the smallest positive integer `n` such that `g ^ n = 1` for all\n`g ∈ G` if it exists, otherwise it is zero by convention. -/\n@[to_additive\n/-- The exponent of an additive group is the smallest positive integer `n` such that\n`n • g = 0` for all `g ∈ G` if it exists, otherwise it is zero by convention. -/]\nnoncomputable def exponent :=\n  if h : ExponentExists G then Nat.find h else 0\n",
+        "docstring": "The exponent of a group is the smallest positive integer `n` such that `g ^ n = 1` for all\n`g ∈ G` if it exists, otherwise it is zero by convention. "
+      },
+      {
+        "id": 234749,
+        "name": "Monoid.exponent_dvd",
+        "module": "Mathlib.GroupTheory.Exponent",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L223-L225",
+        "source_text": "@[to_additive]\ntheorem exponent_dvd {n : ℕ} : exponent G ∣ n ↔ ∀ g : G, orderOf g ∣ n := by\n  simp_rw [exponent_dvd_iff_forall_pow_eq_one, orderOf_dvd_iff_pow_eq_one]",
+        "docstring": null
+      },
+      {
+        "id": 234706,
+        "name": "AddOpposite.exponent",
+        "module": "Mathlib.GroupTheory.Exponent",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Exponent.lean#L88-L88",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem _root_.MulOpposite.exponent : exponent (MulOpposite G) = exponent G := by",
+        "docstring": null
+      },
+      {
+        "id": 240804,
+        "name": "ZMod.exponent",
+        "module": "Mathlib.GroupTheory.SpecificGroups.Cyclic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/SpecificGroups/Cyclic.lean#L351-L353",
+        "source_text": "@[simp]\nprotected theorem ZMod.exponent (n : ℕ) : AddMonoid.exponent (ZMod n) = n := by\n  rw [IsAddCyclic.exponent_eq_card, Nat.card_zmod]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5 repaired_exponent_cutoff",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391099,
+        "name": "lorentzAlgebra.Matrix.exp_reindex",
+        "module": "Physlib.Relativity.LorentzAlgebra.ExponentialMap",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/ExponentialMap.lean#L116-L122",
+        "source_text": "@[simp]\nlemma exp_reindex {k : Type*}\n    [RCLike k] [Fintype ι] [DecidableEq ι] (e : n ≃ ι) (A : Matrix n n k) :\n    NormedSpace.exp (A.submatrix e.symm e.symm) = reindex e e (NormedSpace.exp A) := by\n  let f := reindexAlgEquiv k k e\n  have h_cont : Continuous f := f.toLinearEquiv.continuous_of_finiteDimensional\n  exact (NormedSpace.map_exp f.toAlgHom h_cont A).symm",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,244 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PhysicalBridge positive_member remaining_gcd_bounds remaining_gcd_feasible exact declarations",
+    "status": "ok",
+    "results": [
+      {
+        "id": 215360,
+        "name": "PNat.gcd",
+        "module": "Mathlib.Data.PNat.Prime",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Prime.lean#L47-L50",
+        "source_text": "/-- The greatest common divisor (gcd) of two positive natural numbers,\n  viewed as positive natural number. -/\ndef gcd (n m : ℕ+) : ℕ+ :=\n  ⟨Nat.gcd (n : ℕ) (m : ℕ), Nat.gcd_pos_of_pos_left (m : ℕ) n.pos⟩\n",
+        "docstring": "The greatest common divisor (gcd) of two positive natural numbers,\nviewed as positive natural number. "
+      },
+      {
+        "id": 213950,
+        "name": "Num.gcd",
+        "module": "Mathlib.Data.Num.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Basic.lean#L565-L567",
+        "source_text": "/-- Greatest Common Divisor (GCD) of two `Num`s. -/\ndef gcd (a b : Num) : Num :=\n  if a ≤ b then gcdAux (a.natSize + b.natSize) a b else gcdAux (b.natSize + a.natSize) b a\n",
+        "docstring": "Greatest Common Divisor (GCD) of two `Num`s. "
+      },
+      {
+        "id": 65922,
+        "name": "gcd_greatest",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L688-L692",
+        "source_text": "theorem gcd_greatest {α : Type*} [CommMonoidWithZero α] [NormalizedGCDMonoid α] {a b d : α}\n    (hda : d ∣ a) (hdb : d ∣ b) (hd : ∀ e : α, e ∣ a → e ∣ b → e ∣ d) :\n    gcd a b = normalize d :=\n  haveI h := hd _ (gcd_dvd_left a b) (gcd_dvd_right a b)\n  gcd_eq_normalize h (GCDMonoid.dvd_gcd hda hdb)\n",
+        "docstring": null
+      },
+      {
+        "id": 66083,
+        "name": "Multiset.gcd",
+        "module": "Mathlib.Algebra.GCDMonoid.Multiset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Multiset.lean#L117-L119",
+        "source_text": "/-- Greatest common divisor of a multiset -/\ndef gcd (s : Multiset α) : α :=\n  s.fold GCDMonoid.gcd 0\n",
+        "docstring": "Greatest common divisor of a multiset "
+      },
+      {
+        "id": 329770,
+        "name": "Mathlib.Tactic.TermCongr.cHole?",
+        "module": "Mathlib.Tactic.TermCongr",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TermCongr.lean#L130-L141",
+        "source_text": "/-- If the expression is a congruence hole, returns `(forLhs, sideVal, pf)`.\nIf `mvarCounterSaved?` is not none, then only returns the hole if it is at least as recent. -/\ndef cHole? (e : Expr) (mvarCounterSaved? : Option Nat := none) : Option (Bool × Expr × Expr) := do\n  match e with\n  | .mdata d e' =>\n    let forLhs : Bool ← d.get? congrHoleForLhsKey\n    let mvarCounter : Nat ← d.get? congrHoleIndex\n    if let some mvarCounterSaved := mvarCounterSaved? then\n      guard <| mvarCounterSaved ≤ mvarCounter\n    let #[_, val, _, pf] := e'.getAppArgs | failure\n    return (forLhs, val, pf)\n  | _ => none\n",
+        "docstring": "If the expression is a congruence hole, returns `(forLhs, sideVal, pf)`.\nIf `mvarCounterSaved?` is not none, then only returns the hole if it is at least as recent. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PhysicalBridge positive_member remaining_gcd_bounds remaining_gcd_feasible exact declarations",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393987,
+        "name": "FTheory.SU5.FluxesFive.instDecidableEq",
+        "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/Basic.lean#L232-L233",
+        "source_text": "instance : DecidableEq FluxesFive :=\n  inferInstanceAs (DecidableEq (Multiset Fluxes))\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.BoundedConstruction packed_combined_gcd",
+    "status": "ok",
+    "results": [
+      {
+        "id": 320528,
+        "name": "UniqueFactorizationMonoid.toGCDMonoid",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.GCDMonoid",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/GCDMonoid.lean#L28-L48",
+        "source_text": "/-- `toGCDMonoid` constructs a GCD monoid out of a unique factorization domain. -/\n@[instance_reducible]\nnoncomputable def UniqueFactorizationMonoid.toGCDMonoid (α : Type*) [CommMonoidWithZero α]\n    [UniqueFactorizationMonoid α] : GCDMonoid α where\n  gcd a b := Quot.out (Associates.mk a ⊓ Associates.mk b : Associates α)\n  lcm a b := Quot.out (Associates.mk a ⊔ Associates.mk b : Associates α)\n  gcd_dvd_left a b := by\n    rw [← mk_dvd_mk, Associates.quot_out, congr_fun₂ dvd_eq_le]\n    exact inf_le_left\n  gcd_dvd_right a b := by\n    rw [← mk_dvd_mk, Associates.quot_out, congr_fun₂ dvd_eq_le]\n    exact inf_le_right\n  dvd_gcd {a b c} hac hab := by\n    rw [← mk_dvd_mk, Associates.quot_out, congr_fun₂ dvd_eq_le, le_inf_iff,\n      mk_le_mk_iff_dvd, mk_le_mk_iff_dvd]\n    exact ⟨hac, hab⟩\n  lcm_zero_left a := by simp\n  lcm_zero_right a := by simp\n  gcd_mul_lcm a b := by\n    rw [← mk_eq_mk_iff_associated, ← Associates.mk_mul_mk, ← associated_iff_eq, Associates.quot_out,\n      Associates.quot_out, mul_comm, sup_mul_inf, Associates.mk_mul_mk]\n",
+        "docstring": "`toGCDMonoid` constructs a GCD monoid out of a unique factorization domain. "
+      },
+      {
+        "id": 65993,
+        "name": "normalizedGCDMonoidOfGCD",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L1118-L1145",
+        "source_text": "/-- Define `NormalizedGCDMonoid` on a structure just from the `gcd` and its properties. -/\n@[implicit_reducible]\nnoncomputable def normalizedGCDMonoidOfGCD [NormalizationMonoid α] [DecidableEq α] (gcd : α → α → α)\n    (gcd_dvd_left : ∀ a b, gcd a b ∣ a) (gcd_dvd_right : ∀ a b, gcd a b ∣ b)\n    (dvd_gcd : ∀ {a b c}, a ∣ c → a ∣ b → a ∣ gcd c b)\n    (normalize_gcd : ∀ a b, normalize (gcd a b) = gcd a b) : NormalizedGCDMonoid α :=\n  { (inferInstance : NormalizationMonoid α) with\n    gcd\n    gcd_dvd_left\n    gcd_dvd_right\n    dvd_gcd\n    normalize_gcd\n    lcm a b :=\n      if a = 0 then 0\n      else normalize (Classical.choose ((gcd_dvd_left a b).trans (Dvd.intro b rfl)))\n    normalize_lcm a b := by split_ifs <;> simp\n    gcd_mul_lcm a b := by\n      split_ifs with a0\n      · rw [mul_zero, a0, zero_mul]\n      · exact .trans ((normalize_associated _).mul_left _)\n          (.of_eq (Classical.choose_spec (_ : _ ∣ a * b)).symm)\n    lcm_zero_left _ := if_pos rfl\n    lcm_zero_right a := by\n      split_ifs with a0\n      · rfl\n      let := gcdMonoidOfGCD gcd gcd_dvd_left gcd_dvd_right dvd_gcd\n      simpa [gcd_ne_zero_of_left a0] using show GCDMonoid.gcd .. * _ = _\n        from (Classical.choose_spec ((gcd_dvd_left a 0).trans (.intro 0 rfl))).symm }\n",
+        "docstring": "Define `NormalizedGCDMonoid` on a structure just from the `gcd` and its properties. "
+      },
+      {
+        "id": 65992,
+        "name": "gcdMonoidOfGCD",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L1090-L1115",
+        "source_text": "/-- Define `GCDMonoid` on a structure just from the `gcd` and its properties. -/\n@[implicit_reducible]\nnoncomputable def gcdMonoidOfGCD [DecidableEq α] (gcd : α → α → α)\n    (gcd_dvd_left : ∀ a b, gcd a b ∣ a) (gcd_dvd_right : ∀ a b, gcd a b ∣ b)\n    (dvd_gcd : ∀ {a b c}, a ∣ c → a ∣ b → a ∣ gcd c b) : GCDMonoid α :=\n  { gcd\n    gcd_dvd_left\n    gcd_dvd_right\n    dvd_gcd := fun {_ _ _} => dvd_gcd\n    lcm := fun a b =>\n      if a = 0 then 0 else Classical.choose ((gcd_dvd_left a b).trans (Dvd.intro b rfl))\n    gcd_mul_lcm := fun a b => by\n      split_ifs with a0\n      · rw [mul_zero, a0, zero_mul]\n      · rw [← Classical.choose_spec ((gcd_dvd_left a b).trans (Dvd.intro b rfl))]\n    lcm_zero_left := fun _ => if_pos rfl\n    lcm_zero_right := fun a => by\n      split_ifs with a0\n      · rfl\n      have h := (Classical.choose_spec ((gcd_dvd_left a 0).trans (Dvd.intro 0 rfl))).symm\n      have a0' : gcd a 0 ≠ 0 := by\n        contrapose a0\n        rw [← associated_zero_iff_eq_zero, ← a0]\n        exact associated_of_dvd_dvd (dvd_gcd (dvd_refl a) (dvd_zero a)) (gcd_dvd_left _ _)\n      apply Or.resolve_left (mul_eq_zero.1 _) a0'\n      rw [h, mul_zero] }\n",
+        "docstring": "Define `GCDMonoid` on a structure just from the `gcd` and its properties. "
+      },
+      {
+        "id": 161725,
+        "name": "CategoryTheory.Limits.evaluateCombinedCones",
+        "module": "Mathlib.CategoryTheory.Limits.FunctorCategory.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/FunctorCategory/Basic.lean#L89-L92",
+        "source_text": "/-- The stitched together cones each project down to the original given cones (up to iso). -/\ndef evaluateCombinedCones (F : J ⥤ K ⥤ C) (c : ∀ k : K, LimitCone (F.flip.obj k)) (k : K) :\n    ((evaluation K C).obj k).mapCone (combineCones F c) ≅ (c k).cone :=\n  Cone.ext (Iso.refl _)\n",
+        "docstring": "The stitched together cones each project down to the original given cones (up to iso). "
+      },
+      {
+        "id": 161726,
+        "name": "CategoryTheory.Limits.combinedIsLimit",
+        "module": "Mathlib.CategoryTheory.Limits.FunctorCategory.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/FunctorCategory/Basic.lean#L94-L98",
+        "source_text": "/-- Stitching together limiting cones gives a limiting cone. -/\ndef combinedIsLimit (F : J ⥤ K ⥤ C) (c : ∀ k : K, LimitCone (F.flip.obj k)) :\n    IsLimit (combineCones F c) :=\n  evaluationJointlyReflectsLimits _ fun k =>\n    (c k).isLimit.ofIsoLimit (evaluateCombinedCones F c k).symm\n",
+        "docstring": "Stitching together limiting cones gives a limiting cone. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Packing packedSupport cardinality range zero membership",
+    "status": "ok",
+    "results": [
+      {
+        "id": 347841,
+        "name": "Metric.packingNumber_zero",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L183-L186",
+        "source_text": "@[simp]\nlemma packingNumber_zero {E : Type*} [EMetricSpace E] (A : Set E) :\n    packingNumber 0 A = A.encard :=\n  le_antisymm (packingNumber_le_encard_self A) (le_iSup_of_le A (by simp))",
+        "docstring": null
+      },
+      {
+        "id": 347827,
+        "name": "Metric.packingNumber_eq_zero",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L115-L121",
+        "source_text": "@[simp]\nlemma packingNumber_eq_zero : packingNumber ε A = 0 ↔ A = ∅ := by\n  simp only [packingNumber, ENat.iSup_eq_zero, encard_eq_zero]\n  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩\n  by_contra!\n  obtain ⟨x, hx⟩ := this\n  simpa using h {x} (by simp [hx]) (by simp)",
+        "docstring": null
+      },
+      {
+        "id": 347819,
+        "name": "Metric.packingNumber",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+        "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+        "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+      },
+      {
+        "id": 347835,
+        "name": "Metric.packingNumber_le_encard_self",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L148-L150",
+        "source_text": "lemma packingNumber_le_encard_self (A : Set X) : packingNumber ε A ≤ A.encard := by\n  simp only [packingNumber, iSup_le_iff]\n  exact fun _ hC _ ↦ encard_le_encard hC\n",
+        "docstring": null
+      },
+      {
+        "id": 347859,
+        "name": "Metric.encard_maximalSeparatedSet",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L299-L300",
+        "source_text": "lemma encard_maximalSeparatedSet (h : packingNumber ε A ≠ ⊤) :\n    (maximalSeparatedSet ε A).encard = packingNumber ε A := by grind [maximalSeparatedSet]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.Packing packedSupport cardinality range zero membership",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388475,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.card_of_mem_minimalSuperSet",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.MinimalSuperSet",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/MinimalSuperSet.lean#L147-L187",
+        "source_text": "lemma card_of_mem_minimalSuperSet {S5 S10 : Finset 𝓩} {x : ChargeSpectrum 𝓩}\n    (y : ChargeSpectrum 𝓩) (hy : y ∈ minimalSuperSet S5 S10 x) :\n    card y = card x + 1 := by\n  simp [minimalSuperSet] at hy\n  rcases hy with ⟨hy1, hr | hr | hr | hr⟩\n  · match x with\n    | ⟨none, _, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨some x1, _, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, none, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨_, some x2, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, _, Q5, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n  · match x with\n    | ⟨_, _, _, Q10⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n",
+        "docstring": null
+      },
+      {
+        "id": 386235,
+        "name": "Physlib.FourTree.instMembershipProd",
+        "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L229-L230",
+        "source_text": "instance : Membership (α1 × α2 × α3 × α4) (FourTree α1 α2 α3 α4) where\n  mem := mem\n",
+        "docstring": null
+      },
+      {
+        "id": 394408,
+        "name": "instCarriesDimensionElemDimSet",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L492-L494",
+        "source_text": "instance (M : Type) [MulAction ℝ≥0 M] [MulUnitDependent M] (d : Dimension) :\n    CarriesDimension (DimSet M d) where\n  d := d\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

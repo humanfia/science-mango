@@ -1,0 +1,260 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PhysicalBridge.remaining_gcd_bounds M5.PhysicalBridge.remaining_gcd_feasible full signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 192829,
+        "name": "SimpleGraph.IsBridge",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Connectivity/Connected.lean#L757-L760",
+        "source_text": "/-- An edge of a graph is a *bridge* if without it, its incident vertices\nare not reachable from one another. -/\ndef IsBridge (G : SimpleGraph V) (e : Sym2 V) : Prop :=\n  Sym2.lift ⟨fun v w ↦ ¬ (G.deleteEdges {e}).Reachable v w, by simp [reachable_comm]⟩ e\n",
+        "docstring": "An edge of a graph is a *bridge* if without it, its incident vertices\nare not reachable from one another. "
+      },
+      {
+        "id": 328587,
+        "name": "Mathlib.Meta.NormNum.jacobiSymNat",
+        "module": "Mathlib.Tactic.NormNum.LegendreSymbol",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/LegendreSymbol.lean#L56-L58",
+        "source_text": "/-- The Jacobi symbol restricted to natural numbers in both arguments. -/\ndef jacobiSymNat (a b : ℕ) : ℤ :=\n  jacobiSym a b\n",
+        "docstring": "The Jacobi symbol restricted to natural numbers in both arguments. "
+      },
+      {
+        "id": 327847,
+        "name": "Mathlib.Tactic.Linarith.findLinarithContradiction",
+        "module": "Mathlib.Tactic.Linarith.Frontend",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Linarith/Frontend.lean#L259-L275",
+        "source_text": "/--\nGiven a list `ls` of pairs `(α, L)` where each `L` is a list of indexed proofs of\ncomparisons over the type `α`, `findLinarithContradiction cfg g ls` tries each list in\nsuccession, invoking `linarith` until one produces a contradiction. It returns the\nresulting proof of `False` together with the indices of the hypotheses that had\nnonzero coefficients in the final certificate.\n-/\ndef findLinarithContradiction (cfg : LinarithConfig) (g : MVarId)\n    (ls : List (Expr × List (Expr × Nat))) : MetaM (Expr × List Nat) :=\n  try\n    ls.firstM (fun ⟨α, L⟩ =>\n      withTraceNode `linarith (fun _ => return m!\" running on type {α}\") do\n        let (pf, idxs) ←\n          proveFalseByLinarith cfg.transparency cfg.oracle cfg.discharger g (L.map Prod.fst)\n        let idxs := idxs.map fun i => L[i]!.2\n        return (pf, idxs))\n  catch e => throwError \"linarith failed to find a contradiction\\n{g}\\n{e.toMessageData}\"\n",
+        "docstring": "Given a list `ls` of pairs `(α, L)` where each `L` is a list of indexed proofs of\ncomparisons over the type `α`, `findLinarithContradiction cfg g ls` tries each list in\nsuccession, invoking `linarith` until one produces a contradiction. It returns the\nresulting proof of `False` together with the indices of the hypotheses that had\nnonzero coefficients in the final certificate.\n"
+      },
+      {
+        "id": 329770,
+        "name": "Mathlib.Tactic.TermCongr.cHole?",
+        "module": "Mathlib.Tactic.TermCongr",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TermCongr.lean#L130-L141",
+        "source_text": "/-- If the expression is a congruence hole, returns `(forLhs, sideVal, pf)`.\nIf `mvarCounterSaved?` is not none, then only returns the hole if it is at least as recent. -/\ndef cHole? (e : Expr) (mvarCounterSaved? : Option Nat := none) : Option (Bool × Expr × Expr) := do\n  match e with\n  | .mdata d e' =>\n    let forLhs : Bool ← d.get? congrHoleForLhsKey\n    let mvarCounter : Nat ← d.get? congrHoleIndex\n    if let some mvarCounterSaved := mvarCounterSaved? then\n      guard <| mvarCounterSaved ≤ mvarCounter\n    let #[_, val, _, pf] := e'.getAppArgs | failure\n    return (forLhs, val, pf)\n  | _ => none\n",
+        "docstring": "If the expression is a congruence hole, returns `(forLhs, sideVal, pf)`.\nIf `mvarCounterSaved?` is not none, then only returns the hole if it is at least as recent. "
+      },
+      {
+        "id": 327917,
+        "name": "Mathlib.Tactic.Linarith.CertificateOracle.fourierMotzkin",
+        "module": "Mathlib.Tactic.Linarith.Oracle.FourierMotzkin",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Linarith/Oracle/FourierMotzkin.lean#L339-L347",
+        "source_text": "/-- An oracle that uses Fourier-Motzkin elimination. -/\ndef CertificateOracle.fourierMotzkin : CertificateOracle where\n  produceCertificate hyps maxVar :=  do\n    let linarithData := mkLinarithData hyps maxVar\n    let result ←\n      (ExceptT.run (StateT.run (do validate; elimAllVarsM : LinarithM Unit) linarithData) :)\n    match result with\n    | (Except.ok _) => failure\n    | (Except.error contr) => return contr.src.flatten\n",
+        "docstring": "An oracle that uses Fourier-Motzkin elimination. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PhysicalBridge.remaining_gcd_bounds M5.PhysicalBridge.remaining_gcd_feasible full signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393832,
+        "name": "CanonicalEnsemble.physicalProbability_add",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L784-L791",
+        "source_text": "lemma physicalProbability_add\n    {ι1} [MeasurableSpace ι1]\n    (𝓒1 : CanonicalEnsemble ι1) (T : Temperature) (i : ι × ι1)\n    (h : 𝓒.phaseSpaceunit = 𝓒1.phaseSpaceunit) :\n    (𝓒 + 𝓒1).physicalProbability T i\n      = 𝓒.physicalProbability T i.1 * 𝓒1.physicalProbability T i.2 := by\n  simp [physicalProbability, probability_add, phase_space_unit_add, dof_add, h, pow_add,\n    mul_mul_mul_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 393831,
+        "name": "CanonicalEnsemble.physicalProbability_congr",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L779-L782",
+        "source_text": "lemma physicalProbability_congr (e : ι1 ≃ᵐ ι) (T : Temperature) (i : ι1) :\n    (𝓒.congr e).physicalProbability T i\n      = 𝓒.physicalProbability T (e i) := by\n  simp [physicalProbability, probability]\n",
+        "docstring": null
+      },
+      {
+        "id": 393824,
+        "name": "CanonicalEnsemble.physicalProbability_nonneg",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L736-L739",
+        "source_text": "lemma physicalProbability_nonneg\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    0 ≤ 𝓒.physicalProbability T i :=\n  mul_nonneg (𝓒.probability_nonneg T i) (pow_nonneg 𝓒.hPos.le _)\n",
+        "docstring": null
+      },
+      {
+        "id": 393823,
+        "name": "CanonicalEnsemble.physicalProbability_measurable",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L731-L734",
+        "source_text": "lemma physicalProbability_measurable (T : Temperature) :\n    Measurable (𝓒.physicalProbability T) := by\n  unfold physicalProbability probability\n  fun_prop\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.BoundedConstruction.anchoredTuple M5.Packing.packedSupport definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 347819,
+        "name": "Metric.packingNumber",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+        "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+        "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+      },
+      {
+        "id": 300424,
+        "name": "PMF.mem_support_bind_iff",
+        "module": "Mathlib.Probability.ProbabilityMassFunction.Monad",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/ProbabilityMassFunction/Monad.lean#L119-L121",
+        "source_text": "theorem mem_support_bind_iff (b : β) :\n    b ∈ (p.bind f).support ↔ ∃ a ∈ p.support, b ∈ (f a).support := by\n  simp only [support_bind, Set.mem_iUnion, exists_prop]\n",
+        "docstring": null
+      },
+      {
+        "id": 107538,
+        "name": "SkewPolynomial.support_trinomial_subset",
+        "module": "Mathlib.Algebra.SkewPolynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/SkewPolynomial/Basic.lean#L482-L493",
+        "source_text": "lemma support_trinomial_subset [MulSemiringAction (Multiplicative ℕ) R] (k m n : ℕ) (x y z : R) :\n    support (C x * X ^ k + C y * X ^ m + C z * X ^ n) ⊆ {k, m, n} :=\n  support_add.trans\n    (union_subset\n      (support_add.trans\n        (union_subset\n          ((support_C_mul_X_pow_subset k x).trans\n            (singleton_subset_iff.mpr (mem_insert_self k {m, n})))\n          ((support_C_mul_X_pow_subset m y).trans\n            (singleton_subset_iff.mpr (mem_insert_of_mem (mem_insert_self m {n}))))))\n      ((support_C_mul_X_pow_subset n z).trans\n        (singleton_subset_iff.mpr (mem_insert_of_mem (mem_insert_of_mem (mem_singleton_self n))))))\n",
+        "docstring": null
+      },
+      {
+        "id": 91697,
+        "name": "Function.support",
+        "module": "Mathlib.Algebra.Notation.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Support.lean#L31-L31",
+        "source_text": "@[to_additive /-- `support` of a function is the set of points `x` such that `f x ≠ 0`. -/]\ndef mulSupport (f : ι → M) : Set ι := {x | f x ≠ 1}",
+        "docstring": "`support` of a function is the set of points `x` such that `f x ≠ 0`. "
+      },
+      {
+        "id": 300436,
+        "name": "PMF.mem_support_bindOnSupport_iff",
+        "module": "Mathlib.Probability.ProbabilityMassFunction.Monad",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/ProbabilityMassFunction/Monad.lean#L214-L216",
+        "source_text": "theorem mem_support_bindOnSupport_iff (b : β) :\n    b ∈ (p.bindOnSupport f).support ↔ ∃ (a : α) (h : a ∈ p.support), b ∈ (f a h).support := by\n  simp only [support_bindOnSupport, Set.mem_iUnion]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.BoundedConstruction.anchoredTuple M5.Packing.packedSupport definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394425,
+        "name": "WithDim",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L21-L24",
+        "source_text": "/-- The type `M` carrying an instance of a dimension `d`. -/\nstructure WithDim (d : Dimension) (M : Type) where\n  /-- The underlying value of `M`. -/\n  val : M\n",
+        "docstring": "The type `M` carrying an instance of a dimension `d`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "packed_combined_gcd accepted stage19 declaration namespace",
+    "status": "ok",
+    "results": [
+      {
+        "id": 66030,
+        "name": "Finset.gcd",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L123-L125",
+        "source_text": "/-- Greatest common divisor of a finite set -/\ndef gcd (s : Finset β) (f : β → α) : α :=\n  s.fold GCDMonoid.gcd 0 f\n",
+        "docstring": "Greatest common divisor of a finite set "
+      },
+      {
+        "id": 161726,
+        "name": "CategoryTheory.Limits.combinedIsLimit",
+        "module": "Mathlib.CategoryTheory.Limits.FunctorCategory.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/FunctorCategory/Basic.lean#L94-L98",
+        "source_text": "/-- Stitching together limiting cones gives a limiting cone. -/\ndef combinedIsLimit (F : J ⥤ K ⥤ C) (c : ∀ k : K, LimitCone (F.flip.obj k)) :\n    IsLimit (combineCones F c) :=\n  evaluationJointlyReflectsLimits _ fun k =>\n    (c k).isLimit.ofIsoLimit (evaluateCombinedCones F c k).symm\n",
+        "docstring": "Stitching together limiting cones gives a limiting cone. "
+      },
+      {
+        "id": 161725,
+        "name": "CategoryTheory.Limits.evaluateCombinedCones",
+        "module": "Mathlib.CategoryTheory.Limits.FunctorCategory.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/FunctorCategory/Basic.lean#L89-L92",
+        "source_text": "/-- The stitched together cones each project down to the original given cones (up to iso). -/\ndef evaluateCombinedCones (F : J ⥤ K ⥤ C) (c : ∀ k : K, LimitCone (F.flip.obj k)) (k : K) :\n    ((evaluation K C).obj k).mapCone (combineCones F c) ≅ (c k).cone :=\n  Cone.ext (Iso.refl _)\n",
+        "docstring": "The stitched together cones each project down to the original given cones (up to iso). "
+      },
+      {
+        "id": 161732,
+        "name": "CategoryTheory.Limits.evaluateCombinedCocones",
+        "module": "Mathlib.CategoryTheory.Limits.FunctorCategory.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/FunctorCategory/Basic.lean#L144-L147",
+        "source_text": "/-- The stitched together cocones each project down to the original given cocones (up to iso). -/\ndef evaluateCombinedCocones (F : J ⥤ K ⥤ C) (c : ∀ k : K, ColimitCocone (F.flip.obj k)) (k : K) :\n    ((evaluation K C).obj k).mapCocone (combineCocones F c) ≅ (c k).cocone :=\n  Cocone.ext (Iso.refl _)\n",
+        "docstring": "The stitched together cocones each project down to the original given cocones (up to iso). "
+      },
+      {
+        "id": 161733,
+        "name": "CategoryTheory.Limits.combinedIsColimit",
+        "module": "Mathlib.CategoryTheory.Limits.FunctorCategory.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/FunctorCategory/Basic.lean#L149-L153",
+        "source_text": "/-- Stitching together colimiting cocones gives a colimiting cocone. -/\ndef combinedIsColimit (F : J ⥤ K ⥤ C) (c : ∀ k : K, ColimitCocone (F.flip.obj k)) :\n    IsColimit (combineCocones F c) :=\n  evaluationJointlyReflectsColimits _ fun k =>\n    (c k).isColimit.ofIsoColimit (evaluateCombinedCocones F c k).symm\n",
+        "docstring": "Stitching together colimiting cocones gives a colimiting cocone. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "packed_combined_gcd accepted stage19 declaration namespace",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387123,
+        "name": "Physlib.allSorryfulAttributed",
+        "module": "Physlib.Meta.Sorry",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Sorry.lean#L170-L174",
+        "source_text": "/-- All names which are attributed `sorryful`. -/\nunsafe def allSorryfulAttributed : CoreM (Array Name) := do\n  let env ← getEnv\n  let sorryfulInfos := (sorryfulExtension.getState env)\n  return sorryfulInfos.map fun info => info.name\n",
+        "docstring": "All names which are attributed `sorryful`. "
+      },
+      {
+        "id": 387045,
+        "name": "Lean.Name.hasPos",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L128-L131",
+        "source_text": "/-- Determines if a name has a location. -/\ndef hasPos (c : Name) : m Bool := do\n  let ranges? ← findDeclarationRanges? c\n  return ranges?.isSome\n",
+        "docstring": "Determines if a name has a location. "
+      },
+      {
+        "id": 387076,
+        "name": "SorryfulInfo",
+        "module": "Physlib.Meta.Linters.Sorry",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Linters/Sorry.lean#L39-L48",
+        "source_text": "/-- The information for stored for a declaration marked with `sorryful`. -/\nstructure SorryfulInfo where\n  /-- Name of result. -/\n  name : Name\n  /-- The docstring of the result. -/\n  docstring : String\n  /-- The file name where the note came from. -/\n  fileName : Name\n  /-- The line from where the note came from. -/\n  line : Nat\n",
+        "docstring": "The information for stored for a declaration marked with `sorryful`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

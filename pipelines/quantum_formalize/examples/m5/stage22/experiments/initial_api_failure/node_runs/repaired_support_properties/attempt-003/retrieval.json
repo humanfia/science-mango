@@ -1,0 +1,276 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.RepairSupport.replacement_card replacement_anchor replacement_range replacement_connected signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 329854,
+        "name": "Mathlib.Tactic.Translate.ReplacementM",
+        "module": "Mathlib.Tactic.Translate.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Translate/Core.lean#L360-L365",
+        "source_text": "/-- Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. -/\nabbrev ReplacementM :=\n  ReaderT (Array FVarId) <| MonadCacheT ExprStructEq Expr StateRefT (Std.HashSet FVarId) MetaM\n",
+        "docstring": "Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. "
+      },
+      {
+        "id": 340656,
+        "name": "IsConnected",
+        "module": "Mathlib.Topology.Connected.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Connected/Basic.lean#L54-L56",
+        "source_text": "/-- A connected set is one that is nonempty and where there is no non-trivial open partition. -/\ndef IsConnected (s : Set α) : Prop :=\n  s.Nonempty ∧ IsPreconnected s\n",
+        "docstring": "A connected set is one that is nonempty and where there is no non-trivial open partition. "
+      },
+      {
+        "id": 308998,
+        "name": "HahnSeries.cardSupp",
+        "module": "Mathlib.RingTheory.HahnSeries.Cardinal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Cardinal.lean#L38-L40",
+        "source_text": "/-- The cardinality of the support of a Hahn series. -/\ndef cardSupp (x : R⟦Γ⟧) : Cardinal :=\n  #x.support\n",
+        "docstring": "The cardinality of the support of a Hahn series. "
+      },
+      {
+        "id": 218565,
+        "name": "Finite.Set.finite_replacement",
+        "module": "Mathlib.Data.Set.Finite.Range",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Range.lean#L69-L71",
+        "source_text": "instance finite_replacement [Finite α] (f : α → β) :\n    Finite {f x | x : α} :=\n  Finite.Set.finite_range f\n",
+        "docstring": null
+      },
+      {
+        "id": 329703,
+        "name": "Mathlib.TacticAnalysis.terminalReplacement",
+        "module": "Mathlib.Tactic.TacticAnalysis.Declarations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TacticAnalysis/Declarations.lean#L36-L110",
+        "source_text": "/--\nDefine a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n-/\ndef terminalReplacement (oldTacticName newTacticName : String) (oldTacticKind : SyntaxNodeKind)\n    (newTactic : ContextInfo → TacticInfo → Syntax → CommandElabM (TSyntax `tactic))\n    (reportFailure : Bool := true) (reportSuccess : Bool := false)\n    (reportSlowdown : Bool := false) (maxSlowdown : Float := 1) :\n    TacticAnalysis.Config := .ofComplex {\n  out := TerminalReplacementOutcome\n  ctx := Syntax\n  trigger _ stx := if stx.getKind == oldTacticKind\n    then .accept stx else .skip\n  test ctxI i stx goal := do\n    let tac ← newTactic ctxI i stx\n    try\n      let goalTypes ← ctxI.runTacticCode i goal tac ⟨Expr, MVarId.getType'⟩\n      match goalTypes with\n      | [] => return .success tac\n      | _ => do\n        let goalsMessages := goalTypes.map fun e => m!\"⊢ {MessageData.ofExpr e}\\n\"\n        return .remainingGoals tac goalsMessages\n    catch _e =>\n      let name ← mkAuxDeclName `extracted\n      -- Rerun in the original tactic context, since `omega` changes the state.\n      let ((sig, _, modules, _), _) ← ctxI.runTactic i goal (fun goal =>\n        (Mathlib.Tactic.ExtractGoal.goalSignature name goal).run)\n      let imports := modules.toList.map (s!\"import {·}\")\n      return .error tac m!\"{\"\\n\".intercalate imports}\\n\\ntheorem {sig} := by\\n  fail_if_success {tac}\\n  {stx}\"\n  tell stx old oldHeartbeats new newHeartbeats :=\n    -- If the original tactic failed, then we do not need to check the replacement.\n    if !old.isEmpty then\n      return none\n    else match new with\n    | .error _ msg =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` failed where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Counterexample:{indentD msg}\"\n        return msg\n      else\n        return none\n    | .remainingGoals newStx goals =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` left unsolved goals where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Replacement tactic:{indentD newStx}\\n\" ++\n          m!\"Unsolved goals:{indentD goals}\"\n        return msg\n      else\n        return none\n    | .success newStx => do\n      -- TODO: we should add a \"Try this:\" suggestion with code action.\n      let msg := if (← liftCoreM <| PrettyPrinter.ppTactic newStx).pretty = newTacticName then\n        m!\"`{newTacticName}` can replace `{stx}`\"\n      else\n        m!\"`{newTacticName}` can replace `{stx}` using `{newStx}`\"\n      if reportSlowdown ∧ maxSlowdown * oldHeartbeats.toFloat < newHeartbeats.toFloat then\n        return some m!\"{msg}, but is slower: {newHeartbeats / 1000} versus {oldHeartbeats / 1000} heartbeats\"\n      else if reportSuccess then\n        return some msg\n      else\n        return none\n    }\n",
+        "docstring": "Define a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.RepairSupport.replacement_card replacement_anchor replacement_range replacement_connected signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388408,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.card",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L243-L246",
+        "source_text": "/-- The cardinality of a `Charges` is defined to be the sum of the cardinalities\n  of each of the underlying finite sets of charges, with `Option ℤ` turned to finsets. -/\ndef card (x : ChargeSpectrum 𝓩) : Nat :=\n  x.qHu.toFinset.card + x.qHd.toFinset.card + x.Q5.card + x.Q10.card\n",
+        "docstring": "The cardinality of a `Charges` is defined to be the sum of the cardinalities\nof each of the underlying finite sets of charges, with `Option ℤ` turned to finsets. "
+      },
+      {
+        "id": 393967,
+        "name": "FTheory.SU5.ChargeSpectrum.card_five_bar_le_of_mem_viableCharges",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L495-L497",
+        "source_text": "lemma card_five_bar_le_of_mem_viableCharges (I : CodimensionOneConfig) :\n    ∀ x ∈ (viableCharges I), x.Q5.card ≤ 2 := by\n  decide +revert\n",
+        "docstring": null
+      },
+      {
+        "id": 393949,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_card",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L237-L240",
+        "source_text": "lemma viableCompletions_card (I : CodimensionOneConfig) :\n    (viableCompletions I).card = if I = same then 70 else\n      if I = nearestNeighbor then 48 else 37 := by\n  cases I <;> rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 388475,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.card_of_mem_minimalSuperSet",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.MinimalSuperSet",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/MinimalSuperSet.lean#L147-L187",
+        "source_text": "lemma card_of_mem_minimalSuperSet {S5 S10 : Finset 𝓩} {x : ChargeSpectrum 𝓩}\n    (y : ChargeSpectrum 𝓩) (hy : y ∈ minimalSuperSet S5 S10 x) :\n    card y = card x + 1 := by\n  simp [minimalSuperSet] at hy\n  rcases hy with ⟨hy1, hr | hr | hr | hr⟩\n  · match x with\n    | ⟨none, _, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨some x1, _, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, none, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨_, some x2, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, _, Q5, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n  · match x with\n    | ⟨_, _, _, Q10⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n",
+        "docstring": null
+      },
+      {
+        "id": 388276,
+        "name": "MSSMACC.AnomalyFreePerp.InLineEq",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L166-L168",
+        "source_text": "/-- Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. -/\ndef InLineEq : Type := {R : MSSMACC.AnomalyFreePerp // LineEqProp R}\n",
+        "docstring": "Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Packing packedSupport definition cardinality anchor bound",
+    "status": "ok",
+    "results": [
+      {
+        "id": 347835,
+        "name": "Metric.packingNumber_le_encard_self",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L148-L150",
+        "source_text": "lemma packingNumber_le_encard_self (A : Set X) : packingNumber ε A ≤ A.encard := by\n  simp only [packingNumber, iSup_le_iff]\n  exact fun _ hC _ ↦ encard_le_encard hC\n",
+        "docstring": null
+      },
+      {
+        "id": 300301,
+        "name": "PMF.support",
+        "module": "Mathlib.Probability.ProbabilityMassFunction.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/ProbabilityMassFunction/Basic.lean#L78-L80",
+        "source_text": "/-- The support of a `PMF` is the set where it is nonzero. -/\ndef support (p : PMF α) : Set α :=\n  Function.support p\n",
+        "docstring": "The support of a `PMF` is the set where it is nonzero. "
+      },
+      {
+        "id": 347819,
+        "name": "Metric.packingNumber",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+        "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+        "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+      },
+      {
+        "id": 347841,
+        "name": "Metric.packingNumber_zero",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L183-L186",
+        "source_text": "@[simp]\nlemma packingNumber_zero {E : Type*} [EMetricSpace E] (A : Set E) :\n    packingNumber 0 A = A.encard :=\n  le_antisymm (packingNumber_le_encard_self A) (le_iSup_of_le A (by simp))",
+        "docstring": null
+      },
+      {
+        "id": 91697,
+        "name": "Function.support",
+        "module": "Mathlib.Algebra.Notation.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Support.lean#L31-L31",
+        "source_text": "@[to_additive /-- `support` of a function is the set of points `x` such that `f x ≠ 0`. -/]\ndef mulSupport (f : ι → M) : Set ι := {x | f x ≠ 1}",
+        "docstring": "`support` of a function is the set of points `x` such that `f x ≠ 0`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.Packing packedSupport definition cardinality anchor bound",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 394425,
+        "name": "WithDim",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L21-L24",
+        "source_text": "/-- The type `M` carrying an instance of a dimension `d`. -/\nstructure WithDim (d : Dimension) (M : Type) where\n  /-- The underlying value of `M`. -/\n  val : M\n",
+        "docstring": "The type `M` carrying an instance of a dimension `d`. "
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 394408,
+        "name": "instCarriesDimensionElemDimSet",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L492-L494",
+        "source_text": "instance (M : Type) [MulAction ℝ≥0 M] [MulUnitDependent M] (d : Dimension) :\n    CarriesDimension (DimSet M d) where\n  d := d\n",
+        "docstring": null
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.BoundedConstruction.anchoredTuple M5.packingCutoff definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 252368,
+        "name": "RootPairing.GeckConstruction.e",
+        "module": "Mathlib.LinearAlgebra.RootSystem.GeckConstruction.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/RootSystem/GeckConstruction/Basic.lean#L138-L146",
+        "source_text": "/-- Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. -/\ndef e (i : b.support) :\n    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=\n  open scoped Classical in\n  letI := P.indexNeg\n  .fromBlocks 0\n    (.of fun i' j ↦ if i' = i ∧ j = -i then 1 else 0)\n    (.of fun i' j ↦ if i' = i then ↑|b.cartanMatrix i j| else 0)\n    (.of fun i' j ↦ if P.root i' = P.root i + P.root j then P.chainBotCoeff i j + 1 else 0)\n",
+        "docstring": "Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. "
+      },
+      {
+        "id": 201707,
+        "name": "Tuple.sort",
+        "module": "Mathlib.Data.Fin.Tuple.Sort",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Sort.lean#L77-L79",
+        "source_text": "/-- `sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. -/\ndef sort (f : Fin n → α) : Equiv.Perm (Fin n) :=\n  (graphEquiv₂ f).toEquiv.trans (graphEquiv₁ f).symm\n",
+        "docstring": "`sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. "
+      },
+      {
+        "id": 347819,
+        "name": "Metric.packingNumber",
+        "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+        "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+        "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+      },
+      {
+        "id": 252360,
+        "name": "RootPairing.GeckConstruction.h",
+        "module": "Mathlib.LinearAlgebra.RootSystem.GeckConstruction.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/RootSystem/GeckConstruction/Basic.lean#L68-L72",
+        "source_text": "/-- Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. -/\ndef h (i : b.support) :\n    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=\n  open scoped Classical in\n  .fromBlocks 0 0 0 (.diagonal (P.pairingIn ℤ · i))\n",
+        "docstring": "Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. "
+      },
+      {
+        "id": 252369,
+        "name": "RootPairing.GeckConstruction.f",
+        "module": "Mathlib.LinearAlgebra.RootSystem.GeckConstruction.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/RootSystem/GeckConstruction/Basic.lean#L148-L156",
+        "source_text": "/-- Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. -/\ndef f (i : b.support) :\n    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=\n  open scoped Classical in\n  letI := P.indexNeg\n  .fromBlocks 0\n    (.of fun i' j ↦ if i' = i ∧ j = i then 1 else 0)\n    (.of fun i' j ↦ if i' = -i then ↑|b.cartanMatrix i j| else 0)\n    (.of fun i' j ↦ if P.root i' = P.root j - P.root i then P.chainTopCoeff i j + 1 else 0)\n",
+        "docstring": "Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.BoundedConstruction.anchoredTuple M5.packingCutoff definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394425,
+        "name": "WithDim",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L21-L24",
+        "source_text": "/-- The type `M` carrying an instance of a dimension `d`. -/\nstructure WithDim (d : Dimension) (M : Type) where\n  /-- The underlying value of `M`. -/\n  val : M\n",
+        "docstring": "The type `M` carrying an instance of a dimension `d`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "proof": "intro w T r s e hT he hδpos hδlt hcop\nhave he_bound : e < w * T := by\n  first\n  | exact M5.Packing.packed_support_range r e he\n  | exact?\nobtain ⟨k, hk, hk_bound, hk_coprime⟩ :\n    ∃ k : ℕ, w ≤ k ∧\n      k < w + M5.PhysicalBridge.remainingGcd\n        (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e ∧\n      Nat.gcd (M5.PhysicalBridge.remainingGcd\n        (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e)\n        (e + k * T) = 1 := by\n  exact?\nrefine ⟨k, hk, ?_, ?_, hk_coprime⟩\n· intro hmem\n  have hbound : e + k * T < w * T := by\n    first\n    | exact M5.Packing.packed_support_range r (e + k * T) hmem\n    | exact?\n  have hmul : w * T ≤ k * T := Nat.mul_le_mul_right T hk\n  omega\n· exact?",
+  "queries": [
+    "M5 bounded_connectivity_repair",
+    "M5 Packing packed_support_range",
+    "M5 repaired_exponent_cutoff"
+  ]
+}

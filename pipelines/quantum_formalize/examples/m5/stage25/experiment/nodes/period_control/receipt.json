@@ -1,0 +1,55 @@
+{
+  "id": "period_control",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PhysicalOrder.period_control",
+    "spec_sha256": "6d6ff9b7278d9e3ba18f844064f1efff41905b6cfb2f8394fef7aa2196361f8e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-physical-order-formalization/.humanize-formal-runs/run-e9nyvfx2/attempt-001/Candidate_02463d6f2cd77d5f.lean",
+        "target_path": "/home/jing/m5-lean-physical-order-formalization/.humanize-formal-runs/run-e9nyvfx2/attempt-001/FrozenTarget_02463d6f2cd77d5f.lean",
+        "feedback": "",
+        "target_sha256": "70b2a76d0ee788327f49639b566fda59c36190f10f2bc9166e732bf5d017e475",
+        "target_olean_sha256": "69de6fa5f9dbc77b33b4ba6285ba19726c9a03973d52f61faa025c69fc13ed6e",
+        "source_sha256": "39b0fd160901887ce176f3ab3fd1ee03efe74aa0078ddbe23aa226e293a8d1aa",
+        "olean_sha256": "786419447a0ab5d8efc1cffbdd24e756e9b73aea5f13926002186966b7ed610d",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:16:10.287521+00:00",
+    "work": "/home/jing/m5-lean-physical-order-formalization/.humanize-formal-runs/run-e9nyvfx2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "42d6fbfacb7ff0897c391047714cb69c3facc8c8f18d3d516719560598726859",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-physical-order-formalization/.humanize-formal-runs/run-e9nyvfx2/attempt-001/Candidate_02463d6f2cd77d5f.lean",
+    "environment_sha256": "781aa033e262eb1a7e31946f00d848b34e58ec51d354d56ca84b58f4d003c11b",
+    "artifacts": {
+      "period_control": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalOrder.period_control : ∀ (A B : Finset ℕ) (w T : ℕ), 2 ≤ w → 0 < T → 0 ∈ A → 0 ∈ B → (∀ b ∈ B, b < w * T) → 0 < M5.PhysicalOrder.supportPeriod A B ∧ M5.PhysicalOrder.supportPeriod A B ≤ 2 ^ (w * T) ∧ EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) ∣ M5.cyclicModulus (M5.PhysicalOrder.supportPeriod A B) := by\n  intro A B w T hw hT hA hB hBbound\n  have hAc : (M5.SupportPolynomial.ofSupport A).coeff 0 = 1 := by\n    simpa only [if_pos hA] using M5.SupportPolynomial.support_coeff_zero A\n  have hBc : (M5.SupportPolynomial.ofSupport B).coeff 0 = 1 := by\n    simpa only [if_pos hB] using M5.SupportPolynomial.support_coeff_zero B\n  have hwT : 0 < w * T := Nat.mul_pos (by omega) hT\n  have hdeg := M5.SupportPolynomial.support_degree_bound B (w * T) hwT hBbound\n  have hb := M5.Signature.ordinary_gcd_period_bound (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) hAc hBc\n  have hp := M5.Signature.ordinary_gcd_properties (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) hAc hBc\n  unfold M5.PhysicalOrder.supportPeriod\n  refine ⟨hb.1, le_trans hb.2 (Nat.pow_le_pow_right (by decide) (Nat.le_of_lt hdeg)), ?_⟩\n  exact ((M5.Period.period_law _ hp.1 hp.2.1).2 _).mpr (dvd_refl _)",
+          "imports": [
+            "M5PhysicalOrder"
+          ],
+          "name": "M5.PhysicalOrder.period_control",
+          "ancestors": [],
+          "spec_sha256": "6d6ff9b7278d9e3ba18f844064f1efff41905b6cfb2f8394fef7aa2196361f8e"
+        },
+        "sha256": "a6418573a6004f1e81d6ad8f674bbd8c97f457c3695d42f9e0449b3095349042"
+      }
+    }
+  }
+}

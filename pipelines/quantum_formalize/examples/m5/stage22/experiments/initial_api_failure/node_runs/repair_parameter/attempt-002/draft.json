@@ -1,0 +1,8 @@
+{
+  "proof": "intro w T r s e hT he hδpos hδlt hgcd\nlet δ := M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e\nhave hrange : ∀ a ∈ M5.Packing.packedSupport r, a < w * T := by\n  intro a ha\n  first\n  | solve_by_elim [M5.Packing.packed_support_range]\n  | aesop (add safe forward M5.Packing.packed_support_range)\n  | solve_by_elim [M5.packed_support_range]\n  | aesop (add safe forward M5.packed_support_range)\nhave hrepair : ∃ k : ℕ, w ≤ k ∧ k < w + δ ∧ Nat.gcd δ (e + k * T) = 1 := by\n  first\n  | solve_by_elim [M5.bounded_connectivity_repair]\n  | solve_by_elim [M5.PhysicalBridge.bounded_connectivity_repair]\n  | solve_by_elim [M5.BoundedConstruction.bounded_connectivity_repair]\n  | solve_by_elim [bounded_connectivity_repair]\nobtain ⟨k, hwk, hk, hcop⟩ := hrepair\nrefine ⟨k, hwk, ?_, ?_, hcop⟩\n· intro hmem\n  have hlt := hrange (e + k * T) hmem\n  have hmul := Nat.mul_le_mul_right T hwk\n  omega\n· have heBound := hrange e he\n  have hδBound : δ < w * T := hδlt\n  first\n  | solve_by_elim [M5.repaired_exponent_cutoff]\n  | solve_by_elim [M5.BoundedConstruction.repaired_exponent_cutoff]\n  | solve_by_elim [M5.Packing.repaired_exponent_cutoff]\n  | solve_by_elim [repaired_exponent_cutoff]\n  | unfold M5.packingCutoff\n    nlinarith [Nat.mul_le_mul_right T (Nat.le_of_lt hk), Nat.mul_le_mul_right T (Nat.le_of_lt hδBound)]",
+  "queries": [
+    "bounded_connectivity_repair exact declaration namespace",
+    "packed_support_range exact declaration namespace",
+    "repaired_exponent_cutoff exact declaration namespace"
+  ]
+}

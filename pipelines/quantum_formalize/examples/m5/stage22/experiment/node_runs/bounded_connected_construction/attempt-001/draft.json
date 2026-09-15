@@ -1,0 +1,4 @@
+{
+  "proof": "intro w T r s hw hT hr hs hg\nhave hw0 : 0 < w := by omega\nobtain ⟨e, he, hepos, hpos, hlt, hfeas⟩ :=\n  M5.BoundedConstruction.packed_repair_hypotheses w T r s hw hT hr hs hg\nobtain ⟨k, hk, hnew, hcut, hgcd⟩ :=\n  M5.BoundedConstruction.repair_parameter w T r s e hT he hpos hlt hfeas\nobtain ⟨hcard, hzero, hrange, hconn⟩ :=\n  M5.BoundedConstruction.repaired_support_properties\n    w T r s hw hT hr hs e k he hepos hnew hcut hgcd\nrefine ⟨M5.RepairSupport.repaired (M5.Packing.packedSupport r) e (e + k * T),\n  hcard, M5.Packing.packed_support_card w T s, hzero,\n  M5.Packing.packed_support_anchor w T s hw0 (hs ⟨0, hw0⟩ rfl),\n  hrange, ?_, hconn, ?_⟩\n· exact fun b hb => M5.Packing.packed_support_range w T s b hb\n· exact (M5.SignatureCongruence.repaired_complete_signature\n    (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e k T he hnew).trans\n    (M5.SignatureCongruence.packed_complete_signature w T r s)",
+  "queries": []
+}

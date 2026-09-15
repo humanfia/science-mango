@@ -1,0 +1,3 @@
+import Candidate_adb16f2342d88758
+example : QuantumHarnessFrozenTarget := M5.PolynomialExclusion.cyclic_quotient_nonzero
+#print axioms M5.PolynomialExclusion.cyclic_quotient_nonzero

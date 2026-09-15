@@ -1,0 +1,13 @@
+{
+  "name": "M5.BoundedConstruction.packed_repair_hypotheses",
+  "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → ∃ e ∈ (M5.Packing.packedSupport r), 0 < e ∧ 0 < (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) ∧ (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e) < w * T ∧ Nat.gcd (Nat.gcd T (M5.PhysicalBridge.remainingGcd (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) e)) e = 1",
+  "imports": [
+    "M5BoundedConstruction"
+  ],
+  "context": "",
+  "queries": [
+    "Finset erase insert cardinality gcd",
+    "natural gcd Chinese remainder connectivity"
+  ],
+  "guidance": "Use accepted packed support card/range/anchor, then stage19 positive_member, remaining_gcd_bounds, packed_combined_gcd and remaining_gcd_feasible. anchoredTuple is exactly designated index zero. This node requires accepted stage19 proof promotion. Return only tactic lines without leading by; preserve exact target."
+}

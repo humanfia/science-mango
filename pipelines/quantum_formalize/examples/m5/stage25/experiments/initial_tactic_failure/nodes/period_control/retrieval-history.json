@@ -1,0 +1,1497 @@
+[
+  {
+    "queries": [
+      "natural power monotonicity",
+      "polynomial period divisibility"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural power monotonicity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 98346,
+            "name": "Monotone.pow_const",
+            "module": "Mathlib.Algebra.Order.Monoid.Unbundled.Pow",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Monoid/Unbundled/Pow.lean#L167-L172",
+            "source_text": "@[to_additive Monotone.const_nsmul]\ntheorem Monotone.pow_const {f : β → M} (hf : Monotone f) : ∀ n : ℕ, Monotone fun a => f a ^ n\n  | 0 => by simpa using monotone_const\n  | n + 1 => by\n    simp_rw [pow_succ]\n    exact (Monotone.pow_const hf _).mul' hf\n\n@[to_additive nsmul_right_mono]\ntheorem pow_left_mono (n : ℕ) : Monotone fun a : M => a ^ n := monotone_id.pow_const _",
+            "docstring": null
+          },
+          {
+            "id": 94345,
+            "name": "Nat.pow_left_strictMono",
+            "module": "Mathlib.Algebra.Order.Group.Nat",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Nat.lean#L48-L50",
+            "source_text": "/-- See also `pow_left_strictMonoOn₀`. -/\nprotected lemma pow_left_strictMono (hn : n ≠ 0) : StrictMono (· ^ n : ℕ → ℕ) :=\n  fun _ _ h ↦ Nat.pow_lt_pow_left h hn\n",
+            "docstring": "See also `pow_left_strictMonoOn₀`. "
+          },
+          {
+            "id": 292293,
+            "name": "Nat.pow_monotoneOn",
+            "module": "Mathlib.Order.Monotone.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Monotone/Basic.lean#L610-L611",
+            "source_text": "lemma pow_monotoneOn : MonotoneOn (fun p : ℕ × ℕ ↦ p.1 ^ p.2) {p | p.1 ≠ 0} := fun _p _ _q hq hpq ↦\n  (Nat.pow_le_pow_left hpq.1 _).trans (Nat.pow_le_pow_right (Nat.pos_iff_ne_zero.2 hq) hpq.2)\n",
+            "docstring": null
+          },
+          {
+            "id": 328295,
+            "name": "Mathlib.Tactic.Monotonicity.mono",
+            "module": "Mathlib.Tactic.Monotonicity.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Monotonicity/Basic.lean#L35-L46",
+            "source_text": "/--\n`mono` applies monotonicity rules and local hypotheses repetitively.  For example,\n```lean\nexample (x y z k : ℤ)\n    (h : 3 ≤ (4 : ℤ))\n    (h' : z ≤ y) :\n    (k + 3 + x) - y ≤ (k + 4 + x) - z := by\n  mono\n```\n-/\nsyntax (name := mono) \"mono\" \"*\"? (ppSpace mono.side)?\n  (\" with \" (colGt term),+)? (\" using \" (colGt simpArg),+)? : tactic\n",
+            "docstring": "`mono` applies monotonicity rules and local hypotheses repetitively.  For example,\n```lean\nexample (x y z k : ℤ)\n    (h : 3 ≤ (4 : ℤ))\n    (h' : z ≤ y) :\n    (k + 3 + x) - y ≤ (k + 4 + x) - z := by\n  mono\n```\n"
+          },
+          {
+            "id": 317200,
+            "name": "PowerSeries",
+            "module": "Mathlib.RingTheory.PowerSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PowerSeries/Basic.lean#L58-L61",
+            "source_text": "/-- Formal power series over a coefficient type `R` -/\n@[wikidata Q1003025]\nabbrev PowerSeries (R : Type*) :=\n  MvPowerSeries Unit R\n",
+            "docstring": "Formal power series over a coefficient type `R` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "natural power monotonicity",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial period divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101995,
+            "name": "Polynomial.X_pow_dvd_iff",
+            "module": "Mathlib.Algebra.Polynomial.Div",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Div.lean#L44-L56",
+            "source_text": "theorem X_pow_dvd_iff {f : R[X]} {n : ℕ} : X ^ n ∣ f ↔ ∀ d < n, f.coeff d = 0 :=\n  ⟨fun ⟨g, hgf⟩ d hd => by\n    simp only [hgf, coeff_X_pow_mul', ite_eq_right_iff, not_le_of_gt hd, IsEmpty.forall_iff],\n    fun hd => by\n    induction n with\n    | zero => simp [pow_zero]\n    | succ n hn =>\n      obtain ⟨g, hgf⟩ := hn fun d : ℕ => fun H : d < n => hd _ (Nat.lt_succ_of_lt H)\n      have := coeff_X_pow_mul g n 0\n      rw [zero_add, ← hgf, hd n (Nat.lt_succ_self n)] at this\n      obtain ⟨k, hgk⟩ := Polynomial.X_dvd_iff.mpr this.symm\n      use k\n      rwa [pow_succ, mul_assoc, ← hgk]⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 223891,
+            "name": "MulAction.period",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L551-L557",
+            "source_text": "/--\nThe period of a multiplicative action of `g` on `a` is the smallest positive `n` such that\n`g ^ n • a = a`, or `0` if such an `n` does not exist.\n-/\n@[to_additive /-- The period of an additive action of `g` on `a` is the smallest positive `n`\nsuch that `(n • g) +ᵥ a = a`, or `0` if such an `n` does not exist. -/]\nnoncomputable def period (m : M) (a : α) : ℕ := minimalPeriod (fun x => m • x) a\n",
+            "docstring": "The period of a multiplicative action of `g` on `a` is the smallest positive `n` such that\n`g ^ n • a = a`, or `0` if such an `n` does not exist.\n"
+          },
+          {
+            "id": 223841,
+            "name": "Function.minimalPeriod",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L243-L246",
+            "source_text": "/-- Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. -/\ndef minimalPeriod (f : α → α) (x : α) :=\n  if h : x ∈ periodicPts f then Nat.find h else 0\n",
+            "docstring": "Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. "
+          },
+          {
+            "id": 144337,
+            "name": "PeriodPair",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L57-L65",
+            "source_text": "/-- A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. -/\nstructure PeriodPair : Type where\n  /-- The first period in a `PeriodPair`. -/\n  ω₁ : ℂ\n  /-- The second period in a `PeriodPair`. -/\n  ω₂ : ℂ\n  indep : LinearIndependent ℝ ![ω₁, ω₂]\n",
+            "docstring": "A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. "
+          },
+          {
+            "id": 144341,
+            "name": "PeriodPair.lattice",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L78-L79",
+            "source_text": "/-- The lattice spanned by a pair of periods. -/\ndef lattice : Submodule ℤ ℂ := Submodule.span ℤ {L.ω₁, L.ω₂}\n",
+            "docstring": "The lattice spanned by a pair of periods. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "polynomial period divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 385345,
+            "name": "ClassicalMechanics.HarmonicOscillator.period",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1059-L1062",
+            "source_text": "/--\nThe period of a harmonic oscillator is `2 * π / ω`.\n-/\nnoncomputable def period (S : HarmonicOscillator) : ℝ := 2 * π / S.ω\n",
+            "docstring": "The period of a harmonic oscillator is `2 * π / ω`.\n"
+          },
+          {
+            "id": 385347,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_eq",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1067-L1067",
+            "source_text": "lemma period_eq : T S = 2 * π / S.ω := rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 385348,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_pos",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1069-L1069",
+            "source_text": "lemma period_pos : 0 < T S := div_pos (by positivity) S.ω_pos\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "natural power monotonicity",
+      "polynomial period divisibility"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "M5.Signature.ordinary_gcd_period_bound M5.Signature.ordinary_gcd_properties",
+      "M5.SupportPolynomial.support_coeff_zero M5.SupportPolynomial.support_degree_bound",
+      "M5.Period.period_law M5.PhysicalOrder.supportPeriod"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Signature.ordinary_gcd_period_bound M5.Signature.ordinary_gcd_properties",
+        "status": "ok",
+        "results": [
+          {
+            "id": 212952,
+            "name": "Nat.pow_sub_one_gcd_pow_sub_one",
+            "module": "Mathlib.Data.Nat.GCD.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/GCD/Basic.lean#L61-L67",
+            "source_text": "@[simp]\ntheorem pow_sub_one_gcd_pow_sub_one (a b c : ℕ) :\n    gcd (a ^ b - 1) (a ^ c - 1) = a ^ gcd b c - 1 := by\n  rcases eq_zero_or_pos b with rfl | hb\n  · simp\n  replace hb : c % b < b := mod_lt c hb\n  rw [gcd_rec, pow_sub_one_mod_pow_sub_one, pow_sub_one_gcd_pow_sub_one, ← gcd_rec]",
+            "docstring": null
+          },
+          {
+            "id": 208655,
+            "name": "List.HasPeriod.gcd",
+            "module": "Mathlib.Data.List.PeriodicityLemma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/PeriodicityLemma.lean#L186-L234",
+            "source_text": "/-- The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n-/\ntheorem HasPeriod.gcd {w : List α} {p q : ℕ} (per_p : HasPeriod w p) (per_q : HasPeriod w q)\n    (len : p + q - p.gcd q ≤ w.length) : HasPeriod w (p.gcd q) := by\n  rcases Nat.eq_zero_or_pos p with rfl | p_pos\n  · simp_all [HasPeriod]\n  rcases Nat.eq_zero_or_pos q with rfl | q_pos\n  · simp_all\n  cases hyp : compare p q with\n  | lt => -- if `p` is less than `q`, switch the two periods\n      have p_lt_q := Nat.compare_eq_lt.mp hyp\n      exact (gcd_comm q p ▸ per_q.gcd) per_p (add_comm p q ▸ len)\n  | eq => simpa [(Nat.compare_eq_eq).mp hyp]\n  | gt =>\n      have q_lt_p : q < p := Nat.compare_eq_gt.mp hyp\n      have gcd_lt_p : p.gcd q < p := by\n        have : p.gcd q ≠ p := by\n          simp [gcd_eq_left_iff_dvd, not_dvd_of_pos_of_lt q_pos q_lt_p]\n        exact this.lt_of_le (gcd_le_left q p_pos)\n      have per_diff : HasPeriod (drop q w) (p - q) := by\n        have : p = (p - q) + q := by lia\n        exact per_q.drop_of_hasPeriod_add (this ▸ per_p)\n      have per_q' : HasPeriod (drop q w) q := by\n        apply @HasPeriod.factor _ (take q w) (drop q w) [] q\n        all_goals simp_all\n      have gcd_stable : (p - q).gcd q = p.gcd q := gcd_sub_self_left (le_of_lt q_lt_p)\n      have drop_len : q ≤ (drop q w).length := by\n        rw [length_drop]\n        have : p.gcd q ≤ p - q := by\n          rw [← gcd_stable]; apply gcd_le_left q; lia\n        lia\n      have take_eq : take q (drop q w) = take q w := by\n          let ⟨z, hz⟩ := per_q.drop_prefix\n          convert_to take q (drop q w) = take q (drop q w ++ z)\n          · rw [hz]\n          exact (take_append_of_le_length drop_len).symm\n      -- the induction step\n      have IH : HasPeriod (drop q w) ((p - q).gcd q) :=\n        per_diff.gcd per_q' (by simp; lia)\n      convert_to HasPeriod (take q (drop q w) ++ drop q w) (p.gcd q)\n      · rw [take_eq, take_append_drop q w]\n      · exact (gcd_stable ▸ IH).take_append (p.gcd q) q (drop q w)\n          (gcd_dvd_right p q) drop_len\n  termination_by (q, p)\n  decreasing_by\n    all_goals grind\n",
+            "docstring": "The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n"
+          },
+          {
+            "id": 212884,
+            "name": "Nat.gcd_fib_add_mul_self",
+            "module": "Mathlib.Data.Nat.Fib.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Fib/Basic.lean#L232-L235",
+            "source_text": "theorem gcd_fib_add_mul_self (m n : ℕ) : ∀ k, gcd (fib m) (fib (n + k * m)) = gcd (fib m) (fib n)\n  | 0 => by simp\n  | k + 1 => by\n    rw [← gcd_fib_add_mul_self m n k, add_mul, ← add_assoc, one_mul, gcd_fib_add_self _ _]\n",
+            "docstring": null
+          },
+          {
+            "id": 213296,
+            "name": "Nat.ModEq.cancel_right_div_gcd'",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L402-L404",
+            "source_text": "lemma cancel_right_div_gcd' (hm : 0 < m) (hcd : c ≡ d [MOD m]) (h : a * c ≡ b * d [MOD m]) :\n    a ≡ b [MOD m / gcd m c] :=\n  (h.trans <| hcd.symm.mul_left b).cancel_right_div_gcd hm\n",
+            "docstring": null
+          },
+          {
+            "id": 145502,
+            "name": "ordinaryHypergeometric",
+            "module": "Mathlib.Analysis.SpecialFunctions.OrdinaryHypergeometric",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/OrdinaryHypergeometric.lean#L75-L81",
+            "source_text": "/-- `ordinaryHypergeometric (a b c : 𝕂) : 𝔸 → 𝔸`, denoted `₂F₁`, is the ordinary hypergeometric map,\ndefined as the sum of the `FormalMultilinearSeries` `ordinaryHypergeometricSeries 𝔸 a b c`.\n\nNote that this takes the junk value `0` outside the radius of convergence.\n-/\nnoncomputable def ordinaryHypergeometric (x : 𝔸) : 𝔸 :=\n  (ordinaryHypergeometricSeries 𝔸 a b c).sum x\n",
+            "docstring": "`ordinaryHypergeometric (a b c : 𝕂) : 𝔸 → 𝔸`, denoted `₂F₁`, is the ordinary hypergeometric map,\ndefined as the sum of the `FormalMultilinearSeries` `ordinaryHypergeometricSeries 𝔸 a b c`.\n\nNote that this takes the junk value `0` outside the radius of convergence.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Signature.ordinary_gcd_period_bound M5.Signature.ordinary_gcd_properties",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.SupportPolynomial.support_coeff_zero M5.SupportPolynomial.support_degree_bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101103,
+            "name": "Polynomial.support_update_zero",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L1026-L1027",
+            "source_text": "theorem support_update_zero (p : R[X]) (n : ℕ) : support (p.update n 0) = p.support.erase n := by\n  rw [update_zero_eq_erase, support_erase]\n",
+            "docstring": null
+          },
+          {
+            "id": 100946,
+            "name": "Polynomial.support",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L356-L358",
+            "source_text": "/-- The set of all `n` such that `X^n` has a non-zero coefficient. -/\ndef support : R[X] → Finset ℕ\n  | ⟨p⟩ => p.coeff.support\n",
+            "docstring": "The set of all `n` such that `X^n` has a non-zero coefficient. "
+          },
+          {
+            "id": 101752,
+            "name": "Polynomial.le_natDegree_of_mem_supp",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L46-L47",
+            "source_text": "theorem le_natDegree_of_mem_supp (a : ℕ) : a ∈ p.support → a ≤ natDegree p :=\n  le_natDegree_of_ne_zero ∘ mem_support_iff.mp\n",
+            "docstring": null
+          },
+          {
+            "id": 101753,
+            "name": "Polynomial.supp_subset_range",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L49-L50",
+            "source_text": "theorem supp_subset_range (h : natDegree p < m) : p.support ⊆ Finset.range m := fun _n hn =>\n  mem_range.2 <| (le_natDegree_of_mem_supp _ hn).trans_lt h\n",
+            "docstring": null
+          },
+          {
+            "id": 100949,
+            "name": "Polynomial.support_zero",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L365-L367",
+            "source_text": "@[simp]\ntheorem support_zero : (0 : R[X]).support = ∅ :=\n  rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.SupportPolynomial.support_coeff_zero M5.SupportPolynomial.support_degree_bound",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Period.period_law M5.PhysicalOrder.supportPeriod",
+        "status": "ok",
+        "results": [
+          {
+            "id": 144337,
+            "name": "PeriodPair",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L57-L65",
+            "source_text": "/-- A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. -/\nstructure PeriodPair : Type where\n  /-- The first period in a `PeriodPair`. -/\n  ω₁ : ℂ\n  /-- The second period in a `PeriodPair`. -/\n  ω₂ : ℂ\n  indep : LinearIndependent ℝ ![ω₁, ω₂]\n",
+            "docstring": "A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. "
+          },
+          {
+            "id": 236763,
+            "name": "AddAction.period_dvd_addOrderOf",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L90-L90",
+            "source_text": "@[to_additive]\ntheorem period_dvd_orderOf (m : M) (a : α) : period m a ∣ orderOf m := by",
+            "docstring": null
+          },
+          {
+            "id": 236766,
+            "name": "MulAction.period_le_orderOf",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L99-L102",
+            "source_text": "@[to_additive]\ntheorem period_le_orderOf {m : M} (order_pos : 0 < orderOf m) (a : α) :\n    period m a ≤ orderOf m :=\n  Nat.le_of_dvd order_pos (period_dvd_orderOf m a)",
+            "docstring": null
+          },
+          {
+            "id": 236762,
+            "name": "MulAction.period_dvd_orderOf",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L90-L92",
+            "source_text": "@[to_additive]\ntheorem period_dvd_orderOf (m : M) (a : α) : period m a ∣ orderOf m := by\n  rw [← pow_smul_eq_iff_period_dvd, pow_orderOf_eq_one, one_smul]",
+            "docstring": null
+          },
+          {
+            "id": 223841,
+            "name": "Function.minimalPeriod",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L243-L246",
+            "source_text": "/-- Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. -/\ndef minimalPeriod (f : α → α) (x : α) :=\n  if h : x ∈ periodicPts f then Nat.find h else 0\n",
+            "docstring": "Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Period.period_law M5.PhysicalOrder.supportPeriod",
+        "status": "ok",
+        "results": [
+          {
+            "id": 385345,
+            "name": "ClassicalMechanics.HarmonicOscillator.period",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1059-L1062",
+            "source_text": "/--\nThe period of a harmonic oscillator is `2 * π / ω`.\n-/\nnoncomputable def period (S : HarmonicOscillator) : ℝ := 2 * π / S.ω\n",
+            "docstring": "The period of a harmonic oscillator is `2 * π / ω`.\n"
+          },
+          {
+            "id": 385348,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_pos",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1069-L1069",
+            "source_text": "lemma period_pos : 0 < T S := div_pos (by positivity) S.ω_pos\n",
+            "docstring": null
+          },
+          {
+            "id": 385347,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_eq",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1067-L1067",
+            "source_text": "lemma period_eq : T S = 2 * π / S.ω := rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 393821,
+            "name": "CanonicalEnsemble.physicalProbability",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+            "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+            "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+          },
+          {
+            "id": 388314,
+            "name": "MSSM.toSpecies_sum_invariant",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Permutations",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Permutations.lean#L87-L91",
+            "source_text": "lemma toSpecies_sum_invariant (m : ℕ) (f : PermGroup) (S : MSSMCharges.Charges) (j : Fin 6) :\n    ∑ i, ((fun a => a ^ m) ∘ toSMSpecies j (repCharges f S)) i =\n    ∑ i, ((fun a => a ^ m) ∘ toSMSpecies j S) i := by\n  rw [repCharges_toSMSpecies]\n  exact Equiv.sum_comp (f⁻¹ j) ((fun a => a ^ m) ∘ (toSMSpecies j) S)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "M5.Signature.ordinary_gcd_period_bound M5.Signature.ordinary_gcd_properties",
+      "M5.SupportPolynomial.support_coeff_zero M5.SupportPolynomial.support_degree_bound",
+      "M5.Period.period_law M5.PhysicalOrder.supportPeriod"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "M5.Signature.ordinary_gcd_period_bound",
+      "M5.Signature.ordinary_gcd_properties M5.Period.period_law",
+      "M5.SupportPolynomial.support_degree_bound"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Signature.ordinary_gcd_period_bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223826,
+            "name": "Function.IsPeriodicPt.gcd",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L157-L163",
+            "source_text": "protected theorem gcd (hm : IsPeriodicPt f m x) (hn : IsPeriodicPt f n x) :\n    IsPeriodicPt f (m.gcd n) x := by\n  revert hm hn\n  refine Nat.gcd.induction m n (fun n _ hn => ?_) fun m n _ ih hm hn => ?_\n  · rwa [Nat.gcd_zero_left]\n  · rw [Nat.gcd_rec]\n    exact ih (hn.mod hm) hm\n",
+            "docstring": null
+          },
+          {
+            "id": 208655,
+            "name": "List.HasPeriod.gcd",
+            "module": "Mathlib.Data.List.PeriodicityLemma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/PeriodicityLemma.lean#L186-L234",
+            "source_text": "/-- The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n-/\ntheorem HasPeriod.gcd {w : List α} {p q : ℕ} (per_p : HasPeriod w p) (per_q : HasPeriod w q)\n    (len : p + q - p.gcd q ≤ w.length) : HasPeriod w (p.gcd q) := by\n  rcases Nat.eq_zero_or_pos p with rfl | p_pos\n  · simp_all [HasPeriod]\n  rcases Nat.eq_zero_or_pos q with rfl | q_pos\n  · simp_all\n  cases hyp : compare p q with\n  | lt => -- if `p` is less than `q`, switch the two periods\n      have p_lt_q := Nat.compare_eq_lt.mp hyp\n      exact (gcd_comm q p ▸ per_q.gcd) per_p (add_comm p q ▸ len)\n  | eq => simpa [(Nat.compare_eq_eq).mp hyp]\n  | gt =>\n      have q_lt_p : q < p := Nat.compare_eq_gt.mp hyp\n      have gcd_lt_p : p.gcd q < p := by\n        have : p.gcd q ≠ p := by\n          simp [gcd_eq_left_iff_dvd, not_dvd_of_pos_of_lt q_pos q_lt_p]\n        exact this.lt_of_le (gcd_le_left q p_pos)\n      have per_diff : HasPeriod (drop q w) (p - q) := by\n        have : p = (p - q) + q := by lia\n        exact per_q.drop_of_hasPeriod_add (this ▸ per_p)\n      have per_q' : HasPeriod (drop q w) q := by\n        apply @HasPeriod.factor _ (take q w) (drop q w) [] q\n        all_goals simp_all\n      have gcd_stable : (p - q).gcd q = p.gcd q := gcd_sub_self_left (le_of_lt q_lt_p)\n      have drop_len : q ≤ (drop q w).length := by\n        rw [length_drop]\n        have : p.gcd q ≤ p - q := by\n          rw [← gcd_stable]; apply gcd_le_left q; lia\n        lia\n      have take_eq : take q (drop q w) = take q w := by\n          let ⟨z, hz⟩ := per_q.drop_prefix\n          convert_to take q (drop q w) = take q (drop q w ++ z)\n          · rw [hz]\n          exact (take_append_of_le_length drop_len).symm\n      -- the induction step\n      have IH : HasPeriod (drop q w) ((p - q).gcd q) :=\n        per_diff.gcd per_q' (by simp; lia)\n      convert_to HasPeriod (take q (drop q w) ++ drop q w) (p.gcd q)\n      · rw [take_eq, take_append_drop q w]\n      · exact (gcd_stable ▸ IH).take_append (p.gcd q) q (drop q w)\n          (gcd_dvd_right p q) drop_len\n  termination_by (q, p)\n  decreasing_by\n    all_goals grind\n",
+            "docstring": "The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n"
+          },
+          {
+            "id": 212884,
+            "name": "Nat.gcd_fib_add_mul_self",
+            "module": "Mathlib.Data.Nat.Fib.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Fib/Basic.lean#L232-L235",
+            "source_text": "theorem gcd_fib_add_mul_self (m n : ℕ) : ∀ k, gcd (fib m) (fib (n + k * m)) = gcd (fib m) (fib n)\n  | 0 => by simp\n  | k + 1 => by\n    rw [← gcd_fib_add_mul_self m n k, add_mul, ← add_assoc, one_mul, gcd_fib_add_self _ _]\n",
+            "docstring": null
+          },
+          {
+            "id": 236748,
+            "name": "MulAction.le_period",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L32-L37",
+            "source_text": "/-- If the action is periodic, then a lower bound for its period can be computed. -/\n@[to_additive /-- If the action is periodic, then a lower bound for its period can be computed. -/]\ntheorem le_period {m : M} {a : α} {n : ℕ} (period_pos : 0 < period m a)\n    (moved : ∀ k, 0 < k → k < n → m ^ k • a ≠ a) : n ≤ period m a :=\n  le_of_not_gt fun period_lt_n =>\n    moved _ period_pos period_lt_n <| pow_period_smul m a\n",
+            "docstring": "If the action is periodic, then a lower bound for its period can be computed. "
+          },
+          {
+            "id": 144365,
+            "name": "PeriodPair.weierstrassP_bound",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L186-L212",
+            "source_text": "lemma weierstrassP_bound (r : ℝ) (hr : 0 < r) (s : ℂ) (hs : ‖s‖ < r) (l : ℂ) (h : 2 * r ≤ ‖l‖) :\n    ‖1 / (s - l) ^ 2 - 1 / l ^ 2‖ ≤ 10 * r * ‖l‖ ^ (-3 : ℝ) := by\n  have : s ≠ ↑l := by rintro rfl; linarith\n  have : 0 < ‖l‖ := by linarith\n  calc\n    _ = ‖(↑l ^ 2 - (s - ↑l) ^ 2) / ((s - ↑l) ^ 2 * ↑l ^ 2)‖ := by\n      rw [div_sub_div, one_mul, mul_one]\n      · simpa [sub_eq_zero]\n      · simpa\n    _ = ‖l ^ 2 - (s - l) ^ 2‖ / (‖s - l‖ ^ 2 * ‖l‖ ^ 2) := by simp\n    _ ≤ ‖l ^ 2 - (s - l) ^ 2‖ / ((‖l‖ / 2) ^ 2 * ‖l‖ ^ 2) := by\n      gcongr\n      rw [norm_sub_rev]\n      exact .trans (by linarith) (norm_sub_norm_le l s)\n    _ = ‖s * (2 * l - s)‖ / (‖l‖ ^ 4 / 4) := by\n      congr 1\n      · rw [sq_sub_sq]; simp [← sub_add, two_mul, sub_add_eq_add_sub]\n      · ring\n    _ = (‖s‖ * ‖2 * l - s‖) / (‖l‖ ^ 4 / 4) := by simp\n    _ = (4 * ‖s‖ * ‖2 * l - s‖) / ‖l‖ ^ 4 := by field\n    _ ≤ (4 * r * (2.5 * ‖l‖)) / ‖l‖ ^ 4 := by\n      gcongr (4 * ?_ * ?_) / ‖l‖ ^ 4\n      refine (norm_sub_le _ _).trans ?_\n      simp only [Complex.norm_mul, Complex.norm_ofNat]\n      linarith\n    _ = 10 * r / ‖l‖ ^ 3 := by field\n    _ = _ := by norm_cast\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Signature.ordinary_gcd_period_bound",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Signature.ordinary_gcd_properties M5.Period.period_law",
+        "status": "ok",
+        "results": [
+          {
+            "id": 236769,
+            "name": "AddAction.period_dvd_exponent",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L104-L104",
+            "source_text": "@[to_additive]\ntheorem period_dvd_exponent (m : M) (a : α) : period m a ∣ Monoid.exponent M := by",
+            "docstring": null
+          },
+          {
+            "id": 223841,
+            "name": "Function.minimalPeriod",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L243-L246",
+            "source_text": "/-- Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. -/\ndef minimalPeriod (f : α → α) (x : α) :=\n  if h : x ∈ periodicPts f then Nat.find h else 0\n",
+            "docstring": "Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. "
+          },
+          {
+            "id": 236768,
+            "name": "MulAction.period_dvd_exponent",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L104-L106",
+            "source_text": "@[to_additive]\ntheorem period_dvd_exponent (m : M) (a : α) : period m a ∣ Monoid.exponent M := by\n  rw [← pow_smul_eq_iff_period_dvd, Monoid.pow_exponent_eq_one, one_smul]",
+            "docstring": null
+          },
+          {
+            "id": 236762,
+            "name": "MulAction.period_dvd_orderOf",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L90-L92",
+            "source_text": "@[to_additive]\ntheorem period_dvd_orderOf (m : M) (a : α) : period m a ∣ orderOf m := by\n  rw [← pow_smul_eq_iff_period_dvd, pow_orderOf_eq_one, one_smul]",
+            "docstring": null
+          },
+          {
+            "id": 208655,
+            "name": "List.HasPeriod.gcd",
+            "module": "Mathlib.Data.List.PeriodicityLemma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/PeriodicityLemma.lean#L186-L234",
+            "source_text": "/-- The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n-/\ntheorem HasPeriod.gcd {w : List α} {p q : ℕ} (per_p : HasPeriod w p) (per_q : HasPeriod w q)\n    (len : p + q - p.gcd q ≤ w.length) : HasPeriod w (p.gcd q) := by\n  rcases Nat.eq_zero_or_pos p with rfl | p_pos\n  · simp_all [HasPeriod]\n  rcases Nat.eq_zero_or_pos q with rfl | q_pos\n  · simp_all\n  cases hyp : compare p q with\n  | lt => -- if `p` is less than `q`, switch the two periods\n      have p_lt_q := Nat.compare_eq_lt.mp hyp\n      exact (gcd_comm q p ▸ per_q.gcd) per_p (add_comm p q ▸ len)\n  | eq => simpa [(Nat.compare_eq_eq).mp hyp]\n  | gt =>\n      have q_lt_p : q < p := Nat.compare_eq_gt.mp hyp\n      have gcd_lt_p : p.gcd q < p := by\n        have : p.gcd q ≠ p := by\n          simp [gcd_eq_left_iff_dvd, not_dvd_of_pos_of_lt q_pos q_lt_p]\n        exact this.lt_of_le (gcd_le_left q p_pos)\n      have per_diff : HasPeriod (drop q w) (p - q) := by\n        have : p = (p - q) + q := by lia\n        exact per_q.drop_of_hasPeriod_add (this ▸ per_p)\n      have per_q' : HasPeriod (drop q w) q := by\n        apply @HasPeriod.factor _ (take q w) (drop q w) [] q\n        all_goals simp_all\n      have gcd_stable : (p - q).gcd q = p.gcd q := gcd_sub_self_left (le_of_lt q_lt_p)\n      have drop_len : q ≤ (drop q w).length := by\n        rw [length_drop]\n        have : p.gcd q ≤ p - q := by\n          rw [← gcd_stable]; apply gcd_le_left q; lia\n        lia\n      have take_eq : take q (drop q w) = take q w := by\n          let ⟨z, hz⟩ := per_q.drop_prefix\n          convert_to take q (drop q w) = take q (drop q w ++ z)\n          · rw [hz]\n          exact (take_append_of_le_length drop_len).symm\n      -- the induction step\n      have IH : HasPeriod (drop q w) ((p - q).gcd q) :=\n        per_diff.gcd per_q' (by simp; lia)\n      convert_to HasPeriod (take q (drop q w) ++ drop q w) (p.gcd q)\n      · rw [take_eq, take_append_drop q w]\n      · exact (gcd_stable ▸ IH).take_append (p.gcd q) q (drop q w)\n          (gcd_dvd_right p q) drop_len\n  termination_by (q, p)\n  decreasing_by\n    all_goals grind\n",
+            "docstring": "The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Signature.ordinary_gcd_properties M5.Period.period_law",
+        "status": "ok",
+        "results": [
+          {
+            "id": 385345,
+            "name": "ClassicalMechanics.HarmonicOscillator.period",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1059-L1062",
+            "source_text": "/--\nThe period of a harmonic oscillator is `2 * π / ω`.\n-/\nnoncomputable def period (S : HarmonicOscillator) : ℝ := 2 * π / S.ω\n",
+            "docstring": "The period of a harmonic oscillator is `2 * π / ω`.\n"
+          },
+          {
+            "id": 385348,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_pos",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1069-L1069",
+            "source_text": "lemma period_pos : 0 < T S := div_pos (by positivity) S.ω_pos\n",
+            "docstring": null
+          },
+          {
+            "id": 385347,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_eq",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1067-L1067",
+            "source_text": "lemma period_eq : T S = 2 * π / S.ω := rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 393919,
+            "name": "IdealGas.ideal_gas_law",
+            "module": "Physlib.StatisticalMechanics.MicroCanonicalEnsemble.IdealGas",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/MicroCanonicalEnsemble/IdealGas.lean#L194-L211",
+            "source_text": "/-- The ideal gas law: PV = nRT. In our unitsless system, R = 1. -/\ntheorem ideal_gas_law (hV : 0 < V) (hT : 0 < T) :\n    let P := IdealGas.pressure (n,V) T;\n    let R := 1;\n    P * V = n * R * T := by\n  dsimp [pressure]\n  rw [← derivWithin_of_isOpen (s := Set.Ioi 0) isOpen_Ioi hV]\n  rw [derivWithin_congr (f := fun V' ↦ -n * T *\n    (Real.log V' + (3/2) * Real.log (2 * Real.pi * T))) ?_ ?_]\n  rw [derivWithin_of_isOpen (s := Set.Ioi 0) isOpen_Ioi hV]\n  erw [deriv_mul (by fun_prop) (by fun_prop (disch := exact hV.ne'))]\n  simp [field]\n  ring_nf\n  · intro _ hV'\n    dsimp\n    rw [helmholtzA_eq n hV' hT]\n    ring_nf\n  · exact helmholtzA_eq n hV hT\n",
+            "docstring": "The ideal gas law: PV = nRT. In our unitsless system, R = 1. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.SupportPolynomial.support_degree_bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 100946,
+            "name": "Polynomial.support",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L356-L358",
+            "source_text": "/-- The set of all `n` such that `X^n` has a non-zero coefficient. -/\ndef support : R[X] → Finset ℕ\n  | ⟨p⟩ => p.coeff.support\n",
+            "docstring": "The set of all `n` such that `X^n` has a non-zero coefficient. "
+          },
+          {
+            "id": 101770,
+            "name": "Polynomial.natDegree_eq_support_max'",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L128-L131",
+            "source_text": "theorem natDegree_eq_support_max' (h : p ≠ 0) :\n    p.natDegree = p.support.max' (nonempty_support_iff.mpr h) :=\n  (le_max' _ _ <| natDegree_mem_support_of_nonzero h).antisymm <|\n    max'_le _ _ _ le_natDegree_of_mem_supp\n",
+            "docstring": null
+          },
+          {
+            "id": 101752,
+            "name": "Polynomial.le_natDegree_of_mem_supp",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L46-L47",
+            "source_text": "theorem le_natDegree_of_mem_supp (a : ℕ) : a ∈ p.support → a ≤ natDegree p :=\n  le_natDegree_of_ne_zero ∘ mem_support_iff.mp\n",
+            "docstring": null
+          },
+          {
+            "id": 107445,
+            "name": "SkewPolynomial.support",
+            "module": "Mathlib.Algebra.SkewPolynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/SkewPolynomial/Basic.lean#L109-L113",
+            "source_text": "/--\nThe set of all `n` such that `X^n` has a non-zero coefficient.\n-/\ndef support (p : SkewPolynomial R) : Finset ℕ :=\n  Finset.map ⟨toAdd, toAdd.injective⟩ (SkewMonoidAlgebra.support p)\n",
+            "docstring": "The set of all `n` such that `X^n` has a non-zero coefficient.\n"
+          },
+          {
+            "id": 101753,
+            "name": "Polynomial.supp_subset_range",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L49-L50",
+            "source_text": "theorem supp_subset_range (h : natDegree p < m) : p.support ⊆ Finset.range m := fun _n hn =>\n  mem_range.2 <| (le_natDegree_of_mem_supp _ hn).trans_lt h\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.SupportPolynomial.support_degree_bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388087,
+            "name": "StandardModel.HiggsField.EffectivePotential.polynomial_totalDegree",
+            "module": "Physlib.Particles.StandardModel.HiggsBoson.EffectivePotential",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/HiggsBoson/EffectivePotential.lean#L90-L91",
+            "source_text": "lemma polynomial_totalDegree {V : EffectivePotential} {n : ℕ} (h : HasMaxMassDimLE V n) :\n    (polynomial V h).totalDegree ≤ n := (Classical.choose_spec h).2\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "M5.Signature.ordinary_gcd_period_bound",
+      "M5.Signature.ordinary_gcd_properties M5.Period.period_law",
+      "M5.SupportPolynomial.support_degree_bound"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "M5.Signature.ordinary_gcd_period_bound exact declaration",
+      "M5.Signature.ordinary_gcd_properties exact declaration",
+      "M5.Period.period_law exact declaration"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Signature.ordinary_gcd_period_bound exact declaration",
+        "status": "ok",
+        "results": [
+          {
+            "id": 208655,
+            "name": "List.HasPeriod.gcd",
+            "module": "Mathlib.Data.List.PeriodicityLemma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/PeriodicityLemma.lean#L186-L234",
+            "source_text": "/-- The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n-/\ntheorem HasPeriod.gcd {w : List α} {p q : ℕ} (per_p : HasPeriod w p) (per_q : HasPeriod w q)\n    (len : p + q - p.gcd q ≤ w.length) : HasPeriod w (p.gcd q) := by\n  rcases Nat.eq_zero_or_pos p with rfl | p_pos\n  · simp_all [HasPeriod]\n  rcases Nat.eq_zero_or_pos q with rfl | q_pos\n  · simp_all\n  cases hyp : compare p q with\n  | lt => -- if `p` is less than `q`, switch the two periods\n      have p_lt_q := Nat.compare_eq_lt.mp hyp\n      exact (gcd_comm q p ▸ per_q.gcd) per_p (add_comm p q ▸ len)\n  | eq => simpa [(Nat.compare_eq_eq).mp hyp]\n  | gt =>\n      have q_lt_p : q < p := Nat.compare_eq_gt.mp hyp\n      have gcd_lt_p : p.gcd q < p := by\n        have : p.gcd q ≠ p := by\n          simp [gcd_eq_left_iff_dvd, not_dvd_of_pos_of_lt q_pos q_lt_p]\n        exact this.lt_of_le (gcd_le_left q p_pos)\n      have per_diff : HasPeriod (drop q w) (p - q) := by\n        have : p = (p - q) + q := by lia\n        exact per_q.drop_of_hasPeriod_add (this ▸ per_p)\n      have per_q' : HasPeriod (drop q w) q := by\n        apply @HasPeriod.factor _ (take q w) (drop q w) [] q\n        all_goals simp_all\n      have gcd_stable : (p - q).gcd q = p.gcd q := gcd_sub_self_left (le_of_lt q_lt_p)\n      have drop_len : q ≤ (drop q w).length := by\n        rw [length_drop]\n        have : p.gcd q ≤ p - q := by\n          rw [← gcd_stable]; apply gcd_le_left q; lia\n        lia\n      have take_eq : take q (drop q w) = take q w := by\n          let ⟨z, hz⟩ := per_q.drop_prefix\n          convert_to take q (drop q w) = take q (drop q w ++ z)\n          · rw [hz]\n          exact (take_append_of_le_length drop_len).symm\n      -- the induction step\n      have IH : HasPeriod (drop q w) ((p - q).gcd q) :=\n        per_diff.gcd per_q' (by simp; lia)\n      convert_to HasPeriod (take q (drop q w) ++ drop q w) (p.gcd q)\n      · rw [take_eq, take_append_drop q w]\n      · exact (gcd_stable ▸ IH).take_append (p.gcd q) q (drop q w)\n          (gcd_dvd_right p q) drop_len\n  termination_by (q, p)\n  decreasing_by\n    all_goals grind\n",
+            "docstring": "The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n"
+          },
+          {
+            "id": 273395,
+            "name": "qrSign",
+            "module": "Mathlib.NumberTheory.LegendreSymbol.JacobiSymbol",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LegendreSymbol/JacobiSymbol.lean#L360-L362",
+            "source_text": "/-- The bi-multiplicative map giving the sign in the Law of Quadratic Reciprocity -/\ndef qrSign (m n : ℕ) : ℤ :=\n  J(χ₄ m | n)\n",
+            "docstring": "The bi-multiplicative map giving the sign in the Law of Quadratic Reciprocity "
+          },
+          {
+            "id": 144365,
+            "name": "PeriodPair.weierstrassP_bound",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L186-L212",
+            "source_text": "lemma weierstrassP_bound (r : ℝ) (hr : 0 < r) (s : ℂ) (hs : ‖s‖ < r) (l : ℂ) (h : 2 * r ≤ ‖l‖) :\n    ‖1 / (s - l) ^ 2 - 1 / l ^ 2‖ ≤ 10 * r * ‖l‖ ^ (-3 : ℝ) := by\n  have : s ≠ ↑l := by rintro rfl; linarith\n  have : 0 < ‖l‖ := by linarith\n  calc\n    _ = ‖(↑l ^ 2 - (s - ↑l) ^ 2) / ((s - ↑l) ^ 2 * ↑l ^ 2)‖ := by\n      rw [div_sub_div, one_mul, mul_one]\n      · simpa [sub_eq_zero]\n      · simpa\n    _ = ‖l ^ 2 - (s - l) ^ 2‖ / (‖s - l‖ ^ 2 * ‖l‖ ^ 2) := by simp\n    _ ≤ ‖l ^ 2 - (s - l) ^ 2‖ / ((‖l‖ / 2) ^ 2 * ‖l‖ ^ 2) := by\n      gcongr\n      rw [norm_sub_rev]\n      exact .trans (by linarith) (norm_sub_norm_le l s)\n    _ = ‖s * (2 * l - s)‖ / (‖l‖ ^ 4 / 4) := by\n      congr 1\n      · rw [sq_sub_sq]; simp [← sub_add, two_mul, sub_add_eq_add_sub]\n      · ring\n    _ = (‖s‖ * ‖2 * l - s‖) / (‖l‖ ^ 4 / 4) := by simp\n    _ = (4 * ‖s‖ * ‖2 * l - s‖) / ‖l‖ ^ 4 := by field\n    _ ≤ (4 * r * (2.5 * ‖l‖)) / ‖l‖ ^ 4 := by\n      gcongr (4 * ?_ * ?_) / ‖l‖ ^ 4\n      refine (norm_sub_le _ _).trans ?_\n      simp only [Complex.norm_mul, Complex.norm_ofNat]\n      linarith\n    _ = 10 * r / ‖l‖ ^ 3 := by field\n    _ = _ := by norm_cast\n",
+            "docstring": null
+          },
+          {
+            "id": 251586,
+            "name": "sigPos_isGreatest",
+            "module": "Mathlib.LinearAlgebra.QuadraticForm.Signature",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/QuadraticForm/Signature.lean#L77-L85",
+            "source_text": "/-- Defining property of `sigPos`. -/\nlemma sigPos_isGreatest [Module.Finite R M] [StrongRankCondition R] : IsGreatest\n    {r | ∃ V : Submodule R M, Module.finrank R V = r ∧ (Q.restrict V).PosDef} (sigPos Q) := by\n  classical\n  refine ⟨(mem_filter.mp <| max'_mem _ _).2, ?_⟩\n  rintro _ ⟨V, rfl, hV⟩\n  apply le_max'\n  rw [mem_filter, mem_Iic]\n  exact ⟨V.finrank_le, V, rfl, hV⟩\n",
+            "docstring": "Defining property of `sigPos`. "
+          },
+          {
+            "id": 213296,
+            "name": "Nat.ModEq.cancel_right_div_gcd'",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L402-L404",
+            "source_text": "lemma cancel_right_div_gcd' (hm : 0 < m) (hcd : c ≡ d [MOD m]) (h : a * c ≡ b * d [MOD m]) :\n    a ≡ b [MOD m / gcd m c] :=\n  (h.trans <| hcd.symm.mul_left b).cancel_right_div_gcd hm\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Signature.ordinary_gcd_period_bound exact declaration",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Signature.ordinary_gcd_properties exact declaration",
+        "status": "ok",
+        "results": [
+          {
+            "id": 206885,
+            "name": "Nat.gcdA",
+            "module": "Mathlib.Data.Int.GCD",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/GCD.lean#L65-L67",
+            "source_text": "/-- The extended GCD `a` value in the equation `gcd x y = x * a + y * b`. -/\ndef gcdA (x y : ℕ) : ℤ :=\n  (xgcd x y).1\n",
+            "docstring": "The extended GCD `a` value in the equation `gcd x y = x * a + y * b`. "
+          },
+          {
+            "id": 328497,
+            "name": "Tactic.NormNum.proveNatGCD",
+            "module": "Mathlib.Tactic.NormNum.GCD",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/GCD.lean#L95-L130",
+            "source_text": "/-- Given natural number literals `ex` and `ey`, return their GCD as a natural number literal\nand an equality proof. Panics if `ex` or `ey` aren't natural number literals. -/\ndef proveNatGCD (ex ey : Q(ℕ)) : (ed : Q(ℕ)) × Q(Nat.gcd $ex $ey = $ed) :=\n  match ex.natLit!, ey.natLit! with\n  | 0, _ => have : $ex =Q nat_lit 0 := ⟨⟩; ⟨ey, q(Nat.gcd_zero_left $ey)⟩\n  | _, 0 => have : $ey =Q nat_lit 0 := ⟨⟩; ⟨ex, q(Nat.gcd_zero_right $ex)⟩\n  | 1, _ => have : $ex =Q nat_lit 1 := ⟨⟩; ⟨q(nat_lit 1), q(Nat.gcd_one_left $ey)⟩\n  | _, 1 => have : $ey =Q nat_lit 1 := ⟨⟩; ⟨q(nat_lit 1), q(Nat.gcd_one_right $ex)⟩\n  | x, y =>\n    let (d, a, b) := Nat.xgcdAux x 1 0 y 0 1\n    if d = x then\n      have pq : Q(Nat.mod $ey $ex = 0) := (q(Eq.refl (nat_lit 0)) : Expr)\n      ⟨ex, q(nat_gcd_helper_dvd_left $ex $ey $pq)⟩\n    else if d = y then\n      have pq : Q(Nat.mod $ex $ey = 0) := (q(Eq.refl (nat_lit 0)) : Expr)\n      ⟨ey, q(nat_gcd_helper_dvd_right $ex $ey $pq)⟩\n    else\n      have ea' : Q(ℕ) := mkRawNatLit a.natAbs\n      have eb' : Q(ℕ) := mkRawNatLit b.natAbs\n      if d = 1 then\n        if a ≥ 0 then\n          have pt : Q($ex * $ea' = $ey * $eb' + 1) := (q(Eq.refl ($ex * $ea')) : Expr)\n          ⟨q(nat_lit 1), q(nat_gcd_helper_2' $ex $ey $ea' $eb' $pt)⟩\n        else\n          have pt : Q($ey * $eb' = $ex * $ea' + 1) := (q(Eq.refl ($ey * $eb')) : Expr)\n          ⟨q(nat_lit 1), q(nat_gcd_helper_1' $ex $ey $ea' $eb' $pt)⟩\n      else\n        have ed : Q(ℕ) := mkRawNatLit d\n        have pu : Q(Nat.mod $ex $ed = 0) := (q(Eq.refl (nat_lit 0)) : Expr)\n        have pv : Q(Nat.mod $ey $ed = 0) := (q(Eq.refl (nat_lit 0)) : Expr)\n        if a ≥ 0 then\n          have pt : Q($ex * $ea' = $ey * $eb' + $ed) := (q(Eq.refl ($ex * $ea')) : Expr)\n          ⟨ed, q(nat_gcd_helper_2 $ed $ex $ey $ea' $eb' $pu $pv $pt)⟩\n        else\n          have pt : Q($ey * $eb' = $ex * $ea' + $ed) := (q(Eq.refl ($ey * $eb')) : Expr)\n          ⟨ed, q(nat_gcd_helper_1 $ed $ex $ey $ea' $eb' $pu $pv $pt)⟩\n",
+            "docstring": "Given natural number literals `ex` and `ey`, return their GCD as a natural number literal\nand an equality proof. Panics if `ex` or `ey` aren't natural number literals. "
+          },
+          {
+            "id": 213296,
+            "name": "Nat.ModEq.cancel_right_div_gcd'",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L402-L404",
+            "source_text": "lemma cancel_right_div_gcd' (hm : 0 < m) (hcd : c ≡ d [MOD m]) (h : a * c ≡ b * d [MOD m]) :\n    a ≡ b [MOD m / gcd m c] :=\n  (h.trans <| hcd.symm.mul_left b).cancel_right_div_gcd hm\n",
+            "docstring": null
+          },
+          {
+            "id": 145502,
+            "name": "ordinaryHypergeometric",
+            "module": "Mathlib.Analysis.SpecialFunctions.OrdinaryHypergeometric",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/OrdinaryHypergeometric.lean#L75-L81",
+            "source_text": "/-- `ordinaryHypergeometric (a b c : 𝕂) : 𝔸 → 𝔸`, denoted `₂F₁`, is the ordinary hypergeometric map,\ndefined as the sum of the `FormalMultilinearSeries` `ordinaryHypergeometricSeries 𝔸 a b c`.\n\nNote that this takes the junk value `0` outside the radius of convergence.\n-/\nnoncomputable def ordinaryHypergeometric (x : 𝔸) : 𝔸 :=\n  (ordinaryHypergeometricSeries 𝔸 a b c).sum x\n",
+            "docstring": "`ordinaryHypergeometric (a b c : 𝕂) : 𝔸 → 𝔸`, denoted `₂F₁`, is the ordinary hypergeometric map,\ndefined as the sum of the `FormalMultilinearSeries` `ordinaryHypergeometricSeries 𝔸 a b c`.\n\nNote that this takes the junk value `0` outside the radius of convergence.\n"
+          },
+          {
+            "id": 325814,
+            "name": "Mathlib.Tactic.Algebraize.addProperties",
+            "module": "Mathlib.Tactic.Algebraize",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Algebraize.lean#L171-L231",
+            "source_text": "/-- This function takes an array of expressions `t`, all of which are assumed to be `RingHom`s,\nand searches through the local context to find any additional properties of these `RingHoms`, after\nwhich it tries to add the corresponding `Algebra` properties to the context. It only looks for\nproperties that have been tagged with the `algebraize` attribute, and uses this tag to find the\ncorresponding `Algebra` property. -/\ndef addProperties (t : Array Expr) : TacticM Unit := withMainContext do\n  let ctx ← getLCtx\n  ctx.forM fun decl => do\n    if decl.isImplementationDetail then return\n    let (nm, args) := (← instantiateMVars decl.type).getAppFnArgs\n    -- Check if the type of the current hypothesis has been tagged with the `algebraize` attribute\n    match Attr.algebraizeAttr.getParam? (← getEnv) nm with\n    -- If it has, `p` will either be the name of the corresponding `Algebra` property, or a\n    -- lemma/constructor.\n    | some p =>\n      let cinfo ← try getConstInfo p catch _ =>\n        logWarning m!\"Hypothesis {decl.toExpr} has type{indentD decl.type}.\\n\\\n          Its head symbol {.ofConstName nm} is (effectively) tagged with `@[algebraize {p}]`, \\\n          but no constant{indentD p}\\nhas been found.\\n\\\n          Check for missing imports, missing namespaces or typos.\"\n        return\n      let p' ← mkConstWithFreshMVarLevels p\n      let (pargs, _, _) ← forallMetaTelescope (← inferType p')\n      let tp' := mkAppN p' pargs\n\n      let getValType : MetaM (Option (Expr × Expr)) := do\n        /- If the attribute points to the corresponding `Algebra` property itself, we assume that it\n        is definitionally the same as the `RingHom` property. Then, we just need to construct its\n        type and the local declaration will already give a valid term. -/\n        if cinfo.isInductive then\n          pargs[0]!.mvarId!.assignIfDefEq args[0]!\n          pargs[1]!.mvarId!.assignIfDefEq args[1]!\n          -- This should be the type `Algebra.Property A B`\n          let tp ← instantiateMVars tp'\n          if ← isDefEqGuarded decl.type tp then return (decl.toExpr, tp)\n          else return none\n        /- Otherwise, the attribute points to a lemma or a constructor for the `Algebra` property.\n        In this case, we assume that the `RingHom` property is the last argument of the lemma or\n        constructor (and that this is all we need to supply explicitly). -/\n        else\n          try pargs.back!.mvarId!.assignIfDefEq decl.toExpr catch _ => return none\n          let val ← instantiateMVars tp'\n          let tp ← inferType val -- This should be the type `Algebra.Property A B`.\n          return (val, tp)\n      let some (val, tp) ← getValType | return\n      /- Find all arguments to `Algebra.Property A B` or `Module.Property A B` which are\n        of the form `RingHom.toAlgebra f`, `RingHom.toModule f`\n        or `Algebra.toModule (RingHom.toAlgebra f)`. -/\n      let ringHom_args ← tp.getAppArgs.filterMapM <| fun x => liftMetaM do\n        let y := (← whnfUntil x ``Algebra.toModule) >>= (·.getAppArgs.back?)\n        return ((← whnfUntil (y.getD x) ``RingHom.toAlgebra) <|> (← whnfUntil x ``RingHom.toModule))\n          >>= (·.getAppArgs.back?)\n      /- Check that we're not reproving a local hypothesis, and that all involved `RingHom`s are\n        indeed arguments to the tactic. -/\n      unless (← synthInstance? tp).isSome || !(← ringHom_args.allM (fun z => t.anyM\n        (withoutModifyingMCtx <| isDefEq z ·))) do\n      liftMetaTactic fun mvarid => do\n        let nm ← mkFreshBinderNameForTactic `algebraizeInst\n        let (_, mvar) ← mvarid.note nm val tp\n        return [mvar]\n    | none => return\n",
+            "docstring": "This function takes an array of expressions `t`, all of which are assumed to be `RingHom`s,\nand searches through the local context to find any additional properties of these `RingHoms`, after\nwhich it tries to add the corresponding `Algebra` properties to the context. It only looks for\nproperties that have been tagged with the `algebraize` attribute, and uses this tag to find the\ncorresponding `Algebra` property. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Signature.ordinary_gcd_properties exact declaration",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Period.period_law exact declaration",
+        "status": "ok",
+        "results": [
+          {
+            "id": 144337,
+            "name": "PeriodPair",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L57-L65",
+            "source_text": "/-- A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. -/\nstructure PeriodPair : Type where\n  /-- The first period in a `PeriodPair`. -/\n  ω₁ : ℂ\n  /-- The second period in a `PeriodPair`. -/\n  ω₂ : ℂ\n  indep : LinearIndependent ℝ ![ω₁, ω₂]\n",
+            "docstring": "A pair of `ℝ`-linearly independent complex numbers.\nThey span the period lattice in `lattice`,\nand are the periods of the elliptic functions we shall construct. "
+          },
+          {
+            "id": 236769,
+            "name": "AddAction.period_dvd_exponent",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L104-L104",
+            "source_text": "@[to_additive]\ntheorem period_dvd_exponent (m : M) (a : α) : period m a ∣ Monoid.exponent M := by",
+            "docstring": null
+          },
+          {
+            "id": 223841,
+            "name": "Function.minimalPeriod",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L243-L246",
+            "source_text": "/-- Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. -/\ndef minimalPeriod (f : α → α) (x : α) :=\n  if h : x ∈ periodicPts f then Nat.find h else 0\n",
+            "docstring": "Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. "
+          },
+          {
+            "id": 236768,
+            "name": "MulAction.period_dvd_exponent",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L104-L106",
+            "source_text": "@[to_additive]\ntheorem period_dvd_exponent (m : M) (a : α) : period m a ∣ Monoid.exponent M := by\n  rw [← pow_smul_eq_iff_period_dvd, Monoid.pow_exponent_eq_one, one_smul]",
+            "docstring": null
+          },
+          {
+            "id": 144367,
+            "name": "PeriodPair.«term℘[_-_]»",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L222-L223",
+            "source_text": "@[inherit_doc weierstrassPExcept]\nscoped notation3 \"℘[\" L:max \" - \" l₀ \"]\" => weierstrassPExcept L l₀\n\nlemma hasSumLocallyUniformly_weierstrassPExcept (l₀ : ℂ) :\n    HasSumLocallyUniformly\n      (fun (l : L.lattice) (z : ℂ) ↦ if l.1 = l₀ then 0 else (1 / (z - l) ^ 2 - 1 / l ^ 2))\n      ℘[L - l₀] := by",
+            "docstring": "The Weierstrass `℘` function with the `l₀`-term missing.\nThis is mainly a tool for calculations where one would want to omit a diverging term.\nThis has the notation `℘[L - l₀]` in the namespace `PeriodPairs`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Period.period_law exact declaration",
+        "status": "ok",
+        "results": [
+          {
+            "id": 385345,
+            "name": "ClassicalMechanics.HarmonicOscillator.period",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1059-L1062",
+            "source_text": "/--\nThe period of a harmonic oscillator is `2 * π / ω`.\n-/\nnoncomputable def period (S : HarmonicOscillator) : ℝ := 2 * π / S.ω\n",
+            "docstring": "The period of a harmonic oscillator is `2 * π / ω`.\n"
+          },
+          {
+            "id": 385348,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_pos",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1069-L1069",
+            "source_text": "lemma period_pos : 0 < T S := div_pos (by positivity) S.ω_pos\n",
+            "docstring": null
+          },
+          {
+            "id": 385347,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_eq",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1067-L1067",
+            "source_text": "lemma period_eq : T S = 2 * π / S.ω := rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 388314,
+            "name": "MSSM.toSpecies_sum_invariant",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Permutations",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Permutations.lean#L87-L91",
+            "source_text": "lemma toSpecies_sum_invariant (m : ℕ) (f : PermGroup) (S : MSSMCharges.Charges) (j : Fin 6) :\n    ∑ i, ((fun a => a ^ m) ∘ toSMSpecies j (repCharges f S)) i =\n    ∑ i, ((fun a => a ^ m) ∘ toSMSpecies j S) i := by\n  rw [repCharges_toSMSpecies]\n  exact Equiv.sum_comp (f⁻¹ j) ((fun a => a ^ m) ∘ (toSMSpecies j) S)\n",
+            "docstring": null
+          },
+          {
+            "id": 387259,
+            "name": "SMRHN.SM.PlaneSeven.B₅",
+            "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Ordinary.DimSevenPlane",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Ordinary/DimSevenPlane.lean#L99-L104",
+            "source_text": "/-- A charge assignment forming one of the basis elements of the plane. -/\ndef B₅ : (SM 3).Charges := toSpeciesEquiv.invFun (fun s => fun i =>\n  match s, i with\n  | 5, 0 => 1\n  | 5, 1 => - 1\n  | _, _ => 0)\n",
+            "docstring": "A charge assignment forming one of the basis elements of the plane. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "M5.Signature.ordinary_gcd_period_bound exact declaration",
+      "M5.Signature.ordinary_gcd_properties exact declaration",
+      "M5.Period.period_law exact declaration"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "M5.Signature.ordinary_gcd_period_bound",
+      "M5.Signature.ordinary_gcd_properties M5.Period.period_law",
+      "M5.SupportPolynomial.support_degree_bound"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Signature.ordinary_gcd_period_bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223826,
+            "name": "Function.IsPeriodicPt.gcd",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L157-L163",
+            "source_text": "protected theorem gcd (hm : IsPeriodicPt f m x) (hn : IsPeriodicPt f n x) :\n    IsPeriodicPt f (m.gcd n) x := by\n  revert hm hn\n  refine Nat.gcd.induction m n (fun n _ hn => ?_) fun m n _ ih hm hn => ?_\n  · rwa [Nat.gcd_zero_left]\n  · rw [Nat.gcd_rec]\n    exact ih (hn.mod hm) hm\n",
+            "docstring": null
+          },
+          {
+            "id": 208655,
+            "name": "List.HasPeriod.gcd",
+            "module": "Mathlib.Data.List.PeriodicityLemma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/PeriodicityLemma.lean#L186-L234",
+            "source_text": "/-- The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n-/\ntheorem HasPeriod.gcd {w : List α} {p q : ℕ} (per_p : HasPeriod w p) (per_q : HasPeriod w q)\n    (len : p + q - p.gcd q ≤ w.length) : HasPeriod w (p.gcd q) := by\n  rcases Nat.eq_zero_or_pos p with rfl | p_pos\n  · simp_all [HasPeriod]\n  rcases Nat.eq_zero_or_pos q with rfl | q_pos\n  · simp_all\n  cases hyp : compare p q with\n  | lt => -- if `p` is less than `q`, switch the two periods\n      have p_lt_q := Nat.compare_eq_lt.mp hyp\n      exact (gcd_comm q p ▸ per_q.gcd) per_p (add_comm p q ▸ len)\n  | eq => simpa [(Nat.compare_eq_eq).mp hyp]\n  | gt =>\n      have q_lt_p : q < p := Nat.compare_eq_gt.mp hyp\n      have gcd_lt_p : p.gcd q < p := by\n        have : p.gcd q ≠ p := by\n          simp [gcd_eq_left_iff_dvd, not_dvd_of_pos_of_lt q_pos q_lt_p]\n        exact this.lt_of_le (gcd_le_left q p_pos)\n      have per_diff : HasPeriod (drop q w) (p - q) := by\n        have : p = (p - q) + q := by lia\n        exact per_q.drop_of_hasPeriod_add (this ▸ per_p)\n      have per_q' : HasPeriod (drop q w) q := by\n        apply @HasPeriod.factor _ (take q w) (drop q w) [] q\n        all_goals simp_all\n      have gcd_stable : (p - q).gcd q = p.gcd q := gcd_sub_self_left (le_of_lt q_lt_p)\n      have drop_len : q ≤ (drop q w).length := by\n        rw [length_drop]\n        have : p.gcd q ≤ p - q := by\n          rw [← gcd_stable]; apply gcd_le_left q; lia\n        lia\n      have take_eq : take q (drop q w) = take q w := by\n          let ⟨z, hz⟩ := per_q.drop_prefix\n          convert_to take q (drop q w) = take q (drop q w ++ z)\n          · rw [hz]\n          exact (take_append_of_le_length drop_len).symm\n      -- the induction step\n      have IH : HasPeriod (drop q w) ((p - q).gcd q) :=\n        per_diff.gcd per_q' (by simp; lia)\n      convert_to HasPeriod (take q (drop q w) ++ drop q w) (p.gcd q)\n      · rw [take_eq, take_append_drop q w]\n      · exact (gcd_stable ▸ IH).take_append (p.gcd q) q (drop q w)\n          (gcd_dvd_right p q) drop_len\n  termination_by (q, p)\n  decreasing_by\n    all_goals grind\n",
+            "docstring": "The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n"
+          },
+          {
+            "id": 212884,
+            "name": "Nat.gcd_fib_add_mul_self",
+            "module": "Mathlib.Data.Nat.Fib.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Fib/Basic.lean#L232-L235",
+            "source_text": "theorem gcd_fib_add_mul_self (m n : ℕ) : ∀ k, gcd (fib m) (fib (n + k * m)) = gcd (fib m) (fib n)\n  | 0 => by simp\n  | k + 1 => by\n    rw [← gcd_fib_add_mul_self m n k, add_mul, ← add_assoc, one_mul, gcd_fib_add_self _ _]\n",
+            "docstring": null
+          },
+          {
+            "id": 236748,
+            "name": "MulAction.le_period",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L32-L37",
+            "source_text": "/-- If the action is periodic, then a lower bound for its period can be computed. -/\n@[to_additive /-- If the action is periodic, then a lower bound for its period can be computed. -/]\ntheorem le_period {m : M} {a : α} {n : ℕ} (period_pos : 0 < period m a)\n    (moved : ∀ k, 0 < k → k < n → m ^ k • a ≠ a) : n ≤ period m a :=\n  le_of_not_gt fun period_lt_n =>\n    moved _ period_pos period_lt_n <| pow_period_smul m a\n",
+            "docstring": "If the action is periodic, then a lower bound for its period can be computed. "
+          },
+          {
+            "id": 144365,
+            "name": "PeriodPair.weierstrassP_bound",
+            "module": "Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Elliptic/Weierstrass.lean#L186-L212",
+            "source_text": "lemma weierstrassP_bound (r : ℝ) (hr : 0 < r) (s : ℂ) (hs : ‖s‖ < r) (l : ℂ) (h : 2 * r ≤ ‖l‖) :\n    ‖1 / (s - l) ^ 2 - 1 / l ^ 2‖ ≤ 10 * r * ‖l‖ ^ (-3 : ℝ) := by\n  have : s ≠ ↑l := by rintro rfl; linarith\n  have : 0 < ‖l‖ := by linarith\n  calc\n    _ = ‖(↑l ^ 2 - (s - ↑l) ^ 2) / ((s - ↑l) ^ 2 * ↑l ^ 2)‖ := by\n      rw [div_sub_div, one_mul, mul_one]\n      · simpa [sub_eq_zero]\n      · simpa\n    _ = ‖l ^ 2 - (s - l) ^ 2‖ / (‖s - l‖ ^ 2 * ‖l‖ ^ 2) := by simp\n    _ ≤ ‖l ^ 2 - (s - l) ^ 2‖ / ((‖l‖ / 2) ^ 2 * ‖l‖ ^ 2) := by\n      gcongr\n      rw [norm_sub_rev]\n      exact .trans (by linarith) (norm_sub_norm_le l s)\n    _ = ‖s * (2 * l - s)‖ / (‖l‖ ^ 4 / 4) := by\n      congr 1\n      · rw [sq_sub_sq]; simp [← sub_add, two_mul, sub_add_eq_add_sub]\n      · ring\n    _ = (‖s‖ * ‖2 * l - s‖) / (‖l‖ ^ 4 / 4) := by simp\n    _ = (4 * ‖s‖ * ‖2 * l - s‖) / ‖l‖ ^ 4 := by field\n    _ ≤ (4 * r * (2.5 * ‖l‖)) / ‖l‖ ^ 4 := by\n      gcongr (4 * ?_ * ?_) / ‖l‖ ^ 4\n      refine (norm_sub_le _ _).trans ?_\n      simp only [Complex.norm_mul, Complex.norm_ofNat]\n      linarith\n    _ = 10 * r / ‖l‖ ^ 3 := by field\n    _ = _ := by norm_cast\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Signature.ordinary_gcd_properties M5.Period.period_law",
+        "status": "ok",
+        "results": [
+          {
+            "id": 236769,
+            "name": "AddAction.period_dvd_exponent",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L104-L104",
+            "source_text": "@[to_additive]\ntheorem period_dvd_exponent (m : M) (a : α) : period m a ∣ Monoid.exponent M := by",
+            "docstring": null
+          },
+          {
+            "id": 223841,
+            "name": "Function.minimalPeriod",
+            "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L243-L246",
+            "source_text": "/-- Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. -/\ndef minimalPeriod (f : α → α) (x : α) :=\n  if h : x ∈ periodicPts f then Nat.find h else 0\n",
+            "docstring": "Minimal period of a point `x` under an endomorphism `f`. If `x` is not a periodic point of `f`,\nthen `minimalPeriod f x = 0`. "
+          },
+          {
+            "id": 236768,
+            "name": "MulAction.period_dvd_exponent",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L104-L106",
+            "source_text": "@[to_additive]\ntheorem period_dvd_exponent (m : M) (a : α) : period m a ∣ Monoid.exponent M := by\n  rw [← pow_smul_eq_iff_period_dvd, Monoid.pow_exponent_eq_one, one_smul]",
+            "docstring": null
+          },
+          {
+            "id": 236762,
+            "name": "MulAction.period_dvd_orderOf",
+            "module": "Mathlib.GroupTheory.GroupAction.Period",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Period.lean#L90-L92",
+            "source_text": "@[to_additive]\ntheorem period_dvd_orderOf (m : M) (a : α) : period m a ∣ orderOf m := by\n  rw [← pow_smul_eq_iff_period_dvd, pow_orderOf_eq_one, one_smul]",
+            "docstring": null
+          },
+          {
+            "id": 208655,
+            "name": "List.HasPeriod.gcd",
+            "module": "Mathlib.Data.List.PeriodicityLemma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/PeriodicityLemma.lean#L186-L234",
+            "source_text": "/-- The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n-/\ntheorem HasPeriod.gcd {w : List α} {p q : ℕ} (per_p : HasPeriod w p) (per_q : HasPeriod w q)\n    (len : p + q - p.gcd q ≤ w.length) : HasPeriod w (p.gcd q) := by\n  rcases Nat.eq_zero_or_pos p with rfl | p_pos\n  · simp_all [HasPeriod]\n  rcases Nat.eq_zero_or_pos q with rfl | q_pos\n  · simp_all\n  cases hyp : compare p q with\n  | lt => -- if `p` is less than `q`, switch the two periods\n      have p_lt_q := Nat.compare_eq_lt.mp hyp\n      exact (gcd_comm q p ▸ per_q.gcd) per_p (add_comm p q ▸ len)\n  | eq => simpa [(Nat.compare_eq_eq).mp hyp]\n  | gt =>\n      have q_lt_p : q < p := Nat.compare_eq_gt.mp hyp\n      have gcd_lt_p : p.gcd q < p := by\n        have : p.gcd q ≠ p := by\n          simp [gcd_eq_left_iff_dvd, not_dvd_of_pos_of_lt q_pos q_lt_p]\n        exact this.lt_of_le (gcd_le_left q p_pos)\n      have per_diff : HasPeriod (drop q w) (p - q) := by\n        have : p = (p - q) + q := by lia\n        exact per_q.drop_of_hasPeriod_add (this ▸ per_p)\n      have per_q' : HasPeriod (drop q w) q := by\n        apply @HasPeriod.factor _ (take q w) (drop q w) [] q\n        all_goals simp_all\n      have gcd_stable : (p - q).gcd q = p.gcd q := gcd_sub_self_left (le_of_lt q_lt_p)\n      have drop_len : q ≤ (drop q w).length := by\n        rw [length_drop]\n        have : p.gcd q ≤ p - q := by\n          rw [← gcd_stable]; apply gcd_le_left q; lia\n        lia\n      have take_eq : take q (drop q w) = take q w := by\n          let ⟨z, hz⟩ := per_q.drop_prefix\n          convert_to take q (drop q w) = take q (drop q w ++ z)\n          · rw [hz]\n          exact (take_append_of_le_length drop_len).symm\n      -- the induction step\n      have IH : HasPeriod (drop q w) ((p - q).gcd q) :=\n        per_diff.gcd per_q' (by simp; lia)\n      convert_to HasPeriod (take q (drop q w) ++ drop q w) (p.gcd q)\n      · rw [take_eq, take_append_drop q w]\n      · exact (gcd_stable ▸ IH).take_append (p.gcd q) q (drop q w)\n          (gcd_dvd_right p q) drop_len\n  termination_by (q, p)\n  decreasing_by\n    all_goals grind\n",
+            "docstring": "The **Periodicity Lemma**, also known as the **Fine and Wilf theorem**, shows that\nif word `w` of length at least `p + q - gcd p q` has two periods `p` and `q`,\nthen it has a period `gcd p q`.\nThe proof is similar to the Euclidean algorithm for computing `gcd`.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Signature.ordinary_gcd_properties M5.Period.period_law",
+        "status": "ok",
+        "results": [
+          {
+            "id": 385345,
+            "name": "ClassicalMechanics.HarmonicOscillator.period",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1059-L1062",
+            "source_text": "/--\nThe period of a harmonic oscillator is `2 * π / ω`.\n-/\nnoncomputable def period (S : HarmonicOscillator) : ℝ := 2 * π / S.ω\n",
+            "docstring": "The period of a harmonic oscillator is `2 * π / ω`.\n"
+          },
+          {
+            "id": 385348,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_pos",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1069-L1069",
+            "source_text": "lemma period_pos : 0 < T S := div_pos (by positivity) S.ω_pos\n",
+            "docstring": null
+          },
+          {
+            "id": 385347,
+            "name": "ClassicalMechanics.HarmonicOscillator.period_eq",
+            "module": "Physlib.ClassicalMechanics.HarmonicOscillator.Solution",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/HarmonicOscillator/Solution.lean#L1067-L1067",
+            "source_text": "lemma period_eq : T S = 2 * π / S.ω := rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 393919,
+            "name": "IdealGas.ideal_gas_law",
+            "module": "Physlib.StatisticalMechanics.MicroCanonicalEnsemble.IdealGas",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/MicroCanonicalEnsemble/IdealGas.lean#L194-L211",
+            "source_text": "/-- The ideal gas law: PV = nRT. In our unitsless system, R = 1. -/\ntheorem ideal_gas_law (hV : 0 < V) (hT : 0 < T) :\n    let P := IdealGas.pressure (n,V) T;\n    let R := 1;\n    P * V = n * R * T := by\n  dsimp [pressure]\n  rw [← derivWithin_of_isOpen (s := Set.Ioi 0) isOpen_Ioi hV]\n  rw [derivWithin_congr (f := fun V' ↦ -n * T *\n    (Real.log V' + (3/2) * Real.log (2 * Real.pi * T))) ?_ ?_]\n  rw [derivWithin_of_isOpen (s := Set.Ioi 0) isOpen_Ioi hV]\n  erw [deriv_mul (by fun_prop) (by fun_prop (disch := exact hV.ne'))]\n  simp [field]\n  ring_nf\n  · intro _ hV'\n    dsimp\n    rw [helmholtzA_eq n hV' hT]\n    ring_nf\n  · exact helmholtzA_eq n hV hT\n",
+            "docstring": "The ideal gas law: PV = nRT. In our unitsless system, R = 1. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.SupportPolynomial.support_degree_bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 100946,
+            "name": "Polynomial.support",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L356-L358",
+            "source_text": "/-- The set of all `n` such that `X^n` has a non-zero coefficient. -/\ndef support : R[X] → Finset ℕ\n  | ⟨p⟩ => p.coeff.support\n",
+            "docstring": "The set of all `n` such that `X^n` has a non-zero coefficient. "
+          },
+          {
+            "id": 101770,
+            "name": "Polynomial.natDegree_eq_support_max'",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L128-L131",
+            "source_text": "theorem natDegree_eq_support_max' (h : p ≠ 0) :\n    p.natDegree = p.support.max' (nonempty_support_iff.mpr h) :=\n  (le_max' _ _ <| natDegree_mem_support_of_nonzero h).antisymm <|\n    max'_le _ _ _ le_natDegree_of_mem_supp\n",
+            "docstring": null
+          },
+          {
+            "id": 101752,
+            "name": "Polynomial.le_natDegree_of_mem_supp",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L46-L47",
+            "source_text": "theorem le_natDegree_of_mem_supp (a : ℕ) : a ∈ p.support → a ≤ natDegree p :=\n  le_natDegree_of_ne_zero ∘ mem_support_iff.mp\n",
+            "docstring": null
+          },
+          {
+            "id": 107445,
+            "name": "SkewPolynomial.support",
+            "module": "Mathlib.Algebra.SkewPolynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/SkewPolynomial/Basic.lean#L109-L113",
+            "source_text": "/--\nThe set of all `n` such that `X^n` has a non-zero coefficient.\n-/\ndef support (p : SkewPolynomial R) : Finset ℕ :=\n  Finset.map ⟨toAdd, toAdd.injective⟩ (SkewMonoidAlgebra.support p)\n",
+            "docstring": "The set of all `n` such that `X^n` has a non-zero coefficient.\n"
+          },
+          {
+            "id": 101753,
+            "name": "Polynomial.supp_subset_range",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L49-L50",
+            "source_text": "theorem supp_subset_range (h : natDegree p < m) : p.support ⊆ Finset.range m := fun _n hn =>\n  mem_range.2 <| (le_natDegree_of_mem_supp _ hn).trans_lt h\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.SupportPolynomial.support_degree_bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388087,
+            "name": "StandardModel.HiggsField.EffectivePotential.polynomial_totalDegree",
+            "module": "Physlib.Particles.StandardModel.HiggsBoson.EffectivePotential",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/HiggsBoson/EffectivePotential.lean#L90-L91",
+            "source_text": "lemma polynomial_totalDegree {V : EffectivePotential} {n : ℕ} (h : HasMaxMassDimLE V n) :\n    (polynomial V h).totalDegree ≤ n := (Classical.choose_spec h).2\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "period_control",
+    "receipts_sha256": "a5b9a68538d48e6292fb7424441a68d8e5ba2d6030500c24e233b24faa5cb462"
+  }
+]

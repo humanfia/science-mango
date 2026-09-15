@@ -1,0 +1,1221 @@
+[
+  {
+    "queries": [
+      "Finset erase insert cardinality gcd",
+      "natural gcd Chinese remainder connectivity"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset erase insert cardinality gcd",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202113,
+            "name": "Finset.erase_insert",
+            "module": "Mathlib.Data.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L134-L134",
+            "source_text": "theorem erase_insert {a : α} {s : Finset α} (h : a ∉ s) : (insert a s).erase a = s := by grind\n",
+            "docstring": null
+          },
+          {
+            "id": 66037,
+            "name": "Finset.gcd_insert",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L151-L157",
+            "source_text": "@[simp]\ntheorem gcd_insert [DecidableEq β] {b : β} :\n    (insert b s : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) := by\n  by_cases h : b ∈ s\n  · rw [insert_eq_of_mem h,\n      (gcd_eq_right_iff (f b) (s.gcd f) (Multiset.normalize_gcd (s.1.map f))).2 (gcd_dvd h)]\n  apply fold_insert h",
+            "docstring": null
+          },
+          {
+            "id": 66036,
+            "name": "Finset.gcd_cons",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L147-L149",
+            "source_text": "theorem gcd_cons {b : β} (h : b ∉ s) :\n    (cons b s h : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) :=\n  fold_cons h\n",
+            "docstring": null
+          },
+          {
+            "id": 202698,
+            "name": "Finset.erase",
+            "module": "Mathlib.Data.Finset.Erase",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Erase.lean#L47-L50",
+            "source_text": "/-- `erase s a` is the set `s - {a}`, that is, the elements of `s` which are\n  not equal to `a`. -/\ndef erase (s : Finset α) (a : α) : Finset α :=\n  ⟨_, s.2.erase a⟩\n",
+            "docstring": "`erase s a` is the set `s - {a}`, that is, the elements of `s` which are\nnot equal to `a`. "
+          },
+          {
+            "id": 202116,
+            "name": "Finset.insert_erase",
+            "module": "Mathlib.Data.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L142-L142",
+            "source_text": "@[simp] theorem insert_erase (h : a ∈ s) : insert a (s.erase a) = s := by grind",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset erase insert cardinality gcd",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389551,
+            "name": "WickContraction.erase_insert",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.InsertAndContractNat",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/InsertAndContractNat.lean#L367-L412",
+            "source_text": "@[simp]\nlemma erase_insert (c : WickContraction n.succ) (i : Fin n.succ) :\n    insertAndContractNat (erase c i) i (getDualErase c i) = c := by\n  match n with\n  | 0 =>\n    apply Subtype.ext\n    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, insertAndContractNat, getDualErase,\n      Finset.le_eq_subset]\n    ext a\n    simp only [Finset.mem_map, RelEmbedding.coe_toEmbedding]\n    constructor\n    · rintro ⟨a', ha', rfl⟩\n      exact (Finset.mem_filter.mp ha').2\n    · intro ha\n      obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isNone (a := a) i (by simp) ha\n      exact ⟨a', ha', rfl⟩\n  | Nat.succ n =>\n  apply Subtype.ext\n  by_cases hi : (c.getDual? i).isSome\n  · rw [insertAndContractNat_of_isSome]\n    simp only [Nat.succ_eq_add_one, getDualErase, hi, ↓reduceDIte, Option.get_some,\n      Finset.le_eq_subset]\n    rw [succsAbove_predAboveI]\n    · ext a\n      simp only [Finset.mem_insert, Finset.mem_map, RelEmbedding.coe_toEmbedding]\n      constructor\n      · rintro (rfl | ⟨a', ha', rfl⟩)\n        · simp\n        · exact (Finset.mem_filter.mp ha').2\n      · intro ha\n        by_cases hia : a = {i, (c.getDual? i).get hi}\n        · exact Or.inl hia\n        · obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isSome (a := a) i hi ha hia\n          exact Or.inr ⟨a', ha', rfl⟩\n    · simp\n    · exact (getDualErase_isSome_iff_getDual?_isSome c i).mpr hi\n  · simp only [Nat.succ_eq_add_one, insertAndContractNat, getDualErase, hi, Bool.false_eq_true,\n    ↓reduceDIte, Finset.le_eq_subset]\n    ext a\n    simp only [Finset.mem_map, RelEmbedding.coe_toEmbedding]\n    constructor\n    · rintro ⟨a', ha', rfl⟩\n      exact (Finset.mem_filter.mp ha').2\n    · intro ha\n      obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isNone (a := a) i (by simpa using hi) ha\n      exact ⟨a', ha', rfl⟩",
+            "docstring": null
+          },
+          {
+            "id": 389108,
+            "name": "FieldStatistic.ofFinset_erase",
+            "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L74-L83",
+            "source_text": "lemma ofFinset_erase (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a : Finset (Fin φs.length))\n    (i : Fin φs.length) (h : i ∈ a) :\n    ofFinset q φs.get (a.erase i) = (q φs[i]) * ofFinset q φs.get a := by\n  have ha : a = Insert.insert i (a.erase i) := by\n    exact Eq.symm (Finset.insert_erase h)\n  conv_rhs => rw [ha]\n  rw [ofFinset_insert]\n  rw [← mul_assoc]\n  simp only [Fin.getElem_fin, mul_self, one_mul]\n  simp\n",
+            "docstring": null
+          },
+          {
+            "id": 389121,
+            "name": "Wick.insertIdx_eraseIdx",
+            "module": "Physlib.QFT.PerturbationTheory.Koszul.KoszulSign",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/Koszul/KoszulSign.lean#L197-L206",
+            "source_text": "lemma insertIdx_eraseIdx {I : Type} : (n : ℕ) → (r : List I) → (hn : n < r.length) →\n    List.insertIdx (r.eraseIdx n) n (r.get ⟨n, hn⟩) = r\n  | n, [], hn => by\n    simp at hn\n  | 0, r0 :: r, hn => by\n    simp\n  | n + 1, r0 :: r, hn => by\n    simp only [List.length_cons, List.get_eq_getElem, List.getElem_cons_succ,\n      List.eraseIdx_cons_succ, List.insertIdx_succ_cons, List.cons.injEq, true_and]\n    exact insertIdx_eraseIdx n r _\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural gcd Chinese remainder connectivity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66105,
+            "name": "instStrongNormalizedGCDMonoidNat",
+            "module": "Mathlib.Algebra.GCDMonoid.Nat",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Nat.lean#L49-L53",
+            "source_text": "instance : StrongNormalizedGCDMonoid ℕ :=\n  { (inferInstance : GCDMonoid ℕ),\n    (inferInstance : StrongNormalizationMonoid ℕ) with\n    normalize_gcd := fun _ _ => normalize_eq _\n    normalize_lcm := fun _ _ => normalize_eq _ }\n",
+            "docstring": null
+          },
+          {
+            "id": 223127,
+            "name": "ZMod.chineseRemainder",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L877-L924",
+            "source_text": "/-- The **Chinese remainder theorem**. For a pair of coprime natural numbers, `m` and `n`,\n  the rings `ZMod (m * n)` and `ZMod m × ZMod n` are isomorphic.\n\nSee `Ideal.quotientInfRingEquivPiQuotient` for the Chinese remainder theorem for ideals in any\nring.\n-/\ndef chineseRemainder {m n : ℕ} (h : m.Coprime n) : ZMod (m * n) ≃+* ZMod m × ZMod n :=\n  let to_fun : ZMod (m * n) → ZMod m × ZMod n :=\n    ZMod.castHom (show m.lcm n ∣ m * n by simp [Nat.lcm_dvd_iff]) (ZMod m × ZMod n)\n  let inv_fun : ZMod m × ZMod n → ZMod (m * n) := fun x =>\n    if m * n = 0 then\n      if m = 1 then cast (RingHom.snd _ (ZMod n) x) else cast (RingHom.fst (ZMod m) _ x)\n    else Nat.chineseRemainder h x.1.val x.2.val\n  have inv : Function.LeftInverse inv_fun to_fun ∧ Function.RightInverse inv_fun to_fun :=\n    if hmn0 : m * n = 0 then by\n      rcases h.eq_of_mul_eq_zero hmn0 with (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩)\n      · constructor\n        · intro x; rfl\n        · rintro ⟨x, y⟩\n          fin_cases y\n          simp [to_fun, inv_fun, castHom, Prod.ext_iff, eq_iff_true_of_subsingleton]\n      · constructor\n        · intro x; rfl\n        · rintro ⟨x, y⟩\n          fin_cases x\n          simp [to_fun, inv_fun, castHom, Prod.ext_iff, eq_iff_true_of_subsingleton]\n    else by\n      haveI : NeZero (m * n) := ⟨hmn0⟩\n      haveI : NeZero m := ⟨left_ne_zero_of_mul hmn0⟩\n      haveI : NeZero n := ⟨right_ne_zero_of_mul hmn0⟩\n      have left_inv : Function.LeftInverse inv_fun to_fun := by\n        intro x\n        dsimp only [to_fun, inv_fun, ZMod.castHom_apply]\n        conv_rhs => rw [← ZMod.natCast_zmod_val x]\n        rw [if_neg hmn0, ZMod.natCast_eq_natCast_iff, ← Nat.modEq_and_modEq_iff_modEq_mul h,\n          Prod.fst_zmod_cast, Prod.snd_zmod_cast]\n        refine\n          ⟨(Nat.chineseRemainder h (cast x : ZMod m).val (cast x : ZMod n).val).2.left.trans ?_,\n            (Nat.chineseRemainder h (cast x : ZMod m).val (cast x : ZMod n).val).2.right.trans ?_⟩\n        · rw [← ZMod.natCast_eq_natCast_iff, ZMod.natCast_zmod_val, ZMod.natCast_val]\n        · rw [← ZMod.natCast_eq_natCast_iff, ZMod.natCast_zmod_val, ZMod.natCast_val]\n      exact ⟨left_inv, left_inv.rightInverse_of_card_le (by simp)⟩\n  { toFun := to_fun,\n    invFun := inv_fun,\n    map_mul' := map_mul _\n    map_add' := map_add _\n    left_inv := inv.1\n    right_inv := inv.2 }\n",
+            "docstring": "The **Chinese remainder theorem**. For a pair of coprime natural numbers, `m` and `n`,\n  the rings `ZMod (m * n)` and `ZMod m × ZMod n` are isomorphic.\n\nSee `Ideal.quotientInfRingEquivPiQuotient` for the Chinese remainder theorem for ideals in any\nring.\n"
+          },
+          {
+            "id": 213300,
+            "name": "Nat.chineseRemainder",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L463-L465",
+            "source_text": "/-- The natural number less than `n*m` congruent to `a` mod `n` and `b` mod `m` -/\ndef chineseRemainder (co : n.Coprime m) (a b : ℕ) : { k // k ≡ a [MOD n] ∧ k ≡ b [MOD m] } :=\n  chineseRemainder' (by convert! @modEq_one a b)\n",
+            "docstring": "The natural number less than `n*m` congruent to `a` mod `n` and `b` mod `m` "
+          },
+          {
+            "id": 213299,
+            "name": "Nat.chineseRemainder'",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L421-L461",
+            "source_text": "/-- The natural number less than `lcm n m` congruent to `a` mod `n` and `b` mod `m` -/\ndef chineseRemainder' (h : a ≡ b [MOD gcd n m]) : { k // k ≡ a [MOD n] ∧ k ≡ b [MOD m] } :=\n  if hn : n = 0 then ⟨a, by\n    rw [hn, gcd_zero_left] at h; constructor\n    · rfl\n    · exact h⟩\n  else\n    if hm : m = 0 then ⟨b, by\n      rw [hm, gcd_zero_right] at h; constructor\n      · exact h.symm\n      · rfl⟩\n    else\n      ⟨let (c, d) := xgcd n m; Int.toNat ((n * c * b + m * d * a) / gcd n m % lcm n m), by\n        rw [xgcd_val]\n        dsimp\n        rw [modEq_iff_dvd, modEq_iff_dvd,\n          Int.toNat_of_nonneg (Int.emod_nonneg _ (Int.natCast_ne_zero.2 (lcm_ne_zero hn hm)))]\n        have hnonzero : (gcd n m : ℤ) ≠ 0 := by\n          norm_cast\n          rw [Nat.gcd_eq_zero_iff, not_and]\n          exact fun _ => hm\n        have hcoedvd : ∀ t, (gcd n m : ℤ) ∣ t * (b - a) := fun t => h.dvd.mul_left _\n        have := gcd_eq_gcd_ab n m\n        constructor <;> rw [Int.emod_def, ← sub_add] <;>\n            refine Int.dvd_add ?_ (dvd_mul_of_dvd_left ?_ _) <;>\n          try norm_cast\n        · rw [← sub_eq_iff_eq_add'] at this\n          rw [← this, Int.sub_mul, ← add_sub_assoc, add_comm, add_sub_assoc, ← Int.mul_sub,\n            Int.add_ediv_of_dvd_left, Int.mul_ediv_cancel_left _ hnonzero,\n            Int.mul_ediv_assoc _ h.dvd, ← sub_sub, sub_self, zero_sub, Int.dvd_neg, mul_assoc]\n          · exact dvd_mul_right _ _\n          norm_cast\n          exact dvd_mul_right _ _\n        · exact dvd_lcm_left n m\n        · rw [← sub_eq_iff_eq_add] at this\n          rw [← this, Int.sub_mul, sub_add, ← Int.mul_sub, Int.sub_ediv_of_dvd,\n            Int.mul_ediv_cancel_left _ hnonzero, Int.mul_ediv_assoc _ h.dvd, ← sub_add, sub_self,\n            zero_add, mul_assoc]\n          · exact dvd_mul_right _ _\n          · exact hcoedvd _\n        · exact dvd_lcm_right n m⟩\n",
+            "docstring": "The natural number less than `lcm n m` congruent to `a` mod `n` and `b` mod `m` "
+          },
+          {
+            "id": 212089,
+            "name": "Nat.chineseRemainderOfFinset",
+            "module": "Mathlib.Data.Nat.ChineseRemainder",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ChineseRemainder.lean#L163-L168",
+            "source_text": "/-- The natural number less than `∏ i ∈ t, s i` congruent to\n`a i` mod `s i` for all  `i ∈ t`. -/\ndef chineseRemainderOfFinset (t : Finset ι)\n    (hs : ∀ i ∈ t, s i ≠ 0) (pp : Set.Pairwise t (Coprime on s)) :\n    { k // ∀ i ∈ t, k ≡ a i [MOD s i] } := by\n  simpa using chineseRemainderOfMultiset a s t.nodup (by simpa using hs) (by simpa using pp)\n",
+            "docstring": "The natural number less than `∏ i ∈ t, s i` congruent to\n`a i` mod `s i` for all  `i ∈ t`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "packed_repair_hypotheses",
+    "receipts_sha256": "4435e1bf8d240d5e2e3143798335dd3c3a835e17ba17f4e3d6ee08ca2da79389"
+  },
+  {
+    "queries": [
+      "M5.RepairSupport replacement_card replacement_anchor replacement_range replacement_connected",
+      "M5.Packing packedSupport card zero mem bound",
+      "M5.packingCutoff M5.BoundedConstruction.anchoredTuple M5.PhysicalBridge.remainingGcd"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.RepairSupport replacement_card replacement_anchor replacement_range replacement_connected",
+        "status": "ok",
+        "results": [
+          {
+            "id": 329854,
+            "name": "Mathlib.Tactic.Translate.ReplacementM",
+            "module": "Mathlib.Tactic.Translate.Core",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Translate/Core.lean#L360-L365",
+            "source_text": "/-- Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. -/\nabbrev ReplacementM :=\n  ReaderT (Array FVarId) <| MonadCacheT ExprStructEq Expr StateRefT (Std.HashSet FVarId) MetaM\n",
+            "docstring": "Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. "
+          },
+          {
+            "id": 308998,
+            "name": "HahnSeries.cardSupp",
+            "module": "Mathlib.RingTheory.HahnSeries.Cardinal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Cardinal.lean#L38-L40",
+            "source_text": "/-- The cardinality of the support of a Hahn series. -/\ndef cardSupp (x : R⟦Γ⟧) : Cardinal :=\n  #x.support\n",
+            "docstring": "The cardinality of the support of a Hahn series. "
+          },
+          {
+            "id": 340656,
+            "name": "IsConnected",
+            "module": "Mathlib.Topology.Connected.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Connected/Basic.lean#L54-L56",
+            "source_text": "/-- A connected set is one that is nonempty and where there is no non-trivial open partition. -/\ndef IsConnected (s : Set α) : Prop :=\n  s.Nonempty ∧ IsPreconnected s\n",
+            "docstring": "A connected set is one that is nonempty and where there is no non-trivial open partition. "
+          },
+          {
+            "id": 218565,
+            "name": "Finite.Set.finite_replacement",
+            "module": "Mathlib.Data.Set.Finite.Range",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Range.lean#L69-L71",
+            "source_text": "instance finite_replacement [Finite α] (f : α → β) :\n    Finite {f x | x : α} :=\n  Finite.Set.finite_range f\n",
+            "docstring": null
+          },
+          {
+            "id": 329703,
+            "name": "Mathlib.TacticAnalysis.terminalReplacement",
+            "module": "Mathlib.Tactic.TacticAnalysis.Declarations",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TacticAnalysis/Declarations.lean#L36-L110",
+            "source_text": "/--\nDefine a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n-/\ndef terminalReplacement (oldTacticName newTacticName : String) (oldTacticKind : SyntaxNodeKind)\n    (newTactic : ContextInfo → TacticInfo → Syntax → CommandElabM (TSyntax `tactic))\n    (reportFailure : Bool := true) (reportSuccess : Bool := false)\n    (reportSlowdown : Bool := false) (maxSlowdown : Float := 1) :\n    TacticAnalysis.Config := .ofComplex {\n  out := TerminalReplacementOutcome\n  ctx := Syntax\n  trigger _ stx := if stx.getKind == oldTacticKind\n    then .accept stx else .skip\n  test ctxI i stx goal := do\n    let tac ← newTactic ctxI i stx\n    try\n      let goalTypes ← ctxI.runTacticCode i goal tac ⟨Expr, MVarId.getType'⟩\n      match goalTypes with\n      | [] => return .success tac\n      | _ => do\n        let goalsMessages := goalTypes.map fun e => m!\"⊢ {MessageData.ofExpr e}\\n\"\n        return .remainingGoals tac goalsMessages\n    catch _e =>\n      let name ← mkAuxDeclName `extracted\n      -- Rerun in the original tactic context, since `omega` changes the state.\n      let ((sig, _, modules, _), _) ← ctxI.runTactic i goal (fun goal =>\n        (Mathlib.Tactic.ExtractGoal.goalSignature name goal).run)\n      let imports := modules.toList.map (s!\"import {·}\")\n      return .error tac m!\"{\"\\n\".intercalate imports}\\n\\ntheorem {sig} := by\\n  fail_if_success {tac}\\n  {stx}\"\n  tell stx old oldHeartbeats new newHeartbeats :=\n    -- If the original tactic failed, then we do not need to check the replacement.\n    if !old.isEmpty then\n      return none\n    else match new with\n    | .error _ msg =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` failed where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Counterexample:{indentD msg}\"\n        return msg\n      else\n        return none\n    | .remainingGoals newStx goals =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` left unsolved goals where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Replacement tactic:{indentD newStx}\\n\" ++\n          m!\"Unsolved goals:{indentD goals}\"\n        return msg\n      else\n        return none\n    | .success newStx => do\n      -- TODO: we should add a \"Try this:\" suggestion with code action.\n      let msg := if (← liftCoreM <| PrettyPrinter.ppTactic newStx).pretty = newTacticName then\n        m!\"`{newTacticName}` can replace `{stx}`\"\n      else\n        m!\"`{newTacticName}` can replace `{stx}` using `{newStx}`\"\n      if reportSlowdown ∧ maxSlowdown * oldHeartbeats.toFloat < newHeartbeats.toFloat then\n        return some m!\"{msg}, but is slower: {newHeartbeats / 1000} versus {oldHeartbeats / 1000} heartbeats\"\n      else if reportSuccess then\n        return some msg\n      else\n        return none\n    }\n",
+            "docstring": "Define a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.RepairSupport replacement_card replacement_anchor replacement_range replacement_connected",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388475,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.card_of_mem_minimalSuperSet",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.MinimalSuperSet",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/MinimalSuperSet.lean#L147-L187",
+            "source_text": "lemma card_of_mem_minimalSuperSet {S5 S10 : Finset 𝓩} {x : ChargeSpectrum 𝓩}\n    (y : ChargeSpectrum 𝓩) (hy : y ∈ minimalSuperSet S5 S10 x) :\n    card y = card x + 1 := by\n  simp [minimalSuperSet] at hy\n  rcases hy with ⟨hy1, hr | hr | hr | hr⟩\n  · match x with\n    | ⟨none, _, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨some x1, _, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, none, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨_, some x2, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, _, Q5, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n  · match x with\n    | ⟨_, _, _, Q10⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n",
+            "docstring": null
+          },
+          {
+            "id": 388434,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+            "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+            "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Packing packedSupport card zero mem bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 347841,
+            "name": "Metric.packingNumber_zero",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L183-L186",
+            "source_text": "@[simp]\nlemma packingNumber_zero {E : Type*} [EMetricSpace E] (A : Set E) :\n    packingNumber 0 A = A.encard :=\n  le_antisymm (packingNumber_le_encard_self A) (le_iSup_of_le A (by simp))",
+            "docstring": null
+          },
+          {
+            "id": 300301,
+            "name": "PMF.support",
+            "module": "Mathlib.Probability.ProbabilityMassFunction.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/ProbabilityMassFunction/Basic.lean#L78-L80",
+            "source_text": "/-- The support of a `PMF` is the set where it is nonzero. -/\ndef support (p : PMF α) : Set α :=\n  Function.support p\n",
+            "docstring": "The support of a `PMF` is the set where it is nonzero. "
+          },
+          {
+            "id": 205064,
+            "name": "Finsupp",
+            "module": "Mathlib.Data.Finsupp.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Defs.lean#L86-L95",
+            "source_text": "/-- `Finsupp α M`, denoted `α →₀ M`, is the type of functions `f : α → M` such that\n  `f x = 0` for all but finitely many `x`. -/\nstructure Finsupp (α : Type*) (M : Type*) [Zero M] where\n  /-- The support of a finitely supported function (aka `Finsupp`). -/\n  support : Finset α\n  /-- The underlying function of a bundled finitely supported function (aka `Finsupp`). -/\n  toFun : α → M\n  /-- The witness that the support of a `Finsupp` is indeed the exact locus where its\n  underlying function is nonzero. -/\n  mem_support_toFun : ∀ a, a ∈ support ↔ toFun a ≠ 0\n",
+            "docstring": "`Finsupp α M`, denoted `α →₀ M`, is the type of functions `f : α → M` such that\n`f x = 0` for all but finitely many `x`. "
+          },
+          {
+            "id": 199091,
+            "name": "DFinsupp.support",
+            "module": "Mathlib.Data.DFinsupp.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/DFinsupp/Defs.lean#L804-L815",
+            "source_text": "/-- Set `{i | f x ≠ 0}` as a `Finset`. -/\ndef support (f : Π₀ i, β i) : Finset ι :=\n  (f.support'.lift fun xs => (Multiset.toFinset xs.1).filter fun i => f i ≠ 0) <| by\n    rintro ⟨sx, hx⟩ ⟨sy, hy⟩\n    dsimp only [Subtype.coe_mk, toFun_eq_coe] at *\n    ext i; constructor\n    · intro H\n      rcases Finset.mem_filter.1 H with ⟨_, h⟩\n      exact Finset.mem_filter.2 ⟨Multiset.mem_toFinset.2 <| (hy i).resolve_right h, h⟩\n    · intro H\n      rcases Finset.mem_filter.1 H with ⟨_, h⟩\n      exact Finset.mem_filter.2 ⟨Multiset.mem_toFinset.2 <| (hx i).resolve_right h, h⟩\n",
+            "docstring": "Set `{i | f x ≠ 0}` as a `Finset`. "
+          },
+          {
+            "id": 300305,
+            "name": "PMF.apply_eq_zero_iff",
+            "module": "Mathlib.Probability.ProbabilityMassFunction.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/ProbabilityMassFunction/Basic.lean#L93-L94",
+            "source_text": "theorem apply_eq_zero_iff (p : PMF α) (a : α) : p a = 0 ↔ a ∉ p.support := by\n  rw [mem_support_iff, Classical.not_not]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Packing packedSupport card zero mem bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394431,
+            "name": "WithDim.instZero",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L48-L49",
+            "source_text": "instance (d : Dimension) (M : Type) [Zero M] : Zero (WithDim d M) where\n  zero := ⟨0⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 389475,
+            "name": "WickContraction.wickContraction_zero_none_card",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Card",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Card.lean#L33-L39",
+            "source_text": "lemma wickContraction_zero_none_card :\n    Fintype.card {c : WickContraction n.succ // ¬ (c.getDual? 0).isSome} =\n    Fintype.card (WickContraction n) := by\n  simp only [succ_eq_add_one, Bool.not_eq_true, Option.isSome_eq_false_iff,\n    Option.isNone_iff_eq_none]\n  symm\n  exact Fintype.card_of_bijective (insertAndContractNat_bijective 0)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.packingCutoff M5.BoundedConstruction.anchoredTuple M5.PhysicalBridge.remainingGcd",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66083,
+            "name": "Multiset.gcd",
+            "module": "Mathlib.Algebra.GCDMonoid.Multiset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Multiset.lean#L117-L119",
+            "source_text": "/-- Greatest common divisor of a multiset -/\ndef gcd (s : Multiset α) : α :=\n  s.fold GCDMonoid.gcd 0\n",
+            "docstring": "Greatest common divisor of a multiset "
+          },
+          {
+            "id": 100343,
+            "name": "toIcoDiv_sub_nsmul",
+            "module": "Mathlib.Algebra.Order.ToIntervalMod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/ToIntervalMod.lean#L267-L269",
+            "source_text": "@[simp]\ntheorem toIcoDiv_sub_nsmul (a b : α) (m : ℕ) : toIcoDiv hp a (b - m • p) = toIcoDiv hp a b - m :=\n  mod_cast toIcoDiv_sub_zsmul hp a b m",
+            "docstring": null
+          },
+          {
+            "id": 65992,
+            "name": "gcdMonoidOfGCD",
+            "module": "Mathlib.Algebra.GCDMonoid.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L1090-L1115",
+            "source_text": "/-- Define `GCDMonoid` on a structure just from the `gcd` and its properties. -/\n@[implicit_reducible]\nnoncomputable def gcdMonoidOfGCD [DecidableEq α] (gcd : α → α → α)\n    (gcd_dvd_left : ∀ a b, gcd a b ∣ a) (gcd_dvd_right : ∀ a b, gcd a b ∣ b)\n    (dvd_gcd : ∀ {a b c}, a ∣ c → a ∣ b → a ∣ gcd c b) : GCDMonoid α :=\n  { gcd\n    gcd_dvd_left\n    gcd_dvd_right\n    dvd_gcd := fun {_ _ _} => dvd_gcd\n    lcm := fun a b =>\n      if a = 0 then 0 else Classical.choose ((gcd_dvd_left a b).trans (Dvd.intro b rfl))\n    gcd_mul_lcm := fun a b => by\n      split_ifs with a0\n      · rw [mul_zero, a0, zero_mul]\n      · rw [← Classical.choose_spec ((gcd_dvd_left a b).trans (Dvd.intro b rfl))]\n    lcm_zero_left := fun _ => if_pos rfl\n    lcm_zero_right := fun a => by\n      split_ifs with a0\n      · rfl\n      have h := (Classical.choose_spec ((gcd_dvd_left a 0).trans (Dvd.intro 0 rfl))).symm\n      have a0' : gcd a 0 ≠ 0 := by\n        contrapose a0\n        rw [← associated_zero_iff_eq_zero, ← a0]\n        exact associated_of_dvd_dvd (dvd_gcd (dvd_refl a) (dvd_zero a)) (gcd_dvd_left _ _)\n      apply Or.resolve_left (mul_eq_zero.1 _) a0'\n      rw [h, mul_zero] }\n",
+            "docstring": "Define `GCDMonoid` on a structure just from the `gcd` and its properties. "
+          },
+          {
+            "id": 347819,
+            "name": "Metric.packingNumber",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+            "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+            "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+          },
+          {
+            "id": 201707,
+            "name": "Tuple.sort",
+            "module": "Mathlib.Data.Fin.Tuple.Sort",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Sort.lean#L77-L79",
+            "source_text": "/-- `sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. -/\ndef sort (f : Fin n → α) : Equiv.Perm (Fin n) :=\n  (graphEquiv₂ f).toEquiv.trans (graphEquiv₁ f).symm\n",
+            "docstring": "`sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.packingCutoff M5.BoundedConstruction.anchoredTuple M5.PhysicalBridge.remainingGcd",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393821,
+            "name": "CanonicalEnsemble.physicalProbability",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+            "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+            "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+          },
+          {
+            "id": 393822,
+            "name": "CanonicalEnsemble.physicalProbability_def",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+            "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393831,
+            "name": "CanonicalEnsemble.physicalProbability_congr",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L779-L782",
+            "source_text": "lemma physicalProbability_congr (e : ι1 ≃ᵐ ι) (T : Temperature) (i : ι1) :\n    (𝓒.congr e).physicalProbability T i\n      = 𝓒.physicalProbability T (e i) := by\n  simp [physicalProbability, probability]\n",
+            "docstring": null
+          },
+          {
+            "id": 393824,
+            "name": "CanonicalEnsemble.physicalProbability_nonneg",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L736-L739",
+            "source_text": "lemma physicalProbability_nonneg\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    0 ≤ 𝓒.physicalProbability T i :=\n  mul_nonneg (𝓒.probability_nonneg T i) (pow_nonneg 𝓒.hPos.le _)\n",
+            "docstring": null
+          },
+          {
+            "id": 393823,
+            "name": "CanonicalEnsemble.physicalProbability_measurable",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L731-L734",
+            "source_text": "lemma physicalProbability_measurable (T : Temperature) :\n    Measurable (𝓒.physicalProbability T) := by\n  unfold physicalProbability probability\n  fun_prop\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "M5.RepairSupport.replacement_card replacement_anchor replacement_range replacement_connected signatures",
+      "M5.Packing packedSupport definition cardinality anchor bound",
+      "M5.BoundedConstruction.anchoredTuple M5.packingCutoff definitions"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.RepairSupport.replacement_card replacement_anchor replacement_range replacement_connected signatures",
+        "status": "ok",
+        "results": [
+          {
+            "id": 329854,
+            "name": "Mathlib.Tactic.Translate.ReplacementM",
+            "module": "Mathlib.Tactic.Translate.Core",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Translate/Core.lean#L360-L365",
+            "source_text": "/-- Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. -/\nabbrev ReplacementM :=\n  ReaderT (Array FVarId) <| MonadCacheT ExprStructEq Expr StateRefT (Std.HashSet FVarId) MetaM\n",
+            "docstring": "Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. "
+          },
+          {
+            "id": 340656,
+            "name": "IsConnected",
+            "module": "Mathlib.Topology.Connected.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Connected/Basic.lean#L54-L56",
+            "source_text": "/-- A connected set is one that is nonempty and where there is no non-trivial open partition. -/\ndef IsConnected (s : Set α) : Prop :=\n  s.Nonempty ∧ IsPreconnected s\n",
+            "docstring": "A connected set is one that is nonempty and where there is no non-trivial open partition. "
+          },
+          {
+            "id": 308998,
+            "name": "HahnSeries.cardSupp",
+            "module": "Mathlib.RingTheory.HahnSeries.Cardinal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Cardinal.lean#L38-L40",
+            "source_text": "/-- The cardinality of the support of a Hahn series. -/\ndef cardSupp (x : R⟦Γ⟧) : Cardinal :=\n  #x.support\n",
+            "docstring": "The cardinality of the support of a Hahn series. "
+          },
+          {
+            "id": 218565,
+            "name": "Finite.Set.finite_replacement",
+            "module": "Mathlib.Data.Set.Finite.Range",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Range.lean#L69-L71",
+            "source_text": "instance finite_replacement [Finite α] (f : α → β) :\n    Finite {f x | x : α} :=\n  Finite.Set.finite_range f\n",
+            "docstring": null
+          },
+          {
+            "id": 329703,
+            "name": "Mathlib.TacticAnalysis.terminalReplacement",
+            "module": "Mathlib.Tactic.TacticAnalysis.Declarations",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TacticAnalysis/Declarations.lean#L36-L110",
+            "source_text": "/--\nDefine a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n-/\ndef terminalReplacement (oldTacticName newTacticName : String) (oldTacticKind : SyntaxNodeKind)\n    (newTactic : ContextInfo → TacticInfo → Syntax → CommandElabM (TSyntax `tactic))\n    (reportFailure : Bool := true) (reportSuccess : Bool := false)\n    (reportSlowdown : Bool := false) (maxSlowdown : Float := 1) :\n    TacticAnalysis.Config := .ofComplex {\n  out := TerminalReplacementOutcome\n  ctx := Syntax\n  trigger _ stx := if stx.getKind == oldTacticKind\n    then .accept stx else .skip\n  test ctxI i stx goal := do\n    let tac ← newTactic ctxI i stx\n    try\n      let goalTypes ← ctxI.runTacticCode i goal tac ⟨Expr, MVarId.getType'⟩\n      match goalTypes with\n      | [] => return .success tac\n      | _ => do\n        let goalsMessages := goalTypes.map fun e => m!\"⊢ {MessageData.ofExpr e}\\n\"\n        return .remainingGoals tac goalsMessages\n    catch _e =>\n      let name ← mkAuxDeclName `extracted\n      -- Rerun in the original tactic context, since `omega` changes the state.\n      let ((sig, _, modules, _), _) ← ctxI.runTactic i goal (fun goal =>\n        (Mathlib.Tactic.ExtractGoal.goalSignature name goal).run)\n      let imports := modules.toList.map (s!\"import {·}\")\n      return .error tac m!\"{\"\\n\".intercalate imports}\\n\\ntheorem {sig} := by\\n  fail_if_success {tac}\\n  {stx}\"\n  tell stx old oldHeartbeats new newHeartbeats :=\n    -- If the original tactic failed, then we do not need to check the replacement.\n    if !old.isEmpty then\n      return none\n    else match new with\n    | .error _ msg =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` failed where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Counterexample:{indentD msg}\"\n        return msg\n      else\n        return none\n    | .remainingGoals newStx goals =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` left unsolved goals where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Replacement tactic:{indentD newStx}\\n\" ++\n          m!\"Unsolved goals:{indentD goals}\"\n        return msg\n      else\n        return none\n    | .success newStx => do\n      -- TODO: we should add a \"Try this:\" suggestion with code action.\n      let msg := if (← liftCoreM <| PrettyPrinter.ppTactic newStx).pretty = newTacticName then\n        m!\"`{newTacticName}` can replace `{stx}`\"\n      else\n        m!\"`{newTacticName}` can replace `{stx}` using `{newStx}`\"\n      if reportSlowdown ∧ maxSlowdown * oldHeartbeats.toFloat < newHeartbeats.toFloat then\n        return some m!\"{msg}, but is slower: {newHeartbeats / 1000} versus {oldHeartbeats / 1000} heartbeats\"\n      else if reportSuccess then\n        return some msg\n      else\n        return none\n    }\n",
+            "docstring": "Define a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.RepairSupport.replacement_card replacement_anchor replacement_range replacement_connected signatures",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388408,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.card",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L243-L246",
+            "source_text": "/-- The cardinality of a `Charges` is defined to be the sum of the cardinalities\n  of each of the underlying finite sets of charges, with `Option ℤ` turned to finsets. -/\ndef card (x : ChargeSpectrum 𝓩) : Nat :=\n  x.qHu.toFinset.card + x.qHd.toFinset.card + x.Q5.card + x.Q10.card\n",
+            "docstring": "The cardinality of a `Charges` is defined to be the sum of the cardinalities\nof each of the underlying finite sets of charges, with `Option ℤ` turned to finsets. "
+          },
+          {
+            "id": 393967,
+            "name": "FTheory.SU5.ChargeSpectrum.card_five_bar_le_of_mem_viableCharges",
+            "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L495-L497",
+            "source_text": "lemma card_five_bar_le_of_mem_viableCharges (I : CodimensionOneConfig) :\n    ∀ x ∈ (viableCharges I), x.Q5.card ≤ 2 := by\n  decide +revert\n",
+            "docstring": null
+          },
+          {
+            "id": 393949,
+            "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_card",
+            "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L237-L240",
+            "source_text": "lemma viableCompletions_card (I : CodimensionOneConfig) :\n    (viableCompletions I).card = if I = same then 70 else\n      if I = nearestNeighbor then 48 else 37 := by\n  cases I <;> rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 388475,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.card_of_mem_minimalSuperSet",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.MinimalSuperSet",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/MinimalSuperSet.lean#L147-L187",
+            "source_text": "lemma card_of_mem_minimalSuperSet {S5 S10 : Finset 𝓩} {x : ChargeSpectrum 𝓩}\n    (y : ChargeSpectrum 𝓩) (hy : y ∈ minimalSuperSet S5 S10 x) :\n    card y = card x + 1 := by\n  simp [minimalSuperSet] at hy\n  rcases hy with ⟨hy1, hr | hr | hr | hr⟩\n  · match x with\n    | ⟨none, _, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨some x1, _, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, none, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨_, some x2, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, _, Q5, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n  · match x with\n    | ⟨_, _, _, Q10⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n",
+            "docstring": null
+          },
+          {
+            "id": 388276,
+            "name": "MSSMACC.AnomalyFreePerp.InLineEq",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L166-L168",
+            "source_text": "/-- Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. -/\ndef InLineEq : Type := {R : MSSMACC.AnomalyFreePerp // LineEqProp R}\n",
+            "docstring": "Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Packing packedSupport definition cardinality anchor bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 347835,
+            "name": "Metric.packingNumber_le_encard_self",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L148-L150",
+            "source_text": "lemma packingNumber_le_encard_self (A : Set X) : packingNumber ε A ≤ A.encard := by\n  simp only [packingNumber, iSup_le_iff]\n  exact fun _ hC _ ↦ encard_le_encard hC\n",
+            "docstring": null
+          },
+          {
+            "id": 300301,
+            "name": "PMF.support",
+            "module": "Mathlib.Probability.ProbabilityMassFunction.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/ProbabilityMassFunction/Basic.lean#L78-L80",
+            "source_text": "/-- The support of a `PMF` is the set where it is nonzero. -/\ndef support (p : PMF α) : Set α :=\n  Function.support p\n",
+            "docstring": "The support of a `PMF` is the set where it is nonzero. "
+          },
+          {
+            "id": 347819,
+            "name": "Metric.packingNumber",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+            "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+            "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+          },
+          {
+            "id": 347841,
+            "name": "Metric.packingNumber_zero",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L183-L186",
+            "source_text": "@[simp]\nlemma packingNumber_zero {E : Type*} [EMetricSpace E] (A : Set E) :\n    packingNumber 0 A = A.encard :=\n  le_antisymm (packingNumber_le_encard_self A) (le_iSup_of_le A (by simp))",
+            "docstring": null
+          },
+          {
+            "id": 91697,
+            "name": "Function.support",
+            "module": "Mathlib.Algebra.Notation.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Support.lean#L31-L31",
+            "source_text": "@[to_additive /-- `support` of a function is the set of points `x` such that `f x ≠ 0`. -/]\ndef mulSupport (f : ι → M) : Set ι := {x | f x ≠ 1}",
+            "docstring": "`support` of a function is the set of points `x` such that `f x ≠ 0`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Packing packedSupport definition cardinality anchor bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 394425,
+            "name": "WithDim",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L21-L24",
+            "source_text": "/-- The type `M` carrying an instance of a dimension `d`. -/\nstructure WithDim (d : Dimension) (M : Type) where\n  /-- The underlying value of `M`. -/\n  val : M\n",
+            "docstring": "The type `M` carrying an instance of a dimension `d`. "
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          },
+          {
+            "id": 394408,
+            "name": "instCarriesDimensionElemDimSet",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L492-L494",
+            "source_text": "instance (M : Type) [MulAction ℝ≥0 M] [MulUnitDependent M] (d : Dimension) :\n    CarriesDimension (DimSet M d) where\n  d := d\n",
+            "docstring": null
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.BoundedConstruction.anchoredTuple M5.packingCutoff definitions",
+        "status": "ok",
+        "results": [
+          {
+            "id": 252368,
+            "name": "RootPairing.GeckConstruction.e",
+            "module": "Mathlib.LinearAlgebra.RootSystem.GeckConstruction.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/RootSystem/GeckConstruction/Basic.lean#L138-L146",
+            "source_text": "/-- Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. -/\ndef e (i : b.support) :\n    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=\n  open scoped Classical in\n  letI := P.indexNeg\n  .fromBlocks 0\n    (.of fun i' j ↦ if i' = i ∧ j = -i then 1 else 0)\n    (.of fun i' j ↦ if i' = i then ↑|b.cartanMatrix i j| else 0)\n    (.of fun i' j ↦ if P.root i' = P.root i + P.root j then P.chainBotCoeff i j + 1 else 0)\n",
+            "docstring": "Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. "
+          },
+          {
+            "id": 201707,
+            "name": "Tuple.sort",
+            "module": "Mathlib.Data.Fin.Tuple.Sort",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Sort.lean#L77-L79",
+            "source_text": "/-- `sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. -/\ndef sort (f : Fin n → α) : Equiv.Perm (Fin n) :=\n  (graphEquiv₂ f).toEquiv.trans (graphEquiv₁ f).symm\n",
+            "docstring": "`sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. "
+          },
+          {
+            "id": 347819,
+            "name": "Metric.packingNumber",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+            "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+            "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+          },
+          {
+            "id": 252360,
+            "name": "RootPairing.GeckConstruction.h",
+            "module": "Mathlib.LinearAlgebra.RootSystem.GeckConstruction.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/RootSystem/GeckConstruction/Basic.lean#L68-L72",
+            "source_text": "/-- Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. -/\ndef h (i : b.support) :\n    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=\n  open scoped Classical in\n  .fromBlocks 0 0 0 (.diagonal (P.pairingIn ℤ · i))\n",
+            "docstring": "Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. "
+          },
+          {
+            "id": 252369,
+            "name": "RootPairing.GeckConstruction.f",
+            "module": "Mathlib.LinearAlgebra.RootSystem.GeckConstruction.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/RootSystem/GeckConstruction/Basic.lean#L148-L156",
+            "source_text": "/-- Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. -/\ndef f (i : b.support) :\n    Matrix (b.support ⊕ ι) (b.support ⊕ ι) R :=\n  open scoped Classical in\n  letI := P.indexNeg\n  .fromBlocks 0\n    (.of fun i' j ↦ if i' = i ∧ j = i then 1 else 0)\n    (.of fun i' j ↦ if i' = -i then ↑|b.cartanMatrix i j| else 0)\n    (.of fun i' j ↦ if P.root i' = P.root j - P.root i then P.chainTopCoeff i j + 1 else 0)\n",
+            "docstring": "Part of an `sl₂` triple used in Geck's construction of a Lie algebra from a root system. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.BoundedConstruction.anchoredTuple M5.packingCutoff definitions",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394425,
+            "name": "WithDim",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L21-L24",
+            "source_text": "/-- The type `M` carrying an instance of a dimension `d`. -/\nstructure WithDim (d : Dimension) (M : Type) where\n  /-- The underlying value of `M`. -/\n  val : M\n",
+            "docstring": "The type `M` carrying an instance of a dimension `d`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "M5.Packing.packedValue definition",
+      "M5.RepairSupport.replacement_connected replacement_card signatures"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Packing.packedValue definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 347819,
+            "name": "Metric.packingNumber",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+            "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+            "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+          },
+          {
+            "id": 91907,
+            "name": "AbsoluteValue",
+            "module": "Mathlib.Algebra.Order.AbsoluteValue.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/AbsoluteValue/Basic.lean#L33-L43",
+            "source_text": "/-- `AbsoluteValue R S` is the type of absolute values on `R` mapping to `S`:\nthe maps that preserve `*`, are nonnegative, positive definite and satisfy\nthe triangle inequality. -/\nstructure AbsoluteValue (R S : Type*) [Semiring R] [Semiring S] [PartialOrder S]\n    extends R →ₙ* S where\n  /-- The absolute value is nonnegative -/\n  nonneg' : ∀ x, 0 ≤ toFun x\n  /-- The absolute value is positive definitive -/\n  eq_zero' : ∀ x, toFun x = 0 ↔ x = 0\n  /-- The absolute value satisfies the triangle inequality -/\n  add_le' : ∀ x y, toFun (x + y) ≤ toFun x + toFun y\n",
+            "docstring": "`AbsoluteValue R S` is the type of absolute values on `R` mapping to `S`:\nthe maps that preserve `*`, are nonnegative, positive definite and satisfy\nthe triangle inequality. "
+          },
+          {
+            "id": 213164,
+            "name": "padicValNat",
+            "module": "Mathlib.Data.Nat.MaxPowDiv",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/MaxPowDiv.lean#L54-L56",
+            "source_text": "/-- For `p ≠ 1`, the `p`-adic valuation of a natural `n ≠ 0` is the largest natural number `k` such\nthat `p^k` divides `n`. If `n = 0` or `p = 1`, then `padicValNat p n` defaults to `0`. -/\ndef _root_.padicValNat (p n : ℕ) : ℕ := (maxPowDvdDiv p n).fst\n",
+            "docstring": "For `p ≠ 1`, the `p`-adic valuation of a natural `n ≠ 0` is the largest natural number `k` such\nthat `p^k` divides `n`. If `n = 0` or `p = 1`, then `padicValNat p n` defaults to `0`. "
+          },
+          {
+            "id": 276541,
+            "name": "padicValInt",
+            "module": "Mathlib.NumberTheory.Padics.PadicVal.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Padics/PadicVal/Basic.lean#L85-L88",
+            "source_text": "/-- For `p ≠ 1`, the `p`-adic valuation of an integer `z ≠ 0` is the largest natural number `k` such\nthat `p^k` divides `z`. If `x = 0` or `p = 1`, then `padicValInt p q` defaults to `0`. -/\ndef padicValInt (p : ℕ) (z : ℤ) : ℕ :=\n  padicValNat p z.natAbs\n",
+            "docstring": "For `p ≠ 1`, the `p`-adic valuation of an integer `z ≠ 0` is the largest natural number `k` such\nthat `p^k` divides `z`. If `x = 0` or `p = 1`, then `padicValInt p q` defaults to `0`. "
+          },
+          {
+            "id": 276605,
+            "name": "padicValNat_eq_zero_of_mem_Ioo",
+            "module": "Mathlib.NumberTheory.Padics.PadicVal.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Padics/PadicVal/Basic.lean#L542-L546",
+            "source_text": "/-- The `p`-adic valuation of `m` equals zero if it is between `p * k` and `p * (k + 1)` for\nsome `k`. -/\ntheorem padicValNat_eq_zero_of_mem_Ioo {m k : ℕ}\n    (hm : m ∈ Set.Ioo (p * k) (p * (k + 1))) : padicValNat p m = 0 :=\n  padicValNat.eq_zero_of_not_dvd <| not_dvd_of_lt_of_lt_mul_succ hm.1 hm.2\n",
+            "docstring": "The `p`-adic valuation of `m` equals zero if it is between `p * k` and `p * (k + 1)` for\nsome `k`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Packing.packedValue definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 394425,
+            "name": "WithDim",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L21-L24",
+            "source_text": "/-- The type `M` carrying an instance of a dimension `d`. -/\nstructure WithDim (d : Dimension) (M : Type) where\n  /-- The underlying value of `M`. -/\n  val : M\n",
+            "docstring": "The type `M` carrying an instance of a dimension `d`. "
+          },
+          {
+            "id": 394466,
+            "name": "WithDim.cast_refl",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L259-L261",
+            "source_text": "@[simp]\nlemma cast_refl {d : Dimension} {M : Type} (m : WithDim d M) :\n    cast m rfl = m := rfl",
+            "docstring": null
+          },
+          {
+            "id": 388412,
+            "name": "Option.powerset",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L280-L285",
+            "source_text": "/-- The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\n  and `{none, some y}` is `x` is `some y`. -/\ndef _root_.Option.powerset (x : Option 𝓩) : Finset (Option 𝓩) :=\n  match x with\n  | none => {none}\n  | some x => {none, some x}\n",
+            "docstring": "The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\nand `{none, some y}` is `x` is `some y`. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.RepairSupport.replacement_connected replacement_card signatures",
+        "status": "ok",
+        "results": [
+          {
+            "id": 329854,
+            "name": "Mathlib.Tactic.Translate.ReplacementM",
+            "module": "Mathlib.Tactic.Translate.Core",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Translate/Core.lean#L360-L365",
+            "source_text": "/-- Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. -/\nabbrev ReplacementM :=\n  ReaderT (Array FVarId) <| MonadCacheT ExprStructEq Expr StateRefT (Std.HashSet FVarId) MetaM\n",
+            "docstring": "Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. "
+          },
+          {
+            "id": 340656,
+            "name": "IsConnected",
+            "module": "Mathlib.Topology.Connected.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Connected/Basic.lean#L54-L56",
+            "source_text": "/-- A connected set is one that is nonempty and where there is no non-trivial open partition. -/\ndef IsConnected (s : Set α) : Prop :=\n  s.Nonempty ∧ IsPreconnected s\n",
+            "docstring": "A connected set is one that is nonempty and where there is no non-trivial open partition. "
+          },
+          {
+            "id": 289796,
+            "name": "Set.OrdConnected",
+            "module": "Mathlib.Order.Interval.Set.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Interval/Set/Defs.lean#L83-L89",
+            "source_text": "/-- We say that a set `s : Set α` is `OrdConnected` if for all `x y ∈ s` it includes the\ninterval `[[x, y]]`. If `α` is a `DenselyOrdered` `ConditionallyCompleteLinearOrder` with\nthe `OrderTopology`, then this condition is equivalent to `IsPreconnected s`. If `α` is a\nlinearly ordered field, then this condition is also equivalent to `Convex α s`. -/\nclass OrdConnected (s : Set α) : Prop where\n  /-- `s : Set α` is `OrdConnected` if for all `x y ∈ s` it includes the interval `[[x, y]]`. -/\n  out' ⦃x : α⦄ (hx : x ∈ s) ⦃y : α⦄ (hy : y ∈ s) : Icc x y ⊆ s\n",
+            "docstring": "We say that a set `s : Set α` is `OrdConnected` if for all `x y ∈ s` it includes the\ninterval `[[x, y]]`. If `α` is a `DenselyOrdered` `ConditionallyCompleteLinearOrder` with\nthe `OrderTopology`, then this condition is equivalent to `IsPreconnected s`. If `α` is a\nlinearly ordered field, then this condition is also equivalent to `Convex α s`. "
+          },
+          {
+            "id": 218565,
+            "name": "Finite.Set.finite_replacement",
+            "module": "Mathlib.Data.Set.Finite.Range",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Range.lean#L69-L71",
+            "source_text": "instance finite_replacement [Finite α] (f : α → β) :\n    Finite {f x | x : α} :=\n  Finite.Set.finite_range f\n",
+            "docstring": null
+          },
+          {
+            "id": 329703,
+            "name": "Mathlib.TacticAnalysis.terminalReplacement",
+            "module": "Mathlib.Tactic.TacticAnalysis.Declarations",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TacticAnalysis/Declarations.lean#L36-L110",
+            "source_text": "/--\nDefine a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n-/\ndef terminalReplacement (oldTacticName newTacticName : String) (oldTacticKind : SyntaxNodeKind)\n    (newTactic : ContextInfo → TacticInfo → Syntax → CommandElabM (TSyntax `tactic))\n    (reportFailure : Bool := true) (reportSuccess : Bool := false)\n    (reportSlowdown : Bool := false) (maxSlowdown : Float := 1) :\n    TacticAnalysis.Config := .ofComplex {\n  out := TerminalReplacementOutcome\n  ctx := Syntax\n  trigger _ stx := if stx.getKind == oldTacticKind\n    then .accept stx else .skip\n  test ctxI i stx goal := do\n    let tac ← newTactic ctxI i stx\n    try\n      let goalTypes ← ctxI.runTacticCode i goal tac ⟨Expr, MVarId.getType'⟩\n      match goalTypes with\n      | [] => return .success tac\n      | _ => do\n        let goalsMessages := goalTypes.map fun e => m!\"⊢ {MessageData.ofExpr e}\\n\"\n        return .remainingGoals tac goalsMessages\n    catch _e =>\n      let name ← mkAuxDeclName `extracted\n      -- Rerun in the original tactic context, since `omega` changes the state.\n      let ((sig, _, modules, _), _) ← ctxI.runTactic i goal (fun goal =>\n        (Mathlib.Tactic.ExtractGoal.goalSignature name goal).run)\n      let imports := modules.toList.map (s!\"import {·}\")\n      return .error tac m!\"{\"\\n\".intercalate imports}\\n\\ntheorem {sig} := by\\n  fail_if_success {tac}\\n  {stx}\"\n  tell stx old oldHeartbeats new newHeartbeats :=\n    -- If the original tactic failed, then we do not need to check the replacement.\n    if !old.isEmpty then\n      return none\n    else match new with\n    | .error _ msg =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` failed where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Counterexample:{indentD msg}\"\n        return msg\n      else\n        return none\n    | .remainingGoals newStx goals =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` left unsolved goals where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Replacement tactic:{indentD newStx}\\n\" ++\n          m!\"Unsolved goals:{indentD goals}\"\n        return msg\n      else\n        return none\n    | .success newStx => do\n      -- TODO: we should add a \"Try this:\" suggestion with code action.\n      let msg := if (← liftCoreM <| PrettyPrinter.ppTactic newStx).pretty = newTacticName then\n        m!\"`{newTacticName}` can replace `{stx}`\"\n      else\n        m!\"`{newTacticName}` can replace `{stx}` using `{newStx}`\"\n      if reportSlowdown ∧ maxSlowdown * oldHeartbeats.toFloat < newHeartbeats.toFloat then\n        return some m!\"{msg}, but is slower: {newHeartbeats / 1000} versus {oldHeartbeats / 1000} heartbeats\"\n      else if reportSuccess then\n        return some msg\n      else\n        return none\n    }\n",
+            "docstring": "Define a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.RepairSupport.replacement_connected replacement_card signatures",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393967,
+            "name": "FTheory.SU5.ChargeSpectrum.card_five_bar_le_of_mem_viableCharges",
+            "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L495-L497",
+            "source_text": "lemma card_five_bar_le_of_mem_viableCharges (I : CodimensionOneConfig) :\n    ∀ x ∈ (viableCharges I), x.Q5.card ≤ 2 := by\n  decide +revert\n",
+            "docstring": null
+          },
+          {
+            "id": 388475,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.card_of_mem_minimalSuperSet",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.MinimalSuperSet",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/MinimalSuperSet.lean#L147-L187",
+            "source_text": "lemma card_of_mem_minimalSuperSet {S5 S10 : Finset 𝓩} {x : ChargeSpectrum 𝓩}\n    (y : ChargeSpectrum 𝓩) (hy : y ∈ minimalSuperSet S5 S10 x) :\n    card y = card x + 1 := by\n  simp [minimalSuperSet] at hy\n  rcases hy with ⟨hy1, hr | hr | hr | hr⟩\n  · match x with\n    | ⟨none, _, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨some x1, _, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, none, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      omega\n    | ⟨_, some x2, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, _, Q5, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n  · match x with\n    | ⟨_, _, _, Q10⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      simp [card]\n      rw [Finset.card_insert_of_notMem]\n      omega\n      by_contra h\n      rw [Finset.insert_eq_of_mem h] at hy1\n      simp at hy1\n",
+            "docstring": null
+          },
+          {
+            "id": 388165,
+            "name": "MSSMCharges.N",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L92-L93",
+            "source_text": "/-- The `N` charges as a map `Fin 3 → ℚ`. -/\nabbrev N := toSMSpecies 5\n",
+            "docstring": "The `N` charges as a map `Fin 3 → ℚ`. "
+          },
+          {
+            "id": 388276,
+            "name": "MSSMACC.AnomalyFreePerp.InLineEq",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L166-L168",
+            "source_text": "/-- Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. -/\ndef InLineEq : Type := {R : MSSMACC.AnomalyFreePerp // LineEqProp R}\n",
+            "docstring": "Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. "
+          },
+          {
+            "id": 387116,
+            "name": "Physlib.RemarkInfo.getRemarkInfo",
+            "module": "Physlib.Meta.Remark.Properties",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Remark/Properties.lean#L38-L43",
+            "source_text": "/-- Gets the remarkInfo from a name corresponding to a remark.. -/\nmeta def RemarkInfo.getRemarkInfo (n : Name) : m RemarkInfo := do\n  let allRemarks ← allRemarkInfo\n  match allRemarks.find? fun r => r.toFullName == n with\n  | some r => return r\n  | none => throwError s!\"No remark named {n}\"\n",
+            "docstring": "Gets the remarkInfo from a name corresponding to a remark.. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "M5.Packing packedSupport cardinality zero membership packedValue bound occurrenceTag",
+      "M5.RepairSupport.replacement_anchor replacement_range replacement_connected",
+      "M5.packingCutoff definition"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Packing packedSupport cardinality zero membership packedValue bound occurrenceTag",
+        "status": "ok",
+        "results": [
+          {
+            "id": 347841,
+            "name": "Metric.packingNumber_zero",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L183-L186",
+            "source_text": "@[simp]\nlemma packingNumber_zero {E : Type*} [EMetricSpace E] (A : Set E) :\n    packingNumber 0 A = A.encard :=\n  le_antisymm (packingNumber_le_encard_self A) (le_iSup_of_le A (by simp))",
+            "docstring": null
+          },
+          {
+            "id": 347827,
+            "name": "Metric.packingNumber_eq_zero",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L115-L121",
+            "source_text": "@[simp]\nlemma packingNumber_eq_zero : packingNumber ε A = 0 ↔ A = ∅ := by\n  simp only [packingNumber, ENat.iSup_eq_zero, encard_eq_zero]\n  refine ⟨fun h ↦ ?_, fun h ↦ by simp [h]⟩\n  by_contra!\n  obtain ⟨x, hx⟩ := this\n  simpa using h {x} (by simp [hx]) (by simp)",
+            "docstring": null
+          },
+          {
+            "id": 347835,
+            "name": "Metric.packingNumber_le_encard_self",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L148-L150",
+            "source_text": "lemma packingNumber_le_encard_self (A : Set X) : packingNumber ε A ≤ A.encard := by\n  simp only [packingNumber, iSup_le_iff]\n  exact fun _ hC _ ↦ encard_le_encard hC\n",
+            "docstring": null
+          },
+          {
+            "id": 347819,
+            "name": "Metric.packingNumber",
+            "module": "Mathlib.Topology.MetricSpace.CoveringNumbers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/CoveringNumbers.lean#L80-L84",
+            "source_text": "/-- The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. -/\nnoncomputable\ndef packingNumber (ε : ℝ≥0) (A : Set X) : ℕ∞ :=\n  ⨆ (C : Set X) (_ : C ⊆ A) (_ : IsSeparated ε C), C.encard\n",
+            "docstring": "The packing number of a set `A` for radius `ε` is the maximal cardinality (in `ℕ∞`)\nof an `ε`-separated set in `A`. "
+          },
+          {
+            "id": 215519,
+            "name": "Part.Mem.right_unique",
+            "module": "Mathlib.Data.Part",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Part.lean#L143-L144",
+            "source_text": "theorem Mem.right_unique : Relator.RightUnique ((· ∈ ·) : α → Part α → Prop) := fun _ _ _ =>\n  mem_right_unique\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Packing packedSupport cardinality zero membership packedValue bound occurrenceTag",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394425,
+            "name": "WithDim",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L21-L24",
+            "source_text": "/-- The type `M` carrying an instance of a dimension `d`. -/\nstructure WithDim (d : Dimension) (M : Type) where\n  /-- The underlying value of `M`. -/\n  val : M\n",
+            "docstring": "The type `M` carrying an instance of a dimension `d`. "
+          },
+          {
+            "id": 388412,
+            "name": "Option.powerset",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L280-L285",
+            "source_text": "/-- The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\n  and `{none, some y}` is `x` is `some y`. -/\ndef _root_.Option.powerset (x : Option 𝓩) : Finset (Option 𝓩) :=\n  match x with\n  | none => {none}\n  | some x => {none, some x}\n",
+            "docstring": "The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\nand `{none, some y}` is `x` is `some y`. "
+          },
+          {
+            "id": 387068,
+            "name": "Informal.getTag",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L53-L62",
+            "source_text": "/-- Gets the tag associated with an informal definition or lemma. -/\nunsafe def getTag (c : ConstantInfo) : CoreM String := do\n  if isInformalLemma c then\n    let i ← constantInfoToInformalLemma c\n    return i.tag\n  else if isInformalDef c then\n    let i ← constantInfoToInformalDefinition c\n    return i.tag\n  else\n    panic! \"getTag: Not an informal lemma or definition\"\n",
+            "docstring": "Gets the tag associated with an informal definition or lemma. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.RepairSupport.replacement_anchor replacement_range replacement_connected",
+        "status": "ok",
+        "results": [
+          {
+            "id": 340656,
+            "name": "IsConnected",
+            "module": "Mathlib.Topology.Connected.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Connected/Basic.lean#L54-L56",
+            "source_text": "/-- A connected set is one that is nonempty and where there is no non-trivial open partition. -/\ndef IsConnected (s : Set α) : Prop :=\n  s.Nonempty ∧ IsPreconnected s\n",
+            "docstring": "A connected set is one that is nonempty and where there is no non-trivial open partition. "
+          },
+          {
+            "id": 329854,
+            "name": "Mathlib.Tactic.Translate.ReplacementM",
+            "module": "Mathlib.Tactic.Translate.Core",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Translate/Core.lean#L360-L365",
+            "source_text": "/-- Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. -/\nabbrev ReplacementM :=\n  ReaderT (Array FVarId) <| MonadCacheT ExprStructEq Expr StateRefT (Std.HashSet FVarId) MetaM\n",
+            "docstring": "Monad used by `applyReplacementFun`.\n- The reader stores the free variables on which nothing should be translated.\n- The state stores the free variables on which something has been translated.\n- The cache caches the results on subexpressions. "
+          },
+          {
+            "id": 218565,
+            "name": "Finite.Set.finite_replacement",
+            "module": "Mathlib.Data.Set.Finite.Range",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Range.lean#L69-L71",
+            "source_text": "instance finite_replacement [Finite α] (f : α → β) :\n    Finite {f x | x : α} :=\n  Finite.Set.finite_range f\n",
+            "docstring": null
+          },
+          {
+            "id": 289796,
+            "name": "Set.OrdConnected",
+            "module": "Mathlib.Order.Interval.Set.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Interval/Set/Defs.lean#L83-L89",
+            "source_text": "/-- We say that a set `s : Set α` is `OrdConnected` if for all `x y ∈ s` it includes the\ninterval `[[x, y]]`. If `α` is a `DenselyOrdered` `ConditionallyCompleteLinearOrder` with\nthe `OrderTopology`, then this condition is equivalent to `IsPreconnected s`. If `α` is a\nlinearly ordered field, then this condition is also equivalent to `Convex α s`. -/\nclass OrdConnected (s : Set α) : Prop where\n  /-- `s : Set α` is `OrdConnected` if for all `x y ∈ s` it includes the interval `[[x, y]]`. -/\n  out' ⦃x : α⦄ (hx : x ∈ s) ⦃y : α⦄ (hy : y ∈ s) : Icc x y ⊆ s\n",
+            "docstring": "We say that a set `s : Set α` is `OrdConnected` if for all `x y ∈ s` it includes the\ninterval `[[x, y]]`. If `α` is a `DenselyOrdered` `ConditionallyCompleteLinearOrder` with\nthe `OrderTopology`, then this condition is equivalent to `IsPreconnected s`. If `α` is a\nlinearly ordered field, then this condition is also equivalent to `Convex α s`. "
+          },
+          {
+            "id": 329703,
+            "name": "Mathlib.TacticAnalysis.terminalReplacement",
+            "module": "Mathlib.Tactic.TacticAnalysis.Declarations",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TacticAnalysis/Declarations.lean#L36-L110",
+            "source_text": "/--\nDefine a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n-/\ndef terminalReplacement (oldTacticName newTacticName : String) (oldTacticKind : SyntaxNodeKind)\n    (newTactic : ContextInfo → TacticInfo → Syntax → CommandElabM (TSyntax `tactic))\n    (reportFailure : Bool := true) (reportSuccess : Bool := false)\n    (reportSlowdown : Bool := false) (maxSlowdown : Float := 1) :\n    TacticAnalysis.Config := .ofComplex {\n  out := TerminalReplacementOutcome\n  ctx := Syntax\n  trigger _ stx := if stx.getKind == oldTacticKind\n    then .accept stx else .skip\n  test ctxI i stx goal := do\n    let tac ← newTactic ctxI i stx\n    try\n      let goalTypes ← ctxI.runTacticCode i goal tac ⟨Expr, MVarId.getType'⟩\n      match goalTypes with\n      | [] => return .success tac\n      | _ => do\n        let goalsMessages := goalTypes.map fun e => m!\"⊢ {MessageData.ofExpr e}\\n\"\n        return .remainingGoals tac goalsMessages\n    catch _e =>\n      let name ← mkAuxDeclName `extracted\n      -- Rerun in the original tactic context, since `omega` changes the state.\n      let ((sig, _, modules, _), _) ← ctxI.runTactic i goal (fun goal =>\n        (Mathlib.Tactic.ExtractGoal.goalSignature name goal).run)\n      let imports := modules.toList.map (s!\"import {·}\")\n      return .error tac m!\"{\"\\n\".intercalate imports}\\n\\ntheorem {sig} := by\\n  fail_if_success {tac}\\n  {stx}\"\n  tell stx old oldHeartbeats new newHeartbeats :=\n    -- If the original tactic failed, then we do not need to check the replacement.\n    if !old.isEmpty then\n      return none\n    else match new with\n    | .error _ msg =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` failed where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Counterexample:{indentD msg}\"\n        return msg\n      else\n        return none\n    | .remainingGoals newStx goals =>\n      if reportFailure then\n        let msg :=\n          m!\"`{newTacticName}` left unsolved goals where `{oldTacticName}` succeeded.\\n\" ++\n          m!\"Original tactic:{indentD stx}\\n\" ++\n          m!\"Replacement tactic:{indentD newStx}\\n\" ++\n          m!\"Unsolved goals:{indentD goals}\"\n        return msg\n      else\n        return none\n    | .success newStx => do\n      -- TODO: we should add a \"Try this:\" suggestion with code action.\n      let msg := if (← liftCoreM <| PrettyPrinter.ppTactic newStx).pretty = newTacticName then\n        m!\"`{newTacticName}` can replace `{stx}`\"\n      else\n        m!\"`{newTacticName}` can replace `{stx}` using `{newStx}`\"\n      if reportSlowdown ∧ maxSlowdown * oldHeartbeats.toFloat < newHeartbeats.toFloat then\n        return some m!\"{msg}, but is slower: {newHeartbeats / 1000} versus {oldHeartbeats / 1000} heartbeats\"\n      else if reportSuccess then\n        return some msg\n      else\n        return none\n    }\n",
+            "docstring": "Define a pass that tries replacing one terminal tactic with another.\n\n`newTacticName` is a human-readable name for the tactic, for example \"linarith\".\nThis can be used to group messages together, so that `ring`, `ring_nf`, `ring1`, ...\nall produce the same message.\n\n`oldTacticKind` is the `SyntaxNodeKind` for the tactic's main parser,\nfor example `Mathlib.Tactic.linarith`.\n\n`newTactic stx goal` selects the new tactic to try, which may depend on the old tactic invocation\nin `stx` and the current `goal`.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.RepairSupport.replacement_anchor replacement_range replacement_connected",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388434,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+            "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+            "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+          },
+          {
+            "id": 388301,
+            "name": "MSSMACC.AnomalyFreePerp.toSol",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L361-L373",
+            "source_text": "/-- A solution from an element of `MSSMACC.AnomalyFreePerp × ℚ × ℚ × ℚ`. We will\nshow that this map is a surjection. -/\ndef toSol : MSSMACC.AnomalyFreePerp × ℚ × ℚ × ℚ → MSSMACC.Sols := fun (R, a, b, c) =>\n  if h₃ : LineEqProp R ∧ InQuadProp R ∧ InCubeProp R then\n    inQuadCubeToSol (⟨⟨⟨R, h₃.1⟩, h₃.2.1⟩, h₃.2.2⟩, a, b, c)\n  else\n    if h₂ : LineEqProp R ∧ InQuadProp R then\n      inQuadToSol (⟨⟨R, h₂.1⟩, h₂.2⟩, a, b, c)\n    else\n      if h₁ : LineEqProp R then\n        inLineEqToSol (⟨R, h₁⟩, a, b, c)\n      else\n        toSolNS ⟨R, a, b, c⟩\n",
+            "docstring": "A solution from an element of `MSSMACC.AnomalyFreePerp × ℚ × ℚ × ℚ`. We will\nshow that this map is a surjection. "
+          },
+          {
+            "id": 388292,
+            "name": "MSSMACC.AnomalyFreePerp.inLineEqToSol_proj",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L267-L284",
+            "source_text": "lemma inLineEqToSol_proj (T : InLineEqSol) : inLineEqToSol (inLineEqProj T) = T.val := by\n  rw [inLineEqProj, inLineEqTo_smul]\n  apply ACCSystem.Sols.ext\n  change _ • (lineQuad _ _ _ _).val = _\n  rw [lineQuad_val]\n  rw [planeY₃B₃_val]\n  rw [Y₃_plus_B₃_plus_proj]\n  rw [quad_proj, quad_Y₃_proj, quad_B₃_proj]\n  ring_nf\n  simp only [zero_smul, add_zero, zero_add]\n  have h1 : (quadBiLin Y₃.val T.val.val ^ 2 * dot Y₃.val B₃.val ^ 2 * 2 +\n      dot Y₃.val B₃.val ^ 2 * quadBiLin B₃.val T.val.val ^ 2 * 2) = quadCoeff T.val := by\n    rw [quadCoeff]\n    ring\n  rw [h1]\n  have h2 := (inQuadSolProp_iff_quadCoeff_zero T.val).mpr.mt T.prop.2\n  rw [← SemigroupAction.mul_smul, mul_comm, mul_inv_cancel₀ h2]\n  exact MulAction.one_smul T.1.val\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.packingCutoff definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 190020,
+            "name": "Matroid.closure",
+            "module": "Mathlib.Combinatorics.Matroid.Closure",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Closure.lean#L133-L135",
+            "source_text": "/-- The closure of `X ⊆ M.E` is the intersection of all the flats of `M` containing `X`.\nA set `X` that doesn't satisfy `X ⊆ M.E` has the junk value `M.closure X := M.closure (X ∩ M.E)`. -/\ndef closure (M : Matroid α) (X : Set α) : Set α := ⋂₀ {F | M.IsFlat F ∧ X ∩ M.E ⊆ F}\n",
+            "docstring": "The closure of `X ⊆ M.E` is the intersection of all the flats of `M` containing `X`.\nA set `X` that doesn't satisfy `X ⊆ M.E` has the junk value `M.closure X := M.closure (X ∩ M.E)`. "
+          },
+          {
+            "id": 190188,
+            "name": "Matroid.restrict_closure_eq",
+            "module": "Mathlib.Combinatorics.Matroid.Closure",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Closure.lean#L986-L988",
+            "source_text": "lemma restrict_closure_eq (M : Matroid α) (hXR : X ⊆ R) (hR : R ⊆ M.E := by aesop_mat) :\n    (M ↾ R).closure X = M.closure X ∩ R := by\n  rw [restrict_closure_eq', sdiff_eq_empty.mpr hR, union_empty, inter_eq_self_of_subset_left hXR]\n",
+            "docstring": null
+          },
+          {
+            "id": 190187,
+            "name": "Matroid.restrict_closure_eq'",
+            "module": "Mathlib.Combinatorics.Matroid.Closure",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Closure.lean#L974-L984",
+            "source_text": "@[simp] lemma restrict_closure_eq' (M : Matroid α) (X R : Set α) :\n    (M ↾ R).closure X = (M.closure (X ∩ R) ∩ R) ∪ (R \\ M.E) := by\n  obtain ⟨I, hI⟩ := (M ↾ R).exists_isBasis' X\n  obtain ⟨hI', hIR⟩ := isBasis'_restrict_iff.1 hI\n  ext e\n  rw [← hI.closure_eq_closure, ← hI'.closure_eq_closure, hI.indep.mem_closure_iff', mem_union,\n    mem_inter_iff, hI'.indep.mem_closure_iff', restrict_ground_eq, restrict_indep_iff, mem_sdiff]\n  by_cases he : M.Indep (insert e I)\n  · simp [he, and_comm, insert_subset_iff, hIR, (he.subset_ground (mem_insert ..)),\n      imp_or_left_iff_true]\n  tauto",
+            "docstring": null
+          },
+          {
+            "id": 189971,
+            "name": "Matroid.mem_closure_iff_exists_isCircuit",
+            "module": "Mathlib.Combinatorics.Matroid.Circuit",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Circuit.lean#L377-L380",
+            "source_text": "lemma mem_closure_iff_exists_isCircuit (he : e ∉ X) :\n    e ∈ M.closure X ↔ ∃ C ⊆ insert e X, M.IsCircuit C ∧ e ∈ C :=\n  ⟨fun h ↦ exists_isCircuit_of_mem_closure h he, fun ⟨C, hCX, hC, heC⟩ ↦ mem_of_mem_of_subset\n    (hC.mem_closure_sdiff_singleton_of_mem heC) (M.closure_subset_closure (by simpa))⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 189978,
+            "name": "Matroid.IsCircuit.strong_elimination",
+            "module": "Mathlib.Combinatorics.Matroid.Circuit",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Circuit.lean#L492-L499",
+            "source_text": "/-- The strong isCircuit elimination axiom. For any pair of distinct circuits `C₁, C₂` and all\n`e ∈ C₁ ∩ C₂` and `f ∈ C₁ \\ C₂`, there is a circuit `C` with `f ∈ C ⊆ (C₁ ∪ C₂) \\ {e}`. -/\nlemma IsCircuit.strong_elimination (hC₁ : M.IsCircuit C₁) (hC₂ : M.IsCircuit C₂) (heC₁ : e ∈ C₁)\n    (heC₂ : e ∈ C₂) (hfC₁ : f ∈ C₁) (hfC₂ : f ∉ C₂) :\n    ∃ C ⊆ (C₁ ∪ C₂) \\ {e}, M.IsCircuit C ∧ f ∈ C := by\n  obtain ⟨C, hCs, hC, hfC⟩ := hC₁.strong_multi_elimination (fun i : Unit ↦ e) (fun _ ↦ C₂) f\n    (by simpa) (by simpa) (by simpa) (by simp) (by simpa) (by simpa)\n  exact ⟨C, hCs.trans (sdiff_subset_sdiff (by simp) (by simp)), hC, hfC⟩\n",
+            "docstring": "The strong isCircuit elimination axiom. For any pair of distinct circuits `C₁, C₂` and all\n`e ∈ C₁ ∩ C₂` and `f ∈ C₁ \\ C₂`, there is a circuit `C` with `f ∈ C ⊆ (C₁ ∪ C₂) \\ {e}`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.packingCutoff definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          },
+          {
+            "id": 386458,
+            "name": "HasAdjoint.fst",
+            "module": "Physlib.Mathematics.InnerProductSpace.Adjoint",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Adjoint.lean#L108-L111",
+            "source_text": "lemma HasAdjoint.fst {f : E → F×G} {f'} (hf : HasAdjoint 𝕜 f f') :\n    HasAdjoint 𝕜 (fun x : E => (f x).1) (fun y => f' (y, 0)) := by\n  constructor; intros\n  simp[hf.adjoint_inner_left]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]
