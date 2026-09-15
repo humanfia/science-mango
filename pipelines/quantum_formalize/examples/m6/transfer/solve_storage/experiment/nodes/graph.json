@@ -1,0 +1,25 @@
+[
+  {
+    "id": "actual_solve_storage",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.ActualTransfer.actual_solve_storage",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → M6.ActualTransfer.actualSolveStorage N a b ≤ 16384*N^2*2^(M6.ActualTransfer.span a b)",
+      "imports": [
+        "M6SolveStorageReady"
+      ],
+      "context": "",
+      "queries": [
+        "Polynomial natDegree add bound",
+        "natural number polynomial inequality"
+      ],
+      "guidance": "Use the accepted actual EuclidStorage.preprocess_storage once its gate is verified, extracting its final storage bound. The original span<N gives all polynomial degree≤N hypotheses including modulus=X^N+1. Then apply Transfer.solve_storage_bound with the actual layout value. Do not leave a supplied storage estimate as public hypothesis; do not infer space from time. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "supports_obligation": "M6_ACTUAL_SOLVE_STORAGE"
+    }
+  }
+]

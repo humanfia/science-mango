@@ -1,0 +1,10 @@
+theorem M6.EuclidStorage.preprocess_storage : ∀ (N : ℕ) (a b M : M6.Euclid.BP), a.natDegree ≤ N → b.natDegree ≤ N → M.natDegree ≤ N → M6.EuclidStorage.toRun (M6.EuclidStorage.preprocess a b M) = M6.Euclid.preprocess a b M ∧ M6.EuclidStorage.preprocessSafe (N+1) a b M ∧ M6.EuclidStorage.actualPreprocessStorage N ≤ 512*(N+1)^2 := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) (a b M : M6.Euclid.BP), a.natDegree ≤ N → b.natDegree ≤ N → M.natDegree ≤ N → M6.EuclidStorage.toRun (M6.EuclidStorage.preprocess a b M) = M6.Euclid.preprocess a b M ∧ M6.EuclidStorage.preprocessSafe (N+1) a b M ∧ M6.EuclidStorage.actualPreprocessStorage N ≤ 512*(N+1)^2
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N a b M ha hb hM
+  exact ⟨M6.EuclidStorage.preprocess_refines a b M,
+    M6.EuclidStorage.preprocess_safe N a b M ha hb hM,
+    (M6.EuclidStorage.layout_bound N).2.2⟩

@@ -1,0 +1,4 @@
+{
+  "proof": "change M6.Final.ZeroSpanCorrect\nrefine ⟨M6.ZeroSpan.anchored_zero, M6.ZeroSpan.connected_zero, M6.ZeroSpan.boundary_loops, M6.ZeroSpan.character_loops, M6.ZeroSpan.boundary_trace_zero, M6.ZeroSpan.character_trace_zero, ?_⟩\nintro N inst\nunfold M6.ActualTransfer.Q\nrw [M6.ZeroSpan.boundary_trace_zero, M6.ZeroSpan.character_trace_zero]\nhave hf : M6.ActualCounts.f N 1 1 = 0 := by\n  unfold M6.ActualCounts.f\n  rw [M6.ZeroSpan.signature_one]\n  simp\nchange M6.Normalize.divide ((2 : ℤ)^N) (Polynomial.C ((2 : ℤ)^N) * ((1 : Polynomial ℤ) + Polynomial.X^2)^N) - M6.Normalize.divide ((2 : ℤ)^(M6.ActualCounts.f N 1 1)) (((1 : Polynomial ℤ) + Polynomial.X^2)^N) = 0\nrw [hf]\nsimp only [pow_zero]\nrw [M6.Normalize.divide_scaled _ _ (pow_ne_zero _ (by norm_num))]\nhave h1 := M6.Normalize.divide_scaled (1 : ℤ) (((1 : Polynomial ℤ) + Polynomial.X^2)^N) (by norm_num)\nsimp only [map_one, one_mul] at h1\nrw [h1]\nexact sub_self _\n",
+  "queries": []
+}

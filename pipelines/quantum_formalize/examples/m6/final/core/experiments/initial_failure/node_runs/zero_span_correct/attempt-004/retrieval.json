@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.ZeroSpanCorrect definition with all six clauses",
+    "status": "ok",
+    "results": [
+      {
+        "id": 205064,
+        "name": "Finsupp",
+        "module": "Mathlib.Data.Finsupp.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Defs.lean#L86-L95",
+        "source_text": "/-- `Finsupp α M`, denoted `α →₀ M`, is the type of functions `f : α → M` such that\n  `f x = 0` for all but finitely many `x`. -/\nstructure Finsupp (α : Type*) (M : Type*) [Zero M] where\n  /-- The support of a finitely supported function (aka `Finsupp`). -/\n  support : Finset α\n  /-- The underlying function of a bundled finitely supported function (aka `Finsupp`). -/\n  toFun : α → M\n  /-- The witness that the support of a `Finsupp` is indeed the exact locus where its\n  underlying function is nonzero. -/\n  mem_support_toFun : ∀ a, a ∈ support ↔ toFun a ≠ 0\n",
+        "docstring": "`Finsupp α M`, denoted `α →₀ M`, is the type of functions `f : α → M` such that\n`f x = 0` for all but finitely many `x`. "
+      },
+      {
+        "id": 76669,
+        "name": "WithZero",
+        "module": "Mathlib.Algebra.Group.WithOne.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/WithOne/Defs.lean#L41-L41",
+        "source_text": "@[to_additive /-- Add an extra element `0` to a type -/]\ndef WithOne (α) :=",
+        "docstring": "Add an extra element `0` to a type "
+      },
+      {
+        "id": 252896,
+        "name": "Submodule.linearMap_eq_zero_iff_of_span_eq_top",
+        "module": "Mathlib.LinearAlgebra.Span.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Basic.lean#L139-L142",
+        "source_text": "lemma linearMap_eq_zero_iff_of_span_eq_top (f : M →ₗ[R] N)\n    {S : Set M} (hM : span R S = ⊤) :\n    f = 0 ↔ ∀ (s : S), f s = 0 :=\n  linearMap_eq_iff_of_span_eq_top f 0 hM\n",
+        "docstring": null
+      },
+      {
+        "id": 205075,
+        "name": "Finsupp.coe_zero",
+        "module": "Mathlib.Data.Finsupp.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Defs.lean#L141-L141",
+        "source_text": "@[simp, norm_cast] lemma coe_zero : ⇑(0 : α →₀ M) = 0 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 299008,
+        "name": "ProbabilityTheory.isFiniteKernel_zero",
+        "module": "Mathlib.Probability.Kernel.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/Kernel/Defs.lean#L197-L199",
+        "source_text": "instance isFiniteKernel_zero (α β : Type*) {_ : MeasurableSpace α} {_ : MeasurableSpace β} :\n    IsFiniteKernel (0 : Kernel α β) :=\n  ⟨⟨0, ENNReal.coe_lt_top, fun _ => by simp⟩⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.ZeroSpanCorrect definition with all six clauses",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394399,
+        "name": "IsDimensionallyCorrect",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+        "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+        "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+      },
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 394349,
+        "name": "UnitExamples.energyMassWithDim_isDimensionallyCorrect",
+        "module": "Physlib.Units.Examples",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Examples.lean#L91-L94",
+        "source_text": "lemma energyMassWithDim_isDimensionallyCorrect : IsDimensionallyCorrect EnergyMassWithDim := by\n  simp [funext_iff, EnergyMassWithDim]\n  intros\n  rw [WithDim.scaleUnit_val_eq_scaleUnit_val_of_dim_eq]\n",
+        "docstring": null
+      },
+      {
+        "id": 387122,
+        "name": "Physlib.allWithSorryPseudo",
+        "module": "Physlib.Meta.Sorry",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Sorry.lean#L159-L162",
+        "source_text": "/-- The axioms of a constant. -/\ndef allWithSorryPseudo : CoreM (Array Name × Array Name) := do\n  let x ← collectSorryPseudo ((← allUserConsts).map fun c => c.name)\n  return x\n",
+        "docstring": "The axioms of a constant. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ZeroSpan accepted theorem signatures boundary_trace_zero character_trace_zero signature_one",
+    "status": "ok",
+    "results": [
+      {
+        "id": 249838,
+        "name": "Matrix.trace",
+        "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L41-L46",
+        "source_text": "/-- The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n-/\ndef trace (A : Matrix n n R) : R :=\n  ∑ i, diag A i\n",
+        "docstring": "The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n"
+      },
+      {
+        "id": 249840,
+        "name": "Matrix.trace_zero",
+        "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L54-L56",
+        "source_text": "@[simp]\ntheorem trace_zero : trace (0 : Matrix n n R) = 0 :=\n  (Finset.sum_const (0 : R)).trans <| smul_zero _",
+        "docstring": null
+      },
+      {
+        "id": 254213,
+        "name": "LinearMap.IsIdempotentElem.trace_eq_zero_iff",
+        "module": "Mathlib.LinearAlgebra.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Trace.lean#L342-L356",
+        "source_text": "/-- An idempotent endomorphism of a module over a characteristic-zero commutative ring\nwith vanishing trace is the zero map, provided its range and kernel are finite and free.\n\nThe `Module.Free` and `Module.Finite` instance arguments on `range e` and `ker e` are\nautomatic over a field, and more generally over any principal ideal domain `R` for which\n`M` itself is finite and free (submodules of finite free modules over a PID are finite\nand free). -/\ntheorem IsIdempotentElem.trace_eq_zero_iff {R : Type*} [CommRing R] [CharZero R]\n    {M : Type*} [AddCommGroup M] [Module R M]\n    {e : M →ₗ[R] M} (he : IsIdempotentElem e)\n    [Module.Free R (range e)] [Module.Finite R (range e)]\n    [Module.Free R (ker e)] [Module.Finite R (ker e)] :\n    trace R M e = 0 ↔ e = 0 := by\n  rw [he.isProj_range.trace, Nat.cast_eq_zero, finrank_eq_zero_iff_of_free,\n    Submodule.subsingleton_iff_eq_bot, range_eq_bot]\n",
+        "docstring": "An idempotent endomorphism of a module over a characteristic-zero commutative ring\nwith vanishing trace is the zero map, provided its range and kernel are finite and free.\n\nThe `Module.Free` and `Module.Finite` instance arguments on `range e` and `ker e` are\nautomatic over a field, and more generally over any principal ideal domain `R` for which\n`M` itself is finite and free (submodules of finite free modules over a PID are finite\nand free). "
+      },
+      {
+        "id": 85786,
+        "name": "LieAlgebra.trace_toEnd_eq_zero",
+        "module": "Mathlib.Algebra.Lie.Semisimple.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Lie/Semisimple/Lemmas.lean#L83-L91",
+        "source_text": "lemma trace_toEnd_eq_zero {s : Set L} (hs : ∀ x ∈ s, LinearMap.trace R _ (toEnd R _ M x) = 0)\n    {x : L} (hx : x ∈ LieSubalgebra.lieSpan R L s) :\n    trace R _ (toEnd R _ M x) = 0 := by\n  induction hx using LieSubalgebra.lieSpan_induction with\n  | mem u hu => simpa using hs u hu\n  | zero => simp\n  | add u v _ _ hu hv => simp [hu, hv]\n  | smul t u _ hu => simp [hu]\n  | lie u v _ _ _ _ => simp\n",
+        "docstring": null
+      },
+      {
+        "id": 328534,
+        "name": "Mathlib.Meta.NormNum.inferCharZeroOfAddMonoidWithOne?",
+        "module": "Mathlib.Tactic.NormNum.Inv",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Inv.lean#L40-L45",
+        "source_text": "/-- Helper function to synthesize a typed `CharZero α` expression given `AddMonoidWithOne α`, if it\nexists. -/\ndef inferCharZeroOfAddMonoidWithOne? {α : Q(Type u)}\n    (_i : Q(AddMonoidWithOne $α) := by with_reducible assumption) :\n      MetaM (Option Q(CharZero $α)) :=\n  return (← trySynthInstanceQ q(CharZero $α)).toOption\n",
+        "docstring": "Helper function to synthesize a typed `CharZero α` expression given `AddMonoidWithOne α`, if it\nexists. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ZeroSpan accepted theorem signatures boundary_trace_zero character_trace_zero signature_one",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391355,
+        "name": "PauliMatrix.trace_σ1",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L122-L122",
+        "source_text": "@[simp] lemma trace_σ1 : Matrix.trace σ1 = 0 := by simp [pauliMatrix]\n@[simp] lemma trace_σ2 : Matrix.trace σ2 = 0 := by simp [pauliMatrix]",
+        "docstring": null
+      },
+      {
+        "id": 391097,
+        "name": "lorentzAlgebra.trace_of_mem_is_zero",
+        "module": "Physlib.Relativity.LorentzAlgebra.ExponentialMap",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/ExponentialMap.lean#L98-L102",
+        "source_text": "/-- The trace of any element of the Lorentz algebra is zero. -/\nlemma trace_of_mem_is_zero (A : lorentzAlgebra) : trace A.1 = 0 := by\n  rw [trace_eq_sum_diagonal]\n  have h_diag_zero : ∀ μ, A.1 μ μ = 0 := lorentzAlgebra.diag_comp A\n  simp [h_diag_zero]\n",
+        "docstring": "The trace of any element of the Lorentz algebra is zero. "
+      },
+      {
+        "id": 392377,
+        "name": "Lorentz.Vector.causalCharacter_zero",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.LightLike",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/LightLike.lean#L31-L34",
+        "source_text": "@[simp]\nlemma causalCharacter_zero {d : ℕ} : causalCharacter (0 : Vector d) =\n    CausalCharacter.lightLike := by\n  simp [causalCharacter]",
+        "docstring": null
+      },
+      {
+        "id": 393470,
+        "name": "Time.one_ne_zero",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L117-L118",
+        "source_text": "lemma one_ne_zero : (1 : Time) ≠ (0 : Time) :=\n  mt (congrArg val) (Nat.cast_injective.ne Nat.one_ne_zero)\n",
+        "docstring": null
+      },
+      {
+        "id": 388276,
+        "name": "MSSMACC.AnomalyFreePerp.InLineEq",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L166-L168",
+        "source_text": "/-- Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. -/\ndef InLineEq : Type := {R : MSSMACC.AnomalyFreePerp // LineEqProp R}\n",
+        "docstring": "Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.actualQ M6.Final.Admissible M6.Normalize.divide_scaled definitions and signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 328669,
+        "name": "Mathlib.Meta.NormNum.evalOrdinalDiv",
+        "module": "Mathlib.Tactic.NormNum.Ordinal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Ordinal.lean#L145-L159",
+        "source_text": "/-- The `norm_num` extension for division on ordinals. -/\n@[norm_num (_ : Ordinal) / (_ : Ordinal)]\ndef evalOrdinalDiv : NormNumExt where\n  eval {u α} e := do\n    let some u' := u.dec | throwError \"level is not succ\"\n    haveI' : u =QL u' + 1 := ⟨⟩\n    match α, e with\n    | ~q(Ordinal.{u'}), ~q(($a : Ordinal) / ($b : Ordinal)) =>\n      let i : Q(AddMonoidWithOne Ordinal.{u'}) := q(inferInstance)\n      let ⟨an, pa⟩ ← deriveNat a i\n      let ⟨bn, pb⟩ ← deriveNat b i\n      have rn : Q(ℕ) := mkRawNatLit (an.natLit! / bn.natLit!)\n      have : ($an / $bn) =Q $rn := ⟨⟩\n      pure (.isNat i rn q(isNat_ordinalDiv $pa $pb (.refl $rn)))\n    | _, _ => throwError \"not division on ordinals\"\n",
+        "docstring": "The `norm_num` extension for division on ordinals. "
+      },
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 161407,
+        "name": "CategoryTheory.FinalModel",
+        "module": "Mathlib.CategoryTheory.Limits.FinallySmall",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/FinallySmall.lean#L52-L54",
+        "source_text": "/-- An arbitrarily chosen small model for a finally small category. -/\ndef FinalModel [FinallySmall.{w} J] : Type w :=\n  Classical.choose (@FinallySmall.final_smallCategory J _ _)\n",
+        "docstring": "An arbitrarily chosen small model for a finally small category. "
+      },
+      {
+        "id": 161393,
+        "name": "CategoryTheory.final_fst",
+        "module": "Mathlib.CategoryTheory.Limits.Final.Connected",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final/Connected.lean#L54-L56",
+        "source_text": "instance final_fst [IsConnected D] : (Prod.fst C D).Final :=\n  inferInstanceAs (Functor.prod (𝟭 C) ((Functor.const _).obj (Discrete.mk .unit)) ⋙\n    (prod.rightUnitorEquivalence.{0} C).functor).Final\n",
+        "docstring": null
+      },
+      {
+        "id": 161394,
+        "name": "CategoryTheory.final_snd",
+        "module": "Mathlib.CategoryTheory.Limits.Final.Connected",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final/Connected.lean#L58-L59",
+        "source_text": "instance final_snd [IsConnected C] : (Prod.snd C D).Final :=\n  inferInstanceAs ((Prod.braiding C D).functor ⋙ Prod.fst D C).Final\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.actualQ M6.Final.Admissible M6.Normalize.divide_scaled definitions and signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394463,
+        "name": "WithDim.div_scaleUnit",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L227-L239",
+        "source_text": "@[simp]\nlemma div_scaleUnit {d1 d2 : Dimension} (m1 : WithDim d1 ℝ) (m2 : WithDim d2 ℝ)\n    (u1 u2 : UnitChoices) :\n    (scaleUnit u1 u2 m1) / (scaleUnit u1 u2 m2) = scaleUnit u1 u2 (m1 / m2) := by\n  symm\n  ext\n  simp only [← val_div_val, scaleUnit_val]\n  simp only [map_mul, map_inv, val_div_val]\n  field_simp\n  change ((u1.dimScale u2) d1 / (u1.dimScale u2) d2) * (m1 / m2).val =\n    u1.dimScale u2 d1 * m1.val / (u1.dimScale u2 d2 * m2.val)\n  rw [← val_div_val]\n  exact div_mul_div_comm (↑((u1.dimScale u2) d1)) (↑((u1.dimScale u2) d2)) m1.val m2.val",
+        "docstring": null
+      },
+      {
+        "id": 385571,
+        "name": "ChargeUnit.instHDivNNReal",
+        "module": "Physlib.Electromagnetism.Charge.ChargeUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Electromagnetism/Charge/ChargeUnit.lean#L61-L62",
+        "source_text": "noncomputable instance : HDiv ChargeUnit ChargeUnit ℝ≥0 where\n  hDiv x t := ⟨x.val / t.val, div_nonneg (le_of_lt x.val_pos) (le_of_lt t.val_pos)⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 385365,
+        "name": "MassUnit.div_eq_val",
+        "module": "Physlib.ClassicalMechanics.Mass.MassUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/Mass/MassUnit.lean#L59-L60",
+        "source_text": "lemma div_eq_val (x y : MassUnit) :\n    x / y = (⟨x.val / y.val, div_nonneg (le_of_lt x.val_pos) (le_of_lt y.val_pos)⟩ : ℝ≥0) := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 385364,
+        "name": "MassUnit.instHDivNNReal",
+        "module": "Physlib.ClassicalMechanics.Mass.MassUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/Mass/MassUnit.lean#L56-L57",
+        "source_text": "noncomputable instance : HDiv MassUnit MassUnit ℝ≥0 where\n  hDiv x t := ⟨x.val / t.val, div_nonneg (le_of_lt x.val_pos) (le_of_lt t.val_pos)⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 394375,
+        "name": "LinearUnitDependent.scaleUnitLinearEquiv",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L121-L128",
+        "source_text": "/-- For an `M` with an instance of `LinearUnitDependent M`, `scaleUnit u1 u2` as a\n  linear equivalence. -/\ndef LinearUnitDependent.scaleUnitLinearEquiv {M : Type} [AddCommMonoid M]\n    [Module ℝ M] [LinearUnitDependent M] (u1 u2 : UnitChoices) :\n    M ≃ₗ[ℝ] M :=\n    LinearEquiv.ofLinear (scaleUnitLinear u1 u2) (scaleUnitLinear u2 u1)\n    (by ext u; simp [scaleUnitLinear])\n    (by ext u; simp [scaleUnitLinear])\n",
+        "docstring": "For an `M` with an instance of `LinearUnitDependent M`, `scaleUnit u1 u2` as a\nlinear equivalence. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

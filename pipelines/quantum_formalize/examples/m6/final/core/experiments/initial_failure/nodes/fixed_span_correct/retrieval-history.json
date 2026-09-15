@@ -1,0 +1,353 @@
+[
+  {
+    "queries": [
+      "weight preserving involution minimum distance"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223599,
+            "name": "MeasureTheory.MeasurePreserving",
+            "module": "Mathlib.Dynamics.Ergodic.MeasurePreserving",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/Ergodic/MeasurePreserving.lean#L43-L48",
+            "source_text": "/-- `f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. -/\nstructure MeasurePreserving (f : α → β)\n  (μa : Measure α := by volume_tac) (μb : Measure β := by volume_tac) : Prop where\n  protected measurable : Measurable f\n  protected map_eq : map f μa = μb\n",
+            "docstring": "`f` is a measure-preserving map w.r.t. measures `μa` and `μb` if `f` is measurable\nand `map f μa = μb`. "
+          },
+          {
+            "id": 348712,
+            "name": "dist_inv_inv",
+            "module": "Mathlib.Topology.MetricSpace.IsometricSMul",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/IsometricSMul.lean#L342-L345",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem dist_inv_inv [Group G] [PseudoMetricSpace G] [IsIsometricSMul G G]\n    [IsIsometricSMul Gᵐᵒᵖ G] (a b : G) : dist a⁻¹ b⁻¹ = dist a b :=\n  (IsometryEquiv.inv G).dist_eq a b",
+            "docstring": null
+          },
+          {
+            "id": 138004,
+            "name": "infEdist_inv_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L71-L72",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv_inv := infEDist_inv_inv",
+            "docstring": "**Alias** of `infEDist_inv_inv`."
+          },
+          {
+            "id": 138008,
+            "name": "infEdist_inv",
+            "module": "Mathlib.Analysis.Normed.Group.Pointwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Pointwise.lean#L82-L83",
+            "source_text": "@[to_additive existing, deprecated (since := \"2026-01-08\")]\nalias infEdist_inv := infEDist_inv",
+            "docstring": "**Alias** of `infEDist_inv`."
+          },
+          {
+            "id": 208405,
+            "name": "List.minimum",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L238-L241",
+            "source_text": "/-- `minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` -/\ndef minimum (l : List α) : WithTop α :=\n  argmin id l\n",
+            "docstring": "`minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "weight preserving involution minimum distance",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389571,
+            "name": "WickContraction.fromInvolution_toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L132-L141",
+            "source_text": "lemma fromInvolution_toInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) :\n    (fromInvolution f).toInvolution = f := by\n  apply Subtype.ext\n  funext i\n  simp only [toInvolution]\n  split\n  · simp\n  · rename_i h\n    simp only [fromInvolution_getDual?_isSome, ne_eq, Decidable.not_not] at h\n    exact h.symm\n",
+            "docstring": null
+          },
+          {
+            "id": 389565,
+            "name": "WickContraction.toInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L24-L32",
+            "source_text": "/-- The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\n  If `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\n  it is taken to itself. -/\ndef toInvolution : {f : Fin n → Fin n // Function.Involutive f} :=\n  ⟨fun i => if h : (c.getDual? i).isSome then (c.getDual? i).get h else i, by\n    intro i\n    by_cases h : (c.getDual? i).isSome\n    · simp [h]\n    · simp [h]⟩\n",
+            "docstring": "The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\nIf `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\nit is taken to itself. "
+          },
+          {
+            "id": 386187,
+            "name": "ConjModule.involution",
+            "module": "Physlib.Mathematics.ConjModule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/ConjModule.lean#L70-L74",
+            "source_text": "/-- Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. -/\ndef involution : ConjModule (ConjModule M) ≃ₗ[k] M :=\n  ((conjEquiv (k := k) (M := M)).trans (conjEquiv (k := k) (M := ConjModule M))).symm\n",
+            "docstring": "Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. "
+          },
+          {
+            "id": 389566,
+            "name": "WickContraction.fromInvolution",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L34-L71",
+            "source_text": "/-- The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\n  sets of the contraction the orbits of `f` of cardinality `2`. -/\ndef fromInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) : WickContraction n :=\n  ⟨Finset.univ.filter (fun a => a.card = 2 ∧ ∃ i, {i, f.1 i} = a), by\n  intro a\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and, and_imp, forall_exists_index]\n  intro h1 _ _\n  exact h1, by\n  intro a ha b hb\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at ha hb\n  obtain ⟨i, hai⟩ := ha.2\n  subst hai\n  obtain ⟨j, hbj⟩ := hb.2\n  subst hbj\n  by_cases h : i = j\n  · subst h\n    simp\n  · by_cases hi : i = f.1 j\n    · subst hi\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right, true_or, not_true_eq_false, and_false, or_false]\n      rw [f.2]\n      rw [@Finset.pair_comm]\n    · apply Or.inr\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right]\n      apply And.intro\n      · apply And.intro\n        · exact fun a => h a.symm\n        · by_contra hn\n          subst hn\n          rw [f.2 i] at hi\n          simp at hi\n      · apply And.intro\n        · exact fun a => hi a.symm\n        · rw [Function.Injective.eq_iff]\n          exact fun a => h (id (Eq.symm a))\n          exact Function.Involutive.injective f.2⟩\n",
+            "docstring": "The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\nsets of the contraction the orbits of `f` of cardinality `2`. "
+          },
+          {
+            "id": 386360,
+            "name": "Physlib.Fin.involutionCons",
+            "module": "Physlib.Mathematics.Fin.Involutions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L26-L144",
+            "source_text": "/-- There is an equivalence between involutions of `Fin n.succ` and involutions of\n  `Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n    in `Fin n.succ` will be sent). -/\ndef involutionCons (n : ℕ) : {f : Fin n.succ → Fin n.succ // Function.Involutive f } ≃\n    (f : {f : Fin n → Fin n // Function.Involutive f}) × {i : Option (Fin n) //\n      ∀ (h : i.isSome), f.1 (Option.get i h) = (Option.get i h)} where\n  toFun f := ⟨⟨\n    fun i =>\n    if h : f.1 i.succ = 0 then i\n    else Fin.pred (f.1 i.succ) h, by\n    intro i\n    by_cases h : f.1 i.succ = 0\n    · simp [h]\n    · simp only [succ_eq_add_one, h, ↓reduceDIte, Fin.succ_pred, f.2 i.succ, Fin.pred_succ,\n        dite_eq_ite, ite_eq_right_iff]\n      exact fun h => False.elim (Fin.succ_ne_zero i h)⟩,\n    ⟨if h : f.1 0 = 0 then none else Fin.pred (f.1 0) h, by\n    by_cases h0 : f.1 0 = 0\n    · simp [h0]\n    · simp only [succ_eq_add_one, h0, ↓reduceDIte, Option.isSome_some, Option.get_some,\n      Fin.succ_pred, dite_eq_left_iff, Fin.pred_inj, forall_const]\n      refine fun h => False.elim (h (f.2 0))⟩⟩\n  invFun f := ⟨\n      if h : (f.2.1).isSome then\n        Fin.cons (f.2.1.get h).succ (Function.update (Fin.succ ∘ f.1.1) (f.2.1.get h) 0)\n      else\n        Fin.cons 0 (Fin.succ ∘ f.1.1), by\n    by_cases hs : (f.2.1).isSome\n    · simp only [Nat.succ_eq_add_one, hs, ↓reduceDIte]\n      let a := f.2.1.get hs\n      change Function.Involutive (Fin.cons a.succ (Function.update (Fin.succ ∘ ↑f.fst) a 0))\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        rw [Fin.cons_zero, Fin.cons_succ]\n        simp\n      · subst hj\n        rw [Fin.cons_succ]\n        by_cases hja : j = a\n        · subst hja\n          simp\n        · rw [Function.update_apply, if_neg hja]\n          simp only [Function.comp_apply, Fin.cons_succ]\n          have hf2 := f.2.2 hs\n          change f.1.1 a = a at hf2\n          have hjf1 : f.1.1 j ≠ a := fun hn => hja (by rw [← f.1.2 j, hn, hf2])\n          rw [Function.update_apply, if_neg hjf1]\n          simp only [Function.comp_apply, Fin.succ_inj]\n          rw [f.1.2]\n    · simp only [succ_eq_add_one, hs, Bool.false_eq_true, ↓reduceDIte]\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.succ_inj]\n        rw [f.1.2]⟩\n  left_inv f := by\n    match f with\n    | ⟨f, hf⟩ =>\n    have hpred (j : Fin n) (hj : f j.succ ≠ 0) :\n        (↑(if h : f j.succ = 0 then j else (f j.succ).pred h) + 1 : ℕ) = ↑(f j.succ) := by\n      rw [dif_neg hj, Fin.val_pred]\n      have hv : (f j.succ).val ≠ 0 := fun h => hj (Fin.ext (by simpa using h))\n      omega\n    simp only [succ_eq_add_one, Option.isSome_dite', Option.get_dite', Fin.succ_pred,\n      Fin.cons_update, dite_eq_ite, ite_not, Subtype.mk.injEq]\n    ext i\n    by_cases h0 : f 0 = 0\n    · simp only [h0, ↓reduceIte]\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp [h0]\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n        refine hpred j fun hj => Fin.succ_ne_zero j (hf.injective (hj.trans h0.symm))\n    · rw [if_neg h0]\n      by_cases hf' : i = f 0\n      · subst hf'\n        simp only [Function.update_self, Fin.val_zero]\n        rw [hf]\n        simp\n      · rw [Function.update_apply, if_neg hf']\n        rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n        · subst hi\n          simp\n        · subst hj\n          simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n          refine hpred j fun hj => hf' ?_\n          rw [← hj, hf]\n  right_inv f := by\n    match f with\n    | ⟨⟨f, hf⟩, ⟨f0, hf0⟩⟩ =>\n    ext i\n    · simp only [succ_eq_add_one, Fin.cons_update]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        by_cases hi : i = f0.get hs\n        · simp only [Function.update_apply, hi, ↓reduceIte, ↓reduceDIte]\n          exact Eq.symm (Fin.val_eq_of_eq (hf0 hs))\n        · simp only [ne_eq, Fin.succ_inj, hi, not_false_eq_true, Function.update_of_ne,\n          Fin.cons_succ, Function.comp_apply, Fin.pred_succ, dite_eq_ite]\n          rw [if_neg (Fin.succ_ne_zero (f i))]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_succ, Function.comp_apply,\n        Fin.pred_succ, dite_eq_ite]\n        rw [if_neg (Fin.succ_ne_zero (f i))]\n    · simp only [Nat.succ_eq_add_one, Option.dite_none_left_eq_some, Option.some.injEq]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        simp only [Fin.cons_zero, Fin.pred_succ, exists_prop]\n        have hx : ¬ (f0.get hs).succ = 0 := (Fin.succ_ne_zero (f0.get hs))\n        simp only [hx, not_false_eq_true, true_and]\n        rw [Option.eq_some_iff_get_eq]\n        simp [hs]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_zero, not_true_eq_false,\n        IsEmpty.exists_iff, false_iff]\n        simp only [Bool.not_eq_true, Option.isSome_eq_false_iff, Option.isNone_iff_eq_none] at hs\n        subst hs\n        exact ne_of_beq_false rfl\n",
+            "docstring": "There is an equivalence between involutions of `Fin n.succ` and involutions of\n`Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n  in `Fin n.succ` will be sent). "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "answer_correct",
+    "receipts_sha256": "9ddfa2d26bbb873b159f297ed6163b24363c8b1c0bc776b3dd2c7cae75a53b6e"
+  },
+  {
+    "queries": [
+      "M6.Final.FixedSpanCorrect definition and M6.Final.Admissible definition",
+      "M6.FixedSpan.distance_improvement M6.FixedSpan.witness_improvement M6.FixedSpan.nontrivial_family",
+      "M6.FixedSpan recipe support degree coefficient zero span"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.Final.FixedSpanCorrect definition and M6.Final.Admissible definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 161238,
+            "name": "CategoryTheory.Functor.Final",
+            "module": "Mathlib.CategoryTheory.Limits.Final",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+            "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+            "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+          },
+          {
+            "id": 326974,
+            "name": "Lean.toPreDefinition",
+            "module": "Mathlib.Tactic.Core",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Core.lean#L49-L70",
+            "source_text": "/--\nMake a PreDefinition taking some metadata from declaration `nm`.\nYou can provide a new type, value and (optional) docstring, but the remaining information is taken\nfrom `nm`.\nCurrently only implemented for definitions and theorems. Also see docstring of `toModifiers`\n-/\ndef toPreDefinition (nm newNm : Name) (newType newValue : Expr)\n    (newDoc : Option (TSyntax `Lean.Parser.Command.docComment) := none) :\n    CoreM PreDefinition := do\n  let d ← getConstInfo nm\n  let mods ← toModifiers nm newDoc\n  let predef : PreDefinition :=\n  { ref := Syntax.missing\n    binders := mkNullNode #[]\n    kind := if d.isDef then DefKind.def else DefKind.theorem\n    levelParams := d.levelParams\n    modifiers := mods\n    declName := newNm\n    type := newType\n    value := newValue\n    termination := .none }\n  return predef\n",
+            "docstring": "Make a PreDefinition taking some metadata from declaration `nm`.\nYou can provide a new type, value and (optional) docstring, but the remaining information is taken\nfrom `nm`.\nCurrently only implemented for definitions and theorems. Also see docstring of `toModifiers`\n"
+          },
+          {
+            "id": 156731,
+            "name": "CategoryTheory.Functor.final_iff_isFiltered_structuredArrow",
+            "module": "Mathlib.CategoryTheory.Filtered.Final",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Filtered/Final.lean#L298-L304",
+            "source_text": "/-- If `C` is filtered, then `F : C ⥤ D` is final if and only if `StructuredArrow d F` is filtered\nfor all `d : D`. -/\ntheorem Functor.final_iff_isFiltered_structuredArrow [IsFilteredOrEmpty C] :\n    Final F ↔ ∀ d, IsFiltered (StructuredArrow d F) := by\n  refine ⟨?_, fun h => final_of_isFiltered_structuredArrow F⟩\n  rw [final_iff_of_isFiltered]\n  exact fun h d => isFiltered_structuredArrow_of_isFiltered_of_exists F d (h.1 d) h.2\n",
+            "docstring": "If `C` is filtered, then `F : C ⥤ D` is final if and only if `StructuredArrow d F` is filtered\nfor all `d : D`. "
+          },
+          {
+            "id": 156744,
+            "name": "CategoryTheory.StructuredArrow.final_map",
+            "module": "Mathlib.CategoryTheory.Filtered.Final",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Filtered/Final.lean#L393-L399",
+            "source_text": "/-- `StructuredArrow.map` is final if the functor `T` is final and its domain is filtered. -/\ninstance StructuredArrow.final_map [IsFiltered C] {S S' : D} (f : S ⟶ S') (T : C ⥤ D) [T.Final] :\n    Final (map (T := T) f) := by\n  haveI := NatIso.isIso_of_isIso_app (𝟙 T)\n  have : (map₂ (F := 𝟭 C) (G := 𝟭 D) f (𝟙 T)).Final := by\n    apply StructuredArrow.final_map₂_id (S := 𝟭 D) (T := T) (T' := T) f (𝟙 T)\n  apply final_of_natIso (mapIsoMap₂ f).symm\n",
+            "docstring": "`StructuredArrow.map` is final if the functor `T` is final and its domain is filtered. "
+          },
+          {
+            "id": 187739,
+            "name": "CategoryTheory.WithTerminal.instFintype",
+            "module": "Mathlib.CategoryTheory.WithTerminal.FinCategory",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/WithTerminal/FinCategory.lean#L42-L43",
+            "source_text": "instance instFintype [Fintype C] : Fintype (WithTerminal C) :=\n  .ofEquiv (Option C) <| optionEquiv C\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.Final.FixedSpanCorrect definition and M6.Final.Admissible definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 394399,
+            "name": "IsDimensionallyCorrect",
+            "module": "Physlib.Units.UnitDependent",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+            "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+            "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          },
+          {
+            "id": 393839,
+            "name": "CanonicalEnsemble.instIsFiniteMeasureμOfIsFinite",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L147-L149",
+            "source_text": "instance [IsFinite 𝓒] : IsFiniteMeasure (𝓒.μ) := by\n  rw [IsFinite.μ_eq_count]\n  infer_instance\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.FixedSpan.distance_improvement M6.FixedSpan.witness_improvement M6.FixedSpan.nontrivial_family",
+        "status": "ok",
+        "results": [
+          {
+            "id": 253013,
+            "name": "Submodule.span",
+            "module": "Mathlib.LinearAlgebra.Span.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Defs.lean#L47-L49",
+            "source_text": "/-- The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. -/\ndef span (s : Set M) : Submodule R M :=\n  sInf { p | s ⊆ p }\n",
+            "docstring": "The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. "
+          },
+          {
+            "id": 245989,
+            "name": "exteriorPower.ιMulti_span_fixedDegree",
+            "module": "Mathlib.LinearAlgebra.ExteriorPower.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/ExteriorPower/Basic.lean#L78-L82",
+            "source_text": "/-- The image of `ExteriorAlgebra.ιMulti R n` spans the `n`th exterior power. Variant of\n`ExteriorAlgebra.ιMulti_span_fixedDegree`, useful in rewrites. -/\nlemma ιMulti_span_fixedDegree :\n    Submodule.span R (Set.range (ExteriorAlgebra.ιMulti R n)) = ⋀[R]^n M :=\n  ExteriorAlgebra.ιMulti_span_fixedDegree R n\n",
+            "docstring": "The image of `ExteriorAlgebra.ιMulti R n` spans the `n`th exterior power. Variant of\n`ExteriorAlgebra.ιMulti_span_fixedDegree`, useful in rewrites. "
+          },
+          {
+            "id": 246029,
+            "name": "exteriorPower.ιMulti_family_span_fixedDegree_of_span",
+            "module": "Mathlib.LinearAlgebra.ExteriorPower.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/ExteriorPower/Basic.lean#L363-L377",
+            "source_text": "/-- If a family of vectors spans `M`, then the family of its `n`-fold exterior products spans\n`⋀[R]^n M`. Here we work in the exterior algebra. -/\nlemma ιMulti_family_span_fixedDegree_of_span {I : Type*} [LinearOrder I] {v : I → M}\n    (hv : Submodule.span R (Set.range v) = ⊤) :\n    Submodule.span R (Set.range (ExteriorAlgebra.ιMulti_family R n v)) = ⋀[R]^n M := by\n  apply le_antisymm\n  · rw [Submodule.span_le, Set.range_subset_iff]\n    intro\n    rw [SetLike.mem_coe, ιMulti_family_eq_coe_comp, comp_apply]\n    exact Submodule.coe_mem _\n  · rw [← ιMulti_span_fixedDegree_of_span_eq_top R n M hv, Submodule.span_le]\n    rintro - ⟨f, ⟨f_range, rfl⟩⟩\n    rw [Set.mem_setOf] at f_range\n    obtain ⟨α, rfl⟩ := Set.range_subset_range_iff_exists_comp.mp f_range\n    exact ιMulti_family_span_fixedDegree_aux R v α\n",
+            "docstring": "If a family of vectors spans `M`, then the family of its `n`-fold exterior products spans\n`⋀[R]^n M`. Here we work in the exterior algebra. "
+          },
+          {
+            "id": 165242,
+            "name": "CategoryTheory.Limits.WalkingMultispan.instFintype",
+            "module": "Mathlib.CategoryTheory.Limits.Shapes.FiniteMultiequalizer",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Shapes/FiniteMultiequalizer.lean#L52-L52",
+            "source_text": "instance : Fintype (WalkingMultispan J) := .ofEquiv _ (proxy_equiv% (WalkingMultispan J))\n",
+            "docstring": null
+          },
+          {
+            "id": 88295,
+            "name": "Submodule.lift_spanRank_map_eq_of_injective",
+            "module": "Mathlib.Algebra.Module.SpanRank",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/SpanRank.lean#L325-L333",
+            "source_text": "lemma lift_spanRank_map_eq_of_injective [RingHomSurjective σ] (f : M →ₛₗ[σ] L)\n    (hf : Function.Injective f) (p : Submodule R M) :\n    Cardinal.lift.{u} (p.map f).spanRank = Cardinal.lift.{v} p.spanRank := by\n  refine (lift_spanRank_map_le f p).antisymm ?_\n  obtain ⟨s, hs, e⟩ := (p.map f).exists_span_set_card_eq_spanRank\n  obtain ⟨s, rfl⟩ : ∃ y, f '' y = s := Set.subset_range_iff_exists_image_eq.mp\n    ((subset_span.trans e.le).trans LinearMap.map_le_range)\n  obtain rfl : span R s = p := by simpa [(map_injective_of_injective hf).eq_iff] using e\n  grw [← hs, Cardinal.mk_image_eq_lift _ _ hf, Cardinal.lift_le, spanRank_span_le_card]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.FixedSpan.distance_improvement M6.FixedSpan.witness_improvement M6.FixedSpan.nontrivial_family",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.FixedSpan recipe support degree coefficient zero span",
+        "status": "ok",
+        "results": [
+          {
+            "id": 253013,
+            "name": "Submodule.span",
+            "module": "Mathlib.LinearAlgebra.Span.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Defs.lean#L47-L49",
+            "source_text": "/-- The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. -/\ndef span (s : Set M) : Submodule R M :=\n  sInf { p | s ⊆ p }\n",
+            "docstring": "The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. "
+          },
+          {
+            "id": 245989,
+            "name": "exteriorPower.ιMulti_span_fixedDegree",
+            "module": "Mathlib.LinearAlgebra.ExteriorPower.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/ExteriorPower/Basic.lean#L78-L82",
+            "source_text": "/-- The image of `ExteriorAlgebra.ιMulti R n` spans the `n`th exterior power. Variant of\n`ExteriorAlgebra.ιMulti_span_fixedDegree`, useful in rewrites. -/\nlemma ιMulti_span_fixedDegree :\n    Submodule.span R (Set.range (ExteriorAlgebra.ιMulti R n)) = ⋀[R]^n M :=\n  ExteriorAlgebra.ιMulti_span_fixedDegree R n\n",
+            "docstring": "The image of `ExteriorAlgebra.ιMulti R n` spans the `n`th exterior power. Variant of\n`ExteriorAlgebra.ιMulti_span_fixedDegree`, useful in rewrites. "
+          },
+          {
+            "id": 246328,
+            "name": "Finsupp.mem_span_iff_linearCombination",
+            "module": "Mathlib.LinearAlgebra.Finsupp.LinearCombination",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Finsupp/LinearCombination.lean#L175-L177",
+            "source_text": "theorem mem_span_iff_linearCombination (s : Set M) (x : M) :\n    x ∈ span R s ↔ ∃ l : s →₀ R, linearCombination R (↑) l = x :=\n  (SetLike.ext_iff.1 <| span_eq_range_linearCombination _ _) x\n",
+            "docstring": null
+          },
+          {
+            "id": 245932,
+            "name": "ExteriorAlgebra.ιMulti_span_fixedDegree",
+            "module": "Mathlib.LinearAlgebra.ExteriorAlgebra.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/ExteriorAlgebra/Basic.lean#L338-L351",
+            "source_text": "/-- The image of `ExteriorAlgebra.ιMulti R n` spans the `n`th exterior power, as a submodule\nof the exterior algebra. See `exteriorPower.ιMulti_span_fixedDegree_of_span_eq_top` for a version\nwhere we restrict to elements of the form `x₁ ∧ ⋯ ∧ xₙ` where the `xᵢ` belong to a spanning set. -/\nlemma ιMulti_span_fixedDegree (n : ℕ) :\n    Submodule.span R (Set.range (ιMulti R n)) = ⋀[R]^n M := by\n  refine le_antisymm (Submodule.span_le.2 (ιMulti_range R n)) ?_\n  rw [exteriorPower, Submodule.pow_eq_span_pow_set, Submodule.span_le]\n  refine fun u hu ↦ Submodule.subset_span ?_\n  obtain ⟨f, rfl⟩ := Set.mem_pow.mp hu\n  refine ⟨fun i => ιInv (f i).1, ?_⟩\n  rw [ιMulti_apply]\n  congr with i\n  obtain ⟨v, hv⟩ := (f i).prop\n  rw [← hv, ι_leftInverse]\n",
+            "docstring": "The image of `ExteriorAlgebra.ιMulti R n` spans the `n`th exterior power, as a submodule\nof the exterior algebra. See `exteriorPower.ιMulti_span_fixedDegree_of_span_eq_top` for a version\nwhere we restrict to elements of the form `x₁ ∧ ⋯ ∧ xₙ` where the `xᵢ` belong to a spanning set. "
+          },
+          {
+            "id": 243529,
+            "name": "Module.Basis.repr_support_subset_of_mem_span",
+            "module": "Mathlib.LinearAlgebra.Basis.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Basis/Basic.lean#L54-L57",
+            "source_text": "theorem repr_support_subset_of_mem_span (s : Set ι) {m : M}\n    (hm : m ∈ span R (b '' s)) : ↑(b.repr m).support ⊆ s := by\n  rcases (Finsupp.mem_span_image_iff_linearCombination _).1 hm with ⟨l, hl, rfl⟩\n  rwa [repr_linearCombination, ← Finsupp.mem_supported R l]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.FixedSpan recipe support degree coefficient zero span",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390087,
+            "name": "PureU1.VectorLikeOddPlane.Pa_zero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L738-L757",
+            "source_text": "lemma Pa_zero (f g : Fin n.succ → ℚ) (h : Pa f g = 0) :\n    ∀ i, f i = 0 := by\n  have h₃ := Pa_oddShiftShiftZero f g\n  rw [h] at h₃\n  change 0 = _ at h₃\n  intro i\n  have hinduc (iv : ℕ) (hiv : iv < n.succ) : f ⟨iv, hiv⟩ = 0 := by\n    induction iv\n    exact h₃.symm\n    rename_i iv hi\n    have hivi : iv < n.succ := lt_of_succ_lt hiv\n    have hi2 := hi hivi\n    have h1 := Pa_oddShiftShiftSnd f g ⟨iv, hivi⟩\n    rw [h, hi2] at h1\n    change 0 = _ at h1\n    simp only [neg_zero, succ_eq_add_one, zero_sub, zero_eq_neg] at h1\n    have h2 := Pa_oddShiftShiftFst f g ⟨iv, succ_lt_succ_iff.mp hiv⟩\n    simp only [succ_eq_add_one, h, Fin.succ_mk, Fin.castSucc_mk, h1, add_zero] at h2\n    exact h2.symm\n  exact hinduc i.val i.prop\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

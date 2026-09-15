@@ -1,0 +1,13 @@
+{
+  "name": "M6.Transfer.complete_address_capacity",
+  "statement": "∀ R N slots : ℕ, R < N → slots ≤ 512*(N+1)^2 → M6.Transfer.solveStorage R N slots < 2^(M6.Transfer.actualAddressBits R N)",
+  "imports": [
+    "M6RecoveryLayout"
+  ],
+  "context": "",
+  "queries": [
+    "List.length_finRange",
+    "Nat power monotonicity bound"
+  ],
+  "guidance": "For stack allocation unfold the literal counter definitions and List.length_finRange; cancellation leaves a nonnegative polynomial (can split N=0,1,2 or bound square). The Option-bit pins use2 bits each, hence4N/frame. For full addressing apply accepted solve_storage_bound, use N<=2^N so N²<=2^(2N), 16384=2^14, and actualAddressBits=R+4N+16. Preserve original constants and indexed-array model. Return tactic lines without leading by."
+}

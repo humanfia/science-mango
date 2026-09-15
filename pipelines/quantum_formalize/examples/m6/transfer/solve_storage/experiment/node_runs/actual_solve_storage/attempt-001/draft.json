@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst a b hspan\nhave ha : a.natDegree ≤ N := by\n  unfold M6.ActualTransfer.span at hspan\n  omega\nhave hb : b.natDegree ≤ N := by\n  unfold M6.ActualTransfer.span at hspan\n  omega\nhave hM : (M6.Cyclic.modulus N).natDegree ≤ N := by\n  unfold M6.Cyclic.modulus\n  exact (Polynomial.natDegree_add_le _ _).trans (by simp)\nhave hstorage := M6.EuclidStorage.preprocess_storage N a b\n  (M6.Cyclic.modulus N) ha hb hM\nsimpa only [M6.ActualTransfer.actualSolveStorage] using\n  (M6.Transfer.solve_storage_bound (M6.ActualTransfer.span a b) N\n    (M6.EuclidStorage.actualPreprocessStorage N) hspan hstorage.2.2)",
+  "queries": []
+}

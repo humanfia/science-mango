@@ -1,0 +1,8 @@
+{
+  "proof": "set_option maxHeartbeats 0 in\n  classical\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.CountingCorrect N a b\n  intro N _ a b h\n  have hs : M6.ActualTransfer.span a b < N := by\n    unfold M6.Final.Admissible at h\n    tauto\n  have ha : a.degree < (N : WithBot ℕ) := by\n    apply lt_of_le_of_lt Polynomial.degree_le_natDegree\n    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_left a.natDegree b.natDegree) hs)\n  have hb : b.degree < (N : WithBot ℕ) := by\n    apply lt_of_le_of_lt Polynomial.degree_le_natDegree\n    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_right a.natDegree b.natDegree) hs)\n  have hboundary (P : M6.Pinned.Pins (2*N)) :=\n    (M6.ActualTransfer.boundary_trace_inputs N a b hs P).trans\n      (M6.ActualCounts.boundary_pinned_sum N a b ha hb P)\n  have hcharacter (P : M6.Pinned.Pins (2*N)) :=\n    (M6.ActualTransfer.character_trace_inputs N a b hs P).trans\n      (M6.ActualCounts.cycle_pinned_sum N a b ha hb P)\n  have hcard := M6.ActualCounts.logical_card N a b ha hb\n  unfold M6.Final.CountingCorrect\n  repeat' constructor\n  all_goals intros\n  all_goals first\n    | assumption\n    | exact?\n    | (simp_all only [M6.Final.LX, M6.Final.BX, M6.Final.CX]; exact?)",
+  "queries": [
+    "M6.ActualResult normalized boundary cycle Q Q_total theorem signatures",
+    "M6.Final.CountingCorrect Admissible definitions",
+    "M6.ActualCounts.logical_card full theorem signature"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.CountingCorrect N a b\nintro N inst a b h\nclassical\nsimp only [M6.Final.Admissible] at h\nhave ha : a.degree < (N : WithBot ℕ) := by\n  apply Polynomial.degree_lt_of_natDegree_lt\n  first | omega | aesop | exact?\nhave hb : b.degree < (N : WithBot ℕ) := by\n  apply Polynomial.degree_lt_of_natDegree_lt\n  first | omega | aesop | exact?\nunfold M6.Final.CountingCorrect\nrepeat' constructor\nall_goals intros\nall_goals first\n  | (rw [M6.ActualTransfer.boundary_trace_inputs N a b (by first | aesop | exact?)]\n     change M6.ActualCounts.boundaryInputSum N a b _ = _\n     exact M6.ActualCounts.boundary_pinned_sum N a b ha hb _)\n  | (rw [M6.ActualTransfer.character_trace_inputs N a b (by first | aesop | exact?)]\n     change M6.ActualCounts.signedInputSum N a b _ = _\n     exact M6.ActualCounts.cycle_pinned_sum N a b ha hb _)\n  | exact?",
+  "queries": [
+    "M6.Final.Admissible M6.Final.CountingCorrect definition bodies",
+    "M6.ActualResult normalized Q_total identities",
+    "M6.ActualCounts.logical_card M6.ActualTransfer span definition"
+  ]
+}

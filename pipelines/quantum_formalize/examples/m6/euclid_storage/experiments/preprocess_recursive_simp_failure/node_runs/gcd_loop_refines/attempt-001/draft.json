@@ -1,0 +1,8 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro fuel\ninduction fuel with\n| zero =>\n    intro s c e t hw\n    simp [M6.EuclidStorage.gcdLoop, M6.Euclid.euclidAux,\n      M6.EuclidStorage.toRun, M6.EuclidStorage.offset, hw]\n| succ fuel ih =>\n    intro s c e t hw\n    by_cases hq : s.q = 0\n    · simp [M6.EuclidStorage.gcdLoop, M6.Euclid.euclidAux,\n        M6.EuclidStorage.toRun, M6.EuclidStorage.offset, hq, hw]\n    · have hr := fun (c t : ℕ) =>\n        M6.EuclidStorage.rem_loop_refines (M6.Euclid.rank s.p)\n          (⟨0, s.q, s.p, s.saved⟩ : M6.EuclidStorage.Slots) c t\n      dsimp only at hr\n      simp only [M6.EuclidStorage.gcdLoop, M6.Euclid.euclidAux,\n        hq, if_false]\n      simp only [M6.Euclid.remainder, hr, ih]\n      simp [M6.EuclidStorage.offset, Nat.add_assoc,\n        Nat.add_left_comm, Nat.add_comm]",
+  "queries": [
+    "M6.EuclidStorage.gcdLoop definition",
+    "M6.Euclid.remainder definition",
+    "M6.Euclid.euclidAux definition"
+  ]
+}

@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.Admissible M6.Final.ExecutionCorrect definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 271076,
+        "name": "ADEInequality.admissible_E6",
+        "module": "Mathlib.NumberTheory.ADEInequality",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ADEInequality.lean#L133-L134",
+        "source_text": "theorem admissible_E6 : Admissible E6 :=\n  admissible_E'3\n",
+        "docstring": null
+      },
+      {
+        "id": 161407,
+        "name": "CategoryTheory.FinalModel",
+        "module": "Mathlib.CategoryTheory.Limits.FinallySmall",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/FinallySmall.lean#L52-L54",
+        "source_text": "/-- An arbitrarily chosen small model for a finally small category. -/\ndef FinalModel [FinallySmall.{w} J] : Type w :=\n  Classical.choose (@FinallySmall.final_smallCategory J _ _)\n",
+        "docstring": "An arbitrarily chosen small model for a finally small category. "
+      },
+      {
+        "id": 156748,
+        "name": "CategoryTheory.final_eval",
+        "module": "Mathlib.CategoryTheory.Filtered.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Filtered/Final.lean#L428-L438",
+        "source_text": "instance final_eval [∀ s, IsFiltered (I s)] (s : α) : (Pi.eval I s).Final := by\n  classical\n  apply Functor.final_of_exists_of_isFiltered\n  · exact fun i => ⟨Function.update (fun t => nonempty.some) s i, ⟨by simpa using 𝟙 _⟩⟩\n  · intro d c f g\n    let c't : (∀ s, (c' : I s) × (c s ⟶ c')) := Function.update (fun t => ⟨c t, 𝟙 (c t)⟩)\n      s ⟨coeq f g, coeqHom f g⟩\n    refine ⟨fun t => (c't t).1, fun t => (c't t).2, ?_⟩\n    dsimp only [Pi.eval_obj, Pi.eval_map, c't]\n    rw [Function.update_self]\n    simpa using coeq_condition _ _\n",
+        "docstring": null
+      },
+      {
+        "id": 161393,
+        "name": "CategoryTheory.final_fst",
+        "module": "Mathlib.CategoryTheory.Limits.Final.Connected",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final/Connected.lean#L54-L56",
+        "source_text": "instance final_fst [IsConnected D] : (Prod.fst C D).Final :=\n  inferInstanceAs (Functor.prod (𝟭 C) ((Functor.const _).obj (Discrete.mk .unit)) ⋙\n    (prod.rightUnitorEquivalence.{0} C).functor).Final\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.Admissible M6.Final.ExecutionCorrect definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394366,
+        "name": "integral_isDimensionallyCorrect",
+        "module": "Physlib.Units.Integral",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Integral.lean#L60-L114",
+        "source_text": "/-- The statement that for a measure `μ` of dimension `d`, and a function\n  `f : M → G` of dimension `(CarriesDimension.d G * d⁻¹)` (where `CarriesDimension.d G`\n  is the dimension associated with terms of type `G`), then\n  `∫ x, f x ∂μ `\n  has the correct dimension, namely `CarriesDimension.d G`.\n\n  In other words, the function:\n```\nfun (μ : DimSet (MeasureTheory.Measure M) d)\n    (f : DimSet (M → G) (CarriesDimension.d G * d⁻¹)) ↦ ∫ x, f.1 x ∂μ.1\n```\n  is dimensionally correct. -/\nlemma integral_isDimensionallyCorrect (d : Dimension) :\n    IsDimensionallyCorrect (fun (μ : DimSet (MeasureTheory.Measure M) d)\n      (f : DimSet (M → G) (dim G * d⁻¹)) ↦ ∫ x, f.1 x ∂μ.1) := by\n  intro u1 u2\n  funext ⟨μ, hμ⟩ ⟨f, hf⟩\n  /- We have to prove that\n    `scaleUnit u1 (fun μ f ↦ ∫ x, f x ∂μ) u2 ⟨μ, hμ⟩ ⟨f, hf⟩ = ∫ x, f x ∂μ` -/\n  calc _\n    /- By definition the LHS is equal to\n    `scaleUnit u1 u2 (∫ x, (scaleUnit u2 u1 f) x ∂(scaleUnit u2 u1 μ)) `\n    The statement says, suppose `f` and `μ` are in units `u2`, we change them to units `u1`,\n    then do the integral, and then we take the result back to `u2`.\n    If the integral is dimensionally correct, this should be the same as just doing the\n    original integral in `u2` units i.e. `∫ x, f x ∂μ`. -/\n    _ = scaleUnit u1 u2 (∫ x, (scaleUnit u2 u1 f) x ∂(scaleUnit u2 u1 μ)) := by\n      simp\n    /- Since we have assumed `μ` has dimension `d`, `(scaleUnit u2 μ u1)`\n      is equal to `(u2.dimScale u1 d) • μ` -/\n    _ = scaleUnit u1 u2 (u2.dimScale u1 d • ∫ (x : M), scaleUnit u2 u1 f x ∂ μ) := by\n      rw [hμ, integral_smul_nnreal_measure]\n    /- Since we assumed `f` has dimension `CarriesDimension.d G * d⁻¹`, `(scaleUnit u2 f u1)`\n      is equal to `u2.dimScale u1 (CarriesDimension.d G * d⁻¹) • f`. -/\n    _ = scaleUnit u1 u2 (u2.dimScale u1 d •\n      u2.dimScale u1 (dim G * d⁻¹) • ∫ (x : M), f x ∂ μ) := by\n      rw [hf]\n      congr\n      erw [MeasureTheory.integral_smul]\n      rfl\n    /- What remains is a simple cancellation of the dimensional scales. -/\n    _ = (u1.dimScale u2 (dim G)) • ((u2.dimScale u1 d) •\n        u2.dimScale u1 (dim G * d⁻¹) • ∫ (x : M), f x ∂ μ) := by\n      rw [← HasDim.scaleUnit_apply]\n    _ = (u1.dimScale u2 (dim G) * (u2.dimScale u1 d) *\n        u2.dimScale u1 (dim G * d⁻¹)) • ∫ (x : M), f x ∂ μ := by\n      simp [smul_smul]\n      ring_nf\n    _ = ((u1.dimScale u2 (dim G) * u2.dimScale u1 (dim G))\n        * (u2.dimScale u1 d * u1.dimScale u2 d)) • ∫ (x : M), f x ∂ μ := by\n      congr 1\n      conv_lhs => simp only [map_mul]\n      rw [UnitChoices.dimScale_of_inv_eq_swap]\n      ring\n    _ = ∫ (x : M), f x ∂ μ := by simp\n",
+        "docstring": "The statement that for a measure `μ` of dimension `d`, and a function\n  `f : M → G` of dimension `(CarriesDimension.d G * d⁻¹)` (where `CarriesDimension.d G`\n  is the dimension associated with terms of type `G`), then\n  `∫ x, f x ∂μ `\n  has the correct dimension, namely `CarriesDimension.d G`.\n\n  In other words, the function:\n```\nfun (μ : DimSet (MeasureTheory.Measure M) d)\n    (f : DimSet (M → G) (CarriesDimension.d G * d⁻¹)) ↦ ∫ x, f.1 x ∂μ.1\n```\n  is dimensionally correct. "
+      },
+      {
+        "id": 394399,
+        "name": "IsDimensionallyCorrect",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+        "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+        "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+      },
+      {
+        "id": 394400,
+        "name": "isDimensionallyCorrect_iff",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L421-L423",
+        "source_text": "lemma isDimensionallyCorrect_iff {M : Type} [UnitDependent M] (m : M) :\n    IsDimensionallyCorrect m ↔ ∀ u1 u2 : UnitChoices,\n      scaleUnit u1 u2 m = m := by rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 394362,
+        "name": "fderiv_isDimensionallyCorrect",
+        "module": "Physlib.Units.FDeriv",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/FDeriv.lean#L49-L58",
+        "source_text": "/-- If a function is dimensionally valid then so is it's derivative. -/\nlemma fderiv_isDimensionallyCorrect (f : M1 → M2) (hf : IsDimensionallyCorrect f)\n    (f_diff : Differentiable ℝ f) :\n    IsDimensionallyCorrect (fderiv ℝ f) := by\n  simp only [isDimensionallyCorrect_fun_iff]\n  intro u1 u2 m\n  ext m'\n  simp only [ContinuousLinearUnitDependent.scaleUnit_apply_fun]\n  rw [fderiv_apply_scaleUnit u1 u2 m (scaleUnit u2 u1 m') f hf f_diff]\n  simp [HasDim.scaleUnit_apply, smul_smul]\n",
+        "docstring": "If a function is dimensionally valid then so is it's derivative. "
+      },
+      {
+        "id": 394403,
+        "name": "isDimensionallyCorrect_fun_right",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L439-L444",
+        "source_text": "@[simp]\nlemma isDimensionallyCorrect_fun_right {M1 M2 : Type} [UnitDependent M2]\n    {f : M1 → M2} :\n    IsDimensionallyCorrect f ↔\n    ∀ u1 u2 : UnitChoices, ∀ m, scaleUnit u1 u2 (f m) = f m := by\n  simp [IsDimensionallyCorrect, funext_iff]\n/-!",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "boundary_indexed_resources character_indexed_resources shifted_output_exact shifted_scan_exact",
+    "status": "ok",
+    "results": [
+      {
+        "id": 221052,
+        "name": "IndexedPartition",
+        "module": "Mathlib.Data.Setoid.Partition",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Setoid/Partition.lean#L310-L328",
+        "source_text": "/-- Constructive information associated with a partition of a type `α` indexed by another type `ι`,\n`s : ι → Set α`.\n\n`IndexedPartition.index` sends an element to its index, while `IndexedPartition.some` sends\nan index to an element of the corresponding set.\n\nThis type is primarily useful for definitional control of `s` - if this is not needed, then\n`Setoid.ker index` by itself may be sufficient. -/\nstructure IndexedPartition {ι α : Type*} (s : ι → Set α) where\n  /-- two indexes are equal if they are equal in membership -/\n  eq_of_mem : ∀ {x i j}, x ∈ s i → x ∈ s j → i = j\n  /-- sends an index to an element of the corresponding set -/\n  some : ι → α\n  /-- membership invariance for `some` -/\n  some_mem : ∀ i, some i ∈ s i\n  /-- index for type `α` -/\n  index : α → ι\n  /-- membership invariance for `index` -/\n  mem_index : ∀ x, x ∈ s (index x)\n",
+        "docstring": "Constructive information associated with a partition of a type `α` indexed by another type `ι`,\n`s : ι → Set α`.\n\n`IndexedPartition.index` sends an element to its index, while `IndexedPartition.some` sends\nan index to an element of the corresponding set.\n\nThis type is primarily useful for definitional control of `s` - if this is not needed, then\n`Setoid.ker index` by itself may be sufficient. "
+      },
+      {
+        "id": 221053,
+        "name": "IndexedPartition.mk'",
+        "module": "Mathlib.Data.Setoid.Partition",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Setoid/Partition.lean#L332-L340",
+        "source_text": "/-- The non-constructive constructor for `IndexedPartition`. -/\nnoncomputable def IndexedPartition.mk' {ι α : Type*} (s : ι → Set α)\n    (dis : Pairwise (Disjoint on s)) (nonempty : ∀ i, (s i).Nonempty)\n    (ex : ∀ x, ∃ i, x ∈ s i) : IndexedPartition s where\n  eq_of_mem {_x _i _j} hxi hxj := by_contradiction fun h => (dis h).le_bot ⟨hxi, hxj⟩\n  some i := (nonempty i).some\n  some_mem i := (nonempty i).choose_spec\n  index x := (ex x).choose\n  mem_index x := (ex x).choose_spec\n",
+        "docstring": "The non-constructive constructor for `IndexedPartition`. "
+      },
+      {
+        "id": 221057,
+        "name": "IndexedPartition.disjoint",
+        "module": "Mathlib.Data.Setoid.Partition",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Setoid/Partition.lean#L370-L371",
+        "source_text": "theorem disjoint : Pairwise (Disjoint on s) := fun {_i _j} h =>\n  disjoint_left.mpr fun {_x} hxi hxj => h (hs.eq_of_mem hxi hxj)\n",
+        "docstring": null
+      },
+      {
+        "id": 180621,
+        "name": "CategoryTheory.ShiftedHom.comp",
+        "module": "Mathlib.CategoryTheory.Shift.ShiftedHom",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Shift/ShiftedHom.lean#L38-L42",
+        "source_text": "/-- The composition of `f : X ⟶ Y⟦a⟧` and `g : Y ⟶ Z⟦b⟧`, as a morphism `X ⟶ Z⟦c⟧`\nwhen `b + a = c`. -/\nnoncomputable def comp {a b c : M} (f : ShiftedHom X Y a) (g : ShiftedHom Y Z b) (h : b + a = c) :\n    ShiftedHom X Z c :=\n  f ≫ g⟦a⟧' ≫ (shiftFunctorAdd' C b a c h).inv.app _\n",
+        "docstring": "The composition of `f : X ⟶ Y⟦a⟧` and `g : Y ⟶ Z⟦b⟧`, as a morphism `X ⟶ Z⟦c⟧`\nwhen `b + a = c`. "
+      },
+      {
+        "id": 64741,
+        "name": "Function.Exact",
+        "module": "Mathlib.Algebra.Exact.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Exact/Basic.lean#L43-L44",
+        "source_text": "@[to_additive /-- The maps `f` and `g` form an exact pair:\n  `g y = 0` iff `y` belongs to the image of `f`. -/]\ndef MulExact [One P] : Prop := ∀ y, g y = 1 ↔ y ∈ Set.range f",
+        "docstring": "The maps `f` and `g` form an exact pair:\n`g y = 0` iff `y` belongs to the image of `f`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "boundary_indexed_resources character_indexed_resources shifted_output_exact shifted_scan_exact",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390031,
+        "name": "PureU1.VectorLikeOddPlane.oddShiftShiftSnd_eq_oddShiftSnd",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L230-L232",
+        "source_text": "lemma oddShiftShiftSnd_eq_oddShiftSnd (j : Fin n.succ) : oddShiftShiftSnd j = oddShiftSnd j := by\n  rw [Fin.ext_iff]\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 390030,
+        "name": "PureU1.VectorLikeOddPlane.oddShiftShiftSnd_eq_oddSnd",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L225-L228",
+        "source_text": "lemma oddShiftShiftSnd_eq_oddSnd (j : Fin n.succ) : oddShiftShiftSnd j = oddSnd j := by\n  simp only [Fin.ext_iff, succ_eq_add_one, oddShiftShiftSnd, Fin.val_cast, Fin.val_natAdd, oddSnd,\n    add_left_inj]\n  omega\n",
+        "docstring": null
+      },
+      {
+        "id": 389925,
+        "name": "PureU1.VectorLikeEvenPlane.basis!_on_evenShiftSnd_other",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L496-L499",
+        "source_text": "lemma basis!_on_evenShiftSnd_other {k j : Fin n} (h : k ≠ j) :\n    basis!AsCharges k (evenShiftSnd j) = 0 := by\n  rw [basis!_evenShftSnd_eq_neg_evenShiftFst, basis!_on_evenShiftFst_other h]\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 391980,
+        "name": "TensorSpecies.Tensor.indexExpr.quot",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L69-L70",
+        "source_text": "/-- A syntax category for indices of tensor expressions. -/\ndeclare_syntax_cat indexExpr\n",
+        "docstring": null
+      },
+      {
+        "id": 391981,
+        "name": "Lean.Parser.Category.indexExpr",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L69-L70",
+        "source_text": "/-- A syntax category for indices of tensor expressions. -/\ndeclare_syntax_cat indexExpr\n",
+        "docstring": "A syntax category for indices of tensor expressions. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "actual_distance_work actual_witness_work",
+    "status": "ok",
+    "results": [
+      {
+        "id": 346334,
+        "name": "Nat.instDist",
+        "module": "Mathlib.Topology.Instances.Nat",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Instances/Nat.lean#L25-L26",
+        "source_text": "noncomputable instance : Dist ℕ :=\n  ⟨fun x y => dist (x : ℝ) y⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 349503,
+        "name": "Real.dist_eq",
+        "module": "Mathlib.Topology.MetricSpace.Pseudo.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Pseudo/Defs.lean#L1131-L1131",
+        "source_text": "theorem Real.dist_eq (x y : ℝ) : dist x y = |x - y| := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 349313,
+        "name": "edist_dist",
+        "module": "Mathlib.Topology.MetricSpace.Pseudo.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Pseudo/Defs.lean#L209-L210",
+        "source_text": "theorem edist_dist (x y : α) : edist x y = ENNReal.ofReal (dist x y) :=\n  PseudoMetricSpace.edist_dist x y\n",
+        "docstring": null
+      },
+      {
+        "id": 346183,
+        "name": "Int.dist_eq",
+        "module": "Mathlib.Topology.Instances.Int",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Instances/Int.lean#L34-L34",
+        "source_text": "theorem dist_eq (x y : ℤ) : dist x y = |(x : ℝ) - y| := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 308958,
+        "name": "HahnSeries.embDomain",
+        "module": "Mathlib.RingTheory.HahnSeries.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L439-L445",
+        "source_text": "/-- Extends the domain of a `HahnSeries` by an `OrderEmbedding`. -/\ndef embDomain (f : Γ ↪o Γ') : R⟦Γ⟧ → R⟦Γ'⟧ := fun x =>\n  { coeff := fun b : Γ' => if h : b ∈ f '' x.support then x.coeff (Classical.choose h) else 0\n    isPWO_support' :=\n      (x.isPWO_support.image_of_monotone f.monotone).mono fun b hb => by\n        contrapose hb\n        rw [Function.mem_support, dif_neg hb, Classical.not_not] }\n",
+        "docstring": "Extends the domain of a `HahnSeries` by an `OrderEmbedding`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "actual_distance_work actual_witness_work",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393588,
+        "name": "TimeTransMan.dist",
+        "module": "Physlib.SpaceAndTime.Time.TimeTransMan",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeTransMan.lean#L209-L211",
+        "source_text": "/-- The distance between two points in `TimeTransMan` in the units of `x : TimeUnit`. -/\nnoncomputable def dist (x : TimeUnit) (t1 t2 : TimeTransMan) : ℝ :=\n  1/x.val * ‖t2.val - t1.val‖\n",
+        "docstring": "The distance between two points in `TimeTransMan` in the units of `x : TimeUnit`. "
+      },
+      {
+        "id": 385446,
+        "name": "RigidBody.rigid_body_work_and_power",
+        "module": "Physlib.ClassicalMechanics.RigidBody.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/RigidBody/Basic.lean#L257-L262",
+        "source_text": "/-- The power delivered to a rigid body by forces is P = ∑ Fᵢ ⋅ vᵢ = F_tot ⋅ V + M ⋅ ω, where F_tot\n    is total force, V the reference point velocity, and M the torque. Translational and rotational\n    contributions separate. -/\ninformal_lemma rigid_body_work_and_power where\n  tag := \"LL32-WP\"\n  deps := [``RigidBody]\n",
+        "docstring": "The power delivered to a rigid body by forces is P = ∑ Fᵢ ⋅ vᵢ = F_tot ⋅ V + M ⋅ ω, where F_tot\nis total force, V the reference point velocity, and M the torque. Translational and rotational\ncontributions separate. "
+      },
+      {
+        "id": 393500,
+        "name": "Time.dist_eq_real_dist",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L277-L278",
+        "source_text": "lemma dist_eq_real_dist (t1 t2 : Time) :\n    dist t1 t2 = dist t1.val t2.val := by rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 394344,
+        "name": "UnitExamples.SpeedEq",
+        "module": "Physlib.Units.Examples",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Examples.lean#L70-L72",
+        "source_text": "/-- An example of dimensions corresponding to `s = d/t` using `WithDim`. -/\ndef SpeedEq (s : WithDim (L𝓭 * T𝓭⁻¹) ℝ) (d : WithDim L𝓭 ℝ) (t : WithDim T𝓭 ℝ) : Prop :=\n  s = cast (d / t)\n",
+        "docstring": "An example of dimensions corresponding to `s = d/t` using `WithDim`. "
+      },
+      {
+        "id": 393498,
+        "name": "Time.instDist",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L271-L272",
+        "source_text": "instance : Dist Time where\n  dist t1 t2 := ‖t1 - t2‖\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

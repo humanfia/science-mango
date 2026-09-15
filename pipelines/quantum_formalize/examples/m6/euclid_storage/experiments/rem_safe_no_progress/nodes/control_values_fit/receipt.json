@@ -1,0 +1,71 @@
+{
+  "id": "control_values_fit",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.EuclidStorage.control_values_fit",
+    "spec_sha256": "6fa1e1ae6716d692798c60f51e56a8dab3891c276e5793c0d3b91722a4d5f6ca",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-euclid-storage-formalization/.humanize-formal-runs/run-s9pvlixl/attempt-001/Candidate_235ed4cf13603362.lean",
+        "target_path": "/home/jing/m6-lean-euclid-storage-formalization/.humanize-formal-runs/run-s9pvlixl/attempt-001/FrozenTarget_235ed4cf13603362.lean",
+        "feedback": "",
+        "target_sha256": "c6ecfd50508ceebdd1f3b6aa5a122cfbc9c363dc729e2226c16129eeb5944f0a",
+        "target_olean_sha256": "0a15cb0f5973e861d57d36945a10a4928dc9ce8bee60743d7a5a3d45ec826b48",
+        "source_sha256": "8c23d7af21162c544a20ff6e3e4e1c08cf22dd92ba413d21b4b2ac79bf5ee79b",
+        "olean_sha256": "e5a736bc9daf97dd87858490d9e763cb0ff516bb6b7b617935917eddea5a655b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:21:52.129761+00:00",
+    "work": "/home/jing/m6-lean-euclid-storage-formalization/.humanize-formal-runs/run-s9pvlixl",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "67a9c53c9108d7efd8d95ad730b032c7c9ad2daa6030b2a4450e298b7ed96839",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-euclid-storage-formalization/.humanize-formal-runs/run-s9pvlixl/attempt-001/Candidate_235ed4cf13603362.lean",
+    "environment_sha256": "b1ee56f95d2afab4447f9a7efc58cf899912cf0f44ad7076bd8ca1f86b086051",
+    "artifacts": {
+      "control_encoding": {
+        "payload": {
+          "declaration": "theorem M6.EuclidStorage.control_encoding : ∀ (width v : ℕ), v ≤ 32*width → v < 2 ^ (M6.EuclidStorage.registerBits width) := by\n  change ∀ (width v : ℕ), v ≤ 32 * width → v < 2 ^ (M6.EuclidStorage.registerBits width)\n  intro width v hv\n  have h : width < 2 ^ width := Nat.lt_two_pow_self\n  change v < 2 ^ (width + 5)\n  rw [pow_add]\n  norm_num\n  omega",
+          "imports": [
+            "M6EuclidAccepted",
+            "M6EuclidStorage"
+          ],
+          "name": "M6.EuclidStorage.control_encoding",
+          "ancestors": [],
+          "spec_sha256": "e83283878c2b9fff780ba9169cbbcfa72ee703ecb6b8bab7f51ecb7ed52ef210"
+        },
+        "sha256": "8e337ba0ff5cf2f749f3c74c1738fa4ec6981eb380255e1de0b02d10ea90341a"
+      },
+      "control_values_fit": {
+        "payload": {
+          "declaration": "theorem M6.EuclidStorage.control_values_fit : ∀ (width : ℕ) (s : M6.EuclidStorage.Slots) (fuel c e t : ℕ), M6.EuclidStorage.slotsFit width s → fuel ≤ 32*width → c ≤ 32*width → e ≤ 32*width → t ≤ 32*width → ∀ v ∈ M6.EuclidStorage.controlValues s fuel c e t, v < 2 ^ (M6.EuclidStorage.registerBits width) := by\n  change ∀ (width : ℕ) (s : M6.EuclidStorage.Slots) (fuel c e t : ℕ), M6.EuclidStorage.slotsFit width s → fuel ≤ 32 * width → c ≤ 32 * width → e ≤ 32 * width → t ≤ 32 * width → ∀ v ∈ M6.EuclidStorage.controlValues s fuel c e t, v < 2 ^ M6.EuclidStorage.registerBits width\n  intro width s fuel c e t hs hf hc he ht v hv\n  apply M6.EuclidStorage.control_encoding width v\n  simp only [M6.EuclidStorage.slotsFit, M6.Euclid.rank] at hs\n  simp only [M6.EuclidStorage.controlValues, List.mem_cons, List.mem_singleton, List.not_mem_nil, or_false, M6.Euclid.rank] at hv\n  split_ifs at hs hv <;> simp_all <;> omega",
+          "imports": [
+            "M6EuclidAccepted",
+            "M6EuclidStorage"
+          ],
+          "name": "M6.EuclidStorage.control_values_fit",
+          "ancestors": [
+            "control_encoding"
+          ],
+          "spec_sha256": "4b257d0020abfada16f246eb1130e11f3c7b1a788e71374a8a6322db8dd9b448"
+        },
+        "sha256": "5ab4d6227669e21957b685a8dde8588d08d6494d082bb06ea6d0e987ac6e5cc4"
+      }
+    }
+  }
+}

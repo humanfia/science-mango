@@ -1,0 +1,265 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.ParametersCorrect M6.Final.Admissible definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 271076,
+        "name": "ADEInequality.admissible_E6",
+        "module": "Mathlib.NumberTheory.ADEInequality",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ADEInequality.lean#L133-L134",
+        "source_text": "theorem admissible_E6 : Admissible E6 :=\n  admissible_E'3\n",
+        "docstring": null
+      },
+      {
+        "id": 156754,
+        "name": "Monotone.final_functor_iff",
+        "module": "Mathlib.CategoryTheory.Filtered.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Filtered/Final.lean#L478-L492",
+        "source_text": "lemma Monotone.final_functor_iff {J₁ J₂ : Type*} [Preorder J₁] [Preorder J₂]\n    [IsDirectedOrder J₁] {f : J₁ → J₂} (hf : Monotone f) :\n    hf.functor.Final ↔ ∀ (j₂ : J₂), ∃ (j₁ : J₁), j₂ ≤ f j₁ := by\n  rw [Functor.final_iff_of_isFiltered]\n  constructor\n  · rintro ⟨h, _⟩ j₂\n    obtain ⟨j₁, ⟨φ⟩⟩ := h j₂\n    exact ⟨j₁, leOfHom φ⟩\n  · intro h\n    constructor\n    · intro j₂\n      obtain ⟨j₁, h₁⟩ := h j₂\n      exact ⟨j₁, ⟨homOfLE h₁⟩⟩\n    · intro _ c _ _\n      exact ⟨c, 𝟙 _, rfl⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 161407,
+        "name": "CategoryTheory.FinalModel",
+        "module": "Mathlib.CategoryTheory.Limits.FinallySmall",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/FinallySmall.lean#L52-L54",
+        "source_text": "/-- An arbitrarily chosen small model for a finally small category. -/\ndef FinalModel [FinallySmall.{w} J] : Type w :=\n  Classical.choose (@FinallySmall.final_smallCategory J _ _)\n",
+        "docstring": "An arbitrarily chosen small model for a finally small category. "
+      },
+      {
+        "id": 156748,
+        "name": "CategoryTheory.final_eval",
+        "module": "Mathlib.CategoryTheory.Filtered.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Filtered/Final.lean#L428-L438",
+        "source_text": "instance final_eval [∀ s, IsFiltered (I s)] (s : α) : (Pi.eval I s).Final := by\n  classical\n  apply Functor.final_of_exists_of_isFiltered\n  · exact fun i => ⟨Function.update (fun t => nonempty.some) s i, ⟨by simpa using 𝟙 _⟩⟩\n  · intro d c f g\n    let c't : (∀ s, (c' : I s) × (c s ⟶ c')) := Function.update (fun t => ⟨c t, 𝟙 (c t)⟩)\n      s ⟨coeq f g, coeqHom f g⟩\n    refine ⟨fun t => (c't t).1, fun t => (c't t).2, ?_⟩\n    dsimp only [Pi.eval_obj, Pi.eval_map, c't]\n    rw [Function.update_self]\n    simpa using coeq_condition _ _\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.ParametersCorrect M6.Final.Admissible definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394399,
+        "name": "IsDimensionallyCorrect",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+        "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+        "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+      },
+      {
+        "id": 394400,
+        "name": "isDimensionallyCorrect_iff",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L421-L423",
+        "source_text": "lemma isDimensionallyCorrect_iff {M : Type} [UnitDependent M] (m : M) :\n    IsDimensionallyCorrect m ↔ ∀ u1 u2 : UnitChoices,\n      scaleUnit u1 u2 m = m := by rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 387838,
+        "name": "SM.SMNoGrav.One.linearParameters",
+        "module": "Physlib.Particles.StandardModel.AnomalyCancellation.NoGrav.One.LinearParameterization",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/NoGrav/One/LinearParameterization.lean#L31-L38",
+        "source_text": "/-- The parameters for a linear parameterization to the solution of the linear ACCs. -/\nstructure linearParameters where\n  /-- The parameter `Q'`. -/\n  Q' : ℚ\n  /-- The parameter `Y`. -/\n  Y : ℚ\n  /-- The parameter `E'`. -/\n  E' : ℚ\n",
+        "docstring": "The parameters for a linear parameterization to the solution of the linear ACCs. "
+      },
+      {
+        "id": 393839,
+        "name": "CanonicalEnsemble.instIsFiniteMeasureμOfIsFinite",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L147-L149",
+        "source_text": "instance [IsFinite 𝓒] : IsFiniteMeasure (𝓒.μ) := by\n  rw [IsFinite.μ_eq_count]\n  infer_instance\n",
+        "docstring": null
+      },
+      {
+        "id": 387478,
+        "name": "TwoHiggsDoublet.PotentialParameters.zero_m₁₁2",
+        "module": "Physlib.Particles.BeyondTheStandardModel.TwoHDM.Potential",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/TwoHDM/Potential.lean#L122-L122",
+        "source_text": "@[simp] lemma zero_m₁₁2 : (0 : PotentialParameters).m₁₁2 = 0 := rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualCounts cardinality encoded_dimension degree bounds",
+    "status": "ok",
+    "results": [
+      {
+        "id": 244935,
+        "name": "rank_le_card",
+        "module": "Mathlib.LinearAlgebra.Dimension.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dimension/Basic.lean#L71-L72",
+        "source_text": "theorem rank_le_card : Module.rank R M ≤ #M :=\n  (Module.rank_def _ _).trans_le (ciSup_le' fun _ ↦ mk_set_le _)\n",
+        "docstring": null
+      },
+      {
+        "id": 279648,
+        "name": "upperBounds",
+        "module": "Mathlib.Order.Bounds.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L32-L35",
+        "source_text": "/-- The set of upper bounds of a set. -/\n@[to_dual /-- The set of lower bounds of a set. -/]\ndef upperBounds (s : Set α) : Set α :=\n  { x | ∀ ⦃a⦄, a ∈ s → a ≤ x }\n",
+        "docstring": "The set of upper bounds of a set. "
+      },
+      {
+        "id": 319337,
+        "name": "ChevalleyThm.degBound",
+        "module": "Mathlib.RingTheory.Spectrum.Prime.ChevalleyComplexity",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Spectrum/Prime/ChevalleyComplexity.lean#L790-L793",
+        "source_text": "/-- The bound on the degree of the polynomials used to describe the constructible set appearing in\nChevalley's theorem with complexity bound. -/\ndef degBound (k m n : ℕ) (d : Multiset (Fin m)) : ℕ :=\n  MvPolynomialC.degBound (k + n) (1 + (d.map Fin.val).count ·) m\n",
+        "docstring": "The bound on the degree of the polynomials used to describe the constructible set appearing in\nChevalley's theorem with complexity bound. "
+      },
+      {
+        "id": 279649,
+        "name": "lowerBounds",
+        "module": "Mathlib.Order.Bounds.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L33-L33",
+        "source_text": "@[to_dual /-- The set of lower bounds of a set. -/]\ndef upperBounds (s : Set α) : Set α :=",
+        "docstring": "The set of lower bounds of a set. "
+      },
+      {
+        "id": 320481,
+        "name": "Associates.eq_of_eq_counts",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L291-L293",
+        "source_text": "theorem eq_of_eq_counts {a b : Associates α} (ha : a ≠ 0) (hb : b ≠ 0)\n    (h : ∀ p : Associates α, Irreducible p → p.count a.factors = p.count b.factors) : a = b :=\n  eq_of_factors_eq_factors (eq_factors_of_eq_counts ha hb h)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualCounts cardinality encoded_dimension degree bounds",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394280,
+        "name": "dim",
+        "module": "Physlib.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Basic.lean#L284-L284",
+        "source_text": "alias dim := HasDim.d\n",
+        "docstring": "**Alias** of `HasDim.d`.\n\n---\n\nThe dimension associated with a type `M`. "
+      },
+      {
+        "id": 394292,
+        "name": "Dimension",
+        "module": "Physlib.Units.Dimension",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Dimension.lean#L28-L40",
+        "source_text": "/-- The foundational dimensions.\n  Defined in the order ⟨length, time, mass, charge, temperature⟩ -/\nstructure Dimension where\n  /-- The length dimension. -/\n  length : ℚ\n  /-- The time dimension. -/\n  time : ℚ\n  /-- The mass dimension. -/\n  mass : ℚ\n  /-- The charge dimension. -/\n  charge : ℚ\n  /-- The temperature dimension. -/\n  temperature : ℚ\n",
+        "docstring": "The foundational dimensions.\nDefined in the order ⟨length, time, mass, charge, temperature⟩ "
+      },
+      {
+        "id": 394429,
+        "name": "WithDim.dim_apply",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L37-L39",
+        "source_text": "@[simp]\nlemma dim_apply (d : Dimension) (M : Type) :\n    dim (WithDim d M) = d := rfl",
+        "docstring": null
+      },
+      {
+        "id": 394281,
+        "name": "CarriesDimension",
+        "module": "Physlib.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Basic.lean#L286-L288",
+        "source_text": "/-- A type `M` carries a dimension `d` if every element of `M` is supposed to have\n  this dimension. For example, the type `Time` will carry a dimension `T𝓭`. -/\nclass abbrev CarriesDimension (M : Type) := HasDim M, MulAction ℝ≥0 M\n",
+        "docstring": "A type `M` carries a dimension `d` if every element of `M` is supposed to have\nthis dimension. For example, the type `Time` will carry a dimension `T𝓭`. "
+      },
+      {
+        "id": 394279,
+        "name": "HasDim",
+        "module": "Physlib.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Basic.lean#L278-L282",
+        "source_text": "/-- This typeclass indicates that there is a dimension `dim M : Dimension`\n  associated with the type `M`. -/\nclass HasDim (M : Type) where\n  /-- The dimension associated with a type `M`. -/\n  d : Dimension\n",
+        "docstring": "This typeclass indicates that there is a dimension `dim M : Dimension`\nassociated with the type `M`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "f_le_order logicals_nonempty_iff",
+    "status": "ok",
+    "results": [
+      {
+        "id": 270681,
+        "name": "FirstOrder.Language.ElementarilyEquivalent.nonempty",
+        "module": "Mathlib.ModelTheory.Semantics",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Semantics.lean#L1141-L1142",
+        "source_text": "theorem nonempty [Mn : Nonempty M] (h : M ≅[L] N) : Nonempty N :=\n  h.nonempty_iff.1 Mn\n",
+        "docstring": null
+      },
+      {
+        "id": 292559,
+        "name": "PartialOrder.NonemptyFiniteChains.le_iff",
+        "module": "Mathlib.Order.NonemptyFiniteChains",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/NonemptyFiniteChains.lean#L48-L49",
+        "source_text": "@[simp]\nlemma le_iff (A B : NonemptyFiniteChains X) : A ≤ B ↔ A.finset ≤ B.finset := Iff.rfl",
+        "docstring": null
+      },
+      {
+        "id": 288320,
+        "name": "Order.Ideal.nonempty",
+        "module": "Mathlib.Order.Ideal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Ideal.lean#L133-L134",
+        "source_text": "protected theorem nonempty (s : Ideal P) : (s : Set P).Nonempty :=\n  s.nonempty'\n",
+        "docstring": null
+      },
+      {
+        "id": 292941,
+        "name": "Order.PFilter.nonempty",
+        "module": "Mathlib.Order.PFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/PFilter.lean#L81-L81",
+        "source_text": "protected theorem nonempty : (F : Set P).Nonempty := F.dual.nonempty\n",
+        "docstring": null
+      },
+      {
+        "id": 256720,
+        "name": "Nonempty.imp",
+        "module": "Mathlib.Logic.Nonempty",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Nonempty.lean#L43-L44",
+        "source_text": "theorem Nonempty.imp {α} {p : Prop} : (Nonempty α → p) ↔ (α → p) :=\n  Nonempty.forall\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "f_le_order logicals_nonempty_iff",
+    "status": "unavailable",
+    "error": "LeanExplore Physlib: HTTP 500",
+    "results": []
+  }
+]

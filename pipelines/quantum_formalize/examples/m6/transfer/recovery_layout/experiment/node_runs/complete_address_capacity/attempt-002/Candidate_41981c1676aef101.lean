@@ -1,0 +1,27 @@
+import FrozenTarget_41981c1676aef101
+theorem M6.Transfer.complete_address_capacity : QuantumHarnessFrozenTarget := by
+  change ∀ R N slots : ℕ, R < N → slots ≤ 512 * (N + 1)^2 → M6.Transfer.solveStorage R N slots < 2^(M6.Transfer.actualAddressBits R N)
+  intro R N slots hRN hslots
+  have hNat : ∀ n : ℕ, n ≤ 2^n := by
+    intro n
+    induction n with
+    | zero => norm_num
+    | succ n ih =>
+      have hp : 0 < (2 : ℕ)^n := by positivity
+      rw [pow_succ]
+      omega
+  have hsq : N^2 ≤ ((2 : ℕ)^N)^2 := Nat.pow_le_pow_left (hNat N) 2
+  have hbound := M6.Transfer.solve_storage_bound R N slots hRN hslots
+  change M6.Transfer.solveStorage R N slots < 2^(R + 4*N + 16)
+  calc
+    M6.Transfer.solveStorage R N slots ≤ 16384 * N^2 * 2^R := hbound
+    _ ≤ 16384 * ((2 : ℕ)^N)^2 * 2^R :=
+      Nat.mul_le_mul_right (2^R) (Nat.mul_le_mul_left 16384 hsq)
+    _ = 2^(R + (N + N) + 14) := by
+      simp only [pow_add, pow_two]
+      norm_num
+      ring
+    _ < 2^(R + 4*N + 16) := by
+      apply Nat.pow_lt_pow_right
+      · norm_num
+      · omega

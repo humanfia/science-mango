@@ -1,0 +1,331 @@
+{
+  "title": "M6 Euclid fixed-slot tail simulation and actual storage",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Original Euclidean preprocessing refined to tail-recursive four polynomial slots with bounded control words; actual all-state safety and storage≤512(N+1)^2, independently of cubic time.",
+  "nodes": [
+    {
+      "id": "rem_loop_refines",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.EuclidStorage.rem_loop_refines",
+        "statement": "∀ (fuel : ℕ) (s : M6.EuclidStorage.Slots) (c t : ℕ), let r := M6.EuclidStorage.remLoop fuel s c t; r.slots.p = s.p ∧ r.slots.q = s.q ∧ r.slots.saved = s.saved ∧ r.slots.work = (M6.Euclid.remainderAux fuel s.work s.q).value ∧ r.cancellations = c + (M6.Euclid.remainderAux fuel s.work s.q).cancellations ∧ r.rounds = 0 ∧ r.passes = t + (M6.Euclid.remainderAux fuel s.work s.q).passes",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel generalizing s c t. The actual tail call increments its accumulators before overwriting only work. Split the common remainder stopping guard, instantiate induction with updated slot record, and combine its projection equalities by arithmetic. Keep source algorithm intact. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "gcd_loop_refines",
+      "dependencies": [
+        "rem_loop_refines"
+      ],
+      "spec": {
+        "name": "M6.EuclidStorage.gcd_loop_refines",
+        "statement": "∀ (fuel : ℕ) (s : M6.EuclidStorage.Slots) (c e t : ℕ), s.work = 0 → let r := M6.EuclidStorage.gcdLoop fuel s c e t; r.slots.saved = s.saved ∧ r.slots.work = 0 ∧ M6.EuclidStorage.toRun r = M6.EuclidStorage.offset (M6.Euclid.euclidAux fuel s.p s.q) c e t",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel generalizing s and accumulators. q0 and fuel0 return directly. In the other branch apply rem_loop_refines at rank s.p to slots(0,q,p,saved), with c0,t1, matching the complete remainder call. Its q and saved slots are preserved. Apply induction to slots(q,remainder,0,saved), then normalize offset counters. Equality of Run records follows their four field equalities (cases/ext), not an oracle assumption. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "gcd_start_refines",
+      "dependencies": [
+        "gcd_loop_refines"
+      ],
+      "spec": {
+        "name": "M6.EuclidStorage.gcd_start_refines",
+        "statement": "∀ (p q saved : M6.Euclid.BP) (c e t : ℕ), let r := M6.EuclidStorage.gcdStart p q saved c e t; r.slots.saved = saved ∧ r.slots.work = 0 ∧ M6.EuclidStorage.toRun r = M6.EuclidStorage.offset (M6.Euclid.euclid p q) c e t",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Instantiate gcd_loop_refines at rankq+1 with slots(p,q,0,saved), initial passes t+1. Unfold only gcdStart, euclid and offset as needed. The initial fuel degree scan is included in both counters. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "preprocess_refines",
+      "dependencies": [
+        "gcd_start_refines"
+      ],
+      "spec": {
+        "name": "M6.EuclidStorage.preprocess_refines",
+        "statement": "∀ a b M : M6.Euclid.BP, M6.EuclidStorage.toRun (M6.EuclidStorage.preprocess a b M) = M6.Euclid.preprocess a b M",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Use gcd_start_refines twice. First start has zero accumulators and preserves saved=M; extract its p/value and all counters from toRun equality. Second start reuses the same slots with p=first result,q=M,saved0 and initial accumulators from first run. Match the original shared two-call preprocessing record by fields. No recursive array-frame storage is used in this tail-machine algorithm. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "rem_loop_safe",
+      "dependencies": [
+        "rem_loop_refines"
+      ],
+      "spec": {
+        "name": "M6.EuclidStorage.rem_loop_safe",
+        "statement": "∀ (fuel : ℕ) (s : M6.EuclidStorage.Slots) (c t width : ℕ), 0 < width → M6.EuclidStorage.slotsFit width s → fuel ≤ 32*width → c + (M6.Euclid.remainderAux fuel s.work s.q).cancellations ≤ 32*width → t + (M6.Euclid.remainderAux fuel s.work s.q).passes ≤ 32*width → M6.EuclidStorage.remSafe fuel s c t width",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel with s/c/t generalized. The supplied remaining-run budgets bound all current and terminal counters. In a cancellation branch, accepted Euclid.cancel_drop preserves work width; unfold one remainderAux step in the budgets to obtain the recursive c+1,t+2 budgets. The other three polynomial slots remain unchanged. No final-budget assumption remains in the actual preprocess theorem. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "gcd_loop_safe",
+      "dependencies": [
+        "rem_loop_safe",
+        "rem_loop_refines"
+      ],
+      "spec": {
+        "name": "M6.EuclidStorage.gcd_loop_safe",
+        "statement": "∀ (fuel : ℕ) (s : M6.EuclidStorage.Slots) (c e t width : ℕ), 0 < width → M6.EuclidStorage.slotsFit width s → s.work = 0 → fuel ≤ 32*width → c + (M6.Euclid.euclidAux fuel s.p s.q).cancellations ≤ 32*width → e + (M6.Euclid.euclidAux fuel s.p s.q).rounds ≤ 32*width → t + (M6.Euclid.euclidAux fuel s.p s.q).passes ≤ 32*width → M6.EuclidStorage.gcdSafe fuel s c e t width",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel generalizing slots and accumulators. For nonzeroq, use accepted remainder_aux_correct/remainder_passes at rankp to bound the inner local counters by rankp and2rankp+2≤32width; prove its remSafe via rem_loop_safe. rem_loop_refines identifies its preserved q/saved and actual remainder value/counters. remainder_correct preserves width. Unfold one euclidAux step in remaining budgets, rewrite inner result fields, and apply induction at the tail state. The fixed layout retains M and overwrites work. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "gcd_start_safe",
+      "dependencies": [
+        "gcd_loop_safe"
+      ],
+      "spec": {
+        "name": "M6.EuclidStorage.gcd_start_safe",
+        "statement": "∀ (p q saved : M6.Euclid.BP) (c e t width : ℕ), 0 < width → M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.rank saved ≤ width → c + (M6.Euclid.euclid p q).cancellations ≤ 32*width → e + (M6.Euclid.euclid p q).rounds ≤ 32*width → t + (M6.Euclid.euclid p q).passes ≤ 32*width → M6.EuclidStorage.gcdSafe (M6.Euclid.rank q+1) ⟨p,q,0,saved⟩ c e (t+1) width",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Apply gcd_loop_safe. rankq+1≤width+1≤32width since width positive; rankzero=0. Unfold euclid in the budget equalities to account for its extra initial pass. This reusable helper is instantiated without budget premises in preprocess_safe. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "preprocess_safe",
+      "dependencies": [
+        "gcd_start_safe",
+        "gcd_start_refines"
+      ],
+      "spec": {
+        "name": "M6.EuclidStorage.preprocess_safe",
+        "statement": "∀ (N : ℕ) (a b M : M6.Euclid.BP), a.natDegree ≤ N → b.natDegree ≤ N → M.natDegree ≤ N → M6.EuclidStorage.preprocessSafe (N+1) a b M",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Set width=N+1>0; rank of each input≤width. For any p,q of such width, accepted euclid_correct and euclid_passes bound cancellations≤2width,rounds≤width,passes≤7width+2≤9width. First gcd_start_safe has zero accumulators. gcd_start_refines preserves M and identifies first output/counters; euclid_output_width bounds its result rank≤width. Second run starts with those first counters, so total budgets are≤4width,2width,18width, all≤32width. Apply gcd_start_safe again. This proves capacity for every actual recursive configuration of both calls. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "slots_encoding",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.EuclidStorage.slots_encoding",
+        "statement": "∀ (N : ℕ) (s u : M6.EuclidStorage.Slots), M6.EuclidStorage.slotsFit (N+1) s → M6.EuclidStorage.slotsFit (N+1) u → M6.Euclid.dense N s.p = M6.Euclid.dense N u.p → M6.Euclid.dense N s.q = M6.Euclid.dense N u.q → M6.Euclid.dense N s.work = M6.Euclid.dense N u.work → M6.Euclid.dense N s.saved = M6.Euclid.dense N u.saved → s = u",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Apply accepted Euclid.dense_injective separately to each slot using slotsFit bounds, then prove the Slots records equal by their fields. Four binary arrays thus faithfully encode the complete polynomial store, including retained M. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "control_encoding",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.EuclidStorage.control_encoding",
+        "statement": "∀ (width v : ℕ), v ≤ 32*width → v < 2 ^ (M6.EuclidStorage.registerBits width)",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Nat.lt_two_pow_self width gives width<2^width. Multiply by32 and use pow_add with2^5=32 to obtain32width<2^(width+5); registerBits is preciselywidth+5. This is a proven finite encoding capacity, not an unbounded Nat register assumption. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "control_values_fit",
+      "dependencies": [
+        "control_encoding"
+      ],
+      "spec": {
+        "name": "M6.EuclidStorage.control_values_fit",
+        "statement": "∀ (width : ℕ) (s : M6.EuclidStorage.Slots) (fuel c e t : ℕ), M6.EuclidStorage.slotsFit width s → fuel ≤ 32*width → c ≤ 32*width → e ≤ 32*width → t ≤ 32*width → ∀ v ∈ M6.EuclidStorage.controlValues s fuel c e t, v < 2 ^ (M6.EuclidStorage.registerBits width)",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Each listed control value is≤32width. Slot ranks≤width; natDegree p≤rankp includingp0, so shifted-XOR offset also≤width. Expand finite-list membership and apply control_encoding. Loop indices/addresses lie in the fixed width range and phase/carry use one bit, accommodated by the reserved sixteen control words. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "layout_bound",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.EuclidStorage.layout_bound",
+        "statement": "∀ N : ℕ, M6.EuclidStorage.polynomialSlots.length = 4 ∧ M6.EuclidStorage.controlSlots.length = 16 ∧ M6.EuclidStorage.actualPreprocessStorage N ≤ 512*(N+1)^2",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Reduce the two concrete register-layout lists and registerBits. Storage is4width+16(width+5), withwidth=N+1≥1. Derive the loose quadratic bound by elementary natural arithmetic; the512 coefficient is a bound proved after allocation, not its definition. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "preprocess_storage",
+      "dependencies": [
+        "preprocess_refines",
+        "preprocess_safe",
+        "slots_encoding",
+        "control_values_fit",
+        "layout_bound"
+      ],
+      "spec": {
+        "name": "M6.EuclidStorage.preprocess_storage",
+        "statement": "∀ (N : ℕ) (a b M : M6.Euclid.BP), a.natDegree ≤ N → b.natDegree ≤ N → M.natDegree ≤ N → M6.EuclidStorage.toRun (M6.EuclidStorage.preprocess a b M) = M6.Euclid.preprocess a b M ∧ M6.EuclidStorage.preprocessSafe (N+1) a b M ∧ M6.EuclidStorage.actualPreprocessStorage N ≤ 512*(N+1)^2",
+        "imports": [
+          "M6EuclidStorage",
+          "M6EuclidAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Combine the actual tail-slot simulation, full two-call configuration/counter safety, and proved concrete layout bound. The dependencies additionally establish faithful dense slot and finite control-word encoding. Only original polynomial degree bounds remain; no free slots, storage or oracle-correctness premise. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original indexed-array preprocessing storage, with fixed-slot Euclidean implementation",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    }
+  ]
+}

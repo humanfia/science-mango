@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ R N slots : ℕ, R < N → slots ≤ 512*(N+1)^2 → M6.Transfer.solveStorage R N slots < 2^(M6.Transfer.actualAddressBits R N)\nintro R N slots hRN hslots\nhave hexp : ∀ n : ℕ, n + 1 ≤ 2^n := by\n  intro n\n  induction n with\n  | zero => norm_num\n  | succ n ih =>\n    rw [pow_succ]\n    omega\nhave hN : N ≤ 2^N := by\n  have := hexp N\n  omega\napply lt_of_le_of_lt (M6.Transfer.solve_storage_bound R N slots hRN hslots)\nchange 16384*N^2*2^R < 2^(R+4*N+16)\ncalc\n  16384*N^2*2^R ≤ 16384*(2^N)^2*2^R := by\n    gcongr\n  _ = 2^(14+N*2+R) := by\n    simp only [pow_add, pow_mul]\n    norm_num\n  _ < 2^(R+4*N+16) := by\n    gcongr <;> omega",
+  "queries": []
+}

@@ -1,0 +1,8 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro fuel\ninduction fuel with\n| zero =>\n    intro s c t width hw hs hf hc ht\n    simp only [M6.Euclid.remainderAux] at hc ht\n    simp only [M6.EuclidStorage.remSafe]\n    repeat' constructor <;> first | assumption | omega\n| succ fuel ih =>\n    intro s c t width hw hs hf hc ht\n    simp only [M6.EuclidStorage.remSafe]\n    split\n    all_goals\n      simp_all only [M6.Euclid.remainderAux, ↓reduceIte]\n      first\n      | solve | repeat' constructor <;> first | assumption | omega\n      | skip\n    all_goals\n      have hd : M6.Euclid.rank (M6.Euclid.cancel s.work s.q) <\n          M6.Euclid.rank s.work := by\n        apply M6.Euclid.cancel_drop\n        · tauto\n        · tauto\n        · first | tauto | exact le_of_not_gt (by tauto)\n      have hs' : M6.EuclidStorage.slotsFit width\n          { s with work := M6.Euclid.cancel s.work s.q } := by\n        simp only [M6.EuclidStorage.slotsFit] at hs ⊢\n        repeat' constructor <;> omega\n      have hr := ih { s with work := M6.Euclid.cancel s.work s.q }\n        (c + 1) (t + 2) width hw hs' (by omega) (by simpa [Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using hc)\n        (by simpa [Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using ht)\n      repeat' constructor <;> first | assumption | omega",
+  "queries": [
+    "M6.EuclidStorage.remSafe definition",
+    "M6.EuclidStorage.slotsFit definition",
+    "M6.Euclid.remainderAux definition"
+  ]
+}

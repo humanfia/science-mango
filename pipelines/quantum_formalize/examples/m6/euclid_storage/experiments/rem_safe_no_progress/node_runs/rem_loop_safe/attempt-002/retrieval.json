@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.EuclidStorage.remSafe definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 277366,
+        "name": "BoundingSieve.rem",
+        "module": "Mathlib.NumberTheory.SelbergSieve",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/SelbergSieve.lean#L165-L168",
+        "source_text": "/-- The remainder term in the approximation A_d = ν (d) X + R_d. This is the degree to which `nu`\n  fails to approximate the proportion of the weight that is a multiple of `d`. -/\n@[simp]\ndef rem (d : ℕ) : ℝ := s.multSum d - s.nu d * s.totalMass\n",
+        "docstring": "The remainder term in the approximation A_d = ν (d) X + R_d. This is the degree to which `nu`\nfails to approximate the proportion of the weight that is a multiple of `d`. "
+      },
+      {
+        "id": 200918,
+        "name": "Erased",
+        "module": "Mathlib.Data.Erased",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Erased.lean#L23-L28",
+        "source_text": "/-- `Erased α` is the same as `α`, except that the elements\n  of `Erased α` are erased in the VM in the same way as types\n  and proofs. This can be used to track data without storing it\n  literally. -/\ndef Erased (α : Sort u) : Sort max 1 u :=\n  { s : α → Prop // ∃ a, (a = ·) = s }\n",
+        "docstring": "`Erased α` is the same as `α`, except that the elements\nof `Erased α` are erased in the VM in the same way as types\nand proofs. This can be used to track data without storing it\nliterally. "
+      },
+      {
+        "id": 97415,
+        "name": "HahnEmbedding.Partial.eval",
+        "module": "Mathlib.Algebra.Order.Module.HahnEmbedding",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Module/HahnEmbedding.lean#L556-L561",
+        "source_text": "/-- Promote `HahnEmbedding.Partial.evalCoeff`'s output to a new `HahnSeries`. -/\nnoncomputable\ndef eval [IsOrderedAddMonoid R] [Archimedean R] (x : M) :\n    Lex R⟦FiniteArchimedeanClass M⟧ :=\n  toLex { coeff := f.evalCoeff x\n          isPWO_support' := (f.isWF_support_evalCoeff x).isPWO }\n",
+        "docstring": "Promote `HahnEmbedding.Partial.evalCoeff`'s output to a new `HahnSeries`. "
+      },
+      {
+        "id": 308958,
+        "name": "HahnSeries.embDomain",
+        "module": "Mathlib.RingTheory.HahnSeries.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L439-L445",
+        "source_text": "/-- Extends the domain of a `HahnSeries` by an `OrderEmbedding`. -/\ndef embDomain (f : Γ ↪o Γ') : R⟦Γ⟧ → R⟦Γ'⟧ := fun x =>\n  { coeff := fun b : Γ' => if h : b ∈ f '' x.support then x.coeff (Classical.choose h) else 0\n    isPWO_support' :=\n      (x.isPWO_support.image_of_monotone f.monotone).mono fun b hb => by\n        contrapose hb\n        rw [Function.mem_support, dif_neg hb, Classical.not_not] }\n",
+        "docstring": "Extends the domain of a `HahnSeries` by an `OrderEmbedding`. "
+      },
+      {
+        "id": 308809,
+        "name": "HahnSeries.addOppositeEquiv",
+        "module": "Mathlib.RingTheory.HahnSeries.Addition",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Addition.lean#L132-L148",
+        "source_text": "/--\n`addOppositeEquiv` is an additive monoid isomorphism between\nHahn series over `Γ` with coefficients in the opposite additive monoid `Rᵃᵒᵖ`\nand the additive opposite of Hahn series over `Γ` with coefficients `R`.\n-/\n@[simps -isSimp]\ndef addOppositeEquiv : Rᵃᵒᵖ⟦Γ⟧ ≃+ R⟦Γ⟧ᵃᵒᵖ where\n  toFun x := .op ⟨fun a ↦ (x.coeff a).unop, by convert! x.isPWO_support; ext; simp⟩\n  invFun x := ⟨fun a ↦ .op (x.unop.coeff a), by convert! x.unop.isPWO_support; ext; simp⟩\n  left_inv x := by simp\n  right_inv x := by\n    apply AddOpposite.unop_injective\n    simp\n  map_add' x y := by\n    apply AddOpposite.unop_injective\n    ext\n    simp\n",
+        "docstring": "`addOppositeEquiv` is an additive monoid isomorphism between\nHahn series over `Γ` with coefficients in the opposite additive monoid `Rᵃᵒᵖ`\nand the additive opposite of Hahn series over `Γ` with coefficients `R`.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.EuclidStorage.remSafe definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393544,
+        "name": "Time.differentiable_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L220-L224",
+        "source_text": "lemma differentiable_euclid {f : Time → EuclideanSpace ℝ (Fin n)}\n    (hf : ∀ i, Differentiable ℝ (fun t => f t i)) :\n    Differentiable ℝ f := by\n  rw [differentiable_euclidean]\n  fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 393545,
+        "name": "Time.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L226-L236",
+        "source_text": "lemma deriv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t : Time) :\n    deriv (fun t => f t μ) t = deriv (fun t => f t) t μ := by\n  rw [deriv_eq]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t 1 = _\n  rw [fderiv_comp]\n  · simp only [ContinuousLinearMap.fderiv, ContinuousLinearMap.coe_comp, Function.comp_apply,\n    PiLp.proj_apply]\n    rw [← deriv_eq]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 393546,
+        "name": "Time.fderiv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L238-L245",
+        "source_text": "lemma fderiv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t dt : Time) :\n    fderiv ℝ (fun t => f t μ) t dt = fderiv ℝ (fun t => f t) t dt μ := by\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t dt = _\n  rw [fderiv_comp]\n  · simp [-EuclideanSpace.coe_proj]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392056,
+        "name": "euclidLeviCivita",
+        "module": "Physlib.Relativity.Tensors.LeviCivita.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/LeviCivita/Basic.lean#L81-L83",
+        "source_text": "/-- The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. -/\ndef _root_.euclidLeviCivita (g : Fin 4 → Fin 4) : ℝ :=\n  generalizedKroneckerDelta g (id : Fin 4 → Fin 4)\n",
+        "docstring": "The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.EuclidStorage.slotsFit definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 215411,
+        "name": "PNat.XgcdType.instSizeOf",
+        "module": "Mathlib.Data.PNat.Xgcd",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Xgcd.lean#L68-L69",
+        "source_text": "instance : SizeOf XgcdType :=\n  ⟨fun u => u.bp⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 195529,
+        "name": "DiscreteTiling.PlacedTile.instMembership",
+        "module": "Mathlib.Combinatorics.Tiling.Tile",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Tiling/Tile.lean#L206-L207",
+        "source_text": "instance : Membership X (PlacedTile ps) where\n  mem p x := x ∈ (p : Set X)\n",
+        "docstring": null
+      },
+      {
+        "id": 97415,
+        "name": "HahnEmbedding.Partial.eval",
+        "module": "Mathlib.Algebra.Order.Module.HahnEmbedding",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Module/HahnEmbedding.lean#L556-L561",
+        "source_text": "/-- Promote `HahnEmbedding.Partial.evalCoeff`'s output to a new `HahnSeries`. -/\nnoncomputable\ndef eval [IsOrderedAddMonoid R] [Archimedean R] (x : M) :\n    Lex R⟦FiniteArchimedeanClass M⟧ :=\n  toLex { coeff := f.evalCoeff x\n          isPWO_support' := (f.isWF_support_evalCoeff x).isPWO }\n",
+        "docstring": "Promote `HahnEmbedding.Partial.evalCoeff`'s output to a new `HahnSeries`. "
+      },
+      {
+        "id": 308958,
+        "name": "HahnSeries.embDomain",
+        "module": "Mathlib.RingTheory.HahnSeries.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L439-L445",
+        "source_text": "/-- Extends the domain of a `HahnSeries` by an `OrderEmbedding`. -/\ndef embDomain (f : Γ ↪o Γ') : R⟦Γ⟧ → R⟦Γ'⟧ := fun x =>\n  { coeff := fun b : Γ' => if h : b ∈ f '' x.support then x.coeff (Classical.choose h) else 0\n    isPWO_support' :=\n      (x.isPWO_support.image_of_monotone f.monotone).mono fun b hb => by\n        contrapose hb\n        rw [Function.mem_support, dif_neg hb, Classical.not_not] }\n",
+        "docstring": "Extends the domain of a `HahnSeries` by an `OrderEmbedding`. "
+      },
+      {
+        "id": 190142,
+        "name": "Matroid.closure_exchange_iff",
+        "module": "Mathlib.Combinatorics.Matroid.Closure",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Closure.lean#L772-L774",
+        "source_text": "lemma closure_exchange_iff :\n    e ∈ M.closure (insert f X) \\ M.closure X ↔ f ∈ M.closure (insert e X) \\ M.closure X :=\n  ⟨closure_exchange, closure_exchange⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.EuclidStorage.slotsFit definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392798,
+        "name": "Space.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Space.Derivatives.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Derivatives/Basic.lean#L268-L274",
+        "source_text": "lemma deriv_euclid {d ν μ} {f : Space d → EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (x : Space d) :\n    deriv ν (fun x => f x μ) x = deriv ν (fun x => f x) x μ := by\n  rw [deriv_eq_fderiv_basis]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) x (basis ν) = _\n  rw [fderiv_comp x (EuclideanSpace.proj μ).differentiableAt (hf x)]\n  simp [-EuclideanSpace.coe_proj, ← deriv_eq_fderiv_basis]\n",
+        "docstring": null
+      },
+      {
+        "id": 393544,
+        "name": "Time.differentiable_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L220-L224",
+        "source_text": "lemma differentiable_euclid {f : Time → EuclideanSpace ℝ (Fin n)}\n    (hf : ∀ i, Differentiable ℝ (fun t => f t i)) :\n    Differentiable ℝ f := by\n  rw [differentiable_euclidean]\n  fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 393545,
+        "name": "Time.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L226-L236",
+        "source_text": "lemma deriv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t : Time) :\n    deriv (fun t => f t μ) t = deriv (fun t => f t) t μ := by\n  rw [deriv_eq]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t 1 = _\n  rw [fderiv_comp]\n  · simp only [ContinuousLinearMap.fderiv, ContinuousLinearMap.coe_comp, Function.comp_apply,\n    PiLp.proj_apply]\n    rw [← deriv_eq]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 393546,
+        "name": "Time.fderiv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L238-L245",
+        "source_text": "lemma fderiv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t dt : Time) :\n    fderiv ℝ (fun t => f t μ) t dt = fderiv ℝ (fun t => f t) t dt μ := by\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t dt = _\n  rw [fderiv_comp]\n  · simp [-EuclideanSpace.coe_proj]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392056,
+        "name": "euclidLeviCivita",
+        "module": "Physlib.Relativity.Tensors.LeviCivita.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/LeviCivita/Basic.lean#L81-L83",
+        "source_text": "/-- The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. -/\ndef _root_.euclidLeviCivita (g : Fin 4 → Fin 4) : ℝ :=\n  generalizedKroneckerDelta g (id : Fin 4 → Fin 4)\n",
+        "docstring": "The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Euclid.remainderAux definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 215227,
+        "name": "PNat.modDivAux",
+        "module": "Mathlib.Data.PNat.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Defs.lean#L166-L175",
+        "source_text": "/-- We define `m % k` and `m / k` in the same way as for `ℕ`\n  except that when `m = n * k` we take `m % k = k` and\n  `m / k = n - 1`.  This ensures that `m % k` is always positive\n  and `m = (m % k) + k * (m / k)` in all cases.  Later we\n  define a function `div_exact` which gives the usual `m / k`\n  in the case where `k` divides `m`.\n-/\ndef modDivAux : ℕ+ → ℕ → ℕ → ℕ+ × ℕ\n  | k, 0, q => ⟨k, q.pred⟩\n  | _, r + 1, q => ⟨⟨r + 1, Nat.succ_pos r⟩, q⟩\n",
+        "docstring": "We define `m % k` and `m / k` in the same way as for `ℕ`\nexcept that when `m = n * k` we take `m % k = k` and\n`m / k = n - 1`.  This ensures that `m % k` is always positive\nand `m = (m % k) + k * (m / k)` in all cases.  Later we\ndefine a function `div_exact` which gives the usual `m / k`\nin the case where `k` divides `m`.\n"
+      },
+      {
+        "id": 64649,
+        "name": "EuclideanDomain.mod_eq_sub_mul_div",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L44-L47",
+        "source_text": "theorem mod_eq_sub_mul_div {R : Type*} [EuclideanDomain R] (a b : R) : a % b = a - b * (a / b) :=\n  calc\n    a % b = b * (a / b) + a % b - b * (a / b) := (add_sub_cancel_left _ _).symm\n    _ = a - b * (a / b) := by rw [div_add_mod]\n",
+        "docstring": null
+      },
+      {
+        "id": 91987,
+        "name": "AbsoluteValue.IsEuclidean.sub_mod_lt",
+        "module": "Mathlib.Algebra.Order.AbsoluteValue.Euclidean",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/AbsoluteValue/Euclidean.lean#L55-L56",
+        "source_text": "theorem sub_mod_lt (h : abv.IsEuclidean) (a : R) {b : R} (hb : b ≠ 0) : abv (a % b) < abv b :=\n  h.map_lt_map_iff.mpr (EuclideanDomain.mod_lt a hb)\n",
+        "docstring": null
+      },
+      {
+        "id": 127697,
+        "name": "taylor_integral_remainder_aux",
+        "module": "Mathlib.Analysis.Calculus.Taylor",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Calculus/Taylor.lean#L445-L502",
+        "source_text": "/-- **Taylor's theorem** with the Integral form of the remainder. This is an auxiliary theorem\nwhich is used to prove the two useful versions `taylor_integral_remainder_of_absolutelyContinuous`\nand `taylor_integral_remainder`.\n\nWe assume that for any `k ≤ n`, the following equation on integration by parts hold:\n$$\\int_{x_0}^x \\frac{f^{(k+1)}(t) (x - t)^k}{k!} =\n\\frac{f^{(k)}(t) (x - t)^k}{k!} |_{x_0}^x -\\int_{x_0}^x \\frac{f^{(k)}(t) (x - t)^{k-1}}{(k-1)!}.$$\nThen\n$$f(x) - (P_n f)(x₀, x) = \\int_{x_0}^x \\frac{f^{(n+1)}(t) (x - t)^n}{n!} dt,$$\nwhere $P_n f$ denotes the Taylor polynomial of degree $n$ and $f^{(n+1)}$ is the $n+1$-th iterated\nderivative. -/\ntheorem taylor_integral_remainder_aux [NormedAddCommGroup F] [NormedSpace ℝ F]\n    {f : ℝ → F} {x x₀ : ℝ} {n : ℕ}\n    (hf : ∀ k ≤ n, let u := fun t ↦ (x - t) ^ k / k !;\n      let v := fun t ↦ iteratedDerivWithin k f [[x₀, x]] t;\n      ∫ (t : ℝ) in x₀..x, u t • deriv v t = u x • v x - u x₀ • v x₀ -\n      ∫ (t : ℝ) in x₀..x, deriv u t • v t) :\n    f x - taylorWithinEval f n (uIcc x₀ x) x₀ x =\n      ∫ t in x₀..x, ((x - t) ^ n / n !) • iteratedDerivWithin (n + 1) f (uIcc x₀ x) t := by\n  rcases eq_or_ne x₀ x with rfl | this\n  · simp\n  induction n with\n  | zero =>\n    simp only [taylor_within_zero_eval, pow_zero, Nat.factorial_zero, Nat.cast_one, ne_eq,\n      one_ne_zero, not_false_eq_true, div_self, zero_add, iteratedDerivWithin_one, one_smul]\n    simp only [nonpos_iff_eq_zero, sub_self, deriv_div_const, forall_eq, pow_zero,\n      Nat.factorial_zero, Nat.cast_one, ne_eq, one_ne_zero, not_false_eq_true, div_self,\n      iteratedDerivWithin_zero, one_smul, deriv_const', div_one, zero_smul,\n      intervalIntegral.integral_zero, sub_zero] at hf\n    rw [← hf]\n    refine intervalIntegral.integral_congr_uIoo fun _ ⟨h1, h2⟩ => ?_\n    rw [← derivWithin_of_mem_nhds <| Icc_mem_nhds h1 h2]\n    rfl\n  | succ n ih =>\n    have : UniqueDiffOn ℝ [[x₀, x]] := uniqueDiffOn_Icc (by grind)\n    specialize ih (by grind)\n    simp only [taylorWithinEval_succ, mul_inv_rev]\n    rw [sub_add_eq_sub_sub, ih]\n    simp only [Nat.factorial, Nat.succ_eq_add_one, Nat.cast_mul, Nat.cast_add, Nat.cast_one]\n    have := hf (n + 1) (by rfl)\n    convert! this.symm using 1\n    · simp only [sub_self, ne_eq, Nat.add_eq_zero_iff, one_ne_zero, and_false, not_false_eq_true,\n        zero_pow, zero_div, zero_smul, zero_sub, deriv_div_const, Nat.factorial]\n      apply fun (a b c d : F) (_ : b = c) (_ : a = -d) ↦ show a - b = -c - d by grind\n      · grind\n      · rw [← intervalIntegral.integral_neg]\n        congr\n        ext t\n        rw [deriv_fun_pow (by fun_prop), deriv_const_sub, deriv_id'', ← neg_smul]\n        congr\n        field_simp\n        grind\n    · refine intervalIntegral.integral_congr_uIoo fun _ ⟨h1, h2⟩ => ?_\n      rw [iteratedDerivWithin_succ]\n      congr\n      · rw [Nat.factorial, Nat.cast_mul, Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one]\n      · rw [← derivWithin_of_mem_nhds <| Icc_mem_nhds h1 h2]\n        rfl\n",
+        "docstring": "**Taylor's theorem** with the Integral form of the remainder. This is an auxiliary theorem\nwhich is used to prove the two useful versions `taylor_integral_remainder_of_absolutelyContinuous`\nand `taylor_integral_remainder`.\n\nWe assume that for any `k ≤ n`, the following equation on integration by parts hold:\n$$\\int_{x_0}^x \\frac{f^{(k+1)}(t) (x - t)^k}{k!} =\n\\frac{f^{(k)}(t) (x - t)^k}{k!} |_{x_0}^x -\\int_{x_0}^x \\frac{f^{(k)}(t) (x - t)^{k-1}}{(k-1)!}.$$\nThen\n$$f(x) - (P_n f)(x₀, x) = \\int_{x_0}^x \\frac{f^{(n+1)}(t) (x - t)^n}{n!} dt,$$\nwhere $P_n f$ denotes the Taylor polynomial of degree $n$ and $f^{(n+1)}$ is the $n+1$-th iterated\nderivative. "
+      },
+      {
+        "id": 64715,
+        "name": "EuclideanDomain.div_add_mod'",
+        "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L140-L142",
+        "source_text": "theorem div_add_mod' (m k : R) : m / k * k + m % k = m := by\n  rw [mul_comm]\n  exact div_add_mod _ _\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Euclid.remainderAux definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392293,
+        "name": "Lorentz.Vector.equivEuclid",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Basic.lean#L48-L51",
+        "source_text": "/-- The equivalence between `Vector d` and `EuclideanSpace ℝ (Fin 1 ⊕ Fin d)`. -/\ndef equivEuclid (d : ℕ) :\n    Vector d ≃ₗ[ℝ] EuclideanSpace ℝ (Fin 1 ⊕ Fin d) :=\n  (WithLp.linearEquiv _ _ _).symm\n",
+        "docstring": "The equivalence between `Vector d` and `EuclideanSpace ℝ (Fin 1 ⊕ Fin d)`. "
+      },
+      {
+        "id": 393545,
+        "name": "Time.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L226-L236",
+        "source_text": "lemma deriv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t : Time) :\n    deriv (fun t => f t μ) t = deriv (fun t => f t) t μ := by\n  rw [deriv_eq]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t 1 = _\n  rw [fderiv_comp]\n  · simp only [ContinuousLinearMap.fderiv, ContinuousLinearMap.coe_comp, Function.comp_apply,\n    PiLp.proj_apply]\n    rw [← deriv_eq]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392798,
+        "name": "Space.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Space.Derivatives.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Derivatives/Basic.lean#L268-L274",
+        "source_text": "lemma deriv_euclid {d ν μ} {f : Space d → EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (x : Space d) :\n    deriv ν (fun x => f x μ) x = deriv ν (fun x => f x) x μ := by\n  rw [deriv_eq_fderiv_basis]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) x (basis ν) = _\n  rw [fderiv_comp x (EuclideanSpace.proj μ).differentiableAt (hf x)]\n  simp [-EuclideanSpace.coe_proj, ← deriv_eq_fderiv_basis]\n",
+        "docstring": null
+      },
+      {
+        "id": 393546,
+        "name": "Time.fderiv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L238-L245",
+        "source_text": "lemma fderiv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t dt : Time) :\n    fderiv ℝ (fun t => f t μ) t dt = fderiv ℝ (fun t => f t) t dt μ := by\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t dt = _\n  rw [fderiv_comp]\n  · simp [-EuclideanSpace.coe_proj]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392056,
+        "name": "euclidLeviCivita",
+        "module": "Physlib.Relativity.Tensors.LeviCivita.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/LeviCivita/Basic.lean#L81-L83",
+        "source_text": "/-- The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. -/\ndef _root_.euclidLeviCivita (g : Fin 4 → Fin 4) : ℝ :=\n  generalizedKroneckerDelta g (id : Fin 4 → Fin 4)\n",
+        "docstring": "The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

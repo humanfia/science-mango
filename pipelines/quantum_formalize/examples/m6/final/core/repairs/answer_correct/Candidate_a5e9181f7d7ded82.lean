@@ -1,0 +1,32 @@
+import FrozenTarget_a5e9181f7d7ded82
+theorem M6.Final.answer_correct : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.AnswerCorrect N a b
+  intro N inst a b h
+  classical
+  have hs : M6.ActualTransfer.span a b < N := h.2.2.2.2.1
+  have ha : a.degree < (N : WithBot ℕ) := by
+    apply lt_of_le_of_lt Polynomial.degree_le_natDegree
+    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_left a.natDegree b.natDegree) hs)
+  have hb : b.degree < (N : WithBot ℕ) := by
+    apply lt_of_le_of_lt Polynomial.degree_le_natDegree
+    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_right a.natDegree b.natDegree) hs)
+  have solve := M6.ActualResult.solve_exact N a b hs
+  have nonempty := M6.ActualCounts.logicals_nonempty_iff N a b ha hb
+  have empty : M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) = ∅ ↔ M6.ActualCounts.f N a b = 0 := by
+    rw [← Finset.not_nonempty_iff_eq_empty, nonempty]
+    omega
+  have qd : M6.Final.quantumDistance N a b = M6.Pinned.distance (M6.Final.LX N a b) := M6.ActualCSS.common_quantum_distance N _ _
+  have ds := M6.Pinned.distance_spec (2*N) (M6.Final.LX N a b)
+  change (_ ↔ _) ∧ (_ ↔ _) ∧ _
+  refine ⟨solve.1.trans empty, ?_, ?_, ?_⟩
+  · rw [qd, ds.1]; exact empty
+  · intro d v k hv
+    have hvp := solve.2 d v k hv
+    refine ⟨?_, hvp.1, hvp.2.1, ?_, (M6.Flatten.J_weight N v).trans hvp.2.1, hvp.2.2.2⟩
+    · rw [qd, ds.2 d]
+      exact ⟨⟨v, hvp.1, hvp.2.1⟩, hvp.2.2.1⟩
+    · exact (M6.ActualCSS.J_logical_iff N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) v).mp hvp.1
+  · intro hf
+    cases hh : M6.ActualTransfer.solve N a b with
+    | none => have hz := (solve.1.trans empty).mp hh; omega
+    | some x => rcases x with ⟨d,v,k⟩; exact ⟨d,v,k,rfl⟩

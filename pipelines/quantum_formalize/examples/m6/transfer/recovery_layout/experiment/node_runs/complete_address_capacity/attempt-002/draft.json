@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ R N slots : ℕ, R < N → slots ≤ 512 * (N + 1)^2 → M6.Transfer.solveStorage R N slots < 2^(M6.Transfer.actualAddressBits R N)\nintro R N slots hRN hslots\nhave hNat : ∀ n : ℕ, n ≤ 2^n := by\n  intro n\n  induction n with\n  | zero => norm_num\n  | succ n ih =>\n    have hp : 0 < (2 : ℕ)^n := by positivity\n    rw [pow_succ]\n    omega\nhave hsq : N^2 ≤ ((2 : ℕ)^N)^2 := Nat.pow_le_pow_left (hNat N) 2\nhave hbound := M6.Transfer.solve_storage_bound R N slots hRN hslots\nchange M6.Transfer.solveStorage R N slots < 2^(R + 4*N + 16)\ncalc\n  M6.Transfer.solveStorage R N slots ≤ 16384 * N^2 * 2^R := hbound\n  _ ≤ 16384 * ((2 : ℕ)^N)^2 * 2^R :=\n    Nat.mul_le_mul_right (2^R) (Nat.mul_le_mul_left 16384 hsq)\n  _ = 2^(R + (N + N) + 14) := by\n    simp only [pow_add, pow_two]\n    norm_num\n    ring\n  _ < 2^(R + 4*N + 16) := by\n    apply Nat.pow_lt_pow_right\n    · norm_num\n    · omega",
+  "queries": []
+}

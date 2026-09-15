@@ -1,6 +1,6 @@
 # M6 proof dependency graph
 
-Independent first modules run concurrently; dependent targets run only after accepted proof imports. Module gates below are planned, not proof receipts.
+Independent first modules run concurrently; dependent targets run only after accepted proof imports. All original-scope module gates are complete; [the map](graph.json) links their exact compiled receipts. [Full-root acceptance](ROOT_ACCEPTANCE.json) is separate from component acceptance.
 
 ```mermaid
 graph TD
@@ -30,4 +30,4 @@ graph TD
   symmetry_edges --> original_m6
 ```
 
-The cyclic, transfer, character and pinned-enumeration roots are independent. Resource accounting starts from the actual transfer recurrence and joins witness-query bounds. Final acceptance waits for every original-scope branch.
+The cyclic, transfer, character and pinned-enumeration roots are independent. Resource accounting starts from the actual transfer recurrence and joins witness-query bounds. All branches now join in `M6.Final.original_m6`; the [final three-node DAG](final/seal/graph.json) records the storage/recipe dependencies and full-root acceptance.

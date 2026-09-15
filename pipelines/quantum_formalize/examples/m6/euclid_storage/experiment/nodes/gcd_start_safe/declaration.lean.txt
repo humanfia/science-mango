@@ -1,0 +1,19 @@
+theorem M6.EuclidStorage.gcd_start_safe : ∀ (p q saved : M6.Euclid.BP) (c e t width : ℕ), 0 < width → M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.rank saved ≤ width → c + (M6.Euclid.euclid p q).cancellations ≤ 32*width → e + (M6.Euclid.euclid p q).rounds ≤ 32*width → t + (M6.Euclid.euclid p q).passes ≤ 32*width → M6.EuclidStorage.gcdSafe (M6.Euclid.rank q+1) ⟨p,q,0,saved⟩ c e (t+1) width := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (p q saved : M6.Euclid.BP) (c e t width : ℕ), 0 < width → M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.rank saved ≤ width → c + (M6.Euclid.euclid p q).cancellations ≤ 32*width → e + (M6.Euclid.euclid p q).rounds ≤ 32*width → t + (M6.Euclid.euclid p q).passes ≤ 32*width → M6.EuclidStorage.gcdSafe (M6.Euclid.rank q+1) ⟨p,q,0,saved⟩ c e (t+1) width
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro p q saved c e t width hwidth hp hq hs hc he ht
+  have hz : M6.Euclid.rank (0 : M6.Euclid.BP) = 0 := by
+    simp [M6.Euclid.rank]
+  dsimp [M6.Euclid.euclid] at hc he ht
+  apply M6.EuclidStorage.gcd_loop_safe
+  · exact hwidth
+  · simp [M6.EuclidStorage.slotsFit, hz, hp, hq, hs]
+  · rfl
+  · omega
+  · exact hc
+  · exact he
+  · dsimp only
+    omega

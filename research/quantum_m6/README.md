@@ -1,10 +1,13 @@
 # M6 证明、算法与验收结果
 
 **原始 M6 已按“有证明的精确距离计算简化”路线完成验收。**
-本目录发布完整自然语言证明、独立双审阅记录、冻结算法及验证证据。
+完整原始 M6 的 Lean 形式化也已通过验收，根定理为 `M6.Final.original_m6`。
+本目录汇总自然语言证明、形式化证明、审阅记录、冻结算法及验证证据。
 
 ## 统一入口
 
+- [完整 Lean 证明与可复现源码](../../pipelines/quantum_formalize/examples/m6/final/README.md)
+- [Lean 总定理验收记录](../../pipelines/quantum_formalize/examples/m6/ROOT_ACCEPTANCE.json)
 - [最终完整证明与原始验收条款论证](research_checkpoints/m6_original_gate_closed_20260915/PROOF.md)
 - [最终验收记录](research_checkpoints/m6_original_gate_closed_20260915/integration-decision.json)
 - [最终独立审阅 A](research_checkpoints/m6_original_gate_closed_20260915/call-008-review.json)、[审阅 B](research_checkpoints/m6_original_gate_closed_20260915/call-009-review.json)
@@ -32,7 +35,8 @@
 固定 R 时，关于 N 为多项式，优于逐一枚举 4^N 个物理二进制向量。
 这是原路线图允许的精确计算简化及有证明范围；不要求同时解决任意
 跨度下的高效算法。此处不宣称实际快于现有求解器、M7 完成、量子码
-等价分类完成或 Lean 形式化完成。Python 字典实现的时间保证与论文
+等价分类完成。Lean 形式化覆盖上述原始范围与数组位运算模型；
+Python 字典实现的时间保证与论文
 式数组模型有区别，最终证明明确说明了这一点。
 
 ## 证据与复现

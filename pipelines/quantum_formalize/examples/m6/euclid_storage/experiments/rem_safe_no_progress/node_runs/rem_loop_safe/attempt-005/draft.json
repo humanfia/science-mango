@@ -1,0 +1,8 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro fuel\ninduction fuel with\n| zero =>\n    intro s c t width hwidth hfit hfuel hc ht\n    simp only [M6.Euclid.remainderAux] at hc ht\n    simp only [M6.EuclidStorage.remSafe]\n    exact ⟨hfit, by omega, by omega, by omega⟩\n| succ fuel ih =>\n    intro s c t width hwidth hfit hfuel hc ht\n    by_cases hw : s.work = 0\n    · simp_all [M6.EuclidStorage.remSafe, M6.Euclid.remainderAux] <;> omega\n    by_cases hq : s.q = 0\n    · simp_all [M6.EuclidStorage.remSafe, M6.Euclid.remainderAux] <;> omega\n    by_cases hd : s.q.degree ≤ s.work.degree\n    · have hdrop := M6.Euclid.cancel_drop s.work s.q hw hq hd\n      have hfit' : M6.EuclidStorage.slotsFit width\n          { s with work := M6.Euclid.cancel s.work s.q } := by\n        simp only [M6.EuclidStorage.slotsFit] at hfit ⊢\n        try dsimp only\n        omega\n      have hnlt : ¬ s.work.degree < s.q.degree := not_lt.mpr hd\n      simp only [M6.Euclid.remainderAux, hw, hq, hd, hnlt,\n        ite_true, ite_false, false_or, or_false] at hc ht\n      have hrec := ih { s with work := M6.Euclid.cancel s.work s.q }\n        (c + 1) (t + 2) width hwidth hfit' (by omega)\n        (by simpa only [Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using hc)\n        (by simpa only [Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using ht)\n      simp_all [M6.EuclidStorage.remSafe] <;> omega\n    · have hlt : s.work.degree < s.q.degree := lt_of_not_ge hd\n      simp_all [M6.EuclidStorage.remSafe, M6.Euclid.remainderAux] <;> omega",
+  "queries": [
+    "M6.EuclidStorage.remSafe definition",
+    "M6.EuclidStorage.slotsFit definition",
+    "M6.Euclid.remainderAux definition"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "project": "/home/jing/m6-lean-indexed-array-formalization",
+  "graph": "/home/jing/m6-lean-indexed-array-formalization/.humanize-formal-runs/resume-6mi3kqdv/graph.json",
+  "output": "/home/jing/m6-lean-indexed-array-formalization/.humanize-formal-runs/resume-6mi3kqdv/experiment",
+  "result_path": "/home/jing/m6-lean-indexed-array-formalization/.humanize-formal-runs/resume-6mi3kqdv/result.json",
+  "concurrency": 16,
+  "rounds": 5,
+  "compile_timeout": 180,
+  "turn_timeout": 600,
+  "seed_proofs": {
+    "indexed_array_correct_resources": "intro R N inst W hRN hmass hdegree\nclassical\nhave hsmall (i : \u2115) (hi : i < N) : (8 : \u2115) ^ (i + 1) \u2264 2 ^ R * 8 ^ N := by\n  have hexp : i + 1 \u2264 N := Nat.succ_le_of_lt hi\n  have hpow : 1 \u2264 (2 : \u2115) ^ R := Nat.succ_le_of_lt (pow_pos (by decide) R)\n  calc\n    (8 : \u2115) ^ (i + 1) \u2264 8 ^ N := Nat.pow_le_pow_right (by decide) hexp\n    _ = 1 * 8 ^ N := (one_mul _).symm\n    _ \u2264 2 ^ R * 8 ^ N := Nat.mul_le_mul_right _ hpow\nrefine \u27e8?_, ?_, ?_, ?_, ?_, ?_, ?_\u27e9\n\u00b7 exact (M6.Transfer.scalar_trace_polynomial R N W hdegree).trans\n    (M6.Transfer.array_trace_inputs R N (Polynomial \u2124) W)\n\u00b7 exact M6.Transfer.actual_trace_work_bound R N hRN\n\u00b7 exact M6.Transfer.actual_trace_storage_bound R N hRN\n\u00b7 exact M6.Transfer.actual_address_capacity R N hRN\n\u00b7 intro start i hi k addr\n  unfold M6.Transfer.FitsSigned\n  have h := M6.Transfer.actual_layer_intermediates R N W start i k addr hmass hdegree\n  exact lt_of_le_of_lt (le_trans h.1 (hsmall i hi))\n    (M6.Transfer.actual_signed_capacity R N)\n\u00b7 intro start i hi e\n  unfold M6.Transfer.FitsSigned\n  have h := M6.Transfer.actual_layer_intermediates R N W start i 0\n    (start, \u27e80, by omega\u27e9) hmass hdegree\n  exact lt_of_le_of_lt (le_trans (h.2 e) (hsmall i hi))\n    (M6.Transfer.actual_signed_capacity R N)\n\u00b7 intro k d\n  unfold M6.Transfer.FitsSigned\n  exact lt_of_le_of_lt\n    (M6.Transfer.actual_trace_intermediates R N W k d hmass hdegree)\n    (M6.Transfer.actual_signed_capacity R N)"
+  }
+}

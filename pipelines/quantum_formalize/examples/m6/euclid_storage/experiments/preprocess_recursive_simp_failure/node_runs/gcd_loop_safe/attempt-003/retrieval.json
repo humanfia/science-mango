@@ -1,0 +1,206 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.EuclidStorage.gcdSafe full definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 306778,
+        "name": "EuclideanDomain.gcdMonoid",
+        "module": "Mathlib.RingTheory.EuclideanDomain",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/EuclideanDomain.lean#L71-L81",
+        "source_text": "/-- Create a `GCDMonoid` whose `GCDMonoid.gcd` matches `EuclideanDomain.gcd`. -/\n@[implicit_reducible]\ndef gcdMonoid (R) [EuclideanDomain R] [DecidableEq R] : GCDMonoid R where\n  gcd := gcd\n  lcm := lcm\n  gcd_dvd_left := gcd_dvd_left\n  gcd_dvd_right := gcd_dvd_right\n  dvd_gcd := dvd_gcd\n  gcd_mul_lcm a b := by rw [EuclideanDomain.gcd_mul_lcm]; rfl\n  lcm_zero_left := lcm_zero_left\n  lcm_zero_right := lcm_zero_right\n",
+        "docstring": "Create a `GCDMonoid` whose `GCDMonoid.gcd` matches `EuclideanDomain.gcd`. "
+      },
+      {
+        "id": 215463,
+        "name": "PNat.gcdD",
+        "module": "Mathlib.Data.PNat.Xgcd",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Xgcd.lean#L361-L363",
+        "source_text": "/-- `gcdD a b = gcd a b` -/\ndef gcdD : ℕ+ :=\n  (xgcd a b).a\n",
+        "docstring": "`gcdD a b = gcd a b` "
+      },
+      {
+        "id": 64722,
+        "name": "EuclideanDomain.gcd",
+        "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+        "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+        "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+      },
+      {
+        "id": 107601,
+        "name": "Squarefree.gcd_right",
+        "module": "Mathlib.Algebra.Squarefree.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Squarefree/Basic.lean#L109-L110",
+        "source_text": "theorem Squarefree.gcd_right (a : α) {b : α} (hb : Squarefree b) : Squarefree (gcd a b) :=\n  hb.squarefree_of_dvd (gcd_dvd_right _ _)\n",
+        "docstring": null
+      },
+      {
+        "id": 66053,
+        "name": "Finset.extract_gcd'",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L235-L241",
+        "source_text": "theorem extract_gcd' (f g : β → α) (hs : ∃ x, x ∈ s ∧ f x ≠ 0)\n    (hg : ∀ b ∈ s, f b = s.gcd f * g b) : s.gcd g = 1 := by\n  rw [← normalize_gcd, normalize_eq_one, ← associated_one_iff_isUnit]\n  refine .of_mul_left (.symm <| .trans ?_ (gcd_mul_left' ..)) .rfl (a := s.gcd f) ?_\n  · simp [← gcd_congr rfl hg]\n  contrapose! hs\n  exact s.gcd_eq_zero_iff.1 hs\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.EuclidStorage.gcdSafe full definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393544,
+        "name": "Time.differentiable_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L220-L224",
+        "source_text": "lemma differentiable_euclid {f : Time → EuclideanSpace ℝ (Fin n)}\n    (hf : ∀ i, Differentiable ℝ (fun t => f t i)) :\n    Differentiable ℝ f := by\n  rw [differentiable_euclidean]\n  fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392798,
+        "name": "Space.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Space.Derivatives.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Derivatives/Basic.lean#L268-L274",
+        "source_text": "lemma deriv_euclid {d ν μ} {f : Space d → EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (x : Space d) :\n    deriv ν (fun x => f x μ) x = deriv ν (fun x => f x) x μ := by\n  rw [deriv_eq_fderiv_basis]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) x (basis ν) = _\n  rw [fderiv_comp x (EuclideanSpace.proj μ).differentiableAt (hf x)]\n  simp [-EuclideanSpace.coe_proj, ← deriv_eq_fderiv_basis]\n",
+        "docstring": null
+      },
+      {
+        "id": 393545,
+        "name": "Time.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L226-L236",
+        "source_text": "lemma deriv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t : Time) :\n    deriv (fun t => f t μ) t = deriv (fun t => f t) t μ := by\n  rw [deriv_eq]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t 1 = _\n  rw [fderiv_comp]\n  · simp only [ContinuousLinearMap.fderiv, ContinuousLinearMap.coe_comp, Function.comp_apply,\n    PiLp.proj_apply]\n    rw [← deriv_eq]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 393546,
+        "name": "Time.fderiv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L238-L245",
+        "source_text": "lemma fderiv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t dt : Time) :\n    fderiv ℝ (fun t => f t μ) t dt = fderiv ℝ (fun t => f t) t dt μ := by\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t dt = _\n  rw [fderiv_comp]\n  · simp [-EuclideanSpace.coe_proj]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392056,
+        "name": "euclidLeviCivita",
+        "module": "Physlib.Relativity.Tensors.LeviCivita.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/LeviCivita/Basic.lean#L81-L83",
+        "source_text": "/-- The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. -/\ndef _root_.euclidLeviCivita (g : Fin 4 → Fin 4) : ℝ :=\n  generalizedKroneckerDelta g (id : Fin 4 → Fin 4)\n",
+        "docstring": "The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.EuclidStorage.gcdLoop full definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 306778,
+        "name": "EuclideanDomain.gcdMonoid",
+        "module": "Mathlib.RingTheory.EuclideanDomain",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/EuclideanDomain.lean#L71-L81",
+        "source_text": "/-- Create a `GCDMonoid` whose `GCDMonoid.gcd` matches `EuclideanDomain.gcd`. -/\n@[implicit_reducible]\ndef gcdMonoid (R) [EuclideanDomain R] [DecidableEq R] : GCDMonoid R where\n  gcd := gcd\n  lcm := lcm\n  gcd_dvd_left := gcd_dvd_left\n  gcd_dvd_right := gcd_dvd_right\n  dvd_gcd := dvd_gcd\n  gcd_mul_lcm a b := by rw [EuclideanDomain.gcd_mul_lcm]; rfl\n  lcm_zero_left := lcm_zero_left\n  lcm_zero_right := lcm_zero_right\n",
+        "docstring": "Create a `GCDMonoid` whose `GCDMonoid.gcd` matches `EuclideanDomain.gcd`. "
+      },
+      {
+        "id": 64722,
+        "name": "EuclideanDomain.gcd",
+        "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+        "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+        "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+      },
+      {
+        "id": 64724,
+        "name": "EuclideanDomain.xgcdAux",
+        "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L195-L210",
+        "source_text": "/-- An implementation of the extended GCD algorithm.\nAt each step we are computing a triple `(r, s, t)`, where `r` is the next value of the GCD\nalgorithm, to compute the greatest common divisor of the input (say `x` and `y`), and `s` and `t`\nare the coefficients in front of `x` and `y` to obtain `r` (i.e. `r = s * x + t * y`).\nThe function `xgcdAux` takes in two triples, and from these recursively computes the next triple:\n```\nxgcdAux (r, s, t) (r', s', t') = xgcdAux (r' % r, s' - (r' / r) * s, t' - (r' / r) * t) (r, s, t)\n```\n-/\ndef xgcdAux (r s t r' s' t' : R) : R × R × R :=\n  if _hr : r = 0 then (r', s', t')\n  else\n    let q := r' / r\n    have _ := mod_lt r' _hr\n    xgcdAux (r' % r) (s' - q * s) (t' - q * t) r s t\ntermination_by r\n",
+        "docstring": "An implementation of the extended GCD algorithm.\nAt each step we are computing a triple `(r, s, t)`, where `r` is the next value of the GCD\nalgorithm, to compute the greatest common divisor of the input (say `x` and `y`), and `s` and `t`\nare the coefficients in front of `x` and `y` to obtain `r` (i.e. `r = s * x + t * y`).\nThe function `xgcdAux` takes in two triples, and from these recursively computes the next triple:\n```\nxgcdAux (r, s, t) (r', s', t') = xgcdAux (r' % r, s' - (r' / r) * s, t' - (r' / r) * t) (r, s, t)\n```\n"
+      },
+      {
+        "id": 65863,
+        "name": "GCDMonoid",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L304-L324",
+        "source_text": "/-- GCD monoid: a cancellative `CommMonoidWithZero` with `gcd` (greatest common divisor) and\n`lcm` (least common multiple) operations, determined up to a unit. The type class focuses on `gcd`\nand we derive the corresponding `lcm` facts from `gcd`.\n-/\nclass GCDMonoid (α : Type*) [CommMonoidWithZero α] extends IsCancelMulZero α where\n  /-- The greatest common divisor between two elements. -/\n  gcd : α → α → α\n  /-- The least common multiple between two elements. -/\n  lcm : α → α → α\n  /-- The GCD is a divisor of the first element. -/\n  gcd_dvd_left : ∀ a b, gcd a b ∣ a\n  /-- The GCD is a divisor of the second element. -/\n  gcd_dvd_right : ∀ a b, gcd a b ∣ b\n  /-- Any common divisor of both elements is a divisor of the GCD. -/\n  dvd_gcd : ∀ {a b c}, a ∣ c → a ∣ b → a ∣ gcd c b\n  /-- The product of two elements is `Associated` with the product of their GCD and LCM. -/\n  gcd_mul_lcm : ∀ a b, Associated (gcd a b * lcm a b) (a * b)\n  /-- `0` is left-absorbing. -/\n  lcm_zero_left : ∀ a, lcm 0 a = 0\n  /-- `0` is right-absorbing. -/\n  lcm_zero_right : ∀ a, lcm a 0 = 0\n",
+        "docstring": "GCD monoid: a cancellative `CommMonoidWithZero` with `gcd` (greatest common divisor) and\n`lcm` (least common multiple) operations, determined up to a unit. The type class focuses on `gcd`\nand we derive the corresponding `lcm` facts from `gcd`.\n"
+      },
+      {
+        "id": 64666,
+        "name": "EuclideanDomain.gcd_val",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L132-L134",
+        "source_text": "theorem gcd_val (a b : R) : gcd a b = gcd (b % a) a := by\n  rw [gcd]\n  split_ifs with h <;> [simp only [h, mod_zero, gcd_zero_right]; rfl]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.EuclidStorage.gcdLoop full definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393544,
+        "name": "Time.differentiable_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L220-L224",
+        "source_text": "lemma differentiable_euclid {f : Time → EuclideanSpace ℝ (Fin n)}\n    (hf : ∀ i, Differentiable ℝ (fun t => f t i)) :\n    Differentiable ℝ f := by\n  rw [differentiable_euclidean]\n  fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392798,
+        "name": "Space.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Space.Derivatives.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Derivatives/Basic.lean#L268-L274",
+        "source_text": "lemma deriv_euclid {d ν μ} {f : Space d → EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (x : Space d) :\n    deriv ν (fun x => f x μ) x = deriv ν (fun x => f x) x μ := by\n  rw [deriv_eq_fderiv_basis]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) x (basis ν) = _\n  rw [fderiv_comp x (EuclideanSpace.proj μ).differentiableAt (hf x)]\n  simp [-EuclideanSpace.coe_proj, ← deriv_eq_fderiv_basis]\n",
+        "docstring": null
+      },
+      {
+        "id": 393546,
+        "name": "Time.fderiv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L238-L245",
+        "source_text": "lemma fderiv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t dt : Time) :\n    fderiv ℝ (fun t => f t μ) t dt = fderiv ℝ (fun t => f t) t dt μ := by\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t dt = _\n  rw [fderiv_comp]\n  · simp [-EuclideanSpace.coe_proj]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 393545,
+        "name": "Time.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L226-L236",
+        "source_text": "lemma deriv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t : Time) :\n    deriv (fun t => f t μ) t = deriv (fun t => f t) t μ := by\n  rw [deriv_eq]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t 1 = _\n  rw [fderiv_comp]\n  · simp only [ContinuousLinearMap.fderiv, ContinuousLinearMap.coe_comp, Function.comp_apply,\n    PiLp.proj_apply]\n    rw [← deriv_eq]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392056,
+        "name": "euclidLeviCivita",
+        "module": "Physlib.Relativity.Tensors.LeviCivita.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/LeviCivita/Basic.lean#L81-L83",
+        "source_text": "/-- The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. -/\ndef _root_.euclidLeviCivita (g : Fin 4 → Fin 4) : ℝ :=\n  generalizedKroneckerDelta g (id : Fin 4 → Fin 4)\n",
+        "docstring": "The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

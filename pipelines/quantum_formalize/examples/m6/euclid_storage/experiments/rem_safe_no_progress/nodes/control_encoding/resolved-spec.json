@@ -1,0 +1,13 @@
+{
+  "name": "M6.EuclidStorage.control_encoding",
+  "statement": "∀ (width v : ℕ), v ≤ 32*width → v < 2 ^ (M6.EuclidStorage.registerBits width)",
+  "imports": [
+    "M6EuclidAccepted",
+    "M6EuclidStorage"
+  ],
+  "context": "",
+  "queries": [
+    "EuclideanDomain gcd Bezout divisibility"
+  ],
+  "guidance": "Nat.lt_two_pow_self width gives width<2^width. Multiply by32 and use pow_add with2^5=32 to obtain32width<2^(width+5); registerBits is preciselywidth+5. This is a proven finite encoding capacity, not an unbounded Nat register assumption. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+}

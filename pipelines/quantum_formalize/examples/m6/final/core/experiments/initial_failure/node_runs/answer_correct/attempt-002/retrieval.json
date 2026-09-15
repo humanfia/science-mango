@@ -1,0 +1,265 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.AnswerCorrect M6.Final.Admissible full definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 161343,
+        "name": "CategoryTheory.Functor.final_of_comp_full_faithful",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L801-L803",
+        "source_text": "/-- The hypotheses also imply that `G` is final, see `final_of_comp_full_faithful'`. -/\ntheorem final_of_comp_full_faithful [Full G] [Faithful G] [Final (F ⋙ G)] : Final F where\n  out d := isConnected_of_equivalent (StructuredArrow.post d F G).asEquivalence.symm\n",
+        "docstring": "The hypotheses also imply that `G` is final, see `final_of_comp_full_faithful'`. "
+      },
+      {
+        "id": 271076,
+        "name": "ADEInequality.admissible_E6",
+        "module": "Mathlib.NumberTheory.ADEInequality",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ADEInequality.lean#L133-L134",
+        "source_text": "theorem admissible_E6 : Admissible E6 :=\n  admissible_E'3\n",
+        "docstring": null
+      },
+      {
+        "id": 161361,
+        "name": "CategoryTheory.Functor.final_iff_comp_final_full_faithful",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L909-L911",
+        "source_text": "theorem final_iff_comp_final_full_faithful [Final G] [Full G] [Faithful G] :\n    Final F ↔ Final (F ⋙ G) :=\n  ⟨fun _ => final_comp _ _, fun _ => final_of_comp_full_faithful F G⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 161359,
+        "name": "CategoryTheory.Functor.final_of_comp_full_faithful'",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L899-L902",
+        "source_text": "/-- The hypotheses also imply that `F` is final, see `final_of_comp_full_faithful`. -/\ntheorem final_of_comp_full_faithful' [Full G] [Faithful G] [Final (F ⋙ G)] : Final G :=\n  have := final_of_comp_full_faithful F G\n  final_of_final_comp F G\n",
+        "docstring": "The hypotheses also imply that `F` is final, see `final_of_comp_full_faithful`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.AnswerCorrect M6.Final.Admissible full definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394399,
+        "name": "IsDimensionallyCorrect",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+        "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+        "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+      },
+      {
+        "id": 388366,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.instDecidableAllowsTermOfDecidableEq",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.AllowsTerm",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/AllowsTerm.lean#L117-L118",
+        "source_text": "instance [DecidableEq 𝓩] (x : ChargeSpectrum 𝓩) (T : PotentialTerm) : Decidable (x.AllowsTerm T) :=\n  decidable_of_iff (0 ∈ x.ofPotentialTerm' T) allowsTerm_iff_zero_mem_ofPotentialTerm'.symm\n",
+        "docstring": null
+      },
+      {
+        "id": 394400,
+        "name": "isDimensionallyCorrect_iff",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L421-L423",
+        "source_text": "lemma isDimensionallyCorrect_iff {M : Type} [UnitDependent M] (m : M) :\n    IsDimensionallyCorrect m ↔ ∀ u1 u2 : UnitChoices,\n      scaleUnit u1 u2 m = m := by rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 387050,
+        "name": "Physlib.noDefs",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L179-L183",
+        "source_text": "/-- Number of definitions. -/\ndef noDefs : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      },
+      {
+        "id": 390716,
+        "name": "LinearPMap.adjoint_of_zero",
+        "module": "Physlib.QuantumMechanics.Operators.Unbounded",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Unbounded.lean#L306-L314",
+        "source_text": "/-- The adjoint of a zero LinearPMap (any domain) is zero (domain `⊤`). -/\nlemma adjoint_of_zero [CompleteSpace H] (h_zero : ⇑U = 0) : U† = 0 := by\n  refine dExt ?_ fun x y hxy ↦ ?_\n  · ext\n    simp only [zero_domain, mem_top, iff_true]\n    exact (mem_adjoint_domain_iff _ _).mpr (continuous_of_const (by simp [h_zero]))\n  · by_cases h : U.HasDenseDomain\n    · exact adjoint_apply_eq h x (by simp [h_zero])\n    · exact adjoint_apply_of_not_dense h x\n",
+        "docstring": "The adjoint of a zero LinearPMap (any domain) is zero (domain `⊤`). "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualResult.solve_exact full statement and solve definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 327616,
+        "name": "Mathlib.Tactic.GCongr.exact",
+        "module": "Mathlib.Tactic.GCongr.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/GCongr/Core.lean#L533-L534",
+        "source_text": "@[gcongr_forward] def exact : ForwardExt where\n  eval e m := m.assignIfDefEq e",
+        "docstring": null
+      },
+      {
+        "id": 157298,
+        "name": "CategoryTheory.Functor.Full",
+        "module": "Mathlib.CategoryTheory.Functor.FullyFaithful",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Functor/FullyFaithful.lean#L43-L46",
+        "source_text": "/-- A functor `F : C ⥤ D` is full if for each `X Y : C`, `F.map` is surjective. -/\n@[stacks 001C]\nclass Full (F : C ⥤ D) : Prop where\n  map_surjective {X Y : C} : Function.Surjective (F.map (X := X) (Y := Y))\n",
+        "docstring": "A functor `F : C ⥤ D` is full if for each `X Y : C`, `F.map` is surjective. "
+      },
+      {
+        "id": 88019,
+        "name": "Module.Relations.Solution",
+        "module": "Mathlib.Algebra.Module.Presentation.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/Presentation/Basic.lean#L125-L131",
+        "source_text": "/-- The type of solutions in a module `M` of the equations given by `relations : Relations A`. -/\n@[ext]\nstructure Solution where\n  /-- the image in `M` of each variable -/\n  var (g : relations.G) : M\n  linearCombination_var_relation (r : relations.R) :\n    Finsupp.linearCombination _ var (relations.relation r) = 0\n",
+        "docstring": "The type of solutions in a module `M` of the equations given by `relations : Relations A`. "
+      },
+      {
+        "id": 326440,
+        "name": "Mathlib.Tactic.ClickSuggestions.generateSuggestions",
+        "module": "Mathlib.Tactic.ClickSuggestions",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ClickSuggestions.lean#L72-L111",
+        "source_text": "/-- Compute the suggestions. Use `token` for the output. -/\npublic def generateSuggestions (loc : SubExpr.GoalsLocation) (parentDecl? : Option Name)\n    (token : RefreshToken) : ClickSuggestionsM Unit := withReducible do\n  -- Instantiate all metavariables, so that we won't need to worry about this later on.\n  instantiateMVarDeclMVars loc.mvarId\n  loc.mvarId.withContext do\n  -- TODO: instead of just putting `✝` after inaccessible names,\n  -- we should figure out how to use `rename_i` to actually refer to shadowed local variables.\n  let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }\n  Meta.withLCtx' lctx do\n  trackingComputation \"click_suggestions\" do\n  let (fvarId?, pos) ← match loc.loc with\n    | .hypType fvarId pos  => pure (some fvarId, pos)\n    | .target pos => pure (none, pos)\n    | .hyp _fvarId =>\n      -- In a follow-up PR: suggestions for `induction`/`cases`, `contrapose`\n      return\n    | .hypValue .. =>\n      token.update <| .text \"internal click_suggestions error: selected location is a `.hypValue`\"\n      return\n  let rootExpr ← match fvarId? with\n    | some fvarId => fvarId.getType\n    | none => loc.mvarId.getType\n  viewKAbstractSubExpr' rootExpr pos fun subExpr rwKind ↦ do\n  let mut htmls : Array Html := #[]\n\n  -- In a follow-up PR: suggestions for\n  -- `induction`/`cases`, `contrapose`, if `subExpr` is an fvar.\n  -- `rfl`, `intro`, `by_contra`\n  -- `push`, `simp`, `norm_cast`, `ring`/`field`/`abel`/..\n\n  if let some html ← suggestUnfold subExpr rwKind then\n    markProgress\n    htmls := htmls.push html\n\n  let (searchHtml, token') ← mkRefreshComponent\n  htmls := htmls.push searchHtml\n  token.update (.element \"div\" #[(\"style\", json% {\"marginLeft\" : \"4px\"})] htmls)\n\n  librarySearchSuggestions rootExpr subExpr lctx rwKind parentDecl? token'\n",
+        "docstring": "Compute the suggestions. Use `token` for the output. "
+      },
+      {
+        "id": 329030,
+        "name": "Mathlib.Meta.Positivity.solve",
+        "module": "Mathlib.Tactic.Positivity.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Positivity/Core.lean#L500-L544",
+        "source_text": "/-- An auxiliary entry point to the `positivity` tactic. Given a proposition `t` of the form\n`0 [≤/</≠] e`, attempts to recurse on the structure of `t` to prove it. It returns a proof\nor fails. -/\ndef solve (t : Q(Prop)) : MetaM Expr := do\n  let rest {u : Level} (α : Q(Type u)) z e (relDesired : OrderRel) : MetaM Expr := do\n    let zα ← synthInstanceQ q(Zero $α)\n    let .true ← isDefEq z q(0 : $α) | throwError \"not a positivity goal\"\n    let pα? ← try? <| synthInstanceQ q(PartialOrder $α)\n    let r ← catchNone <| Meta.Positivity.core zα pα? e\n    let throw (a b : String) : MetaM Expr := throwError\n      \"failed to prove {a}, but it would be possible to prove {b} if desired\"\n    match (dependent := true) pα? with\n    | some _ =>\n      match relDesired, r with\n      | .lt, .positive p\n      | .le, .nonnegative p\n      | .ne, .nonzero p => pure p\n      | .le, .positive p => pure q(le_of_lt $p)\n      | .ne, .positive p => pure q(ne_of_gt $p)\n      | .ne', .positive p => pure q(ne_of_lt $p)\n      | .ne', .nonzero p => pure q(Ne.symm $p)\n      | .lt, .nonnegative _ => throw \"strict positivity\" \"nonnegativity\"\n      | .lt, .nonzero _ => throw \"strict positivity\" \"nonzeroness\"\n      | .le, .nonzero _ => throw \"nonnegativity\" \"nonzeroness\"\n      | .ne, .nonnegative _\n      | .ne', .nonnegative _ => throw \"nonzeroness\" \"nonnegativity\"\n      | _, .none => throwError \"failed to prove positivity/nonnegativity/nonzeroness\"\n    | none =>\n      match relDesired, r with\n      | .ne, .nonzero p => pure p\n      | .ne', .nonzero p => pure q(Ne.symm $p)\n      | .lt, .nonzero _ => throw \"strict positivity\" \"nonzeroness\"\n      | .le, .nonzero _ => throw \"nonnegativity\" \"nonzeroness\"\n      | _, _ => throwError \"failed to prove nonzeroness\"\n  match t with\n  | ~q(@LE.le $α $_a $z $e) => rest α z e .le\n  | ~q(@LT.lt $α $_a $z $e) => rest α z e .lt\n  | ~q($a ≠ ($b : ($α : Type _))) =>\n    let _zα ← synthInstanceQ q(Zero $α)\n    if ← isDefEq b q((0 : $α)) then\n      rest α b a .ne\n    else\n      let .true ← isDefEq a q((0 : $α)) | throwError \"not a positivity goal\"\n      rest α a b .ne'\n  | _ => throwError \"not a positivity goal\"\n",
+        "docstring": "An auxiliary entry point to the `positivity` tactic. Given a proposition `t` of the form\n`0 [≤/</≠] e`, attempts to recurse on the structure of `t` to prove it. It returns a proof\nor fails. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualResult.solve_exact full statement and solve definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387074,
+        "name": "semiformal_result",
+        "module": "Physlib.Meta.Informal.SemiFormal",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/SemiFormal.lean#L50-L61",
+        "source_text": "/-- A semiformal result is either a\n- definition in which the type is given but not the definition.\n- proof in which the proposition is given but not the proof.\nSemiformal results cannot be used in further code. They are essentially\nforgot about after made.\n\nWith minor modification they act in a similar way to `proof_wanted`, however\nthey appear in Physlib's TODO list and must be tagged accordingly.\nThey must also always have a doc-string. -/\n@[command_parser]\nmeta def «semiformal_result» := leading_parser\n    docComment >> \"semiformal_result\" >> strLit >> declId >> ppIndent declSig\n",
+        "docstring": "A semiformal result is either a\n- definition in which the type is given but not the definition.\n- proof in which the proposition is given but not the proof.\nSemiformal results cannot be used in further code. They are essentially\nforgot about after made.\n\nWith minor modification they act in a similar way to `proof_wanted`, however\nthey appear in Physlib's TODO list and must be tagged accordingly.\nThey must also always have a doc-string. "
+      },
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 388280,
+        "name": "MSSMACC.AnomalyFreePerp.InLineEqSol",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L181-L182",
+        "source_text": "/-- Those solutions which satisfy the condition `lineEqPropSol` but not `inQuadSolProp`. -/\ndef InLineEqSol : Type := {R : MSSMACC.Sols // LineEqPropSol R ∧ ¬ InQuadSolProp R}\n",
+        "docstring": "Those solutions which satisfy the condition `lineEqPropSol` but not `inQuadSolProp`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "logicals_nonempty_iff actual logicalWords signature",
+    "status": "ok",
+    "results": [
+      {
+        "id": 256719,
+        "name": "exists_true_iff_nonempty",
+        "module": "Mathlib.Logic.Nonempty",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Nonempty.lean#L40-L41",
+        "source_text": "theorem exists_true_iff_nonempty {α : Sort*} : (∃ _ : α, True) ↔ Nonempty α :=\n  Iff.intro (fun ⟨a, _⟩ ↦ ⟨a⟩) fun ⟨a⟩ ↦ ⟨a, trivial⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 271013,
+        "name": "FirstOrder.Language.nonemptyTheory",
+        "module": "Mathlib.ModelTheory.Syntax",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Syntax.lean#L868-L870",
+        "source_text": "/-- A theory that indicates a structure is nonempty. -/\ndef nonemptyTheory : L.Theory :=\n  {Sentence.cardGe L 1}\n",
+        "docstring": "A theory that indicates a structure is nonempty. "
+      },
+      {
+        "id": 256717,
+        "name": "Nonempty.exists",
+        "module": "Mathlib.Logic.Nonempty",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Nonempty.lean#L30-L32",
+        "source_text": "@[simp]\ntheorem Nonempty.exists {α} {p : Nonempty α → Prop} : (∃ h : Nonempty α, p h) ↔ ∃ a, p ⟨a⟩ :=\n  Iff.intro (fun ⟨⟨a⟩, h⟩ ↦ ⟨a, h⟩) fun ⟨a, h⟩ ↦ ⟨⟨a⟩, h⟩",
+        "docstring": null
+      },
+      {
+        "id": 256720,
+        "name": "Nonempty.imp",
+        "module": "Mathlib.Logic.Nonempty",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Nonempty.lean#L43-L44",
+        "source_text": "theorem Nonempty.imp {α} {p : Prop} : (Nonempty α → p) ↔ (α → p) :=\n  Nonempty.forall\n",
+        "docstring": null
+      },
+      {
+        "id": 291537,
+        "name": "instNonemptyLex",
+        "module": "Mathlib.Order.Lex",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Lex.lean#L88-L88",
+        "source_text": "instance (α : Type*) [Nonempty α] : Nonempty (Lex α) := inferInstanceAs <| Nonempty α\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "logicals_nonempty_iff actual logicalWords signature",
+    "status": "unavailable",
+    "error": "LeanExplore Physlib: HTTP 500",
+    "results": []
+  }
+]

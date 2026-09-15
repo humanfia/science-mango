@@ -1,0 +1,258 @@
+{
+  "status": "finished",
+  "max_concurrency": 4,
+  "updated_at": "2026-09-15T14:58:27.880247+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "answer_correct": {
+      "id": "answer_correct",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "retrieval_unavailable",
+        "target": "M6.Final.answer_correct",
+        "spec_sha256": "b302c5ebfa4fec9f19a0a197b92d4d5dee5bd99bf940c1132fa8c6c09dd49abc",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": ".left.mpr\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP),\n    ActualTransfer.span a b < N →\n      (ActualTransfer.solve N a b = none ↔\n          Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) = ∅) ∧\n        ∀ (d : ℕ) (v : Pinned.Vector (2 * N)) (k : ℕ),\n          ActualTransfer.solve N a b = some (d, v, k) →\n            v ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) ∧\n              Pinned.weight v = d ∧\n                (∀ u ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b),\n                    d ≤ Pinned.weight u) ∧\n                  k ≤ 2 * N\nhd :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N),\n    CSS.quantumDistance (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b)\n        (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b)) =\n      Pinned.distance (Spaces.logicalWords N a b)\nhp :\n  ∀ (m : ℕ) (L : Finset (Pinned.Vector m)),\n    (Pinned.distance L = none ↔ L = ∅) ∧\n      ∀ (d : ℕ), Pinned.distance L = some d ↔ (∃ v ∈ L, Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ Pinned.weight v\nhj :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N) (v : Pinned.Vector (2 * N)),\n    v ∈ CSS.logical (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b) ↔\n      Flatten.J N v ∈ CSS.logical (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b))\nhw : ∀ (N : ℕ) [inst : NeZero N] (v : Pinned.Vector (2 * N)), Pinned.weight (Flatten.J N v) = Pinned.weight v\nhn :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualCounts.BP),\n    Polynomial.degree a < ↑N →\n      Polynomial.degree b < ↑N →\n        ((Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b)).Nonempty ↔\n          0 < ActualCounts.f N a b)\na_1 : ActualCounts.f N a b = 0\n⊢ quantumDistance N a b = none\n\ncase right.right.left.left\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP),\n    ActualTransfer.span a b < N →\n      (ActualTransfer.solve N a b = none ↔\n          Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) = ∅) ∧\n        ∀ (d : ℕ) (v : Pinned.Vector (2 * N)) (k : ℕ),\n          ActualTransfer.solve N a b = some (d, v, k) →\n            v ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) ∧\n              Pinned.weight v = d ∧\n                (∀ u ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b),\n                    d ≤ Pinned.weight u) ∧\n                  k ≤ 2 * N\nhd :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N),\n    CSS.quantumDistance (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b)\n        (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b)) =\n      Pinned.distance (Spaces.logicalWords N a b)\nhp :\n  ∀ (m : ℕ) (L : Finset (Pinned.Vector m)),\n    (Pinned.distance L = none ↔ L = ∅) ∧\n      ∀ (d : ℕ), Pinned.distance L = some d ↔ (∃ v ∈ L, Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ Pinned.weight v\nhj :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N) (v : Pinned.Vector (2 * N)),\n    v ∈ CSS.logical (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b) ↔\n      Flatten.J N v ∈ CSS.logical (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b))\nhw : ∀ (N : ℕ) [inst : NeZero N] (v : Pinned.Vector (2 * N)), Pinned.weight (Flatten.J N v) = Pinned.weight v\nhn :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualCounts.BP),\n    Polynomial.degree a < ↑N →\n      Polynomial.degree b < ↑N →\n        ((Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b)).Nonempty ↔\n          0 < ActualCounts.f N a b)\nd : ℕ\nv : Pinned.Vector (2 * N)\nk : ℕ\na_1 : ActualTransfer.solve N a b = some (d, v, k)\n⊢ quantumDistance N a b = some d\n\ncase right.right.left.right.left\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP),\n    ActualTransfer.span a b < N →\n      (ActualTransfer.solve N a b = none ↔\n          Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) = ∅) ∧\n        ∀ (d : ℕ) (v : Pinned.Vector (2 * N)) (k : ℕ),\n          ActualTransfer.solve N a b = some (d, v, k) →\n            v ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) ∧\n              Pinned.weight v = d ∧\n                (∀ u ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b),\n                    d ≤ Pinned.weight u) ∧\n                  k ≤ 2 * N\nhd :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N),\n    CSS.quantumDistance (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b)\n        (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b)) =\n      Pinned.distance (Spaces.logicalWords N a b)\nhp :\n  ∀ (m : ℕ) (L : Finset (Pinned.Vector m)),\n    (Pinned.distance L = none ↔ L = ∅) ∧\n      ∀ (d : ℕ), Pinned.distance L = some d ↔ (∃ v ∈ L, Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ Pinned.weight v\nhj :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N) (v : Pinned.Vector (2 * N)),\n    v ∈ CSS.logical (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b) ↔\n      Flatten.J N v ∈ CSS.logical (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b))\nhw : ∀ (N : ℕ) [inst : NeZero N] (v : Pinned.Vector (2 * N)), Pinned.weight (Flatten.J N v) = Pinned.weight v\nhn :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualCounts.BP),\n    Polynomial.degree a < ↑N →\n      Polynomial.degree b < ↑N →\n        ((Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b)).Nonempty ↔\n          0 < ActualCounts.f N a b)\nd : ℕ\nv : Pinned.Vector (2 * N)\nk : ℕ\na_1 : ActualTransfer.solve N a b = some (d, v, k)\n⊢ v ∈ LX N a b\n\ncase right.right.left.right.right.left\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP),\n    ActualTransfer.span a b < N →\n      (ActualTransfer.solve N a b = none ↔\n          Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) = ∅) ∧\n        ∀ (d : ℕ) (v : Pinned.Vector (2 * N)) (k : ℕ),\n          ActualTransfer.solve N a b = some (d, v, k) →\n            v ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) ∧\n              Pinned.weight v = d ∧\n                (∀ u ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b),\n                    d ≤ Pinned.weight u) ∧\n                  k ≤ 2 * N\nhd :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N),\n    CSS.quantumDistance (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b)\n        (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b)) =\n      Pinned.distance (Spaces.logicalWords N a b)\nhp :\n  ∀ (m : ℕ) (L : Finset (Pinned.Vector m)),\n    (Pinned.distance L = none ↔ L = ∅) ∧\n      ∀ (d : ℕ), Pinned.distance L = some d ↔ (∃ v ∈ L, Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ Pinned.weight v\nhj :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N) (v : Pinned.Vector (2 * N)),\n    v ∈ CSS.logical (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b) ↔\n      Flatten.J N v ∈ CSS.logical (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b))\nhw : ∀ (N : ℕ) [inst : NeZero N] (v : Pinned.Vector (2 * N)), Pinned.weight (Flatten.J N v) = Pinned.weight v\nhn :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualCounts.BP),\n    Polynomial.degree a < ↑N →\n      Polynomial.degree b < ↑N →\n        ((Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b)).Nonempty ↔\n          0 < ActualCounts.f N a b)\nd : ℕ\nv : Pinned.Vector (2 * N)\nk : ℕ\na_1 : ActualTransfer.solve N a b = some (d, v, k)\n⊢ Pinned.weight v = d\n\ncase right.right.left.right.right.right.left.left\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP),\n    ActualTransfer.span a b < N →\n      (ActualTransfer.solve N a b = none ↔\n          Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) = ∅) ∧\n        ∀ (d : ℕ) (v : Pinned.Vector (2 * N)) (k : ℕ),\n          ActualTransfer.solve N a b = some (d, v, k) →\n            v ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) ∧\n              Pinned.weight v = d ∧\n                (∀ u ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b),\n                    d ≤ Pinned.weight u) ∧\n                  k ≤ 2 * N\nhd :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N),\n    CSS.quantumDistance (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b)\n        (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b)) =\n      Pinned.distance (Spaces.logicalWords N a b)\nhp :\n  ∀ (m : ℕ) (L : Finset (Pinned.Vector m)),\n    (Pinned.distance L = none ↔ L = ∅) ∧\n      ∀ (d : ℕ), Pinned.distance L = some d ↔ (∃ v ∈ L, Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ Pinned.weight v\nhj :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N) (v : Pinned.Vector (2 * N)),\n    v ∈ CSS.logical (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b) ↔\n      Flatten.J N v ∈ CSS.logical (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b))\nhw : ∀ (N : ℕ) [inst : NeZero N] (v : Pinned.Vector (2 * N)), Pinned.weight (Flatten.J N v) = Pinned.weight v\nhn :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualCounts.BP),\n    Polynomial.degree a < ↑N →\n      Polynomial.degree b < ↑N →\n        ((Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b)).Nonempty ↔\n          0 < ActualCounts.f N a b)\nd : ℕ\nv : Pinned.Vector (2 * N)\nk : ℕ\na_1 : ActualTransfer.solve N a b = some (d, v, k)\n⊢ Flatten.J N v ∈ CZ N a b\n\ncase right.right.left.right.right.right.left.right\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP),\n    ActualTransfer.span a b < N →\n      (ActualTransfer.solve N a b = none ↔\n          Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) = ∅) ∧\n        ∀ (d : ℕ) (v : Pinned.Vector (2 * N)) (k : ℕ),\n          ActualTransfer.solve N a b = some (d, v, k) →\n            v ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) ∧\n              Pinned.weight v = d ∧\n                (∀ u ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b),\n                    d ≤ Pinned.weight u) ∧\n                  k ≤ 2 * N\nhd :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N),\n    CSS.quantumDistance (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b)\n        (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b)) =\n      Pinned.distance (Spaces.logicalWords N a b)\nhp :\n  ∀ (m : ℕ) (L : Finset (Pinned.Vector m)),\n    (Pinned.distance L = none ↔ L = ∅) ∧\n      ∀ (d : ℕ), Pinned.distance L = some d ↔ (∃ v ∈ L, Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ Pinned.weight v\nhj :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N) (v : Pinned.Vector (2 * N)),\n    v ∈ CSS.logical (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b) ↔\n      Flatten.J N v ∈ CSS.logical (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b))\nhw : ∀ (N : ℕ) [inst : NeZero N] (v : Pinned.Vector (2 * N)), Pinned.weight (Flatten.J N v) = Pinned.weight v\nhn :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualCounts.BP),\n    Polynomial.degree a < ↑N →\n      Polynomial.degree b < ↑N →\n        ((Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b)).Nonempty ↔\n          0 < ActualCounts.f N a b)\nd : ℕ\nv : Pinned.Vector (2 * N)\nk : ℕ\na_1 : ActualTransfer.solve N a b = some (d, v, k)\na_2 : Flatten.J N v ∈ BZ N a b\n⊢ False\n\ncase right.right.left.right.right.right.right.left\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP),\n    ActualTransfer.span a b < N →\n      (ActualTransfer.solve N a b = none ↔\n          Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) = ∅) ∧\n        ∀ (d : ℕ) (v : Pinned.Vector (2 * N)) (k : ℕ),\n          ActualTransfer.solve N a b = some (d, v, k) →\n            v ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) ∧\n              Pinned.weight v = d ∧\n                (∀ u ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b),\n                    d ≤ Pinned.weight u) ∧\n                  k ≤ 2 * N\nhd :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N),\n    CSS.quantumDistance (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b)\n        (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b)) =\n      Pinned.distance (Spaces.logicalWords N a b)\nhp :\n  ∀ (m : ℕ) (L : Finset (Pinned.Vector m)),\n    (Pinned.distance L = none ↔ L = ∅) ∧\n      ∀ (d : ℕ), Pinned.distance L = some d ↔ (∃ v ∈ L, Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ Pinned.weight v\nhj :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N) (v : Pinned.Vector (2 * N)),\n    v ∈ CSS.logical (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b) ↔\n      Flatten.J N v ∈ CSS.logical (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b))\nhw : ∀ (N : ℕ) [inst : NeZero N] (v : Pinned.Vector (2 * N)), Pinned.weight (Flatten.J N v) = Pinned.weight v\nhn :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualCounts.BP),\n    Polynomial.degree a < ↑N →\n      Polynomial.degree b < ↑N →\n        ((Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b)).Nonempty ↔\n          0 < ActualCounts.f N a b)\nd : ℕ\nv : Pinned.Vector (2 * N)\nk : ℕ\na_1 : ActualTransfer.solve N a b = some (d, v, k)\n⊢ Pinned.weight v = d\n\ncase right.right.left.right.right.right.right.right\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP),\n    ActualTransfer.span a b < N →\n      (ActualTransfer.solve N a b = none ↔\n          Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) = ∅) ∧\n        ∀ (d : ℕ) (v : Pinned.Vector (2 * N)) (k : ℕ),\n          ActualTransfer.solve N a b = some (d, v, k) →\n            v ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) ∧\n              Pinned.weight v = d ∧\n                (∀ u ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b),\n                    d ≤ Pinned.weight u) ∧\n                  k ≤ 2 * N\nhd :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N),\n    CSS.quantumDistance (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b)\n        (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b)) =\n      Pinned.distance (Spaces.logicalWords N a b)\nhp :\n  ∀ (m : ℕ) (L : Finset (Pinned.Vector m)),\n    (Pinned.distance L = none ↔ L = ∅) ∧\n      ∀ (d : ℕ), Pinned.distance L = some d ↔ (∃ v ∈ L, Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ Pinned.weight v\nhj :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N) (v : Pinned.Vector (2 * N)),\n    v ∈ CSS.logical (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b) ↔\n      Flatten.J N v ∈ CSS.logical (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b))\nhw : ∀ (N : ℕ) [inst : NeZero N] (v : Pinned.Vector (2 * N)), Pinned.weight (Flatten.J N v) = Pinned.weight v\nhn :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualCounts.BP),\n    Polynomial.degree a < ↑N →\n      Polynomial.degree b < ↑N →\n        ((Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b)).Nonempty ↔\n          0 < ActualCounts.f N a b)\nd : ℕ\nv : Pinned.Vector (2 * N)\nk : ℕ\na_1 : ActualTransfer.solve N a b = some (d, v, k)\n⊢ k ≤ 2 * N\n\ncase right.right.right\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP),\n    ActualTransfer.span a b < N →\n      (ActualTransfer.solve N a b = none ↔\n          Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) = ∅) ∧\n        ∀ (d : ℕ) (v : Pinned.Vector (2 * N)) (k : ℕ),\n          ActualTransfer.solve N a b = some (d, v, k) →\n            v ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b) ∧\n              Pinned.weight v = d ∧\n                (∀ u ∈ Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b),\n                    d ≤ Pinned.weight u) ∧\n                  k ≤ 2 * N\nhd :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N),\n    CSS.quantumDistance (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b)\n        (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b)) =\n      Pinned.distance (Spaces.logicalWords N a b)\nhp :\n  ∀ (m : ℕ) (L : Finset (Pinned.Vector m)),\n    (Pinned.distance L = none ↔ L = ∅) ∧\n      ∀ (d : ℕ), Pinned.distance L = some d ↔ (∃ v ∈ L, Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ Pinned.weight v\nhj :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : Physical.Block N) (v : Pinned.Vector (2 * N)),\n    v ∈ CSS.logical (Spaces.boundaryWords N a b) (Spaces.cycleWords N a b) ↔\n      Flatten.J N v ∈ CSS.logical (Character.subspaceWords (Spaces.D N a b)) (Character.dualWords (Spaces.B N a b))\nhw : ∀ (N : ℕ) [inst : NeZero N] (v : Pinned.Vector (2 * N)), Pinned.weight (Flatten.J N v) = Pinned.weight v\nhn :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualCounts.BP),\n    Polynomial.degree a < ↑N →\n      Polynomial.degree b < ↑N →\n        ((Spaces.logicalWords N (Coordinates.coefficients N a) (Coordinates.coefficients N b)).Nonempty ↔\n          0 < ActualCounts.f N a b)\na_1 : 0 < ActualCounts.f N a b\n⊢ ∃ d v k, ActualTransfer.solve N a b = some (d, v, k)\n",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:47:20.315058+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-qhcqc0hx",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 2
+      }
+    },
+    "counting_correct": {
+      "id": "counting_correct",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M6.Final.counting_correct",
+        "spec_sha256": "94fe465121afeea4a04496495753812033a7cad289d274287dcea34565ada6f6",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-001/Candidate_d9296df633da79df.lean:10:12: error: `exact?` could not close the goal. Try `apply?` to see partial suggestions.\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-001/Candidate_d9296df633da79df.lean:10:12: error: `exact?` could not close the goal. Try `apply?` to see partial suggestions.\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-002/Candidate_3a3db8051a886f2f.lean:8:10: error(lean.unknownIdentifier): Unknown constant `Polynomial.degree_lt_of_natDegree_lt`\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-002/Candidate_3a3db8051a886f2f.lean:9:28: error: No goals to be solved\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-002/Candidate_3a3db8051a886f2f.lean:11:10: error(lean.unknownIdentifier): Unknown constant `Polynomial.degree_lt_of_natDegree_lt`\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-002/Candidate_3a3db8051a886f2f.lean:12:28: error: No goals to be solved\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-002/Candidate_3a3db8051a886f2f.lean:23:6: error: `exact?` could not close the goal. Try `apply?` to see partial suggestions.\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-002/Candidate_3a3db8051a886f2f.lean:23:6: error: `exact?` could not close the goal. Try `apply?` to see partial suggestions.\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-003/Candidate_98a6945168067614.lean:8:8: error: unexpected token ':'; expected '=>'\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-003/Candidate_98a6945168067614.lean:2:66: error: unsolved goals\nN : ℕ\ninst : NeZero N\na b : BP\nh :\n  0 < N ∧\n    Polynomial.coeff a 0 = 1 ∧\n      Polynomial.coeff b 0 = 1 ∧\n        (Polynomial.support a).card = (Polynomial.support b).card ∧\n          ActualTransfer.span a b < N ∧ N.gcd ((Polynomial.support a ∪ Polynomial.support b).gcd id) = 1\n⊢ CountingCorrect N a b\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-004/Candidate_0bb89a40aca623aa.lean:7:53: error: Invalid projection: Projections extract constructor fields for one-constructor inductive types. The expression\n  hs\nhas type\n  (ActualTransfer.span a b).succ.le N\nwhich is not a one-constructor inductive type.\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-004/Candidate_0bb89a40aca623aa.lean:9:53: error: Invalid projection: Projections extract constructor fields for one-constructor inductive types. The expression\n  hs\nhas type\n  (ActualTransfer.span a b).succ.le N\nwhich is not a one-constructor inductive type.\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1/attempt-004/Candidate_0bb89a40aca623aa.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "proof_body",
+            "feedback": "proof body contains an unfinished proof or unsupported metaprogramming/command escape",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T14:47:20.450610+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1vt0wga1",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "execution_correct": {
+      "id": "execution_correct",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Final.execution_correct",
+        "spec_sha256": "c10302d8ff80cf2489d9e9d17b9911a9f7ec9657efbfb36e92567d55bd395397",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-001/Candidate_3821e0a8045a0ad8.lean:22:16: error(lean.unknownIdentifier): Unknown identifier `M6.Transfer.actual_distance_work`\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-001/Candidate_3821e0a8045a0ad8.lean:2:67: error: unsolved goals\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhb :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP) (P : Pinned.Pins (2 * N)),\n    ActualTransfer.span a b < N →\n      Transfer.IndexedArrayGuarantee (ActualTransfer.span a b) N\n        (ActualTransfer.boundaryWeight (ActualTransfer.span a b) N a b P)\nhc :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP) (P : Pinned.Pins (2 * N)),\n    ActualTransfer.span a b < N →\n      Transfer.IndexedArrayGuarantee (ActualTransfer.span a b) N\n        (ActualTransfer.characterWeight (ActualTransfer.span a b) N a b P)\nho :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP) (P : Pinned.Pins (2 * N)),\n    ActualTransfer.shiftedOutput N a b P = ActualTransfer.Q N a b P\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP) (P : Pinned.Pins (2 * N)),\n    ActualTransfer.shiftedScan N a b P = Pinned.firstPositive (2 * N) (ActualTransfer.Q N a b P)\n⊢ ExecutionCorrect N a b\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-002/Candidate_5386bac3fe573617.lean",
+            "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-002/FrozenTarget_5386bac3fe573617.lean",
+            "feedback": "",
+            "target_sha256": "8392dcada1df8d70ce9f3b2eaf61c52e4d0cde3577a49aaefacbb22e279f9a40",
+            "target_olean_sha256": "845cb1c6dbd2872fc13a50823b660f1ebe3fc860072fc896da5cc5fdd8e5ee3c",
+            "source_sha256": "61b1cbc07c8fe683351ebbeeba3a4318da059f27cef998298a4289bece5fced7",
+            "olean_sha256": "5ea7ca6850e6d189db9a3e91a9fa114607f16d0fa4a98e12eeb6d8300e81c77d",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T14:47:20.583017+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-002/Candidate_5386bac3fe573617.lean",
+        "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+        "artifacts": {
+          "execution_correct": {
+            "payload": {
+              "declaration": "theorem M6.Final.execution_correct : ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.ExecutionCorrect N a b := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.ExecutionCorrect N a b\n  intro N inst a b h\n  have hb := M6.ActualTransfer.boundary_indexed_resources\n  have hc := M6.ActualTransfer.character_indexed_resources\n  have ho := M6.ActualTransfer.shifted_output_exact\n  have hs := M6.ActualTransfer.shifted_scan_exact\n  first\n  | have hd := M6.SolveResources.actual_distance_work\n  | have hd := M6.Solve.actual_distance_work\n  | have hd := M6.QueryResources.actual_distance_work\n  | have hd := M6.Query.actual_distance_work\n  | have hd := M6.Postprocessing.actual_distance_work\n  | have hd := M6.ActualTransfer.actual_distance_work\n  | have hd := M6.Final.actual_distance_work\n  | have hd := M6.actual_distance_work\n  first\n  | have hw := M6.SolveResources.actual_witness_work\n  | have hw := M6.Solve.actual_witness_work\n  | have hw := M6.QueryResources.actual_witness_work\n  | have hw := M6.Query.actual_witness_work\n  | have hw := M6.Postprocessing.actual_witness_work\n  | have hw := M6.ActualTransfer.actual_witness_work\n  | have hw := M6.Final.actual_witness_work\n  | have hw := M6.actual_witness_work\n  unfold M6.Final.Admissible at h\n  unfold M6.Final.ExecutionCorrect\n  aesop (add safe apply [hb, hc, ho, hs, hd, hw])",
+              "imports": [
+                "M6FinalReady"
+              ],
+              "name": "M6.Final.execution_correct",
+              "ancestors": [],
+              "spec_sha256": "c10302d8ff80cf2489d9e9d17b9911a9f7ec9657efbfb36e92567d55bd395397"
+            },
+            "sha256": "5b56afc50c8bb104077865025af46f1362882d362b8fad7342fdf1192fc2cde0"
+          }
+        }
+      }
+    },
+    "fixed_span_correct": {
+      "id": "fixed_span_correct",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "retrieval_unavailable",
+        "target": "M6.Final.fixed_span_correct",
+        "spec_sha256": "97b53e1bc118674a91e346470352bf02448a11fa12fa17d4f8f9224890bdea7a",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bi3jzf8d/attempt-001/Candidate_c4a1d7960bb098c1.lean:5:3: error(lean.unknownIdentifier): Unknown identifier `aesop`\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bi3jzf8d/attempt-001/Candidate_c4a1d7960bb098c1.lean:5:9: error: unexpected token '('; expected command\n",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:47:20.726884+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bi3jzf8d",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 2
+      }
+    },
+    "parameters_correct": {
+      "id": "parameters_correct",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "retrieval_unavailable",
+        "target": "M6.Final.parameters_correct",
+        "spec_sha256": "86137cb4c0cbe21cb406283772ee7b7215f677b66c6769b7d5f7c347f0e03a9a",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-p_ye_xdb/attempt-001/Candidate_cbb6de43881ecde7.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:49:06.707738+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-p_ye_xdb",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 2
+      }
+    },
+    "zero_span_correct": {
+      "id": "zero_span_correct",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M6.Final.zero_span_correct",
+        "spec_sha256": "ab3eb99650efe6b666ec8572dd251e7c5cbc17fa798d7c7d900815476866d149",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "Try this:\n  [apply] exact fun a b a_1 a_2 a_3 => ZeroSpan.anchored_zero a b a_1 a_2 a_3\nTry this:\n  [apply] exact fun N a => ZeroSpan.connected_zero N a\nTry this:\n  [apply] exact fun N [NeZero N] i m n => ZeroSpan.boundary_loops N i m n\nTry this:\n  [apply] exact fun N [NeZero N] i m n => ZeroSpan.character_loops N i m n\nTry this:\n  [apply] exact fun N [NeZero N] => ZeroSpan.boundary_trace_zero N\nTry this:\n  [apply] exact fun N [NeZero N] => ZeroSpan.character_trace_zero N\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-d7q6k8yu/attempt-001/Candidate_6766f90b2933b144.lean:7:38: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "proof_body",
+            "feedback": "proof body contains an unfinished proof or unsupported metaprogramming/command escape",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "Try this:\n  [apply] (expose_names; exact ZeroSpan.anchored_zero a b h h_1 h_2)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.connected_zero N h)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.boundary_loops N i m n)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.character_loops N i m n)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.boundary_trace_zero N)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.character_trace_zero N)\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-d7q6k8yu/attempt-003/Candidate_b6abbb88f88136a6.lean:10:38: error(lean.unknownIdentifier): Unknown identifier `M6.Final.actualQ`\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-d7q6k8yu/attempt-003/Candidate_b6abbb88f88136a6.lean:10:7: error: simp_all made no progress\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "Try this:\n  [apply] (expose_names; exact ZeroSpan.anchored_zero a b h h_1 h_2)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.connected_zero N h)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.boundary_loops N i m n)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.character_loops N i m n)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.boundary_trace_zero N)\nTry this:\n  [apply] (expose_names; exact ZeroSpan.character_trace_zero N)\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-d7q6k8yu/attempt-004/Candidate_800451d85a5e8bd4.lean:14:17: error(lean.unknownIdentifier): Unknown identifier `M6.Normalize.actualQ`\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-d7q6k8yu/attempt-005/Candidate_0ddd724fb369ec61.lean:5:37: error: unexpected identifier; expected '=>'\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-d7q6k8yu/attempt-005/Candidate_0ddd724fb369ec61.lean:2:67: error: unsolved goals\n⊢ (∀ (a b : BP), Polynomial.coeff a 0 = 1 → Polynomial.coeff b 0 = 1 → ActualTransfer.span a b = 0 → a = 1 ∧ b = 1) ∧\n    (∀ (N : ℕ), Admissible N 1 1 → N = 1) ∧\n      (∀ (N : ℕ) [inst : NeZero N] (i : ℕ) (m n : Transfer.Memory 0),\n          Transfer.edgeMatrix (ActualTransfer.boundaryWeight 0 N 1 1 (Pinned.free (2 * N)) i) m n =\n            1 + Polynomial.X ^ 2) ∧\n        (∀ (N : ℕ) [inst : NeZero N] (i : ℕ) (m n : Transfer.Memory 0),\n            Transfer.edgeMatrix (ActualTransfer.characterWeight 0 N 1 1 (Pinned.free (2 * N)) i) m n =\n              Polynomial.C 2 * (1 + Polynomial.X ^ 2)) ∧\n          (∀ (N : ℕ) [inst : NeZero N],\n              ActualTransfer.boundaryTrace N 1 1 (Pinned.free (2 * N)) = (1 + Polynomial.X ^ 2) ^ N) ∧\n            (∀ (N : ℕ) [inst : NeZero N],\n                ActualTransfer.characterTrace N 1 1 (Pinned.free (2 * N)) =\n                  Polynomial.C (2 ^ N) * (1 + Polynomial.X ^ 2) ^ N) ∧\n              ∀ (N : ℕ) [inst : NeZero N], ActualTransfer.Q N 1 1 (Pinned.free (2 * N)) = 0\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T14:49:52.349043+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-d7q6k8yu",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 5
+      }
+    }
+  }
+}

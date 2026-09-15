@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial natDegree add bound",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101626,
+        "name": "Polynomial.natDegree_add_C",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L203-L209",
+        "source_text": "@[simp, grind =] theorem natDegree_add_C {a : R} : (p + C a).natDegree = p.natDegree := by\n  rcases eq_or_ne p 0 with rfl | hp\n  · simp\n  by_cases! hpd : p.degree ≤ 0\n  · rw [eq_C_of_degree_le_zero hpd, ← C_add, natDegree_C, natDegree_C]\n  · rw [degree_eq_natDegree hp, Nat.cast_pos, ← natDegree_C a] at hpd\n    exact natDegree_add_eq_left_of_natDegree_lt hpd",
+        "docstring": null
+      },
+      {
+        "id": 101430,
+        "name": "Polynomial.natDegree_add_le",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L338-L339",
+        "source_text": "theorem natDegree_add_le (p q : R[X]) : natDegree (p + q) ≤ max (natDegree p) (natDegree q) := by\n  rcases le_max_iff.1 (degree_add_le p q) with h | h <;> simp [natDegree_le_natDegree h]\n",
+        "docstring": null
+      },
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      },
+      {
+        "id": 101385,
+        "name": "Polynomial.degree_le_of_natDegree_le",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L142-L142",
+        "source_text": "alias ⟨degree_le_of_natDegree_le, natDegree_le_of_degree_le⟩ := natDegree_le_iff_degree_le\n",
+        "docstring": "**Alias** of the forward direction of `Polynomial.natDegree_le_iff_degree_le`."
+      },
+      {
+        "id": 101524,
+        "name": "Polynomial.natDegree_le_iff_coeff_eq_zero",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L78-L79",
+        "source_text": "theorem natDegree_le_iff_coeff_eq_zero : p.natDegree ≤ n ↔ ∀ N : ℕ, n < N → p.coeff N = 0 := by\n  simp_rw [natDegree_le_iff_degree_le, degree_le_iff_coeff_zero, Nat.cast_lt]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "natural number polynomial inequality",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      },
+      {
+        "id": 101615,
+        "name": "Polynomial.natDegree_lt_natDegree_iff",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L158-L161",
+        "source_text": "theorem natDegree_lt_natDegree_iff (hp : p ≠ 0) : natDegree p < natDegree q ↔ degree p < degree q :=\n  ⟨degree_lt_degree, fun h ↦ by\n    have hq : q ≠ 0 := ne_zero_of_degree_gt h\n    rwa [degree_eq_natDegree hp, degree_eq_natDegree hq, Nat.cast_lt] at h⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 195701,
+        "name": "AkraBazziRecurrence.GrowsPolynomially.eventually_atTop_le_nat",
+        "module": "Mathlib.Computability.AkraBazzi.GrowsPolynomially",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/AkraBazzi/GrowsPolynomially.lean#L71-L74",
+        "source_text": "lemma eventually_atTop_le_nat {b : ℝ} (hb : b ∈ Set.Ioo 0 1) (hf : GrowsPolynomially f) :\n    ∃ c > 0, ∀ᶠ (n : ℕ) in atTop, ∀ u ∈ Set.Icc (b * n) n, f u ≤ c * f n := by\n  obtain ⟨c, hc_mem, hc⟩ := hf.eventually_atTop_le hb\n  exact ⟨c, hc_mem, hc.natCast_atTop⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 129648,
+        "name": "naturalParameterization",
+        "module": "Mathlib.Analysis.ConstantSpeed",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/ConstantSpeed.lean#L224-L230",
+        "source_text": "/-- The natural parameterization of `f` on `s`, which, if `f` has locally bounded variation on `s`,\n* has unit speed on `s` (by `has_unit_speed_naturalParameterization`).\n* composed with `variationOnFromTo f s a`, is at distance zero from `f`\n  (by `edist_naturalParameterization_eq_zero`).\n-/\nnoncomputable def naturalParameterization (f : α → E) (s : Set α) (a : α) : ℝ → E :=\n  f ∘ @Function.invFunOn _ _ ⟨a⟩ (variationOnFromTo f s a) s\n",
+        "docstring": "The natural parameterization of `f` on `s`, which, if `f` has locally bounded variation on `s`,\n* has unit speed on `s` (by `has_unit_speed_naturalParameterization`).\n* composed with `variationOnFromTo f s a`, is at distance zero from `f`\n  (by `edist_naturalParameterization_eq_zero`).\n"
+      },
+      {
+        "id": 107746,
+        "name": "tsirelson_inequality",
+        "module": "Mathlib.Algebra.Star.CHSH",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Star/CHSH.lean#L155-L199",
+        "source_text": "/-- In a noncommutative ordered \\*-algebra over ℝ,\nTsirelson's bound for a CHSH tuple (A₀, A₁, B₀, B₁) is\n`A₀ * B₀ + A₀ * B₁ + A₁ * B₀ - A₁ * B₁ ≤ 2^(3/2) • 1`.\n\nWe prove this by providing an explicit sum-of-squares decomposition\nof the difference.\n\n(We could work over `ℤ[2^(1/2), 2^(-1/2)]` if we really wanted to!)\n-/\ntheorem tsirelson_inequality [Ring R] [PartialOrder R] [StarRing R] [StarOrderedRing R]\n    [Algebra ℝ R] [IsOrderedModule ℝ R] [StarModule ℝ R]\n    (A₀ A₁ B₀ B₁ : R) (T : IsCHSHTuple A₀ A₁ B₀ B₁) :\n    A₀ * B₀ + A₀ * B₁ + A₁ * B₀ - A₁ * B₁ ≤ √2 ^ 3 • (1 : R) := by\n  -- abel will create `ℤ` multiplication. We will `simp` them away to `ℝ` multiplication.\n  have M : ∀ (m : ℤ) (a : ℝ) (x : R), m • a • x = ((m : ℝ) * a) • x := fun m a x => by\n    rw [← Int.cast_smul_eq_zsmul ℝ, ← mul_smul]\n  let P := (√2)⁻¹ • (A₁ + A₀) - B₀\n  let Q := (√2)⁻¹ • (A₁ - A₀) + B₁\n  have w : √2 ^ 3 • (1 : R) - A₀ * B₀ - A₀ * B₁ - A₁ * B₀ + A₁ * B₁ = (√2)⁻¹ • (P ^ 2 + Q ^ 2) := by\n    dsimp [P, Q]\n    -- distribute out all the powers and products appearing on the RHS\n    simp only [sq, sub_mul, mul_sub, add_mul, mul_add, smul_add, smul_sub]\n    -- pull all coefficients out to the front, and combine `√2`s where possible\n    simp only [Algebra.mul_smul_comm, Algebra.smul_mul_assoc, ← mul_smul, sqrt_two_inv_mul_self]\n    -- replace Aᵢ * Aᵢ = 1 and Bᵢ * Bᵢ = 1\n    simp only [← sq, T.A₀_inv, T.A₁_inv, T.B₀_inv, T.B₁_inv]\n    -- move Aᵢ to the left of Bᵢ\n    simp only [← T.A₀B₀_commutes, ← T.A₀B₁_commutes, ← T.A₁B₀_commutes, ← T.A₁B₁_commutes]\n    -- collect terms, simplify coefficients, and collect terms again:\n    abel_nf\n    -- all terms coincide, but the last one. Simplify all other terms\n    simp only [M]\n    simp only [neg_mul, mul_inv_cancel_of_invertible, add_assoc, add_comm,\n      add_left_comm, one_smul, Int.cast_neg, neg_smul, Int.cast_ofNat, ← add_smul]\n    grind\n  have pos : 0 ≤ (√2)⁻¹ • (P ^ 2 + Q ^ 2) := by\n    have P_sa : star P = P := by\n      simp only [P, star_smul, star_add, star_sub, star_id_of_comm, T.A₀_sa, T.A₁_sa, T.B₀_sa]\n    have Q_sa : star Q = Q := by\n      simp only [Q, star_smul, star_add, star_sub, star_id_of_comm, T.A₀_sa, T.A₁_sa, T.B₁_sa]\n    have P2_nonneg : 0 ≤ P ^ 2 := by simpa only [P_sa, sq] using star_mul_self_nonneg P\n    have Q2_nonneg : 0 ≤ Q ^ 2 := by simpa only [Q_sa, sq] using star_mul_self_nonneg Q\n    positivity\n  apply le_of_sub_nonneg\n  simpa only [sub_add_eq_sub_sub, ← sub_add, w, Nat.cast_zero] using pos\n",
+        "docstring": "In a noncommutative ordered \\*-algebra over ℝ,\nTsirelson's bound for a CHSH tuple (A₀, A₁, B₀, B₁) is\n`A₀ * B₀ + A₀ * B₁ + A₁ * B₀ - A₁ * B₁ ≤ 2^(3/2) • 1`.\n\nWe prove this by providing an explicit sum-of-squares decomposition\nof the difference.\n\n(We could work over `ℤ[2^(1/2), 2^(-1/2)]` if we really wanted to!)\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "natural number polynomial inequality",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388198,
+        "name": "MSSMACC_numberLinear",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L333-L333",
+        "source_text": "@[simps!]\ndef MSSMACC : ACCSystem where\n  toACCSystemCharges := MSSMCharges",
+        "docstring": null
+      },
+      {
+        "id": 387776,
+        "name": "SMCharges_numberCharges",
+        "module": "Physlib.Particles.StandardModel.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/Basic.lean#L23-L23",
+        "source_text": "@[simps!]\ndef SMCharges (n : ℕ) : ACCSystemCharges := ⟨5 * n⟩",
+        "docstring": null
+      },
+      {
+        "id": 388146,
+        "name": "MSSMCharges_numberCharges",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L23-L23",
+        "source_text": "@[simps!]\ndef MSSMCharges : ACCSystemCharges := ⟨20⟩",
+        "docstring": null
+      },
+      {
+        "id": 388195,
+        "name": "MSSMACC_numberQuadratic",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L333-L333",
+        "source_text": "@[simps!]\ndef MSSMACC : ACCSystem where\n  toACCSystemCharges := MSSMCharges",
+        "docstring": null
+      },
+      {
+        "id": 387148,
+        "name": "SMνCharges_numberCharges",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Basic.lean#L24-L24",
+        "source_text": "@[simps!]\ndef SMνCharges (n : ℕ) : ACCSystemCharges := ⟨6 * n⟩",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

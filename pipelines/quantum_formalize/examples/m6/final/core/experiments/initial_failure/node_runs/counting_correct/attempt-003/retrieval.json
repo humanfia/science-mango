@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.Admissible M6.Final.CountingCorrect definition bodies",
+    "status": "ok",
+    "results": [
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 265064,
+        "name": "MeasureTheory.Measure.count_apply_lt_top'",
+        "module": "Mathlib.MeasureTheory.Measure.Count",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/Count.lean#L87-L92",
+        "source_text": "@[simp]\ntheorem count_apply_lt_top' (s_mble : MeasurableSet s) : count s < ∞ ↔ s.Finite :=\n  calc\n    count s < ∞ ↔ count s ≠ ∞ := lt_top_iff_ne_top\n    _ ↔ ¬s.Infinite := not_congr (count_apply_eq_top' s_mble)\n    _ ↔ s.Finite := Classical.not_not",
+        "docstring": null
+      },
+      {
+        "id": 265059,
+        "name": "MeasureTheory.Measure.count_apply_finite'",
+        "module": "Mathlib.MeasureTheory.Measure.Count",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/Count.lean#L55-L58",
+        "source_text": "theorem count_apply_finite' {s : Set α} (s_fin : s.Finite) (s_mble : MeasurableSet s) :\n    count s = #s_fin.toFinset := by\n  simp [←\n    @count_apply_finset' _ _ s_fin.toFinset (by simpa only [Finite.coe_toFinset] using s_mble)]\n",
+        "docstring": null
+      },
+      {
+        "id": 156748,
+        "name": "CategoryTheory.final_eval",
+        "module": "Mathlib.CategoryTheory.Filtered.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Filtered/Final.lean#L428-L438",
+        "source_text": "instance final_eval [∀ s, IsFiltered (I s)] (s : α) : (Pi.eval I s).Final := by\n  classical\n  apply Functor.final_of_exists_of_isFiltered\n  · exact fun i => ⟨Function.update (fun t => nonempty.some) s i, ⟨by simpa using 𝟙 _⟩⟩\n  · intro d c f g\n    let c't : (∀ s, (c' : I s) × (c s ⟶ c')) := Function.update (fun t => ⟨c t, 𝟙 (c t)⟩)\n      s ⟨coeq f g, coeqHom f g⟩\n    refine ⟨fun t => (c't t).1, fun t => (c't t).2, ?_⟩\n    dsimp only [Pi.eval_obj, Pi.eval_map, c't]\n    rw [Function.update_self]\n    simpa using coeq_condition _ _\n",
+        "docstring": null
+      },
+      {
+        "id": 161393,
+        "name": "CategoryTheory.final_fst",
+        "module": "Mathlib.CategoryTheory.Limits.Final.Connected",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final/Connected.lean#L54-L56",
+        "source_text": "instance final_fst [IsConnected D] : (Prod.fst C D).Final :=\n  inferInstanceAs (Functor.prod (𝟭 C) ((Functor.const _).obj (Discrete.mk .unit)) ⋙\n    (prod.rightUnitorEquivalence.{0} C).functor).Final\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.Admissible M6.Final.CountingCorrect definition bodies",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387053,
+        "name": "Physlib.noDefsNoDocString",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L199-L204",
+        "source_text": "/-- Number of definitions without a doc-string. -/\ndef noDefsNoDocString : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c =>\n    return c.isDef && (← c.name.hasPos) && !(← c.name.hasDocString)\n",
+        "docstring": "Number of definitions without a doc-string. "
+      },
+      {
+        "id": 387070,
+        "name": "Physlib.noInformalDefs",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L74-L78",
+        "source_text": "/-- The number of informal definitions in Physlib. -/\ndef noInformalDefs : CoreM Nat := do\n  let imports ← allImports\n  let x ← imports.mapM Imports.getUserConsts\n  x.flatFilterSizeM fun c => return Informal.isInformalDef c\n",
+        "docstring": "The number of informal definitions in Physlib. "
+      },
+      {
+        "id": 387050,
+        "name": "Physlib.noDefs",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L179-L183",
+        "source_text": "/-- Number of definitions. -/\ndef noDefs : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      },
+      {
+        "id": 387051,
+        "name": "Physlib.noLemmas",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L185-L189",
+        "source_text": "/-- Number of definitions. -/\ndef noLemmas : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return !c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      },
+      {
+        "id": 387069,
+        "name": "Physlib.noInformalLemmas",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L68-L72",
+        "source_text": "/-- The number of informal lemmas in Physlib. -/\ndef noInformalLemmas : CoreM Nat := do\n  let imports ← allImports\n  let x ← imports.mapM Imports.getUserConsts\n  x.flatFilterSizeM fun c => return Informal.isInformalLemma c\n",
+        "docstring": "The number of informal lemmas in Physlib. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualResult normalized Q_total identities",
+    "status": "ok",
+    "results": [
+      {
+        "id": 329235,
+        "name": "Mathlib.Tactic.Ring.Common.Result",
+        "module": "Mathlib.Tactic.Ring.Common",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Ring/Common.lean#L257-L268",
+        "source_text": "/--\nThe result of evaluating an (unnormalized) expression `e` into the type family `E`\n(typically one of `ExSum`, `ExProd`, `ExBase` or `BaseType`) is a (normalized) element `e'`\nand a representation `E e'` for it, and a proof of `e = e'`.\n-/\nstructure Result {α : Q(Type u)} (E : Q($α) → Type*) (e : Q($α)) where\n  /-- The normalized result. -/\n  expr : Q($α)\n  /-- The data associated to the normalization. -/\n  val : E expr\n  /-- A proof that the original expression is equal to the normalized result. -/\n  proof : Q($e = $expr)\n",
+        "docstring": "The result of evaluating an (unnormalized) expression `e` into the type family `E`\n(typically one of `ExSum`, `ExProd`, `ExBase` or `BaseType`) is a (normalized) element `e'`\nand a representation `E e'` for it, and a proof of `e = e'`.\n"
+      },
+      {
+        "id": 311844,
+        "name": "KaehlerDifferential.kerTotal_mkQ_single_add",
+        "module": "Mathlib.RingTheory.Kaehler.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Kaehler/Basic.lean#L485-L489",
+        "source_text": "theorem KaehlerDifferential.kerTotal_mkQ_single_add (x y z) : (z𝖣x + y) = (z𝖣x) + z𝖣y := by\n  rw [← map_add, eq_comm, ← sub_eq_zero, ← map_sub (Submodule.mkQ (kerTotal R S)),\n    Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]\n  simp_rw [← Finsupp.smul_single_one _ z, ← smul_add, ← smul_sub]\n  exact Submodule.smul_mem _ _ (Submodule.subset_span (Or.inl <| Or.inl <| ⟨⟨_, _⟩, rfl⟩))\n",
+        "docstring": null
+      },
+      {
+        "id": 311845,
+        "name": "KaehlerDifferential.kerTotal_mkQ_single_mul",
+        "module": "Mathlib.RingTheory.Kaehler.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Kaehler/Basic.lean#L491-L497",
+        "source_text": "theorem KaehlerDifferential.kerTotal_mkQ_single_mul (x y z) :\n    (z𝖣x * y) = ((z * x)𝖣y) + (z * y)𝖣x := by\n  rw [← map_add, eq_comm, ← sub_eq_zero, ← map_sub (Submodule.mkQ (kerTotal R S)),\n    Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]\n  simp_rw [← Finsupp.smul_single_one _ z, ← @smul_eq_mul _ _ z, ← Finsupp.smul_single, ← smul_add,\n    ← smul_sub]\n  exact Submodule.smul_mem _ _ (Submodule.subset_span (Or.inl <| Or.inr <| ⟨⟨_, _⟩, rfl⟩))\n",
+        "docstring": null
+      },
+      {
+        "id": 251753,
+        "name": "Submodule.mkQ",
+        "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Quotient/Defs.lean#L226-L230",
+        "source_text": "/-- The map from a module `M` to the quotient of `M` by a submodule `p` as a linear map. -/\ndef mkQ : M →ₗ[R] M ⧸ p where\n  toFun := Quotient.mk\n  map_add' := by simp\n  map_smul' := by simp\n",
+        "docstring": "The map from a module `M` to the quotient of `M` by a submodule `p` as a linear map. "
+      },
+      {
+        "id": 311848,
+        "name": "KaehlerDifferential.kerTotal_mkQ_single_smul",
+        "module": "Mathlib.RingTheory.Kaehler.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Kaehler/Basic.lean#L506-L510",
+        "source_text": "theorem KaehlerDifferential.kerTotal_mkQ_single_smul (r : R) (x y) : (y𝖣r • x) = r • y𝖣x := by\n  letI : SMulZeroClass R S := inferInstance\n  rw [Algebra.smul_def, KaehlerDifferential.kerTotal_mkQ_single_mul,\n    KaehlerDifferential.kerTotal_mkQ_single_algebraMap, add_zero, ← LinearMap.map_smul_of_tower,\n    Finsupp.smul_single, mul_comm, Algebra.smul_def]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualResult normalized Q_total identities",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387158,
+        "name": "SMνCharges.Q",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Basic.lean#L76-L77",
+        "source_text": "/-- The `Q` charges as a map `Fin n → ℚ`. -/\nabbrev Q := @toSpecies n 0\n",
+        "docstring": "The `Q` charges as a map `Fin n → ℚ`. "
+      },
+      {
+        "id": 387786,
+        "name": "SMCharges.Q",
+        "module": "Physlib.Particles.StandardModel.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/Basic.lean#L69-L70",
+        "source_text": "/-- The `Q` charges as a map `Fin n → ℚ`. -/\nabbrev Q := @toSpecies n 0\n",
+        "docstring": "The `Q` charges as a map `Fin n → ℚ`. "
+      },
+      {
+        "id": 387662,
+        "name": "CKMMatrix.tRow_normalized",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L65-L71",
+        "source_text": "/-- The top-quark row of the CKM matrix is normalized to `1`. -/\nlemma tRow_normalized (V : CKMMatrix) : conj [V]t ⬝ᵥ [V]t = 1 := by\n  show ∑ k, conj (V.1 2 k) * V.1 2 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 2) 2\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+        "docstring": "The top-quark row of the CKM matrix is normalized to `1`. "
+      },
+      {
+        "id": 387074,
+        "name": "semiformal_result",
+        "module": "Physlib.Meta.Informal.SemiFormal",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/SemiFormal.lean#L50-L61",
+        "source_text": "/-- A semiformal result is either a\n- definition in which the type is given but not the definition.\n- proof in which the proposition is given but not the proof.\nSemiformal results cannot be used in further code. They are essentially\nforgot about after made.\n\nWith minor modification they act in a similar way to `proof_wanted`, however\nthey appear in Physlib's TODO list and must be tagged accordingly.\nThey must also always have a doc-string. -/\n@[command_parser]\nmeta def «semiformal_result» := leading_parser\n    docComment >> \"semiformal_result\" >> strLit >> declId >> ppIndent declSig\n",
+        "docstring": "A semiformal result is either a\n- definition in which the type is given but not the definition.\n- proof in which the proposition is given but not the proof.\nSemiformal results cannot be used in further code. They are essentially\nforgot about after made.\n\nWith minor modification they act in a similar way to `proof_wanted`, however\nthey appear in Physlib's TODO list and must be tagged accordingly.\nThey must also always have a doc-string. "
+      },
+      {
+        "id": 388160,
+        "name": "MSSMCharges.Q",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L82-L83",
+        "source_text": "/-- The `Q` charges as a map `Fin 3 → ℚ`. -/\nabbrev Q := toSMSpecies 0\n",
+        "docstring": "The `Q` charges as a map `Fin 3 → ℚ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualCounts.logical_card M6.ActualTransfer span definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 253013,
+        "name": "Submodule.span",
+        "module": "Mathlib.LinearAlgebra.Span.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Defs.lean#L47-L49",
+        "source_text": "/-- The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. -/\ndef span (s : Set M) : Submodule R M :=\n  sInf { p | s ⊆ p }\n",
+        "docstring": "The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. "
+      },
+      {
+        "id": 217949,
+        "name": "Set.tacticTo_encard_tac",
+        "module": "Mathlib.Data.Set.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L606-L607",
+        "source_text": "/-- A tactic useful for transferring proofs for `encard` to their corresponding `card` statements -/\nsyntax \"to_encard_tac\" : tactic\n",
+        "docstring": "A tactic useful for transferring proofs for `encard` to their corresponding `card` statements "
+      },
+      {
+        "id": 205872,
+        "name": "Fintype.card_plift",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L189-L191",
+        "source_text": "@[simp]\ntheorem Fintype.card_plift (α : Type*) [Fintype α] : Fintype.card (PLift α) = Fintype.card α :=\n  Fintype.ofEquiv_card _",
+        "docstring": null
+      },
+      {
+        "id": 320481,
+        "name": "Associates.eq_of_eq_counts",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L291-L293",
+        "source_text": "theorem eq_of_eq_counts {a b : Associates α} (ha : a ≠ 0) (hb : b ≠ 0)\n    (h : ∀ p : Associates α, Irreducible p → p.count a.factors = p.count b.factors) : a = b :=\n  eq_of_factors_eq_factors (eq_factors_of_eq_counts ha hb h)\n",
+        "docstring": null
+      },
+      {
+        "id": 322982,
+        "name": "Cardinal.lift",
+        "module": "Mathlib.SetTheory.Cardinal.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Defs.lean#L146-L150",
+        "source_text": "/-- The universe lift operation on cardinals. You can specify the universes explicitly with\n  `lift.{u v} : Cardinal.{v} → Cardinal.{max v u}` -/\n@[pp_with_univ]\ndef lift (c : Cardinal.{v}) : Cardinal.{max v u} :=\n  map ULift.{u, v} (fun _ _ e => Equiv.ulift.trans <| e.trans Equiv.ulift.symm) c\n",
+        "docstring": "The universe lift operation on cardinals. You can specify the universes explicitly with\n`lift.{u v} : Cardinal.{v} → Cardinal.{max v u}` "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualCounts.logical_card M6.ActualTransfer span definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 386222,
+        "name": "Physlib.FourTree.Trunk.card",
+        "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L145-L148",
+        "source_text": "/-- The cardinality of a `Trunk` is the total number of leafs. -/\ndef Trunk.card {α1 α2 α3 α4 : Type} (T : Trunk α1 α2 α3 α4) : Nat :=\n  match T with\n  | .trunk _ branches => (branches.map Branch.card).sum\n",
+        "docstring": "The cardinality of a `Trunk` is the total number of leafs. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 386828,
+        "name": "Equiv.finAddEquivSigmaCond_false",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L55-L61",
+        "source_text": "lemma finAddEquivSigmaCond_false (h : ¬ i < m) : finAddEquivSigmaCond i = ⟨false, i.subNat' h⟩ :=\n  let j : Fin n := i.subNat' h\n  calc finAddEquivSigmaCond i\n    _ = finAddEquivSigmaCond (Fin.natAdd m j) :=\n      suffices m + (i - m) = i from congrArg _ (Fin.ext this.symm)\n      Nat.add_sub_of_le (Nat.le_of_not_gt h)\n    _ = ⟨false, i.subNat' h⟩ := congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_natAdd j\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

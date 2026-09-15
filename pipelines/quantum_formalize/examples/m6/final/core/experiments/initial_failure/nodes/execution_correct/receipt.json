@@ -1,0 +1,61 @@
+{
+  "id": "execution_correct",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Final.execution_correct",
+    "spec_sha256": "c10302d8ff80cf2489d9e9d17b9911a9f7ec9657efbfb36e92567d55bd395397",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-001/Candidate_3821e0a8045a0ad8.lean:22:16: error(lean.unknownIdentifier): Unknown identifier `M6.Transfer.actual_distance_work`\n/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-001/Candidate_3821e0a8045a0ad8.lean:2:67: error: unsolved goals\nN : ℕ\ninst : NeZero N\na b : BP\nh : Admissible N a b\nhb :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP) (P : Pinned.Pins (2 * N)),\n    ActualTransfer.span a b < N →\n      Transfer.IndexedArrayGuarantee (ActualTransfer.span a b) N\n        (ActualTransfer.boundaryWeight (ActualTransfer.span a b) N a b P)\nhc :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP) (P : Pinned.Pins (2 * N)),\n    ActualTransfer.span a b < N →\n      Transfer.IndexedArrayGuarantee (ActualTransfer.span a b) N\n        (ActualTransfer.characterWeight (ActualTransfer.span a b) N a b P)\nho :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP) (P : Pinned.Pins (2 * N)),\n    ActualTransfer.shiftedOutput N a b P = ActualTransfer.Q N a b P\nhs :\n  ∀ (N : ℕ) [inst : NeZero N] (a b : ActualTransfer.BP) (P : Pinned.Pins (2 * N)),\n    ActualTransfer.shiftedScan N a b P = Pinned.firstPositive (2 * N) (ActualTransfer.Q N a b P)\n⊢ ExecutionCorrect N a b\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-002/Candidate_5386bac3fe573617.lean",
+        "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-002/FrozenTarget_5386bac3fe573617.lean",
+        "feedback": "",
+        "target_sha256": "8392dcada1df8d70ce9f3b2eaf61c52e4d0cde3577a49aaefacbb22e279f9a40",
+        "target_olean_sha256": "845cb1c6dbd2872fc13a50823b660f1ebe3fc860072fc896da5cc5fdd8e5ee3c",
+        "source_sha256": "61b1cbc07c8fe683351ebbeeba3a4318da059f27cef998298a4289bece5fced7",
+        "olean_sha256": "5ea7ca6850e6d189db9a3e91a9fa114607f16d0fa4a98e12eeb6d8300e81c77d",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T14:47:20.583017+00:00",
+    "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-2hvx42k8/attempt-002/Candidate_5386bac3fe573617.lean",
+    "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+    "artifacts": {
+      "execution_correct": {
+        "payload": {
+          "declaration": "theorem M6.Final.execution_correct : ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.ExecutionCorrect N a b := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.ExecutionCorrect N a b\n  intro N inst a b h\n  have hb := M6.ActualTransfer.boundary_indexed_resources\n  have hc := M6.ActualTransfer.character_indexed_resources\n  have ho := M6.ActualTransfer.shifted_output_exact\n  have hs := M6.ActualTransfer.shifted_scan_exact\n  first\n  | have hd := M6.SolveResources.actual_distance_work\n  | have hd := M6.Solve.actual_distance_work\n  | have hd := M6.QueryResources.actual_distance_work\n  | have hd := M6.Query.actual_distance_work\n  | have hd := M6.Postprocessing.actual_distance_work\n  | have hd := M6.ActualTransfer.actual_distance_work\n  | have hd := M6.Final.actual_distance_work\n  | have hd := M6.actual_distance_work\n  first\n  | have hw := M6.SolveResources.actual_witness_work\n  | have hw := M6.Solve.actual_witness_work\n  | have hw := M6.QueryResources.actual_witness_work\n  | have hw := M6.Query.actual_witness_work\n  | have hw := M6.Postprocessing.actual_witness_work\n  | have hw := M6.ActualTransfer.actual_witness_work\n  | have hw := M6.Final.actual_witness_work\n  | have hw := M6.actual_witness_work\n  unfold M6.Final.Admissible at h\n  unfold M6.Final.ExecutionCorrect\n  aesop (add safe apply [hb, hc, ho, hs, hd, hw])",
+          "imports": [
+            "M6FinalReady"
+          ],
+          "name": "M6.Final.execution_correct",
+          "ancestors": [],
+          "spec_sha256": "c10302d8ff80cf2489d9e9d17b9911a9f7ec9657efbfb36e92567d55bd395397"
+        },
+        "sha256": "5b56afc50c8bb104077865025af46f1362882d362b8fad7342fdf1192fc2cde0"
+      }
+    }
+  }
+}

@@ -1,8 +1,8 @@
 # M6 formalization status
 
-In progress; complete M6 has not yet been formally accepted.
+**Complete original M6 accepted.** The frozen theorem is `M6.Final.original_m6 : M6.Final.OriginalM6`; see [ROOT_ACCEPTANCE.json](ROOT_ACCEPTANCE.json) and [the final compiled experiment](final/seal/experiment/result.json).
 
-266 named targets in the completed batches below passed assembly and unchanged-environment checks. Counts are not completion percentages.
+291 named targets in the completed batches below passed assembly and unchanged-environment checks. Counts are not completion percentages.
 
 | Completed batch | Accepted targets |
 |---|---|
@@ -45,7 +45,12 @@ In progress; complete M6 has not yet been formally accepted.
 |transfer/post_safety|2|
 |transfer/solve_resources/query_count|1|
 |transfer/solve_resources|2|
+|euclid_storage|13|
+|transfer/recovery_layout|2|
+|transfer/solve_storage|1|
+|final/core|6|
+|final/seal|3|
 
-The actual sparse Q enumerator, minimum witness recovery, actual CSS distance correspondence, k=2f, fixed-span improvement, recipe isometries and zero-span cases are accepted as components. Final original-scope core composition is running. Remaining resource work is the actual Euclidean slot-storage closure and its final solve-storage specialization. No complete-M6 root acceptance is asserted yet.
+The complete theorem connects actual sparse Q enumeration, exact coefficient division, true CSS distance and minimum witnesses, k=2f, concrete work and complete storage bounds, fixed-span improvement, allowed recipe isometries and the zero-span cases. The combined theorem and a fresh independent frozen-target/imported-axiom audit both passed, using only propext, Classical.choice and Quot.sound. Complexity is the original indexed-array bit model.
 
 Model: gpt-6-astra / medium; at most16 proof workers per DAG, five attempts, Mathlib and Physlib retrieval, frozen exact targets and standard-axiom checks. Interrupted runs and exact tactic/specification repairs are archived explicitly.

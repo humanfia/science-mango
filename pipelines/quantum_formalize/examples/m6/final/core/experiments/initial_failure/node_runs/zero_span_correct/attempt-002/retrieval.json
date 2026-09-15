@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.ZeroSpanCorrect definition and M6.Final.Admissible definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 299008,
+        "name": "ProbabilityTheory.isFiniteKernel_zero",
+        "module": "Mathlib.Probability.Kernel.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/Kernel/Defs.lean#L197-L199",
+        "source_text": "instance isFiniteKernel_zero (α β : Type*) {_ : MeasurableSpace α} {_ : MeasurableSpace β} :\n    IsFiniteKernel (0 : Kernel α β) :=\n  ⟨⟨0, ENNReal.coe_lt_top, fun _ => by simp⟩⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 303239,
+        "name": "AdicCompletion.val_zero",
+        "module": "Mathlib.RingTheory.AdicCompletion.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdicCompletion/Basic.lean#L290-L290",
+        "source_text": "@[simp, norm_cast] lemma val_zero : (0 : AdicCompletion I M).val = 0 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 303240,
+        "name": "AdicCompletion.val_zero_apply",
+        "module": "Mathlib.RingTheory.AdicCompletion.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdicCompletion/Basic.lean#L292-L292",
+        "source_text": "lemma val_zero_apply (n : ℕ) : (0 : AdicCompletion I M).val n = 0 := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 303313,
+        "name": "AdicCompletion.val_apply_mem_smul_top_iff",
+        "module": "Mathlib.RingTheory.AdicCompletion.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdicCompletion/Basic.lean#L685-L691",
+        "source_text": "lemma val_apply_mem_smul_top_iff {m n : ℕ} {x : AdicCompletion I M}\n    (m_ge : n ≤ m) : x.val m ∈ I ^ n • (⊤ : Submodule R (M ⧸ I ^ m • ⊤)) ↔ x.val n = 0 := by\n  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩\n  · rw [← x.prop m_ge, transitionMap, Submodule.factorPow, Submodule.factor, mapQ,\n      ← LinearMap.mem_ker]\n    simpa [ker_liftQ]\n  simpa [mapQ, h, ← LinearMap.mem_ker, ker_liftQ] using x.prop m_ge\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.ZeroSpanCorrect definition and M6.Final.Admissible definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 385109,
+        "name": "ClassicalFieldTheory.Local.AdmissibleVariation.zero_apply",
+        "module": "Physlib.ClassicalFieldTheory.Local.Variation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalFieldTheory/Local/Variation.lean#L81-L82",
+        "source_text": "@[simp]\nlemma zero_apply (x : Space d) : (0 : AdmissibleVariation d U) x = 0 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 390716,
+        "name": "LinearPMap.adjoint_of_zero",
+        "module": "Physlib.QuantumMechanics.Operators.Unbounded",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Unbounded.lean#L306-L314",
+        "source_text": "/-- The adjoint of a zero LinearPMap (any domain) is zero (domain `⊤`). -/\nlemma adjoint_of_zero [CompleteSpace H] (h_zero : ⇑U = 0) : U† = 0 := by\n  refine dExt ?_ fun x y hxy ↦ ?_\n  · ext\n    simp only [zero_domain, mem_top, iff_true]\n    exact (mem_adjoint_domain_iff _ _).mpr (continuous_of_const (by simp [h_zero]))\n  · by_cases h : U.HasDenseDomain\n    · exact adjoint_apply_eq h x (by simp [h_zero])\n    · exact adjoint_apply_of_not_dense h x\n",
+        "docstring": "The adjoint of a zero LinearPMap (any domain) is zero (domain `⊤`). "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      },
+      {
+        "id": 390717,
+        "name": "LinearPMap.adjoint_zero",
+        "module": "Physlib.QuantumMechanics.Operators.Unbounded",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Unbounded.lean#L316-L317",
+        "source_text": "@[simp]\nlemma adjoint_zero [CompleteSpace H] : (0 : H →ₗ.[ℂ] H')† = 0 := adjoint_of_zero rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ZeroSpan boundary_trace_zero character_trace_zero signature_one six clauses",
+    "status": "ok",
+    "results": [
+      {
+        "id": 249838,
+        "name": "Matrix.trace",
+        "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L41-L46",
+        "source_text": "/-- The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n-/\ndef trace (A : Matrix n n R) : R :=\n  ∑ i, diag A i\n",
+        "docstring": "The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n"
+      },
+      {
+        "id": 249840,
+        "name": "Matrix.trace_zero",
+        "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L54-L56",
+        "source_text": "@[simp]\ntheorem trace_zero : trace (0 : Matrix n n R) = 0 :=\n  (Finset.sum_const (0 : R)).trans <| smul_zero _",
+        "docstring": null
+      },
+      {
+        "id": 249868,
+        "name": "Matrix.trace_fin_zero",
+        "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L213-L215",
+        "source_text": "@[simp]\ntheorem trace_fin_zero (A : Matrix (Fin 0) (Fin 0) R) : trace A = 0 :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 320190,
+        "name": "Algebra.trace_ne_zero",
+        "module": "Mathlib.RingTheory.Trace.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Trace/Basic.lean#L517-L519",
+        "source_text": "theorem Algebra.trace_ne_zero [FiniteDimensional K L] [Algebra.IsSeparable K L] :\n    Algebra.trace K L ≠ 0 :=\n  ((traceForm_nondegenerate_tfae K L).out 0 1).mp ‹_›\n",
+        "docstring": null
+      },
+      {
+        "id": 327806,
+        "name": "Mathlib.Tactic.Linarith.linarithTraceProofs",
+        "module": "Mathlib.Tactic.Linarith.Datatypes",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Linarith/Datatypes.lean#L34-L40",
+        "source_text": "/--\nA shorthand for tracing the types of a list of proof terms\nwhen the `trace.linarith` option is set to true.\n-/\ndef linarithTraceProofs {α} [ToMessageData α] (s : α) (l : List Expr) : MetaM Unit := do\n  if ← isTracingEnabledFor `linarith then\n    addRawTrace <| .trace { cls := `linarith } (toMessageData s) #[← linarithGetProofsMessage l]\n",
+        "docstring": "A shorthand for tracing the types of a list of proof terms\nwhen the `trace.linarith` option is set to true.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ZeroSpan boundary_trace_zero character_trace_zero signature_one six clauses",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391097,
+        "name": "lorentzAlgebra.trace_of_mem_is_zero",
+        "module": "Physlib.Relativity.LorentzAlgebra.ExponentialMap",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/ExponentialMap.lean#L98-L102",
+        "source_text": "/-- The trace of any element of the Lorentz algebra is zero. -/\nlemma trace_of_mem_is_zero (A : lorentzAlgebra) : trace A.1 = 0 := by\n  rw [trace_eq_sum_diagonal]\n  have h_diag_zero : ∀ μ, A.1 μ μ = 0 := lorentzAlgebra.diag_comp A\n  simp [h_diag_zero]\n",
+        "docstring": "The trace of any element of the Lorentz algebra is zero. "
+      },
+      {
+        "id": 392377,
+        "name": "Lorentz.Vector.causalCharacter_zero",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.LightLike",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/LightLike.lean#L31-L34",
+        "source_text": "@[simp]\nlemma causalCharacter_zero {d : ℕ} : causalCharacter (0 : Vector d) =\n    CausalCharacter.lightLike := by\n  simp [causalCharacter]",
+        "docstring": null
+      },
+      {
+        "id": 391362,
+        "name": "PauliMatrix.σ1_σ0_trace",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L138-L139",
+        "source_text": "/-- The trace of `σ1` multiplied by `σ0` is equal to `0`. -/\nlemma σ1_σ0_trace : Matrix.trace (σ1 * σ0) = 0 := by simp [pauliMatrix]\n",
+        "docstring": "The trace of `σ1` multiplied by `σ0` is equal to `0`. "
+      },
+      {
+        "id": 393980,
+        "name": "FTheory.SU5.Fluxes.zero_M",
+        "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/Basic.lean#L176-L177",
+        "source_text": "@[simp]\nlemma zero_M : (0 : Fluxes).M = 0 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 388276,
+        "name": "MSSMACC.AnomalyFreePerp.InLineEq",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L166-L168",
+        "source_text": "/-- Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. -/\ndef InLineEq : Type := {R : MSSMACC.AnomalyFreePerp // LineEqProp R}\n",
+        "docstring": "Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "actualQ definition Normalize.divide_scaled",
+    "status": "ok",
+    "results": [
+      {
+        "id": 144680,
+        "name": "Complex.betaIntegral_scaled",
+        "module": "Mathlib.Analysis.SpecialFunctions.Gamma.Beta",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Gamma/Beta.lean#L103-L121",
+        "source_text": "theorem betaIntegral_scaled (s t : ℂ) {a : ℝ} (ha : 0 < a) :\n    ∫ x in 0..a, (x : ℂ) ^ (s - 1) * ((a : ℂ) - x) ^ (t - 1) =\n    (a : ℂ) ^ (s + t - 1) * betaIntegral s t := by\n  have ha' : (a : ℂ) ≠ 0 := ofReal_ne_zero.mpr ha.ne'\n  rw [betaIntegral]\n  have A : (a : ℂ) ^ (s + t - 1) = a * ((a : ℂ) ^ (s - 1) * (a : ℂ) ^ (t - 1)) := by\n    rw [(by abel : s + t - 1 = 1 + (s - 1) + (t - 1)), cpow_add _ _ ha', cpow_add 1 _ ha', cpow_one,\n      mul_assoc]\n  rw [A, mul_assoc, ← intervalIntegral.integral_const_mul, ← real_smul, ← zero_div a, ←\n    div_self ha.ne', ← intervalIntegral.integral_comp_div _ ha.ne', zero_div]\n  simp_rw [intervalIntegral.integral_of_le ha.le]\n  refine setIntegral_congr_fun measurableSet_Ioc fun x hx => ?_\n  rw [mul_mul_mul_comm]\n  congr 1\n  · rw [← mul_cpow_ofReal_nonneg ha.le (div_pos hx.1 ha).le, ofReal_div, mul_div_cancel₀ _ ha']\n  · rw [(by norm_cast : (1 : ℂ) - ↑(x / a) = ↑(1 - x / a)), ←\n      mul_cpow_ofReal_nonneg ha.le (sub_nonneg.mpr <| (div_le_one ha).mpr hx.2)]\n    push_cast\n    rw [mul_sub, mul_one, mul_div_cancel₀ _ ha']\n",
+        "docstring": null
+      },
+      {
+        "id": 328669,
+        "name": "Mathlib.Meta.NormNum.evalOrdinalDiv",
+        "module": "Mathlib.Tactic.NormNum.Ordinal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Ordinal.lean#L145-L159",
+        "source_text": "/-- The `norm_num` extension for division on ordinals. -/\n@[norm_num (_ : Ordinal) / (_ : Ordinal)]\ndef evalOrdinalDiv : NormNumExt where\n  eval {u α} e := do\n    let some u' := u.dec | throwError \"level is not succ\"\n    haveI' : u =QL u' + 1 := ⟨⟩\n    match α, e with\n    | ~q(Ordinal.{u'}), ~q(($a : Ordinal) / ($b : Ordinal)) =>\n      let i : Q(AddMonoidWithOne Ordinal.{u'}) := q(inferInstance)\n      let ⟨an, pa⟩ ← deriveNat a i\n      let ⟨bn, pb⟩ ← deriveNat b i\n      have rn : Q(ℕ) := mkRawNatLit (an.natLit! / bn.natLit!)\n      have : ($an / $bn) =Q $rn := ⟨⟩\n      pure (.isNat i rn q(isNat_ordinalDiv $pa $pb (.refl $rn)))\n    | _, _ => throwError \"not division on ordinals\"\n",
+        "docstring": "The `norm_num` extension for division on ordinals. "
+      },
+      {
+        "id": 328445,
+        "name": "Mathlib.Meta.NormNum.deriveRat",
+        "module": "Mathlib.Tactic.NormNum.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Core.lean#L134-L141",
+        "source_text": "/-- Run each registered `norm_num` extension on a typed expression `e : α`,\nreturning a rational number, typed expressions `n : ℤ` and `d : ℕ` for the numerator and\ndenominator, and a proof of `IsRat e n d` in expression form. -/\ndef deriveRat {α : Q(Type u)} (e : Q($α))\n    (_inst : Q(DivisionRing $α) := by with_reducible assumption) :\n    MetaM (ℚ × (n : Q(ℤ)) × (d : Q(ℕ)) × Q(IsRat $e $n $d)) := do\n  let some res := (← derive e).toRat' | failure\n  pure res\n",
+        "docstring": "Run each registered `norm_num` extension on a typed expression `e : α`,\nreturning a rational number, typed expressions `n : ℤ` and `d : ℕ` for the numerator and\ndenominator, and a proof of `IsRat e n d` in expression form. "
+      },
+      {
+        "id": 65826,
+        "name": "normalize",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L136-L137",
+        "source_text": "/-- Chooses an element of each associate class, by multiplying by `normUnit` -/\ndef normalize (x : α) : α := x * normUnit x\n",
+        "docstring": "Chooses an element of each associate class, by multiplying by `normUnit` "
+      },
+      {
+        "id": 329341,
+        "name": "Mathlib.Tactic.Ring.Common.evalDiv",
+        "module": "Mathlib.Tactic.Ring.Common",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Ring/Common.lean#L1178-L1187",
+        "source_text": "/-- Divides two polynomials `va, vb` to get a normalized result polynomial.\n\n* `a / b = a * b⁻¹`\n-/\ndef evalDiv {a b : Q($α)} (rα : Q(Semifield $α)) (czα : Option Q(CharZero $α))\n    (va : ExSum bt sα a) (vb : ExSum bt sα b) : AtomM (Result (ExSum bt sα) q($a / $b)) := do\n  let ⟨_c, vc, pc⟩ ← vb.evalInv rc rcℕ rα czα\n  let ⟨d, vd, pd⟩ ← evalMul rc rcℕ va vc\n  assumeInstancesCommute\n  pure ⟨d, vd, q(div_pf $pc $pd)⟩\n",
+        "docstring": "Divides two polynomials `va, vb` to get a normalized result polynomial.\n\n* `a / b = a * b⁻¹`\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "actualQ definition Normalize.divide_scaled",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394463,
+        "name": "WithDim.div_scaleUnit",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L227-L239",
+        "source_text": "@[simp]\nlemma div_scaleUnit {d1 d2 : Dimension} (m1 : WithDim d1 ℝ) (m2 : WithDim d2 ℝ)\n    (u1 u2 : UnitChoices) :\n    (scaleUnit u1 u2 m1) / (scaleUnit u1 u2 m2) = scaleUnit u1 u2 (m1 / m2) := by\n  symm\n  ext\n  simp only [← val_div_val, scaleUnit_val]\n  simp only [map_mul, map_inv, val_div_val]\n  field_simp\n  change ((u1.dimScale u2) d1 / (u1.dimScale u2) d2) * (m1 / m2).val =\n    u1.dimScale u2 d1 * m1.val / (u1.dimScale u2 d2 * m2.val)\n  rw [← val_div_val]\n  exact div_mul_div_comm (↑((u1.dimScale u2) d1)) (↑((u1.dimScale u2) d2)) m1.val m2.val",
+        "docstring": null
+      },
+      {
+        "id": 387786,
+        "name": "SMCharges.Q",
+        "module": "Physlib.Particles.StandardModel.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/Basic.lean#L69-L70",
+        "source_text": "/-- The `Q` charges as a map `Fin n → ℚ`. -/\nabbrev Q := @toSpecies n 0\n",
+        "docstring": "The `Q` charges as a map `Fin n → ℚ`. "
+      },
+      {
+        "id": 394237,
+        "name": "TemperatureUnit.instHDivNNReal",
+        "module": "Physlib.Thermodynamics.Temperature.TemperatureUnits",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Thermodynamics/Temperature/TemperatureUnits.lean#L57-L58",
+        "source_text": "noncomputable instance : HDiv TemperatureUnit TemperatureUnit ℝ≥0 where\n  hDiv x t := ⟨x.val / t.val, div_nonneg (le_of_lt x.val_pos) (le_of_lt t.val_pos)⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "id": "counting_correct",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Final.counting_correct",
+    "spec_sha256": "94fe465121afeea4a04496495753812033a7cad289d274287dcea34565ada6f6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-xe39xtmn/attempt-001/Candidate_39fdc28195bcad5b.lean",
+        "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-xe39xtmn/attempt-001/FrozenTarget_39fdc28195bcad5b.lean",
+        "feedback": "",
+        "target_sha256": "d640dd56bf91d7e828d12f91c592c3b230e56950a334395e9cb8d21f5bb5ccce",
+        "target_olean_sha256": "ae6958fd6f069c90dd28113c6308f62de4c7477b25601a4c5d4d3041fa4bc35b",
+        "source_sha256": "e40ce688bd88b5d2784bb4a06bf36223d4dd40def6b71d40a33f5751f42343ec",
+        "olean_sha256": "484bb429d1387dd116b9a13339650e0239ead29f3bde619d30e926f8bd07641a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:59:25.991736+00:00",
+    "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-xe39xtmn",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-xe39xtmn/attempt-001/Candidate_39fdc28195bcad5b.lean",
+    "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+    "artifacts": {
+      "counting_correct": {
+        "payload": {
+          "declaration": "theorem M6.Final.counting_correct : ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.CountingCorrect N a b := by\n  intro N inst a b h\n  classical\n  have hs : M6.ActualTransfer.span a b < N := h.2.2.2.2.1\n  have hna : a.natDegree < N := lt_of_le_of_lt (Nat.le_max_left _ _) hs\n  have hnb : b.natDegree < N := lt_of_le_of_lt (Nat.le_max_right _ _) hs\n  have ha : a.degree < (N : WithBot ℕ) := lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast hna)\n  have hb : b.degree < (N : WithBot ℕ) := lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast hnb)\n  constructor\n  · intro P\n    refine ⟨?_, ?_, M6.ActualResult.boundary_normalized N a b hs P,\n      M6.ActualResult.cycle_normalized N a b hs P,\n      M6.ActualResult.Q_enumerator N a b hs P,\n      (fun d => M6.ActualResult.Q_coeff N a b hs P d),\n      M6.ActualResult.Q_zero N a b hs P⟩\n    · rw [M6.ActualTransfer.boundary_trace_inputs N a b hs P]\n      simpa only [M6.ActualCounts.boundaryInputSum, M6.Spaces.boundary_eval, M6.Final.BX] using\n        M6.ActualCounts.boundary_pinned_sum N a b ha hb P\n    · rw [M6.ActualTransfer.character_trace_inputs N a b hs P]\n      simpa only [M6.ActualCounts.signedInputSum, M6.Spaces.dual_boundary_eval, M6.Final.CX] using\n        M6.ActualCounts.cycle_pinned_sum N a b ha hb P\n  · exact (M6.ActualResult.Q_total N a b hs).trans (M6.ActualCounts.logical_card N a b ha hb)",
+          "imports": [
+            "M6FinalReady"
+          ],
+          "name": "M6.Final.counting_correct",
+          "ancestors": [],
+          "spec_sha256": "94fe465121afeea4a04496495753812033a7cad289d274287dcea34565ada6f6"
+        },
+        "sha256": "0cce84d085f089b71eba7af9368e23293c591065408c4c8a938cd24a8e757424"
+      }
+    }
+  }
+}

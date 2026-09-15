@@ -1,0 +1,13 @@
+{
+  "name": "M6.EuclidStorage.rem_loop_safe",
+  "statement": "∀ (fuel : ℕ) (s : M6.EuclidStorage.Slots) (c t width : ℕ), 0 < width → M6.EuclidStorage.slotsFit width s → fuel ≤ 32*width → c + (M6.Euclid.remainderAux fuel s.work s.q).cancellations ≤ 32*width → t + (M6.Euclid.remainderAux fuel s.work s.q).passes ≤ 32*width → M6.EuclidStorage.remSafe fuel s c t width",
+  "imports": [
+    "M6EuclidAccepted",
+    "M6EuclidStorage"
+  ],
+  "context": "theorem M6.EuclidStorage.rem_loop_refines : ∀ (fuel : ℕ) (s : M6.EuclidStorage.Slots) (c t : ℕ), let r := M6.EuclidStorage.remLoop fuel s c t; r.slots.p = s.p ∧ r.slots.q = s.q ∧ r.slots.saved = s.saved ∧ r.slots.work = (M6.Euclid.remainderAux fuel s.work s.q).value ∧ r.cancellations = c + (M6.Euclid.remainderAux fuel s.work s.q).cancellations ∧ r.rounds = 0 ∧ r.passes = t + (M6.Euclid.remainderAux fuel s.work s.q).passes := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (fuel : ℕ) (s : M6.EuclidStorage.Slots) (c t : ℕ), let r := M6.EuclidStorage.remLoop fuel s c t; r.slots.p = s.p ∧ r.slots.q = s.q ∧ r.slots.saved = s.saved ∧ r.slots.work = (M6.Euclid.remainderAux fuel s.work s.q).value ∧ r.cancellations = c + (M6.Euclid.remainderAux fuel s.work s.q).cancellations ∧ r.rounds = 0 ∧ r.passes = t + (M6.Euclid.remainderAux fuel s.work s.q).passes\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro s c t\n      simp [M6.EuclidStorage.remLoop, M6.Euclid.remainderAux]\n  | succ fuel ih =>\n      intro s c t\n      simp only [M6.EuclidStorage.remLoop, M6.Euclid.remainderAux]\n      split <;> simp_all [Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]",
+  "queries": [
+    "EuclideanDomain gcd Bezout divisibility"
+  ],
+  "guidance": "Induct fuel with s/c/t generalized. The supplied remaining-run budgets bound all current and terminal counters. In a cancellation branch, accepted Euclid.cancel_drop preserves work width; unfold one remainderAux step in the budgets to obtain the recursive c+1,t+2 budgets. The other three polynomial slots remain unchanged. No final-budget assumption remains in the actual preprocess theorem. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+}

@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "actualQ definition namespace in M6FinalDefinitions or M6ActualCounts",
+    "status": "ok",
+    "results": [
+      {
+        "id": 356054,
+        "name": "CompareReals.Q",
+        "module": "Mathlib.Topology.UniformSpace.CompareReals",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/CompareReals.lean#L83-L88",
+        "source_text": "/-- Type wrapper around ℚ to make sure the absolute value uniform space instance is picked up\ninstead of the metric space one. We proved in `Rat.uniformSpace_eq` that they are equal,\nbut they are not definitionaly equal, so it would confuse the type class system (and probably\nalso human readers). -/\ndef Q :=\n  ℚ deriving CommRing, Inhabited\n",
+        "docstring": "Type wrapper around ℚ to make sure the absolute value uniform space instance is picked up\ninstead of the metric space one. We proved in `Rat.uniformSpace_eq` that they are equal,\nbut they are not definitionaly equal, so it would confuse the type class system (and probably\nalso human readers). "
+      },
+      {
+        "id": 266612,
+        "name": "MeasureTheory.Measure.real",
+        "module": "Mathlib.MeasureTheory.Measure.MeasureSpaceDef",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/MeasureSpaceDef.lean#L99-L102",
+        "source_text": "/-- The real-valued version of a measure. Maps infinite measure sets to zero. Use as `μ.real s`.\nThe API is developed in `Mathlib/MeasureTheory/Measure/Real.lean`. -/\nprotected def Measure.real {α : Type*} {m : MeasurableSpace α} (μ : Measure α) (s : Set α) : ℝ :=\n  (μ s).toReal\n",
+        "docstring": "The real-valued version of a measure. Maps infinite measure sets to zero. Use as `μ.real s`.\nThe API is developed in `Mathlib/MeasureTheory/Measure/Real.lean`. "
+      },
+      {
+        "id": 270485,
+        "name": "FirstOrder.Language.Term.realize_quotient_mk'",
+        "module": "Mathlib.ModelTheory.Quotients",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Quotients.lean#L70-L74",
+        "source_text": "theorem Term.realize_quotient_mk' {β : Type*} (t : L.Term β) (x : β → M) :\n    (t.realize fun i => (⟦x i⟧ : Quotient s)) = ⟦@Term.realize _ _ ps.toStructure _ x t⟧ := by\n  induction t with\n  | var => rfl\n  | func _ _ ih => simp only [ih, funMap_quotient_mk', Term.realize]\n",
+        "docstring": null
+      },
+      {
+        "id": 320480,
+        "name": "Associates.eq_factors_of_eq_counts",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L282-L289",
+        "source_text": "theorem eq_factors_of_eq_counts {a b : Associates α} (ha : a ≠ 0) (hb : b ≠ 0)\n    (h : ∀ p : Associates α, Irreducible p → p.count a.factors = p.count b.factors) :\n    a.factors = b.factors := by\n  obtain ⟨sa, h_sa⟩ := factors_eq_some_iff_ne_zero.mpr ha\n  obtain ⟨sb, h_sb⟩ := factors_eq_some_iff_ne_zero.mpr hb\n  simp_all only [count_some, WithTop.coe_eq_coe]\n  ext\n  grind\n",
+        "docstring": null
+      },
+      {
+        "id": 320481,
+        "name": "Associates.eq_of_eq_counts",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L291-L293",
+        "source_text": "theorem eq_of_eq_counts {a b : Associates α} (ha : a ≠ 0) (hb : b ≠ 0)\n    (h : ∀ p : Associates α, Irreducible p → p.count a.factors = p.count b.factors) : a = b :=\n  eq_of_factors_eq_factors (eq_factors_of_eq_counts ha hb h)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "actualQ definition namespace in M6FinalDefinitions or M6ActualCounts",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387070,
+        "name": "Physlib.noInformalDefs",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L74-L78",
+        "source_text": "/-- The number of informal definitions in Physlib. -/\ndef noInformalDefs : CoreM Nat := do\n  let imports ← allImports\n  let x ← imports.mapM Imports.getUserConsts\n  x.flatFilterSizeM fun c => return Informal.isInformalDef c\n",
+        "docstring": "The number of informal definitions in Physlib. "
+      },
+      {
+        "id": 387051,
+        "name": "Physlib.noLemmas",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L185-L189",
+        "source_text": "/-- Number of definitions. -/\ndef noLemmas : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return !c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      },
+      {
+        "id": 387050,
+        "name": "Physlib.noDefs",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L179-L183",
+        "source_text": "/-- Number of definitions. -/\ndef noDefs : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      },
+      {
+        "id": 387069,
+        "name": "Physlib.noInformalLemmas",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L68-L72",
+        "source_text": "/-- The number of informal lemmas in Physlib. -/\ndef noInformalLemmas : CoreM Nat := do\n  let imports ← allImports\n  let x ← imports.mapM Imports.getUserConsts\n  x.flatFilterSizeM fun c => return Informal.isInformalLemma c\n",
+        "docstring": "The number of informal lemmas in Physlib. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.ZeroSpanCorrect full definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 161359,
+        "name": "CategoryTheory.Functor.final_of_comp_full_faithful'",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L899-L902",
+        "source_text": "/-- The hypotheses also imply that `F` is final, see `final_of_comp_full_faithful`. -/\ntheorem final_of_comp_full_faithful' [Full G] [Faithful G] [Final (F ⋙ G)] : Final G :=\n  have := final_of_comp_full_faithful F G\n  final_of_final_comp F G\n",
+        "docstring": "The hypotheses also imply that `F` is final, see `final_of_comp_full_faithful`. "
+      },
+      {
+        "id": 252896,
+        "name": "Submodule.linearMap_eq_zero_iff_of_span_eq_top",
+        "module": "Mathlib.LinearAlgebra.Span.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Basic.lean#L139-L142",
+        "source_text": "lemma linearMap_eq_zero_iff_of_span_eq_top (f : M →ₗ[R] N)\n    {S : Set M} (hM : span R S = ⊤) :\n    f = 0 ↔ ∀ (s : S), f s = 0 :=\n  linearMap_eq_iff_of_span_eq_top f 0 hM\n",
+        "docstring": null
+      },
+      {
+        "id": 205075,
+        "name": "Finsupp.coe_zero",
+        "module": "Mathlib.Data.Finsupp.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Defs.lean#L141-L141",
+        "source_text": "@[simp, norm_cast] lemma coe_zero : ⇑(0 : α →₀ M) = 0 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 299008,
+        "name": "ProbabilityTheory.isFiniteKernel_zero",
+        "module": "Mathlib.Probability.Kernel.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/Kernel/Defs.lean#L197-L199",
+        "source_text": "instance isFiniteKernel_zero (α β : Type*) {_ : MeasurableSpace α} {_ : MeasurableSpace β} :\n    IsFiniteKernel (0 : Kernel α β) :=\n  ⟨⟨0, ENNReal.coe_lt_top, fun _ => by simp⟩⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.ZeroSpanCorrect full definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394399,
+        "name": "IsDimensionallyCorrect",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+        "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+        "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+      },
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 394400,
+        "name": "isDimensionallyCorrect_iff",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L421-L423",
+        "source_text": "lemma isDimensionallyCorrect_iff {M : Type} [UnitDependent M] (m : M) :\n    IsDimensionallyCorrect m ↔ ∀ u1 u2 : UnitChoices,\n      scaleUnit u1 u2 m = m := by rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 394362,
+        "name": "fderiv_isDimensionallyCorrect",
+        "module": "Physlib.Units.FDeriv",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/FDeriv.lean#L49-L58",
+        "source_text": "/-- If a function is dimensionally valid then so is it's derivative. -/\nlemma fderiv_isDimensionallyCorrect (f : M1 → M2) (hf : IsDimensionallyCorrect f)\n    (f_diff : Differentiable ℝ f) :\n    IsDimensionallyCorrect (fderiv ℝ f) := by\n  simp only [isDimensionallyCorrect_fun_iff]\n  intro u1 u2 m\n  ext m'\n  simp only [ContinuousLinearUnitDependent.scaleUnit_apply_fun]\n  rw [fderiv_apply_scaleUnit u1 u2 m (scaleUnit u2 u1 m') f hf f_diff]\n  simp [HasDim.scaleUnit_apply, smul_smul]\n",
+        "docstring": "If a function is dimensionally valid then so is it's derivative. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ZeroSpan.signature_one and M6.Normalize.divide_scaled theorem signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 65837,
+        "name": "normalize_eq_one",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L168-L170",
+        "source_text": "theorem normalize_eq_one {x : α} : normalize x = 1 ↔ IsUnit x where\n  mp hx := Units.eq_inv_of_mul_eq_one_right hx ▸ Units.isUnit _\n  mpr := fun ⟨u, hu⟩ ↦ hu ▸ normalize_coe_units u\n",
+        "docstring": null
+      },
+      {
+        "id": 65826,
+        "name": "normalize",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L136-L137",
+        "source_text": "/-- Chooses an element of each associate class, by multiplying by `normUnit` -/\ndef normalize (x : α) : α := x * normUnit x\n",
+        "docstring": "Chooses an element of each associate class, by multiplying by `normUnit` "
+      },
+      {
+        "id": 269107,
+        "name": "MeasureTheory.SignedMeasure.singularPart_smul",
+        "module": "Mathlib.MeasureTheory.VectorMeasure.Decomposition.Lebesgue",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/VectorMeasure/Decomposition/Lebesgue.lean#L321-L338",
+        "source_text": "nonrec theorem singularPart_smul (s : SignedMeasure α) (μ : Measure α) (r : ℝ) :\n    (r • s).singularPart μ = r • s.singularPart μ := by\n  cases le_or_gt 0 r with\n  | inl hr =>\n    lift r to ℝ≥0 using hr\n    exact singularPart_smul_nnreal s μ r\n  | inr hr =>\n    rw [singularPart, singularPart]\n    conv_lhs =>\n      congr\n      · congr\n        · rw [toJordanDecomposition_smul_real,\n            JordanDecomposition.real_smul_posPart_neg _ _ hr, singularPart_smul]\n      · congr\n        · rw [toJordanDecomposition_smul_real,\n            JordanDecomposition.real_smul_negPart_neg _ _ hr, singularPart_smul]\n    rw [toSignedMeasure_smul, toSignedMeasure_smul, ← neg_sub, ← smul_sub, NNReal.smul_def,\n      ← neg_smul, Real.coe_toNNReal _ (le_of_lt (neg_pos.mpr hr)), neg_neg]\n",
+        "docstring": null
+      },
+      {
+        "id": 65834,
+        "name": "normalize_one",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L159-L159",
+        "source_text": "@[simp] theorem normalize_one : normalize (1 : α) = 1 := by simp [normalize]",
+        "docstring": null
+      },
+      {
+        "id": 65833,
+        "name": "normalize_zero",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L157-L157",
+        "source_text": "@[simp] theorem normalize_zero : normalize (0 : α) = 0 := by simp [normalize]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ZeroSpan.signature_one and M6.Normalize.divide_scaled theorem signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394463,
+        "name": "WithDim.div_scaleUnit",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L227-L239",
+        "source_text": "@[simp]\nlemma div_scaleUnit {d1 d2 : Dimension} (m1 : WithDim d1 ℝ) (m2 : WithDim d2 ℝ)\n    (u1 u2 : UnitChoices) :\n    (scaleUnit u1 u2 m1) / (scaleUnit u1 u2 m2) = scaleUnit u1 u2 (m1 / m2) := by\n  symm\n  ext\n  simp only [← val_div_val, scaleUnit_val]\n  simp only [map_mul, map_inv, val_div_val]\n  field_simp\n  change ((u1.dimScale u2) d1 / (u1.dimScale u2) d2) * (m1 / m2).val =\n    u1.dimScale u2 d1 * m1.val / (u1.dimScale u2 d2 * m2.val)\n  rw [← val_div_val]\n  exact div_mul_div_comm (↑((u1.dimScale u2) d1)) (↑((u1.dimScale u2) d2)) m1.val m2.val",
+        "docstring": null
+      },
+      {
+        "id": 394375,
+        "name": "LinearUnitDependent.scaleUnitLinearEquiv",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L121-L128",
+        "source_text": "/-- For an `M` with an instance of `LinearUnitDependent M`, `scaleUnit u1 u2` as a\n  linear equivalence. -/\ndef LinearUnitDependent.scaleUnitLinearEquiv {M : Type} [AddCommMonoid M]\n    [Module ℝ M] [LinearUnitDependent M] (u1 u2 : UnitChoices) :\n    M ≃ₗ[ℝ] M :=\n    LinearEquiv.ofLinear (scaleUnitLinear u1 u2) (scaleUnitLinear u2 u1)\n    (by ext u; simp [scaleUnitLinear])\n    (by ext u; simp [scaleUnitLinear])\n",
+        "docstring": "For an `M` with an instance of `LinearUnitDependent M`, `scaleUnit u1 u2` as a\nlinear equivalence. "
+      },
+      {
+        "id": 394395,
+        "name": "UnitDependent.scaleUnit_apply_fun",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L344-L347",
+        "source_text": "@[simp]\nlemma UnitDependent.scaleUnit_apply_fun {M1 M2 : Type} [UnitDependent M1]\n    [UnitDependent M2] (u1 u2 : UnitChoices) (f : M1 → M2) (m1 : M1) :\n    scaleUnit u1 u2 f m1 = scaleUnit u1 u2 (f (scaleUnit u2 u1 m1)) := rfl",
+        "docstring": null
+      },
+      {
+        "id": 390804,
+        "name": "QuantumMechanics.OneDimension.ReflectionlessPotential.scaled_tanh_complex_hasTemperateGrowth",
+        "module": "Physlib.QuantumMechanics.ReflectionlessPotential.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/ReflectionlessPotential/Basic.lean#L95-L97",
+        "source_text": "lemma scaled_tanh_complex_hasTemperateGrowth (κ : ℝ) :\n    Function.HasTemperateGrowth (fun x => (Real.tanh (κ * x) : ℂ)) :=\n  complex_embedding_of_temperate_growth _ (scaled_tanh_hasTemperateGrowth κ)\n",
+        "docstring": null
+      },
+      {
+        "id": 390803,
+        "name": "QuantumMechanics.OneDimension.ReflectionlessPotential.scaled_tanh_hasTemperateGrowth",
+        "module": "Physlib.QuantumMechanics.ReflectionlessPotential.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/ReflectionlessPotential/Basic.lean#L84-L86",
+        "source_text": "lemma scaled_tanh_hasTemperateGrowth (κ : ℝ) :\n    Function.HasTemperateGrowth (fun x => (Real.tanh (κ * x))) :=\n  tanh_const_mul_hasTemperateGrowth κ\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

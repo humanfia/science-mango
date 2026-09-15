@@ -1,0 +1,125 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T14:48:46.963981+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "complete_address_capacity": {
+      "id": "complete_address_capacity",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.complete_address_capacity",
+        "spec_sha256": "9a977bde38b24941464db73000f6bc9ad6c5745e1046fa1f7191a29e31c961b6",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-s0xjues3/attempt-001/Candidate_08885335eefdecac.lean:24:17: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  d ≥ 0\n  c ≥ 0\n  512*c - d ≥ 0\n  0 ≤ b ≤ 14\n  a ≥ 0\n  a - b ≥ 1\n  a - e ≤ 0\nwhere\n a := ↑N\n b := ↑R\n c := ↑((N + 1) ^ 2)\n d := ↑slots\n e := ↑2 ^ N\n/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-s0xjues3/attempt-001/Candidate_08885335eefdecac.lean:24:17: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  d ≥ 0\n  c ≥ 0\n  512*c - d ≥ 0\n  b ≥ 0\n  a ≥ 4\n  a - b ≥ 1\n  a - e ≤ 0\nwhere\n a := ↑N\n b := ↑R\n c := ↑((N + 1) ^ 2)\n d := ↑slots\n e := ↑2 ^ N\n/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-s0xjues3/attempt-001/Candidate_08885335eefdecac.lean:24:17: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  d ≥ 0\n  c ≥ 0\n  512*c - d ≥ 0\n  b ≥ 0\n  0 ≤ a ≤ 2\n  a - b ≥ 1\n  a - e ≤ 0\nwhere\n a := ↑N\n b := ↑R\n c := ↑((N + 1) ^ 2)\n d := ↑slots\n e := ↑2 ^ N\n/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-s0xjues3/attempt-001/Candidate_08885335eefdecac.lean:24:17: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  d ≥ 0\n  c ≥ 0\n  512*c - d ≥ 0\n  b ≥ 16\n  a ≥ 0\n  a - b ≥ 1\n  a - e ≤ 0\nwhere\n a := ↑N\n b := ↑R\n c := ↑((N + 1) ^ 2)\n d := ↑slots\n e := ↑2 ^ N\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-s0xjues3/attempt-002/Candidate_41981c1676aef101.lean",
+            "target_path": "/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-s0xjues3/attempt-002/FrozenTarget_41981c1676aef101.lean",
+            "feedback": "",
+            "target_sha256": "dc76ff8c4fd0c13008da4fa0e301e548c3f2797cf1ad4088c33e138c1300d8f0",
+            "target_olean_sha256": "09edba34895c3c9dc262d75307bca9d0f301fc6d73c4220b0c51bc4a261adb87",
+            "source_sha256": "d3ae2220145c4937be8c9dfddc6c87c7df91817d89f7173056870d7cf9c1c5c0",
+            "olean_sha256": "632ceaad9373ef3d85317a56e37baf75d36143976114db52ca54d8e78329fe08",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T14:45:06.782696+00:00",
+        "work": "/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-s0xjues3",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7c1bdbb01293730ec1282100d15f4212c1b75b481af252616bc2829d70b0f4cf",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-s0xjues3/attempt-002/Candidate_41981c1676aef101.lean",
+        "environment_sha256": "b46fd5643e0e0a79fecefa9ca65ebaaab0178a16331285ce8b3cced347084758",
+        "artifacts": {
+          "complete_address_capacity": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.complete_address_capacity : ∀ R N slots : ℕ, R < N → slots ≤ 512*(N+1)^2 → M6.Transfer.solveStorage R N slots < 2^(M6.Transfer.actualAddressBits R N) := by\n  change ∀ R N slots : ℕ, R < N → slots ≤ 512 * (N + 1)^2 → M6.Transfer.solveStorage R N slots < 2^(M6.Transfer.actualAddressBits R N)\n  intro R N slots hRN hslots\n  have hNat : ∀ n : ℕ, n ≤ 2^n := by\n    intro n\n    induction n with\n    | zero => norm_num\n    | succ n ih =>\n      have hp : 0 < (2 : ℕ)^n := by positivity\n      rw [pow_succ]\n      omega\n  have hsq : N^2 ≤ ((2 : ℕ)^N)^2 := Nat.pow_le_pow_left (hNat N) 2\n  have hbound := M6.Transfer.solve_storage_bound R N slots hRN hslots\n  change M6.Transfer.solveStorage R N slots < 2^(R + 4*N + 16)\n  calc\n    M6.Transfer.solveStorage R N slots ≤ 16384 * N^2 * 2^R := hbound\n    _ ≤ 16384 * ((2 : ℕ)^N)^2 * 2^R :=\n      Nat.mul_le_mul_right (2^R) (Nat.mul_le_mul_left 16384 hsq)\n    _ = 2^(R + (N + N) + 14) := by\n      simp only [pow_add, pow_two]\n      norm_num\n      ring\n    _ < 2^(R + 4*N + 16) := by\n      apply Nat.pow_lt_pow_right\n      · norm_num\n      · omega",
+              "imports": [
+                "M6RecoveryLayout"
+              ],
+              "name": "M6.Transfer.complete_address_capacity",
+              "ancestors": [],
+              "spec_sha256": "9a977bde38b24941464db73000f6bc9ad6c5745e1046fa1f7191a29e31c961b6"
+            },
+            "sha256": "c7b02774e2f74970b33c46637098fe4689a3003eda1eefe00250074da39cd2e8"
+          }
+        }
+      }
+    },
+    "recovery_stack_allocation": {
+      "id": "recovery_stack_allocation",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.recovery_stack_allocation",
+        "spec_sha256": "f1796e7f88b4059cde41ecf019af4b6c0975fa34a883784f0975d675dabd9a7d",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-gd2y2f85/attempt-001/Candidate_fd1efc2694a54244.lean",
+            "target_path": "/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-gd2y2f85/attempt-001/FrozenTarget_fd1efc2694a54244.lean",
+            "feedback": "",
+            "target_sha256": "35f6eb00e5c70dfd989a0a36068938c55f32409c6d8b0fb2baa5858d4b821823",
+            "target_olean_sha256": "0cb6fd1d359b93c74d7099df250240f620926c1fa7d985d8ace335f995adc483",
+            "source_sha256": "2997ea5d6d201d3317501d041d54721adfae3343b431374b74d5222e4cbc1cbe",
+            "olean_sha256": "b4be020407858ba96a8411542b395ae9d4d5a90257d951d4a9273d12cf416513",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:45:06.801071+00:00",
+        "work": "/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-gd2y2f85",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7c1bdbb01293730ec1282100d15f4212c1b75b481af252616bc2829d70b0f4cf",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-recovery-layout-formalization/.humanize-formal-runs/run-gd2y2f85/attempt-001/Candidate_fd1efc2694a54244.lean",
+        "environment_sha256": "b46fd5643e0e0a79fecefa9ca65ebaaab0178a16331285ce8b3cced347084758",
+        "artifacts": {
+          "recovery_stack_allocation": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.recovery_stack_allocation : ∀ R N : ℕ, M6.Transfer.actualTraceStorage R N + 2*(2*N+1)*M6.Transfer.queryCoefficientBits R N + M6.Transfer.recoveryStackBits R N ≤ M6.Transfer.pairedQueryStorage R N := by\n  change ∀ R N : ℕ, _\n  intro R N\n  by_cases h : N < 3\n  · interval_cases N <;>\n      simp [M6.Transfer.pairedQueryStorage, M6.Transfer.recoveryStackBits,\n        M6.Transfer.queryCoefficientBits, M6.Transfer.actualAddressBits,\n        M6.Transfer.coefficientBits, List.length_finRange] <;>\n      ring_nf <;> omega\n  · obtain ⟨k, rfl⟩ : ∃ k : ℕ, N = k + 3 := ⟨N - 3, by omega⟩\n    simp [M6.Transfer.pairedQueryStorage, M6.Transfer.recoveryStackBits,\n      M6.Transfer.queryCoefficientBits, M6.Transfer.actualAddressBits,\n      M6.Transfer.coefficientBits, List.length_finRange]\n    ring_nf\n    omega",
+              "imports": [
+                "M6RecoveryLayout"
+              ],
+              "name": "M6.Transfer.recovery_stack_allocation",
+              "ancestors": [],
+              "spec_sha256": "f1796e7f88b4059cde41ecf019af4b6c0975fa34a883784f0975d675dabd9a7d"
+            },
+            "sha256": "b6d7e0934af0fd509a96e770594546a878afa5f1d04c4de3d1a9adf6c97a6039"
+          }
+        }
+      }
+    }
+  }
+}

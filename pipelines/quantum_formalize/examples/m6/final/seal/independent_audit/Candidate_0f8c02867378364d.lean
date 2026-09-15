@@ -1,0 +1,6 @@
+import FrozenTarget_0f8c02867378364d
+theorem M6.Final.original_m6 : QuantumHarnessFrozenTarget := by
+  change M6.Final.OriginalM6
+  refine ⟨?_, M6.Final.fixed_span_correct, M6.Final.recipe_correct, M6.Final.zero_span_correct⟩
+  intro N inst a b h
+  exact ⟨M6.Final.counting_correct N a b h, M6.Final.parameters_correct N a b h, M6.Final.answer_correct N a b h, M6.Final.execution_correct N a b h, M6.Final.storage_correct N a b h⟩

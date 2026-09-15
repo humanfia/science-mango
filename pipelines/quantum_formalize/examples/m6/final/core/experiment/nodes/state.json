@@ -1,0 +1,339 @@
+{
+  "status": "finished",
+  "max_concurrency": 4,
+  "updated_at": "2026-09-15T15:00:56.722988+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "answer_correct": {
+      "id": "answer_correct",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Final.answer_correct",
+        "spec_sha256": "b302c5ebfa4fec9f19a0a197b92d4d5dee5bd99bf940c1132fa8c6c09dd49abc",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bwb3_p8f/attempt-001/Candidate_693ffbe6cc1d6991.lean",
+            "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bwb3_p8f/attempt-001/FrozenTarget_693ffbe6cc1d6991.lean",
+            "feedback": "",
+            "target_sha256": "c9a65633b359aed7b5cf073d371ec7c85194e3fe96e92ed1917896cc4fefb19b",
+            "target_olean_sha256": "f233a656c1f93c7c895d4c698b0c753ce1cc159d06a4f96ff0df3b09b7537e82",
+            "source_sha256": "f475e371868d7ea1078cb6385d3d80d39a0c570f36be8d0ef82287e6271e644d",
+            "olean_sha256": "ad9773cc97c65924d4bc24ad7dd2fe4f55e2da19c9c52dee01c7a1348f5fc502",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:59:25.819235+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bwb3_p8f",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bwb3_p8f/attempt-001/Candidate_693ffbe6cc1d6991.lean",
+        "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+        "artifacts": {
+          "answer_correct": {
+            "payload": {
+              "declaration": "theorem M6.Final.answer_correct : ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.AnswerCorrect N a b := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.AnswerCorrect N a b\n  intro N inst a b h\n  classical\n  have hs : M6.ActualTransfer.span a b < N := h.2.2.2.2.1\n  have ha : a.degree < (N : WithBot ℕ) := by\n    apply lt_of_le_of_lt Polynomial.degree_le_natDegree\n    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_left a.natDegree b.natDegree) hs)\n  have hb : b.degree < (N : WithBot ℕ) := by\n    apply lt_of_le_of_lt Polynomial.degree_le_natDegree\n    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_right a.natDegree b.natDegree) hs)\n  have solve := M6.ActualResult.solve_exact N a b hs\n  have nonempty := M6.ActualCounts.logicals_nonempty_iff N a b ha hb\n  have empty : M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) = ∅ ↔ M6.ActualCounts.f N a b = 0 := by\n    rw [← Finset.not_nonempty_iff_eq_empty, nonempty]\n    omega\n  have qd : M6.Final.quantumDistance N a b = M6.Pinned.distance (M6.Final.LX N a b) := M6.ActualCSS.common_quantum_distance N _ _\n  have ds := M6.Pinned.distance_spec (2*N) (M6.Final.LX N a b)\n  change (_ ↔ _) ∧ (_ ↔ _) ∧ _\n  refine ⟨solve.1.trans empty, ?_, ?_, ?_⟩\n  · rw [qd, ds.1]; exact empty\n  · intro d v k hv\n    have hvp := solve.2 d v k hv\n    refine ⟨?_, hvp.1, hvp.2.1, ?_, (M6.Flatten.J_weight N v).trans hvp.2.1, hvp.2.2.2⟩\n    · rw [qd, ds.2 d]\n      exact ⟨⟨v, hvp.1, hvp.2.1⟩, hvp.2.2.1⟩\n    · exact (M6.ActualCSS.J_logical_iff N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) v).mp hvp.1\n  · intro hf\n    cases hh : M6.ActualTransfer.solve N a b with\n    | none => have hz := (solve.1.trans empty).mp hh; omega\n    | some x => rcases x with ⟨d,v,k⟩; exact ⟨d,v,k,rfl⟩",
+              "imports": [
+                "M6FinalReady"
+              ],
+              "name": "M6.Final.answer_correct",
+              "ancestors": [],
+              "spec_sha256": "b302c5ebfa4fec9f19a0a197b92d4d5dee5bd99bf940c1132fa8c6c09dd49abc"
+            },
+            "sha256": "36f841b905e1954358bc1836d6f458629ff6a5d3fdfd15351da2bc7264a81a2b"
+          }
+        }
+      }
+    },
+    "counting_correct": {
+      "id": "counting_correct",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Final.counting_correct",
+        "spec_sha256": "94fe465121afeea4a04496495753812033a7cad289d274287dcea34565ada6f6",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-xe39xtmn/attempt-001/Candidate_39fdc28195bcad5b.lean",
+            "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-xe39xtmn/attempt-001/FrozenTarget_39fdc28195bcad5b.lean",
+            "feedback": "",
+            "target_sha256": "d640dd56bf91d7e828d12f91c592c3b230e56950a334395e9cb8d21f5bb5ccce",
+            "target_olean_sha256": "ae6958fd6f069c90dd28113c6308f62de4c7477b25601a4c5d4d3041fa4bc35b",
+            "source_sha256": "e40ce688bd88b5d2784bb4a06bf36223d4dd40def6b71d40a33f5751f42343ec",
+            "olean_sha256": "484bb429d1387dd116b9a13339650e0239ead29f3bde619d30e926f8bd07641a",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:59:25.991736+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-xe39xtmn",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-xe39xtmn/attempt-001/Candidate_39fdc28195bcad5b.lean",
+        "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+        "artifacts": {
+          "counting_correct": {
+            "payload": {
+              "declaration": "theorem M6.Final.counting_correct : ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.CountingCorrect N a b := by\n  intro N inst a b h\n  classical\n  have hs : M6.ActualTransfer.span a b < N := h.2.2.2.2.1\n  have hna : a.natDegree < N := lt_of_le_of_lt (Nat.le_max_left _ _) hs\n  have hnb : b.natDegree < N := lt_of_le_of_lt (Nat.le_max_right _ _) hs\n  have ha : a.degree < (N : WithBot ℕ) := lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast hna)\n  have hb : b.degree < (N : WithBot ℕ) := lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast hnb)\n  constructor\n  · intro P\n    refine ⟨?_, ?_, M6.ActualResult.boundary_normalized N a b hs P,\n      M6.ActualResult.cycle_normalized N a b hs P,\n      M6.ActualResult.Q_enumerator N a b hs P,\n      (fun d => M6.ActualResult.Q_coeff N a b hs P d),\n      M6.ActualResult.Q_zero N a b hs P⟩\n    · rw [M6.ActualTransfer.boundary_trace_inputs N a b hs P]\n      simpa only [M6.ActualCounts.boundaryInputSum, M6.Spaces.boundary_eval, M6.Final.BX] using\n        M6.ActualCounts.boundary_pinned_sum N a b ha hb P\n    · rw [M6.ActualTransfer.character_trace_inputs N a b hs P]\n      simpa only [M6.ActualCounts.signedInputSum, M6.Spaces.dual_boundary_eval, M6.Final.CX] using\n        M6.ActualCounts.cycle_pinned_sum N a b ha hb P\n  · exact (M6.ActualResult.Q_total N a b hs).trans (M6.ActualCounts.logical_card N a b ha hb)",
+              "imports": [
+                "M6FinalReady"
+              ],
+              "name": "M6.Final.counting_correct",
+              "ancestors": [],
+              "spec_sha256": "94fe465121afeea4a04496495753812033a7cad289d274287dcea34565ada6f6"
+            },
+            "sha256": "0cce84d085f089b71eba7af9368e23293c591065408c4c8a938cd24a8e757424"
+          }
+        }
+      }
+    },
+    "execution_correct": {
+      "id": "execution_correct",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Final.execution_correct",
+        "spec_sha256": "c10302d8ff80cf2489d9e9d17b9911a9f7ec9657efbfb36e92567d55bd395397",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1uwynp88/attempt-001/Candidate_8132582572b4ba31.lean",
+            "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1uwynp88/attempt-001/FrozenTarget_8132582572b4ba31.lean",
+            "feedback": "",
+            "target_sha256": "8392dcada1df8d70ce9f3b2eaf61c52e4d0cde3577a49aaefacbb22e279f9a40",
+            "target_olean_sha256": "0c3a30403457bd3583d5b1a20b8501157c95508e02525665b5dba71fd15b85d1",
+            "source_sha256": "7b4030903f1779cdba6359aaf4f12a582cefd8cc3d7eddd78eddac51e2257894",
+            "olean_sha256": "7ec9c9c34af42325ce4a6cff9ebb06fa6bd4f1edd38615df59faa7517df6a254",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:59:26.160999+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1uwynp88",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-1uwynp88/attempt-001/Candidate_8132582572b4ba31.lean",
+        "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+        "artifacts": {
+          "execution_correct": {
+            "payload": {
+              "declaration": "theorem M6.Final.execution_correct : ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.ExecutionCorrect N a b := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.ExecutionCorrect N a b\n  intro N inst a b h\n  have hb := M6.ActualTransfer.boundary_indexed_resources\n  have hc := M6.ActualTransfer.character_indexed_resources\n  have ho := M6.ActualTransfer.shifted_output_exact\n  have hs := M6.ActualTransfer.shifted_scan_exact\n  first\n  | have hd := M6.SolveResources.actual_distance_work\n  | have hd := M6.Solve.actual_distance_work\n  | have hd := M6.QueryResources.actual_distance_work\n  | have hd := M6.Query.actual_distance_work\n  | have hd := M6.Postprocessing.actual_distance_work\n  | have hd := M6.ActualTransfer.actual_distance_work\n  | have hd := M6.Final.actual_distance_work\n  | have hd := M6.actual_distance_work\n  first\n  | have hw := M6.SolveResources.actual_witness_work\n  | have hw := M6.Solve.actual_witness_work\n  | have hw := M6.QueryResources.actual_witness_work\n  | have hw := M6.Query.actual_witness_work\n  | have hw := M6.Postprocessing.actual_witness_work\n  | have hw := M6.ActualTransfer.actual_witness_work\n  | have hw := M6.Final.actual_witness_work\n  | have hw := M6.actual_witness_work\n  unfold M6.Final.Admissible at h\n  unfold M6.Final.ExecutionCorrect\n  aesop (add safe apply [hb, hc, ho, hs, hd, hw])",
+              "imports": [
+                "M6FinalReady"
+              ],
+              "name": "M6.Final.execution_correct",
+              "ancestors": [],
+              "spec_sha256": "c10302d8ff80cf2489d9e9d17b9911a9f7ec9657efbfb36e92567d55bd395397"
+            },
+            "sha256": "5b56afc50c8bb104077865025af46f1362882d362b8fad7342fdf1192fc2cde0"
+          }
+        }
+      }
+    },
+    "fixed_span_correct": {
+      "id": "fixed_span_correct",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Final.fixed_span_correct",
+        "spec_sha256": "97b53e1bc118674a91e346470352bf02448a11fa12fa17d4f8f9224890bdea7a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-c4izmcqm/attempt-001/Candidate_9d5abc94482f72f0.lean",
+            "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-c4izmcqm/attempt-001/FrozenTarget_9d5abc94482f72f0.lean",
+            "feedback": "",
+            "target_sha256": "156e7515bca17fbf7cc02cfe06c4ec2b32fcae48105495cdb9b7ebc2c4948213",
+            "target_olean_sha256": "2044ebca2644ea60e2c5f13488218e71b02a1c2ef5e6e241931e6a198e23d31c",
+            "source_sha256": "22855db8c83b962204df0eb379441ce167b79e6ad7307e43a27f4489b9e90aef",
+            "olean_sha256": "b7289dcf31df335445395c1018981f47a8a8529ad795b98ced696b2e1fe70481",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:59:26.330817+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-c4izmcqm",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-c4izmcqm/attempt-001/Candidate_9d5abc94482f72f0.lean",
+        "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+        "artifacts": {
+          "fixed_span_correct": {
+            "payload": {
+              "declaration": "theorem M6.Final.fixed_span_correct : M6.Final.FixedSpanCorrect := by\n  change M6.Final.FixedSpanCorrect\n  refine ⟨M6.FixedSpan.distance_improvement, M6.FixedSpan.witness_improvement, ?_⟩\n  intro k\n  have h := M6.FixedSpan.nontrivial_family k\n  have hd := M6.FixedSpan.recipe_degree.2\n  have hs : M6.ActualTransfer.span M6.FixedSpan.recipe M6.FixedSpan.recipe = 2 := by\n    simp [M6.ActualTransfer.span, hd]\n  refine ⟨?_, hs, h.2.2.2.2⟩\n  change 0 < 3*(k+1) ∧ _\n  refine ⟨by omega, ?_, ?_, rfl, ?_, ?_⟩\n  · simp [M6.FixedSpan.recipe]\n  · simp [M6.FixedSpan.recipe]\n  · rw [hs]; exact h.1\n  · simpa only [Finset.union_self] using h.2.2.2.1",
+              "imports": [
+                "M6FinalReady"
+              ],
+              "name": "M6.Final.fixed_span_correct",
+              "ancestors": [],
+              "spec_sha256": "97b53e1bc118674a91e346470352bf02448a11fa12fa17d4f8f9224890bdea7a"
+            },
+            "sha256": "29d9893bd928d2365fb49d2c9d688d155e0374bcd04ddb721c8c73bde78a59d1"
+          }
+        }
+      }
+    },
+    "parameters_correct": {
+      "id": "parameters_correct",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Final.parameters_correct",
+        "spec_sha256": "86137cb4c0cbe21cb406283772ee7b7215f677b66c6769b7d5f7c347f0e03a9a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-c7p94tyt/attempt-001/Candidate_318ac24387620775.lean",
+            "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-c7p94tyt/attempt-001/FrozenTarget_318ac24387620775.lean",
+            "feedback": "",
+            "target_sha256": "62cf2fb61fcd7db22981a68d35bc3bd251af4dac57ccbb70b16e33bd6fe49ae9",
+            "target_olean_sha256": "c509e35a3152363c0358366dd2bb757778fe43bcc7af63a39477e57b0501aef0",
+            "source_sha256": "7a10a36c31c125e09c41e2f6419080dcef603d4aaefb278a4956925a8e2143c2",
+            "olean_sha256": "252a74ff74b0865736690ed37a0179bdc47de36efc3355d50886b4e0b6d077f2",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T15:00:07.105311+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-c7p94tyt",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-c7p94tyt/attempt-001/Candidate_318ac24387620775.lean",
+        "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+        "artifacts": {
+          "parameters_correct": {
+            "payload": {
+              "declaration": "theorem M6.Final.parameters_correct : ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.ParametersCorrect N a b := by\n  intro N inst a b h\n  have hs : M6.ActualTransfer.span a b < N := h.2.2.2.2.1\n  have hna : a.natDegree < N := lt_of_le_of_lt (Nat.le_max_left _ _) hs\n  have hnb : b.natDegree < N := lt_of_le_of_lt (Nat.le_max_right _ _) hs\n  have ha : a.degree < (N : WithBot ℕ) := lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast hna)\n  have hb : b.degree < (N : WithBot ℕ) := lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast hnb)\n  exact ⟨M6.ActualCounts.boundary_card N a b ha hb,\n    M6.ActualCounts.cycle_card N a b ha hb,\n    M6.ActualCounts.encoded_dimension N a b ha hb,\n    M6.ActualCounts.f_le_order N a b,\n    M6.ActualCounts.logicals_nonempty_iff N a b ha hb⟩",
+              "imports": [
+                "M6FinalReady"
+              ],
+              "name": "M6.Final.parameters_correct",
+              "ancestors": [],
+              "spec_sha256": "86137cb4c0cbe21cb406283772ee7b7215f677b66c6769b7d5f7c347f0e03a9a"
+            },
+            "sha256": "447f6561343fcfc5825bc123c8187ea3036f2907d726105efacecd29712114ad"
+          }
+        }
+      }
+    },
+    "zero_span_correct": {
+      "id": "zero_span_correct",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Final.zero_span_correct",
+        "spec_sha256": "ab3eb99650efe6b666ec8572dd251e7c5cbc17fa798d7c7d900815476866d149",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-q7jh32h1/attempt-001/Candidate_6093a09984f1948c.lean",
+            "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-q7jh32h1/attempt-001/FrozenTarget_6093a09984f1948c.lean",
+            "feedback": "",
+            "target_sha256": "31c599f26c91c3e1f66c060d3b112abf243b68043f1e688e3c5b2b1ca30a385c",
+            "target_olean_sha256": "509dd0446e094e2aed53d209c4e1150e2c353763425fc95c699af84f826ad85f",
+            "source_sha256": "5240025a95744e4747133a16dfe888819800a94ef06528e75a267b68bdfdfb15",
+            "olean_sha256": "73f03da833143adb43c92bc40551e015e597f19abc751aca92c0cde31bc8ee39",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T15:00:07.527859+00:00",
+        "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-q7jh32h1",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-q7jh32h1/attempt-001/Candidate_6093a09984f1948c.lean",
+        "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+        "artifacts": {
+          "zero_span_correct": {
+            "payload": {
+              "declaration": "theorem M6.Final.zero_span_correct : M6.Final.ZeroSpanCorrect := by\n  change M6.Final.ZeroSpanCorrect\n  refine ⟨M6.ZeroSpan.anchored_zero, M6.ZeroSpan.connected_zero, M6.ZeroSpan.boundary_loops, M6.ZeroSpan.character_loops, M6.ZeroSpan.boundary_trace_zero, M6.ZeroSpan.character_trace_zero, ?_⟩\n  intro N inst\n  unfold M6.ActualTransfer.Q\n  rw [M6.ZeroSpan.boundary_trace_zero, M6.ZeroSpan.character_trace_zero]\n  have hf : M6.ActualCounts.f N 1 1 = 0 := by\n    unfold M6.ActualCounts.f\n    rw [M6.ZeroSpan.signature_one]\n    simp\n  change M6.Normalize.divide ((2 : ℤ)^N) (Polynomial.C ((2 : ℤ)^N) * ((1 : Polynomial ℤ) + Polynomial.X^2)^N) - M6.Normalize.divide ((2 : ℤ)^(M6.ActualCounts.f N 1 1)) (((1 : Polynomial ℤ) + Polynomial.X^2)^N) = 0\n  rw [hf]\n  simp only [pow_zero]\n  rw [M6.Normalize.divide_scaled _ _ (pow_ne_zero _ (by norm_num))]\n  have h1 := M6.Normalize.divide_scaled (1 : ℤ) (((1 : Polynomial ℤ) + Polynomial.X^2)^N) (by norm_num)\n  simp only [map_one, one_mul] at h1\n  rw [h1]\n  exact sub_self _",
+              "imports": [
+                "M6FinalReady"
+              ],
+              "name": "M6.Final.zero_span_correct",
+              "ancestors": [],
+              "spec_sha256": "ab3eb99650efe6b666ec8572dd251e7c5cbc17fa798d7c7d900815476866d149"
+            },
+            "sha256": "7a595c92bacad686116cac17d5d0a05fc9ea4478b64dfaa0cc236ca6fa64bba6"
+          }
+        }
+      }
+    }
+  }
+}

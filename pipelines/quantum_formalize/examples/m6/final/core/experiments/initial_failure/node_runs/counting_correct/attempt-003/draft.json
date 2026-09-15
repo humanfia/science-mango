@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.CountingCorrect N a b\nintro N inst a b h\nclassical\nsimp only [M6.Final.Admissible] at h\nrepeat' match goal with\n  | h' : _ ∧ _ ⊢ _ => rcases h' with ⟨hleft, hright⟩\nhave hs : M6.ActualTransfer.span a b < N := by assumption\nhave hna : a.natDegree < N := by\n  unfold M6.ActualTransfer.span at hs\n  omega\nhave hnb : b.natDegree < N := by\n  unfold M6.ActualTransfer.span at hs\n  omega\nhave ha : a.degree < (N : WithBot ℕ) :=\n  lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast hna)\nhave hb : b.degree < (N : WithBot ℕ) :=\n  lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast hnb)\nunfold M6.Final.CountingCorrect\nrepeat' apply And.intro\nall_goals intros\nall_goals first\n  | (rw [M6.ActualTransfer.boundary_trace_inputs N a b hs]\n     change M6.ActualCounts.boundaryInputSum N a b _ = _\n     exact M6.ActualCounts.boundary_pinned_sum N a b ha hb _)\n  | (rw [M6.ActualTransfer.character_trace_inputs N a b hs]\n     change M6.ActualCounts.signedInputSum N a b _ = _\n     exact M6.ActualCounts.cycle_pinned_sum N a b ha hb _)\n  | exact?\n  | (simp only [M6.Final.LX, M6.Final.BX, M6.Final.CX]\n     exact?)\n  | (rw [← M6.ActualCounts.logical_card N a b ha hb]\n     exact?)",
+  "queries": [
+    "M6.ActualResult normalized Q identities",
+    "M6.ActualCounts.logical_card",
+    "M6.Final.CountingCorrect definition"
+  ]
+}

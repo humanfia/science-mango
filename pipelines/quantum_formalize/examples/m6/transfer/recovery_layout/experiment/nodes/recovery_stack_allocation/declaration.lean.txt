@@ -1,0 +1,15 @@
+theorem M6.Transfer.recovery_stack_allocation : ∀ R N : ℕ, M6.Transfer.actualTraceStorage R N + 2*(2*N+1)*M6.Transfer.queryCoefficientBits R N + M6.Transfer.recoveryStackBits R N ≤ M6.Transfer.pairedQueryStorage R N := by
+  change ∀ R N : ℕ, _
+  intro R N
+  by_cases h : N < 3
+  · interval_cases N <;>
+      simp [M6.Transfer.pairedQueryStorage, M6.Transfer.recoveryStackBits,
+        M6.Transfer.queryCoefficientBits, M6.Transfer.actualAddressBits,
+        M6.Transfer.coefficientBits, List.length_finRange] <;>
+      ring_nf <;> omega
+  · obtain ⟨k, rfl⟩ : ∃ k : ℕ, N = k + 3 := ⟨N - 3, by omega⟩
+    simp [M6.Transfer.pairedQueryStorage, M6.Transfer.recoveryStackBits,
+      M6.Transfer.queryCoefficientBits, M6.Transfer.actualAddressBits,
+      M6.Transfer.coefficientBits, List.length_finRange]
+    ring_nf
+    omega

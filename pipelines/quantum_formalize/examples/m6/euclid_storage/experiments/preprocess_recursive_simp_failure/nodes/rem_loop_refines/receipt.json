@@ -1,0 +1,56 @@
+{
+  "id": "rem_loop_refines",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.EuclidStorage.rem_loop_refines",
+    "spec_sha256": "6735f1b39e2533e3aeeef172935a589274622ffb9ebfdc26a8bc4d3b38f8c830",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-euclid-storage-formalization/.humanize-formal-runs/run-4qu_l_b6/attempt-001/Candidate_9045fbb352967ef4.lean",
+        "target_path": "/home/jing/m6-lean-euclid-storage-formalization/.humanize-formal-runs/run-4qu_l_b6/attempt-001/FrozenTarget_9045fbb352967ef4.lean",
+        "feedback": "",
+        "target_sha256": "de6b8adbb64c7de53e68d9cfe59aaa7be7ba30c3e439cb913234da73054267fc",
+        "target_olean_sha256": "3942f494010630da4f71d740633797059108f3ca0a370704b92f9ac0e33d82d9",
+        "source_sha256": "635fde0142ea49c40a071deb0b48036776af6ec7d045c4a832a439368bbf868b",
+        "olean_sha256": "28b55966ffd5a36bb6fbfa957d3d670ad1e3f09bdc27b902b732bd11fe6f262a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:33:27.424393+00:00",
+    "work": "/home/jing/m6-lean-euclid-storage-formalization/.humanize-formal-runs/run-4qu_l_b6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "67a9c53c9108d7efd8d95ad730b032c7c9ad2daa6030b2a4450e298b7ed96839",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-euclid-storage-formalization/.humanize-formal-runs/run-4qu_l_b6/attempt-001/Candidate_9045fbb352967ef4.lean",
+    "environment_sha256": "b1ee56f95d2afab4447f9a7efc58cf899912cf0f44ad7076bd8ca1f86b086051",
+    "artifacts": {
+      "rem_loop_refines": {
+        "payload": {
+          "declaration": "theorem M6.EuclidStorage.rem_loop_refines : ∀ (fuel : ℕ) (s : M6.EuclidStorage.Slots) (c t : ℕ), let r := M6.EuclidStorage.remLoop fuel s c t; r.slots.p = s.p ∧ r.slots.q = s.q ∧ r.slots.saved = s.saved ∧ r.slots.work = (M6.Euclid.remainderAux fuel s.work s.q).value ∧ r.cancellations = c + (M6.Euclid.remainderAux fuel s.work s.q).cancellations ∧ r.rounds = 0 ∧ r.passes = t + (M6.Euclid.remainderAux fuel s.work s.q).passes := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (fuel : ℕ) (s : M6.EuclidStorage.Slots) (c t : ℕ), let r := M6.EuclidStorage.remLoop fuel s c t; r.slots.p = s.p ∧ r.slots.q = s.q ∧ r.slots.saved = s.saved ∧ r.slots.work = (M6.Euclid.remainderAux fuel s.work s.q).value ∧ r.cancellations = c + (M6.Euclid.remainderAux fuel s.work s.q).cancellations ∧ r.rounds = 0 ∧ r.passes = t + (M6.Euclid.remainderAux fuel s.work s.q).passes\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro s c t\n      simp [M6.EuclidStorage.remLoop, M6.Euclid.remainderAux]\n  | succ fuel ih =>\n      intro s c t\n      simp only [M6.EuclidStorage.remLoop, M6.Euclid.remainderAux]\n      split <;> simp_all [Nat.add_assoc, Nat.add_left_comm, Nat.add_comm]",
+          "imports": [
+            "M6EuclidAccepted",
+            "M6EuclidStorage"
+          ],
+          "name": "M6.EuclidStorage.rem_loop_refines",
+          "ancestors": [],
+          "spec_sha256": "6433257d86b90e2a1ac6ef4bdd95140c4040565832d0fc9a049a04794d85d60f"
+        },
+        "sha256": "11c3bbc723a0384369b32aa1acdb15a80349371b16300ee4f68e4b90cc612067"
+      }
+    }
+  }
+}

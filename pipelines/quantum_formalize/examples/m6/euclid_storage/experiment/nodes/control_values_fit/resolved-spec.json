@@ -1,0 +1,13 @@
+{
+  "name": "M6.EuclidStorage.control_values_fit",
+  "statement": "∀ (width : ℕ) (s : M6.EuclidStorage.Slots) (fuel c e t : ℕ), M6.EuclidStorage.slotsFit width s → fuel ≤ 32*width → c ≤ 32*width → e ≤ 32*width → t ≤ 32*width → ∀ v ∈ M6.EuclidStorage.controlValues s fuel c e t, v < 2 ^ (M6.EuclidStorage.registerBits width)",
+  "imports": [
+    "M6EuclidAccepted",
+    "M6EuclidStorage"
+  ],
+  "context": "theorem M6.EuclidStorage.control_encoding : ∀ (width v : ℕ), v ≤ 32*width → v < 2 ^ (M6.EuclidStorage.registerBits width) := by\n  change ∀ (width v : ℕ), v ≤ 32 * width → v < 2 ^ (M6.EuclidStorage.registerBits width)\n  intro width v hv\n  have h : width < 2 ^ width := Nat.lt_two_pow_self\n  change v < 2 ^ (width + 5)\n  rw [pow_add]\n  norm_num\n  omega",
+  "queries": [
+    "EuclideanDomain gcd Bezout divisibility"
+  ],
+  "guidance": "Each listed control value is≤32width. Slot ranks≤width; natDegree p≤rankp includingp0, so shifted-XOR offset also≤width. Expand finite-list membership and apply control_encoding. Loop indices/addresses lie in the fixed width range and phase/carry use one bit, accommodated by the reserved sixteen control words. Return only tactic proof lines without leading by. Keep frozen target and default limits."
+}

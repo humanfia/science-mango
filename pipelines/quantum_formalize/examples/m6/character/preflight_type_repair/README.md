@@ -1,0 +1,1 @@
+Before any model launch, the exact conditional orthogonality RHS was given a noncomputable named wrapper to supply its required classical Decidable instance. No mathematical assumption or formula changed. Imports were narrowed to the used Mathlib modules. Initial type failure retained here.

@@ -1,0 +1,30 @@
+{
+  "title": "M6 exact indexed scalar-array algorithm guarantee",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "scope": "Concrete scalar scatter trace with signed prefix/primitive safety and full event-list/parity-accounting bounds. Actual physical factors discharge edge assumptions in root. Per-event work allowance is explicit and must cover actual weight computation; this is not a generic Python or arbitrary-oracle runtime claim.",
+  "nodes": [
+    {
+      "id": "indexed_array_correct_resources",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Transfer.indexed_array_correct_resources",
+        "statement": "∀ (R N : ℕ) [NeZero N] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ), R < N → (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.IndexedArrayGuarantee R N W",
+        "imports": [
+          "M6IndexedArrayReady"
+        ],
+        "context": "",
+        "queries": [
+          "Nat power monotonicity signed integer bounds",
+          "finite sum transfer matrix"
+        ],
+        "guidance": "Use the actual accepted scalar_trace_polynomial and array_trace_inputs for exact result; actual_trace_work_bound/storage_bound/address_capacity for accounting. actual_signed_capacity gives the magnitude threshold. actual_layer_intermediates bounds prefix values and primitive products by8^(i+1); i<N implies i+1<=N, and1<=2^R gives8^(i+1)<=2^R*8^N. actual_trace_intermediates gives the outer-prefix bound. Use precisely these real proofs once accepted gates resolve. Return tactic lines without leading by. Fixed complete fields:\nimport M6TransferActualResources\nimport M6TransferPartialResources\n\nnamespace M6.Transfer\n\ndef FitsSigned (R N : ℕ) (z : ℤ) : Prop :=\n  z.natAbs < 2^(coefficientBits R N - 1)\n\nstructure IndexedArrayGuarantee (R N : ℕ) [NeZero N]\n    (W : ℕ → Memory R → Bit → Polynomial ℤ) : Prop where\n  trace_exact : scalarTracePolynomial W N =\n    ∑ h : Input N, ∏ i : ZMod N, W i.val (memoryAt h i) (h i)\n  work_bound : actualTraceWork R N ≤ 16384 * N^3 * 4^R\n  storage_bound : actualTraceStorage R N ≤ 4096 * N^2 * 2^R\n  addresses_fit : actualTraceStorage R N < 2^(actualAddressBits R N)\n  layer_prefix_fits : ∀ (start : Memory R) (i : ℕ), i < N →\n    ∀ (k : ℕ) (addr : CoefficientAddress R N),\n      FitsSigned R N (((scatterEventList R N).take k).foldl\n        (scatterUpdate (W i) (scalarLayers (N:=N) W start i)) (fun _ => 0) addr)\n  event_term_fits : ∀ (start : Memory R) (i : ℕ), i < N →\n    ∀ e : ScatterEvent R N,\n      FitsSigned R N (eventTerm (W i) (scalarLayers (N:=N) W start i) e)\n  trace_prefix_fits : ∀ (k : ℕ) (d : Fin (2*N+1)),\n    FitsSigned R N ((((Finset.univ : Finset (Memory R)).toList.take k).map\n      (fun start => scalarLayers (N:=N) W start N (start,d))).sum)\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_INDEXED_ALGORITHM_AND_RESOURCES",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

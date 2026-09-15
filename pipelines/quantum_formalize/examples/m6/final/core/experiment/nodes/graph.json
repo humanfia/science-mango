@@ -1,0 +1,104 @@
+[
+  {
+    "id": "counting_correct",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Final.counting_correct",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.CountingCorrect N a b",
+      "imports": [
+        "M6FinalReady"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "For the two raw scaling fields, rw [M6.ActualTransfer.boundary_trace_inputs N a b hs P] (respectively character_trace_inputs), change M6.ActualCounts.boundaryInputSum N a b P = _ (respectively signedInputSum), and exact M6.ActualCounts.boundary_pinned_sum N a b ha hb P (respectively cycle_pinned_sum). These explicit raw formulas guarantee exact divisibility. Use ActualResult normalized/Q identities and ActualCounts.logical_card to rewrite Q_total. Unfold LX/BX/CX aliases; actual logicalWords is definitional difference. Derive degree<N from span<N once. Every antecedent used comes from Admissible; retain original goal. Return tactic lines only without leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "parameters_correct",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Final.parameters_correct",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.ParametersCorrect N a b",
+      "imports": [
+        "M6FinalReady"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Use actual cardinality and encoded_dimension with degree bounds, f_le_order and corrected logicals_nonempty_iff. Parentheses in iff are essential. Every antecedent used comes from Admissible; retain original goal. Return tactic lines only without leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "answer_correct",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Final.answer_correct",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.AnswerCorrect N a b",
+      "imports": [
+        "M6FinalReady"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Use ActualResult.solve_exact plus actual logicals_nonempty_iff and ActualCSS.common_quantum_distance. Pinned.distance_spec turns exact minimum returned by solve into actual CSS quantumDistance. J_logical_iff and Flatten.J_weight supply Z witness. For existence, solve!=none from nonempty and cases Option; do not leave oracle/minimum hypotheses. Every antecedent used comes from Admissible; retain original goal. Return tactic lines only without leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "execution_correct",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Final.execution_correct",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.ExecutionCorrect N a b",
+      "imports": [
+        "M6FinalReady"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Directly instantiate boundary_indexed_resources, character_indexed_resources, shifted_output_exact, shifted_scan_exact, actual_distance_work and actual_witness_work under span<N. No freely supplied resource estimates. Every antecedent used comes from Admissible; retain original goal. Return tactic lines only without leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "fixed_span_correct",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Final.fixed_span_correct",
+      "statement": "M6.Final.FixedSpanCorrect",
+      "imports": [
+        "M6FinalReady"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Use FixedSpan.distance_improvement/witness_improvement and nontrivial_family. For actual Admissible family use recipe support/degree and coefficient0=1; span=2. Do not assume the declared family belongs to the domain. Every antecedent used comes from Admissible; retain original goal. Return tactic lines only without leading by."
+    },
+    "metadata": {}
+  },
+  {
+    "id": "zero_span_correct",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Final.zero_span_correct",
+      "statement": "M6.Final.ZeroSpanCorrect",
+      "imports": [
+        "M6FinalReady"
+      ],
+      "context": "",
+      "queries": [
+        "weight preserving involution minimum distance"
+      ],
+      "guidance": "Combine the accepted ZeroSpan six clauses. Qzero: unfold actualQ, use boundary_trace_zero/character_trace_zero, signature_one, Normalize.divide_scaled and simp. Exact two distinct labels retained. Every antecedent used comes from Admissible; retain original goal. Return tactic lines only without leading by."
+    },
+    "metadata": {}
+  }
+]

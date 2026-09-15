@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.Admissible M6.Final.CountingCorrect full definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 161343,
+        "name": "CategoryTheory.Functor.final_of_comp_full_faithful",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L801-L803",
+        "source_text": "/-- The hypotheses also imply that `G` is final, see `final_of_comp_full_faithful'`. -/\ntheorem final_of_comp_full_faithful [Full G] [Faithful G] [Final (F ⋙ G)] : Final F where\n  out d := isConnected_of_equivalent (StructuredArrow.post d F G).asEquivalence.symm\n",
+        "docstring": "The hypotheses also imply that `G` is final, see `final_of_comp_full_faithful'`. "
+      },
+      {
+        "id": 117189,
+        "name": "SimplexCategoryGenRel.isAdmissible_iff",
+        "module": "Mathlib.AlgebraicTopology.SimplexCategory.GeneratorsRelations.NormalForms",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/AlgebraicTopology/SimplexCategory/GeneratorsRelations/NormalForms.lean#L55-L55",
+        "source_text": "@[mk_iff]\ninductive IsAdmissible : (m : ℕ) → (L : List ℕ) → Prop\n  | nil (m : ℕ) : IsAdmissible m []\n  | singleton {m a} (ha : a ≤ m) : IsAdmissible m [a]\n  | cons_cons {m a b L'} (hab : a < b) (hbL : IsAdmissible (m + 1) (b :: L'))\n      (ha : a ≤ m) : IsAdmissible m (a :: b :: L')\n\nattribute [simp, grind ←] IsAdmissible.nil\nattribute [grind →] IsAdmissible.cons_cons\n\nsection IsAdmissible\n\nvariable {m a b : ℕ} {L : List ℕ}\n\n@[simp, grind =]\ntheorem isAdmissible_singleton_iff : IsAdmissible m [a] ↔ a ≤ m :=",
+        "docstring": null
+      },
+      {
+        "id": 161361,
+        "name": "CategoryTheory.Functor.final_iff_comp_final_full_faithful",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L909-L911",
+        "source_text": "theorem final_iff_comp_final_full_faithful [Final G] [Full G] [Faithful G] :\n    Final F ↔ Final (F ⋙ G) :=\n  ⟨fun _ => final_comp _ _, fun _ => final_of_comp_full_faithful F G⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 161359,
+        "name": "CategoryTheory.Functor.final_of_comp_full_faithful'",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L899-L902",
+        "source_text": "/-- The hypotheses also imply that `F` is final, see `final_of_comp_full_faithful`. -/\ntheorem final_of_comp_full_faithful' [Full G] [Faithful G] [Final (F ⋙ G)] : Final G :=\n  have := final_of_comp_full_faithful F G\n  final_of_final_comp F G\n",
+        "docstring": "The hypotheses also imply that `F` is final, see `final_of_comp_full_faithful`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.Admissible M6.Final.CountingCorrect full definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387070,
+        "name": "Physlib.noInformalDefs",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L74-L78",
+        "source_text": "/-- The number of informal definitions in Physlib. -/\ndef noInformalDefs : CoreM Nat := do\n  let imports ← allImports\n  let x ← imports.mapM Imports.getUserConsts\n  x.flatFilterSizeM fun c => return Informal.isInformalDef c\n",
+        "docstring": "The number of informal definitions in Physlib. "
+      },
+      {
+        "id": 387053,
+        "name": "Physlib.noDefsNoDocString",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L199-L204",
+        "source_text": "/-- Number of definitions without a doc-string. -/\ndef noDefsNoDocString : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c =>\n    return c.isDef && (← c.name.hasPos) && !(← c.name.hasDocString)\n",
+        "docstring": "Number of definitions without a doc-string. "
+      },
+      {
+        "id": 393839,
+        "name": "CanonicalEnsemble.instIsFiniteMeasureμOfIsFinite",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L147-L149",
+        "source_text": "instance [IsFinite 𝓒] : IsFiniteMeasure (𝓒.μ) := by\n  rw [IsFinite.μ_eq_count]\n  infer_instance\n",
+        "docstring": null
+      },
+      {
+        "id": 387050,
+        "name": "Physlib.noDefs",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L179-L183",
+        "source_text": "/-- Number of definitions. -/\ndef noDefs : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      },
+      {
+        "id": 387051,
+        "name": "Physlib.noLemmas",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L185-L189",
+        "source_text": "/-- Number of definitions. -/\ndef noLemmas : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return !c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualResult normalized Q identities Q_total",
+    "status": "ok",
+    "results": [
+      {
+        "id": 356054,
+        "name": "CompareReals.Q",
+        "module": "Mathlib.Topology.UniformSpace.CompareReals",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/CompareReals.lean#L83-L88",
+        "source_text": "/-- Type wrapper around ℚ to make sure the absolute value uniform space instance is picked up\ninstead of the metric space one. We proved in `Rat.uniformSpace_eq` that they are equal,\nbut they are not definitionaly equal, so it would confuse the type class system (and probably\nalso human readers). -/\ndef Q :=\n  ℚ deriving CommRing, Inhabited\n",
+        "docstring": "Type wrapper around ℚ to make sure the absolute value uniform space instance is picked up\ninstead of the metric space one. We proved in `Rat.uniformSpace_eq` that they are equal,\nbut they are not definitionaly equal, so it would confuse the type class system (and probably\nalso human readers). "
+      },
+      {
+        "id": 329235,
+        "name": "Mathlib.Tactic.Ring.Common.Result",
+        "module": "Mathlib.Tactic.Ring.Common",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Ring/Common.lean#L257-L268",
+        "source_text": "/--\nThe result of evaluating an (unnormalized) expression `e` into the type family `E`\n(typically one of `ExSum`, `ExProd`, `ExBase` or `BaseType`) is a (normalized) element `e'`\nand a representation `E e'` for it, and a proof of `e = e'`.\n-/\nstructure Result {α : Q(Type u)} (E : Q($α) → Type*) (e : Q($α)) where\n  /-- The normalized result. -/\n  expr : Q($α)\n  /-- The data associated to the normalization. -/\n  val : E expr\n  /-- A proof that the original expression is equal to the normalized result. -/\n  proof : Q($e = $expr)\n",
+        "docstring": "The result of evaluating an (unnormalized) expression `e` into the type family `E`\n(typically one of `ExSum`, `ExProd`, `ExBase` or `BaseType`) is a (normalized) element `e'`\nand a representation `E e'` for it, and a proof of `e = e'`.\n"
+      },
+      {
+        "id": 274344,
+        "name": "UpperHalfPlane.qExpansion",
+        "module": "Mathlib.NumberTheory.ModularForms.QExpansion",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ModularForms/QExpansion.lean#L163-L167",
+        "source_text": "/-- The `q`-expansion of a function on the upper half plane with strict period `h`, bundled as a\n`PowerSeries`. The `m`-th coefficient is the Taylor coefficient of the `cuspFunction` at `q = 0`,\nwhere `q = exp(2πiτ/h)` is the local parameter at the cusp. -/\ndef qExpansion (f : ℍ → ℂ) : PowerSeries ℂ :=\n  .mk fun m ↦ (↑m.factorial)⁻¹ * iteratedDeriv m (cuspFunction h f) 0\n",
+        "docstring": "The `q`-expansion of a function on the upper half plane with strict period `h`, bundled as a\n`PowerSeries`. The `m`-th coefficient is the Taylor coefficient of the `cuspFunction` at `q = 0`,\nwhere `q = exp(2πiτ/h)` is the local parameter at the cusp. "
+      },
+      {
+        "id": 251638,
+        "name": "QuadraticForm.tensorRId_apply",
+        "module": "Mathlib.LinearAlgebra.QuadraticForm.TensorProduct.Isometries",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/QuadraticForm/TensorProduct/Isometries.lean#L174-L176",
+        "source_text": "@[simp] lemma tensorRId_apply (Q₁ : QuadraticForm R M₁) (x : M₁ ⊗[R] R) :\n    tensorRId Q₁ x = TensorProduct.rid R M₁ x :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 251753,
+        "name": "Submodule.mkQ",
+        "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Quotient/Defs.lean#L226-L230",
+        "source_text": "/-- The map from a module `M` to the quotient of `M` by a submodule `p` as a linear map. -/\ndef mkQ : M →ₗ[R] M ⧸ p where\n  toFun := Quotient.mk\n  map_add' := by simp\n  map_smul' := by simp\n",
+        "docstring": "The map from a module `M` to the quotient of `M` by a submodule `p` as a linear map. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualResult normalized Q identities Q_total",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387158,
+        "name": "SMνCharges.Q",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Basic.lean#L76-L77",
+        "source_text": "/-- The `Q` charges as a map `Fin n → ℚ`. -/\nabbrev Q := @toSpecies n 0\n",
+        "docstring": "The `Q` charges as a map `Fin n → ℚ`. "
+      },
+      {
+        "id": 387786,
+        "name": "SMCharges.Q",
+        "module": "Physlib.Particles.StandardModel.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/Basic.lean#L69-L70",
+        "source_text": "/-- The `Q` charges as a map `Fin n → ℚ`. -/\nabbrev Q := @toSpecies n 0\n",
+        "docstring": "The `Q` charges as a map `Fin n → ℚ`. "
+      },
+      {
+        "id": 394003,
+        "name": "FTheory.SU5.FluxesTen.numChiralQ",
+        "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/Basic.lean#L414-L416",
+        "source_text": "/-- The total number of chiral `Q` representations arising from the matter 10d\n  representations. -/\ndef numChiralQ (F : FluxesTen) : ℤ := ((chiralIndicesOfQ F).filter (fun x => 0 ≤ x)).sum\n",
+        "docstring": "The total number of chiral `Q` representations arising from the matter 10d\nrepresentations. "
+      },
+      {
+        "id": 388160,
+        "name": "MSSMCharges.Q",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L82-L83",
+        "source_text": "/-- The `Q` charges as a map `Fin 3 → ℚ`. -/\nabbrev Q := toSMSpecies 0\n",
+        "docstring": "The `Q` charges as a map `Fin 3 → ℚ`. "
+      },
+      {
+        "id": 389267,
+        "name": "FieldSpecification.WickAlgebra.normalOrder_one_eq_one",
+        "module": "Physlib.QFT.PerturbationTheory.WickAlgebra.NormalOrder.Lemmas",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickAlgebra/NormalOrder/Lemmas.lean#L40-L45",
+        "source_text": "@[simp]\nlemma normalOrder_one_eq_one : normalOrder (𝓕 := 𝓕) 1 = 1 := by\n  have h1 : 1 = ofCrAnList (𝓕 := 𝓕) [] := by simp [ofCrAnList]\n  rw [h1]\n  rw [normalOrder_ofCrAnList]\n  simp",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualCounts.logical_card M6.ActualTransfer span degree boundary_trace_inputs character_trace_inputs",
+    "status": "ok",
+    "results": [
+      {
+        "id": 249838,
+        "name": "Matrix.trace",
+        "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L41-L46",
+        "source_text": "/-- The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n-/\ndef trace (A : Matrix n n R) : R :=\n  ∑ i, diag A i\n",
+        "docstring": "The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n"
+      },
+      {
+        "id": 328296,
+        "name": "Lean.Expr.getExprInputs",
+        "module": "Mathlib.Tactic.MoveAdd",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/MoveAdd.lean#L111-L120",
+        "source_text": "/-- `getExprInputs e` inspects the outermost constructor of `e` and returns the array of all the\narguments to that constructor that are themselves `Expr`essions. -/\ndef Lean.Expr.getExprInputs : Expr → Array Expr\n  | app fn arg        => #[fn, arg]\n  | lam _ bt bb _     => #[bt, bb]\n  | forallE _ bt bb _ => #[bt, bb]\n  | letE _ t v b _    => #[t, v, b]\n  | mdata _ e         => #[e]\n  | proj _ _ e        => #[e]\n  | _ => #[]\n",
+        "docstring": "`getExprInputs e` inspects the outermost constructor of `e` and returns the array of all the\narguments to that constructor that are themselves `Expr`essions. "
+      },
+      {
+        "id": 217949,
+        "name": "Set.tacticTo_encard_tac",
+        "module": "Mathlib.Data.Set.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L606-L607",
+        "source_text": "/-- A tactic useful for transferring proofs for `encard` to their corresponding `card` statements -/\nsyntax \"to_encard_tac\" : tactic\n",
+        "docstring": "A tactic useful for transferring proofs for `encard` to their corresponding `card` statements "
+      },
+      {
+        "id": 247698,
+        "name": "ZMod.trace_pow_card",
+        "module": "Mathlib.LinearAlgebra.Matrix.Charpoly.FiniteField",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Charpoly/FiniteField.lean#L60-L61",
+        "source_text": "theorem ZMod.trace_pow_card {p : ℕ} [Fact p.Prime] (M : Matrix n n (ZMod p)) :\n    trace (M ^ p) = trace M ^ p := by have h := FiniteField.trace_pow_card M; rwa [ZMod.card] at h\n",
+        "docstring": null
+      },
+      {
+        "id": 245276,
+        "name": "LinearMap.lift_rank_range_add_rank_ker",
+        "module": "Mathlib.LinearAlgebra.Dimension.RankNullity",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dimension/RankNullity.lean#L77-L81",
+        "source_text": "theorem LinearMap.lift_rank_range_add_rank_ker (f : M →ₗ[R] M') :\n    lift.{u} (Module.rank R (LinearMap.range f)) + lift.{v} (Module.rank R (LinearMap.ker f)) =\n      lift.{v} (Module.rank R M) := by\n  haveI := fun p : Submodule R M => Classical.decEq (M ⧸ p)\n  rw [← f.quotKerEquivRange.lift_rank_eq, ← lift_add, rank_quotient_add_rank]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualCounts.logical_card M6.ActualTransfer span degree boundary_trace_inputs character_trace_inputs",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386222,
+        "name": "Physlib.FourTree.Trunk.card",
+        "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L145-L148",
+        "source_text": "/-- The cardinality of a `Trunk` is the total number of leafs. -/\ndef Trunk.card {α1 α2 α3 α4 : Type} (T : Trunk α1 α2 α3 α4) : Nat :=\n  match T with\n  | .trunk _ branches => (branches.map Branch.card).sum\n",
+        "docstring": "The cardinality of a `Trunk` is the total number of leafs. "
+      },
+      {
+        "id": 386264,
+        "name": "Matrix.trace_unitary_conj",
+        "module": "Physlib.Mathematics.DataStructures.Matrix.LieTrace",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/Matrix/LieTrace.lean#L164-L170",
+        "source_text": "/-- The trace is invariant under unitary conjugation. -/\nlemma trace_unitary_conj (A : Matrix m m 𝕂) (U : unitaryGroup m 𝕂) :\n    trace ((U : Matrix m m 𝕂) * A * star (U : Matrix m m 𝕂)) = trace A := by\n  have h_unitary : star (U : Matrix m m 𝕂) * (U : Matrix m m 𝕂) = 1 :=\n    UnitaryGroup.star_mul_self U\n  simpa [Matrix.mul_assoc, h_unitary, Matrix.one_mul] using\n    (Matrix.trace_mul_cycle (U : Matrix m m 𝕂) A (star (U : Matrix m m 𝕂)))\n",
+        "docstring": "The trace is invariant under unitary conjugation. "
+      },
+      {
+        "id": 386223,
+        "name": "Physlib.FourTree.card",
+        "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L150-L153",
+        "source_text": "/-- The cardinality of a `FourTree` is the total number of leafs. -/\ndef card {α1 α2 α3 α4 : Type} (T : FourTree α1 α2 α3 α4) : Nat :=\n  match T with\n  | .root trunks => (trunks.map Trunk.card).sum\n",
+        "docstring": "The cardinality of a `FourTree` is the total number of leafs. "
+      },
+      {
+        "id": 391373,
+        "name": "PauliMatrix.σ3_σ3_trace",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L178-L179",
+        "source_text": "/-- The trace of `σ3` multiplied by `σ3` is equal to `2`. -/\nlemma σ3_σ3_trace : Matrix.trace (σ3 * σ3) = 2 := by simp\n",
+        "docstring": "The trace of `σ3` multiplied by `σ3` is equal to `2`. "
+      },
+      {
+        "id": 386828,
+        "name": "Equiv.finAddEquivSigmaCond_false",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L55-L61",
+        "source_text": "lemma finAddEquivSigmaCond_false (h : ¬ i < m) : finAddEquivSigmaCond i = ⟨false, i.subNat' h⟩ :=\n  let j : Fin n := i.subNat' h\n  calc finAddEquivSigmaCond i\n    _ = finAddEquivSigmaCond (Fin.natAdd m j) :=\n      suffices m + (i - m) = i from congrArg _ (Fin.ext this.symm)\n      Nat.add_sub_of_le (Nat.le_of_not_gt h)\n    _ = ⟨false, i.subNat' h⟩ := congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_natAdd j\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "id": "answer_correct",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Final.answer_correct",
+    "spec_sha256": "b302c5ebfa4fec9f19a0a197b92d4d5dee5bd99bf940c1132fa8c6c09dd49abc",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bwb3_p8f/attempt-001/Candidate_693ffbe6cc1d6991.lean",
+        "target_path": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bwb3_p8f/attempt-001/FrozenTarget_693ffbe6cc1d6991.lean",
+        "feedback": "",
+        "target_sha256": "c9a65633b359aed7b5cf073d371ec7c85194e3fe96e92ed1917896cc4fefb19b",
+        "target_olean_sha256": "f233a656c1f93c7c895d4c698b0c753ce1cc159d06a4f96ff0df3b09b7537e82",
+        "source_sha256": "f475e371868d7ea1078cb6385d3d80d39a0c570f36be8d0ef82287e6271e644d",
+        "olean_sha256": "ad9773cc97c65924d4bc24ad7dd2fe4f55e2da19c9c52dee01c7a1348f5fc502",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:59:25.819235+00:00",
+    "work": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bwb3_p8f",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7088d18a83af2d8818093709d68c25e812dda41c0617cd2a2b0fef3a604366f7",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-final-formalization/.humanize-formal-runs/run-bwb3_p8f/attempt-001/Candidate_693ffbe6cc1d6991.lean",
+    "environment_sha256": "cfe4f322a12cff57f789144956e1fb96d37719f3a72af92b8e7b76122afc25f8",
+    "artifacts": {
+      "answer_correct": {
+        "payload": {
+          "declaration": "theorem M6.Final.answer_correct : ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.AnswerCorrect N a b := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Final.BP), M6.Final.Admissible N a b → M6.Final.AnswerCorrect N a b\n  intro N inst a b h\n  classical\n  have hs : M6.ActualTransfer.span a b < N := h.2.2.2.2.1\n  have ha : a.degree < (N : WithBot ℕ) := by\n    apply lt_of_le_of_lt Polynomial.degree_le_natDegree\n    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_left a.natDegree b.natDegree) hs)\n  have hb : b.degree < (N : WithBot ℕ) := by\n    apply lt_of_le_of_lt Polynomial.degree_le_natDegree\n    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_right a.natDegree b.natDegree) hs)\n  have solve := M6.ActualResult.solve_exact N a b hs\n  have nonempty := M6.ActualCounts.logicals_nonempty_iff N a b ha hb\n  have empty : M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) = ∅ ↔ M6.ActualCounts.f N a b = 0 := by\n    rw [← Finset.not_nonempty_iff_eq_empty, nonempty]\n    omega\n  have qd : M6.Final.quantumDistance N a b = M6.Pinned.distance (M6.Final.LX N a b) := M6.ActualCSS.common_quantum_distance N _ _\n  have ds := M6.Pinned.distance_spec (2*N) (M6.Final.LX N a b)\n  change (_ ↔ _) ∧ (_ ↔ _) ∧ _\n  refine ⟨solve.1.trans empty, ?_, ?_, ?_⟩\n  · rw [qd, ds.1]; exact empty\n  · intro d v k hv\n    have hvp := solve.2 d v k hv\n    refine ⟨?_, hvp.1, hvp.2.1, ?_, (M6.Flatten.J_weight N v).trans hvp.2.1, hvp.2.2.2⟩\n    · rw [qd, ds.2 d]\n      exact ⟨⟨v, hvp.1, hvp.2.1⟩, hvp.2.2.1⟩\n    · exact (M6.ActualCSS.J_logical_iff N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) v).mp hvp.1\n  · intro hf\n    cases hh : M6.ActualTransfer.solve N a b with\n    | none => have hz := (solve.1.trans empty).mp hh; omega\n    | some x => rcases x with ⟨d,v,k⟩; exact ⟨d,v,k,rfl⟩",
+          "imports": [
+            "M6FinalReady"
+          ],
+          "name": "M6.Final.answer_correct",
+          "ancestors": [],
+          "spec_sha256": "b302c5ebfa4fec9f19a0a197b92d4d5dee5bd99bf940c1132fa8c6c09dd49abc"
+        },
+        "sha256": "36f841b905e1954358bc1836d6f458629ff6a5d3fdfd15351da2bc7264a81a2b"
+      }
+    }
+  }
+}

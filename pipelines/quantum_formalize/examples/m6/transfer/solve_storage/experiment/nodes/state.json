@@ -1,0 +1,64 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T15:08:43.206083+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "actual_solve_storage": {
+      "id": "actual_solve_storage",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.ActualTransfer.actual_solve_storage",
+        "spec_sha256": "49887d376178e8e377419ad3faeb06a5da516df13b4f64f6b95b6a9a1fbc5154",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-solve-storage-formalization/.humanize-formal-runs/run-pfqkq92a/attempt-001/Candidate_5076d6612193e649.lean",
+            "target_path": "/home/jing/m6-lean-solve-storage-formalization/.humanize-formal-runs/run-pfqkq92a/attempt-001/FrozenTarget_5076d6612193e649.lean",
+            "feedback": "",
+            "target_sha256": "d6979b7c5e396d186fd8a5259c831bbce06c755ad4504f890a9057717f206608",
+            "target_olean_sha256": "c756c7d28b77372045689fc2cf834b0295b363a91564a5c8db2487d63bd3bc31",
+            "source_sha256": "026057608af958021172ea56dbd46dc7992ae97aa00bd6d002a37b73fc1559e6",
+            "olean_sha256": "7bf1b25b5696fc6bb7d6b894e7d45e6460cf80ef848d2ffad5c9963e4c465528",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T15:07:38.930610+00:00",
+        "work": "/home/jing/m6-lean-solve-storage-formalization/.humanize-formal-runs/run-pfqkq92a",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "56e2c3158a6f808492321860a026c28a4d8942fa5c15bb851d3db902e844d823",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-solve-storage-formalization/.humanize-formal-runs/run-pfqkq92a/attempt-001/Candidate_5076d6612193e649.lean",
+        "environment_sha256": "98c2aac63cf736d7b6509aed233facd9608a20680ebc763bebed5f3460ff9afa",
+        "artifacts": {
+          "actual_solve_storage": {
+            "payload": {
+              "declaration": "theorem M6.ActualTransfer.actual_solve_storage : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → M6.ActualTransfer.actualSolveStorage N a b ≤ 16384*N^2*2^(M6.ActualTransfer.span a b) := by\n  intro N inst a b hspan\n  have ha : a.natDegree ≤ N := by\n    unfold M6.ActualTransfer.span at hspan\n    omega\n  have hb : b.natDegree ≤ N := by\n    unfold M6.ActualTransfer.span at hspan\n    omega\n  have hM : (M6.Cyclic.modulus N).natDegree ≤ N := by\n    unfold M6.Cyclic.modulus\n    exact (Polynomial.natDegree_add_le _ _).trans (by simp)\n  have hstorage := M6.EuclidStorage.preprocess_storage N a b\n    (M6.Cyclic.modulus N) ha hb hM\n  simpa only [M6.ActualTransfer.actualSolveStorage] using\n    (M6.Transfer.solve_storage_bound (M6.ActualTransfer.span a b) N\n      (M6.EuclidStorage.actualPreprocessStorage N) hspan hstorage.2.2)",
+              "imports": [
+                "M6SolveStorageReady"
+              ],
+              "name": "M6.ActualTransfer.actual_solve_storage",
+              "ancestors": [],
+              "spec_sha256": "49887d376178e8e377419ad3faeb06a5da516df13b4f64f6b95b6a9a1fbc5154"
+            },
+            "sha256": "bce4c550550bc8f76a8991c8e3aa622fffeb0e54ccc800c41115a9dba5592108"
+          }
+        }
+      }
+    }
+  }
+}
