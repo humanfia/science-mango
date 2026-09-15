@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N w inst E hw hwN hE b\nhave hfold : ∀ {α : Type} (f : α → M7.Action.Recipe N) (l : List α)\n    (s : Finset (M7.Action.Recipe N)),\n    b ∈ l.foldl (fun t e => insert (f e) t) s ↔\n      b ∈ s ∨ ∃ e ∈ l, f e = b := by\n  intro α f l\n  induction l with\n  | nil => intro s; simp\n  | cons a l ih =>\n    intro s\n    simp only [List.foldl_cons, ih, Finset.mem_insert, List.mem_cons]\n    aesop\nhave hf : (M7.CompactGeneration.generate (N := N) w E).finalBases =\n    (M7.CompactGeneration.generate (N := N) w E).emitted.foldl\n      (fun t e => insert e.representative t) ∅ := by\n  dsimp only [M7.CompactGeneration.generate]\n  first\n  | apply M7.CompactGeneration.run_fold\n  | symm; apply M7.CompactGeneration.run_fold\nchange b ∈ (M7.CompactGeneration.generate (N := N) w E).finalBases ↔\n  ∃ i : Fin (M7.CompactGeneration.generate (N := N) w E).emitted.length,\n    ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative = b\nrw [hf, hfold]\nsimp only [Finset.notMem_empty, false_or]\nconstructor\n· rintro ⟨e, he, hb⟩\n  obtain ⟨i, hi⟩ := List.mem_iff_get.mp he\n  exact ⟨i, by simpa only [hi] using hb⟩\n· rintro ⟨i, hi⟩\n  exact ⟨_, List.get_mem _ i, hi⟩",
+  "queries": [
+    "List.mem_iff_get",
+    "List.get_mem",
+    "M7.CompactGeneration.run_fold"
+  ]
+}

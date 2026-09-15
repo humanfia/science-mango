@@ -1,0 +1,128 @@
+{
+  "title": "M7 actual generated structural family, separation and full raw orbit coverage",
+  "nodes": [
+    {
+      "id": "family_range",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.GeneratedFamily.family_range",
+        "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ b : M7.Action.Recipe N, b ∈ (M7.CompactGeneration.generate (N := N) w E).finalBases ↔ ∃ i : Fin (M7.GeneratedFamily.size N w E), M7.GeneratedFamily.family N w E i = b",
+        "imports": [
+          "M7GeneratedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 structural family is the ACTUAL compact generator emission list indexed by Fin length, not a supplied transversal. Preserve original 0<w≤N and ValidSector. family_range uses CompactGeneration.run_fold specialized to generate, list get membership and fold insert. family_good comes from CompactCorrectness.generate_exact GoodBases on finalBases. family_anchored uses positive equal cards, canonical_anchored and family_good normalization. family_injective uses generate_exact mapped-list Nodup and injective list get. family_separated follows canonical_invariant for equal actual placements, normalized bases and injectivity. family_meets uses CompactCorrectness.run_leaves specialized to the concrete initial run; CompactCorrectness.run_records gives every stored emission actual action/inverse and literal signature fields, hence its actual queried leaf, whose root membership has signature in E. Do not require the canonical signature itself to belong to E. For family_complete forward use actual ClassValid action preservation and transport the sector witness back along the inverse record. Reverse first transport c to a queried image, use final zero/remaining empty and RawCoverage.remaining_coverage, then family_range and actual compose/inverse to realize c. This proves precisely the classes whose orbit meets E, including canonical signatures outside E. Global query/root replay and resources remain downstream. Return tactic lines only.\nimport M7CompactCorrectnessAccepted\nimport M7RawCoverageAccepted\nimport M7GlobalQueryAccepted\n\nnamespace M7.GeneratedFamily\nnoncomputable def size (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) : ℕ :=\n  (M7.CompactGeneration.generate (N := N) w E).emitted.length\nnoncomputable def family (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) :\n    M7.GlobalQuery.Family (size N w E) N :=\n  fun i => ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative\nend M7.GeneratedFamily\n"
+      }
+    },
+    {
+      "id": "family_good",
+      "dependencies": [
+        "family_range"
+      ],
+      "spec": {
+        "name": "M7.GeneratedFamily.family_good",
+        "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ i : Fin (M7.GeneratedFamily.size N w E), M7.PrefixOrbit.ClassValid w (M7.GeneratedFamily.family N w E i) ∧ M7.CanonicalOuter.canonical (M7.GeneratedFamily.family N w E i) = M7.GeneratedFamily.family N w E i",
+        "imports": [
+          "M7GeneratedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 structural family is the ACTUAL compact generator emission list indexed by Fin length, not a supplied transversal. Preserve original 0<w≤N and ValidSector. family_range uses CompactGeneration.run_fold specialized to generate, list get membership and fold insert. family_good comes from CompactCorrectness.generate_exact GoodBases on finalBases. family_anchored uses positive equal cards, canonical_anchored and family_good normalization. family_injective uses generate_exact mapped-list Nodup and injective list get. family_separated follows canonical_invariant for equal actual placements, normalized bases and injectivity. family_meets uses CompactCorrectness.run_leaves specialized to the concrete initial run; CompactCorrectness.run_records gives every stored emission actual action/inverse and literal signature fields, hence its actual queried leaf, whose root membership has signature in E. Do not require the canonical signature itself to belong to E. For family_complete forward use actual ClassValid action preservation and transport the sector witness back along the inverse record. Reverse first transport c to a queried image, use final zero/remaining empty and RawCoverage.remaining_coverage, then family_range and actual compose/inverse to realize c. This proves precisely the classes whose orbit meets E, including canonical signatures outside E. Global query/root replay and resources remain downstream. Return tactic lines only.\nimport M7CompactCorrectnessAccepted\nimport M7RawCoverageAccepted\nimport M7GlobalQueryAccepted\n\nnamespace M7.GeneratedFamily\nnoncomputable def size (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) : ℕ :=\n  (M7.CompactGeneration.generate (N := N) w E).emitted.length\nnoncomputable def family (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) :\n    M7.GlobalQuery.Family (size N w E) N :=\n  fun i => ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative\nend M7.GeneratedFamily\n"
+      }
+    },
+    {
+      "id": "family_anchored",
+      "dependencies": [
+        "family_good"
+      ],
+      "spec": {
+        "name": "M7.GeneratedFamily.family_anchored",
+        "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ i : Fin (M7.GeneratedFamily.size N w E), (0 : ZMod N) ∈ (M7.GeneratedFamily.family N w E i).1 ∧ (0 : ZMod N) ∈ (M7.GeneratedFamily.family N w E i).2",
+        "imports": [
+          "M7GeneratedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 structural family is the ACTUAL compact generator emission list indexed by Fin length, not a supplied transversal. Preserve original 0<w≤N and ValidSector. family_range uses CompactGeneration.run_fold specialized to generate, list get membership and fold insert. family_good comes from CompactCorrectness.generate_exact GoodBases on finalBases. family_anchored uses positive equal cards, canonical_anchored and family_good normalization. family_injective uses generate_exact mapped-list Nodup and injective list get. family_separated follows canonical_invariant for equal actual placements, normalized bases and injectivity. family_meets uses CompactCorrectness.run_leaves specialized to the concrete initial run; CompactCorrectness.run_records gives every stored emission actual action/inverse and literal signature fields, hence its actual queried leaf, whose root membership has signature in E. Do not require the canonical signature itself to belong to E. For family_complete forward use actual ClassValid action preservation and transport the sector witness back along the inverse record. Reverse first transport c to a queried image, use final zero/remaining empty and RawCoverage.remaining_coverage, then family_range and actual compose/inverse to realize c. This proves precisely the classes whose orbit meets E, including canonical signatures outside E. Global query/root replay and resources remain downstream. Return tactic lines only.\nimport M7CompactCorrectnessAccepted\nimport M7RawCoverageAccepted\nimport M7GlobalQueryAccepted\n\nnamespace M7.GeneratedFamily\nnoncomputable def size (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) : ℕ :=\n  (M7.CompactGeneration.generate (N := N) w E).emitted.length\nnoncomputable def family (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) :\n    M7.GlobalQuery.Family (size N w E) N :=\n  fun i => ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative\nend M7.GeneratedFamily\n"
+      }
+    },
+    {
+      "id": "family_injective",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.GeneratedFamily.family_injective",
+        "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → Function.Injective (M7.GeneratedFamily.family N w E)",
+        "imports": [
+          "M7GeneratedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 structural family is the ACTUAL compact generator emission list indexed by Fin length, not a supplied transversal. Preserve original 0<w≤N and ValidSector. family_range uses CompactGeneration.run_fold specialized to generate, list get membership and fold insert. family_good comes from CompactCorrectness.generate_exact GoodBases on finalBases. family_anchored uses positive equal cards, canonical_anchored and family_good normalization. family_injective uses generate_exact mapped-list Nodup and injective list get. family_separated follows canonical_invariant for equal actual placements, normalized bases and injectivity. family_meets uses CompactCorrectness.run_leaves specialized to the concrete initial run; CompactCorrectness.run_records gives every stored emission actual action/inverse and literal signature fields, hence its actual queried leaf, whose root membership has signature in E. Do not require the canonical signature itself to belong to E. For family_complete forward use actual ClassValid action preservation and transport the sector witness back along the inverse record. Reverse first transport c to a queried image, use final zero/remaining empty and RawCoverage.remaining_coverage, then family_range and actual compose/inverse to realize c. This proves precisely the classes whose orbit meets E, including canonical signatures outside E. Global query/root replay and resources remain downstream. Return tactic lines only.\nimport M7CompactCorrectnessAccepted\nimport M7RawCoverageAccepted\nimport M7GlobalQueryAccepted\n\nnamespace M7.GeneratedFamily\nnoncomputable def size (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) : ℕ :=\n  (M7.CompactGeneration.generate (N := N) w E).emitted.length\nnoncomputable def family (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) :\n    M7.GlobalQuery.Family (size N w E) N :=\n  fun i => ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative\nend M7.GeneratedFamily\n"
+      }
+    },
+    {
+      "id": "family_separated",
+      "dependencies": [
+        "family_good",
+        "family_injective"
+      ],
+      "spec": {
+        "name": "M7.GeneratedFamily.family_separated",
+        "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → M7.GlobalQuery.separated (M7.GeneratedFamily.family N w E)",
+        "imports": [
+          "M7GeneratedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 structural family is the ACTUAL compact generator emission list indexed by Fin length, not a supplied transversal. Preserve original 0<w≤N and ValidSector. family_range uses CompactGeneration.run_fold specialized to generate, list get membership and fold insert. family_good comes from CompactCorrectness.generate_exact GoodBases on finalBases. family_anchored uses positive equal cards, canonical_anchored and family_good normalization. family_injective uses generate_exact mapped-list Nodup and injective list get. family_separated follows canonical_invariant for equal actual placements, normalized bases and injectivity. family_meets uses CompactCorrectness.run_leaves specialized to the concrete initial run; CompactCorrectness.run_records gives every stored emission actual action/inverse and literal signature fields, hence its actual queried leaf, whose root membership has signature in E. Do not require the canonical signature itself to belong to E. For family_complete forward use actual ClassValid action preservation and transport the sector witness back along the inverse record. Reverse first transport c to a queried image, use final zero/remaining empty and RawCoverage.remaining_coverage, then family_range and actual compose/inverse to realize c. This proves precisely the classes whose orbit meets E, including canonical signatures outside E. Global query/root replay and resources remain downstream. Return tactic lines only.\nimport M7CompactCorrectnessAccepted\nimport M7RawCoverageAccepted\nimport M7GlobalQueryAccepted\n\nnamespace M7.GeneratedFamily\nnoncomputable def size (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) : ℕ :=\n  (M7.CompactGeneration.generate (N := N) w E).emitted.length\nnoncomputable def family (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) :\n    M7.GlobalQuery.Family (size N w E) N :=\n  fun i => ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative\nend M7.GeneratedFamily\n"
+      }
+    },
+    {
+      "id": "family_meets",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.GeneratedFamily.family_meets",
+        "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ i : Fin (M7.GeneratedFamily.size N w E), ∃ g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g (M7.GeneratedFamily.family N w E i)) ∈ E",
+        "imports": [
+          "M7GeneratedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 structural family is the ACTUAL compact generator emission list indexed by Fin length, not a supplied transversal. Preserve original 0<w≤N and ValidSector. family_range uses CompactGeneration.run_fold specialized to generate, list get membership and fold insert. family_good comes from CompactCorrectness.generate_exact GoodBases on finalBases. family_anchored uses positive equal cards, canonical_anchored and family_good normalization. family_injective uses generate_exact mapped-list Nodup and injective list get. family_separated follows canonical_invariant for equal actual placements, normalized bases and injectivity. family_meets uses CompactCorrectness.run_leaves specialized to the concrete initial run; CompactCorrectness.run_records gives every stored emission actual action/inverse and literal signature fields, hence its actual queried leaf, whose root membership has signature in E. Do not require the canonical signature itself to belong to E. For family_complete forward use actual ClassValid action preservation and transport the sector witness back along the inverse record. Reverse first transport c to a queried image, use final zero/remaining empty and RawCoverage.remaining_coverage, then family_range and actual compose/inverse to realize c. This proves precisely the classes whose orbit meets E, including canonical signatures outside E. Global query/root replay and resources remain downstream. Return tactic lines only.\nimport M7CompactCorrectnessAccepted\nimport M7RawCoverageAccepted\nimport M7GlobalQueryAccepted\n\nnamespace M7.GeneratedFamily\nnoncomputable def size (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) : ℕ :=\n  (M7.CompactGeneration.generate (N := N) w E).emitted.length\nnoncomputable def family (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) :\n    M7.GlobalQuery.Family (size N w E) N :=\n  fun i => ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative\nend M7.GeneratedFamily\n"
+      }
+    },
+    {
+      "id": "family_complete",
+      "dependencies": [
+        "family_range",
+        "family_good",
+        "family_meets"
+      ],
+      "spec": {
+        "name": "M7.GeneratedFamily.family_complete",
+        "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ c : M7.Action.Recipe N, (∃ (i : Fin (M7.GeneratedFamily.size N w E)) (g : M7.Action.Record N), M7.Action.act g (M7.GeneratedFamily.family N w E i) = c) ↔ M7.PrefixOrbit.ClassValid w c ∧ ∃ g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g c) ∈ E",
+        "imports": [
+          "M7GeneratedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 structural family is the ACTUAL compact generator emission list indexed by Fin length, not a supplied transversal. Preserve original 0<w≤N and ValidSector. family_range uses CompactGeneration.run_fold specialized to generate, list get membership and fold insert. family_good comes from CompactCorrectness.generate_exact GoodBases on finalBases. family_anchored uses positive equal cards, canonical_anchored and family_good normalization. family_injective uses generate_exact mapped-list Nodup and injective list get. family_separated follows canonical_invariant for equal actual placements, normalized bases and injectivity. family_meets uses CompactCorrectness.run_leaves specialized to the concrete initial run; CompactCorrectness.run_records gives every stored emission actual action/inverse and literal signature fields, hence its actual queried leaf, whose root membership has signature in E. Do not require the canonical signature itself to belong to E. For family_complete forward use actual ClassValid action preservation and transport the sector witness back along the inverse record. Reverse first transport c to a queried image, use final zero/remaining empty and RawCoverage.remaining_coverage, then family_range and actual compose/inverse to realize c. This proves precisely the classes whose orbit meets E, including canonical signatures outside E. Global query/root replay and resources remain downstream. Return tactic lines only.\nimport M7CompactCorrectnessAccepted\nimport M7RawCoverageAccepted\nimport M7GlobalQueryAccepted\n\nnamespace M7.GeneratedFamily\nnoncomputable def size (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) : ℕ :=\n  (M7.CompactGeneration.generate (N := N) w E).emitted.length\nnoncomputable def family (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) :\n    M7.GlobalQuery.Family (size N w E) N :=\n  fun i => ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative\nend M7.GeneratedFamily\n"
+      }
+    }
+  ]
+}

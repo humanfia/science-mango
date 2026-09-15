@@ -1,0 +1,6 @@
+{
+  "proof": "intro N w inst E hw hwN hE\nhave hn : ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).Nodup := by\n  have hs := M7.CompactCorrectness.generate_exact N w E hE\n  tauto\nintro i j hij\nchange ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative = ((M7.CompactGeneration.generate (N := N) w E).emitted.get j).representative at hij\nlet i' : Fin ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).length := ⟨i.val, by simpa [M7.GeneratedFamily.size] using i.isLt⟩\nlet j' : Fin ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).length := ⟨j.val, by simpa [M7.GeneratedFamily.size] using j.isLt⟩\nhave he : ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).get i' = ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).get j' := by\n  simpa only [List.get_eq_getElem, List.getElem_map] using hij\nhave hidx : i' = j' := hn.injective_get he\nhave hv : i'.val = j'.val := congrArg (fun k => k.val) hidx\napply Fin.ext\nexact hv",
+  "queries": [
+    "List.get_eq_getElem"
+  ]
+}

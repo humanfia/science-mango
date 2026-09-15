@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro N w inst E hw hwN hE b\nhave hfold {α : Type} (f : α → M7.Action.Recipe N) (l : List α)\n    (s : Finset (M7.Action.Recipe N)) :\n    b ∈ l.foldl (fun t e => insert (f e) t) s ↔\n      b ∈ s ∨ ∃ e ∈ l, f e = b := by\n  induction l generalizing s with\n  | nil => simp\n  | cons a l ih =>\n      simp only [List.foldl_cons, ih, Finset.mem_insert, List.mem_cons]\n      aesop\nchange b ∈ (M7.CompactGeneration.generate (N := N) w E).finalBases ↔\n  ∃ i : Fin (M7.CompactGeneration.generate (N := N) w E).emitted.length,\n    ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative = b\nrw [← List.exists_mem_iff_get]\nsimp only [M7.CompactGeneration.generate, M7.CompactGeneration.run_fold,\n  hfold, Finset.mem_empty, false_or]",
+  "queries": [
+    "M7.CompactGeneration.run_fold",
+    "M7.CompactGeneration.generate"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "proof": "intro N w inst E hw hwN hE i g d k v hsolve\nhave hgood := (M7.GeneratedFamily.family_good N w E hw hwN hE i).1\nhave hanchor := M7.GeneratedFamily.family_anchored N w E hw hwN hE i\nsimp only [M7.PrefixOrbit.ClassValid] at hgood\nhave hconn : M7.Connectivity.connected (M7.GeneratedFamily.family N w E i) := by\n  aesop\nhave hgcd := (M7.Connectivity.anchored_gcd N\n  (M7.GeneratedFamily.family N w E i).1\n  (M7.GeneratedFamily.family N w E i).2\n  hanchor.1 hanchor.2).mp hconn\napply M7.Transport.actual_witness N w g (M7.GeneratedFamily.family N w E i) d k v\n· aesop\n· aesop\n· exact hanchor.1\n· exact hanchor.2\n· exact hgcd\n· exact hsolve",
+  "queries": [
+    "M7.PrefixOrbit.ClassValid"
+  ]
+}

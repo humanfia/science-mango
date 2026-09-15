@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ F : M7.FactorReplay.BP, F.Monic → M7.FactorReplay.check F (M7.FactorReplay.expected F) = true\nintro F hF\nclassical\napply (M7.FactorReplay.factor_check_exact F _).2\nrefine ⟨?_, ?_, ?_⟩\n· simpa [M7.FactorReplay.expected, List.map_map, Function.comp_def] using\n    (UniqueFactorizationMonoid.normalizedFactors F).toFinset.nodup_toList\n· intro t ht\n  change t ∈ ((UniqueFactorizationMonoid.normalizedFactors F).toFinset.toList.map\n    (fun p => (p, (UniqueFactorizationMonoid.normalizedFactors F).count p))) at ht\n  obtain ⟨p, hp, rfl⟩ := List.mem_map.mp ht\n  have hp' : p ∈ UniqueFactorizationMonoid.normalizedFactors F :=\n    Multiset.mem_toFinset.mp (Finset.mem_toList.mp hp)\n  have hprime := UniqueFactorizationMonoid.prime_of_normalized_factor p hp'\n  refine ⟨?_, hprime.irreducible, Multiset.count_pos.mpr hp'⟩\n  have hm := Polynomial.monic_normalize hprime.ne_zero\n  rw [UniqueFactorizationMonoid.normalize_normalized_factor p hp'] at hm\n  exact hm\n· unfold M7.FactorReplay.product M7.FactorReplay.expected\n  simp only [List.map_map, Function.comp_def]\n  change ((↑((UniqueFactorizationMonoid.normalizedFactors F).toFinset.toList) :\n    Multiset M7.FactorReplay.BP).map\n      (fun p => p ^ (UniqueFactorizationMonoid.normalizedFactors F).count p)).prod = F\n  rw [Finset.coe_toList]\n  change (∏ p ∈ (UniqueFactorizationMonoid.normalizedFactors F).toFinset,\n    p ^ (UniqueFactorizationMonoid.normalizedFactors F).count p) = F\n  rw [← Finset.prod_multiset_count,\n    UniqueFactorizationMonoid.prod_normalizedFactors_eq hF.ne_zero,\n    Polynomial.Monic.normalize_eq_self hF]",
+  "queries": [
+    "Finset.coe_toList",
+    "Multiset.count_pos",
+    "Finset.nodup_toList"
+  ]
+}

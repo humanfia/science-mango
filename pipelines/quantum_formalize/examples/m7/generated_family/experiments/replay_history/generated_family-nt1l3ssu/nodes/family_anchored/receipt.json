@@ -1,0 +1,84 @@
+{
+  "id": "family_anchored",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.GeneratedFamily.family_anchored",
+    "spec_sha256": "e615f5b0430972671df85b6ad675819a06c8119134121caa86ec337ea2b710e8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-generated-family-formalization/.humanize-formal-runs/run-atr7u57d/attempt-001/Candidate_d5ef03aaf2c8fcb5.lean",
+        "target_path": "/home/jing/m7-lean-generated-family-formalization/.humanize-formal-runs/run-atr7u57d/attempt-001/FrozenTarget_d5ef03aaf2c8fcb5.lean",
+        "feedback": "",
+        "target_sha256": "debdc6c96d9d22c20ce4bfa9164f5d011cb25c000752199ded028f6b91e4de74",
+        "target_olean_sha256": "5629ac1283dea782d5723766f379673711a1520ef63a9af91fd147a6a4365770",
+        "source_sha256": "b8d678b4696b0018b697626a51ca9cca5dae2d1b7580b0b76a64032425dd7790",
+        "olean_sha256": "b883c41de522703828fc48563226b00d4cb9fe1a1ca8f55248e57c55aec6769d",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:27:28.688622+00:00",
+    "work": "/home/jing/m7-lean-generated-family-formalization/.humanize-formal-runs/run-atr7u57d",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "33ba491a5dc704bd513be69e9924714423bc39a257fd9b410c2d2623329a68c9",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-generated-family-formalization/.humanize-formal-runs/run-atr7u57d/attempt-001/Candidate_d5ef03aaf2c8fcb5.lean",
+    "environment_sha256": "72e79939d00db9f500a5a26c80f8055480d612b70d1e0400e4aab2b110bb0053",
+    "artifacts": {
+      "family_range": {
+        "payload": {
+          "declaration": "theorem M7.GeneratedFamily.family_range : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ b : M7.Action.Recipe N, b ∈ (M7.CompactGeneration.generate (N := N) w E).finalBases ↔ ∃ i : Fin (M7.GeneratedFamily.size N w E), M7.GeneratedFamily.family N w E i = b := by\n  classical\n  intro N w inst E hw hwN hE b\n  have hfold : ∀ {α : Type} (f : α → M7.Action.Recipe N) (l : List α)\n      (s : Finset (M7.Action.Recipe N)),\n      b ∈ l.foldl (fun t e => insert (f e) t) s ↔\n        b ∈ s ∨ ∃ e ∈ l, f e = b := by\n    intro α f l\n    induction l with\n    | nil => intro s; simp\n    | cons a l ih =>\n      intro s\n      simp only [List.foldl_cons, ih, Finset.mem_insert, List.mem_cons]\n      aesop\n  have hf : (M7.CompactGeneration.generate (N := N) w E).finalBases =\n      (M7.CompactGeneration.generate (N := N) w E).emitted.foldl\n        (fun t e => insert e.representative t) ∅ := by\n    dsimp only [M7.CompactGeneration.generate]\n    first\n    | apply M7.CompactGeneration.run_fold\n    | symm; apply M7.CompactGeneration.run_fold\n  change b ∈ (M7.CompactGeneration.generate (N := N) w E).finalBases ↔\n    ∃ i : Fin (M7.CompactGeneration.generate (N := N) w E).emitted.length,\n      ((M7.CompactGeneration.generate (N := N) w E).emitted.get i).representative = b\n  rw [hf, hfold]\n  simp only [Finset.notMem_empty, false_or]\n  constructor\n  · rintro ⟨e, he, hb⟩\n    obtain ⟨i, hi⟩ := List.mem_iff_get.mp he\n    exact ⟨i, by simpa only [hi] using hb⟩\n  · rintro ⟨i, hi⟩\n    exact ⟨_, List.get_mem _ i, hi⟩",
+          "imports": [
+            "M7GeneratedFamily"
+          ],
+          "name": "M7.GeneratedFamily.family_range",
+          "ancestors": [],
+          "spec_sha256": "afad725b5fe584b59490b3be5f07c171a85311d26be4a1dae539f0a99c29f361"
+        },
+        "sha256": "c2a137d51ed2fb712f309f9bc8dedd262d2185f147413427b1a034ddd994032d"
+      },
+      "family_good": {
+        "payload": {
+          "declaration": "theorem M7.GeneratedFamily.family_good : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ i : Fin (M7.GeneratedFamily.size N w E), M7.PrefixOrbit.ClassValid w (M7.GeneratedFamily.family N w E i) ∧ M7.CanonicalOuter.canonical (M7.GeneratedFamily.family N w E i) = M7.GeneratedFamily.family N w E i := by\n  classical\n  intro N w inst E hw hwN hE i\n  have hm : M7.GeneratedFamily.family N w E i ∈\n      (M7.CompactGeneration.generate (N := N) w E).finalBases :=\n    (M7.GeneratedFamily.family_range N w E hw hwN hE _).mpr ⟨i, rfl⟩\n  have hg : M7.RecoveryInstance.GoodBases w\n      (M7.CompactGeneration.generate (N := N) w E).finalBases := by\n    have h := M7.CompactCorrectness.generate_exact N w E hE\n    tauto\n  simp only [M7.RecoveryInstance.GoodBases, M7.CanonicalClasses.Normalized] at hg\n  aesop",
+          "imports": [
+            "M7GeneratedFamily"
+          ],
+          "name": "M7.GeneratedFamily.family_good",
+          "ancestors": [
+            "family_range"
+          ],
+          "spec_sha256": "2e29758cf6dd021d1d6f968c454bfa579c6318f928710813acee3001b4703eaa"
+        },
+        "sha256": "712d37d3fdde953a25c2edff9d5662b39488c143de4286efd249b0b67c2ce445"
+      },
+      "family_anchored": {
+        "payload": {
+          "declaration": "theorem M7.GeneratedFamily.family_anchored : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ i : Fin (M7.GeneratedFamily.size N w E), (0 : ZMod N) ∈ (M7.GeneratedFamily.family N w E i).1 ∧ (0 : ZMod N) ∈ (M7.GeneratedFamily.family N w E i).2 := by\n  classical\n  intro N w inst E hw hwN hE i\n  obtain ⟨hv, hn⟩ := M7.GeneratedFamily.family_good N w E hw hwN hE i\n  have hl : (M7.GeneratedFamily.family N w E i).1.card = w := by\n    unfold M7.PrefixOrbit.ClassValid at hv\n    tauto\n  have hr : (M7.GeneratedFamily.family N w E i).2.card = w := by\n    unfold M7.PrefixOrbit.ClassValid at hv\n    tauto\n  have hln : (M7.GeneratedFamily.family N w E i).1.Nonempty :=\n    Finset.card_pos.mp (by omega)\n  have hrn : (M7.GeneratedFamily.family N w E i).2.Nonempty :=\n    Finset.card_pos.mp (by omega)\n  rw [← hn]\n  apply M7.CanonicalOuter.canonical_anchored <;> first | assumption | omega",
+          "imports": [
+            "M7GeneratedFamily"
+          ],
+          "name": "M7.GeneratedFamily.family_anchored",
+          "ancestors": [
+            "family_good",
+            "family_range"
+          ],
+          "spec_sha256": "3827f60ba41cd325ef5febce69ddd969742b0ca38415068c851300dbdcb0015d"
+        },
+        "sha256": "61efa2ac21617d157f4320c6e8ffa2d1fb2244aaec8f360a9e2ec7a238679aae"
+      }
+    }
+  }
+}

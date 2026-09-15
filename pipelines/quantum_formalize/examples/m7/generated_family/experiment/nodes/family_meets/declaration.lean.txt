@@ -1,0 +1,15 @@
+theorem M7.GeneratedFamily.family_meets : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ i : Fin (M7.GeneratedFamily.size N w E), ∃ g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g (M7.GeneratedFamily.family N w E i)) ∈ E := by
+  classical
+  intro N w inst E hw hwN hE i
+  let e := (M7.CompactGeneration.generate (N := N) w E).emitted.get i
+  have he : e ∈ (M7.CompactGeneration.generate (N := N) w E).emitted := List.get_mem _ _
+  have hl : e.leaf ∈ M7.RecoveryPrefix.completed N w E [] := by
+    apply M7.CompactCorrectness.run_leaves N w E hE ∅ _ _
+      (M7.CompactCorrectness.initial N w E hE).1 rfl e
+    exact he
+  have hr := M7.CompactCorrectness.run_records N w E ∅ _ _ e he
+  refine ⟨M7.Action.inverse e.action, ?_⟩
+  change M7.RecipeSignature.signature (M7.Action.act (M7.Action.inverse e.action) e.representative) ∈ E
+  rw [hr.2.1]
+  have hq := ((M7.RawCoverage.root_membership N w E e.leaf).mp hl).1
+  exact hq.2

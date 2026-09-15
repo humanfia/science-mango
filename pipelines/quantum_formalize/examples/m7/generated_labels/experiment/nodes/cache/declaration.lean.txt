@@ -1,0 +1,7 @@
+theorem M7.GeneratedLabels.cache : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ (i : Fin (M7.GeneratedFamily.size N w E)) (g : M7.Action.Record N), (M7.DefaultQuery.dimension (M7.Action.act g (M7.GeneratedFamily.family N w E i)), M7.DefaultQuery.distance (M7.Action.act g (M7.GeneratedFamily.family N w E i))) = M7.QualityTable.cache (M7.GeneratedFamily.family N w E i) := by
+  intro N w inst E hw hwN hE i g
+  have hvalid := (M7.GeneratedFamily.family_good N w E hw hwN hE i).1
+  obtain ⟨hleft, hright⟩ := M7.GeneratedFamily.family_anchored N w E hw hwN hE i
+  unfold M7.PrefixOrbit.ClassValid at hvalid
+  apply M7.QualityTable.cache_action N w (M7.GeneratedFamily.family N w E i) _ _ hleft hright _ g
+  all_goals aesop

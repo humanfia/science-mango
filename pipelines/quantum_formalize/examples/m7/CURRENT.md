@@ -2,7 +2,7 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**402 targets in 51 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+**417 targets in 54 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -57,16 +57,18 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [generation_replay](generation_replay/experiment/result.json) | 7 | M7 actual finite generation certificate replay and coverage |
 | [streaming_cost](streaming_cost/experiment/result.json) | 9 | M7 measured actual streaming candidate visits |
 | [overfull_boundary](overfull_boundary/experiment/result.json) | 4 | M7 original overfull-weight and empty-sector boundaries |
+| [factor_replay](factor_replay/experiment/result.json) | 4 | Actual finite polynomial-factor certificate verification |
+| [generated_family](generated_family/experiment/result.json) | 7 | M7 actual generated structural family, separation and full raw orbit coverage |
+| [generated_labels](generated_labels/experiment/result.json) | 4 | M7 actual generated-class distance, witness and locality integration |
 
 Active work:
 
-- `generated_family`: five live targets accepted, including complete raw orbit coverage; an exact list-index elaboration repair and its dependent separation proof await normal replay.
-- `final_selector` and `generated_labels`: gated on the complete generated-family receipt.
-- `factor_replay`: bounded-divisor irreducibility proof repaired under the original target; normal replay plus complete factor-table self-check running.
-- `final_replay` and `final_resources`: exact downstream composition, gated on complete canonical parents.
+- `final_selector`: exact-target preflight passed; normal proof experiment running. Generated physical labels are now canonical.
+- `final_replay`: joint finite certificate checker, gated on final selector and generated labels; generation, label and full-multiplicity factor replay are already canonical.
+- `final_resources`: all parent evidence is canonical; joint dependency build and exact-target preflight running after a startup import-path repair.
 - `final`: eight closed original-scope sections and the complete root are prepared, gated on final replay/resources and original boundaries. No full-M7 acceptance yet.
 
-Original remaining integration gates include complete generated raw-family coverage, complete default-query/global-optimum integration, replay and original resource bounds. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
+Original remaining integration gates are final generated-family default-query/global-optimum integration, joint replay/resource composition and the closed acceptance root. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 
 The frozen definitions and goals are preserved through repairs. Successful late live proofs are retained. Explicit local tactic repairs are independently checked and then pass normal exact-target replay; their origins and all failures are preserved. LeanExplore broader-query recovery records the actual fallback query and original unavailable requests; persistent failures remain unavailable.
 

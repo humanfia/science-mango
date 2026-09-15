@@ -1,0 +1,7 @@
+{
+  "proof": "intro N w inst E hw hwN hE\nclassical\nhave hnorm := fun i => (M7.GeneratedFamily.family_good N w E hw hwN hE i).2\nhave hsep : ∀ (i j : Fin (M7.GeneratedFamily.size N w E))\n    (g h : M7.Action.Record N),\n    M7.Action.act g (M7.GeneratedFamily.family N w E i) =\n      M7.Action.act h (M7.GeneratedFamily.family N w E j) → i = j := by\n  intro i j g h heq\n  apply M7.GeneratedFamily.family_injective N w E hw hwN hE\n  have hc := congrArg (fun c : M7.Action.Recipe N => M7.CanonicalOuter.canonical c) heq\n  simpa only [M7.CanonicalOuter.canonical_invariant, hnorm] using hc\nunfold M7.GlobalQuery.separated\nsimp only [M7.GlobalQuery.realize]\naesop",
+  "queries": [
+    "M7.CanonicalOuter.canonical_invariant",
+    "M7.GlobalQuery.separated"
+  ]
+}

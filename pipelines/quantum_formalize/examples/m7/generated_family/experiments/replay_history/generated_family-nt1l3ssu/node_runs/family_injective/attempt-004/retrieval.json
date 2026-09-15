@@ -1,0 +1,170 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.nodup_iff_injective_get",
+    "status": "ok",
+    "results": [
+      {
+        "id": 208492,
+        "name": "List.nodup_iff_injective_get",
+        "module": "Mathlib.Data.List.Nodup",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Nodup.lean#L82-L83",
+        "source_text": "theorem nodup_iff_injective_get {l : List α} : Nodup l ↔ Function.Injective l.get :=\n  nodup_iff_injective_getElem\n",
+        "docstring": null
+      },
+      {
+        "id": 208493,
+        "name": "List.Nodup.injective_get",
+        "module": "Mathlib.Data.List.Nodup",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Nodup.lean#L85-L86",
+        "source_text": "protected theorem Nodup.injective_get {l : List α} (h : Nodup l) : Function.Injective l.get :=\n  nodup_iff_injective_get.mp h\n",
+        "docstring": null
+      },
+      {
+        "id": 222494,
+        "name": "List.Vector.nodup_iff_injective_get",
+        "module": "Mathlib.Data.Vector.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Vector/Basic.lean#L240-L242",
+        "source_text": "theorem nodup_iff_injective_get {v : Vector α n} : v.toList.Nodup ↔ Function.Injective v.get := by\n  obtain ⟨l, rfl⟩ := v\n  exact List.nodup_iff_injective_get\n",
+        "docstring": null
+      },
+      {
+        "id": 208011,
+        "name": "List.nodup_ofFn",
+        "module": "Mathlib.Data.List.FinRange",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/FinRange.lean#L52-L60",
+        "source_text": "theorem nodup_ofFn {n} {f : Fin n → α} : Nodup (ofFn f) ↔ Function.Injective f := by\n  refine ⟨?_, nodup_ofFn_ofInjective⟩\n  refine Fin.consInduction ?_ (fun x₀ xs ih => ?_) f\n  · intro _\n    exact Function.injective_of_subsingleton _\n  · intro h\n    rw [Fin.cons_injective_iff]\n    simp_rw [ofFn_succ, Fin.cons_succ, nodup_cons, Fin.cons_zero, mem_ofFn] at h\n    exact h.imp_right ih\n",
+        "docstring": null
+      },
+      {
+        "id": 208518,
+        "name": "List.Nodup.map",
+        "module": "Mathlib.Data.List.Nodup",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Nodup.lean#L206-L207",
+        "source_text": "protected theorem Nodup.map {f : α → β} (hf : Injective f) : Nodup l → Nodup (map f l) :=\n  Nodup.map_on fun _ _ _ _ h => hf h\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "List.nodup_iff_injective_get",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389777,
+        "name": "WickContraction.uncontractedList_nodup",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.UncontractedList",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/UncontractedList.lean#L205-L207",
+        "source_text": "lemma uncontractedList_nodup : c.uncontractedList.Nodup := by\n  rw [uncontractedList]\n  exact (List.nodup_finRange n).filter _\n",
+        "docstring": null
+      },
+      {
+        "id": 386715,
+        "name": "Physlib.List.mem_eraseIdx_nodup",
+        "module": "Physlib.Mathematics.List.InsertIdx",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L48-L76",
+        "source_text": "lemma mem_eraseIdx_nodup {I : Type} (i : I) :\n    (l : List I) → (n : ℕ) → (hn : n < l.length) → (h : List.Nodup l) →\n    i ∈ l.eraseIdx n ↔ i ∈ l ∧ i ≠ l[n]\n  | [], _, _, _ => by simp\n  | a1 :: as, 0, _, h => by\n    simp only [List.eraseIdx_zero, List.tail_cons, List.mem_cons, List.getElem_cons_zero, ne_eq]\n    by_cases hi : i = a1\n    · subst hi\n      simp only [List.nodup_cons] at h\n      simp [h]\n    · simp [hi]\n  | a1 :: as, n+1, hn, h => by\n    simp only [List.eraseIdx_cons_succ, List.mem_cons, List.getElem_cons_succ, ne_eq]\n    simp only [List.nodup_cons] at h\n    rw [mem_eraseIdx_nodup i as n (Nat.succ_lt_succ_iff.mp hn) h.2]\n    simp_all only [ne_eq]\n    obtain ⟨left, right⟩ := h\n    apply Iff.intro\n    · intro a\n      cases a with\n      | inl h =>\n        subst h\n        simp_all only [or_false, true_and]\n        apply Aesop.BuiltinRules.not_intro\n        intro a\n        simp_all only [List.getElem_mem, not_true_eq_false]\n      | inr h_1 => simp_all only [or_true, not_false_eq_true, and_self]\n    · intro a\n      simp_all only [not_false_eq_true, and_true]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.get_map",
+    "status": "ok",
+    "results": [
+      {
+        "id": 208095,
+        "name": "List.getD_map",
+        "module": "Mathlib.Data.List.GetD",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/GetD.lean#L43-L44",
+        "source_text": "theorem getD_map {n : ℕ} (f : α → β) : (map f l).getD n (f d) = f (l.getD n d) := by\n  simp only [getD_eq_getElem?_getD, getElem?_map, Option.getD_map]\n",
+        "docstring": null
+      },
+      {
+        "id": 222476,
+        "name": "List.Vector.get_map",
+        "module": "Mathlib.Data.Vector.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Vector/Basic.lean#L152-L155",
+        "source_text": "@[simp]\ntheorem get_map {β : Type*} (v : Vector α n) (f : α → β) (i : Fin n) :\n    (v.map f).get i = f (v.get i) := by\n  cases v; simp [Vector.map, get_eq_get_toList]",
+        "docstring": null
+      },
+      {
+        "id": 207495,
+        "name": "List.getElem_map_rev",
+        "module": "Mathlib.Data.List.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L615-L617",
+        "source_text": "/-- A version of `getElem_map` that can be used for rewriting. -/\ntheorem getElem_map_rev (f : α → β) {l} {n : Nat} {h : n < l.length} :\n    f l[n] = (map f l)[n]'((l.length_map f).symm ▸ h) := Eq.symm (getElem_map _)\n",
+        "docstring": "A version of `getElem_map` that can be used for rewriting. "
+      },
+      {
+        "id": 222469,
+        "name": "List.Vector.getElem_map",
+        "module": "Mathlib.Data.Vector.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Vector/Basic.lean#L110-L113",
+        "source_text": "@[simp]\ntheorem getElem_map {β : Type*} (v : Vector α n) (f : α → β) {i : ℕ} (hi : i < n) :\n    (v.map f)[i] = f v[i] := by\n  simp only [getElem_def, toList_map, List.getElem_map]",
+        "docstring": null
+      },
+      {
+        "id": 208846,
+        "name": "List.get_rotate",
+        "module": "Mathlib.Data.List.Rotate",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Rotate.lean#L224-L226",
+        "source_text": "theorem get_rotate (l : List α) (n : ℕ) (k : Fin (l.rotate n).length) :\n    (l.rotate n).get k = l.get ⟨(k + n) % l.length, mod_lt _ (length_rotate l n ▸ k.pos)⟩ := by\n  simp [getElem_rotate]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "List.get_map",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List.get_map",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

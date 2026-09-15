@@ -1,0 +1,106 @@
+{
+  "id": "self_check",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FactorReplay.self_check",
+    "spec_sha256": "166186a8a66fb0dab96855f0482fd5fea26922de65273c4ad74d898781ff78ec",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-reko71jb/attempt-001/Candidate_ac44c1a23341d0f2.lean:8:2: error: unsolved goals\ncase refine_1\nF : BP\nhF : Polynomial.Monic F\n⊢ (UniqueFactorizationMonoid.primeFactors F).toList.Nodup\n/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-reko71jb/attempt-001/Candidate_ac44c1a23341d0f2.lean:28:15: error(lean.invalidField): Invalid field `normalize`: The environment does not contain `Eq.normalize`, so it is not possible to project the field `normalize` from an expression\n  hF\nof type `Polynomial.leadingCoeff F = 1`\n/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-reko71jb/attempt-001/Candidate_ac44c1a23341d0f2.lean:34:6: error: Type mismatch: After simplification, term\n  Finset.prod_multiset_count (UniqueFactorizationMonoid.normalizedFactors F)\n has type\n  (UniqueFactorizationMonoid.normalizedFactors F).prod =\n    ∏ x ∈ UniqueFactorizationMonoid.primeFactors F, x ^ Multiset.count x (UniqueFactorizationMonoid.normalizedFactors F)\nbut is expected to have type\n  (↑(List.map\n          (fun x =>\n            x ^\n              Multiset.count x\n                (UniqueFactorizationMonoid.normalizedFactors (UniqueFactorizationMonoid.normalizedFactors F).prod))\n          (UniqueFactorizationMonoid.primeFactors (UniqueFactorizationMonoid.normalizedFactors F).prod).toList)).prod =\n    (UniqueFactorizationMonoid.normalizedFactors F).prod\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-reko71jb/attempt-002/Candidate_f11b1b7483f382a4.lean",
+        "target_path": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-reko71jb/attempt-002/FrozenTarget_f11b1b7483f382a4.lean",
+        "feedback": "",
+        "target_sha256": "9db38e43e65eb2d105f2fc75465c94dce3b5ece8cc7cec92215635cba6fe315d",
+        "target_olean_sha256": "44b48d5053a835ca8aa1018237cb1df548973ae3e48c03126206e4c47b67c7aa",
+        "source_sha256": "17c4bee36185d1b4730153f9d01097551878480aeda83c5bfb6e5bbaf3745670",
+        "olean_sha256": "2a99bef08d54266d9502f5fa05286d2317c89d2f9a9d5dcd6cf362d73b0709e3",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T20:36:05.595806+00:00",
+    "work": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-reko71jb",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7ba863ae5db19ea418a65f021b503a98540d4d8fe820538d799b1b4b37b44152",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-factor-replay-formalization/.humanize-formal-runs/run-reko71jb/attempt-002/Candidate_f11b1b7483f382a4.lean",
+    "environment_sha256": "685995a0229356689cdc623b99f1a4c73c02067a3a30b4da69d56d732459643c",
+    "artifacts": {
+      "pool_complete": {
+        "payload": {
+          "declaration": "theorem M7.FactorReplay.pool_complete : ∀ (n : ℕ) (p : M7.FactorReplay.BP), p ∈ M7.FactorReplay.pool n ↔ p.natDegree ≤ n := by\n  change ∀ (n : ℕ) (p : M7.FactorReplay.BP), p ∈ M7.FactorReplay.pool n ↔ p.natDegree ≤ n\n  intro n p\n  classical\n  unfold M7.FactorReplay.pool\n  rw [Finset.mem_image]\n  constructor\n  · rintro ⟨v, _, rfl⟩\n    have h := Polynomial.ofFn_natDegree_lt (show 1 ≤ n + 1 by omega) v\n    omega\n  · intro hp\n    refine ⟨Polynomial.toFn (n + 1) p, Finset.mem_univ _, ?_⟩\n    exact Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt (by omega)",
+          "imports": [
+            "M7FactorReplay"
+          ],
+          "name": "M7.FactorReplay.pool_complete",
+          "ancestors": [],
+          "spec_sha256": "06c17c590db1494c17d8f92a347fe413baf8a93ab82e9ae3d42a86add0effb88"
+        },
+        "sha256": "d3a58eca0a0ed8939dce2f7c882f54228e9e2e79c9971e4be09dbcf4ce67ab62"
+      },
+      "irreducible_check_exact": {
+        "payload": {
+          "declaration": "theorem M7.FactorReplay.irreducible_check_exact : ∀ p : M7.FactorReplay.BP, M7.FactorReplay.irreducibleCheck p = true ↔ p.Monic ∧ Irreducible p := by\n  change ∀ p : M7.FactorReplay.BP, M7.FactorReplay.irreducibleCheck p = true ↔ p.Monic ∧ Irreducible p\n  intro p\n  classical\n  by_cases hp : p.Monic\n  · by_cases hp1 : p = 1\n    · subst p\n      simp [M7.FactorReplay.irreducibleCheck]\n    · rw [and_iff_right hp, hp.irreducible_iff_lt_natDegree_lt hp1]\n      simp only [M7.FactorReplay.irreducibleCheck, Bool.and_eq_true, decide_eq_true_eq,\n        List.all_eq_true, Finset.mem_toList, M7.FactorReplay.pool_complete,\n        Bool.not_eq_true_eq_eq_false, decide_eq_false_iff_not, Finset.mem_Ioc, EuclideanDomain.mod_eq_zero]\n      constructor\n      · rintro ⟨⟨_, _⟩, h⟩ q hq hd\n        exact fun hdiv => h q hd.2 ⟨hq, hd.1, hd.2, hdiv⟩\n      · intro h\n        refine ⟨⟨hp,hp1⟩, ?_⟩\n        intro q hq hh\n        exact h q hh.1 ⟨hh.2.1,hh.2.2.1⟩ hh.2.2.2\n  · simp [M7.FactorReplay.irreducibleCheck, hp]",
+          "imports": [
+            "M7FactorReplay"
+          ],
+          "name": "M7.FactorReplay.irreducible_check_exact",
+          "ancestors": [
+            "pool_complete"
+          ],
+          "spec_sha256": "9c8a966057e5343d1c62b3bff521d832d2ccfa86c471469a4b1f36ccdbbb9035"
+        },
+        "sha256": "3adaa4e135d1ba8623c628ec70d4c8f81da9528eefb6e886df569f62bc790ca6"
+      },
+      "factor_check_exact": {
+        "payload": {
+          "declaration": "theorem M7.FactorReplay.factor_check_exact : ∀ (F : M7.FactorReplay.BP) (factors : List (M7.FactorReplay.BP × ℕ)), M7.FactorReplay.check F factors = true ↔ (factors.map Prod.fst).Nodup ∧ (∀ t ∈ factors, t.1.Monic ∧ Irreducible t.1 ∧ 0 < t.2) ∧ M7.FactorReplay.product factors = F := by\n  change ∀ (F : M7.FactorReplay.BP) (factors : List (M7.FactorReplay.BP × ℕ)), M7.FactorReplay.check F factors = true ↔ (factors.map Prod.fst).Nodup ∧ (∀ t ∈ factors, t.1.Monic ∧ Irreducible t.1 ∧ 0 < t.2) ∧ M7.FactorReplay.product factors = F\n  intro F factors\n  classical\n  simp [M7.FactorReplay.check, List.all_eq_true, M7.FactorReplay.irreducible_check_exact, and_assoc] <;> aesop",
+          "imports": [
+            "M7FactorReplay"
+          ],
+          "name": "M7.FactorReplay.factor_check_exact",
+          "ancestors": [
+            "irreducible_check_exact",
+            "pool_complete"
+          ],
+          "spec_sha256": "b25d587c0eaec5f8b068951af9f37927ab05479dbda5b53441f3a76dde3b3771"
+        },
+        "sha256": "b8f44f6d3a0797f8917be9ad0bfe7b6b52d6bae43c021aa9f43c456336e25e17"
+      },
+      "self_check": {
+        "payload": {
+          "declaration": "theorem M7.FactorReplay.self_check : ∀ F : M7.FactorReplay.BP, F.Monic → M7.FactorReplay.check F (M7.FactorReplay.expected F) = true := by\n  change ∀ F : M7.FactorReplay.BP, F.Monic → M7.FactorReplay.check F (M7.FactorReplay.expected F) = true\n  intro F hF\n  classical\n  apply (M7.FactorReplay.factor_check_exact F _).2\n  refine ⟨?_, ?_, ?_⟩\n  · simpa [M7.FactorReplay.expected, List.map_map, Function.comp_def] using\n      (UniqueFactorizationMonoid.normalizedFactors F).toFinset.nodup_toList\n  · intro t ht\n    change t ∈ ((UniqueFactorizationMonoid.normalizedFactors F).toFinset.toList.map\n      (fun p => (p, (UniqueFactorizationMonoid.normalizedFactors F).count p))) at ht\n    obtain ⟨p, hp, rfl⟩ := List.mem_map.mp ht\n    have hp' : p ∈ UniqueFactorizationMonoid.normalizedFactors F :=\n      Multiset.mem_toFinset.mp (Finset.mem_toList.mp hp)\n    have hprime := UniqueFactorizationMonoid.prime_of_normalized_factor p hp'\n    refine ⟨?_, hprime.irreducible, Multiset.count_pos.mpr hp'⟩\n    have hm := Polynomial.monic_normalize hprime.ne_zero\n    rw [UniqueFactorizationMonoid.normalize_normalized_factor p hp'] at hm\n    exact hm\n  · unfold M7.FactorReplay.product M7.FactorReplay.expected\n    simp only [List.map_map, Function.comp_def]\n    change ((↑((UniqueFactorizationMonoid.normalizedFactors F).toFinset.toList) :\n      Multiset M7.FactorReplay.BP).map\n        (fun p => p ^ (UniqueFactorizationMonoid.normalizedFactors F).count p)).prod = F\n    rw [Finset.coe_toList]\n    change (∏ p ∈ (UniqueFactorizationMonoid.normalizedFactors F).toFinset,\n      p ^ (UniqueFactorizationMonoid.normalizedFactors F).count p) = F\n    rw [← Finset.prod_multiset_count,\n      UniqueFactorizationMonoid.prod_normalizedFactors_eq hF.ne_zero,\n      Polynomial.Monic.normalize_eq_self hF]",
+          "imports": [
+            "M7FactorReplay"
+          ],
+          "name": "M7.FactorReplay.self_check",
+          "ancestors": [
+            "factor_check_exact",
+            "irreducible_check_exact",
+            "pool_complete"
+          ],
+          "spec_sha256": "7f3de2609e92ae8d0675f230ddb24c90754dad28872712b341dccf0a7c05f52b"
+        },
+        "sha256": "2b6c855e2297dbf06cfc76d65b0e15a8224cdbb2c103ce1c722dfeaa7fc4ce7b"
+      }
+    }
+  }
+}

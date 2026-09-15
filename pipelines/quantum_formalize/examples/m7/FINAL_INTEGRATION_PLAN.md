@@ -17,3 +17,21 @@ This is a dependency plan, not an acceptance receipt. The frozen original source
 The final root must import the canonical receipts and definitions together, elaborate as a closed proposition, compile, and pass the exact-target, payload, axiom and unchanged-environment checks. Component counts are not a substitute for this root.
 
 No machine-code extraction, runtime benchmark, practical superiority, M8 efficiency, or certification of absent Python prototype features is added. Integer bit costs are distinguished from scalar-operation charges. The original conditional permission for extra verified total-computable evaluators does not introduce a free default-label oracle.
+
+## Final dependency path
+
+```mermaid
+flowchart TD
+  GF[Generated family: accepted] --> FS[Final selector: build and preflight]
+  GF --> GL[Generated physical labels: build and preflight]
+  RC[Generation calls, scalar work, storage, cursor and comparator: accepted] --> FR[Final resource composition: gated]
+  GL --> FR
+  RP[Generation, label, factor and query replay: accepted] --> JR[Joint replay: gated]
+  FS --> JR
+  GL --> JR
+  FR --> ROOT[Closed OriginalM7 root: gated]
+  JR --> ROOT
+  OB[Overfull and empty-sector boundaries: accepted] --> ROOT
+```
+
+The selector and physical-label branches can run in parallel. Resource composition waits for generated physical labels; joint replay waits for both branches. The root waits for the completed compositions. Each proof batch uses two workers; the active stage set stays within the authorized sixteen-worker ceiling. A build/preflight box has no accepted proof status until the full batch receipt passes.

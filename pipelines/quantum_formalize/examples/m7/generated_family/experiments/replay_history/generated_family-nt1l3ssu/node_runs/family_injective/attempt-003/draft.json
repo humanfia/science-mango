@@ -1,0 +1,7 @@
+{
+  "proof": "intro N w inst E hw hwN hE\nclassical\nhave hexact := M7.CompactCorrectness.generate_exact N w E hE\nhave hn : ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).Nodup := by\n  tauto\nintro i j hij\nlet i' : Fin ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).length :=\n  ⟨i.val, by simpa [M7.GeneratedFamily.size] using i.isLt⟩\nlet j' : Fin ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).length :=\n  ⟨j.val, by simpa [M7.GeneratedFamily.size] using j.isLt⟩\nhave hget : ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).get i' =\n    ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).get j' := by\n  simpa [i', j', M7.GeneratedFamily.family] using hij\nhave heq : i' = j' := (List.nodup_iff_injective_get.mp hn) hget\napply Fin.ext\nexact congrArg Fin.val heq",
+  "queries": [
+    "List.nodup_iff_injective_get",
+    "List.get_map"
+  ]
+}

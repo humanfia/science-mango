@@ -1,0 +1,288 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Action act compose inverse action cancellation",
+    "status": "ok",
+    "results": [
+      {
+        "id": 236226,
+        "name": "DomMulAct.mk_inv",
+        "module": "Mathlib.GroupTheory.GroupAction.DomAct.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/DomAct/Basic.lean#L142-L143",
+        "source_text": "@[to_additive (attr := simp)]\nlemma mk_inv [Inv M] (a : M) : mk (a⁻¹) = (mk a)⁻¹ := rfl",
+        "docstring": null
+      },
+      {
+        "id": 66296,
+        "name": "MulAction",
+        "module": "Mathlib.Algebra.Group.Action.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Action/Defs.lean#L123-L137",
+        "source_text": "/--\nType class for monoid actions on types, with notation `g • p`.\n\nThe `MulAction G P` typeclass says that the monoid `G` acts multiplicatively on a type `P`.\nMore precisely this means that the action satisfies the two axioms `1 • p = p` and\n`(g₁ * g₂) • p = g₁ • (g₂ • p)`. A mathematician might simply say that the monoid `G`\nacts on `P`.\n\nFor example, if `G` is a group and `X` is a type, if a mathematician says\nsay \"let `G` act on the set `X`\" they will probably mean `[MulAction G X]`.\n-/\n@[to_additive (attr := ext, wikidata Q288465)]\nclass MulAction (α : Type*) (β : Type*) [Monoid α] extends SemigroupAction α β where\n  /-- One is the neutral element for `•` -/\n  protected one_smul : ∀ b : β, (1 : α) • b = b\n",
+        "docstring": "Type class for monoid actions on types, with notation `g • p`.\n\nThe `MulAction G P` typeclass says that the monoid `G` acts multiplicatively on a type `P`.\nMore precisely this means that the action satisfies the two axioms `1 • p = p` and\n`(g₁ * g₂) • p = g₁ • (g₂ • p)`. A mathematician might simply say that the monoid `G`\nacts on `P`.\n\nFor example, if `G` is a group and `X` is a type, if a mathematician says\nsay \"let `G` act on the set `X`\" they will probably mean `[MulAction G X]`.\n\n\n[Wikidata Q288465](https://www.wikidata.org/wiki/Q288465)"
+      },
+      {
+        "id": 236431,
+        "name": "AddActionHom.inverse'",
+        "module": "Mathlib.GroupTheory.GroupAction.Hom",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Hom.lean#L302-L302",
+        "source_text": "@[to_additive (attr := simps) /-- The inverse of a bijective equivariant map is equivariant. -/]\ndef inverse' (f : X →ₑ[φ] Y) (g : Y → X) (k : Function.RightInverse φ' φ)",
+        "docstring": "The inverse of a bijective equivariant map is equivariant. "
+      },
+      {
+        "id": 235995,
+        "name": "ConjAct.Subgroup.conjAction",
+        "module": "Mathlib.GroupTheory.GroupAction.ConjAct",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/ConjAct.lean#L233-L236",
+        "source_text": "/-- As normal subgroups are closed under conjugation, they inherit the conjugation action\n  of the underlying group. -/\ninstance Subgroup.conjAction {H : Subgroup G} [hH : H.Normal] : SMul (ConjAct G) H :=\n  ⟨fun g h => ⟨g • (h : G), hH.conj_mem h.1 h.2 (ofConjAct g)⟩⟩\n",
+        "docstring": "As normal subgroups are closed under conjugation, they inherit the conjugation action\nof the underlying group. "
+      },
+      {
+        "id": 66573,
+        "name": "AddOpposite.unop_vadd_eq_unop_vadd_unop",
+        "module": "Mathlib.Algebra.Group.Action.Opposite",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Action/Opposite.lean#L68-L68",
+        "source_text": "@[to_additive]\nlemma unop_smul_eq_unop_smul_unop [SMul M α] [SMul Mᵐᵒᵖ α] [IsCentralScalar M α] (r : Mᵐᵒᵖ)\n    (a : αᵐᵒᵖ) : unop (r • a) = unop r • unop a := (unop_smul_eq_smul r (unop a)).symm",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.Action act compose inverse action cancellation",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392563,
+        "name": "Lorentz.Vector.actionCLM",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Tensorial",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Tensorial.lean#L197-L206",
+        "source_text": "/-- The Lorentz action on vectors as a continuous linear map. -/\ndef actionCLM {d : ℕ} (Λ : LorentzGroup d) :\n    Vector d →L[ℝ] Vector d :=\n  LinearMap.toContinuousLinearMap\n    { toFun := fun v => Λ • v\n      map_add' := smul_add Λ\n      map_smul' := fun c v => by\n        simp only [RingHom.id_apply]\n        funext i\n        simp only [smul_eq_sum, apply_smul, Finset.mul_sum, mul_left_comm]}\n",
+        "docstring": "The Lorentz action on vectors as a continuous linear map. "
+      },
+      {
+        "id": 392644,
+        "name": "TensorSpecies.Tensorial.smul_toTensor_symm",
+        "module": "Physlib.Relativity.Tensors.Tensorial",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Tensorial.lean#L163-L166",
+        "source_text": "lemma smul_toTensor_symm {g : G} {t : Tensor S c} [self : Tensorial S c M] :\n    g • (toTensor (self := self).symm t) = toTensor.symm (g • t) := by\n  rw [smul_eq]\n  simp\n",
+        "docstring": null
+      },
+      {
+        "id": 388676,
+        "name": "ACCSystemGroupAction",
+        "module": "Physlib.QFT.AnomalyCancellation.GroupActions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/GroupActions.lean#L25-L40",
+        "source_text": "/-- The type of a group action on a system of charges is defined as a representation on\nthe vector spaces of charges under which the anomaly equations are invariant.\n-/\nstructure ACCSystemGroupAction (χ : ACCSystem) where\n  /-- The underlying type of the group. -/\n  group : Type\n  /-- An instance given the `group` component the structure of a `Group`. -/\n  groupInst : Group group\n  /-- The representation of group acting on the vector space of charges. -/\n  rep : Representation ℚ group χ.Charges\n  /-- The invariance of the linear ACCs under the group action. -/\n  linearInvariant : ∀ i g S, χ.linearACCs i (rep g S) = χ.linearACCs i S\n  /-- The invariance of the quadratic ACCs under the group action. -/\n  quadInvariant : ∀ i g S, (χ.quadraticACCs i) (rep g S) = (χ.quadraticACCs i) S\n  /-- The invariance of the cubic ACC under the group action. -/\n  cubicInvariant : ∀ g S, χ.cubicACC (rep g S) = χ.cubicACC S\n",
+        "docstring": "The type of a group action on a system of charges is defined as a representation on\nthe vector spaces of charges under which the anomaly equations are invariant.\n"
+      },
+      {
+        "id": 388685,
+        "name": "ACCSystemGroupAction.solAction",
+        "module": "Physlib.QFT.AnomalyCancellation.GroupActions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/GroupActions.lean#L102-L117",
+        "source_text": "/-- The group action acting on solutions to the anomaly cancellation conditions. -/\ninstance solAction {χ : ACCSystem} (G : ACCSystemGroupAction χ) : MulAction G.group χ.Sols where\n  smul g S := ⟨G.quadSolAction.toFun _ _ S.1 g, by\n    simp only [MulAction.toFun_apply]\n    change χ.cubicACC (G.rep g S.val) = 0\n    rw [G.cubicInvariant, S.cubicSol]⟩\n  mul_smul f1 f2 S := by\n    apply ACCSystem.Sols.ext\n    change (G.rep.toFun (f1 * f2)) S.val = _\n    rw [G.rep.map_mul']\n    rfl\n  one_smul S := by\n    apply ACCSystem.Sols.ext\n    change (G.rep.toFun 1) S.val = _\n    rw [G.rep.map_one']\n    rfl\n",
+        "docstring": "The group action acting on solutions to the anomaly cancellation conditions. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.CompactCorrectness.generate_exact",
+    "status": "ok",
+    "results": [
+      {
+        "id": 64741,
+        "name": "Function.Exact",
+        "module": "Mathlib.Algebra.Exact.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Exact/Basic.lean#L43-L44",
+        "source_text": "@[to_additive /-- The maps `f` and `g` form an exact pair:\n  `g y = 0` iff `y` belongs to the image of `f`. -/]\ndef MulExact [One P] : Prop := ∀ y, g y = 1 ↔ y ∈ Set.range f",
+        "docstring": "The maps `f` and `g` form an exact pair:\n`g y = 0` iff `y` belongs to the image of `f`. "
+      },
+      {
+        "id": 340169,
+        "name": "isCompact_generateFrom'",
+        "module": "Mathlib.Topology.Compactness.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Compactness/Compact.lean#L567-L573",
+        "source_text": "theorem isCompact_generateFrom' [T : TopologicalSpace X]\n    {S : Set (Set X)} (hTS : T = generateFrom S) {s : Set X}\n    (h : ∀ (ι : Type u) (U : ι → S), s ⊆ ⋃ i, U i → ∃ J : Set ι, J.Finite ∧ s ⊆ ⋃ i ∈ J, U i) :\n    IsCompact s :=\n  isCompact_generateFrom hTS fun P hP hs ↦\n    have ⟨J, hJ, cover⟩ := h P (fun a ↦ ⟨a.1, hP a.2⟩) (sUnion_eq_iUnion ▸ hs)\n    ⟨(·.1) '' J, ⟨by simp, hJ.image _, by aesop⟩⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 340168,
+        "name": "isCompact_generateFrom",
+        "module": "Mathlib.Topology.Compactness.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Compactness/Compact.lean#L544-L564",
+        "source_text": "/--\n**Alexander's subbasis theorem**. Suppose `X` is a topological space with a subbasis `S` and `s` is\na subset of `X`. Then `s` is compact if for any open cover of `s` with all elements taken from `S`,\nthere is a finite subcover.\n-/\ntheorem isCompact_generateFrom [T : TopologicalSpace X]\n    {S : Set (Set X)} (hTS : T = generateFrom S) {s : Set X}\n    (h : ∀ P ⊆ S, s ⊆ ⋃₀ P → ∃ Q ⊆ P, Q.Finite ∧ s ⊆ ⋃₀ Q) :\n    IsCompact s := by\n  rw [isCompact_iff_ultrafilter_le_nhds', hTS]\n  intro F hsF\n  by_contra hF\n  have hSF : ∀ x ∈ s, ∃ t, x ∈ t ∧ t ∈ S ∧ t ∉ F := by simpa [nhds_generateFrom] using hF\n  choose! U hxU hSU hUF using hSF\n  obtain ⟨Q, hQU, hQ, hsQ⟩ := h (U '' s) (by simpa [Set.subset_def])\n    (fun x hx ↦ Set.mem_sUnion_of_mem (hxU _ hx) (by grind))\n  have : ∀ s ∈ Q, s ∉ F := fun s hsQ ↦ (hQU hsQ).choose_spec.2 ▸ hUF _ (hQU hsQ).choose_spec.1\n  have hQF : ⋂₀ (compl '' Q) ∈ F.sets := by simpa [Filter.biInter_mem hQ, F.compl_mem_iff_notMem]\n  have : ⋃₀ Q ∉ F := by\n    simpa [-Set.sInter_image, ← Set.compl_sUnion, hsQ, F.compl_mem_iff_notMem] using hQF\n  exact this (F.mem_of_superset hsF hsQ)\n",
+        "docstring": "**Alexander's subbasis theorem**. Suppose `X` is a topological space with a subbasis `S` and `s` is\na subset of `X`. Then `s` is compact if for any open cover of `s` with all elements taken from `S`,\nthere is a finite subcover.\n"
+      },
+      {
+        "id": 340208,
+        "name": "compactSpace_generateFrom'",
+        "module": "Mathlib.Topology.Compactness.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Compactness/Compact.lean#L831-L836",
+        "source_text": "theorem compactSpace_generateFrom' [T : TopologicalSpace X] {S : Set (Set X)}\n    (hTS : T = generateFrom S)\n    (h : ∀ (ι : Type u) (U : ι → S),\n      ⋃ i, U i = (univ (α := X)) → ∃ J : Set ι, J.Finite ∧ ⋃ i ∈ J, U i = (univ (α := X))) :\n    CompactSpace X :=\n  isCompact_univ_iff.mp <| isCompact_generateFrom' hTS <| by simpa\n",
+        "docstring": null
+      },
+      {
+        "id": 327657,
+        "name": "tacticCompactness?_",
+        "module": "Mathlib.Tactic.GrindAttrs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/GrindAttrs.lean#L88-L89",
+        "source_text": "macro \"compactness?\" config:optConfig : tactic =>\n    `(tactic|grind? $config only [$(mkIdent `compactness):term])\n",
+        "docstring": "`compactness` is a simple tactic that tries various lemmas to prove that a set is compact.\nIt is implemented using `grind`, and has the same configuration options as `grind`.\n\nUse `grind only [compactness, closedness]` instead if you want to prove that the closure of sets are\ncompact.\n\nIt also exists as a grind attribute, and can be combined with other grind attributes using\n`grind only [compactness, ...]`.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "M7.CompactCorrectness.generate_exact",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M7.CompactCorrectness.generate_exact",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.OrbitResidual.remaining M7.CompactCorrectness.generate_coverage",
+    "status": "ok",
+    "results": [
+      {
+        "id": 340168,
+        "name": "isCompact_generateFrom",
+        "module": "Mathlib.Topology.Compactness.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Compactness/Compact.lean#L544-L564",
+        "source_text": "/--\n**Alexander's subbasis theorem**. Suppose `X` is a topological space with a subbasis `S` and `s` is\na subset of `X`. Then `s` is compact if for any open cover of `s` with all elements taken from `S`,\nthere is a finite subcover.\n-/\ntheorem isCompact_generateFrom [T : TopologicalSpace X]\n    {S : Set (Set X)} (hTS : T = generateFrom S) {s : Set X}\n    (h : ∀ P ⊆ S, s ⊆ ⋃₀ P → ∃ Q ⊆ P, Q.Finite ∧ s ⊆ ⋃₀ Q) :\n    IsCompact s := by\n  rw [isCompact_iff_ultrafilter_le_nhds', hTS]\n  intro F hsF\n  by_contra hF\n  have hSF : ∀ x ∈ s, ∃ t, x ∈ t ∧ t ∈ S ∧ t ∉ F := by simpa [nhds_generateFrom] using hF\n  choose! U hxU hSU hUF using hSF\n  obtain ⟨Q, hQU, hQ, hsQ⟩ := h (U '' s) (by simpa [Set.subset_def])\n    (fun x hx ↦ Set.mem_sUnion_of_mem (hxU _ hx) (by grind))\n  have : ∀ s ∈ Q, s ∉ F := fun s hsQ ↦ (hQU hsQ).choose_spec.2 ▸ hUF _ (hQU hsQ).choose_spec.1\n  have hQF : ⋂₀ (compl '' Q) ∈ F.sets := by simpa [Filter.biInter_mem hQ, F.compl_mem_iff_notMem]\n  have : ⋃₀ Q ∉ F := by\n    simpa [-Set.sInter_image, ← Set.compl_sUnion, hsQ, F.compl_mem_iff_notMem] using hQF\n  exact this (F.mem_of_superset hsF hsQ)\n",
+        "docstring": "**Alexander's subbasis theorem**. Suppose `X` is a topological space with a subbasis `S` and `s` is\na subset of `X`. Then `s` is compact if for any open cover of `s` with all elements taken from `S`,\nthere is a finite subcover.\n"
+      },
+      {
+        "id": 236007,
+        "name": "MulAction.orbit",
+        "module": "Mathlib.GroupTheory.GroupAction.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Defs.lean#L47-L50",
+        "source_text": "/-- The orbit of an element under an action. -/\n@[to_additive /-- The orbit of an element under an action. -/]\ndef orbit (a : α) :=\n  Set.range fun m : γ => m • a\n",
+        "docstring": "The orbit of an element under an action. "
+      },
+      {
+        "id": 340169,
+        "name": "isCompact_generateFrom'",
+        "module": "Mathlib.Topology.Compactness.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Compactness/Compact.lean#L567-L573",
+        "source_text": "theorem isCompact_generateFrom' [T : TopologicalSpace X]\n    {S : Set (Set X)} (hTS : T = generateFrom S) {s : Set X}\n    (h : ∀ (ι : Type u) (U : ι → S), s ⊆ ⋃ i, U i → ∃ J : Set ι, J.Finite ∧ s ⊆ ⋃ i ∈ J, U i) :\n    IsCompact s :=\n  isCompact_generateFrom hTS fun P hP hs ↦\n    have ⟨J, hJ, cover⟩ := h P (fun a ↦ ⟨a.1, hP a.2⟩) (sUnion_eq_iUnion ▸ hs)\n    ⟨(·.1) '' J, ⟨by simp, hJ.image _, by aesop⟩⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 344706,
+        "name": "residual",
+        "module": "Mathlib.Topology.GDelta.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/GDelta/Basic.lean#L169-L171",
+        "source_text": "/-- A set `s` is called *residual* if it includes a countable intersection of dense open sets. -/\ndef residual (X : Type*) [TopologicalSpace X] : Filter X :=\n  Filter.countableGenerate { t | IsOpen t ∧ Dense t }\n",
+        "docstring": "A set `s` is called *residual* if it includes a countable intersection of dense open sets. "
+      },
+      {
+        "id": 340207,
+        "name": "compactSpace_generateFrom",
+        "module": "Mathlib.Topology.Compactness.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Compactness/Compact.lean#L820-L828",
+        "source_text": "/--\nThe `CompactSpace` version of **Alexander's subbasis theorem**. If `X` is a topological space with a\nsubbasis `S`, then `X` is compact if for any open cover of `X` all of whose elements belong to `S`,\nthere is a finite subcover.\n-/\ntheorem compactSpace_generateFrom [T : TopologicalSpace X] {S : Set (Set X)}\n    (hTS : T = generateFrom S) (h : ∀ P ⊆ S, ⋃₀ P = univ → ∃ Q ⊆ P, Q.Finite ∧ ⋃₀ Q = univ) :\n    CompactSpace X :=\n  isCompact_univ_iff.mp <| isCompact_generateFrom hTS <| by simpa\n",
+        "docstring": "The `CompactSpace` version of **Alexander's subbasis theorem**. If `X` is a topological space with a\nsubbasis `S`, then `X` is compact if for any open cover of `X` all of whose elements belong to `S`,\nthere is a finite subcover.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.OrbitResidual.remaining M7.CompactCorrectness.generate_coverage",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390611,
+        "name": "LinearPMap.residualSpectrum",
+        "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L766-L771",
+        "source_text": "/-- The residual spectrum, `σʳ`, of a partial linear map.\n\n  A complex number `z` is in `σʳ T` iff `T - z • 1` is injective but not surjective\n  and `(T - z • 1)⁻¹` is continuous (equivalently, bounded). -/\ndef residualSpectrum (T : H →ₗ.[ℂ] H) : Set ℂ :=\n  {z : ℂ | (T - z • 1).toFun.ker = ⊥ ∧ (T - z • 1).toFun.range ≠ ⊤ ∧ Continuous (𝑅 T z)}\n",
+        "docstring": "The residual spectrum, `σʳ`, of a partial linear map.\n\nA complex number `z` is in `σʳ T` iff `T - z • 1` is injective but not surjective\nand `(T - z • 1)⁻¹` is continuous (equivalently, bounded). "
+      },
+      {
+        "id": 390613,
+        "name": "LinearPMap.residualSpectrum_eq",
+        "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L776-L778",
+        "source_text": "lemma residualSpectrum_eq (T : H →ₗ.[ℂ] H) :\n    σʳ T = {z | (T - z • 1).toFun.ker = ⊥ ∧ (T - z • 1).toFun.range ≠ ⊤ ∧ Continuous (𝑅 T z)} :=\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 388434,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+        "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+        "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+      },
+      {
+        "id": 390615,
+        "name": "LinearPMap.residualSpectrum_subset_spectrum",
+        "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L784-L785",
+        "source_text": "lemma residualSpectrum_subset_spectrum (T : H →ₗ.[ℂ] H) : σʳ T ⊆ σ T :=\n  fun _ ⟨_, h, _⟩ ↦ mem_spectrum_iff.mpr (Or.inr <| Or.inl h)\n",
+        "docstring": null
+      },
+      {
+        "id": 388276,
+        "name": "MSSMACC.AnomalyFreePerp.InLineEq",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L166-L168",
+        "source_text": "/-- Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. -/\ndef InLineEq : Type := {R : MSSMACC.AnomalyFreePerp // LineEqProp R}\n",
+        "docstring": "Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the condition\n`lineEqProp`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

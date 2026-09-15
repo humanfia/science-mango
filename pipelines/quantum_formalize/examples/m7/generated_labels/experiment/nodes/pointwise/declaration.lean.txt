@@ -1,0 +1,7 @@
+theorem M7.GeneratedLabels.pointwise : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ i : Fin (M7.GeneratedFamily.size N w E), M6.Final.PointwiseCorrect N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) := by
+  intro N w inst E hw hwN hE i
+  have hgood := (M7.GeneratedFamily.family_good N w E hw hwN hE i).1
+  have hanchored := M7.GeneratedFamily.family_anchored N w E hw hwN hE i
+  apply M7.ClosedSolve.closed_pointwise N w (M7.GeneratedFamily.family N w E i)
+  all_goals
+    simp_all [M7.PrefixOrbit.ClassValid]

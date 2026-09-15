@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N w inst E hw hwN hE i\nlet e := (M7.CompactGeneration.generate (N := N) w E).emitted.get i\nhave he : e ∈ (M7.CompactGeneration.generate (N := N) w E).emitted := List.get_mem _ _\nhave hl : e.leaf ∈ M7.RecoveryPrefix.completed N w E [] := by\n  apply M7.CompactCorrectness.run_leaves N w E hE ∅ _ _\n    (M7.CompactCorrectness.initial N w E hE).1 rfl e\n  exact he\nhave hr := M7.CompactCorrectness.run_records N w E ∅ _ _ e he\nrefine ⟨M7.Action.inverse e.action, ?_⟩\nchange M7.RecipeSignature.signature (M7.Action.act (M7.Action.inverse e.action) e.representative) ∈ E\nrw [hr.2.1]\nhave hq := ((M7.RawCoverage.root_membership N w E e.leaf).mp hl).1\nexact hq.2",
+  "queries": [
+    "M7.CompactGeneration.generate",
+    "M7.RawCoverage.Queried",
+    "M7.RawCoverage.rootCompleted"
+  ]
+}
