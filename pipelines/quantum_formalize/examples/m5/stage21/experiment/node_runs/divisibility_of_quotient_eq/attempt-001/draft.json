@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a')\nintro D a a' T hD heq\nhave hmod : M5.cyclicModulus T ∣ a - a' := by\n  simpa only [AdjoinRoot.mk_eq_mk] using heq\nhave hdiff : D ∣ a - a' := dvd_trans hD hmod\nconstructor\n· intro ha\n  have hid : a - (a - a') = a' := by ring\n  rw [← hid]\n  exact dvd_sub ha hdiff\n· intro ha'\n  simpa only [sub_add_cancel] using dvd_add hdiff ha'",
+  "queries": []
+}

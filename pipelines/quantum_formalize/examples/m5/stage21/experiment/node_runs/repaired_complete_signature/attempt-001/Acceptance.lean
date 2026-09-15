@@ -1,0 +1,3 @@
+import Candidate_9db29f0765ad652a
+example : QuantumHarnessFrozenTarget := M5.SignatureCongruence.repaired_complete_signature
+#print axioms M5.SignatureCongruence.repaired_complete_signature

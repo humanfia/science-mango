@@ -1,0 +1,303 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T07:56:07.115242+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "divisibility_of_quotient_eq": {
+      "id": "divisibility_of_quotient_eq",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.SignatureCongruence.divisibility_of_quotient_eq",
+        "spec_sha256": "08b534487c27533455a48616b33ea5aba3b1e7d99b963c60781fdb09441ceb8c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-1wz1qu3x/attempt-001/Candidate_c7e4a7c3dee34878.lean",
+            "target_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-1wz1qu3x/attempt-001/FrozenTarget_c7e4a7c3dee34878.lean",
+            "feedback": "",
+            "target_sha256": "ac358a73b5097049985c39cb8b8a3a02f5aad04953cace153f00bebc33a45751",
+            "target_olean_sha256": "6ce46638b050e21976472ff1dc58dff8f96565359370e6a81fcac92edf91d999",
+            "source_sha256": "51601ab1fe37b80438a6a3e490db541588fd390fd1599cb32856f19e6f82a89f",
+            "olean_sha256": "252ecf62f5d8f036ac5a77139ee5acef2de6e3389415c794ebd8aa86b4436968",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:51:04.925640+00:00",
+        "work": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-1wz1qu3x",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-1wz1qu3x/attempt-001/Candidate_c7e4a7c3dee34878.lean",
+        "environment_sha256": "c49df3ff4c0396cd63063780defe998abf58e0bd56594177d1bf60305b10d157",
+        "artifacts": {
+          "divisibility_of_quotient_eq": {
+            "payload": {
+              "declaration": "theorem M5.SignatureCongruence.divisibility_of_quotient_eq : ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a') := by\n  change ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a')\n  intro D a a' T hD heq\n  have hmod : M5.cyclicModulus T ∣ a - a' := by\n    simpa only [AdjoinRoot.mk_eq_mk] using heq\n  have hdiff : D ∣ a - a' := dvd_trans hD hmod\n  constructor\n  · intro ha\n    have hid : a - (a - a') = a' := by ring\n    rw [← hid]\n    exact dvd_sub ha hdiff\n  · intro ha'\n    simpa only [sub_add_cancel] using dvd_add hdiff ha'",
+              "imports": [
+                "M5SignatureCongruence"
+              ],
+              "name": "M5.SignatureCongruence.divisibility_of_quotient_eq",
+              "ancestors": [],
+              "spec_sha256": "08b534487c27533455a48616b33ea5aba3b1e7d99b963c60781fdb09441ceb8c"
+            },
+            "sha256": "4f575da1743f9019249fdb6b1598b99a6d46c1c906c2642e48745e1b532f478b"
+          }
+        }
+      }
+    },
+    "complete_signature_congruence": {
+      "id": "complete_signature_congruence",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.SignatureCongruence.complete_signature_congruence",
+        "spec_sha256": "072c13a8f721f0c9e6e10c1b3b14b9b9c51df4536104eab479b87d969a44dd54",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-gfthqloe/attempt-001/Candidate_46bf31789a42bb34.lean:7:37: error(lean.unknownIdentifier): Unknown constant `EuclideanDomain.dvd_gcd_iff`\n/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-gfthqloe/attempt-001/Candidate_46bf31789a42bb34.lean:10:45: error: Tactic `tauto` failed\n\na b a' b' : BinaryPolynomial\nT : ℕ\nha : (AdjoinRoot.mk (cyclicModulus T)) a = (AdjoinRoot.mk (cyclicModulus T)) a'\nhb : (AdjoinRoot.mk (cyclicModulus T)) b = (AdjoinRoot.mk (cyclicModulus T)) b'\nD : BinaryPolynomial\nh : D ∣ EuclideanDomain.gcd (EuclideanDomain.gcd a b) (cyclicModulus T)\n⊢ D ∣ cyclicModulus T\n/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-gfthqloe/attempt-001/Candidate_46bf31789a42bb34.lean:13:6: error: Tactic `tauto` failed\n\ncase mp\na b a' b' : BinaryPolynomial\nT : ℕ\nha : (AdjoinRoot.mk (cyclicModulus T)) a = (AdjoinRoot.mk (cyclicModulus T)) a'\nhb : (AdjoinRoot.mk (cyclicModulus T)) b = (AdjoinRoot.mk (cyclicModulus T)) b'\nD : BinaryPolynomial\nh : D ∣ EuclideanDomain.gcd (EuclideanDomain.gcd a b) (cyclicModulus T)\nhD : D ∣ cyclicModulus T\nhA : D ∣ a ↔ D ∣ a'\nhB : D ∣ b ↔ D ∣ b'\n⊢ D ∣ EuclideanDomain.gcd (EuclideanDomain.gcd a' b') (cyclicModulus T)\n/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-gfthqloe/attempt-001/Candidate_46bf31789a42bb34.lean:15:45: error: Tactic `tauto` failed\n\na b a' b' : BinaryPolynomial\nT : ℕ\nha : (AdjoinRoot.mk (cyclicModulus T)) a = (AdjoinRoot.mk (cyclicModulus T)) a'\nhb : (AdjoinRoot.mk (cyclicModulus T)) b = (AdjoinRoot.mk (cyclicModulus T)) b'\nD : BinaryPolynomial\nh : D ∣ EuclideanDomain.gcd (EuclideanDomain.gcd a' b') (cyclicModulus T)\n⊢ D ∣ cyclicModulus T\n/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-gfthqloe/attempt-001/Candidate_46bf31789a42bb34.lean:18:6: error: Tactic `tauto` failed\n\ncase mpr\na b a' b' : BinaryPolynomial\nT : ℕ\nha : (AdjoinRoot.mk (cyclicModulus T)) a = (AdjoinRoot.mk (cyclicModulus T)) a'\nhb : (AdjoinRoot.mk (cyclicModulus T)) b = (AdjoinRoot.mk (cyclicModulus T)) b'\nD : BinaryPolynomial\nh : D ∣ EuclideanDomain.gcd (EuclideanDomain.gcd a' b') (cyclicModulus T)\nhD : D ∣ cyclicModulus T\nhA : D ∣ a ↔ D ∣ a'\nhB : D ∣ b ↔ D ∣ b'\n⊢ D ∣ EuclideanDomain.gcd (EuclideanDomain.gcd a b) (cyclicModulus T)\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-gfthqloe/attempt-002/Candidate_d7ab3eb1519557b0.lean",
+            "target_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-gfthqloe/attempt-002/FrozenTarget_d7ab3eb1519557b0.lean",
+            "feedback": "",
+            "target_sha256": "3e87e810659c99f57deaa953e79d2c44115ae0a593b9cdce11d84d013909561f",
+            "target_olean_sha256": "dd25271de656c60750b215c932a9b873be42223cda43852ab99c620af580269b",
+            "source_sha256": "1ce6bf4fa624fc4551caddd8145a6eb17b4d6d85940182999dd4a6d03c0caf00",
+            "olean_sha256": "af10dd6b36a01aa0bcb80432d96607531932c55e5362ce95c909e9cd0ab90429",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T07:52:23.794498+00:00",
+        "work": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-gfthqloe",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-gfthqloe/attempt-002/Candidate_d7ab3eb1519557b0.lean",
+        "environment_sha256": "c49df3ff4c0396cd63063780defe998abf58e0bd56594177d1bf60305b10d157",
+        "artifacts": {
+          "divisibility_of_quotient_eq": {
+            "payload": {
+              "declaration": "theorem M5.SignatureCongruence.divisibility_of_quotient_eq : ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a') := by\n  change ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a')\n  intro D a a' T hD heq\n  have hmod : M5.cyclicModulus T ∣ a - a' := by\n    simpa only [AdjoinRoot.mk_eq_mk] using heq\n  have hdiff : D ∣ a - a' := dvd_trans hD hmod\n  constructor\n  · intro ha\n    have hid : a - (a - a') = a' := by ring\n    rw [← hid]\n    exact dvd_sub ha hdiff\n  · intro ha'\n    simpa only [sub_add_cancel] using dvd_add hdiff ha'",
+              "imports": [
+                "M5SignatureCongruence"
+              ],
+              "name": "M5.SignatureCongruence.divisibility_of_quotient_eq",
+              "ancestors": [],
+              "spec_sha256": "08b534487c27533455a48616b33ea5aba3b1e7d99b963c60781fdb09441ceb8c"
+            },
+            "sha256": "4f575da1743f9019249fdb6b1598b99a6d46c1c906c2642e48745e1b532f478b"
+          },
+          "complete_signature_congruence": {
+            "payload": {
+              "declaration": "theorem M5.SignatureCongruence.complete_signature_congruence : ∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T := by\n  change ∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T\n  intro a b a' b' T ha hb\n  have hgcd (D x y : M5.BinaryPolynomial) :\n      D ∣ EuclideanDomain.gcd x y ↔ D ∣ x ∧ D ∣ y := by\n    constructor\n    · intro h\n      exact ⟨dvd_trans h (EuclideanDomain.gcd_dvd_left x y),\n        dvd_trans h (EuclideanDomain.gcd_dvd_right x y)⟩\n    · rintro ⟨hx, hy⟩\n      exact EuclideanDomain.dvd_gcd hx hy\n  have hs (D : M5.BinaryPolynomial) :\n      D ∣ M5.completeSignature a b T ↔ D ∣ M5.completeSignature a' b' T := by\n    unfold M5.completeSignature\n    simp only [hgcd]\n    constructor\n    · rintro ⟨⟨hA, hB⟩, hD⟩\n      exact ⟨⟨(M5.SignatureCongruence.divisibility_of_quotient_eq D a a' T hD ha).mp hA,\n        (M5.SignatureCongruence.divisibility_of_quotient_eq D b b' T hD hb).mp hB⟩, hD⟩\n    · rintro ⟨⟨hA, hB⟩, hD⟩\n      exact ⟨⟨(M5.SignatureCongruence.divisibility_of_quotient_eq D a a' T hD ha).mpr hA,\n        (M5.SignatureCongruence.divisibility_of_quotient_eq D b b' T hD hb).mpr hB⟩, hD⟩\n  apply M5.Signature.binary_dvd_antisymm\n  · exact (hs _).mp dvd_rfl\n  · exact (hs _).mpr dvd_rfl",
+              "imports": [
+                "M5SignatureCongruence"
+              ],
+              "name": "M5.SignatureCongruence.complete_signature_congruence",
+              "ancestors": [
+                "divisibility_of_quotient_eq"
+              ],
+              "spec_sha256": "a453915a4c93adc19c0df1a2fe3000eb7f68d8fd8dd6fb6101d932caa57f1e9b"
+            },
+            "sha256": "17882498e72eab5cf584ea10724a908cd8034a621ddbdca058bf088f7240611a"
+          }
+        }
+      }
+    },
+    "packed_complete_signature": {
+      "id": "packed_complete_signature",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.SignatureCongruence.packed_complete_signature",
+        "spec_sha256": "7fa75c79e25c23bf8d07f96aca7913db402b6284649d4c1eb42a144d2991475a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-1sn632n8/attempt-001/Candidate_2262d1dc90bacfa5.lean",
+            "target_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-1sn632n8/attempt-001/FrozenTarget_2262d1dc90bacfa5.lean",
+            "feedback": "",
+            "target_sha256": "46d868d710589d1c7351de2c8bd0a9a66077b07ba66dc252e59e8232ffb6a941",
+            "target_olean_sha256": "de1e6d93bb12ebd575f4d351cb63b3cc59f8d5b441f4d5889eb834f016d4bde2",
+            "source_sha256": "6689f7ed2031366efdddc8cb90610e9af787c0c58365abdc4eae39945ba6c7a1",
+            "olean_sha256": "ad13567cb41b414c124f4511f69fe9baa0bbc011260946c3ba412eedeb7cf0aa",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:54:25.840938+00:00",
+        "work": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-1sn632n8",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-1sn632n8/attempt-001/Candidate_2262d1dc90bacfa5.lean",
+        "environment_sha256": "c49df3ff4c0396cd63063780defe998abf58e0bd56594177d1bf60305b10d157",
+        "artifacts": {
+          "divisibility_of_quotient_eq": {
+            "payload": {
+              "declaration": "theorem M5.SignatureCongruence.divisibility_of_quotient_eq : ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a') := by\n  change ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a')\n  intro D a a' T hD heq\n  have hmod : M5.cyclicModulus T ∣ a - a' := by\n    simpa only [AdjoinRoot.mk_eq_mk] using heq\n  have hdiff : D ∣ a - a' := dvd_trans hD hmod\n  constructor\n  · intro ha\n    have hid : a - (a - a') = a' := by ring\n    rw [← hid]\n    exact dvd_sub ha hdiff\n  · intro ha'\n    simpa only [sub_add_cancel] using dvd_add hdiff ha'",
+              "imports": [
+                "M5SignatureCongruence"
+              ],
+              "name": "M5.SignatureCongruence.divisibility_of_quotient_eq",
+              "ancestors": [],
+              "spec_sha256": "08b534487c27533455a48616b33ea5aba3b1e7d99b963c60781fdb09441ceb8c"
+            },
+            "sha256": "4f575da1743f9019249fdb6b1598b99a6d46c1c906c2642e48745e1b532f478b"
+          },
+          "complete_signature_congruence": {
+            "payload": {
+              "declaration": "theorem M5.SignatureCongruence.complete_signature_congruence : ∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T := by\n  change ∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T\n  intro a b a' b' T ha hb\n  have hgcd (D x y : M5.BinaryPolynomial) :\n      D ∣ EuclideanDomain.gcd x y ↔ D ∣ x ∧ D ∣ y := by\n    constructor\n    · intro h\n      exact ⟨dvd_trans h (EuclideanDomain.gcd_dvd_left x y),\n        dvd_trans h (EuclideanDomain.gcd_dvd_right x y)⟩\n    · rintro ⟨hx, hy⟩\n      exact EuclideanDomain.dvd_gcd hx hy\n  have hs (D : M5.BinaryPolynomial) :\n      D ∣ M5.completeSignature a b T ↔ D ∣ M5.completeSignature a' b' T := by\n    unfold M5.completeSignature\n    simp only [hgcd]\n    constructor\n    · rintro ⟨⟨hA, hB⟩, hD⟩\n      exact ⟨⟨(M5.SignatureCongruence.divisibility_of_quotient_eq D a a' T hD ha).mp hA,\n        (M5.SignatureCongruence.divisibility_of_quotient_eq D b b' T hD hb).mp hB⟩, hD⟩\n    · rintro ⟨⟨hA, hB⟩, hD⟩\n      exact ⟨⟨(M5.SignatureCongruence.divisibility_of_quotient_eq D a a' T hD ha).mpr hA,\n        (M5.SignatureCongruence.divisibility_of_quotient_eq D b b' T hD hb).mpr hB⟩, hD⟩\n  apply M5.Signature.binary_dvd_antisymm\n  · exact (hs _).mp dvd_rfl\n  · exact (hs _).mpr dvd_rfl",
+              "imports": [
+                "M5SignatureCongruence"
+              ],
+              "name": "M5.SignatureCongruence.complete_signature_congruence",
+              "ancestors": [
+                "divisibility_of_quotient_eq"
+              ],
+              "spec_sha256": "a453915a4c93adc19c0df1a2fe3000eb7f68d8fd8dd6fb6101d932caa57f1e9b"
+            },
+            "sha256": "17882498e72eab5cf584ea10724a908cd8034a621ddbdca058bf088f7240611a"
+          },
+          "packed_complete_signature": {
+            "payload": {
+              "declaration": "theorem M5.SignatureCongruence.packed_complete_signature : ∀ (w T : ℕ) (r s : Fin w → Fin T), M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r)) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport s)) T = M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T := by\n  change ∀ (w T : ℕ) (r s : Fin w → Fin T), M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r)) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport s)) T = M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T\n  intro w T r s\n  apply M5.SignatureCongruence.complete_signature_congruence\n  · apply M5.SupportPolynomial.packed_polynomial_residue\n  · apply M5.SupportPolynomial.packed_polynomial_residue",
+              "imports": [
+                "M5SignatureCongruence"
+              ],
+              "name": "M5.SignatureCongruence.packed_complete_signature",
+              "ancestors": [
+                "complete_signature_congruence",
+                "divisibility_of_quotient_eq"
+              ],
+              "spec_sha256": "5f21d083cb0483a6778fd714735391d6175bd22110c212da35db2160b5a09ad2"
+            },
+            "sha256": "28262ec7ea51e7d3e4b07fca4861274dec7bb821b2d6be6b5b81859b026d9632"
+          }
+        }
+      }
+    },
+    "repaired_complete_signature": {
+      "id": "repaired_complete_signature",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.SignatureCongruence.repaired_complete_signature",
+        "spec_sha256": "292fc687adec0841aa47b01f0182d12262b82992aa02a4bc5f579966107fc71f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-lgj56djg/attempt-001/Candidate_9db29f0765ad652a.lean",
+            "target_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-lgj56djg/attempt-001/FrozenTarget_9db29f0765ad652a.lean",
+            "feedback": "",
+            "target_sha256": "cb9b1d14eb1305c7340986e7856d2793d1d946d0d03e81a53d0b4e22f4a5ef8b",
+            "target_olean_sha256": "61284b6c5bf71ca23a36cca43e44c64fc27c2dafaaeae766626b203dd21fc5ec",
+            "source_sha256": "e64e3f5cb39cee5f01b4070418c11cf11ae3c34278897439fca5232f9797f908",
+            "olean_sha256": "9401262ff933a2cd911fb362046f9de595e26d6f508c3227bd8cea80d61b1726",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:54:25.852686+00:00",
+        "work": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-lgj56djg",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-lgj56djg/attempt-001/Candidate_9db29f0765ad652a.lean",
+        "environment_sha256": "c49df3ff4c0396cd63063780defe998abf58e0bd56594177d1bf60305b10d157",
+        "artifacts": {
+          "divisibility_of_quotient_eq": {
+            "payload": {
+              "declaration": "theorem M5.SignatureCongruence.divisibility_of_quotient_eq : ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a') := by\n  change ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a')\n  intro D a a' T hD heq\n  have hmod : M5.cyclicModulus T ∣ a - a' := by\n    simpa only [AdjoinRoot.mk_eq_mk] using heq\n  have hdiff : D ∣ a - a' := dvd_trans hD hmod\n  constructor\n  · intro ha\n    have hid : a - (a - a') = a' := by ring\n    rw [← hid]\n    exact dvd_sub ha hdiff\n  · intro ha'\n    simpa only [sub_add_cancel] using dvd_add hdiff ha'",
+              "imports": [
+                "M5SignatureCongruence"
+              ],
+              "name": "M5.SignatureCongruence.divisibility_of_quotient_eq",
+              "ancestors": [],
+              "spec_sha256": "08b534487c27533455a48616b33ea5aba3b1e7d99b963c60781fdb09441ceb8c"
+            },
+            "sha256": "4f575da1743f9019249fdb6b1598b99a6d46c1c906c2642e48745e1b532f478b"
+          },
+          "complete_signature_congruence": {
+            "payload": {
+              "declaration": "theorem M5.SignatureCongruence.complete_signature_congruence : ∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T := by\n  change ∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T\n  intro a b a' b' T ha hb\n  have hgcd (D x y : M5.BinaryPolynomial) :\n      D ∣ EuclideanDomain.gcd x y ↔ D ∣ x ∧ D ∣ y := by\n    constructor\n    · intro h\n      exact ⟨dvd_trans h (EuclideanDomain.gcd_dvd_left x y),\n        dvd_trans h (EuclideanDomain.gcd_dvd_right x y)⟩\n    · rintro ⟨hx, hy⟩\n      exact EuclideanDomain.dvd_gcd hx hy\n  have hs (D : M5.BinaryPolynomial) :\n      D ∣ M5.completeSignature a b T ↔ D ∣ M5.completeSignature a' b' T := by\n    unfold M5.completeSignature\n    simp only [hgcd]\n    constructor\n    · rintro ⟨⟨hA, hB⟩, hD⟩\n      exact ⟨⟨(M5.SignatureCongruence.divisibility_of_quotient_eq D a a' T hD ha).mp hA,\n        (M5.SignatureCongruence.divisibility_of_quotient_eq D b b' T hD hb).mp hB⟩, hD⟩\n    · rintro ⟨⟨hA, hB⟩, hD⟩\n      exact ⟨⟨(M5.SignatureCongruence.divisibility_of_quotient_eq D a a' T hD ha).mpr hA,\n        (M5.SignatureCongruence.divisibility_of_quotient_eq D b b' T hD hb).mpr hB⟩, hD⟩\n  apply M5.Signature.binary_dvd_antisymm\n  · exact (hs _).mp dvd_rfl\n  · exact (hs _).mpr dvd_rfl",
+              "imports": [
+                "M5SignatureCongruence"
+              ],
+              "name": "M5.SignatureCongruence.complete_signature_congruence",
+              "ancestors": [
+                "divisibility_of_quotient_eq"
+              ],
+              "spec_sha256": "a453915a4c93adc19c0df1a2fe3000eb7f68d8fd8dd6fb6101d932caa57f1e9b"
+            },
+            "sha256": "17882498e72eab5cf584ea10724a908cd8034a621ddbdca058bf088f7240611a"
+          },
+          "repaired_complete_signature": {
+            "payload": {
+              "declaration": "theorem M5.SignatureCongruence.repaired_complete_signature : ∀ (A B : Finset ℕ) (e k T : ℕ), e ∈ A → e + k * T ∉ A → M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.RepairSupport.repaired A e (e + k * T))) (M5.SupportPolynomial.ofSupport B) T = M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T := by\n  change ∀ (A B : Finset ℕ) (e k T : ℕ), e ∈ A → e + k * T ∉ A → M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.RepairSupport.repaired A e (e + k * T))) (M5.SupportPolynomial.ofSupport B) T = M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T\n  intro A B e k T he hnew\n  apply M5.SignatureCongruence.complete_signature_congruence\n  · first\n    | apply M5.RepairSupport.replacement_polynomial_residue <;> assumption\n    | symm; apply M5.RepairSupport.replacement_polynomial_residue <;> assumption\n  · rfl",
+              "imports": [
+                "M5SignatureCongruence"
+              ],
+              "name": "M5.SignatureCongruence.repaired_complete_signature",
+              "ancestors": [
+                "complete_signature_congruence",
+                "divisibility_of_quotient_eq"
+              ],
+              "spec_sha256": "6b59e929aab9c1817f3d8d4680ce1eb3fbaab8bb07bcbc3a5d3a3c48901296ea"
+            },
+            "sha256": "fa983545518a5c9f6a0676fbe526f157ff183c536400e442ff1f3f3a4f185b1a"
+          }
+        }
+      }
+    }
+  }
+}

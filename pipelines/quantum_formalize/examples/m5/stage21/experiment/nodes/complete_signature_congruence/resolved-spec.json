@@ -1,0 +1,13 @@
+{
+  "name": "M5.SignatureCongruence.complete_signature_congruence",
+  "statement": "∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T",
+  "imports": [
+    "M5SignatureCongruence"
+  ],
+  "context": "theorem M5.SignatureCongruence.divisibility_of_quotient_eq : ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a') := by\n  change ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a')\n  intro D a a' T hD heq\n  have hmod : M5.cyclicModulus T ∣ a - a' := by\n    simpa only [AdjoinRoot.mk_eq_mk] using heq\n  have hdiff : D ∣ a - a' := dvd_trans hD hmod\n  constructor\n  · intro ha\n    have hid : a - (a - a') = a' := by ring\n    rw [← hid]\n    exact dvd_sub ha hdiff\n  · intro ha'\n    simpa only [sub_add_cancel] using dvd_add hdiff ha'",
+  "queries": [
+    "AdjoinRoot mk_eq_zero quotient polynomial",
+    "EuclideanDomain gcd divisibility"
+  ],
+  "guidance": "Apply accepted M5.Signature.binary_dvd_antisymm to the two complete signatures. Unfold completeSignature and use EuclideanDomain.dvd_gcd_iff together with divisibility_of_quotient_eq. Preserve full polynomial multiplicities and allow zero polynomials. Return tactic lines without a leading by; preserve exact target."
+}

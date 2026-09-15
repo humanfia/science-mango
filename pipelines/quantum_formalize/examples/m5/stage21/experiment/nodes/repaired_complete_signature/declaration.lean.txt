@@ -1,0 +1,8 @@
+theorem M5.SignatureCongruence.repaired_complete_signature : ∀ (A B : Finset ℕ) (e k T : ℕ), e ∈ A → e + k * T ∉ A → M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.RepairSupport.repaired A e (e + k * T))) (M5.SupportPolynomial.ofSupport B) T = M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T := by
+  change ∀ (A B : Finset ℕ) (e k T : ℕ), e ∈ A → e + k * T ∉ A → M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.RepairSupport.repaired A e (e + k * T))) (M5.SupportPolynomial.ofSupport B) T = M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T
+  intro A B e k T he hnew
+  apply M5.SignatureCongruence.complete_signature_congruence
+  · first
+    | apply M5.RepairSupport.replacement_polynomial_residue <;> assumption
+    | symm; apply M5.RepairSupport.replacement_polynomial_residue <;> assumption
+  · rfl

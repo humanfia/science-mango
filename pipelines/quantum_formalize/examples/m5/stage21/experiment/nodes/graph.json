@@ -1,0 +1,104 @@
+[
+  {
+    "id": "divisibility_of_quotient_eq",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.SignatureCongruence.divisibility_of_quotient_eq",
+      "statement": "∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a')",
+      "imports": [
+        "M5SignatureCongruence"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk_eq_zero quotient polynomial",
+        "EuclideanDomain gcd divisibility"
+      ],
+      "guidance": "Use quotient equality to show cyclicModulus T divides a-a' via map_sub and AdjoinRoot.mk_eq_zero. Then D divides the difference, so divisibility is equivalent. Do not assume T positive: ideal/kernel argument holds even when cyclicModulus 0 is zero. Return tactic lines without a leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": 5,
+      "supports_obligation": "M5_CRT_REPAIR",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "complete_signature_congruence",
+    "dependencies": [
+      "divisibility_of_quotient_eq"
+    ],
+    "spec": {
+      "name": "M5.SignatureCongruence.complete_signature_congruence",
+      "statement": "∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T",
+      "imports": [
+        "M5SignatureCongruence"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk_eq_zero quotient polynomial",
+        "EuclideanDomain gcd divisibility"
+      ],
+      "guidance": "Apply accepted M5.Signature.binary_dvd_antisymm to the two complete signatures. Unfold completeSignature and use EuclideanDomain.dvd_gcd_iff together with divisibility_of_quotient_eq. Preserve full polynomial multiplicities and allow zero polynomials. Return tactic lines without a leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": 5,
+      "supports_obligation": "M5_CRT_REPAIR",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "packed_complete_signature",
+    "dependencies": [
+      "complete_signature_congruence"
+    ],
+    "spec": {
+      "name": "M5.SignatureCongruence.packed_complete_signature",
+      "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T), M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport r)) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport s)) T = M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T",
+      "imports": [
+        "M5SignatureCongruence"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk_eq_zero quotient polynomial",
+        "EuclideanDomain gcd divisibility"
+      ],
+      "guidance": "Apply complete_signature_congruence and accepted M5.SupportPolynomial.packed_polynomial_residue in each block. This is the literal occurrence packing, with repeated residues and all cancellations retained. Return tactic lines without a leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": 5,
+      "supports_obligation": "M5_CRT_REPAIR",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "repaired_complete_signature",
+    "dependencies": [
+      "complete_signature_congruence"
+    ],
+    "spec": {
+      "name": "M5.SignatureCongruence.repaired_complete_signature",
+      "statement": "∀ (A B : Finset ℕ) (e k T : ℕ), e ∈ A → e + k * T ∉ A → M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.RepairSupport.repaired A e (e + k * T))) (M5.SupportPolynomial.ofSupport B) T = M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T",
+      "imports": [
+        "M5SignatureCongruence"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk_eq_zero quotient polynomial",
+        "EuclideanDomain gcd divisibility"
+      ],
+      "guidance": "Apply complete_signature_congruence using accepted M5.RepairSupport.replacement_polynomial_residue for the first block and reflexivity for the second block. Positivity, anchoring, and connectivity are separate physical obligations; do not add them to this algebraic signature identity. Return tactic lines without a leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": 5,
+      "supports_obligation": "M5_CRT_REPAIR",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  }
+]

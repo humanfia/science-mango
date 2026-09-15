@@ -1,0 +1,83 @@
+{
+  "id": "repaired_complete_signature",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.SignatureCongruence.repaired_complete_signature",
+    "spec_sha256": "292fc687adec0841aa47b01f0182d12262b82992aa02a4bc5f579966107fc71f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-lgj56djg/attempt-001/Candidate_9db29f0765ad652a.lean",
+        "target_path": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-lgj56djg/attempt-001/FrozenTarget_9db29f0765ad652a.lean",
+        "feedback": "",
+        "target_sha256": "cb9b1d14eb1305c7340986e7856d2793d1d946d0d03e81a53d0b4e22f4a5ef8b",
+        "target_olean_sha256": "61284b6c5bf71ca23a36cca43e44c64fc27c2dafaaeae766626b203dd21fc5ec",
+        "source_sha256": "e64e3f5cb39cee5f01b4070418c11cf11ae3c34278897439fca5232f9797f908",
+        "olean_sha256": "9401262ff933a2cd911fb362046f9de595e26d6f508c3227bd8cea80d61b1726",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:54:25.852686+00:00",
+    "work": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-lgj56djg",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-signature-congruence-formalization/.humanize-formal-runs/run-lgj56djg/attempt-001/Candidate_9db29f0765ad652a.lean",
+    "environment_sha256": "c49df3ff4c0396cd63063780defe998abf58e0bd56594177d1bf60305b10d157",
+    "artifacts": {
+      "divisibility_of_quotient_eq": {
+        "payload": {
+          "declaration": "theorem M5.SignatureCongruence.divisibility_of_quotient_eq : ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a') := by\n  change ∀ (D a a' : M5.BinaryPolynomial) (T : ℕ), D ∣ M5.cyclicModulus T → AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → (D ∣ a ↔ D ∣ a')\n  intro D a a' T hD heq\n  have hmod : M5.cyclicModulus T ∣ a - a' := by\n    simpa only [AdjoinRoot.mk_eq_mk] using heq\n  have hdiff : D ∣ a - a' := dvd_trans hD hmod\n  constructor\n  · intro ha\n    have hid : a - (a - a') = a' := by ring\n    rw [← hid]\n    exact dvd_sub ha hdiff\n  · intro ha'\n    simpa only [sub_add_cancel] using dvd_add hdiff ha'",
+          "imports": [
+            "M5SignatureCongruence"
+          ],
+          "name": "M5.SignatureCongruence.divisibility_of_quotient_eq",
+          "ancestors": [],
+          "spec_sha256": "08b534487c27533455a48616b33ea5aba3b1e7d99b963c60781fdb09441ceb8c"
+        },
+        "sha256": "4f575da1743f9019249fdb6b1598b99a6d46c1c906c2642e48745e1b532f478b"
+      },
+      "complete_signature_congruence": {
+        "payload": {
+          "declaration": "theorem M5.SignatureCongruence.complete_signature_congruence : ∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T := by\n  change ∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T\n  intro a b a' b' T ha hb\n  have hgcd (D x y : M5.BinaryPolynomial) :\n      D ∣ EuclideanDomain.gcd x y ↔ D ∣ x ∧ D ∣ y := by\n    constructor\n    · intro h\n      exact ⟨dvd_trans h (EuclideanDomain.gcd_dvd_left x y),\n        dvd_trans h (EuclideanDomain.gcd_dvd_right x y)⟩\n    · rintro ⟨hx, hy⟩\n      exact EuclideanDomain.dvd_gcd hx hy\n  have hs (D : M5.BinaryPolynomial) :\n      D ∣ M5.completeSignature a b T ↔ D ∣ M5.completeSignature a' b' T := by\n    unfold M5.completeSignature\n    simp only [hgcd]\n    constructor\n    · rintro ⟨⟨hA, hB⟩, hD⟩\n      exact ⟨⟨(M5.SignatureCongruence.divisibility_of_quotient_eq D a a' T hD ha).mp hA,\n        (M5.SignatureCongruence.divisibility_of_quotient_eq D b b' T hD hb).mp hB⟩, hD⟩\n    · rintro ⟨⟨hA, hB⟩, hD⟩\n      exact ⟨⟨(M5.SignatureCongruence.divisibility_of_quotient_eq D a a' T hD ha).mpr hA,\n        (M5.SignatureCongruence.divisibility_of_quotient_eq D b b' T hD hb).mpr hB⟩, hD⟩\n  apply M5.Signature.binary_dvd_antisymm\n  · exact (hs _).mp dvd_rfl\n  · exact (hs _).mpr dvd_rfl",
+          "imports": [
+            "M5SignatureCongruence"
+          ],
+          "name": "M5.SignatureCongruence.complete_signature_congruence",
+          "ancestors": [
+            "divisibility_of_quotient_eq"
+          ],
+          "spec_sha256": "a453915a4c93adc19c0df1a2fe3000eb7f68d8fd8dd6fb6101d932caa57f1e9b"
+        },
+        "sha256": "17882498e72eab5cf584ea10724a908cd8034a621ddbdca058bf088f7240611a"
+      },
+      "repaired_complete_signature": {
+        "payload": {
+          "declaration": "theorem M5.SignatureCongruence.repaired_complete_signature : ∀ (A B : Finset ℕ) (e k T : ℕ), e ∈ A → e + k * T ∉ A → M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.RepairSupport.repaired A e (e + k * T))) (M5.SupportPolynomial.ofSupport B) T = M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T := by\n  change ∀ (A B : Finset ℕ) (e k T : ℕ), e ∈ A → e + k * T ∉ A → M5.completeSignature (M5.SupportPolynomial.ofSupport (M5.RepairSupport.repaired A e (e + k * T))) (M5.SupportPolynomial.ofSupport B) T = M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T\n  intro A B e k T he hnew\n  apply M5.SignatureCongruence.complete_signature_congruence\n  · first\n    | apply M5.RepairSupport.replacement_polynomial_residue <;> assumption\n    | symm; apply M5.RepairSupport.replacement_polynomial_residue <;> assumption\n  · rfl",
+          "imports": [
+            "M5SignatureCongruence"
+          ],
+          "name": "M5.SignatureCongruence.repaired_complete_signature",
+          "ancestors": [
+            "complete_signature_congruence",
+            "divisibility_of_quotient_eq"
+          ],
+          "spec_sha256": "6b59e929aab9c1817f3d8d4680ce1eb3fbaab8bb07bcbc3a5d3a3c48901296ea"
+        },
+        "sha256": "fa983545518a5c9f6a0676fbe526f157ff183c536400e442ff1f3f3a4f185b1a"
+      }
+    }
+  }
+}

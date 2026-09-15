@@ -1,0 +1,3 @@
+import Candidate_c7e4a7c3dee34878
+example : QuantumHarnessFrozenTarget := M5.SignatureCongruence.divisibility_of_quotient_eq
+#print axioms M5.SignatureCongruence.divisibility_of_quotient_eq
