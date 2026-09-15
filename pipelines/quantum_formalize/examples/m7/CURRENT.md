@@ -2,7 +2,7 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**287 targets in 32 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+**290 targets in 33 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -38,6 +38,7 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [prefix_bits](prefix_bits/experiment/result.json) | 9 | M7 concrete binary prefix states and actual arithmetic descent partitions |
 | [query_certificate](query_certificate/experiment/result.json) | 8 | M7 actual finite query certificate checker |
 | [connectivity](connectivity/experiment/result.json) | 14 | M7 original within-block generated subgroup connectivity bridge |
+| [recovery_prefix](recovery_prefix/experiment/result.json) | 3 | M7 actual residue-prefix geometry for arithmetic recovery |
 
 Active work:
 

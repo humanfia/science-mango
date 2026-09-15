@@ -1,0 +1,5 @@
+# Actual prefix geometry for compact recovery
+
+This independent batch uses only canonical prefix_bits9 and residue_prefix10. It transports their actual M5 natural-support completion set through the verified residue decodePair map. The three exact targets establish the disjoint binary child partition, containment in the root completion set and the unique possible decoded leaf at full depth. Semantic completion sets occur only in these correctness interfaces, not in the arithmetic production generator.
+
+No pending prefix_orbit proof is imported or assumed. The downstream recovery_instance must still verify that actual arithmetic residual equals the uncovered completion cardinality before using these geometric facts for positive recovery, fresh canonical insertion or termination. Empty completion sets, N=1 depth zero, full signatures and every finite positive order remain included; no stronger existence or efficiency condition is added. All target types are elaborated as closed def : Prop declarations before the ordinary two-worker/600-second frozen experiment.

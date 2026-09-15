@@ -1,0 +1,57 @@
+{
+  "id": "completed_subroot",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.RecoveryPrefix.completed_subroot",
+    "spec_sha256": "b08a2223d22f847b50c3b007ca9620f0c932eb21dd8b31b3b40b22002969eb4a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-v0z80ue2/attempt-001/Candidate_5f348b651ee32921.lean",
+        "target_path": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-v0z80ue2/attempt-001/FrozenTarget_5f348b651ee32921.lean",
+        "feedback": "",
+        "target_sha256": "66a0fa4bd9ea1817e9f52ad25a89b39de7fee79f7c971df7961b9cb29aa9ceb0",
+        "target_olean_sha256": "34a57686381cfdf0536165a9dce5aec7901b407d8f7a00588ca93fa07d58f0fd",
+        "source_sha256": "b76cc8ed7fd90ac1fd81f73997a26af6cc1e9d3a9edd1016586764340b34c78a",
+        "olean_sha256": "5db3285db186e6553146ef93089376edc59f6e6849eea47133422955462f3e6f",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:09:40.240018+00:00",
+    "work": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-v0z80ue2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c82390378bfbf87e8abb51904501c6a82fc807bd6174854f4e5cf13fe5448519",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-v0z80ue2/attempt-001/Candidate_5f348b651ee32921.lean",
+    "environment_sha256": "4ec5d8c155e4ef65edceb26ceedf80b1e831c3b4617e13af168617bae1f07118",
+    "artifacts": {
+      "completed_subroot": {
+        "payload": {
+          "declaration": "theorem M7.RecoveryPrefix.completed_subroot : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.RecoveryPrefix.completed N w E p ⊆ M7.RecoveryPrefix.completed N w E [] := by\n  intro N inst w E p\n  classical\n  have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)\n  have hp := M7.PrefixBits.base N hN p\n  have hr := M7.PrefixBits.base N hN []\n  intro x hx\n  change x ∈ M7.ResiduePrefix.completed N w E (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) at hx\n  change x ∈ M7.ResiduePrefix.completed N w E (M7.PrefixBits.A N []) (M7.PrefixBits.B N []) (M7.PrefixBits.WA N []) (M7.PrefixBits.WB N [])\n  obtain ⟨hw, hv⟩ := (M7.ResiduePrefix.completed_membership N w E _ _ _ _ hp x).mp hx\n  apply (M7.ResiduePrefix.completed_membership N w E _ _ _ _ hr x).mpr\n  refine ⟨?_, hv⟩\n  obtain ⟨hA, hB, hWA, hWB⟩ := M7.PrefixBits.root N hN\n  rw [hA, hB, hWA, hWB]\n  simp only [M7.PrefixCompleted.Base, M7.PrefixCompleted.Within, Finset.subset_iff, Finset.mem_union, Finset.mem_sdiff, Finset.mem_singleton] at hp hw ⊢\n  grind",
+          "imports": [
+            "M7PrefixBitsAccepted",
+            "M7RecoveryPrefix",
+            "M7ResiduePrefixAccepted"
+          ],
+          "name": "M7.RecoveryPrefix.completed_subroot",
+          "ancestors": [],
+          "spec_sha256": "18c5255ed68cedc11a757aa3eb4638f1ca884449b46dc85d223a660c4add4733"
+        },
+        "sha256": "88303e1c8ef8217fa921d6c92e23fad11c4d9371da2122977fbb207544d99478"
+      }
+    }
+  }
+}

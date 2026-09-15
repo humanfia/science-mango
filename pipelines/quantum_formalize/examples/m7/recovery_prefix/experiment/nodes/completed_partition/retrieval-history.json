@@ -1,0 +1,79 @@
+[
+  {
+    "queries": [
+      "Finset image union disjoint injective"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset image union disjoint injective",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202949,
+            "name": "Finset.image_injective",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L429-L430",
+            "source_text": "lemma image_injective (hf : Injective f) : Injective (image f) := by\n  simpa only [funext (map_eq_image _)] using! map_injective ⟨f, hf⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 202976,
+            "name": "Finset.disjoint_image",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L558-L561",
+            "source_text": "@[simp]\ntheorem disjoint_image {s t : Finset α} {f : α → β} (hf : Injective f) :\n    Disjoint (s.image f) (t.image f) ↔ Disjoint s t :=\n  mod_cast Set.disjoint_image_iff hf (s := s) (t := t)",
+            "docstring": null
+          },
+          {
+            "id": 204241,
+            "name": "Finset.disjoint_injOn_union_left",
+            "module": "Mathlib.Data.Finset.SDiff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/SDiff.lean#L143-L145",
+            "source_text": "/-- `· ∪ s` is injective on finsets disjoint from `s`. -/\nlemma disjoint_injOn_union_left (s : Finset α) : {t | Disjoint s t}.InjOn (· ∪ s) := by\n  grind [Set.InjOn, union_sdiff_cancel_right]\n",
+            "docstring": "`· ∪ s` is injective on finsets disjoint from `s`. "
+          },
+          {
+            "id": 218648,
+            "name": "Set.injOn_union",
+            "module": "Mathlib.Data.Set.Function",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Function.lean#L278-L286",
+            "source_text": "theorem injOn_union (h : Disjoint s₁ s₂) :\n    InjOn f (s₁ ∪ s₂) ↔ InjOn f s₁ ∧ InjOn f s₂ ∧ ∀ x ∈ s₁, ∀ y ∈ s₂, f x ≠ f y := by\n  refine ⟨fun H => ⟨H.mono subset_union_left, H.mono subset_union_right, ?_⟩, ?_⟩\n  · intro x hx y hy hxy\n    obtain rfl : x = y := H (Or.inl hx) (Or.inr hy) hxy\n    exact h.le_bot ⟨hx, hy⟩\n  · rintro ⟨h₁, h₂, h₁₂⟩\n    rintro x (hx | hx) y (hy | hy) hxy\n    exacts [h₁ hx hy hxy, (h₁₂ _ hx _ hy hxy).elim, (h₁₂ _ hy _ hx hxy.symm).elim, h₂ hx hy hxy]\n",
+            "docstring": null
+          },
+          {
+            "id": 202909,
+            "name": "Finset.image",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L277-L279",
+            "source_text": "/-- `image f s` is the forward image of `s` under `f`. -/\ndef image (f : α → β) (s : Finset α) : Finset β :=\n  (s.1.map f).toFinset\n",
+            "docstring": "`image f s` is the forward image of `s` under `f`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset image union disjoint injective",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389111,
+            "name": "FieldStatistic.ofFinset_union_disjoint",
+            "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L108-L112",
+            "source_text": "lemma ofFinset_union_disjoint (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a b : Finset (Fin φs.length))\n    (h : Disjoint a b) :\n    ofFinset q φs.get a * ofFinset q φs.get b = ofFinset q φs.get (a ∪ b) := by\n  rw [ofFinset_union, Finset.disjoint_iff_inter_eq_empty.mp h]\n  simp\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

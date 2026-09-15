@@ -1,0 +1,31 @@
+import FrozenTarget_a0d21ef642c68f47
+theorem M7.RecoveryPrefix.completed_partition : QuantumHarnessFrozenTarget := by
+  classical
+  intro N inst w E p hp
+  have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)
+  obtain ⟨hpart, hdisj⟩ := M7.PrefixBits.completed_partition N hN w E p hp
+  have bounds (q : List Bool) (x : Finset ℕ × Finset ℕ)
+      (hx : x ∈ M7.PrefixBits.completed N w E q) :
+      x.1 ⊆ Finset.range N ∧ x.2 ⊆ Finset.range N := by
+    exact M7.ResiduePrefix.completed_bounds N w E
+      (M7.PrefixBits.A N q) (M7.PrefixBits.B N q)
+      (M7.PrefixBits.WA N q) (M7.PrefixBits.WB N q)
+      (M7.PrefixBits.base N hN q) x hx
+  constructor
+  · change (M7.PrefixBits.completed N w E p).image (M7.ResiduePrefix.decodePair N) =
+      (M7.PrefixBits.completed N w E (p ++ [false])).image (M7.ResiduePrefix.decodePair N) ∪
+      (M7.PrefixBits.completed N w E (p ++ [true])).image (M7.ResiduePrefix.decodePair N)
+    rw [hpart, Finset.image_union]
+  · change Disjoint
+      ((M7.PrefixBits.completed N w E (p ++ [false])).image (M7.ResiduePrefix.decodePair N))
+      ((M7.PrefixBits.completed N w E (p ++ [true])).image (M7.ResiduePrefix.decodePair N))
+    apply Finset.disjoint_left.mpr
+    intro z hz₀ hz₁
+    obtain ⟨x, hx, hxz⟩ := Finset.mem_image.mp hz₀
+    obtain ⟨y, hy, hyz⟩ := Finset.mem_image.mp hz₁
+    obtain ⟨hx₁, hx₂⟩ := bounds (p ++ [false]) x hx
+    obtain ⟨hy₁, hy₂⟩ := bounds (p ++ [true]) y hy
+    have hxy : x = y := M7.ResiduePrefix.decode_injective N x y
+      hx₁ hx₂ hy₁ hy₂ (hxz.trans hyz.symm)
+    subst y
+    exact Finset.disjoint_left.mp hdisj hx hy

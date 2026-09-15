@@ -1,0 +1,14 @@
+{
+  "name": "M7.RecoveryPrefix.completed_partition",
+  "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length < M7.PrefixBits.depth N → M7.RecoveryPrefix.completed N w E p = M7.RecoveryPrefix.completed N w E (p ++ [false]) ∪ M7.RecoveryPrefix.completed N w E (p ++ [true]) ∧ Disjoint (M7.RecoveryPrefix.completed N w E (p ++ [false])) (M7.RecoveryPrefix.completed N w E (p ++ [true]))",
+  "imports": [
+    "M7PrefixBitsAccepted",
+    "M7RecoveryPrefix",
+    "M7ResiduePrefixAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "Finset image union disjoint injective"
+  ],
+  "guidance": "Actual completed is the decodePair image of PrefixBits.completed. Apply the accepted natural completed_partition then image_union. For disjointness, two equal decoded members have equal natural supports by ResiduePrefix.decode_injective, using completed_bounds and PrefixBits.base (N>0 follows NeZero). Then apply natural child disjointness. Do not assume image injectivity without its verified bounds. Return tactic lines without leading by; keep exact frozen target and default limits."
+}

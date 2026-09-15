@@ -241,6 +241,8 @@ async def run(spec, project, propose, *, max_rounds=5, timeout=180,
                 break
             prompt = ('Prove the exact frozen Lean declaration below. Return only the structured '
                       'proof tactic body and up to three useful follow-up LeanExplore queries. '
+                      'The proof field must contain tactic lines only: the controller already adds := by. '
+                      'Do not start the proof field with by, a theorem declaration, imports, or a code fence. '
                       'The goal is the reducible definition QuantumHarnessFrozenTarget; use change or unfold if needed. '
                       'Do not change the target, assumptions, imports, or context; do not use sorry, '
                       'admit, new axioms, native_decide or metaprogramming. You have no write task '

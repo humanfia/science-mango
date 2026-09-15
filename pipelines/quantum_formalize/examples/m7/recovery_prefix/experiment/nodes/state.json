@@ -1,0 +1,180 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T19:14:14.569115+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "completed_partition": {
+      "id": "completed_partition",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.RecoveryPrefix.completed_partition",
+        "spec_sha256": "8c08f998750122b60803d078b2101f7ba906a92c756f16f0ac7240e3cb130175",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-r3_iismw/attempt-001/Candidate_a0d21ef642c68f47.lean",
+            "target_path": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-r3_iismw/attempt-001/FrozenTarget_a0d21ef642c68f47.lean",
+            "feedback": "",
+            "target_sha256": "eb5b69b03f2f9f1d40b869bc7111010e6fd36d248d3230ae3df084131f99c002",
+            "target_olean_sha256": "6ac07b2e1b063c19b6e6a446d36893739413bb1e490449d2902652f348d35b06",
+            "source_sha256": "d0e0d8bae50f0043d83fd6f1789d199d614e9fd316dae863e9b529fa65aa3578",
+            "olean_sha256": "794e2ea20a179efccbda2fc5e2689e965d2de5d60e89c761b7b87cb369158848",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T19:09:40.122792+00:00",
+        "work": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-r3_iismw",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "c82390378bfbf87e8abb51904501c6a82fc807bd6174854f4e5cf13fe5448519",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-r3_iismw/attempt-001/Candidate_a0d21ef642c68f47.lean",
+        "environment_sha256": "4ec5d8c155e4ef65edceb26ceedf80b1e831c3b4617e13af168617bae1f07118",
+        "artifacts": {
+          "completed_partition": {
+            "payload": {
+              "declaration": "theorem M7.RecoveryPrefix.completed_partition : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length < M7.PrefixBits.depth N → M7.RecoveryPrefix.completed N w E p = M7.RecoveryPrefix.completed N w E (p ++ [false]) ∪ M7.RecoveryPrefix.completed N w E (p ++ [true]) ∧ Disjoint (M7.RecoveryPrefix.completed N w E (p ++ [false])) (M7.RecoveryPrefix.completed N w E (p ++ [true])) := by\n  classical\n  intro N inst w E p hp\n  have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)\n  obtain ⟨hpart, hdisj⟩ := M7.PrefixBits.completed_partition N hN w E p hp\n  have bounds (q : List Bool) (x : Finset ℕ × Finset ℕ)\n      (hx : x ∈ M7.PrefixBits.completed N w E q) :\n      x.1 ⊆ Finset.range N ∧ x.2 ⊆ Finset.range N := by\n    exact M7.ResiduePrefix.completed_bounds N w E\n      (M7.PrefixBits.A N q) (M7.PrefixBits.B N q)\n      (M7.PrefixBits.WA N q) (M7.PrefixBits.WB N q)\n      (M7.PrefixBits.base N hN q) x hx\n  constructor\n  · change (M7.PrefixBits.completed N w E p).image (M7.ResiduePrefix.decodePair N) =\n      (M7.PrefixBits.completed N w E (p ++ [false])).image (M7.ResiduePrefix.decodePair N) ∪\n      (M7.PrefixBits.completed N w E (p ++ [true])).image (M7.ResiduePrefix.decodePair N)\n    rw [hpart, Finset.image_union]\n  · change Disjoint\n      ((M7.PrefixBits.completed N w E (p ++ [false])).image (M7.ResiduePrefix.decodePair N))\n      ((M7.PrefixBits.completed N w E (p ++ [true])).image (M7.ResiduePrefix.decodePair N))\n    apply Finset.disjoint_left.mpr\n    intro z hz₀ hz₁\n    obtain ⟨x, hx, hxz⟩ := Finset.mem_image.mp hz₀\n    obtain ⟨y, hy, hyz⟩ := Finset.mem_image.mp hz₁\n    obtain ⟨hx₁, hx₂⟩ := bounds (p ++ [false]) x hx\n    obtain ⟨hy₁, hy₂⟩ := bounds (p ++ [true]) y hy\n    have hxy : x = y := M7.ResiduePrefix.decode_injective N x y\n      hx₁ hx₂ hy₁ hy₂ (hxz.trans hyz.symm)\n    subst y\n    exact Finset.disjoint_left.mp hdisj hx hy",
+              "imports": [
+                "M7PrefixBitsAccepted",
+                "M7RecoveryPrefix",
+                "M7ResiduePrefixAccepted"
+              ],
+              "name": "M7.RecoveryPrefix.completed_partition",
+              "ancestors": [],
+              "spec_sha256": "22263dad455f6109a6888d7c6f7ed6a049b311dd0d0a29ea3e5c5efabc60453e"
+            },
+            "sha256": "82c795822db0a3cce93db266847569d49a2c72dd349901c71a9cac7b36ce20ed"
+          }
+        }
+      }
+    },
+    "completed_subroot": {
+      "id": "completed_subroot",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.RecoveryPrefix.completed_subroot",
+        "spec_sha256": "b08a2223d22f847b50c3b007ca9620f0c932eb21dd8b31b3b40b22002969eb4a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-v0z80ue2/attempt-001/Candidate_5f348b651ee32921.lean",
+            "target_path": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-v0z80ue2/attempt-001/FrozenTarget_5f348b651ee32921.lean",
+            "feedback": "",
+            "target_sha256": "66a0fa4bd9ea1817e9f52ad25a89b39de7fee79f7c971df7961b9cb29aa9ceb0",
+            "target_olean_sha256": "34a57686381cfdf0536165a9dce5aec7901b407d8f7a00588ca93fa07d58f0fd",
+            "source_sha256": "b76cc8ed7fd90ac1fd81f73997a26af6cc1e9d3a9edd1016586764340b34c78a",
+            "olean_sha256": "5db3285db186e6553146ef93089376edc59f6e6849eea47133422955462f3e6f",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T19:09:40.240018+00:00",
+        "work": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-v0z80ue2",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "c82390378bfbf87e8abb51904501c6a82fc807bd6174854f4e5cf13fe5448519",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-v0z80ue2/attempt-001/Candidate_5f348b651ee32921.lean",
+        "environment_sha256": "4ec5d8c155e4ef65edceb26ceedf80b1e831c3b4617e13af168617bae1f07118",
+        "artifacts": {
+          "completed_subroot": {
+            "payload": {
+              "declaration": "theorem M7.RecoveryPrefix.completed_subroot : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.RecoveryPrefix.completed N w E p ⊆ M7.RecoveryPrefix.completed N w E [] := by\n  intro N inst w E p\n  classical\n  have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)\n  have hp := M7.PrefixBits.base N hN p\n  have hr := M7.PrefixBits.base N hN []\n  intro x hx\n  change x ∈ M7.ResiduePrefix.completed N w E (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) at hx\n  change x ∈ M7.ResiduePrefix.completed N w E (M7.PrefixBits.A N []) (M7.PrefixBits.B N []) (M7.PrefixBits.WA N []) (M7.PrefixBits.WB N [])\n  obtain ⟨hw, hv⟩ := (M7.ResiduePrefix.completed_membership N w E _ _ _ _ hp x).mp hx\n  apply (M7.ResiduePrefix.completed_membership N w E _ _ _ _ hr x).mpr\n  refine ⟨?_, hv⟩\n  obtain ⟨hA, hB, hWA, hWB⟩ := M7.PrefixBits.root N hN\n  rw [hA, hB, hWA, hWB]\n  simp only [M7.PrefixCompleted.Base, M7.PrefixCompleted.Within, Finset.subset_iff, Finset.mem_union, Finset.mem_sdiff, Finset.mem_singleton] at hp hw ⊢\n  grind",
+              "imports": [
+                "M7PrefixBitsAccepted",
+                "M7RecoveryPrefix",
+                "M7ResiduePrefixAccepted"
+              ],
+              "name": "M7.RecoveryPrefix.completed_subroot",
+              "ancestors": [],
+              "spec_sha256": "18c5255ed68cedc11a757aa3eb4638f1ca884449b46dc85d223a660c4add4733"
+            },
+            "sha256": "88303e1c8ef8217fa921d6c92e23fad11c4d9371da2122977fbb207544d99478"
+          }
+        }
+      }
+    },
+    "leaf_singleton": {
+      "id": "leaf_singleton",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.RecoveryPrefix.leaf_singleton",
+        "spec_sha256": "0165c26cc193f2439e454c0940c5753aa570de66ba33cb9fdc8e495e18f66444",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-_xndu9er/attempt-001/Candidate_e0559ffad8559b7c.lean",
+            "target_path": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-_xndu9er/attempt-001/FrozenTarget_e0559ffad8559b7c.lean",
+            "feedback": "",
+            "target_sha256": "823a6b9e679b05ca100206b6d599287287d575dba8172e0073bbfd2bdf210e35",
+            "target_olean_sha256": "6eee0456633155c6ce9985e9920784ebb81212d5846a811d63f66393aedc1ebc",
+            "source_sha256": "82c618071ac9ff187ba2e5a2fe8b7c8f037c35e3c46fec8ec49fc66ba8d8acda",
+            "olean_sha256": "ebaee3468bfd14ff3e6f37d02ef62369f2ea6b7ac3523521cf6723bd842cdea9",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T19:11:28.520283+00:00",
+        "work": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-_xndu9er",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "c82390378bfbf87e8abb51904501c6a82fc807bd6174854f4e5cf13fe5448519",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-recovery-prefix-formalization/.humanize-formal-runs/run-_xndu9er/attempt-001/Candidate_e0559ffad8559b7c.lean",
+        "environment_sha256": "4ec5d8c155e4ef65edceb26ceedf80b1e831c3b4617e13af168617bae1f07118",
+        "artifacts": {
+          "leaf_singleton": {
+            "payload": {
+              "declaration": "theorem M7.RecoveryPrefix.leaf_singleton : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N → M7.RecoveryPrefix.completed N w E p ⊆ {M7.RecoveryPrefix.leaf N p} := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N → M7.RecoveryPrefix.completed N w E p ⊆ {M7.RecoveryPrefix.leaf N p}\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  classical\n  intro N inst w E p hp x hx\n  change x ∈ (M7.PrefixBits.completed N w E p).image (M7.ResiduePrefix.decodePair N) at hx\n  rcases Finset.mem_image.mp hx with ⟨y, hy, rfl⟩\n  have hyLeaf := M7.PrefixBits.leaf_singleton N (Nat.pos_of_ne_zero (NeZero.ne N)) w E p hp hy\n  have hyEq := Finset.mem_singleton.mp hyLeaf\n  subst y\n  exact Finset.mem_singleton.mpr rfl",
+              "imports": [
+                "M7PrefixBitsAccepted",
+                "M7RecoveryPrefix",
+                "M7ResiduePrefixAccepted"
+              ],
+              "name": "M7.RecoveryPrefix.leaf_singleton",
+              "ancestors": [],
+              "spec_sha256": "82f3702b770b13ecc0f7a6e92d69944d53e659773c1fe58179251115fa90fa75"
+            },
+            "sha256": "5b18f54f2519600242dbdd176a877ac8c8a5ed993d2781e28d7155bc12d06059"
+          }
+        }
+      }
+    }
+  }
+}

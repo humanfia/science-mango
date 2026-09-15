@@ -1,0 +1,74 @@
+[
+  {
+    "id": "completed_partition",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.RecoveryPrefix.completed_partition",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length < M7.PrefixBits.depth N → M7.RecoveryPrefix.completed N w E p = M7.RecoveryPrefix.completed N w E (p ++ [false]) ∪ M7.RecoveryPrefix.completed N w E (p ++ [true]) ∧ Disjoint (M7.RecoveryPrefix.completed N w E (p ++ [false])) (M7.RecoveryPrefix.completed N w E (p ++ [true]))",
+      "imports": [
+        "M7RecoveryPrefix",
+        "M7PrefixBitsAccepted",
+        "M7ResiduePrefixAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image union disjoint injective"
+      ],
+      "guidance": "Actual completed is the decodePair image of PrefixBits.completed. Apply the accepted natural completed_partition then image_union. For disjointness, two equal decoded members have equal natural supports by ResiduePrefix.decode_injective, using completed_bounds and PrefixBits.base (N>0 follows NeZero). Then apply natural child disjointness. Do not assume image injectivity without its verified bounds. Return tactic lines without leading by; keep exact frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §4/6 actual compact binary recovery prefix geometry",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "completed_subroot",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.RecoveryPrefix.completed_subroot",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.RecoveryPrefix.completed N w E p ⊆ M7.RecoveryPrefix.completed N w E []",
+      "imports": [
+        "M7RecoveryPrefix",
+        "M7PrefixBitsAccepted",
+        "M7ResiduePrefixAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image union disjoint injective"
+      ],
+      "guidance": "Use ResiduePrefix.completed_membership and PrefixBits.base on p and []. Both share the actual Valid predicate. PrefixBits.root gives selected {0} and remaining range N minus {0}. Membership in the p completion implies zero selected in both natural supports and bounds within range N; use PrefixCompleted.Base and Within, or completed_bounds on a natural preimage. Thus it satisfies the root Within test. No signature-sector or class-validity extra hypothesis is required. Return tactic lines without leading by; keep exact frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §4/6 actual compact binary recovery prefix geometry",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "leaf_singleton",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.RecoveryPrefix.leaf_singleton",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N → M7.RecoveryPrefix.completed N w E p ⊆ {M7.RecoveryPrefix.leaf N p}",
+      "imports": [
+        "M7RecoveryPrefix",
+        "M7PrefixBitsAccepted",
+        "M7ResiduePrefixAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image union disjoint injective"
+      ],
+      "guidance": "Unfold the actual completed/leaf as decodePair image. PrefixBits.leaf_singleton says the natural completion set lies in the one selected pair. Any image member is therefore exactly the decoded leaf. Include N=1 depth zero and empty/invalid completion sets without an existence assumption. Return tactic lines without leading by; keep exact frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §4/6 actual compact binary recovery prefix geometry",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

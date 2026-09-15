@@ -1,0 +1,14 @@
+theorem M7.RecoveryPrefix.leaf_singleton : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N → M7.RecoveryPrefix.completed N w E p ⊆ {M7.RecoveryPrefix.leaf N p} := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N → M7.RecoveryPrefix.completed N w E p ⊆ {M7.RecoveryPrefix.leaf N p}
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  classical
+  intro N inst w E p hp x hx
+  change x ∈ (M7.PrefixBits.completed N w E p).image (M7.ResiduePrefix.decodePair N) at hx
+  rcases Finset.mem_image.mp hx with ⟨y, hy, rfl⟩
+  have hyLeaf := M7.PrefixBits.leaf_singleton N (Nat.pos_of_ne_zero (NeZero.ne N)) w E p hp hy
+  have hyEq := Finset.mem_singleton.mp hyLeaf
+  subst y
+  exact Finset.mem_singleton.mpr rfl
