@@ -1,6 +1,6 @@
 # Original M7 dependency map
 
-The colors summarize canonical component receipts recorded in [GRAPH_STATE.json](GRAPH_STATE.json). The final root is still in build/type preflight; complete M7 acceptance is not yet established. Detailed scope and component mappings are in [graph.json](graph.json).
+All stages, including the complete original root, have passed. Evidence: [ROOT_ACCEPTANCE.json](final/ROOT_ACCEPTANCE.json). The colors summarize the canonical receipts in [GRAPH_STATE.json](GRAPH_STATE.json); the mapping remains separate from executable batch graphs.
 
 ```mermaid
 flowchart TD
@@ -42,7 +42,7 @@ flowchart TD
     compact_generation --> resources
     orbit_prefix --> resources
     selector --> resources
-    original_m7["original_m7: running"]:::running
+    original_m7["original_m7: accepted"]:::accepted
     selector --> original_m7
     replay --> original_m7
     resources --> original_m7

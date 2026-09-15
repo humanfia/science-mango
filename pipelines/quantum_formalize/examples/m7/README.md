@@ -1,6 +1,6 @@
 # Original M7 Lean formalization
 
-Formalization has started and has not yet passed the full-root gate. The source is the [frozen complete natural-language proof](../../../../research/quantum_m7/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md). Its natural-language acceptance is distinct from Lean acceptance.
+The complete original root `M7.Final.original_m7` has passed Lean acceptance. See the [root receipt](final/ROOT_ACCEPTANCE.json), [exact compiled proof](final/experiment/AcceptedExperiment.lean), and [97-clause mapping](final/CLAIM_MAP.json). The source is the [frozen complete natural-language proof](../../../../research/quantum_m7/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md). Its natural-language acceptance is distinct from Lean acceptance.
 
 - [Current status](CURRENT.md)
 - [Concrete compact-generation integration](COMPACT_INTEGRATION_PLAN.md)

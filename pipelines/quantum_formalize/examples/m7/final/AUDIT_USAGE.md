@@ -12,4 +12,6 @@ The script starts no model, compiler or new review. It checks canonical manifest
 
 Historical portable rendering before and after the shared-leading-indent fix is supported only when it is exactly reconstructed from the accepted original draft. This preserves old successful batches without accepting arbitrary replacement declarations.
 
-Current self-test: the absent final canonical root returns pending and creates no acceptance file. Twenty available parent batches covering 132 dependency-closure targets passed the same receipt/source/portable checks. This is preparation evidence, not final M7 acceptance.
+Historical pre-root self-test: the absent final canonical root returns pending and creates no acceptance file. Twenty available parent batches covering 132 dependency-closure targets passed the same receipt/source/portable checks. This is preparation evidence, not final M7 acceptance.
+
+The full root audit has now passed: [ROOT_ACCEPTANCE.json](ROOT_ACCEPTANCE.json), covering all 97 selected clauses.

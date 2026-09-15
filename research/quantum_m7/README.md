@@ -1,6 +1,9 @@
 # M7 证明与形式化
 
-原始 M7 已有完整自然语言证明，Lean 形式化已启动，尚未通过完整总定理验收。
+原始 M7 的完整自然语言证明与 Lean 总定理 `M7.Final.original_m7` 均已完成验收。
+
+- [完整 Lean 验收记录](../../pipelines/quantum_formalize/examples/m7/final/ROOT_ACCEPTANCE.json)
+- [总定理与八个章节的编译证明](../../pipelines/quantum_formalize/examples/m7/final/experiment/AcceptedExperiment.lean)
 
 - [冻结自然语言证明](research_checkpoints/m7_compact_selector_final_20260915/PROOF.md)
 - [自然语言验收与独立审阅](research_checkpoints/m7_compact_selector_final_20260915/integration-decision.json)

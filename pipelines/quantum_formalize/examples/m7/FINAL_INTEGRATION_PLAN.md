@@ -1,6 +1,6 @@
 # Original M7 final integration
 
-This is a dependency plan, not an acceptance receipt. The frozen original source is `research/quantum_m7/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md`; its mathematical scope remains unchanged.
+All stages below have passed; the acceptance evidence is [ROOT_ACCEPTANCE.json](final/ROOT_ACCEPTANCE.json). This document records the dependency plan. The frozen original source is `research/quantum_m7/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md`; its mathematical scope remains unchanged.
 
 | Original clause | Concrete interface | Final connection |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ flowchart TD
   RP[Generation, label, factor and query replay: accepted] --> JR[Joint replay: accepted]
   FS --> JR
   GL --> JR
-  FR --> ROOT[Closed OriginalM7 root: build and preflight]
+  FR --> ROOT[Closed OriginalM7 root: accepted]
   JR --> ROOT
   OB[Overfull and empty-sector boundaries: accepted] --> ROOT
 ```

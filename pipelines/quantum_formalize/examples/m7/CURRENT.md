@@ -1,8 +1,10 @@
 # M7 formalization status
 
-In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
+**The complete original M7 Lean root is accepted: `M7.Final.original_m7`.**
 
-**438 targets in 57 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+The [root acceptance](final/ROOT_ACCEPTANCE.json) binds the frozen natural-language source to 97 exact clauses, eight closed sections and the compiled total theorem. The [canonical experiment](final/experiment/result.json) passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks. No `sorry` or added correctness oracle is accepted.
+
+**447 exact targets in 58 canonical batches, including the final nine targets.**
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -63,13 +65,8 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [final_selector](final_selector/experiment/result.json) | 8 | M7 actual generated streaming selector versus full raw optimum |
 | [final_resources](final_resources/experiment/result.json) | 6 | M7 original resource composition for actual generated classes |
 | [final_replay](final_replay/experiment/result.json) | 7 | M7 complete concrete certificate replay and raw-output soundness |
+| [final](final/experiment/result.json) | 9 | Original complete M7 closed formal acceptance root |
 
-Active work:
+The original construction, full-signature sectors, exact M6 distance and minimum witnesses, all global optima and ties, unique physical outputs, finite certificate replay and original resource model are included. Scope is unchanged; machine-code extraction or a new runtime-efficiency theorem is not part of this acceptance.
 
-- `final`: all predecessor batches are canonical. The 97 exact original-scope clauses are assembled into eight closed sections and the complete root; full closure build and nine exact-target type checks are running. No full-M7 acceptance yet.
-
-Original remaining integration gates are final generated-family default-query/global-optimum integration, joint replay/resource composition and the closed acceptance root. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
-
-The frozen definitions and goals are preserved through repairs. Successful late live proofs are retained. Explicit local tactic repairs are independently checked and then pass normal exact-target replay; their origins and all failures are preserved. LeanExplore broader-query recovery records the actual fallback query and original unavailable requests; persistent failures remain unavailable.
-
-Model gpt-6-astra / medium, two workers per active batch under the shared-host load, five live attempts per run and 600-second compiler calls, within the authorized 16-worker pipeline ceiling. Both Mathlib and Physlib are searched. The legacy `m5_formalized` scheduler field is not an M7 result. No complete-M7 acceptance record has been issued.
+All original live attempts and successful late proofs are retained. Local tactic repairs passed independent exact verification and normal full replay; their origins and prior failures remain in each batch archive. The final root uses only `propext`, `Classical.choice`, and `Quot.sound`. Model: gpt-6-astra / medium, two concurrent proof workers per batch within the authorized sixteen-worker ceiling.
