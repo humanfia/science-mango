@@ -1,0 +1,296 @@
+[
+  {
+    "queries": [
+      "Int natAbs_sum_le List take sum nonnegative",
+      "Polynomial sum_eq_of_subset Fintype sum_prod_type"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Int natAbs_sum_le List take sum nonnegative",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58292,
+            "name": "Int.natAbs_sum_le",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L1127-L1129",
+            "source_text": "theorem Int.natAbs_sum_le (s : Finset ι) (f : ι → ℤ) :\n    (∑ i ∈ s, f i).natAbs ≤ ∑ i ∈ s, (f i).natAbs := by\n  induction s using Finset.cons_induction with grind\n",
+            "docstring": null
+          },
+          {
+            "id": 58293,
+            "name": "nat_abs_sum_le",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L1131-L1132",
+            "source_text": "@[deprecated (since := \"2026-02-14\")]\nalias nat_abs_sum_le := Int.natAbs_sum_le",
+            "docstring": "**Alias** of `Int.natAbs_sum_le`."
+          },
+          {
+            "id": 58623,
+            "name": "List.sum_take_succ",
+            "module": "Mathlib.Algebra.BigOperators.Group.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/List/Basic.lean#L84-L84",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem prod_take_succ (L : List M) (i : ℕ) (p : i < L.length) :",
+            "docstring": null
+          },
+          {
+            "id": 92662,
+            "name": "Finset.abs_sum_of_nonneg",
+            "module": "Mathlib.Algebra.Order.BigOperators.Group.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/BigOperators/Group/Finset.lean#L291-L294",
+            "source_text": "theorem abs_sum_of_nonneg {G : Type*} [AddCommGroup G] [LinearOrder G] [AddLeftMono G]\n    {f : ι → G} {s : Finset ι}\n    (hf : ∀ i ∈ s, 0 ≤ f i) : |∑ i ∈ s, f i| = ∑ i ∈ s, f i := by\n  rw [abs_of_nonneg (Finset.sum_nonneg hf)]\n",
+            "docstring": null
+          },
+          {
+            "id": 92663,
+            "name": "Finset.abs_sum_of_nonneg'",
+            "module": "Mathlib.Algebra.Order.BigOperators.Group.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/BigOperators/Group/Finset.lean#L296-L299",
+            "source_text": "theorem abs_sum_of_nonneg' {G : Type*} [AddCommGroup G] [LinearOrder G] [AddLeftMono G]\n    {f : ι → G} {s : Finset ι}\n    (hf : ∀ i, 0 ≤ f i) : |∑ i ∈ s, f i| = ∑ i ∈ s, f i := by\n  rw [abs_of_nonneg (Finset.sum_nonneg' hf)]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial sum_eq_of_subset Fintype sum_prod_type",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101067,
+            "name": "Polynomial.sum",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L843-L845",
+            "source_text": "/-- Summing the values of a function applied to the coefficients of a polynomial -/\ndef sum {S : Type*} [AddCommMonoid S] (p : R[X]) (f : ℕ → R → S) : S :=\n  ∑ n ∈ p.support, f n (p.coeff n)\n",
+            "docstring": "Summing the values of a function applied to the coefficients of a polynomial "
+          },
+          {
+            "id": 205831,
+            "name": "Fintype.sum_prod_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L271-L272",
+            "source_text": "@[to_additive Fintype.sum_prod_type /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. -/]\ntheorem Fintype.prod_prod_type [CommMonoid γ] (f : α₁ × α₂ → γ) :\n    ∏ x, f x = ∏ x, ∏ y, f (x, y) :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. "
+          },
+          {
+            "id": 205828,
+            "name": "Fintype.prod_sum_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L264-L267",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem Fintype.prod_sum_type (f : α₁ ⊕ α₂ → M) :\n    ∏ x, f x = (∏ a₁, f (Sum.inl a₁)) * ∏ a₂, f (Sum.inr a₂) :=\n  prod_disjSum _ _ _",
+            "docstring": null
+          },
+          {
+            "id": 205824,
+            "name": "Finset.sum_toFinset_eq_subtype",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L240-L240",
+            "source_text": "@[to_additive]\ntheorem Finset.prod_toFinset_eq_subtype {M : Type*} [CommMonoid M] [Fintype α] (p : α → Prop)\n    [DecidablePred p] (f : α → M) : ∏ a ∈ { x | p x }.toFinset, f a = ∏ a : Subtype p, f a := by",
+            "docstring": null
+          },
+          {
+            "id": 58126,
+            "name": "Finset.sum_subtype_of_mem",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L431-L432",
+            "source_text": "@[to_additive /-- If all elements of a `Finset` satisfy the predicate `p`, a sum\nover `s.subtype p` equals that sum over `s`. -/]\ntheorem prod_subtype_of_mem (f : ι → M) {p : ι → Prop} [DecidablePred p] (h : ∀ x ∈ s, p x) :\n    ∏ x ∈ s.subtype p, f x = ∏ x ∈ s, f x := by",
+            "docstring": "If all elements of a `Finset` satisfy the predicate `p`, a sum\nover `s.subtype p` equals that sum over `s`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "actual_trace_intermediates",
+    "receipts_sha256": "5fe54e54c55c1af34514feebc819b18d120a2c3c8514f79c0ac278cbb4ee2cc7"
+  },
+  {
+    "queries": [
+      "Int natAbs_sum_le List take sum nonnegative",
+      "Polynomial sum_eq_of_subset Fintype sum_prod_type"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Int natAbs_sum_le List take sum nonnegative",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58292,
+            "name": "Int.natAbs_sum_le",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L1127-L1129",
+            "source_text": "theorem Int.natAbs_sum_le (s : Finset ι) (f : ι → ℤ) :\n    (∑ i ∈ s, f i).natAbs ≤ ∑ i ∈ s, (f i).natAbs := by\n  induction s using Finset.cons_induction with grind\n",
+            "docstring": null
+          },
+          {
+            "id": 58293,
+            "name": "nat_abs_sum_le",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L1131-L1132",
+            "source_text": "@[deprecated (since := \"2026-02-14\")]\nalias nat_abs_sum_le := Int.natAbs_sum_le",
+            "docstring": "**Alias** of `Int.natAbs_sum_le`."
+          },
+          {
+            "id": 58623,
+            "name": "List.sum_take_succ",
+            "module": "Mathlib.Algebra.BigOperators.Group.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/List/Basic.lean#L84-L84",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem prod_take_succ (L : List M) (i : ℕ) (p : i < L.length) :",
+            "docstring": null
+          },
+          {
+            "id": 92662,
+            "name": "Finset.abs_sum_of_nonneg",
+            "module": "Mathlib.Algebra.Order.BigOperators.Group.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/BigOperators/Group/Finset.lean#L291-L294",
+            "source_text": "theorem abs_sum_of_nonneg {G : Type*} [AddCommGroup G] [LinearOrder G] [AddLeftMono G]\n    {f : ι → G} {s : Finset ι}\n    (hf : ∀ i ∈ s, 0 ≤ f i) : |∑ i ∈ s, f i| = ∑ i ∈ s, f i := by\n  rw [abs_of_nonneg (Finset.sum_nonneg hf)]\n",
+            "docstring": null
+          },
+          {
+            "id": 92663,
+            "name": "Finset.abs_sum_of_nonneg'",
+            "module": "Mathlib.Algebra.Order.BigOperators.Group.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/BigOperators/Group/Finset.lean#L296-L299",
+            "source_text": "theorem abs_sum_of_nonneg' {G : Type*} [AddCommGroup G] [LinearOrder G] [AddLeftMono G]\n    {f : ι → G} {s : Finset ι}\n    (hf : ∀ i, 0 ≤ f i) : |∑ i ∈ s, f i| = ∑ i ∈ s, f i := by\n  rw [abs_of_nonneg (Finset.sum_nonneg' hf)]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial sum_eq_of_subset Fintype sum_prod_type",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101067,
+            "name": "Polynomial.sum",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L843-L845",
+            "source_text": "/-- Summing the values of a function applied to the coefficients of a polynomial -/\ndef sum {S : Type*} [AddCommMonoid S] (p : R[X]) (f : ℕ → R → S) : S :=\n  ∑ n ∈ p.support, f n (p.coeff n)\n",
+            "docstring": "Summing the values of a function applied to the coefficients of a polynomial "
+          },
+          {
+            "id": 205831,
+            "name": "Fintype.sum_prod_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L271-L272",
+            "source_text": "@[to_additive Fintype.sum_prod_type /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. -/]\ntheorem Fintype.prod_prod_type [CommMonoid γ] (f : α₁ × α₂ → γ) :\n    ∏ x, f x = ∏ x, ∏ y, f (x, y) :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. "
+          },
+          {
+            "id": 205828,
+            "name": "Fintype.prod_sum_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L264-L267",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem Fintype.prod_sum_type (f : α₁ ⊕ α₂ → M) :\n    ∏ x, f x = (∏ a₁, f (Sum.inl a₁)) * ∏ a₂, f (Sum.inr a₂) :=\n  prod_disjSum _ _ _",
+            "docstring": null
+          },
+          {
+            "id": 205824,
+            "name": "Finset.sum_toFinset_eq_subtype",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L240-L240",
+            "source_text": "@[to_additive]\ntheorem Finset.prod_toFinset_eq_subtype {M : Type*} [CommMonoid M] [Fintype α] (p : α → Prop)\n    [DecidablePred p] (f : α → M) : ∏ a ∈ { x | p x }.toFinset, f a = ∏ a : Subtype p, f a := by",
+            "docstring": null
+          },
+          {
+            "id": 58126,
+            "name": "Finset.sum_subtype_of_mem",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L431-L432",
+            "source_text": "@[to_additive /-- If all elements of a `Finset` satisfy the predicate `p`, a sum\nover `s.subtype p` equals that sum over `s`. -/]\ntheorem prod_subtype_of_mem (f : ι → M) {p : ι → Prop} [DecidablePred p] (h : ∀ x ∈ s, p x) :\n    ∏ x ∈ s.subtype p, f x = ∏ x ∈ s, f x := by",
+            "docstring": "If all elements of a `Finset` satisfy the predicate `p`, a sum\nover `s.subtype p` equals that sum over `s`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "actual_trace_intermediates",
+    "receipts_sha256": "5fe54e54c55c1af34514feebc819b18d120a2c3c8514f79c0ac278cbb4ee2cc7"
+  }
+]

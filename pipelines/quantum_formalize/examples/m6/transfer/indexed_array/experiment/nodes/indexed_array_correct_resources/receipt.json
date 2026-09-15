@@ -1,0 +1,55 @@
+{
+  "id": "indexed_array_correct_resources",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.indexed_array_correct_resources",
+    "spec_sha256": "2bb7706d9bba269f624480152d66c84a4da9d56096ea17a3784e7fbda974dc0a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-indexed-array-formalization/.humanize-formal-runs/run-r7mqlpts/attempt-001/Candidate_e1aa43c0e4f75328.lean",
+        "target_path": "/home/jing/m6-lean-indexed-array-formalization/.humanize-formal-runs/run-r7mqlpts/attempt-001/FrozenTarget_e1aa43c0e4f75328.lean",
+        "feedback": "",
+        "target_sha256": "cbe1760bc57c00c8ac22f8fbe77a2d89bc21c7120c02947354f6e5999f59f9f9",
+        "target_olean_sha256": "95afae96036f7dc7f168086b2a82bb24e85fe43c7d714418d92d39861bc96387",
+        "source_sha256": "04d53306cc8b8588a14d2c578db965fcf431cdc53ca2bbfff95f635115c11823",
+        "olean_sha256": "6cbb122785dba31efe6813d28ccbf3ea15c49d220ebd0122aa080f802bbc0fc9",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:05:57.398022+00:00",
+    "work": "/home/jing/m6-lean-indexed-array-formalization/.humanize-formal-runs/run-r7mqlpts",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1b65e4c0a3d5f02ea07476dc4238c3e6b5c37ced0773497170fc49d7a25267b4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-indexed-array-formalization/.humanize-formal-runs/run-r7mqlpts/attempt-001/Candidate_e1aa43c0e4f75328.lean",
+    "environment_sha256": "fe2f5abb1e35d3a5d484b488eb77d091ca0fcd8f8e628fe548197d94e7333e77",
+    "artifacts": {
+      "indexed_array_correct_resources": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.indexed_array_correct_resources : ∀ (R N : ℕ) [NeZero N] (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ), R < N → (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.IndexedArrayGuarantee R N W := by\n  intro R N inst W hRN hmass hdegree\n  classical\n  have hsmall (i : ℕ) (hi : i < N) : (8 : ℕ) ^ (i + 1) ≤ 2 ^ R * 8 ^ N := by\n    have hexp : i + 1 ≤ N := Nat.succ_le_of_lt hi\n    have hpow : 1 ≤ (2 : ℕ) ^ R := Nat.succ_le_of_lt (pow_pos (by decide) R)\n    calc\n      (8 : ℕ) ^ (i + 1) ≤ 8 ^ N := Nat.pow_le_pow_right (by decide) hexp\n      _ = 1 * 8 ^ N := (one_mul _).symm\n      _ ≤ 2 ^ R * 8 ^ N := Nat.mul_le_mul_right _ hpow\n  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_⟩\n  · exact (M6.Transfer.scalar_trace_polynomial R N W hdegree).trans\n      (M6.Transfer.array_trace_inputs R N (Polynomial ℤ) W)\n  · exact M6.Transfer.actual_trace_work_bound R N hRN\n  · exact M6.Transfer.actual_trace_storage_bound R N hRN\n  · exact M6.Transfer.actual_address_capacity R N hRN\n  · intro start i hi k addr\n    unfold M6.Transfer.FitsSigned\n    have h := M6.Transfer.actual_layer_intermediates R N W start i k addr hmass hdegree\n    exact lt_of_le_of_lt (le_trans h.1 (hsmall i hi))\n      (M6.Transfer.actual_signed_capacity R N)\n  · intro start i hi e\n    unfold M6.Transfer.FitsSigned\n    have h := M6.Transfer.actual_layer_intermediates R N W start i 0\n      (start, ⟨0, by omega⟩) hmass hdegree\n    exact lt_of_le_of_lt (le_trans (h.2 e) (hsmall i hi))\n      (M6.Transfer.actual_signed_capacity R N)\n  · intro k d\n    unfold M6.Transfer.FitsSigned\n    exact lt_of_le_of_lt\n      (M6.Transfer.actual_trace_intermediates R N W k d hmass hdegree)\n      (M6.Transfer.actual_signed_capacity R N)",
+          "imports": [
+            "M6IndexedArrayReady"
+          ],
+          "name": "M6.Transfer.indexed_array_correct_resources",
+          "ancestors": [],
+          "spec_sha256": "2bb7706d9bba269f624480152d66c84a4da9d56096ea17a3784e7fbda974dc0a"
+        },
+        "sha256": "6bfb2e5b1bc341ede3a5b1b458a2ba837896003c3065ca0d1477dc1758f23c7f"
+      }
+    }
+  }
+}

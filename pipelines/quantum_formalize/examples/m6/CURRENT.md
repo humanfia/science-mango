@@ -2,7 +2,7 @@
 
 In progress; complete M6 has not yet been formally accepted.
 
-151 named targets in the completed batches below passed assembly and unchanged-environment checks. Counts are not completion percentages.
+167 named targets in the completed batches below passed assembly and unchanged-environment checks. Counts are not completion percentages.
 
 | Completed batch | Accepted targets |
 |---|---|
@@ -27,6 +27,10 @@ In progress; complete M6 has not yet been formally accepted.
 |transfer/factor_bounds|4|
 |normalize|4|
 |fixed_span|7|
+|transfer/partial_resources|6|
+|transfer/indexed_array|1|
+|actual_transfer|6|
+|enumerator|3|
 
 Active: actual transfer-to-physical input identities, actual fiber/character normalization, Euclidean preprocessing, and final indexed-array integration. The final root must still connect these to the concrete distance/witness evaluator, account for total resources, preserve recipe isometries and edge cases, and pass original-scope acceptance.
 

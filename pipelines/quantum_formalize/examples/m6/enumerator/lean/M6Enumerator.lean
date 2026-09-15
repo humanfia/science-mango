@@ -1,0 +1,2 @@
+import M6PinnedAccepted
+open scoped BigOperators

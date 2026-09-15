@@ -1,0 +1,7 @@
+# Original indexed-array guarantee
+
+The concrete result is `scalarTracePolynomial W N`: coefficients arise from the fold over the finite list of labelled scalar scatter events. The semantic destination sum is used only in the correctness bridge. The final public theorem `indexed_array_correct_resources` combines periodic-input enumeration, work, storage, address capacity, and signed bounds for actual layer prefix accumulations, primitive products, and outer trace prefix sums.
+
+The algorithm counts labelled edges even when memory is empty. It preserves indexed starts and does not divide by rotations. For original valid parameters `R < N`, the final constants are work at most `16384 * N^3 * 4^R` and storage at most `4096 * N^2 * 2^R`. Materializing `scatterEventList` is included in storage. The event charge includes computing both length `R+1` packed parity windows immediately; no table for all N layers is presumed. The root must instantiate the actual boundary/character factors and this explicit local computation allowance. The generic theorem is not a timing claim for arbitrary user-supplied weight programs.
+
+The imported proof gates are concrete accepted scatter, partial-intermediate, and actual resource closures. They will be removed only after their complete experiment, assembly, environment, exact target, and axiom receipts are verified. Definitions and the final mathematical target remain fixed. Standard Lean kernel axioms are permitted; no oracle correctness axiom or runtime interpreter requirement is introduced.

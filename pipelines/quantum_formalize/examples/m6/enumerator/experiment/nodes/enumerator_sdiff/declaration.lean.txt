@@ -1,0 +1,6 @@
+theorem M6.Pinned.enumerator_sdiff : ∀ (m : ℕ) (B C : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m), B ⊆ C → M6.Pinned.enumerator (C \ B) P = M6.Pinned.enumerator C P - M6.Pinned.enumerator B P := by
+  intro m B C P hBC
+  classical
+  unfold M6.Pinned.enumerator
+  apply eq_sub_iff_add_eq.mpr
+  exact Finset.sum_sdiff hBC

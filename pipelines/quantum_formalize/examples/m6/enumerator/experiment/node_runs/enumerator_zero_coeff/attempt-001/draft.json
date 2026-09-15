@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m), (0 : M6.Pinned.Vector m) ∉ L → (M6.Pinned.enumerator L P).coeff 0 = 0\nintro m L P hzero\nrw [M6.Pinned.enumerator_coeff m L P 0]\nobtain ⟨hnonneg, hpos⟩ := M6.Pinned.count_nonnegative_positive m L P 0\napply le_antisymm _ hnonneg\nby_contra h\nobtain ⟨v, hv, _, hw⟩ := hpos.mp (lt_of_not_ge h)\nhave hvzero : v = 0 := by\n  unfold M6.Pinned.weight at hw\n  funext i\n  have hi := Finset.filter_eq_empty_iff.mp (Finset.card_eq_zero.mp hw) i (Finset.mem_univ i)\n  simpa using hi\nexact hzero (hvzero ▸ hv)",
+  "queries": []
+}

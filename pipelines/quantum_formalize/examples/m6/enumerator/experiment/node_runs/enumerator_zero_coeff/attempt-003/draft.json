@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro m L P hzero\nrw [M6.Pinned.enumerator_coeff]\nobtain ⟨hnonneg, hpos⟩ := M6.Pinned.count_nonnegative_positive m L P 0\napply le_antisymm _ hnonneg\napply le_of_not_gt\nintro h\nobtain ⟨v, hvL, _, hw⟩ := hpos.mp h\nhave hvzero : v = 0 := by\n  funext i\n  change v i = 0\n  by_contra hi\n  unfold M6.Pinned.weight at hw\n  have hempty := Finset.card_eq_zero.mp hw\n  have hmem : i ∈ Finset.univ.filter (fun j : Fin m => v j ≠ 0) :=\n    Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n  rw [hempty] at hmem\n  simpa using hmem\nexact hzero (hvzero ▸ hvL)",
+  "queries": []
+}

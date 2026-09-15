@@ -1,0 +1,260 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Transfer.scalar_layers_exact",
+    "status": "ok",
+    "results": [
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      },
+      {
+        "id": 318217,
+        "name": "LinearMap.exact_lsmul_mkQ_smul_top",
+        "module": "Mathlib.RingTheory.Regular.Category",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Regular/Category.lean#L23-L26",
+        "source_text": "lemma LinearMap.exact_lsmul_mkQ_smul_top (M : Type v) [AddCommGroup M] [Module R M] (r : R) :\n    Function.Exact (LinearMap.lsmul _ M r) (r • (⊤ : Submodule R M)).mkQ := by\n  intro x\n  simp [Submodule.mem_smul_pointwise_iff_exists, Submodule.mem_smul_pointwise_iff_exists]\n",
+        "docstring": null
+      },
+      {
+        "id": 87331,
+        "name": "LinearMap.IsScalarTower.compatibleSMul",
+        "module": "Mathlib.Algebra.Module.LinearMap.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/LinearMap/Defs.lean#L364-L367",
+        "source_text": "instance (priority := 100) IsScalarTower.compatibleSMul [SMul R S]\n    [IsScalarTower R S M] [IsScalarTower R S M₂] :\n    CompatibleSMul M M₂ R S :=\n  ⟨fun fₗ c x ↦ by rw [← smul_one_smul S c x, ← smul_one_smul S c (fₗ x), map_smul]⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 66313,
+        "name": "IsScalarTower",
+        "module": "Mathlib.Algebra.Group.Action.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Action/Defs.lean#L206-L212",
+        "source_text": "/-- An instance of `IsScalarTower M N α` states that the multiplicative\naction of `M` on `α` is determined by the multiplicative actions of `M` on `N`\nand `N` on `α`. -/\n@[to_additive]\nclass IsScalarTower (M N α : Type*) [SMul M N] [SMul N α] [SMul M α] : Prop where\n  /-- Associativity of `•` -/\n  smul_assoc : ∀ (x : M) (y : N) (z : α), (x • y) • z = x • y • z\n",
+        "docstring": "An instance of `IsScalarTower M N α` states that the multiplicative\naction of `M` on `α` is determined by the multiplicative actions of `M` on `N`\nand `N` on `α`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Transfer.scalar_layers_exact",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386032,
+        "name": "FluidDynamics.ScalarField",
+        "module": "Physlib.FluidDynamics.FluidState",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/FluidDynamics/FluidState.lean#L51-L52",
+        "source_text": "/-- A scalar field on `d`-dimensional space, depending on time. -/\nabbrev ScalarField (d : ℕ) := Time → Space d → ℝ\n",
+        "docstring": "A scalar field on `d`-dimensional space, depending on time. "
+      },
+      {
+        "id": 388358,
+        "name": "SUSY.N1.conjScalar",
+        "module": "Physlib.Particles.SuperSymmetry.N1.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/N1/Basic.lean#L399-L403",
+        "source_text": "/-- Conjugation of a scalar tensor, normalized back to the scalar colour list `![]`. -/\ndef conjScalar (t : (chiralTensor (ι := ι)).Tensor ![]) :\n    (chiralTensor (ι := ι)).Tensor ![] :=\n  permT id ⟨Function.bijective_id, fun i => by fin_cases i⟩\n    ((chiralTensor (ι := ι)).conjT t)\n",
+        "docstring": "Conjugation of a scalar tensor, normalized back to the scalar colour list `![]`. "
+      },
+      {
+        "id": 388327,
+        "name": "SUSY.N1.ChiralScalarConfiguration",
+        "module": "Physlib.Particles.SuperSymmetry.N1.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/N1/Basic.lean#L98-L102",
+        "source_text": "/-- The chiral scalar configuration: a complex value for each chiral label. This is\nthe sector's only field data. Declared as an `abbrev` so that unification sees\nthrough it to `ChiralIndexingType → ℂ` and applies Mathlib's function-space calculus\nlemmas directly. -/\nabbrev ChiralScalarConfiguration (ChiralIndexingType : Type*) := ChiralIndexingType → ℂ\n",
+        "docstring": "The chiral scalar configuration: a complex value for each chiral label. This is\nthe sector's only field data. Declared as an `abbrev` so that unification sees\nthrough it to `ChiralIndexingType → ℂ` and applies Mathlib's function-space calculus\nlemmas directly. "
+      },
+      {
+        "id": 385772,
+        "name": "Electromagnetism.ElectromagneticPotential.ofScalarPotential",
+        "module": "Physlib.Electromagnetism.Kinematics.EMPotential",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Electromagnetism/Kinematics/EMPotential.lean#L173-L180",
+        "source_text": "/-- The electromagnetic potential from a scalar potential, where\n  the vector potential is set to zero. -/\nnoncomputable def ofScalarPotential {d} (c : SpeedOfLight)\n    (ϕ : Time → Space d → ℝ) : ElectromagneticPotential d where\n  val x μ :=\n    match μ with\n    | Sum.inl 0 => ((timeSlice c).symm ϕ x) / c\n    | Sum.inr _ => 0\n",
+        "docstring": "The electromagnetic potential from a scalar potential, where\nthe vector potential is set to zero. "
+      },
+      {
+        "id": 385910,
+        "name": "Electromagnetism.ElectromagneticPotential.scalarPotential",
+        "module": "Physlib.Electromagnetism.Kinematics.ScalarPotential",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Electromagnetism/Kinematics/ScalarPotential.lean#L62-L65",
+        "source_text": "/-- The scalar potential from the electromagnetic potential. -/\nnoncomputable def scalarPotential {d} (c : SpeedOfLight := 1) (A : ElectromagneticPotential d) :\n    Time → Space d → ℝ := timeSlice c <|\n  fun x => c * A x (Sum.inl 0)\n",
+        "docstring": "The scalar potential from the electromagnetic potential. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.single_le_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 92641,
+        "name": "Finset.single_le_sum",
+        "module": "Mathlib.Algebra.Order.BigOperators.Group.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/BigOperators/Group/Finset.lean#L196-L196",
+        "source_text": "@[to_additive single_le_sum]\ntheorem single_le_prod' [MulLeftMono N] (hf : ∀ i ∈ s, 1 ≤ f i) {a} (h : a ∈ s) :\n    f a ≤ ∏ x ∈ s, f x :=",
+        "docstring": null
+      },
+      {
+        "id": 58318,
+        "name": "Finset.sum_multiset_singleton",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L359-L361",
+        "source_text": "@[simp]\ntheorem sum_multiset_singleton (s : Finset ι) : ∑ a ∈ s, {a} = s.val := by\n  simp only [sum_eq_multiset_sum, Multiset.sum_map_singleton]",
+        "docstring": null
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 57927,
+        "name": "Finsupp.single_finset_sum",
+        "module": "Mathlib.Algebra.BigOperators.Finsupp.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finsupp/Basic.lean#L260-L260",
+        "source_text": "@[deprecated (since := \"2026-04-08\")] alias single_finset_sum := single_finsetSum",
+        "docstring": "**Alias** of `Finsupp.single_finsetSum`."
+      },
+      {
+        "id": 59022,
+        "name": "Finset.univ_sum_single",
+        "module": "Mathlib.Algebra.BigOperators.Pi",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Pi.lean#L110-L110",
+        "source_text": "@[to_additive]\ntheorem Finset.univ_prod_mulSingle [Fintype I] (f : ∀ i, M i) :\n    (∏ i, Pi.mulSingle i (f i)) = f := by",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.length_take Nat.min_le_right",
+    "status": "ok",
+    "results": [
+      {
+        "id": 209413,
+        "name": "List.takeD_length",
+        "module": "Mathlib.Data.List.TakeDrop",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L143-L146",
+        "source_text": "@[simp]\ntheorem takeD_length : ∀ n l a, length (@takeD α n l a) = n\n  | 0, _, _ => rfl\n  | _ + 1, _, _ => congr_arg succ (takeD_length _ _ _)\n\n-- `takeD_nil` is already in batteries\n\ntheorem takeD_eq_take : ∀ {n} {l : List α} a, n ≤ length l → takeD n l a = take n l\n  | 0, _, _, _ => rfl\n  | _ + 1, _ :: _, a, h => congr_arg (cons _) <| takeD_eq_take a <| le_of_succ_le_succ h\n\n@[simp]\ntheorem takeD_left (l₁ l₂ : List α) (a : α) : takeD (length l₁) (l₁ ++ l₂) a = l₁ :=",
+        "docstring": null
+      },
+      {
+        "id": 196592,
+        "name": "Primrec.list_take",
+        "module": "Mathlib.Computability.Primrec.List",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/Primrec/List.lean#L380-L384",
+        "source_text": "/-- `List.take` is primitive recursive. -/\ntheorem list_take : Primrec₂ (List.take : ℕ → List α → List α) :=\n  (list_reverse.comp (list_drop.comp (nat_sub.comp (list_length.comp snd) fst)\n    (list_reverse.comp snd))).of_eq fun ⟨n, l⟩ => by\n    rw [← List.reverse_reverse (l.take n), List.reverse_take]\n",
+        "docstring": "`List.take` is primitive recursive. "
+      },
+      {
+        "id": 207947,
+        "name": "List.rtake_concat_succ",
+        "module": "Mathlib.Data.List.DropRight",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/DropRight.lean#L88-L90",
+        "source_text": "@[simp]\ntheorem rtake_concat_succ (x : α) : rtake (l ++ [x]) (n + 1) = rtake l n ++ [x] := by\n  simp [rtake_eq_reverse_take_reverse]",
+        "docstring": null
+      },
+      {
+        "id": 209414,
+        "name": "List.takeD_eq_take",
+        "module": "Mathlib.Data.List.TakeDrop",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L150-L152",
+        "source_text": "theorem takeD_eq_take : ∀ {n} {l : List α} a, n ≤ length l → takeD n l a = take n l\n  | 0, _, _, _ => rfl\n  | _ + 1, _ :: _, a, h => congr_arg (cons _) <| takeD_eq_take a <| le_of_succ_le_succ h\n",
+        "docstring": null
+      },
+      {
+        "id": 207944,
+        "name": "List.rtake_nil",
+        "module": "Mathlib.Data.List.DropRight",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/DropRight.lean#L73-L74",
+        "source_text": "@[simp]\ntheorem rtake_nil : rtake ([] : List α) n = [] := by simp [rtake]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "List.length_take Nat.min_le_right",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386727,
+        "name": "Physlib.List.insertionSortMin_lt_length_succ",
+        "module": "Physlib.Mathematics.List.InsertionSort",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L22-L25",
+        "source_text": "lemma insertionSortMin_lt_length_succ {α : Type} (r : α → α → Prop) [DecidableRel r]\n    (i : α) (l : List α) :\n    insertionSortMinPos r i l < (insertionSortDropMinPos r i l).length.succ := by\n  simp [insertionSortMinPos, insertionSortDropMinPos, eraseIdx_length']\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

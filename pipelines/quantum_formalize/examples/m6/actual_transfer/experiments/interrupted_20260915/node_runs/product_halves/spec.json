@@ -1,0 +1,12 @@
+{
+  "name": "M6.ActualTransfer.product_halves",
+  "statement": "∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (w : Fin (2*N) → ZMod 2 → Polynomial ℤ), (∏ q, w q (M6.Flatten.flatten N z q)) = ∏ i : ZMod N, w (M6.ActualTransfer.leftIndex N i) (z.1 i) * w (M6.ActualTransfer.rightIndex N i) (z.2 i)",
+  "imports": [
+    "M6ActualTransferReady"
+  ],
+  "context": "theorem M6.ActualTransfer.left_coordinate : ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.leftIndex N i) = z.1 i := by\n  change ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.leftIndex N i) = z.1 i\n  intro N inst z i\n  simp [M6.Flatten.flatten, M6.ActualTransfer.leftIndex, ZMod.val_lt i]\n\ntheorem M6.ActualTransfer.right_coordinate : ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.rightIndex N i) = z.2 i := by\n  change ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.rightIndex N i) = z.2 i\n  intro N inst z i\n  have h₁ : ¬ N + i.val < N := by omega\n  have h₂ : ¬ i.val + N < N := by omega\n  simp [M6.Flatten.flatten, M6.ActualTransfer.rightIndex, h₁, h₂]",
+  "queries": [
+    "finite product sum equivalence cyclic convolution"
+  ],
+  "guidance": "Use Fin.prod_univ_add, Fin N/ZMod N equivalence, prod_mul_distrib. Return tactic lines only without leading by."
+}

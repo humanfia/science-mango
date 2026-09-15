@@ -1,0 +1,121 @@
+{
+  "id": "actual_layer_intermediates",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.actual_layer_intermediates",
+    "spec_sha256": "2b50bd9161e9531a8ac6603b706420d780916d93e2b17af0ac1d1ca33cf68df5",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-oyur5tyk/attempt-001/Candidate_7eac211af6d125ed.lean:19:6: error: Type mismatch\n  Finset.single_le_sum (fun x hx => Nat.zero_le (?m.108 x)) (Finset.mem_univ e)\nhas type\n  ?m.108 e ≤ ∑ x, ?m.108 x\nbut is expected to have type\n  (eventTerm (W i) (scalarLayers W start i) e).natAbs ≤ ∑ e, (eventTerm (W i) (scalarLayers W start i) e).natAbs\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-oyur5tyk/attempt-002/Candidate_89b433188cbe26c7.lean",
+        "target_path": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-oyur5tyk/attempt-002/FrozenTarget_89b433188cbe26c7.lean",
+        "feedback": "",
+        "target_sha256": "4d468214452b44354f57543624ba614630880661841f4e6a6cd8308b23f453be",
+        "target_olean_sha256": "6ff9d4d7c53ae8dafead02f448bf1022fb3224ec9197cd5248ce2ac667e00c79",
+        "source_sha256": "39b4a6204c633fef35602b28757660c6e52bafd15a8ee1b2b7f78d2cae56aa75",
+        "olean_sha256": "0e41f2748ba293b1a631a766b7ecb46ce2cfe9f3147da827268a634450d5afcd",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:44:18.839138+00:00",
+    "work": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-oyur5tyk",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a14ad11c48831e75c3270c501d743e015d9997603af2ad751a2839f5daf9aa40",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-oyur5tyk/attempt-002/Candidate_89b433188cbe26c7.lean",
+    "environment_sha256": "41bed09e76747ce75b81790220011c77a1162e4ca932827168117d399f7b40db",
+    "artifacts": {
+      "finite_coefficient_mass": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.finite_coefficient_mass : ∀ (p : Polynomial ℤ) (L : ℕ), (∑ d : Fin L, (p.coeff d.val).natAbs) ≤ M6.Transfer.polynomialMass p := by\n  classical\n  change ∀ (p : Polynomial ℤ) (L : ℕ), (∑ d : Fin L, (p.coeff d.val).natAbs) ≤ M6.Transfer.polynomialMass p\n  intro p L\n  change (∑ d : Fin L, (p.coeff d.val).natAbs) ≤ ∑ d ∈ p.support, (p.coeff d).natAbs\n  have hfin : (∑ d : Fin L, (p.coeff d.val).natAbs) = ∑ d ∈ Finset.range L, (p.coeff d).natAbs :=\n    Fin.sum_univ_eq_sum_range (fun d : ℕ => (p.coeff d).natAbs) L\n  rw [hfin]\n  calc\n    (∑ d ∈ Finset.range L, (p.coeff d).natAbs) ≤\n        ∑ d ∈ p.support ∪ Finset.range L, (p.coeff d).natAbs := by\n      apply Finset.sum_le_sum_of_subset_of_nonneg\n      · exact Finset.subset_union_right\n      · intros\n        exact Nat.zero_le _\n    _ = ∑ d ∈ p.support, (p.coeff d).natAbs := by\n      symm\n      apply Finset.sum_subset Finset.subset_union_left\n      intro d hd hnot\n      have hz : p.coeff d = 0 := by\n        simpa only [Polynomial.mem_support_iff, not_not] using hnot\n      simp [hz]",
+          "imports": [
+            "M6TransferPartialResourcesReady"
+          ],
+          "name": "M6.Transfer.finite_coefficient_mass",
+          "ancestors": [],
+          "spec_sha256": "acc5a50d845a1a5dddb359bf7efed93ff30fa069923f960621d1e934d5db9be3"
+        },
+        "sha256": "8cad607f1b67b645723fb7f6b1d565b17c2f9bdb184dc7a914d4d7e07e381c97"
+      },
+      "encoded_array_mass": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.encoded_array_mass : ∀ (R N : ℕ) (v : M6.Transfer.Memory R → Polynomial ℤ), M6.Transfer.arrayMass (M6.Transfer.encodeCoefficients (N:=N) v) ≤ M6.Transfer.rowMass v := by\n  classical\n  change ∀ (R N : ℕ) (v : M6.Transfer.Memory R → Polynomial ℤ), M6.Transfer.arrayMass (M6.Transfer.encodeCoefficients (N := N) v) ≤ M6.Transfer.rowMass v\n  intro R N v\n  change (∑ addr : M6.Transfer.Memory R × Fin (2 * N + 1), ((v addr.1).coeff addr.2.val).natAbs) ≤ ∑ m : M6.Transfer.Memory R, M6.Transfer.polynomialMass (v m)\n  rw [Fintype.sum_prod_type]\n  apply Finset.sum_le_sum\n  intro m hm\n  exact M6.Transfer.finite_coefficient_mass (v m) (2 * N + 1)",
+          "imports": [
+            "M6TransferPartialResourcesReady"
+          ],
+          "name": "M6.Transfer.encoded_array_mass",
+          "ancestors": [
+            "finite_coefficient_mass"
+          ],
+          "spec_sha256": "eb726beb5b3a43afbcdd6f4a7e69f6d1ed57c3638cfaace79430ee714855606d"
+        },
+        "sha256": "85d03306ea15a4ab41b802239b516c53b8121791e7b39243d4587d1a1a9a44d7"
+      },
+      "event_mass_bound": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.event_mass_bound : ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input : M6.Transfer.CoefficientArray R N), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.eventMass W input ≤ 8 * M6.Transfer.arrayMass input := by\n  classical\n  change ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input : M6.Transfer.CoefficientArray R N), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.eventMass W input ≤ 8 * M6.Transfer.arrayMass input\n  intro R N W input hW\n  unfold M6.Transfer.eventMass M6.Transfer.arrayMass\n  simp only [M6.Transfer.ScatterEvent, M6.Transfer.CoefficientAddress,\n    Fintype.sum_prod_type, M6.Transfer.eventTerm, Int.natAbs_mul]\n  calc\n    _ ≤ ∑ m : M6.Transfer.Memory R, ∑ t : M6.Transfer.Bit,\n        ∑ i : Fin (2 * N + 1), (input (m, i)).natAbs * 4 := by\n      apply Finset.sum_le_sum\n      intro m hm\n      apply Finset.sum_le_sum\n      intro t ht\n      apply Finset.sum_le_sum\n      intro i hi\n      rw [← Finset.mul_sum]\n      exact Nat.mul_le_mul_left _\n        ((M6.Transfer.finite_coefficient_mass (W m t) 3).trans (hW m t))\n    _ = _ := by\n      simp [M6.Transfer.Bit, ← Finset.mul_sum, mul_comm, mul_left_comm, mul_assoc] <;> ring",
+          "imports": [
+            "M6TransferPartialResourcesReady"
+          ],
+          "name": "M6.Transfer.event_mass_bound",
+          "ancestors": [
+            "finite_coefficient_mass"
+          ],
+          "spec_sha256": "0015992b98b556c185f340e96def47da0afb831d8fe6b0c7a35bb33e867dfcf7"
+        },
+        "sha256": "c71fb4ba58c4a9d6699eabcd6ac9a2c1f563abca02e3ab0d0fb304957ac825b4"
+      },
+      "scatter_prefix_magnitude": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.scatter_prefix_magnitude : ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input : M6.Transfer.CoefficientArray R N) (k : ℕ) (addr : M6.Transfer.CoefficientAddress R N), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → (((M6.Transfer.scatterEventList R N).take k).foldl (M6.Transfer.scatterUpdate W input) (fun _ => 0) addr).natAbs ≤ 8 * M6.Transfer.arrayMass input := by\n  classical\n  change ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input : M6.Transfer.CoefficientArray R N) (k : ℕ) (addr : M6.Transfer.CoefficientAddress R N), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → (((M6.Transfer.scatterEventList R N).take k).foldl (M6.Transfer.scatterUpdate W input) (fun _ => 0) addr).natAbs ≤ 8 * M6.Transfer.arrayMass input\n  intro R N W input k addr hW\n  let f : M6.Transfer.ScatterEvent R N → ℤ := fun e =>\n    if M6.Transfer.eventDestination e = some addr then M6.Transfer.eventTerm W input e else 0\n  let g : M6.Transfer.ScatterEvent R N → ℕ := fun e =>\n    (M6.Transfer.eventTerm W input e).natAbs\n  have hf (e : M6.Transfer.ScatterEvent R N) : (f e).natAbs ≤ g e := by\n    dsimp [f, g]\n    split <;> simp\n  have hlist (l : List (M6.Transfer.ScatterEvent R N)) (j : ℕ) :\n      (((l.take j).map f).sum).natAbs ≤ (l.map g).sum := by\n    induction l generalizing j with\n    | nil => simp\n    | cons e l ih =>\n      cases j with\n      | zero => simp\n      | succ j =>\n        simp only [List.take_succ_cons, List.map_cons, List.sum_cons]\n        exact (Int.natAbs_add_le _ _).trans (Nat.add_le_add (hf e) (ih j))\n  rw [M6.Transfer.scatter_prefix_formula, zero_add]\n  change ((((M6.Transfer.scatterEventList R N).take k).map f).sum).natAbs ≤ _\n  apply (hlist (M6.Transfer.scatterEventList R N) k).trans\n  simpa [M6.Transfer.scatterEventList, g, M6.Transfer.eventMass] using\n    (M6.Transfer.event_mass_bound R N W input hW)",
+          "imports": [
+            "M6TransferPartialResourcesReady"
+          ],
+          "name": "M6.Transfer.scatter_prefix_magnitude",
+          "ancestors": [
+            "event_mass_bound",
+            "finite_coefficient_mass"
+          ],
+          "spec_sha256": "65425b162b7b56fe6af8a5573d3ed7a95cff87ef1ad7939822e0096acb9854e4"
+        },
+        "sha256": "26495ab1833bad349c262d659ce9b8deb256408f3f8722e1553c491101455d91"
+      },
+      "actual_layer_intermediates": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.actual_layer_intermediates : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (i k : ℕ) (addr : M6.Transfer.CoefficientAddress R N), (∀ j m t, M6.Transfer.polynomialMass (W j m t) ≤ 4) → (∀ j m t, (W j m t).natDegree ≤ 2) → ((((M6.Transfer.scatterEventList R N).take k).foldl (M6.Transfer.scatterUpdate (W i) (M6.Transfer.scalarLayers (N:=N) W start i)) (fun _ => 0) addr).natAbs ≤ 8^(i+1)) ∧ (∀ e : M6.Transfer.ScatterEvent R N, (M6.Transfer.eventTerm (W i) (M6.Transfer.scalarLayers (N:=N) W start i) e).natAbs ≤ 8^(i+1)) := by\n  classical\n  intro R N W start i k addr hmass hdegree\n  have hinput : M6.Transfer.arrayMass (M6.Transfer.scalarLayers (N := N) W start i) ≤ 8 ^ i := by\n    rw [M6.Transfer.scalar_layers_exact R N W start i hdegree]\n    exact (M6.Transfer.encoded_array_mass R N (M6.Transfer.layers W start i)).trans\n      (M6.Transfer.layers_mass R W start i hmass)\n  have hbound : 8 * M6.Transfer.arrayMass (M6.Transfer.scalarLayers (N := N) W start i) ≤ 8 ^ (i + 1) := by\n    calc\n      _ ≤ 8 * 8 ^ i := Nat.mul_le_mul_left 8 hinput\n      _ = _ := by rw [pow_succ, Nat.mul_comm]\n  constructor\n  · exact (M6.Transfer.scatter_prefix_magnitude R N (W i)\n      (M6.Transfer.scalarLayers (N := N) W start i) k addr (hmass i)).trans hbound\n  · intro e\n    have he : (M6.Transfer.eventTerm (W i)\n        (M6.Transfer.scalarLayers (N := N) W start i) e).natAbs ≤\n        M6.Transfer.eventMass (W i) (M6.Transfer.scalarLayers (N := N) W start i) := by\n      unfold M6.Transfer.eventMass\n      exact Finset.single_le_sum\n        (f := fun e : M6.Transfer.ScatterEvent R N =>\n          (M6.Transfer.eventTerm (W i)\n            (M6.Transfer.scalarLayers (N := N) W start i) e).natAbs)\n        (fun _ _ => Nat.zero_le _) (Finset.mem_univ e)\n    exact he.trans ((M6.Transfer.event_mass_bound R N (W i)\n      (M6.Transfer.scalarLayers (N := N) W start i) (hmass i)).trans hbound)",
+          "imports": [
+            "M6TransferPartialResourcesReady"
+          ],
+          "name": "M6.Transfer.actual_layer_intermediates",
+          "ancestors": [
+            "encoded_array_mass",
+            "event_mass_bound",
+            "finite_coefficient_mass",
+            "scatter_prefix_magnitude"
+          ],
+          "spec_sha256": "ef83f9e1a6f00b931931c5cc2783021091c8ae20dc8f31dee92dae77e7b11888"
+        },
+        "sha256": "fbb3a82ee401cd9cac3abe6f849d46a024154870073fdc5c15c8202f3923032c"
+      }
+    }
+  }
+}

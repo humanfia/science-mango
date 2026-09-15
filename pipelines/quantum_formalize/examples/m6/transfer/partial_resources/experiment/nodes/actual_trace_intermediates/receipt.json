@@ -1,0 +1,73 @@
+{
+  "id": "actual_trace_intermediates",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.actual_trace_intermediates",
+    "spec_sha256": "d38cd51fd50fc563446be7250acf0c79ae4c44f2f72957de6869bc92c4e51559",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-iv11pw7f/attempt-001/Candidate_b407c2128f3dff9d.lean:15:8: error: Type mismatch\n  Finset.single_le_sum (fun i hi => Nat.zero_le (?m.90 i)) (Finset.mem_univ start)\nhas type\n  ?m.90 start ≤ ∑ x, ?m.90 x\nbut is expected to have type\n  polynomialMass (layers W start N start) ≤ ∑ m, polynomialMass (layers W start N m)\n/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-iv11pw7f/attempt-001/Candidate_b407c2128f3dff9d.lean:36:28: warning: This simp argument is unused:\n  M6.Transfer.state_count\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-iv11pw7f/attempt-002/Candidate_0921f350d1e49d98.lean:31:41: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  e ≥ 0\n  b ≥ 0\n  a ≥ 0\n  a - b + c ≤ -1\n  a - e ≥ 0\nwhere\n a := ↑l.length * ↑(8 ^ N)\n b := ↑(l.length + 1) * ↑(8 ^ N)\n c := ↑8 ^ N\n e := (List.map (fun start => scalarLayers W start N (start, d)) l).sum\n",
+        "attempt": 2
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-iv11pw7f/attempt-003/Candidate_c3eec9c5170c14f3.lean:14:8: error: Type mismatch\n  Finset.single_le_sum (fun x x_1 => Nat.zero_le (?m.89 x)) (Finset.mem_univ start)\nhas type\n  ?m.89 start ≤ ∑ x, ?m.89 x\nbut is expected to have type\n  polynomialMass (layers W start N start) ≤ ∑ m, polynomialMass (layers W start N m)\n/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-iv11pw7f/attempt-003/Candidate_c3eec9c5170c14f3.lean:32:36: warning: This simp argument is unused:\n  M6.Transfer.state_count\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 3
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-iv11pw7f/attempt-004/Candidate_38745fcd9cb4110d.lean",
+        "target_path": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-iv11pw7f/attempt-004/FrozenTarget_38745fcd9cb4110d.lean",
+        "feedback": "",
+        "target_sha256": "f64d6b0e04f4d69d1febadca0ccba2bcd311c06e22dbe8ea348d7bb93c583171",
+        "target_olean_sha256": "6445a18952c2edd05460667b64b83acfda794a9027fef0291d072dd4ed0450e1",
+        "source_sha256": "3e5226070c9a85e915965f05b4da3beb7cf6205efba50bdc0761afb5044d89a4",
+        "olean_sha256": "4eaea575382c95a0bbfd4bdc1abd5f3db58c15365f3f588472b365dcf56b088d",
+        "attempt": 4
+      }
+    ],
+    "created_at": "2026-09-15T13:35:36.251912+00:00",
+    "work": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-iv11pw7f",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a14ad11c48831e75c3270c501d743e015d9997603af2ad751a2839f5daf9aa40",
+    "phase": "finished",
+    "round": 4,
+    "proof": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-iv11pw7f/attempt-004/Candidate_38745fcd9cb4110d.lean",
+    "environment_sha256": "41bed09e76747ce75b81790220011c77a1162e4ca932827168117d399f7b40db",
+    "artifacts": {
+      "actual_trace_intermediates": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.actual_trace_intermediates : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (k : ℕ) (d : Fin (2*N+1)), (∀ j m t, M6.Transfer.polynomialMass (W j m t) ≤ 4) → (∀ j m t, (W j m t).natDegree ≤ 2) → ((((Finset.univ : Finset (M6.Transfer.Memory R)).toList.take k).map (fun start => M6.Transfer.scalarLayers (N:=N) W start N (start,d))).sum).natAbs ≤ 2^R * 8^N := by\n  classical\n  intro R N W k d hmass hdeg\n  have hterm (start : M6.Transfer.Memory R) :\n      (M6.Transfer.scalarLayers (N := N) W start N (start, d)).natAbs ≤ 8^N := by\n    rw [M6.Transfer.scalar_layers_exact R N W start N hdeg]\n    change ((M6.Transfer.layers W start N start).coeff d.val).natAbs ≤ 8^N\n    calc\n      _ ≤ M6.Transfer.polynomialMass (M6.Transfer.layers W start N start) :=\n        M6.Transfer.mass_basic.2.2.2 _ _\n      _ ≤ M6.Transfer.rowMass (M6.Transfer.layers W start N) := by\n        unfold M6.Transfer.rowMass\n        exact Finset.single_le_sum\n          (f := fun m => M6.Transfer.polynomialMass (M6.Transfer.layers W start N m))\n          (fun m _ => Nat.zero_le _) (Finset.mem_univ start)\n      _ ≤ 8^N := M6.Transfer.layers_mass R W start N hmass\n  have hlist (l : List (M6.Transfer.Memory R)) :\n      ((l.map (fun start => M6.Transfer.scalarLayers (N := N) W start N (start, d))).sum).natAbs\n        ≤ l.length * 8^N := by\n    induction l with\n    | nil => simp\n    | cons a l ih =>\n      simp only [List.map_cons, List.sum_cons, List.length_cons]\n      calc\n        _ ≤ (M6.Transfer.scalarLayers (N := N) W a N (a, d)).natAbs +\n            ((l.map (fun start => M6.Transfer.scalarLayers (N := N) W start N (start, d))).sum).natAbs :=\n          Int.natAbs_add_le _ _\n        _ ≤ 8^N + l.length * 8^N := Nat.add_le_add (hterm a) ih\n        _ = (l.length + 1) * 8^N := by simp [Nat.add_mul, Nat.add_comm]\n  have hlen :\n      (((Finset.univ : Finset (M6.Transfer.Memory R)).toList).take k).length ≤ 2^R := by\n    calc\n      _ ≤ (Finset.univ : Finset (M6.Transfer.Memory R)).toList.length := by\n        simp only [List.length_take]\n        exact Nat.min_le_right _ _\n      _ = 2^R := by simp [M6.Transfer.state_count]\n  exact (hlist _).trans (Nat.mul_le_mul_right (8^N) hlen)",
+          "imports": [
+            "M6TransferPartialResourcesReady"
+          ],
+          "name": "M6.Transfer.actual_trace_intermediates",
+          "ancestors": [],
+          "spec_sha256": "d38cd51fd50fc563446be7250acf0c79ae4c44f2f72957de6869bc92c4e51559"
+        },
+        "sha256": "90f5dfef31399baa5e19555682d13bdf4224193ed6ed152db17247168e79f90b"
+      }
+    }
+  }
+}

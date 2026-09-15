@@ -1,0 +1,140 @@
+{
+  "title": "M6 actual transfer weights and physical input products",
+  "nodes": [
+    {
+      "id": "left_coordinate",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualTransfer.left_coordinate",
+        "statement": "∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.leftIndex N i) = z.1 i",
+        "imports": [
+          "M6ActualTransferReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite product sum equivalence cyclic convolution"
+        ],
+        "guidance": "Unfold flatten/leftIndex and use ZMod.val_lt. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "right_coordinate",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualTransfer.right_coordinate",
+        "statement": "∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.rightIndex N i) = z.2 i",
+        "imports": [
+          "M6ActualTransferReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite product sum equivalence cyclic convolution"
+        ],
+        "guidance": "Unfold flatten/rightIndex; simplify subtraction and nat casts. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "product_halves",
+      "dependencies": [
+        "left_coordinate",
+        "right_coordinate"
+      ],
+      "spec": {
+        "name": "M6.ActualTransfer.product_halves",
+        "statement": "∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (w : Fin (2*N) → ZMod 2 → Polynomial ℤ), (∏ q, w q (M6.Flatten.flatten N z q)) = ∏ i : ZMod N, w (M6.ActualTransfer.leftIndex N i) (z.1 i) * w (M6.ActualTransfer.rightIndex N i) (z.2 i)",
+        "imports": [
+          "M6ActualTransferReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite product sum equivalence cyclic convolution"
+        ],
+        "guidance": "Use Fin.prod_univ_add, Fin N/ZMod N equivalence, prod_mul_distrib. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "window_conv",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualTransfer.window_conv",
+        "statement": "∀ (R N : ℕ) [NeZero N] (a : M6.ActualTransfer.BP), a.natDegree ≤ R → R < N → ∀ (h : M6.Transfer.Input N) (i : ZMod N), M6.Transfer.cyclicOutput (M6.ActualTransfer.window R a) h i = M6.Physical.conv N (M6.Coordinates.coefficients N a) h i",
+        "imports": [
+          "M6ActualTransferReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite product sum equivalence cyclic convolution"
+        ],
+        "guidance": "Extend Fin(R+1) sum to Fin N by zero coefficients above natDegree, transport Fin N to ZMod N. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "boundary_input_product",
+      "dependencies": [
+        "window_conv",
+        "product_halves"
+      ],
+      "spec": {
+        "name": "M6.ActualTransfer.boundary_input_product",
+        "statement": "∀ (R N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), a.natDegree ≤ R → b.natDegree ≤ R → R < N → ∀ (P : M6.Pinned.Pins (2*N)) (h : M6.Transfer.Input N), (∏ i : ZMod N, M6.ActualTransfer.boundaryWeight R N a b P i.val (M6.Transfer.memoryAt h i) (h i)) = M6.Character.pinnedMonomial P (M6.Flatten.flatten N (M6.Physical.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h))",
+        "imports": [
+          "M6ActualTransferReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite product sum equivalence cyclic convolution"
+        ],
+        "guidance": "Use output_convolution, window_conv, product_halves; boundary uses pinned_product. Character uses negation reindex and factor swap; preserve actual right(-i)/left(-i) orientation. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "character_input_product",
+      "dependencies": [
+        "window_conv",
+        "product_halves"
+      ],
+      "spec": {
+        "name": "M6.ActualTransfer.character_input_product",
+        "statement": "∀ (R N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), a.natDegree ≤ R → b.natDegree ≤ R → R < N → ∀ (P : M6.Pinned.Pins (2*N)) (h : M6.Transfer.Input N), (∏ i : ZMod N, M6.ActualTransfer.characterWeight R N a b P i.val (M6.Transfer.memoryAt h i) (h i)) = ∏ q : Fin (2*N), M6.Character.pinnedCharacterFactor P q (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h)) q)",
+        "imports": [
+          "M6ActualTransferReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite product sum equivalence cyclic convolution"
+        ],
+        "guidance": "Use output_convolution, window_conv, product_halves; boundary uses pinned_product. Character uses negation reindex and factor swap; preserve actual right(-i)/left(-i) orientation. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    }
+  ]
+}

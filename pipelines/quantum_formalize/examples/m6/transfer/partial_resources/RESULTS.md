@@ -1,0 +1,1 @@
+All six actual signed intermediate targets passed with combined assembly and unchanged environment. Bounds cover the actual scalar scatter prefix, every primitive event product, and partial sums over starting states. They use absolute contribution masses before cancellation. Canonical exact target, proof, original olean and allowed-axiom audit: `experiment/AUDIT.json`.

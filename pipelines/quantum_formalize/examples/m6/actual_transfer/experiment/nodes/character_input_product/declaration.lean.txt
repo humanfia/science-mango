@@ -1,0 +1,17 @@
+theorem M6.ActualTransfer.character_input_product : ∀ (R N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), a.natDegree ≤ R → b.natDegree ≤ R → R < N → ∀ (P : M6.Pinned.Pins (2*N)) (h : M6.Transfer.Input N), (∏ i : ZMod N, M6.ActualTransfer.characterWeight R N a b P i.val (M6.Transfer.memoryAt h i) (h i)) = ∏ q : Fin (2*N), M6.Character.pinnedCharacterFactor P q (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h)) q) := by
+  classical
+  intro R N inst a b ha hb hRN P h
+  rw [M6.ActualTransfer.product_halves]
+  refine Finset.prod_bij (fun i _ => -i) ?_ ?_ ?_ ?_
+  · intro i hi
+    exact Finset.mem_univ _
+  · intro i hi j hj hij
+    exact neg_injective hij
+  · intro j hj
+    exact ⟨-j, Finset.mem_univ _, neg_neg j⟩
+  · intro i hi
+    simp [M6.ActualTransfer.characterWeight,
+      M6.Transfer.output_convolution,
+      M6.ActualTransfer.window_conv R N a ha hRN,
+      M6.ActualTransfer.window_conv R N b hb hRN,
+      M6.Physical.J, M6.Physical.boundary, M6.Physical.rev, mul_comm]

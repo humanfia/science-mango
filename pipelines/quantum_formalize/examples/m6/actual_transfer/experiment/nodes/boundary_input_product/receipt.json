@@ -1,0 +1,111 @@
+{
+  "id": "boundary_input_product",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualTransfer.boundary_input_product",
+    "spec_sha256": "0d37f8411976b3fcf6393e86e2457582c1e113b0dc1db8806b8be8c44c7499f9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-transfer-formalization/.humanize-formal-runs/run-y9971zhy/attempt-001/Candidate_e8d833d9b6d60903.lean",
+        "target_path": "/home/jing/m6-lean-actual-transfer-formalization/.humanize-formal-runs/run-y9971zhy/attempt-001/FrozenTarget_e8d833d9b6d60903.lean",
+        "feedback": "",
+        "target_sha256": "338b2d49cab0930914ff4d234855d8e6af888e40cdc7ceef3b1caa902308643d",
+        "target_olean_sha256": "37f564e1f3cb3f3b4484a7f92e9bf85355734efc4331f6f99d47316286e8cf88",
+        "source_sha256": "ced45824859d986be2f0db2e3ec62bf597ef2eeaed9cd61d02e34d228afb9899",
+        "olean_sha256": "df650a1e75099632782b8de3ed24dec3106522e5057445e7df8a4fa9a20f2a74",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:03:26.949177+00:00",
+    "work": "/home/jing/m6-lean-actual-transfer-formalization/.humanize-formal-runs/run-y9971zhy",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c975f8c2d8034e31bcb737641b0c0147e107b9f61db70bb6f861e2f03aba9f5d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-transfer-formalization/.humanize-formal-runs/run-y9971zhy/attempt-001/Candidate_e8d833d9b6d60903.lean",
+    "environment_sha256": "30a287bf55e02144d7558a90176aaeefcec0a6f7ebfa4c3a19e5c878f844afc8",
+    "artifacts": {
+      "window_conv": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.window_conv : ∀ (R N : ℕ) [NeZero N] (a : M6.ActualTransfer.BP), a.natDegree ≤ R → R < N → ∀ (h : M6.Transfer.Input N) (i : ZMod N), M6.Transfer.cyclicOutput (M6.ActualTransfer.window R a) h i = M6.Physical.conv N (M6.Coordinates.coefficients N a) h i := by\n  classical\n  intro R N inst a ha hRN h i\n  change (∑ j : Fin (R + 1), a.coeff j.val * h (i - (j.val : ZMod N))) =\n    ∑ j : ZMod N, a.coeff j.val * h (i - j)\n  have hv (j : Fin (R + 1)) : ((j.val : ZMod N)).val = j.val := by\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt (show j.val < N by omega)]\n  calc\n    (∑ j : Fin (R + 1), a.coeff j.val * h (i - (j.val : ZMod N))) =\n        ∑ j ∈ Finset.univ.filter (fun j : ZMod N => j.val < R + 1),\n          a.coeff j.val * h (i - j) := by\n      refine Finset.sum_bij (fun j _ => (j.val : ZMod N)) ?_ ?_ ?_ ?_\n      · intro j hj\n        simp only [Finset.mem_filter, Finset.mem_univ, true_and, hv]\n        exact j.isLt\n      · intro j hj k hk hjk\n        apply Fin.ext\n        have he := congrArg (fun x : ZMod N => x.val) hjk\n        simpa only [hv] using he\n      · intro j hj\n        have hjlt : j.val < R + 1 := (Finset.mem_filter.mp hj).2\n        refine ⟨⟨j.val, hjlt⟩, Finset.mem_univ _, ?_⟩\n        simp\n      · intro j hj\n        rw [hv]\n    _ = ∑ j : ZMod N, a.coeff j.val * h (i - j) := by\n      apply Finset.sum_subset (Finset.filter_subset _ _)\n      intro j hj hjout\n      have hjlarge : ¬j.val < R + 1 := by\n        simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hjout\n      rw [Polynomial.coeff_eq_zero_of_natDegree_lt (show a.natDegree < j.val by omega), zero_mul]",
+          "imports": [
+            "M6ActualTransferReady"
+          ],
+          "name": "M6.ActualTransfer.window_conv",
+          "ancestors": [],
+          "spec_sha256": "f546befd43f3823e51a374da6dccc83479d82ca95fd479b733192d1f3f7e91c0"
+        },
+        "sha256": "28faba5483d1f27b8cba76909c01658b79d5f27fa57db40f3f8f1bed05603b00"
+      },
+      "left_coordinate": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.left_coordinate : ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.leftIndex N i) = z.1 i := by\n  change ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.leftIndex N i) = z.1 i\n  intro N inst z i\n  simp [M6.Flatten.flatten, M6.ActualTransfer.leftIndex, ZMod.val_lt i]",
+          "imports": [
+            "M6ActualTransferReady"
+          ],
+          "name": "M6.ActualTransfer.left_coordinate",
+          "ancestors": [],
+          "spec_sha256": "fea02ab41cad083f839e3b735d73280cedebc6415c09a049eff290493612a61c"
+        },
+        "sha256": "8e9a825222aeaaf1f4e3a5528b159787a16867b543689d5e39d89662532cde3b"
+      },
+      "right_coordinate": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.right_coordinate : ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.rightIndex N i) = z.2 i := by\n  change ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (i : ZMod N), M6.Flatten.flatten N z (M6.ActualTransfer.rightIndex N i) = z.2 i\n  intro N inst z i\n  have h₁ : ¬ N + i.val < N := by omega\n  have h₂ : ¬ i.val + N < N := by omega\n  simp [M6.Flatten.flatten, M6.ActualTransfer.rightIndex, h₁, h₂]",
+          "imports": [
+            "M6ActualTransferReady"
+          ],
+          "name": "M6.ActualTransfer.right_coordinate",
+          "ancestors": [],
+          "spec_sha256": "a29f7bb7cb829e768848430726a9c31a23c9e142d787c854d44a9df1ce789013"
+        },
+        "sha256": "1031b927c4157e10708065840a8adc66ee2473f7166b4feccda1d2e24abd2e81"
+      },
+      "product_halves": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.product_halves : ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (w : Fin (2*N) → ZMod 2 → Polynomial ℤ), (∏ q, w q (M6.Flatten.flatten N z q)) = ∏ i : ZMod N, w (M6.ActualTransfer.leftIndex N i) (z.1 i) * w (M6.ActualTransfer.rightIndex N i) (z.2 i) := by\n  change ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N) (w : Fin (2*N) → ZMod 2 → Polynomial ℤ), (∏ q, w q (M6.Flatten.flatten N z q)) = ∏ i : ZMod N, w (M6.ActualTransfer.leftIndex N i) (z.1 i) * w (M6.ActualTransfer.rightIndex N i) (z.2 i)\n  intro N inst z w\n  classical\n  cases N with\n  | zero => exact (NeZero.ne 0 rfl).elim\n  | succ n =>\n    let f : ZMod (n+1) ⊕ ZMod (n+1) → Fin (2*(n+1)) :=\n      Sum.elim (M6.ActualTransfer.leftIndex (n+1)) (M6.ActualTransfer.rightIndex (n+1))\n    have hf : Function.Bijective f := by\n      constructor\n      · intro a b h\n        cases a with\n        | inl i =>\n          cases b with\n          | inl j =>\n            have hv := congrArg Fin.val h\n            apply congrArg Sum.inl\n            apply Fin.ext\n            exact hv\n          | inr j =>\n            have hv := congrArg Fin.val h\n            have hi := ZMod.val_lt i\n            dsimp [f, M6.ActualTransfer.leftIndex, M6.ActualTransfer.rightIndex] at hv\n            omega\n        | inr i =>\n          cases b with\n          | inl j =>\n            have hv := congrArg Fin.val h\n            have hj := ZMod.val_lt j\n            dsimp [f, M6.ActualTransfer.leftIndex, M6.ActualTransfer.rightIndex] at hv\n            omega\n          | inr j =>\n            have hv := congrArg Fin.val h\n            apply congrArg Sum.inr\n            apply Fin.ext\n            dsimp [f, M6.ActualTransfer.rightIndex, ZMod.val] at hv\n            omega\n      · intro q\n        by_cases hq : q.val < n+1\n        · refine ⟨Sum.inl (show ZMod (n+1) from (⟨q.val, hq⟩ : Fin (n+1))), ?_⟩\n          apply Fin.ext\n          rfl\n        · have hb : q.val - (n+1) < n+1 := by omega\n          refine ⟨Sum.inr (show ZMod (n+1) from (⟨q.val - (n+1), hb⟩ : Fin (n+1))), ?_⟩\n          apply Fin.ext\n          dsimp [f, M6.ActualTransfer.rightIndex, ZMod.val]\n          omega\n    let e := Equiv.ofBijective f hf\n    have hp := Fintype.prod_equiv e\n      (fun s => w (f s) (M6.Flatten.flatten (n+1) z (f s)))\n      (fun q => w q (M6.Flatten.flatten (n+1) z q))\n      (fun s => rfl)\n    rw [← hp, Fintype.prod_sum_type]\n    change (∏ i : ZMod (n+1), w (M6.ActualTransfer.leftIndex (n+1) i) (M6.Flatten.flatten (n+1) z (M6.ActualTransfer.leftIndex (n+1) i))) * (∏ i : ZMod (n+1), w (M6.ActualTransfer.rightIndex (n+1) i) (M6.Flatten.flatten (n+1) z (M6.ActualTransfer.rightIndex (n+1) i))) = _\n    simp only [M6.ActualTransfer.left_coordinate, M6.ActualTransfer.right_coordinate, Finset.prod_mul_distrib]",
+          "imports": [
+            "M6ActualTransferReady"
+          ],
+          "name": "M6.ActualTransfer.product_halves",
+          "ancestors": [
+            "left_coordinate",
+            "right_coordinate"
+          ],
+          "spec_sha256": "cb2e52f2931c92c32a86e18d1f0f43c3060cc501bf9b88451bde0cf4fbf069c6"
+        },
+        "sha256": "5c92be58e196652a7b34d6b581bfa3e794f6a3138cd28162a6d164a26f17f708"
+      },
+      "boundary_input_product": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.boundary_input_product : ∀ (R N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), a.natDegree ≤ R → b.natDegree ≤ R → R < N → ∀ (P : M6.Pinned.Pins (2*N)) (h : M6.Transfer.Input N), (∏ i : ZMod N, M6.ActualTransfer.boundaryWeight R N a b P i.val (M6.Transfer.memoryAt h i) (h i)) = M6.Character.pinnedMonomial P (M6.Flatten.flatten N (M6.Physical.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h)) := by\n  classical\n  intro R N inst a b ha hb hRN P h\n  rw [← M6.Character.pinned_product, M6.ActualTransfer.product_halves]\n  apply Finset.prod_congr rfl\n  intro i hi\n  simp [M6.ActualTransfer.boundaryWeight, M6.Physical.boundary,\n    M6.Transfer.output_convolution,\n    M6.ActualTransfer.window_conv R N a ha hRN,\n    M6.ActualTransfer.window_conv R N b hb hRN]",
+          "imports": [
+            "M6ActualTransferReady"
+          ],
+          "name": "M6.ActualTransfer.boundary_input_product",
+          "ancestors": [
+            "left_coordinate",
+            "product_halves",
+            "right_coordinate",
+            "window_conv"
+          ],
+          "spec_sha256": "54bbb39a604bff3bb3092b945905b317effc8d14499237f6d8a864ed054c61e3"
+        },
+        "sha256": "90f51054d174a59166461046fb0f60359c6e86c59d07664cfcc812cd54ddb782"
+      }
+    }
+  }
+}

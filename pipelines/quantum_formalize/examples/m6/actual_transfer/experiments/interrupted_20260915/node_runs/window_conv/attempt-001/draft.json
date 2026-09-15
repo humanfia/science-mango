@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro R N inst a ha hRN h i\nchange (∑ j : Fin (R + 1), a.coeff j.val * h (i - (j.val : ZMod N))) =\n  ∑ j : ZMod N, a.coeff j.val * h (i - j)\nhave hv (j : Fin (R + 1)) : ((j.val : ZMod N)).val = j.val := by\n  simp [ZMod.val_natCast, Nat.mod_eq_of_lt (show j.val < N by omega)]\ncalc\n  (∑ j : Fin (R + 1), a.coeff j.val * h (i - (j.val : ZMod N))) =\n      ∑ j ∈ Finset.univ.filter (fun j : ZMod N => j.val < R + 1),\n        a.coeff j.val * h (i - j) := by\n    refine Finset.sum_bij (fun j _ => (j.val : ZMod N)) ?_ ?_ ?_ ?_\n    · intro j hj\n      simp only [Finset.mem_filter, Finset.mem_univ, true_and, hv]\n      exact j.isLt\n    · intro j hj k hk hjk\n      apply Fin.ext\n      have he := congrArg (fun x : ZMod N => x.val) hjk\n      simpa only [hv] using he\n    · intro j hj\n      have hjlt : j.val < R + 1 := (Finset.mem_filter.mp hj).2\n      refine ⟨⟨j.val, hjlt⟩, Finset.mem_univ _, ?_⟩\n      simp\n    · intro j hj\n      rw [hv]\n  _ = ∑ j : ZMod N, a.coeff j.val * h (i - j) := by\n    apply Finset.sum_subset (Finset.filter_subset _ _)\n    intro j hj hjout\n    have hjlarge : ¬j.val < R + 1 := by\n      simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hjout\n    rw [Polynomial.coeff_eq_zero_of_natDegree_lt (show a.natDegree < j.val by omega), zero_mul]",
+  "queries": [
+    "Finset.sum_bij",
+    "ZMod.val_natCast",
+    "Polynomial.coeff_eq_zero_of_natDegree_lt"
+  ]
+}

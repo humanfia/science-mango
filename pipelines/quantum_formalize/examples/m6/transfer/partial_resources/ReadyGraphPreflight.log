@@ -1,0 +1,27 @@
+∀ (p : Polynomial ℤ) (L : ℕ), ∑ d, (p.coeff ↑d).natAbs ≤ M6.Transfer.polynomialMass p : Prop
+∀ (R N : ℕ) (v : M6.Transfer.Memory R → Polynomial ℤ),
+  M6.Transfer.arrayMass (M6.Transfer.encodeCoefficients v) ≤ M6.Transfer.rowMass v : Prop
+∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input : M6.Transfer.CoefficientArray R N),
+  (∀ (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), M6.Transfer.polynomialMass (W m t) ≤ 4) →
+    M6.Transfer.eventMass W input ≤ 8 * M6.Transfer.arrayMass input : Prop
+∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input : M6.Transfer.CoefficientArray R N)
+  (k : ℕ) (addr : M6.Transfer.CoefficientAddress R N),
+  (∀ (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), M6.Transfer.polynomialMass (W m t) ≤ 4) →
+    (List.foldl (M6.Transfer.scatterUpdate W input) (fun x => 0) (List.take k (M6.Transfer.scatterEventList R N))
+          addr).natAbs ≤
+      8 * M6.Transfer.arrayMass input : Prop
+∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (i k : ℕ)
+  (addr : M6.Transfer.CoefficientAddress R N),
+  (∀ (j : ℕ) (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), M6.Transfer.polynomialMass (W j m t) ≤ 4) →
+    (∀ (j : ℕ) (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), (W j m t).natDegree ≤ 2) →
+      (List.foldl (M6.Transfer.scatterUpdate (W i) (M6.Transfer.scalarLayers W start i)) (fun x => 0)
+              (List.take k (M6.Transfer.scatterEventList R N)) addr).natAbs ≤
+          8 ^ (i + 1) ∧
+        ∀ (e : M6.Transfer.ScatterEvent R N),
+          (M6.Transfer.eventTerm (W i) (M6.Transfer.scalarLayers W start i) e).natAbs ≤ 8 ^ (i + 1) : Prop
+∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (k : ℕ) (d : Fin (2 * N + 1)),
+  (∀ (j : ℕ) (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), M6.Transfer.polynomialMass (W j m t) ≤ 4) →
+    (∀ (j : ℕ) (m : M6.Transfer.Memory R) (t : M6.Transfer.Bit), (W j m t).natDegree ≤ 2) →
+      (List.map (fun start => M6.Transfer.scalarLayers W start N (start, d))
+              (List.take k Finset.univ.toList)).sum.natAbs ≤
+        2 ^ R * 8 ^ N : Prop

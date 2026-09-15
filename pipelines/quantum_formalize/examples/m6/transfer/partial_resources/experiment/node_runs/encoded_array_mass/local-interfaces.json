@@ -1,0 +1,617 @@
+{
+  "kind": "untrusted_local_source_header_references",
+  "files": [
+    {
+      "module": "M6TransferPartialResourcesReady",
+      "path": "M6TransferPartialResourcesReady.lean",
+      "source_sha256": "238ec62489b6b5b4c9a8009741920884e96a034e17e57d6a877b8a683c363243"
+    },
+    {
+      "module": "M6TransferPartialResources",
+      "path": "M6TransferPartialResources.lean",
+      "source_sha256": "4675930c0196f1258c322a6eb25e06b97e350647a5d932daa44194d044300c98"
+    },
+    {
+      "module": "M6TransferScatterCoreAccepted",
+      "path": "M6TransferScatterCoreAccepted.lean",
+      "source_sha256": "4f2fb138de99efe26c0aa5f2909e1f6bd4e0963b3aad308e67d06a06fb566631"
+    },
+    {
+      "module": "M6TransferScatter",
+      "path": "M6TransferScatter.lean",
+      "source_sha256": "e55f310fd0f4ecbb2cf94e20fa3b93c339f318a5aed12db3e76f04a98c81aed4"
+    },
+    {
+      "module": "M6TransferCoefficientsAccepted",
+      "path": "M6TransferCoefficientsAccepted.lean",
+      "source_sha256": "1974f44e9deaa5eb654677886d2aafdcfa4600e6b54e67cc2bd9569a8cd0f917"
+    },
+    {
+      "module": "M6TransferResourcesAccepted",
+      "path": "M6TransferResourcesAccepted.lean",
+      "source_sha256": "1ba83ec8f48cd0360c5dc3440891cf1c66471dacdbb491e6a22db65a3f2b2a84"
+    },
+    {
+      "module": "M6TransferTrace",
+      "path": "M6TransferTrace.lean",
+      "source_sha256": "01b7d86095314fce22070ab4cca2a1c8eb89dc78b18fe8d4c3e46e6329f16289"
+    },
+    {
+      "module": "M6TransferResources",
+      "path": "M6TransferResources.lean",
+      "source_sha256": "6ef89b8de1b65a4684b4f0ccb7452f2f39d4b9861c4074fed84c7cc83a3da03a"
+    },
+    {
+      "module": "M6TransferCoefficients",
+      "path": "M6TransferCoefficients.lean",
+      "source_sha256": "42b0f2e021a4e444f4f66ec40a005769c291fac0cd1ef23a6f69cd9816913242"
+    },
+    {
+      "module": "M6Transfer",
+      "path": "M6Transfer.lean",
+      "source_sha256": "19a1ba64c6f1121705d77ce664a4176e15e4059062fc3e6485e729c168c1dd02"
+    }
+  ],
+  "entries": [
+    {
+      "module": "M6TransferPartialResources",
+      "line": 5,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def arrayMass {R N : ℕ} (input : CoefficientArray R N) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferPartialResources",
+      "line": 7,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def eventMass {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatterCoreAccepted",
+      "line": 3,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.scatter_event_count : ∀ R N : ℕ, Fintype.card (M6.Transfer.Memory R) * N * (M6.Transfer.scatterEventList R N).length = M6.Transfer.traceCoefficientOps R N",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatterCoreAccepted",
+      "line": 9,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.scatter_prefix_formula : ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input initial : M6.Transfer.CoefficientArray R N) (l : List (M6.Transfer.ScatterEvent R N)) (addr : M6.Transfer.CoefficientAddress R N), (l.foldl (M6.Transfer.scatterUpdate W input) initial) addr = initial addr + (l.map (fun e => if M6.Transfer.eventDestination e = some addr then M6.Transfer.eventTerm W input e else 0)).sum",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatterCoreAccepted",
+      "line": 25,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.small_polynomial_convolution : ∀ (p q : Polynomial ℤ) (d : ℕ), q.natDegree ≤ 2 → (p*q).coeff d = ∑ e : Fin 3, if e.val ≤ d then p.coeff (d-e.val) * q.coeff e.val else 0",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatterCoreAccepted",
+      "line": 55,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.scatter_polynomial_coeff : ∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ) (addr : M6.Transfer.CoefficientAddress R N), (∀ m t, (W m t).natDegree ≤ 2) → M6.Transfer.scatterLayer W (M6.Transfer.encodeCoefficients v) addr = (M6.Transfer.propagate W v addr.1).coeff addr.2.val",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatterCoreAccepted",
+      "line": 107,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.scalar_layers_exact : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (k : ℕ), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarLayers (N",
+      "complete_header": false,
+      "note": "incomplete source-header excerpt; do not infer missing type text"
+    },
+    {
+      "module": "M6TransferScatterCoreAccepted",
+      "line": 130,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.scalar_trace_coefficient : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : Fin (2*N+1)), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarTraceCoefficient W N d = (M6.Transfer.arrayTrace W N).coeff d.val",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 4,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev CoefficientAddress (R N : ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 5,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev CoefficientArray (R N : ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 7,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def eventDestination {R N : ℕ} (e : ScatterEvent R N) : Option (CoefficientAddress R N)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 12,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def eventTerm {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) (e : ScatterEvent R N) : ℤ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 16,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def scatterUpdate {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input output : CoefficientArray R N) (e : ScatterEvent R N) : CoefficientArray R N",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 23,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def scatterEventList (R N : ℕ) : List (ScatterEvent R N)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 26,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def scatterLayer {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : CoefficientArray R N",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 30,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def encodeCoefficients {R N : ℕ} (v : Memory R → Polynomial ℤ) : CoefficientArray R N",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 33,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def scalarLayers {R N : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (start : Memory R) : ℕ → CoefficientArray R N",
+      "complete_header": false,
+      "note": "incomplete source-header excerpt; do not infer missing type text"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 38,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def scalarTraceCoefficient {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) (d : Fin (2*N+1)) : ℤ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferScatter",
+      "line": 42,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def scalarTracePolynomial {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) : Polynomial ℤ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficientsAccepted",
+      "line": 3,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.layers_degree : ∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start finish : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, (W i m t).natDegree ≤ 2) → (M6.Transfer.layers W start n finish).natDegree ≤ 2*n",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficientsAccepted",
+      "line": 21,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.mass_add : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p+q) ≤ M6.Transfer.polynomialMass p + M6.Transfer.polynomialMass q",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficientsAccepted",
+      "line": 37,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.mass_basic : M6.Transfer.polynomialMass (0 : Polynomial ℤ) = 0 ∧ M6.Transfer.polynomialMass (1 : Polynomial ℤ) = 1 ∧ (∀ (n : ℕ) (c : ℤ), M6.Transfer.polynomialMass (Polynomial.monomial n c) = c.natAbs) ∧ ∀ (p : Polynomial ℤ) (d : ℕ), (p.coeff d).natAbs ≤ M6.Transfer.polynomialMass p",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficientsAccepted",
+      "line": 59,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.mass_sum : ∀ (I : Type) (s : Finset I) (f : I → Polynomial ℤ), M6.Transfer.polynomialMass (∑ i ∈ s, f i) ≤ ∑ i ∈ s, M6.Transfer.polynomialMass (f i)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficientsAccepted",
+      "line": 71,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.mass_mul : ∀ p q : Polynomial ℤ, M6.Transfer.polynomialMass (p*q) ≤ M6.Transfer.polynomialMass p * M6.Transfer.polynomialMass q",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficientsAccepted",
+      "line": 90,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.propagate_mass : ∀ (R : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (v : M6.Transfer.Memory R → Polynomial ℤ), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.propagate W v) ≤ 8 * M6.Transfer.rowMass v",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficientsAccepted",
+      "line": 135,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.layers_mass : ∀ (R : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (n : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → M6.Transfer.rowMass (M6.Transfer.layers W start n) ≤ 8^n",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficientsAccepted",
+      "line": 151,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.trace_coefficient_bound : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : ℕ), (∀ i m t, M6.Transfer.polynomialMass (W i m t) ≤ 4) → ((M6.Transfer.arrayTrace W N).coeff d).natAbs ≤ 2^R * 8^N",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResourcesAccepted",
+      "line": 3,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.address_width : ∀ R N : ℕ, 0 < N → M6.Transfer.addressLocations R N ≤ 2^(M6.Transfer.addressBits R N)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResourcesAccepted",
+      "line": 23,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.coefficient_width : ∀ R N : ℕ, 2^R * 8^N < 2^(M6.Transfer.coefficientBits R N)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResourcesAccepted",
+      "line": 29,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.state_count : ∀ R : ℕ, Fintype.card (M6.Transfer.Memory R) = 2^R",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResourcesAccepted",
+      "line": 34,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.trace_storage_bound : ∀ R N : ℕ, R < N → M6.Transfer.traceStorageModel R N ≤ 128 * N^2 * 2^R",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResourcesAccepted",
+      "line": 69,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.scatter_loop_count : ∀ R N : ℕ, M6.Transfer.traceCoefficientOps R N = 6 * N * (2*N+1) * 4^R",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResourcesAccepted",
+      "line": 80,
+      "namespace_context": [],
+      "header": "theorem M6.Transfer.trace_work_bound : ∀ R N : ℕ, R < N → M6.Transfer.traceWorkModel R N ≤ 4096 * N^3 * 4^R",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferTrace",
+      "line": 5,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def edgeMatrix {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) : Matrix (Memory R) (Memory R) K",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferTrace",
+      "line": 10,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def propagate {R : ℕ} {K : Type} [CommSemiring K]\n    (W : Memory R → Bit → K) (v : Memory R → K) : Memory R → K",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferTrace",
+      "line": 16,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def layers {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (start : Memory R) : ℕ → Memory R → K",
+      "complete_header": false,
+      "note": "incomplete source-header excerpt; do not infer missing type text"
+    },
+    {
+      "module": "M6TransferTrace",
+      "line": 21,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def matrixProduct {S K : Type} [Fintype S] [DecidableEq S] [CommSemiring K]\n    (A : ℕ → Matrix S S K) : ℕ → Matrix S S K",
+      "complete_header": false,
+      "note": "incomplete source-header excerpt; do not infer missing type text"
+    },
+    {
+      "module": "M6TransferTrace",
+      "line": 26,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def arrayTrace {R : ℕ} {K : Type} [CommSemiring K]\n    (W : ℕ → Memory R → Bit → K) (N : ℕ) : K",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResources",
+      "line": 6,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev ScatterEvent (R N : ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResources",
+      "line": 8,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def coefficientBits (R N : ℕ) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResources",
+      "line": 9,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def addressBits (R N : ℕ) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResources",
+      "line": 11,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def eventBitCharge (R N : ℕ) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResources",
+      "line": 14,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def traceCoefficientOps (R N : ℕ) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResources",
+      "line": 18,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def traceWorkModel (R N : ℕ) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResources",
+      "line": 21,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def traceStorageModel (R N : ℕ) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferResources",
+      "line": 25,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def addressLocations (R N : ℕ) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficients",
+      "line": 3,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def polynomialMass (p : Polynomial ℤ) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6TransferCoefficients",
+      "line": 4,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable def rowMass {R : ℕ} (v : Memory R → Polynomial ℤ) : ℕ",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 4,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev Bit",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 5,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev Memory (R : ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 6,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev Input (N : ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 8,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def shift {R : ℕ} (m : Memory R) (t : Bit) : Memory R",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 11,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def memoryAt {R N : ℕ} (h : Input N) (i : ZMod N) : Memory R",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 14,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def Follows (R N : ℕ) (m : ZMod N → Memory R) (h : Input N) : Prop",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 17,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "abbrev ClosedWalk (R N : ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 20,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "noncomputable instance closedWalkFintype (R N : ℕ) [NeZero N] : Fintype (ClosedWalk R N)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 24,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def labels {R N : ℕ} (p : ClosedWalk R N) : Input N",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 26,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def output {R : ℕ} (c : Fin (R+1) → Bit) (m : Memory R) (t : Bit) : Bit",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M6Transfer",
+      "line": 29,
+      "namespace_context": [
+        "M6.Transfer"
+      ],
+      "header": "def cyclicOutput {R N : ℕ} (c : Fin (R+1) → Bit) (h : Input N) (i : ZMod N) : Bit",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    }
+  ],
+  "truncated": false,
+  "skipped": [],
+  "limits": {
+    "files": 64,
+    "source_bytes": 2000000,
+    "header_chars": 24000,
+    "entries": 256,
+    "per_header_chars": 2400,
+    "prompt_chars": 48000
+  }
+}

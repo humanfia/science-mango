@@ -1,0 +1,155 @@
+{
+  "title": "M6 actual intermediate indexed-array magnitude",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "scope": "All six actual intermediate magnitude targets with verified actual scatter/mass/resource imports.",
+  "nodes": [
+    {
+      "id": "finite_coefficient_mass",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Transfer.finite_coefficient_mass",
+        "statement": "∀ (p : Polynomial ℤ) (L : ℕ), (∑ d : Fin L, (p.coeff d.val).natAbs) ≤ M6.Transfer.polynomialMass p",
+        "imports": [
+          "M6TransferPartialResourcesReady"
+        ],
+        "context": "",
+        "queries": [
+          "Int natAbs_sum_le List take sum nonnegative",
+          "Polynomial sum_eq_of_subset Fintype sum_prod_type"
+        ],
+        "guidance": "Convert Fin sum to range L. Extend polynomial support sum to union support(range L), using zero coefficients outside support, then nonnegative subset sum inequality. This avoids assuming any degree bound. Return tactic lines without leading by. Actual definitions:\nimport M6TransferScatter\nimport M6TransferCoefficientsAccepted\nimport M6TransferResourcesAccepted\nnamespace M6.Transfer\nnoncomputable def arrayMass {R N : ℕ} (input : CoefficientArray R N) : ℕ :=\n  ∑ addr : CoefficientAddress R N, (input addr).natAbs\nnoncomputable def eventMass {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : ℕ :=\n  ∑ e : ScatterEvent R N, (eventTerm W input e).natAbs\nend M6.Transfer\n\nimport M6TransferTrace\nimport M6TransferResources\nnamespace M6.Transfer\nabbrev CoefficientAddress (R N : ℕ) := Memory R × Fin (2*N+1)\nabbrev CoefficientArray (R N : ℕ) := CoefficientAddress R N → ℤ\n\ndef eventDestination {R N : ℕ} (e : ScatterEvent R N) : Option (CoefficientAddress R N) :=\n  if h : e.2.2.1.val + e.2.2.2.val < 2*N+1 then\n    some (shift e.1 e.2.1, ⟨e.2.2.1.val + e.2.2.2.val, h⟩)\n  else none\n\ndef eventTerm {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) (e : ScatterEvent R N) : ℤ :=\n  input (e.1, e.2.2.1) * (W e.1 e.2.1).coeff e.2.2.2.val\n\nnoncomputable def scatterUpdate {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input output : CoefficientArray R N) (e : ScatterEvent R N) : CoefficientArray R N := by\n  classical\n  exact match eventDestination e with\n    | none => output\n    | some addr => Function.update output addr (output addr + eventTerm W input e)\n\nnoncomputable def scatterEventList (R N : ℕ) : List (ScatterEvent R N) :=\n  (Finset.univ : Finset (ScatterEvent R N)).toList\n\nnoncomputable def scatterLayer {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : CoefficientArray R N :=\n  (scatterEventList R N).foldl (scatterUpdate W input) (fun _ => 0)\n\ndef encodeCoefficients {R N : ℕ} (v : Memory R → Polynomial ℤ) : CoefficientArray R N :=\n  fun addr => (v addr.1).coeff addr.2.val\n\nnoncomputable def scalarLayers {R N : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (start : Memory R) : ℕ → CoefficientArray R N\n  | 0 => fun addr => if addr.1 = start ∧ addr.2.val = 0 then 1 else 0\n  | k+1 => scatterLayer (W k) (scalarLayers W start k)\n\nnoncomputable def scalarTraceCoefficient {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) (d : Fin (2*N+1)) : ℤ :=\n  ∑ start : Memory R, scalarLayers W start N (start,d)\n\nnoncomputable def scalarTracePolynomial {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) : Polynomial ℤ :=\n  ∑ d : Fin (2*N+1), Polynomial.monomial d.val (scalarTraceCoefficient W N d)\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_INTERMEDIATE_BIT_WIDTH",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "encoded_array_mass",
+      "dependencies": [
+        "finite_coefficient_mass"
+      ],
+      "spec": {
+        "name": "M6.Transfer.encoded_array_mass",
+        "statement": "∀ (R N : ℕ) (v : M6.Transfer.Memory R → Polynomial ℤ), M6.Transfer.arrayMass (M6.Transfer.encodeCoefficients (N:=N) v) ≤ M6.Transfer.rowMass v",
+        "imports": [
+          "M6TransferPartialResourcesReady"
+        ],
+        "context": "",
+        "queries": [
+          "Int natAbs_sum_le List take sum nonnegative",
+          "Polynomial sum_eq_of_subset Fintype sum_prod_type"
+        ],
+        "guidance": "Expand product-address sum and apply finite_coefficient_mass for each source state. Return tactic lines without leading by. Actual definitions:\nimport M6TransferScatter\nimport M6TransferCoefficientsAccepted\nimport M6TransferResourcesAccepted\nnamespace M6.Transfer\nnoncomputable def arrayMass {R N : ℕ} (input : CoefficientArray R N) : ℕ :=\n  ∑ addr : CoefficientAddress R N, (input addr).natAbs\nnoncomputable def eventMass {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : ℕ :=\n  ∑ e : ScatterEvent R N, (eventTerm W input e).natAbs\nend M6.Transfer\n\nimport M6TransferTrace\nimport M6TransferResources\nnamespace M6.Transfer\nabbrev CoefficientAddress (R N : ℕ) := Memory R × Fin (2*N+1)\nabbrev CoefficientArray (R N : ℕ) := CoefficientAddress R N → ℤ\n\ndef eventDestination {R N : ℕ} (e : ScatterEvent R N) : Option (CoefficientAddress R N) :=\n  if h : e.2.2.1.val + e.2.2.2.val < 2*N+1 then\n    some (shift e.1 e.2.1, ⟨e.2.2.1.val + e.2.2.2.val, h⟩)\n  else none\n\ndef eventTerm {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) (e : ScatterEvent R N) : ℤ :=\n  input (e.1, e.2.2.1) * (W e.1 e.2.1).coeff e.2.2.2.val\n\nnoncomputable def scatterUpdate {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input output : CoefficientArray R N) (e : ScatterEvent R N) : CoefficientArray R N := by\n  classical\n  exact match eventDestination e with\n    | none => output\n    | some addr => Function.update output addr (output addr + eventTerm W input e)\n\nnoncomputable def scatterEventList (R N : ℕ) : List (ScatterEvent R N) :=\n  (Finset.univ : Finset (ScatterEvent R N)).toList\n\nnoncomputable def scatterLayer {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : CoefficientArray R N :=\n  (scatterEventList R N).foldl (scatterUpdate W input) (fun _ => 0)\n\ndef encodeCoefficients {R N : ℕ} (v : Memory R → Polynomial ℤ) : CoefficientArray R N :=\n  fun addr => (v addr.1).coeff addr.2.val\n\nnoncomputable def scalarLayers {R N : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (start : Memory R) : ℕ → CoefficientArray R N\n  | 0 => fun addr => if addr.1 = start ∧ addr.2.val = 0 then 1 else 0\n  | k+1 => scatterLayer (W k) (scalarLayers W start k)\n\nnoncomputable def scalarTraceCoefficient {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) (d : Fin (2*N+1)) : ℤ :=\n  ∑ start : Memory R, scalarLayers W start N (start,d)\n\nnoncomputable def scalarTracePolynomial {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) : Polynomial ℤ :=\n  ∑ d : Fin (2*N+1), Polynomial.monomial d.val (scalarTraceCoefficient W N d)\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_INTERMEDIATE_BIT_WIDTH",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "event_mass_bound",
+      "dependencies": [
+        "finite_coefficient_mass"
+      ],
+      "spec": {
+        "name": "M6.Transfer.event_mass_bound",
+        "statement": "∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input : M6.Transfer.CoefficientArray R N), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → M6.Transfer.eventMass W input ≤ 8 * M6.Transfer.arrayMass input",
+        "imports": [
+          "M6TransferPartialResourcesReady"
+        ],
+        "context": "",
+        "queries": [
+          "Int natAbs_sum_le List take sum nonnegative",
+          "Polynomial sum_eq_of_subset Fintype sum_prod_type"
+        ],
+        "guidance": "Expand Cartesian source/bit/input-slot/edge-slot sums and Int.natAbs_mul. Factor the three edge coefficients and bound them using finite_coefficient_mass<=edge mass<=4. Sum two bit labels (card2), rearrange to8 times actual input-array absolute mass. No cancellation assumption. Return tactic lines without leading by. Actual definitions:\nimport M6TransferScatter\nimport M6TransferCoefficientsAccepted\nimport M6TransferResourcesAccepted\nnamespace M6.Transfer\nnoncomputable def arrayMass {R N : ℕ} (input : CoefficientArray R N) : ℕ :=\n  ∑ addr : CoefficientAddress R N, (input addr).natAbs\nnoncomputable def eventMass {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : ℕ :=\n  ∑ e : ScatterEvent R N, (eventTerm W input e).natAbs\nend M6.Transfer\n\nimport M6TransferTrace\nimport M6TransferResources\nnamespace M6.Transfer\nabbrev CoefficientAddress (R N : ℕ) := Memory R × Fin (2*N+1)\nabbrev CoefficientArray (R N : ℕ) := CoefficientAddress R N → ℤ\n\ndef eventDestination {R N : ℕ} (e : ScatterEvent R N) : Option (CoefficientAddress R N) :=\n  if h : e.2.2.1.val + e.2.2.2.val < 2*N+1 then\n    some (shift e.1 e.2.1, ⟨e.2.2.1.val + e.2.2.2.val, h⟩)\n  else none\n\ndef eventTerm {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) (e : ScatterEvent R N) : ℤ :=\n  input (e.1, e.2.2.1) * (W e.1 e.2.1).coeff e.2.2.2.val\n\nnoncomputable def scatterUpdate {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input output : CoefficientArray R N) (e : ScatterEvent R N) : CoefficientArray R N := by\n  classical\n  exact match eventDestination e with\n    | none => output\n    | some addr => Function.update output addr (output addr + eventTerm W input e)\n\nnoncomputable def scatterEventList (R N : ℕ) : List (ScatterEvent R N) :=\n  (Finset.univ : Finset (ScatterEvent R N)).toList\n\nnoncomputable def scatterLayer {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : CoefficientArray R N :=\n  (scatterEventList R N).foldl (scatterUpdate W input) (fun _ => 0)\n\ndef encodeCoefficients {R N : ℕ} (v : Memory R → Polynomial ℤ) : CoefficientArray R N :=\n  fun addr => (v addr.1).coeff addr.2.val\n\nnoncomputable def scalarLayers {R N : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (start : Memory R) : ℕ → CoefficientArray R N\n  | 0 => fun addr => if addr.1 = start ∧ addr.2.val = 0 then 1 else 0\n  | k+1 => scatterLayer (W k) (scalarLayers W start k)\n\nnoncomputable def scalarTraceCoefficient {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) (d : Fin (2*N+1)) : ℤ :=\n  ∑ start : Memory R, scalarLayers W start N (start,d)\n\nnoncomputable def scalarTracePolynomial {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) : Polynomial ℤ :=\n  ∑ d : Fin (2*N+1), Polynomial.monomial d.val (scalarTraceCoefficient W N d)\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_INTERMEDIATE_BIT_WIDTH",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "scatter_prefix_magnitude",
+      "dependencies": [
+        "event_mass_bound"
+      ],
+      "spec": {
+        "name": "M6.Transfer.scatter_prefix_magnitude",
+        "statement": "∀ (R N : ℕ) (W : M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (input : M6.Transfer.CoefficientArray R N) (k : ℕ) (addr : M6.Transfer.CoefficientAddress R N), (∀ m t, M6.Transfer.polynomialMass (W m t) ≤ 4) → (((M6.Transfer.scatterEventList R N).take k).foldl (M6.Transfer.scatterUpdate W input) (fun _ => 0) addr).natAbs ≤ 8 * M6.Transfer.arrayMass input",
+        "imports": [
+          "M6TransferPartialResourcesReady"
+        ],
+        "context": "",
+        "queries": [
+          "Int natAbs_sum_le List take sum nonnegative",
+          "Polynomial sum_eq_of_subset Fintype sum_prod_type"
+        ],
+        "guidance": "Use accepted scatter_prefix_formula. Triangle inequality bounds signed prefix sum by sum of absolute event terms. The taken event list is a sublist of the complete enumeration and its destination filter can only reduce nonnegative sum. Complete event mass is bounded by event_mass_bound. This proves actual intermediate accumulator safety. Return tactic lines without leading by. Actual definitions:\nimport M6TransferScatter\nimport M6TransferCoefficientsAccepted\nimport M6TransferResourcesAccepted\nnamespace M6.Transfer\nnoncomputable def arrayMass {R N : ℕ} (input : CoefficientArray R N) : ℕ :=\n  ∑ addr : CoefficientAddress R N, (input addr).natAbs\nnoncomputable def eventMass {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : ℕ :=\n  ∑ e : ScatterEvent R N, (eventTerm W input e).natAbs\nend M6.Transfer\n\nimport M6TransferTrace\nimport M6TransferResources\nnamespace M6.Transfer\nabbrev CoefficientAddress (R N : ℕ) := Memory R × Fin (2*N+1)\nabbrev CoefficientArray (R N : ℕ) := CoefficientAddress R N → ℤ\n\ndef eventDestination {R N : ℕ} (e : ScatterEvent R N) : Option (CoefficientAddress R N) :=\n  if h : e.2.2.1.val + e.2.2.2.val < 2*N+1 then\n    some (shift e.1 e.2.1, ⟨e.2.2.1.val + e.2.2.2.val, h⟩)\n  else none\n\ndef eventTerm {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) (e : ScatterEvent R N) : ℤ :=\n  input (e.1, e.2.2.1) * (W e.1 e.2.1).coeff e.2.2.2.val\n\nnoncomputable def scatterUpdate {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input output : CoefficientArray R N) (e : ScatterEvent R N) : CoefficientArray R N := by\n  classical\n  exact match eventDestination e with\n    | none => output\n    | some addr => Function.update output addr (output addr + eventTerm W input e)\n\nnoncomputable def scatterEventList (R N : ℕ) : List (ScatterEvent R N) :=\n  (Finset.univ : Finset (ScatterEvent R N)).toList\n\nnoncomputable def scatterLayer {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : CoefficientArray R N :=\n  (scatterEventList R N).foldl (scatterUpdate W input) (fun _ => 0)\n\ndef encodeCoefficients {R N : ℕ} (v : Memory R → Polynomial ℤ) : CoefficientArray R N :=\n  fun addr => (v addr.1).coeff addr.2.val\n\nnoncomputable def scalarLayers {R N : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (start : Memory R) : ℕ → CoefficientArray R N\n  | 0 => fun addr => if addr.1 = start ∧ addr.2.val = 0 then 1 else 0\n  | k+1 => scatterLayer (W k) (scalarLayers W start k)\n\nnoncomputable def scalarTraceCoefficient {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) (d : Fin (2*N+1)) : ℤ :=\n  ∑ start : Memory R, scalarLayers W start N (start,d)\n\nnoncomputable def scalarTracePolynomial {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) : Polynomial ℤ :=\n  ∑ d : Fin (2*N+1), Polynomial.monomial d.val (scalarTraceCoefficient W N d)\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_INTERMEDIATE_BIT_WIDTH",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "actual_layer_intermediates",
+      "dependencies": [
+        "encoded_array_mass",
+        "event_mass_bound",
+        "scatter_prefix_magnitude"
+      ],
+      "spec": {
+        "name": "M6.Transfer.actual_layer_intermediates",
+        "statement": "∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (start : M6.Transfer.Memory R) (i k : ℕ) (addr : M6.Transfer.CoefficientAddress R N), (∀ j m t, M6.Transfer.polynomialMass (W j m t) ≤ 4) → (∀ j m t, (W j m t).natDegree ≤ 2) → ((((M6.Transfer.scatterEventList R N).take k).foldl (M6.Transfer.scatterUpdate (W i) (M6.Transfer.scalarLayers (N:=N) W start i)) (fun _ => 0) addr).natAbs ≤ 8^(i+1)) ∧ (∀ e : M6.Transfer.ScatterEvent R N, (M6.Transfer.eventTerm (W i) (M6.Transfer.scalarLayers (N:=N) W start i) e).natAbs ≤ 8^(i+1))",
+        "imports": [
+          "M6TransferPartialResourcesReady"
+        ],
+        "context": "",
+        "queries": [
+          "Int natAbs_sum_le List take sum nonnegative",
+          "Polynomial sum_eq_of_subset Fintype sum_prod_type"
+        ],
+        "guidance": "Use actual scalar_layers_exact to express input as coefficients of polynomial layers. encoded_array_mass and accepted layers_mass bound its mass by8^i. Prefix bound gives first field; each primitive multiplication term is ≤eventMass by single_le_sum, then event_mass_bound gives second. Both fit8^(i+1). Return tactic lines without leading by. Actual definitions:\nimport M6TransferScatter\nimport M6TransferCoefficientsAccepted\nimport M6TransferResourcesAccepted\nnamespace M6.Transfer\nnoncomputable def arrayMass {R N : ℕ} (input : CoefficientArray R N) : ℕ :=\n  ∑ addr : CoefficientAddress R N, (input addr).natAbs\nnoncomputable def eventMass {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : ℕ :=\n  ∑ e : ScatterEvent R N, (eventTerm W input e).natAbs\nend M6.Transfer\n\nimport M6TransferTrace\nimport M6TransferResources\nnamespace M6.Transfer\nabbrev CoefficientAddress (R N : ℕ) := Memory R × Fin (2*N+1)\nabbrev CoefficientArray (R N : ℕ) := CoefficientAddress R N → ℤ\n\ndef eventDestination {R N : ℕ} (e : ScatterEvent R N) : Option (CoefficientAddress R N) :=\n  if h : e.2.2.1.val + e.2.2.2.val < 2*N+1 then\n    some (shift e.1 e.2.1, ⟨e.2.2.1.val + e.2.2.2.val, h⟩)\n  else none\n\ndef eventTerm {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) (e : ScatterEvent R N) : ℤ :=\n  input (e.1, e.2.2.1) * (W e.1 e.2.1).coeff e.2.2.2.val\n\nnoncomputable def scatterUpdate {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input output : CoefficientArray R N) (e : ScatterEvent R N) : CoefficientArray R N := by\n  classical\n  exact match eventDestination e with\n    | none => output\n    | some addr => Function.update output addr (output addr + eventTerm W input e)\n\nnoncomputable def scatterEventList (R N : ℕ) : List (ScatterEvent R N) :=\n  (Finset.univ : Finset (ScatterEvent R N)).toList\n\nnoncomputable def scatterLayer {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : CoefficientArray R N :=\n  (scatterEventList R N).foldl (scatterUpdate W input) (fun _ => 0)\n\ndef encodeCoefficients {R N : ℕ} (v : Memory R → Polynomial ℤ) : CoefficientArray R N :=\n  fun addr => (v addr.1).coeff addr.2.val\n\nnoncomputable def scalarLayers {R N : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (start : Memory R) : ℕ → CoefficientArray R N\n  | 0 => fun addr => if addr.1 = start ∧ addr.2.val = 0 then 1 else 0\n  | k+1 => scatterLayer (W k) (scalarLayers W start k)\n\nnoncomputable def scalarTraceCoefficient {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) (d : Fin (2*N+1)) : ℤ :=\n  ∑ start : Memory R, scalarLayers W start N (start,d)\n\nnoncomputable def scalarTracePolynomial {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) : Polynomial ℤ :=\n  ∑ d : Fin (2*N+1), Polynomial.monomial d.val (scalarTraceCoefficient W N d)\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_INTERMEDIATE_BIT_WIDTH",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "actual_trace_intermediates",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Transfer.actual_trace_intermediates",
+        "statement": "∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (k : ℕ) (d : Fin (2*N+1)), (∀ j m t, M6.Transfer.polynomialMass (W j m t) ≤ 4) → (∀ j m t, (W j m t).natDegree ≤ 2) → ((((Finset.univ : Finset (M6.Transfer.Memory R)).toList.take k).map (fun start => M6.Transfer.scalarLayers (N:=N) W start N (start,d))).sum).natAbs ≤ 2^R * 8^N",
+        "imports": [
+          "M6TransferPartialResourcesReady"
+        ],
+        "context": "",
+        "queries": [
+          "Int natAbs_sum_le List take sum nonnegative",
+          "Polynomial sum_eq_of_subset Fintype sum_prod_type"
+        ],
+        "guidance": "Use scalar_layers_exact, coefficient bound mass_basic, diagonal polynomial mass<=rowMass, accepted layers_mass<=8^N. Triangle inequality over any prefix of starts and its length<=card Memory=2^R. This proves actual outer trace accumulator partial sums, not just final trace coefficient. Return tactic lines without leading by. Actual definitions:\nimport M6TransferScatter\nimport M6TransferCoefficientsAccepted\nimport M6TransferResourcesAccepted\nnamespace M6.Transfer\nnoncomputable def arrayMass {R N : ℕ} (input : CoefficientArray R N) : ℕ :=\n  ∑ addr : CoefficientAddress R N, (input addr).natAbs\nnoncomputable def eventMass {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : ℕ :=\n  ∑ e : ScatterEvent R N, (eventTerm W input e).natAbs\nend M6.Transfer\n\nimport M6TransferTrace\nimport M6TransferResources\nnamespace M6.Transfer\nabbrev CoefficientAddress (R N : ℕ) := Memory R × Fin (2*N+1)\nabbrev CoefficientArray (R N : ℕ) := CoefficientAddress R N → ℤ\n\ndef eventDestination {R N : ℕ} (e : ScatterEvent R N) : Option (CoefficientAddress R N) :=\n  if h : e.2.2.1.val + e.2.2.2.val < 2*N+1 then\n    some (shift e.1 e.2.1, ⟨e.2.2.1.val + e.2.2.2.val, h⟩)\n  else none\n\ndef eventTerm {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) (e : ScatterEvent R N) : ℤ :=\n  input (e.1, e.2.2.1) * (W e.1 e.2.1).coeff e.2.2.2.val\n\nnoncomputable def scatterUpdate {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input output : CoefficientArray R N) (e : ScatterEvent R N) : CoefficientArray R N := by\n  classical\n  exact match eventDestination e with\n    | none => output\n    | some addr => Function.update output addr (output addr + eventTerm W input e)\n\nnoncomputable def scatterEventList (R N : ℕ) : List (ScatterEvent R N) :=\n  (Finset.univ : Finset (ScatterEvent R N)).toList\n\nnoncomputable def scatterLayer {R N : ℕ} (W : Memory R → Bit → Polynomial ℤ)\n    (input : CoefficientArray R N) : CoefficientArray R N :=\n  (scatterEventList R N).foldl (scatterUpdate W input) (fun _ => 0)\n\ndef encodeCoefficients {R N : ℕ} (v : Memory R → Polynomial ℤ) : CoefficientArray R N :=\n  fun addr => (v addr.1).coeff addr.2.val\n\nnoncomputable def scalarLayers {R N : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (start : Memory R) : ℕ → CoefficientArray R N\n  | 0 => fun addr => if addr.1 = start ∧ addr.2.val = 0 then 1 else 0\n  | k+1 => scatterLayer (W k) (scalarLayers W start k)\n\nnoncomputable def scalarTraceCoefficient {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) (d : Fin (2*N+1)) : ℤ :=\n  ∑ start : Memory R, scalarLayers W start N (start,d)\n\nnoncomputable def scalarTracePolynomial {R : ℕ} (W : ℕ → Memory R → Bit → Polynomial ℤ)\n    (N : ℕ) : Polynomial ℤ :=\n  ∑ d : Fin (2*N+1), Polynomial.monomial d.val (scalarTraceCoefficient W N d)\n\nend M6.Transfer\n"
+      },
+      "metadata": {
+        "supports_obligation": "M6_INTERMEDIATE_BIT_WIDTH",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

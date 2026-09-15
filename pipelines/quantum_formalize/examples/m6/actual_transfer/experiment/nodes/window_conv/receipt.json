@@ -1,0 +1,55 @@
+{
+  "id": "window_conv",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualTransfer.window_conv",
+    "spec_sha256": "f546befd43f3823e51a374da6dccc83479d82ca95fd479b733192d1f3f7e91c0",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-transfer-formalization/.humanize-formal-runs/run-0hw7uf67/attempt-001/Candidate_3ca8da96d273a5d7.lean",
+        "target_path": "/home/jing/m6-lean-actual-transfer-formalization/.humanize-formal-runs/run-0hw7uf67/attempt-001/FrozenTarget_3ca8da96d273a5d7.lean",
+        "feedback": "",
+        "target_sha256": "2226f36e3ad56221008c472537a8f2a09401c6f5151061cefc7510b7fc5f0467",
+        "target_olean_sha256": "5ad74495e24e9fc3509ce314c0ecedd75b74623e7301b2af20b9a36153de95fd",
+        "source_sha256": "4aecdb61ab841f6fcafa891287558c5278f9225e9ed4b6b5230a9f8b9649f307",
+        "olean_sha256": "81c43b4ef3ebeecd6171a577f71d0d70ac52ac300ba36f8f72165119f6a9e196",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:00:30.907362+00:00",
+    "work": "/home/jing/m6-lean-actual-transfer-formalization/.humanize-formal-runs/run-0hw7uf67",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c975f8c2d8034e31bcb737641b0c0147e107b9f61db70bb6f861e2f03aba9f5d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-transfer-formalization/.humanize-formal-runs/run-0hw7uf67/attempt-001/Candidate_3ca8da96d273a5d7.lean",
+    "environment_sha256": "30a287bf55e02144d7558a90176aaeefcec0a6f7ebfa4c3a19e5c878f844afc8",
+    "artifacts": {
+      "window_conv": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.window_conv : ∀ (R N : ℕ) [NeZero N] (a : M6.ActualTransfer.BP), a.natDegree ≤ R → R < N → ∀ (h : M6.Transfer.Input N) (i : ZMod N), M6.Transfer.cyclicOutput (M6.ActualTransfer.window R a) h i = M6.Physical.conv N (M6.Coordinates.coefficients N a) h i := by\n  classical\n  intro R N inst a ha hRN h i\n  change (∑ j : Fin (R + 1), a.coeff j.val * h (i - (j.val : ZMod N))) =\n    ∑ j : ZMod N, a.coeff j.val * h (i - j)\n  have hv (j : Fin (R + 1)) : ((j.val : ZMod N)).val = j.val := by\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt (show j.val < N by omega)]\n  calc\n    (∑ j : Fin (R + 1), a.coeff j.val * h (i - (j.val : ZMod N))) =\n        ∑ j ∈ Finset.univ.filter (fun j : ZMod N => j.val < R + 1),\n          a.coeff j.val * h (i - j) := by\n      refine Finset.sum_bij (fun j _ => (j.val : ZMod N)) ?_ ?_ ?_ ?_\n      · intro j hj\n        simp only [Finset.mem_filter, Finset.mem_univ, true_and, hv]\n        exact j.isLt\n      · intro j hj k hk hjk\n        apply Fin.ext\n        have he := congrArg (fun x : ZMod N => x.val) hjk\n        simpa only [hv] using he\n      · intro j hj\n        have hjlt : j.val < R + 1 := (Finset.mem_filter.mp hj).2\n        refine ⟨⟨j.val, hjlt⟩, Finset.mem_univ _, ?_⟩\n        simp\n      · intro j hj\n        rw [hv]\n    _ = ∑ j : ZMod N, a.coeff j.val * h (i - j) := by\n      apply Finset.sum_subset (Finset.filter_subset _ _)\n      intro j hj hjout\n      have hjlarge : ¬j.val < R + 1 := by\n        simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hjout\n      rw [Polynomial.coeff_eq_zero_of_natDegree_lt (show a.natDegree < j.val by omega), zero_mul]",
+          "imports": [
+            "M6ActualTransferReady"
+          ],
+          "name": "M6.ActualTransfer.window_conv",
+          "ancestors": [],
+          "spec_sha256": "f546befd43f3823e51a374da6dccc83479d82ca95fd479b733192d1f3f7e91c0"
+        },
+        "sha256": "28faba5483d1f27b8cba76909c01658b79d5f27fa57db40f3f8f1bed05603b00"
+      }
+    }
+  }
+}

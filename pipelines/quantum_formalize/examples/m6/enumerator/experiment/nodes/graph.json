@@ -1,0 +1,65 @@
+[
+  {
+    "id": "enumerator_sdiff",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.enumerator_sdiff",
+      "statement": "∀ (m : ℕ) (B C : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m), B ⊆ C → M6.Pinned.enumerator (C \\ B) P = M6.Pinned.enumerator C P - M6.Pinned.enumerator B P",
+      "imports": [
+        "M6Enumerator"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum polynomial evaluation coefficient"
+      ],
+      "guidance": "Use sum_sdiff after unfolding enumerator. Finset.sum_sdiff yields additive equality. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "weight preserving involution minimum distance"
+      ]
+    }
+  },
+  {
+    "id": "enumerator_zero_coeff",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.enumerator_zero_coeff",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m), (0 : M6.Pinned.Vector m) ∉ L → (M6.Pinned.enumerator L P).coeff 0 = 0",
+      "imports": [
+        "M6Enumerator"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum polynomial evaluation coefficient"
+      ],
+      "guidance": "Use enumerator_coeff/count; weight zero implies all coordinates zero via card_eq_zero and filter membership. Then filtered set empty. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "weight preserving involution minimum distance"
+      ]
+    }
+  },
+  {
+    "id": "enumerator_total",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.enumerator_total",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), Polynomial.eval 1 (M6.Pinned.enumerator L (M6.Pinned.free m)) = (L.card : ℤ)",
+      "imports": [
+        "M6Enumerator"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum polynomial evaluation coefficient"
+      ],
+      "guidance": "All vectors agree with free pins. Expand enum and eval sums, X powers evaluate1. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "weight preserving involution minimum distance"
+      ]
+    }
+  }
+]

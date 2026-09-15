@@ -1,0 +1,198 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Fintype.prod_equiv Fintype.prod_sum_type",
+    "status": "ok",
+    "results": [
+      {
+        "id": 255923,
+        "name": "Equiv.sumPiEquivProdPi",
+        "module": "Mathlib.Logic.Equiv.Prod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Prod.lean#L349-L356",
+        "source_text": "/-- The type of dependent functions on a sum type `ι ⊕ ι'` is equivalent to the type of pairs of\nfunctions on `ι` and on `ι'`. This is a dependent version of `Equiv.sumArrowEquivProdArrow`. -/\n@[simps (attr := grind =)]\ndef sumPiEquivProdPi {ι ι'} (π : ι ⊕ ι' → Type*) :\n    (∀ i, π i) ≃ (∀ i, π (inl i)) × ∀ i', π (inr i') where\n  toFun f := ⟨fun i => f (inl i), fun i' => f (inr i')⟩\n  invFun g := Sum.rec g.1 g.2\n  left_inv f := by ext (i | i) <;> rfl\n",
+        "docstring": "The type of dependent functions on a sum type `ι ⊕ ι'` is equivalent to the type of pairs of\nfunctions on `ι` and on `ι'`. This is a dependent version of `Equiv.sumArrowEquivProdArrow`. "
+      },
+      {
+        "id": 205831,
+        "name": "Fintype.sum_prod_type",
+        "module": "Mathlib.Data.Fintype.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L271-L272",
+        "source_text": "@[to_additive Fintype.sum_prod_type /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. -/]\ntheorem Fintype.prod_prod_type [CommMonoid γ] (f : α₁ × α₂ → γ) :\n    ∏ x, f x = ∏ x, ∏ y, f (x, y) :=",
+        "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. "
+      },
+      {
+        "id": 205944,
+        "name": "Fintype",
+        "module": "Mathlib.Data.Fintype.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Defs.lean#L53-L61",
+        "source_text": "/-- `Fintype α` means that `α` is finite, i.e. there are only\n  finitely many distinct elements of type `α`. The evidence of this\n  is a finset `elems` (a list up to permutation without duplicates),\n  together with a proof that everything of type `α` is in the list. -/\nclass Fintype (α : Type*) where\n  /-- The `Finset` containing all elements of a `Fintype` -/\n  elems : Finset α\n  /-- A proof that `elems` contains every element of the type -/\n  complete : ∀ x : α, x ∈ elems\n",
+        "docstring": "`Fintype α` means that `α` is finite, i.e. there are only\nfinitely many distinct elements of type `α`. The evidence of this\nis a finset `elems` (a list up to permutation without duplicates),\ntogether with a proof that everything of type `α` is in the list. "
+      },
+      {
+        "id": 205828,
+        "name": "Fintype.prod_sum_type",
+        "module": "Mathlib.Data.Fintype.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L264-L267",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem Fintype.prod_sum_type (f : α₁ ⊕ α₂ → M) :\n    ∏ x, f x = (∏ a₁, f (Sum.inl a₁)) * ∏ a₂, f (Sum.inr a₂) :=\n  prod_disjSum _ _ _",
+        "docstring": null
+      },
+      {
+        "id": 58402,
+        "name": "Fintype.sum_equiv",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L738-L741",
+        "source_text": "@[to_additive /-- `Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. -/]\nlemma prod_equiv (e : ι ≃ κ) (f : ι → M) (g : κ → M) (h : ∀ x, f x = g (e x)) :\n    ∏ x, f x = ∏ x, g x := prod_bijective _ e.bijective _ _ h",
+        "docstring": "`Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.val_natCast ZMod.val_injective",
+    "status": "ok",
+    "results": [
+      {
+        "id": 223006,
+        "name": "ZMod.natCast_zmod_val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L203-L208",
+        "source_text": "/-- So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. -/\ntheorem natCast_zmod_val {n : ℕ} [NeZero n] (a : ZMod n) : (a.val : ZMod n) = a := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.cast_val_eq_self\n",
+        "docstring": "So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. "
+      },
+      {
+        "id": 223199,
+        "name": "ZMod",
+        "module": "Mathlib.Data.ZMod.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+        "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+        "docstring": "The integers modulo `n : ℕ`. "
+      },
+      {
+        "id": 222980,
+        "name": "ZMod.val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+        "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+        "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+      },
+      {
+        "id": 223018,
+        "name": "ZMod.natCast_val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L262-L264",
+        "source_text": "@[simp]\ntheorem natCast_val [NeZero n] (i : ZMod n) : (i.val : R) = cast i :=\n  congr_fun (natCast_comp_val R) i",
+        "docstring": null
+      },
+      {
+        "id": 223189,
+        "name": "Fin.val_intCast",
+        "module": "Mathlib.Data.ZMod.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L53-L65",
+        "source_text": "@[simp] theorem val_intCast {n : Nat} [NeZero n] (x : Int) :\n    (x : Fin n).val = (x % n).toNat := by\n  rw [Fin.intCast_def']\n  split <;> rename_i h\n  · simp [Int.emod_natAbs_of_nonneg h]\n  · simp only [Fin.val_neg, Fin.natCast_eq_zero, Fin.val_natCast]\n    split <;> rename_i h\n    · rw [← Int.natCast_dvd] at h\n      rw [Int.emod_eq_zero_of_dvd h, Int.toNat_zero]\n    · rw [Int.emod_natAbs_of_neg (by lia) (NeZero.ne n),\n        if_neg (by rwa [← Int.natCast_dvd] at h)]\n      have : x % n < n := Int.emod_lt_of_pos x (by have := NeZero.ne n; lia)\n      lia",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.val_natCast ZMod.val_injective",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393558,
+        "name": "TimeMan.val_injective",
+        "module": "Physlib.SpaceAndTime.Time.TimeMan",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeMan.lean#L66-L70",
+        "source_text": "lemma val_injective : Function.Injective TimeMan.val := by\n  intro t1 t2 h\n  cases t1\n  cases t2\n  simp_all\n",
+        "docstring": null
+      },
+      {
+        "id": 393463,
+        "name": "Time.val_injective",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L83-L83",
+        "source_text": "lemma val_injective : Function.Injective val := fun _ _ h => Time.ext h\n",
+        "docstring": null
+      },
+      {
+        "id": 393466,
+        "name": "Time.natCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L105-L106",
+        "source_text": "@[simp]\nlemma natCast_val {n : ℕ} : val n = n := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393477,
+        "name": "Time.realCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L144-L144",
+        "source_text": "lemma realCast_val {r : ℝ} : (r : Time).val = r := rfl\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "weight preserving involution minimum distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389571,
+        "name": "WickContraction.fromInvolution_toInvolution",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L132-L141",
+        "source_text": "lemma fromInvolution_toInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) :\n    (fromInvolution f).toInvolution = f := by\n  apply Subtype.ext\n  funext i\n  simp only [toInvolution]\n  split\n  · simp\n  · rename_i h\n    simp only [fromInvolution_getDual?_isSome, ne_eq, Decidable.not_not] at h\n    exact h.symm\n",
+        "docstring": null
+      },
+      {
+        "id": 389565,
+        "name": "WickContraction.toInvolution",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L24-L32",
+        "source_text": "/-- The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\n  If `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\n  it is taken to itself. -/\ndef toInvolution : {f : Fin n → Fin n // Function.Involutive f} :=\n  ⟨fun i => if h : (c.getDual? i).isSome then (c.getDual? i).get h else i, by\n    intro i\n    by_cases h : (c.getDual? i).isSome\n    · simp [h]\n    · simp [h]⟩\n",
+        "docstring": "The involution of `Fin n` associated with a Wick contraction `c : WickContraction n` as follows.\nIf `i : Fin n` is contracted in `c` then it is taken to its dual, otherwise\nit is taken to itself. "
+      },
+      {
+        "id": 386187,
+        "name": "ConjModule.involution",
+        "module": "Physlib.Mathematics.ConjModule",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/ConjModule.lean#L70-L74",
+        "source_text": "/-- Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. -/\ndef involution : ConjModule (ConjModule M) ≃ₗ[k] M :=\n  ((conjEquiv (k := k) (M := M)).trans (conjEquiv (k := k) (M := ConjModule M))).symm\n",
+        "docstring": "Conjugating twice returns the original module: the `k`-linear isomorphism\n`ConjModule (ConjModule M) ≃ₗ[k] M`. It is `k`-linear, not merely semilinear, because\n`starRingEnd k` composed with itself is the identity. "
+      },
+      {
+        "id": 389566,
+        "name": "WickContraction.fromInvolution",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.Involutions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Involutions.lean#L34-L71",
+        "source_text": "/-- The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\n  sets of the contraction the orbits of `f` of cardinality `2`. -/\ndef fromInvolution (f : {f : Fin n → Fin n // Function.Involutive f}) : WickContraction n :=\n  ⟨Finset.univ.filter (fun a => a.card = 2 ∧ ∃ i, {i, f.1 i} = a), by\n  intro a\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and, and_imp, forall_exists_index]\n  intro h1 _ _\n  exact h1, by\n  intro a ha b hb\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at ha hb\n  obtain ⟨i, hai⟩ := ha.2\n  subst hai\n  obtain ⟨j, hbj⟩ := hb.2\n  subst hbj\n  by_cases h : i = j\n  · subst h\n    simp\n  · by_cases hi : i = f.1 j\n    · subst hi\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right, true_or, not_true_eq_false, and_false, or_false]\n      rw [f.2]\n      rw [@Finset.pair_comm]\n    · apply Or.inr\n      simp only [Finset.disjoint_insert_right, Finset.mem_insert, Finset.mem_singleton, not_or,\n        Finset.disjoint_singleton_right]\n      apply And.intro\n      · apply And.intro\n        · exact fun a => h a.symm\n        · by_contra hn\n          subst hn\n          rw [f.2 i] at hi\n          simp at hi\n      · apply And.intro\n        · exact fun a => hi a.symm\n        · rw [Function.Injective.eq_iff]\n          exact fun a => h (id (Eq.symm a))\n          exact Function.Involutive.injective f.2⟩\n",
+        "docstring": "The Wick contraction formed by an involution `f` of `Fin n` by taking as the contracted\nsets of the contraction the orbits of `f` of cardinality `2`. "
+      },
+      {
+        "id": 386360,
+        "name": "Physlib.Fin.involutionCons",
+        "module": "Physlib.Mathematics.Fin.Involutions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L26-L144",
+        "source_text": "/-- There is an equivalence between involutions of `Fin n.succ` and involutions of\n  `Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n    in `Fin n.succ` will be sent). -/\ndef involutionCons (n : ℕ) : {f : Fin n.succ → Fin n.succ // Function.Involutive f } ≃\n    (f : {f : Fin n → Fin n // Function.Involutive f}) × {i : Option (Fin n) //\n      ∀ (h : i.isSome), f.1 (Option.get i h) = (Option.get i h)} where\n  toFun f := ⟨⟨\n    fun i =>\n    if h : f.1 i.succ = 0 then i\n    else Fin.pred (f.1 i.succ) h, by\n    intro i\n    by_cases h : f.1 i.succ = 0\n    · simp [h]\n    · simp only [succ_eq_add_one, h, ↓reduceDIte, Fin.succ_pred, f.2 i.succ, Fin.pred_succ,\n        dite_eq_ite, ite_eq_right_iff]\n      exact fun h => False.elim (Fin.succ_ne_zero i h)⟩,\n    ⟨if h : f.1 0 = 0 then none else Fin.pred (f.1 0) h, by\n    by_cases h0 : f.1 0 = 0\n    · simp [h0]\n    · simp only [succ_eq_add_one, h0, ↓reduceDIte, Option.isSome_some, Option.get_some,\n      Fin.succ_pred, dite_eq_left_iff, Fin.pred_inj, forall_const]\n      refine fun h => False.elim (h (f.2 0))⟩⟩\n  invFun f := ⟨\n      if h : (f.2.1).isSome then\n        Fin.cons (f.2.1.get h).succ (Function.update (Fin.succ ∘ f.1.1) (f.2.1.get h) 0)\n      else\n        Fin.cons 0 (Fin.succ ∘ f.1.1), by\n    by_cases hs : (f.2.1).isSome\n    · simp only [Nat.succ_eq_add_one, hs, ↓reduceDIte]\n      let a := f.2.1.get hs\n      change Function.Involutive (Fin.cons a.succ (Function.update (Fin.succ ∘ ↑f.fst) a 0))\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        rw [Fin.cons_zero, Fin.cons_succ]\n        simp\n      · subst hj\n        rw [Fin.cons_succ]\n        by_cases hja : j = a\n        · subst hja\n          simp\n        · rw [Function.update_apply, if_neg hja]\n          simp only [Function.comp_apply, Fin.cons_succ]\n          have hf2 := f.2.2 hs\n          change f.1.1 a = a at hf2\n          have hjf1 : f.1.1 j ≠ a := fun hn => hja (by rw [← f.1.2 j, hn, hf2])\n          rw [Function.update_apply, if_neg hjf1]\n          simp only [Function.comp_apply, Fin.succ_inj]\n          rw [f.1.2]\n    · simp only [succ_eq_add_one, hs, Bool.false_eq_true, ↓reduceDIte]\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.succ_inj]\n        rw [f.1.2]⟩\n  left_inv f := by\n    match f with\n    | ⟨f, hf⟩ =>\n    have hpred (j : Fin n) (hj : f j.succ ≠ 0) :\n        (↑(if h : f j.succ = 0 then j else (f j.succ).pred h) + 1 : ℕ) = ↑(f j.succ) := by\n      rw [dif_neg hj, Fin.val_pred]\n      have hv : (f j.succ).val ≠ 0 := fun h => hj (Fin.ext (by simpa using h))\n      omega\n    simp only [succ_eq_add_one, Option.isSome_dite', Option.get_dite', Fin.succ_pred,\n      Fin.cons_update, dite_eq_ite, ite_not, Subtype.mk.injEq]\n    ext i\n    by_cases h0 : f 0 = 0\n    · simp only [h0, ↓reduceIte]\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp [h0]\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n        refine hpred j fun hj => Fin.succ_ne_zero j (hf.injective (hj.trans h0.symm))\n    · rw [if_neg h0]\n      by_cases hf' : i = f 0\n      · subst hf'\n        simp only [Function.update_self, Fin.val_zero]\n        rw [hf]\n        simp\n      · rw [Function.update_apply, if_neg hf']\n        rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n        · subst hi\n          simp\n        · subst hj\n          simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n          refine hpred j fun hj => hf' ?_\n          rw [← hj, hf]\n  right_inv f := by\n    match f with\n    | ⟨⟨f, hf⟩, ⟨f0, hf0⟩⟩ =>\n    ext i\n    · simp only [succ_eq_add_one, Fin.cons_update]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        by_cases hi : i = f0.get hs\n        · simp only [Function.update_apply, hi, ↓reduceIte, ↓reduceDIte]\n          exact Eq.symm (Fin.val_eq_of_eq (hf0 hs))\n        · simp only [ne_eq, Fin.succ_inj, hi, not_false_eq_true, Function.update_of_ne,\n          Fin.cons_succ, Function.comp_apply, Fin.pred_succ, dite_eq_ite]\n          rw [if_neg (Fin.succ_ne_zero (f i))]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_succ, Function.comp_apply,\n        Fin.pred_succ, dite_eq_ite]\n        rw [if_neg (Fin.succ_ne_zero (f i))]\n    · simp only [Nat.succ_eq_add_one, Option.dite_none_left_eq_some, Option.some.injEq]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        simp only [Fin.cons_zero, Fin.pred_succ, exists_prop]\n        have hx : ¬ (f0.get hs).succ = 0 := (Fin.succ_ne_zero (f0.get hs))\n        simp only [hx, not_false_eq_true, true_and]\n        rw [Option.eq_some_iff_get_eq]\n        simp [hs]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_zero, not_true_eq_false,\n        IsEmpty.exists_iff, false_iff]\n        simp only [Bool.not_eq_true, Option.isSome_eq_false_iff, Option.isNone_iff_eq_none] at hs\n        subst hs\n        exact ne_of_beq_false rfl\n",
+        "docstring": "There is an equivalence between involutions of `Fin n.succ` and involutions of\n`Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n  in `Fin n.succ` will be sent). "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,61 @@
+{
+  "id": "finite_coefficient_mass",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.finite_coefficient_mass",
+    "spec_sha256": "acc5a50d845a1a5dddb359bf7efed93ff30fa069923f960621d1e934d5db9be3",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-w_h68hp5/attempt-001/Candidate_5656b60fdd8bdbaa.lean:7:6: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  ∑ i, ?f ↑i\nin the target expression\n  ∑ d, (p.coeff ↑d).natAbs ≤ ∑ i ∈ p.support, (p.coeff i).natAbs\n\np : Polynomial ℤ\nL : ℕ\n⊢ ∑ d, (p.coeff ↑d).natAbs ≤ ∑ i ∈ p.support, (p.coeff i).natAbs\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-w_h68hp5/attempt-002/Candidate_d5b3d5a5260fc6e1.lean",
+        "target_path": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-w_h68hp5/attempt-002/FrozenTarget_d5b3d5a5260fc6e1.lean",
+        "feedback": "",
+        "target_sha256": "37e5313060cfb5cd739970f59a53c559ce8d0b83176043cc98a5d59cb98ee020",
+        "target_olean_sha256": "bcd32a98299973c9d8905e0609d08a5b12a42eb8e8d6856c5f1329f9f013a724",
+        "source_sha256": "787eafedf004e1ba2de37ce0923a838b43fdf1828ca57c586a0f080f4bd124a9",
+        "olean_sha256": "026e22f12e0bd765fc07eab1dc3da886bd6c0d0e0b05150545ff0d1cb6e29df3",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:35:36.276908+00:00",
+    "work": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-w_h68hp5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a14ad11c48831e75c3270c501d743e015d9997603af2ad751a2839f5daf9aa40",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-transfer-partial-resources-formalization/.humanize-formal-runs/run-w_h68hp5/attempt-002/Candidate_d5b3d5a5260fc6e1.lean",
+    "environment_sha256": "41bed09e76747ce75b81790220011c77a1162e4ca932827168117d399f7b40db",
+    "artifacts": {
+      "finite_coefficient_mass": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.finite_coefficient_mass : ∀ (p : Polynomial ℤ) (L : ℕ), (∑ d : Fin L, (p.coeff d.val).natAbs) ≤ M6.Transfer.polynomialMass p := by\n  classical\n  change ∀ (p : Polynomial ℤ) (L : ℕ), (∑ d : Fin L, (p.coeff d.val).natAbs) ≤ M6.Transfer.polynomialMass p\n  intro p L\n  change (∑ d : Fin L, (p.coeff d.val).natAbs) ≤ ∑ d ∈ p.support, (p.coeff d).natAbs\n  have hfin : (∑ d : Fin L, (p.coeff d.val).natAbs) = ∑ d ∈ Finset.range L, (p.coeff d).natAbs :=\n    Fin.sum_univ_eq_sum_range (fun d : ℕ => (p.coeff d).natAbs) L\n  rw [hfin]\n  calc\n    (∑ d ∈ Finset.range L, (p.coeff d).natAbs) ≤\n        ∑ d ∈ p.support ∪ Finset.range L, (p.coeff d).natAbs := by\n      apply Finset.sum_le_sum_of_subset_of_nonneg\n      · exact Finset.subset_union_right\n      · intros\n        exact Nat.zero_le _\n    _ = ∑ d ∈ p.support, (p.coeff d).natAbs := by\n      symm\n      apply Finset.sum_subset Finset.subset_union_left\n      intro d hd hnot\n      have hz : p.coeff d = 0 := by\n        simpa only [Polynomial.mem_support_iff, not_not] using hnot\n      simp [hz]",
+          "imports": [
+            "M6TransferPartialResourcesReady"
+          ],
+          "name": "M6.Transfer.finite_coefficient_mass",
+          "ancestors": [],
+          "spec_sha256": "acc5a50d845a1a5dddb359bf7efed93ff30fa069923f960621d1e934d5db9be3"
+        },
+        "sha256": "8cad607f1b67b645723fb7f6b1d565b17c2f9bdb184dc7a914d4d7e07e381c97"
+      }
+    }
+  }
+}

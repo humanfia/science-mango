@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat power monotonicity signed integer bounds",
+    "status": "ok",
+    "results": [
+      {
+        "id": 328295,
+        "name": "Mathlib.Tactic.Monotonicity.mono",
+        "module": "Mathlib.Tactic.Monotonicity.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Monotonicity/Basic.lean#L35-L46",
+        "source_text": "/--\n`mono` applies monotonicity rules and local hypotheses repetitively.  For example,\n```lean\nexample (x y z k : ℤ)\n    (h : 3 ≤ (4 : ℤ))\n    (h' : z ≤ y) :\n    (k + 3 + x) - y ≤ (k + 4 + x) - z := by\n  mono\n```\n-/\nsyntax (name := mono) \"mono\" \"*\"? (ppSpace mono.side)?\n  (\" with \" (colGt term),+)? (\" using \" (colGt simpArg),+)? : tactic\n",
+        "docstring": "`mono` applies monotonicity rules and local hypotheses repetitively.  For example,\n```lean\nexample (x y z k : ℤ)\n    (h : 3 ≤ (4 : ℤ))\n    (h' : z ≤ y) :\n    (k + 3 + x) - y ≤ (k + 4 + x) - z := by\n  mono\n```\n"
+      },
+      {
+        "id": 279648,
+        "name": "upperBounds",
+        "module": "Mathlib.Order.Bounds.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L32-L35",
+        "source_text": "/-- The set of upper bounds of a set. -/\n@[to_dual /-- The set of lower bounds of a set. -/]\ndef upperBounds (s : Set α) : Set α :=\n  { x | ∀ ⦃a⦄, a ∈ s → a ≤ x }\n",
+        "docstring": "The set of upper bounds of a set. "
+      },
+      {
+        "id": 228740,
+        "name": "signedDist",
+        "module": "Mathlib.Geometry.Euclidean.SignedDist",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Geometry/Euclidean/SignedDist.lean#L42-L58",
+        "source_text": "/--\nThe signed distance between two points `p` and `q`, in the direction of a reference vector `v`.\nIt is the size of `q - p` in the direction of `v`.\nIn the degenerate case `v = 0`, it returns `0`.\n\nTODO: once we have a topology on `P →ᴬ[ℝ] ℝ`, the type should be `P →ᴬ[ℝ] P →ᴬ[ℝ] ℝ`.\n-/\nnoncomputable def signedDist (v : V) : P →ᵃ[ℝ] P →ᴬ[ℝ] ℝ where\n  toFun p := (innerSL ℝ (normalize v)).toContinuousAffineMap.comp\n    (ContinuousAffineMap.id ℝ P -ᵥ .const ℝ P p)\n  linear := {\n    toFun w := .const ℝ P ⟪-normalize v, w⟫\n    map_add' x y := by ext; simp [inner_add_right]\n    map_smul' r x := by ext; simp [inner_smul_right] }\n  map_vadd' p v' := by\n    ext q\n    simp [vsub_vadd_eq_vsub_sub, inner_sub_right, ← sub_eq_neg_add]\n",
+        "docstring": "The signed distance between two points `p` and `q`, in the direction of a reference vector `v`.\nIt is the size of `q - p` in the direction of `v`.\nIn the degenerate case `v = 0`, it returns `0`.\n\nTODO: once we have a topology on `P →ᴬ[ℝ] ℝ`, the type should be `P →ᴬ[ℝ] P →ᴬ[ℝ] ℝ`.\n"
+      },
+      {
+        "id": 271653,
+        "name": "rootsOfUnity.integer_power_of_ringEquiv",
+        "module": "Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Cyclotomic/CyclotomicCharacter.lean#L81-L84",
+        "source_text": "theorem rootsOfUnity.integer_power_of_ringEquiv (g : L ≃+* L) :\n    ∃ m : ℤ, ∀ t : rootsOfUnity n L, g (t : Lˣ) = (t ^ m : Lˣ) := by\n  obtain ⟨m, hm⟩ := MonoidHom.map_cyclic ((g : L ≃* L).restrictRootsOfUnity n).toMonoidHom\n  exact ⟨m, fun t ↦ Units.ext_iff.1 <| SetCoe.ext_iff.2 <| hm t⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 279649,
+        "name": "lowerBounds",
+        "module": "Mathlib.Order.Bounds.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L33-L33",
+        "source_text": "@[to_dual /-- The set of lower bounds of a set. -/]\ndef upperBounds (s : Set α) : Set α :=",
+        "docstring": "The set of lower bounds of a set. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "finite sum transfer matrix",
+    "status": "ok",
+    "results": [
+      {
+        "id": 57569,
+        "name": "finsum",
+        "module": "Mathlib.Algebra.BigOperators.Finprod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L101-L104",
+        "source_text": "/-- Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. -/\nnoncomputable irreducible_def finsum (lemma := finsum_def') [AddCommMonoid M] (f : α → M) : M :=\n  if h : HasFiniteSupport (f ∘ PLift.down) then ∑ i ∈ h.toFinset, f i.down else 0\n",
+        "docstring": "Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. "
+      },
+      {
+        "id": 247861,
+        "name": "Matrix",
+        "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L52-L56",
+        "source_text": "/-- `Matrix m n R` is the type of matrices with entries in `R`, whose rows are indexed by `m`\nand whose columns are indexed by `n`. -/\n@[wikidata Q44337]\ndef Matrix (m : Type u) (n : Type u') (α : Type v) : Type max u u' v :=\n  m → n → α\n",
+        "docstring": "`Matrix m n R` is the type of matrices with entries in `R`, whose rows are indexed by `m`\nand whose columns are indexed by `n`. "
+      },
+      {
+        "id": 346260,
+        "name": "summable_matrix_transpose",
+        "module": "Mathlib.Topology.Instances.Matrix",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Instances/Matrix.lean#L336-L340",
+        "source_text": "@[simp]\ntheorem summable_matrix_transpose {f : X → Matrix m n R} :\n    (Summable (fun x => (f x)ᵀ) L) ↔ Summable f L :=\n  Summable.map_iff_of_equiv (Matrix.transposeAddEquiv m n R)\n    continuous_id.matrix_transpose continuous_id.matrix_transpose",
+        "docstring": null
+      },
+      {
+        "id": 346259,
+        "name": "Summable.matrix_transpose",
+        "module": "Mathlib.Topology.Instances.Matrix",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Instances/Matrix.lean#L332-L334",
+        "source_text": "theorem Summable.matrix_transpose {f : X → Matrix m n R} (hf : Summable f L) :\n    Summable (fun x => (f x)ᵀ) L :=\n  hf.hasSum.matrix_transpose.summable\n",
+        "docstring": null
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "finite sum transfer matrix",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386254,
+        "name": "Matrix.matrix_tsum_apply",
+        "module": "Physlib.Mathematics.DataStructures.Matrix.LieTrace",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/Matrix/LieTrace.lean#L55-L66",
+        "source_text": "/-- Apply a matrix `tsum` to a given entry. -/\nlemma matrix_tsum_apply\n    {f : ℕ → Matrix m m 𝕂} (hf : Summable f) (i j : m) :\n    (∑' n, f n) i j = ∑' n, (f n) i j := by\n  have h_row_summable : Summable (fun n ↦ (f n) i) := by\n    have h := Pi.summable.1 hf\n    exact h i\n  have h₁ : ((∑' n, f n) : Matrix m m 𝕂) i = (∑' n, (f n) i) := by\n    exact tsum_apply hf\n  have h₂ : ((∑' n, (f n) i) : m → 𝕂) j = (∑' n, (f n) i j) := by\n    exact tsum_apply h_row_summable\n  rw [h₁, h₂]\n",
+        "docstring": "Apply a matrix `tsum` to a given entry. "
+      },
+      {
+        "id": 390173,
+        "name": "QuantumMechanics.FiniteTarget.timeEvolutionMatrixStandard",
+        "module": "Physlib.QuantumMechanics.FiniteTarget",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/FiniteTarget.lean#L61-L66",
+        "source_text": "/-- An instance of timeEvolutionmatrix over the standard basis. -/\nnoncomputable def timeEvolutionMatrixStandard (t : ℝ) :\n  Matrix (Fin n) (Fin n) ℂ :=\n  -- Use the fact that H ≃ ℂ^n to get a basis\n    let b : Basis (Fin n) ℂ H := Module.finBasisOfFinrankEq ℂ H A.hdim\n    (timeEvolutionMatrix A t b)\n",
+        "docstring": "An instance of timeEvolutionmatrix over the standard basis. "
+      },
+      {
+        "id": 390172,
+        "name": "QuantumMechanics.FiniteTarget.timeEvolutionMatrix",
+        "module": "Physlib.QuantumMechanics.FiniteTarget",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/FiniteTarget.lean#L54-L58",
+        "source_text": "/-- The matrix representation of the time evolution operator in a given basis. Given a\nPlanck constant `ℏ`, the matrix is a self-adjoint `n × n` matrix describing the timeEvolution. -/\nnoncomputable def timeEvolutionMatrix (t : ℝ) (b : Basis (Fin n) ℂ H) :\n  Matrix (Fin n) (Fin n) ℂ :=\n  LinearMap.toMatrix b b (A.timeEvolution t).toLinearMap\n",
+        "docstring": "The matrix representation of the time evolution operator in a given basis. Given a\nPlanck constant `ℏ`, the matrix is a self-adjoint `n × n` matrix describing the timeEvolution. "
+      },
+      {
+        "id": 385709,
+        "name": "Electromagnetism.ElectromagneticPotential.kineticTerm_eq_sum_fieldStrengthMatrix",
+        "module": "Physlib.Electromagnetism.Dynamics.KineticTerm",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Electromagnetism/Dynamics/KineticTerm.lean#L172-L176",
+        "source_text": "lemma kineticTerm_eq_sum_fieldStrengthMatrix {d} {𝓕 : FreeSpace}\n    (A : ElectromagneticPotential d) (x : SpaceTime d) : A.kineticTerm 𝓕 x =\n    - 1/(4 * 𝓕.μ₀) * ∑ μ, ∑ ν, ∑ μ', ∑ ν', η μ μ' * η ν ν' *\n      A.fieldStrengthMatrix x (μ, ν) * A.fieldStrengthMatrix x (μ', ν') := by\n  rw [kineticTerm_eq_sum]\n",
+        "docstring": null
+      },
+      {
+        "id": 387455,
+        "name": "TwoHiggsDoublet.gramMatrix_eq_gramVector_sum_pauliMatrix",
+        "module": "Physlib.Particles.BeyondTheStandardModel.TwoHDM.GramMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/TwoHDM/GramMatrix.lean#L296-L303",
+        "source_text": "lemma gramMatrix_eq_gramVector_sum_pauliMatrix (H : TwoHiggsDoublet) :\n    gramMatrix H = (1 / 2 : ℝ) • ∑ μ, H.gramVector μ • PauliMatrix.pauliMatrix μ := by\n  have h1 := congrArg (fun x => x.1) <|\n    PauliMatrix.pauliBasis.sum_repr ⟨gramMatrix H, gramMatrix_selfAdjoint H⟩\n  simp [-Module.Basis.sum_repr] at h1\n  rw [← h1]\n  simp [gramVector, smul_smul, Finset.smul_sum]\n  congr 1 <;> simp [PauliMatrix.pauliBasis, PauliMatrix.pauliSelfAdjoint]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]
