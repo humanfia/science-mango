@@ -1,0 +1,13 @@
+{
+  "name": "M7.Supports.support",
+  "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support = M7.Supports.natSupport A",
+  "imports": [
+    "M7Supports"
+  ],
+  "context": "theorem M7.Supports.coefficient : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ n : ℕ, (M7.Supports.polynomial A).coeff n = if ∃ i ∈ A, i.val = n then 1 else 0 := by\n  classical\n  intro N inst A n\n  unfold M7.Supports.polynomial\n  rw [Polynomial.finsetSum_coeff]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · rw [if_pos h]\n    obtain ⟨i, hiA, hin⟩ := h\n    rw [Finset.sum_eq_single i]\n    · simp [Polynomial.coeff_X_pow, hin]\n    · intro j hjA hji\n      have hjn : j.val ≠ n := by\n        intro heq\n        exact hji (ZMod.val_injective N (heq.trans hin.symm))\n      simp [Polynomial.coeff_X_pow, hjn, Ne.symm hjn]\n    · intro hi\n      exact (hi hiA).elim\n  · rw [if_neg h]\n    apply Finset.sum_eq_zero\n    intro i hiA\n    have hin : i.val ≠ n := by\n      intro heq\n      exact h ⟨i, hiA, heq⟩\n    simp [Polynomial.coeff_X_pow, hin, Ne.symm hin]",
+  "queries": [
+    "Polynomial coefficient finite sum X power",
+    "ZMod val injective Finset card image"
+  ],
+  "guidance": "Extensionality at n, use mem_support_iff, accepted coefficient and mem_image. ZMod2 one is nonzero. Definitions: polynomial A = ∑ i ∈ A, (Polynomial.X : Polynomial (ZMod 2))^i.val; natSupport A=A.image ZMod.val; indicator A i=if i∈A then 1 else 0. Keep original target including empty A and N=1. Return tactic lines without leading by."
+}

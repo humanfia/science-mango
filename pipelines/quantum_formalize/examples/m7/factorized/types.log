@@ -1,0 +1,23 @@
+∀ (S T : Type) [inst : Fintype S] [inst_1 : Fintype T] (left : S → Prop) (right : T → Prop),
+  (M7.Factorized.count fun p => left p.1 ∧ right p.2) = M7.Factorized.count left * M7.Factorized.count right : Prop
+∀ (U S T : Type) [inst : Fintype U] [inst_1 : Fintype S] [inst_2 : Fintype T] (sector : U → Prop) (left : U → S → Prop)
+  (right : U → T → Prop),
+  M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card : Prop
+∀ (U S T : Type) [inst : Fintype U] [inst_1 : Fintype S] [inst_2 : Fintype T] (X Y : Type) (leftImage : U → S → X)
+  (rightImage : U → T → Y) (x : X) (y : Y),
+  M7.Factorized.exactTargetNumerator leftImage rightImage x y =
+    M7.Factorized.count fun r => leftImage r.1 r.2.1 = x ∧ rightImage r.1 r.2.2 = y : Prop
+∀ (U S T : Type) [inst : Fintype U] [inst_1 : Fintype S] [inst_2 : Fintype T] (sector : U → Prop) (left : U → S → Prop)
+  (right : U → T → Prop) (test : U → S → Bool),
+  M7.Factorized.numerator sector left right =
+    M7.Factorized.numerator sector (fun u s => left u s ∧ test u s = false) right +
+      M7.Factorized.numerator sector (fun u s => left u s ∧ test u s = true) right : Prop
+∀ (U S T : Type) [inst : Fintype U] [inst_1 : Fintype S] [inst_2 : Fintype T] (sector : U → Prop) (left : U → S → Prop)
+  (right : U → T → Prop) (test : U → T → Bool),
+  M7.Factorized.numerator sector left right =
+    (M7.Factorized.numerator sector left fun u t => right u t ∧ test u t = false) +
+      M7.Factorized.numerator sector left fun u t => right u t ∧ test u t = true : Prop
+∀ (U S T : Type) [inst : Fintype U] [inst_1 : Fintype S] [inst_2 : Fintype T] (X Y : Type) (leftImage : U → S → X)
+  (rightImage : U → T → Y) (x : X) (y : Y),
+  0 < M7.Factorized.exactTargetNumerator leftImage rightImage x y ↔
+    ∃ u s t, leftImage u s = x ∧ rightImage u t = y : Prop

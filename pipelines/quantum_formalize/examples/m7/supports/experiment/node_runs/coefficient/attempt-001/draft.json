@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst A n\nunfold M7.Supports.polynomial\nrw [Polynomial.finsetSum_coeff]\nby_cases h : ∃ i ∈ A, i.val = n\n· rw [if_pos h]\n  obtain ⟨i, hiA, hin⟩ := h\n  rw [Finset.sum_eq_single i]\n  · simp [Polynomial.coeff_X_pow, hin]\n  · intro j hjA hji\n    have hjn : j.val ≠ n := by\n      intro heq\n      exact hji (ZMod.val_injective N (heq.trans hin.symm))\n    simp [Polynomial.coeff_X_pow, hjn, Ne.symm hjn]\n  · intro hi\n    exact (hi hiA).elim\n· rw [if_neg h]\n  apply Finset.sum_eq_zero\n  intro i hiA\n  have hin : i.val ≠ n := by\n    intro heq\n    exact h ⟨i, hiA, heq⟩\n  simp [Polynomial.coeff_X_pow, hin, Ne.symm hin]",
+  "queries": []
+}

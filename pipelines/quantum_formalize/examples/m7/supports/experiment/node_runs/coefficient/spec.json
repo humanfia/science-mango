@@ -1,0 +1,13 @@
+{
+  "name": "M7.Supports.coefficient",
+  "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ n : ℕ, (M7.Supports.polynomial A).coeff n = if ∃ i ∈ A, i.val = n then 1 else 0",
+  "imports": [
+    "M7Supports"
+  ],
+  "context": "",
+  "queries": [
+    "Polynomial coefficient finite sum X power",
+    "ZMod val injective Finset card image"
+  ],
+  "guidance": "Expand coefficient of finite sum and X powers. ZMod.val is injective at positive N, so at most one summand is nonzero. Finset.sum_eq_single gives the unique witness; absence gives sum zero. Definitions: polynomial A = ∑ i ∈ A, (Polynomial.X : Polynomial (ZMod 2))^i.val; natSupport A=A.image ZMod.val; indicator A i=if i∈A then 1 else 0. Keep original target including empty A and N=1. Return tactic lines without leading by."
+}

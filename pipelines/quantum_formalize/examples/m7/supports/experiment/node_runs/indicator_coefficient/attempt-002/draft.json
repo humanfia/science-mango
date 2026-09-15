@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst A i\nrw [M7.Supports.coefficient]\nunfold M7.Supports.indicator\nby_cases hi : i ∈ A\n· have hex : ∃ j ∈ A, j.val = i.val := ⟨i, hi, rfl⟩\n  simp only [if_pos hex, if_pos hi]\n· have hnex : ¬ ∃ j ∈ A, j.val = i.val := by\n    rintro ⟨j, hj, hval⟩\n    have hji : j = i := ZMod.val_injective N hval\n    exact hi (hji ▸ hj)\n  simp only [if_neg hnex, if_neg hi]",
+  "queries": []
+}

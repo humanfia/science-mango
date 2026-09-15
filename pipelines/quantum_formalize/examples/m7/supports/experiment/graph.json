@@ -1,0 +1,155 @@
+{
+  "title": "M7 B01 literal finite-support polynomial bridge",
+  "source": "/home/jing/quantum_code_discovery_proof/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md",
+  "source_sha256": "8ad32a3432f4b7fd3ad15aa4467e0f01255ce593ac9e474b1af38c9424addf19",
+  "nodes": [
+    {
+      "id": "coefficient",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Supports.coefficient",
+        "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ n : ℕ, (M7.Supports.polynomial A).coeff n = if ∃ i ∈ A, i.val = n then 1 else 0",
+        "imports": [
+          "M7Supports"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial coefficient finite sum X power",
+          "ZMod val injective Finset card image"
+        ],
+        "guidance": "Expand coefficient of finite sum and X powers. ZMod.val is injective at positive N, so at most one summand is nonzero. Finset.sum_eq_single gives the unique witness; absence gives sum zero. Definitions: polynomial A = ∑ i ∈ A, (Polynomial.X : Polynomial (ZMod 2))^i.val; natSupport A=A.image ZMod.val; indicator A i=if i∈A then 1 else 0. Keep original target including empty A and N=1. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "supports_obligation": "M7_PHYSICAL_M6_B01",
+        "fallback_queries": [
+          "Polynomial coeff X pow"
+        ]
+      }
+    },
+    {
+      "id": "support",
+      "dependencies": [
+        "coefficient"
+      ],
+      "spec": {
+        "name": "M7.Supports.support",
+        "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support = M7.Supports.natSupport A",
+        "imports": [
+          "M7Supports"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial coefficient finite sum X power",
+          "ZMod val injective Finset card image"
+        ],
+        "guidance": "Extensionality at n, use mem_support_iff, accepted coefficient and mem_image. ZMod2 one is nonzero. Definitions: polynomial A = ∑ i ∈ A, (Polynomial.X : Polynomial (ZMod 2))^i.val; natSupport A=A.image ZMod.val; indicator A i=if i∈A then 1 else 0. Keep original target including empty A and N=1. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "supports_obligation": "M7_PHYSICAL_M6_B01",
+        "fallback_queries": [
+          "Polynomial coeff X pow"
+        ]
+      }
+    },
+    {
+      "id": "support_card",
+      "dependencies": [
+        "support"
+      ],
+      "spec": {
+        "name": "M7.Supports.support_card",
+        "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support.card = A.card",
+        "imports": [
+          "M7Supports"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial coefficient finite sum X power",
+          "ZMod val injective Finset card image"
+        ],
+        "guidance": "Use accepted support and Finset.card_image with ZMod.val injectivity. Definitions: polynomial A = ∑ i ∈ A, (Polynomial.X : Polynomial (ZMod 2))^i.val; natSupport A=A.image ZMod.val; indicator A i=if i∈A then 1 else 0. Keep original target including empty A and N=1. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "supports_obligation": "M7_PHYSICAL_M6_B01",
+        "fallback_queries": [
+          "Polynomial coeff X pow"
+        ]
+      }
+    },
+    {
+      "id": "degree_lt",
+      "dependencies": [
+        "support"
+      ],
+      "spec": {
+        "name": "M7.Supports.degree_lt",
+        "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).natDegree < N",
+        "imports": [
+          "M7Supports"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial coefficient finite sum X power",
+          "ZMod val injective Finset card image"
+        ],
+        "guidance": "For nonzero polynomial natDegree belongs to support; image membership and ZMod.val_lt give bound. For zero polynomial natDegree=0 and NeZero N gives positivity. Empty support is allowed. Definitions: polynomial A = ∑ i ∈ A, (Polynomial.X : Polynomial (ZMod 2))^i.val; natSupport A=A.image ZMod.val; indicator A i=if i∈A then 1 else 0. Keep original target including empty A and N=1. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "supports_obligation": "M7_PHYSICAL_M6_B01",
+        "fallback_queries": [
+          "Polynomial coeff X pow"
+        ]
+      }
+    },
+    {
+      "id": "indicator_coefficient",
+      "dependencies": [
+        "coefficient"
+      ],
+      "spec": {
+        "name": "M7.Supports.indicator_coefficient",
+        "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ i : ZMod N, (M7.Supports.polynomial A).coeff i.val = M7.Supports.indicator A i",
+        "imports": [
+          "M7Supports"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial coefficient finite sum X power",
+          "ZMod val injective Finset card image"
+        ],
+        "guidance": "Use coefficient and injectivity of ZMod.val to identify the existential with i∈A. Definitions: polynomial A = ∑ i ∈ A, (Polynomial.X : Polynomial (ZMod 2))^i.val; natSupport A=A.image ZMod.val; indicator A i=if i∈A then 1 else 0. Keep original target including empty A and N=1. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "supports_obligation": "M7_PHYSICAL_M6_B01",
+        "fallback_queries": [
+          "Polynomial coeff X pow"
+        ]
+      }
+    },
+    {
+      "id": "anchor",
+      "dependencies": [
+        "indicator_coefficient"
+      ],
+      "spec": {
+        "name": "M7.Supports.anchor",
+        "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ((M7.Supports.polynomial A).coeff 0 = 1 ↔ (0 : ZMod N) ∈ A)",
+        "imports": [
+          "M7Supports"
+        ],
+        "context": "",
+        "queries": [
+          "Polynomial coefficient finite sum X power",
+          "ZMod val injective Finset card image"
+        ],
+        "guidance": "Specialize indicator_coefficient at zero and unfold indicator; 0≠1 in ZMod2. Definitions: polynomial A = ∑ i ∈ A, (Polynomial.X : Polynomial (ZMod 2))^i.val; natSupport A=A.image ZMod.val; indicator A i=if i∈A then 1 else 0. Keep original target including empty A and N=1. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "supports_obligation": "M7_PHYSICAL_M6_B01",
+        "fallback_queries": [
+          "Polynomial coeff X pow"
+        ]
+      }
+    }
+  ]
+}

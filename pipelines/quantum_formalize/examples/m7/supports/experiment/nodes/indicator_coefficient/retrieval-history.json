@@ -1,0 +1,366 @@
+[
+  {
+    "queries": [
+      "Polynomial coefficient finite sum X power",
+      "ZMod val injective Finset card image"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial coefficient finite sum X power",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101280,
+            "name": "Polynomial.finset_sum_coeff",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L93-L93",
+            "source_text": "@[deprecated (since := \"2026-04-08\")] alias finset_sum_coeff := finsetSum_coeff",
+            "docstring": "**Alias** of `Polynomial.finsetSum_coeff`."
+          },
+          {
+            "id": 101279,
+            "name": "Polynomial.finsetSum_coeff",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L88-L91",
+            "source_text": "@[simp]\ntheorem finsetSum_coeff {ι : Type*} (s : Finset ι) (f : ι → R[X]) (n : ℕ) :\n    coeff (∑ b ∈ s, f b) n = ∑ b ∈ s, coeff (f b) n :=\n  map_sum (lcoeff R n) _ _",
+            "docstring": null
+          },
+          {
+            "id": 101074,
+            "name": "Polynomial.sum_X_index",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L878-L881",
+            "source_text": "@[simp]\ntheorem sum_X_index {S : Type*} [AddCommMonoid S] {f : ℕ → R → S} (hf : f 1 0 = 0) :\n    (X : R[X]).sum f = f 1 1 :=\n  sum_monomial_index 1 f hf",
+            "docstring": null
+          },
+          {
+            "id": 100978,
+            "name": "Polynomial.X",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L479-L481",
+            "source_text": "/-- `X` is the polynomial variable (aka indeterminate). -/\ndef X : R[X] :=\n  monomial 1 1\n",
+            "docstring": "`X` is the polynomial variable (aka indeterminate). "
+          },
+          {
+            "id": 103508,
+            "name": "Polynomial.sumIDeriv_X",
+            "module": "Mathlib.Algebra.Polynomial.SumIteratedDerivative",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/SumIteratedDerivative.lean#L84-L87",
+            "source_text": "@[simp]\ntheorem sumIDeriv_X : sumIDeriv X = X + C 1 := by\n  rw [sumIDeriv_apply, natDegree_X, sum_range_succ, sum_range_one, Function.iterate_zero_apply,\n    Function.iterate_one, derivative_X, eq_natCast, Nat.cast_one]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial coefficient finite sum X power",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389914,
+            "name": "PureU1.VectorLikeEvenPlane.P_zero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L371-L372",
+            "source_text": "lemma P_zero (f : Fin n.succ → ℚ) (h : P f = 0) : ∀ i, f i = 0 := by\n  exact fun i => (P_evenFst f i).symm.trans (congr_fun h (evenFst i))\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod val injective Finset card image",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202358,
+            "name": "Finset.card_image_of_injective",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L249-L251",
+            "source_text": "theorem card_image_of_injective [DecidableEq β] (s : Finset α) (H : Injective f) :\n    #(s.image f) = #s :=\n  card_image_of_injOn fun _ _ _ _ h => H h\n",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 223076,
+            "name": "ZMod.val_injective",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L621-L627",
+            "source_text": "theorem val_injective (n : ℕ) [NeZero n] : Function.Injective (val : ZMod n → ℕ) := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  intro a b h\n  dsimp [ZMod]\n  ext\n  exact h\n",
+            "docstring": null
+          },
+          {
+            "id": 202309,
+            "name": "Finset.card_val",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L55-L55",
+            "source_text": "@[simp] lemma card_val (s : Finset α) : Multiset.card s.1 = #s := rfl",
+            "docstring": null
+          },
+          {
+            "id": 60881,
+            "name": "instEnoughInjectivesModuleCatInt",
+            "module": "Mathlib.Algebra.Category.ModuleCat.EnoughInjectives",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Category/ModuleCat/EnoughInjectives.lean#L27-L28",
+            "source_text": "instance : EnoughInjectives (ModuleCat.{v} ℤ) :=\n  EnoughInjectives.of_equivalence (forget₂ (ModuleCat ℤ) AddCommGrpCat)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod val injective Finset card image",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388470,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.preimageOfFinset_card_eq",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Map",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Map.lean#L494-L500",
+            "source_text": "lemma preimageOfFinset_card_eq (S5 S10 : Finset 𝓩) (f : 𝓩 →+ 𝓩1) (x : ChargeSpectrum 𝓩1) :\n    preimageOfFinsetCard S5 S10 f x =\n    (preimageOfFinset S5 S10 f x).card := by\n  rw [preimageOfFinset, Finset.card_map]\n  simp only [Option.map_eq_map, Finset.product_eq_sprod]\n  repeat rw [Finset.card_product]\n  simp [preimageOfFinsetCard, mul_assoc]\n",
+            "docstring": null
+          },
+          {
+            "id": 393558,
+            "name": "TimeMan.val_injective",
+            "module": "Physlib.SpaceAndTime.Time.TimeMan",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeMan.lean#L66-L70",
+            "source_text": "lemma val_injective : Function.Injective TimeMan.val := by\n  intro t1 t2 h\n  cases t1\n  cases t2\n  simp_all\n",
+            "docstring": null
+          },
+          {
+            "id": 393463,
+            "name": "Time.val_injective",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L83-L83",
+            "source_text": "lemma val_injective : Function.Injective val := fun _ _ h => Time.ext h\n",
+            "docstring": null
+          },
+          {
+            "id": 390015,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftFst",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L144-L147",
+            "source_text": "/-- The inclusion of `Fin n` into `Fin (1 + n + n)` via the first `n`.\n  This is then casted to `Fin (2 * n + 1)`. -/\ndef oddShiftFst (j : Fin n) : Fin (2 * n + 1) :=\n  Fin.cast (odd_shift_eq n) (Fin.castAdd n (Fin.natAdd 1 j))\n",
+            "docstring": "The inclusion of `Fin n` into `Fin (1 + n + n)` via the first `n`.\nThis is then casted to `Fin (2 * n + 1)`. "
+          },
+          {
+            "id": 390021,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftShiftFst",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L182-L185",
+            "source_text": "/-- The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\n  to `Fin (2 * n.succ + 1)`. -/\ndef oddShiftShiftFst (j : Fin n) : Fin (2 * n.succ + 1) :=\n  Fin.cast (odd_shift_shift_eq n) (Fin.castAdd n.succ (Fin.castAdd 1 (Fin.natAdd 1 j)))\n",
+            "docstring": "The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\nto `Fin (2 * n.succ + 1)`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "coefficient",
+    "receipts_sha256": "5f740b48f7cef7d1cceaca61947ccf11adf9b6cf4957b504dfaa0a4a21d86fa1"
+  },
+  {
+    "queries": [
+      "Polynomial coefficient finite sum X power",
+      "ZMod val injective Finset card image"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial coefficient finite sum X power",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101280,
+            "name": "Polynomial.finset_sum_coeff",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L93-L93",
+            "source_text": "@[deprecated (since := \"2026-04-08\")] alias finset_sum_coeff := finsetSum_coeff",
+            "docstring": "**Alias** of `Polynomial.finsetSum_coeff`."
+          },
+          {
+            "id": 101279,
+            "name": "Polynomial.finsetSum_coeff",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L88-L91",
+            "source_text": "@[simp]\ntheorem finsetSum_coeff {ι : Type*} (s : Finset ι) (f : ι → R[X]) (n : ℕ) :\n    coeff (∑ b ∈ s, f b) n = ∑ b ∈ s, coeff (f b) n :=\n  map_sum (lcoeff R n) _ _",
+            "docstring": null
+          },
+          {
+            "id": 101074,
+            "name": "Polynomial.sum_X_index",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L878-L881",
+            "source_text": "@[simp]\ntheorem sum_X_index {S : Type*} [AddCommMonoid S] {f : ℕ → R → S} (hf : f 1 0 = 0) :\n    (X : R[X]).sum f = f 1 1 :=\n  sum_monomial_index 1 f hf",
+            "docstring": null
+          },
+          {
+            "id": 100978,
+            "name": "Polynomial.X",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L479-L481",
+            "source_text": "/-- `X` is the polynomial variable (aka indeterminate). -/\ndef X : R[X] :=\n  monomial 1 1\n",
+            "docstring": "`X` is the polynomial variable (aka indeterminate). "
+          },
+          {
+            "id": 103508,
+            "name": "Polynomial.sumIDeriv_X",
+            "module": "Mathlib.Algebra.Polynomial.SumIteratedDerivative",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/SumIteratedDerivative.lean#L84-L87",
+            "source_text": "@[simp]\ntheorem sumIDeriv_X : sumIDeriv X = X + C 1 := by\n  rw [sumIDeriv_apply, natDegree_X, sum_range_succ, sum_range_one, Function.iterate_zero_apply,\n    Function.iterate_one, derivative_X, eq_natCast, Nat.cast_one]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial coefficient finite sum X power",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389914,
+            "name": "PureU1.VectorLikeEvenPlane.P_zero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L371-L372",
+            "source_text": "lemma P_zero (f : Fin n.succ → ℚ) (h : P f = 0) : ∀ i, f i = 0 := by\n  exact fun i => (P_evenFst f i).symm.trans (congr_fun h (evenFst i))\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod val injective Finset card image",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202358,
+            "name": "Finset.card_image_of_injective",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L249-L251",
+            "source_text": "theorem card_image_of_injective [DecidableEq β] (s : Finset α) (H : Injective f) :\n    #(s.image f) = #s :=\n  card_image_of_injOn fun _ _ _ _ h => H h\n",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 223076,
+            "name": "ZMod.val_injective",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L621-L627",
+            "source_text": "theorem val_injective (n : ℕ) [NeZero n] : Function.Injective (val : ZMod n → ℕ) := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  intro a b h\n  dsimp [ZMod]\n  ext\n  exact h\n",
+            "docstring": null
+          },
+          {
+            "id": 202309,
+            "name": "Finset.card_val",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L55-L55",
+            "source_text": "@[simp] lemma card_val (s : Finset α) : Multiset.card s.1 = #s := rfl",
+            "docstring": null
+          },
+          {
+            "id": 60881,
+            "name": "instEnoughInjectivesModuleCatInt",
+            "module": "Mathlib.Algebra.Category.ModuleCat.EnoughInjectives",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Category/ModuleCat/EnoughInjectives.lean#L27-L28",
+            "source_text": "instance : EnoughInjectives (ModuleCat.{v} ℤ) :=\n  EnoughInjectives.of_equivalence (forget₂ (ModuleCat ℤ) AddCommGrpCat)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod val injective Finset card image",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388470,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.preimageOfFinset_card_eq",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Map",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Map.lean#L494-L500",
+            "source_text": "lemma preimageOfFinset_card_eq (S5 S10 : Finset 𝓩) (f : 𝓩 →+ 𝓩1) (x : ChargeSpectrum 𝓩1) :\n    preimageOfFinsetCard S5 S10 f x =\n    (preimageOfFinset S5 S10 f x).card := by\n  rw [preimageOfFinset, Finset.card_map]\n  simp only [Option.map_eq_map, Finset.product_eq_sprod]\n  repeat rw [Finset.card_product]\n  simp [preimageOfFinsetCard, mul_assoc]\n",
+            "docstring": null
+          },
+          {
+            "id": 393558,
+            "name": "TimeMan.val_injective",
+            "module": "Physlib.SpaceAndTime.Time.TimeMan",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeMan.lean#L66-L70",
+            "source_text": "lemma val_injective : Function.Injective TimeMan.val := by\n  intro t1 t2 h\n  cases t1\n  cases t2\n  simp_all\n",
+            "docstring": null
+          },
+          {
+            "id": 393463,
+            "name": "Time.val_injective",
+            "module": "Physlib.SpaceAndTime.Time.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L83-L83",
+            "source_text": "lemma val_injective : Function.Injective val := fun _ _ h => Time.ext h\n",
+            "docstring": null
+          },
+          {
+            "id": 390015,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftFst",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L144-L147",
+            "source_text": "/-- The inclusion of `Fin n` into `Fin (1 + n + n)` via the first `n`.\n  This is then casted to `Fin (2 * n + 1)`. -/\ndef oddShiftFst (j : Fin n) : Fin (2 * n + 1) :=\n  Fin.cast (odd_shift_eq n) (Fin.castAdd n (Fin.natAdd 1 j))\n",
+            "docstring": "The inclusion of `Fin n` into `Fin (1 + n + n)` via the first `n`.\nThis is then casted to `Fin (2 * n + 1)`. "
+          },
+          {
+            "id": 390021,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftShiftFst",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L182-L185",
+            "source_text": "/-- The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\n  to `Fin (2 * n.succ + 1)`. -/\ndef oddShiftShiftFst (j : Fin n) : Fin (2 * n.succ + 1) :=\n  Fin.cast (odd_shift_shift_eq n) (Fin.castAdd n.succ (Fin.castAdd 1 (Fin.natAdd 1 j)))\n",
+            "docstring": "The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\nto `Fin (2 * n.succ + 1)`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "coefficient",
+    "receipts_sha256": "5f740b48f7cef7d1cceaca61947ccf11adf9b6cf4957b504dfaa0a4a21d86fa1"
+  }
+]

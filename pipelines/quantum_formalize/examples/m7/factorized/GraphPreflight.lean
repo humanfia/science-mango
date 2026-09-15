@@ -1,0 +1,8 @@
+import M7Factorized
+open scoped BigOperators
+#check (∀ (S T : Type) [Fintype S] [Fintype T] (left : S → Prop) (right : T → Prop), M7.Factorized.count (fun p : S × T => left p.1 ∧ right p.2) = M7.Factorized.count left * M7.Factorized.count right)
+#check (∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card)
+#check (∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T], ∀ (X Y : Type) (leftImage : U → S → X) (rightImage : U → T → Y) (x : X) (y : Y), M7.Factorized.exactTargetNumerator leftImage rightImage x y = M7.Factorized.count (fun r : U × S × T => leftImage r.1 r.2.1 = x ∧ rightImage r.1 r.2.2 = y))
+#check (∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), ∀ test : U → S → Bool, M7.Factorized.numerator sector left right = M7.Factorized.numerator sector (fun u s => left u s ∧ test u s = false) right + M7.Factorized.numerator sector (fun u s => left u s ∧ test u s = true) right)
+#check (∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), ∀ test : U → T → Bool, M7.Factorized.numerator sector left right = M7.Factorized.numerator sector left (fun u t => right u t ∧ test u t = false) + M7.Factorized.numerator sector left (fun u t => right u t ∧ test u t = true))
+#check (∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T], ∀ (X Y : Type) (leftImage : U → S → X) (rightImage : U → T → Y) (x : X) (y : Y), (0 < M7.Factorized.exactTargetNumerator leftImage rightImage x y ↔ ∃ (u : U) (s : S) (t : T), leftImage u s = x ∧ rightImage u t = y))

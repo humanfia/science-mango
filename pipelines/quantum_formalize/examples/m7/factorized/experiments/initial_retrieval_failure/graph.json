@@ -1,0 +1,154 @@
+{
+  "title": "M7 factorized group-numerator foundations: finite record counts and binary partitions",
+  "scope": "Generic finite unit/exchange index and separate shift domains only; actual group/stabilizer fibers and M5 prefix bridge remain separate pending gates.",
+  "nodes": [
+    {
+      "id": "pair_count",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Factorized.pair_count",
+        "statement": "∀ (S T : Type) [Fintype S] [Fintype T] (left : S → Prop) (right : T → Prop), M7.Factorized.count (fun p : S × T => left p.1 ∧ right p.2) = M7.Factorized.count left * M7.Factorized.count right",
+        "imports": [
+          "M7Factorized"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card product filter",
+          "Fintype sum_prod_type indicator finite cardinality"
+        ],
+        "guidance": "Identify filtered product with product of the two filtered univs by Finset.ext; use Finset.card_product. Explicit mem_filter rewrites avoid stalled simp under classical local deciders. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 factorized numerator and section6 prefix partition",
+        "fallback_queries": [
+          "Finset mem_filter"
+        ]
+      }
+    },
+    {
+      "id": "numerator_record_card",
+      "dependencies": [
+        "pair_count"
+      ],
+      "spec": {
+        "name": "M7.Factorized.numerator_record_card",
+        "statement": "∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card",
+        "imports": [
+          "M7Factorized"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card product filter",
+          "Fintype sum_prod_type indicator finite cardinality"
+        ],
+        "guidance": "Split finite triple cardinality into sum over U and filtered pair cardinality. Equivalently rewrite card as sum of indicators, Fintype.sum_prod_type, and distribute separate sums. Sector indicator is counted once. No group action assumed. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 factorized numerator and section6 prefix partition",
+        "fallback_queries": [
+          "Finset mem_filter"
+        ]
+      }
+    },
+    {
+      "id": "exact_target_card",
+      "dependencies": [
+        "numerator_record_card"
+      ],
+      "spec": {
+        "name": "M7.Factorized.exact_target_card",
+        "statement": "∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T], ∀ (X Y : Type) (leftImage : U → S → X) (rightImage : U → T → Y) (x : X) (y : Y), M7.Factorized.exactTargetNumerator leftImage rightImage x y = M7.Factorized.count (fun r : U × S × T => leftImage r.1 r.2.1 = x ∧ rightImage r.1 r.2.2 = y)",
+        "imports": [
+          "M7Factorized"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card product filter",
+          "Fintype sum_prod_type indicator finite cardinality"
+        ],
+        "guidance": "Specialize numerator_record_card with sector True. This is an exact-target record count, not yet an actual group-stabilizer theorem; all records including redundant images remain counted. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 factorized numerator and section6 prefix partition",
+        "fallback_queries": [
+          "Finset mem_filter"
+        ]
+      }
+    },
+    {
+      "id": "left_partition",
+      "dependencies": [
+        "numerator_record_card"
+      ],
+      "spec": {
+        "name": "M7.Factorized.left_partition",
+        "statement": "∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), ∀ test : U → S → Bool, M7.Factorized.numerator sector left right = M7.Factorized.numerator sector (fun u s => left u s ∧ test u s = false) right + M7.Factorized.numerator sector (fun u s => left u s ∧ test u s = true) right",
+        "imports": [
+          "M7Factorized"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card product filter",
+          "Fintype sum_prod_type indicator finite cardinality"
+        ],
+        "guidance": "Partition records by the Boolean test of the left record, or split count(left u) into its false/true filters and distribute. Exactly two disjoint exhaustive children, no extra prefix assumptions. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 factorized numerator and section6 prefix partition",
+        "fallback_queries": [
+          "Finset mem_filter"
+        ]
+      }
+    },
+    {
+      "id": "right_partition",
+      "dependencies": [
+        "numerator_record_card"
+      ],
+      "spec": {
+        "name": "M7.Factorized.right_partition",
+        "statement": "∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), ∀ test : U → T → Bool, M7.Factorized.numerator sector left right = M7.Factorized.numerator sector left (fun u t => right u t ∧ test u t = false) + M7.Factorized.numerator sector left (fun u t => right u t ∧ test u t = true)",
+        "imports": [
+          "M7Factorized"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card product filter",
+          "Fintype sum_prod_type indicator finite cardinality"
+        ],
+        "guidance": "Same exact two-child partition on the right record. Use actual finite indicators or filtered-card partition. No orbit normalization is performed here. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 factorized numerator and section6 prefix partition",
+        "fallback_queries": [
+          "Finset mem_filter"
+        ]
+      }
+    },
+    {
+      "id": "exact_target_positive",
+      "dependencies": [
+        "exact_target_card"
+      ],
+      "spec": {
+        "name": "M7.Factorized.exact_target_positive",
+        "statement": "∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T], ∀ (X Y : Type) (leftImage : U → S → X) (rightImage : U → T → Y) (x : X) (y : Y), (0 < M7.Factorized.exactTargetNumerator leftImage rightImage x y ↔ ∃ (u : U) (s : S) (t : T), leftImage u s = x ∧ rightImage u t = y)",
+        "imports": [
+          "M7Factorized"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card product filter",
+          "Fintype sum_prod_type indicator finite cardinality"
+        ],
+        "guidance": "Use exact_target_card and Finset.card_pos, unfold count and extract the triple witness. Later actual identity action discharges this existence for stabilizer positivity. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 factorized numerator and section6 prefix partition",
+        "fallback_queries": [
+          "Finset mem_filter"
+        ]
+      }
+    }
+  ]
+}

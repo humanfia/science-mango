@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nchange ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).natDegree < N\nintro N inst A\nby_cases h : M7.Supports.polynomial A = 0\n· simpa [h] using (Nat.pos_of_ne_zero (NeZero.ne N))\n· have hm := Polynomial.natDegree_mem_support_of_nonzero h\n  rw [M7.Supports.support N A] at hm\n  change (M7.Supports.polynomial A).natDegree ∈ A.image ZMod.val at hm\n  obtain ⟨i, hi, heq⟩ := Finset.mem_image.mp hm\n  rw [← heq]\n  exact ZMod.val_lt i",
+  "queries": [
+    "Polynomial.natDegree_mem_support_of_nonzero",
+    "ZMod.val_lt"
+  ]
+}

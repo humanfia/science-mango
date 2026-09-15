@@ -1,0 +1,460 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T16:04:11.740891+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "coefficient": {
+      "id": "coefficient",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Supports.coefficient",
+        "spec_sha256": "6cbaf39bc0c554067c1f1bbed90151edc67ac966bd1c80172a6121f0d778b3f2",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-qimxnpn4/attempt-001/Candidate_bce8d3dadb00f709.lean",
+            "target_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-qimxnpn4/attempt-001/FrozenTarget_bce8d3dadb00f709.lean",
+            "feedback": "",
+            "target_sha256": "f5b39aa664d9cb92f086dc7d44ac34d9d9bf5d647fa7ad2af562fb0d2ad0b6b2",
+            "target_olean_sha256": "0d3f4dfcc7bdb1f331e602a0e98c94501ed6d6ce0293480f33c2ce307f367e48",
+            "source_sha256": "88a193a191552f44f981ce302f670d412e93981cd29a6cac886f610bdd90586a",
+            "olean_sha256": "be1fb84ba79b563724f85eac512539493f0b7034d60b1374f787ef3c9c9f2e4a",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T15:57:13.219325+00:00",
+        "work": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-qimxnpn4",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "8e8c39cafc423415bbb0b44da6683d424f2313bbd1889c701ea96fdc6df4d881",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-qimxnpn4/attempt-001/Candidate_bce8d3dadb00f709.lean",
+        "environment_sha256": "19f9517af926e3aafafb1a0e237561cba0d2c5dc39614ca348c10259d3883eb1",
+        "artifacts": {
+          "coefficient": {
+            "payload": {
+              "declaration": "theorem M7.Supports.coefficient : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ n : ℕ, (M7.Supports.polynomial A).coeff n = if ∃ i ∈ A, i.val = n then 1 else 0 := by\n  classical\n  intro N inst A n\n  unfold M7.Supports.polynomial\n  rw [Polynomial.finsetSum_coeff]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · rw [if_pos h]\n    obtain ⟨i, hiA, hin⟩ := h\n    rw [Finset.sum_eq_single i]\n    · simp [Polynomial.coeff_X_pow, hin]\n    · intro j hjA hji\n      have hjn : j.val ≠ n := by\n        intro heq\n        exact hji (ZMod.val_injective N (heq.trans hin.symm))\n      simp [Polynomial.coeff_X_pow, hjn, Ne.symm hjn]\n    · intro hi\n      exact (hi hiA).elim\n  · rw [if_neg h]\n    apply Finset.sum_eq_zero\n    intro i hiA\n    have hin : i.val ≠ n := by\n      intro heq\n      exact h ⟨i, hiA, heq⟩\n    simp [Polynomial.coeff_X_pow, hin, Ne.symm hin]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.coefficient",
+              "ancestors": [],
+              "spec_sha256": "6cbaf39bc0c554067c1f1bbed90151edc67ac966bd1c80172a6121f0d778b3f2"
+            },
+            "sha256": "2ac37e3aacf4bb906a1097f083832e8317bb7df4bb32e827d91785c11d3bd737"
+          }
+        }
+      }
+    },
+    "indicator_coefficient": {
+      "id": "indicator_coefficient",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Supports.indicator_coefficient",
+        "spec_sha256": "a49cbd0a9f1cda766a6d5c152854500f4f7d4db6bfe6f220caa3eac34cd82459",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-lsnzzvkf/attempt-001/Candidate_f9d7c8a6de7ad8cd.lean:15:6: error: Tactic `rewrite` failed: motive is not type correct:\n  fun _a => (if _a then 1 else 0) = if i ∈ A then 1 else 0\nError: Application type mismatch: The argument\n  Finset.decidableExistsAndFinsetCoe\nhas type\n  Decidable (∃ a ∈ ↑A, a.val = i.val)\nbut is expected to have type\n  Decidable _a\nin the application\n  @ite (ZMod 2) _a Finset.decidableExistsAndFinsetCoe\n\nExplanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.\n\nPossible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).\n\nN : ℕ\ninst : NeZero N\nA : Support N\ni : ZMod N\nh : (∃ j ∈ A, j.val = i.val) ↔ i ∈ A\n⊢ (if ∃ i_1 ∈ A, i_1.val = i.val then 1 else 0) = if i ∈ A then 1 else 0\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-lsnzzvkf/attempt-002/Candidate_e687b0bdc0a333d7.lean",
+            "target_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-lsnzzvkf/attempt-002/FrozenTarget_e687b0bdc0a333d7.lean",
+            "feedback": "",
+            "target_sha256": "c9787c93bafe1b6ab458a8be26b93c25caac74c069343d36c0c7deaec893d81c",
+            "target_olean_sha256": "c9ee941ed9574ad1593222f7538ed9e894d71b11cab09db8832a35facda20581",
+            "source_sha256": "1683b78a8013da22b64a6653cb6288804fb8ffc01439e701d280a8d1c95dcb8a",
+            "olean_sha256": "f1012ea5254504fd804f5d17014b40df1c3674c4cd18ab0d06ee072cdc34a48e",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T15:59:16.094665+00:00",
+        "work": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-lsnzzvkf",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "8e8c39cafc423415bbb0b44da6683d424f2313bbd1889c701ea96fdc6df4d881",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-lsnzzvkf/attempt-002/Candidate_e687b0bdc0a333d7.lean",
+        "environment_sha256": "19f9517af926e3aafafb1a0e237561cba0d2c5dc39614ca348c10259d3883eb1",
+        "artifacts": {
+          "coefficient": {
+            "payload": {
+              "declaration": "theorem M7.Supports.coefficient : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ n : ℕ, (M7.Supports.polynomial A).coeff n = if ∃ i ∈ A, i.val = n then 1 else 0 := by\n  classical\n  intro N inst A n\n  unfold M7.Supports.polynomial\n  rw [Polynomial.finsetSum_coeff]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · rw [if_pos h]\n    obtain ⟨i, hiA, hin⟩ := h\n    rw [Finset.sum_eq_single i]\n    · simp [Polynomial.coeff_X_pow, hin]\n    · intro j hjA hji\n      have hjn : j.val ≠ n := by\n        intro heq\n        exact hji (ZMod.val_injective N (heq.trans hin.symm))\n      simp [Polynomial.coeff_X_pow, hjn, Ne.symm hjn]\n    · intro hi\n      exact (hi hiA).elim\n  · rw [if_neg h]\n    apply Finset.sum_eq_zero\n    intro i hiA\n    have hin : i.val ≠ n := by\n      intro heq\n      exact h ⟨i, hiA, heq⟩\n    simp [Polynomial.coeff_X_pow, hin, Ne.symm hin]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.coefficient",
+              "ancestors": [],
+              "spec_sha256": "6cbaf39bc0c554067c1f1bbed90151edc67ac966bd1c80172a6121f0d778b3f2"
+            },
+            "sha256": "2ac37e3aacf4bb906a1097f083832e8317bb7df4bb32e827d91785c11d3bd737"
+          },
+          "indicator_coefficient": {
+            "payload": {
+              "declaration": "theorem M7.Supports.indicator_coefficient : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ i : ZMod N, (M7.Supports.polynomial A).coeff i.val = M7.Supports.indicator A i := by\n  classical\n  intro N inst A i\n  rw [M7.Supports.coefficient]\n  unfold M7.Supports.indicator\n  by_cases hi : i ∈ A\n  · have hex : ∃ j ∈ A, j.val = i.val := ⟨i, hi, rfl⟩\n    simp only [if_pos hex, if_pos hi]\n  · have hnex : ¬ ∃ j ∈ A, j.val = i.val := by\n      rintro ⟨j, hj, hval⟩\n      have hji : j = i := ZMod.val_injective N hval\n      exact hi (hji ▸ hj)\n    simp only [if_neg hnex, if_neg hi]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.indicator_coefficient",
+              "ancestors": [
+                "coefficient"
+              ],
+              "spec_sha256": "79853ca2a989051328d3595da1ab61b3c2485c2697215f9ae3784a5619e2ba6b"
+            },
+            "sha256": "79dada848fbaf672535460e81df7534a6246c0a4b20ea0a85ab38ec38a000b9f"
+          }
+        }
+      }
+    },
+    "anchor": {
+      "id": "anchor",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Supports.anchor",
+        "spec_sha256": "61d5a4f6e0aa067b114cc74ef4a48fe3c6c6fae6283d9cf7a6bbf746e1405709",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-z5qnc9na/attempt-001/Candidate_dba1ea67f4558084.lean",
+            "target_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-z5qnc9na/attempt-001/FrozenTarget_dba1ea67f4558084.lean",
+            "feedback": "",
+            "target_sha256": "575f0fcc07896421438e0039e3d9b478e7c65f504fb65374bc054c08709cba7c",
+            "target_olean_sha256": "ad7765bb7d013ac6fa06d9220a6aa10ae0779ae73a890ee8075e0b8bbe8b9fec",
+            "source_sha256": "5f2734a5003158330615faaf392adc8fc9bdd04be9de3d52195d1e4e6f3270db",
+            "olean_sha256": "29a05f6df54416a4b6de2fc63c630fceabde4d1261b315bdda5ac1dcf2cb066f",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:02:02.082550+00:00",
+        "work": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-z5qnc9na",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "8e8c39cafc423415bbb0b44da6683d424f2313bbd1889c701ea96fdc6df4d881",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-z5qnc9na/attempt-001/Candidate_dba1ea67f4558084.lean",
+        "environment_sha256": "19f9517af926e3aafafb1a0e237561cba0d2c5dc39614ca348c10259d3883eb1",
+        "artifacts": {
+          "coefficient": {
+            "payload": {
+              "declaration": "theorem M7.Supports.coefficient : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ n : ℕ, (M7.Supports.polynomial A).coeff n = if ∃ i ∈ A, i.val = n then 1 else 0 := by\n  classical\n  intro N inst A n\n  unfold M7.Supports.polynomial\n  rw [Polynomial.finsetSum_coeff]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · rw [if_pos h]\n    obtain ⟨i, hiA, hin⟩ := h\n    rw [Finset.sum_eq_single i]\n    · simp [Polynomial.coeff_X_pow, hin]\n    · intro j hjA hji\n      have hjn : j.val ≠ n := by\n        intro heq\n        exact hji (ZMod.val_injective N (heq.trans hin.symm))\n      simp [Polynomial.coeff_X_pow, hjn, Ne.symm hjn]\n    · intro hi\n      exact (hi hiA).elim\n  · rw [if_neg h]\n    apply Finset.sum_eq_zero\n    intro i hiA\n    have hin : i.val ≠ n := by\n      intro heq\n      exact h ⟨i, hiA, heq⟩\n    simp [Polynomial.coeff_X_pow, hin, Ne.symm hin]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.coefficient",
+              "ancestors": [],
+              "spec_sha256": "6cbaf39bc0c554067c1f1bbed90151edc67ac966bd1c80172a6121f0d778b3f2"
+            },
+            "sha256": "2ac37e3aacf4bb906a1097f083832e8317bb7df4bb32e827d91785c11d3bd737"
+          },
+          "indicator_coefficient": {
+            "payload": {
+              "declaration": "theorem M7.Supports.indicator_coefficient : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ i : ZMod N, (M7.Supports.polynomial A).coeff i.val = M7.Supports.indicator A i := by\n  classical\n  intro N inst A i\n  rw [M7.Supports.coefficient]\n  unfold M7.Supports.indicator\n  by_cases hi : i ∈ A\n  · have hex : ∃ j ∈ A, j.val = i.val := ⟨i, hi, rfl⟩\n    simp only [if_pos hex, if_pos hi]\n  · have hnex : ¬ ∃ j ∈ A, j.val = i.val := by\n      rintro ⟨j, hj, hval⟩\n      have hji : j = i := ZMod.val_injective N hval\n      exact hi (hji ▸ hj)\n    simp only [if_neg hnex, if_neg hi]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.indicator_coefficient",
+              "ancestors": [
+                "coefficient"
+              ],
+              "spec_sha256": "79853ca2a989051328d3595da1ab61b3c2485c2697215f9ae3784a5619e2ba6b"
+            },
+            "sha256": "79dada848fbaf672535460e81df7534a6246c0a4b20ea0a85ab38ec38a000b9f"
+          },
+          "anchor": {
+            "payload": {
+              "declaration": "theorem M7.Supports.anchor : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ((M7.Supports.polynomial A).coeff 0 = 1 ↔ (0 : ZMod N) ∈ A) := by\n  change ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ((M7.Supports.polynomial A).coeff 0 = 1 ↔ (0 : ZMod N) ∈ A)\n  classical\n  intro N inst A\n  have h : (M7.Supports.polynomial A).coeff 0 = M7.Supports.indicator A (0 : ZMod N) := by\n    simpa using M7.Supports.indicator_coefficient N A (0 : ZMod N)\n  rw [h]\n  by_cases hz : (0 : ZMod N) ∈ A <;> simp [M7.Supports.indicator, hz]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.anchor",
+              "ancestors": [
+                "coefficient",
+                "indicator_coefficient"
+              ],
+              "spec_sha256": "53766734ebfadbd075f945624b812acd169c9f7ae556aafd8ddf1101c65d91f6"
+            },
+            "sha256": "e0490676411246f5c75529b3b701767427de4b4e0d3606fada13429a0379f173"
+          }
+        }
+      }
+    },
+    "support": {
+      "id": "support",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Supports.support",
+        "spec_sha256": "de206dac589f591abc9cf629e6391f6dee356c181ca978d9a93084fd61a4f4fe",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-lmn1eddd/attempt-001/Candidate_1d0dcb9c06bcb766.lean",
+            "target_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-lmn1eddd/attempt-001/FrozenTarget_1d0dcb9c06bcb766.lean",
+            "feedback": "",
+            "target_sha256": "506815d08f65980adf37758e1aaef7d584f804f5c750b36103494a63e011b276",
+            "target_olean_sha256": "388df56bfb21f0cc5d4bde62e928c1157ef6f3d3da16d3ebb4b1c58d24b84613",
+            "source_sha256": "b3dfd5c462af780c1f940d86e52b9217a80a32491fd714b28924e3b350b282a3",
+            "olean_sha256": "5760132c3737002a5ab09313caeff302f386d21b9e46a09976833b872b741e51",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T15:59:16.101833+00:00",
+        "work": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-lmn1eddd",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "8e8c39cafc423415bbb0b44da6683d424f2313bbd1889c701ea96fdc6df4d881",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-lmn1eddd/attempt-001/Candidate_1d0dcb9c06bcb766.lean",
+        "environment_sha256": "19f9517af926e3aafafb1a0e237561cba0d2c5dc39614ca348c10259d3883eb1",
+        "artifacts": {
+          "coefficient": {
+            "payload": {
+              "declaration": "theorem M7.Supports.coefficient : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ n : ℕ, (M7.Supports.polynomial A).coeff n = if ∃ i ∈ A, i.val = n then 1 else 0 := by\n  classical\n  intro N inst A n\n  unfold M7.Supports.polynomial\n  rw [Polynomial.finsetSum_coeff]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · rw [if_pos h]\n    obtain ⟨i, hiA, hin⟩ := h\n    rw [Finset.sum_eq_single i]\n    · simp [Polynomial.coeff_X_pow, hin]\n    · intro j hjA hji\n      have hjn : j.val ≠ n := by\n        intro heq\n        exact hji (ZMod.val_injective N (heq.trans hin.symm))\n      simp [Polynomial.coeff_X_pow, hjn, Ne.symm hjn]\n    · intro hi\n      exact (hi hiA).elim\n  · rw [if_neg h]\n    apply Finset.sum_eq_zero\n    intro i hiA\n    have hin : i.val ≠ n := by\n      intro heq\n      exact h ⟨i, hiA, heq⟩\n    simp [Polynomial.coeff_X_pow, hin, Ne.symm hin]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.coefficient",
+              "ancestors": [],
+              "spec_sha256": "6cbaf39bc0c554067c1f1bbed90151edc67ac966bd1c80172a6121f0d778b3f2"
+            },
+            "sha256": "2ac37e3aacf4bb906a1097f083832e8317bb7df4bb32e827d91785c11d3bd737"
+          },
+          "support": {
+            "payload": {
+              "declaration": "theorem M7.Supports.support : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support = M7.Supports.natSupport A := by\n  classical\n  change ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support = M7.Supports.natSupport A\n  intro N inst A\n  ext n\n  rw [Polynomial.mem_support_iff, M7.Supports.coefficient N A n]\n  simp only [M7.Supports.natSupport, Finset.mem_image]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · simp [h]\n  · simp [h]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.support",
+              "ancestors": [
+                "coefficient"
+              ],
+              "spec_sha256": "32a47c7501853d0ab8f97c64d3dd307bd7e3beafb168db102a60478c8c92f687"
+            },
+            "sha256": "fc936bcfac31c34532ad9f887a28b371b2f54a678ad6edd608dee14338fd181c"
+          }
+        }
+      }
+    },
+    "degree_lt": {
+      "id": "degree_lt",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Supports.degree_lt",
+        "spec_sha256": "c5178e9497aa6aef92afbe8efa838bb2c5a550c4e42036dc8d08e466b280e51e",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-xe6iuopu/attempt-001/Candidate_524737928f76decd.lean",
+            "target_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-xe6iuopu/attempt-001/FrozenTarget_524737928f76decd.lean",
+            "feedback": "",
+            "target_sha256": "a0216e04b738acfc92fa5260679e2b0467b80580f7e2fafce5c95aa9e1a05fd8",
+            "target_olean_sha256": "17d02d712384c40d9b4581d5bc04b820dd90aab4817a9ec07eb10810de20de74",
+            "source_sha256": "6bd5392748a45a5de2e3b0453bad5bf314a62e8201a4808960620bc6072d7c24",
+            "olean_sha256": "f9db6ccc925309799197a90b54c506e17d1219267abc278d2321b4d4f97e0fd1",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:00:51.118070+00:00",
+        "work": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-xe6iuopu",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "8e8c39cafc423415bbb0b44da6683d424f2313bbd1889c701ea96fdc6df4d881",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-xe6iuopu/attempt-001/Candidate_524737928f76decd.lean",
+        "environment_sha256": "19f9517af926e3aafafb1a0e237561cba0d2c5dc39614ca348c10259d3883eb1",
+        "artifacts": {
+          "coefficient": {
+            "payload": {
+              "declaration": "theorem M7.Supports.coefficient : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ n : ℕ, (M7.Supports.polynomial A).coeff n = if ∃ i ∈ A, i.val = n then 1 else 0 := by\n  classical\n  intro N inst A n\n  unfold M7.Supports.polynomial\n  rw [Polynomial.finsetSum_coeff]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · rw [if_pos h]\n    obtain ⟨i, hiA, hin⟩ := h\n    rw [Finset.sum_eq_single i]\n    · simp [Polynomial.coeff_X_pow, hin]\n    · intro j hjA hji\n      have hjn : j.val ≠ n := by\n        intro heq\n        exact hji (ZMod.val_injective N (heq.trans hin.symm))\n      simp [Polynomial.coeff_X_pow, hjn, Ne.symm hjn]\n    · intro hi\n      exact (hi hiA).elim\n  · rw [if_neg h]\n    apply Finset.sum_eq_zero\n    intro i hiA\n    have hin : i.val ≠ n := by\n      intro heq\n      exact h ⟨i, hiA, heq⟩\n    simp [Polynomial.coeff_X_pow, hin, Ne.symm hin]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.coefficient",
+              "ancestors": [],
+              "spec_sha256": "6cbaf39bc0c554067c1f1bbed90151edc67ac966bd1c80172a6121f0d778b3f2"
+            },
+            "sha256": "2ac37e3aacf4bb906a1097f083832e8317bb7df4bb32e827d91785c11d3bd737"
+          },
+          "support": {
+            "payload": {
+              "declaration": "theorem M7.Supports.support : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support = M7.Supports.natSupport A := by\n  classical\n  change ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support = M7.Supports.natSupport A\n  intro N inst A\n  ext n\n  rw [Polynomial.mem_support_iff, M7.Supports.coefficient N A n]\n  simp only [M7.Supports.natSupport, Finset.mem_image]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · simp [h]\n  · simp [h]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.support",
+              "ancestors": [
+                "coefficient"
+              ],
+              "spec_sha256": "32a47c7501853d0ab8f97c64d3dd307bd7e3beafb168db102a60478c8c92f687"
+            },
+            "sha256": "fc936bcfac31c34532ad9f887a28b371b2f54a678ad6edd608dee14338fd181c"
+          },
+          "degree_lt": {
+            "payload": {
+              "declaration": "theorem M7.Supports.degree_lt : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).natDegree < N := by\n  classical\n  change ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).natDegree < N\n  intro N inst A\n  by_cases h : M7.Supports.polynomial A = 0\n  · simpa [h] using (Nat.pos_of_ne_zero (NeZero.ne N))\n  · have hm := Polynomial.natDegree_mem_support_of_nonzero h\n    rw [M7.Supports.support N A] at hm\n    change (M7.Supports.polynomial A).natDegree ∈ A.image ZMod.val at hm\n    obtain ⟨i, hi, heq⟩ := Finset.mem_image.mp hm\n    rw [← heq]\n    exact ZMod.val_lt i",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.degree_lt",
+              "ancestors": [
+                "coefficient",
+                "support"
+              ],
+              "spec_sha256": "83afbf17210d6cd1c98553cabd5f224d59159ec9b62d375f663eac487e91aae8"
+            },
+            "sha256": "401b52a6b563f79075e316f7dfd3068b6896eca5d6d931cf98b31094b02cf208"
+          }
+        }
+      }
+    },
+    "support_card": {
+      "id": "support_card",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Supports.support_card",
+        "spec_sha256": "bfc5d1218a2aa39e4772c29bc517d10c0fb6119df107dc96861a312eeba29cee",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-us2tc87p/attempt-001/Candidate_0f776b6ff5d2c9aa.lean",
+            "target_path": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-us2tc87p/attempt-001/FrozenTarget_0f776b6ff5d2c9aa.lean",
+            "feedback": "",
+            "target_sha256": "38395a85b0647f45b33083cf236701327051808d3e8273dc2f4c4dab488ef817",
+            "target_olean_sha256": "ec4e037e6a26145c83ac04a122d5822854342a4352f69df397f3e108525c5b5a",
+            "source_sha256": "940fb326b7facfc87799b39f5b9fcc8590300f2f4e262d8de422773294066a67",
+            "olean_sha256": "6fc52d08016aebe6faea1520f758329aef2553d2d2462773d1586c303dab479f",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:00:51.126530+00:00",
+        "work": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-us2tc87p",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "8e8c39cafc423415bbb0b44da6683d424f2313bbd1889c701ea96fdc6df4d881",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-supports-formalization/.humanize-formal-runs/run-us2tc87p/attempt-001/Candidate_0f776b6ff5d2c9aa.lean",
+        "environment_sha256": "19f9517af926e3aafafb1a0e237561cba0d2c5dc39614ca348c10259d3883eb1",
+        "artifacts": {
+          "coefficient": {
+            "payload": {
+              "declaration": "theorem M7.Supports.coefficient : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ n : ℕ, (M7.Supports.polynomial A).coeff n = if ∃ i ∈ A, i.val = n then 1 else 0 := by\n  classical\n  intro N inst A n\n  unfold M7.Supports.polynomial\n  rw [Polynomial.finsetSum_coeff]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · rw [if_pos h]\n    obtain ⟨i, hiA, hin⟩ := h\n    rw [Finset.sum_eq_single i]\n    · simp [Polynomial.coeff_X_pow, hin]\n    · intro j hjA hji\n      have hjn : j.val ≠ n := by\n        intro heq\n        exact hji (ZMod.val_injective N (heq.trans hin.symm))\n      simp [Polynomial.coeff_X_pow, hjn, Ne.symm hjn]\n    · intro hi\n      exact (hi hiA).elim\n  · rw [if_neg h]\n    apply Finset.sum_eq_zero\n    intro i hiA\n    have hin : i.val ≠ n := by\n      intro heq\n      exact h ⟨i, hiA, heq⟩\n    simp [Polynomial.coeff_X_pow, hin, Ne.symm hin]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.coefficient",
+              "ancestors": [],
+              "spec_sha256": "6cbaf39bc0c554067c1f1bbed90151edc67ac966bd1c80172a6121f0d778b3f2"
+            },
+            "sha256": "2ac37e3aacf4bb906a1097f083832e8317bb7df4bb32e827d91785c11d3bd737"
+          },
+          "support": {
+            "payload": {
+              "declaration": "theorem M7.Supports.support : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support = M7.Supports.natSupport A := by\n  classical\n  change ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support = M7.Supports.natSupport A\n  intro N inst A\n  ext n\n  rw [Polynomial.mem_support_iff, M7.Supports.coefficient N A n]\n  simp only [M7.Supports.natSupport, Finset.mem_image]\n  by_cases h : ∃ i ∈ A, i.val = n\n  · simp [h]\n  · simp [h]",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.support",
+              "ancestors": [
+                "coefficient"
+              ],
+              "spec_sha256": "32a47c7501853d0ab8f97c64d3dd307bd7e3beafb168db102a60478c8c92f687"
+            },
+            "sha256": "fc936bcfac31c34532ad9f887a28b371b2f54a678ad6edd608dee14338fd181c"
+          },
+          "support_card": {
+            "payload": {
+              "declaration": "theorem M7.Supports.support_card : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support.card = A.card := by\n  classical\n  change ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), (M7.Supports.polynomial A).support.card = A.card\n  intro N inst A\n  rw [M7.Supports.support N A]\n  unfold M7.Supports.natSupport\n  exact Finset.card_image_of_injective A (ZMod.val_injective N)",
+              "imports": [
+                "M7Supports"
+              ],
+              "name": "M7.Supports.support_card",
+              "ancestors": [
+                "coefficient",
+                "support"
+              ],
+              "spec_sha256": "e1bb149cb72d21a72e16c895c4915d2cb523ec6b2a282ece093a397a707f6c54"
+            },
+            "sha256": "d5aaaf3341392adf6e0ee7bf2746bd8984771fe1a985455f05b7ab95b819692d"
+          }
+        }
+      }
+    }
+  }
+}

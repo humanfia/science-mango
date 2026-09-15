@@ -1,0 +1,7 @@
+# M7 finite all-optima selection
+
+This twelve-target batch formalizes original PROOF.md §8. The domain is a finite set of action records with a feasibility predicate and integer objective coordinates. `win` literally means feasible membership with no strictly better feasible record; `winners` filters the domain by this predicate, retaining all tied records. The finite-relation helpers assume only irreflexivity and transitivity. The final `select` theorems instantiate these helpers with explicitly defined Pareto or lexicographic comparison, so they carry no free relation-correctness assumption. An empty objective vector retains exactly the feasible set.
+
+The exact conclusions cover soundness and completeness of every winner, empty winners iff empty feasibility, and a winning strict dominator for every feasible nonwinner. Parent integration supplies the actual M7 generated action records, labels, and feasibility tests; this batch does not assume that an unexplained transversal is already complete in a final M7 theorem. Least-preimage physical deduplication is a separate §9 batch. No efficiency or implementation-extraction requirement is added.
+
+Definitions and target types are checked before freezing. The live experiment uses gpt-6-astra medium with concurrency cap16, five attempts, Mathlib plus Physlib retrieval, and normal independent exact-type/axiom/compiler acceptance. The Mathlib revision is pinned to de5ce8a9a66a4aa68a9bdbb35b63a06d34d9ca11.

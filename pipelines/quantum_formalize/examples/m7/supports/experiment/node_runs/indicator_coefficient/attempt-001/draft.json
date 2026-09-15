@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N), ∀ i : ZMod N, (M7.Supports.polynomial A).coeff i.val = M7.Supports.indicator A i\nintro N inst A i\nrw [M7.Supports.coefficient N A i.val]\nunfold M7.Supports.indicator\nhave h : (∃ j ∈ A, j.val = i.val) ↔ i ∈ A := by\n  constructor\n  · rintro ⟨j, hj, hji⟩\n    have heq : j = i := ZMod.val_injective N hji\n    exact heq ▸ hj\n  · intro hi\n    exact ⟨i, hi, rfl⟩\nrw [h]",
+  "queries": []
+}
