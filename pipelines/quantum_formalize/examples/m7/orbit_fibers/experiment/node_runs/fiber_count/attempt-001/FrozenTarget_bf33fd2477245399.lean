@@ -1,0 +1,28 @@
+import M7OrbitFibers
+
+theorem M7.OrbitFibers.fiber_equiv : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ g₀ : G, Nonempty ({h : G // h • c = c} ≃ {g : G // g • c = g₀ • c}) := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ g₀ : G, Nonempty ({h : G // h • c = c} ≃ {g : G // g • c = g₀ • c})
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro G _ _ X _ c g₀
+  refine ⟨{
+    toFun := fun h => ⟨g₀ * h.val, ?_⟩
+    invFun := fun g => ⟨g₀⁻¹ * g.val, ?_⟩
+    left_inv := ?_
+    right_inv := ?_
+  }⟩
+  · rw [mul_smul, h.property]
+  · rw [mul_smul, g.property]
+    simp
+  · intro h
+    apply Subtype.ext
+    change g₀⁻¹ * (g₀ * h.val) = h.val
+    simp
+  · intro g
+    apply Subtype.ext
+    change g₀ * (g₀⁻¹ * g.val) = g.val
+    simp
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ y ∈ M7.OrbitFibers.orbit G c, M7.OrbitFibers.fiberCount G c y = M7.OrbitFibers.stabilizerCount G c

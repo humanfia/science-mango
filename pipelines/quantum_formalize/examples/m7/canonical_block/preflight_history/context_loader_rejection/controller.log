@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/jing/m7_launch_batch.py", line 6, in <module>
+    module,project,concurrency=sys.argv[1:];repo=Path('/home/jing/science-mango-quantum-harness-publish-20260914');out=repo/'pipelines/quantum_formalize/examples/m7'/module;p=Path('/home/jing/m7-lean-'+project+'-formalization');load_graph(out/'graph.json');runs=p/'.humanize-formal-runs';runs.mkdir(exist_ok=True);flow=runs/'batch_flow';flow.mkdir(exist_ok=True);shutil.copy2(repo/'pipelines/quantum_formalize/examples/m6/transfer/trace/replay_flow/__init__.py',flow/'__init__.py');c=Path(tempfile.mkdtemp(prefix=module.replace('/','-')+'-',dir=runs));shutil.copy2(out/'graph.json',c/'graph.json');home=c/'humanize-home';home.mkdir();config={'project':str(p),'graph':str(c/'graph.json'),'output':str(c/'experiment'),'result_path':str(c/'result.json'),'concurrency':int(concurrency),'rounds':5,'compile_timeout':int(os.environ.get('M7_COMPILE_TIMEOUT','180')),'turn_timeout':600};(c/'config.json').write_text(json.dumps(config,indent=2));env=dict(os.environ,HUMANIZE_HOME=str(home),HUMANIZE_SENTRY='off',PYTHONDONTWRITEBYTECODE='1');env['PYTHONPATH']=str(repo)+os.pathsep+env.get('PYTHONPATH','');env['PATH']='/home/jing/.elan/bin:'+env['PATH']
+                                                                                                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jing/science-mango-quantum-harness-publish-20260914/pipelines/quantum_formalize/dag_runner.py", line 22, in load_graph
+    raise ValueError('DAG node contexts must be empty; use a frozen shared foundation module')
+ValueError: DAG node contexts must be empty; use a frozen shared foundation module
+Traceback (most recent call last):
+  File "/home/jing/m7_canonical_preflight_launch.py", line 26, in <module>
+    subprocess.run(['/home/jing/quantum_code_discovery_proof/.venv-harness/bin/python','/home/jing/m7_launch_batch.py','canonical_block','canonical-block','2'],cwd=repo,env=env,check=True)
+  File "/usr/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/jing/quantum_code_discovery_proof/.venv-harness/bin/python', '/home/jing/m7_launch_batch.py', 'canonical_block', 'canonical-block', '2']' returned non-zero exit status 1.

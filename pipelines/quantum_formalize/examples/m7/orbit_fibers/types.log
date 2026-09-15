@@ -1,0 +1,21 @@
+∀ (G : Type) [inst : Group G] [Fintype G] (X : Type) [inst_2 : MulAction G X] (c : X) (g₀ : G),
+  Nonempty ({ h // h • c = c } ≃ { g // g • c = g₀ • c }) : Prop
+∀ (G : Type) [inst : Group G] [inst_1 : Fintype G] (X : Type) [inst_2 : MulAction G X] (c : X),
+  0 < M7.OrbitFibers.stabilizerCount G c : Prop
+∀ (G : Type) [inst : Group G] [inst_1 : Fintype G] (X : Type) [inst_2 : MulAction G X] (c y : X),
+  y ∈ M7.OrbitFibers.orbit G c → M7.OrbitFibers.fiberCount G c y = M7.OrbitFibers.stabilizerCount G c : Prop
+∀ (G : Type) [inst : Group G] [inst_1 : Fintype G] (X : Type) [inst_2 : MulAction G X] (c : X) (P : X → Prop),
+  M7.OrbitFibers.actionCount G c P = M7.OrbitFibers.orbitCount G c P * M7.OrbitFibers.stabilizerCount G c : Prop
+∀ (G : Type) [inst : Group G] [inst_1 : Fintype G] (X : Type) [inst_2 : MulAction G X] (c : X) (P : X → Prop),
+  M7.OrbitFibers.actionCount G c P / M7.OrbitFibers.stabilizerCount G c = M7.OrbitFibers.orbitCount G c P ∧
+    M7.OrbitFibers.stabilizerCount G c ∣ M7.OrbitFibers.actionCount G c P : Prop
+∀ (G : Type) [inst : Group G] [inst_1 : Fintype G] (X : Type) [inst_2 : MulAction G X] (c : X) (P : X → Prop)
+  (test : X → Bool),
+  M7.OrbitFibers.orbitCount G c P =
+    (M7.OrbitFibers.orbitCount G c fun y => P y ∧ test y = false) +
+      M7.OrbitFibers.orbitCount G c fun y => P y ∧ test y = true : Prop
+∀ (G : Type) [inst : Group G] [inst_1 : Fintype G] (X : Type) [inst_2 : MulAction G X] (c : X) (P : X → Prop)
+  (test : X → Bool),
+  M7.OrbitFibers.actionCount G c P =
+    (M7.OrbitFibers.actionCount G c fun y => P y ∧ test y = false) +
+      M7.OrbitFibers.actionCount G c fun y => P y ∧ test y = true : Prop

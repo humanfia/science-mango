@@ -1,0 +1,40 @@
+theorem M7.OrbitFibers.action_count_product : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ P : X → Prop, M7.OrbitFibers.actionCount G c P = M7.OrbitFibers.orbitCount G c P * M7.OrbitFibers.stabilizerCount G c := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ P : X → Prop, M7.OrbitFibers.actionCount G c P = M7.OrbitFibers.orbitCount G c P * M7.OrbitFibers.stabilizerCount G c
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro G _ _ X _ c P
+  classical
+  unfold M7.OrbitFibers.actionCount M7.OrbitFibers.orbitCount
+  calc
+    _ = ∑ y ∈ (M7.OrbitFibers.orbit G c).filter P,
+        ((Finset.univ.filter (fun g : G => P (g • c))).filter
+          (fun g => g • c = y)).card := by
+      apply Finset.card_eq_sum_card_fiberwise
+      intro g hg
+      apply Finset.mem_filter.mpr
+      refine ⟨?_, (Finset.mem_filter.mp hg).2⟩
+      unfold M7.OrbitFibers.orbit
+      exact Finset.mem_image.mpr ⟨g, Finset.mem_univ g, rfl⟩
+    _ = ∑ y ∈ (M7.OrbitFibers.orbit G c).filter P,
+        M7.OrbitFibers.stabilizerCount G c := by
+      apply Finset.sum_congr rfl
+      intro y hy
+      obtain ⟨hyorbit, hPy⟩ := Finset.mem_filter.mp hy
+      have hf :
+          (Finset.univ.filter (fun g : G => P (g • c))).filter
+              (fun g => g • c = y) =
+            Finset.univ.filter (fun g : G => g • c = y) := by
+        ext g
+        simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+        constructor
+        · intro h
+          exact h.2
+        · intro h
+          exact ⟨by simpa only [h] using hPy, h⟩
+      rw [hf]
+      change M7.OrbitFibers.fiberCount G c y =
+        M7.OrbitFibers.stabilizerCount G c
+      exact M7.OrbitFibers.fiber_count G X c y hyorbit
+    _ = _ := by simp

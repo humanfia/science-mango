@@ -1,0 +1,174 @@
+{
+  "title": "M7 finite-group full-stabilizer orbit fibers and filtered exact division",
+  "scope": "Standard Group/MulAction/FintypeG only. Actual M7 action installation and factorized arithmetic numerator specialization remain separate gates. Semantic orbit appears only as proof-side count.",
+  "nodes": [
+    {
+      "id": "fiber_equiv",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitFibers.fiber_equiv",
+        "statement": "∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ g₀ : G, Nonempty ({h : G // h • c = c} ≃ {g : G // g • c = g₀ • c})",
+        "imports": [
+          "M7OrbitFibers"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer equivalence fiber cardinality",
+          "Finset cardinality sum fiberwise"
+        ],
+        "guidance": "Construct the actual equivalence by h↦g0*h and g↦g0⁻¹*g. Use mul_smul and inverse identities, Subtype.ext for inverse laws. This includes nonfaithful actions; no orbit cardinality is assumed. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 full stabilizer fibers and exact filtered orbit count",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "stabilizer_positive",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitFibers.stabilizer_positive",
+        "statement": "∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), 0 < M7.OrbitFibers.stabilizerCount G c",
+        "imports": [
+          "M7OrbitFibers"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer equivalence fiber cardinality",
+          "Finset cardinality sum fiberwise"
+        ],
+        "guidance": "Unfold stabilizerCount, Finset.card_pos/mem_filter explicitly and supply 1 with one_smul. Avoid change introducing a different classical filter decider. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 full stabilizer fibers and exact filtered orbit count",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "fiber_count",
+      "dependencies": [
+        "fiber_equiv"
+      ],
+      "spec": {
+        "name": "M7.OrbitFibers.fiber_count",
+        "statement": "∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ y ∈ M7.OrbitFibers.orbit G c, M7.OrbitFibers.fiberCount G c y = M7.OrbitFibers.stabilizerCount G c",
+        "imports": [
+          "M7OrbitFibers"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer equivalence fiber cardinality",
+          "Finset cardinality sum fiberwise"
+        ],
+        "guidance": "Extract actual g0 from orbit membership and use fiber_equiv cardinality. Bridge the filter cards with Nat.card/Fintype.card of the actual subtypes; use explicit finite membership transport to handle classical instances. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 full stabilizer fibers and exact filtered orbit count",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "action_count_product",
+      "dependencies": [
+        "fiber_count"
+      ],
+      "spec": {
+        "name": "M7.OrbitFibers.action_count_product",
+        "statement": "∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ P : X → Prop, M7.OrbitFibers.actionCount G c P = M7.OrbitFibers.orbitCount G c P * M7.OrbitFibers.stabilizerCount G c",
+        "imports": [
+          "M7OrbitFibers"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer equivalence fiber cardinality",
+          "Finset cardinality sum fiberwise"
+        ],
+        "guidance": "Partition the filtered action records by their actual images, over the finite orbit.filter P. Each nonempty fiber is exactly the full stabilizer cardinal by fiber_count. Use finite sum-fiber cardinality or a subtype-to-Sigma equivalence; no Fintype X assumption or freely supplied uniform-fiber hypothesis. Return tactic lines only without leading by. Available exact local API: Finset.card_eq_sum_card_fiberwise or Finset.card_eq_sum_card_image in Mathlib.Algebra.BigOperators.Group.Finset.Basic; these do not require Fintype X."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 full stabilizer fibers and exact filtered orbit count",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "orbit_count_div",
+      "dependencies": [
+        "action_count_product",
+        "stabilizer_positive"
+      ],
+      "spec": {
+        "name": "M7.OrbitFibers.orbit_count_div",
+        "statement": "∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ P : X → Prop, M7.OrbitFibers.actionCount G c P / M7.OrbitFibers.stabilizerCount G c = M7.OrbitFibers.orbitCount G c P ∧ M7.OrbitFibers.stabilizerCount G c ∣ M7.OrbitFibers.actionCount G c P",
+        "imports": [
+          "M7OrbitFibers"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer equivalence fiber cardinality",
+          "Finset cardinality sum fiberwise"
+        ],
+        "guidance": "Rewrite raw product identity and cancel the positive full stabilizer using Nat.mul_div_cancel. Also explicitly establish divisibility, not merely rounded division output. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 full stabilizer fibers and exact filtered orbit count",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "orbit_partition",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitFibers.orbit_partition",
+        "statement": "∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ (P : X → Prop) (test : X → Bool), M7.OrbitFibers.orbitCount G c P = M7.OrbitFibers.orbitCount G c (fun y => P y ∧ test y = false) + M7.OrbitFibers.orbitCount G c (fun y => P y ∧ test y = true)",
+        "imports": [
+          "M7OrbitFibers"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer equivalence fiber cardinality",
+          "Finset cardinality sum fiberwise"
+        ],
+        "guidance": "Split the actual filtered semantic orbit into two disjoint exhaustive Boolean children. Cardinality or indicator-sum proof; no assumptions about faithfulness, prefix syntax or positivity. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 full stabilizer fibers and exact filtered orbit count",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "action_partition",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitFibers.action_partition",
+        "statement": "∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ (P : X → Prop) (test : X → Bool), M7.OrbitFibers.actionCount G c P = M7.OrbitFibers.actionCount G c (fun y => P y ∧ test y = false) + M7.OrbitFibers.actionCount G c (fun y => P y ∧ test y = true)",
+        "imports": [
+          "M7OrbitFibers"
+        ],
+        "context": "",
+        "queries": [
+          "MulAction orbit stabilizer equivalence fiber cardinality",
+          "Finset cardinality sum fiberwise"
+        ],
+        "guidance": "Same Boolean partition on actual action records. Count records with multiplicity; do not identify records with orbit points. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M7 section5 full stabilizer fibers and exact filtered orbit count",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

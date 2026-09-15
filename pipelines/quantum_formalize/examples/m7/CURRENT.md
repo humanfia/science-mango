@@ -2,7 +2,7 @@
 
 In progress; complete M7 Lean acceptance is pending. All 56 frozen natural-language source files were hash-checked; `SOURCE.json` records their identities.
 
-Five completed batches contain **43 accepted targets**, each with combined compilation, unchanged environment and exact target/axiom checks:
+Six completed batches contain **50 accepted targets**, each with combined compilation, unchanged environment and exact target/axiom checks:
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -11,8 +11,9 @@ Five completed batches contain **43 accepted targets**, each with combined compi
 | [factorized](factorized/experiment/result.json) | 6 | Independent-shift arithmetic numerator and partitions |
 | [action](action/experiment/result.json) | 13 | Actual unit/exchange/two-shift records and action laws, including N=1 |
 | [domain](domain/experiment/result.json) | 6 | Support-to-M6 polynomial, anchored admissibility and shift interfaces |
+| [orbit_fibers](orbit_fibers/experiment/result.json) | 7 | Full-stabilizer fibers, multiplication/division count identities and partitions |
 
-Active batches: `transport` prepares actual M6 distance and witness transport (7 targets); `orbit_fibers` proves full-stabilizer fiber counts and exact division (7 targets); `presentation` proves factored least-preimage decoding and distinct winning physical outputs (12 targets). `canonical_block` has 13 exact targets prepared and is undergoing definition build/type preflight. The actual group adapter in `group` is prepared but not yet compiled.
+Active batches: `transport` prepares actual M6 distance and witness transport (7 targets); `group` specializes the accepted fiber laws to the actual action records (6 targets); `presentation` proves factored least-preimage decoding and distinct winning physical outputs (12 targets); `canonical_block` runs 13 exact targets after compiled definitions/types and empty-context DAG validation. `prefix_sector` has 9 actual M5 arithmetic count targets in build/type preflight, with 37 inherited source modules checked against M5's canonical manifest. See `PREFIX_BRIDGE_PLAN.md` for the remaining actual prefix and residual connections.
 
 Shared-host load caused compilation/startup timeouts in otherwise preserved proof attempts. Replays retain the frozen targets and drafts and adjust execution resources only. A timeout is not an accepted proof or a mathematical counterexample; canonical receipts remain authoritative.
 

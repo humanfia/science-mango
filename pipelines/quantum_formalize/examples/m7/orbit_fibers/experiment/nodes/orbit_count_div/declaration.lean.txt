@@ -1,0 +1,11 @@
+theorem M7.OrbitFibers.orbit_count_div : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ P : X → Prop, M7.OrbitFibers.actionCount G c P / M7.OrbitFibers.stabilizerCount G c = M7.OrbitFibers.orbitCount G c P ∧ M7.OrbitFibers.stabilizerCount G c ∣ M7.OrbitFibers.actionCount G c P := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ P : X → Prop, M7.OrbitFibers.actionCount G c P / M7.OrbitFibers.stabilizerCount G c = M7.OrbitFibers.orbitCount G c P ∧ M7.OrbitFibers.stabilizerCount G c ∣ M7.OrbitFibers.actionCount G c P
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro G _ _ X _ c P
+  rw [M7.OrbitFibers.action_count_product G X c P]
+  constructor
+  · exact Nat.mul_div_cancel _ (M7.OrbitFibers.stabilizer_positive G X c)
+  · exact ⟨M7.OrbitFibers.orbitCount G c P, Nat.mul_comm _ _⟩

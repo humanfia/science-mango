@@ -1,0 +1,15 @@
+theorem M7.OrbitFibers.orbit_partition : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ (P : X → Prop) (test : X → Bool), M7.OrbitFibers.orbitCount G c P = M7.OrbitFibers.orbitCount G c (fun y => P y ∧ test y = false) + M7.OrbitFibers.orbitCount G c (fun y => P y ∧ test y = true) := by
+  classical
+  intro G _ _ X _ c P test
+  unfold M7.OrbitFibers.orbitCount
+  simp only [Finset.card_eq_sum_ones, Finset.sum_filter]
+  rw [← Finset.sum_add_distrib]
+  apply Finset.sum_congr rfl
+  intro y hy
+  have hb : ∀ b : Bool, b ≠ false → b = true := by decide
+  by_cases hp : P y
+  · by_cases ht : test y = false
+    · simp [hp, ht]
+    · have ht' : test y = true := hb (test y) ht
+      simp [hp, ht']
+  · simp [hp]

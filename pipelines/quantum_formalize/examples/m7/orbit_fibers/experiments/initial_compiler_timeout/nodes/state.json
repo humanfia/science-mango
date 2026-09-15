@@ -1,0 +1,285 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T16:27:27.465285+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "action_partition": {
+      "id": "action_partition",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.OrbitFibers.action_partition",
+        "spec_sha256": "8ff06486c48f7d7151083e0f8d1934535bbaec6db37185887dcfd1b0d9e78dad",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-s7sh3yqq/attempt-001/Candidate_11f1d0e1c803108c.lean:15:2: error: Type mismatch\n  partition Finset.univ (fun g => P (g • c)) fun g => test (g • c)\nhas type\n  {g | P (g • c)}.card = {g | P (g • c) ∧ test (g • c) = false}.card + {g | P (g • c) ∧ test (g • c) = true}.card\nbut is expected to have type\n  {g | P (g • c)}.card =\n    {g | (fun y => P y ∧ test y = false) (g • c)}.card + {g | (fun y => P y ∧ test y = true) (g • c)}.card\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-s7sh3yqq/attempt-002/Candidate_35fb00cbe3df4913.lean",
+            "target_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-s7sh3yqq/attempt-002/FrozenTarget_35fb00cbe3df4913.lean",
+            "feedback": "",
+            "target_sha256": "368ce7ef8d45b9b3b521d84c1867d4600d224776d06f7403aa5eda582ffe7fd9",
+            "target_olean_sha256": "433406011c64a0d85b7d0d6a7dea997382c8f6c2578b12770c053efb968670fa",
+            "source_sha256": "50417dad4f410c2ab40f061615688d63e494cbb66c928768400cb68b5a2ffd68",
+            "olean_sha256": "2af3ca9a497092646b46471ba9a17458b19cf2156f0a848f9e695fd4958b827f",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T16:20:49.233778+00:00",
+        "work": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-s7sh3yqq",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "20dee62f3dc825ed956d517a2006f7309cca59198155764a80a9e104b69995fc",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-s7sh3yqq/attempt-002/Candidate_35fb00cbe3df4913.lean",
+        "environment_sha256": "43786ef893b45047485bf4e04717fc12be184cf4fe4ff4823278893a1ec15603",
+        "artifacts": {
+          "action_partition": {
+            "payload": {
+              "declaration": "theorem M7.OrbitFibers.action_partition : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ (P : X → Prop) (test : X → Bool), M7.OrbitFibers.actionCount G c P = M7.OrbitFibers.actionCount G c (fun y => P y ∧ test y = false) + M7.OrbitFibers.actionCount G c (fun y => P y ∧ test y = true) := by\n  classical\n  intro G _ _ X _ c P test\n  have partition {α : Type} (s : Finset α) (Q : α → Prop) (b : α → Bool) :\n      (s.filter Q).card =\n        (s.filter (fun a => Q a ∧ b a = false)).card +\n        (s.filter (fun a => Q a ∧ b a = true)).card := by\n    induction s using Finset.induction_on with\n    | empty => simp\n    | @insert a s ha ih =>\n      by_cases hQ : Q a <;> cases hb : b a <;>\n        simp_all [Finset.filter_insert, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]\n  simpa [M7.OrbitFibers.actionCount] using\n    partition (Finset.univ : Finset G) (fun g => P (g • c)) (fun g => test (g • c))",
+              "imports": [
+                "M7OrbitFibers"
+              ],
+              "name": "M7.OrbitFibers.action_partition",
+              "ancestors": [],
+              "spec_sha256": "8ff06486c48f7d7151083e0f8d1934535bbaec6db37185887dcfd1b0d9e78dad"
+            },
+            "sha256": "3607879a218ef88be89822d26f4bab24f745a52beec118fcd524752aa7818549"
+          }
+        }
+      }
+    },
+    "fiber_equiv": {
+      "id": "fiber_equiv",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.OrbitFibers.fiber_equiv",
+        "spec_sha256": "1e6283f90e6ba7eca59b9fe1d835835d16b2c9493a0a10cc160c82cb705f636a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-dqmdicnv/attempt-001/Candidate_0bf95d34449e70fc.lean",
+            "target_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-dqmdicnv/attempt-001/FrozenTarget_0bf95d34449e70fc.lean",
+            "feedback": "",
+            "target_sha256": "ccd6a71c42fc57bddbe91d9a73903bcd6b9298e4855159efc136db2da4f8217e",
+            "target_olean_sha256": "d9a7a747a7631ca2d69cc5a7d006cce72cf652dd9db5d61643b3df4364fafdc5",
+            "source_sha256": "a106bd0a2a56add365fa345120a31b596f9c798373bed7af35e674c53e526f8e",
+            "olean_sha256": "4591564c9b07fa52c661dd313279d940c2892322b65aaa4c14cd20391804ea8d",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:20:49.238324+00:00",
+        "work": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-dqmdicnv",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "20dee62f3dc825ed956d517a2006f7309cca59198155764a80a9e104b69995fc",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-dqmdicnv/attempt-001/Candidate_0bf95d34449e70fc.lean",
+        "environment_sha256": "43786ef893b45047485bf4e04717fc12be184cf4fe4ff4823278893a1ec15603",
+        "artifacts": {
+          "fiber_equiv": {
+            "payload": {
+              "declaration": "theorem M7.OrbitFibers.fiber_equiv : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ g₀ : G, Nonempty ({h : G // h • c = c} ≃ {g : G // g • c = g₀ • c}) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ g₀ : G, Nonempty ({h : G // h • c = c} ≃ {g : G // g • c = g₀ • c})\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro G _ _ X _ c g₀\n  refine ⟨{\n    toFun := fun h => ⟨g₀ * h.val, ?_⟩\n    invFun := fun g => ⟨g₀⁻¹ * g.val, ?_⟩\n    left_inv := ?_\n    right_inv := ?_\n  }⟩\n  · rw [mul_smul, h.property]\n  · rw [mul_smul, g.property]\n    simp\n  · intro h\n    apply Subtype.ext\n    change g₀⁻¹ * (g₀ * h.val) = h.val\n    simp\n  · intro g\n    apply Subtype.ext\n    change g₀ * (g₀⁻¹ * g.val) = g.val\n    simp",
+              "imports": [
+                "M7OrbitFibers"
+              ],
+              "name": "M7.OrbitFibers.fiber_equiv",
+              "ancestors": [],
+              "spec_sha256": "1e6283f90e6ba7eca59b9fe1d835835d16b2c9493a0a10cc160c82cb705f636a"
+            },
+            "sha256": "2941d776d84b2e5ee28de91333cc3d722bdd8a4449b33f653e10215a2b2ebe4e"
+          }
+        }
+      }
+    },
+    "fiber_count": {
+      "id": "fiber_count",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "compiler_timeout",
+        "target": "M7.OrbitFibers.fiber_count",
+        "spec_sha256": "ef86299b3b23e925140ee780dd9be5e430dee81784b6e0686aa8d4cd079a1ae9",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compiler_timeout",
+            "feedback": "acceptance compiler timed out after 180 seconds",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:22:32.256327+00:00",
+        "work": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-ssbmpvib",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "20dee62f3dc825ed956d517a2006f7309cca59198155764a80a9e104b69995fc",
+        "phase": "finished",
+        "round": 1
+      }
+    },
+    "action_count_product": {
+      "id": "action_count_product",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "fiber_count"
+      ]
+    },
+    "orbit_partition": {
+      "id": "orbit_partition",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.OrbitFibers.orbit_partition",
+        "spec_sha256": "d5761f58c0632842d4ba9c71862b1a94cad9c2a8131a7cf146d80d785ead1714",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-001/Candidate_727467f8161df1dd.lean:10:23: error: Tactic `generalize` failed: result is not type correct\n  ∀ (x : Bool), (if P y then 1 else 0) = (if P y ∧ x = false then 1 else 0) + if P y ∧ x = true then 1 else 0\n\ncase pos\nG : Type\ninst✝² : Group G\ninst✝¹ : Fintype G\nX : Type\ninst✝ : MulAction G X\nc : X\nP : X → Prop\ntest : X → Bool\ny : X\nhy : y ∈ orbit G c\nh : P y\n⊢ (if P y then 1 else 0) = (if P y ∧ test y = false then 1 else 0) + if P y ∧ test y = true then 1 else 0\n/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-001/Candidate_727467f8161df1dd.lean:10:23: error: Tactic `generalize` failed: result is not type correct\n  ∀ (x : Bool), (if P y then 1 else 0) = (if P y ∧ x = false then 1 else 0) + if P y ∧ x = true then 1 else 0\n\ncase neg\nG : Type\ninst✝² : Group G\ninst✝¹ : Fintype G\nX : Type\ninst✝ : MulAction G X\nc : X\nP : X → Prop\ntest : X → Bool\ny : X\nhy : y ∈ orbit G c\nh : ¬P y\n⊢ (if P y then 1 else 0) = (if P y ∧ test y = false then 1 else 0) + if P y ∧ test y = true then 1 else 0\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-002/Candidate_8240f1ac454b11e1.lean",
+            "target_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-002/FrozenTarget_8240f1ac454b11e1.lean",
+            "feedback": "",
+            "target_sha256": "970dda832ca95fcf3879f8b9c4cfd80cd807514dd969f0dff8a208db6a067421",
+            "target_olean_sha256": "8d34627d29f8a17c2c6418997f3df4246722a2f28d474ac21654a00735eecb74",
+            "source_sha256": "fe1ea254b405351f011dc3f257f50afa2b777779bafcf33974b3f8e85b49033b",
+            "olean_sha256": "f23f865f1797136c452e93daeddcda4c1436a23d39911cdf83dcf8ffbfbf1799",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T16:20:49.243015+00:00",
+        "work": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "20dee62f3dc825ed956d517a2006f7309cca59198155764a80a9e104b69995fc",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-002/Candidate_8240f1ac454b11e1.lean",
+        "environment_sha256": "43786ef893b45047485bf4e04717fc12be184cf4fe4ff4823278893a1ec15603",
+        "artifacts": {
+          "orbit_partition": {
+            "payload": {
+              "declaration": "theorem M7.OrbitFibers.orbit_partition : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ (P : X → Prop) (test : X → Bool), M7.OrbitFibers.orbitCount G c P = M7.OrbitFibers.orbitCount G c (fun y => P y ∧ test y = false) + M7.OrbitFibers.orbitCount G c (fun y => P y ∧ test y = true) := by\n  classical\n  intro G _ _ X _ c P test\n  unfold M7.OrbitFibers.orbitCount\n  simp only [Finset.card_eq_sum_ones, Finset.sum_filter]\n  rw [← Finset.sum_add_distrib]\n  apply Finset.sum_congr rfl\n  intro y hy\n  have hb : ∀ b : Bool, b ≠ false → b = true := by decide\n  by_cases hp : P y\n  · by_cases ht : test y = false\n    · simp [hp, ht]\n    · have ht' : test y = true := hb (test y) ht\n      simp [hp, ht']\n  · simp [hp]",
+              "imports": [
+                "M7OrbitFibers"
+              ],
+              "name": "M7.OrbitFibers.orbit_partition",
+              "ancestors": [],
+              "spec_sha256": "d5761f58c0632842d4ba9c71862b1a94cad9c2a8131a7cf146d80d785ead1714"
+            },
+            "sha256": "9c80613e67019599b01334d9a9ec934e35243bc180eb1bd04b0d250d295fb99d"
+          }
+        }
+      }
+    },
+    "stabilizer_positive": {
+      "id": "stabilizer_positive",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.OrbitFibers.stabilizer_positive",
+        "spec_sha256": "444530bb8488e49f632bbab74f3ebdf740fa35a7612268183e0f818a1d4c27d2",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-hp9z0o55/attempt-001/Candidate_41f66d6c0b330ec0.lean",
+            "target_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-hp9z0o55/attempt-001/FrozenTarget_41f66d6c0b330ec0.lean",
+            "feedback": "",
+            "target_sha256": "d9d2fc684e88f789385bccaa754cf03caa58ede2da00fcd0b6901ebf6e92904b",
+            "target_olean_sha256": "b314aaa65c8d4a91f59b9d1e098051cef59817e61aa22624566af8163ada9a5b",
+            "source_sha256": "9ec26c15e4a127120e8939c6f3f1f42b7d2002d6e3ee25903663e56c5ddbfa69",
+            "olean_sha256": "ac2477a07631f9d2b9795c27ceed16173b1f855320cc5fd343d54cc42fd24b07",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:20:49.248031+00:00",
+        "work": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-hp9z0o55",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "20dee62f3dc825ed956d517a2006f7309cca59198155764a80a9e104b69995fc",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-hp9z0o55/attempt-001/Candidate_41f66d6c0b330ec0.lean",
+        "environment_sha256": "43786ef893b45047485bf4e04717fc12be184cf4fe4ff4823278893a1ec15603",
+        "artifacts": {
+          "stabilizer_positive": {
+            "payload": {
+              "declaration": "theorem M7.OrbitFibers.stabilizer_positive : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), 0 < M7.OrbitFibers.stabilizerCount G c := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), 0 < M7.OrbitFibers.stabilizerCount G c\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro G _ _ X _ c\n  classical\n  unfold M7.OrbitFibers.stabilizerCount\n  apply Finset.card_pos.mpr\n  refine ⟨(1 : G), ?_⟩\n  apply Finset.mem_filter.mpr\n  exact ⟨Finset.mem_univ _, one_smul G c⟩",
+              "imports": [
+                "M7OrbitFibers"
+              ],
+              "name": "M7.OrbitFibers.stabilizer_positive",
+              "ancestors": [],
+              "spec_sha256": "444530bb8488e49f632bbab74f3ebdf740fa35a7612268183e0f818a1d4c27d2"
+            },
+            "sha256": "6290b7a8c7704f1516338aad87fb29f5859a4cc98643884a7cc164357d5df02d"
+          }
+        }
+      }
+    },
+    "orbit_count_div": {
+      "id": "orbit_count_div",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "action_count_product"
+      ]
+    }
+  }
+}

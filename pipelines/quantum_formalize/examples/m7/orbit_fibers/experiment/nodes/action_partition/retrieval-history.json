@@ -1,0 +1,182 @@
+[
+  {
+    "queries": [
+      "MulAction orbit stabilizer equivalence fiber cardinality",
+      "Finset cardinality sum fiberwise"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "MulAction orbit stabilizer equivalence fiber cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 236875,
+            "name": "AddAction.card_orbit_mul_card_stabilizer_eq_card_addGroup",
+            "module": "Mathlib.GroupTheory.GroupAction.Quotient",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Quotient.lean#L187-L188",
+            "source_text": "@[to_additive AddAction.card_orbit_mul_card_stabilizer_eq_card_addGroup\n/-- Orbit-stabilizer theorem. -/]\ntheorem card_orbit_mul_card_stabilizer_eq_card_group (b : X) [Fintype G] [Fintype <| orbit G b]\n    [Fintype <| stabilizer G b] :\n    Fintype.card (orbit G b) * Fintype.card (stabilizer G b) = Fintype.card G := by",
+            "docstring": "Orbit-stabilizer theorem. "
+          },
+          {
+            "id": 236874,
+            "name": "MulAction.card_orbit_mul_card_stabilizer_eq_card_group",
+            "module": "Mathlib.GroupTheory.GroupAction.Quotient",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Quotient.lean#L186-L192",
+            "source_text": "/-- Orbit-stabilizer theorem. -/\n@[to_additive AddAction.card_orbit_mul_card_stabilizer_eq_card_addGroup\n/-- Orbit-stabilizer theorem. -/]\ntheorem card_orbit_mul_card_stabilizer_eq_card_group (b : X) [Fintype G] [Fintype <| orbit G b]\n    [Fintype <| stabilizer G b] :\n    Fintype.card (orbit G b) * Fintype.card (stabilizer G b) = Fintype.card G := by\n  rw [← Fintype.card_prod, Fintype.card_congr (orbitProdStabilizerEquivGroup G b)]\n",
+            "docstring": "Orbit-stabilizer theorem. "
+          },
+          {
+            "id": 235922,
+            "name": "MulAction.stabilizer_orbit_eq",
+            "module": "Mathlib.GroupTheory.GroupAction.Blocks",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Blocks.lean#L548-L563",
+            "source_text": "/-- A subgroup containing the stabilizer of `a`\n  is the stabilizer of the orbit of `a` under that subgroup -/\n@[to_additive\n  /-- A subgroup containing the stabilizer of `a`\n  is the stabilizer of the orbit of `a` under that subgroup -/]\ntheorem stabilizer_orbit_eq {a : X} {H : Subgroup G} (hH : stabilizer G a ≤ H) :\n    stabilizer G (orbit H a) = H := by\n  ext g\n  constructor\n  · intro hg\n    obtain ⟨-, ⟨b, rfl⟩, h⟩ := hg.symm ▸ mem_orbit_self a\n    simp_rw [H.toSubmonoid.smul_def, ← mul_smul, ← mem_stabilizer_iff] at h\n    exact (mul_mem_cancel_right b.2).mp (hH h)\n  · intro hg\n    rw [mem_stabilizer_iff, ← Subgroup.coe_mk H g hg, ← Submonoid.smul_def (S := H.toSubmonoid)]\n    apply smul_orbit (G := H)\n",
+            "docstring": "A subgroup containing the stabilizer of `a`\nis the stabilizer of the orbit of `a` under that subgroup "
+          },
+          {
+            "id": 236870,
+            "name": "MulAction.orbitEquivQuotientStabilizer",
+            "module": "Mathlib.GroupTheory.GroupAction.Quotient",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Quotient.lean#L172-L178",
+            "source_text": "/-- **Orbit-stabilizer theorem**. -/\n@[to_additive /-- Orbit-stabilizer theorem. -/]\nnoncomputable def orbitEquivQuotientStabilizer (b : X) : orbit G b ≃ G ⧸ stabilizer G b :=\n  Equiv.symm <|\n    Equiv.ofBijective (fun g => ⟨ofQuotientStabilizer G b g, ofQuotientStabilizer_mem_orbit G b g⟩)\n      ⟨fun x y hxy => injective_ofQuotientStabilizer G b (by convert! congr_arg Subtype.val hxy),\n        fun ⟨_, ⟨g, hgb⟩⟩ => ⟨g, Subtype.ext hgb⟩⟩\n",
+            "docstring": "**Orbit-stabilizer theorem**. "
+          },
+          {
+            "id": 236126,
+            "name": "MulAction.stabilizer",
+            "module": "Mathlib.GroupTheory.GroupAction.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Defs.lean#L500-L506",
+            "source_text": "/-- The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. -/\n@[to_additive /-- The stabilizer of an element under an action, i.e. what sends the element to\nitself. An additive subgroup. -/]\ndef stabilizer (a : α) : Subgroup G :=\n  { stabilizerSubmonoid G a with\n    inv_mem' := fun {m} (ha : m • a = a) => show m⁻¹ • a = a by rw [inv_smul_eq_iff, ha] }\n",
+            "docstring": "The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "MulAction orbit stabilizer equivalence fiber cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394042,
+            "name": "FTheory.SU5.FluxesFive.subset_le_mem_of_card_eq_succ",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Completeness",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Completeness.lean#L113-L133",
+            "source_text": "lemma subset_le_mem_of_card_eq_succ {n : ℕ} {F : FluxesFive} (hF : F.NoExotics) (hnZ : F.HasNoZero)\n    (S : Multiset Fluxes) (hcard : S.card = n.succ) (hS : S ≤ F) {Y X : Finset (Multiset Fluxes)}\n    (hY : ∀ (S : Multiset Fluxes), S.card = n → S ≤ F → S ∈ Y)\n    (hX : ∀ a ∈ ({⟨0, 1⟩, ⟨0, 2⟩, ⟨0, 3⟩, ⟨1, -1⟩, ⟨1, 0⟩, ⟨1, 1⟩, ⟨1, 2⟩,\n      ⟨2, -2⟩, ⟨2, -1⟩, ⟨2, 0⟩, ⟨2, 1⟩, ⟨3, -3⟩, ⟨3, -2⟩, ⟨3, -1⟩, ⟨3, 0⟩} : Finset Fluxes),\n      ∀ y ∈ Y,\n      (Multiset.map (fun x => x.M + x.N) (a ::ₘ y)).sum ≤ 3 →\n      (Multiset.map (fun x => x.M) (a ::ₘ y)).sum ≤ 3 →\n      a ::ₘ y ∈ X) :\n    S ∈ X := by\n  have hSum1 := chiralIndicesOfL_subset_sum_le_three_of_noExotics F hF S hS\n  have hSum2 := chiralIndicesOfD_subset_sum_le_three_of_noExotics F hF S hS\n  revert S\n  apply Multiset.induction\n  · simp\n  intro a S ih hcard hle hsum1 hsum2\n  have hsub : S ≤ F := (S.le_cons_self a).trans hle\n  have ha : a ∈ F := Multiset.mem_of_le hle (S.mem_cons_self a)\n  rw [Multiset.card_cons] at hcard\n  simp at hcard\n  exact hX a (mem_mem_finset_of_noExotics F hF hnZ a ha) S (hY S hcard hsub) hsum1 hsum2\n",
+            "docstring": null
+          },
+          {
+            "id": 393949,
+            "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_card",
+            "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L237-L240",
+            "source_text": "lemma viableCompletions_card (I : CodimensionOneConfig) :\n    (viableCompletions I).card = if I = same then 70 else\n      if I = nearestNeighbor then 48 else 37 := by\n  cases I <;> rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 394062,
+            "name": "FTheory.SU5.FluxesFive.card_le_six_mem_elemsNoExotics",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L149-L152",
+            "source_text": "lemma card_le_six_mem_elemsNoExotics (F : FluxesFive) (h : F ∈ elemsNoExotics) :\n    F.card ≤ 6 := by\n  revert F h\n  decide\n",
+            "docstring": null
+          },
+          {
+            "id": 394058,
+            "name": "FTheory.SU5.FluxesFive.elemsNoExotics_card",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L109-L110",
+            "source_text": "lemma elemsNoExotics_card : elemsNoExotics.card = 31 := by\n  decide\n",
+            "docstring": null
+          },
+          {
+            "id": 394067,
+            "name": "FTheory.SU5.FluxesTen.elemsNoExotics_card",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L216-L217",
+            "source_text": "lemma elemsNoExotics_card : elemsNoExotics.card = 6 := by\n  decide\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset cardinality sum fiberwise",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58256,
+            "name": "Finset.card_eq_sum_card_fiberwise",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L979-L981",
+            "source_text": "theorem card_eq_sum_card_fiberwise [DecidableEq M] {f : ι → M} {s : Finset ι} {t : Finset M}\n    (H : (s : Set ι).MapsTo f t) : #s = ∑ b ∈ t, #{a ∈ s | f a = b} := by\n  simp only [card_eq_sum_ones, sum_fiberwise_of_maps_to H]\n",
+            "docstring": null
+          },
+          {
+            "id": 58090,
+            "name": "Finset.sum_fiberwise'",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L277-L277",
+            "source_text": "@[to_additive]\nlemma prod_fiberwise' (s : Finset ι) (g : ι → κ) (f : κ → M) :\n    ∏ j, ∏ i ∈ s with g i = j, f j = ∏ i ∈ s, f (g i) :=",
+            "docstring": null
+          },
+          {
+            "id": 58088,
+            "name": "Finset.sum_fiberwise",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L272-L272",
+            "source_text": "@[to_additive]\nlemma prod_fiberwise (s : Finset ι) (g : ι → κ) (f : ι → M) :\n    ∏ j, ∏ i ∈ s with g i = j, f i = ∏ i ∈ s, f i :=",
+            "docstring": null
+          },
+          {
+            "id": 58295,
+            "name": "Finset.sum",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+            "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+            "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+          },
+          {
+            "id": 323027,
+            "name": "Cardinal.sum",
+            "module": "Mathlib.SetTheory.Cardinal.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Defs.lean#L333-L336",
+            "source_text": "/-- The indexed sum of cardinals is the cardinality of the\n  indexed disjoint union, i.e. sigma type. -/\ndef sum {ι} (f : ι → Cardinal) : Cardinal :=\n  mk (Σ i, (f i).out)\n",
+            "docstring": "The indexed sum of cardinals is the cardinality of the\nindexed disjoint union, i.e. sigma type. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset cardinality sum fiberwise",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386221,
+            "name": "Physlib.FourTree.Branch.card",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L140-L143",
+            "source_text": "/-- The cardinality of a `Branch` is the total number of leafs. -/\ndef Branch.card {α2 α3 α4 : Type} (T : Branch α2 α3 α4) : Nat :=\n  match T with\n  | .branch _ twigs => (twigs.map Twig.card).sum\n",
+            "docstring": "The cardinality of a `Branch` is the total number of leafs. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

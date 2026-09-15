@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro G _ _ X _ c P test\nhave partition {α : Type} (s : Finset α) (Q : α → Prop) (b : α → Bool) :\n    (s.filter Q).card =\n      (s.filter (fun a => Q a ∧ b a = false)).card +\n      (s.filter (fun a => Q a ∧ b a = true)).card := by\n  induction s using Finset.induction_on with\n  | empty => simp\n  | @insert a s ha ih =>\n    by_cases hQ : Q a <;> cases hb : b a <;>\n      simp_all [Finset.filter_insert, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]\nsimpa [M7.OrbitFibers.actionCount] using\n  partition (Finset.univ : Finset G) (fun g => P (g • c)) (fun g => test (g • c))",
+  "queries": []
+}

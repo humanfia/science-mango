@@ -1,0 +1,69 @@
+{
+  "id": "fiber_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.OrbitFibers.fiber_count",
+    "spec_sha256": "ef86299b3b23e925140ee780dd9be5e430dee81784b6e0686aa8d4cd079a1ae9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-aes2su1m/attempt-001/Candidate_bf33fd2477245399.lean",
+        "target_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-aes2su1m/attempt-001/FrozenTarget_bf33fd2477245399.lean",
+        "feedback": "",
+        "target_sha256": "c2d5d340c94885a4ec6ecca8c1fede39a20fefe962e29984a15169000c7921df",
+        "target_olean_sha256": "a56f1efd85f57a2f66a3b033256ebf391a39a0049c753ea2eeca594e8636b735",
+        "source_sha256": "711f826e6c35af2e95b6e2c020ce39dea8f7e65406a7b92d4581c8f11e375818",
+        "olean_sha256": "d998ec37ef74c812272e2058cd75a70456e4598142db30ee5f6ead70da881780",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:37:45.705300+00:00",
+    "work": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-aes2su1m",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "20dee62f3dc825ed956d517a2006f7309cca59198155764a80a9e104b69995fc",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-aes2su1m/attempt-001/Candidate_bf33fd2477245399.lean",
+    "environment_sha256": "43786ef893b45047485bf4e04717fc12be184cf4fe4ff4823278893a1ec15603",
+    "artifacts": {
+      "fiber_equiv": {
+        "payload": {
+          "declaration": "theorem M7.OrbitFibers.fiber_equiv : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ g₀ : G, Nonempty ({h : G // h • c = c} ≃ {g : G // g • c = g₀ • c}) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ g₀ : G, Nonempty ({h : G // h • c = c} ≃ {g : G // g • c = g₀ • c})\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro G _ _ X _ c g₀\n  refine ⟨{\n    toFun := fun h => ⟨g₀ * h.val, ?_⟩\n    invFun := fun g => ⟨g₀⁻¹ * g.val, ?_⟩\n    left_inv := ?_\n    right_inv := ?_\n  }⟩\n  · rw [mul_smul, h.property]\n  · rw [mul_smul, g.property]\n    simp\n  · intro h\n    apply Subtype.ext\n    change g₀⁻¹ * (g₀ * h.val) = h.val\n    simp\n  · intro g\n    apply Subtype.ext\n    change g₀ * (g₀⁻¹ * g.val) = g.val\n    simp",
+          "imports": [
+            "M7OrbitFibers"
+          ],
+          "name": "M7.OrbitFibers.fiber_equiv",
+          "ancestors": [],
+          "spec_sha256": "1e6283f90e6ba7eca59b9fe1d835835d16b2c9493a0a10cc160c82cb705f636a"
+        },
+        "sha256": "2941d776d84b2e5ee28de91333cc3d722bdd8a4449b33f653e10215a2b2ebe4e"
+      },
+      "fiber_count": {
+        "payload": {
+          "declaration": "theorem M7.OrbitFibers.fiber_count : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ y ∈ M7.OrbitFibers.orbit G c, M7.OrbitFibers.fiberCount G c y = M7.OrbitFibers.stabilizerCount G c := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ y ∈ M7.OrbitFibers.orbit G c, M7.OrbitFibers.fiberCount G c y = M7.OrbitFibers.stabilizerCount G c\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro G _ _ X _ c y hy\n  classical\n  unfold M7.OrbitFibers.orbit at hy\n  obtain ⟨g₀, _, rfl⟩ := Finset.mem_image.mp hy\n  obtain ⟨e⟩ := M7.OrbitFibers.fiber_equiv G X c g₀\n  unfold M7.OrbitFibers.fiberCount M7.OrbitFibers.stabilizerCount\n  refine Finset.card_bij\n    (fun g hg => (e.symm ⟨g, (Finset.mem_filter.mp hg).2⟩).val) ?_ ?_ ?_\n  · intro g hg\n    exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, (e.symm ⟨g, (Finset.mem_filter.mp hg).2⟩).property⟩\n  · intro a ha b hb hab\n    have h : e.symm ⟨a, (Finset.mem_filter.mp ha).2⟩ =\n        e.symm ⟨b, (Finset.mem_filter.mp hb).2⟩ := Subtype.ext hab\n    exact congrArg Subtype.val (e.symm.injective h)\n  · intro h hh\n    let h' : {h : G // h • c = c} := ⟨h, (Finset.mem_filter.mp hh).2⟩\n    have hg : (e h').val ∈ Finset.univ.filter (fun g : G => g • c = g₀ • c) :=\n      Finset.mem_filter.mpr ⟨Finset.mem_univ _, (e h').property⟩\n    refine ⟨(e h').val, hg, ?_⟩\n    change (e.symm (e h')).val = h\n    exact congrArg Subtype.val (e.symm_apply_apply h')",
+          "imports": [
+            "M7OrbitFibers"
+          ],
+          "name": "M7.OrbitFibers.fiber_count",
+          "ancestors": [
+            "fiber_equiv"
+          ],
+          "spec_sha256": "70d8516a9580ca8307a44b4bd1341bc6e39c6bd10946ce208f15841e982cd89f"
+        },
+        "sha256": "c8a475f3f4dd87849b65c8297c36e22a23095a65b5bc679290dcb9ad01c235a7"
+      }
+    }
+  }
+}

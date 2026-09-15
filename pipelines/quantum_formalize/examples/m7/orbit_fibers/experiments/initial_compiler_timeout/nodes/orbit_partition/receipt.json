@@ -1,0 +1,61 @@
+{
+  "id": "orbit_partition",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.OrbitFibers.orbit_partition",
+    "spec_sha256": "d5761f58c0632842d4ba9c71862b1a94cad9c2a8131a7cf146d80d785ead1714",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-001/Candidate_727467f8161df1dd.lean:10:23: error: Tactic `generalize` failed: result is not type correct\n  ∀ (x : Bool), (if P y then 1 else 0) = (if P y ∧ x = false then 1 else 0) + if P y ∧ x = true then 1 else 0\n\ncase pos\nG : Type\ninst✝² : Group G\ninst✝¹ : Fintype G\nX : Type\ninst✝ : MulAction G X\nc : X\nP : X → Prop\ntest : X → Bool\ny : X\nhy : y ∈ orbit G c\nh : P y\n⊢ (if P y then 1 else 0) = (if P y ∧ test y = false then 1 else 0) + if P y ∧ test y = true then 1 else 0\n/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-001/Candidate_727467f8161df1dd.lean:10:23: error: Tactic `generalize` failed: result is not type correct\n  ∀ (x : Bool), (if P y then 1 else 0) = (if P y ∧ x = false then 1 else 0) + if P y ∧ x = true then 1 else 0\n\ncase neg\nG : Type\ninst✝² : Group G\ninst✝¹ : Fintype G\nX : Type\ninst✝ : MulAction G X\nc : X\nP : X → Prop\ntest : X → Bool\ny : X\nhy : y ∈ orbit G c\nh : ¬P y\n⊢ (if P y then 1 else 0) = (if P y ∧ test y = false then 1 else 0) + if P y ∧ test y = true then 1 else 0\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-002/Candidate_8240f1ac454b11e1.lean",
+        "target_path": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-002/FrozenTarget_8240f1ac454b11e1.lean",
+        "feedback": "",
+        "target_sha256": "970dda832ca95fcf3879f8b9c4cfd80cd807514dd969f0dff8a208db6a067421",
+        "target_olean_sha256": "8d34627d29f8a17c2c6418997f3df4246722a2f28d474ac21654a00735eecb74",
+        "source_sha256": "fe1ea254b405351f011dc3f257f50afa2b777779bafcf33974b3f8e85b49033b",
+        "olean_sha256": "f23f865f1797136c452e93daeddcda4c1436a23d39911cdf83dcf8ffbfbf1799",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T16:20:49.243015+00:00",
+    "work": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "20dee62f3dc825ed956d517a2006f7309cca59198155764a80a9e104b69995fc",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-orbit-fibers-formalization/.humanize-formal-runs/run-8349fmch/attempt-002/Candidate_8240f1ac454b11e1.lean",
+    "environment_sha256": "43786ef893b45047485bf4e04717fc12be184cf4fe4ff4823278893a1ec15603",
+    "artifacts": {
+      "orbit_partition": {
+        "payload": {
+          "declaration": "theorem M7.OrbitFibers.orbit_partition : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ (P : X → Prop) (test : X → Bool), M7.OrbitFibers.orbitCount G c P = M7.OrbitFibers.orbitCount G c (fun y => P y ∧ test y = false) + M7.OrbitFibers.orbitCount G c (fun y => P y ∧ test y = true) := by\n  classical\n  intro G _ _ X _ c P test\n  unfold M7.OrbitFibers.orbitCount\n  simp only [Finset.card_eq_sum_ones, Finset.sum_filter]\n  rw [← Finset.sum_add_distrib]\n  apply Finset.sum_congr rfl\n  intro y hy\n  have hb : ∀ b : Bool, b ≠ false → b = true := by decide\n  by_cases hp : P y\n  · by_cases ht : test y = false\n    · simp [hp, ht]\n    · have ht' : test y = true := hb (test y) ht\n      simp [hp, ht']\n  · simp [hp]",
+          "imports": [
+            "M7OrbitFibers"
+          ],
+          "name": "M7.OrbitFibers.orbit_partition",
+          "ancestors": [],
+          "spec_sha256": "d5761f58c0632842d4ba9c71862b1a94cad9c2a8131a7cf146d80d785ead1714"
+        },
+        "sha256": "9c80613e67019599b01334d9a9ec934e35243bc180eb1bd04b0d250d295fb99d"
+      }
+    }
+  }
+}

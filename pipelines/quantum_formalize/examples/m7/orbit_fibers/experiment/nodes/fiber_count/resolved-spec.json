@@ -1,0 +1,13 @@
+{
+  "name": "M7.OrbitFibers.fiber_count",
+  "statement": "∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ y ∈ M7.OrbitFibers.orbit G c, M7.OrbitFibers.fiberCount G c y = M7.OrbitFibers.stabilizerCount G c",
+  "imports": [
+    "M7OrbitFibers"
+  ],
+  "context": "theorem M7.OrbitFibers.fiber_equiv : ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ g₀ : G, Nonempty ({h : G // h • c = c} ≃ {g : G // g • c = g₀ • c}) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (G : Type) [Group G] [Fintype G] (X : Type) [MulAction G X] (c : X), ∀ g₀ : G, Nonempty ({h : G // h • c = c} ≃ {g : G // g • c = g₀ • c})\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro G _ _ X _ c g₀\n  refine ⟨{\n    toFun := fun h => ⟨g₀ * h.val, ?_⟩\n    invFun := fun g => ⟨g₀⁻¹ * g.val, ?_⟩\n    left_inv := ?_\n    right_inv := ?_\n  }⟩\n  · rw [mul_smul, h.property]\n  · rw [mul_smul, g.property]\n    simp\n  · intro h\n    apply Subtype.ext\n    change g₀⁻¹ * (g₀ * h.val) = h.val\n    simp\n  · intro g\n    apply Subtype.ext\n    change g₀ * (g₀⁻¹ * g.val) = g.val\n    simp",
+  "queries": [
+    "MulAction orbit stabilizer equivalence fiber cardinality",
+    "Finset cardinality sum fiberwise"
+  ],
+  "guidance": "Extract actual g0 from orbit membership and use fiber_equiv cardinality. Bridge the filter cards with Nat.card/Fintype.card of the actual subtypes; use explicit finite membership transport to handle classical instances. Return tactic lines only without leading by."
+}
