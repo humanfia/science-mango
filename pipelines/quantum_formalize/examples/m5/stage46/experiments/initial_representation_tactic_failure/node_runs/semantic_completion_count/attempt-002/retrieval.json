@@ -1,0 +1,209 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.card_bij Finset.card_sdiff_of_subset",
+    "status": "ok",
+    "results": [
+      {
+        "id": 202403,
+        "name": "Finset.card_sdiff_of_subset",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L579-L582",
+        "source_text": "@[grind =]\ntheorem card_sdiff_of_subset (h : s ⊆ t) : #(t \\ s) = #t - #s := by\n  suffices #(t \\ s) = #(t \\ s ∪ s) - #s by rwa [sdiff_union_of_subset h] at this\n  rw [card_union_of_disjoint sdiff_disjoint, Nat.add_sub_cancel_right]",
+        "docstring": null
+      },
+      {
+        "id": 202376,
+        "name": "Finset.card_bij",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L340-L363",
+        "source_text": "/-- Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.card_nbij` is that the bijection is allowed to use membership of the\ndomain, rather than being a non-dependent function. -/\nlemma card_bij (i : ∀ a ∈ s, β) (hi : ∀ a ha, i a ha ∈ t)\n    (i_inj : ∀ a₁ ha₁ a₂ ha₂, i a₁ ha₁ = i a₂ ha₂ → a₁ = a₂)\n    (i_surj : ∀ b ∈ t, ∃ a ha, i a ha = b) : #s = #t := by\n  classical\n  calc\n    #s = #s.attach := card_attach.symm\n    _ = #(s.attach.image fun a ↦ i a.1 a.2) := Eq.symm ?_\n    _ = #t := ?_\n  · apply card_image_of_injective\n    intro ⟨_, _⟩ ⟨_, _⟩ h\n    simpa using i_inj _ _ _ _ h\n  · congr 1\n    ext b\n    constructor <;> intro h\n    · obtain ⟨_, _, rfl⟩ := mem_image.1 h; apply hi\n    · obtain ⟨a, ha, rfl⟩ := i_surj b h; exact mem_image.2 ⟨⟨a, ha⟩, by simp⟩\n",
+        "docstring": "Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.card_nbij` is that the bijection is allowed to use membership of the\ndomain, rather than being a non-dependent function. "
+      },
+      {
+        "id": 202306,
+        "name": "Finset.card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+        "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+        "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+      },
+      {
+        "id": 202377,
+        "name": "Finset.card_bij'",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L365-L378",
+        "source_text": "/-- Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij` is that the bijection is specified with an inverse, rather\nthan as a surjective injection.\n\nThe difference with `Finset.card_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains, rather than being non-dependent functions. -/\nlemma card_bij' (i : ∀ a ∈ s, β) (j : ∀ a ∈ t, α) (hi : ∀ a ha, i a ha ∈ t)\n    (hj : ∀ a ha, j a ha ∈ s) (left_inv : ∀ a ha, j (i a ha) (hi a ha) = a)\n    (right_inv : ∀ a ha, i (j a ha) (hj a ha) = a) : #s = #t := by\n  refine card_bij i hi (fun a1 h1 a2 h2 eq ↦ ?_) (fun b hb ↦ ⟨_, hj b hb, right_inv b hb⟩)\n  rw [← left_inv a1 h1, ← left_inv a2 h2]\n  simp only [eq]\n",
+        "docstring": "Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij` is that the bijection is specified with an inverse, rather\nthan as a surjective injection.\n\nThe difference with `Finset.card_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains, rather than being non-dependent functions. "
+      },
+      {
+        "id": 218040,
+        "name": "Set.ncard_diff_add_ncard_of_subset",
+        "module": "Mathlib.Data.Set.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L1056-L1057",
+        "source_text": "@[deprecated (since := \"2026-06-03\")]\nalias ncard_diff_add_ncard_of_subset := ncard_sdiff_add_ncard_of_subset",
+        "docstring": "**Alias** of `Set.ncard_sdiff_add_ncard_of_subset`."
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.ofFn_get Finset.mem_image",
+    "status": "ok",
+    "results": [
+      {
+        "id": 202909,
+        "name": "Finset.image",
+        "module": "Mathlib.Data.Finset.Image",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L277-L279",
+        "source_text": "/-- `image f s` is the forward image of `s` under `f`. -/\ndef image (f : α → β) (s : Finset α) : Finset β :=\n  (s.1.map f).toFinset\n",
+        "docstring": "`image f s` is the forward image of `s` under `f`. "
+      },
+      {
+        "id": 205751,
+        "name": "Fin.univ_image_getElem'",
+        "module": "Mathlib.Data.Fintype.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Basic.lean#L104-L106",
+        "source_text": "@[simp] theorem Fin.univ_image_getElem' [DecidableEq β] (l : List α) (f : α → β) :\n    Finset.univ.image (fun i : Fin l.length => f <| l[(i : Nat)]) = (l.map f).toFinset := by\n  simp only [univ_image_def, List.ofFn_getElem_eq_map]",
+        "docstring": null
+      },
+      {
+        "id": 202913,
+        "name": "Finset.mem_image_of_mem",
+        "module": "Mathlib.Data.Finset.Image",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L295-L296",
+        "source_text": "theorem mem_image_of_mem (f : α → β) {a} (h : a ∈ s) : f a ∈ s.image f :=\n  mem_image.2 ⟨_, h, rfl⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 70959,
+        "name": "Finset.mem_sum_list_ofFn",
+        "module": "Mathlib.Algebra.Group.Pointwise.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/Basic.lean#L878-L878",
+        "source_text": "@[to_additive]\ntheorem mem_prod_list_ofFn {a : α} {s : Fin n → Finset α} :\n    a ∈ (List.ofFn s).prod ↔ ∃ f : ∀ i : Fin n, s i, (List.ofFn fun i => (f i : α)).prod = a := by",
+        "docstring": null
+      },
+      {
+        "id": 70958,
+        "name": "Finset.mem_prod_list_ofFn",
+        "module": "Mathlib.Algebra.Group.Pointwise.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/Basic.lean#L878-L882",
+        "source_text": "@[to_additive]\ntheorem mem_prod_list_ofFn {a : α} {s : Fin n → Finset α} :\n    a ∈ (List.ofFn s).prod ↔ ∃ f : ∀ i : Fin n, s i, (List.ofFn fun i => (f i : α)).prod = a := by\n  rw [← mem_coe, coe_list_prod, List.map_ofFn, Set.mem_prod_list_ofFn]\n  rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.card_union_of_disjoint Nat.add_sub_of_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 202402,
+        "name": "Finset.card_union_of_disjoint",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L577-L577",
+        "source_text": "@[simp] alias ⟨_, card_union_of_disjoint⟩ := card_union_eq_card_add_card",
+        "docstring": "**Alias** of the reverse direction of `Finset.card_union_eq_card_add_card`."
+      },
+      {
+        "id": 218036,
+        "name": "Set.ncard_union_eq",
+        "module": "Mathlib.Data.Set.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L1035-L1038",
+        "source_text": "theorem ncard_union_eq (h : Disjoint s t) (hs : s.Finite := by toFinite_tac)\n    (ht : t.Finite := by toFinite_tac) : (s ∪ t).ncard = s.ncard + t.ncard := by\n  to_encard_tac\n  rw [hs.cast_ncard_eq, ht.cast_ncard_eq, (hs.union ht).cast_ncard_eq, encard_union_eq h]\n",
+        "docstring": null
+      },
+      {
+        "id": 220242,
+        "name": "Set.powersetCard.disjUnion",
+        "module": "Mathlib.Data.Set.PowersetCard",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/PowersetCard.lean#L192-L194",
+        "source_text": "/-- The disjoint union of two `powersetCard`s. -/\ndef disjUnion : powersetCard α (m + n) :=\n  ⟨s.val.disjUnion t hst, by rw [mem_iff, Finset.card_disjUnion, card_eq s, card_eq t]⟩\n",
+        "docstring": "The disjoint union of two `powersetCard`s. "
+      },
+      {
+        "id": 204404,
+        "name": "Finset.disjSum",
+        "module": "Mathlib.Data.Finset.Sum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Sum.lean#L33-L35",
+        "source_text": "/-- Disjoint sum of finsets. -/\ndef disjSum : Finset (α ⊕ β) :=\n  ⟨s.1.disjSum t.1, s.2.disjSum t.2⟩\n",
+        "docstring": "Disjoint sum of finsets. "
+      },
+      {
+        "id": 218106,
+        "name": "Finset.exists_disjoint_union_of_even_card",
+        "module": "Mathlib.Data.Set.Card.Arithmetic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card/Arithmetic.lean#L32-L36",
+        "source_text": "theorem Finset.exists_disjoint_union_of_even_card [DecidableEq α] {s : Finset α} (he : Even #s) :\n    ∃ (t u : Finset α), t ∪ u = s ∧ Disjoint t u ∧ #t = #u :=\n  let ⟨n, hn⟩ := he\n  let ⟨t, ht, ht'⟩ := exists_subset_card_eq (show n ≤ #s by lia)\n  ⟨t, s \\ t, by simp [card_sdiff_of_subset, disjoint_sdiff, *]⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.card_union_of_disjoint Nat.add_sub_of_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389111,
+        "name": "FieldStatistic.ofFinset_union_disjoint",
+        "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L108-L112",
+        "source_text": "lemma ofFinset_union_disjoint (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a b : Finset (Fin φs.length))\n    (h : Disjoint a b) :\n    ofFinset q φs.get a * ofFinset q φs.get b = ofFinset q φs.get (a ∪ b) := by\n  rw [ofFinset_union, Finset.disjoint_iff_inter_eq_empty.mp h]\n  simp\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

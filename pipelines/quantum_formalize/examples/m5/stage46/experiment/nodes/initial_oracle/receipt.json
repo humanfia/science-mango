@@ -1,0 +1,69 @@
+{
+  "id": "initial_oracle",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PhysicalRecovery.initial_oracle",
+    "spec_sha256": "68e39e8b225f74bf77eaae59267e0381071900a0ac47ab1daded1513fb2aa91f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-qyh8o285/attempt-001/Candidate_44bb5f943eb6038a.lean",
+        "target_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-qyh8o285/attempt-001/FrozenTarget_44bb5f943eb6038a.lean",
+        "feedback": "",
+        "target_sha256": "802edbb9298dd19c429c123e04144b00a27f56b98738c2c7652e6665a613ef4e",
+        "target_olean_sha256": "2ebfd0f82bd1d499d2985b191cb2bb068782eacd8339278aeaba0a1901187e09",
+        "source_sha256": "73595e572d6ec276fbdb921e854f9d4f7442e7272d9af93d66a6db03283ca55f",
+        "olean_sha256": "b872d9ee10b7b5c1890a3d0b8540c1a92d0b80a6ce03df2dc2f3f6de42a6c4be",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T10:06:28.761966+00:00",
+    "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-qyh8o285",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-qyh8o285/attempt-001/Candidate_44bb5f943eb6038a.lean",
+    "environment_sha256": "d57919c2ffc2a7035a536368401261bad3d56cf1bcc076eac712e5f249d80e4a",
+    "artifacts": {
+      "state_domains": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalRecovery.state_domains : ∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p := by\n  change ∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p\n  intro N p hN hp\n  simp only [M5.PhysicalRecovery.StateOK,\n    M5.PhysicalRecovery.selectedA, M5.PhysicalRecovery.selectedB,\n    M5.PhysicalRecovery.availableA, M5.PhysicalRecovery.availableB,\n    M5.PhysicalRecovery.selected, M5.PhysicalRecovery.available,\n    Finset.subset_iff, Finset.disjoint_left, Finset.mem_insert,\n    Finset.mem_image, Finset.mem_filter, Finset.mem_range,\n    Finset.mem_singleton]\n  aesop (config := { terminal := false }) <;> omega",
+          "imports": [
+            "M5PhysicalRecovery"
+          ],
+          "name": "M5.PhysicalRecovery.state_domains",
+          "ancestors": [],
+          "spec_sha256": "ad5f66a3f539551dd544e7f44c4e030794e75324694250b36942f98f2c84e672"
+        },
+        "sha256": "30422647eaccb9915ce804a64c53c01588a06ef9b2e5fc5bcbf9d8066a0862e3"
+      },
+      "initial_oracle": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalRecovery.initial_oracle : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.PhysicalRecovery.oracle N w F [] = M5.OrderCount.C N w F := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.PhysicalRecovery.oracle N w F [] = M5.OrderCount.C N w F\n  intro N w F hN hw hF hFd\n  classical\n  have hs (offset : ℕ) : M5.PhysicalRecovery.selected N offset [] = {0} := by\n    simp [M5.PhysicalRecovery.selected]\n  have ha (offset : ℕ) : M5.PhysicalRecovery.available N offset [] = M5.OrderCount.positivePositions N := by\n    ext i\n    simp [M5.PhysicalRecovery.available, M5.OrderCount.positivePositions]\n    constructor\n    · aesop (config := { terminal := false }) <;> omega\n    · intro hi\n      first\n      | omega\n      | exact ⟨i - 1, by omega, by omega⟩\n  have hprefix : M5.ConditionalCount.PrefixOK N w {0} {0}\n      (M5.OrderCount.positivePositions N) (M5.OrderCount.positivePositions N) := by\n    simp [M5.ConditionalCount.PrefixOK, M5.OrderCount.positivePositions,\n      Finset.subset_iff, Finset.disjoint_left]\n    aesop (config := { terminal := false }) <;> omega\n  have hc := M5.ConditionalCount.exact_completion_C N w F {0} {0}\n    (M5.OrderCount.positivePositions N) (M5.OrderCount.positivePositions N)\n    hN hF hFd hprefix\n  have hp := M5.OrderCount.exact_C N w F hN hw hF hFd\n  have he : M5.ConditionalCount.validCompletions N w F {0} {0}\n      (M5.OrderCount.positivePositions N) (M5.OrderCount.positivePositions N) =\n      M5.OrderCount.validPairs N w F := by\n    ext UV\n    simp [M5.ConditionalCount.validCompletions, M5.OrderCount.validPairs,\n      Finset.singleton_union]\n    intro hU hcU hV hcV\n    have h0U : 0 ∉ UV.1 := by\n      intro hz\n      have hz' := hU hz\n      simp [M5.OrderCount.positivePositions] at hz'\n    have h0V : 0 ∉ UV.2 := by\n      intro hz\n      have hz' := hV hz\n      simp [M5.OrderCount.positivePositions] at hz'\n    have cU : (insert 0 UV.1).card = w := by\n      rw [Finset.card_insert_of_notMem h0U, hcU]\n      omega\n    have cV : (insert 0 UV.2).card = w := by\n      rw [Finset.card_insert_of_notMem h0V, hcV]\n      omega\n    simp [cU,cV]\n  simpa [M5.PhysicalRecovery.oracle, M5.PhysicalRecovery.selectedA,\n    M5.PhysicalRecovery.selectedB, M5.PhysicalRecovery.availableA,\n    M5.PhysicalRecovery.availableB, hs, ha, he, hp, hw, hN] using hc",
+          "imports": [
+            "M5PhysicalRecovery"
+          ],
+          "name": "M5.PhysicalRecovery.initial_oracle",
+          "ancestors": [
+            "state_domains"
+          ],
+          "spec_sha256": "540984fca6450d460ad5df0e111141d55d8645d325cf77b2b82d154578477b19"
+        },
+        "sha256": "c91d799fda07d216fcc1aaefe026186576d57eafcb12d95a46f674411270b54f"
+      }
+    }
+  }
+}

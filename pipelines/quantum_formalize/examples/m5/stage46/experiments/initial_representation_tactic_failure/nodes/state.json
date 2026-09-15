@@ -1,0 +1,508 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T10:03:12.868465+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "decode_encode": {
+      "id": "decode_encode",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PhysicalRecovery.decode_encode",
+        "spec_sha256": "a274cf62b6b833e418e0bcf37d0258e35cfe52d7de2f8d80804050c95463c90d",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-nbkhrtfg/attempt-001/Candidate_ff01c73637f31153.lean:17:27: error: Application type mismatch: The argument\n  hpi\nhas type\n  offset + i < p.length ∧ p[offset + i]? = some true\nbut is expected to have type\n  p[offset + i]? = some true\nin the application\n  (hp i hi).mp hpi\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-nbkhrtfg/attempt-001/Candidate_ff01c73637f31153.lean:26:8: error: Tactic `apply` failed: could not unify the conclusion of `(hp (s - 1) hi).mpr`\n  p[offset + (s - 1)]? = some true\nwith the goal\n  offset + (s - 1) < p.length ∧ p[offset + (s - 1)]? = some true\n\nNote: The full type of `(hp (s - 1) hi).mpr` is\n  s - 1 + 1 ∈ S → p[offset + (s - 1)]? = some true\n\ncase neg\nN : ℕ\nA B : Finset ℕ\nhN : 0 < N\nhA : A ⊆ Finset.range N\nhB : B ⊆ Finset.range N\nhA0 : 0 ∈ A\nhB0 : 0 ∈ B\noffset : ℕ\np : List Bool\nS : Finset ℕ\nhS : S ⊆ Finset.range N\nhS0 : 0 ∈ S\nhp : ∀ i < N - 1, p[offset + i]? = some true ↔ i + 1 ∈ S\ns : ℕ\nhs : s ∈ S\nhs0 : ¬s = 0\nhsN : s < N\nhi : s - 1 < N - 1\nhe : s - 1 + 1 = s\n⊢ offset + (s - 1) < p.length ∧ p[offset + (s - 1)]? = some true\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-nbkhrtfg/attempt-001/Candidate_ff01c73637f31153.lean:35:38: warning: This simp argument is unused:\n  List.getElem?_ofFn\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PhysicalRecovery.encode, hi, hit]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-nbkhrtfg/attempt-001/Candidate_ff01c73637f31153.lean:43:38: warning: This simp argument is unused:\n  List.getElem?_ofFn\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PhysicalRecovery.encode, hit, hnot]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-nbkhrtfg/attempt-002/Candidate_e784d337373f013c.lean",
+            "target_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-nbkhrtfg/attempt-002/FrozenTarget_e784d337373f013c.lean",
+            "feedback": "",
+            "target_sha256": "c2cd9a3d430a6f6fbe50ac7b0c42c388c0b3beb3d3e2cf2368aa0bb3e25eb3aa",
+            "target_olean_sha256": "03e59d65f4187bf0fe9fba68d54fa4add392f63090351c7169e14304bc4f4808",
+            "source_sha256": "1f7f1d7bf4d54a6e2b037d7d53975df595d3c26bc96f819d5395827f7c9492d5",
+            "olean_sha256": "345af4e08813031eb237cd11ab8afe962f0249ec2a99cf4efb8435cfde132af8",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T09:39:17.108472+00:00",
+        "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-nbkhrtfg",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-nbkhrtfg/attempt-002/Candidate_e784d337373f013c.lean",
+        "environment_sha256": "d57919c2ffc2a7035a536368401261bad3d56cf1bcc076eac712e5f249d80e4a",
+        "artifacts": {
+          "decode_encode": {
+            "payload": {
+              "declaration": "theorem M5.PhysicalRecovery.decode_encode : ∀ (N : ℕ) (A B : Finset ℕ), 0 < N → A ⊆ Finset.range N → B ⊆ Finset.range N → 0 ∈ A → 0 ∈ B → (M5.PhysicalRecovery.selectedA N (M5.PhysicalRecovery.encode N A B) = A ∧ M5.PhysicalRecovery.selectedB N (M5.PhysicalRecovery.encode N A B) = B) := by\n  classical\n  intro N A B hN hA hB hA0 hB0\n  have decode_block (offset : ℕ) (p : List Bool) (S : Finset ℕ)\n      (hS : S ⊆ Finset.range N) (hS0 : 0 ∈ S)\n      (hp : ∀ i < N - 1,\n        (offset + i < p.length ∧ p[offset + i]? = some true) ↔ i + 1 ∈ S) :\n      M5.PhysicalRecovery.selected N offset p = S := by\n    ext s\n    simp only [M5.PhysicalRecovery.selected, Finset.mem_insert,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range]\n    constructor\n    · intro hs\n      rcases hs with hs | ⟨i, ⟨hi, hpi⟩, his⟩\n      · subst s\n        exact hS0\n      · have hm := (hp i hi).mp hpi\n        simpa only [his] using hm\n    · intro hs\n      by_cases hs0 : s = 0\n      · exact Or.inl hs0\n      · right\n        have hsN : s < N := Finset.mem_range.mp (hS hs)\n        have hi : s - 1 < N - 1 := by omega\n        have he : s - 1 + 1 = s := by omega\n        refine ⟨s - 1, ⟨hi, ?_⟩, he⟩\n        apply (hp (s - 1) hi).mpr\n        simpa only [he] using hs\n  constructor\n  · change M5.PhysicalRecovery.selected N 0 (M5.PhysicalRecovery.encode N A B) = A\n    apply decode_block 0 (M5.PhysicalRecovery.encode N A B) A hA hA0\n    intro i hi\n    have hit : i < 2 * (N - 1) := by omega\n    simp [M5.PhysicalRecovery.encode, M5.PhysicalRecovery.decisionCount, hi, hit]\n  · change M5.PhysicalRecovery.selected N (N - 1) (M5.PhysicalRecovery.encode N A B) = B\n    apply decode_block (N - 1) (M5.PhysicalRecovery.encode N A B) B hB hB0\n    intro i hi\n    have hit : N - 1 + i < 2 * (N - 1) := by omega\n    have hnot : ¬ N - 1 + i < N - 1 := by omega\n    simp [M5.PhysicalRecovery.encode, M5.PhysicalRecovery.decisionCount, hit, hnot]",
+              "imports": [
+                "M5PhysicalRecovery"
+              ],
+              "name": "M5.PhysicalRecovery.decode_encode",
+              "ancestors": [],
+              "spec_sha256": "a274cf62b6b833e418e0bcf37d0258e35cfe52d7de2f8d80804050c95463c90d"
+            },
+            "sha256": "4292becbbb7681f81fbb0b25f1895146fbd34cbd64c2390fb8532bc9ca842d08"
+          }
+        }
+      }
+    },
+    "encode_decode": {
+      "id": "encode_decode",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PhysicalRecovery.encode_decode",
+        "spec_sha256": "52e5580263a7d7032e5af58b04874b6dcbc368e6e76b30e148473490b8001e43",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-001/Candidate_82ebe46c1bceea0d.lean:18:6: error: Type mismatch: After simplification, term\n  hmem 0 i hleft (Eq.mpr (id (congrFun' (congrArg LT.lt (zero_add i)) q.length)) hiq)\n has type\n  @Eq Bool (decide (i + 1 ∈ selected N 0 q)) q[i]\nbut is expected to have type\n  @Eq Bool (decide (i + 1 ∈ selected N 0 q)) q[i]\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-001/Candidate_82ebe46c1bceea0d.lean:24:6: error: Type mismatch: After simplification, term\n  hmem (N - 1) (i - (N - 1)) hj (Decidable.byContradiction fun a => encode_decode._proof_1_8 N q hq i hiq he a)\n has type\n  @Eq Bool (decide (i - (N - 1) + 1 ∈ selected N (N - 1) q)) q[i]\nbut is expected to have type\n  @Eq Bool (decide (i - (N - 1) + 1 ∈ selected N (N - 1) q)) q[i]\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-001/Candidate_82ebe46c1bceea0d.lean:9:60: warning: This simp argument is unused:\n  List.getD\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PhysicalRecovery.selected, Finset.mem_image, List.getElem?_eq_getElem, Nat.add_comm, hj, hjq, hb]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-001/Candidate_82ebe46c1bceea0d.lean:10:8: warning: This simp argument is unused:\n  List.getElem?_eq_getElem\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PhysicalRecovery.selected, Finset.mem_image, List.getD, Nat.add_comm, hj, hjq, hb]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-001/Candidate_82ebe46c1bceea0d.lean:10:34: warning: This simp argument is unused:\n  Nat.add_comm\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PhysicalRecovery.selected, Finset.mem_image, List.getD, List.getElem?_eq_getElem, hj, hjq, hb]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-002/Candidate_0f7c4c3aa3432b73.lean:18:8: error: Type mismatch: After simplification, term\n  hm\n has type\n  i + 1 ∉ selected N 0 q\nbut is expected to have type\n  decide (i + 1 ∈ selected N 0 q) = false\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-002/Candidate_0f7c4c3aa3432b73.lean:18:8: error: Type mismatch: After simplification, term\n  hm\n has type\n  i + 1 ∈ selected N 0 q\nbut is expected to have type\n  decide (i + 1 ∈ selected N 0 q) = true\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-002/Candidate_0f7c4c3aa3432b73.lean:24:8: error: Type mismatch: After simplification, term\n  hm\n has type\n  i - (N - 1) + 1 ∉ selected N (N - 1) q\nbut is expected to have type\n  decide (i - (N - 1) + 1 ∈ selected N (N - 1) q) = false\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-002/Candidate_0f7c4c3aa3432b73.lean:24:8: error: Type mismatch: After simplification, term\n  hm\n has type\n  i - (N - 1) + 1 ∈ selected N (N - 1) q\nbut is expected to have type\n  decide (i - (N - 1) + 1 ∈ selected N (N - 1) q) = true\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-002/Candidate_0f7c4c3aa3432b73.lean:8:60: warning: This simp argument is unused:\n  List.getD\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PhysicalRecovery.selected, Finset.mem_image, List.getElem?_eq_getElem, Nat.add_comm, hj, hjq, hb]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-002/Candidate_0f7c4c3aa3432b73.lean:9:8: warning: This simp argument is unused:\n  List.getElem?_eq_getElem\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PhysicalRecovery.selected, Finset.mem_image, List.getD, Nat.add_comm, hj, hjq, hb]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-002/Candidate_0f7c4c3aa3432b73.lean:9:34: warning: This simp argument is unused:\n  Nat.add_comm\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PhysicalRecovery.selected, Finset.mem_image, List.getD, List.getElem?_eq_getElem, hj, hjq, hb]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-003/Candidate_8444ebe6b3d7e3b4.lean",
+            "target_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-003/FrozenTarget_8444ebe6b3d7e3b4.lean",
+            "feedback": "",
+            "target_sha256": "d22e6354a68c57763738e7233b299feaa5403b1280b18de859e81fec5606530b",
+            "target_olean_sha256": "c79f4e3c96df1318a27489f4587e50264ba37a6c66f60bee124f072971758687",
+            "source_sha256": "c8d80018c463f7f0e0d8a9a3da34a0935071cf09cf761ac1460eedeb13fe5bf1",
+            "olean_sha256": "1a45c60b997ba3aa0835fe690f912c081390a6c8fca1927c78eee8f10d8b48fa",
+            "attempt": 3
+          }
+        ],
+        "created_at": "2026-09-15T09:39:17.191767+00:00",
+        "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+        "phase": "finished",
+        "round": 3,
+        "proof": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-ygyq41jy/attempt-003/Candidate_8444ebe6b3d7e3b4.lean",
+        "environment_sha256": "d57919c2ffc2a7035a536368401261bad3d56cf1bcc076eac712e5f249d80e4a",
+        "artifacts": {
+          "encode_decode": {
+            "payload": {
+              "declaration": "theorem M5.PhysicalRecovery.encode_decode : ∀ (N : ℕ) (q : List Bool), 0 < N → q.length = M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.encode N (M5.PhysicalRecovery.selectedA N q) (M5.PhysicalRecovery.selectedB N q) = q := by\n  change ∀ (N : ℕ) (q : List Bool), 0 < N → q.length = M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.encode N (M5.PhysicalRecovery.selectedA N q) (M5.PhysicalRecovery.selectedB N q) = q\n  intro N q hN hq\n  have hmem (offset j : ℕ) (hj : j < N - 1) (hjq : offset + j < q.length) :\n      (j + 1 ∈ M5.PhysicalRecovery.selected N offset q) ↔ q[offset + j] = true := by\n    cases hb : q[offset + j] <;>\n      simp [M5.PhysicalRecovery.selected, Finset.mem_image, List.getD,\n        List.getElem?_eq_getElem, Nat.add_comm, hj, hjq, hb]\n  apply List.ext_getElem\n  · simpa [M5.PhysicalRecovery.encode] using hq.symm\n  · intro i hi hiq\n    have hic : i < M5.PhysicalRecovery.decisionCount N := by omega\n    have hib : i < 2 * (N - 1) := by\n      simpa [M5.PhysicalRecovery.decisionCount] using hic\n    by_cases hfirst : i < N - 1\n    · have hm := hmem 0 i hfirst (by omega)\n      simp only [Nat.zero_add] at hm\n      cases hb : q[i] <;>\n        simp [hb] at hm <;>\n        simp [M5.PhysicalRecovery.encode, M5.PhysicalRecovery.selectedA,\n          hfirst, hm, hb]\n    · have hj : i - (N - 1) < N - 1 := by omega\n      have hoff : N - 1 + (i - (N - 1)) = i := by omega\n      have hm := hmem (N - 1) (i - (N - 1)) hj (by omega)\n      simp only [hoff] at hm\n      cases hb : q[i] <;>\n        simp [hb] at hm <;>\n        simp [M5.PhysicalRecovery.encode, M5.PhysicalRecovery.selectedB,\n          hfirst, hm, hb]",
+              "imports": [
+                "M5PhysicalRecovery"
+              ],
+              "name": "M5.PhysicalRecovery.encode_decode",
+              "ancestors": [],
+              "spec_sha256": "52e5580263a7d7032e5af58b04874b6dcbc368e6e76b30e148473490b8001e43"
+            },
+            "sha256": "8c589ca6ee932d56bc73da1b016fe3c94d59a79e2109fcb4b180c84284bd4b76"
+          }
+        }
+      }
+    },
+    "prefix_extension": {
+      "id": "prefix_extension",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PhysicalRecovery.prefix_extension",
+        "spec_sha256": "66f338c2fd0a752d4582542ae954f7b92fbc814488f8b8746c287a5210773e2c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "_3 :\n  ¬∀ (a x : ℕ),\n      x + 1 ≤ N - 1 →\n        ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n          q[x + (N - 1)] = true →\n            x + 1 = a →\n              a = 0 ∨\n                ∃ a_5,\n                  a_5 + 1 ≤ N - 1 ∧ a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a\nw : ℕ\nh_5 :\n  ¬∀ (x : ℕ),\n      x + 1 ≤ N - 1 →\n        ∀ (a : x + (N - 1) + 1 ≤ p.length),\n          q[x + (N - 1)] = true →\n            x + 1 = w →\n              w = 0 ∨ ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w\nw_1 : ℕ\nh_7 :\n  ¬(w_1 + 1 ≤ N - 1 →\n      ∀ (a : w_1 + (N - 1) + 1 ≤ p.length),\n        q[w_1 + (N - 1)] = true →\n          w_1 + 1 = w →\n            w = 0 ∨ ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w)\nw_2 : w_1 + (N - 1) + 1 ≤ p.length\nh_9 :\n  ¬(q[w_1 + (N - 1)] = true →\n      w_1 + 1 = w →\n        w = 0 ∨ ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w)\n⊢ False\n[grind] Goal diagnostics\n  [facts] Asserted facts\n    [prop] 1 ≤ N\n    [prop] p.length ≤ decisionCount N\n    [prop] q.length = decisionCount N\n    [prop] p <+: q\n    [prop] ∀ (i : ℕ) (hi : i + 1 ≤ p.length), p[i] = q[i]\n    [prop] (¬∀ (a x : ℕ),\n              x + 1 ≤ N - 1 →\n                ∀ (a_2 : x + 1 ≤ decisionCount N),\n                  q[x] = true →\n                    x + 1 = a →\n                      a = 0 ∨\n                        (∃ a_5, a_5 + 1 ≤ N - 1 ∧ a_5 + 1 ≤ p.length ∧ p[a_5]? = some true ∧ a_5 + 1 = a) ∨\n                          ∃ a_5, a_5 + 1 ≤ N - 1 ∧ p.length ≤ a_5 ∧ a_5 + 1 = a) ∨\n          (¬∀ (a x : ℕ),\n                x + 1 ≤ N - 1 →\n                  ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n                    q[x + (N - 1)] = true →\n                      x + 1 = a →\n                        a = 0 ∨\n                          ∃ a_5,\n                            a_5 + 1 ≤ N - 1 ∧\n                              a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n            ¬∀ (a x : ℕ),\n                x + 1 ≤ N - 1 →\n                  ∀ (a_2 : x + (N - 1) + 1 ≤ decisionCount N),\n                    q[x + (N - 1)] = true →\n                      x + 1 = a →\n                        a = 0 ∨\n                          (∃ a_5,\n                              a_5 + 1 ≤ N - 1 ∧\n                                a_5 + (N - 1) + 1 ≤ p.length ∧ p[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n                            ∃ a_5, a_5 + 1 ≤ N - 1 ∧ p.length ≤ a_5 + (N - 1) ∧ a_5 + 1 = a\n    [prop] p <+: q → p.length ≤ q.length\n    [prop] (¬∀ (a x : ℕ),\n              x + 1 ≤ N - 1 →\n                ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n                  q[x + (N - 1)] = true →\n                    x + 1 = a →\n                      a = 0 ∨\n                        ∃ a_5,\n                          a_5 + 1 ≤ N - 1 ∧\n                            a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n          ¬∀ (a x : ℕ),\n              x + 1 ≤ N - 1 →\n                ∀ (a_2 : x + (N - 1) + 1 ≤ decisionCount N),\n                  q[x + (N - 1)] = true →\n                    x + 1 = a →\n                      a = 0 ∨\n                        (∃ a_5,\n                            a_5 + 1 ≤ N - 1 ∧\n                              a_5 + (N - 1) + 1 ≤ p.length ∧ p[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n                          ∃ a_5, a_5 + 1 ≤ N - 1 ∧ p.length ≤ a_5 + (N - 1) ∧ a_5 + 1 = a\n    [prop] ¬∀ (a x : ℕ),\n            x + 1 ≤ N - 1 →\n              ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n                q[x + (N - 1)] = true →\n                  x + 1 = a →\n                    a = 0 ∨\n                      ∃ a_5,\n                        a_5 + 1 ≤ N - 1 ∧\n                          a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a\n    [prop] ¬∀ (x : ℕ),\n            x + 1 ≤ N - 1 →\n              ∀ (a : x + (N - 1) + 1 ≤ p.length),\n                q[x + (N - 1)] = true →\n                  x + 1 = w →\n                    w = 0 ∨\n                      ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w\n    [prop] ¬(w_1 + 1 ≤ N - 1 →\n            ∀ (a : w_1 + (N - 1) + 1 ≤ p.length),\n              q[w_1 + (N - 1)] = true →\n                w_1 + 1 = w →\n                  w = 0 ∨\n                    ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w)\n    [prop] ↑(N - 1) = if -1 * ↑N + 1 ≤ 0 then ↑N + -1 else 0\n    [prop] w_1 + (N - 1) + 1 ≤ p.length\n    [prop] ¬(q[w_1 + (N - 1)] = true →\n            w_1 + 1 = w →\n              w = 0 ∨ ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w)\n    [prop] ∀ (x : ℕ), N - 1 ≤ x ∨ decisionCount N ≤ x + (N - 1) ∨ ¬q[x + (N - 1)]? = some true ∨ ¬x + 1 = w\n    [prop] ∀ (hi : w_1 + (N - 1) + 1 ≤ p.length), p[w_1 + (N - 1)] = q[w_1 + (N - 1)]\n  [eqc] True propositions\n    [prop] ¬∀ (a x : ℕ),\n            x + 1 ≤ N - 1 →\n              ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n                q[x + (N - 1)] = true →\n                  x + 1 = a →\n                    a = 0 ∨\n                      ∃ a_5,\n                        a_5 + 1 ≤ N - 1 ∧\n                          a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a\n    [prop] (¬∀ (a x : ℕ),\n              x + 1 ≤ N - 1 →\n                ∀ (a_2 : x + 1 ≤ decisionCount N),\n                  q[x] = true →\n                    x + 1 = a →\n                      a = 0 ∨\n                        (∃ a_5, a_5 + 1 ≤ N - 1 ∧ a_5 + 1 ≤ p.length ∧ p[a_5]? = some true ∧ a_5 + 1 = a) ∨\n                          ∃ a_5, a_5 + 1 ≤ N - 1 ∧ p.length ≤ a_5 ∧ a_5 + 1 = a) ∨\n          (¬∀ (a x : ℕ),\n                x + 1 ≤ N - 1 →\n                  ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n                    q[x + (N - 1)] = true →\n                      x + 1 = a →\n                        a = 0 ∨\n                          ∃ a_5,\n                            a_5 + 1 ≤ N - 1 ∧\n                              a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n            ¬∀ (a x : ℕ),\n                x + 1 ≤ N - 1 →\n                  ∀ (a_2 : x + (N - 1) + 1 ≤ decisionCount N),\n                    q[x + (N - 1)] = true →\n                      x + 1 = a →\n                        a = 0 ∨\n                          (∃ a_5,\n                              a_5 + 1 ≤ N - 1 ∧\n                                a_5 + (N - 1) + 1 ≤ p.length ∧ p[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n                            ∃ a_5, a_5 + 1 ≤ N - 1 ∧ p.length ≤ a_5 + (N - 1) ∧ a_5 + 1 = a\n    [prop] (¬∀ (a x : ℕ),\n              x + 1 ≤ N - 1 →\n                ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n                  q[x + (N - 1)] = true →\n                    x + 1 = a →\n                      a = 0 ∨\n                        ∃ a_5,\n                          a_5 + 1 ≤ N - 1 ∧\n                            a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n          ¬∀ (a x : ℕ),\n              x + 1 ≤ N - 1 →\n                ∀ (a_2 : x + (N - 1) + 1 ≤ decisionCount N),\n                  q[x + (N - 1)] = true →\n                    x + 1 = a →\n                      a = 0 ∨\n                        (∃ a_5,\n                            a_5 + 1 ≤ N - 1 ∧\n                              a_5 + (N - 1) + 1 ≤ p.length ∧ p[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n                          ∃ a_5, a_5 + 1 ≤ N - 1 ∧ p.length ≤ a_5 + (N - 1) ∧ a_5 + 1 = a\n    [prop] q[w_1 + (N - 1)] = true\n    [prop] w_1 + 1 = w\n    [prop] p <+: q\n    [prop] -1 * ↑N + 1 ≤ 0\n    [prop] p.length ≤ decisionCount N\n    [prop] 1 ≤ N\n    [prop] w_1 + 1 ≤ N - 1\n    [prop] w_1 + (N - 1) + 1 ≤ p.length\n    [prop] w_1 + (N - 1) < q.length\n    [prop] ∀ (x : ℕ), N - 1 ≤ x ∨ decisionCount N ≤ x + (N - 1) ∨ ¬q[x + (N - 1)]? = some true ∨ ¬x + 1 = w\n    [prop] ∀ (i : ℕ) (hi : i + 1 ≤ p.length), p[i] = q[i]\n    [prop] p[w_1 + (N - 1)] = q[w_1 + (N - 1)]\n    [prop] p.length ≤ q.length\n    [prop] w_1 + (N - 1) < p.length\n    [prop] p <+: q → p.length ≤ q.length\n    [prop] ∀ (hi : w_1 + (N - 1) + 1 ≤ p.length), p[w_1 + (N - 1)] = q[w_1 + (N - 1)]\n  [eqc] False propositions\n    [prop] ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w\n    [prop] w = 0 ∨ ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w\n    [prop] w = 0\n    [prop] ∀ (a x : ℕ),\n          x + 1 ≤ N - 1 →\n            ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n              q[x + (N - 1)] = true →\n                x + 1 = a →\n                  a = 0 ∨\n                    ∃ a_5,\n                      a_5 + 1 ≤ N - 1 ∧\n                        a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a\n    [prop] ∀ (x : ℕ),\n          x + 1 ≤ N - 1 →\n            ∀ (a : x + (N - 1) + 1 ≤ p.length),\n              q[x + (N - 1)] = true →\n                x + 1 = w →\n                  w = 0 ∨\n                    ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w\n    [prop] q[w_1 + (N - 1)] = true →\n          w_1 + 1 = w →\n            w = 0 ∨ ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w\n    [prop] w_1 + 1 = w →\n          w = 0 ∨ ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w\n    [prop] w_1 + 1 ≤ N - 1 →\n          ∀ (a : w_1 + (N - 1) + 1 ≤ p.length),\n            q[w_1 + (N - 1)] = true →\n              w_1 + 1 = w →\n                w = 0 ∨ ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w\n    [prop] ∀ (a : w_1 + (N - 1) + 1 ≤ p.length),\n          q[w_1 + (N - 1)] = true →\n            w_1 + 1 = w →\n              w = 0 ∨ ∃ a, a + 1 ≤ N - 1 ∧ a + (N - 1) + 1 ≤ decisionCount N ∧ q[a + (N - 1)]? = some true ∧ a + 1 = w\n  [eqc] Equivalence classes\n    [eqc] {w, w_1 + 1}\n    [eqc] {true, q[w_1 + (N - 1)], p[w_1 + (N - 1)]}\n    [eqc] {decisionCount N, q.length}\n    [eqc] others\n      [eqc] {↑(decisionCount N), ↑q.length}\n      [eqc] {↑(N - 1), if -1 * ↑N + 1 ≤ 0 then ↑N + -1 else 0, ↑N + -1}\n  [cases] Case analyses\n    [cases] [2/2]: (¬∀ (a x : ℕ),\n              x + 1 ≤ N - 1 →\n                ∀ (a_2 : x + 1 ≤ decisionCount N),\n                  q[x] = true →\n                    x + 1 = a →\n                      a = 0 ∨\n                        (∃ a_5, a_5 + 1 ≤ N - 1 ∧ a_5 + 1 ≤ p.length ∧ p[a_5]? = some true ∧ a_5 + 1 = a) ∨\n                          ∃ a_5, a_5 + 1 ≤ N - 1 ∧ p.length ≤ a_5 ∧ a_5 + 1 = a) ∨\n          (¬∀ (a x : ℕ),\n                x + 1 ≤ N - 1 →\n                  ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n                    q[x + (N - 1)] = true →\n                      x + 1 = a →\n                        a = 0 ∨\n                          ∃ a_5,\n                            a_5 + 1 ≤ N - 1 ∧\n                              a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n            ¬∀ (a x : ℕ),\n                x + 1 ≤ N - 1 →\n                  ∀ (a_2 : x + (N - 1) + 1 ≤ decisionCount N),\n                    q[x + (N - 1)] = true →\n                      x + 1 = a →\n                        a = 0 ∨\n                          (∃ a_5,\n                              a_5 + 1 ≤ N - 1 ∧\n                                a_5 + (N - 1) + 1 ≤ p.length ∧ p[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n                            ∃ a_5, a_5 + 1 ≤ N - 1 ∧ p.length ≤ a_5 + (N - 1) ∧ a_5 + 1 = a\n      [cases] source: Initial goal\n    [cases] [1/2]: (¬∀ (a x : ℕ),\n              x + 1 ≤ N - 1 →\n                ∀ (a_2 : x + (N - 1) + 1 ≤ p.length),\n                  q[x + (N - 1)] = true →\n                    x + 1 = a →\n                      a = 0 ∨\n                        ∃ a_5,\n                          a_5 + 1 ≤ N - 1 ∧\n                            a_5 + (N - 1) + 1 ≤ decisionCount N ∧ q[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n          ¬∀ (a x : ℕ),\n              x + 1 ≤ N - 1 →\n                ∀ (a_2 : x + (N - 1) + 1 ≤ decisionCount N),\n                  q[x + (N - 1)] = true →\n                    x + 1 = a →\n                      a = 0 ∨\n                        (∃ a_5,\n                            a_5 + 1 ≤ N - 1 ∧\n                              a_5 + (N - 1) + 1 ≤ p.length ∧ p[a_5 + (N - 1)]? = some true ∧ a_5 + 1 = a) ∨\n                          ∃ a_5, a_5 + 1 ≤ N - 1 ∧ p.length ≤ a_5 + (N - 1) ∧ a_5 + 1 = a\n      [cases] source: Initial goal\n  [ematch] E-matching patterns\n    [thm] Set.subset_def: [@LE.le _ _ #1 #0]\n    [thm] List.eq_nil_of_length_eq_zero: [@List.length #2 #1]\n    [thm] List.IsPrefix.length_le: [@List.IsPrefix #3 #2 #1, @List.length _ #1]\n    [thm] List.IsPrefix.length_le: [@List.IsPrefix #3 #2 #1, @List.length _ #2]\n    [thm] List.IsPrefix.trans: [@List.IsPrefix #5 #4 #3, @List.IsPrefix _ #3 #2]\n    [thm] List.prefix_rfl: [@List.IsPrefix #1 #0 #0]\n    [thm] h: [@LE.le `[ℕ] `[instLENat] (@HAdd.hAdd `[ℕ] `[ℕ] `[ℕ] `[instHAdd] #1 `[1]) `[p.length]]\n    [thm] h: [@getElem `[List Bool] `[ℕ] `[Bool] `[fun as i => i < as.length] `[List.instGetElemNatLtLength] `[p] #1 _]\n    [thm] h: [@getElem `[List Bool] `[ℕ] `[Bool] `[fun as i => i < as.length] `[List.instGetElemNatLtLength] `[q] #1 _]\n    [thm] h: [@LE.le `[ℕ] `[instLENat] (#1 + 1) `[p.length]]\n    [thm] List.Nodup.getElem_inj: [@getElem (List #6) `[ℕ] _ _ _ #3 #5 #1, @getElem (List _) `[ℕ] _ _ _ #3 #4 #0]\n    [thm] Set.ssubset_def: [@LT.lt _ _ #1 #0]\n    [thm] local_0: [@LE.le `[ℕ] `[instLENat] `[N - 1] #0]\n    [thm] local_0: [@LE.le `[ℕ] `[instLENat] `[decisionCount N] (@HAdd.hAdd `[ℕ] `[ℕ] `[ℕ] `[instHAdd] #0 `[N - 1])]\n    [thm] local_0: [@getElem? `[List\n           Bool] `[ℕ] `[Bool] `[fun as i =>\n           i < as.length] `[List.instGetElem?NatLtLength] `[q] (@HAdd.hAdd `[ℕ] `[ℕ] `[ℕ] `[instHAdd] #0 `[N - 1])]\n  [cutsat] Assignment satisfying linear constraints\n    [assign] N := 2\n    [assign] w := 1\n    [assign] w_1 := 0\n    [assign] decisionCount N := 2\n    [assign] p.length := 2\n    [assign] q.length := 2\n  [ring] Rings\n    [ring] Ring `ℤ`\n      [basis] Basis\n        [_] ↑N + -1 * ↑(N - 1) + -1 = 0\n        [_] ↑(decisionCount N) + -1 * ↑q.length = 0\n    [ring] Ring `Lean.Grind.Ring.OfSemiring.Q ℕ`\n      [diseqs] Disequalities\n        [_] ¬↑w_1 + 1 = 0\n[grind] Diagnostics\n  [thm] E-Matching instances\n    [thm] List.Nodup.getElem_inj ↦ 4\n    [thm] h ↦ 3\n    [thm] getElem?_neg ↦ 2\n    [thm] getElem?_pos ↦ 2\n    [thm] local_0 ↦ 2\n    [thm] local_1 ↦ 2\n    [thm] List.getElem?_eq_none ↦ 1\n    [thm] List.IsPrefix.length_le ↦ 1\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-001/Candidate_9b92ddfa9a35954f.lean:41:43: error: Type mismatch\n  i + 1\nhas type\n  ℕ\nof sort `Type` but is expected to have type\n  ?m.232 ∈ selectedA N p\nof sort `Prop`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-001/Candidate_9b92ddfa9a35954f.lean:53:46: error: Application type mismatch: The argument\n  s\nhas type\n  ℕ\nof sort `Type` but is expected to have type\n  ?m.347 ∈ selectedB N p\nof sort `Prop` in the application\n  Finset.subset_iff.mp h.right.right.left s\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-001/Candidate_9b92ddfa9a35954f.lean:24:12: warning: This simp argument is unused:\n  List.getElem?_eq_getElem\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hi, hqi, h i hi]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-001/Candidate_9b92ddfa9a35954f.lean:28:6: warning: This simp argument is unused:\n  M5.OrderCount.positivePositions\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M5.PhysicalRecovery.selectedA, M5.PhysicalRecovery.selectedB, M5.PhysicalRecovery.availableA,\n    M5.PhysicalRecovery.availableB, M5.PhysicalRecovery.selected, M5.PhysicalRecovery.available, Finset.subset_iff,\n    Finset.mem_union, Finset.mem_insert, Finset.mem_filter, Finset.mem_range] at *\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-001/Candidate_9b92ddfa9a35954f.lean:29:43: warning: This simp argument is unused:\n  Finset.mem_filter\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M5.PhysicalRecovery.selectedA, M5.PhysicalRecovery.selectedB, M5.PhysicalRecovery.availableA,\n    M5.PhysicalRecovery.availableB, M5.PhysicalRecovery.selected, M5.PhysicalRecovery.available,\n    M5.OrderCount.positivePositions, Finset.subset_iff, Finset.mem_union, Finset.mem_insert, Finset.mem_range] at *\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-001/Candidate_9b92ddfa9a35954f.lean:30:6: warning: This simp argument is unused:\n  Finset.mem_range\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M5.PhysicalRecovery.selectedA, M5.PhysicalRecovery.selectedB, M5.PhysicalRecovery.availableA,\n    M5.PhysicalRecovery.availableB, M5.PhysicalRecovery.selected, M5.PhysicalRecovery.available,\n    M5.OrderCount.positivePositions, Finset.subset_iff, Finset.mem_union, Finset.mem_insert, Finset.mem_filter] at *\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-001/Candidate_9b92ddfa9a35954f.lean:33:16: warning: This simp argument is unused:\n  List.getD\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "rd ↦ 1\n    [thm] prefix_of_entries ↦ 1\n    [thm] List.IsPrefix.length_le ↦ 1\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-002/Candidate_e0dea4e4808f0153.lean:77:64: error: `grind` failed\ncase grind.1.1.1.1\nN : ℕ\np q : List Bool\nhN : 0 < N\nhp : p.length ≤ decisionCount N\nhq : q.length = decisionCount N\nhpq : p.length ≤ q.length\nprefix_of_entries : ∀ (a b : List Bool), a.length ≤ b.length → (∀ i < a.length, a[i]? = b[i]?) → a <+: b\nblock_forward :\n  ∀ (offset : ℕ),\n    (∀ i < p.length, p[i]? = q[i]?) →\n      selected N offset p ⊆ selected N offset q ∧ selected N offset q ⊆ selected N offset p ∪ available N offset p\nh :\n  selectedA N p ⊆ selectedA N q ∧\n    selectedA N q ⊆ selectedA N p ∪ availableA N p ∧\n      selectedB N p ⊆ selectedB N q ∧ selectedB N q ⊆ selectedB N p ∪ availableB N p\noffset : ℕ\nh₁ : selected N offset p ⊆ selected N offset q\nh₂ : selected N offset q ⊆ selected N offset p ∪ available N offset p\ni : ℕ\nhi : i < N - 1\nhip : i + offset < p.length\nhiq : i + offset < q.length\nha :\n  (i + 1 = 0 ∨ ∃ a, (a < N - 1 ∧ offset + a < p.length ∧ p[offset + a]? = some true) ∧ a + 1 = i + 1) →\n    i + 1 = 0 ∨ ∃ a, (a < N - 1 ∧ offset + a < q.length ∧ q[offset + a]? = some true) ∧ a + 1 = i + 1\nhb :\n  (i + 1 = 0 ∨ ∃ a, (a < N - 1 ∧ offset + a < q.length ∧ q[offset + a]? = some true) ∧ a + 1 = i + 1) →\n    (i + 1 = 0 ∨ ∃ a, (a < N - 1 ∧ offset + a < p.length ∧ p[offset + a]? = some true) ∧ a + 1 = i + 1) ∨\n      ∃ a, (a < N - 1 ∧ p.length ≤ offset + a) ∧ a + 1 = i + 1\nhpi : p[i + offset]? = some p[i + offset]\nhqi : q[i + offset]? = some q[i + offset]\nep : p[i + offset] = true\neq : q[i + offset] = false\nh_1 : ¬p[offset + i]? = q[offset + i]?\nw : ℕ\nh_3 : ¬(w + 1 ≤ p.length → p[w]? = q[w]?)\nleft : p.Nodup\nright : List.Pairwise (fun x1 x2 => ¬x1 = x2) p\nleft_1 : p[offset + i] = p[w]\nright_1 : offset + i = w\nleft_2 : q.Nodup\nright_2 : ∀ (a : Bool), List.count a q ≤ 1\n⊢ False\n[grind] Goal diagnostics\n  [facts] Asserted facts\n    [prop] 1 ≤ N\n    [prop] p.length ≤ decisionCount N\n    [prop] q.length = decisionCount N\n    [prop] p.length ≤ q.length\n    [prop] ∀ (a b : List Bool), a.length ≤ b.length → (∃ i, ¬(i + 1 ≤ a.length → a[i]? = b[i]?)) ∨ a <+: b\n    [prop] ∀ (offset : ℕ),\n          (∃ i, ¬(i + 1 ≤ p.length → p[i]? = q[i]?)) ∨\n            selected N offset p ⊆ selected N offset q ∧ selected N offset q ⊆ selected N offset p ∪ available N offset p\n    [prop] selectedA N p ⊆ selectedA N q ∧\n          selectedA N q ⊆ selectedA N p ∪ availableA N p ∧\n            selectedB N p ⊆ selectedB N q ∧ selectedB N q ⊆ selectedB N p ∪ availableB N p\n    [prop] selected N offset p ⊆ selected N offset q\n    [prop] selected N offset q ⊆ selected N offset p ∪ available N offset p\n    [prop] i + 1 ≤ N - 1\n    [prop] ↑(N - 1) = if -1 * ↑N + 1 ≤ 0 then ↑N + -1 else 0\n    [prop] offset + i + 1 ≤ p.length\n    [prop] offset + i + 1 ≤ q.length\n    [prop] (∃ a, a + 1 ≤ N - 1 ∧ offset + a + 1 ≤ p.length ∧ p[offset + a]? = some true ∧ a = i) →\n          ∃ a, a + 1 ≤ N - 1 ∧ offset + a + 1 ≤ q.length ∧ q[offset + a]? = some true ∧ a = i\n    [prop] (∃ a, a + 1 ≤ N - 1 ∧ offset + a + 1 ≤ q.length ∧ q[offset + a]? = some true ∧ a = i) →\n          (∃ a, a + 1 ≤ N - 1 ∧ offset + a + 1 ≤ p.length ∧ p[offset + a]? = some true ∧ a = i) ∨\n            ∃ a, a + 1 ≤ N - 1 ∧ p.length ≤ offset + a ∧ a = i\n    [prop] p[offset + i]? = some p[offset + i]\n    [prop] q[offset + i]? = some q[offset + i]\n    [prop] p[offset + i] = true\n    [prop] q[offset + i] = false\n    [prop] ¬p[offset + i]? = q[offset + i]?\n    [prop] p.length ≤ q.length → (∃ i, ¬(i + 1 ≤ p.length → p[i]? = q[i]?)) ∨ p <+: q\n    [prop] (selected N offset q ⊆ selected N offset p ∪ available N offset p) =\n          ∀ ⦃x : ℕ⦄, x ∈ selected N offset q → x ∈ selected N offset p ∪ available N offset p\n    [prop] (selected N offset p ⊆ selected N offset q) = ∀ ⦃x : ℕ⦄, x ∈ selected N offset p → x ∈ selected N offset q\n    [prop] (selectedB N q ⊆ selectedB N p ∪ availableB N p) =\n          ∀ ⦃x : ℕ⦄, x ∈ selectedB N q → x ∈ selectedB N p ∪ availableB N p\n    [prop] (selectedB N p ⊆ selectedB N q) = ∀ ⦃x : ℕ⦄, x ∈ selectedB N p → x ∈ selectedB N q\n    [prop] (selectedA N q ⊆ selectedA N p ∪ availableA N p) =\n          ∀ ⦃x : ℕ⦄, x ∈ selectedA N q → x ∈ selectedA N p ∪ availableA N p\n    [prop] (selectedA N p ⊆ selectedA N q) = ∀ ⦃x : ℕ⦄, x ∈ selectedA N p → x ∈ selectedA N q\n    [prop] (∃ i, ¬(i + 1 ≤ p.length → p[i]? = q[i]?)) ∨\n          selected N offset p ⊆ selected N offset q ∧ selected N offset q ⊆ selected N offset p ∪ available N offset p\n    [prop] q.length ≤ offset + i → q[offset + i]? = none\n    [prop] p.length ≤ offset + i → p[offset + i]? = none\n    [prop] ∀ (h : offset + i + 1 ≤ q.length), q[offset + i]? = some q[offset + i]\n    [prop] ∀ (h : offset + i + 1 ≤ p.length), p[offset + i]? = some p[offset + i]\n    [prop] p <+: q → p.length ≤ q.length\n    [prop] ¬(w + 1 ≤ p.length → p[w]? = q[w]?)\n    [prop] q.length ≤ w → q[w]? = none\n    [prop] p.length ≤ w → p[w]? = none\n    [prop] ∀ (h : w + 1 ≤ q.length), q[w]? = some q[w]\n    [prop] ∀ (h : w + 1 ≤ p.length), p[w]? = some p[w]\n    [prop] p.Nodup → (p[w] = p[offset + i]) = (w = offset + i)\n    [prop] q.Nodup → (q[w] = q[offset + i]) = (w = offset + i)\n    [prop] q.Nodup → (q[offset + i] = q[w]) = (offset + i = w)\n    [prop] p.Nodup → (p[offset + i] = p[w]) = (offset + i = w)\n    [prop] q.Nodup = ∀ (a : Bool), List.count a q ≤ 1\n    [prop] p.Nodup = ∀ (a : Bool), List.count a p ≤ 1\n    [prop] q.Nodup = List.Pairwise (fun x1 x2 => ¬x1 = x2) q\n    [prop] p.Nodup = List.Pairwise (fun x1 x2 => ¬x1 = x2) p\n    [prop] List.Pairwise (fun x1 x2 => ¬x1 = x2) p → List.IsChain (fun x1 x2 => ¬x1 = x2) p\n    [prop] List.Pairwise (fun x1 x2 => ¬x1 = x2) q → List.IsChain (fun x1 x2 => ¬x1 = x2) q\n    [prop] (∀ ⦃a b : Bool⦄, True) → True\n    [prop] (∀ ⦃a b : Bool⦄, True) → True\n    [prop] p.Nodup\n    [prop] List.Pairwise (fun x1 x2 => ¬x1 = x2) p\n    [prop] p[offset + i] = p[w]\n    [prop] offset + i = w\n    [prop] q.Nodup\n    [prop] ∀ (a : Bool), List.count a q ≤ 1\n  [eqc] True propositions\n    [prop] selectedA N p ⊆ selectedA N q ∧\n          selectedA N q ⊆ selectedA N p ∪ availableA N p ∧\n            selectedB N p ⊆ selectedB N q ∧ selectedB N q ⊆ selectedB N p ∪ availableB N p\n    [prop] selectedA N q ⊆ selectedA N p ∪ availableA N p ∧\n          selectedB N p ⊆ selectedB N q ∧ selectedB N q ⊆ selectedB N p ∪ availableB N p\n    [prop] selectedB N p ⊆ selectedB N q ∧ selectedB N q ⊆ selectedB N p ∪ availableB N p\n    [prop] -1 * ↑N + 1 ≤ 0\n    [prop] p.length ≤ decisionCount N\n    [prop] p.length ≤ q.length\n    [prop] 1 ≤ N\n    [prop] i + 1 ≤ N - 1\n    [prop] offset + i + 1 ≤ p.length\n    [prop] offset + i + 1 ≤ q.length\n    [prop] selectedA N p ⊆ selectedA N q\n    [prop] selectedA N q ⊆ selectedA N p ∪ availableA N p\n    [prop] selectedB N p ⊆ selectedB N q\n    [prop] selectedB N q ⊆ selectedB N p ∪ availableB N p\n    [prop] selected N offset p ⊆ selected N offset q\n    [prop] selected N offset q ⊆ selected N offset p ∪ available N offset p\n    [prop] offset + i < p.length\n    [prop] offset + i < q.length\n    [prop] ∀ (offset : ℕ),\n          (∃ i, ¬(i + 1 ≤ p.length → p[i]? = q[i]?)) ∨\n            selected N offset p ⊆ selected N offset q ∧ selected N offset q ⊆ selected N offset p ∪ available N offset p\n    [prop] ∀ (a b : List Bool), a.length ≤ b.length → (∃ i, ¬(i + 1 ≤ a.length → a[i]? = b[i]?)) ∨ a <+: b\n    [prop] (∃ a, a + 1 ≤ N - 1 ∧ offset + a + 1 ≤ p.length ∧ p[offset + a]? = some true ∧ a = i) →\n          ∃ a, a + 1 ≤ N - 1 ∧ offset + a + 1 ≤ q.length ∧ q[offset + a]? = some true ∧ a = i\n    [prop] (∃ a, a + 1 ≤ N - 1 ∧ offset + a + 1 ≤ q.length ∧ q[offset + a]? = some true ∧ a = i) →\n          (∃ a, a + 1 ≤ N - 1 ∧ offset + a + 1 ≤ p.length ∧ p[offset + a]? = some true ∧ a = i) ∨\n            ∃ a, a + 1 ≤ N - 1 ∧ p.length ≤ offset + a ∧ a = i\n    [prop] selected N offset p ⊆ selected N offset q ∧ selected N offset q ⊆ selected N offset p ∪ available N offset p\n    [prop] (∃ i, ¬(i + 1 ≤ p.length → p[i]? = q[i]?)) ∨\n          selected N offset p ⊆ selected N offset q ∧ selected N offset q ⊆ selected N offset p ∪ available N offset p\n    [prop] (∃ i, ¬(i + 1 ≤ p.length → p[i]? = q[i]?)) ∨ p <+: q\n    [prop] (selectedA N p ⊆ selectedA N q) = ∀ ⦃x : ℕ⦄, x ∈ selectedA N p → x ∈ selectedA N q\n    [prop] (selectedA N q ⊆ selectedA N p ∪ availableA N p) =\n          ∀ ⦃x : ℕ⦄, x ∈ selectedA N q → x ∈ selectedA N p ∪ availableA N p\n    [prop] (selectedB N p ⊆ selectedB N q) = ∀ ⦃x : ℕ⦄, x ∈ selectedB N p → x ∈ selectedB N q\n    [prop] (selectedB N q ⊆ selectedB N p ∪ availableB N p) =\n          ∀ ⦃x : ℕ⦄, x ∈ selectedB N q → x ∈ selectedB N p ∪ availableB N p\n    [prop] (selected N offset p ⊆ selected N offset q) = ∀ ⦃x : ℕ⦄, x ∈ selected N offset p → x ∈ selected N offset q\n    [prop] (selected N offset q ⊆ selected N offset p ∪ available N offset p) =\n          ∀ ⦃x : ℕ⦄, x ∈ selected N offset q → x ∈ selected N offset p ∪ available N offset p\n    [prop] p[offset + i]? = some p[offset + i]\n    [prop] q[offset + i]? = some q[offset + i]\n    [prop] ∀ ⦃x : ℕ⦄, x ∈ selectedA N p → x ∈ selectedA N q\n    [prop] ∀ ⦃x : ℕ⦄, x ∈ selectedA N q → x ∈ selectedA N p ∪ availableA N p\n    [prop] ∀ ⦃x : ℕ⦄, x ∈ selectedB N p → x ∈ selectedB N q\n    [prop] ∀ ⦃x : ℕ⦄, x ∈ selectedB N q → x ∈ selectedB N p ∪ availableB N p\n    [prop] ∀ ⦃x : ℕ⦄, x ∈ selected N offset p → x ∈ selected N offset q\n    [prop] ∀ ⦃x : ℕ⦄, x ∈ selected N offset q → x ∈ selected N offset p ∪ available N offset p\n    [prop] p.length ≤ q.length → (∃ i, ¬(i + 1 ≤ p.length → p[i]? = q[i]?)) ∨ p <+: q\n    [prop] p.length ≤ offset + i → p[offset + i]? = none\n    [prop] q.length ≤ offset + i → q[offset + i]? = none\n    [prop] ∀ (h : offset + i + 1 ≤ p.length), p[offset + i]? = some p[offset + i]\n    [prop] ∀ (h : offset + i + 1 ≤ q.length), q[offset + i]? = some q[offset + i]\n    [prop] w + 1 ≤ p.length\n    [prop] p <+: q → p.length ≤ q.length\n    [prop] p[w]? = some p[w]\n    [prop] q[w]? = some q[w]\n    [prop] w + 1 ≤ q.length\n    [prop] w < p.length\n    [prop] w < q.length\n    [prop] p.length ≤ w → p[w]? = none\n    [prop] q.length ≤ w → q[w]? = none\n    [prop] ∀ (h : w + 1 ≤ p.length), p[w]? = some p[w]\n    [prop] ∀ (h : w + 1 ≤ q.length), q[w]? = some q[w]\n    [prop] p.Nodup\n    [prop] q.Nodup\n    [prop] (p[w] = p[offset + i]) = (w = offset + i)\n    [prop] (p[offset + i] = p[w]) = (offset + i = w)\n    [prop] (q[w] = q[offset + i]) = (w = offset + i)\n    [prop] (q[offset + i] = q[w]) = (offset + i = w)\n    [prop] p[w] = p[offset + i]\n    [prop] p[offset + i] = p[w]\n    [prop] q[w] = q[offset + i]\n    [prop] q[offset + i] = q[w]\n    [prop] w = offset + i\n    [prop] offset + i = w\n    [prop] p.Nodup → (p[w] = p[offset + i]) = (w = offset + i)\n    [prop] p.Nodup → (p[offset + i] = p[w]) = (offset + i = w)\n    [prop] q.Nodup → (q[w] = q[offset + i]) = (w = offset + i)\n    [prop] q.Nodup → (q[offset + i] = q[w]) = (offset + i = w)\n    [prop] p.Nodup = List.Pairwise (fun x1 x2 => ¬x1 = x2) p\n    [prop] p.Nodup = ∀ (a : Bool), List.count a p ≤ 1\n    [prop] q.Nodup = List.Pairwise (fun x1 x2 => ¬x1 = x2) q\n    [prop] q.Nodup = ∀ (a : Bool), List.count a q ≤ 1\n    [prop] List.Pairwise (fun x1 x2 => ¬x1 = x2) p\n    [prop] List.Pairwise (fun x1 x2 => ¬x1 = x2) q\n    [prop] ∀ (a : Bool), List.count a p ≤ 1\n    [prop] ∀ (a : Bool), List.count a q ≤ 1\n    [prop] List.IsChain (fun x1 x2 => ¬x1 = x2) p\n    [prop] List.IsChain (fun x1 x2 => ¬x1 = x2) q\n    [prop] List.Pairwise (fun x1 x2 => ¬x1 = x2) p → List.IsChain (fun x1 x2 => ¬x1 = x2) p\n    [prop] List.Pairwise (fun x1 x2 => ¬x1 = x2) q → List.IsChain (fun x1 x2 => ¬x1 = x2) q\n    [prop] (∀ ⦃a b : Bool⦄, True) → True\n  [eqc] False propositions\n    [prop] p[offset + i]? = q[offset + i]?\n    [prop] p[offset + i]? = none\n    [prop] q[offset + i]? = none\n    [prop] p.length ≤ offset + i\n    [prop] q.length ≤ offset + i\n    [prop] p[w]? = q[w]?\n    [prop] w + 1 ≤ p.length → p[w]? = q[w]?\n    [prop] p[w]? = none\n    [prop] q[w]? = none\n    [prop] p.length ≤ w\n    [prop] q.length ≤ w\n  [eqc] Equivalence classes\n    [eqc] {false, q[offset + i], q[w]}\n    [eqc] {true, p[offset + i], p[w]}\n    [eqc] {decisionCount N, q.length}\n    [eqc] {some p[offset + i], p[offset + i]?, p[w]?, some p[w]}\n    [eqc] {some q[offset + i], q[offset + i]?, q[w]?, some q[w]}\n    [eqc] {offset + i, w}\n    [eqc] {offset + i + 1, w + 1}\n    [eqc] others\n      [eqc] {↑w, ↑(offset + i)}\n      [eqc] {↑(decisionCount N), ↑q.length}\n      [eqc] {↑(N - 1), if -1 * ↑N + 1 ≤ 0 then ↑N + -1 else 0, ↑N + -1}\n  [cases] Case analyses\n    [cases] [1/2]: (∃ i, ¬(i + 1 ≤ p.length → p[i]? = q[i]?)) ∨ p <+: q\n      [cases] source: E-matching `prefix_of_entries`\n    [cases] [1/2]: p.Nodup = List.Pairwise (fun x1 x2 => ¬x1 = x2) p\n      [cases] source: E-matching `List.nodup_iff_pairwise_ne`\n    [cases] [1/2]: (p[offset + i] = p[w]) = (offset + i = w)\n      [cases] source: E-matching `List.Nodup.getElem_inj`\n    [cases] [1/2]: q.Nodup = ∀ (a : Bool), List.count a q ≤ 1\n      [cases] source: E-matching `List.nodup_iff_count`\n  [ematch] E-matching patterns\n    [thm] Set.subset_def: [@LE.le _ _ #1 #0]\n    [thm] List.eq_nil_of_length_eq_zero: [@List.length #2 #1]\n    [thm] prefix_of_entries: [@LE.le `[ℕ] `[instLENat] (@List.length `[Bool] #2) (@List.length `[Bool] #1)]\n    [thm] prefix_of_entries: [@List.IsPrefix `[Bool] #2 #1]\n    [thm] Finset.subset_iff: [@LE.le (Finset #2) _ #1 #0]\n    [thm] block_forward: [@LE.le `[Finset\n           ℕ] `[Finset.instPartialOrder.toLE] (selected `[N] #0 `[p]) (selected `[N] #0 `[q])]\n    [thm] block_forward: [selected `[N] #0 `[p]]\n    [thm] block_forward: [selected `[N] #0 `[q]]\n    [thm] block_forward: [@LE.le `[Finset\n           ℕ] `[Finset.instPartialOrder.toLE] (selected `[N] #0 `[q]) (@Union.union `[Finset\n            ℕ] `[Finset.instUnion] (selected `[N] #0 `[p]) (available `[N] #0 `[p]))]\n    [thm] block_forward: [@Union.union `[Finset ℕ] `[Finset.instUnion] (selected `[N] #0 `[p]) (available `[N] #0 `[p])]\n    [thm] block_forward: [available `[N] #0 `[p]]\n    [thm] List.getElem?_eq_none: [@List.length #3 #2, @getElem? (List _) `[ℕ] _ _ _ #2 #1]\n    [thm] getElem?_neg: [@getElem? #8 #7 #6 #5 #4 #2 #1]\n    [thm] getElem?_pos: [@getElem? #8 #7 #6 #5 #4 #2 #1]\n    [thm] List.Nodup.getElem_inj: [@getElem (List #6) `[ℕ] _ _ _ #3 #5 #1, @getElem (List _) `[ℕ] _ _ _ #3 #4 #0]\n    [thm] Finset.ssubset_iff_subset_ne: [@LT.lt (Finset #2) _ #1 #0]\n    [thm] Set.ssubset_def: [@LT.lt _ _ #1 #0]\n    [thm] Option.some_lt_some: [@LT.lt (Option #3) _ (@some _ #1) (@some _ #0)]\n    [thm] Option.some_le_some: [@LE.le (Option #3) _ (@some _ #1) (@some _ #0)]\n    [thm] List.IsPrefix.length_le: [@List.IsPrefix #3 #2 #1, @List.length _ #1]\n    [thm] List.IsPrefix.length_le: [@List.IsPrefix #3 #2 #1, @List.length _ #2]\n    [thm] List.IsPrefix.trans: [@List.IsPrefix #5 #4 #3, @List.IsPrefix _ #3 #2]\n    [thm] List.prefix_rfl: [@List.IsPrefix #1 #0 #0]\n    [thm] local_0: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selected N offset q] #1]\n    [thm] local_0: [@Membership.mem `[ℕ] `[Finset\n           ℕ] `[SetLike.instMembership] `[selected N offset p ∪ available N offset p] #1]\n    [thm] local_1: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selected N offset p] #1]\n    [thm] local_1: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selected N offset q] #1]\n    [thm] local_2: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selectedB N q] #1]\n    [thm] local_2: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selectedB N p ∪ availableB N p] #1]\n    [thm] local_3: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selectedB N p] #1]\n    [thm] local_3: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selectedB N q] #1]\n    [thm] local_4: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selectedA N q] #1]\n    [thm] local_4: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selectedA N p ∪ availableA N p] #1]\n    [thm] local_5: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selectedA N p] #1]\n    [thm] local_5: [@Membership.mem `[ℕ] `[Finset ℕ] `[SetLike.instMembership] `[selectedA N q] #1]\n    [thm] Option.not_some_le_none: [@LE.le (Option #2) _ (@some _ #0) (@none _)]\n    [thm] Option.none_le: [@LE.le (Option #2) _ (@none _) #0]\n    [thm] Option.none_lt_some: [@LT.lt (Option #2) _ (@none _) (@some _ #0)]\n    [thm] Option.not_lt_none: [@LT.lt (Option #2) _ #0 (@none _)]\n    [thm] List.nodup_iff_count: [@List.Nodup #3 #0]\n    [thm] List.nodup_iff_pairwise_ne: [@List.Nodup #1 #0]\n    [thm] List.Pairwise.isChain: [@List.Pairwise #3 #2 #1]\n    [thm] List.IsChain.pairwise: [@List.IsChain #4 #3 #2]\n    [thm] List.IsChain.imp: [@List.IsChain #5 #4 #2, @List.IsChain _ #3 #2]\n    [thm] local_6: [@LE.le `[ℕ] `[instLENat] (@List.count `[Bool] `[instBEqOfDecidableEq] #0 `[p]) `[1]]\n    [thm] local_6: [@List.count `[Bool] `[instBEqOfDecidableEq] #0 `[p]]\n    [thm] local_7: [@LE.le `[ℕ] `[instLENat] (@List.count `[Bool] `[instBEqOfDecidableEq] #0 `[q]) `[1]]\n    [thm] local_7: [@List.count `[Bool] `[instBEqOfDecidableEq] #0 `[q]]\n  [cutsat] Assignment satisfying linear constraints\n    [assign] N := 2\n    [assign] offset := 0\n    [assign] i := 0\n    [assign] decisionCount N := 1\n    [assign] p.length := 1\n    [assign] q.length := 1\n    [assign] w := 0\n  [ring] Ring `ℤ`\n    [basis] Basis\n      [_] ↑N + -1 * ↑(N - 1) + -1 = 0\n      [_] ↑(decisionCount N) + -1 * ↑q.length = 0\n[grind] Diagnostics\n  [thm] E-Matching instances\n    [thm] List.Nodup.getElem_inj ↦ 8\n    [thm] Finset.subset_iff ↦ 6\n    [thm] getElem?_neg ↦ 4\n    [thm] getElem?_pos ↦ 4\n    [thm] List.nodup_iff_count ↦ 2\n    [thm] List.nodup_iff_pairwise_ne ↦ 2\n    [thm] List.IsChain.imp ↦ 2\n    [thm] List.Pairwise.isChain ↦ 2\n    [thm] block_forward ↦ 1\n    [thm] prefix_of_entries ↦ 1\n    [thm] List.IsPrefix.length_le ↦ 1\n",
+            "attempt": 2
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-003/Candidate_6b02f916f008c179.lean",
+            "target_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-003/FrozenTarget_6b02f916f008c179.lean",
+            "feedback": "",
+            "target_sha256": "d83a2d04828af2901e3e18b2212db847e9e780da9fdf71de775e99f1f2a13414",
+            "target_olean_sha256": "bcb4b86f37bbb456fc6c0a255711e072abd09aa147a4a9cc227a9a75b47f1874",
+            "source_sha256": "f473e85ecfe026d6767a89647a7a7053634aecc780964c7eee2b9010230edcdd",
+            "olean_sha256": "0bdf90bb8699b316d72d641c2ed5d737adb5706515d2f15646e65860d39b781e",
+            "attempt": 3
+          }
+        ],
+        "created_at": "2026-09-15T09:39:17.261696+00:00",
+        "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+        "phase": "finished",
+        "round": 3,
+        "proof": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-f5kjfjbh/attempt-003/Candidate_6b02f916f008c179.lean",
+        "environment_sha256": "d57919c2ffc2a7035a536368401261bad3d56cf1bcc076eac712e5f249d80e4a",
+        "artifacts": {
+          "prefix_extension": {
+            "payload": {
+              "declaration": "theorem M5.PhysicalRecovery.prefix_extension : ∀ (N : ℕ) (p q : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → q.length = M5.PhysicalRecovery.decisionCount N → (p.IsPrefix q ↔ M5.PhysicalRecovery.selectedA N p ⊆ M5.PhysicalRecovery.selectedA N q ∧ M5.PhysicalRecovery.selectedA N q ⊆ M5.PhysicalRecovery.selectedA N p ∪ M5.PhysicalRecovery.availableA N p ∧ M5.PhysicalRecovery.selectedB N p ⊆ M5.PhysicalRecovery.selectedB N q ∧ M5.PhysicalRecovery.selectedB N q ⊆ M5.PhysicalRecovery.selectedB N p ∪ M5.PhysicalRecovery.availableB N p) := by\n  intro N p q hN hp hq\n  have hpq : p.length ≤ q.length := by omega\n  have prefix_of_entries : ∀ (a b : List Bool), a.length ≤ b.length →\n      (∀ i, i < a.length → a[i]? = b[i]?) → a.IsPrefix b := by\n    intro a\n    induction a with\n    | nil => intro b hl he; exact ⟨b, rfl⟩\n    | cons x a ih =>\n      intro b hl he\n      cases b with\n      | nil => simp at hl\n      | cons y b =>\n        have hxy : x = y := by simpa using he 0 (by simp)\n        subst y\n        have hab : a.IsPrefix b := ih b (by simpa using hl) (by\n          intro i hi\n          simpa using he (i + 1) (by simpa using hi))\n        obtain ⟨r, hr⟩ := hab\n        exact ⟨r, by simp [hr]⟩\n  have ms : ∀ (offset i : ℕ) (r : List Bool),\n      i + 1 ∈ M5.PhysicalRecovery.selected N offset r ↔\n        i < N - 1 ∧ offset + i < r.length ∧ r[offset + i]? = some true := by\n    intro offset i r\n    simp [M5.PhysicalRecovery.selected]\n  have ma : ∀ (offset i : ℕ) (r : List Bool),\n      i + 1 ∈ M5.PhysicalRecovery.available N offset r ↔\n        i < N - 1 ∧ r.length ≤ offset + i := by\n    intro offset i r\n    simp [M5.PhysicalRecovery.available]\n  have block_forward : ∀ offset,\n      (∀ i, i < p.length → p[i]? = q[i]?) →\n      M5.PhysicalRecovery.selected N offset p ⊆ M5.PhysicalRecovery.selected N offset q ∧\n      M5.PhysicalRecovery.selected N offset q ⊆\n        M5.PhysicalRecovery.selected N offset p ∪ M5.PhysicalRecovery.available N offset p := by\n    intro offset he\n    constructor\n    · intro x hx\n      simp only [M5.PhysicalRecovery.selected, Finset.mem_insert,\n        Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx ⊢\n      rcases hx with hx | ⟨i, ⟨hi, hip, hit⟩, hix⟩\n      · exact Or.inl hx\n      · exact Or.inr ⟨i, ⟨hi, lt_of_lt_of_le hip hpq, (he _ hip).symm.trans hit⟩, hix⟩\n    · intro x hx\n      simp only [M5.PhysicalRecovery.selected, Finset.mem_insert,\n        Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n      rcases hx with hx | ⟨i, ⟨hi, hiq, hit⟩, hix⟩\n      · subst x\n        apply Finset.mem_union_left\n        simp [M5.PhysicalRecovery.selected]\n      · subst x\n        by_cases hip : offset + i < p.length\n        · apply Finset.mem_union_left\n          exact (ms offset i p).2 ⟨hi, hip, (he _ hip).trans hit⟩\n        · apply Finset.mem_union_right\n          exact (ma offset i p).2 ⟨hi, by omega⟩\n  constructor\n  · intro h\n    have he : ∀ i, i < p.length → p[i]? = q[i]? := by\n      obtain ⟨r, rfl⟩ := h\n      intro i hi\n      simp [List.getElem?_append, hi]\n    have ha := block_forward 0 he\n    have hb := block_forward (N - 1) he\n    exact ⟨ha.1, ha.2, hb.1, hb.2⟩\n  · intro h\n    have block_entries : ∀ offset,\n        M5.PhysicalRecovery.selected N offset p ⊆ M5.PhysicalRecovery.selected N offset q →\n        M5.PhysicalRecovery.selected N offset q ⊆\n          M5.PhysicalRecovery.selected N offset p ∪ M5.PhysicalRecovery.available N offset p →\n        ∀ i, i < N - 1 → offset + i < p.length →\n          p[offset + i]? = q[offset + i]? := by\n      intro offset h₁ h₂ i hi hip\n      have hiq : offset + i < q.length := lt_of_lt_of_le hip hpq\n      have ht : p[offset + i]? = some true ↔ q[offset + i]? = some true := by\n        constructor\n        · intro ht\n          exact ((ms offset i q).1 (h₁ ((ms offset i p).2 ⟨hi, hip, ht⟩))).2.2\n        · intro ht\n          have hm := h₂ ((ms offset i q).2 ⟨hi, hiq, ht⟩)\n          rcases Finset.mem_union.mp hm with hm | hm\n          · exact ((ms offset i p).1 hm).2.2\n          · have := ((ma offset i p).1 hm).2\n            omega\n      have hpi : p[offset + i]? = some p[offset + i] := getElem?_pos p (offset + i) hip\n      have hqi : q[offset + i]? = some q[offset + i] := getElem?_pos q (offset + i) hiq\n      rw [hpi, hqi] at ht ⊢\n      cases ep : p[offset + i] <;> cases eq : q[offset + i] <;> simp_all\n    apply prefix_of_entries p q hpq\n    intro i hi\n    by_cases hai : i < N - 1\n    · simpa using block_entries 0 h.1 h.2.1 i hai (by simpa using hi)\n    · have hbi : i - (N - 1) < N - 1 := by\n        unfold M5.PhysicalRecovery.decisionCount at hp\n        omega\n      have he : (N - 1) + (i - (N - 1)) = i := by omega\n      simpa only [he] using block_entries (N - 1) h.2.2.1 h.2.2.2\n        (i - (N - 1)) hbi (by omega)",
+              "imports": [
+                "M5PhysicalRecovery"
+              ],
+              "name": "M5.PhysicalRecovery.prefix_extension",
+              "ancestors": [],
+              "spec_sha256": "66f338c2fd0a752d4582542ae954f7b92fbc814488f8b8746c287a5210773e2c"
+            },
+            "sha256": "c572980dd93f2779672215587204713c96ee885eca861fad9f8bfed544adba13"
+          }
+        }
+      }
+    },
+    "overfull_prefix_zero": {
+      "id": "overfull_prefix_zero",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M5.PhysicalRecovery.overfull_prefix_zero",
+        "spec_sha256": "8d1fc7052715a39f705838378a52d93af9a618a1e233b22454ef160647ce239d",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-001/Candidate_28980492f4bbdafa.lean:5:2: error: 'change' tactic failed, pattern\n  ↑{q ∈ validWords N w F | p <+: q}.card = 0\nis not definitionally equal to target\n  PrefixPartition.count (validWords N w F) p = 0\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-002/Candidate_2135ce40d4e551da.lean:27:4: error: Type mismatch\n  List.take_append_drop p.length q\nhas type\n  List.take p.length q ++ List.drop p.length q = q\nbut is expected to have type\n  List.take p.length q ++ List.drop (List.take p.length q).length q = q\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-002/Candidate_2135ce40d4e551da.lean:29:12: warning: This simp argument is unused:\n  Finset.filter_eq_empty_iff\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-003/Candidate_ce6fbe5c496f6498.lean:2:81: error: unsolved goals\nN w : ℕ\nF : BinaryPolynomial\np : List Bool\nhN : 0 < N\nhp : p.length ≤ decisionCount N\nhover : w < (selectedA N p).card ∨ w < (selectedB N p).card\nhnone : ∀ q ∈ validWords N w F, ¬p <+: q\nhtake : ∀ q ∈ validWords N w F, List.take p.length q ≠ p\n⊢ 0 = {q ∈ validWords N w F | p <+: q}.card\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-003/Candidate_ce6fbe5c496f6498.lean:26:34: warning: This simp argument is unused:\n  Finset.card_eq_zero\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PrefixPartition.count, Finset.filter_eq_empty_iff, htake, hnone, eq_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-003/Candidate_ce6fbe5c496f6498.lean:27:4: warning: This simp argument is unused:\n  Finset.filter_eq_empty_iff\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PrefixPartition.count, Finset.card_eq_zero, htake, hnone, eq_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-003/Candidate_ce6fbe5c496f6498.lean:27:32: warning: This simp argument is unused:\n  htake\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PrefixPartition.count, Finset.card_eq_zero, Finset.filter_eq_empty_iff, hnone, eq_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-003/Candidate_ce6fbe5c496f6498.lean:27:39: warning: This simp argument is unused:\n  hnone\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PrefixPartition.count, Finset.card_eq_zero, Finset.filter_eq_empty_iff, htake, eq_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-004/Candidate_c29aa3a71a33dcd5.lean:26:6: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  {q ∈ validWords N w F | p <+: q}\nin the target expression\n  ↑{q ∈ validWords N w F | p <+: q}.card = 0\n\nN w : ℕ\nF : BinaryPolynomial\np : List Bool\nhN : 0 < N\nhp : p.length ≤ decisionCount N\nhover : w < (selectedA N p).card ∨ w < (selectedB N p).card\nhnone : ∀ q ∈ validWords N w F, ¬p <+: q\nhempty : {q ∈ validWords N w F | p <+: q} = ∅\n⊢ ↑{q ∈ validWords N w F | p <+: q}.card = 0\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv/attempt-005/Candidate_8d13dd53e62135d0.lean:8:8: error: synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized\n  fun a => @List.instDecidableIsPrefixOfDecidableEq Bool instDecidableEqBool p a\ninferred\n  fun a => @List.instDecidableIsPrefixOfDecidableEq Bool (fun a b => Classical.propDecidable (a = b)) p a\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T09:46:42.293759+00:00",
+        "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rzl3hkbv",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "state_domains": {
+      "id": "state_domains",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PhysicalRecovery.state_domains",
+        "spec_sha256": "ad5f66a3f539551dd544e7f44c4e030794e75324694250b36942f98f2c84e672",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-001/Candidate_131d21ebf99fb0e1.lean:17:9: error: unexpected token ':'; expected '=>'\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-001/Candidate_131d21ebf99fb0e1.lean:2:74: error: unsolved goals\ncase left\nN : ℕ\np : List Bool\nhN : 0 < N\nhp : p.length ≤ decisionCount N\n⊢ True ∨ ∃ a, (a < N - 1 ∧ 0 + a < p.length ∧ p[0 + a]? = some true) ∧ a + 1 = 0\n\ncase right.left\nN : ℕ\np : List Bool\nhN : 0 < N\nhp : p.length ≤ decisionCount N\n⊢ True ∨ ∃ a, (a < N - 1 ∧ N - 1 + a < p.length ∧ p[N - 1 + a]? = some true) ∧ a + 1 = 0\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-002/Candidate_e7848c10d496ce0e.lean",
+            "target_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-002/FrozenTarget_e7848c10d496ce0e.lean",
+            "feedback": "",
+            "target_sha256": "3e93d5db8180999d91b320f06859c624279aa17c0d5520df46a2fd3d7807ee96",
+            "target_olean_sha256": "add84e8721997395552e445970057ae99233347237a7ccfb9e026d626caad5e1",
+            "source_sha256": "c98de7f3fca74278e579c4a2bb6c2f9f077612d6aad000632a6f0257f22e6973",
+            "olean_sha256": "bb311839a15eb10c8fa864a408209be5ef5e321984eb1e7b9cf80c23d7820480",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T09:39:17.324726+00:00",
+        "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-002/Candidate_e7848c10d496ce0e.lean",
+        "environment_sha256": "d57919c2ffc2a7035a536368401261bad3d56cf1bcc076eac712e5f249d80e4a",
+        "artifacts": {
+          "state_domains": {
+            "payload": {
+              "declaration": "theorem M5.PhysicalRecovery.state_domains : ∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p := by\n  change ∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p\n  intro N p hN hp\n  simp only [M5.PhysicalRecovery.StateOK,\n    M5.PhysicalRecovery.selectedA, M5.PhysicalRecovery.selectedB,\n    M5.PhysicalRecovery.availableA, M5.PhysicalRecovery.availableB,\n    M5.PhysicalRecovery.selected, M5.PhysicalRecovery.available,\n    Finset.subset_iff, Finset.disjoint_left, Finset.mem_insert,\n    Finset.mem_image, Finset.mem_filter, Finset.mem_range,\n    Finset.mem_singleton]\n  aesop (config := { terminal := false }) <;> omega",
+              "imports": [
+                "M5PhysicalRecovery"
+              ],
+              "name": "M5.PhysicalRecovery.state_domains",
+              "ancestors": [],
+              "spec_sha256": "ad5f66a3f539551dd544e7f44c4e030794e75324694250b36942f98f2c84e672"
+            },
+            "sha256": "30422647eaccb9915ce804a64c53c01588a06ef9b2e5fc5bcbf9d8066a0862e3"
+          }
+        }
+      }
+    },
+    "initial_oracle": {
+      "id": "initial_oracle",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M5.PhysicalRecovery.initial_oracle",
+        "spec_sha256": "68e39e8b225f74bf77eaae59267e0381071900a0ac47ab1daded1513fb2aa91f",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-001/Candidate_74f6d21d322c9dae.lean:12:6: warning: aesop: failed to prove the goal after exhaustive search.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-001/Candidate_74f6d21d322c9dae.lean:28:40: error: unsolved goals\nN w : ℕ\nF : BinaryPolynomial\nhN : 0 < N\nhw : 0 < w\nhF : Polynomial.Monic F\nhFd : F ∣ cyclicModulus N\nhs : ∀ (offset : ℕ), selected N offset [] = {0}\nha : ∀ (offset : ℕ), available N offset [] = OrderCount.positivePositions N\nhprefix : ConditionalCount.PrefixOK N w {0} {0} (OrderCount.positivePositions N) (OrderCount.positivePositions N)\nhc :\n  ConditionalCount.completionC N w F {0} {0} (OrderCount.positivePositions N) (OrderCount.positivePositions N) =\n    ↑(ConditionalCount.validCompletions N w F {0} {0} (OrderCount.positivePositions N)\n          (OrderCount.positivePositions N)).card\nhp : OrderCount.C N w F = ↑(OrderCount.validPairs N w F).card\nUV : Finset ℕ × Finset ℕ\n⊢ UV.1 ⊆ OrderCount.positivePositions N →\n    UV.1.card = w - 1 →\n      UV.2 ⊆ OrderCount.positivePositions N →\n        UV.2.card = w - 1 →\n          ((insert 0 UV.1).card = w ∧\n              (insert 0 UV.2).card = w ∧\n                Connectivity.supportGcd N (insert 0 UV.1) (insert 0 UV.2) = 1 ∧\n                  completeSignature (SupportPolynomial.ofSupport (insert 0 UV.1))\n                      (SupportPolynomial.ofSupport (insert 0 UV.2)) N =\n                    F ↔\n            Connectivity.supportGcd N (insert 0 UV.1) (insert 0 UV.2) = 1 ∧\n              completeSignature (SupportPolynomial.ofSupport (insert 0 UV.1))\n                  (SupportPolynomial.ofSupport (insert 0 UV.2)) N =\n                F)\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-001/Candidate_74f6d21d322c9dae.lean:20:25: warning: This simp argument is unused:\n  Finset.disjoint_left\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.ConditionalCount.PrefixOK, M5.OrderCount.positivePositions, Finset.subset_iff]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-002/Candidate_62ddc3cf1f77acaa.lean:15:8: warning: aesop: failed to prove the goal after exhaustive search.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-002/Candidate_62ddc3cf1f77acaa.lean:15:52: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  c ≥ 1\n  b ≥ 1\n  a ≥ 1\n  a - c ≥ 1\nwhere\n a := ↑N\n b := ↑w\n c := ↑x\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-002/Candidate_62ddc3cf1f77acaa.lean:20:8: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  b ≥ 1\n  a ≥ 1\nwhere\n a := ↑N\n b := ↑w\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-002/Candidate_62ddc3cf1f77acaa.lean:35:6: warning: Try `simp at hh` instead of `simpa using hh`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-002/Candidate_62ddc3cf1f77acaa.lean:39:6: warning: Try `simp at hh` instead of `simpa using hh`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-003/Candidate_f9baedc366ec84f5.lean:14:6: warning: aesop: failed to prove the goal after exhaustive search.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-003/Candidate_f9baedc366ec84f5.lean:14:6: warning: aesop: failed to prove the goal after exhaustive search.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-003/Candidate_f9baedc366ec84f5.lean:31:40: error: unsolved goals\nN w : ℕ\nF : BinaryPolynomial\nhN : 0 < N\nhw : 0 < w\nhF : Polynomial.Monic F\nhFN : F ∣ cyclicModulus N\nhselected : ∀ (offset : ℕ), selected N offset [] = {0}\nhavailable : ∀ (offset : ℕ), available N offset [] = OrderCount.positivePositions N\nhA : selectedA N [] = {0}\nhB : selectedB N [] = {0}\nhWA : availableA N [] = OrderCount.positivePositions N\nhWB : availableB N [] = OrderCount.positivePositions N\nhs :\n  0 ∈ {0} ∧\n    0 ∈ {0} ∧\n      {0} ⊆ Finset.range N ∧\n        {0} ⊆ Finset.range N ∧\n          OrderCount.positivePositions N ⊆ Finset.range N ∧\n            OrderCount.positivePositions N ⊆ Finset.range N ∧\n              Disjoint {0} (OrderCount.positivePositions N) ∧ Disjoint {0} (OrderCount.positivePositions N)\nhp : ConditionalCount.PrefixOK N w {0} {0} (OrderCount.positivePositions N) (OrderCount.positivePositions N)\nhe :\n  ConditionalCount.completionC N w F {0} {0} (OrderCount.positivePositions N) (OrderCount.positivePositions N) =\n    ↑(ConditionalCount.validCompletions N w F {0} {0} (OrderCount.positivePositions N)\n          (OrderCount.positivePositions N)).card\n⊢ {pair ∈\n        Finset.powersetCard (w - 1) (OrderCount.positivePositions N) ×ˢ\n          Finset.powersetCard (w - 1) (OrderCount.positivePositions N) |\n      (insert 0 pair.1).card = w ∧\n        (insert 0 pair.2).card = w ∧\n          Connectivity.supportGcd N (insert 0 pair.1) (insert 0 pair.2) = 1 ∧\n            completeSignature (SupportPolynomial.ofSupport (insert 0 pair.1))\n                (SupportPolynomial.ofSupport (insert 0 pair.2)) N =\n              F} =\n    {pair ∈\n        Finset.powersetCard (w - 1) (OrderCount.positivePositions N) ×ˢ\n          Finset.powersetCard (w - 1) (OrderCount.positivePositions N) |\n      Connectivity.supportGcd N (insert 0 pair.1) (insert 0 pair.2) = 1 ∧\n        completeSignature (SupportPolynomial.ofSupport (insert 0 pair.1))\n            (SupportPolynomial.ofSupport (insert 0 pair.2)) N =\n          F}\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-004/Candidate_9ac0117e94912e63.lean:15:8: warning: aesop: failed to prove the goal after exhaustive search.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-004/Candidate_9ac0117e94912e63.lean:15:52: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  c ≥ 1\n  b ≥ 1\n  a ≥ 1\n  a - c ≥ 1\nwhere\n a := ↑N\n b := ↑w\n c := ↑x\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-004/Candidate_9ac0117e94912e63.lean:36:6: warning: Try `simp at hz'` instead of `simpa using hz'`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-004/Candidate_9ac0117e94912e63.lean:40:6: warning: Try `simp at hz'` instead of `simpa using hz'`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-005/Candidate_a29f793cacb8b1b8.lean:13:6: warning: aesop: failed to prove the goal after exhaustive search.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-005/Candidate_a29f793cacb8b1b8.lean:35:6: warning: Try `simp at hz'` instead of `simpa using hz'`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-005/Candidate_a29f793cacb8b1b8.lean:48:2: error: Tactic `apply` failed: could not unify the conclusion of `congrArg Finset.card`\n  Finset.card ?m.251 = Finset.card ?m.252\nwith the goal\n  (if [].length ≤ decisionCount N then\n      ↑(ConditionalCount.validCompletions N w F {0} {0} (OrderCount.positivePositions N)\n            (OrderCount.positivePositions N)).card\n    else 0) =\n    ↑(OrderCount.validPairs N w F).card\n\nNote: The full type of `congrArg Finset.card` is\n  ?m.251 = ?m.252 → Finset.card ?m.251 = Finset.card ?m.252\n\nN w : ℕ\nF : BinaryPolynomial\nhN : 0 < N\nhw : 0 < w\nhF : Polynomial.Monic F\nhFN : F ∣ cyclicModulus N\nhs : ∀ (offset : ℕ), selected N offset [] = {0}\nha : ∀ (offset : ℕ), available N offset [] = OrderCount.positivePositions N\nhp : ConditionalCount.PrefixOK N w {0} {0} (OrderCount.positivePositions N) (OrderCount.positivePositions N)\nhb : ∀ U ∈ Finset.powersetCard (w - 1) (OrderCount.positivePositions N), w ≤ N\n⊢ (if [].length ≤ decisionCount N then\n      ↑(ConditionalCount.validCompletions N w F {0} {0} (OrderCount.positivePositions N)\n            (OrderCount.positivePositions N)).card\n    else 0) =\n    ↑(OrderCount.validPairs N w F).card\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5/attempt-005/Candidate_a29f793cacb8b1b8.lean:21:6: warning: This simp argument is unused:\n  Finset.disjoint_left\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.OrderCount.positivePositions, Finset.subset_iff, hN, hw, Nat.succ_le_iff]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T09:42:13.692002+00:00",
+        "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5yuk5vv5",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "semantic_completion_count": {
+      "id": "semantic_completion_count",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M5.PhysicalRecovery.semantic_completion_count",
+        "spec_sha256": "15783277e32f90b082571b7b3053d83a14ec8884630f4555254b3866b52e87cf",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-001/Candidate_6b0973cb1023396d.lean:71:62: error: unsolved goals\nN w : ℕ\nF : BinaryPolynomial\nhN : 0 < N\nhw : 0 < w\nhF : Polynomial.Monic F\nhFN : F ∣ cyclicModulus N\np : List Bool\nhp : p.length ≤ decisionCount N\nhpa : (selectedA N p).card ≤ w\nhpb : (selectedB N p).card ≤ w\nA : Finset ℕ := selectedA N p\nB : Finset ℕ := selectedB N p\nWA : Finset ℕ := availableA N p\nWB : Finset ℕ := availableB N p\nR : Finset ℕ → Finset ℕ → Prop :=\n  fun X Y =>\n    Connectivity.supportGcd N X Y = 1 ∧\n      completeSignature (SupportPolynomial.ofSupport X) (SupportPolynomial.ofSupport Y) N = F\nhs : StateOK N p\nhA : A ⊆ Finset.range N\nhB : B ⊆ Finset.range N\nhWA : WA ⊆ Finset.range N\nhWB : WB ⊆ Finset.range N\nhA0 : 0 ∈ A\nhB0 : 0 ∈ B\nhdA : Disjoint A WA\nhdB : Disjoint B WB\nwords :\n  ∀ (q : List Bool),\n    q ∈ validWords N w F ↔ q.length = decisionCount N ∧ ValidSupports N w F (selectedA N q) (selectedB N q)\nU V : Finset ℕ\n⊢ U ⊆ availableA N p →\n    U.card = w - (selectedA N p).card →\n      V ⊆ availableB N p →\n        V.card = w - (selectedB N p).card →\n          ((selectedA N p ∪ U).card = w ∧\n              (selectedB N p ∪ V).card = w ∧\n                Connectivity.supportGcd N (selectedA N p ∪ U) (selectedB N p ∪ V) = 1 ∧\n                  completeSignature (SupportPolynomial.ofSupport (selectedA N p ∪ U))\n                      (SupportPolynomial.ofSupport (selectedB N p ∪ V)) N =\n                    F ↔\n            Connectivity.supportGcd N (selectedA N p ∪ U) (selectedB N p ∪ V) = 1 ∧\n              completeSignature (SupportPolynomial.ofSupport (selectedA N p ∪ U))\n                  (SupportPolynomial.ofSupport (selectedB N p ∪ V)) N =\n                F)\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-001/Candidate_6b0973cb1023396d.lean:166:6: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-001/Candidate_6b0973cb1023396d.lean:215:2: error: 'change' tactic failed, pattern\n  ↑W.card = ↑(completionSet N w F p).card\nis not definitionally equal to target\n  PrefixPartition.count (validWords N w F) p = ↑(completionSet N w F p).card\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-001/Candidate_6b0973cb1023396d.lean:25:38: warning: This simp argument is unused:\n  Finset.mem_sdiff\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all only [Finset.subset_iff]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-001/Candidate_6b0973cb1023396d.lean:30:38: warning: This simp argument is unused:\n  Finset.mem_sdiff\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all only [Finset.subset_iff]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-002/Candidate_34a04dfa1fd070a3.lean:65:6: error: Type mismatch: After simplification, term\n  hq\n has type\n  (∃ a, List.ofFn a = q) ∧ q.length = decisionCount N ∧ ValidSupports N w F (selectedA N q) (selectedB N q)\nbut is expected to have type\n  q.length = decisionCount N ∧ ValidSupports N w F (selectedA N q) (selectedB N q)\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-002/Candidate_34a04dfa1fd070a3.lean:111:4: error: `dsimp` made no progress\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-002/Candidate_34a04dfa1fd070a3.lean:181:22: error: unsolved goals\nN w : ℕ\nF : BinaryPolynomial\nhN : 0 < N\nhw : 0 < w\nhF : Polynomial.Monic F\nhFN : F ∣ cyclicModulus N\np : List Bool\nhp : p.length ≤ decisionCount N\nhpa : (selectedA N p).card ≤ w\nhpb : (selectedB N p).card ≤ w\nA : Finset ℕ := selectedA N p\nB : Finset ℕ := selectedB N p\nWA : Finset ℕ := availableA N p\nWB : Finset ℕ := availableB N p\nR : Finset ℕ → Finset ℕ → Prop :=\n  fun X Y =>\n    Connectivity.supportGcd N X Y = 1 ∧\n      completeSignature (SupportPolynomial.ofSupport X) (SupportPolynomial.ofSupport Y) N = F\nhs : StateOK N p\nhA : A ⊆ Finset.range N\nhB : B ⊆ Finset.range N\nhWA : WA ⊆ Finset.range N\nhWB : WB ⊆ Finset.range N\nhA0 : 0 ∈ A\nhB0 : 0 ∈ B\nhdA : Disjoint A WA\nhdB : Disjoint B WB\nunion_diff : ∀ (X S : Finset ℕ), S ⊆ X → S ∪ X \\ S = X\ndiff_union : ∀ (S T U : Finset ℕ), Disjoint S T → U ⊆ T → (S ∪ U) \\ S = U\nwords :\n  ∀ (q : List Bool),\n    q ∈ validWords N w F ↔ q.length = decisionCount N ∧ ValidSupports N w F (selectedA N q) (selectedB N q)\ncompletions :\n  ∀ (U V : Finset ℕ),\n    (U, V) ∈ completionSet N w F p ↔\n      U ⊆ WA ∧\n        U.card = w - A.card ∧ V ⊆ WB ∧ V.card = w - B.card ∧ (A ∪ U).card = w ∧ (B ∪ V).card = w ∧ R (A ∪ U) (B ∪ V)\nW : Finset (List Bool) := {q ∈ validWords N w F | p <+: q}\nwm :\n  ∀ (q : List Bool), q ∈ W ↔ q.length = decisionCount N ∧ ValidSupports N w F (selectedA N q) (selectedB N q) ∧ p <+: q\nf : List Bool → Finset ℕ × Finset ℕ := fun q => (selectedA N q \\ A, selectedB N q \\ B)\ng : Finset ℕ × Finset ℕ → List Bool := fun t => encode N (A ∪ t.1) (B ∪ t.2)\nforward : ∀ q ∈ W, f q ∈ completionSet N w F p\nbackward : ∀ t ∈ completionSet N w F p, g t ∈ W\nleft_inv : ∀ q ∈ W, g (f q) = q\nright_inv : ∀ t ∈ completionSet N w F p, f (g t) = t\nhc : W.card = (completionSet N w F p).card\n⊢ {q ∈ validWords N w F | p <+: q}.card = {q ∈ validWords N w F | p <+: q}.card\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-003/Candidate_500638f4146c3d77.lean:122:45: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-003/Candidate_500638f4146c3d77.lean:121:4: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-003/Candidate_500638f4146c3d77.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-003/Candidate_500638f4146c3d77.lean:12:42: warning: This simp argument is unused:\n  Finset.singleton_subset_iff\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M5.PhysicalRecovery.StateOK] at hs\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "proof_body",
+            "feedback": "proof body contains an unfinished proof or unsupported metaprogramming/command escape",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-005/Candidate_a821cd37e1dc3184.lean:53:60: error: unsolved goals\nN w : ℕ\nF : BinaryPolynomial\nhN : 0 < N\nhw : 0 < w\nhF : Polynomial.Monic F\nhFN : F ∣ cyclicModulus N\np : List Bool\nhp : p.length ≤ decisionCount N\nhAw : (selectedA N p).card ≤ w\nhBw : (selectedB N p).card ≤ w\nA : Finset ℕ := selectedA N p\nB : Finset ℕ := selectedB N p\nWA : Finset ℕ := availableA N p\nWB : Finset ℕ := availableB N p\nhs :\n  0 ∈ selectedA N p ∧\n    0 ∈ selectedB N p ∧\n      selectedA N p ⊆ Finset.range N ∧\n        selectedB N p ⊆ Finset.range N ∧\n          availableA N p ⊆ Finset.range N ∧\n            availableB N p ⊆ Finset.range N ∧\n              Disjoint (selectedA N p) (availableA N p) ∧ Disjoint (selectedB N p) (availableB N p)\nhAr : A ⊆ Finset.range N\nhBr : B ⊆ Finset.range N\nhWAr : WA ⊆ Finset.range N\nhWBr : WB ⊆ Finset.range N\nhA0 : 0 ∈ A\nhB0 : 0 ∈ B\nhdA : Disjoint A WA\nhdB : Disjoint B WB\nmemWords :\n  ∀ (q : List Bool),\n    q ∈ validWords N w F ↔ q.length = decisionCount N ∧ ValidSupports N w F (selectedA N q) (selectedB N q)\nU V : Finset ℕ\n⊢ U ⊆ availableA N p →\n    U.card = w - (selectedA N p).card →\n      V ⊆ availableB N p →\n        V.card = w - (selectedB N p).card →\n          ((selectedA N p ∪ U).card = w ∧\n              (selectedB N p ∪ V).card = w ∧\n                Connectivity.supportGcd N (selectedA N p ∪ U) (selectedB N p ∪ V) = 1 ∧\n                  completeSignature (SupportPolynomial.ofSupport (selectedA N p ∪ U))\n                      (SupportPolynomial.ofSupport (selectedB N p ∪ V)) N =\n                    F ↔\n            Connectivity.supportGcd N (selectedA N p ∪ U) (selectedB N p ∪ V) = 1 ∧\n              completeSignature (SupportPolynomial.ofSupport (selectedA N p ∪ U))\n                  (SupportPolynomial.ofSupport (selectedB N p ∪ V)) N =\n                F)\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-005/Candidate_a821cd37e1dc3184.lean:125:6: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-005/Candidate_a821cd37e1dc3184.lean:129:4: error: (deterministic) timeout at `«tactic execution»`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m/attempt-005/Candidate_a821cd37e1dc3184.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T09:46:42.414582+00:00",
+        "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-djapdy6m",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "arithmetic_oracle_exact": {
+      "id": "arithmetic_oracle_exact",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "overfull_prefix_zero"
+      ]
+    },
+    "valid_words_length": {
+      "id": "valid_words_length",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.PhysicalRecovery.valid_words_length",
+        "spec_sha256": "dcaf7fcee380071e619a7eb6a8e7fbeafb9d16dd157df971e3402ce72d770126",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-jelost7_/attempt-001/Candidate_2a6ebd4e3af6c56b.lean",
+            "target_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-jelost7_/attempt-001/FrozenTarget_2a6ebd4e3af6c56b.lean",
+            "feedback": "",
+            "target_sha256": "17904070e39e6f5dfddf4b9807ff534600f798b109de51a96b9f2bc790efb583",
+            "target_olean_sha256": "9d9ca29efeef7ccd12f215fa6ce42f75940e9b2eed07ef8deb318caaa7ca9648",
+            "source_sha256": "38af504f6e2578cacd56c7fd7abfdd704b2bb87b87c5ca80da5af099730b711a",
+            "olean_sha256": "d0cc1cac495ede6fa9f580cd8d3dba105cba0dac24a2fcc25f218206a9b05e45",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:39:17.391565+00:00",
+        "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-jelost7_",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-jelost7_/attempt-001/Candidate_2a6ebd4e3af6c56b.lean",
+        "environment_sha256": "d57919c2ffc2a7035a536368401261bad3d56cf1bcc076eac712e5f249d80e4a",
+        "artifacts": {
+          "valid_words_length": {
+            "payload": {
+              "declaration": "theorem M5.PhysicalRecovery.valid_words_length : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (q : List Bool), q ∈ M5.PhysicalRecovery.validWords N w F → q.length = M5.PhysicalRecovery.decisionCount N := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (q : List Bool), q ∈ M5.PhysicalRecovery.validWords N w F → q.length = M5.PhysicalRecovery.decisionCount N\n  intro N w F q h\n  classical\n  simp only [M5.PhysicalRecovery.validWords, Finset.mem_filter, M5.PhysicalRecovery.wordValid] at h\n  tauto",
+              "imports": [
+                "M5PhysicalRecovery"
+              ],
+              "name": "M5.PhysicalRecovery.valid_words_length",
+              "ancestors": [],
+              "spec_sha256": "dcaf7fcee380071e619a7eb6a8e7fbeafb9d16dd157df971e3402ce72d770126"
+            },
+            "sha256": "ca63a82d0bbf3986fddd525131481cedde177f01b6bb69d02cbafc27efc65520"
+          }
+        }
+      }
+    },
+    "actual_split": {
+      "id": "actual_split",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "arithmetic_oracle_exact"
+      ]
+    },
+    "actual_terminal": {
+      "id": "actual_terminal",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "arithmetic_oracle_exact"
+      ]
+    },
+    "recover_actual": {
+      "id": "recover_actual",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "initial_oracle"
+      ]
+    }
+  }
+}

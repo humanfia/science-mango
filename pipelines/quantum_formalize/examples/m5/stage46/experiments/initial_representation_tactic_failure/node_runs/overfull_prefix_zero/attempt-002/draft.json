@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N w F p hN hp hover\nhave hbad : ∀ q ∈ M5.PhysicalRecovery.validWords N w F, ¬ p.IsPrefix q := by\n  intro q hq hpq\n  have hv : M5.PhysicalRecovery.wordValid N w F q := by\n    unfold M5.PhysicalRecovery.validWords at hq\n    aesop\n  have hlen : q.length = M5.PhysicalRecovery.decisionCount N := by\n    unfold M5.PhysicalRecovery.wordValid at hv\n    tauto\n  have hcards : (M5.PhysicalRecovery.selectedA N q).card = w ∧\n      (M5.PhysicalRecovery.selectedB N q).card = w := by\n    unfold M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.ValidSupports at hv\n    tauto\n  have he := (M5.PhysicalRecovery.prefix_extension N p q hN hp hlen).mp hpq\n  have ha := Finset.card_le_card he.1\n  have hb := Finset.card_le_card he.2.2.1\n  omega\nhave htake : ∀ q ∈ M5.PhysicalRecovery.validWords N w F,\n    q.take p.length ≠ p := by\n  intro q hq ht\n  apply hbad q hq\n  refine ⟨q.drop p.length, ?_⟩\n  rw [← ht]\n  exact List.take_append_drop p.length q\nunfold M5.PrefixPartition.count\nsimp_all [Finset.filter_eq_empty_iff]",
+  "queries": [
+    "List.isPrefixOf_eq_true",
+    "List.IsPrefix take length",
+    "Finset.sum_eq_zero"
+  ]
+}

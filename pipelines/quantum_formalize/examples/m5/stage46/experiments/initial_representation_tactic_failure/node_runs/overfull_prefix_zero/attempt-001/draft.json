@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N w F p hN hp hover\nchange (((M5.PhysicalRecovery.validWords N w F).filter (fun q => p.IsPrefix q)).card : ℤ) = 0\nhave hempty : (M5.PhysicalRecovery.validWords N w F).filter (fun q => p.IsPrefix q) = ∅ := by\n  apply Finset.eq_empty_iff_forall_not_mem.mpr\n  intro q hq\n  obtain ⟨hq, hpq⟩ := Finset.mem_filter.mp hq\n  have hv : M5.PhysicalRecovery.wordValid N w F q := by\n    simpa only [M5.PhysicalRecovery.validWords, Finset.mem_filter] using hq |>.2\n  unfold M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.ValidSupports at hv\n  have hlen : q.length = M5.PhysicalRecovery.decisionCount N := by tauto\n  have hA : (M5.PhysicalRecovery.selectedA N q).card = w := by tauto\n  have hB : (M5.PhysicalRecovery.selectedB N q).card = w := by tauto\n  have he := (M5.PhysicalRecovery.prefix_extension N p q hN hp hlen).mp hpq\n  have hcA := Finset.card_le_card he.1\n  have hcB := Finset.card_le_card he.2.2.1\n  omega\nrw [hempty]\nsimp",
+  "queries": [
+    "M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.validWords definitions",
+    "M5.PhysicalRecovery.ValidSupports definition",
+    "M5.PrefixPartition.count definition"
+  ]
+}

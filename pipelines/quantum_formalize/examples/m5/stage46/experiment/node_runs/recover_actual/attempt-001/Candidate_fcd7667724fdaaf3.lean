@@ -1,0 +1,15 @@
+import FrozenTarget_fcd7667724fdaaf3
+theorem M5.PhysicalRecovery.recover_actual : QuantumHarnessFrozenTarget := by
+  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → 0 < M5.OrderCount.C N w F → M5.PhysicalRecovery.wordValid N w F (M5.PhysicalRecovery.recoverWord N w F)
+  intro N w F hN hw hF hFN hpos
+  have hinit : 0 < M5.PhysicalRecovery.oracle N w F [] := by
+    rw [M5.PhysicalRecovery.initial_oracle N w F hN hw hF hFN]
+    exact hpos
+  have h := M5.BinaryRecovery.recover_valid
+    (M5.PhysicalRecovery.oracle N w F)
+    (M5.PhysicalRecovery.wordValid N w F)
+    (M5.PhysicalRecovery.decisionCount N)
+    (M5.PhysicalRecovery.actual_split N w F hN hw hF hFN)
+    (M5.PhysicalRecovery.actual_terminal N w F hN hw hF hFN)
+    hinit
+  simpa only [M5.PhysicalRecovery.recoverWord] using h.2

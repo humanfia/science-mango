@@ -1,0 +1,13 @@
+{
+  "name": "M5.PhysicalRecovery.prefix_extension",
+  "statement": "∀ (N : ℕ) (p q : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → q.length = M5.PhysicalRecovery.decisionCount N → (p.IsPrefix q ↔ M5.PhysicalRecovery.selectedA N p ⊆ M5.PhysicalRecovery.selectedA N q ∧ M5.PhysicalRecovery.selectedA N q ⊆ M5.PhysicalRecovery.selectedA N p ∪ M5.PhysicalRecovery.availableA N p ∧ M5.PhysicalRecovery.selectedB N p ⊆ M5.PhysicalRecovery.selectedB N q ∧ M5.PhysicalRecovery.selectedB N q ⊆ M5.PhysicalRecovery.selectedB N p ∪ M5.PhysicalRecovery.availableB N p)",
+  "imports": [
+    "M5PhysicalRecovery"
+  ],
+  "context": "",
+  "queries": [
+    "list prefix getElem ofFn",
+    "finset cardinality bijection difference"
+  ],
+  "guidance": "Characterize list prefix by equality of Boolean entries at all processed indices. True processed entries force inclusion in the selected set; false processed entries force exclusion from the full selected support since only unprocessed positions are available. Conversely the two support containments force every processed bit, with block offset N-1. Zero anchors are fixed and contain no decision bit. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+}

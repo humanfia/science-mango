@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalCount.PrefixOK definition and M5.PhysicalRecovery.oracle definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 326974,
+        "name": "Lean.toPreDefinition",
+        "module": "Mathlib.Tactic.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Core.lean#L49-L70",
+        "source_text": "/--\nMake a PreDefinition taking some metadata from declaration `nm`.\nYou can provide a new type, value and (optional) docstring, but the remaining information is taken\nfrom `nm`.\nCurrently only implemented for definitions and theorems. Also see docstring of `toModifiers`\n-/\ndef toPreDefinition (nm newNm : Name) (newType newValue : Expr)\n    (newDoc : Option (TSyntax `Lean.Parser.Command.docComment) := none) :\n    CoreM PreDefinition := do\n  let d ← getConstInfo nm\n  let mods ← toModifiers nm newDoc\n  let predef : PreDefinition :=\n  { ref := Syntax.missing\n    binders := mkNullNode #[]\n    kind := if d.isDef then DefKind.def else DefKind.theorem\n    levelParams := d.levelParams\n    modifiers := mods\n    declName := newNm\n    type := newType\n    value := newValue\n    termination := .none }\n  return predef\n",
+        "docstring": "Make a PreDefinition taking some metadata from declaration `nm`.\nYou can provide a new type, value and (optional) docstring, but the remaining information is taken\nfrom `nm`.\nCurrently only implemented for definitions and theorems. Also see docstring of `toModifiers`\n"
+      },
+      {
+        "id": 211988,
+        "name": "Nat.cast_ite",
+        "module": "Mathlib.Data.Nat.Cast.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Cast/Defs.lean#L89-L92",
+        "source_text": "@[simp, norm_cast]\ntheorem cast_ite (P : Prop) [Decidable P] (m n : ℕ) :\n    ((ite P m n : ℕ) : R) = ite P (m : R) (n : R) := by\n  split_ifs <;> rfl",
+        "docstring": null
+      },
+      {
+        "id": 329646,
+        "name": "Mathlib.Tactic.successIfFailWithMessage",
+        "module": "Mathlib.Tactic.SuccessIfFailWithMsg",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/SuccessIfFailWithMsg.lean#L34-L60",
+        "source_text": "/-- Evaluates `tacs` and succeeds only if `tacs` both fails and throws an error equal (as a string)\nto `msg`. -/\ndef successIfFailWithMessage {s α : Type} {m : Type → Type} [Monad m] [MonadLiftT BaseIO m]\n    [MonadLiftT CoreM m] [MonadBacktrack s m] [MonadError m] (msg : String) (tacs : m α)\n    (msgref : Option Syntax := none) (ref : Option Syntax := none) : m Unit := do\n  let s ← saveState\n  let err ←\n    try _ ← tacs; pure none\n    catch err => pure (some (← err.toMessageData.toString))\n  restoreState s\n  if let some err := err then\n    unless msg.trimAscii == err.trimAscii do\n      if let some msgref := msgref then\n        let suggestion : TryThis.Suggestion :=\n          { suggestion := s!\"\\\"{err.trimAscii}\\\"\"\n            toCodeActionTitle? := some (fun _ => \"Update with tactic error message\")}\n        TryThis.addSuggestion msgref suggestion (header := \"Update with tactic error message: \")\n\n      if let some ref := ref then\n        throwErrorAt ref \"tactic '{ref}' failed, but got different error message:\\n\\n{err}\"\n      else\n        throwError \"tactic failed, but got different error message:\\n\\n{err}\"\n  else\n    if let some ref := ref then\n      throwErrorAt ref \"tactic '{ref}' succeeded, but was expected to fail\"\n    else\n      throwError \"tactic succeeded, but was expected to fail\"\n",
+        "docstring": "Evaluates `tacs` and succeeds only if `tacs` both fails and throws an error equal (as a string)\nto `msg`. "
+      },
+      {
+        "id": 196711,
+        "name": "RecursiveIn.oracle",
+        "module": "Mathlib.Computability.RecursiveIn",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/RecursiveIn.lean#L195-L196",
+        "source_text": "lemma oracle : ∀ g ∈ O, RecursiveIn O g := by\n  intro g hg; rw [iff_nat]; exact .oracle g hg\n",
+        "docstring": null
+      },
+      {
+        "id": 217126,
+        "name": "Stream'.Seq.get?_mem_take",
+        "module": "Mathlib.Data.Seq.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Seq/Basic.lean#L176-L193",
+        "source_text": "theorem get?_mem_take {s : Seq α} {m n : ℕ} (h_mn : m < n) {x : α}\n    (h_get : s.get? m = some x) : x ∈ s.take n := by\n  induction m generalizing n s with\n  | zero =>\n    obtain ⟨l, hl⟩ := Nat.exists_add_one_eq.mpr h_mn\n    rw [← hl, take, head_eq_some h_get]\n    simp\n  | succ k ih =>\n    obtain ⟨l, rfl⟩ := Nat.exists_eq_add_of_lt h_mn\n    have : ∃ y, s.get? 0 = some y := by\n      apply ge_stable _ _ h_get\n      simp\n    obtain ⟨y, hy⟩ := this\n    rw [take, head_eq_some hy]\n    simp only [destruct_cons, List.mem_cons]\n    right\n    apply ih (by lia)\n    rwa [get?_tail]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.ConditionalCount.PrefixOK definition and M5.PhysicalRecovery.oracle definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393824,
+        "name": "CanonicalEnsemble.physicalProbability_nonneg",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L736-L739",
+        "source_text": "lemma physicalProbability_nonneg\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    0 ≤ 𝓒.physicalProbability T i :=\n  mul_nonneg (𝓒.probability_nonneg T i) (pow_nonneg 𝓒.hPos.le _)\n",
+        "docstring": null
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PhysicalRecovery.available empty prefix positivePositions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 250355,
+        "name": "Orientation.map_positiveOrientation_of_isEmpty",
+        "module": "Mathlib.LinearAlgebra.Orientation",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Orientation.lean#L111-L113",
+        "source_text": "@[simp]\ntheorem Orientation.map_positiveOrientation_of_isEmpty [IsEmpty ι] (f : M ≃ₗ[R] N) :\n    Orientation.map ι f positiveOrientation = positiveOrientation := rfl",
+        "docstring": null
+      },
+      {
+        "id": 329006,
+        "name": "Mathlib.Meta.Positivity.positivityExt",
+        "module": "Mathlib.Tactic.Positivity.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Positivity/Core.lean#L106-L120",
+        "source_text": "/-- Environment extensions for `positivity` declarations -/\ninitialize positivityExt : PersistentEnvExtension Entry (Entry × PositivityExt)\n    (List Entry × DiscrTree PositivityExt) ←\n  -- we only need this to deduplicate entries in the DiscrTree\n  have : BEq PositivityExt := ⟨fun _ _ => false⟩\n  let insert kss v dt := kss.foldl (fun dt ks => dt.insertKeyValue ks v) dt\n  registerPersistentEnvExtension {\n    mkInitial := pure ([], {})\n    addImportedFn := fun s => do\n      let dt ← s.foldlM (init := {}) fun dt s => s.foldlM (init := dt) fun dt (kss, n) => do\n        pure (insert kss (← mkPositivityExt n) dt)\n      pure ([], dt)\n    addEntryFn := fun (entries, s) ((kss, n), ext) => ((kss, n) :: entries, insert kss ext s)\n    exportEntriesFn := fun s => s.1.reverse.toArray\n  }\n",
+        "docstring": "Environment extensions for `positivity` declarations "
+      },
+      {
+        "id": 328999,
+        "name": "Mathlib.Meta.Positivity.Strictness.toString",
+        "module": "Mathlib.Tactic.Positivity.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Positivity/Core.lean#L66-L71",
+        "source_text": "/-- Gives a generic description of the `positivity` result. -/\ndef Strictness.toString {e pα?} : Strictness zα e pα? → String\n  | positive _ => \"positive\"\n  | nonnegative _ => \"nonnegative\"\n  | nonzero _ => \"nonzero\"\n  | none => \"none\"\n",
+        "docstring": "Gives a generic description of the `positivity` result. "
+      },
+      {
+        "id": 274935,
+        "name": "NumberField.mixedEmbedding.mem_negAt_plusPart_of_mem",
+        "module": "Mathlib.NumberTheory.NumberField.CanonicalEmbedding.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/NumberField/CanonicalEmbedding/Basic.lean#L1015-L1025",
+        "source_text": "theorem mem_negAt_plusPart_of_mem (hx₁ : x ∈ A) (hx₂ : ∀ w, x.1 w ≠ 0) :\n    x ∈ negAt s '' (plusPart A) ↔ (∀ w, w ∈ s → x.1 w < 0) ∧ (∀ w, w ∉ s → x.1 w > 0) := by\n  refine ⟨fun hx ↦ ⟨fun _ hw ↦ neg_of_mem_negA_plusPart A hx hw,\n      fun _ hw ↦ pos_of_notMem_negAt_plusPart A hx hw⟩,\n      fun ⟨h₁, h₂⟩ ↦\n        ⟨(fun w ↦ ‖x.1 w‖, x.2), ⟨(hA x).mp hx₁, fun w ↦ norm_pos_iff.mpr (hx₂ w)⟩, ?_⟩⟩\n  ext w\n  · by_cases hw : w ∈ s\n    · simp [negAt_apply_isReal_and_mem _ hw, abs_of_neg (h₁ w hw)]\n    · simp [negAt_apply_isReal_and_notMem _ hw, abs_of_pos (h₂ w hw)]\n  · rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 274932,
+        "name": "NumberField.mixedEmbedding.neg_of_mem_negA_plusPart",
+        "module": "Mathlib.NumberTheory.NumberField.CanonicalEmbedding.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/NumberField/CanonicalEmbedding/Basic.lean#L988-L992",
+        "source_text": "theorem neg_of_mem_negA_plusPart (hx : x ∈ negAt s '' (plusPart A)) {w : {w // IsReal w}}\n    (hw : w ∈ s) : x.1 w < 0 := by\n  obtain ⟨y, hy, rfl⟩ := hx\n  rw [negAt_apply_isReal_and_mem _ hw, neg_lt_zero]\n  exact hy.2 w\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PhysicalRecovery.available empty prefix positivePositions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393822,
+        "name": "CanonicalEnsemble.physicalProbability_def",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+        "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393826,
+        "name": "CanonicalEnsemble.log_physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L746-L751",
+        "source_text": "lemma log_physicalProbability\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    Real.log (𝓒.physicalProbability T i)\n      = Real.log (𝓒.probability T i) + (𝓒.dof : ℝ) * Real.log 𝓒.phaseSpaceunit := by\n  rw [physicalProbability, Real.log_mul (𝓒.probability_pos T i).ne' (pow_pos 𝓒.hPos _).ne',\n    Real.log_pow]\n",
+        "docstring": null
+      },
+      {
+        "id": 393823,
+        "name": "CanonicalEnsemble.physicalProbability_measurable",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L731-L734",
+        "source_text": "lemma physicalProbability_measurable (T : Temperature) :\n    Measurable (𝓒.physicalProbability T) := by\n  unfold physicalProbability probability\n  fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 387030,
+        "name": "allFilePaths",
+        "module": "Physlib.Meta.AllFilePaths",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/AllFilePaths.lean#L30-L32",
+        "source_text": "/-- Gets an array of all file paths in `Physlib`. -/\npartial def allFilePaths : IO (Array FilePath) := do\n  allFilePaths.go (#[] : Array FilePath) \"./Physlib\" (\"./Physlib\" : FilePath)\n",
+        "docstring": "Gets an array of all file paths in `Physlib`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalCount.validCompletions M5.OrderCount.validPairs definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 282229,
+        "name": "OrderDual.instConditionallyCompletePartialOrder",
+        "module": "Mathlib.Order.ConditionallyCompletePartialOrder.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/ConditionallyCompletePartialOrder/Basic.lean#L41-L42",
+        "source_text": "instance [ConditionallyCompletePartialOrder α] :\n    ConditionallyCompletePartialOrder αᵒᵈ where\n",
+        "docstring": null
+      },
+      {
+        "id": 281908,
+        "name": "ConditionallyCompleteLinearOrder.toLinearOrder",
+        "module": "Mathlib.Order.ConditionallyCompleteLattice.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/ConditionallyCompleteLattice/Basic.lean#L137-L151",
+        "source_text": "instance ConditionallyCompleteLinearOrder.toLinearOrder [h : ConditionallyCompleteLinearOrder α] :\n    LinearOrder α where\n  min_def a b := by\n    by_cases hab : a = b\n    · simp [hab]\n    · rcases ConditionallyCompleteLinearOrder.le_total a b with (h₁ | h₂)\n      · simp [h₁]\n      · simp [show ¬(a ≤ b) from fun h => hab (le_antisymm h h₂), h₂]\n  max_def a b := by\n    by_cases hab : a = b\n    · simp [hab]\n    · rcases ConditionallyCompleteLinearOrder.le_total a b with (h₁ | h₂)\n      · simp [h₁]\n      · simp [show ¬(a ≤ b) from fun h => hab (le_antisymm h h₂), h₂]\n  __ := h\n",
+        "docstring": null
+      },
+      {
+        "id": 214649,
+        "name": "Ordnode.Valid",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L56-L60",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. -/\ndef Valid (t : Ordnode α) : Prop :=\n  Valid' ⊥ t ⊤\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. "
+      },
+      {
+        "id": 214648,
+        "name": "Ordnode.Valid'",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L48-L54",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. -/\nstructure Valid' (lo : WithBot α) (t : Ordnode α) (hi : WithTop α) : Prop where\n  ord : t.Bounded lo hi\n  sz : t.Sized\n  bal : t.Balanced\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. "
+      },
+      {
+        "id": 293454,
+        "name": "Pi.isCompl_iff",
+        "module": "Mathlib.Order.PropInstances",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/PropInstances.lean#L80-L82",
+        "source_text": "theorem isCompl_iff [∀ i, BoundedOrder (α' i)] {f g : ∀ i, α' i} :\n    IsCompl f g ↔ ∀ i, IsCompl (f i) (g i) := by\n  simp_rw [_root_.isCompl_iff, disjoint_iff, codisjoint_iff, forall_and]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.ConditionalCount.validCompletions M5.OrderCount.validPairs definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388434,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+        "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+        "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+      },
+      {
+        "id": 393950,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_nodup",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L248-L250",
+        "source_text": "lemma viableCompletions_nodup (I : CodimensionOneConfig) :\n    (viableCompletions I).Nodup := by\n  cases I <;> decide +kernel\n",
+        "docstring": null
+      },
+      {
+        "id": 393949,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_card",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L237-L240",
+        "source_text": "lemma viableCompletions_card (I : CodimensionOneConfig) :\n    (viableCompletions I).card = if I = same then 70 else\n      if I = nearestNeighbor then 48 else 37 := by\n  cases I <;> rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 393958,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_disjiont_viableChargesAdditional",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L382-L386",
+        "source_text": "lemma viableCompletions_disjiont_viableChargesAdditional (I : CodimensionOneConfig) :\n    Disjoint (viableCompletions I) (viableChargesAdditional I) := by\n  refine Multiset.inter_eq_zero_iff_disjoint.mp ?_\n  cases I\n  <;> decide +kernel\n",
+        "docstring": null
+      },
+      {
+        "id": 393971,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_subset_viableCharges",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L551-L555",
+        "source_text": "lemma viableCompletions_subset_viableCharges (I : CodimensionOneConfig) :\n    ∀ x ∈ (viableCompletions I), x ∈ viableCharges I := by\n  intro x hx\n  rw [viableCharges, Multiset.mem_add]\n  exact Or.inl hx\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

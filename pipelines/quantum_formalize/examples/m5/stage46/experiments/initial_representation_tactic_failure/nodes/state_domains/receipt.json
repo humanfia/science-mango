@@ -1,0 +1,61 @@
+{
+  "id": "state_domains",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PhysicalRecovery.state_domains",
+    "spec_sha256": "ad5f66a3f539551dd544e7f44c4e030794e75324694250b36942f98f2c84e672",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-001/Candidate_131d21ebf99fb0e1.lean:17:9: error: unexpected token ':'; expected '=>'\n/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-001/Candidate_131d21ebf99fb0e1.lean:2:74: error: unsolved goals\ncase left\nN : ℕ\np : List Bool\nhN : 0 < N\nhp : p.length ≤ decisionCount N\n⊢ True ∨ ∃ a, (a < N - 1 ∧ 0 + a < p.length ∧ p[0 + a]? = some true) ∧ a + 1 = 0\n\ncase right.left\nN : ℕ\np : List Bool\nhN : 0 < N\nhp : p.length ≤ decisionCount N\n⊢ True ∨ ∃ a, (a < N - 1 ∧ N - 1 + a < p.length ∧ p[N - 1 + a]? = some true) ∧ a + 1 = 0\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-002/Candidate_e7848c10d496ce0e.lean",
+        "target_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-002/FrozenTarget_e7848c10d496ce0e.lean",
+        "feedback": "",
+        "target_sha256": "3e93d5db8180999d91b320f06859c624279aa17c0d5520df46a2fd3d7807ee96",
+        "target_olean_sha256": "add84e8721997395552e445970057ae99233347237a7ccfb9e026d626caad5e1",
+        "source_sha256": "c98de7f3fca74278e579c4a2bb6c2f9f077612d6aad000632a6f0257f22e6973",
+        "olean_sha256": "bb311839a15eb10c8fa864a408209be5ef5e321984eb1e7b9cf80c23d7820480",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T09:39:17.324726+00:00",
+    "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-5ixrngvg/attempt-002/Candidate_e7848c10d496ce0e.lean",
+    "environment_sha256": "d57919c2ffc2a7035a536368401261bad3d56cf1bcc076eac712e5f249d80e4a",
+    "artifacts": {
+      "state_domains": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalRecovery.state_domains : ∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p := by\n  change ∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p\n  intro N p hN hp\n  simp only [M5.PhysicalRecovery.StateOK,\n    M5.PhysicalRecovery.selectedA, M5.PhysicalRecovery.selectedB,\n    M5.PhysicalRecovery.availableA, M5.PhysicalRecovery.availableB,\n    M5.PhysicalRecovery.selected, M5.PhysicalRecovery.available,\n    Finset.subset_iff, Finset.disjoint_left, Finset.mem_insert,\n    Finset.mem_image, Finset.mem_filter, Finset.mem_range,\n    Finset.mem_singleton]\n  aesop (config := { terminal := false }) <;> omega",
+          "imports": [
+            "M5PhysicalRecovery"
+          ],
+          "name": "M5.PhysicalRecovery.state_domains",
+          "ancestors": [],
+          "spec_sha256": "ad5f66a3f539551dd544e7f44c4e030794e75324694250b36942f98f2c84e672"
+        },
+        "sha256": "30422647eaccb9915ce804a64c53c01588a06ef9b2e5fc5bcbf9d8066a0862e3"
+      }
+    }
+  }
+}

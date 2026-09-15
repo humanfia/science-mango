@@ -1,0 +1,292 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.validWords definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 214648,
+        "name": "Ordnode.Valid'",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L48-L54",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. -/\nstructure Valid' (lo : WithBot α) (t : Ordnode α) (hi : WithTop α) : Prop where\n  ord : t.Bounded lo hi\n  sz : t.Sized\n  bal : t.Balanced\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. "
+      },
+      {
+        "id": 214649,
+        "name": "Ordnode.Valid",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L56-L60",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. -/\ndef Valid (t : Ordnode α) : Prop :=\n  Valid' ⊥ t ⊤\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. "
+      },
+      {
+        "id": 329116,
+        "name": "Mathlib.Tactic.tacticRecover_",
+        "module": "Mathlib.Tactic.Recover",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Recover.lean#L59-L72",
+        "source_text": "/-- `recover tacs` applies the tactic (sequence) `tacs` and then re-adds goals that were\nincorrectly marked as closed. This helps to debug issues where a tactic closes goals without\nsolving them (i.e. goals were removed from the MetaM state without the metavariable\nbeing assigned), resulting in the error \"(kernel) declaration has metavariables\". -/\nelab \"recover \" tacs:tacticSeq : tactic => do\n  let originalGoals ← getGoals\n  evalTactic tacs\n  let mut unassigned : Std.HashSet MVarId := {}\n  for mvarId in originalGoals do\n    unless ← mvarId.isAssigned <||> mvarId.isDelayedAssigned do\n      unassigned := unassigned.insert mvarId\n    let unassignedMVarDependencies ← getUnassignedGoalMVarDependencies mvarId\n    unassigned := unassigned.insertMany unassignedMVarDependencies.toList\n  setGoals <| ((← getGoals) ++ unassigned.toList).eraseDups\n",
+        "docstring": "`recover tacs` applies the tactic (sequence) `tacs` and then re-adds goals that were\nincorrectly marked as closed. This helps to debug issues where a tactic closes goals without\nsolving them (i.e. goals were removed from the MetaM state without the metavariable\nbeing assigned), resulting in the error \"(kernel) declaration has metavariables\". "
+      },
+      {
+        "id": 234102,
+        "name": "Monoid.CoprodI.Word.equivPair_head_smul_equivPair_tail",
+        "module": "Mathlib.GroupTheory.CoprodI",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/CoprodI.lean#L558-L561",
+        "source_text": "@[simp]\ntheorem equivPair_head_smul_equivPair_tail {i : ι} (w : Word M) :\n    of (equivPair i w).head • (equivPair i w).tail = w := by\n  rw [← rcons_eq_smul, ← equivPair_symm, Equiv.symm_apply_apply]",
+        "docstring": null
+      },
+      {
+        "id": 196100,
+        "name": "Language.reverse_mem_reverse",
+        "module": "Mathlib.Computability.Language",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/Language.lean#L335-L336",
+        "source_text": "lemma reverse_mem_reverse : a.reverse ∈ l.reverse ↔ a ∈ l := by\n  rw [mem_reverse, List.reverse_reverse]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.validWords definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393822,
+        "name": "CanonicalEnsemble.physicalProbability_def",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+        "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393831,
+        "name": "CanonicalEnsemble.physicalProbability_congr",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L779-L782",
+        "source_text": "lemma physicalProbability_congr (e : ι1 ≃ᵐ ι) (T : Temperature) (i : ι1) :\n    (𝓒.congr e).physicalProbability T i\n      = 𝓒.physicalProbability T (e i) := by\n  simp [physicalProbability, probability]\n",
+        "docstring": null
+      },
+      {
+        "id": 393832,
+        "name": "CanonicalEnsemble.physicalProbability_add",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L784-L791",
+        "source_text": "lemma physicalProbability_add\n    {ι1} [MeasurableSpace ι1]\n    (𝓒1 : CanonicalEnsemble ι1) (T : Temperature) (i : ι × ι1)\n    (h : 𝓒.phaseSpaceunit = 𝓒1.phaseSpaceunit) :\n    (𝓒 + 𝓒1).physicalProbability T i\n      = 𝓒.physicalProbability T i.1 * 𝓒1.physicalProbability T i.2 := by\n  simp [physicalProbability, probability_add, phase_space_unit_add, dof_add, h, pow_add,\n    mul_mul_mul_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 393825,
+        "name": "CanonicalEnsemble.physicalProbability_pos",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L741-L744",
+        "source_text": "lemma physicalProbability_pos\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    0 < 𝓒.physicalProbability T i :=\n  mul_pos (𝓒.probability_pos T i) (pow_pos 𝓒.hPos _)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PhysicalRecovery.ValidSupports definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 197013,
+        "name": "Turing.TM0.Supports",
+        "module": "Mathlib.Computability.TuringMachine.PostTuringMachine",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/PostTuringMachine.lean#L176-L184",
+        "source_text": "/-- The raw definition of a Turing machine does not require that\n  `Γ` and `Λ` are finite, and in practice we will be interested\n  in the infinite `Λ` case. We recover instead a notion of\n  \"effectively finite\" Turing machines, which only make use of a\n  finite subset of their states. We say that a set `S ⊆ Λ`\n  supports a Turing machine `M` if `S` is closed under the\n  transition function and contains the initial state. -/\ndef Supports (M : Machine Γ Λ) (S : Set Λ) :=\n  default ∈ S ∧ ∀ {q a q' s}, (q', s) ∈ M q a → q ∈ S → q' ∈ S\n",
+        "docstring": "The raw definition of a Turing machine does not require that\n`Γ` and `Λ` are finite, and in practice we will be interested\nin the infinite `Λ` case. We recover instead a notion of\n\"effectively finite\" Turing machines, which only make use of a\nfinite subset of their states. We say that a set `S ⊆ Λ`\nsupports a Turing machine `M` if `S` is closed under the\ntransition function and contains the initial state. "
+      },
+      {
+        "id": 214648,
+        "name": "Ordnode.Valid'",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L48-L54",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. -/\nstructure Valid' (lo : WithBot α) (t : Ordnode α) (hi : WithTop α) : Prop where\n  ord : t.Bounded lo hi\n  sz : t.Sized\n  bal : t.Balanced\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. "
+      },
+      {
+        "id": 91697,
+        "name": "Function.support",
+        "module": "Mathlib.Algebra.Notation.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Support.lean#L31-L31",
+        "source_text": "@[to_additive /-- `support` of a function is the set of points `x` such that `f x ≠ 0`. -/]\ndef mulSupport (f : ι → M) : Set ι := {x | f x ≠ 1}",
+        "docstring": "`support` of a function is the set of points `x` such that `f x ≠ 0`. "
+      },
+      {
+        "id": 205100,
+        "name": "Finsupp.onFinsetSupport",
+        "module": "Mathlib.Data.Finsupp.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Defs.lean#L230-L233",
+        "source_text": "/-- The (not exposed) support of `Finsupp.onFinset`. -/\n@[no_expose] def onFinsetSupport (s : Finset α) (f : α → M) : Finset α :=\n  haveI := Classical.decEq M\n  {a ∈ s | f a ≠ 0}\n",
+        "docstring": "The (not exposed) support of `Finsupp.onFinset`. "
+      },
+      {
+        "id": 198058,
+        "name": "MvFunctor.of_mem_supp",
+        "module": "Mathlib.Control.Functor.Multivariate",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Control/Functor/Multivariate.lean#L60-L61",
+        "source_text": "theorem of_mem_supp {α : TypeVec n} {x : F α} {P : ∀ ⦃i⦄, α i → Prop} (h : LiftP P x) (i : Fin2 n) :\n    ∀ y ∈ supp x i, P y := fun _y hy => hy h\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PhysicalRecovery.ValidSupports definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393822,
+        "name": "CanonicalEnsemble.physicalProbability_def",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+        "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+        "docstring": null
+      },
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 393823,
+        "name": "CanonicalEnsemble.physicalProbability_measurable",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L731-L734",
+        "source_text": "lemma physicalProbability_measurable (T : Temperature) :\n    Measurable (𝓒.physicalProbability T) := by\n  unfold physicalProbability probability\n  fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PrefixPartition.count definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 189209,
+        "name": "Nat.Partition.card_restricted_eq_card_countRestricted",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Glaisher",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Glaisher.lean#L153-L156",
+        "source_text": "theorem card_restricted_eq_card_countRestricted (n : ℕ) {m : ℕ} (hm : 0 < m) :\n    #(restricted n (¬ m ∣ ·)) = #(countRestricted n m) := by\n  simpa using PowerSeries.ext_iff.mp\n    (powerSeriesMk_card_restricted_eq_powerSeriesMk_card_countRestricted ℤ hm) n\n",
+        "docstring": null
+      },
+      {
+        "id": 189186,
+        "name": "Nat.Partition.countRestricted",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Basic.lean#L212-L214",
+        "source_text": "/-- The finset of those partitions in which every part is used less than `m` times. -/\ndef countRestricted (n : ℕ) (m : ℕ) : Finset n.Partition :=\n  Finset.univ.filter fun x ↦ ∀ i ∈ x.parts, x.parts.count i < m\n",
+        "docstring": "The finset of those partitions in which every part is used less than `m` times. "
+      },
+      {
+        "id": 194444,
+        "name": "SzemerediRegularity.card_chunk",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Chunk",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Chunk.lean#L173-L178",
+        "source_text": "theorem card_chunk (hm : m ≠ 0) : #(chunk hP G ε hU).parts = 4 ^ #P.parts := by\n  unfold chunk\n  split_ifs\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le]\n    exact le_of_lt a_add_one_le_four_pow_parts_card\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le a_add_one_le_four_pow_parts_card]\n",
+        "docstring": null
+      },
+      {
+        "id": 194460,
+        "name": "Finpartition.card_filter_equitabilise_small",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L166-L181",
+        "source_text": "theorem card_filter_equitabilise_small (hm : m ≠ 0) :\n    #{u ∈ (P.equitabilise h).parts | #u = m} = a := by\n  refine (mul_eq_mul_right_iff.1 <| (add_left_inj (b * (m + 1))).1 ?_).resolve_right hm\n  rw [h, ← (P.equitabilise h).sum_card_parts]\n  have hunion :\n    (P.equitabilise h).parts =\n      {u ∈ (P.equitabilise h).parts | #u = m} ∪ {u ∈ (P.equitabilise h).parts | #u = m + 1} := by\n    rw [← filter_or, filter_true_of_mem]\n    exact fun x => card_eq_of_mem_parts_equitabilise\n  nth_rw 2 [hunion]\n  rw [sum_union, sum_const_nat fun x hx => (mem_filter.1 hx).2,\n    sum_const_nat fun x hx => (mem_filter.1 hx).2, P.card_filter_equitabilise_big]\n  refine disjoint_filter_filter' _ _ ?_\n  intro x ha hb i h\n  apply succ_ne_self m _\n  exact (hb i h).symm.trans (ha i h)\n",
+        "docstring": null
+      },
+      {
+        "id": 194461,
+        "name": "Finpartition.card_parts_equitabilise",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L183-L186",
+        "source_text": "theorem card_parts_equitabilise (hm : m ≠ 0) : #(P.equitabilise h).parts = a + b := by\n  rw [← filter_true_of_mem fun x => card_eq_of_mem_parts_equitabilise, filter_or,\n    card_union_of_disjoint, P.card_filter_equitabilise_small _ hm, P.card_filter_equitabilise_big]\n  aesop (add norm disjoint_filter)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PrefixPartition.count definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

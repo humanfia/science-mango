@@ -1,0 +1,7 @@
+{
+  "proof": "intro N w F p hN hp hover\nclassical\nhave hnone : ∀ q ∈ M5.PhysicalRecovery.validWords N w F, ¬ p.IsPrefix q := by\n  intro q hq hpq\n  have hv : M5.PhysicalRecovery.wordValid N w F q :=\n    (Finset.mem_filter.mp hq).2\n  unfold M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.ValidSupports at hv\n  have hlen : q.length = M5.PhysicalRecovery.decisionCount N := by tauto\n  have hA : (M5.PhysicalRecovery.selectedA N q).card = w := by tauto\n  have hB : (M5.PhysicalRecovery.selectedB N q).card = w := by tauto\n  have hs := (M5.PhysicalRecovery.prefix_extension N p q hN hp hlen).mp hpq\n  have hcA := Finset.card_le_card hs.1\n  have hcB := Finset.card_le_card hs.2.2.1\n  omega\nhave htake : ∀ q ∈ M5.PhysicalRecovery.validWords N w F,\n    q.take p.length ≠ p := by\n  intro q hq he\n  apply hnone q hq\n  refine ⟨q.drop p.length, ?_⟩\n  calc\n    p ++ q.drop p.length = q.take p.length ++ q.drop p.length :=\n      congrArg (fun r => r ++ q.drop p.length) he.symm\n    _ = q := List.take_append_drop p.length q\nsimp [M5.PrefixPartition.count, Finset.card_eq_zero,\n  Finset.filter_eq_empty_iff, htake, hnone, eq_comm]",
+  "queries": [
+    "Finset.filter_eq_empty_iff",
+    "List.prefix_iff_eq_take"
+  ]
+}

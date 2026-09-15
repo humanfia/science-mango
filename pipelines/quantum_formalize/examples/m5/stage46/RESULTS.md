@@ -1,0 +1,15 @@
+# Actual physical-support recovery accepted
+
+All 12 frozen targets passed exact target checking, Lean kernel compilation and axiom auditing. The combined accepted assembly compiled and the project environment stayed unchanged. The canonical evidence is `experiment/` (232 files); its `MANIFEST.json` hashes every exported evidence file. The successful run is `physical-repair-lbthctq4` in the isolated physical-recovery project.
+
+The concrete oracle evaluates the accepted conditional arithmetic `completionC` on selected and available positions decoded from a Boolean prefix. Its equality to the semantic count of valid extensions is now proved, including selected-cardinality overflow. The initial oracle equals the accepted arithmetic `C`; the actual false/true split and terminal validity are proved. Instantiating the accepted binary recovery theorem gives `M5.PhysicalRecovery.recover_actual`:
+
+For `N > 0`, `w > 0`, monic `F` dividing `cyclicModulus N`, and `C N w F > 0`, the specific `recoverWord N w F` has exactly `2 * (N - 1)` Boolean decisions. Its decoded supports lie in `range N`, both contain 0, both have cardinality `w`, have combined integer gcd 1, and have complete polynomial signature `F`.
+
+The oracle definition uses the finite factor/divisor arithmetic formula, not enumeration of support pairs. A finite set of valid words serves only as the semantic specification in the proof. No oracle-correctness premise, squarefree assumption, extra reindexing requirement, inherited test, anchored ranking, code-generation test or performance bound was added to the recovery target. Exact decision length is the stated mathematical recovery bound.
+
+The first live batch accepted five representation lemmas, while three other tactics failed and blocked their descendants. Its full 270-file evidence remains under `experiments/initial_representation_tactic_failure/`. The three repairs preserve the frozen statements and assumptions: explicit anchored-cardinality consequences for the empty prefix; direct filter/cardinality reasoning for overfull prefixes; and explicit union-cardinality, Decidable transport, and inverse-validity steps for the completion bijection. Each repaired proof passed an independent exact-target/kernel/axiom check before replay. The original live attempts were allowed to finish before replay, preserving any genuine success.
+
+The successful full DAG replay rechecked the five unchanged accepted bodies and all three repaired bodies. The remaining four nodes used fresh live model attempts: arithmetic-oracle correctness passed on attempt 2; split, terminal validity and final actual recovery each passed on attempt 1. Model settings remained `gpt-6-astra`, medium effort, concurrency 16, at most five rounds. Mathlib and Physlib retrievals were performed through the existing pipeline. `REPAIR_REPLAY.json` records replay origins and live attempts.
+
+This establishes the actual physical recovery clause. Acceptance of the final M5 conjunction is tracked separately by the final-root stage.

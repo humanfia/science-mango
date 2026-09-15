@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → 0 < M5.OrderCount.C N w F → M5.PhysicalRecovery.wordValid N w F (M5.PhysicalRecovery.recoverWord N w F)\nintro N w F hN hw hF hFN hpos\nhave hinit : 0 < M5.PhysicalRecovery.oracle N w F [] := by\n  rw [M5.PhysicalRecovery.initial_oracle N w F hN hw hF hFN]\n  exact hpos\nhave h := M5.BinaryRecovery.recover_valid\n  (M5.PhysicalRecovery.oracle N w F)\n  (M5.PhysicalRecovery.wordValid N w F)\n  (M5.PhysicalRecovery.decisionCount N)\n  (M5.PhysicalRecovery.actual_split N w F hN hw hF hFN)\n  (M5.PhysicalRecovery.actual_terminal N w F hN hw hF hFN)\n  hinit\nsimpa only [M5.PhysicalRecovery.recoverWord] using h.2",
+  "queries": []
+}

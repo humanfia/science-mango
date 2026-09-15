@@ -1,0 +1,1206 @@
+[
+  {
+    "queries": [
+      "list prefix getElem ofFn",
+      "finset cardinality bijection difference"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "list prefix getElem ofFn",
+        "status": "ok",
+        "results": [
+          {
+            "id": 201744,
+            "name": "Fin.ofFn_take_get",
+            "module": "Mathlib.Data.Fin.Tuple.Take",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Take.lean#L144-L147",
+            "source_text": "/-- Alternative version of `take_eq_take_list_ofFn` with `l : List α` instead of `v : Fin n → α`. -/\ntheorem ofFn_take_get {α : Type*} {m : ℕ} (l : List α) (h : m ≤ l.length) :\n    List.ofFn (take m h l.get) = l.take m :=\n  List.ext_get (by simp [h]) (fun n h1 h2 => by simp)\n",
+            "docstring": "Alternative version of `take_eq_take_list_ofFn` with `l : List α` instead of `v : Fin n → α`. "
+          },
+          {
+            "id": 222479,
+            "name": "List.Vector.get_ofFn",
+            "module": "Mathlib.Data.Vector.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Vector/Basic.lean#L166-L168",
+            "source_text": "@[simp]\ntheorem get_ofFn {n} (f : Fin n → α) (i) : get (ofFn f) i = f i := by\n  simp [get_eq_get_toList]",
+            "docstring": null
+          },
+          {
+            "id": 208576,
+            "name": "List.ofFn_getElem_eq_map",
+            "module": "Mathlib.Data.List.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L95-L98",
+            "source_text": "@[simp]\ntheorem ofFn_getElem_eq_map {β : Type*} (l : List α) (f : α → β) :\n    ofFn (fun i : Fin l.length => f <| l[(i : Nat)]) = l.map f := by\n  rw [← Function.comp_def, ← map_ofFn, ofFn_getElem]",
+            "docstring": null
+          },
+          {
+            "id": 208584,
+            "name": "List.find?_ofFn_eq_some",
+            "module": "Mathlib.Data.List.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L133-L141",
+            "source_text": "lemma find?_ofFn_eq_some {n} {f : Fin n → α} {p : α → Bool} {b : α} :\n    (ofFn f).find? p = some b ↔ p b = true ∧ ∃ i, f i = b ∧ ∀ j < i, ¬(p (f j) = true) := by\n  rw [find?_eq_some_iff_getElem]\n  exact ⟨fun ⟨hpb, i, hi, hfb, h⟩ ↦\n      ⟨hpb, ⟨⟨i, length_ofFn (f := f) ▸ hi⟩, by simpa\n        using! hfb, fun j hj ↦ by simpa using! h j hj⟩⟩,\n    fun ⟨hpb, i, hfb, h⟩ ↦\n      ⟨hpb, ⟨i, (length_ofFn (f := f)).symm ▸ i.isLt, by simpa using! hfb,\n        fun j hj ↦ by simpa using! h ⟨j, by lia⟩ (by simpa using! hj)⟩⟩⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 214810,
+            "name": "PFun.fn_apply",
+            "module": "Mathlib.Data.PFun",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFun.lean#L92-L94",
+            "source_text": "@[simp]\ntheorem fn_apply (f : α →. β) (a : α) : f.fn a = (f a).get :=\n  rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "list prefix getElem ofFn",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386655,
+            "name": "Physlib.List.takeWile_eraseIdx",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L23-L49",
+            "source_text": "lemma takeWile_eraseIdx {I : Type} (P : I → Prop) [DecidablePred P] :\n    (l : List I) → (i : ℕ) → (hi : ∀ (i j : Fin l.length), i < j → P (l.get j) → P (l.get i)) →\n    List.takeWhile P (List.eraseIdx l i) = (List.takeWhile P l).eraseIdx i\n  | [], _, h => by\n    rfl\n  | a :: [], 0, h => by\n    simp only [List.takeWhile, List.eraseIdx_zero]\n    split <;> rfl\n  | a :: [], Nat.succ n, h => by\n    simp only [Nat.succ_eq_add_one, List.eraseIdx_cons_succ, List.eraseIdx_nil]\n    rw [List.eraseIdx_of_length_le ((List.takeWhile_sublist _).length_le.trans (by simp))]\n  | a :: b :: l, 0, h => by\n    simp only [List.takeWhile, List.eraseIdx_zero]\n    by_cases hPb : P b\n    · have hPa : P a := by\n        simpa using h ⟨0, by simp⟩ ⟨1, by simp⟩ (by simp) (by simpa using hPb)\n      simp [hPb, hPa]\n    · simp [hPb]\n      split <;> rfl\n  | a :: b :: l, Nat.succ n, h => by\n    simp only [Nat.succ_eq_add_one, List.eraseIdx_cons_succ]\n    by_cases hPa : P a\n    · dsimp only [List.takeWhile]\n      simp only [hPa, decide_true, List.eraseIdx_cons_succ, List.cons.injEq, true_and]\n      exact takeWile_eraseIdx P (b :: l) n fun i j hij hP => by\n        simpa using h i.succ j.succ (by simpa using hij) (by simpa using hP)\n    · simp [hPa]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finset cardinality bijection difference",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202382,
+            "name": "Set.BijOn.finsetCard_eq",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L419-L420",
+            "source_text": "lemma _root_.Set.BijOn.finsetCard_eq (e : α → β) (he : Set.BijOn e s t) : #s = #t :=\n  card_nbij e he.mapsTo he.injOn he.surjOn\n",
+            "docstring": null
+          },
+          {
+            "id": 202381,
+            "name": "Finset.card_bijective",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L413-L417",
+            "source_text": "/-- Specialization of `Finset.card_nbij` that automatically fills in most arguments.\n\nSee `Fintype.card_bijective` for the version where `s` and `t` are `univ`. -/\nlemma card_bijective (e : α → β) (he : e.Bijective) (hst : ∀ i, i ∈ s ↔ e i ∈ t) :\n    #s = #t := card_equiv (.ofBijective e he) hst\n",
+            "docstring": "Specialization of `Finset.card_nbij` that automatically fills in most arguments.\n\nSee `Fintype.card_bijective` for the version where `s` and `t` are `univ`. "
+          },
+          {
+            "id": 218025,
+            "name": "Set.BijOn.ncard_eq",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L935-L935",
+            "source_text": "theorem BijOn.ncard_eq {t : Set β} (h : Set.BijOn f s t) : s.ncard = t.ncard := ncard_congr' h.equiv\n",
+            "docstring": null
+          },
+          {
+            "id": 202499,
+            "name": "Finset",
+            "module": "Mathlib.Data.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Defs.lean#L72-L79",
+            "source_text": "/-- `Finset α` is the type of finite sets of elements of `α`. It is implemented\n  as a multiset (a list up to permutation) which has no duplicate elements. -/\n@[use_set_notation_for_order, to_dual_dont_translate]\nstructure Finset (α : Type*) where\n  /-- The underlying multiset -/\n  val : Multiset α\n  /-- `val` contains no duplicates -/\n  nodup : Nodup val\n",
+            "docstring": "`Finset α` is the type of finite sets of elements of `α`. It is implemented\nas a multiset (a list up to permutation) which has no duplicate elements. "
+          },
+          {
+            "id": 322462,
+            "name": "Cardinal.mk_equiv_eq_zero_iff_lift_ne",
+            "module": "Mathlib.SetTheory.Cardinal.Arithmetic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Arithmetic.lean#L619-L620",
+            "source_text": "theorem mk_equiv_eq_zero_iff_lift_ne : #(α ≃ β') = 0 ↔ lift.{v} #α ≠ lift.{u} #β' := by\n  rw [mk_eq_zero_iff, ← not_nonempty_iff, ← lift_mk_eq']\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finset cardinality bijection difference",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389484,
+            "name": "WickContraction.consAddContract_bijection",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Card",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Card.lean#L213-L224",
+            "source_text": "lemma consAddContract_bijection (i : Fin n.succ) :\n    Function.Bijective (fun c => (⟨(consAddContract i c), by simp⟩ :\n    {c : WickContraction n.succ.succ // (c.getDual? 0).isSome ∧\n      ∀ (h : (c.getDual? 0).isSome), (c.getDual? 0).get h = Fin.succ i})) := by\n  apply And.intro\n  · intro c1 c2 h\n    simp only [succ_eq_add_one, Subtype.mk.injEq] at h\n    exact consAddContract_injective i h\n  · intro c\n    obtain ⟨c', hc⟩ := consAddContract_surjective_on_zero_contract i c.1 c.2.1 (c.2.2 c.2.1)\n    use c'\n    simp [hc]\n",
+            "docstring": null
+          },
+          {
+            "id": 387850,
+            "name": "SM.SMNoGrav.One.linearParameters.bijectionQEZero",
+            "module": "Physlib.Particles.StandardModel.AnomalyCancellation.NoGrav.One.LinearParameterization",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/NoGrav/One/LinearParameterization.lean#L176-L183",
+            "source_text": "/-- The bijection between the linear parameters and `(SMNoGrav 1).LinSols` in the special\ncase when Q and E are both not zero. -/\ndef bijectionQEZero : {S : linearParameters // S.Q' ≠ 0 ∧ S.E' ≠ 0} ≃\n    {S : (SMNoGrav 1).LinSols // Q S.val (0 : Fin 1) ≠ 0 ∧ E S.val (0 : Fin 1) ≠ 0} where\n  toFun S := ⟨bijection S, S.2⟩\n  invFun S := ⟨bijection.symm S, S.2⟩\n  left_inv S := Subtype.ext (bijection.left_inv S.1)\n  right_inv S := Subtype.ext (bijection.right_inv S.1)\n",
+            "docstring": "The bijection between the linear parameters and `(SMNoGrav 1).LinSols` in the special\ncase when Q and E are both not zero. "
+          },
+          {
+            "id": 387849,
+            "name": "SM.SMNoGrav.One.linearParameters.bijection",
+            "module": "Physlib.Particles.StandardModel.AnomalyCancellation.NoGrav.One.LinearParameterization",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/NoGrav/One/LinearParameterization.lean#L119-L174",
+            "source_text": "/-- The bijection between the type of linear parameters and `(SMNoGrav 1).LinSols`. -/\ndef bijection : linearParameters ≃ (SMNoGrav 1).LinSols where\n  toFun S := S.asLinear\n  invFun S := ⟨SMCharges.Q S.val (0 : Fin 1), (SMCharges.U S.val (0 : Fin 1) -\n      SMCharges.D S.val (0 : Fin 1))/2,\n      SMCharges.E S.val (0 : Fin 1)⟩\n  left_inv S := by\n    apply linearParameters.ext\n    · rfl\n    · simp only [Fin.isValue]\n      repeat erw [asLinear_val]\n      simp only [Fin.isValue, toSpecies_apply]\n      repeat erw [speciesVal]\n      simp only [asCharges, neg_add_rev]\n      ring\n    · rfl\n  right_inv S := by\n    simp only [Fin.isValue, toSpecies_apply_eq]\n    apply ACCSystemLinear.LinSols.ext\n    rw [charges_eq_toSpecies_eq]\n    intro i\n    rw [asLinear_val]\n    funext j\n    have hj : j = (0 : Fin 1) := by\n      match j with\n      | ⟨0, _⟩ => rfl\n    subst hj\n    rw [toSpecies_apply_asCharges]\n    have h1 := SU3Sol S\n    simp only [accSU3, toSpecies_apply_eq, Fin.isValue, sum_SMSpecies_numberCharges_one,\n      LinearMap.coe_mk, AddHom.coe_mk] at h1\n    have h2 := SU2Sol S\n    simp only [accSU2,\n      Fin.isValue, toSpecies_apply_eq, sum_SMSpecies_numberCharges_one,\n      LinearMap.coe_mk, AddHom.coe_mk] at h2\n    match i with\n    | 0 => rfl\n    | 1 =>\n      simp only [asCharges, Fin.isValue, toSpecies_apply_eq]\n      field_simp\n      linear_combination (norm := ring_nf) -(1 * h1)\n      simp only [Fin.isValue, Fin.zero_eta, toSpeciesEquiv_apply, Nat.reduceMul]\n      ring\n    | 2 =>\n      simp only [asCharges, Fin.isValue, neg_add_rev, toSpecies_apply_eq]\n      field_simp\n      linear_combination (norm := ring_nf) -(1 * h1)\n      simp only [Fin.isValue, Fin.zero_eta, toSpeciesEquiv_apply, Nat.reduceMul]\n      ring\n    | 3 =>\n      simp only [asCharges, Fin.isValue, neg_mul, toSpecies_apply_eq]\n      field_simp\n      linear_combination (norm := ring_nf) -(1 * h2)\n      simp only [Fin.isValue, Fin.zero_eta, toSpeciesEquiv_apply, Nat.reduceMul]\n      ring\n    | 4 => rfl\n",
+            "docstring": "The bijection between the type of linear parameters and `(SMNoGrav 1).LinSols`. "
+          },
+          {
+            "id": 387867,
+            "name": "SM.SMNoGrav.One.linearParametersQENeqZero.bijection",
+            "module": "Physlib.Particles.StandardModel.AnomalyCancellation.NoGrav.One.LinearParameterization",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/NoGrav/One/LinearParameterization.lean#L280-L283",
+            "source_text": "/-- The bijection between `linearParametersQENeqZero` and `LinSols` with `Q` and `E` non-zero. -/\ndef bijection : linearParametersQENeqZero ≃\n    {S : (SMNoGrav 1).LinSols // Q S.val (0 : Fin 1) ≠ 0 ∧ E S.val (0 : Fin 1) ≠ 0} :=\n  bijectionLinearParameters.trans (linearParameters.bijectionQEZero)\n",
+            "docstring": "The bijection between `linearParametersQENeqZero` and `LinSols` with `Q` and `E` non-zero. "
+          },
+          {
+            "id": 387860,
+            "name": "SM.SMNoGrav.One.linearParametersQENeqZero.bijectionLinearParameters",
+            "module": "Physlib.Particles.StandardModel.AnomalyCancellation.NoGrav.One.LinearParameterization",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/NoGrav/One/LinearParameterization.lean#L243-L278",
+            "source_text": "/-- A bijection between the type `linearParametersQENeqZero` and linear parameters\n  with `Q'` and `E'` non-zero. -/\n@[simps!]\ndef bijectionLinearParameters :\n    linearParametersQENeqZero ≃ {S : linearParameters // S.Q' ≠ 0 ∧ S.E' ≠ 0} where\n  toFun := toLinearParameters\n  invFun := tolinearParametersQNeqZero\n  left_inv S := by\n    have hvw := S.hvw\n    have hQ := S.hx\n    apply linearParametersQENeqZero.ext\n    · rfl\n    · simp only [tolinearParametersQNeqZero_v, toLinearParameters_coe_Y, toLinearParameters_coe_Q',\n      toLinearParameters_coe_E']\n      field_simp\n      ring\n    · simp only [tolinearParametersQNeqZero_w, toLinearParameters_coe_Y, toLinearParameters_coe_Q',\n        toLinearParameters_coe_E']\n      field_simp\n      ring\n  right_inv S := by\n    apply Subtype.ext\n    have hQ := S.2.1\n    have hE := S.2.2\n    apply linearParameters.ext\n    · rfl\n    · simp only [ne_eq, toLinearParameters_coe_Y, tolinearParametersQNeqZero_x,\n      tolinearParametersQNeqZero_v, tolinearParametersQNeqZero_w]\n      field_simp\n      ring_nf\n      field_simp [hQ, hE]\n    · simp only [ne_eq, toLinearParameters_coe_E', tolinearParametersQNeqZero_x,\n      tolinearParametersQNeqZero_v, tolinearParametersQNeqZero_w]\n      field_simp\n      ring_nf\n      field_simp [hQ, hE]\n",
+            "docstring": "A bijection between the type `linearParametersQENeqZero` and linear parameters\nwith `Q'` and `E'` non-zero. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "decode_encode",
+    "receipts_sha256": "d44770406b28f520502f5d50b9e193fcc1d4c84b88628b4752a1e7b259140206"
+  },
+  {
+    "queries": [
+      "M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.validWords definitions",
+      "M5.PhysicalRecovery.ValidSupports definition",
+      "M5.PrefixPartition.count definition"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.validWords definitions",
+        "status": "ok",
+        "results": [
+          {
+            "id": 214648,
+            "name": "Ordnode.Valid'",
+            "module": "Mathlib.Data.Ordmap.Ordset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L48-L54",
+            "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. -/\nstructure Valid' (lo : WithBot α) (t : Ordnode α) (hi : WithTop α) : Prop where\n  ord : t.Bounded lo hi\n  sz : t.Sized\n  bal : t.Balanced\n",
+            "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. "
+          },
+          {
+            "id": 214649,
+            "name": "Ordnode.Valid",
+            "module": "Mathlib.Data.Ordmap.Ordset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L56-L60",
+            "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. -/\ndef Valid (t : Ordnode α) : Prop :=\n  Valid' ⊥ t ⊤\n",
+            "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. "
+          },
+          {
+            "id": 329116,
+            "name": "Mathlib.Tactic.tacticRecover_",
+            "module": "Mathlib.Tactic.Recover",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Recover.lean#L59-L72",
+            "source_text": "/-- `recover tacs` applies the tactic (sequence) `tacs` and then re-adds goals that were\nincorrectly marked as closed. This helps to debug issues where a tactic closes goals without\nsolving them (i.e. goals were removed from the MetaM state without the metavariable\nbeing assigned), resulting in the error \"(kernel) declaration has metavariables\". -/\nelab \"recover \" tacs:tacticSeq : tactic => do\n  let originalGoals ← getGoals\n  evalTactic tacs\n  let mut unassigned : Std.HashSet MVarId := {}\n  for mvarId in originalGoals do\n    unless ← mvarId.isAssigned <||> mvarId.isDelayedAssigned do\n      unassigned := unassigned.insert mvarId\n    let unassignedMVarDependencies ← getUnassignedGoalMVarDependencies mvarId\n    unassigned := unassigned.insertMany unassignedMVarDependencies.toList\n  setGoals <| ((← getGoals) ++ unassigned.toList).eraseDups\n",
+            "docstring": "`recover tacs` applies the tactic (sequence) `tacs` and then re-adds goals that were\nincorrectly marked as closed. This helps to debug issues where a tactic closes goals without\nsolving them (i.e. goals were removed from the MetaM state without the metavariable\nbeing assigned), resulting in the error \"(kernel) declaration has metavariables\". "
+          },
+          {
+            "id": 234102,
+            "name": "Monoid.CoprodI.Word.equivPair_head_smul_equivPair_tail",
+            "module": "Mathlib.GroupTheory.CoprodI",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/CoprodI.lean#L558-L561",
+            "source_text": "@[simp]\ntheorem equivPair_head_smul_equivPair_tail {i : ι} (w : Word M) :\n    of (equivPair i w).head • (equivPair i w).tail = w := by\n  rw [← rcons_eq_smul, ← equivPair_symm, Equiv.symm_apply_apply]",
+            "docstring": null
+          },
+          {
+            "id": 196100,
+            "name": "Language.reverse_mem_reverse",
+            "module": "Mathlib.Computability.Language",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/Language.lean#L335-L336",
+            "source_text": "lemma reverse_mem_reverse : a.reverse ∈ l.reverse ↔ a ∈ l := by\n  rw [mem_reverse, List.reverse_reverse]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.validWords definitions",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393821,
+            "name": "CanonicalEnsemble.physicalProbability",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+            "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+            "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+          },
+          {
+            "id": 393822,
+            "name": "CanonicalEnsemble.physicalProbability_def",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+            "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393831,
+            "name": "CanonicalEnsemble.physicalProbability_congr",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L779-L782",
+            "source_text": "lemma physicalProbability_congr (e : ι1 ≃ᵐ ι) (T : Temperature) (i : ι1) :\n    (𝓒.congr e).physicalProbability T i\n      = 𝓒.physicalProbability T (e i) := by\n  simp [physicalProbability, probability]\n",
+            "docstring": null
+          },
+          {
+            "id": 393832,
+            "name": "CanonicalEnsemble.physicalProbability_add",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L784-L791",
+            "source_text": "lemma physicalProbability_add\n    {ι1} [MeasurableSpace ι1]\n    (𝓒1 : CanonicalEnsemble ι1) (T : Temperature) (i : ι × ι1)\n    (h : 𝓒.phaseSpaceunit = 𝓒1.phaseSpaceunit) :\n    (𝓒 + 𝓒1).physicalProbability T i\n      = 𝓒.physicalProbability T i.1 * 𝓒1.physicalProbability T i.2 := by\n  simp [physicalProbability, probability_add, phase_space_unit_add, dof_add, h, pow_add,\n    mul_mul_mul_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 393825,
+            "name": "CanonicalEnsemble.physicalProbability_pos",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L741-L744",
+            "source_text": "lemma physicalProbability_pos\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    0 < 𝓒.physicalProbability T i :=\n  mul_pos (𝓒.probability_pos T i) (pow_pos 𝓒.hPos _)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.PhysicalRecovery.ValidSupports definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 197013,
+            "name": "Turing.TM0.Supports",
+            "module": "Mathlib.Computability.TuringMachine.PostTuringMachine",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/PostTuringMachine.lean#L176-L184",
+            "source_text": "/-- The raw definition of a Turing machine does not require that\n  `Γ` and `Λ` are finite, and in practice we will be interested\n  in the infinite `Λ` case. We recover instead a notion of\n  \"effectively finite\" Turing machines, which only make use of a\n  finite subset of their states. We say that a set `S ⊆ Λ`\n  supports a Turing machine `M` if `S` is closed under the\n  transition function and contains the initial state. -/\ndef Supports (M : Machine Γ Λ) (S : Set Λ) :=\n  default ∈ S ∧ ∀ {q a q' s}, (q', s) ∈ M q a → q ∈ S → q' ∈ S\n",
+            "docstring": "The raw definition of a Turing machine does not require that\n`Γ` and `Λ` are finite, and in practice we will be interested\nin the infinite `Λ` case. We recover instead a notion of\n\"effectively finite\" Turing machines, which only make use of a\nfinite subset of their states. We say that a set `S ⊆ Λ`\nsupports a Turing machine `M` if `S` is closed under the\ntransition function and contains the initial state. "
+          },
+          {
+            "id": 214648,
+            "name": "Ordnode.Valid'",
+            "module": "Mathlib.Data.Ordmap.Ordset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L48-L54",
+            "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. -/\nstructure Valid' (lo : WithBot α) (t : Ordnode α) (hi : WithTop α) : Prop where\n  ord : t.Bounded lo hi\n  sz : t.Sized\n  bal : t.Balanced\n",
+            "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. "
+          },
+          {
+            "id": 91697,
+            "name": "Function.support",
+            "module": "Mathlib.Algebra.Notation.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Support.lean#L31-L31",
+            "source_text": "@[to_additive /-- `support` of a function is the set of points `x` such that `f x ≠ 0`. -/]\ndef mulSupport (f : ι → M) : Set ι := {x | f x ≠ 1}",
+            "docstring": "`support` of a function is the set of points `x` such that `f x ≠ 0`. "
+          },
+          {
+            "id": 205100,
+            "name": "Finsupp.onFinsetSupport",
+            "module": "Mathlib.Data.Finsupp.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Defs.lean#L230-L233",
+            "source_text": "/-- The (not exposed) support of `Finsupp.onFinset`. -/\n@[no_expose] def onFinsetSupport (s : Finset α) (f : α → M) : Finset α :=\n  haveI := Classical.decEq M\n  {a ∈ s | f a ≠ 0}\n",
+            "docstring": "The (not exposed) support of `Finsupp.onFinset`. "
+          },
+          {
+            "id": 198058,
+            "name": "MvFunctor.of_mem_supp",
+            "module": "Mathlib.Control.Functor.Multivariate",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Control/Functor/Multivariate.lean#L60-L61",
+            "source_text": "theorem of_mem_supp {α : TypeVec n} {x : F α} {P : ∀ ⦃i⦄, α i → Prop} (h : LiftP P x) (i : Fin2 n) :\n    ∀ y ∈ supp x i, P y := fun _y hy => hy h\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.PhysicalRecovery.ValidSupports definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393821,
+            "name": "CanonicalEnsemble.physicalProbability",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+            "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+            "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+          },
+          {
+            "id": 393822,
+            "name": "CanonicalEnsemble.physicalProbability_def",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+            "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+            "docstring": null
+          },
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 393823,
+            "name": "CanonicalEnsemble.physicalProbability_measurable",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L731-L734",
+            "source_text": "lemma physicalProbability_measurable (T : Temperature) :\n    Measurable (𝓒.physicalProbability T) := by\n  unfold physicalProbability probability\n  fun_prop\n",
+            "docstring": null
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.PrefixPartition.count definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 189209,
+            "name": "Nat.Partition.card_restricted_eq_card_countRestricted",
+            "module": "Mathlib.Combinatorics.Enumerative.Partition.Glaisher",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Glaisher.lean#L153-L156",
+            "source_text": "theorem card_restricted_eq_card_countRestricted (n : ℕ) {m : ℕ} (hm : 0 < m) :\n    #(restricted n (¬ m ∣ ·)) = #(countRestricted n m) := by\n  simpa using PowerSeries.ext_iff.mp\n    (powerSeriesMk_card_restricted_eq_powerSeriesMk_card_countRestricted ℤ hm) n\n",
+            "docstring": null
+          },
+          {
+            "id": 189186,
+            "name": "Nat.Partition.countRestricted",
+            "module": "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Basic.lean#L212-L214",
+            "source_text": "/-- The finset of those partitions in which every part is used less than `m` times. -/\ndef countRestricted (n : ℕ) (m : ℕ) : Finset n.Partition :=\n  Finset.univ.filter fun x ↦ ∀ i ∈ x.parts, x.parts.count i < m\n",
+            "docstring": "The finset of those partitions in which every part is used less than `m` times. "
+          },
+          {
+            "id": 194444,
+            "name": "SzemerediRegularity.card_chunk",
+            "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Chunk",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Chunk.lean#L173-L178",
+            "source_text": "theorem card_chunk (hm : m ≠ 0) : #(chunk hP G ε hU).parts = 4 ^ #P.parts := by\n  unfold chunk\n  split_ifs\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le]\n    exact le_of_lt a_add_one_le_four_pow_parts_card\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le a_add_one_le_four_pow_parts_card]\n",
+            "docstring": null
+          },
+          {
+            "id": 194460,
+            "name": "Finpartition.card_filter_equitabilise_small",
+            "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L166-L181",
+            "source_text": "theorem card_filter_equitabilise_small (hm : m ≠ 0) :\n    #{u ∈ (P.equitabilise h).parts | #u = m} = a := by\n  refine (mul_eq_mul_right_iff.1 <| (add_left_inj (b * (m + 1))).1 ?_).resolve_right hm\n  rw [h, ← (P.equitabilise h).sum_card_parts]\n  have hunion :\n    (P.equitabilise h).parts =\n      {u ∈ (P.equitabilise h).parts | #u = m} ∪ {u ∈ (P.equitabilise h).parts | #u = m + 1} := by\n    rw [← filter_or, filter_true_of_mem]\n    exact fun x => card_eq_of_mem_parts_equitabilise\n  nth_rw 2 [hunion]\n  rw [sum_union, sum_const_nat fun x hx => (mem_filter.1 hx).2,\n    sum_const_nat fun x hx => (mem_filter.1 hx).2, P.card_filter_equitabilise_big]\n  refine disjoint_filter_filter' _ _ ?_\n  intro x ha hb i h\n  apply succ_ne_self m _\n  exact (hb i h).symm.trans (ha i h)\n",
+            "docstring": null
+          },
+          {
+            "id": 194461,
+            "name": "Finpartition.card_parts_equitabilise",
+            "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L183-L186",
+            "source_text": "theorem card_parts_equitabilise (hm : m ≠ 0) : #(P.equitabilise h).parts = a + b := by\n  rw [← filter_true_of_mem fun x => card_eq_of_mem_parts_equitabilise, filter_or,\n    card_union_of_disjoint, P.card_filter_equitabilise_small _ hm, P.card_filter_equitabilise_big]\n  aesop (add norm disjoint_filter)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.PrefixPartition.count definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "List.isPrefixOf_eq_true",
+      "List.IsPrefix take length",
+      "Finset.sum_eq_zero"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List.isPrefixOf_eq_true",
+        "status": "ok",
+        "results": [
+          {
+            "id": 207486,
+            "name": "List.IsPrefix.idxOf_eq_of_mem",
+            "module": "Mathlib.Data.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L565-L568",
+            "source_text": "theorem IsPrefix.idxOf_eq_of_mem (hl : l₁ <+: l₂) {a : α} (ha : a ∈ l₁) :\n    l₁.idxOf a = l₂.idxOf a := by\n  obtain ⟨l₃, rfl⟩ := hl\n  exact idxOf_append_of_mem ha |>.symm\n",
+            "docstring": null
+          },
+          {
+            "id": 208144,
+            "name": "List.take_isPrefix_take",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L58-L59",
+            "source_text": "@[simp] lemma take_isPrefix_take {m n : ℕ} : l.take m <+: l.take n ↔ m ≤ n ∨ l.length ≤ n := by\n  simp [prefix_take_iff, take_prefix]; omega",
+            "docstring": null
+          },
+          {
+            "id": 208142,
+            "name": "List.IsPrefix.drop",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L49-L50",
+            "source_text": "@[gcongr] lemma IsPrefix.drop (h : l₁ <+: l₂) (n : ℕ) : l₁.drop n <+: l₂.drop n := by\n  rw [prefix_iff_eq_take.mp h, drop_take]; apply take_prefix",
+            "docstring": null
+          },
+          {
+            "id": 209393,
+            "name": "List.take_eq_self_iff",
+            "module": "Mathlib.Data.List.TakeDrop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L43-L44",
+            "source_text": "@[simp] lemma take_eq_self_iff (x : List α) {n : ℕ} : x.take n = x ↔ x.length ≤ n :=\n  ⟨by grind, take_of_length_le⟩",
+            "docstring": null
+          },
+          {
+            "id": 207639,
+            "name": "List.IsChain.prefix",
+            "module": "Mathlib.Data.List.Chain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Chain.lean#L251-L252",
+            "source_text": "theorem IsChain.prefix (h : IsChain R l) (h' : l₁ <+: l) : IsChain R l₁ :=\n  h.infix h'.isInfix\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List.isPrefixOf_eq_true",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386666,
+            "name": "Physlib.List.orderedInsertPos_take_eq_orderedInsert",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L168-L180",
+            "source_text": "lemma orderedInsertPos_take_eq_orderedInsert {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r =\n    List.take (orderedInsertPos le1 r r0) (List.orderedInsert le1 r0 r) := by\n  refine List.ext_get ?_ ?_\n  · simp only [List.length_take, Fin.is_le', inf_of_le_left, inf_eq_left]\n    exact Nat.le_of_lt_succ (orderedInsertPos_lt_length le1 r r0)\n  · intro n h1 h2\n    simp only [List.get_eq_getElem, List.getElem_take]\n    rw [orderedInsert_get_lt le1 r r0 n]\n    rfl\n    simp only [List.length_take, lt_inf_iff] at h1\n    exact h1.1\n",
+            "docstring": null
+          },
+          {
+            "id": 386668,
+            "name": "Physlib.List.orderedInsertPos_take",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L196-L199",
+            "source_text": "lemma orderedInsertPos_take {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r = List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  rw [orderedInsertPos_take_eq_orderedInsert,orderedInsertPos_take_orderedInsert]\n",
+            "docstring": null
+          },
+          {
+            "id": 386665,
+            "name": "Physlib.List.orderedInsertPos_take_orderedInsert",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L162-L166",
+            "source_text": "lemma orderedInsertPos_take_orderedInsert {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    (List.take (orderedInsertPos le1 r r0) (List.orderedInsert le1 r0 r)) =\n    List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  simp [orderedInsertPos, List.orderedInsert_eq_take_drop]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List.IsPrefix take length",
+        "status": "ok",
+        "results": [
+          {
+            "id": 208141,
+            "name": "List.IsPrefix.take",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L46-L47",
+            "source_text": "@[gcongr] lemma IsPrefix.take (h : l₁ <+: l₂) (n : ℕ) : l₁.take n <+: l₂.take n := by\n  simpa [prefix_take_iff, Nat.min_le_left] using (take_prefix n l₁).trans h",
+            "docstring": null
+          },
+          {
+            "id": 208144,
+            "name": "List.take_isPrefix_take",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L58-L59",
+            "source_text": "@[simp] lemma take_isPrefix_take {m n : ℕ} : l.take m <+: l.take n ↔ m ≤ n ∨ l.length ≤ n := by\n  simp [prefix_take_iff, take_prefix]; omega",
+            "docstring": null
+          },
+          {
+            "id": 208143,
+            "name": "List.isPrefix_append_of_length",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L54-L56",
+            "source_text": "lemma isPrefix_append_of_length (h : l₁.length ≤ l₂.length) : l₁ <+: l₂ ++ l₃ ↔ l₁ <+: l₂ :=\n  ⟨fun h ↦ by rw [prefix_iff_eq_take] at *; nth_rw 1 [h, take_eq_left_iff]; tauto,\n   fun h ↦ h.trans <| l₂.prefix_append l₃⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 209413,
+            "name": "List.takeD_length",
+            "module": "Mathlib.Data.List.TakeDrop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L143-L146",
+            "source_text": "@[simp]\ntheorem takeD_length : ∀ n l a, length (@takeD α n l a) = n\n  | 0, _, _ => rfl\n  | _ + 1, _, _ => congr_arg succ (takeD_length _ _ _)\n\n-- `takeD_nil` is already in batteries\n\ntheorem takeD_eq_take : ∀ {n} {l : List α} a, n ≤ length l → takeD n l a = take n l\n  | 0, _, _, _ => rfl\n  | _ + 1, _ :: _, a, h => congr_arg (cons _) <| takeD_eq_take a <| le_of_succ_le_succ h\n\n@[simp]\ntheorem takeD_left (l₁ l₂ : List α) (a : α) : takeD (length l₁) (l₁ ++ l₂) a = l₁ :=",
+            "docstring": null
+          },
+          {
+            "id": 209393,
+            "name": "List.take_eq_self_iff",
+            "module": "Mathlib.Data.List.TakeDrop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L43-L44",
+            "source_text": "@[simp] lemma take_eq_self_iff (x : List α) {n : ℕ} : x.take n = x ↔ x.length ≤ n :=\n  ⟨by grind, take_of_length_le⟩",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List.IsPrefix take length",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386740,
+            "name": "Physlib.List.takeWhile_orderedInsert'",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L170-L186",
+            "source_text": "lemma takeWhile_orderedInsert' {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r b c)) (List.orderedInsert r a l)).length =\n    (List.takeWhile (fun c => !decide (r b c)) l).length\n  | [] => by\n    simp [List.orderedInsert, (Std.Total.total a b).resolve_left hr]\n  | c :: l => by\n    have hrba : r b a := (Std.Total.total a b).resolve_left hr\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · by_cases hac : r a c <;> simp [h, hac, hrba]\n    · by_cases hac : r a c\n      · exact absurd (IsTrans.trans _ _ _ hrba hac) h\n      · simp only [hac, ↓reduceIte, h, decide_false, Bool.not_false, List.takeWhile_cons_of_pos,\n        List.length_cons, add_left_inj]\n        exact takeWhile_orderedInsert' r a b hr l\n",
+            "docstring": null
+          },
+          {
+            "id": 386666,
+            "name": "Physlib.List.orderedInsertPos_take_eq_orderedInsert",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L168-L180",
+            "source_text": "lemma orderedInsertPos_take_eq_orderedInsert {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r =\n    List.take (orderedInsertPos le1 r r0) (List.orderedInsert le1 r0 r) := by\n  refine List.ext_get ?_ ?_\n  · simp only [List.length_take, Fin.is_le', inf_of_le_left, inf_eq_left]\n    exact Nat.le_of_lt_succ (orderedInsertPos_lt_length le1 r r0)\n  · intro n h1 h2\n    simp only [List.get_eq_getElem, List.getElem_take]\n    rw [orderedInsert_get_lt le1 r r0 n]\n    rfl\n    simp only [List.length_take, lt_inf_iff] at h1\n    exact h1.1\n",
+            "docstring": null
+          },
+          {
+            "id": 386739,
+            "name": "Physlib.List.takeWhile_orderedInsert",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L152-L168",
+            "source_text": "lemma takeWhile_orderedInsert {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r a c)) (List.orderedInsert r b l)).length =\n    (List.takeWhile (fun c => !decide (r a c)) l).length + 1\n  | [] => by\n    simp [hr]\n  | c :: l => by\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · simp [h, hr]\n    · simp only [h, ↓reduceIte]\n      have hl : ¬ r a c :=\n        fun hn => h (IsTrans.trans _ _ _ ((Std.Total.total a b).resolve_left hr) hn)\n      simp only [hl, decide_false, Bool.not_false, List.takeWhile_cons_of_pos, List.length_cons,\n        add_left_inj]\n      exact takeWhile_orderedInsert r a b hr l\n",
+            "docstring": null
+          },
+          {
+            "id": 386668,
+            "name": "Physlib.List.orderedInsertPos_take",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L196-L199",
+            "source_text": "lemma orderedInsertPos_take {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r = List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  rw [orderedInsertPos_take_eq_orderedInsert,orderedInsertPos_take_orderedInsert]\n",
+            "docstring": null
+          },
+          {
+            "id": 386665,
+            "name": "Physlib.List.orderedInsertPos_take_orderedInsert",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L162-L166",
+            "source_text": "lemma orderedInsertPos_take_orderedInsert {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    (List.take (orderedInsertPos le1 r r0) (List.orderedInsert le1 r0 r)) =\n    List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  simp [orderedInsertPos, List.orderedInsert_eq_take_drop]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.sum_eq_zero",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58040,
+            "name": "Finset.sum_eq_zero",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L107-L107",
+            "source_text": "@[to_additive]\ntheorem prod_eq_one (h : ∀ x ∈ s, f x = 1) : ∏ x ∈ s, f x = 1 := calc",
+            "docstring": null
+          },
+          {
+            "id": 58120,
+            "name": "Finset.sum_eq_add_of_mem",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L393-L393",
+            "source_text": "@[to_additive]\ntheorem prod_eq_mul_of_mem {s : Finset ι} {f : ι → M} (a b : ι) (ha : a ∈ s) (hb : b ∈ s)\n    (hn : a ≠ b) (h₀ : ∀ c ∈ s, c ≠ a ∧ c ≠ b → f c = 1) : ∏ x ∈ s, f x = f a * f b := by",
+            "docstring": null
+          },
+          {
+            "id": 58208,
+            "name": "Finset.eq_zero_of_sum_eq_zero",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L770-L771",
+            "source_text": "@[to_additive /-- If a sum is 0 and the function is 0 except possibly at one\npoint, it is 0 everywhere on the `Finset`. -/]\ntheorem eq_one_of_prod_eq_one {s : Finset ι} {f : ι → M} {a : ι} (hp : ∏ x ∈ s, f x = 1)\n    (h1 : ∀ x ∈ s, x ≠ a → f x = 1) : ∀ x ∈ s, f x = 1 := by",
+            "docstring": "If a sum is 0 and the function is 0 except possibly at one\npoint, it is 0 everywhere on the `Finset`. "
+          },
+          {
+            "id": 58295,
+            "name": "Finset.sum",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+            "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+            "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+          },
+          {
+            "id": 57716,
+            "name": "finsum_mem_of_eqOn_zero",
+            "module": "Mathlib.Algebra.BigOperators.Finprod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L688-L690",
+            "source_text": "@[to_additive\n      /-- If a function `f` equals `0` on a set `s`, then the sum of `f i` over `i ∈ s`\n      equals `0`. -/]\ntheorem finprod_mem_of_eqOn_one (hf : s.EqOn f 1) : ∏ᶠ i ∈ s, f i = 1 := by",
+            "docstring": "If a function `f` equals `0` on a set `s`, then the sum of `f i` over `i ∈ s`\nequals `0`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.sum_eq_zero",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386542,
+            "name": "KroneckerDelta.sum_sum_smul_eq_zero",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L156-L158",
+            "source_text": "lemma sum_sum_smul_eq_zero [Fintype α] {f : α → α → M} (hf : ∀ i : α, f i i = 0) :\n    ∑ i : α, ∑ j : α, δ[i,j] • f i j = 0 := by\n  simp [sum_smul, hf, sum_const_zero]\n",
+            "docstring": null
+          },
+          {
+            "id": 386544,
+            "name": "KroneckerDelta.finset_sum_sum_smul_eq_zero",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L164-L168",
+            "source_text": "lemma finset_sum_sum_smul_eq_zero {s s' : Finset α} {f : α → α → M}\n    (hf : ∀ i ∈ s ∩ s', f i i = 0) : ∑ i ∈ s, ∑ j ∈ s', δ[i,j] • f i j = 0 := by\n  simp only [finset_sum_smul, Finset.sum_ite_mem]\n  rw [← sum_coe_sort]\n  simp [hf]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Finset.filter_eq_empty_iff",
+      "List.prefix_iff_eq_take"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.filter_eq_empty_iff",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202731,
+            "name": "Finset.filter_eq_empty_iff",
+            "module": "Mathlib.Data.Finset.Filter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L158-L159",
+            "source_text": "@[simp]\ntheorem filter_eq_empty_iff : s.filter p = ∅ ↔ ∀ ⦃x⦄, x ∈ s → ¬p x := by simp [Finset.ext_iff]",
+            "docstring": null
+          },
+          {
+            "id": 202717,
+            "name": "Finset.filter",
+            "module": "Mathlib.Data.Finset.Filter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L48-L53",
+            "source_text": "/-- `Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). -/\ndef filter (s : Finset α) : Finset α :=\n  ⟨_, s.2.filter p⟩\n",
+            "docstring": "`Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). "
+          },
+          {
+            "id": 202737,
+            "name": "Finset.filter_empty",
+            "module": "Mathlib.Data.Finset.Filter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L181-L183",
+            "source_text": "@[simp]\ntheorem filter_empty : filter p ∅ = ∅ :=\n  subset_empty.1 <| filter_subset _ _",
+            "docstring": null
+          },
+          {
+            "id": 202982,
+            "name": "Finset.filterMap_empty",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L601-L602",
+            "source_text": "@[simp]\ntheorem filterMap_empty : (∅ : Finset α).filterMap f f_inj = ∅ := rfl",
+            "docstring": null
+          },
+          {
+            "id": 284176,
+            "name": "Filter.eventuallyEq_empty",
+            "module": "Mathlib.Order.Filter.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Basic.lean#L1083-L1084",
+            "source_text": "theorem eventuallyEq_empty {s : Set α} {l : Filter α} : s =ᶠ[l] (∅ : Set α) ↔ ∀ᶠ x in l, x ∉ s :=\n  eventuallyEq_set.trans <| by simp\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.filter_eq_empty_iff",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List.prefix_iff_eq_take",
+        "status": "ok",
+        "results": [
+          {
+            "id": 208141,
+            "name": "List.IsPrefix.take",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L46-L47",
+            "source_text": "@[gcongr] lemma IsPrefix.take (h : l₁ <+: l₂) (n : ℕ) : l₁.take n <+: l₂.take n := by\n  simpa [prefix_take_iff, Nat.min_le_left] using (take_prefix n l₁).trans h",
+            "docstring": null
+          },
+          {
+            "id": 208144,
+            "name": "List.take_isPrefix_take",
+            "module": "Mathlib.Data.List.Infix",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L58-L59",
+            "source_text": "@[simp] lemma take_isPrefix_take {m n : ℕ} : l.take m <+: l.take n ↔ m ≤ n ∨ l.length ≤ n := by\n  simp [prefix_take_iff, take_prefix]; omega",
+            "docstring": null
+          },
+          {
+            "id": 209425,
+            "name": "List.takeWhile_eq_self_iff",
+            "module": "Mathlib.Data.List.TakeWhile",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeWhile.lean#L64-L68",
+            "source_text": "@[simp]\ntheorem takeWhile_eq_self_iff : takeWhile p l = l ↔ ∀ x ∈ l, p x := by\n  induction l with\n  | nil => simp\n  | cons x xs IH => by_cases hp : p x <;> simp [hp, IH]",
+            "docstring": null
+          },
+          {
+            "id": 221456,
+            "name": "Stream'.take_prefix",
+            "module": "Mathlib.Data.Stream.Init",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Stream/Init.lean#L575-L576",
+            "source_text": "@[simp] lemma take_prefix : a.take m <+: a.take n ↔ m ≤ n :=\n  ⟨fun h ↦ by simpa using h.length_le, take_prefix_take_left m n a⟩",
+            "docstring": null
+          },
+          {
+            "id": 209429,
+            "name": "List.takeWhile_idem",
+            "module": "Mathlib.Data.List.TakeWhile",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeWhile.lean#L95-L96",
+            "source_text": "theorem takeWhile_idem : takeWhile p (takeWhile p l) = takeWhile p l := by\n  simp_rw [takeWhile_takeWhile, and_self_iff, Bool.decide_coe]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List.prefix_iff_eq_take",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386722,
+            "name": "Physlib.List.take_insert_same",
+            "module": "Physlib.Mathematics.List.InsertIdx",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L141-L148",
+            "source_text": "lemma take_insert_same {I : Type} (i : I) :\n    (n : ℕ) → (r : List I) →\n    List.take n (List.insertIdx r n i) = List.take n r\n  | 0, _ => by simp\n  | _+1, [] => by simp\n  | n+1, a::as => by\n    simp only [List.insertIdx_succ_cons, List.take_succ_cons, List.cons.injEq, true_and]\n    exact take_insert_same i n as\n",
+            "docstring": null
+          },
+          {
+            "id": 386655,
+            "name": "Physlib.List.takeWile_eraseIdx",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L23-L49",
+            "source_text": "lemma takeWile_eraseIdx {I : Type} (P : I → Prop) [DecidablePred P] :\n    (l : List I) → (i : ℕ) → (hi : ∀ (i j : Fin l.length), i < j → P (l.get j) → P (l.get i)) →\n    List.takeWhile P (List.eraseIdx l i) = (List.takeWhile P l).eraseIdx i\n  | [], _, h => by\n    rfl\n  | a :: [], 0, h => by\n    simp only [List.takeWhile, List.eraseIdx_zero]\n    split <;> rfl\n  | a :: [], Nat.succ n, h => by\n    simp only [Nat.succ_eq_add_one, List.eraseIdx_cons_succ, List.eraseIdx_nil]\n    rw [List.eraseIdx_of_length_le ((List.takeWhile_sublist _).length_le.trans (by simp))]\n  | a :: b :: l, 0, h => by\n    simp only [List.takeWhile, List.eraseIdx_zero]\n    by_cases hPb : P b\n    · have hPa : P a := by\n        simpa using h ⟨0, by simp⟩ ⟨1, by simp⟩ (by simp) (by simpa using hPb)\n      simp [hPb, hPa]\n    · simp [hPb]\n      split <;> rfl\n  | a :: b :: l, Nat.succ n, h => by\n    simp only [Nat.succ_eq_add_one, List.eraseIdx_cons_succ]\n    by_cases hPa : P a\n    · dsimp only [List.takeWhile]\n      simp only [hPa, decide_true, List.eraseIdx_cons_succ, List.cons.injEq, true_and]\n      exact takeWile_eraseIdx P (b :: l) n fun i j hij hP => by\n        simpa using h i.succ j.succ (by simpa using hij) (by simpa using hP)\n    · simp [hPa]\n",
+            "docstring": null
+          },
+          {
+            "id": 386666,
+            "name": "Physlib.List.orderedInsertPos_take_eq_orderedInsert",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L168-L180",
+            "source_text": "lemma orderedInsertPos_take_eq_orderedInsert {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r =\n    List.take (orderedInsertPos le1 r r0) (List.orderedInsert le1 r0 r) := by\n  refine List.ext_get ?_ ?_\n  · simp only [List.length_take, Fin.is_le', inf_of_le_left, inf_eq_left]\n    exact Nat.le_of_lt_succ (orderedInsertPos_lt_length le1 r r0)\n  · intro n h1 h2\n    simp only [List.get_eq_getElem, List.getElem_take]\n    rw [orderedInsert_get_lt le1 r r0 n]\n    rfl\n    simp only [List.length_take, lt_inf_iff] at h1\n    exact h1.1\n",
+            "docstring": null
+          },
+          {
+            "id": 386725,
+            "name": "Physlib.List.take_insert_gt",
+            "module": "Physlib.Mathematics.List.InsertIdx",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L171-L179",
+            "source_text": "lemma take_insert_gt {I : Type} (i : I) :\n    (n m : ℕ) → (h : n < m) → (r : List I) →\n    List.take n (List.insertIdx r m i) = List.take n r\n  | 0, 0, _, _ => by simp\n  | 0, m + 1, _, _ => by simp\n  | n+1, m + 1, _, [] => by simp\n  | n+1, m + 1, h, a::as => by\n    simp only [List.insertIdx_succ_cons, List.take_succ_cons, List.cons.injEq, true_and]\n    refine take_insert_gt i n m (Nat.succ_lt_succ_iff.mp h) as\n",
+            "docstring": null
+          },
+          {
+            "id": 386656,
+            "name": "Physlib.List.dropWile_eraseIdx",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L51-L87",
+            "source_text": "lemma dropWile_eraseIdx {I : Type} (P : I → Prop) [DecidablePred P] :\n    (l : List I) → (i : ℕ) → (hi : ∀ (i j : Fin l.length), i < j → P (l.get j) → P (l.get i)) →\n    List.dropWhile P (List.eraseIdx l i) =\n      if (List.takeWhile P l).length ≤ i then\n        (List.dropWhile P l).eraseIdx (i - (List.takeWhile P l).length)\n      else (List.dropWhile P l)\n  | [], _, h => by\n    simp\n  | a :: [], 0, h => by\n    by_cases hPa : P a <;> simp [hPa]\n  | a :: [], Nat.succ n, h => by\n    by_cases hPa : P a <;> simp [hPa, List.eraseIdx_of_length_le]\n  | a :: b :: l, 0, h => by\n    by_cases hPb : P b\n    · have hPa : P a := by\n        simpa using h ⟨0, by simp⟩ ⟨1, by simp⟩ (by simp) (by simpa using hPb)\n      simp [hPb, hPa]\n    · by_cases hPa : P a <;> simp [hPa, hPb]\n  | a :: b :: l, Nat.succ n, h => by\n    simp only [Nat.succ_eq_add_one, List.eraseIdx_cons_succ]\n    by_cases hPb : P b\n    · have hPa : P a := by\n        simpa using h ⟨0, by simp⟩ ⟨1, by simp⟩ (by simp) (by simpa using hPb)\n      simp only [List.dropWhile, hPa, decide_true, List.takeWhile, hPb, List.length_cons,\n        add_le_add_iff_right, Nat.reduceSubDiff]\n      rw [dropWile_eraseIdx P (b :: l) n (fun i j hij hP => by\n        simpa using h i.succ j.succ (by simpa using hij) (by simpa using hP))]\n      simp_all only [List.length_cons, List.get_eq_getElem, decide_true, List.takeWhile_cons_of_pos,\n        List.dropWhile_cons_of_pos]\n    · simp only [List.dropWhile, List.takeWhile, hPb, decide_false]\n      by_cases hPa : P a\n      · rw [dropWile_eraseIdx P (b :: l) n (fun i j hij hP => by\n          simpa using h i.succ j.succ (by simpa using hij) (by simpa using hP))]\n        simp only [hPa, decide_true, hPb, decide_false, Bool.false_eq_true, not_false_eq_true,\n          List.takeWhile_cons_of_neg, List.length_nil, zero_le, ↓reduceIte, List.dropWhile,\n          tsub_zero, List.length_singleton, le_add_iff_nonneg_left, add_tsub_cancel_right]\n      · simp [hPa]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset.filter_eq_empty_iff",
+      "List.prefix_iff_eq_take"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "list prefix getElem ofFn",
+      "finset cardinality bijection difference"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "list prefix getElem ofFn",
+        "status": "ok",
+        "results": [
+          {
+            "id": 201744,
+            "name": "Fin.ofFn_take_get",
+            "module": "Mathlib.Data.Fin.Tuple.Take",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Take.lean#L144-L147",
+            "source_text": "/-- Alternative version of `take_eq_take_list_ofFn` with `l : List α` instead of `v : Fin n → α`. -/\ntheorem ofFn_take_get {α : Type*} {m : ℕ} (l : List α) (h : m ≤ l.length) :\n    List.ofFn (take m h l.get) = l.take m :=\n  List.ext_get (by simp [h]) (fun n h1 h2 => by simp)\n",
+            "docstring": "Alternative version of `take_eq_take_list_ofFn` with `l : List α` instead of `v : Fin n → α`. "
+          },
+          {
+            "id": 222479,
+            "name": "List.Vector.get_ofFn",
+            "module": "Mathlib.Data.Vector.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Vector/Basic.lean#L166-L168",
+            "source_text": "@[simp]\ntheorem get_ofFn {n} (f : Fin n → α) (i) : get (ofFn f) i = f i := by\n  simp [get_eq_get_toList]",
+            "docstring": null
+          },
+          {
+            "id": 208576,
+            "name": "List.ofFn_getElem_eq_map",
+            "module": "Mathlib.Data.List.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L95-L98",
+            "source_text": "@[simp]\ntheorem ofFn_getElem_eq_map {β : Type*} (l : List α) (f : α → β) :\n    ofFn (fun i : Fin l.length => f <| l[(i : Nat)]) = l.map f := by\n  rw [← Function.comp_def, ← map_ofFn, ofFn_getElem]",
+            "docstring": null
+          },
+          {
+            "id": 208584,
+            "name": "List.find?_ofFn_eq_some",
+            "module": "Mathlib.Data.List.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L133-L141",
+            "source_text": "lemma find?_ofFn_eq_some {n} {f : Fin n → α} {p : α → Bool} {b : α} :\n    (ofFn f).find? p = some b ↔ p b = true ∧ ∃ i, f i = b ∧ ∀ j < i, ¬(p (f j) = true) := by\n  rw [find?_eq_some_iff_getElem]\n  exact ⟨fun ⟨hpb, i, hi, hfb, h⟩ ↦\n      ⟨hpb, ⟨⟨i, length_ofFn (f := f) ▸ hi⟩, by simpa\n        using! hfb, fun j hj ↦ by simpa using! h j hj⟩⟩,\n    fun ⟨hpb, i, hfb, h⟩ ↦\n      ⟨hpb, ⟨i, (length_ofFn (f := f)).symm ▸ i.isLt, by simpa using! hfb,\n        fun j hj ↦ by simpa using! h ⟨j, by lia⟩ (by simpa using! hj)⟩⟩⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 214810,
+            "name": "PFun.fn_apply",
+            "module": "Mathlib.Data.PFun",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFun.lean#L92-L94",
+            "source_text": "@[simp]\ntheorem fn_apply (f : α →. β) (a : α) : f.fn a = (f a).get :=\n  rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "list prefix getElem ofFn",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386655,
+            "name": "Physlib.List.takeWile_eraseIdx",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L23-L49",
+            "source_text": "lemma takeWile_eraseIdx {I : Type} (P : I → Prop) [DecidablePred P] :\n    (l : List I) → (i : ℕ) → (hi : ∀ (i j : Fin l.length), i < j → P (l.get j) → P (l.get i)) →\n    List.takeWhile P (List.eraseIdx l i) = (List.takeWhile P l).eraseIdx i\n  | [], _, h => by\n    rfl\n  | a :: [], 0, h => by\n    simp only [List.takeWhile, List.eraseIdx_zero]\n    split <;> rfl\n  | a :: [], Nat.succ n, h => by\n    simp only [Nat.succ_eq_add_one, List.eraseIdx_cons_succ, List.eraseIdx_nil]\n    rw [List.eraseIdx_of_length_le ((List.takeWhile_sublist _).length_le.trans (by simp))]\n  | a :: b :: l, 0, h => by\n    simp only [List.takeWhile, List.eraseIdx_zero]\n    by_cases hPb : P b\n    · have hPa : P a := by\n        simpa using h ⟨0, by simp⟩ ⟨1, by simp⟩ (by simp) (by simpa using hPb)\n      simp [hPb, hPa]\n    · simp [hPb]\n      split <;> rfl\n  | a :: b :: l, Nat.succ n, h => by\n    simp only [Nat.succ_eq_add_one, List.eraseIdx_cons_succ]\n    by_cases hPa : P a\n    · dsimp only [List.takeWhile]\n      simp only [hPa, decide_true, List.eraseIdx_cons_succ, List.cons.injEq, true_and]\n      exact takeWile_eraseIdx P (b :: l) n fun i j hij hP => by\n        simpa using h i.succ j.succ (by simpa using hij) (by simpa using hP)\n    · simp [hPa]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finset cardinality bijection difference",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202382,
+            "name": "Set.BijOn.finsetCard_eq",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L419-L420",
+            "source_text": "lemma _root_.Set.BijOn.finsetCard_eq (e : α → β) (he : Set.BijOn e s t) : #s = #t :=\n  card_nbij e he.mapsTo he.injOn he.surjOn\n",
+            "docstring": null
+          },
+          {
+            "id": 202381,
+            "name": "Finset.card_bijective",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L413-L417",
+            "source_text": "/-- Specialization of `Finset.card_nbij` that automatically fills in most arguments.\n\nSee `Fintype.card_bijective` for the version where `s` and `t` are `univ`. -/\nlemma card_bijective (e : α → β) (he : e.Bijective) (hst : ∀ i, i ∈ s ↔ e i ∈ t) :\n    #s = #t := card_equiv (.ofBijective e he) hst\n",
+            "docstring": "Specialization of `Finset.card_nbij` that automatically fills in most arguments.\n\nSee `Fintype.card_bijective` for the version where `s` and `t` are `univ`. "
+          },
+          {
+            "id": 218025,
+            "name": "Set.BijOn.ncard_eq",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L935-L935",
+            "source_text": "theorem BijOn.ncard_eq {t : Set β} (h : Set.BijOn f s t) : s.ncard = t.ncard := ncard_congr' h.equiv\n",
+            "docstring": null
+          },
+          {
+            "id": 202499,
+            "name": "Finset",
+            "module": "Mathlib.Data.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Defs.lean#L72-L79",
+            "source_text": "/-- `Finset α` is the type of finite sets of elements of `α`. It is implemented\n  as a multiset (a list up to permutation) which has no duplicate elements. -/\n@[use_set_notation_for_order, to_dual_dont_translate]\nstructure Finset (α : Type*) where\n  /-- The underlying multiset -/\n  val : Multiset α\n  /-- `val` contains no duplicates -/\n  nodup : Nodup val\n",
+            "docstring": "`Finset α` is the type of finite sets of elements of `α`. It is implemented\nas a multiset (a list up to permutation) which has no duplicate elements. "
+          },
+          {
+            "id": 322462,
+            "name": "Cardinal.mk_equiv_eq_zero_iff_lift_ne",
+            "module": "Mathlib.SetTheory.Cardinal.Arithmetic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Arithmetic.lean#L619-L620",
+            "source_text": "theorem mk_equiv_eq_zero_iff_lift_ne : #(α ≃ β') = 0 ↔ lift.{v} #α ≠ lift.{u} #β' := by\n  rw [mk_eq_zero_iff, ← not_nonempty_iff, ← lift_mk_eq']\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finset cardinality bijection difference",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389484,
+            "name": "WickContraction.consAddContract_bijection",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Card",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Card.lean#L213-L224",
+            "source_text": "lemma consAddContract_bijection (i : Fin n.succ) :\n    Function.Bijective (fun c => (⟨(consAddContract i c), by simp⟩ :\n    {c : WickContraction n.succ.succ // (c.getDual? 0).isSome ∧\n      ∀ (h : (c.getDual? 0).isSome), (c.getDual? 0).get h = Fin.succ i})) := by\n  apply And.intro\n  · intro c1 c2 h\n    simp only [succ_eq_add_one, Subtype.mk.injEq] at h\n    exact consAddContract_injective i h\n  · intro c\n    obtain ⟨c', hc⟩ := consAddContract_surjective_on_zero_contract i c.1 c.2.1 (c.2.2 c.2.1)\n    use c'\n    simp [hc]\n",
+            "docstring": null
+          },
+          {
+            "id": 387850,
+            "name": "SM.SMNoGrav.One.linearParameters.bijectionQEZero",
+            "module": "Physlib.Particles.StandardModel.AnomalyCancellation.NoGrav.One.LinearParameterization",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/NoGrav/One/LinearParameterization.lean#L176-L183",
+            "source_text": "/-- The bijection between the linear parameters and `(SMNoGrav 1).LinSols` in the special\ncase when Q and E are both not zero. -/\ndef bijectionQEZero : {S : linearParameters // S.Q' ≠ 0 ∧ S.E' ≠ 0} ≃\n    {S : (SMNoGrav 1).LinSols // Q S.val (0 : Fin 1) ≠ 0 ∧ E S.val (0 : Fin 1) ≠ 0} where\n  toFun S := ⟨bijection S, S.2⟩\n  invFun S := ⟨bijection.symm S, S.2⟩\n  left_inv S := Subtype.ext (bijection.left_inv S.1)\n  right_inv S := Subtype.ext (bijection.right_inv S.1)\n",
+            "docstring": "The bijection between the linear parameters and `(SMNoGrav 1).LinSols` in the special\ncase when Q and E are both not zero. "
+          },
+          {
+            "id": 387849,
+            "name": "SM.SMNoGrav.One.linearParameters.bijection",
+            "module": "Physlib.Particles.StandardModel.AnomalyCancellation.NoGrav.One.LinearParameterization",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/NoGrav/One/LinearParameterization.lean#L119-L174",
+            "source_text": "/-- The bijection between the type of linear parameters and `(SMNoGrav 1).LinSols`. -/\ndef bijection : linearParameters ≃ (SMNoGrav 1).LinSols where\n  toFun S := S.asLinear\n  invFun S := ⟨SMCharges.Q S.val (0 : Fin 1), (SMCharges.U S.val (0 : Fin 1) -\n      SMCharges.D S.val (0 : Fin 1))/2,\n      SMCharges.E S.val (0 : Fin 1)⟩\n  left_inv S := by\n    apply linearParameters.ext\n    · rfl\n    · simp only [Fin.isValue]\n      repeat erw [asLinear_val]\n      simp only [Fin.isValue, toSpecies_apply]\n      repeat erw [speciesVal]\n      simp only [asCharges, neg_add_rev]\n      ring\n    · rfl\n  right_inv S := by\n    simp only [Fin.isValue, toSpecies_apply_eq]\n    apply ACCSystemLinear.LinSols.ext\n    rw [charges_eq_toSpecies_eq]\n    intro i\n    rw [asLinear_val]\n    funext j\n    have hj : j = (0 : Fin 1) := by\n      match j with\n      | ⟨0, _⟩ => rfl\n    subst hj\n    rw [toSpecies_apply_asCharges]\n    have h1 := SU3Sol S\n    simp only [accSU3, toSpecies_apply_eq, Fin.isValue, sum_SMSpecies_numberCharges_one,\n      LinearMap.coe_mk, AddHom.coe_mk] at h1\n    have h2 := SU2Sol S\n    simp only [accSU2,\n      Fin.isValue, toSpecies_apply_eq, sum_SMSpecies_numberCharges_one,\n      LinearMap.coe_mk, AddHom.coe_mk] at h2\n    match i with\n    | 0 => rfl\n    | 1 =>\n      simp only [asCharges, Fin.isValue, toSpecies_apply_eq]\n      field_simp\n      linear_combination (norm := ring_nf) -(1 * h1)\n      simp only [Fin.isValue, Fin.zero_eta, toSpeciesEquiv_apply, Nat.reduceMul]\n      ring\n    | 2 =>\n      simp only [asCharges, Fin.isValue, neg_add_rev, toSpecies_apply_eq]\n      field_simp\n      linear_combination (norm := ring_nf) -(1 * h1)\n      simp only [Fin.isValue, Fin.zero_eta, toSpeciesEquiv_apply, Nat.reduceMul]\n      ring\n    | 3 =>\n      simp only [asCharges, Fin.isValue, neg_mul, toSpecies_apply_eq]\n      field_simp\n      linear_combination (norm := ring_nf) -(1 * h2)\n      simp only [Fin.isValue, Fin.zero_eta, toSpeciesEquiv_apply, Nat.reduceMul]\n      ring\n    | 4 => rfl\n",
+            "docstring": "The bijection between the type of linear parameters and `(SMNoGrav 1).LinSols`. "
+          },
+          {
+            "id": 387867,
+            "name": "SM.SMNoGrav.One.linearParametersQENeqZero.bijection",
+            "module": "Physlib.Particles.StandardModel.AnomalyCancellation.NoGrav.One.LinearParameterization",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/NoGrav/One/LinearParameterization.lean#L280-L283",
+            "source_text": "/-- The bijection between `linearParametersQENeqZero` and `LinSols` with `Q` and `E` non-zero. -/\ndef bijection : linearParametersQENeqZero ≃\n    {S : (SMNoGrav 1).LinSols // Q S.val (0 : Fin 1) ≠ 0 ∧ E S.val (0 : Fin 1) ≠ 0} :=\n  bijectionLinearParameters.trans (linearParameters.bijectionQEZero)\n",
+            "docstring": "The bijection between `linearParametersQENeqZero` and `LinSols` with `Q` and `E` non-zero. "
+          },
+          {
+            "id": 387860,
+            "name": "SM.SMNoGrav.One.linearParametersQENeqZero.bijectionLinearParameters",
+            "module": "Physlib.Particles.StandardModel.AnomalyCancellation.NoGrav.One.LinearParameterization",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/NoGrav/One/LinearParameterization.lean#L243-L278",
+            "source_text": "/-- A bijection between the type `linearParametersQENeqZero` and linear parameters\n  with `Q'` and `E'` non-zero. -/\n@[simps!]\ndef bijectionLinearParameters :\n    linearParametersQENeqZero ≃ {S : linearParameters // S.Q' ≠ 0 ∧ S.E' ≠ 0} where\n  toFun := toLinearParameters\n  invFun := tolinearParametersQNeqZero\n  left_inv S := by\n    have hvw := S.hvw\n    have hQ := S.hx\n    apply linearParametersQENeqZero.ext\n    · rfl\n    · simp only [tolinearParametersQNeqZero_v, toLinearParameters_coe_Y, toLinearParameters_coe_Q',\n      toLinearParameters_coe_E']\n      field_simp\n      ring\n    · simp only [tolinearParametersQNeqZero_w, toLinearParameters_coe_Y, toLinearParameters_coe_Q',\n        toLinearParameters_coe_E']\n      field_simp\n      ring\n  right_inv S := by\n    apply Subtype.ext\n    have hQ := S.2.1\n    have hE := S.2.2\n    apply linearParameters.ext\n    · rfl\n    · simp only [ne_eq, toLinearParameters_coe_Y, tolinearParametersQNeqZero_x,\n      tolinearParametersQNeqZero_v, tolinearParametersQNeqZero_w]\n      field_simp\n      ring_nf\n      field_simp [hQ, hE]\n    · simp only [ne_eq, toLinearParameters_coe_E', tolinearParametersQNeqZero_x,\n      tolinearParametersQNeqZero_v, tolinearParametersQNeqZero_w]\n      field_simp\n      ring_nf\n      field_simp [hQ, hE]\n",
+            "docstring": "A bijection between the type `linearParametersQENeqZero` and linear parameters\nwith `Q'` and `E'` non-zero. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "decode_encode",
+    "receipts_sha256": "d44770406b28f520502f5d50b9e193fcc1d4c84b88628b4752a1e7b259140206"
+  }
+]

@@ -1,0 +1,225 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PrefixPartition.count definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 189209,
+        "name": "Nat.Partition.card_restricted_eq_card_countRestricted",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Glaisher",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Glaisher.lean#L153-L156",
+        "source_text": "theorem card_restricted_eq_card_countRestricted (n : ℕ) {m : ℕ} (hm : 0 < m) :\n    #(restricted n (¬ m ∣ ·)) = #(countRestricted n m) := by\n  simpa using PowerSeries.ext_iff.mp\n    (powerSeriesMk_card_restricted_eq_powerSeriesMk_card_countRestricted ℤ hm) n\n",
+        "docstring": null
+      },
+      {
+        "id": 189186,
+        "name": "Nat.Partition.countRestricted",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Basic.lean#L212-L214",
+        "source_text": "/-- The finset of those partitions in which every part is used less than `m` times. -/\ndef countRestricted (n : ℕ) (m : ℕ) : Finset n.Partition :=\n  Finset.univ.filter fun x ↦ ∀ i ∈ x.parts, x.parts.count i < m\n",
+        "docstring": "The finset of those partitions in which every part is used less than `m` times. "
+      },
+      {
+        "id": 194444,
+        "name": "SzemerediRegularity.card_chunk",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Chunk",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Chunk.lean#L173-L178",
+        "source_text": "theorem card_chunk (hm : m ≠ 0) : #(chunk hP G ε hU).parts = 4 ^ #P.parts := by\n  unfold chunk\n  split_ifs\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le]\n    exact le_of_lt a_add_one_le_four_pow_parts_card\n  · rw [card_parts_equitabilise _ _ hm, tsub_add_cancel_of_le a_add_one_le_four_pow_parts_card]\n",
+        "docstring": null
+      },
+      {
+        "id": 194460,
+        "name": "Finpartition.card_filter_equitabilise_small",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L166-L181",
+        "source_text": "theorem card_filter_equitabilise_small (hm : m ≠ 0) :\n    #{u ∈ (P.equitabilise h).parts | #u = m} = a := by\n  refine (mul_eq_mul_right_iff.1 <| (add_left_inj (b * (m + 1))).1 ?_).resolve_right hm\n  rw [h, ← (P.equitabilise h).sum_card_parts]\n  have hunion :\n    (P.equitabilise h).parts =\n      {u ∈ (P.equitabilise h).parts | #u = m} ∪ {u ∈ (P.equitabilise h).parts | #u = m + 1} := by\n    rw [← filter_or, filter_true_of_mem]\n    exact fun x => card_eq_of_mem_parts_equitabilise\n  nth_rw 2 [hunion]\n  rw [sum_union, sum_const_nat fun x hx => (mem_filter.1 hx).2,\n    sum_const_nat fun x hx => (mem_filter.1 hx).2, P.card_filter_equitabilise_big]\n  refine disjoint_filter_filter' _ _ ?_\n  intro x ha hb i h\n  apply succ_ne_self m _\n  exact (hb i h).symm.trans (ha i h)\n",
+        "docstring": null
+      },
+      {
+        "id": 194461,
+        "name": "Finpartition.card_parts_equitabilise",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Regularity.Equitabilise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Regularity/Equitabilise.lean#L183-L186",
+        "source_text": "theorem card_parts_equitabilise (hm : m ≠ 0) : #(P.equitabilise h).parts = a + b := by\n  rw [← filter_true_of_mem fun x => card_eq_of_mem_parts_equitabilise, filter_or,\n    card_union_of_disjoint, P.card_filter_equitabilise_small _ hm, P.card_filter_equitabilise_big]\n  aesop (add norm disjoint_filter)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PrefixPartition.count definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PhysicalRecovery.validWords wordValid definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 214656,
+        "name": "Ordnode.Valid'.valid",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L86-L87",
+        "source_text": "theorem Valid'.valid {t o₁ o₂} (h : @Valid' α _ o₁ t o₂) : Valid t :=\n  ⟨h.1.weak, h.2, h.3⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 214648,
+        "name": "Ordnode.Valid'",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L48-L54",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. -/\nstructure Valid' (lo : WithBot α) (t : Ordnode α) (hi : WithTop α) : Prop where\n  ord : t.Bounded lo hi\n  sz : t.Sized\n  bal : t.Balanced\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. "
+      },
+      {
+        "id": 234102,
+        "name": "Monoid.CoprodI.Word.equivPair_head_smul_equivPair_tail",
+        "module": "Mathlib.GroupTheory.CoprodI",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/CoprodI.lean#L558-L561",
+        "source_text": "@[simp]\ntheorem equivPair_head_smul_equivPair_tail {i : ι} (w : Word M) :\n    of (equivPair i w).head • (equivPair i w).tail = w := by\n  rw [← rcons_eq_smul, ← equivPair_symm, Equiv.symm_apply_apply]",
+        "docstring": null
+      },
+      {
+        "id": 196100,
+        "name": "Language.reverse_mem_reverse",
+        "module": "Mathlib.Computability.Language",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/Language.lean#L335-L336",
+        "source_text": "lemma reverse_mem_reverse : a.reverse ∈ l.reverse ↔ a ∈ l := by\n  rw [mem_reverse, List.reverse_reverse]\n",
+        "docstring": null
+      },
+      {
+        "id": 196099,
+        "name": "Language.mem_reverse",
+        "module": "Mathlib.Computability.Language",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/Language.lean#L332-L333",
+        "source_text": "@[simp]\nlemma mem_reverse : a ∈ l.reverse ↔ a.reverse ∈ l := Iff.rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_boole sum_ite card_filter",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58052,
+        "name": "Finset.sum_filter_add_sum_filter_not",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L143-L143",
+        "source_text": "@[to_additive]\ntheorem prod_filter_mul_prod_filter_not\n    (s : Finset ι) (p : ι → Prop) [DecidablePred p] [∀ x, Decidable (¬p x)] (f : ι → M) :\n    (∏ x ∈ s with p x, f x) * ∏ x ∈ s with ¬p x, f x = ∏ x ∈ s, f x := by",
+        "docstring": null
+      },
+      {
+        "id": 59049,
+        "name": "Finset.sum_boole",
+        "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L44-L46",
+        "source_text": "@[simp] lemma sum_boole (p) [DecidablePred p] (s : Finset ι) :\n    (∑ x ∈ s, if p x then 1 else 0 : R) = #{x ∈ s | p x} :=\n  (natCast_card_filter _ _).symm",
+        "docstring": null
+      },
+      {
+        "id": 59060,
+        "name": "Finset.sum_boole_mul",
+        "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L102-L103",
+        "source_text": "lemma sum_boole_mul (s : Finset ι) (f : ι → R) (i : ι) :\n    ∑ j ∈ s, ite (i = j) 1 0 * f j = ite (i ∈ s) (f i) 0 := by simp\n",
+        "docstring": null
+      },
+      {
+        "id": 202717,
+        "name": "Finset.filter",
+        "module": "Mathlib.Data.Finset.Filter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L48-L53",
+        "source_text": "/-- `Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). -/\ndef filter (s : Finset α) : Finset α :=\n  ⟨_, s.2.filter p⟩\n",
+        "docstring": "`Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). "
+      },
+      {
+        "id": 202420,
+        "name": "Finset.filter_card_add_filter_neg_card_eq_card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L649-L650",
+        "source_text": "@[deprecated (since := \"2025-12-12\")]\nalias filter_card_add_filter_neg_card_eq_card := card_filter_add_card_filter_not",
+        "docstring": "**Alias** of `Finset.card_filter_add_card_filter_not`."
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

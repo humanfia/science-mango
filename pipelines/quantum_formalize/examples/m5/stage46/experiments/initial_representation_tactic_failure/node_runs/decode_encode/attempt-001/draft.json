@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nchange ∀ (N : ℕ) (A B : Finset ℕ), 0 < N → A ⊆ Finset.range N → B ⊆ Finset.range N → 0 ∈ A → 0 ∈ B → _\nintro N A B hN hA hB hA0 hB0\nhave decode : ∀ (offset : ℕ) (p : List Bool) (S : Finset ℕ),\n    S ⊆ Finset.range N → 0 ∈ S →\n    (∀ i, i < N - 1 → (p[offset + i]? = some true ↔ i + 1 ∈ S)) →\n    M5.PhysicalRecovery.selected N offset p = S := by\n  intro offset p S hS hS0 hp\n  ext s\n  simp only [M5.PhysicalRecovery.selected, Finset.mem_insert,\n    Finset.mem_image, Finset.mem_filter, Finset.mem_range]\n  constructor\n  · rintro (rfl | ⟨i, ⟨hi, hpi⟩, rfl⟩)\n    · exact hS0\n    · exact (hp i hi).mp hpi\n  · intro hs\n    by_cases hs0 : s = 0\n    · exact Or.inl hs0\n    · right\n      have hsN : s < N := Finset.mem_range.mp (hS hs)\n      have hi : s - 1 < N - 1 := by omega\n      have he : s - 1 + 1 = s := by omega\n      refine ⟨s - 1, ⟨hi, ?_⟩, he⟩\n      apply (hp (s - 1) hi).mpr\n      simpa only [he] using hs\nconstructor\n· unfold M5.PhysicalRecovery.selectedA\n  apply decode _ _ A hA hA0\n  intro i hi\n  have hit : i < M5.PhysicalRecovery.decisionCount N := by\n    unfold M5.PhysicalRecovery.decisionCount\n    omega\n  simp [M5.PhysicalRecovery.encode, List.getElem?_ofFn, hi, hit]\n· unfold M5.PhysicalRecovery.selectedB\n  apply decode _ _ B hB hB0\n  intro i hi\n  have hit : N - 1 + i < M5.PhysicalRecovery.decisionCount N := by\n    unfold M5.PhysicalRecovery.decisionCount\n    omega\n  have hnot : ¬ N - 1 + i < N - 1 := by omega\n  simp [M5.PhysicalRecovery.encode, List.getElem?_ofFn, hit, hnot]",
+  "queries": [
+    "List.getElem?_ofFn",
+    "M5.PhysicalRecovery.selected",
+    "M5.PhysicalRecovery.encode"
+  ]
+}

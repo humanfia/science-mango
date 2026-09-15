@@ -1,0 +1,69 @@
+{
+  "id": "overfull_prefix_zero",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PhysicalRecovery.overfull_prefix_zero",
+    "spec_sha256": "8d1fc7052715a39f705838378a52d93af9a618a1e233b22454ef160647ce239d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-w5ixiuz4/attempt-001/Candidate_f72242d3bab5a9fb.lean",
+        "target_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-w5ixiuz4/attempt-001/FrozenTarget_f72242d3bab5a9fb.lean",
+        "feedback": "",
+        "target_sha256": "ae4ec9b867247f02d3b1afebc8a910e2f8dc053731aec6376a2ef8b9e35f408f",
+        "target_olean_sha256": "1b6b8a9c50af411dc2ebc2aaac7e4d0e7c054645b3ccfb07e8208abf0c351e91",
+        "source_sha256": "93768df83b68a919e0e20d1f3e7b62b518d7bc432f1589cad07ea132c3462fca",
+        "olean_sha256": "6f1a3342af3c2148ce23c9630c0fd5f76f3d4ee5bb13a7c89b73d846b14d3a30",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T10:06:27.253993+00:00",
+    "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-w5ixiuz4",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-w5ixiuz4/attempt-001/Candidate_f72242d3bab5a9fb.lean",
+    "environment_sha256": "d57919c2ffc2a7035a536368401261bad3d56cf1bcc076eac712e5f249d80e4a",
+    "artifacts": {
+      "prefix_extension": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalRecovery.prefix_extension : ∀ (N : ℕ) (p q : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → q.length = M5.PhysicalRecovery.decisionCount N → (p.IsPrefix q ↔ M5.PhysicalRecovery.selectedA N p ⊆ M5.PhysicalRecovery.selectedA N q ∧ M5.PhysicalRecovery.selectedA N q ⊆ M5.PhysicalRecovery.selectedA N p ∪ M5.PhysicalRecovery.availableA N p ∧ M5.PhysicalRecovery.selectedB N p ⊆ M5.PhysicalRecovery.selectedB N q ∧ M5.PhysicalRecovery.selectedB N q ⊆ M5.PhysicalRecovery.selectedB N p ∪ M5.PhysicalRecovery.availableB N p) := by\n  intro N p q hN hp hq\n  have hpq : p.length ≤ q.length := by omega\n  have prefix_of_entries : ∀ (a b : List Bool), a.length ≤ b.length →\n      (∀ i, i < a.length → a[i]? = b[i]?) → a.IsPrefix b := by\n    intro a\n    induction a with\n    | nil => intro b hl he; exact ⟨b, rfl⟩\n    | cons x a ih =>\n      intro b hl he\n      cases b with\n      | nil => simp at hl\n      | cons y b =>\n        have hxy : x = y := by simpa using he 0 (by simp)\n        subst y\n        have hab : a.IsPrefix b := ih b (by simpa using hl) (by\n          intro i hi\n          simpa using he (i + 1) (by simpa using hi))\n        obtain ⟨r, hr⟩ := hab\n        exact ⟨r, by simp [hr]⟩\n  have ms : ∀ (offset i : ℕ) (r : List Bool),\n      i + 1 ∈ M5.PhysicalRecovery.selected N offset r ↔\n        i < N - 1 ∧ offset + i < r.length ∧ r[offset + i]? = some true := by\n    intro offset i r\n    simp [M5.PhysicalRecovery.selected]\n  have ma : ∀ (offset i : ℕ) (r : List Bool),\n      i + 1 ∈ M5.PhysicalRecovery.available N offset r ↔\n        i < N - 1 ∧ r.length ≤ offset + i := by\n    intro offset i r\n    simp [M5.PhysicalRecovery.available]\n  have block_forward : ∀ offset,\n      (∀ i, i < p.length → p[i]? = q[i]?) →\n      M5.PhysicalRecovery.selected N offset p ⊆ M5.PhysicalRecovery.selected N offset q ∧\n      M5.PhysicalRecovery.selected N offset q ⊆\n        M5.PhysicalRecovery.selected N offset p ∪ M5.PhysicalRecovery.available N offset p := by\n    intro offset he\n    constructor\n    · intro x hx\n      simp only [M5.PhysicalRecovery.selected, Finset.mem_insert,\n        Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx ⊢\n      rcases hx with hx | ⟨i, ⟨hi, hip, hit⟩, hix⟩\n      · exact Or.inl hx\n      · exact Or.inr ⟨i, ⟨hi, lt_of_lt_of_le hip hpq, (he _ hip).symm.trans hit⟩, hix⟩\n    · intro x hx\n      simp only [M5.PhysicalRecovery.selected, Finset.mem_insert,\n        Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n      rcases hx with hx | ⟨i, ⟨hi, hiq, hit⟩, hix⟩\n      · subst x\n        apply Finset.mem_union_left\n        simp [M5.PhysicalRecovery.selected]\n      · subst x\n        by_cases hip : offset + i < p.length\n        · apply Finset.mem_union_left\n          exact (ms offset i p).2 ⟨hi, hip, (he _ hip).trans hit⟩\n        · apply Finset.mem_union_right\n          exact (ma offset i p).2 ⟨hi, by omega⟩\n  constructor\n  · intro h\n    have he : ∀ i, i < p.length → p[i]? = q[i]? := by\n      obtain ⟨r, rfl⟩ := h\n      intro i hi\n      simp [List.getElem?_append, hi]\n    have ha := block_forward 0 he\n    have hb := block_forward (N - 1) he\n    exact ⟨ha.1, ha.2, hb.1, hb.2⟩\n  · intro h\n    have block_entries : ∀ offset,\n        M5.PhysicalRecovery.selected N offset p ⊆ M5.PhysicalRecovery.selected N offset q →\n        M5.PhysicalRecovery.selected N offset q ⊆\n          M5.PhysicalRecovery.selected N offset p ∪ M5.PhysicalRecovery.available N offset p →\n        ∀ i, i < N - 1 → offset + i < p.length →\n          p[offset + i]? = q[offset + i]? := by\n      intro offset h₁ h₂ i hi hip\n      have hiq : offset + i < q.length := lt_of_lt_of_le hip hpq\n      have ht : p[offset + i]? = some true ↔ q[offset + i]? = some true := by\n        constructor\n        · intro ht\n          exact ((ms offset i q).1 (h₁ ((ms offset i p).2 ⟨hi, hip, ht⟩))).2.2\n        · intro ht\n          have hm := h₂ ((ms offset i q).2 ⟨hi, hiq, ht⟩)\n          rcases Finset.mem_union.mp hm with hm | hm\n          · exact ((ms offset i p).1 hm).2.2\n          · have := ((ma offset i p).1 hm).2\n            omega\n      have hpi : p[offset + i]? = some p[offset + i] := getElem?_pos p (offset + i) hip\n      have hqi : q[offset + i]? = some q[offset + i] := getElem?_pos q (offset + i) hiq\n      rw [hpi, hqi] at ht ⊢\n      cases ep : p[offset + i] <;> cases eq : q[offset + i] <;> simp_all\n    apply prefix_of_entries p q hpq\n    intro i hi\n    by_cases hai : i < N - 1\n    · simpa using block_entries 0 h.1 h.2.1 i hai (by simpa using hi)\n    · have hbi : i - (N - 1) < N - 1 := by\n        unfold M5.PhysicalRecovery.decisionCount at hp\n        omega\n      have he : (N - 1) + (i - (N - 1)) = i := by omega\n      simpa only [he] using block_entries (N - 1) h.2.2.1 h.2.2.2\n        (i - (N - 1)) hbi (by omega)",
+          "imports": [
+            "M5PhysicalRecovery"
+          ],
+          "name": "M5.PhysicalRecovery.prefix_extension",
+          "ancestors": [],
+          "spec_sha256": "66f338c2fd0a752d4582542ae954f7b92fbc814488f8b8746c287a5210773e2c"
+        },
+        "sha256": "c572980dd93f2779672215587204713c96ee885eca861fad9f8bfed544adba13"
+      },
+      "overfull_prefix_zero": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalRecovery.overfull_prefix_zero : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → (w < (M5.PhysicalRecovery.selectedA N p).card ∨ w < (M5.PhysicalRecovery.selectedB N p).card) → M5.PrefixPartition.count (M5.PhysicalRecovery.validWords N w F) p = 0 := by\n  intro N w F p hN hp hover\n  classical\n  have hnone : ∀ q ∈ M5.PhysicalRecovery.validWords N w F, ¬ p.IsPrefix q := by\n    intro q hq hpq\n    have hv : M5.PhysicalRecovery.wordValid N w F q :=\n      (Finset.mem_filter.mp hq).2\n    unfold M5.PhysicalRecovery.wordValid M5.PhysicalRecovery.ValidSupports at hv\n    have hlen : q.length = M5.PhysicalRecovery.decisionCount N := by tauto\n    have hA : (M5.PhysicalRecovery.selectedA N q).card = w := by tauto\n    have hB : (M5.PhysicalRecovery.selectedB N q).card = w := by tauto\n    have hs := (M5.PhysicalRecovery.prefix_extension N p q hN hp hlen).mp hpq\n    have hcA := Finset.card_le_card hs.1\n    have hcB := Finset.card_le_card hs.2.2.1\n    omega\n  unfold M5.PrefixPartition.count\n  simp only [Nat.cast_eq_zero, Finset.card_eq_zero, Finset.filter_eq_empty_iff]\n  exact hnone",
+          "imports": [
+            "M5PhysicalRecovery"
+          ],
+          "name": "M5.PhysicalRecovery.overfull_prefix_zero",
+          "ancestors": [
+            "prefix_extension"
+          ],
+          "spec_sha256": "97c1a83e32981c6edfef68cbe8334d024f553dfad72e0b219825dac6edacf0a6"
+        },
+        "sha256": "c63bf1c02df1051098cf1d81c5bab495a49d42ec68be113fc151b597d5bde1e8"
+      }
+    }
+  }
+}

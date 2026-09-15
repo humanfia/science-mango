@@ -1,0 +1,55 @@
+{
+  "id": "decode_encode",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PhysicalRecovery.decode_encode",
+    "spec_sha256": "a274cf62b6b833e418e0bcf37d0258e35cfe52d7de2f8d80804050c95463c90d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rixaxmqm/attempt-001/Candidate_8fd92f9a35edb622.lean",
+        "target_path": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rixaxmqm/attempt-001/FrozenTarget_8fd92f9a35edb622.lean",
+        "feedback": "",
+        "target_sha256": "c2cd9a3d430a6f6fbe50ac7b0c42c388c0b3beb3d3e2cf2368aa0bb3e25eb3aa",
+        "target_olean_sha256": "5b88705baddf8309c727989f9527b8d594abe3f77392ac6e2e8ddf9d8657af97",
+        "source_sha256": "78d9af0a7e94c8a4626d417d02312e3e31608e5992d0a6396f1163a970da1d64",
+        "olean_sha256": "8dfe2b3fa905a6866c8e20163d486a26dc159fd6a904e689da468adf2c416956",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T10:04:57.820167+00:00",
+    "work": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rixaxmqm",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "ae8417e86f9c1c2037cdc8d7775a113f00bd0e6dc6c832e37f3598103bd5766a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-physical-recovery-formalization/.humanize-formal-runs/run-rixaxmqm/attempt-001/Candidate_8fd92f9a35edb622.lean",
+    "environment_sha256": "d57919c2ffc2a7035a536368401261bad3d56cf1bcc076eac712e5f249d80e4a",
+    "artifacts": {
+      "decode_encode": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalRecovery.decode_encode : ∀ (N : ℕ) (A B : Finset ℕ), 0 < N → A ⊆ Finset.range N → B ⊆ Finset.range N → 0 ∈ A → 0 ∈ B → (M5.PhysicalRecovery.selectedA N (M5.PhysicalRecovery.encode N A B) = A ∧ M5.PhysicalRecovery.selectedB N (M5.PhysicalRecovery.encode N A B) = B) := by\n  classical\n  intro N A B hN hA hB hA0 hB0\n  have decode_block (offset : ℕ) (p : List Bool) (S : Finset ℕ)\n      (hS : S ⊆ Finset.range N) (hS0 : 0 ∈ S)\n      (hp : ∀ i < N - 1,\n        (offset + i < p.length ∧ p[offset + i]? = some true) ↔ i + 1 ∈ S) :\n      M5.PhysicalRecovery.selected N offset p = S := by\n    ext s\n    simp only [M5.PhysicalRecovery.selected, Finset.mem_insert,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range]\n    constructor\n    · intro hs\n      rcases hs with hs | ⟨i, ⟨hi, hpi⟩, his⟩\n      · subst s\n        exact hS0\n      · have hm := (hp i hi).mp hpi\n        simpa only [his] using hm\n    · intro hs\n      by_cases hs0 : s = 0\n      · exact Or.inl hs0\n      · right\n        have hsN : s < N := Finset.mem_range.mp (hS hs)\n        have hi : s - 1 < N - 1 := by omega\n        have he : s - 1 + 1 = s := by omega\n        refine ⟨s - 1, ⟨hi, ?_⟩, he⟩\n        apply (hp (s - 1) hi).mpr\n        simpa only [he] using hs\n  constructor\n  · change M5.PhysicalRecovery.selected N 0 (M5.PhysicalRecovery.encode N A B) = A\n    apply decode_block 0 (M5.PhysicalRecovery.encode N A B) A hA hA0\n    intro i hi\n    have hit : i < 2 * (N - 1) := by omega\n    simp [M5.PhysicalRecovery.encode, M5.PhysicalRecovery.decisionCount, hi, hit]\n  · change M5.PhysicalRecovery.selected N (N - 1) (M5.PhysicalRecovery.encode N A B) = B\n    apply decode_block (N - 1) (M5.PhysicalRecovery.encode N A B) B hB hB0\n    intro i hi\n    have hit : N - 1 + i < 2 * (N - 1) := by omega\n    have hnot : ¬ N - 1 + i < N - 1 := by omega\n    simp [M5.PhysicalRecovery.encode, M5.PhysicalRecovery.decisionCount, hit, hnot]",
+          "imports": [
+            "M5PhysicalRecovery"
+          ],
+          "name": "M5.PhysicalRecovery.decode_encode",
+          "ancestors": [],
+          "spec_sha256": "a274cf62b6b833e418e0bcf37d0258e35cfe52d7de2f8d80804050c95463c90d"
+        },
+        "sha256": "4292becbbb7681f81fbb0b25f1895146fbd34cbd64c2390fb8532bc9ca842d08"
+      }
+    }
+  }
+}

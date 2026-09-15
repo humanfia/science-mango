@@ -1,0 +1,3 @@
+import Candidate_9ac366aac641f773
+example : QuantumHarnessFrozenTarget := M5.PhysicalRecovery.semantic_completion_count
+#print axioms M5.PhysicalRecovery.semantic_completion_count

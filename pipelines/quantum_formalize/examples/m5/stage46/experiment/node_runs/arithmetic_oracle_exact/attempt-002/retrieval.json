@@ -1,0 +1,206 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalCount.PrefixOK M5.PhysicalRecovery.StateOK",
+    "status": "ok",
+    "results": [
+      {
+        "id": 327751,
+        "name": "Mathlib.Tactic.ITauto.whenOk",
+        "module": "Mathlib.Tactic.ITauto",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ITauto.lean#L397-L400",
+        "source_text": "/-- Skip the continuation and return a failed proof if the Boolean is false. -/\ndef whenOk : Bool → IProp → StateM Nat (Bool × Proof) → StateM Nat (Bool × Proof)\n  | false, _, _ => pure (false, .sorry)\n  | true, _, f => f\n",
+        "docstring": "Skip the continuation and return a failed proof if the Boolean is false. "
+      },
+      {
+        "id": 326904,
+        "name": "Congr!.Config.numArgsOk",
+        "module": "Mathlib.Tactic.CongrExclamation",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/CongrExclamation.lean#L203-L205",
+        "source_text": "/-- Whether the given number of arguments is allowed to be considered. -/\ndef Congr!.Config.numArgsOk (config : Config) (numArgs : Nat) : Bool :=\n  numArgs ≤ config.maxArgs.getD numArgs\n",
+        "docstring": "Whether the given number of arguments is allowed to be considered. "
+      },
+      {
+        "id": 329646,
+        "name": "Mathlib.Tactic.successIfFailWithMessage",
+        "module": "Mathlib.Tactic.SuccessIfFailWithMsg",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/SuccessIfFailWithMsg.lean#L34-L60",
+        "source_text": "/-- Evaluates `tacs` and succeeds only if `tacs` both fails and throws an error equal (as a string)\nto `msg`. -/\ndef successIfFailWithMessage {s α : Type} {m : Type → Type} [Monad m] [MonadLiftT BaseIO m]\n    [MonadLiftT CoreM m] [MonadBacktrack s m] [MonadError m] (msg : String) (tacs : m α)\n    (msgref : Option Syntax := none) (ref : Option Syntax := none) : m Unit := do\n  let s ← saveState\n  let err ←\n    try _ ← tacs; pure none\n    catch err => pure (some (← err.toMessageData.toString))\n  restoreState s\n  if let some err := err then\n    unless msg.trimAscii == err.trimAscii do\n      if let some msgref := msgref then\n        let suggestion : TryThis.Suggestion :=\n          { suggestion := s!\"\\\"{err.trimAscii}\\\"\"\n            toCodeActionTitle? := some (fun _ => \"Update with tactic error message\")}\n        TryThis.addSuggestion msgref suggestion (header := \"Update with tactic error message: \")\n\n      if let some ref := ref then\n        throwErrorAt ref \"tactic '{ref}' failed, but got different error message:\\n\\n{err}\"\n      else\n        throwError \"tactic failed, but got different error message:\\n\\n{err}\"\n  else\n    if let some ref := ref then\n      throwErrorAt ref \"tactic '{ref}' succeeded, but was expected to fail\"\n    else\n      throwError \"tactic succeeded, but was expected to fail\"\n",
+        "docstring": "Evaluates `tacs` and succeeds only if `tacs` both fails and throws an error equal (as a string)\nto `msg`. "
+      },
+      {
+        "id": 196994,
+        "name": "Turing.ToPartrec.Code.Ok",
+        "module": "Mathlib.Computability.TuringMachine.Config",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/Config.lean#L568-L577",
+        "source_text": "/-- This is a temporary definition, because we will prove in `code_is_ok` that it always holds.\nIt asserts that `c` is semantically correct; that is, for any `k` and `v`,\n`eval (stepNormal c k v) = eval (Cfg.ret k (Code.eval c v))`, as an equality of partial values\n(so one diverges iff the other does).\n\nIn particular, we can let `k = Cont.halt`, and then this asserts that `stepNormal c Cont.halt v`\nevaluates to `Cfg.halt (Code.eval c v)`. -/\ndef Code.Ok (c : Code) :=\n  ∀ k v, StateTransition.eval step (stepNormal c k v) =\n    Code.eval c v >>= fun v => StateTransition.eval step (Cfg.ret k v)\n",
+        "docstring": "This is a temporary definition, because we will prove in `code_is_ok` that it always holds.\nIt asserts that `c` is semantically correct; that is, for any `k` and `v`,\n`eval (stepNormal c k v) = eval (Cfg.ret k (Code.eval c v))`, as an equality of partial values\n(so one diverges iff the other does).\n\nIn particular, we can let `k = Cont.halt`, and then this asserts that `stepNormal c Cont.halt v`\nevaluates to `Cfg.halt (Code.eval c v)`. "
+      },
+      {
+        "id": 327750,
+        "name": "Mathlib.Tactic.ITauto.isOk",
+        "module": "Mathlib.Tactic.ITauto",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ITauto.lean#L392-L395",
+        "source_text": "/-- Convert a value-with-success to an optional value. -/\ndef isOk : (Bool × Proof) × Nat → Option (Proof × Nat)\n  | ((false, _), _) => none\n  | ((true, p), n) => some (p, n)\n",
+        "docstring": "Convert a value-with-success to an optional value. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.ConditionalCount.PrefixOK M5.PhysicalRecovery.StateOK",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393832,
+        "name": "CanonicalEnsemble.physicalProbability_add",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L784-L791",
+        "source_text": "lemma physicalProbability_add\n    {ι1} [MeasurableSpace ι1]\n    (𝓒1 : CanonicalEnsemble ι1) (T : Temperature) (i : ι × ι1)\n    (h : 𝓒.phaseSpaceunit = 𝓒1.phaseSpaceunit) :\n    (𝓒 + 𝓒1).physicalProbability T i\n      = 𝓒.physicalProbability T i.1 * 𝓒1.physicalProbability T i.2 := by\n  simp [physicalProbability, probability_add, phase_space_unit_add, dof_add, h, pow_add,\n    mul_mul_mul_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 393824,
+        "name": "CanonicalEnsemble.physicalProbability_nonneg",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L736-L739",
+        "source_text": "lemma physicalProbability_nonneg\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    0 ≤ 𝓒.physicalProbability T i :=\n  mul_nonneg (𝓒.probability_nonneg T i) (pow_nonneg 𝓒.hPos.le _)\n",
+        "docstring": null
+      },
+      {
+        "id": 393822,
+        "name": "CanonicalEnsemble.physicalProbability_def",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+        "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393826,
+        "name": "CanonicalEnsemble.log_physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L746-L751",
+        "source_text": "lemma log_physicalProbability\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    Real.log (𝓒.physicalProbability T i)\n      = Real.log (𝓒.probability T i) + (𝓒.dof : ℝ) * Real.log 𝓒.phaseSpaceunit := by\n  rw [physicalProbability, Real.log_mul (𝓒.probability_pos T i).ne' (pow_pos 𝓒.hPos _).ne',\n    Real.log_pow]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalCount.completionC M5.PhysicalRecovery.oracle",
+    "status": "ok",
+    "results": [
+      {
+        "id": 196711,
+        "name": "RecursiveIn.oracle",
+        "module": "Mathlib.Computability.RecursiveIn",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/RecursiveIn.lean#L195-L196",
+        "source_text": "lemma oracle : ∀ g ∈ O, RecursiveIn O g := by\n  intro g hg; rw [iff_nat]; exact .oracle g hg\n",
+        "docstring": null
+      },
+      {
+        "id": 329646,
+        "name": "Mathlib.Tactic.successIfFailWithMessage",
+        "module": "Mathlib.Tactic.SuccessIfFailWithMsg",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/SuccessIfFailWithMsg.lean#L34-L60",
+        "source_text": "/-- Evaluates `tacs` and succeeds only if `tacs` both fails and throws an error equal (as a string)\nto `msg`. -/\ndef successIfFailWithMessage {s α : Type} {m : Type → Type} [Monad m] [MonadLiftT BaseIO m]\n    [MonadLiftT CoreM m] [MonadBacktrack s m] [MonadError m] (msg : String) (tacs : m α)\n    (msgref : Option Syntax := none) (ref : Option Syntax := none) : m Unit := do\n  let s ← saveState\n  let err ←\n    try _ ← tacs; pure none\n    catch err => pure (some (← err.toMessageData.toString))\n  restoreState s\n  if let some err := err then\n    unless msg.trimAscii == err.trimAscii do\n      if let some msgref := msgref then\n        let suggestion : TryThis.Suggestion :=\n          { suggestion := s!\"\\\"{err.trimAscii}\\\"\"\n            toCodeActionTitle? := some (fun _ => \"Update with tactic error message\")}\n        TryThis.addSuggestion msgref suggestion (header := \"Update with tactic error message: \")\n\n      if let some ref := ref then\n        throwErrorAt ref \"tactic '{ref}' failed, but got different error message:\\n\\n{err}\"\n      else\n        throwError \"tactic failed, but got different error message:\\n\\n{err}\"\n  else\n    if let some ref := ref then\n      throwErrorAt ref \"tactic '{ref}' succeeded, but was expected to fail\"\n    else\n      throwError \"tactic succeeded, but was expected to fail\"\n",
+        "docstring": "Evaluates `tacs` and succeeds only if `tacs` both fails and throws an error equal (as a string)\nto `msg`. "
+      },
+      {
+        "id": 333342,
+        "name": "SummationFilter.conditional_filter",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L216-L216",
+        "source_text": "@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)",
+        "docstring": null
+      },
+      {
+        "id": 241899,
+        "name": "Lean.MessageData.getExprs",
+        "module": "Mathlib.Lean.MessageData.ForExprs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Lean/MessageData/ForExprs.lean#L124-L132",
+        "source_text": "/-- Get all the expressions in a message, in order.\n\nIf you need the context of the expressions, prefer iterating over the expressions via\n`for (ppCtx, e) in msg.exprs do` directly. -/\npartial def getExprs (msg : MessageData) : m (Array Expr) := do\n  let mut arr := #[]\n  for (_, e) in msg.exprs do\n    arr := arr.push e\n  return arr\n",
+        "docstring": "Get all the expressions in a message, in order.\n\nIf you need the context of the expressions, prefer iterating over the expressions via\n`for (ppCtx, e) in msg.exprs do` directly. "
+      },
+      {
+        "id": 100965,
+        "name": "Polynomial.C",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L430-L437",
+        "source_text": "/-- `C a` is the constant polynomial `a`.\n`C` is provided as a ring homomorphism.\n-/\ndef C : R →+* R[X] :=\n  { monomial 0 with\n    map_one' := by simp [monomial_zero_one]\n    map_mul' := by simp [monomial_mul_monomial]\n    map_zero' := by simp }\n",
+        "docstring": "`C a` is the constant polynomial `a`.\n`C` is provided as a ring homomorphism.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.ConditionalCount.completionC M5.PhysicalRecovery.oracle",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393832,
+        "name": "CanonicalEnsemble.physicalProbability_add",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L784-L791",
+        "source_text": "lemma physicalProbability_add\n    {ι1} [MeasurableSpace ι1]\n    (𝓒1 : CanonicalEnsemble ι1) (T : Temperature) (i : ι × ι1)\n    (h : 𝓒.phaseSpaceunit = 𝓒1.phaseSpaceunit) :\n    (𝓒 + 𝓒1).physicalProbability T i\n      = 𝓒.physicalProbability T i.1 * 𝓒1.physicalProbability T i.2 := by\n  simp [physicalProbability, probability_add, phase_space_unit_add, dof_add, h, pow_add,\n    mul_mul_mul_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388434,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+        "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+        "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+      },
+      {
+        "id": 393824,
+        "name": "CanonicalEnsemble.physicalProbability_nonneg",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L736-L739",
+        "source_text": "lemma physicalProbability_nonneg\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    0 ≤ 𝓒.physicalProbability T i :=\n  mul_nonneg (𝓒.probability_nonneg T i) (pow_nonneg 𝓒.hPos.le _)\n",
+        "docstring": null
+      },
+      {
+        "id": 393825,
+        "name": "CanonicalEnsemble.physicalProbability_pos",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L741-L744",
+        "source_text": "lemma physicalProbability_pos\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    0 < 𝓒.physicalProbability T i :=\n  mul_pos (𝓒.probability_pos T i) (pow_pos 𝓒.hPos _)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

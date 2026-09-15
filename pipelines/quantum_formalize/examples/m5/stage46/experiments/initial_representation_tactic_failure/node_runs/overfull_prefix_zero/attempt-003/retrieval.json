@@ -1,0 +1,268 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.isPrefixOf_eq_true",
+    "status": "ok",
+    "results": [
+      {
+        "id": 207486,
+        "name": "List.IsPrefix.idxOf_eq_of_mem",
+        "module": "Mathlib.Data.List.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L565-L568",
+        "source_text": "theorem IsPrefix.idxOf_eq_of_mem (hl : l₁ <+: l₂) {a : α} (ha : a ∈ l₁) :\n    l₁.idxOf a = l₂.idxOf a := by\n  obtain ⟨l₃, rfl⟩ := hl\n  exact idxOf_append_of_mem ha |>.symm\n",
+        "docstring": null
+      },
+      {
+        "id": 208144,
+        "name": "List.take_isPrefix_take",
+        "module": "Mathlib.Data.List.Infix",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L58-L59",
+        "source_text": "@[simp] lemma take_isPrefix_take {m n : ℕ} : l.take m <+: l.take n ↔ m ≤ n ∨ l.length ≤ n := by\n  simp [prefix_take_iff, take_prefix]; omega",
+        "docstring": null
+      },
+      {
+        "id": 208142,
+        "name": "List.IsPrefix.drop",
+        "module": "Mathlib.Data.List.Infix",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L49-L50",
+        "source_text": "@[gcongr] lemma IsPrefix.drop (h : l₁ <+: l₂) (n : ℕ) : l₁.drop n <+: l₂.drop n := by\n  rw [prefix_iff_eq_take.mp h, drop_take]; apply take_prefix",
+        "docstring": null
+      },
+      {
+        "id": 209393,
+        "name": "List.take_eq_self_iff",
+        "module": "Mathlib.Data.List.TakeDrop",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L43-L44",
+        "source_text": "@[simp] lemma take_eq_self_iff (x : List α) {n : ℕ} : x.take n = x ↔ x.length ≤ n :=\n  ⟨by grind, take_of_length_le⟩",
+        "docstring": null
+      },
+      {
+        "id": 207639,
+        "name": "List.IsChain.prefix",
+        "module": "Mathlib.Data.List.Chain",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Chain.lean#L251-L252",
+        "source_text": "theorem IsChain.prefix (h : IsChain R l) (h' : l₁ <+: l) : IsChain R l₁ :=\n  h.infix h'.isInfix\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "List.isPrefixOf_eq_true",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386666,
+        "name": "Physlib.List.orderedInsertPos_take_eq_orderedInsert",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L168-L180",
+        "source_text": "lemma orderedInsertPos_take_eq_orderedInsert {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r =\n    List.take (orderedInsertPos le1 r r0) (List.orderedInsert le1 r0 r) := by\n  refine List.ext_get ?_ ?_\n  · simp only [List.length_take, Fin.is_le', inf_of_le_left, inf_eq_left]\n    exact Nat.le_of_lt_succ (orderedInsertPos_lt_length le1 r r0)\n  · intro n h1 h2\n    simp only [List.get_eq_getElem, List.getElem_take]\n    rw [orderedInsert_get_lt le1 r r0 n]\n    rfl\n    simp only [List.length_take, lt_inf_iff] at h1\n    exact h1.1\n",
+        "docstring": null
+      },
+      {
+        "id": 386668,
+        "name": "Physlib.List.orderedInsertPos_take",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L196-L199",
+        "source_text": "lemma orderedInsertPos_take {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r = List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  rw [orderedInsertPos_take_eq_orderedInsert,orderedInsertPos_take_orderedInsert]\n",
+        "docstring": null
+      },
+      {
+        "id": 386665,
+        "name": "Physlib.List.orderedInsertPos_take_orderedInsert",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L162-L166",
+        "source_text": "lemma orderedInsertPos_take_orderedInsert {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    (List.take (orderedInsertPos le1 r r0) (List.orderedInsert le1 r0 r)) =\n    List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  simp [orderedInsertPos, List.orderedInsert_eq_take_drop]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.IsPrefix take length",
+    "status": "ok",
+    "results": [
+      {
+        "id": 208141,
+        "name": "List.IsPrefix.take",
+        "module": "Mathlib.Data.List.Infix",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L46-L47",
+        "source_text": "@[gcongr] lemma IsPrefix.take (h : l₁ <+: l₂) (n : ℕ) : l₁.take n <+: l₂.take n := by\n  simpa [prefix_take_iff, Nat.min_le_left] using (take_prefix n l₁).trans h",
+        "docstring": null
+      },
+      {
+        "id": 208144,
+        "name": "List.take_isPrefix_take",
+        "module": "Mathlib.Data.List.Infix",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L58-L59",
+        "source_text": "@[simp] lemma take_isPrefix_take {m n : ℕ} : l.take m <+: l.take n ↔ m ≤ n ∨ l.length ≤ n := by\n  simp [prefix_take_iff, take_prefix]; omega",
+        "docstring": null
+      },
+      {
+        "id": 208143,
+        "name": "List.isPrefix_append_of_length",
+        "module": "Mathlib.Data.List.Infix",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Infix.lean#L54-L56",
+        "source_text": "lemma isPrefix_append_of_length (h : l₁.length ≤ l₂.length) : l₁ <+: l₂ ++ l₃ ↔ l₁ <+: l₂ :=\n  ⟨fun h ↦ by rw [prefix_iff_eq_take] at *; nth_rw 1 [h, take_eq_left_iff]; tauto,\n   fun h ↦ h.trans <| l₂.prefix_append l₃⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 209413,
+        "name": "List.takeD_length",
+        "module": "Mathlib.Data.List.TakeDrop",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L143-L146",
+        "source_text": "@[simp]\ntheorem takeD_length : ∀ n l a, length (@takeD α n l a) = n\n  | 0, _, _ => rfl\n  | _ + 1, _, _ => congr_arg succ (takeD_length _ _ _)\n\n-- `takeD_nil` is already in batteries\n\ntheorem takeD_eq_take : ∀ {n} {l : List α} a, n ≤ length l → takeD n l a = take n l\n  | 0, _, _, _ => rfl\n  | _ + 1, _ :: _, a, h => congr_arg (cons _) <| takeD_eq_take a <| le_of_succ_le_succ h\n\n@[simp]\ntheorem takeD_left (l₁ l₂ : List α) (a : α) : takeD (length l₁) (l₁ ++ l₂) a = l₁ :=",
+        "docstring": null
+      },
+      {
+        "id": 209393,
+        "name": "List.take_eq_self_iff",
+        "module": "Mathlib.Data.List.TakeDrop",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L43-L44",
+        "source_text": "@[simp] lemma take_eq_self_iff (x : List α) {n : ℕ} : x.take n = x ↔ x.length ≤ n :=\n  ⟨by grind, take_of_length_le⟩",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "List.IsPrefix take length",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386740,
+        "name": "Physlib.List.takeWhile_orderedInsert'",
+        "module": "Physlib.Mathematics.List.InsertionSort",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L170-L186",
+        "source_text": "lemma takeWhile_orderedInsert' {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r b c)) (List.orderedInsert r a l)).length =\n    (List.takeWhile (fun c => !decide (r b c)) l).length\n  | [] => by\n    simp [List.orderedInsert, (Std.Total.total a b).resolve_left hr]\n  | c :: l => by\n    have hrba : r b a := (Std.Total.total a b).resolve_left hr\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · by_cases hac : r a c <;> simp [h, hac, hrba]\n    · by_cases hac : r a c\n      · exact absurd (IsTrans.trans _ _ _ hrba hac) h\n      · simp only [hac, ↓reduceIte, h, decide_false, Bool.not_false, List.takeWhile_cons_of_pos,\n        List.length_cons, add_left_inj]\n        exact takeWhile_orderedInsert' r a b hr l\n",
+        "docstring": null
+      },
+      {
+        "id": 386666,
+        "name": "Physlib.List.orderedInsertPos_take_eq_orderedInsert",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L168-L180",
+        "source_text": "lemma orderedInsertPos_take_eq_orderedInsert {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r =\n    List.take (orderedInsertPos le1 r r0) (List.orderedInsert le1 r0 r) := by\n  refine List.ext_get ?_ ?_\n  · simp only [List.length_take, Fin.is_le', inf_of_le_left, inf_eq_left]\n    exact Nat.le_of_lt_succ (orderedInsertPos_lt_length le1 r r0)\n  · intro n h1 h2\n    simp only [List.get_eq_getElem, List.getElem_take]\n    rw [orderedInsert_get_lt le1 r r0 n]\n    rfl\n    simp only [List.length_take, lt_inf_iff] at h1\n    exact h1.1\n",
+        "docstring": null
+      },
+      {
+        "id": 386739,
+        "name": "Physlib.List.takeWhile_orderedInsert",
+        "module": "Physlib.Mathematics.List.InsertionSort",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L152-L168",
+        "source_text": "lemma takeWhile_orderedInsert {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r a c)) (List.orderedInsert r b l)).length =\n    (List.takeWhile (fun c => !decide (r a c)) l).length + 1\n  | [] => by\n    simp [hr]\n  | c :: l => by\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · simp [h, hr]\n    · simp only [h, ↓reduceIte]\n      have hl : ¬ r a c :=\n        fun hn => h (IsTrans.trans _ _ _ ((Std.Total.total a b).resolve_left hr) hn)\n      simp only [hl, decide_false, Bool.not_false, List.takeWhile_cons_of_pos, List.length_cons,\n        add_left_inj]\n      exact takeWhile_orderedInsert r a b hr l\n",
+        "docstring": null
+      },
+      {
+        "id": 386668,
+        "name": "Physlib.List.orderedInsertPos_take",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L196-L199",
+        "source_text": "lemma orderedInsertPos_take {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    List.take (orderedInsertPos le1 r r0) r = List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  rw [orderedInsertPos_take_eq_orderedInsert,orderedInsertPos_take_orderedInsert]\n",
+        "docstring": null
+      },
+      {
+        "id": 386665,
+        "name": "Physlib.List.orderedInsertPos_take_orderedInsert",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L162-L166",
+        "source_text": "lemma orderedInsertPos_take_orderedInsert {I : Type} (le1 : I → I → Prop) [DecidableRel le1]\n    (r : List I) (r0 : I) :\n    (List.take (orderedInsertPos le1 r r0) (List.orderedInsert le1 r0 r)) =\n    List.takeWhile (fun b => decide ¬le1 r0 b) r := by\n  simp [orderedInsertPos, List.orderedInsert_eq_take_drop]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_eq_zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58040,
+        "name": "Finset.sum_eq_zero",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L107-L107",
+        "source_text": "@[to_additive]\ntheorem prod_eq_one (h : ∀ x ∈ s, f x = 1) : ∏ x ∈ s, f x = 1 := calc",
+        "docstring": null
+      },
+      {
+        "id": 58120,
+        "name": "Finset.sum_eq_add_of_mem",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L393-L393",
+        "source_text": "@[to_additive]\ntheorem prod_eq_mul_of_mem {s : Finset ι} {f : ι → M} (a b : ι) (ha : a ∈ s) (hb : b ∈ s)\n    (hn : a ≠ b) (h₀ : ∀ c ∈ s, c ≠ a ∧ c ≠ b → f c = 1) : ∏ x ∈ s, f x = f a * f b := by",
+        "docstring": null
+      },
+      {
+        "id": 58208,
+        "name": "Finset.eq_zero_of_sum_eq_zero",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L770-L771",
+        "source_text": "@[to_additive /-- If a sum is 0 and the function is 0 except possibly at one\npoint, it is 0 everywhere on the `Finset`. -/]\ntheorem eq_one_of_prod_eq_one {s : Finset ι} {f : ι → M} {a : ι} (hp : ∏ x ∈ s, f x = 1)\n    (h1 : ∀ x ∈ s, x ≠ a → f x = 1) : ∀ x ∈ s, f x = 1 := by",
+        "docstring": "If a sum is 0 and the function is 0 except possibly at one\npoint, it is 0 everywhere on the `Finset`. "
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 57716,
+        "name": "finsum_mem_of_eqOn_zero",
+        "module": "Mathlib.Algebra.BigOperators.Finprod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L688-L690",
+        "source_text": "@[to_additive\n      /-- If a function `f` equals `0` on a set `s`, then the sum of `f i` over `i ∈ s`\n      equals `0`. -/]\ntheorem finprod_mem_of_eqOn_one (hf : s.EqOn f 1) : ∏ᶠ i ∈ s, f i = 1 := by",
+        "docstring": "If a function `f` equals `0` on a set `s`, then the sum of `f i` over `i ∈ s`\nequals `0`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.sum_eq_zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386542,
+        "name": "KroneckerDelta.sum_sum_smul_eq_zero",
+        "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L156-L158",
+        "source_text": "lemma sum_sum_smul_eq_zero [Fintype α] {f : α → α → M} (hf : ∀ i : α, f i i = 0) :\n    ∑ i : α, ∑ j : α, δ[i,j] • f i j = 0 := by\n  simp [sum_smul, hf, sum_const_zero]\n",
+        "docstring": null
+      },
+      {
+        "id": 386544,
+        "name": "KroneckerDelta.finset_sum_sum_smul_eq_zero",
+        "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L164-L168",
+        "source_text": "lemma finset_sum_sum_smul_eq_zero {s s' : Finset α} {f : α → α → M}\n    (hf : ∀ i ∈ s ∩ s', f i i = 0) : ∑ i ∈ s, ∑ j ∈ s', δ[i,j] • f i j = 0 := by\n  simp only [finset_sum_smul, Finset.sum_ite_mem]\n  rw [← sum_coe_sort]\n  simp [hf]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

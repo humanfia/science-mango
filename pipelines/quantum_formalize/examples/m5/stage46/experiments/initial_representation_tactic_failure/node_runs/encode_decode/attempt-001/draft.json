@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) (q : List Bool), 0 < N → q.length = M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.encode N (M5.PhysicalRecovery.selectedA N q) (M5.PhysicalRecovery.selectedB N q) = q\nintro N q hN hq\nclassical\nhave hmem (offset j : ℕ) (hj : j < N - 1) (hjq : offset + j < q.length) :\n    decide (j + 1 ∈ M5.PhysicalRecovery.selected N offset q) = q[offset + j] := by\n  cases hb : q[offset + j] <;>\n    simp [M5.PhysicalRecovery.selected, Finset.mem_image, List.getD,\n      List.getElem?_eq_getElem, Nat.add_comm, hj, hjq, hb]\napply List.ext_getElem\n· simp [M5.PhysicalRecovery.encode, hq]\n· intro i hi hiq\n  have hic : i < M5.PhysicalRecovery.decisionCount N := by\n    simpa [M5.PhysicalRecovery.encode] using hi\n  simp only [M5.PhysicalRecovery.encode, List.getElem_ofFn]\n  by_cases hleft : i < N - 1\n  · simpa [hleft, M5.PhysicalRecovery.selectedA] using\n      hmem 0 i hleft (by simpa using hiq)\n  · have hj : i - (N - 1) < N - 1 := by\n      unfold M5.PhysicalRecovery.decisionCount at hic\n      omega\n    have he : N - 1 + (i - (N - 1)) = i := by omega\n    simpa [hleft, M5.PhysicalRecovery.selectedB, he] using\n      hmem (N - 1) (i - (N - 1)) hj (by omega)",
+  "queries": [
+    "List.getD getElem?_eq_getElem",
+    "Finset.mem_image exists addition cancellation"
+  ]
+}

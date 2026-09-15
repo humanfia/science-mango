@@ -1,0 +1,319 @@
+{
+  "title": "M5 stage46: actual arithmetic oracle and deterministic physical support recovery",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Original section3 physical recovery in exactly2*(N-1) position decisions; actual arithmetic completionC oracle correctness, initial C, split and terminal are proved. Finite words only specify semantics. No raw support-pair enumeration in oracle, no codegen/performance or squarefree-reindex gate.",
+  "nodes": [
+    {
+      "id": "state_domains",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PhysicalRecovery.state_domains",
+        "statement": "∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Unfold selected/available wrappers and StateOK. Every selected/available positive position is i+1 with i<N-1, hence below positive N. Zero is inserted into both selected sets and cannot occur in available sets. Disjointness follows from offset+i<p.length versus p.length<=offset+i; Nat arithmetic and image membership suffice. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "valid_words_length",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PhysicalRecovery.valid_words_length",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial) (q : List Bool), q ∈ M5.PhysicalRecovery.validWords N w F → q.length = M5.PhysicalRecovery.decisionCount N",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Unfold validWords and wordValid, use filter membership; this is the actual finite semantic set, not an arbitrary predicate assumption. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "encode_decode",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PhysicalRecovery.encode_decode",
+        "statement": "∀ (N : ℕ) (q : List Bool), 0 < N → q.length = M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.encode N (M5.PhysicalRecovery.selectedA N q) (M5.PhysicalRecovery.selectedB N q) = q",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Extensional equality of lists via length and getElem. List.ofFn has the declared length. Split each index at N-1; membership in selected positive image detects exactly whether that q index is true. Use Bool cases, image injectivity of i+1 and offset arithmetic. N=1 gives zero decision length and must remain included. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "decode_encode",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PhysicalRecovery.decode_encode",
+        "statement": "∀ (N : ℕ) (A B : Finset ℕ), 0 < N → A ⊆ Finset.range N → B ⊆ Finset.range N → 0 ∈ A → 0 ∈ B → (M5.PhysicalRecovery.selectedA N (M5.PhysicalRecovery.encode N A B) = A ∧ M5.PhysicalRecovery.selectedB N (M5.PhysicalRecovery.encode N A B) = B)",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Finset extensionality. Zero is already anchored; each positive position s<N corresponds uniquely to i=s-1 in range(N-1). List.getElem?_ofFn identifies encoded membership. Cases at the offset distinguish the two blocks. No weight, signature or injectivity assumption may be added. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "prefix_extension",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PhysicalRecovery.prefix_extension",
+        "statement": "∀ (N : ℕ) (p q : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → q.length = M5.PhysicalRecovery.decisionCount N → (p.IsPrefix q ↔ M5.PhysicalRecovery.selectedA N p ⊆ M5.PhysicalRecovery.selectedA N q ∧ M5.PhysicalRecovery.selectedA N q ⊆ M5.PhysicalRecovery.selectedA N p ∪ M5.PhysicalRecovery.availableA N p ∧ M5.PhysicalRecovery.selectedB N p ⊆ M5.PhysicalRecovery.selectedB N q ∧ M5.PhysicalRecovery.selectedB N q ⊆ M5.PhysicalRecovery.selectedB N p ∪ M5.PhysicalRecovery.availableB N p)",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Characterize list prefix by equality of Boolean entries at all processed indices. True processed entries force inclusion in the selected set; false processed entries force exclusion from the full selected support since only unprocessed positions are available. Conversely the two support containments force every processed bit, with block offset N-1. Zero anchors are fixed and contain no decision bit. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "semantic_completion_count",
+      "dependencies": [
+        "state_domains",
+        "encode_decode",
+        "decode_encode",
+        "prefix_extension"
+      ],
+      "spec": {
+        "name": "M5.PhysicalRecovery.semantic_completion_count",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → ∀ p : List Bool, p.length ≤ M5.PhysicalRecovery.decisionCount N → (M5.PhysicalRecovery.selectedA N p).card ≤ w → (M5.PhysicalRecovery.selectedB N p).card ≤ w → M5.PrefixPartition.count (M5.PhysicalRecovery.validWords N w F) p = (M5.PhysicalRecovery.completionSet N w F p).card",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Prove the actual finite-set cardinality bijection. Map a valid full word extending p to tails selectedA(q)\\selectedA(p), selectedB(q)\\selectedB(p). Prefix_extension yields tails contained in available sets; cardinality of difference is w-selected.card. Reverse map completion tails U,V to encode N (selectedA(p) union U) (selectedB(p) union V). StateOK plus available disjointness supplies original physical constraints; decode_encode and encode_decode prove inverse and signature/gcd preservation. Normalize Finset.product_eq_sprod before product membership. Finset.card_bij or bijective maps may be used. Do not assume this correspondence or oracle correctness. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "overfull_prefix_zero",
+      "dependencies": [
+        "prefix_extension"
+      ],
+      "spec": {
+        "name": "M5.PhysicalRecovery.overfull_prefix_zero",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → (w < (M5.PhysicalRecovery.selectedA N p).card ∨ w < (M5.PhysicalRecovery.selectedB N p).card) → M5.PrefixPartition.count (M5.PhysicalRecovery.validWords N w F) p = 0",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Any valid full word extending p would contain the selected prefix support by prefix_extension, but its corresponding full support has cardinality w. Finset.card_le_card contradicts an overfull selected block. Thus the filtered prefix set is empty. This discharges the original overflow zero case rather than excluding it. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "arithmetic_oracle_exact",
+      "dependencies": [
+        "state_domains",
+        "semantic_completion_count",
+        "overfull_prefix_zero"
+      ],
+      "spec": {
+        "name": "M5.PhysicalRecovery.arithmetic_oracle_exact",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → ∀ p : List Bool, p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.oracle N w F p = M5.PrefixPartition.count (M5.PhysicalRecovery.validWords N w F) p",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Split both selected-cardinality guards. With both bounds, StateOK supplies PrefixOK and accepted ConditionalCount.exact_completion_C rewrites the actual arithmetic oracle; semantic_completion_count identifies the same cardinality. Otherwise completionC is zero by its guard and overfull_prefix_zero proves semantic zero. No correctness premise on an arbitrary oracle is allowed. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "initial_oracle",
+      "dependencies": [
+        "state_domains"
+      ],
+      "spec": {
+        "name": "M5.PhysicalRecovery.initial_oracle",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.PhysicalRecovery.oracle N w F [] = M5.OrderCount.C N w F",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "At empty prefix selected supports are singleton0 and available sets are exactly OrderCount.positivePositions N. Use accepted conditional exact count and OrderCount.exact_C to identify their tail pair sets: union singleton0 equals insert0; powerset tail sizes are w-1. For w>N both semantic sets are empty; do not add w<=N. Alternatively unfold the arithmetic sums with selected residue1 and selected supportGcd=N. This identifies actual initial arithmetic C, not an assumed initial oracle value. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "actual_split",
+      "dependencies": [
+        "arithmetic_oracle_exact",
+        "valid_words_length"
+      ],
+      "spec": {
+        "name": "M5.PhysicalRecovery.actual_split",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → ∀ p : List Bool, p.length < M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.oracle N w F p = M5.PhysicalRecovery.oracle N w F (p ++ [false]) + M5.PhysicalRecovery.oracle N w F (p ++ [true])",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Apply arithmetic_oracle_exact at p and both children; their lengths are within the decision budget. Use accepted PrefixPartition.count_partition for Bool and valid_words_length, then evaluate the two-element Boolean sum. This proves split for the specific arithmetic oracle, including overfull states. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "actual_terminal",
+      "dependencies": [
+        "arithmetic_oracle_exact",
+        "valid_words_length"
+      ],
+      "spec": {
+        "name": "M5.PhysicalRecovery.actual_terminal",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → ∀ p : List Bool, p.length = M5.PhysicalRecovery.decisionCount N → 0 < M5.PhysicalRecovery.oracle N w F p → M5.PhysicalRecovery.wordValid N w F p",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Use accepted PrefixPartition.count_terminal at the actual validWords set and arithmetic_oracle_exact. Positive indicator forces p membership; filter membership yields wordValid. All arithmetic and terminal correctness premises are discharged. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "recover_actual",
+      "dependencies": [
+        "initial_oracle",
+        "actual_split",
+        "actual_terminal"
+      ],
+      "spec": {
+        "name": "M5.PhysicalRecovery.recover_actual",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → 0 < M5.OrderCount.C N w F → M5.PhysicalRecovery.wordValid N w F (M5.PhysicalRecovery.recoverWord N w F)",
+        "imports": [
+          "M5PhysicalRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "list prefix getElem ofFn",
+          "finset cardinality bijection difference"
+        ],
+        "guidance": "Instantiate accepted BinaryRecovery.recover_valid with the concrete oracle N w F, Valid=wordValid N w F, and m=2*(N-1). Discharge split by actual_split, terminal by actual_terminal, and initial positivity by initial_oracle. recoverWord is the deterministic false-first arithmetic procedure; wordValid includes exact decision length and actual anchored supports of weightw, combined gcd1 and complete signatureF. Do not leave generic split/terminal/oracle-correctness assumptions in the result. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+      },
+      "metadata": {
+        "source_section": "3 actual recovery",
+        "supports_obligation": "M5_ORDER_RECOVER",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

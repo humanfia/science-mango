@@ -1,0 +1,6 @@
+{
+  "proof": "classical\nchange ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → ∀ p : List Bool, p.length < M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.oracle N w F p = M5.PhysicalRecovery.oracle N w F (p ++ [false]) + M5.PhysicalRecovery.oracle N w F (p ++ [true])\nintro N w F hN hw hF hFN p hp\nhave hchild (b : Bool) : (p ++ [b]).length ≤ M5.PhysicalRecovery.decisionCount N := by\n  simp only [List.length_append, List.length_singleton]\n  omega\nrw [M5.PhysicalRecovery.arithmetic_oracle_exact N w F hN hw hF hFN p (Nat.le_of_lt hp),\n  M5.PhysicalRecovery.arithmetic_oracle_exact N w F hN hw hF hFN (p ++ [false]) (hchild false),\n  M5.PhysicalRecovery.arithmetic_oracle_exact N w F hN hw hF hFN (p ++ [true]) (hchild true)]\nsimpa [Fintype.sum_bool, add_comm] using\n  (M5.PrefixPartition.count_partition Bool (M5.PhysicalRecovery.validWords N w F)\n    (M5.PhysicalRecovery.decisionCount N) p\n    (fun q hq => M5.PhysicalRecovery.valid_words_length N w F q hq) hp)",
+  "queries": [
+    "Fintype.sum_bool"
+  ]
+}

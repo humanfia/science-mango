@@ -1,0 +1,13 @@
+{
+  "name": "M5.PhysicalRecovery.initial_oracle",
+  "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.PhysicalRecovery.oracle N w F [] = M5.OrderCount.C N w F",
+  "imports": [
+    "M5PhysicalRecovery"
+  ],
+  "context": "theorem M5.PhysicalRecovery.state_domains : ∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p := by\n  change ∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p\n  intro N p hN hp\n  simp only [M5.PhysicalRecovery.StateOK,\n    M5.PhysicalRecovery.selectedA, M5.PhysicalRecovery.selectedB,\n    M5.PhysicalRecovery.availableA, M5.PhysicalRecovery.availableB,\n    M5.PhysicalRecovery.selected, M5.PhysicalRecovery.available,\n    Finset.subset_iff, Finset.disjoint_left, Finset.mem_insert,\n    Finset.mem_image, Finset.mem_filter, Finset.mem_range,\n    Finset.mem_singleton]\n  aesop (config := { terminal := false }) <;> omega",
+  "queries": [
+    "list prefix getElem ofFn",
+    "finset cardinality bijection difference"
+  ],
+  "guidance": "At empty prefix selected supports are singleton0 and available sets are exactly OrderCount.positivePositions N. Use accepted conditional exact count and OrderCount.exact_C to identify their tail pair sets: union singleton0 equals insert0; powerset tail sizes are w-1. For w>N both semantic sets are empty; do not add w<=N. Alternatively unfold the arithmetic sums with selected residue1 and selected supportGcd=N. This identifies actual initial arithmetic C, not an assumed initial oracle value. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+}

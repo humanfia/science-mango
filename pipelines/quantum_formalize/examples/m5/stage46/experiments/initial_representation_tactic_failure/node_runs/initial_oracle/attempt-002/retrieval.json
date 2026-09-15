@@ -1,0 +1,292 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalCount.PrefixOK completionC validCompletions definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 356105,
+        "name": "UniformSpace.Completion.cPkg",
+        "module": "Mathlib.Topology.UniformSpace.Completion",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/Completion.lean#L329-L337",
+        "source_text": "/-- The Hausdorff completion as an abstract completion. -/\ndef cPkg {α : Type*} [UniformSpace α] : AbstractCompletion α where\n  space := Completion α\n  coe := (↑)\n  uniformStruct := by infer_instance\n  complete := by infer_instance\n  separation := by infer_instance\n  isUniformInducing := Completion.isUniformInducing_coe α\n  dense := Completion.denseRange_coe\n",
+        "docstring": "The Hausdorff completion as an abstract completion. "
+      },
+      {
+        "id": 214649,
+        "name": "Ordnode.Valid",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L56-L60",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. -/\ndef Valid (t : Ordnode α) : Prop :=\n  Valid' ⊥ t ⊤\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. "
+      },
+      {
+        "id": 214648,
+        "name": "Ordnode.Valid'",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L48-L54",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. -/\nstructure Valid' (lo : WithBot α) (t : Ordnode α) (hi : WithTop α) : Prop where\n  ord : t.Bounded lo hi\n  sz : t.Sized\n  bal : t.Balanced\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. "
+      },
+      {
+        "id": 333341,
+        "name": "SummationFilter.conditional",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L214-L217",
+        "source_text": "/-- **Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. -/\n@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)\n",
+        "docstring": "**Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. "
+      },
+      {
+        "id": 333342,
+        "name": "SummationFilter.conditional_filter",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L216-L216",
+        "source_text": "@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.ConditionalCount.PrefixOK completionC validCompletions definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388434,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+        "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+        "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+      },
+      {
+        "id": 393950,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_nodup",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L248-L250",
+        "source_text": "lemma viableCompletions_nodup (I : CodimensionOneConfig) :\n    (viableCompletions I).Nodup := by\n  cases I <;> decide +kernel\n",
+        "docstring": null
+      },
+      {
+        "id": 393949,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_card",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L237-L240",
+        "source_text": "lemma viableCompletions_card (I : CodimensionOneConfig) :\n    (viableCompletions I).card = if I = same then 70 else\n      if I = nearestNeighbor then 48 else 37 := by\n  cases I <;> rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 388436,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.completions_nodup",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L181-L191",
+        "source_text": "/-- For speed we define `completions` to be a multiset, but in fact it has no duplicates,\nso it could be defined as a finite set. -/\nlemma completions_nodup (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) :\n    (completions S5 S10 x).Nodup := by\n  simp [completions]\n  split_ifs\n  all_goals\n    refine Multiset.Nodup.map toProd.symm.injective ?_\n    refine Multiset.Nodup.product ?_ (Multiset.Nodup.product ?_ (Multiset.Nodup.product ?_ ?_))\n  any_goals exact Multiset.nodup_singleton _\n  any_goals exact Finset.nodup_map_iff_injOn.mpr (by simp)\n",
+        "docstring": "For speed we define `completions` to be a multiset, but in fact it has no duplicates,\nso it could be defined as a finite set. "
+      },
+      {
+        "id": 393948,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L121-L229",
+        "source_text": "/--\nThe multiset of charges which are completions of charges which minimally allow the top Yukawa,\n  which are not phenomenologically constrained, and do not regenerate dangerous couplings.\n\nThis can be constructed via\n\n`#eval completeMinSubset same.allowedBarFiveCharges same.allowedTenCharges`\n-/\ndef viableCompletions (I : CodimensionOneConfig) : Multiset (ChargeSpectrum ℤ) :=\n  match I with\n  | same => {\n    /- qHu = -3, and Q10 = {-3, 0} -/\n    ⟨some (-2), some (-3), {2}, {-3, 0}⟩, ⟨some (-1), some (-3), {1}, {-3, 0}⟩,\n    ⟨some 1, some (-3), {-1}, {-3, 0}⟩, ⟨some 1, some (-3), {2}, {-3, 0}⟩,\n    ⟨some 2, some (-3), {-2}, {-3, 0}⟩, ⟨some 2, some (-3), {1}, {-3, 0}⟩,\n    /- qHu = -2, and Q10 = {-1} -/\n    ⟨some (-3), some (-2), {0}, {-1}⟩, ⟨some (-3), some (-2), {1}, {-1}⟩,\n    ⟨some (-3), some (-2), {2}, {-1}⟩, ⟨some (-1), some (-2), {0}, {-1}⟩,\n    ⟨some (-1), some (-2), {1}, {-1}⟩, ⟨some (-1), some (-2), {2}, {-1}⟩,\n    ⟨some 0, some (-2), {-3}, {-1}⟩, ⟨some 0, some (-2), {-1}, {-1}⟩,\n    ⟨some 0, some (-2), {1}, {-1}⟩, ⟨some 0, some (-2), {2}, {-1}⟩,\n    ⟨some 1, some (-2), {-3}, {-1}⟩, ⟨some 1, some (-2), {-1}, {-1}⟩,\n    ⟨some 1, some (-2), {0}, {-1}⟩, ⟨some 1, some (-2), {2}, {-1}⟩,\n    ⟨some 2, some (-2), {-3}, {-1}⟩, ⟨some 2, some (-2), {-1}, {-1}⟩,\n    ⟨some 2, some (-2), {0}, {-1}⟩, ⟨some 2, some (-2), {1}, {-1}⟩,\n    /- qHu = -2, and Q10 = {-2, 0} -/\n    ⟨some (-3), some (-2), {3}, {-2, 0}⟩, ⟨some (-1), some (-2), {3}, {-2, 0}⟩,\n    ⟨some 3, some (-2), {-3}, {-2, 0}⟩,\n    /- qHu = -2, and Q10 = {-3, 1} -/\n    ⟨some (-1), some (-2), {0}, {-3, 1}⟩,⟨some 0, some (-2), {-1}, {-3, 1}⟩,\n    ⟨some 0, some (-2), {3}, {-3, 1}⟩, ⟨some 3, some (-2), {0}, {-3, 1}⟩,\n    /- qHu = 0, and Q10 = {-3, 3} -/\n    ⟨some (-2), some 0, {-1}, {-3, 3}⟩, ⟨some (-2), some 0, {1}, {-3, 3}⟩,\n    ⟨some (-1), some 0, {-2}, {-3, 3}⟩, ⟨some (-1), some 0, {2}, {-3, 3}⟩,\n    ⟨some 1, some 0, {-2}, {-3, 3}⟩, ⟨some 1, some 0, {2}, {-3, 3}⟩,\n    ⟨some 2, some 0, {-1}, {-3, 3}⟩, ⟨some 2, some 0, {1}, {-3, 3}⟩,\n    /- qHu = 2, and Q10 = {1} -/\n    ⟨some (-2), some 2, {-1}, {1}⟩, ⟨some (-2), some 2, {0}, {1}⟩, ⟨some (-2), some 2, {1}, {1}⟩,\n    ⟨some (-2), some 2, {3}, {1}⟩, ⟨some (-1), some 2, {-2}, {1}⟩, ⟨some (-1), some 2, {0}, {1}⟩,\n    ⟨some (-1), some 2, {1}, {1}⟩, ⟨some (-1), some 2, {3}, {1}⟩, ⟨some 0, some 2, {-2}, {1}⟩,\n    ⟨some 0, some 2, {-1}, {1}⟩, ⟨some 0, some 2, {1}, {1}⟩, ⟨some 0, some 2, {3}, {1}⟩,\n    ⟨some 1, some 2, {-2}, {1}⟩, ⟨some 1, some 2, {-1}, {1}⟩, ⟨some 1, some 2, {0}, {1}⟩,\n    ⟨some 3, some 2, {-2}, {1}⟩, ⟨some 3, some 2, {-1}, {1}⟩, ⟨some 3, some 2, {0}, {1}⟩,\n    /- qHu = 2, and Q10 = {0, 2} -/\n    ⟨some (-3), some 2, {3}, {0, 2}⟩, ⟨some 1, some 2, {-3}, {0, 2}⟩,\n    ⟨some 3, some 2, {-3}, {0, 2}⟩,\n    /- qHu = 2, and Q10 = {-1, 3} -/\n    ⟨some (-3), some 2, {0}, {-1, 3}⟩, ⟨some 0, some 2, {-3}, {-1, 3}⟩,\n    ⟨some 0, some 2, {1}, {-1, 3}⟩, ⟨some 1, some 2, {0}, {-1, 3}⟩,\n    /- qHu = 3, and Q10 = {0, 3} -/\n    ⟨some (-2), some 3, {-1}, {0, 3}⟩, ⟨some (-2), some 3, {2}, {0, 3}⟩,\n    ⟨some (-1), some 3, {-2}, {0, 3}⟩, ⟨some (-1), some 3, {1}, {0, 3}⟩,\n    ⟨some 1, some 3, {-1}, {0, 3}⟩, ⟨some 2, some 3, {-2}, {0, 3}⟩}\n  | nearestNeighbor => {\n    /- qHu = -14, and Q10 = {-7} -/\n    ⟨some (-9), some (-14), {-4}, {-7}⟩, ⟨some (-9), some (-14), {1}, {-7}⟩,\n    ⟨some (-9), some (-14), {6}, {-7}⟩, ⟨some (-9), some (-14), {11}, {-7}⟩,\n    ⟨some (-4), some (-14), {-9}, {-7}⟩, ⟨some (-4), some (-14), {1}, {-7}⟩,\n    ⟨some (-4), some (-14), {6}, {-7}⟩, ⟨some (-4), some (-14), {11}, {-7}⟩,\n    ⟨some 1, some (-14), {-9}, {-7}⟩, ⟨some 1, some (-14), {-4}, {-7}⟩,\n    ⟨some 1, some (-14), {6}, {-7}⟩, ⟨some 1, some (-14), {11}, {-7}⟩,\n    ⟨some 6, some (-14), {-9}, {-7}⟩, ⟨some 6, some (-14), {-4}, {-7}⟩,\n    ⟨some 6, some (-14), {1}, {-7}⟩, ⟨some 6, some (-14), {11}, {-7}⟩,\n    ⟨some 11, some (-14), {-9}, {-7}⟩, ⟨some 11, some (-14), {-4}, {-7}⟩,\n    ⟨some 11, some (-14), {1}, {-7}⟩, ⟨some 11, some (-14), {6}, {-7}⟩,\n    /- qHu = -14, and Q10 = {-12, -2} -/\n    ⟨some 11, some (-14), {-9}, {-12, -2}⟩,\n    /- qHu = -9, and Q10 = {-12, 3} -/\n    ⟨some 1, some (-9), {11}, {-12, 3}⟩, ⟨some 11, some (-9), {1}, {-12, 3}⟩,\n    /- qHu = -4, and Q10 = {-2} -/\n    ⟨some (-14), some (-4), {-9}, {-2}⟩, ⟨some (-14), some (-4), {11}, {-2}⟩,\n    ⟨some (-9), some (-4), {-14}, {-2}⟩, ⟨some (-9), some (-4), {11}, {-2}⟩,\n    ⟨some 1, some (-4), {-14}, {-2}⟩, ⟨some 1, some (-4), {11}, {-2}⟩,\n    ⟨some 11, some (-4), {-14}, {-2}⟩, ⟨some 11, some (-4), {-9}, {-2}⟩,\n    /- qHu = 1, and Q10 = {-12, 13} -/\n    ⟨some (-9), some 1, {-4}, {-12, 13}⟩, ⟨some (-4), some 1, {-9}, {-12, 13}⟩,\n    ⟨some 6, some 1, {-9}, {-12, 13}⟩,\n    /- qHu = 6, and Q10 = {3} -/\n    ⟨some (-14), some 6, {-4}, {3}⟩, ⟨some (-14), some 6, {1}, {3}⟩,\n    ⟨some (-14), some 6, {11}, {3}⟩, ⟨some (-4), some 6, {-14}, {3}⟩,\n    ⟨some (-4), some 6, {1}, {3}⟩, ⟨some (-4), some 6, {11}, {3}⟩,\n    ⟨some 1, some 6, {-14}, {3}⟩, ⟨some 1, some 6, {-4}, {3}⟩,\n    ⟨some 11, some 6, {-14}, {3}⟩, ⟨some 11, some 6, {-4}, {3}⟩,\n    /- qHu = 6, and Q10 = {-7, 13} -/\n    ⟨some (-9), some 6, {-4}, {-7, 13}⟩, ⟨some (-4), some 6, {-9}, {-7, 13}⟩,\n    ⟨some (-4), some 6, {11}, {-7, 13}⟩, ⟨some 11, some 6, {-4}, {-7, 13}⟩}\n  | nextToNearestNeighbor => {\n    /- qHu = -8, and Q10 = {-4} -/\n    ⟨some (-13), some (-8), {7}, {-4}⟩, ⟨some (-3), some (-8), {7}, {-4}⟩,\n    ⟨some 2, some (-8), {-13}, {-4}⟩, ⟨some 2, some (-8), {-3}, {-4}⟩,\n    ⟨some 2, some (-8), {7}, {-4}⟩, ⟨some 7, some (-8), {-13}, {-4}⟩,\n    ⟨some 7, some (-8), {-3}, {-4}⟩,\n    /- qHu = 2, and Q10 = {1} -/\n    ⟨some (-13), some 2, {-8}, {1}⟩, ⟨some (-13), some 2, {7}, {1}⟩,\n    ⟨some (-13), some 2, {12}, {1}⟩, ⟨some (-8), some 2, {-13}, {1}⟩,\n    ⟨some (-8), some 2, {7}, {1}⟩, ⟨some 7, some 2, {-13}, {1}⟩, ⟨some 7, some 2, {-8}, {1}⟩,\n    ⟨some 7, some 2, {12}, {1}⟩, ⟨some 12, some 2, {-13}, {1}⟩, ⟨some 12, some 2, {7}, {1}⟩,\n    /- qHu = 2, and Q10 = {-9, 11} -/\n    ⟨some (-8), some 2, {-3}, {-9, 11}⟩, ⟨some (-3), some 2, {-8}, {-9, 11}⟩,\n    ⟨some (-3), some 2, {12}, {-9, 11}⟩, ⟨some 12, some 2, {-3}, {-9, 11}⟩,\n    /- qHu = 12, and Q10 = {6} -/\n    ⟨some (-13), some 12, {-8}, {6}⟩, ⟨some (-13), some 12, {2}, {6}⟩,\n    ⟨some (-13), some 12, {7}, {6}⟩, ⟨some (-8), some 12, {-13}, {6}⟩,\n    ⟨some (-8), some 12, {2}, {6}⟩, ⟨some (-8), some 12, {7}, {6}⟩,\n    ⟨some (-3), some 12, {-13}, {6}⟩, ⟨some (-3), some 12, {-8}, {6}⟩,\n    ⟨some (-3), some 12, {2}, {6}⟩, ⟨some (-3), some 12, {7}, {6}⟩,\n    ⟨some 2, some 12, {-13}, {6}⟩, ⟨some 2, some 12, {-8}, {6}⟩,\n    ⟨some 2, some 12, {7}, {6}⟩, ⟨some 7, some 12, {-13}, {6}⟩,\n    ⟨some 7, some 12, {-8}, {6}⟩, ⟨some 7, some 12, {2}, {6}⟩}\n",
+        "docstring": "The multiset of charges which are completions of charges which minimally allow the top Yukawa,\nwhich are not phenomenologically constrained, and do not regenerate dangerous couplings.\n\nThis can be constructed via\n\n`#eval completeMinSubset same.allowedBarFiveCharges same.allowedTenCharges`\n"
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PhysicalRecovery.oracle selected available definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 196711,
+        "name": "RecursiveIn.oracle",
+        "module": "Mathlib.Computability.RecursiveIn",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/RecursiveIn.lean#L195-L196",
+        "source_text": "lemma oracle : ∀ g ∈ O, RecursiveIn O g := by\n  intro g hg; rw [iff_nat]; exact .oracle g hg\n",
+        "docstring": null
+      },
+      {
+        "id": 196703,
+        "name": "Nat.Primrec.recursiveIn",
+        "module": "Mathlib.Computability.RecursiveIn",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/RecursiveIn.lean#L158-L160",
+        "source_text": "theorem Nat.Primrec.recursiveIn {O} {f : ℕ → ℕ} (hf : Nat.Primrec f) :\n    Nat.RecursiveIn O (fun n => f n) :=\n  Nat.Partrec.recursiveIn (Nat.Partrec.of_primrec hf)\n",
+        "docstring": null
+      },
+      {
+        "id": 196700,
+        "name": "Nat.RecursiveIn.partrec_of_oracle",
+        "module": "Mathlib.Computability.RecursiveIn",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/RecursiveIn.lean#L129-L139",
+        "source_text": "/-- If every function in `O` is partial recursive,\nthen a function which is `Nat.RecursiveIn O` is also partial recursive. -/\ntheorem partrec_of_oracle {f : ℕ →. ℕ} {O}\n    (hO : ∀ g ∈ O, Nat.Partrec g) (hf : Nat.RecursiveIn O f) : Nat.Partrec f := by\n  induction hf with\n  | zero | succ | left | right => constructor\n  | oracle g gIn => exact hO g gIn\n  | pair _ _ ih₁ ih₂ => exact .pair ih₁ ih₂\n  | comp _ _ ih₁ ih₂ => exact .comp ih₁ ih₂\n  | prec _ _ ih₁ ih₂ => exact .prec ih₁ ih₂\n  | rfind _ ih => exact .rfind ih\n",
+        "docstring": "If every function in `O` is partial recursive,\nthen a function which is `Nat.RecursiveIn O` is also partial recursive. "
+      },
+      {
+        "id": 308958,
+        "name": "HahnSeries.embDomain",
+        "module": "Mathlib.RingTheory.HahnSeries.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L439-L445",
+        "source_text": "/-- Extends the domain of a `HahnSeries` by an `OrderEmbedding`. -/\ndef embDomain (f : Γ ↪o Γ') : R⟦Γ⟧ → R⟦Γ'⟧ := fun x =>\n  { coeff := fun b : Γ' => if h : b ∈ f '' x.support then x.coeff (Classical.choose h) else 0\n    isPWO_support' :=\n      (x.isPWO_support.image_of_monotone f.monotone).mono fun b hb => by\n        contrapose hb\n        rw [Function.mem_support, dif_neg hb, Classical.not_not] }\n",
+        "docstring": "Extends the domain of a `HahnSeries` by an `OrderEmbedding`. "
+      },
+      {
+        "id": 309103,
+        "name": "HahnModule.of",
+        "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L132-L134",
+        "source_text": "/-- The casting function to the type synonym. -/\ndef of (R : Type*) [SMul R V] : V⟦Γ⟧ ≃ HahnModule Γ R V :=\n  Equiv.refl _\n",
+        "docstring": "The casting function to the type synonym. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PhysicalRecovery.oracle selected available definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393832,
+        "name": "CanonicalEnsemble.physicalProbability_add",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L784-L791",
+        "source_text": "lemma physicalProbability_add\n    {ι1} [MeasurableSpace ι1]\n    (𝓒1 : CanonicalEnsemble ι1) (T : Temperature) (i : ι × ι1)\n    (h : 𝓒.phaseSpaceunit = 𝓒1.phaseSpaceunit) :\n    (𝓒 + 𝓒1).physicalProbability T i\n      = 𝓒.physicalProbability T i.1 * 𝓒1.physicalProbability T i.2 := by\n  simp [physicalProbability, probability_add, phase_space_unit_add, dof_add, h, pow_add,\n    mul_mul_mul_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 393822,
+        "name": "CanonicalEnsemble.physicalProbability_def",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+        "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393825,
+        "name": "CanonicalEnsemble.physicalProbability_pos",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L741-L744",
+        "source_text": "lemma physicalProbability_pos\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    0 < 𝓒.physicalProbability T i :=\n  mul_pos (𝓒.probability_pos T i) (pow_pos 𝓒.hPos _)\n",
+        "docstring": null
+      },
+      {
+        "id": 393823,
+        "name": "CanonicalEnsemble.physicalProbability_measurable",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L731-L734",
+        "source_text": "lemma physicalProbability_measurable (T : Temperature) :\n    Measurable (𝓒.physicalProbability T) := by\n  unfold physicalProbability probability\n  fun_prop\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.OrderCount.validPairs C definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 295628,
+        "name": "OrderType.inductionOn₂",
+        "module": "Mathlib.Order.Types.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Types/Defs.lean#L143-L147",
+        "source_text": "/-- `Quotient.inductionOn₂` specialized to `OrderType`. -/\n@[elab_as_elim]\ntheorem inductionOn₂ {C : OrderType → OrderType → Prop} (o₁ o₂ : OrderType)\n    (H : ∀ α [LinearOrder α] β [LinearOrder β], C (type α) (type β)) : C o₁ o₂ :=\n  Quotient.inductionOn₂ o₁ o₂ fun α β ↦ H α β\n",
+        "docstring": "`Quotient.inductionOn₂` specialized to `OrderType`. "
+      },
+      {
+        "id": 210608,
+        "name": "Multiset.Pairwise",
+        "module": "Mathlib.Data.Multiset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Defs.lean#L334-L337",
+        "source_text": "/-- `Pairwise r m` states that there exists a list of the elements s.t. `r` holds pairwise on this\nlist. -/\ndef Pairwise (r : α → α → Prop) (m : Multiset α) : Prop :=\n  ∃ l : List α, m = l ∧ l.Pairwise r\n",
+        "docstring": "`Pairwise r m` states that there exists a list of the elements s.t. `r` holds pairwise on this\nlist. "
+      },
+      {
+        "id": 239030,
+        "name": "IsOfFinAddOrder.prod_mk",
+        "module": "Mathlib.GroupTheory.OrderOfElement",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/OrderOfElement.lean#L1383-L1383",
+        "source_text": "@[to_additive IsOfFinAddOrder.prod_mk]\ntheorem IsOfFinOrder.prod_mk : IsOfFinOrder a → IsOfFinOrder b → IsOfFinOrder (a, b) := by",
+        "docstring": null
+      },
+      {
+        "id": 215423,
+        "name": "PNat.XgcdType.succ₂",
+        "module": "Mathlib.Data.PNat.Xgcd",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Xgcd.lean#L123-L125",
+        "source_text": "/-- `succ₂ [t.1, t.2] = [t.1.succ, t.2.succ]` -/\ndef succ₂ (t : ℕ × ℕ) : ℕ × ℕ :=\n  ⟨t.1.succ, t.2.succ⟩\n",
+        "docstring": "`succ₂ [t.1, t.2] = [t.1.succ, t.2.succ]` "
+      },
+      {
+        "id": 214648,
+        "name": "Ordnode.Valid'",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L48-L54",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. -/\nstructure Valid' (lo : WithBot α) (t : Ordnode α) (hi : WithTop α) : Prop where\n  ord : t.Bounded lo hi\n  sz : t.Sized\n  bal : t.Balanced\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.OrderCount.validPairs C definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392000,
+        "name": "TensorSpecies.Tensor.toPairs",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L248-L254",
+        "source_text": "/-- Takes a list and puts consecutive elements into pairs.\n  e.g. [0, 1, 2, 3] becomes [(0, 1), (2, 3)]. -/\ndef toPairs (l : List ℕ) : List (ℕ × ℕ) :=\n  match l with\n  | x1 :: x2 :: xs => (x1, x2) :: toPairs xs\n  | [] => []\n  | [x] => [(x, 0)]\n",
+        "docstring": "Takes a list and puts consecutive elements into pairs.\ne.g. [0, 1, 2, 3] becomes [(0, 1), (2, 3)]. "
+      },
+      {
+        "id": 386687,
+        "name": "Physlib.List.orderedInsertEquiv_sigma",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L440-L461",
+        "source_text": "lemma orderedInsertEquiv_sigma {I : Type} {f : I → Type}\n    (le1 : I → I → Prop) [DecidableRel le1] (l : List (Σ i, f i))\n    (i : I) (a : f i) :\n    (orderedInsertEquiv (fun i j => le1 i.fst j.fst) l ⟨i, a⟩) =\n    (Fin.castOrderIso (by simp)).toEquiv.trans\n    ((orderedInsertEquiv le1 (List.map (fun i => i.1) l) i).trans\n    (Fin.castOrderIso (by simp [List.orderedInsert_length])).toEquiv) := by\n  ext x\n  match x with\n  | ⟨0, h0⟩ =>\n    simp only [Fin.zero_eta, Equiv.trans_apply, RelIso.coe_fn_toEquiv, Fin.castOrderIso_apply,\n      Fin.cast_zero, Fin.val_cast]\n    rw [orderedInsertEquiv_zero, orderedInsertEquiv_zero]\n    simp [orderedInsertPos_sigma]\n  | ⟨Nat.succ n, h0⟩ =>\n    simp only [Nat.succ_eq_add_one, Equiv.trans_apply, RelIso.coe_fn_toEquiv,\n      Fin.castOrderIso_apply, Fin.cast_mk, Fin.val_cast]\n    erw [orderedInsertEquiv_succ, orderedInsertEquiv_succ]\n    simp only [orderedInsertPos_sigma, Fin.val_cast]\n    rw [Fin.succAbove, Fin.succAbove]\n    simp only [Fin.castSucc_mk, Fin.mk_lt_mk, Fin.succ_mk]\n    split <;> rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 391992,
+        "name": "TensorSpecies.Tensor.indexPosEq",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L129-L137",
+        "source_text": "/-- Takes a pair ``a b : ℕ × TSyntax `indexExpr``. If `a.1 < b.1` and `a.2 = b.2` then\n  outputs `some (a.1, b.1)`, otherwise `none`. -/\ndef indexPosEq (a b : TSyntax `indexExpr × ℕ) : TermElabM (Option (ℕ × ℕ)) := do\n  let a' ← indexToIdent a.1\n  let b' ← indexToIdent b.1\n  if a.2 < b.2 ∧ Lean.TSyntax.getId a' = Lean.TSyntax.getId b' then\n    return some (a.2, b.2)\n  else\n    return none\n",
+        "docstring": "Takes a pair ``a b : ℕ × TSyntax `indexExpr``. If `a.1 < b.1` and `a.2 = b.2` then\noutputs `some (a.1, b.1)`, otherwise `none`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

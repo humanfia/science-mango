@@ -1,0 +1,78 @@
+∀ (N : ℕ) (p : List Bool),
+  0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  ∀ q ∈ M5.PhysicalRecovery.validWords N w F, q.length = M5.PhysicalRecovery.decisionCount N : Prop
+∀ (N : ℕ) (q : List Bool),
+  0 < N →
+    q.length = M5.PhysicalRecovery.decisionCount N →
+      M5.PhysicalRecovery.encode N (M5.PhysicalRecovery.selectedA N q) (M5.PhysicalRecovery.selectedB N q) = q : Prop
+∀ (N : ℕ) (A B : Finset ℕ),
+  0 < N →
+    A ⊆ Finset.range N →
+      B ⊆ Finset.range N →
+        0 ∈ A →
+          0 ∈ B →
+            M5.PhysicalRecovery.selectedA N (M5.PhysicalRecovery.encode N A B) = A ∧
+              M5.PhysicalRecovery.selectedB N (M5.PhysicalRecovery.encode N A B) = B : Prop
+∀ (N : ℕ) (p q : List Bool),
+  0 < N →
+    p.length ≤ M5.PhysicalRecovery.decisionCount N →
+      q.length = M5.PhysicalRecovery.decisionCount N →
+        (p <+: q ↔
+          M5.PhysicalRecovery.selectedA N p ⊆ M5.PhysicalRecovery.selectedA N q ∧
+            M5.PhysicalRecovery.selectedA N q ⊆ M5.PhysicalRecovery.selectedA N p ∪ M5.PhysicalRecovery.availableA N p ∧
+              M5.PhysicalRecovery.selectedB N p ⊆ M5.PhysicalRecovery.selectedB N q ∧
+                M5.PhysicalRecovery.selectedB N q ⊆
+                  M5.PhysicalRecovery.selectedB N p ∪ M5.PhysicalRecovery.availableB N p) : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N →
+    0 < w →
+      Polynomial.Monic F →
+        F ∣ M5.cyclicModulus N →
+          ∀ (p : List Bool),
+            p.length ≤ M5.PhysicalRecovery.decisionCount N →
+              (M5.PhysicalRecovery.selectedA N p).card ≤ w →
+                (M5.PhysicalRecovery.selectedB N p).card ≤ w →
+                  M5.PrefixPartition.count (M5.PhysicalRecovery.validWords N w F) p =
+                    ↑(M5.PhysicalRecovery.completionSet N w F p).card : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial) (p : List Bool),
+  0 < N →
+    p.length ≤ M5.PhysicalRecovery.decisionCount N →
+      w < (M5.PhysicalRecovery.selectedA N p).card ∨ w < (M5.PhysicalRecovery.selectedB N p).card →
+        M5.PrefixPartition.count (M5.PhysicalRecovery.validWords N w F) p = 0 : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N →
+    0 < w →
+      Polynomial.Monic F →
+        F ∣ M5.cyclicModulus N →
+          ∀ (p : List Bool),
+            p.length ≤ M5.PhysicalRecovery.decisionCount N →
+              M5.PhysicalRecovery.oracle N w F p =
+                M5.PrefixPartition.count (M5.PhysicalRecovery.validWords N w F) p : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N →
+    0 < w →
+      Polynomial.Monic F → F ∣ M5.cyclicModulus N → M5.PhysicalRecovery.oracle N w F [] = M5.OrderCount.C N w F : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N →
+    0 < w →
+      Polynomial.Monic F →
+        F ∣ M5.cyclicModulus N →
+          ∀ (p : List Bool),
+            p.length < M5.PhysicalRecovery.decisionCount N →
+              M5.PhysicalRecovery.oracle N w F p =
+                M5.PhysicalRecovery.oracle N w F (p ++ [false]) + M5.PhysicalRecovery.oracle N w F (p ++ [true]) : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N →
+    0 < w →
+      Polynomial.Monic F →
+        F ∣ M5.cyclicModulus N →
+          ∀ (p : List Bool),
+            p.length = M5.PhysicalRecovery.decisionCount N →
+              0 < M5.PhysicalRecovery.oracle N w F p → M5.PhysicalRecovery.wordValid N w F p : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N →
+    0 < w →
+      Polynomial.Monic F →
+        F ∣ M5.cyclicModulus N →
+          0 < M5.OrderCount.C N w F → M5.PhysicalRecovery.wordValid N w F (M5.PhysicalRecovery.recoverWord N w F) : Prop

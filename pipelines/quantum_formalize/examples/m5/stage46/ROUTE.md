@@ -1,0 +1,13 @@
+# Actual physical support recovery
+
+The planned oracle is the accepted conditional arithmetic completionC, evaluated on the selected/available sets decoded from a Boolean prefix. It will not be defined by counting or scanning support pairs. Process the N-1 positive positions of block A first, then the N-1 positive positions of block B; total decision count is 2*(N-1). A false bit excludes its position, a true bit selects it, and both blocks are anchored at0 from the start.
+
+For prefix p and index i in range(N-1), select i+1 in A if i<p.length and p[i]?=some true; select i+1 in B using index N-1+i. Available positions are the unprocessed indices in each block. This gives physical domain and disjointness invariants for every prefix of length at most 2*(N-1). Selected-cardinality overflow is permitted as an input state: completionC is zero there, and its semantic prefix count must also be proved zero.
+
+A separate finite set of valid complete Boolean words is only the semantic specification. It contains words of length 2*(N-1) whose decoded anchored supports have exact weight w, combined integer gcd1 and complete polynomial signature F. The central required bridge identifies the arithmetic oracle with PrefixPartition.count on that finite set; oracle correctness is a theorem target, never an assumed premise.
+
+The bridge needs explicit encoding/decoding facts, prefix/support-extension equivalence, and a bijection between valid words extending a prefix and the validCompletions tail pairs counted by stage34. These are representation lemmas required by the chosen concrete implementation; they do not strengthen the original physical recovery goal. The overfull-selected case is handled by cardinality monotonicity and the explicit zero guard. Initial state arithmetic must equal the accepted stage27 C.
+
+Once that identification is accepted, stage44 provides the actual false/true split and terminal semantic validity, and stage36 is instantiated with this specific arithmetic oracle. The resulting target recovers anchored weight-w supports of exact signature F from C>0 after exactly 2*(N-1) decisions. Split and terminal hypotheses in the generic recovery theorem will be discharged for this oracle. No extra squarefree-H reindex, complexity guarantee, inherited test or anchored ordering criterion is added.
+
+Status: all 12 exact frozen targets are accepted, and the combined assembly and unchanged-environment checks pass. Canonical evidence is in experiment/; RESULTS.md records the concrete theorem and preserved initial failure/repair provenance. The actual recovery clause is proved; the final M5 conjunction is tracked separately.

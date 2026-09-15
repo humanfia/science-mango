@@ -1,0 +1,13 @@
+{
+  "name": "M5.PhysicalRecovery.encode_decode",
+  "statement": "∀ (N : ℕ) (q : List Bool), 0 < N → q.length = M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.encode N (M5.PhysicalRecovery.selectedA N q) (M5.PhysicalRecovery.selectedB N q) = q",
+  "imports": [
+    "M5PhysicalRecovery"
+  ],
+  "context": "",
+  "queries": [
+    "list prefix getElem ofFn",
+    "finset cardinality bijection difference"
+  ],
+  "guidance": "Extensional equality of lists via length and getElem. List.ofFn has the declared length. Split each index at N-1; membership in selected positive image detects exactly whether that q index is true. Use Bool cases, image injectivity of i+1 and offset arithmetic. N=1 gives zero decision length and must remain included. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+}

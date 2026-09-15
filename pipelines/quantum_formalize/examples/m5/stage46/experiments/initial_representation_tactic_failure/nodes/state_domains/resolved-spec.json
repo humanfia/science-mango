@@ -1,0 +1,13 @@
+{
+  "name": "M5.PhysicalRecovery.state_domains",
+  "statement": "∀ (N : ℕ) (p : List Bool), 0 < N → p.length ≤ M5.PhysicalRecovery.decisionCount N → M5.PhysicalRecovery.StateOK N p",
+  "imports": [
+    "M5PhysicalRecovery"
+  ],
+  "context": "",
+  "queries": [
+    "list prefix getElem ofFn",
+    "finset cardinality bijection difference"
+  ],
+  "guidance": "Unfold selected/available wrappers and StateOK. Every selected/available positive position is i+1 with i<N-1, hence below positive N. Zero is inserted into both selected sets and cannot occur in available sets. Disjointness follows from offset+i<p.length versus p.length<=offset+i; Nat arithmetic and image membership suffice. Return tactic lines only, without leading by. Preserve the exact target and original assumptions."
+}
