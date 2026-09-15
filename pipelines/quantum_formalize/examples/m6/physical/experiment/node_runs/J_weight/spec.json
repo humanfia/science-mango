@@ -1,0 +1,13 @@
+{
+  "name": "M6.Physical.J_weight",
+  "statement": "∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N), M6.Physical.wordWeight N (M6.Physical.J N z) = M6.Physical.wordWeight N z",
+  "imports": [
+    "M6Physical"
+  ],
+  "context": "theorem M6.Physical.rev_weight : ∀ (N : ℕ) [NeZero N] (a : M6.Physical.Block N), M6.Physical.weight N (M6.Physical.rev N a) = M6.Physical.weight N a := by\n  change ∀ (N : ℕ) [NeZero N] (a : M6.Physical.Block N), M6.Physical.weight N (M6.Physical.rev N a) = M6.Physical.weight N a\n  intro N inst a\n  classical\n  unfold M6.Physical.weight M6.Physical.rev\n  refine Finset.card_bij (fun i _ => -i) ?_ ?_ ?_\n  · intro i hi\n    simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hi\n  · intro i hi j hj hij\n    exact neg_injective hij\n  · intro j hj\n    refine ⟨-j, ?_, neg_neg j⟩\n    simpa only [Finset.mem_filter, Finset.mem_univ, true_and, neg_neg] using hj",
+  "queries": [
+    "finite sum reindex equivalence translation",
+    "ZMod convolution sum characteristic two"
+  ],
+  "guidance": "Unfold wordWeight,J; rev_weight plus Nat.add_comm. Return tactic lines only without leading by."
+}

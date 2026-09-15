@@ -1,0 +1,25 @@
+import FrozenTarget_083c212e4cbd1534
+theorem M6.Physical.conv_adjoint : QuantumHarnessFrozenTarget := by
+  intro N inst a h u
+  classical
+  change (∑ i : ZMod N, (∑ r : ZMod N, a r * h (-i - r)) * u i) =
+    ∑ j : ZMod N, h (-j) * (∑ r : ZMod N, a r * u (j - r))
+  simp only [Finset.sum_mul, Finset.mul_sum]
+  calc
+    _ = ∑ r : ZMod N, ∑ i : ZMod N, (a r * h (-i - r)) * u i :=
+      Finset.sum_comm _ _ _
+    _ = ∑ r : ZMod N, ∑ j : ZMod N, h (-j) * (a r * u (j - r)) := by
+      apply Finset.sum_congr rfl
+      intro r hr
+      refine Finset.sum_bij (fun i _ => i + r) ?_ ?_ ?_ ?_
+      · intro i hi
+        exact Finset.mem_univ _
+      · intro i hi j hj hij
+        exact add_right_cancel hij
+      · intro j hj
+        refine ⟨j - r, Finset.mem_univ _, ?_⟩
+        exact sub_add_cancel j r
+      · intro i hi
+        simp [neg_add, sub_eq_add_neg, add_assoc, add_comm, add_left_comm,
+          mul_assoc, mul_comm, mul_left_comm]
+    _ = _ := Finset.sum_comm _ _ _

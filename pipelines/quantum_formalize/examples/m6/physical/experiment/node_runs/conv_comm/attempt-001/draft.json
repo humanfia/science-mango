@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.Physical.conv N a b = M6.Physical.conv N b a\nintro N inst a b\nclassical\nfunext i\nunfold M6.Physical.conv\nrefine Finset.sum_bij (fun r _ => i - r) ?_ ?_ ?_ ?_\n· intro r hr\n  exact Finset.mem_univ _\n· intro r hr s hs h\n  simpa only [sub_sub_cancel] using congrArg (fun t => i - t) h\n· intro r hr\n  exact ⟨i - r, Finset.mem_univ _, sub_sub_cancel i r⟩\n· intro r hr\n  simp only [sub_sub_cancel, mul_comm]",
+  "queries": [
+    "Finset.sum_bij",
+    "sub_sub_cancel"
+  ]
+}

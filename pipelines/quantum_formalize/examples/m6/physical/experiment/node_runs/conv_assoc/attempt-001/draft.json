@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N inst a b c\nfunext x\nsimp only [M6.Physical.conv, Finset.mul_sum, Finset.sum_mul]\nconv_rhs => rw [Finset.sum_comm]\nrefine Finset.sum_congr rfl ?_\nintro j hj\nrefine Finset.sum_bij (fun k _ => j + k) ?_ ?_ ?_ ?_\n· intro k hk\n  simp\n· intro u hu v hv huv\n  exact add_left_cancel huv\n· intro k hk\n  refine ⟨k - j, by simp, ?_⟩\n  abel\n· intro k hk\n  have h₁ : j + k - j = k := by abel\n  have h₂ : x - (j + k) = x - j - k := by abel\n  simp only [h₁, h₂, mul_assoc]",
+  "queries": [
+    "Finset.sum_bij",
+    "Equiv.sum_comp",
+    "M6.Physical.conv definition"
+  ]
+}

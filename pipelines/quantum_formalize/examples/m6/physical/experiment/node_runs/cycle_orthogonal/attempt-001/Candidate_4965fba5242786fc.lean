@@ -1,0 +1,15 @@
+import FrozenTarget_4965fba5242786fc
+theorem M6.Physical.cycle_orthogonal : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (z : M6.Physical.Word N), M6.Physical.syndrome N a b z = 0 ↔ ∀ h : M6.Physical.Block N, M6.Physical.pairing N (M6.Physical.J N (M6.Physical.boundary N a b h)) z = 0
+  intro N inst a b z
+  classical
+  constructor
+  · intro hs h
+    rw [M6.Physical.boundary_pairing, hs]
+    simp [M6.Physical.dot]
+  · intro H
+    funext i
+    have hi := H (M6.Physical.rev N (M6.Physical.delta N i))
+    rw [M6.Physical.boundary_pairing, M6.Physical.rev_involution,
+      M6.Physical.dot_delta] at hi
+    exact hi

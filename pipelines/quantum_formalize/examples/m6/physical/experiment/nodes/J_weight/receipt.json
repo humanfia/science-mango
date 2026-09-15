@@ -1,0 +1,69 @@
+{
+  "id": "J_weight",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Physical.J_weight",
+    "spec_sha256": "fc512f5dab4a26a89895409f4db11bb4b1115dc773f1c1c7fbd3eefb78ec888d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-8_4r0okx/attempt-001/Candidate_b68c28922dbfb677.lean",
+        "target_path": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-8_4r0okx/attempt-001/FrozenTarget_b68c28922dbfb677.lean",
+        "feedback": "",
+        "target_sha256": "be1570d2a1bceb7edbd559390894b4b3eaf59942ac1dafc5e254a7da90c3cc13",
+        "target_olean_sha256": "5701d1dbb7fad4abab90189959371be3591aa3fb2781c310146eb504cc0697c2",
+        "source_sha256": "b855a302f2e203e42c47d5ceb2a33eed5c831be2f117ee0e4e4123f2df931515",
+        "olean_sha256": "fe5c9376b1f138703c37beede9b7bd8c79e0795a40d494d5c0a4c0cc8345d529",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T12:58:54.613686+00:00",
+    "work": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-8_4r0okx",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4b68a2fd1dd8a72efd2f7be4ceacc41b99af5d11b12695999af6946d04e11809",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-8_4r0okx/attempt-001/Candidate_b68c28922dbfb677.lean",
+    "environment_sha256": "3ce79e5628dc0f88280cee43561f74e85f896420904a34462636646a9fe6195c",
+    "artifacts": {
+      "rev_weight": {
+        "payload": {
+          "declaration": "theorem M6.Physical.rev_weight : ∀ (N : ℕ) [NeZero N] (a : M6.Physical.Block N), M6.Physical.weight N (M6.Physical.rev N a) = M6.Physical.weight N a := by\n  change ∀ (N : ℕ) [NeZero N] (a : M6.Physical.Block N), M6.Physical.weight N (M6.Physical.rev N a) = M6.Physical.weight N a\n  intro N inst a\n  classical\n  unfold M6.Physical.weight M6.Physical.rev\n  refine Finset.card_bij (fun i _ => -i) ?_ ?_ ?_\n  · intro i hi\n    simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hi\n  · intro i hi j hj hij\n    exact neg_injective hij\n  · intro j hj\n    refine ⟨-j, ?_, neg_neg j⟩\n    simpa only [Finset.mem_filter, Finset.mem_univ, true_and, neg_neg] using hj",
+          "imports": [
+            "M6Physical"
+          ],
+          "name": "M6.Physical.rev_weight",
+          "ancestors": [],
+          "spec_sha256": "bc324be0373a75a34d8c765fcb8c94c4a8e12d8ac17627d73c7a32edb7b58eb9"
+        },
+        "sha256": "9c232214f073223e24f318983c35b4263b28606cf1f5348bfee8c37294337f9d"
+      },
+      "J_weight": {
+        "payload": {
+          "declaration": "theorem M6.Physical.J_weight : ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N), M6.Physical.wordWeight N (M6.Physical.J N z) = M6.Physical.wordWeight N z := by\n  change ∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N), M6.Physical.wordWeight N (M6.Physical.J N z) = M6.Physical.wordWeight N z\n  intro N inst z\n  simp [M6.Physical.wordWeight, M6.Physical.J, M6.Physical.rev_weight, Nat.add_comm]",
+          "imports": [
+            "M6Physical"
+          ],
+          "name": "M6.Physical.J_weight",
+          "ancestors": [
+            "rev_weight"
+          ],
+          "spec_sha256": "184fa5005ae41ed528e2bc5d46fe8db42414635f47f74c17431a313b9f5fb9e2"
+        },
+        "sha256": "1010753c88276ffe741d71fa30aa84a0660f9c326a32d6b8d58d2c7019f5ec67"
+      }
+    }
+  }
+}

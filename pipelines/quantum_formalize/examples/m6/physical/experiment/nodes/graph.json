@@ -1,0 +1,291 @@
+[
+  {
+    "id": "conv_comm",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Physical.conv_comm",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.Physical.conv N a b = M6.Physical.conv N b a",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "For each i reindex the finite sum by r↦i-r (an involution), then mul_comm. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "conv_add",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Physical.conv_add",
+      "statement": "∀ (N : ℕ) [NeZero N] (a u v : M6.Physical.Block N), M6.Physical.conv N a (u+v) = M6.Physical.conv N a u + M6.Physical.conv N a v",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Extensionality, mul_add and Finset.sum_add_distrib. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "conv_assoc",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Physical.conv_assoc",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b c : M6.Physical.Block N), M6.Physical.conv N a (M6.Physical.conv N b c) = M6.Physical.conv N (M6.Physical.conv N a b) c",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Expand double sums, exchange finite sums and reindex by translations of ZMod N. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "rev_involution",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Physical.rev_involution",
+      "statement": "∀ (N : ℕ) (a : M6.Physical.Block N), M6.Physical.rev N (M6.Physical.rev N a) = a",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Function extensionality and neg_neg. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "dot_delta",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Physical.dot_delta",
+      "statement": "∀ (N : ℕ) [NeZero N] (a : M6.Physical.Block N) (i : ZMod N), M6.Physical.dot N (M6.Physical.delta N i) a = a i",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Expand and use sum_ite_eq. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "rev_weight",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Physical.rev_weight",
+      "statement": "∀ (N : ℕ) [NeZero N] (a : M6.Physical.Block N), M6.Physical.weight N (M6.Physical.rev N a) = M6.Physical.weight N a",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Finset.card_bij by i↦-i, self-inverse; do not change definition. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "J_involution",
+    "dependencies": [
+      "rev_involution"
+    ],
+    "spec": {
+      "name": "M6.Physical.J_involution",
+      "statement": "∀ (N : ℕ) (z : M6.Physical.Word N), M6.Physical.J N (M6.Physical.J N z) = z",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Unfold J and use rev_involution on both blocks. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "J_weight",
+    "dependencies": [
+      "rev_weight"
+    ],
+    "spec": {
+      "name": "M6.Physical.J_weight",
+      "statement": "∀ (N : ℕ) [NeZero N] (z : M6.Physical.Word N), M6.Physical.wordWeight N (M6.Physical.J N z) = M6.Physical.wordWeight N z",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Unfold wordWeight,J; rev_weight plus Nat.add_comm. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "boundary_cycle",
+    "dependencies": [
+      "conv_comm",
+      "conv_assoc"
+    ],
+    "spec": {
+      "name": "M6.Physical.boundary_cycle",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Physical.syndrome N a b (M6.Physical.boundary N a b h) = 0",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Two convolution terms equal by associativity/commutativity and add_self=0 in ZMod2. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "conv_adjoint",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Physical.conv_adjoint",
+      "statement": "∀ (N : ℕ) [NeZero N] (a h u : M6.Physical.Block N), M6.Physical.dot N (M6.Physical.rev N (M6.Physical.conv N a h)) u = M6.Physical.dot N (M6.Physical.rev N h) (M6.Physical.conv N a u)",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Expand sums; rearrange multiplication, exchange sums then translation reindex i↦i+r. Both are sum_r sum_i a(r)*h(-i-r)*u(i). Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "boundary_pairing",
+    "dependencies": [
+      "conv_adjoint"
+    ],
+    "spec": {
+      "name": "M6.Physical.boundary_pairing",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N) (z : M6.Physical.Word N), M6.Physical.pairing N (M6.Physical.J N (M6.Physical.boundary N a b h)) z = M6.Physical.dot N (M6.Physical.rev N h) (M6.Physical.syndrome N a b z)",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Unfold pairing,J,boundary then conv_adjoint twice, expand dot of a sum. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "cycle_orthogonal",
+    "dependencies": [
+      "boundary_pairing",
+      "rev_involution",
+      "dot_delta"
+    ],
+    "spec": {
+      "name": "M6.Physical.cycle_orthogonal",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (z : M6.Physical.Word N), M6.Physical.syndrome N a b z = 0 ↔ ∀ h : M6.Physical.Block N, M6.Physical.pairing N (M6.Physical.J N (M6.Physical.boundary N a b h)) z = 0",
+      "imports": [
+        "M6Physical"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence translation",
+        "ZMod convolution sum characteristic two"
+      ],
+      "guidance": "Use boundary_pairing; forward dot zero. Reverse test h=rev(delta i), rev_involution and dot_delta force each syndrome coordinate0. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "id": "conv_assoc",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Physical.conv_assoc",
+    "spec_sha256": "6bb17c86547303badff61884b9a4f732cbbf9ca4745b24bca30e3fc3d80573d9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-9maxo9rd/attempt-001/Candidate_68651e9db6f6ceb6.lean",
+        "target_path": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-9maxo9rd/attempt-001/FrozenTarget_68651e9db6f6ceb6.lean",
+        "feedback": "",
+        "target_sha256": "eba99b52a693f1b21a0a75f6810934cab9117f30ff3d1e094c2d18f901dd0bf2",
+        "target_olean_sha256": "ea621f507c57b0e4a729c11da5a9c59ac0585cae33eaf2d4d3c38c4aa58f27b0",
+        "source_sha256": "104ab89b3b51eea845d78d4d85a666e89953f09d8b18b900b96a1155b1fca74e",
+        "olean_sha256": "2959507ab6b7c98da01d24736bdcc401e5eff68b14c4a58debd4fabe2cdb0ad1",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T12:56:13.724977+00:00",
+    "work": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-9maxo9rd",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4b68a2fd1dd8a72efd2f7be4ceacc41b99af5d11b12695999af6946d04e11809",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-9maxo9rd/attempt-001/Candidate_68651e9db6f6ceb6.lean",
+    "environment_sha256": "3ce79e5628dc0f88280cee43561f74e85f896420904a34462636646a9fe6195c",
+    "artifacts": {
+      "conv_assoc": {
+        "payload": {
+          "declaration": "theorem M6.Physical.conv_assoc : ∀ (N : ℕ) [NeZero N] (a b c : M6.Physical.Block N), M6.Physical.conv N a (M6.Physical.conv N b c) = M6.Physical.conv N (M6.Physical.conv N a b) c := by\n  classical\n  intro N inst a b c\n  funext x\n  simp only [M6.Physical.conv, Finset.mul_sum, Finset.sum_mul]\n  conv_rhs => rw [Finset.sum_comm]\n  refine Finset.sum_congr rfl ?_\n  intro j hj\n  refine Finset.sum_bij (fun k _ => j + k) ?_ ?_ ?_ ?_\n  · intro k hk\n    simp\n  · intro u hu v hv huv\n    exact add_left_cancel huv\n  · intro k hk\n    refine ⟨k - j, by simp, ?_⟩\n    abel\n  · intro k hk\n    have h₁ : j + k - j = k := by abel\n    have h₂ : x - (j + k) = x - j - k := by abel\n    simp only [h₁, h₂, mul_assoc]",
+          "imports": [
+            "M6Physical"
+          ],
+          "name": "M6.Physical.conv_assoc",
+          "ancestors": [],
+          "spec_sha256": "6bb17c86547303badff61884b9a4f732cbbf9ca4745b24bca30e3fc3d80573d9"
+        },
+        "sha256": "de40dd6913375d3383ce6b66c38bf37787d05ad1437a8e2fe2270af3683745d1"
+      }
+    }
+  }
+}

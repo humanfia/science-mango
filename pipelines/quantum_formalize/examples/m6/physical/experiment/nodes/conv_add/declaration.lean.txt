@@ -1,0 +1,9 @@
+theorem M6.Physical.conv_add : ∀ (N : ℕ) [NeZero N] (a u v : M6.Physical.Block N), M6.Physical.conv N a (u+v) = M6.Physical.conv N a u + M6.Physical.conv N a v := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (a u v : M6.Physical.Block N), M6.Physical.conv N a (u+v) = M6.Physical.conv N a u + M6.Physical.conv N a v
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N inst a u v
+  funext i
+  simp only [M6.Physical.conv, Pi.add_apply, mul_add, Finset.sum_add_distrib]

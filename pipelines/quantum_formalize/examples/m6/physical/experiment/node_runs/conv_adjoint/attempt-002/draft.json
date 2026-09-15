@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst a h u\nclassical\nchange (∑ i : ZMod N, (∑ r : ZMod N, a r * h (-i - r)) * u i) =\n  ∑ j : ZMod N, h (-j) * (∑ r : ZMod N, a r * u (j - r))\nsimp only [Finset.sum_mul, Finset.mul_sum]\ncalc\n  (∑ i : ZMod N, ∑ r : ZMod N, (a r * h (-i - r)) * u i) =\n      ∑ r : ZMod N, ∑ i : ZMod N, (a r * h (-i - r)) * u i := Finset.sum_comm\n  _ = ∑ r : ZMod N, ∑ j : ZMod N, h (-j) * (a r * u (j - r)) := by\n    apply Finset.sum_congr rfl\n    intro r hr\n    refine Finset.sum_bij (fun i _ => i + r) ?_ ?_ ?_ ?_\n    · intro i hi\n      exact Finset.mem_univ _\n    · intro i hi j hj hij\n      exact add_right_cancel hij\n    · intro j hj\n      exact ⟨j - r, Finset.mem_univ _, by simp⟩\n    · intro i hi\n      simp [neg_add, sub_eq_add_neg, mul_assoc, mul_comm, mul_left_comm]\n  _ = ∑ j : ZMod N, ∑ r : ZMod N, h (-j) * (a r * u (j - r)) := Finset.sum_comm",
+  "queries": []
+}

@@ -1,0 +1,9 @@
+import FrozenTarget_376dc0a2a7c5f72f
+theorem M6.Physical.boundary_cycle : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Physical.syndrome N a b (M6.Physical.boundary N a b h) = 0
+  intro N inst a b h
+  unfold M6.Physical.boundary
+  unfold M6.Physical.syndrome
+  simp only [M6.Physical.conv_assoc, M6.Physical.conv_comm N b a]
+  funext i
+  exact ZModModule.add_self _

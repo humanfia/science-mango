@@ -1,0 +1,637 @@
+[
+  {
+    "queries": [
+      "finite sum reindex equivalence translation",
+      "ZMod convolution sum characteristic two"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum reindex equivalence translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 243669,
+            "name": "Module.Basis.sumCoords_reindex",
+            "module": "Mathlib.LinearAlgebra.Basis.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Basis/Defs.lean#L710-L714",
+            "source_text": "@[simp]\ntheorem sumCoords_reindex : (b.reindex e).sumCoords = b.sumCoords := by\n  ext x\n  simp only [coe_sumCoords, repr_reindex]\n  exact Finsupp.sum_mapDomain_index (fun _ => rfl) fun _ _ _ => rfl",
+            "docstring": null
+          },
+          {
+            "id": 189648,
+            "name": "Hindman.FS.finset_sum",
+            "module": "Mathlib.Combinatorics.Hindman",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Hindman.lean#L278-L278",
+            "source_text": "@[deprecated (since := \"2026-04-08\")] alias FS.finset_sum := FS.finsetSum",
+            "docstring": "**Alias** of `Hindman.FS.finsetSum`."
+          },
+          {
+            "id": 247962,
+            "name": "Matrix.reindex",
+            "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L500-L506",
+            "source_text": "/-- The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. -/\ndef reindex (eₘ : m ≃ l) (eₙ : n ≃ o) : Matrix m n α ≃ Matrix l o α where\n  toFun M := M.submatrix eₘ.symm eₙ.symm\n  invFun M := M.submatrix eₘ eₙ\n  left_inv M := by simp\n  right_inv M := by simp\n",
+            "docstring": "The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. "
+          },
+          {
+            "id": 332433,
+            "name": "Equiv.hasSum_iff",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Basic.lean#L181-L181",
+            "source_text": "@[to_additive]\ntheorem Equiv.hasProd_iff (e : γ ≃ β) : HasProd (f ∘ e) a ↔ HasProd f a :=",
+            "docstring": null
+          },
+          {
+            "id": 201970,
+            "name": "Finite.sum_right",
+            "module": "Mathlib.Data.Finite.Sum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Sum.lean#L28-L29",
+            "source_text": "theorem sum_right (α) [Finite (α ⊕ β)] : Finite β :=\n  of_injective (Sum.inr : β → α ⊕ β) Sum.inr_injective\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite sum reindex equivalence translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391752,
+            "name": "Lorentz.complexContrBasis_reindex_apply_eq_fin4",
+            "module": "Physlib.Relativity.Tensors.ComplexTensor.Vector.Pre.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Vector/Pre/Basic.lean#L60-L62",
+            "source_text": "lemma complexContrBasis_reindex_apply_eq_fin4 (j : Fin 4) :\n    (complexContrBasis.reindex finSumFinEquiv) j = complexContrBasisFin4 j :=\n  rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 386335,
+            "name": "Physlib.Fin.finExtractOne_symm_inl_apply",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L141-L144",
+            "source_text": "@[simp]\nlemma finExtractOne_symm_inl_apply {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm (Sum.inl 0) = i := by\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 393012,
+            "name": "EuclideanGroup.TranslationGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L107-L118",
+            "source_text": "/-- Translation is the subgroup with Q = 1. -/\ndef TranslationGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val = 1\n    rw [Submonoid.coe_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val = 1\n    rw [OneMemClass.coe_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val = 1\n    rw [coe_inv, ha, inv_one]\n",
+            "docstring": "Translation is the subgroup with Q = 1. "
+          },
+          {
+            "id": 393013,
+            "name": "EuclideanGroup.TranslationGroup.incl",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L120-L122",
+            "source_text": "/-- The inclusion of the translation subgroup into the Euclidean group. -/\nnoncomputable def TranslationGroup.incl (n : ℕ) :\n    TranslationGroup n →* EuclideanGroup n := (TranslationGroup n).subtype\n",
+            "docstring": "The inclusion of the translation subgroup into the Euclidean group. "
+          },
+          {
+            "id": 393006,
+            "name": "EuclideanGroup.one_translation",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L68-L68",
+            "source_text": "@[simp] lemma one_translation : (1 : EuclideanGroup n).translation = 0 := rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod convolution sum characteristic two",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223199,
+            "name": "ZMod",
+            "module": "Mathlib.Data.ZMod.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+            "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+            "docstring": "The integers modulo `n : ℕ`. "
+          },
+          {
+            "id": 223175,
+            "name": "ZModModule.add_self",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L1246-L1247",
+            "source_text": "lemma ZModModule.add_self (x : G) : x + x = 0 := by\n  simpa [two_nsmul] using char_nsmul_eq_zero 2 x\n",
+            "docstring": null
+          },
+          {
+            "id": 272867,
+            "name": "LSeriesHasSum.convolution",
+            "module": "Mathlib.NumberTheory.LSeries.Convolution",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/Convolution.lean#L137-L144",
+            "source_text": "/-- The L-series of the convolution product `f ⍟ g` of two sequences `f` and `g`\nequals the product of their L-series, assuming both L-series converge. -/\nlemma LSeriesHasSum.convolution {f g : ℕ → ℂ} {s a b : ℂ} (hf : LSeriesHasSum f s a)\n    (hg : LSeriesHasSum g s b) :\n    LSeriesHasSum (f ⍟ g) s (a * b) := by\n  have hsum := summable_mul_of_summable_norm hf.summable.norm hg.summable.norm\n  -- NB: this `simpa` is quite slow if un-squeezed\n  simpa only [LSeriesHasSum, term_convolution'] using (hf.mul hg hsum).tsum_fiberwise _\n",
+            "docstring": "The L-series of the convolution product `f ⍟ g` of two sequences `f` and `g`\nequals the product of their L-series, assuming both L-series converge. "
+          },
+          {
+            "id": 129530,
+            "name": "ValueDistribution.characteristic_sum_top_le",
+            "module": "Mathlib.Analysis.Complex.ValueDistribution.CharacteristicFunction",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Complex/ValueDistribution/CharacteristicFunction.lean#L100-L116",
+            "source_text": "/--\nFor `1 ≤ r`, the characteristic function of a sum `∑ a, f a` at `⊤` is less than or equal to the sum\nof the characteristic functions of `f ·`, plus `log s.card`.\n-/\ntheorem characteristic_sum_top_le {α : Type*} (s : Finset α) (f : α → ℂ → E) {r : ℝ}\n    (hf : ∀ a ∈ s, Meromorphic (f a)) (hr : 1 ≤ r) :\n    characteristic (∑ a ∈ s, f a) ⊤ r ≤ (∑ a ∈ s, (characteristic (f a) ⊤)) r + log s.card := by\n  simp only [characteristic, Pi.add_apply, Finset.sum_apply]\n  calc proximity (∑ a ∈ s, f a) ⊤ r + logCounting (∑ a ∈ s, f a) ⊤ r\n  _ ≤ ((∑ a ∈ s, proximity (f a) ⊤) r) + log s.card + (∑ a ∈ s, (logCounting (f a) ⊤)) r := by\n      gcongr\n      · apply proximity_sum_top_le s f hf r\n      · apply logCounting_sum_top_le s f hf hr\n    _ = ((∑ a ∈ s, proximity (f a) ⊤) r) + (∑ a ∈ s, (logCounting (f a) ⊤)) r + log s.card := by\n      ring\n    _ = ∑ x ∈ s, (proximity (f x) ⊤ r + logCounting (f x) ⊤ r) + log s.card := by\n      simp [Finset.sum_add_distrib]\n",
+            "docstring": "For `1 ≤ r`, the characteristic function of a sum `∑ a, f a` at `⊤` is less than or equal to the sum\nof the characteristic functions of `f ·`, plus `log s.card`.\n"
+          },
+          {
+            "id": 322110,
+            "name": "ZMod.isCyclic_units_two",
+            "module": "Mathlib.RingTheory.ZMod.UnitsCyclic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/ZMod/UnitsCyclic.lean#L66-L67",
+            "source_text": "theorem isCyclic_units_two :\n    IsCyclic (ZMod 2)ˣ := inferInstance\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod convolution sum characteristic two",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387203,
+            "name": "SMRHN.sum_familyUniversal_two",
+            "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.FamilyMaps",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/FamilyMaps.lean#L125-L134",
+            "source_text": "lemma sum_familyUniversal_two {n : ℕ} (S : (SMνCharges 1).Charges)\n    (T : (SMνCharges n).Charges) (j : Fin 6) :\n    ∑ i, (toSpecies j (familyUniversal n S) i * toSpecies j T i) =\n    (toSpecies j S ⟨0, by simp⟩) * ∑ i, toSpecies j T i := by\n  simp only [toSpecies_apply, toSpeciesEquiv_apply, Fin.zero_eta,\n    Fin.isValue, Nat.reduceMul]\n  rw [Finset.mul_sum]\n  refine Finset.sum_congr rfl (fun i _ => ?_)\n  erw [toSpecies_familyUniversal]\n  rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 388352,
+            "name": "SUSY.N1.deltaCap₂",
+            "module": "Physlib.Particles.SuperSymmetry.N1.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/N1/Basic.lean#L260-L261",
+            "source_text": "/-- The two-module δ cap `∑_I b_I ⊗ b'_I ∈ M ⊗ N`. -/\ndef deltaCap₂ (b : Basis ι ℂ M) (b' : Basis ι ℂ N) : M ⊗[ℂ] N := ∑ I, b I ⊗ₜ[ℂ] b' I\n",
+            "docstring": "The two-module δ cap `∑_I b_I ⊗ b'_I ∈ M ⊗ N`. "
+          },
+          {
+            "id": 391810,
+            "name": "Lorentz.CoℂModule.val_add",
+            "module": "Physlib.Relativity.Tensors.ComplexTensor.Vector.Pre.Modules",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Vector/Pre/Modules.lean#L133-L134",
+            "source_text": "@[simp]\nlemma val_add (ψ ψ' : CoℂModule) : (ψ + ψ').val = ψ.val + ψ'.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 388589,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.ZModCharges_two_eq",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.ZMod",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/ZMod.lean#L102-L104",
+            "source_text": "/-- This lemma corresponds to the statement that there are no choices of `ℤ₂` representations\n  which give a phenomenologically viable theory. -/\nlemma ZModCharges_two_eq : ZModCharges 2 = ∅ := by decide\n",
+            "docstring": "This lemma corresponds to the statement that there are no choices of `ℤ₂` representations\nwhich give a phenomenologically viable theory. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "conv_add",
+    "receipts_sha256": "658b618ddbdc072e1f89c0cd9da98e0adf1a98f80c3bf1e131e038c223e5dd51"
+  },
+  {
+    "queries": [
+      "Finset.sum_bij",
+      "Finset.sum_comm"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.sum_bij",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58342,
+            "name": "Finset.sum_bij",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L452-L458",
+            "source_text": "@[to_additive /-- Reorder a sum.\n\nThe difference with `Finset.sum_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.sum_nbij` is that the bijection is allowed to use membership of the\ndomain of the sum, rather than being a non-dependent function. -/]\ntheorem prod_bij (i : ∀ a ∈ s, κ) (hi : ∀ a ha, i a ha ∈ t)\n    (i_inj : ∀ a₁ ha₁ a₂ ha₂, i a₁ ha₁ = i a₂ ha₂ → a₁ = a₂)\n    (i_surj : ∀ b ∈ t, ∃ a ha, i a ha = b) (h : ∀ a ha, f a = g (i a ha)) :\n    ∏ x ∈ s, f x = ∏ x ∈ t, g x :=",
+            "docstring": "Reorder a sum.\n\nThe difference with `Finset.sum_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.sum_nbij` is that the bijection is allowed to use membership of the\ndomain of the sum, rather than being a non-dependent function. "
+          },
+          {
+            "id": 58344,
+            "name": "Finset.sum_bij'",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L472-L478",
+            "source_text": "@[to_additive /-- Reorder a sum.\n\nThe difference with `Finset.sum_bij` is that the bijection is specified with an inverse, rather than\nas a surjective injection.\n\nThe difference with `Finset.sum_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains of the sums, rather than being non-dependent functions. -/]\ntheorem prod_bij' (i : ∀ a ∈ s, κ) (j : ∀ a ∈ t, ι) (hi : ∀ a ha, i a ha ∈ t)\n    (hj : ∀ a ha, j a ha ∈ s) (left_inv : ∀ a ha, j (i a ha) (hi a ha) = a)\n    (right_inv : ∀ a ha, i (j a ha) (hj a ha) = a) (h : ∀ a ha, f a = g (i a ha)) :\n    ∏ x ∈ s, f x = ∏ x ∈ t, g x := by",
+            "docstring": "Reorder a sum.\n\nThe difference with `Finset.sum_bij` is that the bijection is specified with an inverse, rather than\nas a surjective injection.\n\nThe difference with `Finset.sum_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains of the sums, rather than being non-dependent functions. "
+          },
+          {
+            "id": 58295,
+            "name": "Finset.sum",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+            "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+            "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+          },
+          {
+            "id": 202219,
+            "name": "Equiv.Finset.union",
+            "module": "Mathlib.Data.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L584-L587",
+            "source_text": "/-- The disjoint union of finsets is a sum -/\ndef Finset.union (s t : Finset α) (h : Disjoint s t) :\n    s ⊕ t ≃ (s ∪ t : Finset α) :=\n  Equiv.setCongr (coe_union _ _) |>.trans (Equiv.Set.union (disjoint_coe.mpr h)) |>.symm\n",
+            "docstring": "The disjoint union of finsets is a sum "
+          },
+          {
+            "id": 204404,
+            "name": "Finset.disjSum",
+            "module": "Mathlib.Data.Finset.Sum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Sum.lean#L33-L35",
+            "source_text": "/-- Disjoint sum of finsets. -/\ndef disjSum : Finset (α ⊕ β) :=\n  ⟨s.1.disjSum t.1, s.2.disjSum t.2⟩\n",
+            "docstring": "Disjoint sum of finsets. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.sum_bij",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.sum_comm",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58602,
+            "name": "Finset.sum_comm",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L120-L120",
+            "source_text": "@[to_additive]\ntheorem prod_comm {s : Finset γ} {t : Finset α} {f : γ → α → β} :\n    (∏ x ∈ s, ∏ y ∈ t, f x y) = ∏ y ∈ t, ∏ x ∈ s, f x y :=",
+            "docstring": null
+          },
+          {
+            "id": 58036,
+            "name": "Finset.sum_attach",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L99-L99",
+            "source_text": "@[to_additive]\nlemma prod_attach (s : Finset ι) (f : ι → M) : ∏ x ∈ s.attach, f x = ∏ x ∈ s, f x := by",
+            "docstring": null
+          },
+          {
+            "id": 58600,
+            "name": "Finset.sum_comm'",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L105-L106",
+            "source_text": "@[to_additive /-- Generalization of `Finset.sum_comm` to the case when the inner `Finset`s depend on\nthe outer variable. -/]\ntheorem prod_comm' {s : Finset γ} {t : γ → Finset α} {t' : Finset α} {s' : α → Finset γ}\n    (h : ∀ x y, x ∈ s ∧ y ∈ t x ↔ x ∈ s' y ∧ y ∈ t') {f : γ → α → β} :\n    (∏ x ∈ s, ∏ y ∈ t x, f x y) = ∏ y ∈ t', ∏ x ∈ s' y, f x y := by",
+            "docstring": "Generalization of `Finset.sum_comm` to the case when the inner `Finset`s depend on\nthe outer variable. "
+          },
+          {
+            "id": 57989,
+            "name": "Finsupp.prod_attach_index",
+            "module": "Mathlib.Algebra.BigOperators.Finsupp.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finsupp/Basic.lean#L586-L589",
+            "source_text": "@[to_additive (attr := simp)]\nlemma prod_attach_index [CommMonoid N] {s : Finset α} (f : α → M) {h : α → M → N} :\n    ∏ x ∈ s.attach, h x (f x) = ∏ x ∈ s, h x (f x) :=\n  prod_attach _ fun x ↦ h x (f x)",
+            "docstring": null
+          },
+          {
+            "id": 57569,
+            "name": "finsum",
+            "module": "Mathlib.Algebra.BigOperators.Finprod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L101-L104",
+            "source_text": "/-- Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. -/\nnoncomputable irreducible_def finsum (lemma := finsum_def') [AddCommMonoid M] (f : α → M) : M :=\n  if h : HasFiniteSupport (f ∘ PLift.down) then ∑ i ∈ h.toFinset, f i.down else 0\n",
+            "docstring": "Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.sum_comm",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset.sum_bij",
+      "Finset.sum_comm"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "finite sum reindex equivalence translation",
+      "ZMod convolution sum characteristic two"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum reindex equivalence translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 243669,
+            "name": "Module.Basis.sumCoords_reindex",
+            "module": "Mathlib.LinearAlgebra.Basis.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Basis/Defs.lean#L710-L714",
+            "source_text": "@[simp]\ntheorem sumCoords_reindex : (b.reindex e).sumCoords = b.sumCoords := by\n  ext x\n  simp only [coe_sumCoords, repr_reindex]\n  exact Finsupp.sum_mapDomain_index (fun _ => rfl) fun _ _ _ => rfl",
+            "docstring": null
+          },
+          {
+            "id": 189648,
+            "name": "Hindman.FS.finset_sum",
+            "module": "Mathlib.Combinatorics.Hindman",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Hindman.lean#L278-L278",
+            "source_text": "@[deprecated (since := \"2026-04-08\")] alias FS.finset_sum := FS.finsetSum",
+            "docstring": "**Alias** of `Hindman.FS.finsetSum`."
+          },
+          {
+            "id": 247962,
+            "name": "Matrix.reindex",
+            "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L500-L506",
+            "source_text": "/-- The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. -/\ndef reindex (eₘ : m ≃ l) (eₙ : n ≃ o) : Matrix m n α ≃ Matrix l o α where\n  toFun M := M.submatrix eₘ.symm eₙ.symm\n  invFun M := M.submatrix eₘ eₙ\n  left_inv M := by simp\n  right_inv M := by simp\n",
+            "docstring": "The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. "
+          },
+          {
+            "id": 332433,
+            "name": "Equiv.hasSum_iff",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Basic.lean#L181-L181",
+            "source_text": "@[to_additive]\ntheorem Equiv.hasProd_iff (e : γ ≃ β) : HasProd (f ∘ e) a ↔ HasProd f a :=",
+            "docstring": null
+          },
+          {
+            "id": 201970,
+            "name": "Finite.sum_right",
+            "module": "Mathlib.Data.Finite.Sum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Sum.lean#L28-L29",
+            "source_text": "theorem sum_right (α) [Finite (α ⊕ β)] : Finite β :=\n  of_injective (Sum.inr : β → α ⊕ β) Sum.inr_injective\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite sum reindex equivalence translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391752,
+            "name": "Lorentz.complexContrBasis_reindex_apply_eq_fin4",
+            "module": "Physlib.Relativity.Tensors.ComplexTensor.Vector.Pre.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Vector/Pre/Basic.lean#L60-L62",
+            "source_text": "lemma complexContrBasis_reindex_apply_eq_fin4 (j : Fin 4) :\n    (complexContrBasis.reindex finSumFinEquiv) j = complexContrBasisFin4 j :=\n  rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 386335,
+            "name": "Physlib.Fin.finExtractOne_symm_inl_apply",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L141-L144",
+            "source_text": "@[simp]\nlemma finExtractOne_symm_inl_apply {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm (Sum.inl 0) = i := by\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 393012,
+            "name": "EuclideanGroup.TranslationGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L107-L118",
+            "source_text": "/-- Translation is the subgroup with Q = 1. -/\ndef TranslationGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val = 1\n    rw [Submonoid.coe_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val = 1\n    rw [OneMemClass.coe_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val = 1\n    rw [coe_inv, ha, inv_one]\n",
+            "docstring": "Translation is the subgroup with Q = 1. "
+          },
+          {
+            "id": 393013,
+            "name": "EuclideanGroup.TranslationGroup.incl",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L120-L122",
+            "source_text": "/-- The inclusion of the translation subgroup into the Euclidean group. -/\nnoncomputable def TranslationGroup.incl (n : ℕ) :\n    TranslationGroup n →* EuclideanGroup n := (TranslationGroup n).subtype\n",
+            "docstring": "The inclusion of the translation subgroup into the Euclidean group. "
+          },
+          {
+            "id": 393006,
+            "name": "EuclideanGroup.one_translation",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L68-L68",
+            "source_text": "@[simp] lemma one_translation : (1 : EuclideanGroup n).translation = 0 := rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "ZMod convolution sum characteristic two",
+        "status": "ok",
+        "results": [
+          {
+            "id": 223199,
+            "name": "ZMod",
+            "module": "Mathlib.Data.ZMod.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+            "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+            "docstring": "The integers modulo `n : ℕ`. "
+          },
+          {
+            "id": 223175,
+            "name": "ZModModule.add_self",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L1246-L1247",
+            "source_text": "lemma ZModModule.add_self (x : G) : x + x = 0 := by\n  simpa [two_nsmul] using char_nsmul_eq_zero 2 x\n",
+            "docstring": null
+          },
+          {
+            "id": 272867,
+            "name": "LSeriesHasSum.convolution",
+            "module": "Mathlib.NumberTheory.LSeries.Convolution",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/Convolution.lean#L137-L144",
+            "source_text": "/-- The L-series of the convolution product `f ⍟ g` of two sequences `f` and `g`\nequals the product of their L-series, assuming both L-series converge. -/\nlemma LSeriesHasSum.convolution {f g : ℕ → ℂ} {s a b : ℂ} (hf : LSeriesHasSum f s a)\n    (hg : LSeriesHasSum g s b) :\n    LSeriesHasSum (f ⍟ g) s (a * b) := by\n  have hsum := summable_mul_of_summable_norm hf.summable.norm hg.summable.norm\n  -- NB: this `simpa` is quite slow if un-squeezed\n  simpa only [LSeriesHasSum, term_convolution'] using (hf.mul hg hsum).tsum_fiberwise _\n",
+            "docstring": "The L-series of the convolution product `f ⍟ g` of two sequences `f` and `g`\nequals the product of their L-series, assuming both L-series converge. "
+          },
+          {
+            "id": 129530,
+            "name": "ValueDistribution.characteristic_sum_top_le",
+            "module": "Mathlib.Analysis.Complex.ValueDistribution.CharacteristicFunction",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Complex/ValueDistribution/CharacteristicFunction.lean#L100-L116",
+            "source_text": "/--\nFor `1 ≤ r`, the characteristic function of a sum `∑ a, f a` at `⊤` is less than or equal to the sum\nof the characteristic functions of `f ·`, plus `log s.card`.\n-/\ntheorem characteristic_sum_top_le {α : Type*} (s : Finset α) (f : α → ℂ → E) {r : ℝ}\n    (hf : ∀ a ∈ s, Meromorphic (f a)) (hr : 1 ≤ r) :\n    characteristic (∑ a ∈ s, f a) ⊤ r ≤ (∑ a ∈ s, (characteristic (f a) ⊤)) r + log s.card := by\n  simp only [characteristic, Pi.add_apply, Finset.sum_apply]\n  calc proximity (∑ a ∈ s, f a) ⊤ r + logCounting (∑ a ∈ s, f a) ⊤ r\n  _ ≤ ((∑ a ∈ s, proximity (f a) ⊤) r) + log s.card + (∑ a ∈ s, (logCounting (f a) ⊤)) r := by\n      gcongr\n      · apply proximity_sum_top_le s f hf r\n      · apply logCounting_sum_top_le s f hf hr\n    _ = ((∑ a ∈ s, proximity (f a) ⊤) r) + (∑ a ∈ s, (logCounting (f a) ⊤)) r + log s.card := by\n      ring\n    _ = ∑ x ∈ s, (proximity (f x) ⊤ r + logCounting (f x) ⊤ r) + log s.card := by\n      simp [Finset.sum_add_distrib]\n",
+            "docstring": "For `1 ≤ r`, the characteristic function of a sum `∑ a, f a` at `⊤` is less than or equal to the sum\nof the characteristic functions of `f ·`, plus `log s.card`.\n"
+          },
+          {
+            "id": 322110,
+            "name": "ZMod.isCyclic_units_two",
+            "module": "Mathlib.RingTheory.ZMod.UnitsCyclic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/ZMod/UnitsCyclic.lean#L66-L67",
+            "source_text": "theorem isCyclic_units_two :\n    IsCyclic (ZMod 2)ˣ := inferInstance\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod convolution sum characteristic two",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387203,
+            "name": "SMRHN.sum_familyUniversal_two",
+            "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.FamilyMaps",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/FamilyMaps.lean#L125-L134",
+            "source_text": "lemma sum_familyUniversal_two {n : ℕ} (S : (SMνCharges 1).Charges)\n    (T : (SMνCharges n).Charges) (j : Fin 6) :\n    ∑ i, (toSpecies j (familyUniversal n S) i * toSpecies j T i) =\n    (toSpecies j S ⟨0, by simp⟩) * ∑ i, toSpecies j T i := by\n  simp only [toSpecies_apply, toSpeciesEquiv_apply, Fin.zero_eta,\n    Fin.isValue, Nat.reduceMul]\n  rw [Finset.mul_sum]\n  refine Finset.sum_congr rfl (fun i _ => ?_)\n  erw [toSpecies_familyUniversal]\n  rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 388352,
+            "name": "SUSY.N1.deltaCap₂",
+            "module": "Physlib.Particles.SuperSymmetry.N1.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/N1/Basic.lean#L260-L261",
+            "source_text": "/-- The two-module δ cap `∑_I b_I ⊗ b'_I ∈ M ⊗ N`. -/\ndef deltaCap₂ (b : Basis ι ℂ M) (b' : Basis ι ℂ N) : M ⊗[ℂ] N := ∑ I, b I ⊗ₜ[ℂ] b' I\n",
+            "docstring": "The two-module δ cap `∑_I b_I ⊗ b'_I ∈ M ⊗ N`. "
+          },
+          {
+            "id": 391810,
+            "name": "Lorentz.CoℂModule.val_add",
+            "module": "Physlib.Relativity.Tensors.ComplexTensor.Vector.Pre.Modules",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Vector/Pre/Modules.lean#L133-L134",
+            "source_text": "@[simp]\nlemma val_add (ψ ψ' : CoℂModule) : (ψ + ψ').val = ψ.val + ψ'.val := rfl",
+            "docstring": null
+          },
+          {
+            "id": 388589,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.ZModCharges_two_eq",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.ZMod",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/ZMod.lean#L102-L104",
+            "source_text": "/-- This lemma corresponds to the statement that there are no choices of `ℤ₂` representations\n  which give a phenomenologically viable theory. -/\nlemma ZModCharges_two_eq : ZModCharges 2 = ∅ := by decide\n",
+            "docstring": "This lemma corresponds to the statement that there are no choices of `ℤ₂` representations\nwhich give a phenomenologically viable theory. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "conv_add",
+    "receipts_sha256": "658b618ddbdc072e1f89c0cd9da98e0adf1a98f80c3bf1e131e038c223e5dd51"
+  }
+]

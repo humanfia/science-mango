@@ -1,0 +1,110 @@
+{
+  "id": "cycle_orthogonal",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Physical.cycle_orthogonal",
+    "spec_sha256": "c2a17f48ca392d78912f96cc13d3c1994b7e41b06a58cef534ba9329d9e161df",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-icrjudym/attempt-001/Candidate_4965fba5242786fc.lean",
+        "target_path": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-icrjudym/attempt-001/FrozenTarget_4965fba5242786fc.lean",
+        "feedback": "",
+        "target_sha256": "21de53139267bc3e92c9f361b54054424b65038d8863915c75c6d8760fe60cdc",
+        "target_olean_sha256": "4edc5dddc193c4c2ae1c633eff20953bec2e32879310b128f9c2b2e3b58e0fae",
+        "source_sha256": "6956a53d77c804a7ca68cb99f3555446d65e71df38ef08f1db54dbf6d446fd48",
+        "olean_sha256": "cee638f92013d4caa76ba38da337f2697ecfa7ab0c7460ec0bd0679532a1f8be",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:00:55.857294+00:00",
+    "work": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-icrjudym",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4b68a2fd1dd8a72efd2f7be4ceacc41b99af5d11b12695999af6946d04e11809",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-physical-formalization/.humanize-formal-runs/run-icrjudym/attempt-001/Candidate_4965fba5242786fc.lean",
+    "environment_sha256": "3ce79e5628dc0f88280cee43561f74e85f896420904a34462636646a9fe6195c",
+    "artifacts": {
+      "conv_adjoint": {
+        "payload": {
+          "declaration": "theorem M6.Physical.conv_adjoint : ∀ (N : ℕ) [NeZero N] (a h u : M6.Physical.Block N), M6.Physical.dot N (M6.Physical.rev N (M6.Physical.conv N a h)) u = M6.Physical.dot N (M6.Physical.rev N h) (M6.Physical.conv N a u) := by\n  intro N inst a h u\n  classical\n  simp only [M6.Physical.dot, M6.Physical.rev, M6.Physical.conv,\n    Finset.sum_mul, Finset.mul_sum]\n  rw [Finset.sum_comm]\n  conv_rhs => rw [Finset.sum_comm]\n  refine Finset.sum_congr rfl ?_\n  intro r hr\n  refine Finset.sum_bij (fun i _ => i + r) ?_ ?_ ?_ ?_\n  · intro i hi\n    exact Finset.mem_univ _\n  · intro i hi j hj hij\n    exact add_right_cancel hij\n  · intro j hj\n    refine ⟨j - r, Finset.mem_univ _, ?_⟩\n    simp\n  · intro i hi\n    simp [sub_eq_add_neg, neg_add, add_assoc, add_comm, add_left_comm,\n      mul_assoc, mul_comm, mul_left_comm]",
+          "imports": [
+            "M6Physical"
+          ],
+          "name": "M6.Physical.conv_adjoint",
+          "ancestors": [],
+          "spec_sha256": "d8a02379083b651dccf9d4421d376134cabeda7de09d6566a874fe0e001a4e5b"
+        },
+        "sha256": "cec8cd33d69f066ac83ce8494e55657517206906725c56bb70b04fb9509ab51b"
+      },
+      "boundary_pairing": {
+        "payload": {
+          "declaration": "theorem M6.Physical.boundary_pairing : ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N) (z : M6.Physical.Word N), M6.Physical.pairing N (M6.Physical.J N (M6.Physical.boundary N a b h)) z = M6.Physical.dot N (M6.Physical.rev N h) (M6.Physical.syndrome N a b z) := by\n  intro N inst a b h z\n  classical\n  simp only [M6.Physical.pairing, M6.Physical.J, M6.Physical.boundary,\n    Prod.fst, Prod.snd, M6.Physical.conv_adjoint]\n  simp [M6.Physical.syndrome, M6.Physical.dot, mul_add,\n    Finset.sum_add_distrib, add_comm]",
+          "imports": [
+            "M6Physical"
+          ],
+          "name": "M6.Physical.boundary_pairing",
+          "ancestors": [
+            "conv_adjoint"
+          ],
+          "spec_sha256": "8a6e77b29f746f54906e933fd4825456409492da3205eac85a2e494fd5250a34"
+        },
+        "sha256": "364ffe79ee7a1e5b17a3d8e66dcef911b1ef981f0189dc6d647cade6234c8e21"
+      },
+      "rev_involution": {
+        "payload": {
+          "declaration": "theorem M6.Physical.rev_involution : ∀ (N : ℕ) (a : M6.Physical.Block N), M6.Physical.rev N (M6.Physical.rev N a) = a := by\n  change ∀ (N : ℕ) (a : M6.Physical.Block N), M6.Physical.rev N (M6.Physical.rev N a) = a\n  intro N a\n  funext i\n  simp only [M6.Physical.rev, neg_neg]",
+          "imports": [
+            "M6Physical"
+          ],
+          "name": "M6.Physical.rev_involution",
+          "ancestors": [],
+          "spec_sha256": "e2098aadcee5b97eab285f174d4a0208c9cfeb3119196749b1d608561eec1fdf"
+        },
+        "sha256": "d3b7da20c435e70bf5734d0421de7ac60255b2c80076168d79b6601ce2c1f29e"
+      },
+      "dot_delta": {
+        "payload": {
+          "declaration": "theorem M6.Physical.dot_delta : ∀ (N : ℕ) [NeZero N] (a : M6.Physical.Block N) (i : ZMod N), M6.Physical.dot N (M6.Physical.delta N i) a = a i := by\n  change ∀ (N : ℕ) [NeZero N] (a : M6.Physical.Block N) (i : ZMod N), M6.Physical.dot N (M6.Physical.delta N i) a = a i\n  intro N _ a i\n  classical\n  simp [M6.Physical.dot, M6.Physical.delta, ite_mul]",
+          "imports": [
+            "M6Physical"
+          ],
+          "name": "M6.Physical.dot_delta",
+          "ancestors": [],
+          "spec_sha256": "9177c2c1ccde45992f4f571a842106a2b8cfb80c6286ace81cfa6a0c2aaf7b57"
+        },
+        "sha256": "12b1b74bf9b7b9a54efef40657fdb38d2232d743cfa17ef27ea8eaafea38f9aa"
+      },
+      "cycle_orthogonal": {
+        "payload": {
+          "declaration": "theorem M6.Physical.cycle_orthogonal : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (z : M6.Physical.Word N), M6.Physical.syndrome N a b z = 0 ↔ ∀ h : M6.Physical.Block N, M6.Physical.pairing N (M6.Physical.J N (M6.Physical.boundary N a b h)) z = 0 := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (z : M6.Physical.Word N), M6.Physical.syndrome N a b z = 0 ↔ ∀ h : M6.Physical.Block N, M6.Physical.pairing N (M6.Physical.J N (M6.Physical.boundary N a b h)) z = 0\n  intro N inst a b z\n  classical\n  constructor\n  · intro hs h\n    rw [M6.Physical.boundary_pairing, hs]\n    simp [M6.Physical.dot]\n  · intro H\n    funext i\n    have hi := H (M6.Physical.rev N (M6.Physical.delta N i))\n    rw [M6.Physical.boundary_pairing, M6.Physical.rev_involution,\n      M6.Physical.dot_delta] at hi\n    exact hi",
+          "imports": [
+            "M6Physical"
+          ],
+          "name": "M6.Physical.cycle_orthogonal",
+          "ancestors": [
+            "boundary_pairing",
+            "conv_adjoint",
+            "dot_delta",
+            "rev_involution"
+          ],
+          "spec_sha256": "87fe858e169877154265920016d17cf795f81c0db138108d667fd2ea9e599656"
+        },
+        "sha256": "3fc9306590ecdf2fd139ccee022334cb577610f21ecee7727de1733798d14967"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+import FrozenTarget_09eaba3e89040317
+theorem M6.Physical.rev_weight : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (a : M6.Physical.Block N), M6.Physical.weight N (M6.Physical.rev N a) = M6.Physical.weight N a
+  intro N inst a
+  classical
+  unfold M6.Physical.weight M6.Physical.rev
+  refine Finset.card_bij (fun i _ => -i) ?_ ?_ ?_
+  · intro i hi
+    simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hi
+  · intro i hi j hj hij
+    exact neg_injective hij
+  · intro j hj
+    refine ⟨-j, ?_, neg_neg j⟩
+    simpa only [Finset.mem_filter, Finset.mem_univ, true_and, neg_neg] using hj

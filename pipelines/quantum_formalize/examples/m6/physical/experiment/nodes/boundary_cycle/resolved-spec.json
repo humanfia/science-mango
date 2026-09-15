@@ -1,0 +1,13 @@
+{
+  "name": "M6.Physical.boundary_cycle",
+  "statement": "∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Physical.syndrome N a b (M6.Physical.boundary N a b h) = 0",
+  "imports": [
+    "M6Physical"
+  ],
+  "context": "theorem M6.Physical.conv_assoc : ∀ (N : ℕ) [NeZero N] (a b c : M6.Physical.Block N), M6.Physical.conv N a (M6.Physical.conv N b c) = M6.Physical.conv N (M6.Physical.conv N a b) c := by\n  classical\n  intro N inst a b c\n  funext x\n  simp only [M6.Physical.conv, Finset.mul_sum, Finset.sum_mul]\n  conv_rhs => rw [Finset.sum_comm]\n  refine Finset.sum_congr rfl ?_\n  intro j hj\n  refine Finset.sum_bij (fun k _ => j + k) ?_ ?_ ?_ ?_\n  · intro k hk\n    simp\n  · intro u hu v hv huv\n    exact add_left_cancel huv\n  · intro k hk\n    refine ⟨k - j, by simp, ?_⟩\n    abel\n  · intro k hk\n    have h₁ : j + k - j = k := by abel\n    have h₂ : x - (j + k) = x - j - k := by abel\n    simp only [h₁, h₂, mul_assoc]\n\ntheorem M6.Physical.conv_comm : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.Physical.conv N a b = M6.Physical.conv N b a := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.Physical.conv N a b = M6.Physical.conv N b a\n  intro N inst a b\n  classical\n  funext i\n  unfold M6.Physical.conv\n  refine Finset.sum_bij (fun r _ => i - r) ?_ ?_ ?_ ?_\n  · intro r hr\n    exact Finset.mem_univ _\n  · intro r hr s hs h\n    simpa only [sub_sub_cancel] using congrArg (fun t => i - t) h\n  · intro r hr\n    exact ⟨i - r, Finset.mem_univ _, sub_sub_cancel i r⟩\n  · intro r hr\n    simp only [sub_sub_cancel, mul_comm]",
+  "queries": [
+    "finite sum reindex equivalence translation",
+    "ZMod convolution sum characteristic two"
+  ],
+  "guidance": "Two convolution terms equal by associativity/commutativity and add_self=0 in ZMod2. Return tactic lines only without leading by."
+}
