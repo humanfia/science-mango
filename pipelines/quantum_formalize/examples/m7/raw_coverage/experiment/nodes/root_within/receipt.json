@@ -1,0 +1,63 @@
+{
+  "id": "root_within",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.RawCoverage.root_within",
+    "spec_sha256": "39e193e4c7438d5881bb88a917b8f28d8dd6c3653fefd95567c2718d0ac0a1a3",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-pxm74w_s/attempt-001/Candidate_48dae6bee17ae628.lean:12:24: error: Type mismatch\n  ZMod.val_injective ?m.107\nhas type\n  Function.Injective ZMod.val\nbut is expected to have type\n  a = 0\n/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-pxm74w_s/attempt-001/Candidate_48dae6bee17ae628.lean:12:47: error: Type mismatch: After simplification, term\n  hav\n has type\n  a = 0\nof sort `Prop` but is expected to have type\n  ℕ\nof sort `Type`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-pxm74w_s/attempt-002/Candidate_8b578f593e63898e.lean",
+        "target_path": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-pxm74w_s/attempt-002/FrozenTarget_8b578f593e63898e.lean",
+        "feedback": "",
+        "target_sha256": "381d5ef1e8f6f7031bbc9f388f85b294a85a7e727ce58283e6c9e5172c311526",
+        "target_olean_sha256": "2cef1693ab3b7edaa0d1c8faf48fc6f9a5fc8e2a3785b6762ad536992feb5bbc",
+        "source_sha256": "d4640def557fba7eab40a5402032a2de74a2f62af31cf7ea8a041c5d95e5588b",
+        "olean_sha256": "20aab50745fe3af1b6fddaf0e24e4d2401deb79824c4511aec418111d1a3dff4",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T19:38:35.892968+00:00",
+    "work": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-pxm74w_s",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8e259bed93813abfae5b5159be52ab7564c4e749e4f85881f96021e8c76eebc0",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-pxm74w_s/attempt-002/Candidate_8b578f593e63898e.lean",
+    "environment_sha256": "477a2afb0f725eb8f6ee1f78c7a04928ab03503b61f7d5c78c8dbed79c610ba0",
+    "artifacts": {
+      "root_within": {
+        "payload": {
+          "declaration": "theorem M7.RawCoverage.root_within : ∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)), M7.PrefixOrbit.Within (M7.PrefixBits.A N []) (M7.PrefixBits.WA N []) S ↔ (0 : ZMod N) ∈ S := by\n  classical\n  intro N inst S\n  have hr := M7.PrefixBits.root N (NeZero.pos N)\n  rw [hr.1, hr.2.2.1]\n  change ({0} ⊆ S.image ZMod.val ∧\n    S.image ZMod.val ⊆ {0} ∪ (Finset.range N \\ {0})) ↔ (0 : ZMod N) ∈ S\n  constructor\n  · intro h\n    have hz : 0 ∈ S.image ZMod.val := h.1 (Finset.mem_singleton_self 0)\n    obtain ⟨a, ha, hav⟩ := Finset.mem_image.mp hz\n    have ha0 : a = (0 : ZMod N) :=\n      (ZMod.val_injective N) (by simpa only [ZMod.val_zero] using hav)\n    simpa only [ha0] using ha\n  · intro h\n    constructor\n    · apply Finset.singleton_subset_iff.mpr\n      exact Finset.mem_image.mpr ⟨0, h, ZMod.val_zero⟩\n    · intro k hk\n      obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp hk\n      by_cases hz : a.val = 0\n      · apply Finset.mem_union.mpr\n        exact Or.inl (Finset.mem_singleton.mpr hz)\n      · apply Finset.mem_union.mpr\n        apply Or.inr\n        apply Finset.mem_sdiff.mpr\n        exact ⟨Finset.mem_range.mpr (ZMod.val_lt a), by simpa using hz⟩",
+          "imports": [
+            "M7PrefixBitsAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RawCoverage"
+          ],
+          "name": "M7.RawCoverage.root_within",
+          "ancestors": [],
+          "spec_sha256": "c45acd56d658d6828fe8c5d76fa00bd04a6a45ed49137942aa360f05e80e12e5"
+        },
+        "sha256": "3fdb91c7ca41079b617bb75c7f1d119c54baf5097982ba3783c8d4ea2c67f77f"
+      }
+    }
+  }
+}

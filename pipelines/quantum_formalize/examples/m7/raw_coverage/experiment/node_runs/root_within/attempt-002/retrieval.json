@@ -1,0 +1,264 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.val_injective",
+    "status": "ok",
+    "results": [
+      {
+        "id": 223076,
+        "name": "ZMod.val_injective",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L621-L627",
+        "source_text": "theorem val_injective (n : ℕ) [NeZero n] : Function.Injective (val : ZMod n → ℕ) := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  intro a b h\n  dsimp [ZMod]\n  ext\n  exact h\n",
+        "docstring": null
+      },
+      {
+        "id": 223199,
+        "name": "ZMod",
+        "module": "Mathlib.Data.ZMod.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+        "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+        "docstring": "The integers modulo `n : ℕ`. "
+      },
+      {
+        "id": 222980,
+        "name": "ZMod.val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+        "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+        "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+      },
+      {
+        "id": 223288,
+        "name": "ZMod.injective_valMinAbs",
+        "module": "Mathlib.Data.ZMod.ValMinAbs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/ValMinAbs.lean#L44-L45",
+        "source_text": "lemma injective_valMinAbs : (valMinAbs : ZMod n → ℤ).Injective :=\n  Function.injective_iff_hasLeftInverse.2 ⟨_, coe_valMinAbs⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 60881,
+        "name": "instEnoughInjectivesModuleCatInt",
+        "module": "Mathlib.Algebra.Category.ModuleCat.EnoughInjectives",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Category/ModuleCat/EnoughInjectives.lean#L27-L28",
+        "source_text": "instance : EnoughInjectives (ModuleCat.{v} ℤ) :=\n  EnoughInjectives.of_equivalence (forget₂ (ModuleCat ℤ) AddCommGrpCat)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.val_injective",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393558,
+        "name": "TimeMan.val_injective",
+        "module": "Physlib.SpaceAndTime.Time.TimeMan",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeMan.lean#L66-L70",
+        "source_text": "lemma val_injective : Function.Injective TimeMan.val := by\n  intro t1 t2 h\n  cases t1\n  cases t2\n  simp_all\n",
+        "docstring": null
+      },
+      {
+        "id": 393463,
+        "name": "Time.val_injective",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L83-L83",
+        "source_text": "lemma val_injective : Function.Injective val := fun _ _ h => Time.ext h\n",
+        "docstring": null
+      },
+      {
+        "id": 393574,
+        "name": "TimeTransMan.val_injective",
+        "module": "Physlib.SpaceAndTime.Time.TimeTransMan",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeTransMan.lean#L87-L91",
+        "source_text": "lemma val_injective : Function.Injective TimeTransMan.val := by\n  intro t1 t2 h\n  cases t1\n  cases t2\n  simp_all\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.val_lt",
+    "status": "ok",
+    "results": [
+      {
+        "id": 222981,
+        "name": "ZMod.val_lt",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L61-L64",
+        "source_text": "theorem val_lt {n : ℕ} [NeZero n] (a : ZMod n) : a.val < n := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  exact Fin.is_lt a\n",
+        "docstring": null
+      },
+      {
+        "id": 222980,
+        "name": "ZMod.val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+        "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+        "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+      },
+      {
+        "id": 223199,
+        "name": "ZMod",
+        "module": "Mathlib.Data.ZMod.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+        "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+        "docstring": "The integers modulo `n : ℕ`. "
+      },
+      {
+        "id": 223142,
+        "name": "ZMod.val_cast_zmod_lt",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L1005-L1013",
+        "source_text": "theorem val_cast_zmod_lt {m : ℕ} [NeZero m] (n : ℕ) [NeZero n] (a : ZMod m) :\n    (a.cast : ZMod n).val < m := by\n  obtain ⟨m, rfl⟩ := Nat.exists_eq_add_one_of_ne_zero (NeZero.ne m)\n  by_cases! h : m < n\n  · obtain ⟨n, rfl⟩ := Nat.exists_eq_add_one_of_ne_zero (NeZero.ne n)\n    rw [← natCast_val, val_cast_of_lt]\n    · apply a.val_lt\n    apply lt_of_le_of_lt (Nat.le_of_lt_succ (ZMod.val_lt a)) h\n  · apply lt_of_lt_of_le (ZMod.val_lt _) (le_trans h (Nat.le_succ m))\n",
+        "docstring": null
+      },
+      {
+        "id": 321457,
+        "name": "ValuativeRel.instTransVleVlt",
+        "module": "Mathlib.RingTheory.Valuation.ValuativeRel.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Valuation/ValuativeRel/Basic.lean#L273-L274",
+        "source_text": "instance : @Trans R R R vle vlt vlt where\n  trans := vlt_of_vle_of_vlt\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.val_lt",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394448,
+        "name": "WithDim.lt_def",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L130-L132",
+        "source_text": "@[simp]\nlemma lt_def {d : Dimension} {M : Type} [LT M] (m1 m2 : WithDim d M) :\n    m1 < m2 ↔ m1.val < m2.val := Iff.rfl",
+        "docstring": null
+      },
+      {
+        "id": 393484,
+        "name": "Time.lt_def",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L179-L180",
+        "source_text": "lemma lt_def (t1 t2 : Time) :\n    t1 < t2 ↔ t1.val < t2.val := by simp only [lt_iff_le_not_ge, le_def]\n",
+        "docstring": null
+      },
+      {
+        "id": 394446,
+        "name": "WithDim.le_def",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L123-L125",
+        "source_text": "@[simp]\nlemma le_def {d : Dimension} {M : Type} [LE M] (m1 m2 : WithDim d M) :\n    m1 ≤ m2 ↔ m1.val ≤ m2.val := Iff.rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.singleton_subset_iff",
+    "status": "ok",
+    "results": [
+      {
+        "id": 203035,
+        "name": "Finset.singleton_subset_iff",
+        "module": "Mathlib.Data.Finset.Insert",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Insert.lean#L144-L146",
+        "source_text": "@[simp, grind =]\ntheorem singleton_subset_iff {s : Finset α} {a : α} : {a} ⊆ s ↔ a ∈ s :=\n  singleton_subset_set_iff",
+        "docstring": null
+      },
+      {
+        "id": 203036,
+        "name": "Finset.subset_singleton_iff",
+        "module": "Mathlib.Data.Finset.Insert",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Insert.lean#L148-L150",
+        "source_text": "@[simp]\ntheorem subset_singleton_iff {s : Finset α} {a : α} : s ⊆ {a} ↔ s = ∅ ∨ s = {a} := by\n  grind",
+        "docstring": null
+      },
+      {
+        "id": 220685,
+        "name": "Set.Subsingleton",
+        "module": "Mathlib.Data.Set.Subsingleton",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Subsingleton.lean#L37-L39",
+        "source_text": "/-- A set `s` is a `Subsingleton` if it has at most one element. -/\nprotected def Subsingleton (s : Set α) : Prop :=\n  ∀ ⦃x⦄ (_ : x ∈ s) ⦃y⦄ (_ : y ∈ s), x = y\n",
+        "docstring": "A set `s` is a `Subsingleton` if it has at most one element. "
+      },
+      {
+        "id": 203039,
+        "name": "Finset.subset_singleton_iff'",
+        "module": "Mathlib.Data.Finset.Insert",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Insert.lean#L158-L159",
+        "source_text": "theorem subset_singleton_iff' {s : Finset α} {a : α} : s ⊆ {a} ↔ ∀ b ∈ s, b = a :=\n  forall₂_congr fun _ _ => mem_singleton\n",
+        "docstring": null
+      },
+      {
+        "id": 220701,
+        "name": "Set.subsingleton_of_subsingleton_inter_left",
+        "module": "Mathlib.Data.Set.Subsingleton",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Subsingleton.lean#L90-L92",
+        "source_text": "lemma subsingleton_of_subsingleton_inter_left (h : (s ∪ t).Subsingleton) :\n    s.Subsingleton :=\n  fun _ h₁ _ h₂ ↦ h (.inl h₁) (.inl h₂)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Finset.singleton_subset_iff",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.singleton_subset_iff",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

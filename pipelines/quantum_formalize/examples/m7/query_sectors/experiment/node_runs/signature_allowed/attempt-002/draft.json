@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ (q : M7.DefaultQuery.Query) (c : M7.Action.Recipe N), M7.DefaultQuery.signature c ∈ M7.QuerySectors.effective N q ↔ M7.DefaultQuery.allows q (M7.DefaultQuery.signature c)\nintro N inst q c\nclassical\nhave hp : (M7.DefaultQuery.signature c).Monic ∧ M7.DefaultQuery.signature c ∣ M6.Cyclic.modulus N := by\n  simpa [M7.DefaultQuery.signature, M7.Domain.signature, M7.RecipeSignature.signature] using M7.RecipeSignature.signature_properties N c\nhave hm := M7.QuerySectors.all_complete N (M7.DefaultQuery.signature c) hp.1 hp.2\ncases hq : q.signatures with\n| none => simp [M7.QuerySectors.effective, M7.DefaultQuery.allows, hq, hm]\n| some s => simp [M7.QuerySectors.effective, M7.DefaultQuery.allows, hq]",
+  "queries": []
+}

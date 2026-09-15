@@ -1,0 +1,15 @@
+{
+  "name": "M7.RecoveryInstance.root_zero",
+  "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → (M7.RecoveryInstance.count w E bases [] = 0 ↔ M7.RecoveryPrefix.completed N w E [] ⊆ M7.OrbitResidual.covered bases)",
+  "imports": [
+    "M7DescentTraceAccepted",
+    "M7PrefixOrbitAccepted",
+    "M7RecoveryInstance",
+    "M7RecoveryPrefixAccepted"
+  ],
+  "context": "theorem M7.RecoveryInstance.count_card : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → ∀ p : List Bool, M7.RecoveryInstance.count w E bases p = (M7.RecoveryInstance.remaining w E bases p).card ∧ (M7.RecoveryInstance.count w E bases p).toNat = (M7.RecoveryInstance.remaining w E bases p).card ∧ 0 ≤ M7.RecoveryInstance.count w E bases p := by\n  intro N inst w E bases hE hB p\n  have h : M7.RecoveryInstance.count w E bases p = ((M7.RecoveryInstance.remaining w E bases p).card : ℤ) := by\n    simpa only [M7.RecoveryInstance.count, M7.RecoveryInstance.remaining,\n      M7.RecoveryPrefix.completed] using\n      (M7.PrefixOrbit.residual_card N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hE (M7.PrefixBits.base N (Nat.pos_of_ne_zero (NeZero.ne N)) p) bases\n        (by first | exact hB.1 | exact hB.2)\n        (by first | exact hB.1 | exact hB.2))\n  refine ⟨h, ?_, ?_⟩\n  · rw [h]\n    simp\n  · rw [h]\n    exact Int.natCast_nonneg _",
+  "queries": [
+    "Finset card union disjoint subset sdiff"
+  ],
+  "guidance": "Use count_card and Finset.card_eq_zero/sdiff_eq_empty_iff_subset. This certifies coverage by the actual zero arithmetic residual, not by list lengths or an assumed transversal. Return tactic lines without leading by; keep exact target and default limits."
+}

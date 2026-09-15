@@ -1,0 +1,12 @@
+{
+  "name": "M7.QualityTable.cache_action",
+  "statement": "∀ (N w : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → ∀ g : M7.Action.Record N, (M7.DefaultQuery.dimension (M7.Action.act g c), M7.DefaultQuery.distance (M7.Action.act g c)) = M7.QualityTable.cache c",
+  "imports": [
+    "M7QualityTable"
+  ],
+  "context": "theorem M7.QualityTable.solve_distance : ∀ (N w : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → M7.QualityTable.solveDistance c = M7.DefaultQuery.distance c := by\n  intro N w inst c hA hB h0A h0B hc\n  have h := M7.ClosedSolve.closed_pointwise N w c hA hB h0A h0B hc\n  have ha := h.2.2.1\n  rcases ha with ⟨hn, hq, hr⟩\n  unfold M7.QualityTable.solveDistance M7.DefaultQuery.distance M7.Transport.distance\n  cases hs : M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) with\n  | none =>\n      have hf := hn.mp hs\n      have hd := hq.mpr hf\n      simpa only [hs, Option.map_none] using hd.symm\n  | some result =>\n      rcases result with ⟨d, v, k⟩\n      simp only [hs, Option.map_some]\n      symm\n      aesop",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "For dimension use accepted RecipeSignature.action_signature_degree; DefaultQuery.signature and RecipeSignature.signature are definitionally the same literal full polynomial gcd. For distance use accepted Transport.distance_invariant and solve_distance. cache stores the result of actual solve once for the base. No target placement anchors or canonical-signature-in-E premise; no witness theorem repeated. Return tactic lines without leading by."
+}

@@ -1,0 +1,192 @@
+[
+  {
+    "id": "count_card",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.RecoveryInstance.count_card",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → ∀ p : List Bool, M7.RecoveryInstance.count w E bases p = (M7.RecoveryInstance.remaining w E bases p).card ∧ (M7.RecoveryInstance.count w E bases p).toNat = (M7.RecoveryInstance.remaining w E bases p).card ∧ 0 ≤ M7.RecoveryInstance.count w E bases p",
+      "imports": [
+        "M7RecoveryInstance",
+        "M7RecoveryPrefixAccepted",
+        "M7PrefixOrbitAccepted",
+        "M7DescentTraceAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card union disjoint subset sdiff"
+      ],
+      "guidance": "Instantiate verified PrefixOrbit.residual_card using PrefixBits.base and both GoodBases fields. count/remaining/RecoveryPrefix.completed are exact definition adapters. Derive Int.toNat and nonnegativity from that cardinality. No free count identity is assumed. Return tactic lines without leading by; keep exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §6 actual arithmetic recovery and fresh compact insertion",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "count_partition",
+    "dependencies": [
+      "count_card"
+    ],
+    "spec": {
+      "name": "M7.RecoveryInstance.count_partition",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → ∀ p : List Bool, p.length < M7.PrefixBits.depth N → M7.RecoveryInstance.count w E bases p = M7.RecoveryInstance.count w E bases (p ++ [false]) + M7.RecoveryInstance.count w E bases (p ++ [true])",
+      "imports": [
+        "M7RecoveryInstance",
+        "M7RecoveryPrefixAccepted",
+        "M7PrefixOrbitAccepted",
+        "M7DescentTraceAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card union disjoint subset sdiff"
+      ],
+      "guidance": "Use actual RecoveryPrefix.completed_partition, OrbitResidual.remaining_partition and the fact that removing the same covered set preserves child disjointness. Rewrite all three arithmetic counts by count_card, then use disjoint Finset.card_union and integer casts. Return tactic lines without leading by; keep exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §6 actual arithmetic recovery and fresh compact insertion",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "root_zero",
+    "dependencies": [
+      "count_card"
+    ],
+    "spec": {
+      "name": "M7.RecoveryInstance.root_zero",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → (M7.RecoveryInstance.count w E bases [] = 0 ↔ M7.RecoveryPrefix.completed N w E [] ⊆ M7.OrbitResidual.covered bases)",
+      "imports": [
+        "M7RecoveryInstance",
+        "M7RecoveryPrefixAccepted",
+        "M7PrefixOrbitAccepted",
+        "M7DescentTraceAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card union disjoint subset sdiff"
+      ],
+      "guidance": "Use count_card and Finset.card_eq_zero/sdiff_eq_empty_iff_subset. This certifies coverage by the actual zero arithmetic residual, not by list lengths or an assumed transversal. Return tactic lines without leading by; keep exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §6 actual arithmetic recovery and fresh compact insertion",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "positive_path",
+    "dependencies": [
+      "count_partition"
+    ],
+    "spec": {
+      "name": "M7.RecoveryInstance.positive_path",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → 0 < M7.RecoveryInstance.count w E bases [] → (M7.RecoveryInstance.word w E bases).length = M7.PrefixBits.depth N ∧ 0 < M7.RecoveryInstance.count w E bases (M7.RecoveryInstance.word w E bases) ∧ M7.DescentTrace.check (M7.RecoveryInstance.count w E bases) [] (M7.RecoveryInstance.path w E bases) = (true,2*M7.PrefixBits.depth N)",
+      "imports": [
+        "M7RecoveryInstance",
+        "M7RecoveryPrefixAccepted",
+        "M7PrefixOrbitAccepted",
+        "M7DescentTraceAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card union disjoint subset sdiff"
+      ],
+      "guidance": "path is one actual DescentTrace.trace; word is endpoint of that single path. check_trace gives the exact 2m calls for its replay, trace_length plus endpoint_recover/recover_length gives full length, and positive_checked or recover_positive with the proven actual count partition gives positivity. No second recovery computation is introduced into the production definition. Return tactic lines without leading by; keep exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §6 actual arithmetic recovery and fresh compact insertion",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "fresh_leaf",
+    "dependencies": [
+      "count_card",
+      "positive_path"
+    ],
+    "spec": {
+      "name": "M7.RecoveryInstance.fresh_leaf",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → 0 < M7.RecoveryInstance.count w E bases [] → M7.RecoveryInstance.recoverLeaf w E bases ∈ M7.RecoveryInstance.remaining w E bases [] ∧ M7.RecoveryInstance.recoverLeaf w E bases ∈ M7.RecoveryPrefix.completed N w E (M7.RecoveryInstance.word w E bases)",
+      "imports": [
+        "M7RecoveryInstance",
+        "M7RecoveryPrefixAccepted",
+        "M7PrefixOrbitAccepted",
+        "M7DescentTraceAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card union disjoint subset sdiff"
+      ],
+      "guidance": "At the full endpoint, positive actual count and count_card give a nonempty remaining set. Every member lies in the actual completed set, which RecoveryPrefix.leaf_singleton restricts to the decoded recoverLeaf. Thus the leaf is uncovered and in its completed prefix; completed_subroot puts it in the root. Use membership/sdiff reasoning instead of a support scan. Return tactic lines without leading by; keep exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §6 actual arithmetic recovery and fresh compact insertion",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "insert_good",
+    "dependencies": [
+      "fresh_leaf"
+    ],
+    "spec": {
+      "name": "M7.RecoveryInstance.insert_good",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → 0 < M7.RecoveryInstance.count w E bases [] → M7.RecoveryInstance.GoodBases w (M7.RecoveryInstance.insertedBases w E bases) ∧ M7.CanonicalOuter.canonical (M7.RecoveryInstance.recoverLeaf w E bases) ∉ bases",
+      "imports": [
+        "M7RecoveryInstance",
+        "M7RecoveryPrefixAccepted",
+        "M7PrefixOrbitAccepted",
+        "M7DescentTraceAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card union disjoint subset sdiff"
+      ],
+      "guidance": "Fresh leaf is a genuine residue completion. Verified PrefixOrbit.emitted_class_valid makes its canonical value ClassValid, and CanonicalClasses.insert_normalized preserves normalization. Existing bases retain validity. CanonicalClasses.fresh_representative shows the value is new. Do not require the canonical signature itself to lie in E. Return tactic lines without leading by; keep exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §6 actual arithmetic recovery and fresh compact insertion",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "strict_decrease",
+    "dependencies": [
+      "fresh_leaf",
+      "insert_good",
+      "count_card"
+    ],
+    "spec": {
+      "name": "M7.RecoveryInstance.strict_decrease",
+      "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → 0 < M7.RecoveryInstance.count w E bases [] → (M7.RecoveryInstance.remaining w E (M7.RecoveryInstance.insertedBases w E bases) []).card < (M7.RecoveryInstance.remaining w E bases []).card ∧ (M7.RecoveryInstance.count w E (M7.RecoveryInstance.insertedBases w E bases) []).toNat < (M7.RecoveryInstance.count w E bases []).toNat",
+      "imports": [
+        "M7RecoveryInstance",
+        "M7RecoveryPrefixAccepted",
+        "M7PrefixOrbitAccepted",
+        "M7DescentTraceAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "Finset card union disjoint subset sdiff"
+      ],
+      "guidance": "Apply OrbitResidual.insert_strict to the actual fresh root leaf and CanonicalOuter.realizer; its accepted realizer theorem identifies the action image with canonical leaf. Then count_card on old and inserted GoodBases transfers strict decrease to the actual arithmetic root.toNat. This is exactly the finite-fuel induction interface; no stronger well-founded goal is added. Return tactic lines without leading by; keep exact target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §6 actual arithmetic recovery and fresh compact insertion",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

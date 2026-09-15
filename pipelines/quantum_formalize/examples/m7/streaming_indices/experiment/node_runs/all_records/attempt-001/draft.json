@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ p : M7.Action.Record N → Bool, M7.StreamingIndices.allRecords N p = true ↔ ∀ g : M7.Action.Record N, p g = true\nintro N inst p\nunfold M7.StreamingIndices.allRecords\nsimp only [M7.StreamingIndices.all_fin]\nconstructor\n· intro h g\n  rcases M7.StreamingIndices.record_surjective N g with ⟨u, e, s, t, hg⟩\n  rw [← hg]\n  exact h u e s t\n· intro h u e s t\n  exact h (M7.StreamingIndices.decodeRecord N u e s t)",
+  "queries": []
+}

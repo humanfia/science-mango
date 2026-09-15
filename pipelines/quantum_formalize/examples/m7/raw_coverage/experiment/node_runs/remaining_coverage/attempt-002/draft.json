@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro N w inst E bases hw hnorm hvalid hremaining c hc\nobtain ⟨q, hq, r, hr, hy⟩ := M7.RawCoverage.raw_anchor N w E c hw hc\nhave hcovered : M7.Action.act (M7.Action.translate (-q) (-r)) c ∈ M7.OrbitResidual.covered bases := by\n  by_contra hnot\n  have hmem : M7.Action.act (M7.Action.translate (-q) (-r)) c ∈ M7.OrbitResidual.remaining (M7.RawCoverage.rootCompleted N w E) bases :=\n    Finset.mem_sdiff.mpr ⟨hy, hnot⟩\n  rw [hremaining] at hmem\n  simpa using hmem\nhave hcanonical := (M7.CanonicalClasses.coverage_iff N bases _ hnorm).mp hcovered\nhave hinv : M7.CanonicalOuter.canonical (M7.Action.act (M7.Action.translate (-q) (-r)) c) = M7.CanonicalOuter.canonical c := by\n  apply M7.CanonicalOuter.canonical_invariant\nrw [hinv] at hcanonical\nrefine ⟨hcanonical, M7.CanonicalOuter.canonical c, hcanonical, ?_⟩\nrefine ⟨_, ?_⟩\napply M7.CanonicalOuter.realizer_inverse",
+  "queries": [
+    "M7.CanonicalOuter.realizer_inverse",
+    "M7.CanonicalOuter.canonical_invariant"
+  ]
+}

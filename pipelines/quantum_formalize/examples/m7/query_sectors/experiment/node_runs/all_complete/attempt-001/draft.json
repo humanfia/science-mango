@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nchange ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ M6.Cyclic.modulus N → F ∈ M7.QuerySectors.allSectors N\nintro N inst F hF hdiv\nhave hmod : M6.Cyclic.modulus N ≠ 0 := by\n  intro hz\n  have hc := congrArg (fun p : M6.Cyclic.BinaryPolynomial => p.coeff 0) hz\n  simpa [M6.Cyclic.modulus, Polynomial.coeff_X_pow, NeZero.ne N] using hc\nhave hle : UniqueFactorizationMonoid.normalizedFactors F ≤\n    UniqueFactorizationMonoid.normalizedFactors (M6.Cyclic.modulus N) := by\n  first\n  | exact (UniqueFactorizationMonoid.dvd_iff_normalizedFactors_le_normalizedFactors hF.ne_zero hmod).mp hdiv\n  | exact (UniqueFactorizationMonoid.dvd_iff_normalizedFactors_le_normalizedFactors hmod).mp hdiv\nhave hprod : (UniqueFactorizationMonoid.normalizedFactors F).prod = F := by\n  simpa [hF.leadingCoeff] using Polynomial.leadingCoeff_mul_prod_normalizedFactors F\nsimp only [M7.QuerySectors.allSectors, Multiset.mem_toFinset, Multiset.mem_map,\n  Finset.mem_image, Multiset.mem_powerset]\nexact ⟨UniqueFactorizationMonoid.normalizedFactors F, hle, hprod⟩",
+  "queries": [
+    "UniqueFactorizationMonoid.dvd_iff_normalizedFactors_le_normalizedFactors",
+    "Polynomial.leadingCoeff_mul_prod_normalizedFactors",
+    "M7.QuerySectors.allSectors"
+  ]
+}

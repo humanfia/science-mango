@@ -1,0 +1,104 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "UniqueFactorizationMonoid.normalizedFactors_le_normalizedFactors",
+    "status": "ok",
+    "results": [
+      {
+        "id": 320581,
+        "name": "UniqueFactorizationMonoid.normalizedFactors_one",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L130-L140",
+        "source_text": "@[simp]\ntheorem normalizedFactors_one : normalizedFactors (1 : α) = 0 := by\n  rcases subsingleton_or_nontrivial α with h | h\n  · dsimp [normalizedFactors, factors]\n    simp [Subsingleton.elim (1 : α) 0]\n  · rw [← Multiset.rel_zero_right]\n    apply factors_unique irreducible_of_normalized_factor\n    · intro x hx\n      exfalso\n      apply Multiset.notMem_zero x hx\n    · apply prod_normalizedFactors one_ne_zero",
+        "docstring": null
+      },
+      {
+        "id": 320569,
+        "name": "UniqueFactorizationMonoid.normalizedFactors",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L34-L36",
+        "source_text": "/-- Noncomputably determines the multiset of prime factors. -/\nnoncomputable def normalizedFactors (a : α) : Multiset α :=\n  Multiset.map normalize <| factors a\n",
+        "docstring": "Noncomputably determines the multiset of prime factors. "
+      },
+      {
+        "id": 320577,
+        "name": "UniqueFactorizationMonoid.normalizedFactors_eq_of_dvd",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L94-L101",
+        "source_text": "theorem normalizedFactors_eq_of_dvd (a : α) :\n    ∀ᵉ (p ∈ normalizedFactors a) (q ∈ normalizedFactors a), p ∣ q → p = q := by\n  intro p hp q hq hdvd\n  convert!\n    normalize_eq_normalize hdvd\n      ((prime_of_normalized_factor _ hp).irreducible.dvd_symm\n        (prime_of_normalized_factor _ hq).irreducible hdvd) <;>\n    apply (normalize_normalized_factor _ ‹_›).symm\n",
+        "docstring": null
+      },
+      {
+        "id": 320598,
+        "name": "UniqueFactorizationMonoid.mem_normalizedFactors_eq_of_associated",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L274-L278",
+        "source_text": "theorem mem_normalizedFactors_eq_of_associated {a b c : α} (ha : a ∈ normalizedFactors c)\n    (hb : b ∈ normalizedFactors c) (h : Associated a b) : a = b := by\n  rw [← normalize_normalized_factor a ha, ← normalize_normalized_factor b hb,\n    normalize_eq_normalize_iff]\n  exact Associated.dvd_dvd h\n",
+        "docstring": null
+      },
+      {
+        "id": 320560,
+        "name": "UniqueFactorizationMonoid.associated_finprod_pow_count",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.Multiplicity",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/Multiplicity.lean#L143-L146",
+        "source_text": "lemma associated_finprod_pow_count {x : R} (hx : x ≠ 0) :\n    Associated (∏ᶠ p : R, p ^ (normalizedFactors x).count p) x := by\n  rw [← Multiset.prod_map_eq_finprod, Multiset.map_id']\n  exact prod_normalizedFactors hx\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "UniqueFactorizationMonoid.normalizedFactors_le_normalizedFactors",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387646,
+        "name": "CKMMatrix.thd_col_normalized_abs",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Relations",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Relations.lean#L303-L307",
+        "source_text": "lemma thd_col_normalized_abs (V : CKMMatrix) :\n    norm [V]ub ^ 2 + norm [V]cb ^ 2 + norm [V]tb ^ 2 = 1 := by\n  have h1 := VAbs_sum_sq_col_eq_one ⟦V⟧ 2\n  simp only [VAbs, VAbs', Fin.isValue, Quotient.lift_mk] at h1\n  exact h1\n",
+        "docstring": null
+      },
+      {
+        "id": 387660,
+        "name": "CKMMatrix.uRow_normalized",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L49-L55",
+        "source_text": "/-- The up-quark row of the CKM matrix is normalized to `1`. -/\nlemma uRow_normalized (V : CKMMatrix) : conj [V]u ⬝ᵥ [V]u = 1 := by\n  show ∑ k, conj (V.1 0 k) * V.1 0 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 0) 0\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+        "docstring": "The up-quark row of the CKM matrix is normalized to `1`. "
+      },
+      {
+        "id": 387662,
+        "name": "CKMMatrix.tRow_normalized",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L65-L71",
+        "source_text": "/-- The top-quark row of the CKM matrix is normalized to `1`. -/\nlemma tRow_normalized (V : CKMMatrix) : conj [V]t ⬝ᵥ [V]t = 1 := by\n  show ∑ k, conj (V.1 2 k) * V.1 2 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 2) 2\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+        "docstring": "The top-quark row of the CKM matrix is normalized to `1`. "
+      },
+      {
+        "id": 387661,
+        "name": "CKMMatrix.cRow_normalized",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L57-L63",
+        "source_text": "/-- The charm-quark row of the CKM matrix is normalized to `1`. -/\nlemma cRow_normalized (V : CKMMatrix) : conj [V]c ⬝ᵥ [V]c = 1 := by\n  show ∑ k, conj (V.1 1 k) * V.1 1 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 1) 1\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+        "docstring": "The charm-quark row of the CKM matrix is normalized to `1`. "
+      },
+      {
+        "id": 387620,
+        "name": "CKMMatrix.thd_row_normalized_abs",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Relations",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Relations.lean#L55-L58",
+        "source_text": "/-- The absolute value squared of the third row of a CKM matrix is `1`, in terms of `norm`. -/\nlemma thd_row_normalized_abs (V : CKMMatrix) :\n    norm [V]td ^ 2 + norm [V]ts ^ 2 + norm [V]tb ^ 2 = 1 :=\n  VAbs_sum_sq_row_eq_one ⟦V⟧ 2\n",
+        "docstring": "The absolute value squared of the third row of a CKM matrix is `1`, in terms of `norm`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

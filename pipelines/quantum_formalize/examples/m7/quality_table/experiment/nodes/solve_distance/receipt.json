@@ -1,0 +1,55 @@
+{
+  "id": "solve_distance",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.QualityTable.solve_distance",
+    "spec_sha256": "0a8994a659ba24dd458e9bc6323dd87b24d21344f51dcd4bb27773aa830b56a8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-quality-table-formalization/.humanize-formal-runs/run-pz56bsb1/attempt-001/Candidate_7f6c41798e5f57d4.lean",
+        "target_path": "/home/jing/m7-lean-quality-table-formalization/.humanize-formal-runs/run-pz56bsb1/attempt-001/FrozenTarget_7f6c41798e5f57d4.lean",
+        "feedback": "",
+        "target_sha256": "ffbfcc8b61f69cc56a8b2f37912aefaf869639b64e1dac1f3100c1a8dd266bc1",
+        "target_olean_sha256": "c4f62e8523bfbba94afc23e9322c2bd81492642cdcdf6147984311a2e4b2f64d",
+        "source_sha256": "2f6182463af1c8d3bba0e35ed78b33c816f3f5b02955dbdec5704b2c13511186",
+        "olean_sha256": "9d81a8817afb3e96980938feed79b7e73b7572eb4d5e7ec84b008bfac1423719",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:43:58.656939+00:00",
+    "work": "/home/jing/m7-lean-quality-table-formalization/.humanize-formal-runs/run-pz56bsb1",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "dfe4c6d0471528e4c299f99828efc1e04567ac2e80ba495b8da586bfa6f2a208",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-quality-table-formalization/.humanize-formal-runs/run-pz56bsb1/attempt-001/Candidate_7f6c41798e5f57d4.lean",
+    "environment_sha256": "5fb147cb06fb0ddb6de06888c6e236664e8cf89a5ee7c1ae6c952543fd8f5a33",
+    "artifacts": {
+      "solve_distance": {
+        "payload": {
+          "declaration": "theorem M7.QualityTable.solve_distance : ∀ (N w : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → M7.QualityTable.solveDistance c = M7.DefaultQuery.distance c := by\n  intro N w inst c hA hB h0A h0B hc\n  have h := M7.ClosedSolve.closed_pointwise N w c hA hB h0A h0B hc\n  have ha := h.2.2.1\n  rcases ha with ⟨hn, hq, hr⟩\n  unfold M7.QualityTable.solveDistance M7.DefaultQuery.distance M7.Transport.distance\n  cases hs : M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) with\n  | none =>\n      have hf := hn.mp hs\n      have hd := hq.mpr hf\n      simpa only [hs, Option.map_none] using hd.symm\n  | some result =>\n      rcases result with ⟨d, v, k⟩\n      simp only [hs, Option.map_some]\n      symm\n      aesop",
+          "imports": [
+            "M7QualityTable"
+          ],
+          "name": "M7.QualityTable.solve_distance",
+          "ancestors": [],
+          "spec_sha256": "0a8994a659ba24dd458e9bc6323dd87b24d21344f51dcd4bb27773aa830b56a8"
+        },
+        "sha256": "255ebd81c1d9e1697824b57984aedde21e14a3bbf953cdd0a5a9c9f26eebc101"
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# Actual final selector correspondence (not complete M7 acceptance)
+
+Production uses the actual compact GeneratedFamily at QuerySectors.effective, StreamingIndices.streamWin and actual factorized leastAction. RawFeasible and RawWinner are semantic predicates only and do not occur in win, present or answer. Eight bounded targets establish raw realization, index feasibility, exact global optima, complete output, unique physical presentation across classes, empty-output equivalence, winning strict dominators, and original invalid-signature error behavior.
+
+The original assumptions remain 0<w<=N and valid q where necessary. All ties, empty objective lists, both sector modes, and original NoLogical behavior are inherited verbatim. No arbitrary transversal, label, residual count or sector-set oracle is assumed. GeneratedFamily and StreamingIndices must be fully canonical before source promotion, closed Prop elaboration and live proofs. Their pending proofs are not represented by axioms or admitted lemmas. The full replay/resource and overall M7 acceptance remain separate root obligations.

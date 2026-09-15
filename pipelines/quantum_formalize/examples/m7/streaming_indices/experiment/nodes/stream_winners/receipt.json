@@ -1,0 +1,132 @@
+{
+  "id": "stream_winners",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.StreamingIndices.stream_winners",
+    "spec_sha256": "ecaaab33623150bb2baf9e44b68098468f76cedbeeda1e28911b0b50a4a03472",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-streaming-indices-formalization/.humanize-formal-runs/run-0wagx3te/attempt-001/Candidate_d94a1227bd80e278.lean",
+        "target_path": "/home/jing/m7-lean-streaming-indices-formalization/.humanize-formal-runs/run-0wagx3te/attempt-001/FrozenTarget_d94a1227bd80e278.lean",
+        "feedback": "",
+        "target_sha256": "f4534c1adf36af56bb4b55cf357167744a724e9863f832d390202181fab793e2",
+        "target_olean_sha256": "6d241077cfa9e32aa2b746b99f8e20d574e541e751f3a671bce63b119ce00dfb",
+        "source_sha256": "01b12089f893c0fe0119c2d79879264acb69cc02fb303c1154d7877871356c33",
+        "olean_sha256": "c77e73bb87bf22e0f9b3a15a1d974e1e8b5040a1a3e3b4910966e3aab672f0d3",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:49:49.249619+00:00",
+    "work": "/home/jing/m7-lean-streaming-indices-formalization/.humanize-formal-runs/run-0wagx3te",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "baf232e4ef9df07d7c76e2ea705e9c89b86be979d1e3728b7167d94c17779836",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-streaming-indices-formalization/.humanize-formal-runs/run-0wagx3te/attempt-001/Candidate_d94a1227bd80e278.lean",
+    "environment_sha256": "201fe9ce0235f4a12ef1398dd4ccc13a34753aa18acd9822ba796aa3c43b99dc",
+    "artifacts": {
+      "cursor_interval": {
+        "payload": {
+          "declaration": "theorem M7.StreamingIndices.cursor_interval : ∀ (n : ℕ) (p : Fin n → Bool) (i fuel : ℕ), M7.StreamingIndices.allFinFrom n p i fuel = true ↔ ∀ j : Fin n, i ≤ j.val → j.val < i + fuel → p j = true := by\n  change ∀ (n : ℕ) (p : Fin n → Bool) (i fuel : ℕ), M7.StreamingIndices.allFinFrom n p i fuel = true ↔ ∀ j : Fin n, i ≤ j.val → j.val < i + fuel → p j = true\n  intro n p i fuel\n  induction fuel generalizing i with\n  | zero =>\n      constructor\n      · intro _ j hlo hhi\n        omega\n      · intro _\n        rfl\n  | succ fuel ih =>\n      by_cases hi : i < n\n      · by_cases hp : p ⟨i, hi⟩ = true\n        · have hstep : M7.StreamingIndices.allFinFrom n p i (fuel + 1) = M7.StreamingIndices.allFinFrom n p (i + 1) fuel := by\n            simp [M7.StreamingIndices.allFinFrom, hi, hp]\n          rw [hstep, ih]\n          constructor\n          · intro h j hlo hhi\n            by_cases hj : j.val = i\n            · have heq : j = ⟨i, hi⟩ := Fin.ext hj\n              simpa only [heq] using hp\n            · exact h j (by omega) (by omega)\n          · intro h j hlo hhi\n            exact h j (by omega) (by omega)\n        · constructor\n          · intro h\n            simp [M7.StreamingIndices.allFinFrom, hi, hp] at h\n          · intro h\n            exfalso\n            apply hp\n            exact h ⟨i, hi⟩ (by simp) (by dsimp; omega)\n      · constructor\n        · intro _ j hlo _\n          have hj := j.isLt\n          omega\n        · intro _\n          simp [M7.StreamingIndices.allFinFrom, hi]",
+          "imports": [
+            "M7StreamingIndices"
+          ],
+          "name": "M7.StreamingIndices.cursor_interval",
+          "ancestors": [],
+          "spec_sha256": "b0ec9e272aca0d27281016c947e99bbd3b418c8141bde0c5c8dcb1b2c9c63897"
+        },
+        "sha256": "8348bdbfb3e3f08dfde84d0d26d4801671cb07b85fa999485ae508d883246447"
+      },
+      "all_fin": {
+        "payload": {
+          "declaration": "theorem M7.StreamingIndices.all_fin : ∀ (n : ℕ) (p : Fin n → Bool), M7.StreamingIndices.allFin n p = true ↔ ∀ j : Fin n, p j = true := by\n  change ∀ (n : ℕ) (p : Fin n → Bool), M7.StreamingIndices.allFin n p = true ↔ ∀ j : Fin n, p j = true\n  intro n p\n  unfold M7.StreamingIndices.allFin\n  rw [M7.StreamingIndices.cursor_interval]\n  constructor\n  · intro h j\n    exact h j (Nat.zero_le _) (by simpa only [Nat.zero_add] using j.isLt)\n  · intro h j _ _\n    exact h j",
+          "imports": [
+            "M7StreamingIndices"
+          ],
+          "name": "M7.StreamingIndices.all_fin",
+          "ancestors": [
+            "cursor_interval"
+          ],
+          "spec_sha256": "44a78af3848bb44b79aa74025f233ccdee6a35b0e30a35d8f5e5deacc907bcfb"
+        },
+        "sha256": "e1aced77a519cd53aa7f9d7950a990938baa790f1f997124ed37a4e934dfb6de"
+      },
+      "record_surjective": {
+        "payload": {
+          "declaration": "theorem M7.StreamingIndices.record_surjective : ∀ (N : ℕ) [NeZero N], ∀ g : M7.Action.Record N, ∃ (u : Fin (Fintype.card ((ZMod N)ˣ))) (e : Fin 2) (s t : Fin N), M7.StreamingIndices.decodeRecord N u e s t = g := by\n  classical\n  intro N inst g\n  rcases g with ⟨v, b, s, t⟩\n  cases b\n  · refine ⟨Fintype.equivFin ((ZMod N)ˣ) v, 0, ⟨s.val, ZMod.val_lt s⟩, ⟨t.val, ZMod.val_lt t⟩, ?_⟩\n    simp [M7.StreamingIndices.decodeRecord, ZMod.natCast_zmod_val]\n  · refine ⟨Fintype.equivFin ((ZMod N)ˣ) v, 1, ⟨s.val, ZMod.val_lt s⟩, ⟨t.val, ZMod.val_lt t⟩, ?_⟩\n    simp [M7.StreamingIndices.decodeRecord, ZMod.natCast_zmod_val]",
+          "imports": [
+            "M7StreamingIndices"
+          ],
+          "name": "M7.StreamingIndices.record_surjective",
+          "ancestors": [],
+          "spec_sha256": "01f6291ff0daf8ae3fd47bbb2143cb972c418aec9c4d3b81cf8a2063c4dada1a"
+        },
+        "sha256": "4e09490e6a511e6b927e477182837399a1eaef59de1800a048d14e1f00825856"
+      },
+      "all_records": {
+        "payload": {
+          "declaration": "theorem M7.StreamingIndices.all_records : ∀ (N : ℕ) [NeZero N], ∀ p : M7.Action.Record N → Bool, M7.StreamingIndices.allRecords N p = true ↔ ∀ g : M7.Action.Record N, p g = true := by\n  change ∀ (N : ℕ) [NeZero N], ∀ p : M7.Action.Record N → Bool, M7.StreamingIndices.allRecords N p = true ↔ ∀ g : M7.Action.Record N, p g = true\n  intro N inst p\n  unfold M7.StreamingIndices.allRecords\n  simp only [M7.StreamingIndices.all_fin]\n  constructor\n  · intro h g\n    rcases M7.StreamingIndices.record_surjective N g with ⟨u, e, s, t, hg⟩\n    rw [← hg]\n    exact h u e s t\n  · intro h u e s t\n    exact h (M7.StreamingIndices.decodeRecord N u e s t)",
+          "imports": [
+            "M7StreamingIndices"
+          ],
+          "name": "M7.StreamingIndices.all_records",
+          "ancestors": [
+            "all_fin",
+            "cursor_interval",
+            "record_surjective"
+          ],
+          "spec_sha256": "66d7037c62025b1c1136188296660a7eca4ebf5ff15bad95c61e417e0cdafd91"
+        },
+        "sha256": "0653d6d62b0695d1096331dd7faea1bffbf0d0ce58e6e6b2efeac5cbef48a4b4"
+      },
+      "all_indices": {
+        "payload": {
+          "declaration": "theorem M7.StreamingIndices.all_indices : ∀ (H N : ℕ) [NeZero N], ∀ p : M7.GlobalQuery.Index H N → Bool, M7.StreamingIndices.allIndices H N p = true ↔ ∀ x : M7.GlobalQuery.Index H N, p x = true := by\n  change ∀ (H N : ℕ) [NeZero N], ∀ p : M7.GlobalQuery.Index H N → Bool, M7.StreamingIndices.allIndices H N p = true ↔ ∀ x : M7.GlobalQuery.Index H N, p x = true\n  intro H N inst p\n  unfold M7.StreamingIndices.allIndices\n  simp only [M7.StreamingIndices.all_fin, M7.StreamingIndices.all_records]\n  constructor\n  · intro h x\n    rcases x with ⟨i, g⟩\n    exact h i g\n  · intro h i g\n    exact h (i, g)",
+          "imports": [
+            "M7StreamingIndices"
+          ],
+          "name": "M7.StreamingIndices.all_indices",
+          "ancestors": [
+            "all_fin",
+            "all_records",
+            "cursor_interval",
+            "record_surjective"
+          ],
+          "spec_sha256": "aef037b5fb294d3daa8eee39a148259355d67e782e773589f26677319b281058"
+        },
+        "sha256": "ac5c3477da2ed88372ea0a9c32d124c8dadddb8d91227dadc9e90e764ff10ebc"
+      },
+      "stream_winners": {
+        "payload": {
+          "declaration": "theorem M7.StreamingIndices.stream_winners : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x : M7.GlobalQuery.Index H N), M7.StreamingIndices.streamWin q bases x = true ↔ x ∈ M7.GlobalQuery.winners q bases := by\n  change ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x : M7.GlobalQuery.Index H N), M7.StreamingIndices.streamWin q bases x = true ↔ x ∈ M7.GlobalQuery.winners q bases\n  classical\n  intro H N inst q bases x\n  unfold M7.StreamingIndices.streamWin\n  simp only [Bool.and_eq_true, M7.StreamingIndices.all_indices, decide_eq_true_eq]\n  exact ((M7.GlobalQuery.winners_exact H N q bases).1 x).symm",
+          "imports": [
+            "M7StreamingIndices"
+          ],
+          "name": "M7.StreamingIndices.stream_winners",
+          "ancestors": [
+            "all_fin",
+            "all_indices",
+            "all_records",
+            "cursor_interval",
+            "record_surjective"
+          ],
+          "spec_sha256": "b81adb6d323f4d89ee82d7d10ba15a2fab8b044082d7083a562bc25f6f6de3ef"
+        },
+        "sha256": "37d5e4c782d6f86f4dd635e2ed68cf40282da23f9f6ce101e9655b80c42e21ea"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "M7.RecoveryInstance.count_card",
+  "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → ∀ p : List Bool, M7.RecoveryInstance.count w E bases p = (M7.RecoveryInstance.remaining w E bases p).card ∧ (M7.RecoveryInstance.count w E bases p).toNat = (M7.RecoveryInstance.remaining w E bases p).card ∧ 0 ≤ M7.RecoveryInstance.count w E bases p",
+  "imports": [
+    "M7DescentTraceAccepted",
+    "M7PrefixOrbitAccepted",
+    "M7RecoveryInstance",
+    "M7RecoveryPrefixAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "Finset card union disjoint subset sdiff"
+  ],
+  "guidance": "Instantiate verified PrefixOrbit.residual_card using PrefixBits.base and both GoodBases fields. count/remaining/RecoveryPrefix.completed are exact definition adapters. Derive Int.toNat and nonnegativity from that cardinality. No free count identity is assumed. Return tactic lines without leading by; keep exact target and default limits."
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N hN F hF hdiv\nhave hq : M5.cyclicModulus N / F ≠ 0 :=\n  M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hF hdiv\nhave hM : M5.cyclicModulus N ≠ 0 := by\n  intro h\n  apply hq\n  simp [h]\nhave hprod : F * (M5.cyclicModulus N / F) ∣ M5.cyclicModulus N :=\n  (M5.PolynomialExclusion.factor_dvd_quotient F (M5.cyclicModulus N)\n    (M5.cyclicModulus N / F) hF.ne_zero hdiv).mp (dvd_refl _)\nhave hd : M5.cyclicModulus N / F ∣ M5.cyclicModulus N :=\n  dvd_trans ⟨F, mul_comm _ _⟩ hprod\nhave hle :=\n  (UniqueFactorizationMonoid.dvd_iff_normalizedFactors_le_normalizedFactors hq hM).mp hd\nchange (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F)).toFinset.card ≤\n  (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\napply Finset.card_le_card\nintro p hp\nsimp only [Multiset.mem_toFinset] at hp ⊢\nexact Multiset.mem_of_le hle hp",
+  "queries": []
+}

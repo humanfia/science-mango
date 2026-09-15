@@ -1,0 +1,69 @@
+{
+  "id": "cache_action",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.QualityTable.cache_action",
+    "spec_sha256": "6b3ccc9f4f3ec2efdf7fb1e85db90e817a62b07e4304d0fda17d833621dcb165",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-quality-table-formalization/.humanize-formal-runs/run-fzick7gx/attempt-001/Candidate_bc30655fdac188ba.lean",
+        "target_path": "/home/jing/m7-lean-quality-table-formalization/.humanize-formal-runs/run-fzick7gx/attempt-001/FrozenTarget_bc30655fdac188ba.lean",
+        "feedback": "",
+        "target_sha256": "d999b519776a8aaa13b9c4662aa437f662213570edf5648a752a3a545ae81ab2",
+        "target_olean_sha256": "b7b5cf5fe0ee3d33a8ca6f76f2cb490fec130247f7ec0eb8b584d30f2b794eb2",
+        "source_sha256": "1bd6fbd4059f793ca981deb80e70ca8a86a426d86841e48701b714c24fad7574",
+        "olean_sha256": "17fb0ff85b78566b876ddd832796c4a38a5e5438ab5cbb263858d8cd012e5af8",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:46:11.931139+00:00",
+    "work": "/home/jing/m7-lean-quality-table-formalization/.humanize-formal-runs/run-fzick7gx",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "dfe4c6d0471528e4c299f99828efc1e04567ac2e80ba495b8da586bfa6f2a208",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-quality-table-formalization/.humanize-formal-runs/run-fzick7gx/attempt-001/Candidate_bc30655fdac188ba.lean",
+    "environment_sha256": "5fb147cb06fb0ddb6de06888c6e236664e8cf89a5ee7c1ae6c952543fd8f5a33",
+    "artifacts": {
+      "solve_distance": {
+        "payload": {
+          "declaration": "theorem M7.QualityTable.solve_distance : ∀ (N w : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → M7.QualityTable.solveDistance c = M7.DefaultQuery.distance c := by\n  intro N w inst c hA hB h0A h0B hc\n  have h := M7.ClosedSolve.closed_pointwise N w c hA hB h0A h0B hc\n  have ha := h.2.2.1\n  rcases ha with ⟨hn, hq, hr⟩\n  unfold M7.QualityTable.solveDistance M7.DefaultQuery.distance M7.Transport.distance\n  cases hs : M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) with\n  | none =>\n      have hf := hn.mp hs\n      have hd := hq.mpr hf\n      simpa only [hs, Option.map_none] using hd.symm\n  | some result =>\n      rcases result with ⟨d, v, k⟩\n      simp only [hs, Option.map_some]\n      symm\n      aesop",
+          "imports": [
+            "M7QualityTable"
+          ],
+          "name": "M7.QualityTable.solve_distance",
+          "ancestors": [],
+          "spec_sha256": "0a8994a659ba24dd458e9bc6323dd87b24d21344f51dcd4bb27773aa830b56a8"
+        },
+        "sha256": "255ebd81c1d9e1697824b57984aedde21e14a3bbf953cdd0a5a9c9f26eebc101"
+      },
+      "cache_action": {
+        "payload": {
+          "declaration": "theorem M7.QualityTable.cache_action : ∀ (N w : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → ∀ g : M7.Action.Record N, (M7.DefaultQuery.dimension (M7.Action.act g c), M7.DefaultQuery.distance (M7.Action.act g c)) = M7.QualityTable.cache c := by\n  intro N w inst c hA hB h0A h0B hc g\n  have hd : (M7.DefaultQuery.signature (M7.Action.act g c)).natDegree =\n      (M7.DefaultQuery.signature c).natDegree :=\n    M7.RecipeSignature.action_signature_degree N c g\n  have hdim : M7.DefaultQuery.dimension (M7.Action.act g c) =\n      M7.DefaultQuery.dimension c := by\n    unfold M7.DefaultQuery.dimension\n    rw [hd]\n  have hdist : M7.DefaultQuery.distance (M7.Action.act g c) =\n      M7.DefaultQuery.distance c :=\n    M7.Transport.distance_invariant N g c\n  change (M7.DefaultQuery.dimension (M7.Action.act g c),\n      M7.DefaultQuery.distance (M7.Action.act g c)) =\n    (M7.DefaultQuery.dimension c, M7.QualityTable.solveDistance c)\n  rw [hdim, hdist, M7.QualityTable.solve_distance N w c hA hB h0A h0B hc]",
+          "imports": [
+            "M7QualityTable"
+          ],
+          "name": "M7.QualityTable.cache_action",
+          "ancestors": [
+            "solve_distance"
+          ],
+          "spec_sha256": "8dc005005e8f25811210fd6567e21e7974a3b9eb9131d756e7641616ba060916"
+        },
+        "sha256": "37de733a6e4510fea92eb3341dcbf34f06737c9201202d644578000e30e66dfc"
+      }
+    }
+  }
+}

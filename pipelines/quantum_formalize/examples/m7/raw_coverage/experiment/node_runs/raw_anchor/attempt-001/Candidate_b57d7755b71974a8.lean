@@ -1,0 +1,33 @@
+import FrozenTarget_b57d7755b71974a8
+theorem M7.RawCoverage.raw_anchor : QuantumHarnessFrozenTarget := by
+  classical
+  intro N w inst E c hw h
+  change M7.PrefixOrbit.ClassValid w c ∧ M7.RecipeSignature.signature c ∈ E at h
+  have hA : c.1.card = w := by
+    have hc := h.1
+    unfold M7.PrefixOrbit.ClassValid at hc
+    tauto
+  have hB : c.2.card = w := by
+    have hc := h.1
+    unfold M7.PrefixOrbit.ClassValid at hc
+    tauto
+  obtain ⟨q, hq⟩ := Finset.card_pos.mp (show 0 < c.1.card by omega)
+  obtain ⟨r, hr⟩ := Finset.card_pos.mp (show 0 < c.2.card by omega)
+  refine ⟨q, hq, r, hr, ?_⟩
+  apply (M7.RawCoverage.root_membership N w E _).mpr
+  refine ⟨?_, ?_, ?_⟩
+  · change M7.PrefixOrbit.ClassValid w (M7.Action.act (M7.Action.translate (-q) (-r)) c) ∧ _
+    constructor
+    · exact M7.PrefixOrbit.class_action N w c _ h.1
+    · rw [M7.RawCoverage.translate_signature]
+      exact h.2
+  · rw [M7.RawCoverage.translate_supports]
+    change 0 ∈ M7.Domain.shift c.1 (-q)
+    unfold M7.Domain.shift
+    apply Finset.mem_image.mpr
+    exact ⟨q, hq, by simp⟩
+  · rw [M7.RawCoverage.translate_supports]
+    change 0 ∈ M7.Domain.shift c.2 (-r)
+    unfold M7.Domain.shift
+    apply Finset.mem_image.mpr
+    exact ⟨r, hr, by simp⟩

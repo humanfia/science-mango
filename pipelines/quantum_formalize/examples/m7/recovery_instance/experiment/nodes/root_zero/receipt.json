@@ -1,0 +1,75 @@
+{
+  "id": "root_zero",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.RecoveryInstance.root_zero",
+    "spec_sha256": "5631ba689b0f4b4413aae7abbdcfdd47c733f3235aae88548dd59237eca6997c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-recovery-instance-formalization/.humanize-formal-runs/run-vej68gzc/attempt-001/Candidate_2a15e5fb52e9d0f3.lean",
+        "target_path": "/home/jing/m7-lean-recovery-instance-formalization/.humanize-formal-runs/run-vej68gzc/attempt-001/FrozenTarget_2a15e5fb52e9d0f3.lean",
+        "feedback": "",
+        "target_sha256": "054a1047e1f7741641aa00d58ac6ebaf8f471d98d5da714cbc3f1f67cc817512",
+        "target_olean_sha256": "dafee79d5cb315dc86262e31d70728833f7b6ae9ae46b7eae0df291fdc812e1e",
+        "source_sha256": "d6460cc1530ca629933adb710c7de82e38a9adc31812756fb5caa8f87d9a9269",
+        "olean_sha256": "239c13d93ab950ad51dc6f6793d0276465366c2b93ee04ddf6fcf702cb0484fb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:40:26.365675+00:00",
+    "work": "/home/jing/m7-lean-recovery-instance-formalization/.humanize-formal-runs/run-vej68gzc",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "e5bc490f69513bed9a1206bd5bd9db947abe8b38a401c1fe3012e90a5a22c9b0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-recovery-instance-formalization/.humanize-formal-runs/run-vej68gzc/attempt-001/Candidate_2a15e5fb52e9d0f3.lean",
+    "environment_sha256": "dbc503e1e7946c26780673192b0fd8f1f71d99f8a80ea06f21b4daa119151fcc",
+    "artifacts": {
+      "count_card": {
+        "payload": {
+          "declaration": "theorem M7.RecoveryInstance.count_card : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → ∀ p : List Bool, M7.RecoveryInstance.count w E bases p = (M7.RecoveryInstance.remaining w E bases p).card ∧ (M7.RecoveryInstance.count w E bases p).toNat = (M7.RecoveryInstance.remaining w E bases p).card ∧ 0 ≤ M7.RecoveryInstance.count w E bases p := by\n  intro N inst w E bases hE hB p\n  have h : M7.RecoveryInstance.count w E bases p = ((M7.RecoveryInstance.remaining w E bases p).card : ℤ) := by\n    simpa only [M7.RecoveryInstance.count, M7.RecoveryInstance.remaining,\n      M7.RecoveryPrefix.completed] using\n      (M7.PrefixOrbit.residual_card N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hE (M7.PrefixBits.base N (Nat.pos_of_ne_zero (NeZero.ne N)) p) bases\n        (by first | exact hB.1 | exact hB.2)\n        (by first | exact hB.1 | exact hB.2))\n  refine ⟨h, ?_, ?_⟩\n  · rw [h]\n    simp\n  · rw [h]\n    exact Int.natCast_nonneg _",
+          "imports": [
+            "M7DescentTraceAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RecoveryInstance",
+            "M7RecoveryPrefixAccepted"
+          ],
+          "name": "M7.RecoveryInstance.count_card",
+          "ancestors": [],
+          "spec_sha256": "f1bfd32000a36d413884e10c0116f5e8d46fcbac8742262b8dfd82e468c0783b"
+        },
+        "sha256": "b145918b66cfbad6bcc7e1135cc9bfe9d492beef6065eedd056f6a7339fd21d4"
+      },
+      "root_zero": {
+        "payload": {
+          "declaration": "theorem M7.RecoveryInstance.root_zero : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → (M7.RecoveryInstance.count w E bases [] = 0 ↔ M7.RecoveryPrefix.completed N w E [] ⊆ M7.OrbitResidual.covered bases) := by\n  intro N inst w E bases hE hB\n  classical\n  rw [(M7.RecoveryInstance.count_card N w E bases hE hB []).1]\n  simp [M7.RecoveryInstance.remaining, M7.OrbitResidual.remaining,\n    Finset.card_eq_zero, Finset.sdiff_eq_empty_iff_subset]",
+          "imports": [
+            "M7DescentTraceAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RecoveryInstance",
+            "M7RecoveryPrefixAccepted"
+          ],
+          "name": "M7.RecoveryInstance.root_zero",
+          "ancestors": [
+            "count_card"
+          ],
+          "spec_sha256": "411554ee15303b28f93c25b87b56c0c2de4fbf478c0b6f561f43332efee986d7"
+        },
+        "sha256": "1c20b8d0fdd47d0b615b9697db011e13da69ec1df65099a17b0f0d51f1324c74"
+      }
+    }
+  }
+}

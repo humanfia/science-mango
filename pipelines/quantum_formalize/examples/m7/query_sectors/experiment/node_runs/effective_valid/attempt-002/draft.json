@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ q : M7.DefaultQuery.Query, M7.DefaultQuery.valid N q → M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q)\nintro N inst q hq\nchange ∀ F ∈ M7.QuerySectors.effective N q, F.Monic ∧ F ∣ M6.Cyclic.modulus N\ncases hs : q.signatures with\n| none =>\n    simp only [M7.QuerySectors.effective, hs]\n    intro F hF\n    exact (M7.QuerySectors.all_membership N F).mp hF\n| some E =>\n    simp only [M7.QuerySectors.effective, hs]\n    simpa only [M7.DefaultQuery.valid, hs] using hq",
+  "queries": []
+}

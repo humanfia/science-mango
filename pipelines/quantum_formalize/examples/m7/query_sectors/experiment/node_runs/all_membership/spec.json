@@ -1,0 +1,12 @@
+{
+  "name": "M7.QuerySectors.all_membership",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F ∈ M7.QuerySectors.allSectors N ↔ F.Monic ∧ F ∣ M6.Cyclic.modulus N",
+  "imports": [
+    "M7QuerySectors"
+  ],
+  "context": "theorem M7.QuerySectors.all_complete : ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ M6.Cyclic.modulus N → F ∈ M7.QuerySectors.allSectors N := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ M6.Cyclic.modulus N → F ∈ M7.QuerySectors.allSectors N\n  intro N inst F hF hdiv\n  classical\n  have hmod : M6.Cyclic.modulus N ≠ 0 := by\n    intro hz\n    have hc := congrArg (fun p : M6.Cyclic.BinaryPolynomial => p.coeff 0) hz\n    simpa [M6.Cyclic.modulus, NeZero.ne N, (NeZero.ne N).symm] using hc\n  have hle : UniqueFactorizationMonoid.normalizedFactors F ≤ UniqueFactorizationMonoid.normalizedFactors (M6.Cyclic.modulus N) :=\n    (UniqueFactorizationMonoid.dvd_iff_normalizedFactors_le_normalizedFactors hF.ne_zero hmod).mp hdiv\n  have hprod : (UniqueFactorizationMonoid.normalizedFactors F).prod = F := by\n    simpa [hF.leadingCoeff] using Polynomial.leadingCoeff_mul_prod_normalizedFactors F\n  simp only [M7.QuerySectors.allSectors, Multiset.mem_toFinset, Finset.mem_image, Multiset.mem_powerset]\n  exact ⟨UniqueFactorizationMonoid.normalizedFactors F, hle, hprod⟩\n\ntheorem M7.QuerySectors.all_sound : ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F ∈ M7.QuerySectors.allSectors N → F.Monic ∧ F ∣ M6.Cyclic.modulus N := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F ∈ M7.QuerySectors.allSectors N → F.Monic ∧ F ∣ M6.Cyclic.modulus N\n  intro N inst F hF\n  simp only [M7.QuerySectors.allSectors, Finset.mem_image, Multiset.mem_toFinset,\n    Multiset.mem_map, Multiset.mem_powerset] at hF\n  rcases hF with ⟨s, hs, rfl⟩\n  have hmod : M6.Cyclic.modulus N ≠ 0 := (M7.SignatureTau.modulus_monic N).ne_zero\n  have hd : s.prod ∣ M6.Cyclic.modulus N :=\n    (Multiset.prod_dvd_prod_of_le hs).trans\n      (UniqueFactorizationMonoid.prod_normalizedFactors hmod).dvd\n  refine ⟨?_, hd⟩\n  apply M7.SignatureTau.binary_monic\n  intro hz\n  rw [hz] at hd\n  exact hmod (zero_dvd_iff.mp hd)",
+  "queries": [
+    "normalizedFactors Multiset powerset polynomial monic divisors"
+  ],
+  "guidance": "Combine exact soundness and completeness. Return tactic lines only, without leading by."
+}

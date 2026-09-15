@@ -1,0 +1,4 @@
+{
+  "proof": "intro N w inst c hA hB h0A h0B hc g\nhave hd : (M7.DefaultQuery.signature (M7.Action.act g c)).natDegree =\n    (M7.DefaultQuery.signature c).natDegree :=\n  M7.RecipeSignature.action_signature_degree N c g\nhave hdim : M7.DefaultQuery.dimension (M7.Action.act g c) =\n    M7.DefaultQuery.dimension c := by\n  unfold M7.DefaultQuery.dimension\n  rw [hd]\nhave hdist : M7.DefaultQuery.distance (M7.Action.act g c) =\n    M7.DefaultQuery.distance c :=\n  M7.Transport.distance_invariant N g c\nchange (M7.DefaultQuery.dimension (M7.Action.act g c),\n    M7.DefaultQuery.distance (M7.Action.act g c)) =\n  (M7.DefaultQuery.dimension c, M7.QualityTable.solveDistance c)\nrw [hdim, hdist, M7.QualityTable.solve_distance N w c hA hB h0A h0B hc]",
+  "queries": []
+}

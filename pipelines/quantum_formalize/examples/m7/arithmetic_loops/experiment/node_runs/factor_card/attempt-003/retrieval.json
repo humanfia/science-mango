@@ -1,0 +1,158 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "EuclideanDomain.mul_div_cancel'",
+    "status": "ok",
+    "results": [
+      {
+        "id": 64661,
+        "name": "EuclideanDomain.mul_div_cancel'",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L100-L101",
+        "source_text": "protected theorem mul_div_cancel' {a b : R} (hb : b ≠ 0) (hab : b ∣ a) : b * (a / b) = a := by\n  rw [← mul_div_assoc _ hab, mul_div_cancel_left₀ _ hb]\n",
+        "docstring": null
+      },
+      {
+        "id": 64689,
+        "name": "EuclideanDomain.mul_div_mul_cancel",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L319-L322",
+        "source_text": "theorem mul_div_mul_cancel {a b c : R} (ha : a ≠ 0) (hcb : c ∣ b) : a * b / (a * c) = b / c := by\n  by_cases hc : c = 0; · simp [hc]\n  refine eq_div_of_mul_eq_right hc (mul_left_cancel₀ ha ?_)\n  rw [← mul_assoc, ← mul_div_assoc _ (by gcongr), mul_div_cancel_left₀ _ (mul_ne_zero ha hc)]\n",
+        "docstring": null
+      },
+      {
+        "id": 64648,
+        "name": "EuclideanDomain.toMulDivCancelClass",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L36-L42",
+        "source_text": "instance (priority := 100) toMulDivCancelClass : MulDivCancelClass R where\n  mul_div_cancel a b hb := by\n    refine (eq_of_sub_eq_zero ?_).symm\n    by_contra h\n    have := mul_right_not_lt b h\n    rw [sub_mul, mul_comm (_ / _), sub_eq_iff_eq_add'.2 (div_add_mod (a * b) b).symm] at this\n    exact this (mod_lt _ hb)\n",
+        "docstring": null
+      },
+      {
+        "id": 64722,
+        "name": "EuclideanDomain.gcd",
+        "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+        "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+        "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+      },
+      {
+        "id": 64660,
+        "name": "EuclideanDomain.mul_div_assoc",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L93-L98",
+        "source_text": "theorem mul_div_assoc (x : R) {y z : R} (h : z ∣ y) : x * y / z = x * (y / z) := by\n  by_cases hz : z = 0\n  · subst hz\n    rw [div_zero, div_zero, mul_zero]\n  rcases h with ⟨p, rfl⟩\n  rw [mul_div_cancel_left₀ _ hz, mul_left_comm, mul_div_cancel_left₀ _ hz]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "EuclideanDomain.mul_div_cancel'",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393009,
+        "name": "EuclideanGroup.mul_linear",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L75-L76",
+        "source_text": "@[simp] lemma mul_linear (A B : EuclideanGroup n) :\n    (A * B).linear = A.linear * B.linear := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393008,
+        "name": "EuclideanGroup.mul_translation",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L72-L73",
+        "source_text": "@[simp] lemma mul_translation (A B : EuclideanGroup n) :\n    (A * B).translation = A.translation + A.linear • B.translation := rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "EuclideanDomain.div_mul_cancel",
+    "status": "ok",
+    "results": [
+      {
+        "id": 64689,
+        "name": "EuclideanDomain.mul_div_mul_cancel",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L319-L322",
+        "source_text": "theorem mul_div_mul_cancel {a b c : R} (ha : a ≠ 0) (hcb : c ∣ b) : a * b / (a * c) = b / c := by\n  by_cases hc : c = 0; · simp [hc]\n  refine eq_div_of_mul_eq_right hc (mul_left_cancel₀ ha ?_)\n  rw [← mul_assoc, ← mul_div_assoc _ (by gcongr), mul_div_cancel_left₀ _ (mul_ne_zero ha hc)]\n",
+        "docstring": null
+      },
+      {
+        "id": 64648,
+        "name": "EuclideanDomain.toMulDivCancelClass",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L36-L42",
+        "source_text": "instance (priority := 100) toMulDivCancelClass : MulDivCancelClass R where\n  mul_div_cancel a b hb := by\n    refine (eq_of_sub_eq_zero ?_).symm\n    by_contra h\n    have := mul_right_not_lt b h\n    rw [sub_mul, mul_comm (_ / _), sub_eq_iff_eq_add'.2 (div_add_mod (a * b) b).symm] at this\n    exact this (mod_lt _ hb)\n",
+        "docstring": null
+      },
+      {
+        "id": 64661,
+        "name": "EuclideanDomain.mul_div_cancel'",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L100-L101",
+        "source_text": "protected theorem mul_div_cancel' {a b : R} (hb : b ≠ 0) (hab : b ∣ a) : b * (a / b) = a := by\n  rw [← mul_div_assoc _ hab, mul_div_cancel_left₀ _ hb]\n",
+        "docstring": null
+      },
+      {
+        "id": 64722,
+        "name": "EuclideanDomain.gcd",
+        "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+        "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+        "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+      },
+      {
+        "id": 64660,
+        "name": "EuclideanDomain.mul_div_assoc",
+        "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L93-L98",
+        "source_text": "theorem mul_div_assoc (x : R) {y z : R} (h : z ∣ y) : x * y / z = x * (y / z) := by\n  by_cases hz : z = 0\n  · subst hz\n    rw [div_zero, div_zero, mul_zero]\n  rcases h with ⟨p, rfl⟩\n  rw [mul_div_cancel_left₀ _ hz, mul_left_comm, mul_div_cancel_left₀ _ hz]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "EuclideanDomain.div_mul_cancel",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393009,
+        "name": "EuclideanGroup.mul_linear",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L75-L76",
+        "source_text": "@[simp] lemma mul_linear (A B : EuclideanGroup n) :\n    (A * B).linear = A.linear * B.linear := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393008,
+        "name": "EuclideanGroup.mul_translation",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L72-L73",
+        "source_text": "@[simp] lemma mul_translation (A B : EuclideanGroup n) :\n    (A * B).translation = A.translation + A.linear • B.translation := rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

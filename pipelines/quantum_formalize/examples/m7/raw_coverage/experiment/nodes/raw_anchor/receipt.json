@@ -1,0 +1,120 @@
+{
+  "id": "raw_anchor",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.RawCoverage.raw_anchor",
+    "spec_sha256": "a44d1e95b91dfb1168a99b70a0097e3bb5cb8875624975745b5c9f68e8ff081d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-6nm_2f4v/attempt-001/Candidate_b57d7755b71974a8.lean",
+        "target_path": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-6nm_2f4v/attempt-001/FrozenTarget_b57d7755b71974a8.lean",
+        "feedback": "",
+        "target_sha256": "2fbc56b50520ae18c4d9730424f5db06c23ad8dcc60aac6f9eef5f9ab0a8910d",
+        "target_olean_sha256": "f660793e288094c93c9e26760aecfcc00e05c3fd41f9a606e3019aa388f74625",
+        "source_sha256": "30c0e82eb0edb9510c6f86be00dec509d5809208732fdb09ea484979dc36e2ce",
+        "olean_sha256": "ccc89af5be2eb7f7453e3353f39c6b506e13ca68365956537b1fcabd303de633",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:43:17.371080+00:00",
+    "work": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-6nm_2f4v",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8e259bed93813abfae5b5159be52ab7564c4e749e4f85881f96021e8c76eebc0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-6nm_2f4v/attempt-001/Candidate_b57d7755b71974a8.lean",
+    "environment_sha256": "477a2afb0f725eb8f6ee1f78c7a04928ab03503b61f7d5c78c8dbed79c610ba0",
+    "artifacts": {
+      "translate_supports": {
+        "payload": {
+          "declaration": "theorem M7.RawCoverage.translate_supports : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (s t : ZMod N), M7.Action.act (M7.Action.translate s t) c = (M7.Domain.shift c.1 s, M7.Domain.shift c.2 t) := by\n  intro N hN c s t\n  apply Prod.ext <;> ext x\n  all_goals\n    simp [M7.Action.act, M7.Action.translate, M7.Action.affine, M7.Domain.shift, Finset.mem_image]\n  all_goals\n    constructor\n    · rintro ⟨a, ha, rfl⟩\n      simpa [add_assoc] using ha\n    · intro hx\n      refine ⟨_, hx, ?_⟩\n      simp [add_assoc]",
+          "imports": [
+            "M7PrefixBitsAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RawCoverage"
+          ],
+          "name": "M7.RawCoverage.translate_supports",
+          "ancestors": [],
+          "spec_sha256": "fcc25a0b5b54c3476431251f9b87a9831d7c8033f37d1f31f421efd9617f4a73"
+        },
+        "sha256": "615ec6208d06ec75acc6085c74549d4c87588047f991896e3dc2ba948d746a5f"
+      },
+      "translate_signature": {
+        "payload": {
+          "declaration": "theorem M7.RawCoverage.translate_signature : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (s t : ZMod N), M7.RecipeSignature.signature (M7.Action.act (M7.Action.translate s t) c) = M7.RecipeSignature.signature c := by\n  intro N inst c s t\n  exact (M7.RecipeSignature.translation_invariant N (fun F => F = M7.RecipeSignature.signature c) _ _ _).mpr rfl",
+          "imports": [
+            "M7PrefixBitsAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RawCoverage"
+          ],
+          "name": "M7.RawCoverage.translate_signature",
+          "ancestors": [],
+          "spec_sha256": "1f2198d14828d0a7eb43f0fb5b4a53f8c6601102e73e0c835a362fda9ca3d101"
+        },
+        "sha256": "1ffa54e7195e333691631f655d0c4330ada6c5c80ce5b81f3de9fe3fe226ac0b"
+      },
+      "root_within": {
+        "payload": {
+          "declaration": "theorem M7.RawCoverage.root_within : ∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)), M7.PrefixOrbit.Within (M7.PrefixBits.A N []) (M7.PrefixBits.WA N []) S ↔ (0 : ZMod N) ∈ S := by\n  classical\n  intro N inst S\n  have hr := M7.PrefixBits.root N (NeZero.pos N)\n  rw [hr.1, hr.2.2.1]\n  change ({0} ⊆ S.image ZMod.val ∧\n    S.image ZMod.val ⊆ {0} ∪ (Finset.range N \\ {0})) ↔ (0 : ZMod N) ∈ S\n  constructor\n  · intro h\n    have hz : 0 ∈ S.image ZMod.val := h.1 (Finset.mem_singleton_self 0)\n    obtain ⟨a, ha, hav⟩ := Finset.mem_image.mp hz\n    have ha0 : a = (0 : ZMod N) :=\n      (ZMod.val_injective N) (by simpa only [ZMod.val_zero] using hav)\n    simpa only [ha0] using ha\n  · intro h\n    constructor\n    · apply Finset.singleton_subset_iff.mpr\n      exact Finset.mem_image.mpr ⟨0, h, ZMod.val_zero⟩\n    · intro k hk\n      obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp hk\n      by_cases hz : a.val = 0\n      · apply Finset.mem_union.mpr\n        exact Or.inl (Finset.mem_singleton.mpr hz)\n      · apply Finset.mem_union.mpr\n        apply Or.inr\n        apply Finset.mem_sdiff.mpr\n        exact ⟨Finset.mem_range.mpr (ZMod.val_lt a), by simpa using hz⟩",
+          "imports": [
+            "M7PrefixBitsAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RawCoverage"
+          ],
+          "name": "M7.RawCoverage.root_within",
+          "ancestors": [],
+          "spec_sha256": "c45acd56d658d6828fe8c5d76fa00bd04a6a45ed49137942aa360f05e80e12e5"
+        },
+        "sha256": "3fdb91c7ca41079b617bb75c7f1d119c54baf5097982ba3783c8d4ea2c67f77f"
+      },
+      "root_membership": {
+        "payload": {
+          "declaration": "theorem M7.RawCoverage.root_membership : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) (c : M7.Action.Recipe N), c ∈ M7.RawCoverage.rootCompleted N w E ↔ M7.RawCoverage.Queried w E c ∧ (0 : ZMod N) ∈ c.1 ∧ (0 : ZMod N) ∈ c.2 := by\n  classical\n  intro N w inst E c\n  change c ∈ M7.ResiduePrefix.completed N w E (M7.PrefixBits.A N []) (M7.PrefixBits.B N []) (M7.PrefixBits.WA N []) (M7.PrefixBits.WB N []) ↔ _\n  rw [M7.PrefixOrbit.membership N w E _ _ _ _ (M7.PrefixBits.base N (NeZero.pos N) []) c]\n  have hr := M7.PrefixBits.root N (NeZero.pos N)\n  have hB : M7.PrefixBits.B N [] = M7.PrefixBits.A N [] := hr.2.1.trans hr.1.symm\n  have hWB : M7.PrefixBits.WB N [] = M7.PrefixBits.WA N [] := hr.2.2.2.trans hr.2.2.1.symm\n  rw [hB, hWB, M7.RawCoverage.root_within N c.1, M7.RawCoverage.root_within N c.2]\n  simp only [M7.RawCoverage.Queried, and_assoc]",
+          "imports": [
+            "M7PrefixBitsAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RawCoverage"
+          ],
+          "name": "M7.RawCoverage.root_membership",
+          "ancestors": [
+            "root_within"
+          ],
+          "spec_sha256": "17a183240f3e287653d67dba8616df99c2253dc1244a53770958e483070dba00"
+        },
+        "sha256": "4775f75acd6da2028bc299d5f286a02d2ffac23bd8ead345afeff0dd790ae171"
+      },
+      "raw_anchor": {
+        "payload": {
+          "declaration": "theorem M7.RawCoverage.raw_anchor : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) (c : M7.Action.Recipe N), 0 < w → M7.RawCoverage.Queried w E c → ∃ q ∈ c.1, ∃ r ∈ c.2, M7.Action.act (M7.Action.translate (-q) (-r)) c ∈ M7.RawCoverage.rootCompleted N w E := by\n  classical\n  intro N w inst E c hw h\n  change M7.PrefixOrbit.ClassValid w c ∧ M7.RecipeSignature.signature c ∈ E at h\n  have hA : c.1.card = w := by\n    have hc := h.1\n    unfold M7.PrefixOrbit.ClassValid at hc\n    tauto\n  have hB : c.2.card = w := by\n    have hc := h.1\n    unfold M7.PrefixOrbit.ClassValid at hc\n    tauto\n  obtain ⟨q, hq⟩ := Finset.card_pos.mp (show 0 < c.1.card by omega)\n  obtain ⟨r, hr⟩ := Finset.card_pos.mp (show 0 < c.2.card by omega)\n  refine ⟨q, hq, r, hr, ?_⟩\n  apply (M7.RawCoverage.root_membership N w E _).mpr\n  refine ⟨?_, ?_, ?_⟩\n  · change M7.PrefixOrbit.ClassValid w (M7.Action.act (M7.Action.translate (-q) (-r)) c) ∧ _\n    constructor\n    · exact M7.PrefixOrbit.class_action N w c _ h.1\n    · rw [M7.RawCoverage.translate_signature]\n      exact h.2\n  · rw [M7.RawCoverage.translate_supports]\n    change 0 ∈ M7.Domain.shift c.1 (-q)\n    unfold M7.Domain.shift\n    apply Finset.mem_image.mpr\n    exact ⟨q, hq, by simp⟩\n  · rw [M7.RawCoverage.translate_supports]\n    change 0 ∈ M7.Domain.shift c.2 (-r)\n    unfold M7.Domain.shift\n    apply Finset.mem_image.mpr\n    exact ⟨r, hr, by simp⟩",
+          "imports": [
+            "M7PrefixBitsAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RawCoverage"
+          ],
+          "name": "M7.RawCoverage.raw_anchor",
+          "ancestors": [
+            "root_membership",
+            "root_within",
+            "translate_signature",
+            "translate_supports"
+          ],
+          "spec_sha256": "5bf960d220fe8eeb056de4621b924b81a03b5342d7be64bbda3e765cbcd08017"
+        },
+        "sha256": "aa484859f5a89ddc5f2496bd71929edfd119b1b6c1bd2e2e588e70e1d89c6ea9"
+      }
+    }
+  }
+}

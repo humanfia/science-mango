@@ -1,0 +1,104 @@
+{
+  "id": "effective_valid",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.QuerySectors.effective_valid",
+    "spec_sha256": "b32b284a826129ea530744498d6803e6e7a10334edf79641bc8b4c87224deb57",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-query-sectors-formalization/.humanize-formal-runs/run-0yjgkqkw/attempt-001/Candidate_6d4243873e992e84.lean:11:6: error: Type mismatch: After simplification, term\n  hq\n has type\n  ∀ F ∈ E, And (Polynomial.Monic F) (F ∣ M6.Cyclic.modulus N)\nbut is expected to have type\n  ∀ F ∈ E, And (Polynomial.Monic F) (F ∣ M5.cyclicModulus N)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-query-sectors-formalization/.humanize-formal-runs/run-0yjgkqkw/attempt-002/Candidate_ea72ad6e33c8de75.lean",
+        "target_path": "/home/jing/m7-lean-query-sectors-formalization/.humanize-formal-runs/run-0yjgkqkw/attempt-002/FrozenTarget_ea72ad6e33c8de75.lean",
+        "feedback": "",
+        "target_sha256": "906dd05b59d9bdea983e5c09d4ae8d78e991aff559f15399ece71293f142a4d7",
+        "target_olean_sha256": "2ba9af8a3fa666f2229a401c128751d74386cd7eaecd1d7c46e9969687ef6f1a",
+        "source_sha256": "aa5990812900b286ff60a88c0b75d8eb1d504722cbc09a7119f3ea0dc350acbd",
+        "olean_sha256": "5428ed7014b12549704a9794eda9efa242e46283c39d00bf2a7b1d3044adf702",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T19:43:38.136065+00:00",
+    "work": "/home/jing/m7-lean-query-sectors-formalization/.humanize-formal-runs/run-0yjgkqkw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "66ab0b99be022928b2cfe8cdf21b62b9b8357c935f212f5b44896706446a053c",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-query-sectors-formalization/.humanize-formal-runs/run-0yjgkqkw/attempt-002/Candidate_ea72ad6e33c8de75.lean",
+    "environment_sha256": "33e6e0915e46e8df1879bc76e0b4272653498bf0e8882fde48a99ce0d517b5ac",
+    "artifacts": {
+      "all_sound": {
+        "payload": {
+          "declaration": "theorem M7.QuerySectors.all_sound : ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F ∈ M7.QuerySectors.allSectors N → F.Monic ∧ F ∣ M6.Cyclic.modulus N := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F ∈ M7.QuerySectors.allSectors N → F.Monic ∧ F ∣ M6.Cyclic.modulus N\n  intro N inst F hF\n  simp only [M7.QuerySectors.allSectors, Finset.mem_image, Multiset.mem_toFinset,\n    Multiset.mem_map, Multiset.mem_powerset] at hF\n  rcases hF with ⟨s, hs, rfl⟩\n  have hmod : M6.Cyclic.modulus N ≠ 0 := (M7.SignatureTau.modulus_monic N).ne_zero\n  have hd : s.prod ∣ M6.Cyclic.modulus N :=\n    (Multiset.prod_dvd_prod_of_le hs).trans\n      (UniqueFactorizationMonoid.prod_normalizedFactors hmod).dvd\n  refine ⟨?_, hd⟩\n  apply M7.SignatureTau.binary_monic\n  intro hz\n  rw [hz] at hd\n  exact hmod (zero_dvd_iff.mp hd)",
+          "imports": [
+            "M7QuerySectors"
+          ],
+          "name": "M7.QuerySectors.all_sound",
+          "ancestors": [],
+          "spec_sha256": "c84a4973baf722ad4359144973e7a8e0fc90e3c142d7af63d4f2dca9802d1d49"
+        },
+        "sha256": "f58aa02408918c4307c65eb045b32df1a0f39fb3c0d373bf03800c488deea306"
+      },
+      "all_complete": {
+        "payload": {
+          "declaration": "theorem M7.QuerySectors.all_complete : ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ M6.Cyclic.modulus N → F ∈ M7.QuerySectors.allSectors N := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ M6.Cyclic.modulus N → F ∈ M7.QuerySectors.allSectors N\n  intro N inst F hF hdiv\n  classical\n  have hmod : M6.Cyclic.modulus N ≠ 0 := by\n    intro hz\n    have hc := congrArg (fun p : M6.Cyclic.BinaryPolynomial => p.coeff 0) hz\n    simpa [M6.Cyclic.modulus, NeZero.ne N, (NeZero.ne N).symm] using hc\n  have hle : UniqueFactorizationMonoid.normalizedFactors F ≤ UniqueFactorizationMonoid.normalizedFactors (M6.Cyclic.modulus N) :=\n    (UniqueFactorizationMonoid.dvd_iff_normalizedFactors_le_normalizedFactors hF.ne_zero hmod).mp hdiv\n  have hprod : (UniqueFactorizationMonoid.normalizedFactors F).prod = F := by\n    simpa [hF.leadingCoeff] using Polynomial.leadingCoeff_mul_prod_normalizedFactors F\n  simp only [M7.QuerySectors.allSectors, Multiset.mem_toFinset, Finset.mem_image, Multiset.mem_powerset]\n  exact ⟨UniqueFactorizationMonoid.normalizedFactors F, hle, hprod⟩",
+          "imports": [
+            "M7QuerySectors"
+          ],
+          "name": "M7.QuerySectors.all_complete",
+          "ancestors": [],
+          "spec_sha256": "14b83eff3d883898c574722e9984a96d370698df7da7c77a62a984a18350d473"
+        },
+        "sha256": "db0bbb17132054d7f408404709041ca98d10133a28012e97c00e205206faae0f"
+      },
+      "all_membership": {
+        "payload": {
+          "declaration": "theorem M7.QuerySectors.all_membership : ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F ∈ M7.QuerySectors.allSectors N ↔ F.Monic ∧ F ∣ M6.Cyclic.modulus N := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F ∈ M7.QuerySectors.allSectors N ↔ F.Monic ∧ F ∣ M6.Cyclic.modulus N\n  intro N inst F\n  constructor\n  · exact M7.QuerySectors.all_sound N F\n  · intro h\n    exact M7.QuerySectors.all_complete N F h.1 h.2",
+          "imports": [
+            "M7QuerySectors"
+          ],
+          "name": "M7.QuerySectors.all_membership",
+          "ancestors": [
+            "all_complete",
+            "all_sound"
+          ],
+          "spec_sha256": "7785b7fb3da23e1b2dff45061dd30cf70fb7a2c38857ad724569f6619f116f44"
+        },
+        "sha256": "605b7c242d0c2a08f4c82efff93b7154ade92f3db1cf45d993c4adac6b067623"
+      },
+      "effective_valid": {
+        "payload": {
+          "declaration": "theorem M7.QuerySectors.effective_valid : ∀ (N : ℕ) [NeZero N], ∀ q : M7.DefaultQuery.Query, M7.DefaultQuery.valid N q → M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ q : M7.DefaultQuery.Query, M7.DefaultQuery.valid N q → M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q)\n  intro N inst q hq\n  change ∀ F ∈ M7.QuerySectors.effective N q, F.Monic ∧ F ∣ M6.Cyclic.modulus N\n  cases hs : q.signatures with\n  | none =>\n      simp only [M7.QuerySectors.effective, hs]\n      intro F hF\n      exact (M7.QuerySectors.all_membership N F).mp hF\n  | some E =>\n      simp only [M7.QuerySectors.effective, hs]\n      simpa only [M7.DefaultQuery.valid, hs] using hq",
+          "imports": [
+            "M7QuerySectors"
+          ],
+          "name": "M7.QuerySectors.effective_valid",
+          "ancestors": [
+            "all_complete",
+            "all_membership",
+            "all_sound"
+          ],
+          "spec_sha256": "bb82e4b697ccc02786663dbfb63d74adf551be80673aa2e1146f9866b6aad305"
+        },
+        "sha256": "344ac78c7ebfecad68ff2bf9ed64e70b89791ab9dde7e11964fba3e2f6df077e"
+      }
+    }
+  }
+}

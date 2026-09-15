@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N hN F hF hFM\nhave hq := M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hF hFM\nhave hM : M5.cyclicModulus N ≠ 0 := by\n  intro h\n  apply hq\n  simp [h]\nhave hd : M5.cyclicModulus N / F ∣ M5.cyclicModulus N := by\n  have hm := (M5.PolynomialExclusion.factor_dvd_quotient F\n    (M5.cyclicModulus N) (M5.cyclicModulus N / F) hF.ne_zero hFM).mp (dvd_refl _)\n  exact dvd_trans (dvd_mul_left _ _) hm\nchange (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F)).toFinset.card ≤\n  (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\nhave hfactors : UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F) ≤\n    UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N) := by\n  first\n  | exact UniqueFactorizationMonoid.normalizedFactors_le_of_dvd hM hd\n  | exact UniqueFactorizationMonoid.normalizedFactors_le_of_dvd hd hM\n  | exact (UniqueFactorizationMonoid.normalizedFactors_le_normalizedFactors hq hM).mpr hd\n  | exact (UniqueFactorizationMonoid.normalizedFactors_le_normalizedFactors hM).mpr hd\napply Finset.card_le_card\nintro p hp\nhave hp' : p ∈ UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F) := by\n  simpa only [Multiset.mem_toFinset] using hp\nhave hpM := Multiset.mem_of_le hfactors hp'\nsimpa only [Multiset.mem_toFinset] using hpM",
+  "queries": [
+    "UniqueFactorizationMonoid.normalizedFactors_le_of_dvd",
+    "UniqueFactorizationMonoid.normalizedFactors_le_normalizedFactors",
+    "Multiset.mem_of_le"
+  ]
+}

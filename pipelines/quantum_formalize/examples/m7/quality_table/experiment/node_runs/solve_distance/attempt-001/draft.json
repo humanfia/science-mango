@@ -1,0 +1,8 @@
+{
+  "proof": "intro N w inst c hA hB h0A h0B hc\nhave h := M7.ClosedSolve.closed_pointwise N w c hA hB h0A h0B hc\nhave ha := h.2.2.1\nrcases ha with ⟨hn, hq, hr⟩\nunfold M7.QualityTable.solveDistance M7.DefaultQuery.distance M7.Transport.distance\ncases hs : M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) with\n| none =>\n    have hf := hn.mp hs\n    have hd := hq.mpr hf\n    simpa only [hs, Option.map_none] using hd.symm\n| some result =>\n    rcases result with ⟨d, v, k⟩\n    simp only [hs, Option.map_some]\n    symm\n    aesop",
+  "queries": [
+    "M6.Final.AnswerCorrect",
+    "M6.Final.PointwiseCorrect",
+    "M7.QualityTable.solveDistance"
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "id": "run_projection",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.GenerationCalls.run_projection",
+    "spec_sha256": "28c27faacc5f42076067ad33f10f87a8c029f662bf7d989e3fcf720c0f877039",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-generation-calls-formalization/.humanize-formal-runs/run-0ypvq8q8/attempt-001/Candidate_a8e6316aba449b06.lean",
+        "target_path": "/home/jing/m7-lean-generation-calls-formalization/.humanize-formal-runs/run-0ypvq8q8/attempt-001/FrozenTarget_a8e6316aba449b06.lean",
+        "feedback": "",
+        "target_sha256": "58358d3b67bb07e74bc5271bffe77cf19112336b2863472e594251de0aaaa97a",
+        "target_olean_sha256": "a2a2188befd85d46be1acc629a7316e957a916066cf5c6af0193fd9b2aff1b23",
+        "source_sha256": "817d7712bcf01457b3124e196eae38238edcba3bbf469fb59d80eaeda47e0765",
+        "olean_sha256": "70ab1efd0151bca7a220ca187e6f0de98050e0806be0260edceaa995ac33f7f7",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:46:08.982120+00:00",
+    "work": "/home/jing/m7-lean-generation-calls-formalization/.humanize-formal-runs/run-0ypvq8q8",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "bb8ee9ceedf735fce50b3071aed8d7b047c025b23473e748d16b2281afee53fb",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-generation-calls-formalization/.humanize-formal-runs/run-0ypvq8q8/attempt-001/Candidate_a8e6316aba449b06.lean",
+    "environment_sha256": "dd55dd439ab1bb3944d2ac34fffac87961b3e2b51cf452d4bd2841b37eef73ea",
+    "artifacts": {
+      "trace_projection": {
+        "payload": {
+          "declaration": "theorem M7.GenerationCalls.trace_projection : ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M7.GenerationCalls.traceMeasured c p n).1 = M7.DescentTrace.trace c p n := by\n  change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M7.GenerationCalls.traceMeasured c p n).1 = M7.DescentTrace.trace c p n\n  intro c p n\n  induction n generalizing p with\n  | zero => rfl\n  | succ n ih =>\n      simp [M7.GenerationCalls.traceMeasured, M7.DescentTrace.trace, ih]",
+          "imports": [
+            "M7GenerationCalls"
+          ],
+          "name": "M7.GenerationCalls.trace_projection",
+          "ancestors": [],
+          "spec_sha256": "2c1cbbaa3be7fb28602ae0495e3d284133fc9eccdf814718f6bdab4935ea56d4"
+        },
+        "sha256": "466178d20dc109ad019fe008ae94c1d4f42367c0b6a169fd5974cedeccc556f8"
+      },
+      "emission_projection": {
+        "payload": {
+          "declaration": "theorem M7.GenerationCalls.emission_projection : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ bases : Finset (M7.Action.Recipe N), (M7.GenerationCalls.emissionMeasured w E bases).1 = M7.CompactGeneration.emission w E bases := by\n  change ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), (M7.GenerationCalls.emissionMeasured w E bases).1 = M7.CompactGeneration.emission w E bases\n  intro N inst w E bases\n  simp [M7.GenerationCalls.emissionMeasured, M7.CompactGeneration.emission, M7.GenerationCalls.trace_projection, M7.DescentTrace.endpoint_recover]",
+          "imports": [
+            "M7GenerationCalls"
+          ],
+          "name": "M7.GenerationCalls.emission_projection",
+          "ancestors": [
+            "trace_projection"
+          ],
+          "spec_sha256": "cfcad79d070604747c609e746fcaac066b7f3592b4d2320143f40ff727a6a7bd"
+        },
+        "sha256": "8de0ad94318b2d957832bc469d5e3efbf9819fa263f4ca62cc5814e90d42dfab"
+      },
+      "run_projection": {
+        "payload": {
+          "declaration": "theorem M7.GenerationCalls.run_projection : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial), ∀ (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), (M7.GenerationCalls.runMeasured w E fuel bases root).1 = M7.CompactGeneration.run w E fuel bases root := by\n  change ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)) (fuel : ℕ) (root : ℤ), (M7.GenerationCalls.runMeasured w E fuel bases root).1 = M7.CompactGeneration.run w E fuel bases root\n  classical\n  intro N inst w E bases fuel root\n  induction fuel generalizing bases root with\n  | zero => rfl\n  | succ fuel ih =>\n      by_cases h : 0 < root\n      · simp [M7.GenerationCalls.runMeasured, M7.CompactGeneration.run, h,\n          M7.GenerationCalls.emission_projection, ih]\n      · simp [M7.GenerationCalls.runMeasured, M7.CompactGeneration.run, h]",
+          "imports": [
+            "M7GenerationCalls"
+          ],
+          "name": "M7.GenerationCalls.run_projection",
+          "ancestors": [
+            "emission_projection",
+            "trace_projection"
+          ],
+          "spec_sha256": "858659d9d79e4e9aba13de6d7db78e1d58d3e7a6f2b71785bc63e0afba889bc1"
+        },
+        "sha256": "cdf4102783e37a15c31e596eeb1f08407cdd24e918df5b56b31c75f7fd62be11"
+      }
+    }
+  }
+}

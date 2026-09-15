@@ -1,0 +1,6 @@
+import FrozenTarget_5b00fbf302252d72
+theorem M7.GenerationCalls.emission_count : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), (M7.GenerationCalls.emissionMeasured w E bases).2 = 2 * M7.PrefixBits.depth N
+  intro N inst w E bases
+  change (M7.GenerationCalls.traceMeasured (M7.CompactGeneration.residual w E bases) [] (M7.PrefixBits.depth N)).2 = 2 * M7.PrefixBits.depth N
+  exact M7.GenerationCalls.trace_count _ _ _

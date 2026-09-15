@@ -1,0 +1,153 @@
+{
+  "id": "strict_decrease",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.RecoveryInstance.strict_decrease",
+    "spec_sha256": "0abb39bd176a1b172f8b90356731ac5501fc5c1ea31a8efdfacaf0a258640769",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-recovery-instance-formalization/.humanize-formal-runs/run-ay_jopm5/attempt-001/Candidate_1c2a7819f4ed60c4.lean",
+        "target_path": "/home/jing/m7-lean-recovery-instance-formalization/.humanize-formal-runs/run-ay_jopm5/attempt-001/FrozenTarget_1c2a7819f4ed60c4.lean",
+        "feedback": "",
+        "target_sha256": "bdcacc34005ff39651dc8e2bae8b91c907fc0c3240af9fe9f3db1a203e6dc651",
+        "target_olean_sha256": "35c1a02a1a04eac583b7706375ab5ae56c7665936b78cb5fde10d39820f03184",
+        "source_sha256": "91fec3a9ae4b3a1af7353b73315b2982bf327c7e8a3e5b5ae66896239671e4a4",
+        "olean_sha256": "36dce2a89b4e847faf27624d88e50e4a210bb92d45d4602623279cbdc614f137",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:47:31.875704+00:00",
+    "work": "/home/jing/m7-lean-recovery-instance-formalization/.humanize-formal-runs/run-ay_jopm5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "e5bc490f69513bed9a1206bd5bd9db947abe8b38a401c1fe3012e90a5a22c9b0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-recovery-instance-formalization/.humanize-formal-runs/run-ay_jopm5/attempt-001/Candidate_1c2a7819f4ed60c4.lean",
+    "environment_sha256": "dbc503e1e7946c26780673192b0fd8f1f71d99f8a80ea06f21b4daa119151fcc",
+    "artifacts": {
+      "count_card": {
+        "payload": {
+          "declaration": "theorem M7.RecoveryInstance.count_card : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → ∀ p : List Bool, M7.RecoveryInstance.count w E bases p = (M7.RecoveryInstance.remaining w E bases p).card ∧ (M7.RecoveryInstance.count w E bases p).toNat = (M7.RecoveryInstance.remaining w E bases p).card ∧ 0 ≤ M7.RecoveryInstance.count w E bases p := by\n  intro N inst w E bases hE hB p\n  have h : M7.RecoveryInstance.count w E bases p = ((M7.RecoveryInstance.remaining w E bases p).card : ℤ) := by\n    simpa only [M7.RecoveryInstance.count, M7.RecoveryInstance.remaining,\n      M7.RecoveryPrefix.completed] using\n      (M7.PrefixOrbit.residual_card N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hE (M7.PrefixBits.base N (Nat.pos_of_ne_zero (NeZero.ne N)) p) bases\n        (by first | exact hB.1 | exact hB.2)\n        (by first | exact hB.1 | exact hB.2))\n  refine ⟨h, ?_, ?_⟩\n  · rw [h]\n    simp\n  · rw [h]\n    exact Int.natCast_nonneg _",
+          "imports": [
+            "M7DescentTraceAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RecoveryInstance",
+            "M7RecoveryPrefixAccepted"
+          ],
+          "name": "M7.RecoveryInstance.count_card",
+          "ancestors": [],
+          "spec_sha256": "f1bfd32000a36d413884e10c0116f5e8d46fcbac8742262b8dfd82e468c0783b"
+        },
+        "sha256": "b145918b66cfbad6bcc7e1135cc9bfe9d492beef6065eedd056f6a7339fd21d4"
+      },
+      "count_partition": {
+        "payload": {
+          "declaration": "theorem M7.RecoveryInstance.count_partition : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → ∀ p : List Bool, p.length < M7.PrefixBits.depth N → M7.RecoveryInstance.count w E bases p = M7.RecoveryInstance.count w E bases (p ++ [false]) + M7.RecoveryInstance.count w E bases (p ++ [true]) := by\n  intro N inst w E bases hE hB p hp\n  classical\n  rw [(M7.RecoveryInstance.count_card N w E bases hE hB p).1,\n    (M7.RecoveryInstance.count_card N w E bases hE hB (p ++ [false])).1,\n    (M7.RecoveryInstance.count_card N w E bases hE hB (p ++ [true])).1]\n  change ((M7.OrbitResidual.remaining (M7.RecoveryPrefix.completed N w E p) bases).card : ℤ) =\n    ((M7.OrbitResidual.remaining (M7.RecoveryPrefix.completed N w E (p ++ [false])) bases).card : ℤ) +\n    ((M7.OrbitResidual.remaining (M7.RecoveryPrefix.completed N w E (p ++ [true])) bases).card : ℤ)\n  have hpart := M7.RecoveryPrefix.completed_partition N w E p hp\n  have hd : Disjoint\n      (M7.OrbitResidual.remaining (M7.RecoveryPrefix.completed N w E (p ++ [false])) bases)\n      (M7.OrbitResidual.remaining (M7.RecoveryPrefix.completed N w E (p ++ [true])) bases) := by\n    unfold M7.OrbitResidual.remaining\n    exact hpart.2.mono Finset.sdiff_subset Finset.sdiff_subset\n  rw [hpart.1, M7.OrbitResidual.remaining_partition,\n    Finset.card_union_of_disjoint hd, Nat.cast_add]",
+          "imports": [
+            "M7DescentTraceAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RecoveryInstance",
+            "M7RecoveryPrefixAccepted"
+          ],
+          "name": "M7.RecoveryInstance.count_partition",
+          "ancestors": [
+            "count_card"
+          ],
+          "spec_sha256": "b1d552abc7328af5f6675e0b2344f48de7cbea5d2ae26794756be8309424c33d"
+        },
+        "sha256": "b98f498669e002ad43475beb0e0e107f3234227de13c2876a8c505017c133692"
+      },
+      "positive_path": {
+        "payload": {
+          "declaration": "theorem M7.RecoveryInstance.positive_path : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → 0 < M7.RecoveryInstance.count w E bases [] → (M7.RecoveryInstance.word w E bases).length = M7.PrefixBits.depth N ∧ 0 < M7.RecoveryInstance.count w E bases (M7.RecoveryInstance.word w E bases) ∧ M7.DescentTrace.check (M7.RecoveryInstance.count w E bases) [] (M7.RecoveryInstance.path w E bases) = (true,2*M7.PrefixBits.depth N) := by\n  intro N inst w E bases hE hB hpos\n  refine ⟨?_, ?_, ?_⟩\n  · unfold M7.RecoveryInstance.word M7.RecoveryInstance.path\n    rw [M7.DescentTrace.endpoint_recover, M5.BinaryRecovery.recover_length]\n    simp\n  · unfold M7.RecoveryInstance.word M7.RecoveryInstance.path\n    rw [M7.DescentTrace.endpoint_recover]\n    apply M5.BinaryRecovery.recover_positive\n    · intro q hq\n      apply M7.RecoveryInstance.count_partition N w E bases hE hB q\n      simpa only [List.length_nil, Nat.zero_add] using hq\n    · exact hpos\n  · exact M7.DescentTrace.check_trace (M7.RecoveryInstance.count w E bases) [] (M7.PrefixBits.depth N)",
+          "imports": [
+            "M7DescentTraceAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RecoveryInstance",
+            "M7RecoveryPrefixAccepted"
+          ],
+          "name": "M7.RecoveryInstance.positive_path",
+          "ancestors": [
+            "count_card",
+            "count_partition"
+          ],
+          "spec_sha256": "9b141771e4f5f3bde58f1de40730e96d4bb1ec435942fd691a43696dfee8fdac"
+        },
+        "sha256": "717e0143f8d0c7dc823ecde8aa5b6733608725ecd392208e2cf51b755265c5b9"
+      },
+      "fresh_leaf": {
+        "payload": {
+          "declaration": "theorem M7.RecoveryInstance.fresh_leaf : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → 0 < M7.RecoveryInstance.count w E bases [] → M7.RecoveryInstance.recoverLeaf w E bases ∈ M7.RecoveryInstance.remaining w E bases [] ∧ M7.RecoveryInstance.recoverLeaf w E bases ∈ M7.RecoveryPrefix.completed N w E (M7.RecoveryInstance.word w E bases) := by\n  intro N inst w E bases hE hB hpos\n  classical\n  have hp := M7.RecoveryInstance.positive_path N w E bases hE hB hpos\n  have hc := (M7.RecoveryInstance.count_card N w E bases hE hB (M7.RecoveryInstance.word w E bases)).1\n  have hcard : 0 < (M7.RecoveryInstance.remaining w E bases (M7.RecoveryInstance.word w E bases)).card := by\n    have hz := hp.2.1\n    rw [hc] at hz\n    exact_mod_cast hz\n  obtain ⟨y, hy⟩ := Finset.card_pos.mp hcard\n  change y ∈ M7.RecoveryPrefix.completed N w E (M7.RecoveryInstance.word w E bases) \\ M7.OrbitResidual.covered bases at hy\n  rcases Finset.mem_sdiff.mp hy with ⟨hyC, hyU⟩\n  have hyEq : y = M7.RecoveryInstance.recoverLeaf w E bases := by\n    have hs := M7.RecoveryPrefix.leaf_singleton N w E (M7.RecoveryInstance.word w E bases) hp.1 hyC\n    simpa only [Finset.mem_singleton, M7.RecoveryInstance.recoverLeaf] using hs\n  rw [← hyEq]\n  refine ⟨?_, hyC⟩\n  change y ∈ M7.RecoveryPrefix.completed N w E [] \\ M7.OrbitResidual.covered bases\n  exact Finset.mem_sdiff.mpr ⟨M7.RecoveryPrefix.completed_subroot N w E (M7.RecoveryInstance.word w E bases) hyC, hyU⟩",
+          "imports": [
+            "M7DescentTraceAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RecoveryInstance",
+            "M7RecoveryPrefixAccepted"
+          ],
+          "name": "M7.RecoveryInstance.fresh_leaf",
+          "ancestors": [
+            "count_card",
+            "count_partition",
+            "positive_path"
+          ],
+          "spec_sha256": "a57fbaa54c3b093090ff296ad78b74000071b5c174fdfd7d78cb5d06b3709130"
+        },
+        "sha256": "efa0d959f0c62a2b124b4003af2de9cfb8d7e0f3b05e1696f74cb7e2b2c17740"
+      },
+      "insert_good": {
+        "payload": {
+          "declaration": "theorem M7.RecoveryInstance.insert_good : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → 0 < M7.RecoveryInstance.count w E bases [] → M7.RecoveryInstance.GoodBases w (M7.RecoveryInstance.insertedBases w E bases) ∧ M7.CanonicalOuter.canonical (M7.RecoveryInstance.recoverLeaf w E bases) ∉ bases := by\n  intro N inst w E bases hE hB hpos\n  classical\n  have hf := (M7.RecoveryInstance.fresh_leaf N w E bases hE hB hpos).1\n  change M7.RecoveryInstance.recoverLeaf w E bases ∈ M7.RecoveryPrefix.completed N w E [] \\ M7.OrbitResidual.covered bases at hf\n  rcases Finset.mem_sdiff.mp hf with ⟨hc, hu⟩\n  have hn : M7.CanonicalClasses.Normalized bases := by\n    first | exact hB.1 | exact hB.2\n  have hv : ∀ c ∈ bases, M7.PrefixOrbit.ClassValid w c := by\n    first | exact hB.1 | exact hB.2\n  have he : M7.PrefixOrbit.ClassValid w (M7.CanonicalOuter.canonical (M7.RecoveryInstance.recoverLeaf w E bases)) := by\n    apply M7.PrefixOrbit.emitted_class_valid N w E\n      (M7.PrefixBits.A N []) (M7.PrefixBits.B N [])\n      (M7.PrefixBits.WA N []) (M7.PrefixBits.WB N [])\n      (M7.PrefixBits.base N (Nat.pos_of_ne_zero (NeZero.ne N)) [])\n    exact hc\n  have hni := M7.CanonicalClasses.insert_normalized N bases (M7.RecoveryInstance.recoverLeaf w E bases) hn\n  have hvi : ∀ c ∈ insert (M7.CanonicalOuter.canonical (M7.RecoveryInstance.recoverLeaf w E bases)) bases, M7.PrefixOrbit.ClassValid w c := by\n    intro c hm\n    rcases Finset.mem_insert.mp hm with h | h\n    · subst c\n      exact he\n    · exact hv c h\n  refine ⟨?_, M7.CanonicalClasses.fresh_representative N bases (M7.RecoveryInstance.recoverLeaf w E bases) hn hu⟩\n  unfold M7.RecoveryInstance.GoodBases M7.RecoveryInstance.insertedBases\n  constructor <;> first | exact hni | exact hvi",
+          "imports": [
+            "M7DescentTraceAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RecoveryInstance",
+            "M7RecoveryPrefixAccepted"
+          ],
+          "name": "M7.RecoveryInstance.insert_good",
+          "ancestors": [
+            "count_card",
+            "count_partition",
+            "fresh_leaf",
+            "positive_path"
+          ],
+          "spec_sha256": "b3469f992d88d4a60c4eee9bdd21e5b7b2e33d7d5125cc693018668847afab25"
+        },
+        "sha256": "3150f54fb768bb9e93cdce908078454750fb39bdcfa157def30effed7abfd43b"
+      },
+      "strict_decrease": {
+        "payload": {
+          "declaration": "theorem M7.RecoveryInstance.strict_decrease : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → 0 < M7.RecoveryInstance.count w E bases [] → (M7.RecoveryInstance.remaining w E (M7.RecoveryInstance.insertedBases w E bases) []).card < (M7.RecoveryInstance.remaining w E bases []).card ∧ (M7.RecoveryInstance.count w E (M7.RecoveryInstance.insertedBases w E bases) []).toNat < (M7.RecoveryInstance.count w E bases []).toNat := by\n  intro N inst w E bases hE hB hpos\n  classical\n  have hf := (M7.RecoveryInstance.fresh_leaf N w E bases hE hB hpos).1\n  have hgood := (M7.RecoveryInstance.insert_good N w E bases hE hB hpos).1\n  have ho : M7.RecoveryInstance.recoverLeaf w E bases ∈ M7.ActualOrbit.orbit (M7.CanonicalOuter.canonical (M7.RecoveryInstance.recoverLeaf w E bases)) := by\n    apply (M7.CanonicalClasses.orbit_membership N _ _).2\n    exact (M7.CanonicalClasses.idempotent N _).symm\n  have hlt : (M7.RecoveryInstance.remaining w E (M7.RecoveryInstance.insertedBases w E bases) []).card < (M7.RecoveryInstance.remaining w E bases []).card := by\n    unfold M7.RecoveryInstance.remaining M7.RecoveryInstance.insertedBases\n    rw [M7.OrbitResidual.insert_remaining]\n    apply Finset.card_lt_card\n    refine Finset.ssubset_iff_subset_ne.mpr ⟨Finset.sdiff_subset, ?_⟩\n    intro heq\n    have hm : M7.RecoveryInstance.recoverLeaf w E bases ∈ M7.OrbitResidual.remaining (M7.RecoveryPrefix.completed N w E []) bases \\ M7.ActualOrbit.orbit (M7.CanonicalOuter.canonical (M7.RecoveryInstance.recoverLeaf w E bases)) := by\n      rw [heq]\n      exact hf\n    exact (Finset.mem_sdiff.mp hm).2 ho\n  refine ⟨hlt, ?_⟩\n  rw [(M7.RecoveryInstance.count_card N w E (M7.RecoveryInstance.insertedBases w E bases) hE hgood []).2.1,\n    (M7.RecoveryInstance.count_card N w E bases hE hB []).2.1]\n  exact hlt",
+          "imports": [
+            "M7DescentTraceAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RecoveryInstance",
+            "M7RecoveryPrefixAccepted"
+          ],
+          "name": "M7.RecoveryInstance.strict_decrease",
+          "ancestors": [
+            "count_card",
+            "count_partition",
+            "fresh_leaf",
+            "insert_good",
+            "positive_path"
+          ],
+          "spec_sha256": "4dde4c5ca1b131e5d4b175932f51d53a6da0e1ea50108975347ddd78be9ad252"
+        },
+        "sha256": "85b15d33c9d5e5c7529528bf4f005c00298315404a961ecf969d59ffa032c9d6"
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "cursor_interval",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.StreamingIndices.cursor_interval",
+    "spec_sha256": "b0ec9e272aca0d27281016c947e99bbd3b418c8141bde0c5c8dcb1b2c9c63897",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-streaming-indices-formalization/.humanize-formal-runs/run-l6lkijmi/attempt-001/Candidate_43a901a93e649364.lean",
+        "target_path": "/home/jing/m7-lean-streaming-indices-formalization/.humanize-formal-runs/run-l6lkijmi/attempt-001/FrozenTarget_43a901a93e649364.lean",
+        "feedback": "",
+        "target_sha256": "36f1dd4fc7e71264ee7ec747e5d9b928a66e0814085ca9580fb3c92d1ee55225",
+        "target_olean_sha256": "08bb0037e3ab6d5dcdc290a818bb9d874844c272cb6e965335aa6474588e322d",
+        "source_sha256": "0b2abe8f4fb6091940901c8f7dd4b84242c69408eaca4c8f5b68dbd7c1dcc53f",
+        "olean_sha256": "67ccab3e5d29820863f298f7f0e2b2a0164d4feb2585df58f66412ef1f5839eb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:42:08.551414+00:00",
+    "work": "/home/jing/m7-lean-streaming-indices-formalization/.humanize-formal-runs/run-l6lkijmi",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "baf232e4ef9df07d7c76e2ea705e9c89b86be979d1e3728b7167d94c17779836",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-streaming-indices-formalization/.humanize-formal-runs/run-l6lkijmi/attempt-001/Candidate_43a901a93e649364.lean",
+    "environment_sha256": "201fe9ce0235f4a12ef1398dd4ccc13a34753aa18acd9822ba796aa3c43b99dc",
+    "artifacts": {
+      "cursor_interval": {
+        "payload": {
+          "declaration": "theorem M7.StreamingIndices.cursor_interval : ∀ (n : ℕ) (p : Fin n → Bool) (i fuel : ℕ), M7.StreamingIndices.allFinFrom n p i fuel = true ↔ ∀ j : Fin n, i ≤ j.val → j.val < i + fuel → p j = true := by\n  change ∀ (n : ℕ) (p : Fin n → Bool) (i fuel : ℕ), M7.StreamingIndices.allFinFrom n p i fuel = true ↔ ∀ j : Fin n, i ≤ j.val → j.val < i + fuel → p j = true\n  intro n p i fuel\n  induction fuel generalizing i with\n  | zero =>\n      constructor\n      · intro _ j hlo hhi\n        omega\n      · intro _\n        rfl\n  | succ fuel ih =>\n      by_cases hi : i < n\n      · by_cases hp : p ⟨i, hi⟩ = true\n        · have hstep : M7.StreamingIndices.allFinFrom n p i (fuel + 1) = M7.StreamingIndices.allFinFrom n p (i + 1) fuel := by\n            simp [M7.StreamingIndices.allFinFrom, hi, hp]\n          rw [hstep, ih]\n          constructor\n          · intro h j hlo hhi\n            by_cases hj : j.val = i\n            · have heq : j = ⟨i, hi⟩ := Fin.ext hj\n              simpa only [heq] using hp\n            · exact h j (by omega) (by omega)\n          · intro h j hlo hhi\n            exact h j (by omega) (by omega)\n        · constructor\n          · intro h\n            simp [M7.StreamingIndices.allFinFrom, hi, hp] at h\n          · intro h\n            exfalso\n            apply hp\n            exact h ⟨i, hi⟩ (by simp) (by dsimp; omega)\n      · constructor\n        · intro _ j hlo _\n          have hj := j.isLt\n          omega\n        · intro _\n          simp [M7.StreamingIndices.allFinFrom, hi]",
+          "imports": [
+            "M7StreamingIndices"
+          ],
+          "name": "M7.StreamingIndices.cursor_interval",
+          "ancestors": [],
+          "spec_sha256": "b0ec9e272aca0d27281016c947e99bbd3b418c8141bde0c5c8dcb1b2c9c63897"
+        },
+        "sha256": "8348bdbfb3e3f08dfde84d0d26d4801671cb07b85fa999485ae508d883246447"
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset card union disjoint subset sdiff",
+    "status": "ok",
+    "results": [
+      {
+        "id": 70877,
+        "name": "Finset.union_sub_inter_subset_union",
+        "module": "Mathlib.Algebra.Group.Pointwise.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/Basic.lean#L647-L647",
+        "source_text": "@[to_additive]\ntheorem union_div_inter_subset_union : (s₁ ∪ s₂) / (t₁ ∩ t₂) ⊆ s₁ / t₁ ∪ s₂ / t₂ :=",
+        "docstring": null
+      },
+      {
+        "id": 202306,
+        "name": "Finset.card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+        "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+        "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+      },
+      {
+        "id": 202403,
+        "name": "Finset.card_sdiff_of_subset",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L579-L582",
+        "source_text": "@[grind =]\ntheorem card_sdiff_of_subset (h : s ⊆ t) : #(t \\ s) = #t - #s := by\n  suffices #(t \\ s) = #(t \\ s ∪ s) - #s by rwa [sdiff_union_of_subset h] at this\n  rw [card_union_of_disjoint sdiff_disjoint, Nat.add_sub_cancel_right]",
+        "docstring": null
+      },
+      {
+        "id": 204219,
+        "name": "Finset.union_sdiff_of_subset",
+        "module": "Mathlib.Data.Finset.SDiff",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/SDiff.lean#L72-L72",
+        "source_text": "theorem union_sdiff_of_subset (h : s ⊆ t) : s ∪ t \\ s = t := by grind\n",
+        "docstring": null
+      },
+      {
+        "id": 204220,
+        "name": "Finset.sdiff_union_of_subset",
+        "module": "Mathlib.Data.Finset.SDiff",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/SDiff.lean#L74-L74",
+        "source_text": "theorem sdiff_union_of_subset {s₁ s₂ : Finset α} (h : s₁ ⊆ s₂) : s₂ \\ s₁ ∪ s₁ = s₂ := by grind\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset card union disjoint subset sdiff",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389111,
+        "name": "FieldStatistic.ofFinset_union_disjoint",
+        "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L108-L112",
+        "source_text": "lemma ofFinset_union_disjoint (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a b : Finset (Fin φs.length))\n    (h : Disjoint a b) :\n    ofFinset q φs.get a * ofFinset q φs.get b = ofFinset q φs.get (a ∪ b) := by\n  rw [ofFinset_union, Finset.disjoint_iff_inter_eq_empty.mp h]\n  simp\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

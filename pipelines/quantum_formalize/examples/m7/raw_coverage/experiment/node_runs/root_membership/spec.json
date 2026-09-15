@@ -1,0 +1,14 @@
+{
+  "name": "M7.RawCoverage.root_membership",
+  "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) (c : M7.Action.Recipe N), c ∈ M7.RawCoverage.rootCompleted N w E ↔ M7.RawCoverage.Queried w E c ∧ (0 : ZMod N) ∈ c.1 ∧ (0 : ZMod N) ∈ c.2",
+  "imports": [
+    "M7PrefixBitsAccepted",
+    "M7PrefixOrbitAccepted",
+    "M7RawCoverage"
+  ],
+  "context": "theorem M7.RawCoverage.root_within : ∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)), M7.PrefixOrbit.Within (M7.PrefixBits.A N []) (M7.PrefixBits.WA N []) S ↔ (0 : ZMod N) ∈ S := by\n  classical\n  intro N inst S\n  have hr := M7.PrefixBits.root N (NeZero.pos N)\n  rw [hr.1, hr.2.2.1]\n  change ({0} ⊆ S.image ZMod.val ∧\n    S.image ZMod.val ⊆ {0} ∪ (Finset.range N \\ {0})) ↔ (0 : ZMod N) ∈ S\n  constructor\n  · intro h\n    have hz : 0 ∈ S.image ZMod.val := h.1 (Finset.mem_singleton_self 0)\n    obtain ⟨a, ha, hav⟩ := Finset.mem_image.mp hz\n    have ha0 : a = (0 : ZMod N) :=\n      (ZMod.val_injective N) (by simpa only [ZMod.val_zero] using hav)\n    simpa only [ha0] using ha\n  · intro h\n    constructor\n    · apply Finset.singleton_subset_iff.mpr\n      exact Finset.mem_image.mpr ⟨0, h, ZMod.val_zero⟩\n    · intro k hk\n      obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp hk\n      by_cases hz : a.val = 0\n      · apply Finset.mem_union.mpr\n        exact Or.inl (Finset.mem_singleton.mpr hz)\n      · apply Finset.mem_union.mpr\n        apply Or.inr\n        apply Finset.mem_sdiff.mpr\n        exact ⟨Finset.mem_range.mpr (ZMod.val_lt a), by simpa using hz⟩",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Use accepted PrefixOrbit.membership at the actual PrefixBits root with accepted PrefixBits.base. Rewrite root_within for both blocks; root B/WB equal A/WA by PrefixBits.root. Do not assume ValidSector merely for semantic membership. Return tactic lines without leading by."
+}

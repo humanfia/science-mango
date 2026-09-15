@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro N hN F hF hdiv\nhave hq : M5.cyclicModulus N / F ≠ 0 :=\n  M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hF hdiv\nhave hM : M5.cyclicModulus N ≠ 0 := by\n  intro hz\n  apply hq\n  simp [hz]\nhave heq : F * (M5.cyclicModulus N / F) = M5.cyclicModulus N := by\n  first\n  | exact EuclideanDomain.mul_div_cancel' hdiv\n  | exact (EuclideanDomain.div_mul_cancel hdiv).symm.trans (mul_comm _ _)\n  | simpa [mul_comm] using (EuclideanDomain.div_mul_cancel hdiv)\nhave hqdvd : M5.cyclicModulus N / F ∣ M5.cyclicModulus N := by\n  exact ⟨F, by simpa [mul_comm] using heq.symm⟩\nhave hle :=\n  (UniqueFactorizationMonoid.dvd_iff_normalizedFactors_le_normalizedFactors hq hM).mp hqdvd\nchange (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F)).toFinset.card ≤\n  (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\napply Finset.card_le_card\nintro p hp\napply Multiset.mem_toFinset.mpr\nexact Multiset.mem_of_le hle (Multiset.mem_toFinset.mp hp)",
+  "queries": [
+    "EuclideanDomain.mul_div_cancel'",
+    "EuclideanDomain.div_mul_cancel"
+  ]
+}

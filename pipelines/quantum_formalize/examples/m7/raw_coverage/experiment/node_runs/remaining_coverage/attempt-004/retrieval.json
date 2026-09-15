@@ -1,0 +1,206 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.ActualOrbit.orbit",
+    "status": "ok",
+    "results": [
+      {
+        "id": 223705,
+        "name": "Flow.orbit",
+        "module": "Mathlib.Dynamics.Flow",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/Flow.lean#L186-L187",
+        "source_text": "/-- The orbit of a point under a flow. -/\ndef orbit (x : α) : Set α := @AddAction.orbit _ _ ϕ.toAddAction.toVAdd x\n",
+        "docstring": "The orbit of a point under a flow. "
+      },
+      {
+        "id": 223868,
+        "name": "Function.periodicOrbit",
+        "module": "Mathlib.Dynamics.PeriodicPts.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Dynamics/PeriodicPts/Defs.lean#L397-L402",
+        "source_text": "/-- The orbit of a periodic point `x` of `f` is the cycle `[x, f x, f (f x), ...]`. Its length is\nthe minimal period of `x`.\n\nIf `x` is not a periodic point, then this is the empty (aka nil) cycle. -/\ndef periodicOrbit (f : α → α) (x : α) : Cycle α :=\n  (List.range (minimalPeriod f x)).map fun n => f^[n] x\n",
+        "docstring": "The orbit of a periodic point `x` of `f` is the cycle `[x, f x, f (f x), ...]`. Its length is\nthe minimal period of `x`.\n\nIf `x` is not a periodic point, then this is the empty (aka nil) cycle. "
+      },
+      {
+        "id": 236011,
+        "name": "MulAction.mem_orbit",
+        "module": "Mathlib.GroupTheory.GroupAction.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Defs.lean#L58-L60",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem mem_orbit (a : α) (m : γ) : m • a ∈ orbit γ a :=\n  ⟨m, rfl⟩",
+        "docstring": null
+      },
+      {
+        "id": 236007,
+        "name": "MulAction.orbit",
+        "module": "Mathlib.GroupTheory.GroupAction.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Defs.lean#L47-L50",
+        "source_text": "/-- The orbit of an element under an action. -/\n@[to_additive /-- The orbit of an element under an action. -/]\ndef orbit (a : α) :=\n  Set.range fun m : γ => m • a\n",
+        "docstring": "The orbit of an element under an action. "
+      },
+      {
+        "id": 237036,
+        "name": "SubMulAction.mem_orbit_subMul_iff",
+        "module": "Mathlib.GroupTheory.GroupAction.SubMulAction",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction.lean#L434-L437",
+        "source_text": "@[to_additive]\nlemma mem_orbit_subMul_iff {p : SubMulAction R M} {x m : p} :\n    x ∈ MulAction.orbit R m ↔ (x : M) ∈ MulAction.orbit R (m : M) := by\n  rw [← val_preimage_orbit, Set.mem_preimage]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.ActualOrbit.orbit",
+    "status": "ok",
+    "results": [
+      {
+        "id": 385396,
+        "name": "ClassicalMechanics.VisViva.speedCircular_sq",
+        "module": "Physlib.ClassicalMechanics.OrbitalMechanics.VisViva",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/OrbitalMechanics/VisViva.lean#L42-L46",
+        "source_text": "/-- Lemma: the square of the circular orbit speed equals G M / r. -/\nlemma speedCircular_sq (sys : VisViva) (cfg : ConfigurationSpace) (hr : 0 < cfg.r) (hG : 0 < sys.G)\n    (hM : 0 < sys.M) :\n    (speedCircular sys cfg)^2 = sys.G * sys.M / cfg.r :=\n  Real.sq_sqrt (by positivity)\n",
+        "docstring": "Lemma: the square of the circular orbit speed equals G M / r. "
+      },
+      {
+        "id": 388078,
+        "name": "StandardModel.HiggsField.guage_orbit",
+        "module": "Physlib.Particles.StandardModel.HiggsBoson.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/HiggsBoson/Basic.lean#L746-L751",
+        "source_text": "/-- There exists a `g` in `gaugeTransformI` such that `gaugeAction g φ = φ'` iff\n`φ(x)^† φ(x) = φ'(x)^† φ'(x)`.\n-/\ninformal_lemma guage_orbit where\n  deps := [``gaugeAction]\n  tag := \"6V2NX\"\n",
+        "docstring": "There exists a `g` in `gaugeTransformI` such that `gaugeAction g φ = φ'` iff\n`φ(x)^† φ(x) = φ'(x)^† φ'(x)`.\n"
+      },
+      {
+        "id": 385394,
+        "name": "ClassicalMechanics.VisViva.ConfigurationSpace",
+        "module": "Physlib.ClassicalMechanics.OrbitalMechanics.VisViva",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/OrbitalMechanics/VisViva.lean#L33-L36",
+        "source_text": "/-- Configuration space for orbital mechanics, defining the orbital radius. -/\nstructure ConfigurationSpace where\n  /-- Orbital radius. -/\n  r : ℝ\n",
+        "docstring": "Configuration space for orbital mechanics, defining the orbital radius. "
+      },
+      {
+        "id": 385393,
+        "name": "ClassicalMechanics.VisViva",
+        "module": "Physlib.ClassicalMechanics.OrbitalMechanics.VisViva",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/OrbitalMechanics/VisViva.lean#L22-L29",
+        "source_text": "/-- System parameters for the vis-viva equation in circular orbital mechanics. -/\nstructure VisViva where\n  /-- Gravitational constant. -/\n  G : ℝ\n  /-- Central mass body. -/\n  M : ℝ\n  /-- Orbiting mass body. -/\n  m : ℝ\n",
+        "docstring": "System parameters for the vis-viva equation in circular orbital mechanics. "
+      },
+      {
+        "id": 385395,
+        "name": "ClassicalMechanics.VisViva.speedCircular",
+        "module": "Physlib.ClassicalMechanics.OrbitalMechanics.VisViva",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/OrbitalMechanics/VisViva.lean#L38-L40",
+        "source_text": "/-- The orbital speed required for a circular orbit at radius `r`. -/\nnoncomputable def speedCircular (sys : VisViva) (cfg : ConfigurationSpace) : ℝ :=\n  Real.sqrt (sys.G * sys.M / cfg.r)\n",
+        "docstring": "The orbital speed required for a circular orbit at radius `r`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.CanonicalOuter.realizer_inverse",
+    "status": "ok",
+    "results": [
+      {
+        "id": 198404,
+        "name": "Ctop.Realizer",
+        "module": "Mathlib.Data.Analysis.Topology",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Analysis/Topology.lean#L102-L107",
+        "source_text": "/-- A `Ctop` realizer for the topological space `T` is a `Ctop`\n  which generates `T`. -/\nstructure Ctop.Realizer (α) [T : TopologicalSpace α] where\n  σ : Type*\n  F : Ctop α σ\n  eq : F.toTopsp = T\n",
+        "docstring": "A `Ctop` realizer for the topological space `T` is a `Ctop`\nwhich generates `T`. "
+      },
+      {
+        "id": 245916,
+        "name": "ExteriorAlgebra.ι_leftInverse",
+        "module": "Mathlib.LinearAlgebra.ExteriorAlgebra.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/ExteriorAlgebra/Basic.lean#L205-L206",
+        "source_text": "theorem ι_leftInverse : Function.LeftInverse ιInv (ι R : M → ExteriorAlgebra R M) := fun x => by\n  simp [ιInv]\n",
+        "docstring": null
+      },
+      {
+        "id": 268397,
+        "name": "MeasureTheory.OuterMeasure",
+        "module": "Mathlib.MeasureTheory.OuterMeasure.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/OuterMeasure/Defs.lean#L50-L57",
+        "source_text": "/-- An outer measure is a countably subadditive monotone function that sends `∅` to `0`. -/\nstructure OuterMeasure (α : Type*) where\n  /-- Outer measure function. Use automatic coercion instead. -/\n  protected measureOf : Set α → ℝ≥0∞\n  protected empty : measureOf ∅ = 0\n  protected mono : ∀ {s₁ s₂}, s₁ ⊆ s₂ → measureOf s₁ ≤ measureOf s₂\n  protected iUnion_nat : ∀ s : ℕ → Set α, Pairwise (Disjoint on s) →\n    measureOf (⋃ i, s i) ≤ ∑' i, measureOf (s i)\n",
+        "docstring": "An outer measure is a countably subadditive monotone function that sends `∅` to `0`. "
+      },
+      {
+        "id": 92250,
+        "name": "ArchimedeanOrder.of_symm_eq",
+        "module": "Mathlib.Algebra.Order.Archimedean.Class",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Archimedean/Class.lean#L87-L87",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem of_symm_eq : (of (M := M)).symm = val := rfl",
+        "docstring": null
+      },
+      {
+        "id": 198364,
+        "name": "Filter.Realizer",
+        "module": "Mathlib.Data.Analysis.Filter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Analysis/Filter.lean#L94-L98",
+        "source_text": "/-- A realizer for filter `f` is a cfilter which generates `f`. -/\nstructure Filter.Realizer (f : Filter α) where\n  σ : Type*\n  F : CFilter (Set α) σ\n  eq : F.toFilter = f\n",
+        "docstring": "A realizer for filter `f` is a cfilter which generates `f`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.CanonicalOuter.realizer_inverse",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393734,
+        "name": "CanonicalEnsemble",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L108-L128",
+        "source_text": "/-- A Canonical ensemble is described by a type `ι`, corresponding to the type of microstates,\nand a map `ι → ℝ` which associates which each microstate an energy\nand physical constants needed to define dimensionless thermodynamic quantities. -/\nstructure CanonicalEnsemble (ι : Type) [MeasurableSpace ι] : Type where\n  /-- The energy of associated with a microstate of the canonical ensemble. -/\n  energy : ι → ℝ\n  /-- The number of degrees of freedom, used to make the partition function dimensionless.\n  For a classical system of N particles in 3D, this is `3N`. For a system of N spins,\n  this is typically `0` as the state space is already discrete. -/\n  dof : ℕ\n  /-- The unit of action used to make the phase space volume dimensionless.\n  This constant is necessary to define an absolute (rather than relative) thermodynamic\n  entropy. In the semi-classical approach, this unit is identified with Planck's constant `h`.\n  For discrete systems with a counting measure, this unit should be set to `1`. -/\n  phaseSpaceunit : ℝ := 1\n  /-- Assumption that the phase space unit is positive. -/\n  hPos : 0 < phaseSpaceunit := by positivity\n  energy_measurable : Measurable energy\n  /-- The measure on the indexing set of microstates. -/\n  μ : MeasureTheory.Measure ι := by volume_tac\n  [μ_sigmaFinite : SigmaFinite μ]\n",
+        "docstring": "A Canonical ensemble is described by a type `ι`, corresponding to the type of microstates,\nand a map `ι → ℝ` which associates which each microstate an energy\nand physical constants needed to define dimensionless thermodynamic quantities. "
+      },
+      {
+        "id": 393783,
+        "name": "CanonicalEnsemble.μProd",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L443-L446",
+        "source_text": "/-- The probability measure associated with the Boltzmann distribution of a\n  canonical ensemble. -/\nnoncomputable def μProd (T : Temperature) : MeasureTheory.Measure ι :=\n  (𝓒.μBolt T Set.univ)⁻¹ • 𝓒.μBolt T\n",
+        "docstring": "The probability measure associated with the Boltzmann distribution of a\ncanonical ensemble. "
+      },
+      {
+        "id": 393779,
+        "name": "CanonicalEnsemble.probability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L414-L420",
+        "source_text": "/-- The probability density function of the canonical ensemble.\nNote: In the general measure-theoretic case, this is a density with respect to the\nunderlying measure `𝓒.μ` and is not necessarily less than or equal to 1. In the\ncase of a finite ensemble with the counting measure, this value corresponds to the\nprobability of the microstate. -/\nnoncomputable def probability (T : Temperature) (i : ι) : ℝ :=\n  (exp (- T.β * 𝓒.energy i)) / 𝓒.mathematicalPartitionFunction T\n",
+        "docstring": "The probability density function of the canonical ensemble.\nNote: In the general measure-theoretic case, this is a density with respect to the\nunderlying measure `𝓒.μ` and is not necessarily less than or equal to 1. In the\ncase of a finite ensemble with the counting measure, this value corresponds to the\nprobability of the microstate. "
+      },
+      {
+        "id": 393743,
+        "name": "CanonicalEnsemble.nsmul",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L187-L195",
+        "source_text": "/-- Scalar multiplication of `CanonicalEnsemble`, defined such that\n`nsmul n 𝓒` represents `n` non-interacting, distinguishable copies of the ensemble `𝓒`. -/\nnoncomputable def nsmul (n : ℕ) (𝓒 : CanonicalEnsemble ι) : CanonicalEnsemble (Fin n → ι) where\n  energy := fun f => ∑ i, 𝓒.energy (f i)\n  dof := n * 𝓒.dof\n  phaseSpaceunit := 𝓒.phaseSpaceunit\n  hPos := 𝓒.hPos\n  μ := MeasureTheory.Measure.pi fun _ => 𝓒.μ\n  energy_measurable := by fun_prop\n",
+        "docstring": "Scalar multiplication of `CanonicalEnsemble`, defined such that\n`nsmul n 𝓒` represents `n` non-interacting, distinguishable copies of the ensemble `𝓒`. "
+      },
+      {
+        "id": 393741,
+        "name": "CanonicalEnsemble.congr",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L168-L180",
+        "source_text": "/-- Given a measurable equivalence `e : ι1 ≃ᵐ ι`, this is the corresponding canonical ensemble\non `ι1`. The physical properties (`dof`, `phase_space_unit`) are unchanged. -/\nnoncomputable def congr (e : ι1 ≃ᵐ ι) : CanonicalEnsemble ι1 where\n  energy := fun i => 𝓒.energy (e i)\n  dof := 𝓒.dof\n  phaseSpaceunit := 𝓒.phaseSpaceunit\n  hPos := 𝓒.hPos\n  μ := 𝓒.μ.map e.symm\n  energy_measurable := by\n    apply Measurable.comp\n    · fun_prop\n    · exact MeasurableEquiv.measurable e\n  μ_sigmaFinite := MeasurableEquiv.sigmaFinite_map e.symm\n",
+        "docstring": "Given a measurable equivalence `e : ι1 ≃ᵐ ι`, this is the corresponding canonical ensemble\non `ι1`. The physical properties (`dof`, `phase_space_unit`) are unchanged. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,108 @@
+{
+  "id": "character_visits",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ArithmeticLoops.character_visits",
+    "spec_sha256": "cb08d496c0f5d225c1cafea51f50c92cb408875162739dd5dace4c440bed6799",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-arithmetic-loops-formalization/.humanize-formal-runs/run-nl6sifvf/attempt-001/Candidate_29e4cdcdb703fbd5.lean",
+        "target_path": "/home/jing/m7-lean-arithmetic-loops-formalization/.humanize-formal-runs/run-nl6sifvf/attempt-001/FrozenTarget_29e4cdcdb703fbd5.lean",
+        "feedback": "",
+        "target_sha256": "7a100fce48e10c1d733f0ef2344a913ba832e86741e3f035a567c4f46d60c073",
+        "target_olean_sha256": "6e0449e5638e41ee7992041a570ff2d68f2c3be6b0014990f432355acfa4ce85",
+        "source_sha256": "755fe8e4e1252f5d30595e8e9426048b72c16571430d9d2fea3e7defd1d28c72",
+        "olean_sha256": "095aef5b164125f9c5958bb15edbeba6bf706dbefdc3bb8252b605966788e5b7",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:40:00.410427+00:00",
+    "work": "/home/jing/m7-lean-arithmetic-loops-formalization/.humanize-formal-runs/run-nl6sifvf",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c55a51fb046686f705d4e30a421770b07b0a4f6ffbdce91af5e58d4b04a87f93",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-arithmetic-loops-formalization/.humanize-formal-runs/run-nl6sifvf/attempt-001/Candidate_29e4cdcdb703fbd5.lean",
+    "environment_sha256": "c6f4b4c383bb3cfab043e568bece32416250b115916791abd872519a319d1183",
+    "artifacts": {
+      "character_card": {
+        "payload": {
+          "declaration": "theorem M7.ArithmeticLoops.character_card : ∀ D : ℕ, Fintype.card (M5.Character.BinaryVector D) = 2^D := by\n  change ∀ D : ℕ, Fintype.card (Fin D → ZMod 2) = 2 ^ D\n  intro D\n  simp [Fintype.card_fun, ZMod.card]",
+          "imports": [
+            "M7ArithmeticLoops"
+          ],
+          "name": "M7.ArithmeticLoops.character_card",
+          "ancestors": [],
+          "spec_sha256": "9e76079c8be72157ccc4f79a22d45dca3de025e47563ae5136d0fa03a08629f6"
+        },
+        "sha256": "54733b1fee4fa26f45e138b62513026affaba96b0a3ee160583ea0ed9079e81b"
+      },
+      "exclusion_cap": {
+        "payload": {
+          "declaration": "theorem M7.ArithmeticLoops.exclusion_cap : ∀ (N : ℕ), 0 < N → ∀ (F : M5.BinaryPolynomial) (S : Finset M5.BinaryPolynomial), F.Monic → F ∣ M5.cyclicModulus N → S ⊆ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F → (F * (∏ p ∈ S, p)).Monic ∧ (F * (∏ p ∈ S, p)).natDegree ≤ N := by\n  classical\n  intro N hN F S hF hFdvd hS\n  have hmonic : (F * (∏ p ∈ S, p)).Monic := by\n    apply hF.mul\n    apply Polynomial.monic_prod_of_monic\n    intro p hp\n    exact (M5.PolynomialIndicator.residual_factors_regular F N hN hF hFdvd p (hS hp)).1\n  have hdvd : F * (∏ p ∈ S, p) ∣ M5.cyclicModulus N := by\n    apply M5.FactorProduct.cyclic_cap <;> assumption\n  have hne : M5.cyclicModulus N ≠ 0 := by\n    intro hz\n    have hq := M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hF hFdvd\n    apply hq\n    simp [hz]\n  have hdeg : (M5.cyclicModulus N).natDegree ≤ N := by\n    simpa [M5.cyclicModulus] using\n      (Polynomial.natDegree_add_le ((Polynomial.X : M5.BinaryPolynomial) ^ N) 1)\n  exact ⟨hmonic, (Polynomial.natDegree_le_of_dvd hdvd hne).trans hdeg⟩",
+          "imports": [
+            "M7ArithmeticLoops"
+          ],
+          "name": "M7.ArithmeticLoops.exclusion_cap",
+          "ancestors": [],
+          "spec_sha256": "c6c9192d58e151cba816ff79425525d003f615bcdd83e9d147e711af21221156"
+        },
+        "sha256": "fe33f6a9145c79faa9794b4627ae6a43999768348be9c6a294396e4ece5c039d"
+      },
+      "factor_card": {
+        "payload": {
+          "declaration": "theorem M7.ArithmeticLoops.factor_card : ∀ (N : ℕ), 0 < N → ∀ F : M5.BinaryPolynomial, F.Monic → F ∣ M5.cyclicModulus N → (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).card ≤ M7.ArithmeticLoops.factorCount N := by\n  classical\n  intro N hN F hF hdiv\n  have hq : M5.cyclicModulus N / F ≠ 0 :=\n    M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hF hdiv\n  have hM : M5.cyclicModulus N ≠ 0 := by\n    intro h\n    apply hq\n    simp [h]\n  have hprod : F * (M5.cyclicModulus N / F) ∣ M5.cyclicModulus N :=\n    (M5.PolynomialExclusion.factor_dvd_quotient F (M5.cyclicModulus N)\n      (M5.cyclicModulus N / F) hF.ne_zero hdiv).mp (dvd_refl _)\n  have hd : M5.cyclicModulus N / F ∣ M5.cyclicModulus N :=\n    dvd_trans ⟨F, mul_comm _ _⟩ hprod\n  have hle :=\n    (UniqueFactorizationMonoid.dvd_iff_normalizedFactors_le_normalizedFactors hq hM).mp hd\n  change (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F)).toFinset.card ≤\n    (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\n  apply Finset.card_le_card\n  intro p hp\n  simp only [Multiset.mem_toFinset] at hp ⊢\n  exact Multiset.mem_of_le hle hp",
+          "imports": [
+            "M7ArithmeticLoops"
+          ],
+          "name": "M7.ArithmeticLoops.factor_card",
+          "ancestors": [],
+          "spec_sha256": "8ae69113573e30b4290f1b08600d5da1c9fed34c50cdfdc4655f6a1c1f61629b"
+        },
+        "sha256": "9cb7e3b7304ea35fe309c66d6349fed99a6a61acff1cde0a8f17bc66d25365eb"
+      },
+      "divisor_card": {
+        "payload": {
+          "declaration": "theorem M7.ArithmeticLoops.divisor_card : ∀ (N : ℕ), 0 < N → ∀ A B : Finset ℕ, (M5.Connectivity.supportGcd N A B).divisors.card ≤ M7.ArithmeticLoops.divisorCount N := by\n  intro N hN A B\n  change (M5.Connectivity.supportGcd N A B).divisors.card ≤ N.divisors.card\n  apply Finset.card_le_card\n  intro d hd\n  apply Nat.mem_divisors.mpr\n  refine ⟨dvd_trans (Nat.mem_divisors.mp hd).1 ?_, Nat.ne_of_gt hN⟩\n  rw [M7.ResiduePrefix.gcd_union]\n  exact Nat.gcd_dvd_left N ((A ∪ B).gcd id)",
+          "imports": [
+            "M7ArithmeticLoops"
+          ],
+          "name": "M7.ArithmeticLoops.divisor_card",
+          "ancestors": [],
+          "spec_sha256": "1665da4b6adcdc21486e7fbe176ecde31a73f37d2eeea7843fb7bcdfe65dc00b"
+        },
+        "sha256": "609cf8e777e0ba8bf4bf37f1d3cccc88dfa82c74f46c6f70f642890dd9c1683a"
+      },
+      "character_visits": {
+        "payload": {
+          "declaration": "theorem M7.ArithmeticLoops.character_visits : ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B : Finset ℕ), M7.PrefixSector.ValidSector N E → M7.ArithmeticLoops.characterVisits N w E A B ≤ 2 * E.card * M7.ArithmeticLoops.divisorCount N * 2^(M7.ArithmeticLoops.factorCount N + N) := by\n  classical\n  intro N hN w E A B hE\n  change M7.ArithmeticLoops.characterVisits N w E A B ≤ _\n  unfold M7.ArithmeticLoops.characterVisits\n  split_ifs with hguard\n  · have hinner : ∀ F ∈ E,\n        (∑ S ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n          2 * Fintype.card (M5.Character.BinaryVector (F * (∏ p ∈ S, p)).natDegree)) ≤\n        2 ^ M7.ArithmeticLoops.factorCount N * (2 * 2 ^ N) := by\n      intro F hFE\n      have hF : F.Monic ∧ F ∣ M5.cyclicModulus N := by\n        have hv := hE\n        unfold M7.PrefixSector.ValidSector at hv\n        aesop\n      calc\n        _ ≤ ∑ S ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n            2 * 2 ^ N := by\n          apply Finset.sum_le_sum\n          intro S hS\n          rw [M7.ArithmeticLoops.character_card]\n          apply Nat.mul_le_mul_left\n          apply Nat.pow_le_pow_right (by omega)\n          exact (M7.ArithmeticLoops.exclusion_cap N hN F S hF.1 hF.2\n            (Finset.mem_powerset.mp hS)).2\n        _ = 2 ^ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).card *\n            (2 * 2 ^ N) := by\n          simp\n        _ ≤ 2 ^ M7.ArithmeticLoops.factorCount N * (2 * 2 ^ N) := by\n          apply Nat.mul_le_mul_right\n          exact Nat.pow_le_pow_right (by omega)\n            (M7.ArithmeticLoops.factor_card N hN F hF.1 hF.2)\n    calc\n      _ ≤ ∑ F ∈ E, M7.ArithmeticLoops.divisorCount N *\n          (2 ^ M7.ArithmeticLoops.factorCount N * (2 * 2 ^ N)) := by\n        apply Finset.sum_le_sum\n        intro F hFE\n        calc\n          _ ≤ ∑ _d ∈ (M5.Connectivity.supportGcd N A B).divisors,\n              2 ^ M7.ArithmeticLoops.factorCount N * (2 * 2 ^ N) := by\n            apply Finset.sum_le_sum\n            intro d hd\n            exact hinner F hFE\n          _ = (M5.Connectivity.supportGcd N A B).divisors.card *\n              (2 ^ M7.ArithmeticLoops.factorCount N * (2 * 2 ^ N)) := by\n            simp\n          _ ≤ M7.ArithmeticLoops.divisorCount N *\n              (2 ^ M7.ArithmeticLoops.factorCount N * (2 * 2 ^ N)) :=\n            Nat.mul_le_mul_right _ (M7.ArithmeticLoops.divisor_card N hN A B)\n      _ = 2 * E.card * M7.ArithmeticLoops.divisorCount N *\n          2 ^ (M7.ArithmeticLoops.factorCount N + N) := by\n        simp only [Finset.sum_const, smul_eq_mul, pow_add]\n        ring\n  · exact Nat.zero_le _",
+          "imports": [
+            "M7ArithmeticLoops"
+          ],
+          "name": "M7.ArithmeticLoops.character_visits",
+          "ancestors": [
+            "character_card",
+            "divisor_card",
+            "exclusion_cap",
+            "factor_card"
+          ],
+          "spec_sha256": "f1849e261fae6884efc8e5515ddeb4d2f3a2849798371a2e2a1d7d75f741a962"
+        },
+        "sha256": "994484bce149830f88f759d083e38843713797aafcbc62382a00053bd99b18c7"
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+theorem M7.StreamingIndices.record_surjective : ∀ (N : ℕ) [NeZero N], ∀ g : M7.Action.Record N, ∃ (u : Fin (Fintype.card ((ZMod N)ˣ))) (e : Fin 2) (s t : Fin N), M7.StreamingIndices.decodeRecord N u e s t = g := by
+  classical
+  intro N inst g
+  rcases g with ⟨v, b, s, t⟩
+  cases b
+  · refine ⟨Fintype.equivFin ((ZMod N)ˣ) v, 0, ⟨s.val, ZMod.val_lt s⟩, ⟨t.val, ZMod.val_lt t⟩, ?_⟩
+    simp [M7.StreamingIndices.decodeRecord, ZMod.natCast_zmod_val]
+  · refine ⟨Fintype.equivFin ((ZMod N)ˣ) v, 1, ⟨s.val, ZMod.val_lt s⟩, ⟨t.val, ZMod.val_lt t⟩, ?_⟩
+    simp [M7.StreamingIndices.decodeRecord, ZMod.natCast_zmod_val]

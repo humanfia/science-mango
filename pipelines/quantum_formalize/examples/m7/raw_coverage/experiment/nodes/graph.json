@@ -1,0 +1,148 @@
+[
+  {
+    "id": "translate_supports",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.RawCoverage.translate_supports",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (s t : ZMod N), M7.Action.act (M7.Action.translate s t) c = (M7.Domain.shift c.1 s, M7.Domain.shift c.2 t)",
+      "imports": [
+        "M7RawCoverage",
+        "M7PrefixBitsAccepted",
+        "M7PrefixOrbitAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Unfold actual act, translate, affine and Domain.shift. Unit one and exchange false reduce pointwise; congruence of the two finite images. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "translate_signature",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.RawCoverage.translate_signature",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (s t : ZMod N), M7.RecipeSignature.signature (M7.Action.act (M7.Action.translate s t) c) = M7.RecipeSignature.signature c",
+      "imports": [
+        "M7RawCoverage",
+        "M7PrefixBitsAccepted",
+        "M7PrefixOrbitAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Use accepted action_signature with translate. Rewrite source_tau_equal and tau_one using signature_properties. Alternatively instantiate accepted translation_invariant with E=fun F=>F=signature c and use reverse direction of the equivalence. Preserve the entire polynomial including multiplicities. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "root_within",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.RawCoverage.root_within",
+      "statement": "∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)), M7.PrefixOrbit.Within (M7.PrefixBits.A N []) (M7.PrefixBits.WA N []) S ↔ (0 : ZMod N) ∈ S",
+      "imports": [
+        "M7RawCoverage",
+        "M7PrefixBitsAccepted",
+        "M7PrefixOrbitAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Use PrefixBits.root with positivity from NeZero.pos N. The root selected is {0} and remaining is range N minus {0}. encode=image val is always contained in range N. Zero in encode iff zero in S via ZMod.val_injective or val_eq_zero. Empty S and N=1 retained. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "root_membership",
+    "dependencies": [
+      "root_within"
+    ],
+    "spec": {
+      "name": "M7.RawCoverage.root_membership",
+      "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) (c : M7.Action.Recipe N), c ∈ M7.RawCoverage.rootCompleted N w E ↔ M7.RawCoverage.Queried w E c ∧ (0 : ZMod N) ∈ c.1 ∧ (0 : ZMod N) ∈ c.2",
+      "imports": [
+        "M7RawCoverage",
+        "M7PrefixBitsAccepted",
+        "M7PrefixOrbitAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Use accepted PrefixOrbit.membership at the actual PrefixBits root with accepted PrefixBits.base. Rewrite root_within for both blocks; root B/WB equal A/WA by PrefixBits.root. Do not assume ValidSector merely for semantic membership. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "raw_anchor",
+    "dependencies": [
+      "translate_supports",
+      "translate_signature",
+      "root_membership"
+    ],
+    "spec": {
+      "name": "M7.RawCoverage.raw_anchor",
+      "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) (c : M7.Action.Recipe N), 0 < w → M7.RawCoverage.Queried w E c → ∃ q ∈ c.1, ∃ r ∈ c.2, M7.Action.act (M7.Action.translate (-q) (-r)) c ∈ M7.RawCoverage.rootCompleted N w E",
+      "imports": [
+        "M7RawCoverage",
+        "M7PrefixBitsAccepted",
+        "M7PrefixOrbitAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Positive equal cards give actual q and r. Translate_supports plus Domain.shift_anchor give both anchors. PrefixOrbit.class_action preserves ClassValid; translate_signature preserves literal requested full signature. Apply root_membership. No supplied anchoring witness or canonical-sector membership. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "remaining_coverage",
+    "dependencies": [
+      "raw_anchor"
+    ],
+    "spec": {
+      "name": "M7.RawCoverage.remaining_coverage",
+      "statement": "∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), 0 < w → M7.CanonicalClasses.Normalized bases → (∀ b ∈ bases, M7.PrefixOrbit.ClassValid w b) → M7.OrbitResidual.remaining (M7.RawCoverage.rootCompleted N w E) bases = ∅ → ∀ c : M7.Action.Recipe N, M7.RawCoverage.Queried w E c → M7.CanonicalOuter.canonical c ∈ bases ∧ ∃ b ∈ bases, ∃ g : M7.Action.Record N, M7.Action.act g b = c",
+      "imports": [
+        "M7RawCoverage",
+        "M7PrefixBitsAccepted",
+        "M7PrefixOrbitAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Anchor raw c using raw_anchor to y. Empty remaining=C\\covered implies y covered; use CanonicalClasses.coverage_iff with Normalized, then CanonicalOuter.canonical_invariant to obtain canonical c in bases. Actual raw witness g is inverse(realizer c), with b=canonical c, by accepted CanonicalOuter.realizer_inverse. Stored ClassValid is the original invariant, not a sector membership premise. Empty E is vacuous, N=1 supported. Do not redo the generation recursion. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "name": "M7.QualityTable.array_scores",
+  "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (g : M7.Action.Record N), (M7.QualityTable.leftTable c (g.unit,g.exchange)).size = N ∧ (M7.QualityTable.rightTable c (g.unit,g.exchange)).size = N ∧ M7.QualityTable.placedScores c g = (M7.DefaultQuery.locality (M7.Action.act g c), M7.DefaultQuery.radius (M7.Action.act g c))",
+  "imports": [
+    "M7QualityTable"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Tables are literal Array.ofFn over Fin N, not arbitrary function-oracle inputs. Use Array.size_ofFn and Array.getElem_ofFn; getElem? is some under ZMod.val_lt, then ZMod.natCast_zmod_val turns the indexed natural position back into the actual shift. leftImage/rightImage at outer=(g.unit,g.exchange) and g shifts are definitionally the two act supports. Unfold locality/radius as sum/max of blockScores. Array lengths supply the exact 2N table-entry accounting. Includes N=1 and empty supports. Return tactic lines without leading by."
+}

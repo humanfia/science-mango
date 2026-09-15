@@ -1,0 +1,284 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Action.affine",
+    "status": "ok",
+    "results": [
+      {
+        "id": 242324,
+        "name": "AffineMap.distribMulAction",
+        "module": "Mathlib.LinearAlgebra.AffineSpace.AffineMap",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/AffineSpace/AffineMap.lean#L688-L691",
+        "source_text": "/-- The space of affine maps to a module inherits an `R`-action from the action on its codomain. -/\ninstance distribMulAction : DistribMulAction R (P1 →ᵃ[k] V2) where\n  smul_add _ _ _ := ext fun _ => smul_add _ _ _\n  smul_zero _ := ext fun _ => smul_zero _\n",
+        "docstring": "The space of affine maps to a module inherits an `R`-action from the action on its codomain. "
+      },
+      {
+        "id": 243140,
+        "name": "AffineSubspace.mulAction",
+        "module": "Mathlib.LinearAlgebra.AffineSpace.Pointwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/AffineSpace/Pointwise.lean#L121-L130",
+        "source_text": "/-- The multiplicative action on an affine subspace corresponding to applying the action to every\nelement.\n\nThis is available as an instance in the `Pointwise` locale.\n\nTODO: generalize to include `SMul (P ≃ᵃ[k] P) (AffineSubspace k P)`, which acts on `P` with a\n`VAdd` version of a `DistribMulAction`. -/\n@[instance_reducible]\nprotected def mulAction : MulAction M (AffineSubspace k V) :=\n  SetLike.coe_injective.mulAction _ coe_smul\n",
+        "docstring": "The multiplicative action on an affine subspace corresponding to applying the action to every\nelement.\n\nThis is available as an instance in the `Pointwise` locale.\n\nTODO: generalize to include `SMul (P ≃ᵃ[k] P) (AffineSubspace k P)`, which acts on `P` with a\n`VAdd` version of a `DistribMulAction`. "
+      },
+      {
+        "id": 242227,
+        "name": "AffineMap.mulAction",
+        "module": "Mathlib.LinearAlgebra.AffineSpace.AffineMap",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/AffineSpace/AffineMap.lean#L215-L219",
+        "source_text": "/-- The space of affine maps to a module inherits an `R`-action from the action on its codomain. -/\ninstance mulAction : MulAction R (P1 →ᵃ[k] V2) where\n  smul c f := ⟨c • ⇑f, c • f.linear, fun p v => by simp [smul_add]⟩\n  one_smul _ := ext fun _ => one_smul _ _\n  mul_smul _ _ _ := ext fun _ => mul_smul _ _ _\n",
+        "docstring": "The space of affine maps to a module inherits an `R`-action from the action on its codomain. "
+      },
+      {
+        "id": 242201,
+        "name": "AffineMap",
+        "module": "Mathlib.LinearAlgebra.AffineSpace.AffineMap",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/AffineSpace/AffineMap.lean#L52-L62",
+        "source_text": "/-- An `AffineMap k P1 P2` (notation: `P1 →ᵃ[k] P2`) is a map from `P1` to `P2` that\ninduces a corresponding linear map from `V1` to `V2`. -/\nstructure AffineMap (k : Type*) {V1 : Type*} (P1 : Type*) {V2 : Type*} (P2 : Type*) [Ring k]\n  [AddCommGroup V1] [Module k V1] [AffineSpace V1 P1] [AddCommGroup V2] [Module k V2]\n  [AffineSpace V2 P2] where\n  /-- The underlying function between the affine spaces `P1` and `P2`. -/\n  toFun : P1 → P2\n  /-- The linear map between the corresponding vector spaces `V1` and `V2`.\n  This represents how the affine map acts on differences of points. -/\n  linear : V1 →ₗ[k] V2\n  map_vadd' : ∀ (p : P1) (v : V1), toFun (v +ᵥ p) = linear v +ᵥ toFun p\n",
+        "docstring": "An `AffineMap k P1 P2` (notation: `P1 →ᵃ[k] P2`) is a map from `P1` to `P2` that\ninduces a corresponding linear map from `V1` to `V2`. "
+      },
+      {
+        "id": 242288,
+        "name": "AffineMap.lineMap_apply_module",
+        "module": "Mathlib.LinearAlgebra.AffineSpace.AffineMap",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/AffineSpace/AffineMap.lean#L494-L495",
+        "source_text": "theorem lineMap_apply_module (p₀ p₁ : V1) (c : k) : lineMap p₀ p₁ c = (1 - c) • p₀ + c • p₁ := by\n  simp [lineMap_apply_module', smul_sub, sub_smul]; abel\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "M7.Action.affine",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M7.Action.affine",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Domain.shift",
+    "status": "ok",
+    "results": [
+      {
+        "id": 180276,
+        "name": "CategoryTheory.shiftFunctor",
+        "module": "Mathlib.CategoryTheory.Shift.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Shift/Basic.lean#L175-L177",
+        "source_text": "/-- The shift autoequivalence, moving objects and morphisms 'up'. -/\ndef shiftFunctor (i : A) : C ⥤ C :=\n  (shiftMonoidalFunctor C A).obj ⟨i⟩\n",
+        "docstring": "The shift autoequivalence, moving objects and morphisms 'up'. "
+      },
+      {
+        "id": 180620,
+        "name": "CategoryTheory.ShiftedHom",
+        "module": "Mathlib.CategoryTheory.Shift.ShiftedHom",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Shift/ShiftedHom.lean#L30-L32",
+        "source_text": "/-- In a category `C` equipped with a shift by an additive monoid,\nthis is the type of morphisms `X ⟶ (Y⟦m⟧)` for `m : M`. -/\nabbrev ShiftedHom (X Y : C) (m : M) : Type _ := X ⟶ Y⟦m⟧\n",
+        "docstring": "In a category `C` equipped with a shift by an additive monoid,\nthis is the type of morphisms `X ⟶ (Y⟦m⟧)` for `m : M`. "
+      },
+      {
+        "id": 105037,
+        "name": "IsDomain",
+        "module": "Mathlib.Algebra.Ring.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Ring/Defs.lean#L431-L439",
+        "source_text": "/-- A domain is a nontrivial semiring such that multiplication by a nonzero element\nis cancellative on both sides. In other words, a nontrivial semiring `R` satisfying\n`∀ {a b c : R}, a ≠ 0 → a * b = a * c → b = c` and\n`∀ {a b c : R}, b ≠ 0 → a * b = c * b → a = c`.\n\nThis is implemented as a mixin for `Semiring α`.\nTo obtain an integral domain use `[CommRing α] [IsDomain α]`. -/\n@[stacks 09FE]\nclass IsDomain (α : Type u) [Semiring α] : Prop extends IsCancelMulZero α, Nontrivial α\n",
+        "docstring": "A domain is a nontrivial semiring such that multiplication by a nonzero element\nis cancellative on both sides. In other words, a nontrivial semiring `R` satisfying\n`∀ {a b c : R}, a ≠ 0 → a * b = a * c → b = c` and\n`∀ {a b c : R}, b ≠ 0 → a * b = c * b → a = c`.\n\nThis is implemented as a mixin for `Semiring α`.\nTo obtain an integral domain use `[CommRing α] [IsDomain α]`. "
+      },
+      {
+        "id": 77474,
+        "name": "domain_nontrivial",
+        "module": "Mathlib.Algebra.GroupWithZero.NeZero",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/NeZero.lean#L37-L42",
+        "source_text": "/-- Pullback a `Nontrivial` instance along a function sending `0` to `0` and `1` to `1`. -/\ntheorem domain_nontrivial [Zero M₀'] [One M₀'] (f : M₀' → M₀) (zero : f 0 = 0) (one : f 1 = 1) :\n    Nontrivial M₀' :=\n  ⟨⟨0, 1, mt (congr_arg f) <| by\n    rw [zero, one]\n    exact zero_ne_one⟩⟩\n",
+        "docstring": "Pullback a `Nontrivial` instance along a function sending `0` to `0` and `1` to `1`. "
+      },
+      {
+        "id": 204847,
+        "name": "Finsupp.mapDomain",
+        "module": "Mathlib.Data.Finsupp.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Basic.lean#L265-L269",
+        "source_text": "/-- Given `f : α → β` and `v : α →₀ M`, `mapDomain f v : β →₀ M`\n  is the finitely supported function whose value at `a : β` is the sum\n  of `v x` over all `x` such that `f x = a`. -/\ndef mapDomain (f : α → β) (v : α →₀ M) : β →₀ M :=\n  v.sum fun a => single (f a)\n",
+        "docstring": "Given `f : α → β` and `v : α →₀ M`, `mapDomain f v : β →₀ M`\nis the finitely supported function whose value at `a : β` is the sum\nof `v x` over all `x` such that `f x = a`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.Domain.shift",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387538,
+        "name": "phaseShift",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Basic.lean#L56-L65",
+        "source_text": "/-- Given three real numbers `a b c` the unitary matrix with `exp (I * a)` etc on the\nleading diagonal. -/\n@[simps!]\ndef phaseShift (a b c : ℝ) : unitaryGroup (Fin 3) ℂ :=\n  ⟨phaseShiftMatrix a b c,\n  by\n    rw [mem_unitaryGroup_iff]\n    change _ * (phaseShiftMatrix a b c)ᴴ = 1\n    rw [phaseShiftMatrix_star, phaseShiftMatrix_mul, ← phaseShiftMatrix_one]\n    simp only [phaseShiftMatrix, add_neg_cancel, ofReal_zero, mul_zero, exp_zero]⟩\n",
+        "docstring": "Given three real numbers `a b c` the unitary matrix with `exp (I * a)` etc on the\nleading diagonal. "
+      },
+      {
+        "id": 387539,
+        "name": "phaseShift_coe",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Basic.lean#L58-L58",
+        "source_text": "@[simps!]\ndef phaseShift (a b c : ℝ) : unitaryGroup (Fin 3) ℂ :=",
+        "docstring": null
+      },
+      {
+        "id": 387534,
+        "name": "phaseShiftMatrix",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Basic.lean#L29-L33",
+        "source_text": "/-- Given three real numbers `a b c` the complex matrix with `exp (I * a)` etc on the\nleading diagonal. -/\n@[simp]\ndef phaseShiftMatrix (a b c : ℝ) : Matrix (Fin 3) (Fin 3) ℂ :=\n  ![![cexp (I * a), 0, 0], ![0, cexp (I * b), 0], ![0, 0, cexp (I * c)]]\n",
+        "docstring": "Given three real numbers `a b c` the complex matrix with `exp (I * a)` etc on the\nleading diagonal. "
+      },
+      {
+        "id": 387768,
+        "name": "leptonPhaseShift",
+        "module": "Physlib.Particles.NeutrinoPhysics.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/NeutrinoPhysics/Basic.lean#L73-L77",
+        "source_text": "/-- The Lepton phase shift matrix as a `3×3` complex matrix, given three reals `a b c`.\nThis dictates the phase shift freedom of the charged lepton sector.\n-/\ndef leptonPhaseShift (a b c : ℝ) : Matrix (Fin 3) (Fin 3) ℂ :=\n  diagPhase (fun i => if i = 0 then a else if i = 1 then b else c)\n",
+        "docstring": "The Lepton phase shift matrix as a `3×3` complex matrix, given three reals `a b c`.\nThis dictates the phase shift freedom of the charged lepton sector.\n"
+      },
+      {
+        "id": 387769,
+        "name": "neutrinoPhaseShift",
+        "module": "Physlib.Particles.NeutrinoPhysics.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/NeutrinoPhysics/Basic.lean#L79-L83",
+        "source_text": "/-- The neutrino phase shift matrix as a `3×3` complex matrix, given three reals `d e f`.\nThis dictates the phase shift freedom of the neutrino sector (If neutrinos are Dirac).\n-/\ndef neutrinoPhaseShift (d e f : ℝ) : Matrix (Fin 3) (Fin 3) ℂ :=\n  diagPhase (fun i => if i = 0 then d else if i = 1 then e else f)\n",
+        "docstring": "The neutrino phase shift matrix as a `3×3` complex matrix, given three reals `d e f`.\nThis dictates the phase shift freedom of the neutrino sector (If neutrinos are Dirac).\n"
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.mem_preimage",
+    "status": "ok",
+    "results": [
+      {
+        "id": 204075,
+        "name": "Finset.mem_preimage",
+        "module": "Mathlib.Data.Finset.Preimage",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Preimage.lean#L34-L37",
+        "source_text": "@[simp]\ntheorem mem_preimage {f : α → β} {s : Finset β} {hf : Set.InjOn f (f ⁻¹' ↑s)} {x : α} :\n    x ∈ preimage s f hf ↔ f x ∈ s :=\n  Set.Finite.mem_toFinset _",
+        "docstring": null
+      },
+      {
+        "id": 204074,
+        "name": "Finset.preimage",
+        "module": "Mathlib.Data.Finset.Preimage",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Preimage.lean#L30-L32",
+        "source_text": "/-- Preimage of `s : Finset β` under a map `f` injective on `f ⁻¹' s` as a `Finset`. -/\nnoncomputable def preimage (s : Finset β) (f : α → β) (hf : Set.InjOn f (f ⁻¹' ↑s)) : Finset α :=\n  (s.finite_toSet.preimage hf).toFinset\n",
+        "docstring": "Preimage of `s : Finset β` under a map `f` injective on `f ⁻¹' s` as a `Finset`. "
+      },
+      {
+        "id": 204080,
+        "name": "Finset.preimage_inter",
+        "module": "Mathlib.Data.Finset.Preimage",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Preimage.lean#L58-L64",
+        "source_text": "@[simp]\ntheorem preimage_inter [DecidableEq α] [DecidableEq β] {f : α → β} {s t : Finset β}\n    (hs : Set.InjOn f (f ⁻¹' ↑s)) (ht : Set.InjOn f (f ⁻¹' ↑t)) :\n    (preimage (s ∩ t) f fun _ hx₁ _ hx₂ =>\n        hs (mem_of_mem_inter_left hx₁) (mem_of_mem_inter_left hx₂)) =\n      preimage s f hs ∩ preimage t f ht :=\n  Finset.coe_injective (by simp)",
+        "docstring": null
+      },
+      {
+        "id": 204076,
+        "name": "Finset.coe_preimage",
+        "module": "Mathlib.Data.Finset.Preimage",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Preimage.lean#L39-L42",
+        "source_text": "@[simp, norm_cast]\ntheorem coe_preimage {f : α → β} (s : Finset β) (hf : Set.InjOn f (f ⁻¹' ↑s)) :\n    (↑(preimage s f hf) : Set α) = f ⁻¹' ↑s :=\n  Set.Finite.coe_toFinset _",
+        "docstring": null
+      },
+      {
+        "id": 219970,
+        "name": "Set.preimage",
+        "module": "Mathlib.Data.Set.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Operations.lean#L122-L124",
+        "source_text": "/-- The preimage of `s : Set β` by `f : α → β`, written `f ⁻¹' s`,\n  is the set of `x : α` such that `f x ∈ s`. -/\ndef preimage (f : α → β) (s : Set β) : Set α := {x | f x ∈ s}\n",
+        "docstring": "The preimage of `s : Set β` by `f : α → β`, written `f ⁻¹' s`,\nis the set of `x : α` such that `f x ∈ s`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Finset.mem_preimage",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.mem_preimage",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

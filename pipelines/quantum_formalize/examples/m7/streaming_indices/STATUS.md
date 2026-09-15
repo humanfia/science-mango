@@ -1,0 +1,1 @@
+Completed: six first-draft live successes; assembly/environment/experiment true. Canonical `experiment` has 117 verified files. Actual tail-recursive finite cursors and exact actual winner semantics are proved. No complete M7 or evaluator-cost claim is made by this batch alone.

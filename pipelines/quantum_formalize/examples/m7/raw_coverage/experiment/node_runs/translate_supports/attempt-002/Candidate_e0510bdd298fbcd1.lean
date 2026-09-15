@@ -1,0 +1,7 @@
+import FrozenTarget_e0510bdd298fbcd1
+theorem M7.RawCoverage.translate_supports : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N) (s t : ZMod N), M7.Action.act (M7.Action.translate s t) c = (M7.Domain.shift c.1 s, M7.Domain.shift c.2 t)
+  intro N hN c s t
+  apply Prod.ext <;> ext x <;>
+    simp [M7.Action.act, M7.Action.translate, M7.Action.affine,
+      M7.Domain.shift, Finset.mem_image, add_eq_iff_eq_sub, sub_eq_add_neg]

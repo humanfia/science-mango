@@ -1,0 +1,6 @@
+theorem M7.RecoveryInstance.root_zero : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.PrefixSector.ValidSector N E → M7.RecoveryInstance.GoodBases w bases → (M7.RecoveryInstance.count w E bases [] = 0 ↔ M7.RecoveryPrefix.completed N w E [] ⊆ M7.OrbitResidual.covered bases) := by
+  intro N inst w E bases hE hB
+  classical
+  rw [(M7.RecoveryInstance.count_card N w E bases hE hB []).1]
+  simp [M7.RecoveryInstance.remaining, M7.OrbitResidual.remaining,
+    Finset.card_eq_zero, Finset.sdiff_eq_empty_iff_subset]

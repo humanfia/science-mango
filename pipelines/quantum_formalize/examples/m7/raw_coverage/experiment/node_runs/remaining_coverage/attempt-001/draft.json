@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nunfold QuantumHarnessFrozenTarget\nintro N w inst E bases hw hnorm hvalid hremaining c hc\nobtain ⟨q, hq, r, hr, hy⟩ := M7.RawCoverage.raw_anchor N w E c hw hc\nhave hcovered : M7.Action.act (M7.Action.translate (-q) (-r)) c ∈ M7.OrbitResidual.covered bases := by\n  by_contra hn\n  have hm : M7.Action.act (M7.Action.translate (-q) (-r)) c ∈ M7.OrbitResidual.remaining (M7.RawCoverage.rootCompleted N w E) bases := by\n    change _ ∈ M7.RawCoverage.rootCompleted N w E \\ M7.OrbitResidual.covered bases\n    exact Finset.mem_sdiff.mpr ⟨hy, hn⟩\n  rw [hremaining] at hm\n  exact Finset.not_mem_empty _ hm\nhave hcanonical := (M7.CanonicalClasses.coverage_iff N bases _ hnorm).mp hcovered\nhave hinv : M7.CanonicalOuter.canonical (M7.Action.act (M7.Action.translate (-q) (-r)) c) = M7.CanonicalOuter.canonical c := by\n  first\n  | exact M7.CanonicalOuter.canonical_invariant N c (M7.Action.translate (-q) (-r))\n  | exact M7.CanonicalOuter.canonical_invariant N (M7.Action.translate (-q) (-r)) c\n  | exact M7.CanonicalOuter.canonical_invariant c (M7.Action.translate (-q) (-r))\nrw [hinv] at hcanonical\nrefine ⟨hcanonical, M7.CanonicalOuter.canonical c, hcanonical, ?_⟩\nrefine ⟨_, ?_⟩\nfirst\n| exact M7.CanonicalOuter.realizer_inverse N c\n| exact M7.CanonicalOuter.realizer_inverse c",
+  "queries": [
+    "M7.CanonicalOuter.canonical_invariant",
+    "M7.CanonicalOuter.realizer_inverse",
+    "M7.OrbitResidual.remaining"
+  ]
+}

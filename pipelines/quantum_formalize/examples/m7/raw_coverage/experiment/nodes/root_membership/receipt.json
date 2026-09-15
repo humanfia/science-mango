@@ -1,0 +1,73 @@
+{
+  "id": "root_membership",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.RawCoverage.root_membership",
+    "spec_sha256": "91980d7bb5994b505ab6397e0fd723bebd8a68837f5af90b909097e1644f26d0",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-bnji1zd7/attempt-001/Candidate_a8b12e4332e3c940.lean",
+        "target_path": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-bnji1zd7/attempt-001/FrozenTarget_a8b12e4332e3c940.lean",
+        "feedback": "",
+        "target_sha256": "bdce73dd2af379407f079928b55a8d9f04fcb6c39d3aa5ea7f3fb9fd3784c531",
+        "target_olean_sha256": "b6efa0aca83efed821cfc9a699a02aeda80d5ae7f9de746a872ef015fe2c0dda",
+        "source_sha256": "adb0b690aaaed24d329c0cd1ee6a1f7d6a6db5eb97a81b0074a1612ac2619e26",
+        "olean_sha256": "34a8d1d6fa52ea2436b6b42b2bbd04b4a884f8674ab4aa3e1c58189f8442191b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:41:07.098511+00:00",
+    "work": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-bnji1zd7",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8e259bed93813abfae5b5159be52ab7564c4e749e4f85881f96021e8c76eebc0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-raw-coverage-formalization/.humanize-formal-runs/run-bnji1zd7/attempt-001/Candidate_a8b12e4332e3c940.lean",
+    "environment_sha256": "477a2afb0f725eb8f6ee1f78c7a04928ab03503b61f7d5c78c8dbed79c610ba0",
+    "artifacts": {
+      "root_within": {
+        "payload": {
+          "declaration": "theorem M7.RawCoverage.root_within : ∀ (N : ℕ) [NeZero N] (S : Finset (ZMod N)), M7.PrefixOrbit.Within (M7.PrefixBits.A N []) (M7.PrefixBits.WA N []) S ↔ (0 : ZMod N) ∈ S := by\n  classical\n  intro N inst S\n  have hr := M7.PrefixBits.root N (NeZero.pos N)\n  rw [hr.1, hr.2.2.1]\n  change ({0} ⊆ S.image ZMod.val ∧\n    S.image ZMod.val ⊆ {0} ∪ (Finset.range N \\ {0})) ↔ (0 : ZMod N) ∈ S\n  constructor\n  · intro h\n    have hz : 0 ∈ S.image ZMod.val := h.1 (Finset.mem_singleton_self 0)\n    obtain ⟨a, ha, hav⟩ := Finset.mem_image.mp hz\n    have ha0 : a = (0 : ZMod N) :=\n      (ZMod.val_injective N) (by simpa only [ZMod.val_zero] using hav)\n    simpa only [ha0] using ha\n  · intro h\n    constructor\n    · apply Finset.singleton_subset_iff.mpr\n      exact Finset.mem_image.mpr ⟨0, h, ZMod.val_zero⟩\n    · intro k hk\n      obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp hk\n      by_cases hz : a.val = 0\n      · apply Finset.mem_union.mpr\n        exact Or.inl (Finset.mem_singleton.mpr hz)\n      · apply Finset.mem_union.mpr\n        apply Or.inr\n        apply Finset.mem_sdiff.mpr\n        exact ⟨Finset.mem_range.mpr (ZMod.val_lt a), by simpa using hz⟩",
+          "imports": [
+            "M7PrefixBitsAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RawCoverage"
+          ],
+          "name": "M7.RawCoverage.root_within",
+          "ancestors": [],
+          "spec_sha256": "c45acd56d658d6828fe8c5d76fa00bd04a6a45ed49137942aa360f05e80e12e5"
+        },
+        "sha256": "3fdb91c7ca41079b617bb75c7f1d119c54baf5097982ba3783c8d4ea2c67f77f"
+      },
+      "root_membership": {
+        "payload": {
+          "declaration": "theorem M7.RawCoverage.root_membership : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial) (c : M7.Action.Recipe N), c ∈ M7.RawCoverage.rootCompleted N w E ↔ M7.RawCoverage.Queried w E c ∧ (0 : ZMod N) ∈ c.1 ∧ (0 : ZMod N) ∈ c.2 := by\n  classical\n  intro N w inst E c\n  change c ∈ M7.ResiduePrefix.completed N w E (M7.PrefixBits.A N []) (M7.PrefixBits.B N []) (M7.PrefixBits.WA N []) (M7.PrefixBits.WB N []) ↔ _\n  rw [M7.PrefixOrbit.membership N w E _ _ _ _ (M7.PrefixBits.base N (NeZero.pos N) []) c]\n  have hr := M7.PrefixBits.root N (NeZero.pos N)\n  have hB : M7.PrefixBits.B N [] = M7.PrefixBits.A N [] := hr.2.1.trans hr.1.symm\n  have hWB : M7.PrefixBits.WB N [] = M7.PrefixBits.WA N [] := hr.2.2.2.trans hr.2.2.1.symm\n  rw [hB, hWB, M7.RawCoverage.root_within N c.1, M7.RawCoverage.root_within N c.2]\n  simp only [M7.RawCoverage.Queried, and_assoc]",
+          "imports": [
+            "M7PrefixBitsAccepted",
+            "M7PrefixOrbitAccepted",
+            "M7RawCoverage"
+          ],
+          "name": "M7.RawCoverage.root_membership",
+          "ancestors": [
+            "root_within"
+          ],
+          "spec_sha256": "17a183240f3e287653d67dba8616df99c2253dc1244a53770958e483070dba00"
+        },
+        "sha256": "4775f75acd6da2028bc299d5f286a02d2ffac23bd8ead345afeff0dd790ae171"
+      }
+    }
+  }
+}

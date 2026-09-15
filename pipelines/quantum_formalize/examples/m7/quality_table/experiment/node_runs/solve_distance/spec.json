@@ -1,0 +1,12 @@
+{
+  "name": "M7.QualityTable.solve_distance",
+  "statement": "∀ (N w : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Connectivity.connected c → M7.QualityTable.solveDistance c = M7.DefaultQuery.distance c",
+  "imports": [
+    "M7QualityTable"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Use closed_pointwise to obtain its AnswerCorrect field h.2.2.1. Case split actual solve. For none, its first iff gives f=0 and second iff gives actual quantumDistance=none. For some (d,v,k), its actual result clause gives quantumDistance=some d. Unfold only solveDistance/DefaultQuery.distance/Transport.distance; never unfold actual Q or solve internals. This preserves NoLogical as none; no free AnswerCorrect premise. Return tactic lines without leading by."
+}

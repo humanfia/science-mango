@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst S\nclassical\nhave hr := M7.PrefixBits.root N (NeZero.pos N)\nrw [hr.1, hr.2.2.1]\nchange ({0} ⊆ S.image ZMod.val ∧ S.image ZMod.val ⊆ {0} ∪ (Finset.range N \\ {0})) ↔ (0 : ZMod N) ∈ S\nconstructor\n· intro h\n  have hz := h.1 (Finset.mem_singleton_self 0)\n  obtain ⟨a, ha, hav⟩ := Finset.mem_image.mp hz\n  have ha0 : a = 0 := ZMod.val_injective (by simpa using hav)\n  simpa [ha0] using ha\n· intro h\n  constructor\n  · apply Finset.singleton_subset_iff.mpr\n    exact Finset.mem_image.mpr ⟨0, h, by simp⟩\n  · intro i hi\n    obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp hi\n    by_cases hz : a.val = 0\n    · exact Finset.mem_union.mpr (Or.inl (by simpa using hz))\n    · apply Finset.mem_union.mpr\n      apply Or.inr\n      apply Finset.mem_sdiff.mpr\n      exact ⟨Finset.mem_range.mpr (ZMod.val_lt a), by simpa using hz⟩",
+  "queries": [
+    "ZMod.val_injective",
+    "ZMod.val_lt",
+    "Finset.singleton_subset_iff"
+  ]
+}

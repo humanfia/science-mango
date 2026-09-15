@@ -1,0 +1,6 @@
+{
+  "proof": "classical\nintro N hN F S hF hFdvd hS\nhave hmonic : (F * (∏ p ∈ S, p)).Monic := by\n  apply hF.mul\n  apply Polynomial.monic_prod_of_monic\n  intro p hp\n  exact (M5.PolynomialIndicator.residual_factors_regular F N hN hF hFdvd p (hS hp)).1\nhave hdvd : F * (∏ p ∈ S, p) ∣ M5.cyclicModulus N := by\n  apply M5.FactorProduct.cyclic_cap <;> assumption\nhave hne : M5.cyclicModulus N ≠ 0 := by\n  intro hz\n  have hq := M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hF hFdvd\n  apply hq\n  simp [hz]\nhave hdeg : (M5.cyclicModulus N).natDegree ≤ N := by\n  simpa [M5.cyclicModulus] using\n    (Polynomial.natDegree_add_le ((Polynomial.X : M5.BinaryPolynomial) ^ N) 1)\nexact ⟨hmonic, (Polynomial.natDegree_le_of_dvd hdvd hne).trans hdeg⟩",
+  "queries": [
+    "M5.FactorProduct.cyclic_cap"
+  ]
+}

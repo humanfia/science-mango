@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N hN F hF hdiv\nchange (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F)).toFinset.card ≤ (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\nhave hQ := M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hF hdiv\nhave hM : M5.cyclicModulus N ≠ 0 := by\n  intro h\n  apply hQ\n  simp [h]\nhave hQD : M5.cyclicModulus N / F ∣ M5.cyclicModulus N := by\n  refine ⟨F, ?_⟩\n  exact (EuclideanDomain.div_mul_cancel hdiv).symm\napply Finset.card_le_card\napply Multiset.toFinset_mono\nfirst\n| exact UniqueFactorizationMonoid.normalizedFactors_mono hM hQD\n| exact UniqueFactorizationMonoid.normalizedFactors_le_of_dvd hM hQD\n| exact (UniqueFactorizationMonoid.normalizedFactors_le_iff_dvd hQ hM).2 hQD\n| exact (UniqueFactorizationMonoid.normalizedFactors_le_iff_dvd hM).2 hQD\n| exact?",
+  "queries": [
+    "UniqueFactorizationMonoid normalizedFactors multiset inequality divisibility",
+    "UniqueFactorizationMonoid.normalizedFactors_le_iff_dvd",
+    "Multiset.toFinset_mono"
+  ]
+}
