@@ -1,0 +1,13 @@
+{
+  "name": "M7.Domain.admissible",
+  "statement": "∀ (N w : ℕ) [NeZero N] (A B : M7.Domain.Support N), A.card = w → B.card = w → (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → M7.Domain.connectivityGcd A B = 1 → M6.Final.Admissible N (M7.Supports.polynomial A) (M7.Supports.polynomial B)",
+  "imports": [
+    "M7Domain"
+  ],
+  "context": "theorem M7.Domain.support_gcd : ∀ (N : ℕ) [NeZero N] (A B : M7.Domain.Support N), Nat.gcd N (((M7.Supports.polynomial A).support ∪ (M7.Supports.polynomial B).support).gcd id) = M7.Domain.connectivityGcd A B := by\n  intro N inst A B\n  unfold M7.Domain.connectivityGcd\n  rw [M7.Supports.support N A, M7.Supports.support N B]",
+  "queries": [
+    "Polynomial finite sum coefficient X power",
+    "Finset card image injective"
+  ],
+  "guidance": "Unfold exact M6.Final.Admissible. Positivity from NeZero; anchor from Supports.anchor; card from Supports.support_card; span=max natDegree each less N from Supports.degree_lt; gcd from support_gcd. Preserve exact target and concrete definitions; no oracle premises. Return tactic lines without leading by."
+}

@@ -1,0 +1,133 @@
+[
+  {
+    "queries": [
+      "Polynomial finite sum coefficient X power",
+      "Finset card image injective"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial finite sum coefficient X power",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101279,
+            "name": "Polynomial.finsetSum_coeff",
+            "module": "Mathlib.Algebra.Polynomial.Coeff",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L88-L91",
+            "source_text": "@[simp]\ntheorem finsetSum_coeff {ι : Type*} (s : Finset ι) (f : ι → R[X]) (n : ℕ) :\n    coeff (∑ b ∈ s, f b) n = ∑ b ∈ s, coeff (f b) n :=\n  map_sum (lcoeff R n) _ _",
+            "docstring": null
+          },
+          {
+            "id": 101762,
+            "name": "Polynomial.as_sum_range_C_mul_X_pow'",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L93-L95",
+            "source_text": "theorem as_sum_range_C_mul_X_pow' (p : R[X]) {n : ℕ} (hn : p.natDegree < n) :\n    p = ∑ i ∈ range n, C (coeff p i) * X ^ i :=\n  (p.as_sum_range' _ hn).trans <| by simp only [C_mul_X_pow_eq_monomial]\n",
+            "docstring": null
+          },
+          {
+            "id": 100978,
+            "name": "Polynomial.X",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L479-L481",
+            "source_text": "/-- `X` is the polynomial variable (aka indeterminate). -/\ndef X : R[X] :=\n  monomial 1 1\n",
+            "docstring": "`X` is the polynomial variable (aka indeterminate). "
+          },
+          {
+            "id": 101074,
+            "name": "Polynomial.sum_X_index",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L878-L881",
+            "source_text": "@[simp]\ntheorem sum_X_index {S : Type*} [AddCommMonoid S] {f : ℕ → R → S} (hf : f 1 0 = 0) :\n    (X : R[X]).sum f = f 1 1 :=\n  sum_monomial_index 1 f hf",
+            "docstring": null
+          },
+          {
+            "id": 103508,
+            "name": "Polynomial.sumIDeriv_X",
+            "module": "Mathlib.Algebra.Polynomial.SumIteratedDerivative",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/SumIteratedDerivative.lean#L84-L87",
+            "source_text": "@[simp]\ntheorem sumIDeriv_X : sumIDeriv X = X + C 1 := by\n  rw [sumIDeriv_apply, natDegree_X, sum_range_succ, sum_range_one, Function.iterate_zero_apply,\n    Function.iterate_one, derivative_X, eq_natCast, Nat.cast_one]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset card image injective",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202949,
+            "name": "Finset.image_injective",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L429-L430",
+            "source_text": "lemma image_injective (hf : Injective f) : Injective (image f) := by\n  simpa only [funext (map_eq_image _)] using! map_injective ⟨f, hf⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 202358,
+            "name": "Finset.card_image_of_injective",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L249-L251",
+            "source_text": "theorem card_image_of_injective [DecidableEq β] (s : Finset α) (H : Injective f) :\n    #(s.image f) = #s :=\n  card_image_of_injOn fun _ _ _ _ h => H h\n",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 218003,
+            "name": "Set.injOn_of_ncard_image_eq",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L821-L824",
+            "source_text": "theorem injOn_of_ncard_image_eq (h : (f '' s).ncard = s.ncard) (hs : s.Finite := by toFinite_tac) :\n    Set.InjOn f s := by\n  rw [← Nat.cast_inj (R := ℕ∞), hs.cast_ncard_eq, (hs.image _).cast_ncard_eq] at h\n  exact hs.injOn_of_encard_image_eq h\n",
+            "docstring": null
+          },
+          {
+            "id": 218004,
+            "name": "Set.ncard_image_iff",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L826-L828",
+            "source_text": "theorem ncard_image_iff (hs : s.Finite := by toFinite_tac) :\n    (f '' s).ncard = s.ncard ↔ Set.InjOn f s :=\n  ⟨fun h ↦ injOn_of_ncard_image_eq h hs, InjOn.ncard_image⟩\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial coeff sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389914,
+            "name": "PureU1.VectorLikeEvenPlane.P_zero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L371-L372",
+            "source_text": "lemma P_zero (f : Fin n.succ → ℚ) (h : P f = 0) : ∀ i, f i = 0 := by\n  exact fun i => (P_evenFst f i).symm.trans (congr_fun h (evenFst i))\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "coefficients_indicator",
+    "receipts_sha256": "d61c345e46501f8c5ebb0f7065741c2c2931da3610da4e224de7d43fade9b0ee"
+  }
+]

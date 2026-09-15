@@ -1,0 +1,144 @@
+[
+  {
+    "id": "coefficients_indicator",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Domain.coefficients_indicator",
+      "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.coefficients N (M7.Supports.polynomial A) = M7.Supports.indicator A",
+      "imports": [
+        "M7Domain"
+      ],
+      "context": "",
+      "queries": [
+        "Polynomial finite sum coefficient X power",
+        "Finset card image injective"
+      ],
+      "guidance": "Function extensionality and accepted Supports.indicator_coefficient. Preserve exact target and concrete definitions; no oracle premises. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_M6_DOMAIN_BRIDGE",
+      "fallback_queries": [
+        "Polynomial coeff sum"
+      ]
+    }
+  },
+  {
+    "id": "block_polynomial",
+    "dependencies": [
+      "coefficients_indicator"
+    ],
+    "spec": {
+      "name": "M7.Domain.block_polynomial",
+      "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.blockPolynomial N (M7.Supports.indicator A) = M7.Supports.polynomial A",
+      "imports": [
+        "M7Domain"
+      ],
+      "context": "",
+      "queries": [
+        "Polynomial finite sum coefficient X power",
+        "Finset card image injective"
+      ],
+      "guidance": "Polynomial ext on coefficient n. Expand blockPolynomial sum over Fin N and coefficient. For n<N use unique Fin n; for N≤n all coefficients vanish by accepted degree_lt. Can use coefficient sum_eq_single and Supports.coefficient. Preserve exact target and concrete definitions; no oracle premises. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_M6_DOMAIN_BRIDGE",
+      "fallback_queries": [
+        "Polynomial coeff sum"
+      ]
+    }
+  },
+  {
+    "id": "support_gcd",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Domain.support_gcd",
+      "statement": "∀ (N : ℕ) [NeZero N] (A B : M7.Domain.Support N), Nat.gcd N (((M7.Supports.polynomial A).support ∪ (M7.Supports.polynomial B).support).gcd id) = M7.Domain.connectivityGcd A B",
+      "imports": [
+        "M7Domain"
+      ],
+      "context": "",
+      "queries": [
+        "Polynomial finite sum coefficient X power",
+        "Finset card image injective"
+      ],
+      "guidance": "Unfold connectivityGcd and rewrite twice by Supports.support. Preserve exact target and concrete definitions; no oracle premises. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_M6_DOMAIN_BRIDGE",
+      "fallback_queries": [
+        "Polynomial coeff sum"
+      ]
+    }
+  },
+  {
+    "id": "admissible",
+    "dependencies": [
+      "support_gcd"
+    ],
+    "spec": {
+      "name": "M7.Domain.admissible",
+      "statement": "∀ (N w : ℕ) [NeZero N] (A B : M7.Domain.Support N), A.card = w → B.card = w → (0 : ZMod N) ∈ A → (0 : ZMod N) ∈ B → M7.Domain.connectivityGcd A B = 1 → M6.Final.Admissible N (M7.Supports.polynomial A) (M7.Supports.polynomial B)",
+      "imports": [
+        "M7Domain"
+      ],
+      "context": "",
+      "queries": [
+        "Polynomial finite sum coefficient X power",
+        "Finset card image injective"
+      ],
+      "guidance": "Unfold exact M6.Final.Admissible. Positivity from NeZero; anchor from Supports.anchor; card from Supports.support_card; span=max natDegree each less N from Supports.degree_lt; gcd from support_gcd. Preserve exact target and concrete definitions; no oracle premises. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_M6_DOMAIN_BRIDGE",
+      "fallback_queries": [
+        "Polynomial coeff sum"
+      ]
+    }
+  },
+  {
+    "id": "shift_card",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Domain.shift_card",
+      "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), ∀ r : ZMod N, (M7.Domain.shift A r).card = A.card",
+      "imports": [
+        "M7Domain"
+      ],
+      "context": "",
+      "queries": [
+        "Polynomial finite sum coefficient X power",
+        "Finset card image injective"
+      ],
+      "guidance": "Finite image cardinality: addition of a fixed residue is injective, including N=1. Preserve exact target and concrete definitions; no oracle premises. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_M6_DOMAIN_BRIDGE",
+      "fallback_queries": [
+        "Polynomial coeff sum"
+      ]
+    }
+  },
+  {
+    "id": "shift_anchor",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Domain.shift_anchor",
+      "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), ∀ q : ZMod N, q ∈ A → (0 : ZMod N) ∈ M7.Domain.shift A (-q)",
+      "imports": [
+        "M7Domain"
+      ],
+      "context": "",
+      "queries": [
+        "Polynomial finite sum coefficient X power",
+        "Finset card image injective"
+      ],
+      "guidance": "Use image witness q and q+(-q)=0. Preserve exact target and concrete definitions; no oracle premises. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "supports_obligation": "M7_M6_DOMAIN_BRIDGE",
+      "fallback_queries": [
+        "Polynomial coeff sum"
+      ]
+    }
+  }
+]

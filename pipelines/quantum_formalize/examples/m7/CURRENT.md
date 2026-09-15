@@ -2,7 +2,7 @@
 
 In progress; complete M7 Lean acceptance is pending. All 56 frozen natural-language source files were hash-checked; `SOURCE.json` records their identities.
 
-Four completed batches contain **37 accepted targets**, each with combined compilation, unchanged environment and exact target/axiom checks:
+Five completed batches contain **43 accepted targets**, each with combined compilation, unchanged environment and exact target/axiom checks:
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -10,8 +10,9 @@ Four completed batches contain **37 accepted targets**, each with combined compi
 | [selection](selection/experiment/result.json) | 12 | Pareto/lex selection, all ties, empty answers and winning dominators |
 | [factorized](factorized/experiment/result.json) | 6 | Independent-shift arithmetic numerator and partitions |
 | [action](action/experiment/result.json) | 13 | Actual unit/exchange/two-shift records and action laws, including N=1 |
+| [domain](domain/experiment/result.json) | 6 | Support-to-M6 polynomial, anchored admissibility and shift interfaces |
 
-Active batches: `domain` connects supports to the actual M6 domain (6 targets); `orbit_fibers` proves full-stabilizer fiber counts and exact division (7 targets); `presentation` proves factored least-preimage decoding and distinct winning physical outputs (12 targets). `canonical_block` has 13 exact targets prepared and is undergoing definition build/type preflight. The actual group adapter in `group` is prepared but not yet compiled.
+Active batches: `transport` prepares actual M6 distance and witness transport (7 targets); `orbit_fibers` proves full-stabilizer fiber counts and exact division (7 targets); `presentation` proves factored least-preimage decoding and distinct winning physical outputs (12 targets). `canonical_block` has 13 exact targets prepared and is undergoing definition build/type preflight. The actual group adapter in `group` is prepared but not yet compiled.
 
 Shared-host load caused compilation/startup timeouts in otherwise preserved proof attempts. Replays retain the frozen targets and drafts and adjust execution resources only. A timeout is not an accepted proof or a mathematical counterexample; canonical receipts remain authoritative.
 

@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.blockPolynomial N (M7.Supports.indicator A) = M7.Supports.polynomial A\nintro N inst A\nclassical\napply Polynomial.ext\nintro n\nunfold M6.Coordinates.blockPolynomial\nrw [Polynomial.finsetSum_coeff]\nby_cases hn : n < N\n· rw [Finset.sum_eq_single (⟨n, hn⟩ : Fin N)]\n  · simpa [Polynomial.coeff_C_mul_X_pow, ZMod.val_natCast, Nat.mod_eq_of_lt hn] using\n      (M7.Supports.indicator_coefficient N A (n : ZMod N)).symm\n  · intro j hj hne\n    have hval : j.val ≠ n := by\n      intro h\n      apply hne\n      exact Fin.ext h\n    simp [Polynomial.coeff_C_mul_X_pow, hval, Ne.symm hval]\n  · simp\n· rw [Polynomial.coeff_eq_zero_of_natDegree_lt\n    (lt_of_lt_of_le (M7.Supports.degree_lt N A) (Nat.le_of_not_gt hn))]\n  apply Finset.sum_eq_zero\n  intro j hj\n  have hval : j.val ≠ n := by\n    intro h\n    exact hn (h ▸ j.isLt)\n  simp [Polynomial.coeff_C_mul_X_pow, hval, Ne.symm hval]",
+  "queries": [
+    "Polynomial.coeff_C_mul_X_pow",
+    "ZMod.val_natCast",
+    "Polynomial.coeff_eq_zero_of_natDegree_lt"
+  ]
+}

@@ -1,0 +1,12 @@
+import FrozenTarget_d843a87ac4e2f970
+theorem M7.Domain.admissible : QuantumHarnessFrozenTarget := by
+  intro N w inst A B hA hB h0A h0B hG
+  have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)
+  have ha := (M7.Supports.anchor N A).2 h0A
+  have hb := (M7.Supports.anchor N B).2 h0B
+  have hcA := M7.Supports.support_card N A
+  have hcB := M7.Supports.support_card N B
+  have hdA := M7.Supports.degree_lt N A
+  have hdB := M7.Supports.degree_lt N B
+  have hg := (M7.Domain.support_gcd N A B).trans hG
+  simp_all [M6.Final.Admissible, M6.ActualTransfer.span, max_lt_iff]

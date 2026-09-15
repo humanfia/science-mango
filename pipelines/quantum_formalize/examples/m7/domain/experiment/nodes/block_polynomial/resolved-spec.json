@@ -1,0 +1,13 @@
+{
+  "name": "M7.Domain.block_polynomial",
+  "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.blockPolynomial N (M7.Supports.indicator A) = M7.Supports.polynomial A",
+  "imports": [
+    "M7Domain"
+  ],
+  "context": "theorem M7.Domain.coefficients_indicator : ∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.coefficients N (M7.Supports.polynomial A) = M7.Supports.indicator A := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.coefficients N (M7.Supports.polynomial A) = M7.Supports.indicator A\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst A\n  funext i\n  change (M7.Supports.polynomial A).coeff i.val = M7.Supports.indicator A i\n  exact M7.Supports.indicator_coefficient N A i",
+  "queries": [
+    "Polynomial finite sum coefficient X power",
+    "Finset card image injective"
+  ],
+  "guidance": "Polynomial ext on coefficient n. Expand blockPolynomial sum over Fin N and coefficient. For n<N use unique Fin n; for N≤n all coefficients vanish by accepted degree_lt. Can use coefficient sum_eq_single and Supports.coefficient. Preserve exact target and concrete definitions; no oracle premises. Return tactic lines without leading by."
+}

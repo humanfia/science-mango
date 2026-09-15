@@ -1,0 +1,69 @@
+{
+  "id": "block_polynomial",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Domain.block_polynomial",
+    "spec_sha256": "ff56349fe139181225db3106c2d831a1a36a145ef38ae167ec7de67fd404a58a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-domain-formalization/.humanize-formal-runs/run-8hs8hn6d/attempt-001/Candidate_b13ff5bf23c7583b.lean",
+        "target_path": "/home/jing/m7-lean-domain-formalization/.humanize-formal-runs/run-8hs8hn6d/attempt-001/FrozenTarget_b13ff5bf23c7583b.lean",
+        "feedback": "",
+        "target_sha256": "fb781170c4f267e49f571239ff6eb11b63b9766253a927a12ae80c94778ae436",
+        "target_olean_sha256": "3e991e2f38e1614a79050c4357a2ed432468badcd44a9125ca083266ba1466d5",
+        "source_sha256": "259160f0e9d39a88604f6cce48c77f8bffd7dbaa27c667f577ca20b0874473ac",
+        "olean_sha256": "f2ec8a778509561639ebb7bd0c137227edd00aa980180c8ae5eccebe05f7a030",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:34:38.573168+00:00",
+    "work": "/home/jing/m7-lean-domain-formalization/.humanize-formal-runs/run-8hs8hn6d",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5b2a38c44c0bbb52bba66524adef14a9b44a7704e2f3e504e185080e5cf215a1",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-domain-formalization/.humanize-formal-runs/run-8hs8hn6d/attempt-001/Candidate_b13ff5bf23c7583b.lean",
+    "environment_sha256": "c36aff591ca0c53f8d79c402e5c0bf58a83edc0f6a61dfba7eb1f4dd35293d06",
+    "artifacts": {
+      "coefficients_indicator": {
+        "payload": {
+          "declaration": "theorem M7.Domain.coefficients_indicator : ∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.coefficients N (M7.Supports.polynomial A) = M7.Supports.indicator A := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.coefficients N (M7.Supports.polynomial A) = M7.Supports.indicator A\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst A\n  funext i\n  change (M7.Supports.polynomial A).coeff i.val = M7.Supports.indicator A i\n  exact M7.Supports.indicator_coefficient N A i",
+          "imports": [
+            "M7Domain"
+          ],
+          "name": "M7.Domain.coefficients_indicator",
+          "ancestors": [],
+          "spec_sha256": "a9aefea72bfc9c32a5b1f8f923366f16b000dee75b7a17341e12dd4304c0f2dd"
+        },
+        "sha256": "cbd994a8c1170b31882708227ccb03e900e0431e0507142a66955baf87ca64ab"
+      },
+      "block_polynomial": {
+        "payload": {
+          "declaration": "theorem M7.Domain.block_polynomial : ∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.blockPolynomial N (M7.Supports.indicator A) = M7.Supports.polynomial A := by\n  change ∀ (N : ℕ) [NeZero N] (A : M7.Domain.Support N), M6.Coordinates.blockPolynomial N (M7.Supports.indicator A) = M7.Supports.polynomial A\n  intro N inst A\n  classical\n  apply Polynomial.ext\n  intro n\n  unfold M6.Coordinates.blockPolynomial\n  rw [Polynomial.finsetSum_coeff]\n  by_cases hn : n < N\n  · rw [Finset.sum_eq_single (⟨n, hn⟩ : Fin N)]\n    · simpa [Polynomial.coeff_C_mul_X_pow, ZMod.val_natCast, Nat.mod_eq_of_lt hn] using\n        (M7.Supports.indicator_coefficient N A (n : ZMod N)).symm\n    · intro j hj hne\n      have hval : j.val ≠ n := by\n        intro h\n        apply hne\n        exact Fin.ext h\n      simp [Polynomial.coeff_C_mul_X_pow, hval, Ne.symm hval]\n    · simp\n  · rw [Polynomial.coeff_eq_zero_of_natDegree_lt\n      (lt_of_lt_of_le (M7.Supports.degree_lt N A) (Nat.le_of_not_gt hn))]\n    apply Finset.sum_eq_zero\n    intro j hj\n    have hval : j.val ≠ n := by\n      intro h\n      exact hn (h ▸ j.isLt)\n    simp [Polynomial.coeff_C_mul_X_pow, hval, Ne.symm hval]",
+          "imports": [
+            "M7Domain"
+          ],
+          "name": "M7.Domain.block_polynomial",
+          "ancestors": [
+            "coefficients_indicator"
+          ],
+          "spec_sha256": "5f156b2826890ba421674a297ab8f3fa6f8caf87a4b79dcc5053ff754126eae6"
+        },
+        "sha256": "cb3a47ed998ceab865bcdc9e3c3ccf9ad157a479132fd3edd40f5fa3e1a3bf40"
+      }
+    }
+  }
+}
