@@ -1,0 +1,9 @@
+import M5ArithmeticSubset
+
+theorem M5.ArithmeticSubset.character_sign : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (lam : M5.Character.BinaryVector P.natDegree) (z : AdjoinRoot P), M5.QuotientCharacter.value P hP lam z = 1 ∨ M5.QuotientCharacter.value P hP lam z = -1 := by
+  intro P hP lam z
+  unfold M5.QuotientCharacter.value M5.Character.value M5.Character.bitSign
+  simp only [Finset.prod_pow_eq_pow_sum]
+  exact neg_one_pow_eq_or ℤ _
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (lam : M5.Character.BinaryVector P.natDegree), M5.ArithmeticSubset.binomialTerm P hP W k lam = (M5.SubsetCharacter.signedProduct W (M5.ArithmeticSubset.monomialValue P hP lam)).coeff k

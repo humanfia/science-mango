@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro P hP lam z\nhave hpow {R : Type*} [CommRing R] (n : ℕ) :\n    (-1 : R) ^ n = 1 ∨ (-1 : R) ^ n = -1 := by\n  induction n with\n  | zero => simp\n  | succ n ih =>\n      rcases ih with h | h <;> simp [pow_succ, h]\nhave hprod {ι R : Type*} [CommRing R] (f : ι → R) :\n    ∀ s : Finset ι, (∀ i ∈ s, f i = 1 ∨ f i = -1) →\n      (∏ i ∈ s, f i) = 1 ∨ (∏ i ∈ s, f i) = -1 := by\n  intro s\n  induction s using Finset.induction_on with\n  | empty => simp\n  | @insert a s ha ih =>\n      intro hf\n      have ha' := hf a (Finset.mem_insert_self a s)\n      have hs := ih (fun i hi => hf i (Finset.mem_insert_of_mem hi))\n      rw [Finset.prod_insert ha]\n      rcases ha' with ha' | ha' <;>\n        rcases hs with hs | hs <;> simp [ha', hs]\nrefine hprod _ _ ?_\nintro i hi\nexact hpow _",
+  "queries": []
+}

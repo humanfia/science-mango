@@ -1,0 +1,174 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.QuotientCharacter.value M5.Character.bitSign definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 271677,
+        "name": "cyclotomicCharacter",
+        "module": "Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Cyclotomic/CyclotomicCharacter.lean#L300-L321",
+        "source_text": "/--\nSuppose `L` is a domain containing all `pⁱ`-th primitive roots with `p` a (rational) prime.\nIf `g` is a ring automorphism of `L`, then `cyclotomicCharacter L p g` is the unique `j : ℤₚ` such\nthat `g(ζ) = ζ ^ (j mod pⁱ)` for all `pⁱ`-th roots of unity `ζ`.\n\nNote: This is the trivial character when `L` does not contain all `pⁱ`-th primitive roots.\n-/\nnoncomputable def cyclotomicCharacter (p : ℕ) [Fact p.Prime] :\n    (L ≃+* L) →* ℤ_[p]ˣ := .toHomUnits\n  { toFun g := cyclotomicCharacter.toFun p g\n    map_one' := by\n      by_cases H : ∀ (i : ℕ), ∃ ζ : L, IsPrimitiveRoot ζ (p ^ i)\n      · haveI _ (i) : HasEnoughRootsOfUnity L (p ^ i) := ⟨H i, rootsOfUnity.isCyclic _ _⟩\n        refine PadicInt.ext_of_toZModPow.mp fun n ↦ ?_\n        simp [cyclotomicCharacter.toZModPow_toFun]\n      · simp [cyclotomicCharacter.toFun, dif_neg H]\n    map_mul' f g := by\n      by_cases H : ∀ (i : ℕ), ∃ ζ : L, IsPrimitiveRoot ζ (p ^ i)\n      · haveI _ (i) : HasEnoughRootsOfUnity L (p ^ i) := ⟨H i, rootsOfUnity.isCyclic _ _⟩\n        refine PadicInt.ext_of_toZModPow.mp fun n ↦ ?_\n        simp [cyclotomicCharacter.toZModPow_toFun]\n      · simp [cyclotomicCharacter.toFun, dif_neg H] }\n",
+        "docstring": "Suppose `L` is a domain containing all `pⁱ`-th primitive roots with `p` a (rational) prime.\nIf `g` is a ring automorphism of `L`, then `cyclotomicCharacter L p g` is the unique `j : ℤₚ` such\nthat `g(ζ) = ζ ^ (j mod pⁱ)` for all `pⁱ`-th roots of unity `ζ`.\n\nNote: This is the trivial character when `L` does not contain all `pⁱ`-th primitive roots.\n"
+      },
+      {
+        "id": 271858,
+        "name": "DirichletCharacter",
+        "module": "Mathlib.NumberTheory.DirichletCharacter.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Basic.lean#L38-L40",
+        "source_text": "/-- The type of Dirichlet characters of level `n`. -/\n@[wikidata Q1063579]\nabbrev DirichletCharacter (R : Type*) [CommMonoidWithZero R] (n : ℕ) := MulChar (ZMod n) R\n",
+        "docstring": "The type of Dirichlet characters of level `n`. "
+      },
+      {
+        "id": 301114,
+        "name": "Representation.character",
+        "module": "Mathlib.RepresentationTheory.Character",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RepresentationTheory/Character.lean#L54-L57",
+        "source_text": "/-- The character of a representation `ρ : Representation k G V` is the function associating to\n`g : G` the trace of the linear map `ρ g`. -/\ndef character (g : G) :=\n  LinearMap.trace k V (ρ g)\n",
+        "docstring": "The character of a representation `ρ : Representation k G V` is the function associating to\n`g : G` the trace of the linear map `ρ g`. "
+      },
+      {
+        "id": 86741,
+        "name": "CharacterModule",
+        "module": "Mathlib.Algebra.Module.CharacterModule",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/CharacterModule.lean#L43-L46",
+        "source_text": "/--\nThe character module of an abelian group `A` in the unit rational circle is `A⋆ := Hom_ℤ(A, ℚ ⧸ ℤ)`.\n-/\ndef CharacterModule : Type uA := A →+ AddCircle (1 : ℚ)\n",
+        "docstring": "The character module of an abelian group `A` in the unit rational circle is `A⋆ := Hom_ℤ(A, ℚ ⧸ ℤ)`.\n"
+      },
+      {
+        "id": 273395,
+        "name": "qrSign",
+        "module": "Mathlib.NumberTheory.LegendreSymbol.JacobiSymbol",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LegendreSymbol/JacobiSymbol.lean#L360-L362",
+        "source_text": "/-- The bi-multiplicative map giving the sign in the Law of Quadratic Reciprocity -/\ndef qrSign (m n : ℕ) : ℤ :=\n  J(χ₄ m | n)\n",
+        "docstring": "The bi-multiplicative map giving the sign in the Law of Quadratic Reciprocity "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.QuotientCharacter.value M5.Character.bitSign definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392354,
+        "name": "Lorentz.Vector.CausalCharacter",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L25-L31",
+        "source_text": "/-- Classification of lorentz vectors based on their causal character. -/\ninductive CausalCharacter\n  | timeLike\n  | lightLike\n  | spaceLike\n\nderiving DecidableEq\n",
+        "docstring": "Classification of lorentz vectors based on their causal character. "
+      },
+      {
+        "id": 392360,
+        "name": "Lorentz.Vector.causalCharacter_invariant",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L45-L49",
+        "source_text": "/-- `causalCharacter` are invariant under an action of the Lorentz group. -/\nlemma causalCharacter_invariant {d : ℕ} (p : Vector d) (Λ : LorentzGroup d) :\n    causalCharacter (Λ • p) = causalCharacter p := by\n  simp only [causalCharacter]\n  rw [minkowskiProduct_invariant]\n",
+        "docstring": "`causalCharacter` are invariant under an action of the Lorentz group. "
+      },
+      {
+        "id": 392356,
+        "name": "Lorentz.Vector.CausalCharacter.lightLike",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L28-L28",
+        "source_text": "  | lightLike\n",
+        "docstring": null
+      },
+      {
+        "id": 392377,
+        "name": "Lorentz.Vector.causalCharacter_zero",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.LightLike",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/LightLike.lean#L31-L34",
+        "source_text": "@[simp]\nlemma causalCharacter_zero {d : ℕ} : causalCharacter (0 : Vector d) =\n    CausalCharacter.lightLike := by\n  simp [causalCharacter]",
+        "docstring": null
+      },
+      {
+        "id": 392359,
+        "name": "Lorentz.Vector.causalCharacter",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L33-L43",
+        "source_text": "/-- A Lorentz vector `p` is\n- `lightLike` if `⟪p, p⟫ₘ = 0`.\n- `timeLike` if `0 < ⟪p, p⟫ₘ`.\n- `spaceLike` if `⟪p, p⟫ₘ < 0`.\nNote that `⟪p, p⟫ₘ` is defined in the +--- convention.\n-/\ndef causalCharacter {d : ℕ} (p : Vector d) : CausalCharacter :=\n  let v0 := ⟪p, p⟫ₘ\n  if v0 = 0 then CausalCharacter.lightLike\n  else if 0 < v0 then CausalCharacter.timeLike\n  else CausalCharacter.spaceLike\n",
+        "docstring": "A Lorentz vector `p` is\n- `lightLike` if `⟪p, p⟫ₘ = 0`.\n- `timeLike` if `0 < ⟪p, p⟫ₘ`.\n- `spaceLike` if `⟪p, p⟫ₘ < 0`.\nNote that `⟪p, p⟫ₘ` is defined in the +--- convention.\n"
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset product powers negative one eq_one_or_neg_one",
+    "status": "ok",
+    "results": [
+      {
+        "id": 70672,
+        "name": "Finset.one_product_one",
+        "module": "Mathlib.Algebra.Group.Pointwise.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/Basic.lean#L175-L176",
+        "source_text": "@[to_additive (attr := simp)]\nlemma one_product_one [One β] : (1 ×ˢ 1 : Finset (α × β)) = 1 := by ext; simp [Prod.ext_iff]",
+        "docstring": null
+      },
+      {
+        "id": 104908,
+        "name": "neg_one_pow_eq_or",
+        "module": "Mathlib.Algebra.Ring.Commute",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Ring/Commute.lean#L138-L142",
+        "source_text": "lemma neg_one_pow_eq_or : ∀ n : ℕ, (-1 : R) ^ n = 1 ∨ (-1 : R) ^ n = -1\n  | 0 => Or.inl (pow_zero _)\n  | n + 1 => (neg_one_pow_eq_or n).symm.imp\n    (fun h ↦ by rw [pow_succ, h, neg_one_mul, neg_neg])\n    (fun h ↦ by rw [pow_succ, h, one_mul])\n",
+        "docstring": null
+      },
+      {
+        "id": 105914,
+        "name": "neg_one_pow_eq_ite",
+        "module": "Mathlib.Algebra.Ring.Parity",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Ring/Parity.lean#L389-L392",
+        "source_text": "lemma neg_one_pow_eq_ite : (-1 : R) ^ n = if Even n then 1 else (-1) := by\n  cases even_or_odd n with\n  | inl h => rw [h.neg_one_pow, if_pos h]\n  | inr h => rw [h.neg_one_pow, if_neg (by simpa using h)]\n",
+        "docstring": null
+      },
+      {
+        "id": 105697,
+        "name": "Int.negOnePow",
+        "module": "Mathlib.Algebra.Ring.NegOnePow",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Ring/NegOnePow.lean#L29-L30",
+        "source_text": "/-- The map `ℤ → ℤˣ` which sends `n` to `(-1 : ℤˣ) ^ n`. -/\ndef negOnePow (n : ℤ) : ℤˣ := (-1 : ℤˣ) ^ n\n",
+        "docstring": "The map `ℤ → ℤˣ` which sends `n` to `(-1 : ℤˣ) ^ n`. "
+      },
+      {
+        "id": 104914,
+        "name": "neg_one_pow_two",
+        "module": "Mathlib.Algebra.Ring.Commute",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Ring/Commute.lean#L158-L158",
+        "source_text": "alias neg_one_pow_two := neg_one_sq\n",
+        "docstring": "**Alias** of `neg_one_sq`."
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset product powers negative one eq_one_or_neg_one",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391256,
+        "name": "LorentzGroup.det_eq_one_or_neg_one",
+        "module": "Physlib.Relativity.LorentzGroup.Proper",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzGroup/Proper.lean#L34-L37",
+        "source_text": "/-- The determinant of a member of the Lorentz group is `1` or `-1`. -/\nlemma det_eq_one_or_neg_one (Λ : 𝓛 d) : Λ.1.det = 1 ∨ Λ.1.det = -1 := by\n  refine mul_self_eq_one_iff.mp ?_\n  simpa only [det_mul, det_dual, det_one] using congrArg det ((mem_iff_self_mul_dual).mp Λ.2)\n",
+        "docstring": "The determinant of a member of the Lorentz group is `1` or `-1`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

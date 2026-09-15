@@ -1,0 +1,83 @@
+{
+  "id": "R_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ArithmeticTuple.R_exact",
+    "spec_sha256": "357c48d1b9ffe5ec525de8e2040cec4d938dccc4a2e15e45f306dc4e4adf20a2",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-arithmetic-tuple-formalization/.humanize-formal-runs/run-np2tit1s/attempt-001/Candidate_fe81d051e1376c38.lean",
+        "target_path": "/home/jing/m5-lean-arithmetic-tuple-formalization/.humanize-formal-runs/run-np2tit1s/attempt-001/FrozenTarget_fe81d051e1376c38.lean",
+        "feedback": "",
+        "target_sha256": "b57935ab1b38c381f496aff320a6a49c0f4bed9b788f575bc559fdbf1861c36e",
+        "target_olean_sha256": "309a75f1ecf5e4824c0eeebae0721c1eed7e0f6d459de3cfc81f828482117bed",
+        "source_sha256": "d721dc9ea99d9e15930c06e98937d2f2571515cedbc3b1c5bd7c538e04f3a79f",
+        "olean_sha256": "417233cb6c719d150ab41175513dd8f646eb24b54e9292a7b89ede086d6bca33",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:03:19.415144+00:00",
+    "work": "/home/jing/m5-lean-arithmetic-tuple-formalization/.humanize-formal-runs/run-np2tit1s",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-arithmetic-tuple-formalization/.humanize-formal-runs/run-np2tit1s/attempt-001/Candidate_fe81d051e1376c38.lean",
+    "environment_sha256": "de324abc4b5f0b5a7a12b6cda4f5cfd74a977db05565c8f38bcf206859639f1f",
+    "artifacts": {
+      "tuple_coordinates": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticTuple.tuple_coordinates : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ) (t : Fin k → Fin (T / d)), M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t)) = M5.TupleCharacter.vectorSum (fun j : Fin (T / d) => M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ (d * j.val)))) t := by\n  intro P hP T d k t\n  classical\n  simp [M5.ArithmeticTuple.tuplePolynomial, M5.TupleCharacter.vectorSum,\n    M5.QuotientCharacter.coordinates, map_sum]",
+          "imports": [
+            "M5ArithmeticTuple"
+          ],
+          "name": "M5.ArithmeticTuple.tuple_coordinates",
+          "ancestors": [],
+          "spec_sha256": "41fc1031c5699f15028445e27f36458dff76aab8354ff9d8684c426770e16645"
+        },
+        "sha256": "4fb05e5d6ec6fafe8447049b47461e92e92440237a9a48da51e1890f8abf0c1d"
+      },
+      "numerator_exact": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticTuple.numerator_exact : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ) (z : AdjoinRoot P), M5.ArithmeticTuple.numerator P hP T d k z = (2 : ℤ) ^ P.natDegree * ((Finset.univ.filter (fun t : Fin k → Fin (T / d) => AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = z)).card : ℤ) := by\n  intro P hP T d k z\n  classical\n  have hfilter :\n      (Finset.univ.filter (fun t : Fin k → Fin (T / d) =>\n        M5.TupleCharacter.vectorSum\n          (fun j : Fin (T / d) => M5.QuotientCharacter.coordinates P hP\n            (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ (d * j.val)))) t =\n          M5.QuotientCharacter.coordinates P hP z)) =\n      (Finset.univ.filter (fun t : Fin k → Fin (T / d) =>\n        AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = z)) := by\n    apply Finset.filter_congr\n    intro t ht\n    rw [← M5.ArithmeticTuple.tuple_coordinates P hP T d k t]\n    exact (M5.QuotientCharacter.coordinates P hP).injective.eq_iff\n  rw [← hfilter]\n  simp only [M5.ArithmeticTuple.numerator, M5.QuotientCharacter.value]\n  apply M5.TupleCharacter.ordered_tuple_power_count",
+          "imports": [
+            "M5ArithmeticTuple"
+          ],
+          "name": "M5.ArithmeticTuple.numerator_exact",
+          "ancestors": [
+            "tuple_coordinates"
+          ],
+          "spec_sha256": "53b83217094a4a820f43ee5da9ca015d85919bbcd270032c4f7cfa03a9115f68"
+        },
+        "sha256": "2034dd8b4c2f888aff0701b46d0877e6cb558f1ddd7220569484f85d4a2bbeed"
+      },
+      "R_exact": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticTuple.R_exact : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ) (z : AdjoinRoot P), M5.ArithmeticTuple.R P hP T d k z = ((Finset.univ.filter (fun t : Fin k → Fin (T / d) => AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = z)).card : ℤ) := by\n  intro P hP T d k z\n  classical\n  rw [M5.ArithmeticTuple.R, M5.ArithmeticTuple.numerator_exact]\n  have h : (2 : ℤ) ^ P.natDegree ≠ 0 := pow_ne_zero _ (by norm_num)\n  simp [Int.mul_ediv_cancel_left, h]",
+          "imports": [
+            "M5ArithmeticTuple"
+          ],
+          "name": "M5.ArithmeticTuple.R_exact",
+          "ancestors": [
+            "numerator_exact",
+            "tuple_coordinates"
+          ],
+          "spec_sha256": "7d81f68f69f96cc0d07a611d74c80e2397ac470643ab9baf306e8be94a6dba78"
+        },
+        "sha256": "414cfbfe3236fa1e124d94fdaa9be20071acf3c6c51bc56363febc63d79e2338"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "proof": "intro P hP T d k z\nclassical\nhave hfilter :\n    (Finset.univ.filter (fun t : Fin k → Fin (T / d) =>\n      M5.TupleCharacter.vectorSum\n        (fun j : Fin (T / d) => M5.QuotientCharacter.coordinates P hP\n          (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ (d * j.val)))) t =\n        M5.QuotientCharacter.coordinates P hP z)) =\n    (Finset.univ.filter (fun t : Fin k → Fin (T / d) =>\n      AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = z)) := by\n  apply Finset.filter_congr\n  intro t ht\n  rw [← M5.ArithmeticTuple.tuple_coordinates P hP T d k t]\n  exact (M5.QuotientCharacter.coordinates P hP).injective.eq_iff\nrw [← hfilter]\nsimp only [M5.ArithmeticTuple.numerator, M5.QuotientCharacter.value]\napply M5.TupleCharacter.ordered_tuple_power_count",
+  "queries": [
+    "M5.TupleCharacter.ordered_tuple_power_count",
+    "M5.ArithmeticTuple.numerator",
+    "M5.QuotientCharacter.coordinates"
+  ]
+}

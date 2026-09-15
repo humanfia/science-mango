@@ -1,0 +1,13 @@
+{
+  "name": "M5.ArithmeticSubset.numerator_exact",
+  "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (z : AdjoinRoot P), M5.ArithmeticSubset.numerator P hP W k z = (2 : ℤ) ^ P.natDegree * (((W.powersetCard k).filter (fun U => AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = z)).card : ℤ)",
+  "imports": [
+    "M5ArithmeticSubset"
+  ],
+  "context": "theorem M5.ArithmeticSubset.character_sign : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (lam : M5.Character.BinaryVector P.natDegree) (z : AdjoinRoot P), M5.QuotientCharacter.value P hP lam z = 1 ∨ M5.QuotientCharacter.value P hP lam z = -1 := by\n  intro P hP lam z\n  unfold M5.QuotientCharacter.value M5.Character.value M5.Character.bitSign\n  simp only [Finset.prod_pow_eq_pow_sum]\n  exact neg_one_pow_eq_or ℤ _\n\ntheorem M5.ArithmeticSubset.coordinates_support_sum : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (U : Finset ℕ), M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U)) = M5.SubsetCharacter.vectorSum U (fun s => M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ s))) := by\n  intro P hP U\n  classical\n  simp [M5.SupportPolynomial.ofSupport, M5.SubsetCharacter.vectorSum,\n    M5.QuotientCharacter.coordinates, map_sum, Finset.sum_apply]\n\ntheorem M5.ArithmeticSubset.binomial_coefficient : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (lam : M5.Character.BinaryVector P.natDegree), M5.ArithmeticSubset.binomialTerm P hP W k lam = (M5.SubsetCharacter.signedProduct W (M5.ArithmeticSubset.monomialValue P hP lam)).coeff k := by\n  intro P hP W k lam\n  unfold M5.ArithmeticSubset.binomialTerm\n  symm\n  apply M5.Binomial.signed_coefficient_eval\n  all_goals\n    intros\n    exact M5.ArithmeticSubset.character_sign P hP lam _",
+  "queries": [
+    "finite character sum subset polynomial coefficient",
+    "integer multiplication division cancellation"
+  ],
+  "guidance": "Use receipt-verified accepted stage14 subset_character_count from imported M5SubsetCountAccepted. Instantiate D=P.natDegree, f(s)=coordinates(mk P (X^s)), target coordinates(z). Rewrite binomial_coefficient. coordinates_support_sum and coordinates.injective identify the filter predicates. Reuse the imported accepted theorem. Return tactic lines only without leading by; preserve exact target."
+}

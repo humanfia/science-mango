@@ -1,0 +1,13 @@
+{
+  "name": "M5.ArithmeticSubset.binomial_coefficient",
+  "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (lam : M5.Character.BinaryVector P.natDegree), M5.ArithmeticSubset.binomialTerm P hP W k lam = (M5.SubsetCharacter.signedProduct W (M5.ArithmeticSubset.monomialValue P hP lam)).coeff k",
+  "imports": [
+    "M5ArithmeticSubset"
+  ],
+  "context": "theorem M5.ArithmeticSubset.character_sign : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (lam : M5.Character.BinaryVector P.natDegree) (z : AdjoinRoot P), M5.QuotientCharacter.value P hP lam z = 1 ∨ M5.QuotientCharacter.value P hP lam z = -1 := by\n  intro P hP lam z\n  unfold M5.QuotientCharacter.value M5.Character.value M5.Character.bitSign\n  simp only [Finset.prod_pow_eq_pow_sum]\n  exact neg_one_pow_eq_or ℤ _",
+  "queries": [
+    "finite character sum subset polynomial coefficient",
+    "integer multiplication division cancellation"
+  ],
+  "guidance": "Use accepted M5.Binomial.signed_coefficient_eval with character_sign. The two signedProduct definitions are identical. Symmetrize coefficient formula. Preserve all k including k>W.card. Return tactic lines only without leading by; preserve exact target."
+}

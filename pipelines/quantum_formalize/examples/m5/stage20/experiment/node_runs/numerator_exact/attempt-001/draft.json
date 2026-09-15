@@ -1,0 +1,8 @@
+{
+  "proof": "intro P hP W k z\nclassical\ntrans (2 : ℤ) ^ P.natDegree * (((W.powersetCard k).filter (fun U => M5.SubsetCharacter.vectorSum U (fun s => M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ s))) = M5.QuotientCharacter.coordinates P hP z)).card : ℤ)\n· unfold M5.ArithmeticSubset.numerator\n  simp only [M5.ArithmeticSubset.binomial_coefficient]\n  unfold M5.ArithmeticSubset.monomialValue M5.QuotientCharacter.value\n  first\n  | apply M5.SubsetCharacter.subset_character_count\n  | apply M5.SubsetCount.subset_character_count\n  | apply M5.subset_character_count\n· congr 1\n  congr 1\n  apply congrArg Finset.card\n  apply Finset.filter_congr\n  intro U hU\n  rw [← M5.ArithmeticSubset.coordinates_support_sum P hP U]\n  exact (M5.QuotientCharacter.coordinates P hP).injective.eq_iff",
+  "queries": [
+    "M5.SubsetCharacter.subset_character_count",
+    "M5.ArithmeticSubset.numerator M5.ArithmeticSubset.monomialValue",
+    "M5.QuotientCharacter.coordinates"
+  ]
+}

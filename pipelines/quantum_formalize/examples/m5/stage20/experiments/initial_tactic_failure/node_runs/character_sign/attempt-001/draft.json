@@ -1,0 +1,7 @@
+{
+  "proof": "intro P hP lam z\nclassical\nhave hpow {R : Type*} [CommRing R] (n : ℕ) :\n    (-1 : R) ^ n = 1 ∨ (-1 : R) ^ n = -1 := by\n  induction n with\n  | zero => simp\n  | succ n ih =>\n      rcases ih with h | h <;> simp [pow_succ, h]\nhave hprod {R : Type*} [CommRing R] {ι : Type*}\n    (s : Finset ι) (f : ι → ℕ) :\n    (∏ i ∈ s, (-1 : R) ^ f i) = 1 ∨\n      (∏ i ∈ s, (-1 : R) ^ f i) = -1 := by\n  induction s using Finset.induction_on with\n  | empty => simp\n  | @insert a s ha ih =>\n      rw [Finset.prod_insert ha]\n      rcases hpow (R := R) (f a) with h₁ | h₁ <;>\n        rcases ih with h₂ | h₂ <;> simp [h₁, h₂]\nexact hprod _ _",
+  "queries": [
+    "M5.QuotientCharacter.value M5.Character.bitSign definitions",
+    "Finset product powers negative one eq_one_or_neg_one"
+  ]
+}

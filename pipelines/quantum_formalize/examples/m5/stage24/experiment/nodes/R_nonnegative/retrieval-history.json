@@ -1,0 +1,192 @@
+[
+  {
+    "queries": [
+      "linear equivalence map finite sum",
+      "integer division multiplication cancellation"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "linear equivalence map finite sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 334861,
+            "name": "LinearEquiv.coe_toContinuousLinearEquiv",
+            "module": "Mathlib.Topology.Algebra.Module.FiniteDimension",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/Module/FiniteDimension.lean#L378-L380",
+            "source_text": "@[simp]\ntheorem coe_toContinuousLinearEquiv (e : E ≃ₗ[𝕜] F) : (e.toContinuousLinearEquiv : E →ₗ[𝕜] F) = e :=\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 86999,
+            "name": "LinearEquiv",
+            "module": "Mathlib.Algebra.Module.Equiv.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/Equiv/Defs.lean#L48-L51",
+            "source_text": "/-- A linear equivalence is an invertible linear map. -/\nstructure LinearEquiv {R : Type*} {S : Type*} [Semiring R] [Semiring S] (σ : R →+* S)\n  {σ' : S →+* R} [RingHomInvPair σ σ'] [RingHomInvPair σ' σ] (M : Type*) (M₂ : Type*)\n  [AddCommMonoid M] [AddCommMonoid M₂] [Module R M] [Module S M₂] extends LinearMap σ M M₂, M ≃+ M₂\n",
+            "docstring": "A linear equivalence is an invertible linear map. "
+          },
+          {
+            "id": 64435,
+            "name": "DirectSum.congr_linearEquiv_toLinearMap",
+            "module": "Mathlib.Algebra.DirectSum.Module",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/DirectSum/Module.lean#L614-L615",
+            "source_text": "@[deprecated (since := \"2025-12-01\")]\nalias congr_linearEquiv_toLinearMap := congrLinearEquiv_toLinearMap",
+            "docstring": "**Alias** of `DirectSum.congrLinearEquiv_toLinearMap`."
+          },
+          {
+            "id": 248171,
+            "name": "LinearMap.finiteDimensional",
+            "module": "Mathlib.LinearAlgebra.Matrix.FiniteDimensional",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/FiniteDimensional.lean#L54-L55",
+            "source_text": "instance finiteDimensional : FiniteDimensional K (V →ₗ[K] W) :=\n  Module.Finite.linearMap _ _ _ _\n",
+            "docstring": null
+          },
+          {
+            "id": 248172,
+            "name": "LinearMap.finiteDimensional'",
+            "module": "Mathlib.LinearAlgebra.Matrix.FiniteDimensional",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/FiniteDimensional.lean#L60-L63",
+            "source_text": "/-- Linear maps over a `k`-algebra are finite dimensional (over `k`) if both the source and\ntarget are, as they form a subspace of all `k`-linear maps. -/\ninstance finiteDimensional' : FiniteDimensional K (V →ₗ[A] W) :=\n  FiniteDimensional.of_injective (restrictScalarsₗ K A V W K) (restrictScalars_injective _)\n",
+            "docstring": "Linear maps over a `k`-algebra are finite dimensional (over `k`) if both the source and\ntarget are, as they form a subspace of all `k`-linear maps. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "linear equivalence map finite sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386620,
+            "name": "LinearPMap.sum",
+            "module": "Physlib.Mathematics.LinearPMap",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/LinearPMap.lean#L147-L153",
+            "source_text": "/-- A finite sum of partial linear maps.\n\n  `sum f` and `∑ a, f a` are equal, but not by definition.\n  With `sum f` both `domain` and `toFun` are made explicit. -/\ndef sum : E →ₗ.[R] F where\n  domain := ⨅ a, (f a).domain\n  toFun := ∑ a, (f a).toFun ∘ₗ inclusion (fun _ _ ↦ by simp_all only [mem_iInf])\n",
+            "docstring": "A finite sum of partial linear maps.\n\n`sum f` and `∑ a, f a` are equal, but not by definition.\nWith `sum f` both `domain` and `toFun` are made explicit. "
+          },
+          {
+            "id": 386623,
+            "name": "LinearPMap.sum_apply",
+            "module": "Physlib.Mathematics.LinearPMap",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/LinearPMap.lean#L159-L161",
+            "source_text": "@[simp]\nlemma sum_apply (ψ : (sum f).domain) : sum f ψ = ∑ a, f a ⟨ψ, sum_domain_le f a ψ.2⟩ := by\n  simp [sum, inclusion_apply]",
+            "docstring": null
+          },
+          {
+            "id": 386622,
+            "name": "LinearPMap.sum_domain_le",
+            "module": "Physlib.Mathematics.LinearPMap",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/LinearPMap.lean#L157-L157",
+            "source_text": "lemma sum_domain_le (a : α) : (sum f).domain ≤ (f a).domain := fun _ _ ↦ by simp_all [sum, mem_iInf]\n",
+            "docstring": null
+          },
+          {
+            "id": 390749,
+            "name": "LinearPMap.IsSymmetric.sum",
+            "module": "Physlib.QuantumMechanics.Operators.Unbounded",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Unbounded.lean#L652-L655",
+            "source_text": "@[aesop safe apply]\nlemma IsSymmetric.sum (h : ∀ a, (S a).IsSymmetric) : (sum S).IsSymmetric := by\n  intro x y\n  simp [sum_apply, sum_inner, inner_sum, h _ ⟨x, sum_domain_le S _ x.2⟩ ⟨y, sum_domain_le S _ y.2⟩]",
+            "docstring": null
+          },
+          {
+            "id": 386621,
+            "name": "LinearPMap.sum_domain",
+            "module": "Physlib.Mathematics.LinearPMap",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/LinearPMap.lean#L155-L155",
+            "source_text": "lemma sum_domain : (sum f).domain = ⨅ a, (f a).domain := rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "integer division multiplication cancellation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 86307,
+            "name": "LieModule.weight_vector_multiplication",
+            "module": "Mathlib.Algebra.Lie.Weights.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Lie/Weights/Basic.lean#L75-L141",
+            "source_text": "/-- See also `bourbaki1975b` Chapter VII §1.1, Proposition 2 (ii). -/\nprotected theorem weight_vector_multiplication (M₁ M₂ M₃ : Type*)\n    [AddCommGroup M₁] [Module R M₁] [LieRingModule L M₁] [LieModule R L M₁] [AddCommGroup M₂]\n    [Module R M₂] [LieRingModule L M₂] [LieModule R L M₂] [AddCommGroup M₃] [Module R M₃]\n    [LieRingModule L M₃] [LieModule R L M₃] (g : M₁ ⊗[R] M₂ →ₗ⁅R,L⁆ M₃) (χ₁ χ₂ : R) (x : L) :\n    LinearMap.range ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (mapIncl 𝕎(M₁, χ₁, x) 𝕎(M₂, χ₂, x))) ≤\n      𝕎(M₃, χ₁ + χ₂, x) := by\n  -- Unpack the statement of the goal.\n  intro m₃\n  simp only [TensorProduct.mapIncl, LinearMap.mem_range, LinearMap.coe_comp,\n    LieModuleHom.coe_toLinearMap, Function.comp_apply, exists_imp, Module.End.mem_maxGenEigenspace]\n  rintro t rfl\n  -- Set up some notation.\n  let F : Module.End R M₃ := toEnd R L M₃ x - (χ₁ + χ₂) • ↑1\n  -- The goal is linear in `t` so use induction to reduce to the case that `t` is a pure tensor.\n  refine t.induction_on ?_ ?_ ?_\n  · use 0; simp only [map_zero]\n  swap\n  · rintro t₁ t₂ ⟨k₁, hk₁⟩ ⟨k₂, hk₂⟩; use max k₁ k₂\n    simp only [map_add, Module.End.pow_map_zero_of_le (le_max_left k₁ k₂) hk₁,\n      Module.End.pow_map_zero_of_le (le_max_right k₁ k₂) hk₂, add_zero]\n  -- Now the main argument: pure tensors.\n  rintro ⟨m₁, hm₁⟩ ⟨m₂, hm₂⟩\n  change ∃ k, (F ^ k) ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃) (m₁ ⊗ₜ m₂)) = (0 : M₃)\n  -- Eliminate `g` from the picture.\n  let f₁ : Module.End R (M₁ ⊗[R] M₂) := (toEnd R L M₁ x - χ₁ • ↑1).rTensor M₂\n  let f₂ : Module.End R (M₁ ⊗[R] M₂) := (toEnd R L M₂ x - χ₂ • ↑1).lTensor M₁\n  have h_comm_square : F ∘ₗ ↑g = (g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (f₁ + f₂) := by\n    ext m₁ m₂\n    simp only [f₁, f₂, F, ← g.map_lie x (m₁ ⊗ₜ m₂), add_smul, sub_tmul, tmul_sub, smul_tmul,\n      lie_tmul_right, tmul_smul, toEnd_apply_apply, map_smul, Module.End.one_apply,\n      LieModuleHom.coe_toLinearMap, LinearMap.smul_apply, Function.comp_apply, LinearMap.coe_comp,\n      LinearMap.rTensor_tmul, map_add, LinearMap.add_apply, map_sub, LinearMap.sub_apply,\n      LinearMap.lTensor_tmul, AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,\n      LinearMap.coe_restrictScalars]\n    abel\n  rsuffices ⟨k, hk⟩ : ∃ k : ℕ, ((f₁ + f₂) ^ k) (m₁ ⊗ₜ m₂) = 0\n  · use k\n    rw [← LinearMap.comp_apply, Module.End.commute_pow_left_of_commute h_comm_square,\n      LinearMap.comp_apply, hk, map_zero]\n  -- Unpack the information we have about `m₁`, `m₂`.\n  simp only [Module.End.mem_maxGenEigenspace] at hm₁ hm₂\n  obtain ⟨k₁, hk₁⟩ := hm₁\n  obtain ⟨k₂, hk₂⟩ := hm₂\n  have hf₁ : (f₁ ^ k₁) (m₁ ⊗ₜ m₂) = 0 := by\n    simp only [f₁, hk₁, zero_tmul, LinearMap.rTensor_tmul, LinearMap.rTensor_pow]\n  have hf₂ : (f₂ ^ k₂) (m₁ ⊗ₜ m₂) = 0 := by\n    simp only [f₂, hk₂, tmul_zero, LinearMap.lTensor_tmul, LinearMap.lTensor_pow]\n  -- It's now just an application of the binomial theorem.\n  use k₁ + k₂ - 1\n  have hf_comm : Commute f₁ f₂ := by\n    ext m₁ m₂\n    simp only [f₁, f₂, Module.End.mul_apply, LinearMap.rTensor_tmul, LinearMap.lTensor_tmul,\n      AlgebraTensorModule.curry_apply, LinearMap.lTensor_tmul, TensorProduct.curry_apply,\n      LinearMap.coe_restrictScalars]\n  rw [hf_comm.add_pow']\n  simp only [Finset.sum_apply, LinearMap.coe_sum, LinearMap.smul_apply]\n  -- The required sum is zero because each individual term is zero.\n  apply Finset.sum_eq_zero\n  rintro ⟨i, j⟩ hij\n  -- Eliminate the binomial coefficients from the picture.\n  suffices (f₁ ^ i * f₂ ^ j) (m₁ ⊗ₜ m₂) = 0 by rw [this]; apply smul_zero\n  -- Finish off with appropriate case analysis.\n  rcases Nat.le_or_le_of_add_eq_add_pred (Finset.mem_antidiagonal.mp hij) with hi | hj\n  · rw [(hf_comm.pow_pow i j).eq, Module.End.mul_apply, Module.End.pow_map_zero_of_le hi hf₁,\n      map_zero]\n  · rw [Module.End.mul_apply, Module.End.pow_map_zero_of_le hj hf₂, map_zero]\n",
+            "docstring": "See also `bourbaki1975b` Chapter VII §1.1, Proposition 2 (ii). "
+          },
+          {
+            "id": 68178,
+            "name": "DivisionMonoid",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L1169-L1178",
+            "source_text": "/-- A `DivisionMonoid` is a `DivInvMonoid` with involutive inversion and such that\n`(a * b)⁻¹ = b⁻¹ * a⁻¹` and `a * b = 1 → a⁻¹ = b`.\n\nThis is the immediate common ancestor of `Group` and `GroupWithZero`. -/\n@[to_additive]\nclass DivisionMonoid (G : Type u) extends DivInvMonoid G, InvolutiveInv G where\n  protected mul_inv_rev (a b : G) : (a * b)⁻¹ = b⁻¹ * a⁻¹\n  /-- Despite the asymmetry of `inv_eq_of_mul`, the symmetric version is true thanks to the\n  involutivity of inversion. -/\n  protected inv_eq_of_mul (a b : G) : a * b = 1 → a⁻¹ = b\n",
+            "docstring": "A `DivisionMonoid` is a `DivInvMonoid` with involutive inversion and such that\n`(a * b)⁻¹ = b⁻¹ * a⁻¹` and `a * b = 1 → a⁻¹ = b`.\n\nThis is the immediate common ancestor of `Group` and `GroupWithZero`. "
+          },
+          {
+            "id": 337439,
+            "name": "Valued.integer",
+            "module": "Mathlib.Topology.Algebra.Valued.ValuedField",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/Valued/ValuedField.lean#L601-L604",
+            "source_text": "/-- A `Valued` version of `Valuation.integer`, enabling the notation `𝒪[K]` for the\nvaluation integers of a valued field `K`. -/\n@[reducible]\ndef integer : Subring K := (vK.v).integer\n",
+            "docstring": "A `Valued` version of `Valuation.integer`, enabling the notation `𝒪[K]` for the\nvaluation integers of a valued field `K`. "
+          },
+          {
+            "id": 321046,
+            "name": "Valuation.integer",
+            "module": "Mathlib.RingTheory.Valuation.Integers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Valuation/Integers.lean#L31-L38",
+            "source_text": "/-- The ring of integers under a given valuation is the subring of elements with valuation ≤ 1. -/\ndef integer : Subring R where\n  carrier := { x | v x ≤ 1 }\n  one_mem' := le_of_eq v.map_one\n  mul_mem' {x y} hx hy := by simp only [Set.mem_setOf_eq, map_mul, mul_le_one' hx hy]\n  zero_mem' := by simp\n  add_mem' {x y} hx hy := le_trans (v.map_add x y) (max_le hx hy)\n  neg_mem' {x} hx := by simp only [Set.mem_setOf_eq] at hx; simpa only [Set.mem_setOf_eq, map_neg]\n",
+            "docstring": "The ring of integers under a given valuation is the subring of elements with valuation ≤ 1. "
+          },
+          {
+            "id": 306066,
+            "name": "Set.integer",
+            "module": "Mathlib.RingTheory.DedekindDomain.SInteger",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/DedekindDomain/SInteger.lean#L63-L70",
+            "source_text": "/-- The `R`-subalgebra of `S`-integers of `K`. -/\n@[simps!]\ndef integer : Subalgebra R K :=\n  {\n    (⨅ (v) (_ : v ∉ S), (v.valuation K).valuationSubring.toSubring).copy\n        {x : K | ∀ (v) (_ : v ∉ S), v.valuation K x ≤ 1} <|\n      Set.ext fun _ => by simp [SetLike.mem_coe] with\n    algebraMap_mem' := fun x v _ => v.valuation_le_one x }\n",
+            "docstring": "The `R`-subalgebra of `S`-integers of `K`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "integer division multiplication cancellation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394089,
+            "name": "FTheory.SU5.Quanta.LinearAnomalyCancellation",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L258-L263",
+            "source_text": "/-- The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. -/\ndef LinearAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) : Prop :=\n  (HdAnomalyCoefficient Q.qHd).1 + (HuAnomalyCoefficient Q.qHu).1 + Q.F.anomalyCoefficient.1 +\n  Q.T.anomalyCoefficient.1 = 0\n",
+            "docstring": "The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. "
+          },
+          {
+            "id": 394090,
+            "name": "FTheory.SU5.Quanta.QuarticAnomalyCancellation",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L265-L272",
+            "source_text": "/-- The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n-/\ndef QuarticAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) :\n    Prop :=\n  (HdAnomalyCoefficient Q.qHd).2 + (HuAnomalyCoefficient Q.qHu).2 + Q.F.anomalyCoefficient.2 +\n    Q.T.anomalyCoefficient.2 = 0\n",
+            "docstring": "The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n"
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "tuple_coordinates",
+    "receipts_sha256": "9a3d30cb4d97277c072ecea57af72a6aee07c7a0cc9751d0dec7914d32af8b0f"
+  }
+]

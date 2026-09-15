@@ -1,0 +1,4 @@
+{
+  "proof": "intro P hP lam z\nhave hprod {R : Type} [CommRing R] {ι : Type}\n    (s : Finset ι) (f : ι → ℕ) :\n    (∏ i ∈ s, (-1 : R) ^ f i) = 1 ∨\n      (∏ i ∈ s, (-1 : R) ^ f i) = -1 := by\n  classical\n  induction s using Finset.induction_on with\n  | empty => simp\n  | @insert a s ha ih =>\n      rw [Finset.prod_insert ha]\n      rcases neg_one_pow_eq_or (R := R) (f a) with h | h <;>\n        rcases ih with hs | hs <;> simp [h, hs]\nexact hprod Finset.univ _",
+  "queries": []
+}

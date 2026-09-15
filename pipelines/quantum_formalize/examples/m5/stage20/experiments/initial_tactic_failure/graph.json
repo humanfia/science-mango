@@ -1,0 +1,161 @@
+{
+  "title": "M5 stage20: exact quotient subset arithmetic n(P,W,k,z)",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Arithmetic character/binomial sum divided in ℤ equals exact quotient-residue k-subset count; monicity alone. Stage14 count and exact dependency closure imported with verified receipts.",
+  "nodes": [
+    {
+      "id": "character_sign",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.ArithmeticSubset.character_sign",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (lam : M5.Character.BinaryVector P.natDegree) (z : AdjoinRoot P), M5.QuotientCharacter.value P hP lam z = 1 ∨ M5.QuotientCharacter.value P hP lam z = -1",
+        "imports": [
+          "M5ArithmeticSubset"
+        ],
+        "context": "",
+        "queries": [
+          "finite character sum subset polynomial coefficient",
+          "integer multiplication division cancellation"
+        ],
+        "guidance": "Unfold quotient value and binary character. Each bitSign is a power of -1, hence their product is ±1. Preserve dimension zero and its empty product. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§2",
+        "supports_obligation": "M5.SUBSET_COUNT / M5.BINOM_EVAL",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "coordinates_support_sum",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.ArithmeticSubset.coordinates_support_sum",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (U : Finset ℕ), M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U)) = M5.SubsetCharacter.vectorSum U (fun s => M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ s)))",
+        "imports": [
+          "M5ArithmeticSubset"
+        ],
+        "context": "",
+        "queries": [
+          "finite character sum subset polynomial coefficient",
+          "integer multiplication division cancellation"
+        ],
+        "guidance": "Unfold ofSupport and vectorSum; use quotient algebra map and linear equivalence map_sum. Quotient collisions and all binary cancellations remain valid. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§2",
+        "supports_obligation": "M5.SUBSET_COUNT / M5.BINOM_EVAL",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "binomial_coefficient",
+      "dependencies": [
+        "character_sign"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticSubset.binomial_coefficient",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (lam : M5.Character.BinaryVector P.natDegree), M5.ArithmeticSubset.binomialTerm P hP W k lam = (M5.SubsetCharacter.signedProduct W (M5.ArithmeticSubset.monomialValue P hP lam)).coeff k",
+        "imports": [
+          "M5ArithmeticSubset"
+        ],
+        "context": "",
+        "queries": [
+          "finite character sum subset polynomial coefficient",
+          "integer multiplication division cancellation"
+        ],
+        "guidance": "Use accepted M5.Binomial.signed_coefficient_eval with character_sign. The two signedProduct definitions are identical. Symmetrize coefficient formula. Preserve all k including k>W.card. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§2",
+        "supports_obligation": "M5.SUBSET_COUNT / M5.BINOM_EVAL",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "numerator_exact",
+      "dependencies": [
+        "coordinates_support_sum",
+        "binomial_coefficient"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticSubset.numerator_exact",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (z : AdjoinRoot P), M5.ArithmeticSubset.numerator P hP W k z = (2 : ℤ) ^ P.natDegree * (((W.powersetCard k).filter (fun U => AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = z)).card : ℤ)",
+        "imports": [
+          "M5ArithmeticSubset"
+        ],
+        "context": "",
+        "queries": [
+          "finite character sum subset polynomial coefficient",
+          "integer multiplication division cancellation"
+        ],
+        "guidance": "Use receipt-verified accepted stage14 subset_character_count from imported M5SubsetCountAccepted. Instantiate D=P.natDegree, f(s)=coordinates(mk P (X^s)), target coordinates(z). Rewrite binomial_coefficient. coordinates_support_sum and coordinates.injective identify the filter predicates. Reuse the imported accepted theorem. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§2",
+        "supports_obligation": "M5.SUBSET_COUNT / M5.BINOM_EVAL",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "n_exact",
+      "dependencies": [
+        "numerator_exact"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticSubset.n_exact",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (z : AdjoinRoot P), M5.ArithmeticSubset.n P hP W k z = (((W.powersetCard k).filter (fun U => AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = z)).card : ℤ)",
+        "imports": [
+          "M5ArithmeticSubset"
+        ],
+        "context": "",
+        "queries": [
+          "finite character sum subset polynomial coefficient",
+          "integer multiplication division cancellation"
+        ],
+        "guidance": "Unfold n, rewrite numerator_exact, cancel integer division by the positive (2:ℤ)^P.natDegree. Preserve P=1, empty W, k=0 and k>W.card. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§2",
+        "supports_obligation": "M5.SUBSET_COUNT / M5.BINOM_EVAL",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "n_nonnegative",
+      "dependencies": [
+        "n_exact"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticSubset.n_nonnegative",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (z : AdjoinRoot P), 0 ≤ M5.ArithmeticSubset.n P hP W k z",
+        "imports": [
+          "M5ArithmeticSubset"
+        ],
+        "context": "",
+        "queries": [
+          "finite character sum subset polynomial coefficient",
+          "integer multiplication division cancellation"
+        ],
+        "guidance": "Rewrite n_exact; natural-number cardinality cast to integer is nonnegative. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§2",
+        "supports_obligation": "M5.SUBSET_COUNT / M5.BINOM_EVAL",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

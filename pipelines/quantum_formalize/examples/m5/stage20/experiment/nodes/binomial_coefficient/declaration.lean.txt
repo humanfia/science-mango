@@ -1,0 +1,8 @@
+theorem M5.ArithmeticSubset.binomial_coefficient : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (lam : M5.Character.BinaryVector P.natDegree), M5.ArithmeticSubset.binomialTerm P hP W k lam = (M5.SubsetCharacter.signedProduct W (M5.ArithmeticSubset.monomialValue P hP lam)).coeff k := by
+  intro P hP W k lam
+  unfold M5.ArithmeticSubset.binomialTerm
+  symm
+  apply M5.Binomial.signed_coefficient_eval
+  all_goals
+    intros
+    exact M5.ArithmeticSubset.character_sign P hP lam _

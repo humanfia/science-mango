@@ -1,0 +1,106 @@
+{
+  "title": "M5 stage24: exact arithmetic repeated-residue tuple count R",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Original R character power identity including repetition, k=0 and P=1; no C/A assembly or executable refinement claim.",
+  "nodes": [
+    {
+      "id": "tuple_coordinates",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.ArithmeticTuple.tuple_coordinates",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ) (t : Fin k → Fin (T / d)), M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t)) = M5.TupleCharacter.vectorSum (fun j : Fin (T / d) => M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ (d * j.val)))) t",
+        "imports": [
+          "M5ArithmeticTuple"
+        ],
+        "context": "",
+        "queries": [
+          "linear equivalence map finite sum",
+          "integer division multiplication cancellation"
+        ],
+        "guidance": "Unfold tuplePolynomial and vectorSum; ring map mk and linear equivalence coordinates preserve finite sums. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "2",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "numerator_exact",
+      "dependencies": [
+        "tuple_coordinates"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticTuple.numerator_exact",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ) (z : AdjoinRoot P), M5.ArithmeticTuple.numerator P hP T d k z = (2 : ℤ) ^ P.natDegree * ((Finset.univ.filter (fun t : Fin k → Fin (T / d) => AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = z)).card : ℤ)",
+        "imports": [
+          "M5ArithmeticTuple"
+        ],
+        "context": "",
+        "queries": [
+          "linear equivalence map finite sum",
+          "integer division multiplication cancellation"
+        ],
+        "guidance": "Instantiate M5.TupleCharacter.ordered_tuple_power_count with monomial quotient coordinates, n=T/d. Unfold QuotientCharacter.value and numerator. Use tuple_coordinates and injectivity of M5.QuotientCharacter.coordinates P hP to equate filters. Do not enumerate tuple pairs; this theorem identifies the arithmetic formula with its semantic count. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "2",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "R_exact",
+      "dependencies": [
+        "numerator_exact"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticTuple.R_exact",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ) (z : AdjoinRoot P), M5.ArithmeticTuple.R P hP T d k z = ((Finset.univ.filter (fun t : Fin k → Fin (T / d) => AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = z)).card : ℤ)",
+        "imports": [
+          "M5ArithmeticTuple"
+        ],
+        "context": "",
+        "queries": [
+          "linear equivalence map finite sum",
+          "integer division multiplication cancellation"
+        ],
+        "guidance": "Unfold R, rewrite numerator_exact, cancel positive integer 2^degree. Int.mul_ediv_cancel_left or omega with pow_pos may help; retain all edge cases. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "2",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "R_nonnegative",
+      "dependencies": [
+        "R_exact"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticTuple.R_nonnegative",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ) (z : AdjoinRoot P), 0 ≤ M5.ArithmeticTuple.R P hP T d k z",
+        "imports": [
+          "M5ArithmeticTuple"
+        ],
+        "context": "",
+        "queries": [
+          "linear equivalence map finite sum",
+          "integer division multiplication cancellation"
+        ],
+        "guidance": "Rewrite R_exact and use integer natural-cast nonnegativity. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "2",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

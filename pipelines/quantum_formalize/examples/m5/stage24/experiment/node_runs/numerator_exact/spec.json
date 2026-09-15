@@ -1,0 +1,13 @@
+{
+  "name": "M5.ArithmeticTuple.numerator_exact",
+  "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ) (z : AdjoinRoot P), M5.ArithmeticTuple.numerator P hP T d k z = (2 : ℤ) ^ P.natDegree * ((Finset.univ.filter (fun t : Fin k → Fin (T / d) => AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = z)).card : ℤ)",
+  "imports": [
+    "M5ArithmeticTuple"
+  ],
+  "context": "theorem M5.ArithmeticTuple.tuple_coordinates : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ) (t : Fin k → Fin (T / d)), M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t)) = M5.TupleCharacter.vectorSum (fun j : Fin (T / d) => M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ (d * j.val)))) t := by\n  intro P hP T d k t\n  classical\n  simp [M5.ArithmeticTuple.tuplePolynomial, M5.TupleCharacter.vectorSum,\n    M5.QuotientCharacter.coordinates, map_sum]",
+  "queries": [
+    "linear equivalence map finite sum",
+    "integer division multiplication cancellation"
+  ],
+  "guidance": "Instantiate M5.TupleCharacter.ordered_tuple_power_count with monomial quotient coordinates, n=T/d. Unfold QuotientCharacter.value and numerator. Use tuple_coordinates and injectivity of M5.QuotientCharacter.coordinates P hP to equate filters. Do not enumerate tuple pairs; this theorem identifies the arithmetic formula with its semantic count. Return only tactic lines without leading by; preserve exact target."
+}

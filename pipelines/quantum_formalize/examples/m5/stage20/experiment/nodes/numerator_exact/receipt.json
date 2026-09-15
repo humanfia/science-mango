@@ -1,0 +1,96 @@
+{
+  "id": "numerator_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ArithmeticSubset.numerator_exact",
+    "spec_sha256": "0cfad423ad432a56ea6ef8174df5fccfdc8c0fcdc752fbafec5b85eaab2dc2a3",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-arithmetic-subset-formalization/.humanize-formal-runs/run-0ggj_zep/attempt-001/Candidate_f82d27af90c8b593.lean",
+        "target_path": "/home/jing/m5-lean-arithmetic-subset-formalization/.humanize-formal-runs/run-0ggj_zep/attempt-001/FrozenTarget_f82d27af90c8b593.lean",
+        "feedback": "",
+        "target_sha256": "bb485aa9b970928d5ffac611ae2a2c5225d67473d4f655736ac67210e879f11e",
+        "target_olean_sha256": "85a2984fc6c845389669ddee9c7a380b00d439c68a40556e73889602480ca3d8",
+        "source_sha256": "2ae89327d107f32c5e53381a74eeaa66d04f2e3cb0946d924967a7a51ef6388e",
+        "olean_sha256": "4330565274d0dde2b6551a2ecd7a8c4414318319deb5b89fb369ee66bbff44d6",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:01:39.308116+00:00",
+    "work": "/home/jing/m5-lean-arithmetic-subset-formalization/.humanize-formal-runs/run-0ggj_zep",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-arithmetic-subset-formalization/.humanize-formal-runs/run-0ggj_zep/attempt-001/Candidate_f82d27af90c8b593.lean",
+    "environment_sha256": "573d9e9039d61dc0a43f369c8eff25ee4b9c3ba9377e7121d1d78da57e5150e7",
+    "artifacts": {
+      "coordinates_support_sum": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticSubset.coordinates_support_sum : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (U : Finset ℕ), M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U)) = M5.SubsetCharacter.vectorSum U (fun s => M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ s))) := by\n  intro P hP U\n  classical\n  simp [M5.SupportPolynomial.ofSupport, M5.SubsetCharacter.vectorSum,\n    M5.QuotientCharacter.coordinates, map_sum, Finset.sum_apply]",
+          "imports": [
+            "M5ArithmeticSubset"
+          ],
+          "name": "M5.ArithmeticSubset.coordinates_support_sum",
+          "ancestors": [],
+          "spec_sha256": "dd1417127a444521c4845496a8fbfbddd428832ed34a385bae257628d75d3b82"
+        },
+        "sha256": "8139125592de6fe7f6654f411e5cce257afd255a7c4d392d82d6f55d1d84f6f1"
+      },
+      "character_sign": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticSubset.character_sign : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (lam : M5.Character.BinaryVector P.natDegree) (z : AdjoinRoot P), M5.QuotientCharacter.value P hP lam z = 1 ∨ M5.QuotientCharacter.value P hP lam z = -1 := by\n  intro P hP lam z\n  unfold M5.QuotientCharacter.value M5.Character.value M5.Character.bitSign\n  simp only [Finset.prod_pow_eq_pow_sum]\n  exact neg_one_pow_eq_or ℤ _",
+          "imports": [
+            "M5ArithmeticSubset"
+          ],
+          "name": "M5.ArithmeticSubset.character_sign",
+          "ancestors": [],
+          "spec_sha256": "5b95a87851d2f22c742cbbf828e79259ca53a4315bc3f13b2688f9a8831d698a"
+        },
+        "sha256": "2542d6065b814258fe1e53f83ca81015696a722d48eaf2aaa71deec5a2a8609f"
+      },
+      "binomial_coefficient": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticSubset.binomial_coefficient : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (lam : M5.Character.BinaryVector P.natDegree), M5.ArithmeticSubset.binomialTerm P hP W k lam = (M5.SubsetCharacter.signedProduct W (M5.ArithmeticSubset.monomialValue P hP lam)).coeff k := by\n  intro P hP W k lam\n  unfold M5.ArithmeticSubset.binomialTerm\n  symm\n  apply M5.Binomial.signed_coefficient_eval\n  all_goals\n    intros\n    exact M5.ArithmeticSubset.character_sign P hP lam _",
+          "imports": [
+            "M5ArithmeticSubset"
+          ],
+          "name": "M5.ArithmeticSubset.binomial_coefficient",
+          "ancestors": [
+            "character_sign"
+          ],
+          "spec_sha256": "5439125c2eab9a7b299f7d0fe2c43833170d99f9fdd9cfbe376de25bf2fdef71"
+        },
+        "sha256": "4bf281c9c813efd51667e5bb199ed5a9da3808321cc7f455e4b44feecacf6224"
+      },
+      "numerator_exact": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticSubset.numerator_exact : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ) (z : AdjoinRoot P), M5.ArithmeticSubset.numerator P hP W k z = (2 : ℤ) ^ P.natDegree * (((W.powersetCard k).filter (fun U => AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = z)).card : ℤ) := by\n  intro P hP W k z\n  classical\n  trans (2 : ℤ) ^ P.natDegree * (((W.powersetCard k).filter (fun U => M5.SubsetCharacter.vectorSum U (fun s => M5.QuotientCharacter.coordinates P hP (AdjoinRoot.mk P ((Polynomial.X : M5.BinaryPolynomial) ^ s))) = M5.QuotientCharacter.coordinates P hP z)).card : ℤ)\n  · unfold M5.ArithmeticSubset.numerator\n    simp only [M5.ArithmeticSubset.binomial_coefficient]\n    unfold M5.ArithmeticSubset.monomialValue M5.QuotientCharacter.value\n    first\n    | apply M5.SubsetCharacter.subset_character_count\n    | apply M5.SubsetCount.subset_character_count\n    | apply M5.subset_character_count\n  · congr 1\n    congr 1\n    apply congrArg Finset.card\n    apply Finset.filter_congr\n    intro U hU\n    rw [← M5.ArithmeticSubset.coordinates_support_sum P hP U]\n    exact (M5.QuotientCharacter.coordinates P hP).injective.eq_iff",
+          "imports": [
+            "M5ArithmeticSubset"
+          ],
+          "name": "M5.ArithmeticSubset.numerator_exact",
+          "ancestors": [
+            "binomial_coefficient",
+            "character_sign",
+            "coordinates_support_sum"
+          ],
+          "spec_sha256": "ac592219ad2d9122ed885d1939ac691e299c4fd86fe09d1c1301a81b7a440a25"
+        },
+        "sha256": "724ea2e51313f6820d3725d9372536fc89001492c4490b7e975e19412134f623"
+      }
+    }
+  }
+}
