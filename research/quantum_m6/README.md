@@ -10,7 +10,8 @@
 - [最终独立审阅 A](research_checkpoints/m6_original_gate_closed_20260915/call-008-review.json)、[审阅 B](research_checkpoints/m6_original_gate_closed_20260915/call-009-review.json)
 - [冻结实现重跑结果](research_checkpoints/m6_original_gate_closed_20260915/verification-replay.json)
 - [可执行算法与验证](research_checkpoints/m6_all_order_transfer_20260915/verify_transfer.py)
-- [M1–M7 路线图及当前状态说明](ROADMAP.md)
+- [M1–M8 路线图及当前状态说明](ROADMAP.md)
+- [新增 M8：任意跨度的精确距离计算复杂性](ROADMAP.md#121-m8-arbitrary-span-exact-distance-complexity)（待研究）
 - [M5 证明与距离材料](../quantum_m5/README.md)
 
 ## 证明了什么
