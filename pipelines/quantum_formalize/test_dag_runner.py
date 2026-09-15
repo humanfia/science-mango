@@ -29,6 +29,16 @@ def node(name, deps=(), imports=None):
 
 
 class DependencyTests(unittest.TestCase):
+    def test_transport_keeps_frozen_alias_local_and_original_body_intact(self):
+        spec = engine.Spec(name='Transport.test', statement='∀ n : Nat, n = n',
+                           imports=['Mathlib.Data.Nat.Basic'], queries=['reflexivity'])
+        draft = 'unfold QuantumHarnessFrozenTarget\nintro n\nrfl'
+        declaration = runner.portable_declaration(spec, draft)
+        self.assertIn('let QuantumHarnessFrozenTarget : Prop := (', declaration)
+        self.assertIn('change QuantumHarnessFrozenTarget', declaration)
+        self.assertTrue(declaration.endswith('\n'.join('  '+line for line in draft.splitlines())))
+        self.assertNotIn('let QuantumHarnessFrozenTarget', runner.portable_declaration(spec, 'intro n\nrfl'))
+
     def test_transitive_diamond_merges_once_in_order(self):
         a, b, c = artifact('a'), artifact('b', ['a']), artifact('c', ['a'])
         values, context = runner.proof_context({'b': receipt({'b': b, 'a': a}),
@@ -146,7 +156,12 @@ class RunnerTests(unittest.IsolatedAsyncioTestCase):
                 graph = area / 'graph.json'
                 n = node('a')
                 n['metadata'] = {'fallback_queries': ['fallback query']}
-                graph.write_text(json.dumps({'nodes': [n]}))
+                nodes = [n]
+                if fallback_ok:
+                    other = node('b')
+                    other['metadata'] = n['metadata']
+                    nodes.append(other)
+                graph.write_text(json.dumps({'nodes': nodes}))
                 searched, proposed, compiled = [], [], []
 
                 async def provider(queries):
@@ -176,7 +191,7 @@ class RunnerTests(unittest.IsolatedAsyncioTestCase):
                      patch.object(runner, 'fingerprint', return_value={'fixed': 'hash'}), \
                      patch.object(engine, 'fingerprint', return_value={'fixed': 'hash'}), \
                      patch.object(runner, 'command', return_value={'returncode': 0, 'timed_out': False,
-                                                                  'output': "'a' does not depend on any axioms"}):
+                                                                  'output': "'a' does not depend on any axioms\n'b' does not depend on any axioms"}):
                     result = await runner.run_graph(graph, area, area / 'out', propose, search=provider)
                 self.assertEqual(searched, [['True'], ['fallback query']])
                 history = json.loads((area / 'out/nodes/a/retrieval-history.json').read_text())
@@ -188,6 +203,10 @@ class RunnerTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(bool(compiled), fallback_ok)
                 self.assertEqual(result['experiment_passed'], fallback_ok)
                 if fallback_ok:
+                    self.assertEqual(len(proposed), 2)
+                    cached = json.loads((area / 'out/nodes/b/retrieval-history.json').read_text())
+                    self.assertEqual(cached[0]['cached_from_node'], 'a')
+                    self.assertEqual(cached[0]['receipts_sha256'], digest(cached[0]['receipts']))
                     self.assertIn('original Mathlib lemma', proposed[0])
                     self.assertNotIn('fallback Mathlib lemma', proposed[0])
                     self.assertIn('fallback Physlib lemma', proposed[0])

@@ -2,6 +2,7 @@
 import asyncio
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from .dag import Node, run_dag, validate
@@ -46,6 +47,19 @@ def proof_context(dependencies):
     return artifacts, '\n\n'.join(artifacts[k]['payload']['declaration'] for k in ordered)
 
 
+def portable_declaration(spec, draft):
+    """Keep a candidate's target alias available when moving its exact tactic body."""
+    body = draft
+    if re.search(r'\bQuantumHarnessFrozenTarget\b', draft):
+        # Candidate modules expose this reducible alias. A local definition keeps
+        # unfold/dsimp tactics valid without introducing shared global names.
+        body = ('let QuantumHarnessFrozenTarget : Prop := (\n' +
+                '\n'.join('  ' + line for line in spec.statement.splitlines()) +
+                '\n)\nchange QuantumHarnessFrozenTarget\n' + draft)
+    return f'theorem {spec.name} : {spec.statement} := by\n' + '\n'.join(
+        '  ' + line for line in body.splitlines())
+
+
 async def run_graph(graph_path, project, output, propose, *, concurrency=16, rounds=5,
                     timeout=180, search=None):
     graph, nodes = load_graph(graph_path)
@@ -64,7 +78,10 @@ async def run_graph(graph_path, project, output, propose, *, concurrency=16, rou
     if {k:v for k,v in original.items() if k != 'lake-manifest.json'} != {k:v for k,v in locked.items() if k != 'lake-manifest.json'}:
         raise ValueError('source changed during shared preflight')
     save(output/'environment.json', locked)
-    retrieval_slots = asyncio.Semaphore(2)
+    # Deduplicate identical queries within this pinned experiment. Serialize the
+    # short retrieval section so parallel ready nodes do not burst the API quota.
+    retrieval_slots = asyncio.Semaphore(1)
+    retrieval_cache = {}
 
     async def execute(node, dependencies, area):
         ancestors, context = proof_context(dependencies)
@@ -80,12 +97,20 @@ async def run_graph(graph_path, project, output, propose, *, concurrency=16, rou
         history = []
         async def node_search(queries):
             async with retrieval_slots:
+                fallback = node.metadata.get('fallback_queries', [])
+                cache_key = (tuple(queries), tuple(fallback))
+                if cache_key in retrieval_cache:
+                    cached_node, cached_receipts = retrieval_cache[cache_key]
+                    history.append({'queries': queries, 'receipts': cached_receipts,
+                                    'cached_from_node': cached_node,
+                                    'receipts_sha256': digest(cached_receipts)})
+                    save(area/'retrieval-history.json', history)
+                    return cached_receipts
                 provider = search_both if search is None else search
                 receipts = await provider(queries)
                 history.append({'queries': queries, 'receipts': receipts})
                 save(area/'retrieval-history.json', history)
                 if any(r['status'] != 'ok' for r in receipts):
-                    fallback = node.metadata.get('fallback_queries', [])
                     if fallback:
                         original_receipts = receipts
                         recovered = await provider(fallback)
@@ -96,6 +121,9 @@ async def run_graph(graph_path, project, output, propose, *, concurrency=16, rou
                         for library in sorted(failed_libraries):
                             replacements = [r for r in recovered if r['library'] == library]
                             receipts.extend(replacements or [r for r in original_receipts if r['library'] == library and r['status'] != 'ok'])
+                if (receipts and all(r['status'] == 'ok' for r in receipts)
+                        and {r['library'] for r in receipts} == {'Mathlib', 'Physlib'}):
+                    retrieval_cache[cache_key] = (node.id, receipts)
                 return receipts
         result = await run(spec, project, node_propose, max_rounds=rounds, timeout=timeout,
                            build=False, search=node_search)
@@ -107,7 +135,7 @@ async def run_graph(graph_path, project, output, propose, *, concurrency=16, rou
             draft = json.loads((proof_file.parent/'draft.json').read_text())['proof']
             if render(spec, draft, Path(last['target_path']).stem) != proof_file.read_text():
                 raise ValueError('draft does not match the compiled accepted proof')
-            declaration = f'theorem {spec.name} : {spec.statement} := by\n' + '\n'.join('  '+line for line in draft.splitlines())
+            declaration = portable_declaration(spec, draft)
             payload = {'declaration': declaration, 'imports': spec.imports,
                        'name': spec.name, 'ancestors': sorted(ancestors),
                        'spec_sha256': digest(node.spec)}
