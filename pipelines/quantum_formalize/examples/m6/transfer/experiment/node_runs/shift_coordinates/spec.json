@@ -1,0 +1,13 @@
+{
+  "name": "M6.Transfer.shift_coordinates",
+  "statement": "∀ (R : ℕ) (m : M6.Transfer.Memory (R+1)) (t : M6.Transfer.Bit), M6.Transfer.shift m t 0 = t ∧ ∀ j : Fin R, M6.Transfer.shift m t j.succ = m j.castSucc",
+  "imports": [
+    "M6Transfer"
+  ],
+  "context": "",
+  "queries": [
+    "finite sum equivalence bijective function",
+    "ZMod natural cast subtraction"
+  ],
+  "guidance": "Unfold shift. simp handles val zero and successors; use congrArg m and Fin.ext for predecessor subtype equality. Return only tactic lines without leading by. Exact fixed definitions:\nimport Mathlib\n\nnamespace M6.Transfer\nabbrev Bit := ZMod 2\nabbrev Memory (R : ℕ) := Fin R → Bit\nabbrev Input (N : ℕ) := ZMod N → Bit\n\ndef shift {R : ℕ} (m : Memory R) (t : Bit) : Memory R :=\n  fun j => if h : j.val = 0 then t else m ⟨j.val - 1, by omega⟩\n\ndef memoryAt {R N : ℕ} (h : Input N) (i : ZMod N) : Memory R :=\n  fun j => h (i - (j.val + 1 : ℕ))\n\ndef Follows (R N : ℕ) (m : ZMod N → Memory R) (h : Input N) : Prop :=\n  ∀ i, m (i + 1) = shift (m i) (h i)\n\nabbrev ClosedWalk (R N : ℕ) :=\n  {p : (ZMod N → Memory R) × Input N // Follows R N p.1 p.2}\n\nnoncomputable instance closedWalkFintype (R N : ℕ) [NeZero N] : Fintype (ClosedWalk R N) := by\n  classical\n  exact Fintype.ofFinite _\n\ndef labels {R N : ℕ} (p : ClosedWalk R N) : Input N := p.val.2\n\ndef output {R : ℕ} (c : Fin (R+1) → Bit) (m : Memory R) (t : Bit) : Bit :=\n  c 0 * t + ∑ j : Fin R, c j.succ * m j\n\ndef cyclicOutput {R N : ℕ} (c : Fin (R+1) → Bit) (h : Input N) (i : ZMod N) : Bit :=\n  ∑ j : Fin (R+1), c j * h (i - (j.val : ℕ))\n\nend M6.Transfer\n"
+}

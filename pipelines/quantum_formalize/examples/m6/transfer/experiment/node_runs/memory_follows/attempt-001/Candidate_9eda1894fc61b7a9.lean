@@ -1,0 +1,14 @@
+import FrozenTarget_9eda1894fc61b7a9
+theorem M6.Transfer.memory_follows : QuantumHarnessFrozenTarget := by
+  change ∀ (R N : ℕ) [NeZero N] (h : M6.Transfer.Input N), M6.Transfer.Follows R N (M6.Transfer.memoryAt h) h
+  intro R N inst h
+  unfold M6.Transfer.Follows
+  intro i
+  funext j
+  by_cases hj : j.val = 0
+  · simp [M6.Transfer.memoryAt, M6.Transfer.shift, hj]
+  · simp only [M6.Transfer.memoryAt, M6.Transfer.shift, dif_neg hj]
+    apply congrArg h
+    have hp : j.val - 1 + 1 = j.val := by omega
+    rw [hp, Nat.cast_add, Nat.cast_one]
+    ring

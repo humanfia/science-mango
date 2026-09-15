@@ -1,0 +1,55 @@
+{
+  "id": "signature_bezout",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Cyclic.signature_bezout",
+    "spec_sha256": "12bb92c6d7e6201c77ecddcc989d0a1ab88118cab1c679d4ec698da94018abc7",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-cyclic-formalization/.humanize-formal-runs/run-7npys_st/attempt-001/Candidate_957ef5692e2550ff.lean",
+        "target_path": "/home/jing/m6-lean-cyclic-formalization/.humanize-formal-runs/run-7npys_st/attempt-001/FrozenTarget_957ef5692e2550ff.lean",
+        "feedback": "",
+        "target_sha256": "40e21e03ffa9cfd717f9161ec1db8990dd5249883ca0c1280f5474055c7d7241",
+        "target_olean_sha256": "e4ca4126e39bb36939dd3504fa9ea3cd9349f4324d0c75f479d2cba03dde4f8b",
+        "source_sha256": "ef67ad0081cad7c8ac2353c7753bb9a02f547380727ac79a584da5351a3b9328",
+        "olean_sha256": "42e313f758ee5713ce932898d918e2d2755cf5c7238c5789f017d64ba3ef79f6",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T12:50:13.766435+00:00",
+    "work": "/home/jing/m6-lean-cyclic-formalization/.humanize-formal-runs/run-7npys_st",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "30ab393cc6d1dc65c308d3b7596d1cc17bcb3077733d4fc7be1c6d692c72401f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-cyclic-formalization/.humanize-formal-runs/run-7npys_st/attempt-001/Candidate_957ef5692e2550ff.lean",
+    "environment_sha256": "5b1d06c93a6c653575c65d6781b8563e89f030d60f394f0cea6584f449182669",
+    "artifacts": {
+      "signature_bezout": {
+        "payload": {
+          "declaration": "theorem M6.Cyclic.signature_bezout : ∀ a b M : M6.Cyclic.BinaryPolynomial, ∃ p q r : M6.Cyclic.BinaryPolynomial, M6.Cyclic.signature a b M = p*a + q*b + r*M := by\n  intro a b M\n  classical\n  unfold M6.Cyclic.signature\n  first\n  | change ∃ p q r, EuclideanDomain.gcd (EuclideanDomain.gcd a b) M = p*a + q*b + r*M\n    refine ⟨EuclideanDomain.gcdA (EuclideanDomain.gcd a b) M * EuclideanDomain.gcdA a b, EuclideanDomain.gcdA (EuclideanDomain.gcd a b) M * EuclideanDomain.gcdB a b, EuclideanDomain.gcdB (EuclideanDomain.gcd a b) M, ?_⟩\n    calc\n      _ = (EuclideanDomain.gcd a b) * EuclideanDomain.gcdA (EuclideanDomain.gcd a b) M + M * EuclideanDomain.gcdB (EuclideanDomain.gcd a b) M := EuclideanDomain.gcd_eq_gcd_ab _ _\n      _ = _ := by\n        rw [EuclideanDomain.gcd_eq_gcd_ab a b]\n        ring\n  | change ∃ p q r, EuclideanDomain.gcd a (EuclideanDomain.gcd b M) = p*a + q*b + r*M\n    refine ⟨EuclideanDomain.gcdA a (EuclideanDomain.gcd b M), EuclideanDomain.gcdB a (EuclideanDomain.gcd b M) * EuclideanDomain.gcdA b M, EuclideanDomain.gcdB a (EuclideanDomain.gcd b M) * EuclideanDomain.gcdB b M, ?_⟩\n    calc\n      _ = a * EuclideanDomain.gcdA a (EuclideanDomain.gcd b M) + (EuclideanDomain.gcd b M) * EuclideanDomain.gcdB a (EuclideanDomain.gcd b M) := EuclideanDomain.gcd_eq_gcd_ab _ _\n      _ = _ := by\n        rw [EuclideanDomain.gcd_eq_gcd_ab b M]\n        ring",
+          "imports": [
+            "M6Cyclic"
+          ],
+          "name": "M6.Cyclic.signature_bezout",
+          "ancestors": [],
+          "spec_sha256": "12bb92c6d7e6201c77ecddcc989d0a1ab88118cab1c679d4ec698da94018abc7"
+        },
+        "sha256": "e0330d24d73dcda04e0d51c73fb369517e2770340f1f91f9dbc2cc1bc41035a6"
+      }
+    }
+  }
+}

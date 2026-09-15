@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic), K ≠ 0 → Function.Injective (M6.KernelFibers.embed F K hF)\nintro F K hF hK x y\nrefine AdjoinRoot.induction_on F x ?_\nintro a\nrefine AdjoinRoot.induction_on F y ?_\nintro b hab\nrw [M6.KernelFibers.embed_mk, M6.KernelFibers.embed_mk, AdjoinRoot.mk_eq_mk] at hab\nrw [AdjoinRoot.mk_eq_mk]\nrcases hab with ⟨q, hq⟩\nrefine ⟨q, ?_⟩\napply mul_left_cancel₀ hK\ncalc\n  K * (a - b) = K * a - K * b := by ring\n  _ = (F * K) * q := hq\n  _ = K * (F * q) := by ring",
+  "queries": [
+    "AdjoinRoot.induction_on",
+    "AdjoinRoot.mk_eq_mk",
+    "mul_left_cancel₀"
+  ]
+}

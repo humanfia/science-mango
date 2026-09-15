@@ -1,0 +1,12 @@
+∀ (R : ℕ) (m : M6.Transfer.Memory (R + 1)) (t : M6.Transfer.Bit),
+  M6.Transfer.shift m t 0 = t ∧ ∀ (j : Fin R), M6.Transfer.shift m t j.succ = m j.castSucc : Prop
+∀ (R N : ℕ) [NeZero N] (h : M6.Transfer.Input N), M6.Transfer.Follows R N (M6.Transfer.memoryAt h) h : Prop
+∀ (R N : ℕ) [NeZero N] (p : M6.Transfer.ClosedWalk R N) (i : ZMod N) (j : Fin R),
+  (↑p).1 i j = M6.Transfer.labels p (i - ↑(↑j + 1)) : Prop
+∀ (R N : ℕ) [NeZero N], Function.Bijective M6.Transfer.labels : Prop
+∀ (R N : ℕ) [inst : NeZero N] (K : Type) [inst_1 : CommSemiring K]
+  (W : ZMod N → M6.Transfer.Memory R → M6.Transfer.Bit → K),
+  ∑ p, ∏ i, W i ((↑p).1 i) (M6.Transfer.labels p i) = ∑ h, ∏ i, W i (M6.Transfer.memoryAt h i) (h i) : Prop
+∀ (R N : ℕ) [inst : NeZero N], Fintype.card (M6.Transfer.ClosedWalk R N) = 2 ^ N : Prop
+∀ (R N : ℕ) (c : Fin (R + 1) → M6.Transfer.Bit) (h : M6.Transfer.Input N) (i : ZMod N),
+  M6.Transfer.output c (M6.Transfer.memoryAt h i) (h i) = M6.Transfer.cyclicOutput c h i : Prop

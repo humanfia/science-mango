@@ -1,0 +1,69 @@
+{
+  "id": "memory_forced",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.memory_forced",
+    "spec_sha256": "3a19a10ab07e95eb50a219f10fcb165a9ed12f18d58712a534ae5ec99c9cf305",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-formalization/.humanize-formal-runs/run-ogx6nw87/attempt-001/Candidate_f4fa593936d2d1d4.lean",
+        "target_path": "/home/jing/m6-lean-transfer-formalization/.humanize-formal-runs/run-ogx6nw87/attempt-001/FrozenTarget_f4fa593936d2d1d4.lean",
+        "feedback": "",
+        "target_sha256": "dddbb97a98e80bf6660c10d6b5f6450df18eadb881c3de66dbcc204d81e2c579",
+        "target_olean_sha256": "4a60bf4e69a40b044a7a3058a7cf373f7eff2bd2140525e702289a49fcfa81bf",
+        "source_sha256": "de0d80151aafde36449a03f50f4c835750b7746d216672baab2ceea0562a4fe4",
+        "olean_sha256": "86b6f62b287740fe7e28d3d135943dd10682ac8131cdeb7f54d2445d16917229",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T12:49:51.576035+00:00",
+    "work": "/home/jing/m6-lean-transfer-formalization/.humanize-formal-runs/run-ogx6nw87",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "ee237348fb1d13f71456da1d6d04b1f0e36c130c15eaa5dd924481266290276a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-formalization/.humanize-formal-runs/run-ogx6nw87/attempt-001/Candidate_f4fa593936d2d1d4.lean",
+    "environment_sha256": "3065cbd06ebe8281733513756ce5a929e189d38a3a113b75ebb336f10ad0513a",
+    "artifacts": {
+      "shift_coordinates": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.shift_coordinates : ∀ (R : ℕ) (m : M6.Transfer.Memory (R+1)) (t : M6.Transfer.Bit), M6.Transfer.shift m t 0 = t ∧ ∀ j : Fin R, M6.Transfer.shift m t j.succ = m j.castSucc := by\n  intro R m t\n  constructor\n  · rfl\n  · intro j\n    unfold M6.Transfer.shift\n    split\n    · rename_i h\n      change j.val + 1 = 0 at h\n      omega\n    · apply congrArg m\n      apply Fin.ext\n      simp",
+          "imports": [
+            "M6Transfer"
+          ],
+          "name": "M6.Transfer.shift_coordinates",
+          "ancestors": [],
+          "spec_sha256": "2b04581267f829b54b622c5bbbeeac15fb87a10db950cef5c7caebed599e6316"
+        },
+        "sha256": "f662353d9a61b6dd1d974885e8b0f2d9054524e37cd3d2814a5e502d4c676cba"
+      },
+      "memory_forced": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.memory_forced : ∀ (R N : ℕ) [NeZero N] (p : M6.Transfer.ClosedWalk R N) (i : ZMod N) (j : Fin R), p.val.1 i j = M6.Transfer.labels p (i - (j.val + 1 : ℕ)) := by\n  intro R N inst p\n  have aux : ∀ (n : ℕ) (hn : n < R) (i : ZMod N),\n      p.val.1 i ⟨n, hn⟩ = M6.Transfer.labels p (i - (n + 1 : ℕ)) := by\n    intro n\n    induction n with\n    | zero =>\n        intro hn i\n        have h := congrFun (p.property (i - 1)) (⟨0, hn⟩ : Fin R)\n        simpa [M6.Transfer.shift, M6.Transfer.labels] using h\n    | succ n ih =>\n        intro hn i\n        have h := congrFun (p.property (i - 1)) (⟨n + 1, hn⟩ : Fin R)\n        have hs : p.val.1 i ⟨n + 1, hn⟩ =\n            p.val.1 (i - 1) ⟨n, by omega⟩ := by\n          simpa [M6.Transfer.shift] using h\n        rw [hs, ih (by omega) (i - 1)]\n        congr 1\n        push_cast <;> ring\n  intro i j\n  exact aux j.val j.isLt i",
+          "imports": [
+            "M6Transfer"
+          ],
+          "name": "M6.Transfer.memory_forced",
+          "ancestors": [
+            "shift_coordinates"
+          ],
+          "spec_sha256": "e8fbc174c2f2a31f1c21a9a832212ebb42ebfc2e1c9034ba9b2d8ebe03a35bba"
+        },
+        "sha256": "33b462f7d85bb4fc22e61231a8efdea194824653584a02d82de0c2515db54a36"
+      }
+    }
+  }
+}

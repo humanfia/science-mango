@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ a b M h : M6.Cyclic.BinaryPolynomial, (M ∣ a * h ∧ M ∣ b * h) ↔ M ∣ M6.Cyclic.signature a b M * h\nintro a b M h\nconstructor\n· rintro ⟨⟨x, hx⟩, ⟨y, hy⟩⟩\n  obtain ⟨p, q, r, hs⟩ := M6.Cyclic.signature_bezout a b M\n  refine ⟨p * x + q * y + r * h, ?_⟩\n  calc\n    M6.Cyclic.signature a b M * h = p * (a * h) + q * (b * h) + r * M * h := by rw [hs]; ring\n    _ = M * (p * x + q * y + r * h) := by rw [hx, hy]; ring\n· rintro ⟨t, ht⟩\n  obtain ⟨⟨u, hu⟩, ⟨v, hv⟩, _⟩ := M6.Cyclic.signature_divides a b M\n  constructor\n  · refine ⟨t * u, ?_⟩\n    calc\n      a * h = (M6.Cyclic.signature a b M * h) * u := by rw [hu]; ring\n      _ = M * (t * u) := by rw [ht]; ring\n  · refine ⟨t * v, ?_⟩\n    calc\n      b * h = (M6.Cyclic.signature a b M * h) * v := by rw [hv]; ring\n      _ = M * (t * v) := by rw [ht]; ring",
+  "queries": []
+}

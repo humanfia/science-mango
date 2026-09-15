@@ -1,0 +1,127 @@
+{
+  "id": "annihilator_card",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.KernelFibers.annihilator_card",
+    "spec_sha256": "73732ecdd7d64152ec3b1286e31ece996d993145a35d0f893d86016f53eb79ab",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-u5orh9dw/attempt-001/Candidate_4fb95f65c1d890a1.lean",
+        "target_path": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-u5orh9dw/attempt-001/FrozenTarget_4fb95f65c1d890a1.lean",
+        "feedback": "",
+        "target_sha256": "cf8a5d8528bb3468df11fdd90d2ea0bf81e11e3f634222d53d49d3a2932a00f4",
+        "target_olean_sha256": "4937a72e10121eabb6b9f4b087ce70214969a1d24041e99c0bd1e2e8a5dcfab5",
+        "source_sha256": "e631966df06ba00b51cc4e3938812e9f78240182f9ef00741e08aacbb28b2197",
+        "olean_sha256": "deaa184a7b17d518179ff8cafc170f14a0842397d07f3cdd01a62c6226bbdaeb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T12:55:46.880542+00:00",
+    "work": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-u5orh9dw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "57813b8a32e86cb20e3b6136b33f6d3face89a0fc5ff6d7ffadc78730f0fd916",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-u5orh9dw/attempt-001/Candidate_4fb95f65c1d890a1.lean",
+    "environment_sha256": "632e8facf3c6cdef7f963645e0b009578c95cc971cfb580823252079183c9d93",
+    "artifacts": {
+      "embed_mk": {
+        "payload": {
+          "declaration": "theorem M6.KernelFibers.embed_mk : ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (h : M6.KernelFibers.BP), M6.KernelFibers.embed F K hF (AdjoinRoot.mk F h) = AdjoinRoot.mk (F*K) (K*h) := by\n  intro F K hF h\n  change AdjoinRoot.mk (F * K)\n      (K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n    AdjoinRoot.mk (F * K) (K * h)\n  have hr := AdjoinRoot.mk_leftInverse hF (AdjoinRoot.mk F h)\n  change AdjoinRoot.mk F\n      (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n    AdjoinRoot.mk F h at hr\n  rw [AdjoinRoot.mk_eq_mk] at hr ⊢\n  rcases hr with ⟨q, hq⟩\n  refine ⟨q, ?_⟩\n  calc\n    K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - K * h =\n        K * (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - h) := by ring\n    _ = K * (F * q) := by rw [hq]\n    _ = (F * K) * q := by ring",
+          "imports": [
+            "M6KernelFibers"
+          ],
+          "name": "M6.KernelFibers.embed_mk",
+          "ancestors": [],
+          "spec_sha256": "8623b7ae7eb01b602bac56e12583649e524615003ad8e9c3cd953d0aa2c30fa9"
+        },
+        "sha256": "17093d4b296e8297ea98e5c1a6c2de9ced178adae0b3d0b21d47ece1e9e2e8bf"
+      },
+      "embed_injective": {
+        "payload": {
+          "declaration": "theorem M6.KernelFibers.embed_injective : ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic), K ≠ 0 → Function.Injective (M6.KernelFibers.embed F K hF) := by\n  change ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic), K ≠ 0 → Function.Injective (M6.KernelFibers.embed F K hF)\n  intro F K hF hK x y\n  refine AdjoinRoot.induction_on F x ?_\n  intro a\n  refine AdjoinRoot.induction_on F y ?_\n  intro b hab\n  rw [M6.KernelFibers.embed_mk, M6.KernelFibers.embed_mk, AdjoinRoot.mk_eq_mk] at hab\n  rw [AdjoinRoot.mk_eq_mk]\n  rcases hab with ⟨q, hq⟩\n  refine ⟨q, ?_⟩\n  apply mul_left_cancel₀ hK\n  calc\n    K * (a - b) = K * a - K * b := by ring\n    _ = (F * K) * q := hq\n    _ = K * (F * q) := by ring",
+          "imports": [
+            "M6KernelFibers"
+          ],
+          "name": "M6.KernelFibers.embed_injective",
+          "ancestors": [
+            "embed_mk"
+          ],
+          "spec_sha256": "cfcd4a9281d87c8bd03336c0e5c80a2f8972dfee324994db92747e768022b888"
+        },
+        "sha256": "9bcf140e837a488f81bad07d49513f9c23a8ba6543d0527ea62c14a54daa8a09"
+      },
+      "embed_annihilated": {
+        "payload": {
+          "declaration": "theorem M6.KernelFibers.embed_annihilated : ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot F), AdjoinRoot.mk (F*K) F * M6.KernelFibers.embed F K hF z = 0 := by\n  intro F K hF z\n  change AdjoinRoot.mk (F * K) F *\n      AdjoinRoot.mk (F * K) (K * AdjoinRoot.modByMonicHom hF z) = 0\n  rw [← map_mul, AdjoinRoot.mk_eq_zero]\n  refine ⟨AdjoinRoot.modByMonicHom hF z, ?_⟩\n  ring",
+          "imports": [
+            "M6KernelFibers"
+          ],
+          "name": "M6.KernelFibers.embed_annihilated",
+          "ancestors": [
+            "embed_mk"
+          ],
+          "spec_sha256": "ff5392ee3b57d95ba61a9ade9ab06d56d634c378559658261141cf9cf57e0c64"
+        },
+        "sha256": "9cfbeed4b01daa840f76688dc585b87469071314def0cccce8054424b93209a2"
+      },
+      "embed_surjective_kernel": {
+        "payload": {
+          "declaration": "theorem M6.KernelFibers.embed_surjective_kernel : ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot (F*K)), AdjoinRoot.mk (F*K) F * z = 0 → ∃ t : AdjoinRoot F, M6.KernelFibers.embed F K hF t = z := by\n  change ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot (F * K)), AdjoinRoot.mk (F * K) F * z = 0 → ∃ t : AdjoinRoot F, M6.KernelFibers.embed F K hF t = z\n  intro F K hF z hz\n  obtain ⟨h, rfl⟩ : ∃ h : M6.KernelFibers.BP, AdjoinRoot.mk (F * K) h = z := by\n    first\n    | exact AdjoinRoot.mk_surjective _ _\n    | exact AdjoinRoot.mk_surjective _\n  rw [← map_mul, AdjoinRoot.mk_eq_zero] at hz\n  rcases hz with ⟨q, hq⟩\n  have hh : h = K * q := by\n    apply mul_left_cancel₀ hF.ne_zero\n    simpa only [mul_assoc] using hq\n  refine ⟨AdjoinRoot.mk F q, ?_⟩\n  rw [M6.KernelFibers.embed_mk, hh]",
+          "imports": [
+            "M6KernelFibers"
+          ],
+          "name": "M6.KernelFibers.embed_surjective_kernel",
+          "ancestors": [
+            "embed_mk"
+          ],
+          "spec_sha256": "3313e38cf92950481a96a215433a412ae2ebe25ea59e6b52cf9d6e967beb6654"
+        },
+        "sha256": "e62f85e6e948575b2bbc2660cc048783a8ef99e83bbeff5e00a8ab9c3cfb1ce5"
+      },
+      "quotient_card": {
+        "payload": {
+          "declaration": "theorem M6.KernelFibers.quotient_card : ∀ (F : M6.KernelFibers.BP), F.Monic → Nat.card (AdjoinRoot F) = 2^F.natDegree := by\n  change ∀ (F : M6.KernelFibers.BP), F.Monic → Nat.card (AdjoinRoot F) = 2 ^ F.natDegree\n  intro F hF\n  let e : AdjoinRoot F ≃ₗ[ZMod 2] (Fin F.natDegree → ZMod 2) :=\n    (AdjoinRoot.powerBasisAux' hF).equivFun\n  rw [Nat.card_congr e.toEquiv]\n  simp [Nat.card_fun, Nat.card_eq_fintype_card, ZMod.card]",
+          "imports": [
+            "M6KernelFibers"
+          ],
+          "name": "M6.KernelFibers.quotient_card",
+          "ancestors": [],
+          "spec_sha256": "3db331a66907a5378ca5d3bfe0dca8cbd1e710ccf848a6059b5a1baa4cbaa822"
+        },
+        "sha256": "1cc643cfe6de7770b8d8a9cc2a5c8838ac6fe557005ee4be0af2efe613367d6f"
+      },
+      "annihilator_card": {
+        "payload": {
+          "declaration": "theorem M6.KernelFibers.annihilator_card : ∀ (F K : M6.KernelFibers.BP), F.Monic → K ≠ 0 → Nat.card (M6.KernelFibers.annihilator F K) = 2^F.natDegree := by\n  change ∀ (F K : M6.KernelFibers.BP), F.Monic → K ≠ 0 → Nat.card (M6.KernelFibers.annihilator F K) = 2 ^ F.natDegree\n  intro F K hF hK\n  classical\n  let f : AdjoinRoot F → M6.KernelFibers.annihilator F K :=\n    fun z => ⟨M6.KernelFibers.embed F K hF z,\n      M6.KernelFibers.embed_annihilated F K hF z⟩\n  have hf : Function.Bijective f := by\n    constructor\n    · intro x y hxy\n      apply M6.KernelFibers.embed_injective F K hF hK\n      exact congrArg Subtype.val hxy\n    · intro z\n      obtain ⟨t, ht⟩ := M6.KernelFibers.embed_surjective_kernel F K hF z.val z.property\n      refine ⟨t, ?_⟩\n      apply Subtype.ext\n      exact ht\n  calc\n    Nat.card (M6.KernelFibers.annihilator F K) = Nat.card (AdjoinRoot F) :=\n      (Nat.card_congr (Equiv.ofBijective f hf)).symm\n    _ = 2 ^ F.natDegree := M6.KernelFibers.quotient_card F hF",
+          "imports": [
+            "M6KernelFibers"
+          ],
+          "name": "M6.KernelFibers.annihilator_card",
+          "ancestors": [
+            "embed_annihilated",
+            "embed_injective",
+            "embed_mk",
+            "embed_surjective_kernel",
+            "quotient_card"
+          ],
+          "spec_sha256": "276a1e6f0e85b46742a5d6a620993bd2144013140f680529171e195605980968"
+        },
+        "sha256": "5598380d98a3b3ec3c3f93cd6ff8e1b2d5c4c2236f1c0958a6fd9e0d427f6d0c"
+      }
+    }
+  }
+}

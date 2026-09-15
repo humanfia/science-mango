@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (R N : ℕ) [NeZero N] (h : M6.Transfer.Input N), M6.Transfer.Follows R N (M6.Transfer.memoryAt h) h\nintro R N inst h\nunfold M6.Transfer.Follows\nintro i\nfunext j\nby_cases hj : j.val = 0\n· simp [M6.Transfer.memoryAt, M6.Transfer.shift, hj]\n· simp only [M6.Transfer.memoryAt, M6.Transfer.shift, dif_neg hj]\n  apply congrArg h\n  have hp : j.val - 1 + 1 = j.val := by omega\n  rw [hp, Nat.cast_add, Nat.cast_one]\n  ring",
+  "queries": []
+}

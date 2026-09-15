@@ -1,0 +1,7 @@
+theorem M6.KernelFibers.embed_annihilated : ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot F), AdjoinRoot.mk (F*K) F * M6.KernelFibers.embed F K hF z = 0 := by
+  intro F K hF z
+  change AdjoinRoot.mk (F * K) F *
+      AdjoinRoot.mk (F * K) (K * AdjoinRoot.modByMonicHom hF z) = 0
+  rw [← map_mul, AdjoinRoot.mk_eq_zero]
+  refine ⟨AdjoinRoot.modByMonicHom hF z, ?_⟩
+  ring

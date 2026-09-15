@@ -1,0 +1,6 @@
+{
+  "proof": "intro R N instN K instK W\nclassical\nhave hm (p : M6.Transfer.ClosedWalk R N) (i : ZMod N) :\n    p.val.1 i = M6.Transfer.memoryAt (M6.Transfer.labels p) i := by\n  funext j\n  exact M6.Transfer.memory_forced R N p i j\nsimp_rw [hm]\nlet e : M6.Transfer.ClosedWalk R N ≃ M6.Transfer.Input N :=\n  Equiv.ofBijective M6.Transfer.labels (M6.Transfer.labels_bijective R N)\nexact e.sum_comp (fun h => ∏ i : ZMod N, W i (M6.Transfer.memoryAt h i) (h i))",
+  "queries": [
+    "Equiv.sum_comp"
+  ]
+}

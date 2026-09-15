@@ -1,0 +1,157 @@
+{
+  "title": "M6 kernel fiber cardinality with full polynomial multiplicities",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Concrete multiplication annihilator cardinality, an original section2 ingredient.",
+  "nodes": [
+    {
+      "id": "embed_mk",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.KernelFibers.embed_mk",
+        "statement": "∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (h : M6.KernelFibers.BP), M6.KernelFibers.embed F K hF (AdjoinRoot.mk F h) = AdjoinRoot.mk (F*K) (K*h)",
+        "imports": [
+          "M6KernelFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot modByMonic powerBasis cardinality",
+          "polynomial divisibility multiplication cancellation"
+        ],
+        "guidance": "Use modByMonicHom_mk and AdjoinRoot.mk_eq_mk. F divides h-h%ₘF; F*K divides K times this difference. Explicit polynomial quotient/remainder identities. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "embed_injective",
+      "dependencies": [
+        "embed_mk"
+      ],
+      "spec": {
+        "name": "M6.KernelFibers.embed_injective",
+        "statement": "∀ (F K : M6.KernelFibers.BP) (hF : F.Monic), K ≠ 0 → Function.Injective (M6.KernelFibers.embed F K hF)",
+        "imports": [
+          "M6KernelFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot modByMonic powerBasis cardinality",
+          "polynomial divisibility multiplication cancellation"
+        ],
+        "guidance": "Induct both inputs using AdjoinRoot.induction_on; use embed_mk and mk_eq_mk. Cancel nonzero K in divisibility to obtain F divides difference; mk_eq_mk again. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "embed_annihilated",
+      "dependencies": [
+        "embed_mk"
+      ],
+      "spec": {
+        "name": "M6.KernelFibers.embed_annihilated",
+        "statement": "∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot F), AdjoinRoot.mk (F*K) F * M6.KernelFibers.embed F K hF z = 0",
+        "imports": [
+          "M6KernelFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot modByMonic powerBasis cardinality",
+          "polynomial divisibility multiplication cancellation"
+        ],
+        "guidance": "Represent z by a polynomial, rewrite embed_mk then ←map_mul; mk_eq_zero and witness h. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "embed_surjective_kernel",
+      "dependencies": [
+        "embed_mk"
+      ],
+      "spec": {
+        "name": "M6.KernelFibers.embed_surjective_kernel",
+        "statement": "∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot (F*K)), AdjoinRoot.mk (F*K) F * z = 0 → ∃ t : AdjoinRoot F, M6.KernelFibers.embed F K hF t = z",
+        "imports": [
+          "M6KernelFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot modByMonic powerBasis cardinality",
+          "polynomial divisibility multiplication cancellation"
+        ],
+        "guidance": "Represent z=mk h. mk_eq_zero gives F*K divides F*h. Cancel nonzero F using hF.ne_zero to get K divides h, write h=K*t, choose mk F t. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "quotient_card",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.KernelFibers.quotient_card",
+        "statement": "∀ (F : M6.KernelFibers.BP), F.Monic → Nat.card (AdjoinRoot F) = 2^F.natDegree",
+        "imports": [
+          "M6KernelFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot modByMonic powerBasis cardinality",
+          "polynomial divisibility multiplication cancellation"
+        ],
+        "guidance": "Use AdjoinRoot.powerBasisAux' hF and its equivFun: quotient linearly equivalent to Fin degree→ZMod2. Nat.card_congr, Nat.card_fun and ZMod.card give result, including degree zero. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "annihilator_card",
+      "dependencies": [
+        "embed_injective",
+        "embed_annihilated",
+        "embed_surjective_kernel",
+        "quotient_card"
+      ],
+      "spec": {
+        "name": "M6.KernelFibers.annihilator_card",
+        "statement": "∀ (F K : M6.KernelFibers.BP), F.Monic → K ≠ 0 → Nat.card (M6.KernelFibers.annihilator F K) = 2^F.natDegree",
+        "imports": [
+          "M6KernelFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot modByMonic powerBasis cardinality",
+          "polynomial divisibility multiplication cancellation"
+        ],
+        "guidance": "Build a bijection AdjoinRoot F to annihilator from embed and its three accepted lemmas, use Equiv.ofBijective and Nat.card_congr then quotient_card. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    }
+  ]
+}

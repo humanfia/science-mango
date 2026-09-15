@@ -1,0 +1,114 @@
+{
+  "id": "indexed_weight_sum",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.indexed_weight_sum",
+    "spec_sha256": "5cf1b7cca3ab118b74ad4f01ba6179ea6e2ceb943a9ab85528b2d3161987377f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-formalization/.humanize-formal-runs/run-bm6h3eth/attempt-001/Candidate_46c9c904a6b6281b.lean",
+        "target_path": "/home/jing/m6-lean-transfer-formalization/.humanize-formal-runs/run-bm6h3eth/attempt-001/FrozenTarget_46c9c904a6b6281b.lean",
+        "feedback": "",
+        "target_sha256": "f7b9fb92c0cff74e159971d3b0466ff18862bfdc5593c622564cf7ede4095925",
+        "target_olean_sha256": "18c5f0642946cb0de7c2f6de8fba5b03e41a4516f47918b5663d382c8fe8ca55",
+        "source_sha256": "711e86fdc6c1bccbcd4bc5e5d7ceb91591b51368a5a67fb5ff0bbb3806d0b536",
+        "olean_sha256": "81aaa77e2a0e1b7d138c41d3b22edd81be734e4a83e4ec694a5c71b2d8eefb23",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T12:52:26.485422+00:00",
+    "work": "/home/jing/m6-lean-transfer-formalization/.humanize-formal-runs/run-bm6h3eth",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "ee237348fb1d13f71456da1d6d04b1f0e36c130c15eaa5dd924481266290276a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-formalization/.humanize-formal-runs/run-bm6h3eth/attempt-001/Candidate_46c9c904a6b6281b.lean",
+    "environment_sha256": "3065cbd06ebe8281733513756ce5a929e189d38a3a113b75ebb336f10ad0513a",
+    "artifacts": {
+      "memory_follows": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.memory_follows : ∀ (R N : ℕ) [NeZero N] (h : M6.Transfer.Input N), M6.Transfer.Follows R N (M6.Transfer.memoryAt h) h := by\n  change ∀ (R N : ℕ) [NeZero N] (h : M6.Transfer.Input N), M6.Transfer.Follows R N (M6.Transfer.memoryAt h) h\n  intro R N inst h\n  unfold M6.Transfer.Follows\n  intro i\n  funext j\n  by_cases hj : j.val = 0\n  · simp [M6.Transfer.memoryAt, M6.Transfer.shift, hj]\n  · simp only [M6.Transfer.memoryAt, M6.Transfer.shift, dif_neg hj]\n    apply congrArg h\n    have hp : j.val - 1 + 1 = j.val := by omega\n    rw [hp, Nat.cast_add, Nat.cast_one]\n    ring",
+          "imports": [
+            "M6Transfer"
+          ],
+          "name": "M6.Transfer.memory_follows",
+          "ancestors": [],
+          "spec_sha256": "48cb2d018a2bfb3e688819fdeef591d3288ddb1e1f3231169e2897bd4f4918d0"
+        },
+        "sha256": "eb3a1cec2f698e25e01840b22725da1718e1290b9bef2bbd14f70c5b36679b87"
+      },
+      "shift_coordinates": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.shift_coordinates : ∀ (R : ℕ) (m : M6.Transfer.Memory (R+1)) (t : M6.Transfer.Bit), M6.Transfer.shift m t 0 = t ∧ ∀ j : Fin R, M6.Transfer.shift m t j.succ = m j.castSucc := by\n  intro R m t\n  constructor\n  · rfl\n  · intro j\n    unfold M6.Transfer.shift\n    split\n    · rename_i h\n      change j.val + 1 = 0 at h\n      omega\n    · apply congrArg m\n      apply Fin.ext\n      simp",
+          "imports": [
+            "M6Transfer"
+          ],
+          "name": "M6.Transfer.shift_coordinates",
+          "ancestors": [],
+          "spec_sha256": "2b04581267f829b54b622c5bbbeeac15fb87a10db950cef5c7caebed599e6316"
+        },
+        "sha256": "f662353d9a61b6dd1d974885e8b0f2d9054524e37cd3d2814a5e502d4c676cba"
+      },
+      "memory_forced": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.memory_forced : ∀ (R N : ℕ) [NeZero N] (p : M6.Transfer.ClosedWalk R N) (i : ZMod N) (j : Fin R), p.val.1 i j = M6.Transfer.labels p (i - (j.val + 1 : ℕ)) := by\n  intro R N inst p\n  have aux : ∀ (n : ℕ) (hn : n < R) (i : ZMod N),\n      p.val.1 i ⟨n, hn⟩ = M6.Transfer.labels p (i - (n + 1 : ℕ)) := by\n    intro n\n    induction n with\n    | zero =>\n        intro hn i\n        have h := congrFun (p.property (i - 1)) (⟨0, hn⟩ : Fin R)\n        simpa [M6.Transfer.shift, M6.Transfer.labels] using h\n    | succ n ih =>\n        intro hn i\n        have h := congrFun (p.property (i - 1)) (⟨n + 1, hn⟩ : Fin R)\n        have hs : p.val.1 i ⟨n + 1, hn⟩ =\n            p.val.1 (i - 1) ⟨n, by omega⟩ := by\n          simpa [M6.Transfer.shift] using h\n        rw [hs, ih (by omega) (i - 1)]\n        congr 1\n        push_cast <;> ring\n  intro i j\n  exact aux j.val j.isLt i",
+          "imports": [
+            "M6Transfer"
+          ],
+          "name": "M6.Transfer.memory_forced",
+          "ancestors": [
+            "shift_coordinates"
+          ],
+          "spec_sha256": "e8fbc174c2f2a31f1c21a9a832212ebb42ebfc2e1c9034ba9b2d8ebe03a35bba"
+        },
+        "sha256": "33b462f7d85bb4fc22e61231a8efdea194824653584a02d82de0c2515db54a36"
+      },
+      "labels_bijective": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.labels_bijective : ∀ (R N : ℕ) [NeZero N], Function.Bijective (M6.Transfer.labels : M6.Transfer.ClosedWalk R N → M6.Transfer.Input N) := by\n  change ∀ (R N : ℕ) [NeZero N], Function.Bijective (M6.Transfer.labels : M6.Transfer.ClosedWalk R N → M6.Transfer.Input N)\n  intro R N inst\n  constructor\n  · intro p q hpq\n    apply Subtype.ext\n    apply Prod.ext\n    · funext i j\n      rw [M6.Transfer.memory_forced R N p i j,\n        M6.Transfer.memory_forced R N q i j, hpq]\n    · exact hpq\n  · intro h\n    exact ⟨⟨(M6.Transfer.memoryAt h, h), M6.Transfer.memory_follows R N h⟩, rfl⟩",
+          "imports": [
+            "M6Transfer"
+          ],
+          "name": "M6.Transfer.labels_bijective",
+          "ancestors": [
+            "memory_follows",
+            "memory_forced",
+            "shift_coordinates"
+          ],
+          "spec_sha256": "c96320460e7bced4de3c6e59962fadfb5e56c45ec0d0cc5c582c617a65e1e6a5"
+        },
+        "sha256": "7ca43323da7c4608d42d1feec74fe1524b1306591f3a6c4d5387ac766bd3316e"
+      },
+      "indexed_weight_sum": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.indexed_weight_sum : ∀ (R N : ℕ) [NeZero N] (K : Type) [CommSemiring K] (W : ZMod N → M6.Transfer.Memory R → M6.Transfer.Bit → K), (∑ p : M6.Transfer.ClosedWalk R N, ∏ i : ZMod N, W i (p.val.1 i) (M6.Transfer.labels p i)) = ∑ h : M6.Transfer.Input N, ∏ i : ZMod N, W i (M6.Transfer.memoryAt h i) (h i) := by\n  intro R N instN K instK W\n  classical\n  have hm (p : M6.Transfer.ClosedWalk R N) (i : ZMod N) :\n      p.val.1 i = M6.Transfer.memoryAt (M6.Transfer.labels p) i := by\n    funext j\n    exact M6.Transfer.memory_forced R N p i j\n  simp_rw [hm]\n  let e : M6.Transfer.ClosedWalk R N ≃ M6.Transfer.Input N :=\n    Equiv.ofBijective M6.Transfer.labels (M6.Transfer.labels_bijective R N)\n  exact e.sum_comp (fun h => ∏ i : ZMod N, W i (M6.Transfer.memoryAt h i) (h i))",
+          "imports": [
+            "M6Transfer"
+          ],
+          "name": "M6.Transfer.indexed_weight_sum",
+          "ancestors": [
+            "labels_bijective",
+            "memory_follows",
+            "memory_forced",
+            "shift_coordinates"
+          ],
+          "spec_sha256": "9c003cc7b48b241bcb50e8d0f9c0a44d044b0e09ee49dbe57d58138c089b5da6"
+        },
+        "sha256": "f976a6c3798c1562bb88272b4753b5820fb820b397ba9af36482a9e3f812831b"
+      }
+    }
+  }
+}

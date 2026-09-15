@@ -1,0 +1,8 @@
+{
+  "proof": "intro F K hF h\nchange AdjoinRoot.mk (F * K)\n    (K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n  AdjoinRoot.mk (F * K) (K * h)\nhave hr := AdjoinRoot.mk_leftInverse hF (AdjoinRoot.mk F h)\nchange AdjoinRoot.mk F\n    (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n  AdjoinRoot.mk F h at hr\nrw [AdjoinRoot.mk_eq_mk] at hr ⊢\nrcases hr with ⟨q, hq⟩\nrefine ⟨q, ?_⟩\ncalc\n  K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - K * h =\n      K * (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - h) := by ring\n  _ = K * (F * q) := by rw [hq]\n  _ = (F * K) * q := by ring",
+  "queries": [
+    "AdjoinRoot.mk_leftInverse",
+    "AdjoinRoot.mk_eq_mk",
+    "AdjoinRoot.modByMonicHom_mk"
+  ]
+}

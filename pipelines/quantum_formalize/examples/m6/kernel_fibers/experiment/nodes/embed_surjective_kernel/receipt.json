@@ -1,0 +1,69 @@
+{
+  "id": "embed_surjective_kernel",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.KernelFibers.embed_surjective_kernel",
+    "spec_sha256": "0ad87be9cf48fe37382b2bceea2369abe23d4b8b966bc3f80ca1ac9db7d74b31",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-whwo_n9g/attempt-001/Candidate_4a843eb8dbaaeffb.lean",
+        "target_path": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-whwo_n9g/attempt-001/FrozenTarget_4a843eb8dbaaeffb.lean",
+        "feedback": "",
+        "target_sha256": "1e5be652c4bdd6ee48fb80f159cba3f9459523a44a9e2b8c92117f8b97d9274e",
+        "target_olean_sha256": "104fd0d200f20994a22b4a7d86700ee5ed5b33d240dd6e1fddcd889031aedb84",
+        "source_sha256": "4b2a7e3644a0195376f9c423089ed72306e5b3f99ea6f23da1142bd6bee21ebc",
+        "olean_sha256": "80d4c50f234e56372c6a2476a7d7d926ee86336aa001d4394ca4d16d90f9a417",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T12:53:21.090572+00:00",
+    "work": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-whwo_n9g",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "57813b8a32e86cb20e3b6136b33f6d3face89a0fc5ff6d7ffadc78730f0fd916",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-whwo_n9g/attempt-001/Candidate_4a843eb8dbaaeffb.lean",
+    "environment_sha256": "632e8facf3c6cdef7f963645e0b009578c95cc971cfb580823252079183c9d93",
+    "artifacts": {
+      "embed_mk": {
+        "payload": {
+          "declaration": "theorem M6.KernelFibers.embed_mk : ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (h : M6.KernelFibers.BP), M6.KernelFibers.embed F K hF (AdjoinRoot.mk F h) = AdjoinRoot.mk (F*K) (K*h) := by\n  intro F K hF h\n  change AdjoinRoot.mk (F * K)\n      (K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n    AdjoinRoot.mk (F * K) (K * h)\n  have hr := AdjoinRoot.mk_leftInverse hF (AdjoinRoot.mk F h)\n  change AdjoinRoot.mk F\n      (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n    AdjoinRoot.mk F h at hr\n  rw [AdjoinRoot.mk_eq_mk] at hr ⊢\n  rcases hr with ⟨q, hq⟩\n  refine ⟨q, ?_⟩\n  calc\n    K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - K * h =\n        K * (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - h) := by ring\n    _ = K * (F * q) := by rw [hq]\n    _ = (F * K) * q := by ring",
+          "imports": [
+            "M6KernelFibers"
+          ],
+          "name": "M6.KernelFibers.embed_mk",
+          "ancestors": [],
+          "spec_sha256": "8623b7ae7eb01b602bac56e12583649e524615003ad8e9c3cd953d0aa2c30fa9"
+        },
+        "sha256": "17093d4b296e8297ea98e5c1a6c2de9ced178adae0b3d0b21d47ece1e9e2e8bf"
+      },
+      "embed_surjective_kernel": {
+        "payload": {
+          "declaration": "theorem M6.KernelFibers.embed_surjective_kernel : ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot (F*K)), AdjoinRoot.mk (F*K) F * z = 0 → ∃ t : AdjoinRoot F, M6.KernelFibers.embed F K hF t = z := by\n  change ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot (F * K)), AdjoinRoot.mk (F * K) F * z = 0 → ∃ t : AdjoinRoot F, M6.KernelFibers.embed F K hF t = z\n  intro F K hF z hz\n  obtain ⟨h, rfl⟩ : ∃ h : M6.KernelFibers.BP, AdjoinRoot.mk (F * K) h = z := by\n    first\n    | exact AdjoinRoot.mk_surjective _ _\n    | exact AdjoinRoot.mk_surjective _\n  rw [← map_mul, AdjoinRoot.mk_eq_zero] at hz\n  rcases hz with ⟨q, hq⟩\n  have hh : h = K * q := by\n    apply mul_left_cancel₀ hF.ne_zero\n    simpa only [mul_assoc] using hq\n  refine ⟨AdjoinRoot.mk F q, ?_⟩\n  rw [M6.KernelFibers.embed_mk, hh]",
+          "imports": [
+            "M6KernelFibers"
+          ],
+          "name": "M6.KernelFibers.embed_surjective_kernel",
+          "ancestors": [
+            "embed_mk"
+          ],
+          "spec_sha256": "3313e38cf92950481a96a215433a412ae2ebe25ea59e6b52cf9d6e967beb6654"
+        },
+        "sha256": "e62f85e6e948575b2bbc2660cc048783a8ef99e83bbeff5e00a8ab9c3cfb1ce5"
+      }
+    }
+  }
+}

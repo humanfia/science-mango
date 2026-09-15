@@ -1,0 +1,4 @@
+{
+  "proof": "intro R N inst p\nhave aux : ∀ (n : ℕ) (hn : n < R) (i : ZMod N),\n    p.val.1 i ⟨n, hn⟩ = M6.Transfer.labels p (i - (n + 1 : ℕ)) := by\n  intro n\n  induction n with\n  | zero =>\n      intro hn i\n      have h := congrFun (p.property (i - 1)) (⟨0, hn⟩ : Fin R)\n      simpa [M6.Transfer.shift, M6.Transfer.labels] using h\n  | succ n ih =>\n      intro hn i\n      have h := congrFun (p.property (i - 1)) (⟨n + 1, hn⟩ : Fin R)\n      have hs : p.val.1 i ⟨n + 1, hn⟩ =\n          p.val.1 (i - 1) ⟨n, by omega⟩ := by\n        simpa [M6.Transfer.shift] using h\n      rw [hs, ih (by omega) (i - 1)]\n      congr 1\n      push_cast <;> ring\nintro i j\nexact aux j.val j.isLt i",
+  "queries": []
+}

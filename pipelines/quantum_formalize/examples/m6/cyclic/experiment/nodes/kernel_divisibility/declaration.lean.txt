@@ -1,0 +1,26 @@
+theorem M6.Cyclic.kernel_divisibility : ∀ a b M h : M6.Cyclic.BinaryPolynomial, (M ∣ a*h ∧ M ∣ b*h) ↔ M ∣ M6.Cyclic.signature a b M * h := by
+  change ∀ a b M h : M6.Cyclic.BinaryPolynomial, (M ∣ a*h ∧ M ∣ b*h) ↔ M ∣ M6.Cyclic.signature a b M * h
+  intro a b M h
+  constructor
+  · rintro ⟨⟨x, hx⟩, ⟨y, hy⟩⟩
+    obtain ⟨p, q, r, hs⟩ := M6.Cyclic.signature_bezout a b M
+    refine ⟨p*x + q*y + r*h, ?_⟩
+    calc
+      M6.Cyclic.signature a b M * h = (p*a + q*b + r*M)*h := congrArg (fun z => z*h) hs
+      _ = p*(a*h) + q*(b*h) + M*(r*h) := by ring
+      _ = M*(p*x + q*y + r*h) := by rw [hx, hy]; ring
+  · rintro ⟨t, ht⟩
+    obtain ⟨⟨u, hu⟩, ⟨v, hv⟩, _⟩ := M6.Cyclic.signature_divides a b M
+    constructor
+    · refine ⟨t*u, ?_⟩
+      calc
+        a*h = (M6.Cyclic.signature a b M * u)*h := congrArg (fun z => z*h) hu
+        _ = (M6.Cyclic.signature a b M * h)*u := by ring
+        _ = (M*t)*u := congrArg (fun z => z*u) ht
+        _ = M*(t*u) := by ring
+    · refine ⟨t*v, ?_⟩
+      calc
+        b*h = (M6.Cyclic.signature a b M * v)*h := congrArg (fun z => z*h) hv
+        _ = (M6.Cyclic.signature a b M * h)*v := by ring
+        _ = (M*t)*v := congrArg (fun z => z*v) ht
+        _ = M*(t*v) := by ring

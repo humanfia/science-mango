@@ -1,0 +1,8 @@
+import FrozenTarget_b2d8e54a9ed12106
+theorem M6.KernelFibers.quotient_card : QuantumHarnessFrozenTarget := by
+  change ∀ (F : M6.KernelFibers.BP), F.Monic → Nat.card (AdjoinRoot F) = 2 ^ F.natDegree
+  intro F hF
+  let e : AdjoinRoot F ≃ₗ[ZMod 2] (Fin F.natDegree → ZMod 2) :=
+    (AdjoinRoot.powerBasisAux' hF).equivFun
+  rw [Nat.card_congr e.toEquiv]
+  simp [Nat.card_fun, Nat.card_eq_fintype_card, ZMod.card]

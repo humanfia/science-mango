@@ -1,0 +1,20 @@
+import FrozenTarget_957ef5692e2550ff
+theorem M6.Cyclic.signature_bezout : QuantumHarnessFrozenTarget := by
+  intro a b M
+  classical
+  unfold M6.Cyclic.signature
+  first
+  | change ∃ p q r, EuclideanDomain.gcd (EuclideanDomain.gcd a b) M = p*a + q*b + r*M
+    refine ⟨EuclideanDomain.gcdA (EuclideanDomain.gcd a b) M * EuclideanDomain.gcdA a b, EuclideanDomain.gcdA (EuclideanDomain.gcd a b) M * EuclideanDomain.gcdB a b, EuclideanDomain.gcdB (EuclideanDomain.gcd a b) M, ?_⟩
+    calc
+      _ = (EuclideanDomain.gcd a b) * EuclideanDomain.gcdA (EuclideanDomain.gcd a b) M + M * EuclideanDomain.gcdB (EuclideanDomain.gcd a b) M := EuclideanDomain.gcd_eq_gcd_ab _ _
+      _ = _ := by
+        rw [EuclideanDomain.gcd_eq_gcd_ab a b]
+        ring
+  | change ∃ p q r, EuclideanDomain.gcd a (EuclideanDomain.gcd b M) = p*a + q*b + r*M
+    refine ⟨EuclideanDomain.gcdA a (EuclideanDomain.gcd b M), EuclideanDomain.gcdB a (EuclideanDomain.gcd b M) * EuclideanDomain.gcdA b M, EuclideanDomain.gcdB a (EuclideanDomain.gcd b M) * EuclideanDomain.gcdB b M, ?_⟩
+    calc
+      _ = a * EuclideanDomain.gcdA a (EuclideanDomain.gcd b M) + (EuclideanDomain.gcd b M) * EuclideanDomain.gcdB a (EuclideanDomain.gcd b M) := EuclideanDomain.gcd_eq_gcd_ab _ _
+      _ = _ := by
+        rw [EuclideanDomain.gcd_eq_gcd_ab b M]
+        ring

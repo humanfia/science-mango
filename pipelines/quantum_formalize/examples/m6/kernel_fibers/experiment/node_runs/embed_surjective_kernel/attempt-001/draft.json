@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot (F * K)), AdjoinRoot.mk (F * K) F * z = 0 → ∃ t : AdjoinRoot F, M6.KernelFibers.embed F K hF t = z\nintro F K hF z hz\nobtain ⟨h, rfl⟩ : ∃ h : M6.KernelFibers.BP, AdjoinRoot.mk (F * K) h = z := by\n  first\n  | exact AdjoinRoot.mk_surjective _ _\n  | exact AdjoinRoot.mk_surjective _\nrw [← map_mul, AdjoinRoot.mk_eq_zero] at hz\nrcases hz with ⟨q, hq⟩\nhave hh : h = K * q := by\n  apply mul_left_cancel₀ hF.ne_zero\n  simpa only [mul_assoc] using hq\nrefine ⟨AdjoinRoot.mk F q, ?_⟩\nrw [M6.KernelFibers.embed_mk, hh]",
+  "queries": [
+    "AdjoinRoot.mk_surjective",
+    "AdjoinRoot.mk_eq_zero",
+    "mul_left_cancel₀"
+  ]
+}

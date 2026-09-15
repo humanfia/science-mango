@@ -1,0 +1,13 @@
+{
+  "name": "M6.KernelFibers.embed_annihilated",
+  "statement": "∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (z : AdjoinRoot F), AdjoinRoot.mk (F*K) F * M6.KernelFibers.embed F K hF z = 0",
+  "imports": [
+    "M6KernelFibers"
+  ],
+  "context": "theorem M6.KernelFibers.embed_mk : ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (h : M6.KernelFibers.BP), M6.KernelFibers.embed F K hF (AdjoinRoot.mk F h) = AdjoinRoot.mk (F*K) (K*h) := by\n  intro F K hF h\n  change AdjoinRoot.mk (F * K)\n      (K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n    AdjoinRoot.mk (F * K) (K * h)\n  have hr := AdjoinRoot.mk_leftInverse hF (AdjoinRoot.mk F h)\n  change AdjoinRoot.mk F\n      (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n    AdjoinRoot.mk F h at hr\n  rw [AdjoinRoot.mk_eq_mk] at hr ⊢\n  rcases hr with ⟨q, hq⟩\n  refine ⟨q, ?_⟩\n  calc\n    K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - K * h =\n        K * (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - h) := by ring\n    _ = K * (F * q) := by rw [hq]\n    _ = (F * K) * q := by ring",
+  "queries": [
+    "AdjoinRoot modByMonic powerBasis cardinality",
+    "polynomial divisibility multiplication cancellation"
+  ],
+  "guidance": "Represent z by a polynomial, rewrite embed_mk then ←map_mul; mk_eq_zero and witness h. Return tactic lines without leading by."
+}

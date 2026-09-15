@@ -1,0 +1,366 @@
+[
+  {
+    "queries": [
+      "EuclideanDomain gcd Bezout divisibility",
+      "AdjoinRoot mk zero characteristic two"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "EuclideanDomain gcd Bezout divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64722,
+            "name": "EuclideanDomain.gcd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+            "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+            "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+          },
+          {
+            "id": 317921,
+            "name": "IsBezout.gcd",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L179-L182",
+            "source_text": "/-- A choice of gcd of two elements in a Bézout domain.\n\nNote that the choice is usually not unique. -/\nnoncomputable def gcd : R := Submodule.IsPrincipal.generator (Ideal.span {x, y})\n",
+            "docstring": "A choice of gcd of two elements in a Bézout domain.\n\nNote that the choice is usually not unique. "
+          },
+          {
+            "id": 317929,
+            "name": "IsBezout.toGCDDomain",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L218-L222",
+            "source_text": "/-- Any Bézout domain is a GCD domain. This is not an instance since `GCDMonoid` contains data,\nand this might not be how we would like to construct it. -/\n@[implicit_reducible]\nnoncomputable def toGCDDomain [IsBezout R] [IsCancelMulZero R] [DecidableEq R] : GCDMonoid R :=\n  gcdMonoidOfGCD (gcd · ·) (gcd_dvd_left · ·) (gcd_dvd_right · ·) dvd_gcd\n",
+            "docstring": "Any Bézout domain is a GCD domain. This is not an instance since `GCDMonoid` contains data,\nand this might not be how we would like to construct it. "
+          },
+          {
+            "id": 317923,
+            "name": "IsBezout.gcd_dvd_left",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L191-L192",
+            "source_text": "theorem gcd_dvd_left : gcd x y ∣ x :=\n  (Submodule.IsPrincipal.mem_iff_generator_dvd _).mp (Ideal.subset_span (by simp))\n",
+            "docstring": null
+          },
+          {
+            "id": 306779,
+            "name": "EuclideanDomain.span_gcd",
+            "module": "Mathlib.RingTheory.EuclideanDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/EuclideanDomain.lean#L85-L88",
+            "source_text": "theorem span_gcd [DecidableEq α] (x y : α) :\n    span ({gcd x y} : Set α) = span ({x, y} : Set α) :=\n  letI := EuclideanDomain.gcdMonoid α\n  _root_.span_gcd x y\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "EuclideanDomain gcd Bezout divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393002,
+            "name": "EuclideanGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L22-L30",
+            "source_text": "/-- An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n-/\n@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n",
+            "docstring": "An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n"
+          },
+          {
+            "id": 393005,
+            "name": "EuclideanGroup.instGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L34-L61",
+            "source_text": "/-- Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by\nthe inherited matrix-vector action on `EuclideanSpace ℝ (Fin n)`, transported through `WithLp`\nfrom the coordinate action `Q.val *ᵥ v.ofLp`. -/\nnoncomputable instance : Group (EuclideanGroup n) where\n  mul A B := ⟨A.translation + A.linear • B.translation, A.linear * B.linear⟩\n  mul_assoc A B C := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.translation + A.linear • B.translation + (A.linear * B.linear) • C.translation\n        = A.translation + A.linear • (B.translation + B.linear • C.translation)\n      rw [mul_smul, smul_add, add_assoc]\n    · exact mul_assoc A.linear B.linear C.linear\n  one := ⟨0, 1⟩\n  one_mul A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show 0 + (1 : Matrix.orthogonalGroup (Fin n) ℝ) • A.translation = A.translation\n      rw [zero_add, one_smul]\n    · exact one_mul A.linear\n  mul_one A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.translation + A.linear • 0 = A.translation\n      rw [smul_zero, add_zero]\n    · exact mul_one A.linear\n  inv A := ⟨A.linear⁻¹ • (-A.translation), A.linear⁻¹⟩\n  inv_mul_cancel A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.linear⁻¹ • (-A.translation) + A.linear⁻¹ • A.translation = 0\n      rw [← smul_add, neg_add_cancel, smul_zero]\n    · exact inv_mul_cancel A.linear\n",
+            "docstring": "Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by\nthe inherited matrix-vector action on `EuclideanSpace ℝ (Fin n)`, transported through `WithLp`\nfrom the coordinate action `Q.val *ᵥ v.ofLp`. "
+          },
+          {
+            "id": 393012,
+            "name": "EuclideanGroup.TranslationGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L107-L118",
+            "source_text": "/-- Translation is the subgroup with Q = 1. -/\ndef TranslationGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val = 1\n    rw [Submonoid.coe_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val = 1\n    rw [OneMemClass.coe_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val = 1\n    rw [coe_inv, ha, inv_one]\n",
+            "docstring": "Translation is the subgroup with Q = 1. "
+          },
+          {
+            "id": 393003,
+            "name": "EuclideanGroup.ext",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L25-L25",
+            "source_text": "@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n\nnamespace EuclideanGroup\n\n/-- Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by",
+            "docstring": null
+          },
+          {
+            "id": 393010,
+            "name": "EuclideanGroup.SpecialEuclideanGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L90-L101",
+            "source_text": "/-- Special Euclidean Group is the subgroup with det(Q) = 1 where Q ∈ O(n) -/\ndef SpecialEuclideanGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val.det = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val.det = 1\n    rw [Submonoid.coe_mul, Matrix.det_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val.det = 1\n    rw [OneMemClass.coe_one, Matrix.det_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val.det = 1\n    rw [det_coe_inv, ha, inv_one]\n",
+            "docstring": "Special Euclidean Group is the subgroup with det(Q) = 1 where Q ∈ O(n) "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "AdjoinRoot mk zero characteristic two",
+        "status": "ok",
+        "results": [
+          {
+            "id": 303529,
+            "name": "AdjoinRoot",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L60-L63",
+            "source_text": "/-- Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. -/\ndef AdjoinRoot [CommRing R] (f : R[X]) : Type _ :=\n  Polynomial R ⧸ (span {f} : Ideal R[X])\n",
+            "docstring": "Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. "
+          },
+          {
+            "id": 303564,
+            "name": "AdjoinRoot.mk_eq_zero",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L212-L214",
+            "source_text": "@[simp]\ntheorem mk_eq_zero {g : R[X]} : mk f g = 0 ↔ f ∣ g :=\n  mk_eq_mk.trans <| by rw [sub_zero]",
+            "docstring": null
+          },
+          {
+            "id": 303621,
+            "name": "AdjoinRoot.instGroupWithZero",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L516-L517",
+            "source_text": "noncomputable instance instGroupWithZero [Fact (Irreducible f)] : GroupWithZero (AdjoinRoot f) :=\n  fast_instance% Quotient.groupWithZero (span {f} : Ideal K[X])\n",
+            "docstring": null
+          },
+          {
+            "id": 303552,
+            "name": "AdjoinRoot.root",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L163-L165",
+            "source_text": "/-- The adjoined root. -/\ndef root : AdjoinRoot f :=\n  mk f X\n",
+            "docstring": "The adjoined root. "
+          },
+          {
+            "id": 303563,
+            "name": "AdjoinRoot.mk_eq_mk",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L208-L210",
+            "source_text": "@[simp]\ntheorem mk_eq_mk {g h : R[X]} : mk f g = mk f h ↔ f ∣ g - h :=\n  Ideal.Quotient.eq.trans Ideal.mem_span_singleton",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "AdjoinRoot mk zero characteristic two",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386451,
+            "name": "HasAdjoint.adjoint_apply_zero",
+            "module": "Physlib.Mathematics.InnerProductSpace.Adjoint",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Adjoint.lean#L69-L71",
+            "source_text": "lemma HasAdjoint.adjoint_apply_zero {f : E → F} {f' : F → E}\n    (hf : HasAdjoint 𝕜 f f') : f' 0 = 0 := by\n  simpa using hf.adjoint_inner_left (f' 0) 0\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "boundary_is_cycle",
+    "receipts_sha256": "78dd52a91d87d98eff36d9549d76fa4691ab9fbea9ccb51fb8bbbfa632b0cedb"
+  },
+  {
+    "queries": [
+      "EuclideanDomain gcd Bezout divisibility",
+      "AdjoinRoot mk zero characteristic two"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "EuclideanDomain gcd Bezout divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64722,
+            "name": "EuclideanDomain.gcd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+            "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+            "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+          },
+          {
+            "id": 317921,
+            "name": "IsBezout.gcd",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L179-L182",
+            "source_text": "/-- A choice of gcd of two elements in a Bézout domain.\n\nNote that the choice is usually not unique. -/\nnoncomputable def gcd : R := Submodule.IsPrincipal.generator (Ideal.span {x, y})\n",
+            "docstring": "A choice of gcd of two elements in a Bézout domain.\n\nNote that the choice is usually not unique. "
+          },
+          {
+            "id": 317929,
+            "name": "IsBezout.toGCDDomain",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L218-L222",
+            "source_text": "/-- Any Bézout domain is a GCD domain. This is not an instance since `GCDMonoid` contains data,\nand this might not be how we would like to construct it. -/\n@[implicit_reducible]\nnoncomputable def toGCDDomain [IsBezout R] [IsCancelMulZero R] [DecidableEq R] : GCDMonoid R :=\n  gcdMonoidOfGCD (gcd · ·) (gcd_dvd_left · ·) (gcd_dvd_right · ·) dvd_gcd\n",
+            "docstring": "Any Bézout domain is a GCD domain. This is not an instance since `GCDMonoid` contains data,\nand this might not be how we would like to construct it. "
+          },
+          {
+            "id": 317923,
+            "name": "IsBezout.gcd_dvd_left",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L191-L192",
+            "source_text": "theorem gcd_dvd_left : gcd x y ∣ x :=\n  (Submodule.IsPrincipal.mem_iff_generator_dvd _).mp (Ideal.subset_span (by simp))\n",
+            "docstring": null
+          },
+          {
+            "id": 306779,
+            "name": "EuclideanDomain.span_gcd",
+            "module": "Mathlib.RingTheory.EuclideanDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/EuclideanDomain.lean#L85-L88",
+            "source_text": "theorem span_gcd [DecidableEq α] (x y : α) :\n    span ({gcd x y} : Set α) = span ({x, y} : Set α) :=\n  letI := EuclideanDomain.gcdMonoid α\n  _root_.span_gcd x y\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "EuclideanDomain gcd Bezout divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393002,
+            "name": "EuclideanGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L22-L30",
+            "source_text": "/-- An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n-/\n@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n",
+            "docstring": "An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n"
+          },
+          {
+            "id": 393005,
+            "name": "EuclideanGroup.instGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L34-L61",
+            "source_text": "/-- Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by\nthe inherited matrix-vector action on `EuclideanSpace ℝ (Fin n)`, transported through `WithLp`\nfrom the coordinate action `Q.val *ᵥ v.ofLp`. -/\nnoncomputable instance : Group (EuclideanGroup n) where\n  mul A B := ⟨A.translation + A.linear • B.translation, A.linear * B.linear⟩\n  mul_assoc A B C := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.translation + A.linear • B.translation + (A.linear * B.linear) • C.translation\n        = A.translation + A.linear • (B.translation + B.linear • C.translation)\n      rw [mul_smul, smul_add, add_assoc]\n    · exact mul_assoc A.linear B.linear C.linear\n  one := ⟨0, 1⟩\n  one_mul A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show 0 + (1 : Matrix.orthogonalGroup (Fin n) ℝ) • A.translation = A.translation\n      rw [zero_add, one_smul]\n    · exact one_mul A.linear\n  mul_one A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.translation + A.linear • 0 = A.translation\n      rw [smul_zero, add_zero]\n    · exact mul_one A.linear\n  inv A := ⟨A.linear⁻¹ • (-A.translation), A.linear⁻¹⟩\n  inv_mul_cancel A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.linear⁻¹ • (-A.translation) + A.linear⁻¹ • A.translation = 0\n      rw [← smul_add, neg_add_cancel, smul_zero]\n    · exact inv_mul_cancel A.linear\n",
+            "docstring": "Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by\nthe inherited matrix-vector action on `EuclideanSpace ℝ (Fin n)`, transported through `WithLp`\nfrom the coordinate action `Q.val *ᵥ v.ofLp`. "
+          },
+          {
+            "id": 393012,
+            "name": "EuclideanGroup.TranslationGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L107-L118",
+            "source_text": "/-- Translation is the subgroup with Q = 1. -/\ndef TranslationGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val = 1\n    rw [Submonoid.coe_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val = 1\n    rw [OneMemClass.coe_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val = 1\n    rw [coe_inv, ha, inv_one]\n",
+            "docstring": "Translation is the subgroup with Q = 1. "
+          },
+          {
+            "id": 393003,
+            "name": "EuclideanGroup.ext",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L25-L25",
+            "source_text": "@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n\nnamespace EuclideanGroup\n\n/-- Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by",
+            "docstring": null
+          },
+          {
+            "id": 393010,
+            "name": "EuclideanGroup.SpecialEuclideanGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L90-L101",
+            "source_text": "/-- Special Euclidean Group is the subgroup with det(Q) = 1 where Q ∈ O(n) -/\ndef SpecialEuclideanGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val.det = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val.det = 1\n    rw [Submonoid.coe_mul, Matrix.det_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val.det = 1\n    rw [OneMemClass.coe_one, Matrix.det_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val.det = 1\n    rw [det_coe_inv, ha, inv_one]\n",
+            "docstring": "Special Euclidean Group is the subgroup with det(Q) = 1 where Q ∈ O(n) "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "AdjoinRoot mk zero characteristic two",
+        "status": "ok",
+        "results": [
+          {
+            "id": 303529,
+            "name": "AdjoinRoot",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L60-L63",
+            "source_text": "/-- Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. -/\ndef AdjoinRoot [CommRing R] (f : R[X]) : Type _ :=\n  Polynomial R ⧸ (span {f} : Ideal R[X])\n",
+            "docstring": "Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. "
+          },
+          {
+            "id": 303564,
+            "name": "AdjoinRoot.mk_eq_zero",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L212-L214",
+            "source_text": "@[simp]\ntheorem mk_eq_zero {g : R[X]} : mk f g = 0 ↔ f ∣ g :=\n  mk_eq_mk.trans <| by rw [sub_zero]",
+            "docstring": null
+          },
+          {
+            "id": 303621,
+            "name": "AdjoinRoot.instGroupWithZero",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L516-L517",
+            "source_text": "noncomputable instance instGroupWithZero [Fact (Irreducible f)] : GroupWithZero (AdjoinRoot f) :=\n  fast_instance% Quotient.groupWithZero (span {f} : Ideal K[X])\n",
+            "docstring": null
+          },
+          {
+            "id": 303552,
+            "name": "AdjoinRoot.root",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L163-L165",
+            "source_text": "/-- The adjoined root. -/\ndef root : AdjoinRoot f :=\n  mk f X\n",
+            "docstring": "The adjoined root. "
+          },
+          {
+            "id": 303563,
+            "name": "AdjoinRoot.mk_eq_mk",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L208-L210",
+            "source_text": "@[simp]\ntheorem mk_eq_mk {g h : R[X]} : mk f g = mk f h ↔ f ∣ g - h :=\n  Ideal.Quotient.eq.trans Ideal.mem_span_singleton",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "AdjoinRoot mk zero characteristic two",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386451,
+            "name": "HasAdjoint.adjoint_apply_zero",
+            "module": "Physlib.Mathematics.InnerProductSpace.Adjoint",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Adjoint.lean#L69-L71",
+            "source_text": "lemma HasAdjoint.adjoint_apply_zero {f : E → F} {f' : F → E}\n    (hf : HasAdjoint 𝕜 f f') : f' 0 = 0 := by\n  simpa using hf.adjoint_inner_left (f' 0) 0\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "boundary_is_cycle",
+    "receipts_sha256": "78dd52a91d87d98eff36d9549d76fa4691ab9fbea9ccb51fb8bbbfa632b0cedb"
+  }
+]

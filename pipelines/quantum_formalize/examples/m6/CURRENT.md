@@ -1,7 +1,9 @@
 # M6 formalization status
 
-In progress. The full natural-language M6 proof has been read and mapped to the original formalization contract. No full-M6 Lean acceptance is claimed.
+In progress; complete M6 has not yet been formally accepted.
 
-Five initial modules have passed definition/target preflight and started live proof experiments: cyclic polynomial/kernel foundations (6 targets), labeled transfer walks (7), binary character enumerators (8), pinned finite enumeration/recovery (14), and multiplication-annihilator cardinality (6). No complete batch is yet recorded here. They run through the existing16-concurrency proof pipeline. Later dependencies and the original indexed-array complexity claims are recorded in GRAPH.md and ROOT_CONTRACT.md.
+Three batches are complete, with19 named targets: cyclic polynomial/kernel foundations (6), multiplication-annihilator cardinality (6), and labeled transfer walks (7). All three passed combined assembly and unchanged-environment checks. Counts are not completion percentages.
 
-Model: gpt-6-astra / medium; five proof attempts per target; Mathlib and Physlib retrieval; immutable targets and standard-axiom acceptance.
+Active work includes actual array/matrix trace equivalence, binary character enumerators, pinned finite enumeration and recovery, physical convolution/J correspondence, and the original array resource accounting. The source scope and remaining dependencies are in ROOT_CONTRACT.md and GRAPH.md.
+
+Model: gpt-6-astra / medium; up to16 proof workers; five attempts per target; Mathlib and Physlib retrieval; immutable targets and standard-axiom acceptance. The M6 local-interface prompt adapter is now supported and regression-tested.

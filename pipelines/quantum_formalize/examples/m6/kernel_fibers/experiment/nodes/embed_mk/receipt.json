@@ -1,0 +1,55 @@
+{
+  "id": "embed_mk",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.KernelFibers.embed_mk",
+    "spec_sha256": "8623b7ae7eb01b602bac56e12583649e524615003ad8e9c3cd953d0aa2c30fa9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-i5ny5y5d/attempt-001/Candidate_bcf23c77141aa839.lean",
+        "target_path": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-i5ny5y5d/attempt-001/FrozenTarget_bcf23c77141aa839.lean",
+        "feedback": "",
+        "target_sha256": "604be96f1b785fc39e08c877595ff8df9b813e007b397ab26aec6b540cf86a88",
+        "target_olean_sha256": "63ff31acb64165311973c0d83115dbf43bb6a2722221412e3ae2ad979b29757f",
+        "source_sha256": "b781fbcbf823a2ea49ed627196981aa3b47119966b9671fb4ee1d131331134ee",
+        "olean_sha256": "bff3b40d2567eeed2ce04a7b00523a99c0e4a73766d55c03d6c264269066e435",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T12:51:49.931964+00:00",
+    "work": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-i5ny5y5d",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "57813b8a32e86cb20e3b6136b33f6d3face89a0fc5ff6d7ffadc78730f0fd916",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-kernel-fibers-formalization/.humanize-formal-runs/run-i5ny5y5d/attempt-001/Candidate_bcf23c77141aa839.lean",
+    "environment_sha256": "632e8facf3c6cdef7f963645e0b009578c95cc971cfb580823252079183c9d93",
+    "artifacts": {
+      "embed_mk": {
+        "payload": {
+          "declaration": "theorem M6.KernelFibers.embed_mk : ∀ (F K : M6.KernelFibers.BP) (hF : F.Monic) (h : M6.KernelFibers.BP), M6.KernelFibers.embed F K hF (AdjoinRoot.mk F h) = AdjoinRoot.mk (F*K) (K*h) := by\n  intro F K hF h\n  change AdjoinRoot.mk (F * K)\n      (K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n    AdjoinRoot.mk (F * K) (K * h)\n  have hr := AdjoinRoot.mk_leftInverse hF (AdjoinRoot.mk F h)\n  change AdjoinRoot.mk F\n      (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h)) =\n    AdjoinRoot.mk F h at hr\n  rw [AdjoinRoot.mk_eq_mk] at hr ⊢\n  rcases hr with ⟨q, hq⟩\n  refine ⟨q, ?_⟩\n  calc\n    K * AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - K * h =\n        K * (AdjoinRoot.modByMonicHom hF (AdjoinRoot.mk F h) - h) := by ring\n    _ = K * (F * q) := by rw [hq]\n    _ = (F * K) * q := by ring",
+          "imports": [
+            "M6KernelFibers"
+          ],
+          "name": "M6.KernelFibers.embed_mk",
+          "ancestors": [],
+          "spec_sha256": "8623b7ae7eb01b602bac56e12583649e524615003ad8e9c3cd953d0aa2c30fa9"
+        },
+        "sha256": "17093d4b296e8297ea98e5c1a6c2de9ced178adae0b3d0b21d47ece1e9e2e8bf"
+      }
+    }
+  }
+}
