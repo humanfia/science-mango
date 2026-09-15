@@ -1,0 +1,55 @@
+{
+  "id": "finite_extreme",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Selection.finite_extreme",
+    "spec_sha256": "24bc0da934ca3e9982b867a07cd734add123cbdf169b34632715ab9b30b645ee",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1nr9bg16/attempt-001/Candidate_1df2d87e24cc0c87.lean",
+        "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1nr9bg16/attempt-001/FrozenTarget_1df2d87e24cc0c87.lean",
+        "feedback": "",
+        "target_sha256": "f8e61e78520add3fa5fb6a2983ba8a228e73646de7706aefb5e51101b0ba6e54",
+        "target_olean_sha256": "1a3821775315cf09d4541d60fc909f840957456c9009e53cf870ebb1ceb2e432",
+        "source_sha256": "9c514281e08f5d5cd62ea005eb1cb1bd37b227985a3c3905bdfd16d861e8ed3b",
+        "olean_sha256": "42d837b346114821b03d6f93544411e1dac9305c113cfb98ec979ab9aef3663c",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:00:17.482390+00:00",
+    "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1nr9bg16",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1nr9bg16/attempt-001/Candidate_1df2d87e24cc0c87.lean",
+    "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+    "artifacts": {
+      "finite_extreme": {
+        "payload": {
+          "declaration": "theorem M7.Selection.finite_extreme : ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x) := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x)\n  intro α T R hir htr\n  induction T using Finset.induction_on with\n  | empty =>\n      intro x hx\n      simp at hx\n  | @insert a S ha ih =>\n      intro x hx\n      rcases Finset.mem_insert.mp hx with hxa | hxS\n      · subst x\n        by_cases hp : ∃ b ∈ S, R b a\n        · obtain ⟨b, hb, hba⟩ := hp\n          obtain ⟨y, hy, hmin, hyb⟩ := ih b hb\n          have hya : R y a := by\n            rcases hyb with heq | hyb\n            · subst y\n              exact hba\n            · exact htr y b a hyb hba\n          refine ⟨y, Finset.mem_insert_of_mem hy, ?_, Or.inr hya⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with hza | hzS\n          · subst z\n            exact hir a (htr a y a hzy hya)\n          · exact hmin z hzS hzy\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, Or.inl rfl⟩\n          intro z hz hza\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hir a hza\n          · exact hp ⟨z, hzS, hza⟩\n      · obtain ⟨y, hy, hmin, hyx⟩ := ih x hxS\n        by_cases hay : R a y\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, ?_⟩\n          · intro z hz hza\n            rcases Finset.mem_insert.mp hz with heq | hzS\n            · subst z\n              exact hir a hza\n            · exact hmin z hzS (htr z a y hza hay)\n          · right\n            rcases hyx with heq | hyx\n            · subst y\n              exact hay\n            · exact htr a y x hay hyx\n        · refine ⟨y, Finset.mem_insert_of_mem hy, ?_, hyx⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hay hzy\n          · exact hmin z hzS hzy",
+          "imports": [
+            "M7Selection"
+          ],
+          "name": "M7.Selection.finite_extreme",
+          "ancestors": [],
+          "spec_sha256": "24bc0da934ca3e9982b867a07cd734add123cbdf169b34632715ab9b30b645ee"
+        },
+        "sha256": "e99283597d6a360c1d2c7b6f05adcbcb9592828f2e5b457458a03b7f34829063"
+      }
+    }
+  }
+}

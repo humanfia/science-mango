@@ -1,0 +1,221 @@
+{
+  "title": "M7 actual affine two-block action records and laws",
+  "nodes": [
+    {
+      "id": "left_identity",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.left_identity",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ g : M7.Action.Record N, M7.Action.compose (M7.Action.identity N) g = g",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "right_identity",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.right_identity",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ g : M7.Action.Record N, M7.Action.compose g (M7.Action.identity N) = g",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "associative",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.associative",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ g h k : M7.Action.Record N, M7.Action.compose (M7.Action.compose g h) k = M7.Action.compose g (M7.Action.compose h k)",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "left_inverse",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.left_inverse",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ g : M7.Action.Record N, M7.Action.compose (M7.Action.inverse g) g = M7.Action.identity N",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "right_inverse",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.right_inverse",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ g : M7.Action.Record N, M7.Action.compose g (M7.Action.inverse g) = M7.Action.identity N",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "affine_bijective",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.affine_bijective",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (s : ZMod N), Function.Bijective (M7.Action.affine u s)",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "act_identity",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.act_identity",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.Action.act (M7.Action.identity N) c = c",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "act_compose",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.act_compose",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (g h : M7.Action.Record N) (c : M7.Action.Recipe N), M7.Action.act (M7.Action.compose g h) c = M7.Action.act g (M7.Action.act h c)",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "act_inverse",
+      "dependencies": [
+        "left_inverse",
+        "act_identity",
+        "act_compose"
+      ],
+      "spec": {
+        "name": "M7.Action.act_inverse",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.Action.act (M7.Action.inverse g) (M7.Action.act g c) = c",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "support_cards",
+      "dependencies": [
+        "affine_bijective"
+      ],
+      "spec": {
+        "name": "M7.Action.support_cards",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), (M7.Action.act g c).1.card = (if g.exchange then c.2.card else c.1.card) ∧ (M7.Action.act g c).2.card = (if g.exchange then c.1.card else c.2.card)",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "normal_form",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.normal_form",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ g : M7.Action.Record N, M7.Action.compose (M7.Action.translate g.leftShift g.rightShift) (M7.Action.compose (M7.Action.multiplier g.unit) (if g.exchange then M7.Action.exchange N else M7.Action.identity N)) = g",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "record_card",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Action.record_card",
+        "statement": "∀ (N : ℕ) [NeZero N], Fintype.card (M7.Action.Record N) = Nat.totient N * 2 * N * N",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    },
+    {
+      "id": "order_one_records",
+      "dependencies": [
+        "record_card"
+      ],
+      "spec": {
+        "name": "M7.Action.order_one_records",
+        "statement": "Fintype.card (M7.Action.Record 1) = 2",
+        "imports": [
+          "M7Action"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use actual Record fields and compose/inverse/act definitions. Cases on Bool exchange flags reduce to commutative ring and unit identities; no primality assumption. Finset.image_image relates action composition. Fintype.card Record can use explicit equivalence with unit × Bool × ZMod N × ZMod N and product cardinality. Preserve both abstract exchange records at N=1. Return tactic lines only, no leading by or set_option.\nFrozen implementation reference (not additional premises):\nimport Mathlib\n\nnamespace M7.Action\nstructure Record (N : ℕ) [NeZero N] where\n  unit : (ZMod N)ˣ\n  exchange : Bool\n  leftShift : ZMod N\n  rightShift : ZMod N\n  deriving DecidableEq, Fintype\n\ndef identity (N : ℕ) [NeZero N] : Record N := ⟨1, false, 0, 0⟩\ndef compose {N : ℕ} [NeZero N] (g h : Record N) : Record N :=\n  ⟨g.unit*h.unit, Bool.xor g.exchange h.exchange,\n   (g.unit : ZMod N)*(if g.exchange then h.rightShift else h.leftShift)+g.leftShift,\n   (g.unit : ZMod N)*(if g.exchange then h.leftShift else h.rightShift)+g.rightShift⟩\ndef inverse {N : ℕ} [NeZero N] (g : Record N) : Record N :=\n  ⟨g.unit⁻¹, g.exchange,\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.rightShift else g.leftShift)),\n   -((↑(g.unit⁻¹) : ZMod N)*(if g.exchange then g.leftShift else g.rightShift))⟩\ndef affine {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s i : ZMod N) : ZMod N := u*i+s\nabbrev Recipe (N : ℕ) := Finset (ZMod N) × Finset (ZMod N)\nnoncomputable def act {N : ℕ} [NeZero N] (g : Record N) (c : Recipe N) : Recipe N :=\n  ((if g.exchange then c.2 else c.1).image (affine g.unit g.leftShift),\n   (if g.exchange then c.1 else c.2).image (affine g.unit g.rightShift))\ndef translate {N : ℕ} [NeZero N] (s t : ZMod N) : Record N := ⟨1,false,s,t⟩\ndef multiplier {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) : Record N := ⟨u,false,0,0⟩\ndef exchange (N : ℕ) [NeZero N] : Record N := ⟨1,true,0,0⟩\nend M7.Action\n"
+      }
+    }
+  ]
+}

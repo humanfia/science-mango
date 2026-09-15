@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → x ∉ M7.Selection.winners T feasible R → ∃ y ∈ M7.Selection.winners T feasible R, R y x\nintro α T feasible R hir htr x hx hfx hnwin\nobtain ⟨y, hy, hyx⟩ := M7.Selection.winning_dominator α T feasible R hir htr x hx hfx\nrcases hyx with heq | hrel\n· subst y\n  exact False.elim (hnwin hy)\n· exact ⟨y, hy, hrel⟩",
+  "queries": []
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (α : Type) (m : ℕ) (T : Finset α) (feasible : α → Prop) (objective : α → Fin m → ℤ) (mode : M7.Selection.Mode), (∀ x, x ∈ M7.Selection.select T feasible objective mode ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ M7.Selection.better mode (objective y) (objective x)) ∧ (M7.Selection.select T feasible objective mode = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅)\nintro α m T feasible objective mode\nobtain ⟨hir, htr⟩ := M7.Selection.better_laws m mode\nconstructor\n· intro x\n  simpa only [M7.Selection.select] using\n    M7.Selection.win_sound_complete α T feasible\n      (fun x y => M7.Selection.better mode (objective x) (objective y)) x\n· simpa only [M7.Selection.select] using\n    M7.Selection.empty_iff α T feasible\n      (fun x y => M7.Selection.better mode (objective x) (objective y))\n      (fun x => hir (objective x))\n      (fun x y z => htr (objective x) (objective y) (objective z))",
+  "queries": []
+}

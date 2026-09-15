@@ -1,0 +1,106 @@
+{
+  "id": "exact_target_positive",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Factorized.exact_target_positive",
+    "spec_sha256": "8a5e15d6b6763426064e313871a468e1e517f27c74b877f3c6bc04e7502b0906",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-rp973cds/attempt-001/Candidate_bac5f10f1d3f1167.lean:10:15: error: synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized\n  fun a => instDecidableAnd\ninferred\n  fun a => Classical.propDecidable ((fun r => leftImage r.1 r.2.1 = x ∧ rightImage r.1 r.2.2 = y) a)\n/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-rp973cds/attempt-001/Candidate_bac5f10f1d3f1167.lean:13:22: error: synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized\n  fun a => instDecidableAnd\ninferred\n  fun a => Classical.propDecidable ((fun r => leftImage r.1 r.2.1 = x ∧ rightImage r.1 r.2.2 = y) a)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-rp973cds/attempt-002/Candidate_e5acdbe1e6faac93.lean",
+        "target_path": "/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-rp973cds/attempt-002/FrozenTarget_e5acdbe1e6faac93.lean",
+        "feedback": "",
+        "target_sha256": "fe9dcba11c96931b695841b0cf28f2593332f8eb7c7cedd3c2eedb1c4d5c6553",
+        "target_olean_sha256": "111629a8252204edde45d3dfbac7a323e8eece794bdeff89323888af01f54cac",
+        "source_sha256": "dcf7c84159e5ab3efa9350e305035d386526501a6b2c6f584a5aef4db133809d",
+        "olean_sha256": "a320677a6f01d31c44917fcbebdad88b8c480bd7cc59295521f436cf2c0e33b6",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T16:12:17.560402+00:00",
+    "work": "/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-rp973cds",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "009e80bfa1eb634ab414da034e6f94836b42401acd4ea01578d4e97a89feba3b",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-rp973cds/attempt-002/Candidate_e5acdbe1e6faac93.lean",
+    "environment_sha256": "f8d076640b39b72d35d12818ff60657136b0747bafa4b2b2dbd5bc9486cfc49c",
+    "artifacts": {
+      "pair_count": {
+        "payload": {
+          "declaration": "theorem M7.Factorized.pair_count : ∀ (S T : Type) [Fintype S] [Fintype T] (left : S → Prop) (right : T → Prop), M7.Factorized.count (fun p : S × T => left p.1 ∧ right p.2) = M7.Factorized.count left * M7.Factorized.count right := by\n  intro S T instS instT left right\n  classical\n  unfold M7.Factorized.count\n  rw [← Finset.card_product]\n  apply congrArg Finset.card\n  apply Finset.ext\n  intro p\n  simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and]",
+          "imports": [
+            "M7Factorized"
+          ],
+          "name": "M7.Factorized.pair_count",
+          "ancestors": [],
+          "spec_sha256": "55d7706c761faa629f5e3bec37795fcdc9232f42d36de507d0aab1983c4117ac"
+        },
+        "sha256": "f342cd29083b1f072b56419bb2b720d4cc9485818eeb4fccb296aa06aa76b883"
+      },
+      "numerator_record_card": {
+        "payload": {
+          "declaration": "theorem M7.Factorized.numerator_record_card : ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card := by\n  intro U S T instU instS instT sector left right\n  classical\n  unfold M7.Factorized.numerator M7.Factorized.records M7.Factorized.count\n  rw [Finset.card_eq_sum_ones]\n  simp only [Finset.sum_filter, Fintype.sum_prod_type]\n  apply Finset.sum_congr rfl\n  intro u hu\n  by_cases h : sector u <;> simp [h, ite_and]\n  all_goals simp [← Finset.sum_filter, Nat.mul_comm]",
+          "imports": [
+            "M7Factorized"
+          ],
+          "name": "M7.Factorized.numerator_record_card",
+          "ancestors": [
+            "pair_count"
+          ],
+          "spec_sha256": "492ce8d8b07da2d26fafffc6739a98dc016e6fc303652a3b56bb87d45aea7215"
+        },
+        "sha256": "7cb5ca621e12a3ff8b681948529661ee6a9ebd1d3217d5c75ef2fa914ad3ea2c"
+      },
+      "exact_target_card": {
+        "payload": {
+          "declaration": "theorem M7.Factorized.exact_target_card : ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T], ∀ (X Y : Type) (leftImage : U → S → X) (rightImage : U → T → Y) (x : X) (y : Y), M7.Factorized.exactTargetNumerator leftImage rightImage x y = M7.Factorized.count (fun r : U × S × T => leftImage r.1 r.2.1 = x ∧ rightImage r.1 r.2.2 = y) := by\n  intro U S T instU instS instT X Y leftImage rightImage x y\n  classical\n  unfold M7.Factorized.exactTargetNumerator\n  rw [M7.Factorized.numerator_record_card]\n  unfold M7.Factorized.records M7.Factorized.count\n  apply congrArg Finset.card\n  ext r\n  simp",
+          "imports": [
+            "M7Factorized"
+          ],
+          "name": "M7.Factorized.exact_target_card",
+          "ancestors": [
+            "numerator_record_card",
+            "pair_count"
+          ],
+          "spec_sha256": "6638fa5226190d67e9e51f8eea199d7781062900b0549faa3c36451ae26eacb1"
+        },
+        "sha256": "5dbd143b3ea90c85227e52a5e630ba0d8161e3abc59150abbeadc95daca6f11d"
+      },
+      "exact_target_positive": {
+        "payload": {
+          "declaration": "theorem M7.Factorized.exact_target_positive : ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T], ∀ (X Y : Type) (leftImage : U → S → X) (rightImage : U → T → Y) (x : X) (y : Y), (0 < M7.Factorized.exactTargetNumerator leftImage rightImage x y ↔ ∃ (u : U) (s : S) (t : T), leftImage u s = x ∧ rightImage u t = y) := by\n  intro U S T instU instS instT X Y leftImage rightImage x y\n  classical\n  have count_pos : ∀ {α : Type} [Fintype α] (P : α → Prop),\n      0 < M7.Factorized.count P ↔ ∃ a, P a := by\n    intro α instα P\n    unfold M7.Factorized.count\n    simp only [Finset.card_pos, Finset.nonempty_def, Finset.mem_filter,\n      Finset.mem_univ, true_and]\n  rw [M7.Factorized.exact_target_card, count_pos]\n  constructor\n  · rintro ⟨⟨u, s, t⟩, hl, hr⟩\n    exact ⟨u, s, t, hl, hr⟩\n  · rintro ⟨u, s, t, hl, hr⟩\n    exact ⟨(u, s, t), hl, hr⟩",
+          "imports": [
+            "M7Factorized"
+          ],
+          "name": "M7.Factorized.exact_target_positive",
+          "ancestors": [
+            "exact_target_card",
+            "numerator_record_card",
+            "pair_count"
+          ],
+          "spec_sha256": "e938e1027672f99aff24a0bb341c6340983829a505a26ee2100ceecd37bb08a9"
+        },
+        "sha256": "646188a49211fc0fa8bedd2f4190e6877e8ae9313ceae3af231c22d1e48264b9"
+      }
+    }
+  }
+}

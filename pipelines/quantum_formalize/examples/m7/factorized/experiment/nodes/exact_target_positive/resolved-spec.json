@@ -1,0 +1,13 @@
+{
+  "name": "M7.Factorized.exact_target_positive",
+  "statement": "∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T], ∀ (X Y : Type) (leftImage : U → S → X) (rightImage : U → T → Y) (x : X) (y : Y), (0 < M7.Factorized.exactTargetNumerator leftImage rightImage x y ↔ ∃ (u : U) (s : S) (t : T), leftImage u s = x ∧ rightImage u t = y)",
+  "imports": [
+    "M7Factorized"
+  ],
+  "context": "theorem M7.Factorized.pair_count : ∀ (S T : Type) [Fintype S] [Fintype T] (left : S → Prop) (right : T → Prop), M7.Factorized.count (fun p : S × T => left p.1 ∧ right p.2) = M7.Factorized.count left * M7.Factorized.count right := by\n  intro S T instS instT left right\n  classical\n  unfold M7.Factorized.count\n  rw [← Finset.card_product]\n  apply congrArg Finset.card\n  apply Finset.ext\n  intro p\n  simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and]\n\ntheorem M7.Factorized.numerator_record_card : ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card := by\n  intro U S T instU instS instT sector left right\n  classical\n  unfold M7.Factorized.numerator M7.Factorized.records M7.Factorized.count\n  rw [Finset.card_eq_sum_ones]\n  simp only [Finset.sum_filter, Fintype.sum_prod_type]\n  apply Finset.sum_congr rfl\n  intro u hu\n  by_cases h : sector u <;> simp [h, ite_and]\n  all_goals simp [← Finset.sum_filter, Nat.mul_comm]\n\ntheorem M7.Factorized.exact_target_card : ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T], ∀ (X Y : Type) (leftImage : U → S → X) (rightImage : U → T → Y) (x : X) (y : Y), M7.Factorized.exactTargetNumerator leftImage rightImage x y = M7.Factorized.count (fun r : U × S × T => leftImage r.1 r.2.1 = x ∧ rightImage r.1 r.2.2 = y) := by\n  intro U S T instU instS instT X Y leftImage rightImage x y\n  classical\n  unfold M7.Factorized.exactTargetNumerator\n  rw [M7.Factorized.numerator_record_card]\n  unfold M7.Factorized.records M7.Factorized.count\n  apply congrArg Finset.card\n  ext r\n  simp",
+  "queries": [
+    "Finset card product filter",
+    "Fintype sum_prod_type indicator finite cardinality"
+  ],
+  "guidance": "Use exact_target_card and Finset.card_pos, unfold count and extract the triple witness. Later actual identity action discharges this existence for stabilizer positivity. Return tactic lines only without leading by."
+}

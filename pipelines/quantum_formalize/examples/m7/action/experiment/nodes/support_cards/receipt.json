@@ -1,0 +1,69 @@
+{
+  "id": "support_cards",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Action.support_cards",
+    "spec_sha256": "a99b47e34fe3238e9ebf1b37446c2bb70aaabafdae5f1573d7b7a6faa8f2ffb9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-action-formalization/.humanize-formal-runs/run-3pptijev/attempt-001/Candidate_0a2f17898d36d0ed.lean",
+        "target_path": "/home/jing/m7-lean-action-formalization/.humanize-formal-runs/run-3pptijev/attempt-001/FrozenTarget_0a2f17898d36d0ed.lean",
+        "feedback": "",
+        "target_sha256": "18781b605ee033e2d7fdad08a3162b5769d55982e32cbc3ca78731b0e9fbf7d7",
+        "target_olean_sha256": "5f1aad4187ac561bbd21ca59a4aacd89316273af6483229f511e861450b7b563",
+        "source_sha256": "86297bdf23186179bef53d5e7d660645fc87fe2a5cced529f7be2d8cf54425db",
+        "olean_sha256": "d5586e581c3faf1cfd68c25bdbd931e2986c68efd989b7239d894bcf9ea6ba01",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:17:55.549120+00:00",
+    "work": "/home/jing/m7-lean-action-formalization/.humanize-formal-runs/run-3pptijev",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "bb8adba70d914329d55403df4e48feed0a488aff7765f2fb8ab9a6ccdcb6f622",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-action-formalization/.humanize-formal-runs/run-3pptijev/attempt-001/Candidate_0a2f17898d36d0ed.lean",
+    "environment_sha256": "c006174953379a389976d552bf69886128e4e917c7c505157250f88cc01a8f70",
+    "artifacts": {
+      "affine_bijective": {
+        "payload": {
+          "declaration": "theorem M7.Action.affine_bijective : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (s : ZMod N), Function.Bijective (M7.Action.affine u s) := by\n  change ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (s : ZMod N), Function.Bijective (M7.Action.affine u s)\n  intro N inst u s\n  constructor\n  · intro a b h\n    change (u : ZMod N) * a + s = (u : ZMod N) * b + s at h\n    have h' := congrArg (fun x : ZMod N => (↑(u⁻¹) : ZMod N) * x) (add_right_cancel h)\n    simpa [← mul_assoc] using h'\n  · intro y\n    refine ⟨(↑(u⁻¹) : ZMod N) * (y - s), ?_⟩\n    simp [M7.Action.affine, ← mul_assoc]",
+          "imports": [
+            "M7Action"
+          ],
+          "name": "M7.Action.affine_bijective",
+          "ancestors": [],
+          "spec_sha256": "1c97f58eebe3908c1cf5000becc384d1c443cdfd8b1c8d0c8205d35bf99fca3c"
+        },
+        "sha256": "dc54a0530ce299a89f2f5bb0636f2349e6624eeb9046afb93624d5e1a4f19285"
+      },
+      "support_cards": {
+        "payload": {
+          "declaration": "theorem M7.Action.support_cards : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), (M7.Action.act g c).1.card = (if g.exchange then c.2.card else c.1.card) ∧ (M7.Action.act g c).2.card = (if g.exchange then c.1.card else c.2.card) := by\n  change ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Action.Recipe N), (M7.Action.act g c).1.card = (if g.exchange then c.2.card else c.1.card) ∧ (M7.Action.act g c).2.card = (if g.exchange then c.1.card else c.2.card)\n  intro N inst g c\n  classical\n  dsimp only [M7.Action.act]\n  rw [Finset.card_image_of_injective _ (M7.Action.affine_bijective N g.unit g.leftShift).injective,\n      Finset.card_image_of_injective _ (M7.Action.affine_bijective N g.unit g.rightShift).injective]\n  cases g.exchange <;> simp",
+          "imports": [
+            "M7Action"
+          ],
+          "name": "M7.Action.support_cards",
+          "ancestors": [
+            "affine_bijective"
+          ],
+          "spec_sha256": "f4281129139536d1b411e3b301966e4fef1d631ee1ed90630c2804a3e2bb0d02"
+        },
+        "sha256": "e9d2de14af2b695bb1177aeb523ef02108473aa9b0ffbe78202ecdff63405e0e"
+      }
+    }
+  }
+}

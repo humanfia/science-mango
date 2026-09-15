@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → (M7.Selection.winners T feasible R = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅)\nintro α T feasible R hir htr\nconstructor\n· intro h\n  apply Finset.eq_empty_of_forall_notMem\n  intro x hx\n  have hx' : x ∈ T ∧ feasible x := by\n    simpa [M7.Selection.feasibleSet] using hx\n  obtain ⟨y, hy, _⟩ := M7.Selection.winning_dominator α T feasible R hir htr x hx'.1 hx'.2\n  simpa [h] using hy\n· intro h\n  apply Finset.eq_empty_of_forall_notMem\n  intro x hx\n  have hw := (M7.Selection.win_membership α T feasible R x).mp hx\n  have hxF : x ∈ M7.Selection.feasibleSet T feasible := by\n    simp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter] at hw ⊢\n    aesop\n  simpa [h] using hxF",
+  "queries": []
+}

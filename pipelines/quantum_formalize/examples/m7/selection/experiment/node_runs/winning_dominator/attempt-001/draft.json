@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x\nintro α T feasible R hir htr x hx hfx\nhave hxF : x ∈ M7.Selection.feasibleSet T feasible := by\n  simpa [M7.Selection.feasibleSet] using And.intro hx hfx\nobtain ⟨y, hy, hmin, hyx⟩ := M7.Selection.finite_extreme α (M7.Selection.feasibleSet T feasible) R hir htr x hxF\nrefine ⟨y, ?_, hyx⟩\napply (M7.Selection.win_membership α T feasible R y).mpr\nsimp only [M7.Selection.feasibleSet, Finset.mem_filter] at hy hmin\nsimp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter]\naesop",
+  "queries": []
+}

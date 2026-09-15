@@ -1,0 +1,5 @@
+All six frozen generic finite-numerator targets are accepted, with assembly, unchanged environment, and experiment checks passing. Canonical evidence: experiment/ (145 manifest files, hash-verified after export). Left/right partitions passed first drafts; pair cardinality, numerator cardinality, exact-target cardinality and positivity passed second live drafts after finite-filter/indicator simplification repairs. Every accepted body came from the live experiment and retains only standard Lean axioms.
+
+The initial run stopped before any proof draft because Physlib returned HTTP500. Its 21-file archive remains in experiments/initial_retrieval_failure. Only fallback retrieval metadata changed; definitions and mathematical targets did not. RETRIEVAL_RETRY.json records this.
+
+This establishes only the generic factorized-record foundations. Actual M7 group installation, full stabilizer/orbit fibers, arithmetic prefix and coverage bridges remain separate obligations. Original M7 is not claimed formalized by this batch.

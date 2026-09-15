@@ -1,0 +1,82 @@
+{
+  "id": "better_laws",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Selection.better_laws",
+    "spec_sha256": "8a97b7c2275ccb8d81ee921f3ecee4cc8cf9785493e4f4c2fec27bc7ebf4504b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-w_xrmcct/attempt-001/Candidate_b240bb76a22cf62b.lean",
+        "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-w_xrmcct/attempt-001/FrozenTarget_b240bb76a22cf62b.lean",
+        "feedback": "",
+        "target_sha256": "d352bead42a6b4d08d4864901c142c5481484a732f7d23b85f20e8aeffd762ec",
+        "target_olean_sha256": "79ab2d33f5c13ecca1b281d718e6a76dbf63fc9c8add975b70856ab334bb638a",
+        "source_sha256": "54d9a4c24e27b5c06c899a5997111f7c758f8ae7ec5759c4c90e44995f99388e",
+        "olean_sha256": "7693e379e0ab463146ad19be8809a1792c2dccf0e6890335c8bd063c0003bf6b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:03:02.544219+00:00",
+    "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-w_xrmcct",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-w_xrmcct/attempt-001/Candidate_b240bb76a22cf62b.lean",
+    "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+    "artifacts": {
+      "pareto_laws": {
+        "payload": {
+          "declaration": "theorem M7.Selection.pareto_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.pareto at h\n    rcases h with ⟨_, i, hi⟩\n    exact (lt_irrefl (a i)) hi\n  · intro a b c hab hbc\n    unfold M7.Selection.pareto at *\n    rcases hab with ⟨hab, i, hi⟩\n    rcases hbc with ⟨hbc, _⟩\n    constructor\n    · intro j\n      have h₁ := hab j\n      have h₂ := hbc j\n      omega\n    · refine ⟨i, ?_⟩\n      have h₂ := hbc i\n      omega",
+          "imports": [
+            "M7Selection"
+          ],
+          "name": "M7.Selection.pareto_laws",
+          "ancestors": [],
+          "spec_sha256": "a6eb8508843c65ec7762c5588c2a4da65ee81efbe2a253a7f6055ff6a6a88690"
+        },
+        "sha256": "14db35f019330d0a2d5e806d416360927947e7b8cdda196f4e7deb6cf6e33a68"
+      },
+      "lex_laws": {
+        "payload": {
+          "declaration": "theorem M7.Selection.lex_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.lex at h\n    rcases h with ⟨i, h₁, h₂⟩\n    first\n    | exact (lt_irrefl (a i)) h₁\n    | exact (lt_irrefl (a i)) h₂\n  · intro a b c hab hbc\n    unfold M7.Selection.lex at hab hbc ⊢\n    rcases hab with ⟨i, hi₁, hi₂⟩\n    rcases hbc with ⟨j, hj₁, hj₂⟩\n    have hi : a i < b i := by first | exact hi₁ | exact hi₂\n    have hj : b j < c j := by first | exact hj₁ | exact hj₂\n    have ei : ∀ k : Fin m, k < i → a k = b k := by\n      first | exact hi₁ | exact hi₂\n    have ej : ∀ k : Fin m, k < j → b k = c k := by\n      first | exact hj₁ | exact hj₂\n    rcases lt_trichotomy i j with hij | hij | hji\n    · have hl : a i < c i := by rw [← ej i hij]; exact hi\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k (lt_trans hk hij))\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · subst j\n      have hl : a i < c i := lt_trans hi hj\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k hk)\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · have hl : a j < c j := by rw [ei j hji]; exact hj\n      have he : ∀ k : Fin m, k < j → a k = c k := by\n        intro k hk\n        exact (ei k (lt_trans hk hji)).trans (ej k hk)\n      refine ⟨j, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩",
+          "imports": [
+            "M7Selection"
+          ],
+          "name": "M7.Selection.lex_laws",
+          "ancestors": [],
+          "spec_sha256": "022f972b60cf3950f4062794a139b3b01f31e801dd919f240fbe3e3e3f24f68f"
+        },
+        "sha256": "ca689c64bafe48f51643fd65595a3252a5cc13d132db2b722ec34d074b9d45e1"
+      },
+      "better_laws": {
+        "payload": {
+          "declaration": "theorem M7.Selection.better_laws : ∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c) := by\n  change ∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c)\n  intro m mode\n  cases mode <;> first\n  | exact M7.Selection.pareto_laws m\n  | exact M7.Selection.lex_laws m",
+          "imports": [
+            "M7Selection"
+          ],
+          "name": "M7.Selection.better_laws",
+          "ancestors": [
+            "lex_laws",
+            "pareto_laws"
+          ],
+          "spec_sha256": "63d264f83d3daa42920b9c644ab961c09ee91044b31f74636346c560e87039cd"
+        },
+        "sha256": "eede12b0ae1a258158121b218685e11bf06e55d92a3ea84123cefc0230e76584"
+      }
+    }
+  }
+}

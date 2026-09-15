@@ -1,0 +1,7 @@
+import FrozenTarget_b240bb76a22cf62b
+theorem M7.Selection.better_laws : QuantumHarnessFrozenTarget := by
+  change ∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c)
+  intro m mode
+  cases mode <;> first
+  | exact M7.Selection.pareto_laws m
+  | exact M7.Selection.lex_laws m

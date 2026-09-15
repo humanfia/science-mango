@@ -1,0 +1,233 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_filter Finset.card_eq_sum_ones",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58250,
+        "name": "Finset.card_eq_sum_ones",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L952-L952",
+        "source_text": "lemma card_eq_sum_ones (s : Finset ι) : #s = ∑ _ ∈ s, 1 := by simp\n",
+        "docstring": null
+      },
+      {
+        "id": 58052,
+        "name": "Finset.sum_filter_add_sum_filter_not",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L143-L143",
+        "source_text": "@[to_additive]\ntheorem prod_filter_mul_prod_filter_not\n    (s : Finset ι) (p : ι → Prop) [DecidablePred p] [∀ x, Decidable (¬p x)] (f : ι → M) :\n    (∏ x ∈ s with p x, f x) * ∏ x ∈ s with ¬p x, f x = ∏ x ∈ s, f x := by",
+        "docstring": null
+      },
+      {
+        "id": 202420,
+        "name": "Finset.filter_card_add_filter_neg_card_eq_card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L649-L650",
+        "source_text": "@[deprecated (since := \"2025-12-12\")]\nalias filter_card_add_filter_neg_card_eq_card := card_filter_add_card_filter_not",
+        "docstring": "**Alias** of `Finset.card_filter_add_card_filter_not`."
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 58252,
+        "name": "Finset.sum_card_fiberwise_eq_card_filter",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L958-L960",
+        "source_text": "lemma sum_card_fiberwise_eq_card_filter {κ : Type*} [DecidableEq κ] (s : Finset ι) (t : Finset κ)\n    (g : ι → κ) : ∑ j ∈ t, #{i ∈ s | g i = j} = #{i ∈ s | g i ∈ t} := by\n  simpa only [card_eq_sum_ones] using sum_fiberwise_eq_sum_filter _ _ _ _\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_mul Finset.mul_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58315,
+        "name": "Finset.sum_eq_multiset_sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L350-L350",
+        "source_text": "@[to_additive]\ntheorem prod_eq_multiset_prod [CommMonoid M] (s : Finset ι) (f : ι → M) :\n    ∏ x ∈ s, f x = (s.1.map f).prod :=",
+        "docstring": null
+      },
+      {
+        "id": 59052,
+        "name": "Finset.mul_sum",
+        "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L59-L60",
+        "source_text": "lemma mul_sum (s : Finset ι) (f : ι → R) (a : R) :\n    a * ∑ i ∈ s, f i = ∑ i ∈ s, a * f i := map_sum (AddMonoidHom.mulLeft a) _ s\n",
+        "docstring": null
+      },
+      {
+        "id": 58827,
+        "name": "Multiset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Multiset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Multiset/Defs.lean#L40-L42",
+        "source_text": "@[to_additive\n      /-- Sum of a multiset given a commutative additive monoid structure on `M`.\n      `sum {a, b, c} = a + b + c` -/]\ndef prod : Multiset M → M :=",
+        "docstring": "Sum of a multiset given a commutative additive monoid structure on `M`.\n`sum {a, b, c} = a + b + c` "
+      },
+      {
+        "id": 58317,
+        "name": "Finset.sum_map_val",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L355-L355",
+        "source_text": "@[to_additive (attr := simp)]\nlemma prod_map_val [CommMonoid M] (s : Finset ι) (f : ι → M) : (s.1.map f).prod = ∏ a ∈ s, f a :=",
+        "docstring": null
+      },
+      {
+        "id": 59051,
+        "name": "Finset.sum_mul",
+        "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L56-L57",
+        "source_text": "lemma sum_mul (s : Finset ι) (f : ι → R) (a : R) :\n    (∑ i ∈ s, f i) * a = ∑ i ∈ s, f i * a := map_sum (AddMonoidHom.mulRight a) _ s\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ite_and",
+    "status": "ok",
+    "results": [
+      {
+        "id": 254596,
+        "name": "ite_and",
+        "module": "Mathlib.Logic.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Basic.lean#L986-L987",
+        "source_text": "theorem ite_and : ite (P ∧ Q) a b = ite P (ite Q a b) b := by\n  by_cases hp : P <;> by_cases hq : Q <;> simp [hp, hq]\n",
+        "docstring": null
+      },
+      {
+        "id": 91520,
+        "name": "ite_nonneg",
+        "module": "Mathlib.Algebra.Notation.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Lemmas.lean#L43-L43",
+        "source_text": "@[to_additive ite_nonneg]\nlemma one_le_ite [LE α] (ha : 1 ≤ a) (hb : 1 ≤ b) : 1 ≤ ite p a b := by split <;> assumption",
+        "docstring": null
+      },
+      {
+        "id": 254602,
+        "name": "ite_prop_iff_and",
+        "module": "Mathlib.Logic.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Basic.lean#L1014-L1015",
+        "source_text": "theorem ite_prop_iff_and : (if P then Q else R) ↔ ((P → Q) ∧ (¬P → R)) := by\n  by_cases p : P <;> simp [p]\n",
+        "docstring": null
+      },
+      {
+        "id": 91522,
+        "name": "ite_nonpos",
+        "module": "Mathlib.Algebra.Notation.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Lemmas.lean#L46-L46",
+        "source_text": "@[to_additive]\nlemma ite_le_one [LE α] (ha : a ≤ 1) (hb : b ≤ 1) : ite p a b ≤ 1 := by split <;> assumption",
+        "docstring": null
+      },
+      {
+        "id": 91526,
+        "name": "ite_neg",
+        "module": "Mathlib.Algebra.Notation.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Lemmas.lean#L52-L52",
+        "source_text": "@[to_additive]\nlemma ite_lt_one [LT α] (ha : a < 1) (hb : b < 1) : ite p a b < 1 := by split <;> assumption",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ite_and",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392026,
+        "name": "TensorSpecies.Tensor.permWrap",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L474-L478",
+        "source_text": "/-- Wraps `T` in the reindexing `permT ![lPerm] IsReindexing.auto`. -/\ndef permWrap (lPerm : List ℕ) (T : Term) : TermElabM Term := do\n  let permString := \"![\" ++ String.intercalate \", \" (lPerm.map toString) ++ \"]\"\n  let P ← stringToTerm permString\n  return Syntax.mkApp (mkIdent ``Tensor.permT) #[P, mkIdent ``IsReindexing.auto, T]\n",
+        "docstring": "Wraps `T` in the reindexing `permT ![lPerm] IsReindexing.auto`. "
+      },
+      {
+        "id": 392019,
+        "name": "TensorSpecies.Tensor.TensorExpressionOperator.eval",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L409-L421",
+        "source_text": "/-- The tensor expression operator which evaluates indices. -/\ndef TensorExpressionOperator.eval : TensorExpressionOperator := fun (ind, T) => do\n  -- First evaluate the indices which are numbers, e.g. `2` in `T | α β 2 β`.\n  let l ← getEvalPos ind\n  let T' := l.foldl (fun T' (x1, x2) => Syntax.mkApp (mkIdent ``Tensor.evalT)\n    #[Syntax.mkNumLit (toString x1), Syntax.mkNumLit (toString x2), T']) T\n  let ind' : List (TSyntax `indexExpr) := ind.filter (fun x => ¬ indexExprIsNum x)\n  -- Then evaluate the indices which are evaluated brackets, e.g. `[μ]` in `T | α β [μ] β`.\n  let lBracket ← getEvalBracketPos ind'\n  let T'' := lBracket.foldl (fun T' (x1, x2) => Syntax.mkApp (mkIdent ``Tensor.evalT)\n    #[Syntax.mkNumLit (toString x1), x2, T']) T'\n  let ind'' : List (TSyntax `indexExpr) := ind'.filter (fun x => ¬ indexExprIsBracketEval x)\n  return (ind'', T'')\n",
+        "docstring": "The tensor expression operator which evaluates indices. "
+      },
+      {
+        "id": 391985,
+        "name": "TensorSpecies.Tensor.«indexExprτ(_)»",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L82-L83",
+        "source_text": "/-- Notation to describe the jiggle of a tensor index. -/\nsyntax \"τ(\" ident \")\" : indexExpr\n",
+        "docstring": "Notation to describe the jiggle of a tensor index. "
+      },
+      {
+        "id": 391981,
+        "name": "Lean.Parser.Category.indexExpr",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L69-L70",
+        "source_text": "/-- A syntax category for indices of tensor expressions. -/\ndeclare_syntax_cat indexExpr\n",
+        "docstring": "A syntax category for indices of tensor expressions. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

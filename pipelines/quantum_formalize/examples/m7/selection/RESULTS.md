@@ -1,0 +1,7 @@
+# M7 finite all-optima selector accepted
+
+All twelve frozen targets passed the compiler, independent exact-type and axiom audit, complete assembly, and unchanged-environment check. Canonical evidence is experiment/ with 231 manifest entries. Every accepted proof came from the live gpt-6-astra medium harness; no local proof repair was used. Eleven targets passed their first draft. win_sound_complete passed its second draft after correcting the order of quantified hypotheses under a negated existential.
+
+The exact final select theorems use explicitly defined Pareto or lexicographic comparison of integer objective vectors. They prove feasible/undominated membership in both directions, empty winners iff empty feasibility, and a winning strictly better record for each feasible omitted record. The generic finite-relation assumptions are discharged by the concrete order laws. Empty objective lists keep every feasible tie. The finite extreme lemma and both actual order laws passed their first drafts.
+
+This closes original §8 finite selection after the parent supplies the actual generated records and certified labels. It does not replace structural coverage with an assumed transversal and does not claim full M7 integration by itself. Original §9 factorized least-preimage reconstruction is the next separate batch. Definitions, exact statements, model configuration, Mathlib/Physlib retrieval and all acceptance gates were frozen throughout the live experiment. No M5/M6 source was changed.

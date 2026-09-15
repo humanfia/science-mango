@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card\nintro U S T instU instS instT sector left right\nclassical\nunfold M7.Factorized.numerator M7.Factorized.records M7.Factorized.count\nsimp only [Finset.card_eq_sum_ones, Finset.sum_filter, Fintype.sum_prod_type]\napply Finset.sum_congr rfl\nintro u hu\nby_cases h : sector u <;>\n  simp [h, Finset.sum_mul, Finset.mul_sum, ite_and, mul_ite, ite_mul]",
+  "queries": [
+    "Finset.sum_filter Finset.card_eq_sum_ones",
+    "Finset.sum_mul Finset.mul_sum",
+    "ite_and"
+  ]
+}

@@ -1,0 +1,9 @@
+import FrozenTarget_8305718c904267c9
+theorem M7.Selection.nonwinner_strict_dominator : QuantumHarnessFrozenTarget := by
+  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → x ∉ M7.Selection.winners T feasible R → ∃ y ∈ M7.Selection.winners T feasible R, R y x
+  intro α T feasible R hir htr x hx hfx hnwin
+  obtain ⟨y, hy, hyx⟩ := M7.Selection.winning_dominator α T feasible R hir htr x hx hfx
+  rcases hyx with heq | hrel
+  · subst y
+    exact False.elim (hnwin hy)
+  · exact ⟨y, hy, hrel⟩

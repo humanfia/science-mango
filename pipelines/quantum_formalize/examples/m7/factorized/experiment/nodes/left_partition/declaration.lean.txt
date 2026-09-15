@@ -1,0 +1,11 @@
+theorem M7.Factorized.left_partition : ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), ∀ test : U → S → Bool, M7.Factorized.numerator sector left right = M7.Factorized.numerator sector (fun u s => left u s ∧ test u s = false) right + M7.Factorized.numerator sector (fun u s => left u s ∧ test u s = true) right := by
+  intro U S T instU instS instT sector left right test
+  classical
+  simp only [M7.Factorized.numerator_record_card]
+  unfold M7.Factorized.records
+  simp only [Finset.card_eq_sum_ones, Finset.sum_filter]
+  rw [← Finset.sum_add_distrib]
+  apply Finset.sum_congr rfl
+  intro p hp
+  rcases p with ⟨u, s, t⟩
+  cases h : test u s <;> simp [h]

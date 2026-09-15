@@ -1,0 +1,13 @@
+{
+  "name": "M7.Factorized.numerator_record_card",
+  "statement": "∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card",
+  "imports": [
+    "M7Factorized"
+  ],
+  "context": "theorem M7.Factorized.pair_count : ∀ (S T : Type) [Fintype S] [Fintype T] (left : S → Prop) (right : T → Prop), M7.Factorized.count (fun p : S × T => left p.1 ∧ right p.2) = M7.Factorized.count left * M7.Factorized.count right := by\n  intro S T instS instT left right\n  classical\n  unfold M7.Factorized.count\n  rw [← Finset.card_product]\n  apply congrArg Finset.card\n  apply Finset.ext\n  intro p\n  simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and]",
+  "queries": [
+    "Finset card product filter",
+    "Fintype sum_prod_type indicator finite cardinality"
+  ],
+  "guidance": "Split finite triple cardinality into sum over U and filtered pair cardinality. Equivalently rewrite card as sum of indicators, Fintype.sum_prod_type, and distribute separate sums. Sector indicator is counted once. No group action assumed. Return tactic lines only without leading by."
+}

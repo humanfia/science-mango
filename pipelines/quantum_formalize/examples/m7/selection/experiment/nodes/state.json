@@ -1,0 +1,1048 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T16:11:09.040498+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "empty_objectives": {
+      "id": "empty_objectives",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.empty_objectives",
+        "spec_sha256": "46fc7a7322ef84b63c0431a15ddc766ae4ca57a01a50d7dd5a82f147bc18fee2",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-opa_lb96/attempt-001/Candidate_6c0be4f77ec54565.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-opa_lb96/attempt-001/FrozenTarget_6c0be4f77ec54565.lean",
+            "feedback": "",
+            "target_sha256": "b5b3ab7c606ed49b024c8b57cb7fe752fd3f35522856e5e1d9e481714fc411ff",
+            "target_olean_sha256": "501bd4d954f61ae3c4789ef3facbaac085540a1f7efb8fd63e6752acfdf2defd",
+            "source_sha256": "b6ab42c8a5cb61221bd57580c4e1478c92c4ab2033b90a6c0af226ee3ad1c7fb",
+            "olean_sha256": "015a59e852411e64158579cb013b40e678f9266d9460c8b0557415f70b8781e4",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:00:17.475432+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-opa_lb96",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-opa_lb96/attempt-001/Candidate_6c0be4f77ec54565.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "empty_objectives": {
+            "payload": {
+              "declaration": "theorem M7.Selection.empty_objectives : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (objective : α → Fin 0 → ℤ) (mode : M7.Selection.Mode), M7.Selection.select T feasible objective mode = M7.Selection.feasibleSet T feasible := by\n  classical\n  intro α T feasible objective mode\n  have hempty (P : Fin 0 → Prop) : (∃ i, P i) ↔ False := by\n    constructor\n    · rintro ⟨i, _⟩\n      exact Fin.elim0 i\n    · exact False.elim\n  have hbetter (a b : Fin 0 → ℤ) : ¬ M7.Selection.better mode a b := by\n    cases mode <;>\n      simp [M7.Selection.better, M7.Selection.pareto, M7.Selection.lex, hempty]\n  apply Finset.ext\n  intro x\n  simp [M7.Selection.select, M7.Selection.winners, M7.Selection.win,\n    M7.Selection.feasibleSet, hbetter]",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.empty_objectives",
+              "ancestors": [],
+              "spec_sha256": "46fc7a7322ef84b63c0431a15ddc766ae4ca57a01a50d7dd5a82f147bc18fee2"
+            },
+            "sha256": "209fbd2e7ca9c82c45a662172bf80b52dc499960c3430c754bca4fc131945b0b"
+          }
+        }
+      }
+    },
+    "finite_extreme": {
+      "id": "finite_extreme",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.finite_extreme",
+        "spec_sha256": "24bc0da934ca3e9982b867a07cd734add123cbdf169b34632715ab9b30b645ee",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1nr9bg16/attempt-001/Candidate_1df2d87e24cc0c87.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1nr9bg16/attempt-001/FrozenTarget_1df2d87e24cc0c87.lean",
+            "feedback": "",
+            "target_sha256": "f8e61e78520add3fa5fb6a2983ba8a228e73646de7706aefb5e51101b0ba6e54",
+            "target_olean_sha256": "1a3821775315cf09d4541d60fc909f840957456c9009e53cf870ebb1ceb2e432",
+            "source_sha256": "9c514281e08f5d5cd62ea005eb1cb1bd37b227985a3c3905bdfd16d861e8ed3b",
+            "olean_sha256": "42d837b346114821b03d6f93544411e1dac9305c113cfb98ec979ab9aef3663c",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:00:17.482390+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1nr9bg16",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1nr9bg16/attempt-001/Candidate_1df2d87e24cc0c87.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "finite_extreme": {
+            "payload": {
+              "declaration": "theorem M7.Selection.finite_extreme : ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x) := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x)\n  intro α T R hir htr\n  induction T using Finset.induction_on with\n  | empty =>\n      intro x hx\n      simp at hx\n  | @insert a S ha ih =>\n      intro x hx\n      rcases Finset.mem_insert.mp hx with hxa | hxS\n      · subst x\n        by_cases hp : ∃ b ∈ S, R b a\n        · obtain ⟨b, hb, hba⟩ := hp\n          obtain ⟨y, hy, hmin, hyb⟩ := ih b hb\n          have hya : R y a := by\n            rcases hyb with heq | hyb\n            · subst y\n              exact hba\n            · exact htr y b a hyb hba\n          refine ⟨y, Finset.mem_insert_of_mem hy, ?_, Or.inr hya⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with hza | hzS\n          · subst z\n            exact hir a (htr a y a hzy hya)\n          · exact hmin z hzS hzy\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, Or.inl rfl⟩\n          intro z hz hza\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hir a hza\n          · exact hp ⟨z, hzS, hza⟩\n      · obtain ⟨y, hy, hmin, hyx⟩ := ih x hxS\n        by_cases hay : R a y\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, ?_⟩\n          · intro z hz hza\n            rcases Finset.mem_insert.mp hz with heq | hzS\n            · subst z\n              exact hir a hza\n            · exact hmin z hzS (htr z a y hza hay)\n          · right\n            rcases hyx with heq | hyx\n            · subst y\n              exact hay\n            · exact htr a y x hay hyx\n        · refine ⟨y, Finset.mem_insert_of_mem hy, ?_, hyx⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hay hzy\n          · exact hmin z hzS hzy",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.finite_extreme",
+              "ancestors": [],
+              "spec_sha256": "24bc0da934ca3e9982b867a07cd734add123cbdf169b34632715ab9b30b645ee"
+            },
+            "sha256": "e99283597d6a360c1d2c7b6f05adcbcb9592828f2e5b457458a03b7f34829063"
+          }
+        }
+      }
+    },
+    "lex_laws": {
+      "id": "lex_laws",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.lex_laws",
+        "spec_sha256": "022f972b60cf3950f4062794a139b3b01f31e801dd919f240fbe3e3e3f24f68f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-6fegncmb/attempt-001/Candidate_3a8b698dc606a6f2.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-6fegncmb/attempt-001/FrozenTarget_3a8b698dc606a6f2.lean",
+            "feedback": "",
+            "target_sha256": "c2938458018d38927b1b590cd6afd001d027df1214c3a5b36743ccb4b746432a",
+            "target_olean_sha256": "4ddd6bd24741161313ff3d78ead330903f5c221d7dea178eba8a44555a02144f",
+            "source_sha256": "00d118bffaa6a4b02fe8505b4977daf5d2c135dc30276b8b784250d610aaeb67",
+            "olean_sha256": "5c9f5eec2ede2ff5400b06cbd3f2214c149ccb7a1cae998acd508c16360be28a",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:00:17.488305+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-6fegncmb",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-6fegncmb/attempt-001/Candidate_3a8b698dc606a6f2.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "lex_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.lex_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.lex at h\n    rcases h with ⟨i, h₁, h₂⟩\n    first\n    | exact (lt_irrefl (a i)) h₁\n    | exact (lt_irrefl (a i)) h₂\n  · intro a b c hab hbc\n    unfold M7.Selection.lex at hab hbc ⊢\n    rcases hab with ⟨i, hi₁, hi₂⟩\n    rcases hbc with ⟨j, hj₁, hj₂⟩\n    have hi : a i < b i := by first | exact hi₁ | exact hi₂\n    have hj : b j < c j := by first | exact hj₁ | exact hj₂\n    have ei : ∀ k : Fin m, k < i → a k = b k := by\n      first | exact hi₁ | exact hi₂\n    have ej : ∀ k : Fin m, k < j → b k = c k := by\n      first | exact hj₁ | exact hj₂\n    rcases lt_trichotomy i j with hij | hij | hji\n    · have hl : a i < c i := by rw [← ej i hij]; exact hi\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k (lt_trans hk hij))\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · subst j\n      have hl : a i < c i := lt_trans hi hj\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k hk)\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · have hl : a j < c j := by rw [ei j hji]; exact hj\n      have he : ∀ k : Fin m, k < j → a k = c k := by\n        intro k hk\n        exact (ei k (lt_trans hk hji)).trans (ej k hk)\n      refine ⟨j, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.lex_laws",
+              "ancestors": [],
+              "spec_sha256": "022f972b60cf3950f4062794a139b3b01f31e801dd919f240fbe3e3e3f24f68f"
+            },
+            "sha256": "ca689c64bafe48f51643fd65595a3252a5cc13d132db2b722ec34d074b9d45e1"
+          }
+        }
+      }
+    },
+    "pareto_laws": {
+      "id": "pareto_laws",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.pareto_laws",
+        "spec_sha256": "a6eb8508843c65ec7762c5588c2a4da65ee81efbe2a253a7f6055ff6a6a88690",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1w373qeo/attempt-001/Candidate_1d37c9f55c85ad32.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1w373qeo/attempt-001/FrozenTarget_1d37c9f55c85ad32.lean",
+            "feedback": "",
+            "target_sha256": "cc79a6d36004a22b0cdca238cc544d12d9a151b4427ff04d40e94e05963d15fd",
+            "target_olean_sha256": "350b654e88e82697c7db263403113ce6a7613ac40e4e1495b2882ee4b36ef06c",
+            "source_sha256": "34ca2fe95318f10c747272cb382c0d03fd78841ef496636c6972fa4cd343db2a",
+            "olean_sha256": "9c66f3f908f156bf995b840882cc010ed6fa9d5cdc83a968b01ed88bec0dd799",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:00:17.494905+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1w373qeo",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-1w373qeo/attempt-001/Candidate_1d37c9f55c85ad32.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "pareto_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.pareto_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.pareto at h\n    rcases h with ⟨_, i, hi⟩\n    exact (lt_irrefl (a i)) hi\n  · intro a b c hab hbc\n    unfold M7.Selection.pareto at *\n    rcases hab with ⟨hab, i, hi⟩\n    rcases hbc with ⟨hbc, _⟩\n    constructor\n    · intro j\n      have h₁ := hab j\n      have h₂ := hbc j\n      omega\n    · refine ⟨i, ?_⟩\n      have h₂ := hbc i\n      omega",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.pareto_laws",
+              "ancestors": [],
+              "spec_sha256": "a6eb8508843c65ec7762c5588c2a4da65ee81efbe2a253a7f6055ff6a6a88690"
+            },
+            "sha256": "14db35f019330d0a2d5e806d416360927947e7b8cdda196f4e7deb6cf6e33a68"
+          }
+        }
+      }
+    },
+    "better_laws": {
+      "id": "better_laws",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.better_laws",
+        "spec_sha256": "8a97b7c2275ccb8d81ee921f3ecee4cc8cf9785493e4f4c2fec27bc7ebf4504b",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-w_xrmcct/attempt-001/Candidate_b240bb76a22cf62b.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-w_xrmcct/attempt-001/FrozenTarget_b240bb76a22cf62b.lean",
+            "feedback": "",
+            "target_sha256": "d352bead42a6b4d08d4864901c142c5481484a732f7d23b85f20e8aeffd762ec",
+            "target_olean_sha256": "79ab2d33f5c13ecca1b281d718e6a76dbf63fc9c8add975b70856ab334bb638a",
+            "source_sha256": "54d9a4c24e27b5c06c899a5997111f7c758f8ae7ec5759c4c90e44995f99388e",
+            "olean_sha256": "7693e379e0ab463146ad19be8809a1792c2dccf0e6890335c8bd063c0003bf6b",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:03:02.544219+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-w_xrmcct",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-w_xrmcct/attempt-001/Candidate_b240bb76a22cf62b.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "pareto_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.pareto_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.pareto at h\n    rcases h with ⟨_, i, hi⟩\n    exact (lt_irrefl (a i)) hi\n  · intro a b c hab hbc\n    unfold M7.Selection.pareto at *\n    rcases hab with ⟨hab, i, hi⟩\n    rcases hbc with ⟨hbc, _⟩\n    constructor\n    · intro j\n      have h₁ := hab j\n      have h₂ := hbc j\n      omega\n    · refine ⟨i, ?_⟩\n      have h₂ := hbc i\n      omega",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.pareto_laws",
+              "ancestors": [],
+              "spec_sha256": "a6eb8508843c65ec7762c5588c2a4da65ee81efbe2a253a7f6055ff6a6a88690"
+            },
+            "sha256": "14db35f019330d0a2d5e806d416360927947e7b8cdda196f4e7deb6cf6e33a68"
+          },
+          "lex_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.lex_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.lex at h\n    rcases h with ⟨i, h₁, h₂⟩\n    first\n    | exact (lt_irrefl (a i)) h₁\n    | exact (lt_irrefl (a i)) h₂\n  · intro a b c hab hbc\n    unfold M7.Selection.lex at hab hbc ⊢\n    rcases hab with ⟨i, hi₁, hi₂⟩\n    rcases hbc with ⟨j, hj₁, hj₂⟩\n    have hi : a i < b i := by first | exact hi₁ | exact hi₂\n    have hj : b j < c j := by first | exact hj₁ | exact hj₂\n    have ei : ∀ k : Fin m, k < i → a k = b k := by\n      first | exact hi₁ | exact hi₂\n    have ej : ∀ k : Fin m, k < j → b k = c k := by\n      first | exact hj₁ | exact hj₂\n    rcases lt_trichotomy i j with hij | hij | hji\n    · have hl : a i < c i := by rw [← ej i hij]; exact hi\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k (lt_trans hk hij))\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · subst j\n      have hl : a i < c i := lt_trans hi hj\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k hk)\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · have hl : a j < c j := by rw [ei j hji]; exact hj\n      have he : ∀ k : Fin m, k < j → a k = c k := by\n        intro k hk\n        exact (ei k (lt_trans hk hji)).trans (ej k hk)\n      refine ⟨j, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.lex_laws",
+              "ancestors": [],
+              "spec_sha256": "022f972b60cf3950f4062794a139b3b01f31e801dd919f240fbe3e3e3f24f68f"
+            },
+            "sha256": "ca689c64bafe48f51643fd65595a3252a5cc13d132db2b722ec34d074b9d45e1"
+          },
+          "better_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.better_laws : ∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c) := by\n  change ∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c)\n  intro m mode\n  cases mode <;> first\n  | exact M7.Selection.pareto_laws m\n  | exact M7.Selection.lex_laws m",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.better_laws",
+              "ancestors": [
+                "lex_laws",
+                "pareto_laws"
+              ],
+              "spec_sha256": "63d264f83d3daa42920b9c644ab961c09ee91044b31f74636346c560e87039cd"
+            },
+            "sha256": "eede12b0ae1a258158121b218685e11bf06e55d92a3ea84123cefc0230e76584"
+          }
+        }
+      }
+    },
+    "win_membership": {
+      "id": "win_membership",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.win_membership",
+        "spec_sha256": "406c117ae4e08209a0dfd2b45a5b3d496ed2066fabe174df86b8368ec29f6193",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-d5d82tb2/attempt-001/Candidate_a8470918b1c1f58f.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-d5d82tb2/attempt-001/FrozenTarget_a8470918b1c1f58f.lean",
+            "feedback": "",
+            "target_sha256": "5df663ec4d3dd9cea89515c2cbc8ed88d0fe0a18a3bdb95913cda56cb54632a2",
+            "target_olean_sha256": "e9cbf8429e424d6fe9aee86e18a5c4e07e79efc46072221552cec2ef2e721c58",
+            "source_sha256": "52ce02f319aa5a1ed000e38d56246f92481c88dc3a8ad3b9df2585065ca77f40",
+            "olean_sha256": "d0d509d3cc069806dbfb45d6b7c91b3f5fd4bc413d5d1e35a7b3064867359bcb",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:00:17.559296+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-d5d82tb2",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-d5d82tb2/attempt-001/Candidate_a8470918b1c1f58f.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "win_membership": {
+            "payload": {
+              "declaration": "theorem M7.Selection.win_membership : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x\n  intro α T feasible R x\n  classical\n  simp [M7.Selection.winners, M7.Selection.win, M7.Selection.feasibleSet, and_assoc, and_left_comm, and_comm]",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.win_membership",
+              "ancestors": [],
+              "spec_sha256": "406c117ae4e08209a0dfd2b45a5b3d496ed2066fabe174df86b8368ec29f6193"
+            },
+            "sha256": "7b28293dec9ae2309947c6f0ff987982afd2ab00593249728d867630037df7b0"
+          }
+        }
+      }
+    },
+    "win_sound_complete": {
+      "id": "win_sound_complete",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.win_sound_complete",
+        "spec_sha256": "3b29ac37168f7c3a7294e99a079fed9afab451297de444e5051de341ca2dde87",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-p_epnvtg/attempt-001/Candidate_89a4f3e856efdd6d.lean:2:72: error: unsolved goals\nα : Type\nT : Finset α\nfeasible : α → Prop\nR : α → α → Prop\nx : α\n⊢ feasible x → x ∈ T → ((∀ (x_1 : α), feasible x_1 → R x_1 x → x_1 ∉ T) ↔ ∀ y ∈ T, feasible y → ¬R y x)\n/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-p_epnvtg/attempt-001/Candidate_89a4f3e856efdd6d.lean:7:26: warning: This simp argument is unused:\n  M7.Selection.feasibleSet\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Selection.win, not_exists, and_assoc, and_left_comm, and_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-p_epnvtg/attempt-002/Candidate_b79cbf2eac4ce604.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-p_epnvtg/attempt-002/FrozenTarget_b79cbf2eac4ce604.lean",
+            "feedback": "",
+            "target_sha256": "5c6042c4ab6e189e8f9b2f3803f4cc9431b5bef398b87221ad262332fe2ecf6d",
+            "target_olean_sha256": "2b6aac04109f5086d0db212e262dc7f042bd4a41284022ddb5b6744f3543d431",
+            "source_sha256": "08537add4b21e65cdeea3746aa9033e2977c2ac4653642d9294e95b73ec4d2a5",
+            "olean_sha256": "86ba729f7b1c9e26a5a70a9774a28627a7c6dfa6670d279e6f2a78db299467ca",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T16:02:43.588165+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-p_epnvtg",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-p_epnvtg/attempt-002/Candidate_b79cbf2eac4ce604.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "win_membership": {
+            "payload": {
+              "declaration": "theorem M7.Selection.win_membership : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x\n  intro α T feasible R x\n  classical\n  simp [M7.Selection.winners, M7.Selection.win, M7.Selection.feasibleSet, and_assoc, and_left_comm, and_comm]",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.win_membership",
+              "ancestors": [],
+              "spec_sha256": "406c117ae4e08209a0dfd2b45a5b3d496ed2066fabe174df86b8368ec29f6193"
+            },
+            "sha256": "7b28293dec9ae2309947c6f0ff987982afd2ab00593249728d867630037df7b0"
+          },
+          "win_sound_complete": {
+            "payload": {
+              "declaration": "theorem M7.Selection.win_sound_complete : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ R y x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ R y x\n  intro α T feasible R x\n  classical\n  rw [M7.Selection.win_membership]\n  simp [M7.Selection.win, not_exists, and_assoc, and_left_comm, and_comm] <;> aesop",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.win_sound_complete",
+              "ancestors": [
+                "win_membership"
+              ],
+              "spec_sha256": "1ca994bfc4abaa3552c0c10d70b288889fc9141fd7d5234272ffc3a7973896ad"
+            },
+            "sha256": "444e1fe3efbd9a875fc79ad6a8c4c851cf414c10b72dd645a52f0fa26bf78d2a"
+          }
+        }
+      }
+    },
+    "winning_dominator": {
+      "id": "winning_dominator",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.winning_dominator",
+        "spec_sha256": "c15d9a35816015554ac22126c33cef7eb0cbcd40fd520cf5d024e5b63ca0bd20",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-mvqgs0yv/attempt-001/Candidate_009bde158de41a2e.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-mvqgs0yv/attempt-001/FrozenTarget_009bde158de41a2e.lean",
+            "feedback": "",
+            "target_sha256": "1dc9b62756f7caa8e9fa54eaf086be3bbd324e067ba0632eaa26e80bbd03e09a",
+            "target_olean_sha256": "42a870b109b855a9da0bdf768f9a086a1c22e8e95a1e50322c2e22d6a4801694",
+            "source_sha256": "a6f2252cc2ce2d0ba9c52c39011332094060822040cb712a0fbc0c92f122fcce",
+            "olean_sha256": "67c58e95dedc6ec839a02c83e699f9907a06fbbe9993af66d0800c4cd0d1d7e7",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:03:03.954653+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-mvqgs0yv",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-mvqgs0yv/attempt-001/Candidate_009bde158de41a2e.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "finite_extreme": {
+            "payload": {
+              "declaration": "theorem M7.Selection.finite_extreme : ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x) := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x)\n  intro α T R hir htr\n  induction T using Finset.induction_on with\n  | empty =>\n      intro x hx\n      simp at hx\n  | @insert a S ha ih =>\n      intro x hx\n      rcases Finset.mem_insert.mp hx with hxa | hxS\n      · subst x\n        by_cases hp : ∃ b ∈ S, R b a\n        · obtain ⟨b, hb, hba⟩ := hp\n          obtain ⟨y, hy, hmin, hyb⟩ := ih b hb\n          have hya : R y a := by\n            rcases hyb with heq | hyb\n            · subst y\n              exact hba\n            · exact htr y b a hyb hba\n          refine ⟨y, Finset.mem_insert_of_mem hy, ?_, Or.inr hya⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with hza | hzS\n          · subst z\n            exact hir a (htr a y a hzy hya)\n          · exact hmin z hzS hzy\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, Or.inl rfl⟩\n          intro z hz hza\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hir a hza\n          · exact hp ⟨z, hzS, hza⟩\n      · obtain ⟨y, hy, hmin, hyx⟩ := ih x hxS\n        by_cases hay : R a y\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, ?_⟩\n          · intro z hz hza\n            rcases Finset.mem_insert.mp hz with heq | hzS\n            · subst z\n              exact hir a hza\n            · exact hmin z hzS (htr z a y hza hay)\n          · right\n            rcases hyx with heq | hyx\n            · subst y\n              exact hay\n            · exact htr a y x hay hyx\n        · refine ⟨y, Finset.mem_insert_of_mem hy, ?_, hyx⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hay hzy\n          · exact hmin z hzS hzy",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.finite_extreme",
+              "ancestors": [],
+              "spec_sha256": "24bc0da934ca3e9982b867a07cd734add123cbdf169b34632715ab9b30b645ee"
+            },
+            "sha256": "e99283597d6a360c1d2c7b6f05adcbcb9592828f2e5b457458a03b7f34829063"
+          },
+          "win_membership": {
+            "payload": {
+              "declaration": "theorem M7.Selection.win_membership : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x\n  intro α T feasible R x\n  classical\n  simp [M7.Selection.winners, M7.Selection.win, M7.Selection.feasibleSet, and_assoc, and_left_comm, and_comm]",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.win_membership",
+              "ancestors": [],
+              "spec_sha256": "406c117ae4e08209a0dfd2b45a5b3d496ed2066fabe174df86b8368ec29f6193"
+            },
+            "sha256": "7b28293dec9ae2309947c6f0ff987982afd2ab00593249728d867630037df7b0"
+          },
+          "winning_dominator": {
+            "payload": {
+              "declaration": "theorem M7.Selection.winning_dominator : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x\n  intro α T feasible R hir htr x hx hfx\n  have hxF : x ∈ M7.Selection.feasibleSet T feasible := by\n    simpa [M7.Selection.feasibleSet] using And.intro hx hfx\n  obtain ⟨y, hy, hmin, hyx⟩ := M7.Selection.finite_extreme α (M7.Selection.feasibleSet T feasible) R hir htr x hxF\n  refine ⟨y, ?_, hyx⟩\n  apply (M7.Selection.win_membership α T feasible R y).mpr\n  simp only [M7.Selection.feasibleSet, Finset.mem_filter] at hy hmin\n  simp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter]\n  aesop",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.winning_dominator",
+              "ancestors": [
+                "finite_extreme",
+                "win_membership"
+              ],
+              "spec_sha256": "214e575f39db1e905b7e525eab1c19991710bb9def560277047fb84a333c4c38"
+            },
+            "sha256": "78b54a4517e5ee91bb5fac346d3d35d43e9cc28e08b346f1259c08a4507a4f97"
+          }
+        }
+      }
+    },
+    "empty_iff": {
+      "id": "empty_iff",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.empty_iff",
+        "spec_sha256": "a0525e759292d51da6deed501b194352e4a01a36c7c63a5184a9a571967c2b39",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-_y9su3da/attempt-001/Candidate_960891a9ab62d4b4.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-_y9su3da/attempt-001/FrozenTarget_960891a9ab62d4b4.lean",
+            "feedback": "",
+            "target_sha256": "7e8c0252129f54fc2444685e7ab92c2e03feeed47b9dec4c76ed83729b93bf88",
+            "target_olean_sha256": "8fe866541d90ee64785769884d4a0a26d9a602a74d7f14d91348a0097b4e45db",
+            "source_sha256": "794ef811eb5990d6950c35f49ed518086f061633dba26d28b7b5bb45fcc0b823",
+            "olean_sha256": "283aa7fb92a296ee2c9804bf60db3daef24084885e172545600be36e630b0bc9",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:05:49.700392+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-_y9su3da",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-_y9su3da/attempt-001/Candidate_960891a9ab62d4b4.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "finite_extreme": {
+            "payload": {
+              "declaration": "theorem M7.Selection.finite_extreme : ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x) := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x)\n  intro α T R hir htr\n  induction T using Finset.induction_on with\n  | empty =>\n      intro x hx\n      simp at hx\n  | @insert a S ha ih =>\n      intro x hx\n      rcases Finset.mem_insert.mp hx with hxa | hxS\n      · subst x\n        by_cases hp : ∃ b ∈ S, R b a\n        · obtain ⟨b, hb, hba⟩ := hp\n          obtain ⟨y, hy, hmin, hyb⟩ := ih b hb\n          have hya : R y a := by\n            rcases hyb with heq | hyb\n            · subst y\n              exact hba\n            · exact htr y b a hyb hba\n          refine ⟨y, Finset.mem_insert_of_mem hy, ?_, Or.inr hya⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with hza | hzS\n          · subst z\n            exact hir a (htr a y a hzy hya)\n          · exact hmin z hzS hzy\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, Or.inl rfl⟩\n          intro z hz hza\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hir a hza\n          · exact hp ⟨z, hzS, hza⟩\n      · obtain ⟨y, hy, hmin, hyx⟩ := ih x hxS\n        by_cases hay : R a y\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, ?_⟩\n          · intro z hz hza\n            rcases Finset.mem_insert.mp hz with heq | hzS\n            · subst z\n              exact hir a hza\n            · exact hmin z hzS (htr z a y hza hay)\n          · right\n            rcases hyx with heq | hyx\n            · subst y\n              exact hay\n            · exact htr a y x hay hyx\n        · refine ⟨y, Finset.mem_insert_of_mem hy, ?_, hyx⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hay hzy\n          · exact hmin z hzS hzy",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.finite_extreme",
+              "ancestors": [],
+              "spec_sha256": "24bc0da934ca3e9982b867a07cd734add123cbdf169b34632715ab9b30b645ee"
+            },
+            "sha256": "e99283597d6a360c1d2c7b6f05adcbcb9592828f2e5b457458a03b7f34829063"
+          },
+          "win_membership": {
+            "payload": {
+              "declaration": "theorem M7.Selection.win_membership : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x\n  intro α T feasible R x\n  classical\n  simp [M7.Selection.winners, M7.Selection.win, M7.Selection.feasibleSet, and_assoc, and_left_comm, and_comm]",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.win_membership",
+              "ancestors": [],
+              "spec_sha256": "406c117ae4e08209a0dfd2b45a5b3d496ed2066fabe174df86b8368ec29f6193"
+            },
+            "sha256": "7b28293dec9ae2309947c6f0ff987982afd2ab00593249728d867630037df7b0"
+          },
+          "winning_dominator": {
+            "payload": {
+              "declaration": "theorem M7.Selection.winning_dominator : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x\n  intro α T feasible R hir htr x hx hfx\n  have hxF : x ∈ M7.Selection.feasibleSet T feasible := by\n    simpa [M7.Selection.feasibleSet] using And.intro hx hfx\n  obtain ⟨y, hy, hmin, hyx⟩ := M7.Selection.finite_extreme α (M7.Selection.feasibleSet T feasible) R hir htr x hxF\n  refine ⟨y, ?_, hyx⟩\n  apply (M7.Selection.win_membership α T feasible R y).mpr\n  simp only [M7.Selection.feasibleSet, Finset.mem_filter] at hy hmin\n  simp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter]\n  aesop",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.winning_dominator",
+              "ancestors": [
+                "finite_extreme",
+                "win_membership"
+              ],
+              "spec_sha256": "214e575f39db1e905b7e525eab1c19991710bb9def560277047fb84a333c4c38"
+            },
+            "sha256": "78b54a4517e5ee91bb5fac346d3d35d43e9cc28e08b346f1259c08a4507a4f97"
+          },
+          "empty_iff": {
+            "payload": {
+              "declaration": "theorem M7.Selection.empty_iff : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → (M7.Selection.winners T feasible R = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅) := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → (M7.Selection.winners T feasible R = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅)\n  intro α T feasible R hir htr\n  constructor\n  · intro h\n    apply Finset.eq_empty_of_forall_notMem\n    intro x hx\n    have hx' : x ∈ T ∧ feasible x := by\n      simpa [M7.Selection.feasibleSet] using hx\n    obtain ⟨y, hy, _⟩ := M7.Selection.winning_dominator α T feasible R hir htr x hx'.1 hx'.2\n    simpa [h] using hy\n  · intro h\n    apply Finset.eq_empty_of_forall_notMem\n    intro x hx\n    have hw := (M7.Selection.win_membership α T feasible R x).mp hx\n    have hxF : x ∈ M7.Selection.feasibleSet T feasible := by\n      simp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter] at hw ⊢\n      aesop\n    simpa [h] using hxF",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.empty_iff",
+              "ancestors": [
+                "finite_extreme",
+                "win_membership",
+                "winning_dominator"
+              ],
+              "spec_sha256": "928f60c1afdd1ea1a3d07db344d1112214e336da92255f1196ff4d3b0ddd9f76"
+            },
+            "sha256": "b849b91ea7ba1e5dc8e075a203d55a6558992ebd80b460293b8a3a94927d81cd"
+          }
+        }
+      }
+    },
+    "nonwinner_strict_dominator": {
+      "id": "nonwinner_strict_dominator",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.nonwinner_strict_dominator",
+        "spec_sha256": "09bf8d6c08e2fabde0e16b4c009326d1f1378d46bd34c5bc9604572f6a950aa6",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-esghe3e5/attempt-001/Candidate_8305718c904267c9.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-esghe3e5/attempt-001/FrozenTarget_8305718c904267c9.lean",
+            "feedback": "",
+            "target_sha256": "f15a63fdd936f4655a79251227fcdf9057946b27d779d19c7759ea5cdd519e14",
+            "target_olean_sha256": "bedd7f417d4965028325438b6be4507a534ff607d266b8d18f2d156e4b31aa5b",
+            "source_sha256": "7d82641e099c01c349155397749c419041e55fcb55d9ee1b12ff9c9862d0e4ce",
+            "olean_sha256": "685af54a1169d7cd9f16814705e57aabc0d8361d7fceea49030bc66f97826dd1",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:05:49.711273+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-esghe3e5",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-esghe3e5/attempt-001/Candidate_8305718c904267c9.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "finite_extreme": {
+            "payload": {
+              "declaration": "theorem M7.Selection.finite_extreme : ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x) := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x)\n  intro α T R hir htr\n  induction T using Finset.induction_on with\n  | empty =>\n      intro x hx\n      simp at hx\n  | @insert a S ha ih =>\n      intro x hx\n      rcases Finset.mem_insert.mp hx with hxa | hxS\n      · subst x\n        by_cases hp : ∃ b ∈ S, R b a\n        · obtain ⟨b, hb, hba⟩ := hp\n          obtain ⟨y, hy, hmin, hyb⟩ := ih b hb\n          have hya : R y a := by\n            rcases hyb with heq | hyb\n            · subst y\n              exact hba\n            · exact htr y b a hyb hba\n          refine ⟨y, Finset.mem_insert_of_mem hy, ?_, Or.inr hya⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with hza | hzS\n          · subst z\n            exact hir a (htr a y a hzy hya)\n          · exact hmin z hzS hzy\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, Or.inl rfl⟩\n          intro z hz hza\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hir a hza\n          · exact hp ⟨z, hzS, hza⟩\n      · obtain ⟨y, hy, hmin, hyx⟩ := ih x hxS\n        by_cases hay : R a y\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, ?_⟩\n          · intro z hz hza\n            rcases Finset.mem_insert.mp hz with heq | hzS\n            · subst z\n              exact hir a hza\n            · exact hmin z hzS (htr z a y hza hay)\n          · right\n            rcases hyx with heq | hyx\n            · subst y\n              exact hay\n            · exact htr a y x hay hyx\n        · refine ⟨y, Finset.mem_insert_of_mem hy, ?_, hyx⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hay hzy\n          · exact hmin z hzS hzy",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.finite_extreme",
+              "ancestors": [],
+              "spec_sha256": "24bc0da934ca3e9982b867a07cd734add123cbdf169b34632715ab9b30b645ee"
+            },
+            "sha256": "e99283597d6a360c1d2c7b6f05adcbcb9592828f2e5b457458a03b7f34829063"
+          },
+          "win_membership": {
+            "payload": {
+              "declaration": "theorem M7.Selection.win_membership : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x\n  intro α T feasible R x\n  classical\n  simp [M7.Selection.winners, M7.Selection.win, M7.Selection.feasibleSet, and_assoc, and_left_comm, and_comm]",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.win_membership",
+              "ancestors": [],
+              "spec_sha256": "406c117ae4e08209a0dfd2b45a5b3d496ed2066fabe174df86b8368ec29f6193"
+            },
+            "sha256": "7b28293dec9ae2309947c6f0ff987982afd2ab00593249728d867630037df7b0"
+          },
+          "winning_dominator": {
+            "payload": {
+              "declaration": "theorem M7.Selection.winning_dominator : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x\n  intro α T feasible R hir htr x hx hfx\n  have hxF : x ∈ M7.Selection.feasibleSet T feasible := by\n    simpa [M7.Selection.feasibleSet] using And.intro hx hfx\n  obtain ⟨y, hy, hmin, hyx⟩ := M7.Selection.finite_extreme α (M7.Selection.feasibleSet T feasible) R hir htr x hxF\n  refine ⟨y, ?_, hyx⟩\n  apply (M7.Selection.win_membership α T feasible R y).mpr\n  simp only [M7.Selection.feasibleSet, Finset.mem_filter] at hy hmin\n  simp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter]\n  aesop",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.winning_dominator",
+              "ancestors": [
+                "finite_extreme",
+                "win_membership"
+              ],
+              "spec_sha256": "214e575f39db1e905b7e525eab1c19991710bb9def560277047fb84a333c4c38"
+            },
+            "sha256": "78b54a4517e5ee91bb5fac346d3d35d43e9cc28e08b346f1259c08a4507a4f97"
+          },
+          "nonwinner_strict_dominator": {
+            "payload": {
+              "declaration": "theorem M7.Selection.nonwinner_strict_dominator : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → x ∉ M7.Selection.winners T feasible R → ∃ y ∈ M7.Selection.winners T feasible R, R y x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → x ∉ M7.Selection.winners T feasible R → ∃ y ∈ M7.Selection.winners T feasible R, R y x\n  intro α T feasible R hir htr x hx hfx hnwin\n  obtain ⟨y, hy, hyx⟩ := M7.Selection.winning_dominator α T feasible R hir htr x hx hfx\n  rcases hyx with heq | hrel\n  · subst y\n    exact False.elim (hnwin hy)\n  · exact ⟨y, hy, hrel⟩",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.nonwinner_strict_dominator",
+              "ancestors": [
+                "finite_extreme",
+                "win_membership",
+                "winning_dominator"
+              ],
+              "spec_sha256": "010c9fcca7fa03a000d3e8121711a276efdc0f358bf8671d0227ee16ea9e8997"
+            },
+            "sha256": "7c7fb7f972bb884ef0126f6449b02ce60e1b13a77445c0c0b4b11bae3d287859"
+          }
+        }
+      }
+    },
+    "selector_exact": {
+      "id": "selector_exact",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.selector_exact",
+        "spec_sha256": "25d606c5e4e5a6952f5fe7918f58ae313f72712fe9bcfacc9eda06c0abf87bcb",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-nu3pcgtr/attempt-001/Candidate_5d5e4622d9ce19b6.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-nu3pcgtr/attempt-001/FrozenTarget_5d5e4622d9ce19b6.lean",
+            "feedback": "",
+            "target_sha256": "d6d563aa244c4052498ea38e604d2f5797c37f6df50b24a18915ee45258591ef",
+            "target_olean_sha256": "226d73c1f64d3e8c8013bb0a1e5d7a2cf978f32640a10750b044c346f27e8d4e",
+            "source_sha256": "c327cebfce734acfe671910dda2e70a5210805b54d43c0f62d406f9e09957707",
+            "olean_sha256": "4231e099bf7e0f9154e31812fcd0df005392bf8f8bf1877d1e98f702b9309a38",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:08:21.060753+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-nu3pcgtr",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-nu3pcgtr/attempt-001/Candidate_5d5e4622d9ce19b6.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "win_membership": {
+            "payload": {
+              "declaration": "theorem M7.Selection.win_membership : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x\n  intro α T feasible R x\n  classical\n  simp [M7.Selection.winners, M7.Selection.win, M7.Selection.feasibleSet, and_assoc, and_left_comm, and_comm]",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.win_membership",
+              "ancestors": [],
+              "spec_sha256": "406c117ae4e08209a0dfd2b45a5b3d496ed2066fabe174df86b8368ec29f6193"
+            },
+            "sha256": "7b28293dec9ae2309947c6f0ff987982afd2ab00593249728d867630037df7b0"
+          },
+          "win_sound_complete": {
+            "payload": {
+              "declaration": "theorem M7.Selection.win_sound_complete : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ R y x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ R y x\n  intro α T feasible R x\n  classical\n  rw [M7.Selection.win_membership]\n  simp [M7.Selection.win, not_exists, and_assoc, and_left_comm, and_comm] <;> aesop",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.win_sound_complete",
+              "ancestors": [
+                "win_membership"
+              ],
+              "spec_sha256": "1ca994bfc4abaa3552c0c10d70b288889fc9141fd7d5234272ffc3a7973896ad"
+            },
+            "sha256": "444e1fe3efbd9a875fc79ad6a8c4c851cf414c10b72dd645a52f0fa26bf78d2a"
+          },
+          "finite_extreme": {
+            "payload": {
+              "declaration": "theorem M7.Selection.finite_extreme : ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x) := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x)\n  intro α T R hir htr\n  induction T using Finset.induction_on with\n  | empty =>\n      intro x hx\n      simp at hx\n  | @insert a S ha ih =>\n      intro x hx\n      rcases Finset.mem_insert.mp hx with hxa | hxS\n      · subst x\n        by_cases hp : ∃ b ∈ S, R b a\n        · obtain ⟨b, hb, hba⟩ := hp\n          obtain ⟨y, hy, hmin, hyb⟩ := ih b hb\n          have hya : R y a := by\n            rcases hyb with heq | hyb\n            · subst y\n              exact hba\n            · exact htr y b a hyb hba\n          refine ⟨y, Finset.mem_insert_of_mem hy, ?_, Or.inr hya⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with hza | hzS\n          · subst z\n            exact hir a (htr a y a hzy hya)\n          · exact hmin z hzS hzy\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, Or.inl rfl⟩\n          intro z hz hza\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hir a hza\n          · exact hp ⟨z, hzS, hza⟩\n      · obtain ⟨y, hy, hmin, hyx⟩ := ih x hxS\n        by_cases hay : R a y\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, ?_⟩\n          · intro z hz hza\n            rcases Finset.mem_insert.mp hz with heq | hzS\n            · subst z\n              exact hir a hza\n            · exact hmin z hzS (htr z a y hza hay)\n          · right\n            rcases hyx with heq | hyx\n            · subst y\n              exact hay\n            · exact htr a y x hay hyx\n        · refine ⟨y, Finset.mem_insert_of_mem hy, ?_, hyx⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hay hzy\n          · exact hmin z hzS hzy",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.finite_extreme",
+              "ancestors": [],
+              "spec_sha256": "24bc0da934ca3e9982b867a07cd734add123cbdf169b34632715ab9b30b645ee"
+            },
+            "sha256": "e99283597d6a360c1d2c7b6f05adcbcb9592828f2e5b457458a03b7f34829063"
+          },
+          "winning_dominator": {
+            "payload": {
+              "declaration": "theorem M7.Selection.winning_dominator : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x\n  intro α T feasible R hir htr x hx hfx\n  have hxF : x ∈ M7.Selection.feasibleSet T feasible := by\n    simpa [M7.Selection.feasibleSet] using And.intro hx hfx\n  obtain ⟨y, hy, hmin, hyx⟩ := M7.Selection.finite_extreme α (M7.Selection.feasibleSet T feasible) R hir htr x hxF\n  refine ⟨y, ?_, hyx⟩\n  apply (M7.Selection.win_membership α T feasible R y).mpr\n  simp only [M7.Selection.feasibleSet, Finset.mem_filter] at hy hmin\n  simp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter]\n  aesop",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.winning_dominator",
+              "ancestors": [
+                "finite_extreme",
+                "win_membership"
+              ],
+              "spec_sha256": "214e575f39db1e905b7e525eab1c19991710bb9def560277047fb84a333c4c38"
+            },
+            "sha256": "78b54a4517e5ee91bb5fac346d3d35d43e9cc28e08b346f1259c08a4507a4f97"
+          },
+          "empty_iff": {
+            "payload": {
+              "declaration": "theorem M7.Selection.empty_iff : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → (M7.Selection.winners T feasible R = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅) := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → (M7.Selection.winners T feasible R = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅)\n  intro α T feasible R hir htr\n  constructor\n  · intro h\n    apply Finset.eq_empty_of_forall_notMem\n    intro x hx\n    have hx' : x ∈ T ∧ feasible x := by\n      simpa [M7.Selection.feasibleSet] using hx\n    obtain ⟨y, hy, _⟩ := M7.Selection.winning_dominator α T feasible R hir htr x hx'.1 hx'.2\n    simpa [h] using hy\n  · intro h\n    apply Finset.eq_empty_of_forall_notMem\n    intro x hx\n    have hw := (M7.Selection.win_membership α T feasible R x).mp hx\n    have hxF : x ∈ M7.Selection.feasibleSet T feasible := by\n      simp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter] at hw ⊢\n      aesop\n    simpa [h] using hxF",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.empty_iff",
+              "ancestors": [
+                "finite_extreme",
+                "win_membership",
+                "winning_dominator"
+              ],
+              "spec_sha256": "928f60c1afdd1ea1a3d07db344d1112214e336da92255f1196ff4d3b0ddd9f76"
+            },
+            "sha256": "b849b91ea7ba1e5dc8e075a203d55a6558992ebd80b460293b8a3a94927d81cd"
+          },
+          "pareto_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.pareto_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.pareto at h\n    rcases h with ⟨_, i, hi⟩\n    exact (lt_irrefl (a i)) hi\n  · intro a b c hab hbc\n    unfold M7.Selection.pareto at *\n    rcases hab with ⟨hab, i, hi⟩\n    rcases hbc with ⟨hbc, _⟩\n    constructor\n    · intro j\n      have h₁ := hab j\n      have h₂ := hbc j\n      omega\n    · refine ⟨i, ?_⟩\n      have h₂ := hbc i\n      omega",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.pareto_laws",
+              "ancestors": [],
+              "spec_sha256": "a6eb8508843c65ec7762c5588c2a4da65ee81efbe2a253a7f6055ff6a6a88690"
+            },
+            "sha256": "14db35f019330d0a2d5e806d416360927947e7b8cdda196f4e7deb6cf6e33a68"
+          },
+          "lex_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.lex_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.lex at h\n    rcases h with ⟨i, h₁, h₂⟩\n    first\n    | exact (lt_irrefl (a i)) h₁\n    | exact (lt_irrefl (a i)) h₂\n  · intro a b c hab hbc\n    unfold M7.Selection.lex at hab hbc ⊢\n    rcases hab with ⟨i, hi₁, hi₂⟩\n    rcases hbc with ⟨j, hj₁, hj₂⟩\n    have hi : a i < b i := by first | exact hi₁ | exact hi₂\n    have hj : b j < c j := by first | exact hj₁ | exact hj₂\n    have ei : ∀ k : Fin m, k < i → a k = b k := by\n      first | exact hi₁ | exact hi₂\n    have ej : ∀ k : Fin m, k < j → b k = c k := by\n      first | exact hj₁ | exact hj₂\n    rcases lt_trichotomy i j with hij | hij | hji\n    · have hl : a i < c i := by rw [← ej i hij]; exact hi\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k (lt_trans hk hij))\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · subst j\n      have hl : a i < c i := lt_trans hi hj\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k hk)\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · have hl : a j < c j := by rw [ei j hji]; exact hj\n      have he : ∀ k : Fin m, k < j → a k = c k := by\n        intro k hk\n        exact (ei k (lt_trans hk hji)).trans (ej k hk)\n      refine ⟨j, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.lex_laws",
+              "ancestors": [],
+              "spec_sha256": "022f972b60cf3950f4062794a139b3b01f31e801dd919f240fbe3e3e3f24f68f"
+            },
+            "sha256": "ca689c64bafe48f51643fd65595a3252a5cc13d132db2b722ec34d074b9d45e1"
+          },
+          "better_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.better_laws : ∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c) := by\n  change ∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c)\n  intro m mode\n  cases mode <;> first\n  | exact M7.Selection.pareto_laws m\n  | exact M7.Selection.lex_laws m",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.better_laws",
+              "ancestors": [
+                "lex_laws",
+                "pareto_laws"
+              ],
+              "spec_sha256": "63d264f83d3daa42920b9c644ab961c09ee91044b31f74636346c560e87039cd"
+            },
+            "sha256": "eede12b0ae1a258158121b218685e11bf06e55d92a3ea84123cefc0230e76584"
+          },
+          "selector_exact": {
+            "payload": {
+              "declaration": "theorem M7.Selection.selector_exact : ∀ (α : Type) (m : ℕ) (T : Finset α) (feasible : α → Prop) (objective : α → Fin m → ℤ) (mode : M7.Selection.Mode), (∀ x, x ∈ M7.Selection.select T feasible objective mode ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ M7.Selection.better mode (objective y) (objective x)) ∧ (M7.Selection.select T feasible objective mode = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅) := by\n  classical\n  change ∀ (α : Type) (m : ℕ) (T : Finset α) (feasible : α → Prop) (objective : α → Fin m → ℤ) (mode : M7.Selection.Mode), (∀ x, x ∈ M7.Selection.select T feasible objective mode ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ M7.Selection.better mode (objective y) (objective x)) ∧ (M7.Selection.select T feasible objective mode = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅)\n  intro α m T feasible objective mode\n  obtain ⟨hir, htr⟩ := M7.Selection.better_laws m mode\n  constructor\n  · intro x\n    simpa only [M7.Selection.select] using\n      M7.Selection.win_sound_complete α T feasible\n        (fun x y => M7.Selection.better mode (objective x) (objective y)) x\n  · simpa only [M7.Selection.select] using\n      M7.Selection.empty_iff α T feasible\n        (fun x y => M7.Selection.better mode (objective x) (objective y))\n        (fun x => hir (objective x))\n        (fun x y z => htr (objective x) (objective y) (objective z))",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.selector_exact",
+              "ancestors": [
+                "better_laws",
+                "empty_iff",
+                "finite_extreme",
+                "lex_laws",
+                "pareto_laws",
+                "win_membership",
+                "win_sound_complete",
+                "winning_dominator"
+              ],
+              "spec_sha256": "b278366ac5994c73144e016fc0e76e68fbfc35803f87633e04f3ec13661dd58a"
+            },
+            "sha256": "4059268478aaba1e89770a8e9080fd886618bde271c46576c36b7d818d0f2519"
+          }
+        }
+      }
+    },
+    "selector_strict_dominator": {
+      "id": "selector_strict_dominator",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.Selection.selector_strict_dominator",
+        "spec_sha256": "f1df21d9acb8d06948acd25ee24edc94945e4871bcbcb44e4e2eb1335986cc3e",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-4mdd2mrz/attempt-001/Candidate_2824cb6cf990b1ab.lean",
+            "target_path": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-4mdd2mrz/attempt-001/FrozenTarget_2824cb6cf990b1ab.lean",
+            "feedback": "",
+            "target_sha256": "d2b79ab0297b0ece2e461f93d818b85861488fade995165fb97599b7c1f606f8",
+            "target_olean_sha256": "449b0026d5ce9d8525a7e3b2613ddf0039bf4233d65611501af71ffc8e8d357a",
+            "source_sha256": "639b1e24e75326c311b0ccdff9f1eeb83fbb582a23b378b24b320e8ede935b9f",
+            "olean_sha256": "bc2028cc6fc9efc9449e254f9fb107020a6ae6443390236e86a0f8aa45052998",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T16:08:19.666564+00:00",
+        "work": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-4mdd2mrz",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "11424644d54c35daa702c7a32f8afc7b3560f682e33d6b03a1316b4914eea7ce",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-selection-formalization/.humanize-formal-runs/run-4mdd2mrz/attempt-001/Candidate_2824cb6cf990b1ab.lean",
+        "environment_sha256": "6c4fcc5ec814b25a6140d7bb8ef102ab82c9ab1a566288ff96fd8385f756a749",
+        "artifacts": {
+          "finite_extreme": {
+            "payload": {
+              "declaration": "theorem M7.Selection.finite_extreme : ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x) := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x)\n  intro α T R hir htr\n  induction T using Finset.induction_on with\n  | empty =>\n      intro x hx\n      simp at hx\n  | @insert a S ha ih =>\n      intro x hx\n      rcases Finset.mem_insert.mp hx with hxa | hxS\n      · subst x\n        by_cases hp : ∃ b ∈ S, R b a\n        · obtain ⟨b, hb, hba⟩ := hp\n          obtain ⟨y, hy, hmin, hyb⟩ := ih b hb\n          have hya : R y a := by\n            rcases hyb with heq | hyb\n            · subst y\n              exact hba\n            · exact htr y b a hyb hba\n          refine ⟨y, Finset.mem_insert_of_mem hy, ?_, Or.inr hya⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with hza | hzS\n          · subst z\n            exact hir a (htr a y a hzy hya)\n          · exact hmin z hzS hzy\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, Or.inl rfl⟩\n          intro z hz hza\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hir a hza\n          · exact hp ⟨z, hzS, hza⟩\n      · obtain ⟨y, hy, hmin, hyx⟩ := ih x hxS\n        by_cases hay : R a y\n        · refine ⟨a, Finset.mem_insert_self a S, ?_, ?_⟩\n          · intro z hz hza\n            rcases Finset.mem_insert.mp hz with heq | hzS\n            · subst z\n              exact hir a hza\n            · exact hmin z hzS (htr z a y hza hay)\n          · right\n            rcases hyx with heq | hyx\n            · subst y\n              exact hay\n            · exact htr a y x hay hyx\n        · refine ⟨y, Finset.mem_insert_of_mem hy, ?_, hyx⟩\n          intro z hz hzy\n          rcases Finset.mem_insert.mp hz with heq | hzS\n          · subst z\n            exact hay hzy\n          · exact hmin z hzS hzy",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.finite_extreme",
+              "ancestors": [],
+              "spec_sha256": "24bc0da934ca3e9982b867a07cd734add123cbdf169b34632715ab9b30b645ee"
+            },
+            "sha256": "e99283597d6a360c1d2c7b6f05adcbcb9592828f2e5b457458a03b7f34829063"
+          },
+          "win_membership": {
+            "payload": {
+              "declaration": "theorem M7.Selection.win_membership : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x\n  intro α T feasible R x\n  classical\n  simp [M7.Selection.winners, M7.Selection.win, M7.Selection.feasibleSet, and_assoc, and_left_comm, and_comm]",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.win_membership",
+              "ancestors": [],
+              "spec_sha256": "406c117ae4e08209a0dfd2b45a5b3d496ed2066fabe174df86b8368ec29f6193"
+            },
+            "sha256": "7b28293dec9ae2309947c6f0ff987982afd2ab00593249728d867630037df7b0"
+          },
+          "winning_dominator": {
+            "payload": {
+              "declaration": "theorem M7.Selection.winning_dominator : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x := by\n  classical\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x\n  intro α T feasible R hir htr x hx hfx\n  have hxF : x ∈ M7.Selection.feasibleSet T feasible := by\n    simpa [M7.Selection.feasibleSet] using And.intro hx hfx\n  obtain ⟨y, hy, hmin, hyx⟩ := M7.Selection.finite_extreme α (M7.Selection.feasibleSet T feasible) R hir htr x hxF\n  refine ⟨y, ?_, hyx⟩\n  apply (M7.Selection.win_membership α T feasible R y).mpr\n  simp only [M7.Selection.feasibleSet, Finset.mem_filter] at hy hmin\n  simp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter]\n  aesop",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.winning_dominator",
+              "ancestors": [
+                "finite_extreme",
+                "win_membership"
+              ],
+              "spec_sha256": "214e575f39db1e905b7e525eab1c19991710bb9def560277047fb84a333c4c38"
+            },
+            "sha256": "78b54a4517e5ee91bb5fac346d3d35d43e9cc28e08b346f1259c08a4507a4f97"
+          },
+          "nonwinner_strict_dominator": {
+            "payload": {
+              "declaration": "theorem M7.Selection.nonwinner_strict_dominator : ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → x ∉ M7.Selection.winners T feasible R → ∃ y ∈ M7.Selection.winners T feasible R, R y x := by\n  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → x ∉ M7.Selection.winners T feasible R → ∃ y ∈ M7.Selection.winners T feasible R, R y x\n  intro α T feasible R hir htr x hx hfx hnwin\n  obtain ⟨y, hy, hyx⟩ := M7.Selection.winning_dominator α T feasible R hir htr x hx hfx\n  rcases hyx with heq | hrel\n  · subst y\n    exact False.elim (hnwin hy)\n  · exact ⟨y, hy, hrel⟩",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.nonwinner_strict_dominator",
+              "ancestors": [
+                "finite_extreme",
+                "win_membership",
+                "winning_dominator"
+              ],
+              "spec_sha256": "010c9fcca7fa03a000d3e8121711a276efdc0f358bf8671d0227ee16ea9e8997"
+            },
+            "sha256": "7c7fb7f972bb884ef0126f6449b02ce60e1b13a77445c0c0b4b11bae3d287859"
+          },
+          "pareto_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.pareto_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.pareto at h\n    rcases h with ⟨_, i, hi⟩\n    exact (lt_irrefl (a i)) hi\n  · intro a b c hab hbc\n    unfold M7.Selection.pareto at *\n    rcases hab with ⟨hab, i, hi⟩\n    rcases hbc with ⟨hbc, _⟩\n    constructor\n    · intro j\n      have h₁ := hab j\n      have h₂ := hbc j\n      omega\n    · refine ⟨i, ?_⟩\n      have h₂ := hbc i\n      omega",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.pareto_laws",
+              "ancestors": [],
+              "spec_sha256": "a6eb8508843c65ec7762c5588c2a4da65ee81efbe2a253a7f6055ff6a6a88690"
+            },
+            "sha256": "14db35f019330d0a2d5e806d416360927947e7b8cdda196f4e7deb6cf6e33a68"
+          },
+          "lex_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.lex_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c) := by\n  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c)\n  intro m\n  constructor\n  · intro a h\n    unfold M7.Selection.lex at h\n    rcases h with ⟨i, h₁, h₂⟩\n    first\n    | exact (lt_irrefl (a i)) h₁\n    | exact (lt_irrefl (a i)) h₂\n  · intro a b c hab hbc\n    unfold M7.Selection.lex at hab hbc ⊢\n    rcases hab with ⟨i, hi₁, hi₂⟩\n    rcases hbc with ⟨j, hj₁, hj₂⟩\n    have hi : a i < b i := by first | exact hi₁ | exact hi₂\n    have hj : b j < c j := by first | exact hj₁ | exact hj₂\n    have ei : ∀ k : Fin m, k < i → a k = b k := by\n      first | exact hi₁ | exact hi₂\n    have ej : ∀ k : Fin m, k < j → b k = c k := by\n      first | exact hj₁ | exact hj₂\n    rcases lt_trichotomy i j with hij | hij | hji\n    · have hl : a i < c i := by rw [← ej i hij]; exact hi\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k (lt_trans hk hij))\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · subst j\n      have hl : a i < c i := lt_trans hi hj\n      have he : ∀ k : Fin m, k < i → a k = c k := by\n        intro k hk\n        exact (ei k hk).trans (ej k hk)\n      refine ⟨i, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩\n    · have hl : a j < c j := by rw [ei j hji]; exact hj\n      have he : ∀ k : Fin m, k < j → a k = c k := by\n        intro k hk\n        exact (ei k (lt_trans hk hji)).trans (ej k hk)\n      refine ⟨j, ?_⟩\n      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.lex_laws",
+              "ancestors": [],
+              "spec_sha256": "022f972b60cf3950f4062794a139b3b01f31e801dd919f240fbe3e3e3f24f68f"
+            },
+            "sha256": "ca689c64bafe48f51643fd65595a3252a5cc13d132db2b722ec34d074b9d45e1"
+          },
+          "better_laws": {
+            "payload": {
+              "declaration": "theorem M7.Selection.better_laws : ∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c) := by\n  change ∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c)\n  intro m mode\n  cases mode <;> first\n  | exact M7.Selection.pareto_laws m\n  | exact M7.Selection.lex_laws m",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.better_laws",
+              "ancestors": [
+                "lex_laws",
+                "pareto_laws"
+              ],
+              "spec_sha256": "63d264f83d3daa42920b9c644ab961c09ee91044b31f74636346c560e87039cd"
+            },
+            "sha256": "eede12b0ae1a258158121b218685e11bf06e55d92a3ea84123cefc0230e76584"
+          },
+          "selector_strict_dominator": {
+            "payload": {
+              "declaration": "theorem M7.Selection.selector_strict_dominator : ∀ (α : Type) (m : ℕ) (T : Finset α) (feasible : α → Prop) (objective : α → Fin m → ℤ) (mode : M7.Selection.Mode), ∀ x ∈ T, feasible x → x ∉ M7.Selection.select T feasible objective mode → ∃ y ∈ M7.Selection.select T feasible objective mode, M7.Selection.better mode (objective y) (objective x) := by\n  change ∀ (α : Type) (m : ℕ) (T : Finset α) (feasible : α → Prop) (objective : α → Fin m → ℤ) (mode : M7.Selection.Mode), ∀ x ∈ T, feasible x → x ∉ M7.Selection.select T feasible objective mode → ∃ y ∈ M7.Selection.select T feasible objective mode, M7.Selection.better mode (objective y) (objective x)\n  intro α m T feasible objective mode x hx hfx hn\n  exact M7.Selection.nonwinner_strict_dominator α T feasible\n    (fun y z => M7.Selection.better mode (objective y) (objective z))\n    (fun y => (M7.Selection.better_laws m mode).1 (objective y))\n    (fun y z w => (M7.Selection.better_laws m mode).2 (objective y) (objective z) (objective w))\n    x hx hfx hn",
+              "imports": [
+                "M7Selection"
+              ],
+              "name": "M7.Selection.selector_strict_dominator",
+              "ancestors": [
+                "better_laws",
+                "finite_extreme",
+                "lex_laws",
+                "nonwinner_strict_dominator",
+                "pareto_laws",
+                "win_membership",
+                "winning_dominator"
+              ],
+              "spec_sha256": "373e37812bb12791ddcdfb50ca7f31d5b4b7569fcc19ad797c5b7e588461d33c"
+            },
+            "sha256": "652f0569bc26acc1f79e5b1422504f38b3b7a7d61d20e11ace91b59b30c40e3c"
+          }
+        }
+      }
+    }
+  }
+}

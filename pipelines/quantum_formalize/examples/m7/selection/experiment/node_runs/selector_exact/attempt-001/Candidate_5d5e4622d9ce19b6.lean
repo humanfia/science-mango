@@ -1,0 +1,16 @@
+import FrozenTarget_5d5e4622d9ce19b6
+theorem M7.Selection.selector_exact : QuantumHarnessFrozenTarget := by
+  classical
+  change ∀ (α : Type) (m : ℕ) (T : Finset α) (feasible : α → Prop) (objective : α → Fin m → ℤ) (mode : M7.Selection.Mode), (∀ x, x ∈ M7.Selection.select T feasible objective mode ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ M7.Selection.better mode (objective y) (objective x)) ∧ (M7.Selection.select T feasible objective mode = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅)
+  intro α m T feasible objective mode
+  obtain ⟨hir, htr⟩ := M7.Selection.better_laws m mode
+  constructor
+  · intro x
+    simpa only [M7.Selection.select] using
+      M7.Selection.win_sound_complete α T feasible
+        (fun x y => M7.Selection.better mode (objective x) (objective y)) x
+  · simpa only [M7.Selection.select] using
+      M7.Selection.empty_iff α T feasible
+        (fun x y => M7.Selection.better mode (objective x) (objective y))
+        (fun x => hir (objective x))
+        (fun x y z => htr (objective x) (objective y) (objective z))

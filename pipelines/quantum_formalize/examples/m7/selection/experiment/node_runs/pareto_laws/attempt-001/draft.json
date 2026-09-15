@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c)\nintro m\nconstructor\n· intro a h\n  unfold M7.Selection.pareto at h\n  rcases h with ⟨_, i, hi⟩\n  exact (lt_irrefl (a i)) hi\n· intro a b c hab hbc\n  unfold M7.Selection.pareto at *\n  rcases hab with ⟨hab, i, hi⟩\n  rcases hbc with ⟨hbc, _⟩\n  constructor\n  · intro j\n    have h₁ := hab j\n    have h₂ := hbc j\n    omega\n  · refine ⟨i, ?_⟩\n    have h₂ := hbc i\n    omega",
+  "queries": []
+}

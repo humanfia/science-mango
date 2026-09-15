@@ -1,0 +1,292 @@
+{
+  "title": "M7 exact finite winners and actual Pareto/lex selection",
+  "source": "/home/jing/quantum_code_discovery_proof/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md",
+  "source_sha256": "8ad32a3432f4b7fd3ad15aa4467e0f01255ce593ac9e474b1af38c9424addf19",
+  "scope": "Original §8 winners, ties, empty answers and strict winning dominators. Actual Pareto/lex instantiate the generic finite relation lemmas; no efficiency strengthening. Least-preimage physical deduplication is a subsequent batch.",
+  "nodes": [
+    {
+      "id": "win_membership",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Selection.win_membership",
+        "statement": "∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ M7.Selection.win T feasible R x",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Unfold winners and win; prove filter membership. This is literal executable finite predicate expansion, retaining every tie. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "win_sound_complete",
+      "dependencies": [
+        "win_membership"
+      ],
+      "spec": {
+        "name": "M7.Selection.win_sound_complete",
+        "statement": "∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop) (x : α), x ∈ M7.Selection.winners T feasible R ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ R y x",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Rewrite win_membership then unfold win; elementary quantifier negation. No relation assumptions are needed for soundness/completeness of the predicate. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "finite_extreme",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Selection.finite_extreme",
+        "statement": "∀ (α : Type) (T : Finset α) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, ∃ y ∈ T, (∀ z ∈ T, ¬ R z y) ∧ (y = x ∨ R y x)",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Use finite well-foundedness on subtype T: Mathlib Finite.wellFounded_of_trans_of_irrefl (Data/Fintype/Card) with local IsTrans and Std.Irrefl instances. Well-founded induction on the chosen point: if it has an improving predecessor, recurse and compose transitivity; otherwise it is an extreme. Alternatively finite set induction. Only the finite relation is assumed, not an oracle witness. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "winning_dominator",
+      "dependencies": [
+        "finite_extreme",
+        "win_membership"
+      ],
+      "spec": {
+        "name": "M7.Selection.winning_dominator",
+        "statement": "∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → ∃ y ∈ M7.Selection.winners T feasible R, y = x ∨ R y x",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Apply finite_extreme to feasibleSet T feasible; unfold its filter membership. Its extreme is exactly a winner in the original domain. Keep feasible membership when transporting quantifiers. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "empty_iff",
+      "dependencies": [
+        "winning_dominator",
+        "win_membership"
+      ],
+      "spec": {
+        "name": "M7.Selection.empty_iff",
+        "statement": "∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → (M7.Selection.winners T feasible R = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅)",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Nonempty feasible set has a winning dominator. Conversely a winner is feasible by win. Finset.eq_empty_iff_forall_not_mem is obsolete; use Finset.eq_empty_of_forall_notMem or Finset.not_nonempty_iff_eq_empty. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "nonwinner_strict_dominator",
+      "dependencies": [
+        "winning_dominator"
+      ],
+      "spec": {
+        "name": "M7.Selection.nonwinner_strict_dominator",
+        "statement": "∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → ∀ x ∈ T, feasible x → x ∉ M7.Selection.winners T feasible R → ∃ y ∈ M7.Selection.winners T feasible R, R y x",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "The winning_dominator alternative y=x contradicts nonmembership, so retain its strict relation branch. This is the original omitted-record guarantee, including all finite non-total strict orders. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "pareto_laws",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Selection.pareto_laws",
+        "statement": "∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.pareto a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.pareto a b → M7.Selection.pareto b c → M7.Selection.pareto a c)",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Unfold pareto. Irreflexivity follows from the required strict coordinate. For transitivity combine coordinatewise inequalities and reuse a strict coordinate from the first relation with the second weak inequality. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "lex_laws",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Selection.lex_laws",
+        "statement": "∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c)",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Unfold the explicit first-differing-coordinate lex relation. For two witness indices i,j, split i<j,i=j,j<i; choose the earlier index and use preceding-coordinate equalities. At equal indices compose strict inequalities. Fin order trichotomy works even m=0. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "better_laws",
+      "dependencies": [
+        "pareto_laws",
+        "lex_laws"
+      ],
+      "spec": {
+        "name": "M7.Selection.better_laws",
+        "statement": "∀ (m : ℕ) (mode : M7.Selection.Mode), (∀ a : Fin m → ℤ, ¬ M7.Selection.better mode a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.better mode a b → M7.Selection.better mode b c → M7.Selection.better mode a c)",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Cases on the concrete mode and use the corresponding accepted laws. These are the actual Pareto/lex objective comparisons in the original selector. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "selector_exact",
+      "dependencies": [
+        "win_sound_complete",
+        "empty_iff",
+        "better_laws"
+      ],
+      "spec": {
+        "name": "M7.Selection.selector_exact",
+        "statement": "∀ (α : Type) (m : ℕ) (T : Finset α) (feasible : α → Prop) (objective : α → Fin m → ℤ) (mode : M7.Selection.Mode), (∀ x, x ∈ M7.Selection.select T feasible objective mode ↔ x ∈ T ∧ feasible x ∧ ∀ y ∈ T, feasible y → ¬ M7.Selection.better mode (objective y) (objective x)) ∧ (M7.Selection.select T feasible objective mode = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅)",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Instantiate the generic predicate results with R x y=better mode(objective x)(objective y). Discharge its strict-order hypotheses by better_laws. Final theorem has no free relation-transitivity or oracle-correctness hypothesis. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "selector_strict_dominator",
+      "dependencies": [
+        "nonwinner_strict_dominator",
+        "better_laws"
+      ],
+      "spec": {
+        "name": "M7.Selection.selector_strict_dominator",
+        "statement": "∀ (α : Type) (m : ℕ) (T : Finset α) (feasible : α → Prop) (objective : α → Fin m → ℤ) (mode : M7.Selection.Mode), ∀ x ∈ T, feasible x → x ∉ M7.Selection.select T feasible objective mode → ∃ y ∈ M7.Selection.select T feasible objective mode, M7.Selection.better mode (objective y) (objective x)",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "Instantiate nonwinner_strict_dominator and use actual better_laws. This returns a winning strictly improving action record for every feasible omitted record. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    },
+    {
+      "id": "empty_objectives",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.Selection.empty_objectives",
+        "statement": "∀ (α : Type) (T : Finset α) (feasible : α → Prop) (objective : α → Fin 0 → ℤ) (mode : M7.Selection.Mode), M7.Selection.select T feasible objective mode = M7.Selection.feasibleSet T feasible",
+        "imports": [
+          "M7Selection"
+        ],
+        "context": "",
+        "queries": [
+          "finite strict order minimal element"
+        ],
+        "guidance": "With no objective coordinates neither Pareto nor lex can exhibit a strict coordinate. Unfold select/winners/win and use Fin.elim0 for an impossible coordinate; prove Finset extensional equality, handling any internal decidable instances by membership reasoning. All feasible records are retained as ties. Return tactic lines without leading by; preserve exact statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8 finite all-optima selector",
+        "fallback_queries": [
+          "finite set minimal element"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+import FrozenTarget_960891a9ab62d4b4
+theorem M7.Selection.empty_iff : QuantumHarnessFrozenTarget := by
+  classical
+  change ∀ (α : Type) (T : Finset α) (feasible : α → Prop) (R : α → α → Prop), (∀ x, ¬ R x x) → (∀ x y z, R x y → R y z → R x z) → (M7.Selection.winners T feasible R = ∅ ↔ M7.Selection.feasibleSet T feasible = ∅)
+  intro α T feasible R hir htr
+  constructor
+  · intro h
+    apply Finset.eq_empty_of_forall_notMem
+    intro x hx
+    have hx' : x ∈ T ∧ feasible x := by
+      simpa [M7.Selection.feasibleSet] using hx
+    obtain ⟨y, hy, _⟩ := M7.Selection.winning_dominator α T feasible R hir htr x hx'.1 hx'.2
+    simpa [h] using hy
+  · intro h
+    apply Finset.eq_empty_of_forall_notMem
+    intro x hx
+    have hw := (M7.Selection.win_membership α T feasible R x).mp hx
+    have hxF : x ∈ M7.Selection.feasibleSet T feasible := by
+      simp only [M7.Selection.win, M7.Selection.feasibleSet, Finset.mem_filter] at hw ⊢
+      aesop
+    simpa [h] using hxF

@@ -1,0 +1,40 @@
+theorem M7.Selection.lex_laws : ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c) := by
+  change ∀ (m : ℕ), (∀ a : Fin m → ℤ, ¬ M7.Selection.lex a a) ∧ (∀ a b c : Fin m → ℤ, M7.Selection.lex a b → M7.Selection.lex b c → M7.Selection.lex a c)
+  intro m
+  constructor
+  · intro a h
+    unfold M7.Selection.lex at h
+    rcases h with ⟨i, h₁, h₂⟩
+    first
+    | exact (lt_irrefl (a i)) h₁
+    | exact (lt_irrefl (a i)) h₂
+  · intro a b c hab hbc
+    unfold M7.Selection.lex at hab hbc ⊢
+    rcases hab with ⟨i, hi₁, hi₂⟩
+    rcases hbc with ⟨j, hj₁, hj₂⟩
+    have hi : a i < b i := by first | exact hi₁ | exact hi₂
+    have hj : b j < c j := by first | exact hj₁ | exact hj₂
+    have ei : ∀ k : Fin m, k < i → a k = b k := by
+      first | exact hi₁ | exact hi₂
+    have ej : ∀ k : Fin m, k < j → b k = c k := by
+      first | exact hj₁ | exact hj₂
+    rcases lt_trichotomy i j with hij | hij | hji
+    · have hl : a i < c i := by rw [← ej i hij]; exact hi
+      have he : ∀ k : Fin m, k < i → a k = c k := by
+        intro k hk
+        exact (ei k hk).trans (ej k (lt_trans hk hij))
+      refine ⟨i, ?_⟩
+      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩
+    · subst j
+      have hl : a i < c i := lt_trans hi hj
+      have he : ∀ k : Fin m, k < i → a k = c k := by
+        intro k hk
+        exact (ei k hk).trans (ej k hk)
+      refine ⟨i, ?_⟩
+      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩
+    · have hl : a j < c j := by rw [ei j hji]; exact hj
+      have he : ∀ k : Fin m, k < j → a k = c k := by
+        intro k hk
+        exact (ei k (lt_trans hk hji)).trans (ej k hk)
+      refine ⟨j, ?_⟩
+      first | exact ⟨hl, he⟩ | exact ⟨he, hl⟩

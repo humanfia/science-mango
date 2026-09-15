@@ -1,0 +1,84 @@
+{
+  "id": "right_partition",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Factorized.right_partition",
+    "spec_sha256": "f6f6f180ec24f3d242d7613bcbd9b9acf83bc5ff4aed2d7e86f6779772675746",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-u26uw0lo/attempt-001/Candidate_c5da7c6913036083.lean",
+        "target_path": "/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-u26uw0lo/attempt-001/FrozenTarget_c5da7c6913036083.lean",
+        "feedback": "",
+        "target_sha256": "b151410c164f0296b753f1355a316e6bc381f4eb60da058a39ad0f4edc2a3280",
+        "target_olean_sha256": "599ade659c444c3b664e0e0b5a5bda4e2318812d24055059d412e4c5ea4c6ae8",
+        "source_sha256": "199b9855da73d7bb36bbffac1b495fd93f7f1f11b89a30b0974f7d615136c038",
+        "olean_sha256": "b10adac1b3d7ce36cfd0f4a021ccca0c8acec7151b2b900825f7fbb3dbbdbc2f",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:09:28.256330+00:00",
+    "work": "/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-u26uw0lo",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "009e80bfa1eb634ab414da034e6f94836b42401acd4ea01578d4e97a89feba3b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-factorized-formalization/.humanize-formal-runs/run-u26uw0lo/attempt-001/Candidate_c5da7c6913036083.lean",
+    "environment_sha256": "f8d076640b39b72d35d12818ff60657136b0747bafa4b2b2dbd5bc9486cfc49c",
+    "artifacts": {
+      "pair_count": {
+        "payload": {
+          "declaration": "theorem M7.Factorized.pair_count : ∀ (S T : Type) [Fintype S] [Fintype T] (left : S → Prop) (right : T → Prop), M7.Factorized.count (fun p : S × T => left p.1 ∧ right p.2) = M7.Factorized.count left * M7.Factorized.count right := by\n  intro S T instS instT left right\n  classical\n  unfold M7.Factorized.count\n  rw [← Finset.card_product]\n  apply congrArg Finset.card\n  apply Finset.ext\n  intro p\n  simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and]",
+          "imports": [
+            "M7Factorized"
+          ],
+          "name": "M7.Factorized.pair_count",
+          "ancestors": [],
+          "spec_sha256": "55d7706c761faa629f5e3bec37795fcdc9232f42d36de507d0aab1983c4117ac"
+        },
+        "sha256": "f342cd29083b1f072b56419bb2b720d4cc9485818eeb4fccb296aa06aa76b883"
+      },
+      "numerator_record_card": {
+        "payload": {
+          "declaration": "theorem M7.Factorized.numerator_record_card : ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card := by\n  intro U S T instU instS instT sector left right\n  classical\n  unfold M7.Factorized.numerator M7.Factorized.records M7.Factorized.count\n  rw [Finset.card_eq_sum_ones]\n  simp only [Finset.sum_filter, Fintype.sum_prod_type]\n  apply Finset.sum_congr rfl\n  intro u hu\n  by_cases h : sector u <;> simp [h, ite_and]\n  all_goals simp [← Finset.sum_filter, Nat.mul_comm]",
+          "imports": [
+            "M7Factorized"
+          ],
+          "name": "M7.Factorized.numerator_record_card",
+          "ancestors": [
+            "pair_count"
+          ],
+          "spec_sha256": "492ce8d8b07da2d26fafffc6739a98dc016e6fc303652a3b56bb87d45aea7215"
+        },
+        "sha256": "7cb5ca621e12a3ff8b681948529661ee6a9ebd1d3217d5c75ef2fa914ad3ea2c"
+      },
+      "right_partition": {
+        "payload": {
+          "declaration": "theorem M7.Factorized.right_partition : ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), ∀ test : U → T → Bool, M7.Factorized.numerator sector left right = M7.Factorized.numerator sector left (fun u t => right u t ∧ test u t = false) + M7.Factorized.numerator sector left (fun u t => right u t ∧ test u t = true) := by\n  intro U S T instU instS instT sector left right test\n  classical\n  simp only [M7.Factorized.numerator_record_card]\n  unfold M7.Factorized.records\n  simp only [Finset.card_eq_sum_ones, Finset.sum_filter]\n  rw [← Finset.sum_add_distrib]\n  apply Finset.sum_congr rfl\n  intro p hp\n  rcases p with ⟨u, s, t⟩\n  cases h : test u t <;> simp [h]",
+          "imports": [
+            "M7Factorized"
+          ],
+          "name": "M7.Factorized.right_partition",
+          "ancestors": [
+            "numerator_record_card",
+            "pair_count"
+          ],
+          "spec_sha256": "512e3ceb0c8e5915888eec69fc4e6b2681eda61a4a511cddd4fc0b596c826529"
+        },
+        "sha256": "d66d88f19aa48afe67bf929cc458ce869df3480045dd20c78ae431afcafeb367"
+      }
+    }
+  }
+}

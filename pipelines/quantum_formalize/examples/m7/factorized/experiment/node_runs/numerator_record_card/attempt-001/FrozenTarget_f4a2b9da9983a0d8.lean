@@ -1,0 +1,13 @@
+import M7Factorized
+
+theorem M7.Factorized.pair_count : ∀ (S T : Type) [Fintype S] [Fintype T] (left : S → Prop) (right : T → Prop), M7.Factorized.count (fun p : S × T => left p.1 ∧ right p.2) = M7.Factorized.count left * M7.Factorized.count right := by
+  intro S T instS instT left right
+  classical
+  unfold M7.Factorized.count
+  rw [← Finset.card_product]
+  apply congrArg Finset.card
+  apply Finset.ext
+  intro p
+  simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and]
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card

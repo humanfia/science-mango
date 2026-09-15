@@ -1,0 +1,95 @@
+{
+  "id": "act_inverse",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Action.act_inverse",
+    "spec_sha256": "4bf92da5341718b7d9fc887968cd0fbd6e2d38e828e1833ea6176232688feec9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-action-formalization/.humanize-formal-runs/run-p3ic1frd/attempt-001/Candidate_0ee4f54bc85b27a1.lean",
+        "target_path": "/home/jing/m7-lean-action-formalization/.humanize-formal-runs/run-p3ic1frd/attempt-001/FrozenTarget_0ee4f54bc85b27a1.lean",
+        "feedback": "",
+        "target_sha256": "37ef4dddb3a8d2ef81c97b928542b080572de2a4a54e3d319ae58ab3e871ac7d",
+        "target_olean_sha256": "a3d9fe182caf104d83ef31087175d32eadf8f9d71ce06ac6b5fb724bd359659f",
+        "source_sha256": "2d46e8e59c09577dfe235b85a83142fc0eb664fec8de3dea3c0a0905efc7b755",
+        "olean_sha256": "9b736d2877c87bbaff385f28af0758fd96143ad8e1af671681e4137a14fe4ae7",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:15:02.047604+00:00",
+    "work": "/home/jing/m7-lean-action-formalization/.humanize-formal-runs/run-p3ic1frd",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "bb8adba70d914329d55403df4e48feed0a488aff7765f2fb8ab9a6ccdcb6f622",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-action-formalization/.humanize-formal-runs/run-p3ic1frd/attempt-001/Candidate_0ee4f54bc85b27a1.lean",
+    "environment_sha256": "c006174953379a389976d552bf69886128e4e917c7c505157250f88cc01a8f70",
+    "artifacts": {
+      "left_inverse": {
+        "payload": {
+          "declaration": "theorem M7.Action.left_inverse : ∀ (N : ℕ) [NeZero N], ∀ g : M7.Action.Record N, M7.Action.compose (M7.Action.inverse g) g = M7.Action.identity N := by\n  change ∀ (N : ℕ) [NeZero N], ∀ g : M7.Action.Record N, M7.Action.compose (M7.Action.inverse g) g = M7.Action.identity N\n  intro N inst g\n  rcases g with ⟨u, e, s, t⟩\n  cases e <;> simp [M7.Action.compose, M7.Action.inverse, M7.Action.identity]",
+          "imports": [
+            "M7Action"
+          ],
+          "name": "M7.Action.left_inverse",
+          "ancestors": [],
+          "spec_sha256": "9d82809fe90c2002b1a7e9703c995e03f10843263a3c9cbbfd7e8e80179e8920"
+        },
+        "sha256": "00e6ac720e72164c0604e2dca7523b43ec821f5da8a32c8c689eb648e0621ee2"
+      },
+      "act_identity": {
+        "payload": {
+          "declaration": "theorem M7.Action.act_identity : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.Action.act (M7.Action.identity N) c = c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.Action.act (M7.Action.identity N) c = c\n  intro N inst c\n  have h : M7.Action.affine (1 : (ZMod N)ˣ) (0 : ZMod N) = id := by\n    funext i\n    simp [M7.Action.affine]\n  rcases c with ⟨s, t⟩\n  simp [M7.Action.act, M7.Action.identity, h]",
+          "imports": [
+            "M7Action"
+          ],
+          "name": "M7.Action.act_identity",
+          "ancestors": [],
+          "spec_sha256": "f6bdaebbd2fe93eec8d9aac9714bcbb5634968d31271666734fe5aad48bc99a9"
+        },
+        "sha256": "da2913b4ebe58596615951efe01911b1499c17f6a867983e8b702c36d0687603"
+      },
+      "act_compose": {
+        "payload": {
+          "declaration": "theorem M7.Action.act_compose : ∀ (N : ℕ) [NeZero N], ∀ (g h : M7.Action.Record N) (c : M7.Action.Recipe N), M7.Action.act (M7.Action.compose g h) c = M7.Action.act g (M7.Action.act h c) := by\n  intro N inst g h c\n  classical\n  have ha (u v : (ZMod N)ˣ) (a s : ZMod N) :\n      M7.Action.affine (u * v) ((u : ZMod N) * a + s) =\n        fun x => M7.Action.affine u s (M7.Action.affine v a x) := by\n    funext x\n    simp only [M7.Action.affine, Units.val_mul]\n    ring\n  rcases g with ⟨u, e, s, t⟩\n  rcases h with ⟨v, f, a, b⟩\n  cases e <;> cases f <;>\n    simp [M7.Action.act, M7.Action.compose, ha, Finset.image_image, Function.comp_def]",
+          "imports": [
+            "M7Action"
+          ],
+          "name": "M7.Action.act_compose",
+          "ancestors": [],
+          "spec_sha256": "0d87613612986ad9fa8599aebc75918df965dc4a3ba08cd3754ce6ed2729d879"
+        },
+        "sha256": "d4a5ab6cb3d637f2bcaf6202a29d0b27e8058ed397007047f4b2384a6abf7c70"
+      },
+      "act_inverse": {
+        "payload": {
+          "declaration": "theorem M7.Action.act_inverse : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.Action.act (M7.Action.inverse g) (M7.Action.act g c) = c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.Action.act (M7.Action.inverse g) (M7.Action.act g c) = c\n  intro N inst g c\n  rw [← M7.Action.act_compose N (M7.Action.inverse g) g c,\n    M7.Action.left_inverse N g, M7.Action.act_identity N c]",
+          "imports": [
+            "M7Action"
+          ],
+          "name": "M7.Action.act_inverse",
+          "ancestors": [
+            "act_compose",
+            "act_identity",
+            "left_inverse"
+          ],
+          "spec_sha256": "eda71f78f8784991789fa6cbe54987a8c58112137b729da1677ac3bfd32fd693"
+        },
+        "sha256": "2c8931293c9d36fc507c681b9007ecc787f6ca9f000eec14502adf0e7353c402"
+      }
+    }
+  }
+}

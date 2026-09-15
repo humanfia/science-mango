@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (α : Type) (m : ℕ) (T : Finset α) (feasible : α → Prop) (objective : α → Fin m → ℤ) (mode : M7.Selection.Mode), ∀ x ∈ T, feasible x → x ∉ M7.Selection.select T feasible objective mode → ∃ y ∈ M7.Selection.select T feasible objective mode, M7.Selection.better mode (objective y) (objective x)\nintro α m T feasible objective mode x hx hfx hn\nexact M7.Selection.nonwinner_strict_dominator α T feasible\n  (fun y z => M7.Selection.better mode (objective y) (objective z))\n  (fun y => (M7.Selection.better_laws m mode).1 (objective y))\n  (fun y z w => (M7.Selection.better_laws m mode).2 (objective y) (objective z) (objective w))\n  x hx hfx hn",
+  "queries": []
+}

@@ -1,0 +1,372 @@
+[
+  {
+    "queries": [
+      "Finset card product filter",
+      "Fintype sum_prod_type indicator finite cardinality"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset card product filter",
+        "status": "ok",
+        "results": [
+          {
+            "id": 204133,
+            "name": "Finset.card_product",
+            "module": "Mathlib.Data.Finset.Prod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Prod.lean#L139-L141",
+            "source_text": "@[simp]\ntheorem card_product (s : Finset α) (t : Finset β) : card (s ×ˢ t) = card s * card t :=\n  Multiset.card_product _ _",
+            "docstring": null
+          },
+          {
+            "id": 202717,
+            "name": "Finset.filter",
+            "module": "Mathlib.Data.Finset.Filter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L48-L53",
+            "source_text": "/-- `Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). -/\ndef filter (s : Finset α) : Finset α :=\n  ⟨_, s.2.filter p⟩\n",
+            "docstring": "`Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). "
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 204138,
+            "name": "Finset.filter_product_card",
+            "module": "Mathlib.Data.Finset.Prod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Prod.lean#L160-L170",
+            "source_text": "theorem filter_product_card (s : Finset α) (t : Finset β) (p : α → Prop) (q : β → Prop)\n    [DecidablePred p] [DecidablePred q] :\n    ((s ×ˢ t).filter fun x : α × β => (p x.1) = (q x.2)).card =\n      (s.filter p).card * (t.filter q).card +\n        (s.filter (¬ p ·)).card * (t.filter (¬ q ·)).card := by\n  classical\n  rw [← card_product, ← card_product, ← filter_product, ← filter_product, ← card_union_of_disjoint]\n  · apply congr_arg\n    grind\n  · apply Finset.disjoint_filter_filter'\n    exact (disjoint_compl_right.inf_left _).inf_right _\n",
+            "docstring": null
+          },
+          {
+            "id": 284287,
+            "name": "Finset.eventually_cocardinal_notMem",
+            "module": "Mathlib.Order.Filter.Cocardinal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Cocardinal.lean#L95-L97",
+            "source_text": "theorem _root_.Finset.eventually_cocardinal_notMem (s : Finset α) :\n    ∀ᶠ x in cocardinal α hreg, x ∉ s :=\n  eventually_cocardinal_notMem_of_card_lt <| (finset_card_lt_aleph0 s).trans_le (hreg.aleph0_le)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset card product filter",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype sum_prod_type indicator finite cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205838,
+            "name": "Fintype.card",
+            "module": "Mathlib.Data.Fintype.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L39-L41",
+            "source_text": "/-- `card α` is the number of elements in `α`, defined when `α` is a fintype. -/\ndef card (α) [Fintype α] : ℕ :=\n  (@univ α _).card\n",
+            "docstring": "`card α` is the number of elements in `α`, defined when `α` is a fintype. "
+          },
+          {
+            "id": 206255,
+            "name": "Fintype.card_prod",
+            "module": "Mathlib.Data.Fintype.Prod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Prod.lean#L58-L61",
+            "source_text": "@[simp]\ntheorem Fintype.card_prod (α β : Type*) [Fintype α] [Fintype β] :\n    Fintype.card (α × β) = Fintype.card α * Fintype.card β :=\n  card_product _ _",
+            "docstring": null
+          },
+          {
+            "id": 205831,
+            "name": "Fintype.sum_prod_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L271-L272",
+            "source_text": "@[to_additive Fintype.sum_prod_type /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. -/]\ntheorem Fintype.prod_prod_type [CommMonoid γ] (f : α₁ × α₂ → γ) :\n    ∏ x, f x = ∏ x, ∏ y, f (x, y) :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. "
+          },
+          {
+            "id": 323243,
+            "name": "Nat.card_pi",
+            "module": "Mathlib.SetTheory.Cardinal.Finite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Finite.lean#L241-L242",
+            "source_text": "theorem card_pi {β : α → Type*} [Fintype α] : Nat.card (∀ a, β a) = ∏ a, Nat.card (β a) := by\n  simp_rw [Nat.card, mk_pi, prod_eq_of_fintype, toNat_lift, _root_.map_prod]\n",
+            "docstring": null
+          },
+          {
+            "id": 205833,
+            "name": "Fintype.sum_prod_type'",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L279-L280",
+            "source_text": "@[to_additive Fintype.sum_prod_type' /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. -/]\ntheorem Fintype.prod_prod_type' [CommMonoid γ] (f : α₁ → α₂ → γ) :\n    ∏ x : α₁ × α₂, f x.1 x.2 = ∏ x, ∏ y, f x y :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fintype sum_prod_type indicator finite cardinality",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset card product filter",
+      "Fintype sum_prod_type indicator finite cardinality"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Finset card product filter",
+      "Fintype sum_prod_type indicator finite cardinality"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset card product filter",
+        "status": "ok",
+        "results": [
+          {
+            "id": 204133,
+            "name": "Finset.card_product",
+            "module": "Mathlib.Data.Finset.Prod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Prod.lean#L139-L141",
+            "source_text": "@[simp]\ntheorem card_product (s : Finset α) (t : Finset β) : card (s ×ˢ t) = card s * card t :=\n  Multiset.card_product _ _",
+            "docstring": null
+          },
+          {
+            "id": 202717,
+            "name": "Finset.filter",
+            "module": "Mathlib.Data.Finset.Filter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L48-L53",
+            "source_text": "/-- `Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). -/\ndef filter (s : Finset α) : Finset α :=\n  ⟨_, s.2.filter p⟩\n",
+            "docstring": "`Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). "
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 204138,
+            "name": "Finset.filter_product_card",
+            "module": "Mathlib.Data.Finset.Prod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Prod.lean#L160-L170",
+            "source_text": "theorem filter_product_card (s : Finset α) (t : Finset β) (p : α → Prop) (q : β → Prop)\n    [DecidablePred p] [DecidablePred q] :\n    ((s ×ˢ t).filter fun x : α × β => (p x.1) = (q x.2)).card =\n      (s.filter p).card * (t.filter q).card +\n        (s.filter (¬ p ·)).card * (t.filter (¬ q ·)).card := by\n  classical\n  rw [← card_product, ← card_product, ← filter_product, ← filter_product, ← card_union_of_disjoint]\n  · apply congr_arg\n    grind\n  · apply Finset.disjoint_filter_filter'\n    exact (disjoint_compl_right.inf_left _).inf_right _\n",
+            "docstring": null
+          },
+          {
+            "id": 284287,
+            "name": "Finset.eventually_cocardinal_notMem",
+            "module": "Mathlib.Order.Filter.Cocardinal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Cocardinal.lean#L95-L97",
+            "source_text": "theorem _root_.Finset.eventually_cocardinal_notMem (s : Finset α) :\n    ∀ᶠ x in cocardinal α hreg, x ∉ s :=\n  eventually_cocardinal_notMem_of_card_lt <| (finset_card_lt_aleph0 s).trans_le (hreg.aleph0_le)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype sum_prod_type indicator finite cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205838,
+            "name": "Fintype.card",
+            "module": "Mathlib.Data.Fintype.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L39-L41",
+            "source_text": "/-- `card α` is the number of elements in `α`, defined when `α` is a fintype. -/\ndef card (α) [Fintype α] : ℕ :=\n  (@univ α _).card\n",
+            "docstring": "`card α` is the number of elements in `α`, defined when `α` is a fintype. "
+          },
+          {
+            "id": 206255,
+            "name": "Fintype.card_prod",
+            "module": "Mathlib.Data.Fintype.Prod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Prod.lean#L58-L61",
+            "source_text": "@[simp]\ntheorem Fintype.card_prod (α β : Type*) [Fintype α] [Fintype β] :\n    Fintype.card (α × β) = Fintype.card α * Fintype.card β :=\n  card_product _ _",
+            "docstring": null
+          },
+          {
+            "id": 205831,
+            "name": "Fintype.sum_prod_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L271-L272",
+            "source_text": "@[to_additive Fintype.sum_prod_type /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. -/]\ntheorem Fintype.prod_prod_type [CommMonoid γ] (f : α₁ × α₂ → γ) :\n    ∏ x, f x = ∏ x, ∏ y, f (x, y) :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. "
+          },
+          {
+            "id": 323243,
+            "name": "Nat.card_pi",
+            "module": "Mathlib.SetTheory.Cardinal.Finite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Finite.lean#L241-L242",
+            "source_text": "theorem card_pi {β : α → Type*} [Fintype α] : Nat.card (∀ a, β a) = ∏ a, Nat.card (β a) := by\n  simp_rw [Nat.card, mk_pi, prod_eq_of_fintype, toNat_lift, _root_.map_prod]\n",
+            "docstring": null
+          },
+          {
+            "id": 205833,
+            "name": "Fintype.sum_prod_type'",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L279-L280",
+            "source_text": "@[to_additive Fintype.sum_prod_type' /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. -/]\ntheorem Fintype.prod_prod_type' [CommMonoid γ] (f : α₁ → α₂ → γ) :\n    ∏ x : α₁ × α₂, f x.1 x.2 = ∏ x, ∏ y, f x y :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "pair_count",
+    "receipts_sha256": "d4558fa85b74a71633ff96a1fcf9de99eaad87b6445243992ce50e9172e96730"
+  }
+]

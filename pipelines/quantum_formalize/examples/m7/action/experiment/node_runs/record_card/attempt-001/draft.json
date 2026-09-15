@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], Fintype.card (M7.Action.Record N) = Nat.totient N * 2 * N * N\nintro N hN\nlet e : M7.Action.Record N ≃ (ZMod N)ˣ × Bool × ZMod N × ZMod N :=\n  { toFun := fun g => (g.unit, g.exchange, g.leftShift, g.rightShift)\n    invFun := fun p => ⟨p.1, p.2.1, p.2.2.1, p.2.2.2⟩\n    left_inv := by intro g; cases g; rfl\n    right_inv := by intro p; rcases p with ⟨u, b, s, t⟩; rfl }\nrw [Fintype.card_congr e]\nsimp [Fintype.card_prod, ZMod.card_units_eq_totient, ZMod.card, Nat.mul_assoc]",
+  "queries": [
+    "ZMod.card_units_eq_totient",
+    "ZMod.card"
+  ]
+}

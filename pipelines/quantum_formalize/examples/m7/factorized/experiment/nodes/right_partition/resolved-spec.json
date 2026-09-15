@@ -1,0 +1,13 @@
+{
+  "name": "M7.Factorized.right_partition",
+  "statement": "∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), ∀ test : U → T → Bool, M7.Factorized.numerator sector left right = M7.Factorized.numerator sector left (fun u t => right u t ∧ test u t = false) + M7.Factorized.numerator sector left (fun u t => right u t ∧ test u t = true)",
+  "imports": [
+    "M7Factorized"
+  ],
+  "context": "theorem M7.Factorized.pair_count : ∀ (S T : Type) [Fintype S] [Fintype T] (left : S → Prop) (right : T → Prop), M7.Factorized.count (fun p : S × T => left p.1 ∧ right p.2) = M7.Factorized.count left * M7.Factorized.count right := by\n  intro S T instS instT left right\n  classical\n  unfold M7.Factorized.count\n  rw [← Finset.card_product]\n  apply congrArg Finset.card\n  apply Finset.ext\n  intro p\n  simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and]\n\ntheorem M7.Factorized.numerator_record_card : ∀ (U S T : Type) [Fintype U] [Fintype S] [Fintype T] (sector : U → Prop) (left : U → S → Prop) (right : U → T → Prop), M7.Factorized.numerator sector left right = (M7.Factorized.records sector left right).card := by\n  intro U S T instU instS instT sector left right\n  classical\n  unfold M7.Factorized.numerator M7.Factorized.records M7.Factorized.count\n  rw [Finset.card_eq_sum_ones]\n  simp only [Finset.sum_filter, Fintype.sum_prod_type]\n  apply Finset.sum_congr rfl\n  intro u hu\n  by_cases h : sector u <;> simp [h, ite_and]\n  all_goals simp [← Finset.sum_filter, Nat.mul_comm]",
+  "queries": [
+    "Finset card product filter",
+    "Fintype sum_prod_type indicator finite cardinality"
+  ],
+  "guidance": "Same exact two-child partition on the right record. Use actual finite indicators or filtered-card partition. No orbit normalization is performed here. Return tactic lines only without leading by."
+}
