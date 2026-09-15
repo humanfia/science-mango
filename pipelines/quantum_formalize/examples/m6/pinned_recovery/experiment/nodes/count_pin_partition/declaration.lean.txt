@@ -1,0 +1,18 @@
+theorem M6.Pinned.count_pin_partition : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ), M6.Pinned.partitions (fun P => M6.Pinned.count L P d) := by
+  change ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ), M6.Pinned.partitions (fun P => M6.Pinned.count L P d)
+  classical
+  intro m L d
+  unfold M6.Pinned.partitions
+  intro P i hP
+  have hbits : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide
+  induction L using Finset.induction_on with
+  | empty =>
+      simp [M6.Pinned.count, M6.Pinned.enumerator]
+  | @insert v L hv ih =>
+      rcases hbits (v i) with hb | hb <;>
+        by_cases ha : M6.Pinned.agrees P v <;>
+        by_cases hw : M6.Pinned.weight v = d <;>
+        simp_all [M6.Pinned.count, M6.Pinned.enumerator,
+          M6.Pinned.agrees_pin, Finset.filter_insert,
+          Finset.sum_insert, Polynomial.coeff_sum,
+          Polynomial.coeff_monomial] <;> omega

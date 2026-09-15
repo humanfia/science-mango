@@ -1,0 +1,43 @@
+import FrozenTarget_4714a3ead0b1970c
+theorem M6.Pinned.solve_exact : QuantumHarnessFrozenTarget := by
+  classical
+  unfold QuantumHarnessFrozenTarget
+  intro m L Q hQ
+  have hf : M6.Pinned.firstPositive m (Q (M6.Pinned.free m)) = M6.Pinned.distance L := by
+    rw [hQ]
+    exact M6.Pinned.first_positive_distance m L
+  cases hd : M6.Pinned.distance L with
+  | none =>
+      have he : L = ∅ := (M6.Pinned.distance_spec m L).1.mp hd
+      have hs : M6.Pinned.solve Q = none := by
+        simp [M6.Pinned.solve, hf, hd]
+      simp [hs, he]
+  | some d =>
+      obtain ⟨hwitness, hleast⟩ := (M6.Pinned.distance_spec m L).2 d |>.mp hd
+      have hn : L ≠ ∅ := by
+        intro he
+        have hh := (M6.Pinned.distance_spec m L).1.mpr he
+        rw [hd] at hh
+        cases hh
+      let c : M6.Pinned.Pins m → ℤ := fun P => (Q P).coeff d
+      have hc : ∀ P, c P = M6.Pinned.count L P d := by
+        intro P
+        dsimp [c]
+        rw [hQ, M6.Pinned.enumerator_coeff]
+      have hp : 0 < c (M6.Pinned.free m) := by
+        rw [hc]
+        apply (M6.Pinned.count_nonnegative_positive m L (M6.Pinned.free m) d).2.mpr
+        obtain ⟨v, hv, hw⟩ := hwitness
+        exact ⟨v, hv, by simp [M6.Pinned.agrees, M6.Pinned.free], hw⟩
+      let r := M6.Pinned.recover c (M6.Pinned.free m) (List.finRange m)
+      have hr := M6.Pinned.recover_from_counts m L d c hc hp
+      change M6.Pinned.decode r.1 ∈ L ∧ M6.Pinned.weight (M6.Pinned.decode r.1) = d ∧ r.2 ≤ m at hr
+      have hs : M6.Pinned.solve Q = some (d, M6.Pinned.decode r.1, r.2) := by
+        simp [M6.Pinned.solve, hf, hd, r, c]
+      constructor
+      · simp [hs, hn]
+      · intro d' v k h
+        have he := hs.symm.trans h
+        simp only [Option.some.injEq, Prod.mk.injEq] at he
+        rcases he with ⟨rfl, rfl, rfl⟩
+        exact ⟨hr.1, hr.2.1, hleast, hr.2.2⟩

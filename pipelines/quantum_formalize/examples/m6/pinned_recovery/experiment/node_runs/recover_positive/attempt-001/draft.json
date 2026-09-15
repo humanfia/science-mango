@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ), M6.Pinned.partitions c → ∀ (P : M6.Pinned.Pins m) (xs : List (Fin m)), 0 < c P → 0 < c (M6.Pinned.recover c P xs).1\nintro m c hc\nunfold M6.Pinned.partitions at hc\nhave hchoose : ∀ (P : M6.Pinned.Pins m) (i : Fin m), 0 < c P → 0 < c (M6.Pinned.choose c P i).1 := by\n  intro P i hP\n  unfold M6.Pinned.choose\n  split\n  all_goals\n    first\n    | exact hP\n    | (split <;> dsimp only <;>\n        first\n        | assumption\n        | (have hsum := hc P i (by assumption)\n           omega))\nintro P xs\ninduction xs generalizing P with\n| nil =>\n    simpa only [M6.Pinned.recover] using (fun h : 0 < c P => h)\n| cons i xs ih =>\n    intro hP\n    simpa only [M6.Pinned.recover] using\n      (ih (M6.Pinned.choose c P i).1 (hchoose P i hP))",
+  "queries": []
+}

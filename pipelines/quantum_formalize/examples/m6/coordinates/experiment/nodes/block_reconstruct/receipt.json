@@ -1,0 +1,55 @@
+{
+  "id": "block_reconstruct",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Coordinates.block_reconstruct",
+    "spec_sha256": "90a521235bc671578ecea672f32a9de71aa3a04375fcc28a433ca9f9671c1180",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-o2a8ijjb/attempt-001/Candidate_4e441a5a3387a57f.lean",
+        "target_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-o2a8ijjb/attempt-001/FrozenTarget_4e441a5a3387a57f.lean",
+        "feedback": "",
+        "target_sha256": "e1931e55bb6f6bc5ed78c6bb99c30c9c6fc0b1818592b0c804ce1c596dbc77fd",
+        "target_olean_sha256": "aea0a6c36d2f8c0459412c6d5005dad54251b5a10693c569b8b01430b3178bf0",
+        "source_sha256": "12010e04d36d65003d844d6603f7114d1325b411696155abff4c7b60072b3729",
+        "olean_sha256": "54f4edfb3f75ca8b0749bc7646bccd19a554a9ba5e02783ede5cececedde44fc",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:02:23.803084+00:00",
+    "work": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-o2a8ijjb",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5e325cf9850f30696bb2de458ca8ad8126702863c7219124150bc48a65c741e6",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-o2a8ijjb/attempt-001/Candidate_4e441a5a3387a57f.lean",
+    "environment_sha256": "985f164967ba4accfc9033cfc561fab60a260718cf9c0369adc4a653a02b3263",
+    "artifacts": {
+      "block_reconstruct": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.block_reconstruct : ∀ (N : ℕ) [NeZero N] (p : M6.Cyclic.BinaryPolynomial), p.degree < (N : WithBot ℕ) → M6.Coordinates.blockPolynomial N (M6.Coordinates.coefficients N p) = p := by\n  intro N inst p hp\n  classical\n  change (∑ i : Fin N, Polynomial.C (p.coeff ((i.val : ZMod N).val)) * Polynomial.X ^ i.val) = p\n  have hval (i : Fin N) : (i.val : ZMod N).val = i.val := by\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt i.isLt]\n  simp only [hval]\n  ext k\n  rw [Polynomial.finsetSum_coeff]\n  by_cases hk : k < N\n  · rw [Finset.sum_eq_single (⟨k, hk⟩ : Fin N)]\n    · simp\n    · intro i hi hne\n      have hv : i.val ≠ k := by\n        intro h\n        apply hne\n        exact Fin.ext h\n      simp [Polynomial.coeff_C_mul_X_pow, hv, Ne.symm hv]\n    · simp\n  · have hNk : N ≤ k := Nat.le_of_not_gt hk\n    have hdeg : p.degree < (k : WithBot ℕ) := by\n      apply lt_of_lt_of_le hp\n      exact_mod_cast hNk\n    rw [Polynomial.coeff_eq_zero_of_degree_lt hdeg]\n    apply Finset.sum_eq_zero\n    intro i hi\n    have hv : i.val ≠ k := by\n      intro h\n      exact hk (h ▸ i.isLt)\n    simp [Polynomial.coeff_C_mul_X_pow, hv, Ne.symm hv]",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.block_reconstruct",
+          "ancestors": [],
+          "spec_sha256": "90a521235bc671578ecea672f32a9de71aa3a04375fcc28a433ca9f9671c1180"
+        },
+        "sha256": "50e10d37957456886f89077972018c3811602e202beabe3b781ee0addda21fd9"
+      }
+    }
+  }
+}

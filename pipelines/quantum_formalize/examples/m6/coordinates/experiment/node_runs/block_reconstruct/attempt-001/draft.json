@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst p hp\nclassical\nchange (∑ i : Fin N, Polynomial.C (p.coeff ((i.val : ZMod N).val)) * Polynomial.X ^ i.val) = p\nhave hval (i : Fin N) : (i.val : ZMod N).val = i.val := by\n  simp [ZMod.val_natCast, Nat.mod_eq_of_lt i.isLt]\nsimp only [hval]\next k\nrw [Polynomial.finsetSum_coeff]\nby_cases hk : k < N\n· rw [Finset.sum_eq_single (⟨k, hk⟩ : Fin N)]\n  · simp\n  · intro i hi hne\n    have hv : i.val ≠ k := by\n      intro h\n      apply hne\n      exact Fin.ext h\n    simp [Polynomial.coeff_C_mul_X_pow, hv, Ne.symm hv]\n  · simp\n· have hNk : N ≤ k := Nat.le_of_not_gt hk\n  have hdeg : p.degree < (k : WithBot ℕ) := by\n    apply lt_of_lt_of_le hp\n    exact_mod_cast hNk\n  rw [Polynomial.coeff_eq_zero_of_degree_lt hdeg]\n  apply Finset.sum_eq_zero\n  intro i hi\n  have hv : i.val ≠ k := by\n    intro h\n    exact hk (h ▸ i.isLt)\n  simp [Polynomial.coeff_C_mul_X_pow, hv, Ne.symm hv]",
+  "queries": [
+    "Polynomial.finsetSum_coeff Polynomial.coeff_C_mul_X_pow",
+    "ZMod.val_natCast",
+    "Polynomial.coeff_eq_zero_of_degree_lt"
+  ]
+}

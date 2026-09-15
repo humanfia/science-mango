@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ R N : ℕ, 0 < N → M6.Transfer.addressLocations R N ≤ 2 ^ (M6.Transfer.addressBits R N)\nintro R N hN\nhave hbound : ∀ n : ℕ, n + 1 ≤ 2 ^ n := by\n  intro n\n  induction n with\n  | zero => norm_num\n  | succ n ih =>\n    rw [pow_succ]\n    omega\nhave hsquare : (N + 1) ^ 2 ≤ (2 ^ N) ^ 2 := by\n  simpa only [pow_two] using Nat.mul_le_mul (hbound N) (hbound N)\nchange 16 * 2 ^ R * (N + 1) ^ 2 ≤ 2 ^ (R + 2 * N + 4)\ncalc\n  16 * 2 ^ R * (N + 1) ^ 2 ≤ 16 * 2 ^ R * (2 ^ N) ^ 2 :=\n    Nat.mul_le_mul_left _ hsquare\n  _ = 2 ^ (R + 2 * N + 4) := by\n    rw [pow_add, pow_add, Nat.mul_comm 2 N, pow_mul]\n    ring",
+  "queries": []
+}

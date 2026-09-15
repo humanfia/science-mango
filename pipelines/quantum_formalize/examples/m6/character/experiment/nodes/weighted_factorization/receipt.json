@@ -1,0 +1,100 @@
+{
+  "id": "weighted_factorization",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Character.weighted_factorization",
+    "spec_sha256": "d1e1a45db3a5e9d6472e7494b0e6751e40f077cd66c788e76c555c9046afebf2",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-character-formalization/.humanize-formal-runs/run-fzg25f97/attempt-001/Candidate_0af9b99c1413c1ef.lean",
+        "target_path": "/home/jing/m6-lean-character-formalization/.humanize-formal-runs/run-fzg25f97/attempt-001/FrozenTarget_0af9b99c1413c1ef.lean",
+        "feedback": "",
+        "target_sha256": "20dcf008365389d0a32d007fc0861bf58ab1cdb07975f391272b0d71bbb5a1cb",
+        "target_olean_sha256": "01025078924c3a64bef549023c71932d366993dfb4b9577bfe2233df90a04570",
+        "source_sha256": "9e2980a6fee0a859a5a11e22edbdf4feec7ab700340ccbc777cc8d9cb8afa10d",
+        "olean_sha256": "0bda8e28d73e9bce8e83895b6ad3b22c7e2d58dd6817e54ecbd9b1e4ddf4e3d9",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:03:15.398406+00:00",
+    "work": "/home/jing/m6-lean-character-formalization/.humanize-formal-runs/run-fzg25f97",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a8368a8c236543703768451423578b68e37aecc468b539d52133842a8ab34ebc",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-character-formalization/.humanize-formal-runs/run-fzg25f97/attempt-001/Candidate_0af9b99c1413c1ef.lean",
+    "environment_sha256": "929abda1a31779cf015921347f396b1f0653d4330088e6872f6389f7ffe59071",
+    "artifacts": {
+      "sign_add": {
+        "payload": {
+          "declaration": "theorem M6.Character.sign_add : ∀ (a b : ZMod 2), M6.Character.sign (a+b) = M6.Character.sign a * M6.Character.sign b := by\n  change ∀ (a b : ZMod 2), M6.Character.sign (a + b) = M6.Character.sign a * M6.Character.sign b\n  intro a b\n  fin_cases a <;> fin_cases b <;> decide",
+          "imports": [
+            "M6Character"
+          ],
+          "name": "M6.Character.sign_add",
+          "ancestors": [],
+          "spec_sha256": "458707344b1e4d87ab2104c1d8bbc4b5ca58e17e6c7a82a7f1608a5553aadde0"
+        },
+        "sha256": "2cb6385d55a917d4ed02d8dcc2ce6e6c4e66d9f59257d3f059f3675b53cb755e"
+      },
+      "sign_sum": {
+        "payload": {
+          "declaration": "theorem M6.Character.sign_sum : ∀ (m : ℕ) (f : Fin m → ZMod 2), M6.Character.sign (∑ i, f i) = ∏ i, M6.Character.sign (f i) := by\n  change ∀ (m : ℕ) (f : Fin m → ZMod 2), M6.Character.sign (∑ i, f i) = ∏ i, M6.Character.sign (f i)\n  intro m f\n  have h : ∀ s : Finset (Fin m), M6.Character.sign (∑ i ∈ s, f i) = ∏ i ∈ s, M6.Character.sign (f i) := by\n    intro s\n    induction s using Finset.induction_on with\n    | empty =>\n        simp only [Finset.sum_empty, Finset.prod_empty]\n        decide\n    | @insert a s ha ih =>\n        rw [Finset.sum_insert ha, Finset.prod_insert ha, M6.Character.sign_add, ih]\n  exact h Finset.univ",
+          "imports": [
+            "M6Character"
+          ],
+          "name": "M6.Character.sign_sum",
+          "ancestors": [
+            "sign_add"
+          ],
+          "spec_sha256": "9d3a91bef3339d3550d45a7b73d1151618a1c368317aac3f2b584c73607e0020"
+        },
+        "sha256": "9332d513f65d096f838aefa7dd17b107149d58bd5e34de91009669ea2c6849f1"
+      },
+      "character_product": {
+        "payload": {
+          "declaration": "theorem M6.Character.character_product : ∀ (m : ℕ) (q z : M6.Character.Vector m), M6.Character.character q z = ∏ i, M6.Character.sign (q i * z i) := by\n  change ∀ (m : ℕ) (q z : M6.Character.Vector m), M6.Character.character q z = ∏ i, M6.Character.sign (q i * z i)\n  intro m q z\n  change M6.Character.sign (∑ i, q i * z i) = ∏ i, M6.Character.sign (q i * z i)\n  exact M6.Character.sign_sum m (fun i => q i * z i)",
+          "imports": [
+            "M6Character"
+          ],
+          "name": "M6.Character.character_product",
+          "ancestors": [
+            "sign_add",
+            "sign_sum"
+          ],
+          "spec_sha256": "7ed43ae32bfe621d5dda5039d2380d60738ca4bf809888b0098185a2d500c6ae"
+        },
+        "sha256": "407f5d9a155d3e4684403ba7e4d627c20514b9a27b57c0e99592c5624822280e"
+      },
+      "weighted_factorization": {
+        "payload": {
+          "declaration": "theorem M6.Character.weighted_factorization : ∀ (m : ℕ) (w : Fin m → ZMod 2 → Polynomial ℤ) (q : M6.Character.Vector m), M6.Character.localTransform w q = ∑ z : M6.Character.Vector m, Polynomial.C (M6.Character.character q z) * ∏ i, w i (z i) := by\n  change ∀ (m : ℕ) (w : Fin m → ZMod 2 → Polynomial ℤ) (q : M6.Character.Vector m), M6.Character.localTransform w q = ∑ z : M6.Character.Vector m, Polynomial.C (M6.Character.character q z) * ∏ i, w i (z i)\n  intro m w q\n  classical\n  unfold M6.Character.localTransform\n  rw [Fintype.prod_sum]\n  apply Finset.sum_congr rfl\n  intro z hz\n  simp only [M6.Character.character_product, map_prod, Finset.prod_mul_distrib, mul_comm]",
+          "imports": [
+            "M6Character"
+          ],
+          "name": "M6.Character.weighted_factorization",
+          "ancestors": [
+            "character_product",
+            "sign_add",
+            "sign_sum"
+          ],
+          "spec_sha256": "a0233b443c5a5dbfc0acf1b0b74bf465fc1c41ca5ce7f03f9b01034363dc4610"
+        },
+        "sha256": "26576ed2b287ccedec34b37577a50c4b5e8960bf276b78920a296c7c5340c8e9"
+      }
+    }
+  }
+}

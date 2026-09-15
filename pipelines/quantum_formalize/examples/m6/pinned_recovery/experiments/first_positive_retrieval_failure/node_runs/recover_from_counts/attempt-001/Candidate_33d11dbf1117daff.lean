@@ -1,0 +1,22 @@
+import FrozenTarget_33d11dbf1117daff
+theorem M6.Pinned.recover_from_counts : QuantumHarnessFrozenTarget := by
+  classical
+  unfold QuantumHarnessFrozenTarget
+  intro m L d c hc hpos
+  let r := M6.Pinned.recover c (M6.Pinned.free m) (List.finRange m)
+  change M6.Pinned.decode r.1 ∈ L ∧ M6.Pinned.weight (M6.Pinned.decode r.1) = d ∧ r.2 ≤ m
+  have heq : c = fun P => M6.Pinned.count L P d := funext hc
+  have hpart : M6.Pinned.partitions c := by
+    rw [heq]
+    exact M6.Pinned.count_pin_partition m L d
+  have hp := M6.Pinned.recover_positive m c hpart (M6.Pinned.free m) (List.finRange m) hpos
+  change 0 < c r.1 at hp
+  rw [hc r.1] at hp
+  have hr := M6.Pinned.recover_properties m c (M6.Pinned.free m) (List.finRange m)
+  have ha : M6.Pinned.assigned r.1 := by
+    intro i
+    exact hr.2.1 i (by simp)
+  obtain ⟨v, hvL, hvA, hvW⟩ := (M6.Pinned.count_nonnegative_positive m L r.1 d).2.mp hp
+  have hv : v = M6.Pinned.decode r.1 := (M6.Pinned.decode_unique m r.1 ha v).mp hvA
+  refine ⟨hv ▸ hvL, hv ▸ hvW, ?_⟩
+  simpa only [List.length_finRange] using hr.2.2

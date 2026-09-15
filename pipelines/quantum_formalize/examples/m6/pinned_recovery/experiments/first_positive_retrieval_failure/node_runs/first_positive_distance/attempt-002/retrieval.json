@@ -1,0 +1,112 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.find?_range_eq_some",
+    "status": "ok",
+    "results": [
+      {
+        "id": 208584,
+        "name": "List.find?_ofFn_eq_some",
+        "module": "Mathlib.Data.List.OfFn",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L133-L141",
+        "source_text": "lemma find?_ofFn_eq_some {n} {f : Fin n → α} {p : α → Bool} {b : α} :\n    (ofFn f).find? p = some b ↔ p b = true ∧ ∃ i, f i = b ∧ ∀ j < i, ¬(p (f j) = true) := by\n  rw [find?_eq_some_iff_getElem]\n  exact ⟨fun ⟨hpb, i, hi, hfb, h⟩ ↦\n      ⟨hpb, ⟨⟨i, length_ofFn (f := f) ▸ hi⟩, by simpa\n        using! hfb, fun j hj ↦ by simpa using! h j hj⟩⟩,\n    fun ⟨hpb, i, hfb, h⟩ ↦\n      ⟨hpb, ⟨i, (length_ofFn (f := f)).symm ▸ i.isLt, by simpa using! hfb,\n        fun j hj ↦ by simpa using! h ⟨j, by lia⟩ (by simpa using! hj)⟩⟩⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 210705,
+        "name": "Multiset.find?_eq_some_iff",
+        "module": "Mathlib.Data.Multiset.Find",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Find.lean#L70-L82",
+        "source_text": "@[simp, grind =]\ntheorem find?_eq_some_iff {a : α} {s : Multiset α} (hp) :\n    s.find? p hp = some a ↔ a ∈ s ∧ p a := by\n  induction s using Multiset.induction_on with\n  | empty => simp\n  | cons x s ih =>\n    rw [find?_cons]\n    split\n    · dsimp [Set.Subsingleton] at hp\n      specialize hp ⟨mem_cons_self _ _, ‹p x›⟩\n      grind\n    · simp_rw [ih]\n      grind",
+        "docstring": null
+      },
+      {
+        "id": 208015,
+        "name": "List.find?_congr",
+        "module": "Mathlib.Data.List.Find",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Find.lean#L33-L37",
+        "source_text": "/-- If two predicates agree on all the elements, so does `find?`. -/\n@[congr]\ntheorem find?_congr {p₁ p₂ : α → Bool} {l : List α} (h : ∀ x ∈ l, p₁ x = p₂ x) :\n    l.find? p₁ = l.find? p₂ := by\n  induction l with grind\n",
+        "docstring": "If two predicates agree on all the elements, so does `find?`. "
+      },
+      {
+        "id": 208585,
+        "name": "List.find?_ofFn_eq_some_of_injective",
+        "module": "Mathlib.Data.List.OfFn",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L143-L146",
+        "source_text": "lemma find?_ofFn_eq_some_of_injective {n} {f : Fin n → α} {p : α → Bool} {i : Fin n}\n    (h : Function.Injective f) :\n    (ofFn f).find? p = some (f i) ↔ p (f i) = true ∧ ∀ j < i, ¬(p (f j) = true) := by\n  simp only [find?_ofFn_eq_some, h.eq_iff, Bool.not_eq_true, exists_eq_left]\n",
+        "docstring": null
+      },
+      {
+        "id": 219806,
+        "name": "Set.range_list_getElem?",
+        "module": "Mathlib.Data.Set.List",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/List.lean#L44-L51",
+        "source_text": "theorem range_list_getElem? :\n    range (l[·]? : ℕ → Option α) = insert none (some '' { x | x ∈ l }) := by\n  rw [← range_list_get, ← range_comp]\n  refine (range_subset_iff.2 fun n => ?_).antisymm (insert_subset_iff.2 ⟨?_, ?_⟩)\n  · exact (le_or_gt l.length n).imp getElem?_eq_none_iff.mpr\n      (fun hlt => ⟨⟨_, hlt⟩, (getElem?_eq_getElem hlt).symm⟩)\n  · exact ⟨_, getElem?_eq_none_iff.mpr le_rfl⟩\n  · exact range_subset_iff.2 fun k => ⟨_, getElem?_eq_getElem _⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.find?_range_eq_none",
+    "status": "ok",
+    "results": [
+      {
+        "id": 210706,
+        "name": "Multiset.find?_eq_none_iff",
+        "module": "Mathlib.Data.Multiset.Find",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Find.lean#L85-L93",
+        "source_text": "@[simp, grind =]\ntheorem find?_eq_none_iff {s : Multiset α} (hp) :\n    s.find? p hp = none ↔ ∀ a ∈ s, ¬ p a := by\n  induction s using Multiset.induction_on with\n  | empty => simp\n  | cons x s ih =>\n    rw [find?_cons]\n    dsimp [Set.Subsingleton] at hp\n    grind",
+        "docstring": null
+      },
+      {
+        "id": 208392,
+        "name": "List.argmax_eq_none",
+        "module": "Mathlib.Data.List.MinMax",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L135-L136",
+        "source_text": "@[simp]\ntheorem argmax_eq_none : l.argmax f = none ↔ l = [] := by simp [argmax]",
+        "docstring": null
+      },
+      {
+        "id": 207546,
+        "name": "List.filterMap_none",
+        "module": "Mathlib.Data.List.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L915-L918",
+        "source_text": "@[simp]\nlemma filterMap_none (l : List α) :\n    l.filterMap (fun _ ↦ @Option.none β) = [] := by\n  induction l <;> simp [*]",
+        "docstring": null
+      },
+      {
+        "id": 208393,
+        "name": "List.argmin_eq_none",
+        "module": "Mathlib.Data.List.MinMax",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L138-L140",
+        "source_text": "@[simp]\ntheorem argmin_eq_none : l.argmin f = none ↔ l = [] :=\n  @argmax_eq_none _ βᵒᵈ _ _ _ _",
+        "docstring": null
+      },
+      {
+        "id": 219141,
+        "name": "Set.range_some_inter_none",
+        "module": "Mathlib.Data.Set.Image",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Image.lean#L989-L991",
+        "source_text": "@[simp]\ntheorem range_some_inter_none (α : Type*) : range (some : α → Option α) ∩ {none} = ∅ :=\n  (isCompl_range_some_none α).inf_eq_bot",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "finite set cardinality filter",
+    "status": "unavailable",
+    "error": "LeanExplore Physlib: HTTP 500",
+    "results": []
+  }
+]

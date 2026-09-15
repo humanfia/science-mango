@@ -1,0 +1,61 @@
+{
+  "id": "root_period",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Coordinates.root_period",
+    "spec_sha256": "07f0677dcf63dd845b34a47bfbaa7466b84cdcd3a7bb6450ea7dcbd547f15d64",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-fd01bhlo/attempt-001/Candidate_34c2870f118c1c93.lean:6:4: error: Type mismatch: After simplification, term\n  AdjoinRoot.eval₂_root (Cyclic.modulus N)\n has type\n  Polynomial.eval₂ (AdjoinRoot.of (Polynomial.X ^ N + 1)) (AdjoinRoot.root (Polynomial.X ^ N + 1))\n      (Polynomial.X ^ N + 1) =\n    0\nbut is expected to have type\n  AdjoinRoot.root (Polynomial.X ^ N + 1) ^ N + 1 = 0\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-fd01bhlo/attempt-002/Candidate_67b864f1bc69b017.lean",
+        "target_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-fd01bhlo/attempt-002/FrozenTarget_67b864f1bc69b017.lean",
+        "feedback": "",
+        "target_sha256": "780b83eed3e2ec24500d80615d14bb6fd1d7b53146bf67423bc5e4ab42cea262",
+        "target_olean_sha256": "d9438fb89f36c05026c51dd0192ad9540459e47f397ba122cc863a6e29d3824f",
+        "source_sha256": "05a0b35fed011c442dd367f4415c12581d416f634cd17884fbb543a8e05a8995",
+        "olean_sha256": "0f40c63f9ad81e5b452f104b397e12eea76520d72ea2694969c6888adc1d2e49",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:04:05.510523+00:00",
+    "work": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-fd01bhlo",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5e325cf9850f30696bb2de458ca8ad8126702863c7219124150bc48a65c741e6",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-fd01bhlo/attempt-002/Candidate_67b864f1bc69b017.lean",
+    "environment_sha256": "985f164967ba4accfc9033cfc561fab60a260718cf9c0369adc4a653a02b3263",
+    "artifacts": {
+      "root_period": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.root_period : ∀ (N : ℕ) [NeZero N], (AdjoinRoot.root (M6.Cyclic.modulus N))^N = 1 := by\n  change ∀ (N : ℕ) [NeZero N], (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ N = 1\n  intro N hN\n  have h := AdjoinRoot.eval₂_root (M6.Cyclic.modulus N)\n  change Polynomial.eval₂ (AdjoinRoot.of (M6.Cyclic.modulus N)) (AdjoinRoot.root (M6.Cyclic.modulus N)) (Polynomial.X ^ N + 1) = 0 at h\n  simp only [Polynomial.eval₂_add, Polynomial.eval₂_pow, Polynomial.eval₂_X, Polynomial.eval₂_one] at h\n  have h₂ : (1 : ZMod 2) + 1 = 0 := by decide\n  have h₂' : (1 : AdjoinRoot (M6.Cyclic.modulus N)) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.of (M6.Cyclic.modulus N)) h₂\n  exact add_right_cancel (h.trans h₂'.symm)",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.root_period",
+          "ancestors": [],
+          "spec_sha256": "07f0677dcf63dd845b34a47bfbaa7466b84cdcd3a7bb6450ea7dcbd547f15d64"
+        },
+        "sha256": "cba11f03f0786c6b6d56b91ebc0b3c0d800545f78f7b2927dc54884dfb14e55b"
+      }
+    }
+  }
+}

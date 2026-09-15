@@ -1,0 +1,139 @@
+{
+  "id": "fiber_card",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.BoundaryFibers.fiber_card",
+    "spec_sha256": "88733af8ae08f15ac546a58343691828b545b024fa5061d59c7c93187e0788f3",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-boundary-fibers-formalization/.humanize-formal-runs/run-ggpy9vaf/attempt-001/Candidate_70c7a6e114185194.lean",
+        "target_path": "/home/jing/m6-lean-boundary-fibers-formalization/.humanize-formal-runs/run-ggpy9vaf/attempt-001/FrozenTarget_70c7a6e114185194.lean",
+        "feedback": "",
+        "target_sha256": "b089dbd9149561be205ba9365e90599666764aba087d50fb18b8512eac14c6be",
+        "target_olean_sha256": "c36da7c1398825848c51b9ec06d145286a9c59cb02451d885a94d9e9cc7ad439",
+        "source_sha256": "4996a91d67501277f28a59b42a8d3f275dbf5a70f3c31f285561b94375cbcf44",
+        "olean_sha256": "5086233a56ca00e9d814d020f97168bbf155e311959de2a6837535481572e6a4",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:11:53.453488+00:00",
+    "work": "/home/jing/m6-lean-boundary-fibers-formalization/.humanize-formal-runs/run-ggpy9vaf",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "3536496734b8b57f4d19529f6393feb74f0917db6775ad7f73c0d24966a86882",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-boundary-fibers-formalization/.humanize-formal-runs/run-ggpy9vaf/attempt-001/Candidate_70c7a6e114185194.lean",
+    "environment_sha256": "94f2d73cf5038cad93bb436421862fba0e1606af3323466695e1a90362fd7450",
+    "artifacts": {
+      "boundary_add": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.boundary_add : ∀ (a b M : M6.BoundaryFibers.BP) (h k : AdjoinRoot M), M6.BoundaryFibers.boundary a b M (h+k) = M6.BoundaryFibers.boundary a b M h + M6.BoundaryFibers.boundary a b M k := by\n  intro a b M h k\n  unfold M6.BoundaryFibers.boundary\n  apply Prod.ext <;> exact mul_add _ _ _",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.boundary_add",
+          "ancestors": [],
+          "spec_sha256": "af0106585390cce6e73ef95fc678e7e8021c1ed733a6fcb6f5a4aa68b2f98168"
+        },
+        "sha256": "fcdcaeca742c99043c0d720a377c725a147509fd0c15f11ad8bb77d4b6166b48"
+      },
+      "nonzero_monic": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.nonzero_monic : ∀ p : M6.BoundaryFibers.BP, p ≠ 0 → p.Monic := by\n  change ∀ p : M6.BoundaryFibers.BP, p ≠ 0 → p.Monic\n  intro p hp\n  have hlc : p.leadingCoeff ≠ 0 := by\n    intro h\n    exact hp (Polynomial.leadingCoeff_eq_zero.mp h)\n  change p.leadingCoeff = 1\n  have hbinary : ∀ x : ZMod 2, x ≠ 0 → x = 1 := by decide\n  exact hbinary p.leadingCoeff hlc",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.nonzero_monic",
+          "ancestors": [],
+          "spec_sha256": "23c22866be28b6bdfcdd1692f24856f0cdce4c8ebe894280102e9af4976b047b"
+        },
+        "sha256": "2a27cfc4995282e31f84d93c15dda9cd5d95802f6e67e07caaa27eac4e5de872"
+      },
+      "signature_nonzero": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.signature_nonzero : ∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → M6.Cyclic.signature a b M ≠ 0 := by\n  change ∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → M6.Cyclic.signature a b M ≠ 0\n  intro a b M hM hs\n  have hd := (M6.Cyclic.signature_divides a b M).2.2\n  apply hM\n  simpa [hs] using hd",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.signature_nonzero",
+          "ancestors": [],
+          "spec_sha256": "131a80403062c6b5ec6667ddaddaa2a5f40fcfa7b2bdb7308485c9e8ee7f9a55"
+        },
+        "sha256": "dede86144ebde52bcc76025a9cc809b14899251fcac0e389a4cf8acfdbdbaa5f"
+      },
+      "kernel_iff": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.kernel_iff : ∀ (a b M : M6.BoundaryFibers.BP) (h : AdjoinRoot M), M6.BoundaryFibers.boundary a b M h = (0,0) ↔ AdjoinRoot.mk M (M6.Cyclic.signature a b M) * h = 0 := by\n  change ∀ (a b M : M6.BoundaryFibers.BP) (h : AdjoinRoot M), M6.BoundaryFibers.boundary a b M h = (0, 0) ↔ AdjoinRoot.mk M (M6.Cyclic.signature a b M) * h = 0\n  intro a b M h\n  refine AdjoinRoot.induction_on M h ?_\n  intro p\n  simpa only [M6.BoundaryFibers.boundary, Prod.mk.injEq, ← map_mul, AdjoinRoot.mk_eq_zero, and_comm] using M6.Cyclic.kernel_divisibility a b M p",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.kernel_iff",
+          "ancestors": [],
+          "spec_sha256": "00e4564a9d302bbf259ae8ec79322a26dcd8a2f86dec31450bd4e12e2a4f70c0"
+        },
+        "sha256": "2e577aeb2ea2aa830e132ec5e946b38254692c38f4f9e4d0a7c1a25a59d24e3c"
+      },
+      "annihilator_general": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.annihilator_general : ∀ (F M : M6.BoundaryFibers.BP), F.Monic → F ∣ M → M ≠ 0 → Nat.card {h : AdjoinRoot M // AdjoinRoot.mk M F * h = 0} = 2^F.natDegree := by\n  intro F M hF hFM hM\n  rcases hFM with ⟨K, rfl⟩\n  have hK : K ≠ 0 := by\n    intro hK\n    apply hM\n    simp [hK]\n  simpa only [M6.KernelFibers.annihilator] using\n    (M6.KernelFibers.annihilator_card F K hF hK)",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.annihilator_general",
+          "ancestors": [],
+          "spec_sha256": "4a02cb6bf67c7e7c0e0ca1342f1673254d7436a87873389adb684ad4da7ce7ef"
+        },
+        "sha256": "c6110a76e6214331e9eccbffe9603e15fdbd9e0d190b3f601c5e9aaac74ca2d9"
+      },
+      "kernel_card": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.kernel_card : ∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → Nat.card {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = (0,0)} = 2^(M6.Cyclic.signature a b M).natDegree := by\n  change ∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → Nat.card {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = (0, 0)} = 2 ^ (M6.Cyclic.signature a b M).natDegree\n  intro a b M hM\n  simp_rw [M6.BoundaryFibers.kernel_iff]\n  exact M6.BoundaryFibers.annihilator_general\n    (M6.Cyclic.signature a b M) M\n    (M6.BoundaryFibers.nonzero_monic _ (M6.BoundaryFibers.signature_nonzero a b M hM))\n    (M6.Cyclic.signature_divides a b M).2.2 hM",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.kernel_card",
+          "ancestors": [
+            "annihilator_general",
+            "kernel_iff",
+            "nonzero_monic",
+            "signature_nonzero"
+          ],
+          "spec_sha256": "d6115e627982532c64a0006cd4237ac1b70d265c9d3c65e8eb51014bb72aec2d"
+        },
+        "sha256": "faf8896a033dff3499966125f313dff0462e39b836532110aa90d4d07dff9775"
+      },
+      "fiber_card": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.fiber_card : ∀ (a b M : M6.BoundaryFibers.BP), M ≠ 0 → ∀ h₀ : AdjoinRoot M, Nat.card {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = M6.BoundaryFibers.boundary a b M h₀} = 2^(M6.Cyclic.signature a b M).natDegree := by\n  change ∀ (a b M : M6.BoundaryFibers.BP), M ≠ 0 → ∀ h₀ : AdjoinRoot M, Nat.card {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = M6.BoundaryFibers.boundary a b M h₀} = 2 ^ (M6.Cyclic.signature a b M).natDegree\n  intro a b M hM h₀\n  have hsub (h k : AdjoinRoot M) :\n      M6.BoundaryFibers.boundary a b M (h - k) =\n        M6.BoundaryFibers.boundary a b M h - M6.BoundaryFibers.boundary a b M k := by\n    unfold M6.BoundaryFibers.boundary\n    apply Prod.ext <;> exact mul_sub _ _ _\n  let e : {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = (0, 0)} ≃\n      {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = M6.BoundaryFibers.boundary a b M h₀} :=\n    { toFun := fun h => ⟨h.val + h₀, by\n        rw [M6.BoundaryFibers.boundary_add, h.property]\n        exact zero_add _⟩\n      invFun := fun h => ⟨h.val - h₀, by\n        rw [hsub, h.property]\n        exact sub_self _⟩\n      left_inv := by\n        intro h\n        apply Subtype.ext\n        exact add_sub_cancel_right h.val h₀\n      right_inv := by\n        intro h\n        apply Subtype.ext\n        exact sub_add_cancel h.val h₀ }\n  exact (Nat.card_congr e.symm).trans (M6.BoundaryFibers.kernel_card a b M hM)",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.fiber_card",
+          "ancestors": [
+            "annihilator_general",
+            "boundary_add",
+            "kernel_card",
+            "kernel_iff",
+            "nonzero_monic",
+            "signature_nonzero"
+          ],
+          "spec_sha256": "541e7bf3a8e7cae4761296fa2d4386ebbd8c42aba6c9409c4507a31f3ff21647"
+        },
+        "sha256": "6b406b53b3b4f6fe4495ce4bdac63f93db2658488599b1506fecb9f4752327de"
+      }
+    }
+  }
+}

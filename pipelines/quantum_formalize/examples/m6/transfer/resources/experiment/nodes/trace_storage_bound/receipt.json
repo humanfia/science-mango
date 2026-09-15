@@ -1,0 +1,55 @@
+{
+  "id": "trace_storage_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.trace_storage_bound",
+    "spec_sha256": "0a5955be67fcbbb10bd48d43353048c2b250405504d57799079a8e4e9e182bd2",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-m2_uakbz/attempt-001/Candidate_d91a4bcd36b82bd7.lean",
+        "target_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-m2_uakbz/attempt-001/FrozenTarget_d91a4bcd36b82bd7.lean",
+        "feedback": "",
+        "target_sha256": "da77091bd2238b802e57b662de09f847bb81cf3d16ce9f8652af4b15a91d85b4",
+        "target_olean_sha256": "5346f0423ae578bdf108c55d8385fe66dfa6a6344afed3ea7fcf112d5f8ae226",
+        "source_sha256": "6e08a32c98a81ac9b58ccd1f15aee15328d301422f2bfadeae543206c49ab2ab",
+        "olean_sha256": "6de5370dff0d864dcedeb649271608d749e7d5fab6a64d7cac5ec2953a38ca5f",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:02:20.336163+00:00",
+    "work": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-m2_uakbz",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1fde733b6c080211b890e7271be48d963f1b2853e0cc0fb5740c5f48d16a349b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-m2_uakbz/attempt-001/Candidate_d91a4bcd36b82bd7.lean",
+    "environment_sha256": "e496dd229dc6d7b1bbca1c12cc26f62cc202f7e8951f58b852a87e05a956d974",
+    "artifacts": {
+      "trace_storage_bound": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.trace_storage_bound : ∀ R N : ℕ, R < N → M6.Transfer.traceStorageModel R N ≤ 128 * N^2 * 2^R := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.traceStorageModel R N ≤ 128 * N^2 * 2^R\n  intro R N hRN\n  have hN : 1 ≤ N := by omega\n  have hp : 1 ≤ (2 : ℕ)^R := by\n    have : 0 < (2 : ℕ)^R := by positivity\n    omega\n  have hc : M6.Transfer.coefficientBits R N ≤ 6*N := by\n    unfold M6.Transfer.coefficientBits\n    omega\n  have hs : 2*N+1 ≤ 3*N := by omega\n  have hr : R+2 ≤ 3*N := by omega\n  have h1 : 2 * 2^R * (2*N+1) * M6.Transfer.coefficientBits R N ≤ 36 * N^2 * 2^R := by\n    calc\n      2 * 2^R * (2*N+1) * M6.Transfer.coefficientBits R N\n          ≤ 2 * 2^R * (3*N) * (6*N) := by gcongr\n      _ = 36 * N^2 * 2^R := by ring\n  have h2 : (2*N+1) * M6.Transfer.coefficientBits R N ≤ 18 * N^2 := by\n    calc\n      (2*N+1) * M6.Transfer.coefficientBits R N ≤ (3*N) * (6*N) := by gcongr\n      _ = 18 * N^2 := by ring\n  have h3 : 2 * 2^R * (R+2) ≤ 6 * N * 2^R := by\n    calc\n      2 * 2^R * (R+2) ≤ 2 * 2^R * (3*N) := by gcongr\n      _ = 6 * N * 2^R := by ring\n  have hn2 : N ≤ N^2 := by nlinarith\n  have hb : N^2 ≤ N^2 * 2^R := by\n    simpa using Nat.mul_le_mul_left (N^2) hp\n  have hnp : N * 2^R ≤ N^2 * 2^R :=\n    Nat.mul_le_mul_right (2^R) hn2\n  have hnT : N ≤ N^2 * 2^R := le_trans hn2 hb\n  have hT : 1 ≤ N^2 * 2^R := le_trans hN hnT\n  unfold M6.Transfer.traceStorageModel\n  nlinarith",
+          "imports": [
+            "M6TransferResources"
+          ],
+          "name": "M6.Transfer.trace_storage_bound",
+          "ancestors": [],
+          "spec_sha256": "0a5955be67fcbbb10bd48d43353048c2b250405504d57799079a8e4e9e182bd2"
+        },
+        "sha256": "246e71f4b572fc139336d09ed5786ac19a79cc97787c60a2c41977dbe1c6c8a1"
+      }
+    }
+  }
+}

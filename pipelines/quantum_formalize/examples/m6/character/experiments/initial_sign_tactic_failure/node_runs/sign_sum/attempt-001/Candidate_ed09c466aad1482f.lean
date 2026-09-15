@@ -1,0 +1,13 @@
+import FrozenTarget_ed09c466aad1482f
+theorem M6.Character.sign_sum : QuantumHarnessFrozenTarget := by
+  change ∀ (m : ℕ) (f : Fin m → ZMod 2), M6.Character.sign (∑ i, f i) = ∏ i, M6.Character.sign (f i)
+  intro m f
+  have h : ∀ s : Finset (Fin m), M6.Character.sign (∑ i ∈ s, f i) = ∏ i ∈ s, M6.Character.sign (f i) := by
+    intro s
+    induction s using Finset.induction_on with
+    | empty =>
+        simp only [Finset.sum_empty, Finset.prod_empty]
+        decide
+    | @insert a s ha ih =>
+        rw [Finset.sum_insert ha, Finset.prod_insert ha, M6.Character.sign_add, ih]
+  exact h Finset.univ

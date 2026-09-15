@@ -1,0 +1,13 @@
+{
+  "name": "M6.Character.orthogonality",
+  "statement": "∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)) (z : M6.Character.Vector m), M6.Character.characterSum D z = M6.Character.orthogonalIndicator D z",
+  "imports": [
+    "M6Character"
+  ],
+  "context": "theorem M6.Character.sign_add : ∀ (a b : ZMod 2), M6.Character.sign (a+b) = M6.Character.sign a * M6.Character.sign b := by\n  change ∀ (a b : ZMod 2), M6.Character.sign (a + b) = M6.Character.sign a * M6.Character.sign b\n  intro a b\n  fin_cases a <;> fin_cases b <;> decide\n\ntheorem M6.Character.sign_eq_one : ∀ (a : ZMod 2), (M6.Character.sign a = 1 ↔ a = 0) ∧ (M6.Character.sign a = -1 ↔ a ≠ 0) := by\n  change ∀ (a : ZMod 2), (M6.Character.sign a = 1 ↔ a = 0) ∧ (M6.Character.sign a = -1 ↔ a ≠ 0)\n  intro a\n  have ha : a = 0 ∨ a = 1 := by\n    fin_cases a\n    · exact Or.inl rfl\n    · exact Or.inr rfl\n  rcases ha with rfl | rfl <;> norm_num [M6.Character.sign, ZMod.val_zero, ZMod.val_one_eq_one_mod]\n\ntheorem M6.Character.character_add : ∀ (m : ℕ) (q r z : M6.Character.Vector m), M6.Character.character (q+r) z = M6.Character.character q z * M6.Character.character r z := by\n  change ∀ (m : ℕ) (q r z : M6.Character.Vector m), M6.Character.character (q + r) z = M6.Character.character q z * M6.Character.character r z\n  intro m q r z\n  simp only [M6.Character.character, M6.Character.dot, Pi.add_apply, add_mul, Finset.sum_add_distrib, M6.Character.sign_add]",
+  "queries": [
+    "finite binary character orthogonality sum translation",
+    "Fintype prod_sum polynomial integer"
+  ],
+  "guidance": "Unfold orthogonalIndicator to the exact if Orthogonal then card else0 statement. Inside orthogonal all characters1. Outside obtain q0∈D with dot q0 z≠0, hence character q0z=-1. Translation by q0 bijects finite subspaceWords; character_add gives sum=-sum and integer cancellation gives0. Prove translation/reindex; do not assume orthogonality formula. Return tactic lines only, without leading by. Preserve exact target."
+}

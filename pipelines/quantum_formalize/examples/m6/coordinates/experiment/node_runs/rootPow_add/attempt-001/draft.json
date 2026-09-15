@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (i j : ZMod N), M6.Coordinates.rootPow N (i + j) = M6.Coordinates.rootPow N i * M6.Coordinates.rootPow N j\nintro N hN i j\nchange (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ (i + j).val = (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ i.val * (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ j.val\nrw [ZMod.val_add, ← pow_add]\nhave h := congrArg (fun k : ℕ => (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ k) (Nat.mod_add_div (i.val + j.val) N)\nsimpa only [pow_add, pow_mul, M6.Coordinates.root_period, one_pow, mul_one] using h",
+  "queries": []
+}

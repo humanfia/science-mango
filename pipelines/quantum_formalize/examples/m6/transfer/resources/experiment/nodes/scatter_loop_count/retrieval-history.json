@@ -1,0 +1,176 @@
+[
+  {
+    "queries": [
+      "Nat power monotonicity polynomial inequality",
+      "Fintype card function product"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Nat power monotonicity polynomial inequality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 135754,
+            "name": "NNReal.rpow_add_rpow_le",
+            "module": "Mathlib.Analysis.MeanInequalitiesPow",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/MeanInequalitiesPow.lean#L164-L175",
+            "source_text": "theorem rpow_add_rpow_le {p q : ℝ} (a b : ℝ≥0) (hp_pos : 0 < p) (hpq : p ≤ q) :\n    (a ^ q + b ^ q) ^ (1 / q) ≤ (a ^ p + b ^ p) ^ (1 / p) := by\n  have h_rpow : ∀ a : ℝ≥0, a ^ q = (a ^ p) ^ (q / p) := fun a => by\n    rw [← NNReal.rpow_mul, div_eq_inv_mul, ← mul_assoc, mul_inv_cancel₀ hp_pos.ne.symm,\n      one_mul]\n  have h_rpow_add_rpow_le_add :\n    ((a ^ p) ^ (q / p) + (b ^ p) ^ (q / p)) ^ (1 / (q / p)) ≤ a ^ p + b ^ p := by\n    refine rpow_add_rpow_le_add (a ^ p) (b ^ p) ?_\n    rwa [one_le_div hp_pos]\n  rw [h_rpow a, h_rpow b, one_div p, NNReal.le_rpow_inv_iff hp_pos, ← NNReal.rpow_mul, mul_comm,\n    mul_one_div]\n  rwa [one_div_div] at h_rpow_add_rpow_le_add\n",
+            "docstring": null
+          },
+          {
+            "id": 98374,
+            "name": "le_of_pow_le_pow_left'",
+            "module": "Mathlib.Algebra.Order.Monoid.Unbundled.Pow",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Monoid/Unbundled/Pow.lean#L269-L270",
+            "source_text": "@[to_additive le_of_nsmul_le_nsmul_right]\nalias ⟨le_of_pow_le_pow_left', _⟩ := pow_le_pow_iff_left",
+            "docstring": "**Alias** of the forward direction of `pow_le_pow_iff_left`."
+          },
+          {
+            "id": 101360,
+            "name": "Polynomial.natDegree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+            "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+            "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+          },
+          {
+            "id": 95645,
+            "name": "Bound.pow_le_pow_right_of_le_one_or_one_le",
+            "module": "Mathlib.Algebra.Order.GroupWithZero.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/GroupWithZero/Basic.lean#L447-L454",
+            "source_text": "/-- `bound` lemma for branching on `1 ≤ a ∨ a ≤ 1` when proving `a ^ n ≤ a ^ m` -/\n@[bound]\nlemma Bound.pow_le_pow_right_of_le_one_or_one_le [ZeroLEOneClass M₀] [PosMulMono M₀]\n    (h : 1 ≤ a ∧ n ≤ m ∨ 0 ≤ a ∧ a ≤ 1 ∧ m ≤ n) :\n    a ^ n ≤ a ^ m := by\n  obtain ⟨a1, nm⟩ | ⟨a0, a1, mn⟩ := h\n  · exact pow_right_mono₀ a1 nm\n  · exact pow_le_pow_of_le_one a0 a1 mn\n",
+            "docstring": "`bound` lemma for branching on `1 ≤ a ∨ a ≤ 1` when proving `a ^ n ≤ a ^ m` "
+          },
+          {
+            "id": 212478,
+            "name": "Nat.dist.triangle_inequality",
+            "module": "Mathlib.Data.Nat.Dist",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Dist.lean#L57-L58",
+            "source_text": "theorem dist.triangle_inequality (n m k : ℕ) : dist n k ≤ dist n m + dist m k := by\n  unfold Nat.dist; lia\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype card function product",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205838,
+            "name": "Fintype.card",
+            "module": "Mathlib.Data.Fintype.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L39-L41",
+            "source_text": "/-- `card α` is the number of elements in `α`, defined when `α` is a fintype. -/\ndef card (α) [Fintype α] : ℕ :=\n  (@univ α _).card\n",
+            "docstring": "`card α` is the number of elements in `α`, defined when `α` is a fintype. "
+          },
+          {
+            "id": 205989,
+            "name": "Fintype.finite",
+            "module": "Mathlib.Data.Fintype.EquivFin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/EquivFin.lean#L164-L165",
+            "source_text": "protected theorem Fintype.finite {α : Type*} (_inst : Fintype α) : Finite α :=\n  ⟨Fintype.equivFin α⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 205175,
+            "name": "Fintype.card_finsupp",
+            "module": "Mathlib.Data.Finsupp.Fintype",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Fintype.lean#L35-L36",
+            "source_text": "@[simp] lemma Fintype.card_finsupp : card (ι →₀ α) = card α ^ card ι := by\n  simp [card_congr Finsupp.equivFunOnFinite]",
+            "docstring": null
+          },
+          {
+            "id": 323285,
+            "name": "Cardinal.mk_finsupp_of_fintype",
+            "module": "Mathlib.SetTheory.Cardinal.Finsupp",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Finsupp.lean#L25-L26",
+            "source_text": "theorem mk_finsupp_of_fintype (α β : Type u) [Fintype α] [Zero β] :\n    #(α →₀ β) = #β ^ Fintype.card α := by simp\n",
+            "docstring": null
+          },
+          {
+            "id": 238960,
+            "name": "Fintype.card_zpowers",
+            "module": "Mathlib.GroupTheory.OrderOfElement",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/OrderOfElement.lean#L1143-L1147",
+            "source_text": "/-- See also `Nat.card_zpowers`. -/\n@[to_additive /-- See also `Nat.card_zmultiples`. -/]\ntheorem Fintype.card_zpowers : Fintype.card (zpowers x) = orderOf x :=\n  (Fintype.card_eq.2 ⟨finEquivZPowers <| isOfFinOrder_of_finite _⟩).symm.trans <|\n    Fintype.card_fin (orderOf x)\n",
+            "docstring": "See also `Nat.card_zpowers`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fintype card function product",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393842,
+            "name": "CanonicalEnsemble.mathematicalPartitionFunction_of_fintype",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L167-L172",
+            "source_text": "lemma mathematicalPartitionFunction_of_fintype [IsFinite 𝓒] (T : Temperature) :\n    𝓒.mathematicalPartitionFunction T = ∑ i, exp (- β T * 𝓒.energy i) := by\n  rw [mathematicalPartitionFunction_eq_integral, MeasureTheory.integral_fintype]\n  simp [IsFinite.μ_eq_count]\n  · rw [IsFinite.μ_eq_count]\n    exact Integrable.of_finite\n",
+            "docstring": null
+          },
+          {
+            "id": 393843,
+            "name": "CanonicalEnsemble.partitionFunction_of_fintype",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L174-L177",
+            "source_text": "lemma partitionFunction_of_fintype [IsFinite 𝓒] (T : Temperature) :\n    𝓒.partitionFunction T = ∑ i, exp (- T.β * 𝓒.energy i) := by\n  simp [partitionFunction, mathematicalPartitionFunction_of_fintype,\n        IsFinite.dof_eq_zero, IsFinite.phase_space_unit_eq_one]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "address_width",
+    "receipts_sha256": "d26ccbbb01a85760f9fe58cda1a05bc2f3786c5d28d813cf9aa05e0b6a40a84e"
+  }
+]

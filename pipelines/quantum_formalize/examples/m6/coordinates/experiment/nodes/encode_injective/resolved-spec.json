@@ -1,0 +1,13 @@
+{
+  "name": "M6.Coordinates.encode_injective",
+  "statement": "∀ (N : ℕ) [NeZero N], Function.Injective (M6.Coordinates.encode N)",
+  "imports": [
+    "M6Coordinates"
+  ],
+  "context": "theorem M6.Coordinates.block_coeff : ∀ (N : ℕ) [NeZero N] (h : M6.Physical.Block N) (i : Fin N), (M6.Coordinates.blockPolynomial N h).coeff i.val = h (i.val : ZMod N) := by\n  intro N inst h i\n  classical\n  simp [M6.Coordinates.blockPolynomial, Polynomial.finsetSum_coeff,\n    Polynomial.coeff_C_mul_X_pow, Fin.val_eq_val, i.isLt]\n\ntheorem M6.Coordinates.block_degree : ∀ (N : ℕ) [NeZero N] (h : M6.Physical.Block N), (M6.Coordinates.blockPolynomial N h).degree < (N : WithBot ℕ) := by\n  intro N _ h\n  classical\n  unfold M6.Coordinates.blockPolynomial\n  simp only [Polynomial.C_mul_X_pow_eq_monomial]\n  apply lt_of_le_of_lt (Polynomial.degree_sum_le _ _)\n  apply (Finset.sup_lt_iff (by simp)).2\n  intro i hi\n  apply lt_of_le_of_lt (Polynomial.degree_monomial_le _ _)\n  first\n  | exact_mod_cast i.isLt\n  | exact_mod_cast ZMod.val_lt i\n  | exact_mod_cast Finset.mem_range.mp hi\n\ntheorem M6.Coordinates.modulus_monic_degree : ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic ∧ (M6.Cyclic.modulus N).natDegree = N := by\n  change ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic ∧ (M6.Cyclic.modulus N).natDegree = N\n  intro N inst\n  change (Polynomial.X ^ N + (1 : Polynomial (ZMod 2))).Monic ∧ (Polynomial.X ^ N + (1 : Polynomial (ZMod 2))).natDegree = N\n  constructor\n  · simpa only [Polynomial.C_1] using (Polynomial.monic_X_pow_add_C (1 : ZMod 2) (NeZero.ne N))\n  · simpa only [Polynomial.C_1] using (Polynomial.natDegree_X_pow_add_C (n := N) (r := (1 : ZMod 2)))",
+  "queries": [
+    "polynomial degree sum coefficients reconstruction",
+    "AdjoinRoot quotient mk power basis ZMod finite sum"
+  ],
+  "guidance": "Equality of quotient classes implies modulus divides blockPolynomial difference. Its degree<N forces zero via monic not_dvd_of_degree_lt. Coefficients recover both functions using ZMod.val_lt. Return tactic lines only without leading by."
+}

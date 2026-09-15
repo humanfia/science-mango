@@ -1,0 +1,26 @@
+import FrozenTarget_e6c1cdaba114222b
+theorem M6.Pinned.first_positive_distance : QuantumHarnessFrozenTarget := by
+  classical
+  change ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), M6.Pinned.firstPositive m (M6.Pinned.enumerator L (M6.Pinned.free m)) = M6.Pinned.distance L
+  intro m L
+  have hc : ∀ d : ℕ, (0 < (M6.Pinned.enumerator L (M6.Pinned.free m)).coeff d) ↔ ∃ v ∈ L, M6.Pinned.weight v = d := by
+    intro d
+    rw [M6.Pinned.enumerator_coeff]
+    simpa [M6.Pinned.agrees, M6.Pinned.free] using
+      (M6.Pinned.count_nonnegative_positive m L (M6.Pinned.free m) d).2
+  cases hd : M6.Pinned.distance L with
+  | none =>
+      have he : L = ∅ := (M6.Pinned.distance_spec m L).1.mp hd
+      simp [M6.Pinned.firstPositive, List.find?_range_eq_none, hc, he]
+  | some d =>
+      obtain ⟨hwitness, hleast⟩ := (M6.Pinned.distance_spec m L).2 d |>.mp hd
+      have hbound : d < m + 1 := by
+        obtain ⟨v, hv, hweight⟩ := hwitness
+        have hb := M6.Pinned.weight_bound m v
+        omega
+      have hn : ∀ j < d, ¬ ∃ v ∈ L, M6.Pinned.weight v = j := by
+        intro j hj
+        rintro ⟨v, hv, hw⟩
+        have hl := hleast v hv
+        omega
+      simp [M6.Pinned.firstPositive, List.find?_range_eq_some, hc, hbound, hwitness, hn]

@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], Function.Injective (M6.Coordinates.encode N)\nintro N inst h k heq\nclassical\nchange AdjoinRoot.mk (M6.Cyclic.modulus N) (M6.Coordinates.blockPolynomial N h) = AdjoinRoot.mk (M6.Cyclic.modulus N) (M6.Coordinates.blockPolynomial N k) at heq\nhave hdiv := AdjoinRoot.mk_eq_mk.mp heq\nobtain ⟨hm, hnat⟩ := M6.Coordinates.modulus_monic_degree N\nhave hmdeg : (M6.Cyclic.modulus N).degree = (N : WithBot ℕ) := by\n  rw [Polynomial.degree_eq_natDegree hm.ne_zero, hnat]\nhave hlt : (M6.Coordinates.blockPolynomial N h - M6.Coordinates.blockPolynomial N k).degree < (M6.Cyclic.modulus N).degree := by\n  rw [hmdeg]\n  exact lt_of_le_of_lt (Polynomial.degree_sub_le _ _) (max_lt (M6.Coordinates.block_degree N h) (M6.Coordinates.block_degree N k))\nhave hz : M6.Coordinates.blockPolynomial N h - M6.Coordinates.blockPolynomial N k = 0 := by\n  by_contra hn\n  have hle : (M6.Cyclic.modulus N).degree ≤ (M6.Coordinates.blockPolynomial N h - M6.Coordinates.blockPolynomial N k).degree := by\n    first\n    | exact Polynomial.degree_le_of_dvd hdiv hn\n    | exact Polynomial.degree_le_of_dvd hn hdiv\n  exact (not_lt_of_ge hle) hlt\nhave hp := sub_eq_zero.mp hz\nfunext i\nhave hc := congrArg (fun p : Polynomial (ZMod 2) => p.coeff i.val) hp\nrw [M6.Coordinates.block_coeff N h ⟨i.val, ZMod.val_lt i⟩, M6.Coordinates.block_coeff N k ⟨i.val, ZMod.val_lt i⟩] at hc\nsimpa using hc",
+  "queries": [
+    "Polynomial.degree_le_of_dvd",
+    "AdjoinRoot.mk_eq_mk",
+    "ZMod.natCast_zmod_val"
+  ]
+}

@@ -1,0 +1,388 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T13:09:54.707426+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "address_width": {
+      "id": "address_width",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.address_width",
+        "spec_sha256": "51734474ca1d5e5df94804a686806e6f184faf6a829094023f6a2df6d0fbc845",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-c4ri20fh/attempt-001/Candidate_820932ece66821ae.lean",
+            "target_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-c4ri20fh/attempt-001/FrozenTarget_820932ece66821ae.lean",
+            "feedback": "",
+            "target_sha256": "f4f331471199d294d9b8617e644058d11c2504c001b2d1e4cc991a2826bc919a",
+            "target_olean_sha256": "528825283e5b035e29dcdb969a843eb273428dc5beddb34d2de958f2866a5583",
+            "source_sha256": "adb54b3f58472224f00f78665ed5bdce1915c79add4d0e1bf80182f5721bff07",
+            "olean_sha256": "e2c38d088b4ee4ae77a58c095185caf35f23091256079bb825b0296de397e1c6",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:02:20.312667+00:00",
+        "work": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-c4ri20fh",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "1fde733b6c080211b890e7271be48d963f1b2853e0cc0fb5740c5f48d16a349b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-c4ri20fh/attempt-001/Candidate_820932ece66821ae.lean",
+        "environment_sha256": "e496dd229dc6d7b1bbca1c12cc26f62cc202f7e8951f58b852a87e05a956d974",
+        "artifacts": {
+          "address_width": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.address_width : ∀ R N : ℕ, 0 < N → M6.Transfer.addressLocations R N ≤ 2^(M6.Transfer.addressBits R N) := by\n  change ∀ R N : ℕ, 0 < N → M6.Transfer.addressLocations R N ≤ 2 ^ (M6.Transfer.addressBits R N)\n  intro R N hN\n  have hbound : ∀ n : ℕ, n + 1 ≤ 2 ^ n := by\n    intro n\n    induction n with\n    | zero => norm_num\n    | succ n ih =>\n      rw [pow_succ]\n      omega\n  have hsquare : (N + 1) ^ 2 ≤ (2 ^ N) ^ 2 := by\n    simpa only [pow_two] using Nat.mul_le_mul (hbound N) (hbound N)\n  change 16 * 2 ^ R * (N + 1) ^ 2 ≤ 2 ^ (R + 2 * N + 4)\n  calc\n    16 * 2 ^ R * (N + 1) ^ 2 ≤ 16 * 2 ^ R * (2 ^ N) ^ 2 :=\n      Nat.mul_le_mul_left _ hsquare\n    _ = 2 ^ (R + 2 * N + 4) := by\n      rw [pow_add, pow_add, Nat.mul_comm 2 N, pow_mul]\n      ring",
+              "imports": [
+                "M6TransferResources"
+              ],
+              "name": "M6.Transfer.address_width",
+              "ancestors": [],
+              "spec_sha256": "51734474ca1d5e5df94804a686806e6f184faf6a829094023f6a2df6d0fbc845"
+            },
+            "sha256": "7dcf99615d253bcfc26c7dddb72b0c1241b20ff3ba758d9ea34b8a327d235517"
+          }
+        }
+      }
+    },
+    "coefficient_width": {
+      "id": "coefficient_width",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.coefficient_width",
+        "spec_sha256": "372473fd8faf5902fe7f29b2f991fe0831fde2fe5a3c1be03cbad31ed746defa",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-gyegyddw/attempt-001/Candidate_7940b3fd22c758a1.lean:7:2: error: No goals to be solved\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-gyegyddw/attempt-002/Candidate_1ac514c380d306a1.lean",
+            "target_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-gyegyddw/attempt-002/FrozenTarget_1ac514c380d306a1.lean",
+            "feedback": "",
+            "target_sha256": "fa88bd20271608f1b7c1afaa47c620054abd81e4423389240d3f3ef7c048dbb6",
+            "target_olean_sha256": "e226e704884ec646bc64803dc8bb0fec4afe5053bd0bb176ea80d7f9d097e79f",
+            "source_sha256": "1071e7ce9d27bad5a546e351354b29f5d7127e8e8252a1ebc86ab3bb680e3ac9",
+            "olean_sha256": "9e4aa81dc171d66519454cb7a7bf44dc4d7ed172b77c3c3813052acc394dc01d",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T13:02:20.321373+00:00",
+        "work": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-gyegyddw",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "1fde733b6c080211b890e7271be48d963f1b2853e0cc0fb5740c5f48d16a349b",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-gyegyddw/attempt-002/Candidate_1ac514c380d306a1.lean",
+        "environment_sha256": "e496dd229dc6d7b1bbca1c12cc26f62cc202f7e8951f58b852a87e05a956d974",
+        "artifacts": {
+          "coefficient_width": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.coefficient_width : ∀ R N : ℕ, 2^R * 8^N < 2^(M6.Transfer.coefficientBits R N) := by\n  change ∀ R N : ℕ, 2^R * 8^N < 2^(R + 3*N + 2)\n  intro R N\n  have h : 0 < (2 : ℕ)^R * 8^N := by positivity\n  norm_num [pow_add, pow_mul] <;> nlinarith",
+              "imports": [
+                "M6TransferResources"
+              ],
+              "name": "M6.Transfer.coefficient_width",
+              "ancestors": [],
+              "spec_sha256": "372473fd8faf5902fe7f29b2f991fe0831fde2fe5a3c1be03cbad31ed746defa"
+            },
+            "sha256": "51c0313ba7d211eaaec09960a8b95073b617f9e86420cf9c1ea4aaa679819295"
+          }
+        }
+      }
+    },
+    "state_count": {
+      "id": "state_count",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.state_count",
+        "spec_sha256": "b24af1da1af6ef8afa5d1212bbb2e68097d97072883c71fff76a71c3f43795c0",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-suzkfsrt/attempt-001/Candidate_f31c35c9e23fef15.lean",
+            "target_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-suzkfsrt/attempt-001/FrozenTarget_f31c35c9e23fef15.lean",
+            "feedback": "",
+            "target_sha256": "0b5cde8fd3c68008d0013f691b59c619a0f5ffa108e4b9baeaf46536a0d76b81",
+            "target_olean_sha256": "a16454fd54a2ffaf13be3d6611702060819cf3f92d07cd29fac99e1168313b9d",
+            "source_sha256": "16309970f6ac74d6753cec0c76d165b95b341a730ba32b3f610091e32541ff2b",
+            "olean_sha256": "8f14a5afbc3bc301a93f5a47d1c6ed2181ad19d54e92695b976aacecd6d79def",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:02:20.329243+00:00",
+        "work": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-suzkfsrt",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "1fde733b6c080211b890e7271be48d963f1b2853e0cc0fb5740c5f48d16a349b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-suzkfsrt/attempt-001/Candidate_f31c35c9e23fef15.lean",
+        "environment_sha256": "e496dd229dc6d7b1bbca1c12cc26f62cc202f7e8951f58b852a87e05a956d974",
+        "artifacts": {
+          "state_count": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.state_count : ∀ R : ℕ, Fintype.card (M6.Transfer.Memory R) = 2^R := by\n  change ∀ R : ℕ, Fintype.card (M6.Transfer.Memory R) = 2 ^ R\n  intro R\n  simp [M6.Transfer.Memory, M6.Transfer.Bit, Fintype.card_fun, ZMod.card]",
+              "imports": [
+                "M6TransferResources"
+              ],
+              "name": "M6.Transfer.state_count",
+              "ancestors": [],
+              "spec_sha256": "b24af1da1af6ef8afa5d1212bbb2e68097d97072883c71fff76a71c3f43795c0"
+            },
+            "sha256": "f8a687a62494deb99c1f0cff46ca4ee967182c67cffa643eab3c8df7bfeaf8fe"
+          }
+        }
+      }
+    },
+    "scatter_loop_count": {
+      "id": "scatter_loop_count",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.scatter_loop_count",
+        "spec_sha256": "63fe86c7a131cc452369e34a724a9577c74a9e946582729b2a870f80fc741959",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-f9az5mlu/attempt-001/Candidate_f85e4b419526b8c8.lean",
+            "target_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-f9az5mlu/attempt-001/FrozenTarget_f85e4b419526b8c8.lean",
+            "feedback": "",
+            "target_sha256": "f3e0b08614785c3c9e70f0ea93bd3af532e77bb61ef57f8c5b2d3351dc8af02d",
+            "target_olean_sha256": "57e6ff500ad56e5b65b92ba665550c76669501af64a57d7e06605b5e2fbb79cb",
+            "source_sha256": "6638bc354f7ac79879501532fbddb4a6e5b6476d4360021680d8a9625f947d2b",
+            "olean_sha256": "a17ba7c99b79f41ac6178bdc2a37db12eac474ba160dd3e28064fcdf363b0e90",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:04:24.153218+00:00",
+        "work": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-f9az5mlu",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "1fde733b6c080211b890e7271be48d963f1b2853e0cc0fb5740c5f48d16a349b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-f9az5mlu/attempt-001/Candidate_f85e4b419526b8c8.lean",
+        "environment_sha256": "e496dd229dc6d7b1bbca1c12cc26f62cc202f7e8951f58b852a87e05a956d974",
+        "artifacts": {
+          "state_count": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.state_count : ∀ R : ℕ, Fintype.card (M6.Transfer.Memory R) = 2^R := by\n  change ∀ R : ℕ, Fintype.card (M6.Transfer.Memory R) = 2 ^ R\n  intro R\n  simp [M6.Transfer.Memory, M6.Transfer.Bit, Fintype.card_fun, ZMod.card]",
+              "imports": [
+                "M6TransferResources"
+              ],
+              "name": "M6.Transfer.state_count",
+              "ancestors": [],
+              "spec_sha256": "b24af1da1af6ef8afa5d1212bbb2e68097d97072883c71fff76a71c3f43795c0"
+            },
+            "sha256": "f8a687a62494deb99c1f0cff46ca4ee967182c67cffa643eab3c8df7bfeaf8fe"
+          },
+          "scatter_loop_count": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.scatter_loop_count : ∀ R N : ℕ, M6.Transfer.traceCoefficientOps R N = 6 * N * (2*N+1) * 4^R := by\n  change ∀ R N : ℕ, M6.Transfer.traceCoefficientOps R N = 6 * N * (2 * N + 1) * 4 ^ R\n  intro R N\n  simp only [M6.Transfer.traceCoefficientOps, M6.Transfer.ScatterEvent,\n    Fintype.card_prod, M6.Transfer.state_count, Fintype.card_fin,\n    M6.Transfer.Bit, ZMod.card]\n  have hpow : (4 : ℕ) ^ R = 2 ^ R * 2 ^ R := by\n    simpa using (mul_pow (2 : ℕ) 2 R)\n  rw [hpow]\n  ring",
+              "imports": [
+                "M6TransferResources"
+              ],
+              "name": "M6.Transfer.scatter_loop_count",
+              "ancestors": [
+                "state_count"
+              ],
+              "spec_sha256": "d1e784eb27c9efee376c68162b54d9190357dac5cee69ea2c3cd7af7b93a6774"
+            },
+            "sha256": "67b2c6b328812ebd838078803e5a8178ace1c6f4d55eda6251c8de529b745d71"
+          }
+        }
+      }
+    },
+    "trace_storage_bound": {
+      "id": "trace_storage_bound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.trace_storage_bound",
+        "spec_sha256": "0a5955be67fcbbb10bd48d43353048c2b250405504d57799079a8e4e9e182bd2",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-m2_uakbz/attempt-001/Candidate_d91a4bcd36b82bd7.lean",
+            "target_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-m2_uakbz/attempt-001/FrozenTarget_d91a4bcd36b82bd7.lean",
+            "feedback": "",
+            "target_sha256": "da77091bd2238b802e57b662de09f847bb81cf3d16ce9f8652af4b15a91d85b4",
+            "target_olean_sha256": "5346f0423ae578bdf108c55d8385fe66dfa6a6344afed3ea7fcf112d5f8ae226",
+            "source_sha256": "6e08a32c98a81ac9b58ccd1f15aee15328d301422f2bfadeae543206c49ab2ab",
+            "olean_sha256": "6de5370dff0d864dcedeb649271608d749e7d5fab6a64d7cac5ec2953a38ca5f",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:02:20.336163+00:00",
+        "work": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-m2_uakbz",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "1fde733b6c080211b890e7271be48d963f1b2853e0cc0fb5740c5f48d16a349b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-m2_uakbz/attempt-001/Candidate_d91a4bcd36b82bd7.lean",
+        "environment_sha256": "e496dd229dc6d7b1bbca1c12cc26f62cc202f7e8951f58b852a87e05a956d974",
+        "artifacts": {
+          "trace_storage_bound": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.trace_storage_bound : ∀ R N : ℕ, R < N → M6.Transfer.traceStorageModel R N ≤ 128 * N^2 * 2^R := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.traceStorageModel R N ≤ 128 * N^2 * 2^R\n  intro R N hRN\n  have hN : 1 ≤ N := by omega\n  have hp : 1 ≤ (2 : ℕ)^R := by\n    have : 0 < (2 : ℕ)^R := by positivity\n    omega\n  have hc : M6.Transfer.coefficientBits R N ≤ 6*N := by\n    unfold M6.Transfer.coefficientBits\n    omega\n  have hs : 2*N+1 ≤ 3*N := by omega\n  have hr : R+2 ≤ 3*N := by omega\n  have h1 : 2 * 2^R * (2*N+1) * M6.Transfer.coefficientBits R N ≤ 36 * N^2 * 2^R := by\n    calc\n      2 * 2^R * (2*N+1) * M6.Transfer.coefficientBits R N\n          ≤ 2 * 2^R * (3*N) * (6*N) := by gcongr\n      _ = 36 * N^2 * 2^R := by ring\n  have h2 : (2*N+1) * M6.Transfer.coefficientBits R N ≤ 18 * N^2 := by\n    calc\n      (2*N+1) * M6.Transfer.coefficientBits R N ≤ (3*N) * (6*N) := by gcongr\n      _ = 18 * N^2 := by ring\n  have h3 : 2 * 2^R * (R+2) ≤ 6 * N * 2^R := by\n    calc\n      2 * 2^R * (R+2) ≤ 2 * 2^R * (3*N) := by gcongr\n      _ = 6 * N * 2^R := by ring\n  have hn2 : N ≤ N^2 := by nlinarith\n  have hb : N^2 ≤ N^2 * 2^R := by\n    simpa using Nat.mul_le_mul_left (N^2) hp\n  have hnp : N * 2^R ≤ N^2 * 2^R :=\n    Nat.mul_le_mul_right (2^R) hn2\n  have hnT : N ≤ N^2 * 2^R := le_trans hn2 hb\n  have hT : 1 ≤ N^2 * 2^R := le_trans hN hnT\n  unfold M6.Transfer.traceStorageModel\n  nlinarith",
+              "imports": [
+                "M6TransferResources"
+              ],
+              "name": "M6.Transfer.trace_storage_bound",
+              "ancestors": [],
+              "spec_sha256": "0a5955be67fcbbb10bd48d43353048c2b250405504d57799079a8e4e9e182bd2"
+            },
+            "sha256": "246e71f4b572fc139336d09ed5786ac19a79cc97787c60a2c41977dbe1c6c8a1"
+          }
+        }
+      }
+    },
+    "trace_work_bound": {
+      "id": "trace_work_bound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.trace_work_bound",
+        "spec_sha256": "ccd409068093fb4d2fb3a9b60b07ad743d13db733f23b9d8c10866849fdfbcdb",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-1djgtgha/attempt-001/Candidate_5b65f7c07b0b49bb.lean",
+            "target_path": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-1djgtgha/attempt-001/FrozenTarget_5b65f7c07b0b49bb.lean",
+            "feedback": "",
+            "target_sha256": "6c645439061106712fb10f06bd149354b2bf5b83d5cd0bad387cb114860aa2e7",
+            "target_olean_sha256": "b5e21cbb618091f6796305665d32b3adeafa5e80be529f50055c0ea0294d955b",
+            "source_sha256": "337024e6a2bf2ded739306da43b67cc64a19aa1f9bd1603abdfc019fc60b5f40",
+            "olean_sha256": "872f3fb554d4587827ef04bdd518fe8d65b48546903a0e2e7246eb4e61dcac50",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T13:06:52.395905+00:00",
+        "work": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-1djgtgha",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "1fde733b6c080211b890e7271be48d963f1b2853e0cc0fb5740c5f48d16a349b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-transfer-resources-formalization/.humanize-formal-runs/run-1djgtgha/attempt-001/Candidate_5b65f7c07b0b49bb.lean",
+        "environment_sha256": "e496dd229dc6d7b1bbca1c12cc26f62cc202f7e8951f58b852a87e05a956d974",
+        "artifacts": {
+          "state_count": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.state_count : ∀ R : ℕ, Fintype.card (M6.Transfer.Memory R) = 2^R := by\n  change ∀ R : ℕ, Fintype.card (M6.Transfer.Memory R) = 2 ^ R\n  intro R\n  simp [M6.Transfer.Memory, M6.Transfer.Bit, Fintype.card_fun, ZMod.card]",
+              "imports": [
+                "M6TransferResources"
+              ],
+              "name": "M6.Transfer.state_count",
+              "ancestors": [],
+              "spec_sha256": "b24af1da1af6ef8afa5d1212bbb2e68097d97072883c71fff76a71c3f43795c0"
+            },
+            "sha256": "f8a687a62494deb99c1f0cff46ca4ee967182c67cffa643eab3c8df7bfeaf8fe"
+          },
+          "scatter_loop_count": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.scatter_loop_count : ∀ R N : ℕ, M6.Transfer.traceCoefficientOps R N = 6 * N * (2*N+1) * 4^R := by\n  change ∀ R N : ℕ, M6.Transfer.traceCoefficientOps R N = 6 * N * (2 * N + 1) * 4 ^ R\n  intro R N\n  simp only [M6.Transfer.traceCoefficientOps, M6.Transfer.ScatterEvent,\n    Fintype.card_prod, M6.Transfer.state_count, Fintype.card_fin,\n    M6.Transfer.Bit, ZMod.card]\n  have hpow : (4 : ℕ) ^ R = 2 ^ R * 2 ^ R := by\n    simpa using (mul_pow (2 : ℕ) 2 R)\n  rw [hpow]\n  ring",
+              "imports": [
+                "M6TransferResources"
+              ],
+              "name": "M6.Transfer.scatter_loop_count",
+              "ancestors": [
+                "state_count"
+              ],
+              "spec_sha256": "d1e784eb27c9efee376c68162b54d9190357dac5cee69ea2c3cd7af7b93a6774"
+            },
+            "sha256": "67b2c6b328812ebd838078803e5a8178ace1c6f4d55eda6251c8de529b745d71"
+          },
+          "trace_work_bound": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.trace_work_bound : ∀ R N : ℕ, R < N → M6.Transfer.traceWorkModel R N ≤ 4096 * N^3 * 4^R := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.traceWorkModel R N ≤ 4096 * N^3 * 4^R\n  intro R N hRN\n  have hN : 1 ≤ N := by omega\n  have hslots : 2 * N + 1 ≤ 3 * N := by omega\n  have hcharge : M6.Transfer.eventBitCharge R N ≤ 60 * N := by\n    unfold M6.Transfer.eventBitCharge M6.Transfer.coefficientBits M6.Transfer.addressBits\n    omega\n  have hpow : ((2 : ℕ)^R)^2 = 4^R := by\n    calc\n      (2^R)^2 = 2^R * 2^R := by ring\n      _ = (2 * 2)^R := (mul_pow (2 : ℕ) 2 R).symm\n      _ = 4^R := by norm_num\n  have hcount : M6.Transfer.traceCoefficientOps R N + (2^R)^2 * N * (2*N+1) ≤ 21 * N^2 * 4^R := by\n    rw [M6.Transfer.scatter_loop_count, hpow]\n    calc\n      6 * N * (2*N+1) * 4^R + 4^R * N * (2*N+1)\n          = (7 * N * 4^R) * (2*N+1) := by ring\n      _ ≤ (7 * N * 4^R) * (3*N) := Nat.mul_le_mul_left _ hslots\n      _ = 21 * N^2 * 4^R := by ring\n  unfold M6.Transfer.traceWorkModel\n  calc\n    (M6.Transfer.traceCoefficientOps R N + (2^R)^2 * N * (2*N+1)) * M6.Transfer.eventBitCharge R N\n        ≤ (21 * N^2 * 4^R) * (60*N) := Nat.mul_le_mul hcount hcharge\n    _ = 1260 * (N^3 * 4^R) := by ring\n    _ ≤ 4096 * (N^3 * 4^R) := Nat.mul_le_mul_right _ (by decide : (1260 : ℕ) ≤ 4096)\n    _ = 4096 * N^3 * 4^R := by ring",
+              "imports": [
+                "M6TransferResources"
+              ],
+              "name": "M6.Transfer.trace_work_bound",
+              "ancestors": [
+                "scatter_loop_count",
+                "state_count"
+              ],
+              "spec_sha256": "5de9c6823dbd2850dad570cfb0157a4cac35bd7cbf9f363fb3fed7b764b2adbd"
+            },
+            "sha256": "d5f519f602edc7ee5ed186f85056dd808f96998105ca9ea9f305059e2e1f8d19"
+          }
+        }
+      }
+    }
+  }
+}

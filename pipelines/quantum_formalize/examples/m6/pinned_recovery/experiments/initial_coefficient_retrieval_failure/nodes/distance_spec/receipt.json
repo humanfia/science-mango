@@ -1,0 +1,55 @@
+{
+  "id": "distance_spec",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Pinned.distance_spec",
+    "spec_sha256": "6d6efaab4321a942631776e7a8c0516d2187dc5357edffbe7fb8d9cfbe9d9098",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-s9rnjthh/attempt-001/Candidate_47caa42059a8fc55.lean",
+        "target_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-s9rnjthh/attempt-001/FrozenTarget_47caa42059a8fc55.lean",
+        "feedback": "",
+        "target_sha256": "15814495d4d6859fc6baaa2d4627ac77773a89462967972f85c6caf835a8bf8c",
+        "target_olean_sha256": "319666a25fef39addfe09277a2b8623be22a16ffbd99cbb744de9eb6bef18e44",
+        "source_sha256": "a3a9a1f3400cf8705432412205bc0143e2b2836c35756b13a974a0bdfd043870",
+        "olean_sha256": "e9fa37d3c044caea5b1f48c736a632564ac55669b3610af1becf2401fab83acb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T12:51:25.614545+00:00",
+    "work": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-s9rnjthh",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d5137ef2e22702c223214cf9ab178280088fb1a194804e298bffe37945ced814",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-s9rnjthh/attempt-001/Candidate_47caa42059a8fc55.lean",
+    "environment_sha256": "76bffabaf33c42b35384f14efc593582b70cf33ae709e114f6960df01a5880a6",
+    "artifacts": {
+      "distance_spec": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.distance_spec : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), (M6.Pinned.distance L = none ↔ L = ∅) ∧ ∀ d : ℕ, (M6.Pinned.distance L = some d ↔ (∃ v ∈ L, M6.Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ M6.Pinned.weight v) := by\n  classical\n  intro m L\n  by_cases h : L.Nonempty\n  · have hi : (L.image M6.Pinned.weight).Nonempty := h.image M6.Pinned.weight\n    constructor\n    · simp [M6.Pinned.distance, h, h.ne_empty]\n    · intro d\n      change (if h : L.Nonempty then\n        some ((L.image M6.Pinned.weight).min' (h.image M6.Pinned.weight))\n        else none) = some d ↔ _\n      rw [dif_pos h, Option.some.injEq]\n      constructor\n      · intro hd\n        obtain ⟨v, hv, hw⟩ := Finset.mem_image.mp\n          (Finset.min'_mem (L.image M6.Pinned.weight) hi)\n        constructor\n        · exact ⟨v, hv, hw.trans hd⟩\n        · intro w hw\n          rw [← hd]\n          exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨w, hw, rfl⟩)\n      · rintro ⟨⟨v, hv, hvd⟩, hleast⟩\n        apply le_antisymm\n        · rw [← hvd]\n          exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨v, hv, rfl⟩)\n        · obtain ⟨w, hw, hweight⟩ := Finset.mem_image.mp\n            (Finset.min'_mem (L.image M6.Pinned.weight) hi)\n          rw [← hweight]\n          exact hleast w hw\n  · have he : L = ∅ := Finset.not_nonempty_iff_eq_empty.mp h\n    subst L\n    simp [M6.Pinned.distance]",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.distance_spec",
+          "ancestors": [],
+          "spec_sha256": "6d6efaab4321a942631776e7a8c0516d2187dc5357edffbe7fb8d9cfbe9d9098"
+        },
+        "sha256": "6ac1001bbf9de8039c79604ca734dfe97a19261f6dcad59d3fc88c7da981af07"
+      }
+    }
+  }
+}

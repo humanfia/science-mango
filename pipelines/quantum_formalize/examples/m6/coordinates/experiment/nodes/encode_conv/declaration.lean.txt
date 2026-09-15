@@ -1,0 +1,37 @@
+theorem M6.Coordinates.encode_conv : ∀ (N : ℕ) [NeZero N] (a h : M6.Physical.Block N), M6.Coordinates.encode N (M6.Physical.conv N a h) = M6.Coordinates.encode N a * M6.Coordinates.encode N h := by
+  change ∀ (N : ℕ) [NeZero N] (a h : M6.Physical.Block N), M6.Coordinates.encode N (M6.Physical.conv N a h) = M6.Coordinates.encode N a * M6.Coordinates.encode N h
+  intro N inst a h
+  classical
+  let f := AdjoinRoot.of (M6.Cyclic.modulus N)
+  let p := M6.Coordinates.rootPow N
+  calc
+    M6.Coordinates.encode N (M6.Physical.conv N a h) =
+        ∑ r : ZMod N, ∑ t : ZMod N, f (a r) * f (h (t - r)) * p t := by
+      rw [M6.Coordinates.encode_sum]
+      simp only [M6.Physical.conv, map_sum, map_mul, Finset.sum_mul]
+      exact Finset.sum_comm
+    _ = ∑ r : ZMod N, ∑ s : ZMod N,
+        (f (a r) * p r) * (f (h s) * p s) := by
+      apply Finset.sum_congr rfl
+      intro r hr
+      let e : ZMod N ≃ ZMod N :=
+        { toFun := fun s => r + s
+          invFun := fun t => t - r
+          left_inv := by intro s; dsimp; abel
+          right_inv := by intro t; dsimp; abel }
+      have hs := e.sum_comp (fun t => f (a r) * f (h (t - r)) * p t)
+      rw [← hs]
+      apply Finset.sum_congr rfl
+      intro s hs
+      change f (a r) * f (h (r + s - r)) * M6.Coordinates.rootPow N (r + s) = _
+      rw [add_sub_cancel_left, M6.Coordinates.rootPow_add]
+      change f (a r) * f (h s) * (p r * p s) = (f (a r) * p r) * (f (h s) * p s)
+      ring
+    _ = M6.Coordinates.encode N a * M6.Coordinates.encode N h := by
+      rw [M6.Coordinates.encode_sum, M6.Coordinates.encode_sum]
+      change (∑ r : ZMod N, ∑ s : ZMod N, (f (a r) * p r) * (f (h s) * p s)) =
+        (∑ r : ZMod N, f (a r) * p r) * (∑ s : ZMod N, f (h s) * p s)
+      rw [Finset.sum_mul]
+      apply Finset.sum_congr rfl
+      intro r hr
+      rw [Finset.mul_sum]

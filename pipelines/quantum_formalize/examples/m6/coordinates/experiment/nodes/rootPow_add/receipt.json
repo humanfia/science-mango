@@ -1,0 +1,69 @@
+{
+  "id": "rootPow_add",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Coordinates.rootPow_add",
+    "spec_sha256": "bbef9b98ca4ae665c643200f4d0216c019e9fdb459c1e134d30d73090453a0e6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-o29vuu5u/attempt-001/Candidate_45491962ca67fa74.lean",
+        "target_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-o29vuu5u/attempt-001/FrozenTarget_45491962ca67fa74.lean",
+        "feedback": "",
+        "target_sha256": "797bbb6837a2330472d4a046dd60d97838eac2bbf1ac3ad4a4f0594e48a04544",
+        "target_olean_sha256": "dbd1b5cae74d09cc04e2d28d2b5e1f06d08935cd25ba9391e2306d5aae8d9ef1",
+        "source_sha256": "0aadf6cc66558766e75bfe1d59cee2b88ba1ddec9734e37249c21de5d669f564",
+        "olean_sha256": "43398476d8af2fa4e5c68b9030d9f6c15e98112d31e48d7b6cf1715758e9445b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:07:32.290009+00:00",
+    "work": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-o29vuu5u",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5e325cf9850f30696bb2de458ca8ad8126702863c7219124150bc48a65c741e6",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-o29vuu5u/attempt-001/Candidate_45491962ca67fa74.lean",
+    "environment_sha256": "985f164967ba4accfc9033cfc561fab60a260718cf9c0369adc4a653a02b3263",
+    "artifacts": {
+      "root_period": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.root_period : ∀ (N : ℕ) [NeZero N], (AdjoinRoot.root (M6.Cyclic.modulus N))^N = 1 := by\n  change ∀ (N : ℕ) [NeZero N], (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ N = 1\n  intro N hN\n  have h := AdjoinRoot.eval₂_root (M6.Cyclic.modulus N)\n  change Polynomial.eval₂ (AdjoinRoot.of (M6.Cyclic.modulus N)) (AdjoinRoot.root (M6.Cyclic.modulus N)) (Polynomial.X ^ N + 1) = 0 at h\n  simp only [Polynomial.eval₂_add, Polynomial.eval₂_pow, Polynomial.eval₂_X, Polynomial.eval₂_one] at h\n  have h₂ : (1 : ZMod 2) + 1 = 0 := by decide\n  have h₂' : (1 : AdjoinRoot (M6.Cyclic.modulus N)) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.of (M6.Cyclic.modulus N)) h₂\n  exact add_right_cancel (h.trans h₂'.symm)",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.root_period",
+          "ancestors": [],
+          "spec_sha256": "07f0677dcf63dd845b34a47bfbaa7466b84cdcd3a7bb6450ea7dcbd547f15d64"
+        },
+        "sha256": "cba11f03f0786c6b6d56b91ebc0b3c0d800545f78f7b2927dc54884dfb14e55b"
+      },
+      "rootPow_add": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.rootPow_add : ∀ (N : ℕ) [NeZero N] (i j : ZMod N), M6.Coordinates.rootPow N (i+j) = M6.Coordinates.rootPow N i * M6.Coordinates.rootPow N j := by\n  change ∀ (N : ℕ) [NeZero N] (i j : ZMod N), M6.Coordinates.rootPow N (i + j) = M6.Coordinates.rootPow N i * M6.Coordinates.rootPow N j\n  intro N hN i j\n  change (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ (i + j).val = (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ i.val * (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ j.val\n  rw [ZMod.val_add, ← pow_add]\n  have h := congrArg (fun k : ℕ => (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ k) (Nat.mod_add_div (i.val + j.val) N)\n  simpa only [pow_add, pow_mul, M6.Coordinates.root_period, one_pow, mul_one] using h",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.rootPow_add",
+          "ancestors": [
+            "root_period"
+          ],
+          "spec_sha256": "5a6459c1520bc3ce586a8276723e85ff580e168f6e2865508be622774a40200e"
+        },
+        "sha256": "563b81a015f001177e15e744fd1553e8f4085f05d242cebd5e1b971d5e5bb8d7"
+      }
+    }
+  }
+}

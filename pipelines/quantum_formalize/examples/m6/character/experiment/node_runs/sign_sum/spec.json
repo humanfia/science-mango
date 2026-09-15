@@ -1,0 +1,13 @@
+{
+  "name": "M6.Character.sign_sum",
+  "statement": "∀ (m : ℕ) (f : Fin m → ZMod 2), M6.Character.sign (∑ i, f i) = ∏ i, M6.Character.sign (f i)",
+  "imports": [
+    "M6Character"
+  ],
+  "context": "theorem M6.Character.sign_add : ∀ (a b : ZMod 2), M6.Character.sign (a+b) = M6.Character.sign a * M6.Character.sign b := by\n  change ∀ (a b : ZMod 2), M6.Character.sign (a + b) = M6.Character.sign a * M6.Character.sign b\n  intro a b\n  fin_cases a <;> fin_cases b <;> decide",
+  "queries": [
+    "finite binary character orthogonality sum translation",
+    "Fintype prod_sum polynomial integer"
+  ],
+  "guidance": "Induct over Finset.univ using sign_add and sign0=1, or Fin induction sum_univ_succ/prod_univ_succ. Return tactic lines only, without leading by. Preserve exact target."
+}

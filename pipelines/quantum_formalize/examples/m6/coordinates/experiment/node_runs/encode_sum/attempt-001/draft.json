@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst h\nclassical\nlet e : Fin N ≃ ZMod N :=\n  { toFun := fun i => (i.val : ZMod N)\n    invFun := fun i => ⟨i.val, ZMod.val_lt i⟩\n    left_inv := by\n      intro i\n      apply Fin.ext\n      exact ZMod.val_natCast_of_lt i.isLt\n    right_inv := by\n      intro i\n      exact ZMod.natCast_zmod_val i }\nhave hs := e.sum_comp (fun i : ZMod N =>\n  AdjoinRoot.of (M6.Cyclic.modulus N) (h i) * M6.Coordinates.rootPow N i)\nsimpa [M6.Coordinates.encode, M6.Coordinates.blockPolynomial,\n  M6.Cyclic.image, M6.Coordinates.rootPow, e,\n  map_sum, map_mul, map_pow, AdjoinRoot.mk_C, AdjoinRoot.mk_X,\n  ← Polynomial.C_mul_X_pow_eq_monomial,\n  ZMod.val_natCast_of_lt] using hs",
+  "queries": [
+    "Equiv.sum_comp",
+    "ZMod.val_natCast_of_lt ZMod.natCast_zmod_val",
+    "AdjoinRoot.mk_C AdjoinRoot.mk_X"
+  ]
+}

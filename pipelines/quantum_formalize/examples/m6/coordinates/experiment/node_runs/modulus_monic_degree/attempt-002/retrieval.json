@@ -1,0 +1,139 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.monic_X_pow_add_C",
+    "status": "ok",
+    "results": [
+      {
+        "id": 102899,
+        "name": "Polynomial.monic_X_pow_add",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L72-L75",
+        "source_text": "theorem monic_X_pow_add {n : ℕ} (H : degree p < n) : Monic (X ^ n + p) :=\n  monic_of_degree_le n\n    (le_trans (degree_add_le _ _) (max_le (degree_X_pow_le _) (le_of_lt H)))\n    (by rw [coeff_add, coeff_X_pow, if_pos rfl, coeff_eq_zero_of_degree_lt H, add_zero])\n",
+        "docstring": null
+      },
+      {
+        "id": 102900,
+        "name": "Polynomial.monic_X_pow_add_C",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L78-L80",
+        "source_text": "theorem monic_X_pow_add_C {n : ℕ} (h : n ≠ 0) : (X ^ n + C a).Monic :=\n  monic_X_pow_add <| (lt_of_le_of_lt degree_C_le\n    (by simp only [Nat.cast_pos, Nat.pos_iff_ne_zero, ne_eq, h, not_false_eq_true]))\n",
+        "docstring": null
+      },
+      {
+        "id": 102949,
+        "name": "Polynomial.monic_X_pow_sub",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L427-L428",
+        "source_text": "theorem monic_X_pow_sub {n : ℕ} (H : degree p < n) : Monic (X ^ n - p) := by\n  simpa [sub_eq_add_neg] using monic_X_pow_add (show degree (-p) < n by rwa [← degree_neg p] at H)\n",
+        "docstring": null
+      },
+      {
+        "id": 102901,
+        "name": "Polynomial.monic_X_add_C",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L82-L83",
+        "source_text": "theorem monic_X_add_C (x : R) : Monic (X + C x) :=\n  pow_one (X : R[X]) ▸ monic_X_pow_add_C x one_ne_zero\n",
+        "docstring": null
+      },
+      {
+        "id": 100978,
+        "name": "Polynomial.X",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L479-L481",
+        "source_text": "/-- `X` is the polynomial variable (aka indeterminate). -/\ndef X : R[X] :=\n  monomial 1 1\n",
+        "docstring": "`X` is the polynomial variable (aka indeterminate). "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.natDegree_X_pow_add_C",
+    "status": "ok",
+    "results": [
+      {
+        "id": 102922,
+        "name": "Polynomial.natDegree_pow_X_add_C",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L205-L207",
+        "source_text": "@[simp]\ntheorem natDegree_pow_X_add_C [Nontrivial R] (n : ℕ) (r : R) : ((X + C r) ^ n).natDegree = n := by\n  rw [(monic_X_add_C r).natDegree_pow, natDegree_X_add_C, mul_one]",
+        "docstring": null
+      },
+      {
+        "id": 101673,
+        "name": "Polynomial.natDegree_X_pow_mul",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L523-L524",
+        "source_text": "@[simp] lemma natDegree_X_pow_mul (hp : p ≠ 0) : natDegree (X ^ n * p) = natDegree p + n := by\n  rw [commute_X_pow, natDegree_mul_X_pow n hp]",
+        "docstring": null
+      },
+      {
+        "id": 101694,
+        "name": "Polynomial.natDegree_X_pow_add_C",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L634-L635",
+        "source_text": "theorem natDegree_X_pow_add_C {n : ℕ} {r : R} : (X ^ n + C r).natDegree = n := by\n  simp\n",
+        "docstring": null
+      },
+      {
+        "id": 101672,
+        "name": "Polynomial.natDegree_mul_X_pow",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L520-L521",
+        "source_text": "@[simp] lemma natDegree_mul_X_pow (hp : p ≠ 0) : natDegree (p * X ^ n) = natDegree p + n := by\n  rw [natDegree_mul' (by simpa), natDegree_X_pow]",
+        "docstring": null
+      },
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

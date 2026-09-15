@@ -1,0 +1,9 @@
+theorem M6.BoundaryFibers.annihilator_general : ∀ (F M : M6.BoundaryFibers.BP), F.Monic → F ∣ M → M ≠ 0 → Nat.card {h : AdjoinRoot M // AdjoinRoot.mk M F * h = 0} = 2^F.natDegree := by
+  intro F M hF hFM hM
+  rcases hFM with ⟨K, rfl⟩
+  have hK : K ≠ 0 := by
+    intro hK
+    apply hM
+    simp [hK]
+  simpa only [M6.KernelFibers.annihilator] using
+    (M6.KernelFibers.annihilator_card F K hF hK)

@@ -1,0 +1,61 @@
+{
+  "id": "encode_sum",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Coordinates.encode_sum",
+    "spec_sha256": "7f1dd7a590f7c51de20178a70d01b4ea58f7feb2fcefb582cf905399fb3e24bd",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-wpirhx2c/attempt-001/Candidate_421235e3f1b4969f.lean:17:2: error: Type mismatch: After simplification, term\n  hs\n has type\n  ∑ x, (AdjoinRoot.of (Cyclic.modulus N)) (h ↑↑x) * AdjoinRoot.root (Cyclic.modulus N) ^ (↑x % N) =\n    ∑ i, (AdjoinRoot.of (Cyclic.modulus N)) (h i) * AdjoinRoot.root (Cyclic.modulus N) ^ i.val\nbut is expected to have type\n  ∑ x, (AdjoinRoot.of (Cyclic.modulus N)) (h ↑↑x) * AdjoinRoot.root (Cyclic.modulus N) ^ ↑x =\n    ∑ i, (AdjoinRoot.of (Cyclic.modulus N)) (h i) * AdjoinRoot.root (Cyclic.modulus N) ^ i.val\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-wpirhx2c/attempt-002/Candidate_14dbd24955eb60db.lean",
+        "target_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-wpirhx2c/attempt-002/FrozenTarget_14dbd24955eb60db.lean",
+        "feedback": "",
+        "target_sha256": "cea159de2599dafea3f827911f6dd28b224584c8a99954a42407a690575b979e",
+        "target_olean_sha256": "13c4eb375bc62a1388e0110842c776883b0d3dee77951463f1e0e8f1e58642f7",
+        "source_sha256": "3c45702edbcb7379114eba33d34ba867809101a22b6d61da3ac175181dd7a72a",
+        "olean_sha256": "ea04e48b4985486c24f8b62aad8f7c56f14ecc7a81bbbdfce6e8a4e40f5fad70",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:02:23.811881+00:00",
+    "work": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-wpirhx2c",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5e325cf9850f30696bb2de458ca8ad8126702863c7219124150bc48a65c741e6",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-wpirhx2c/attempt-002/Candidate_14dbd24955eb60db.lean",
+    "environment_sha256": "985f164967ba4accfc9033cfc561fab60a260718cf9c0369adc4a653a02b3263",
+    "artifacts": {
+      "encode_sum": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.encode_sum : ∀ (N : ℕ) [NeZero N] (h : M6.Physical.Block N), M6.Coordinates.encode N h = ∑ i : ZMod N, AdjoinRoot.of (M6.Cyclic.modulus N) (h i) * M6.Coordinates.rootPow N i := by\n  intro N inst h\n  classical\n  let e : Fin N ≃ ZMod N :=\n    { toFun := fun i => (i.val : ZMod N)\n      invFun := fun i => ⟨i.val, ZMod.val_lt i⟩\n      left_inv := by\n        intro i\n        apply Fin.ext\n        exact (ZMod.val_natCast N i.val).trans (Nat.mod_eq_of_lt i.isLt)\n      right_inv := fun i => ZMod.natCast_zmod_val i }\n  have hv (i : Fin N) : (i.val : ZMod N).val = i.val := by\n    rw [ZMod.val_natCast, Nat.mod_eq_of_lt i.isLt]\n  have hs := e.sum_comp (fun i : ZMod N =>\n    AdjoinRoot.of (M6.Cyclic.modulus N) (h i) *\n      AdjoinRoot.root (M6.Cyclic.modulus N) ^ i.val)\n  change (∑ i : Fin N,\n    AdjoinRoot.of (M6.Cyclic.modulus N) (h (i.val : ZMod N)) *\n      AdjoinRoot.root (M6.Cyclic.modulus N) ^ (i.val : ZMod N).val) = _ at hs\n  simp only [hv] at hs\n  simpa only [M6.Coordinates.encode, M6.Coordinates.blockPolynomial,\n    M6.Cyclic.image, M6.Coordinates.rootPow, map_sum, map_mul, map_pow,\n    AdjoinRoot.mk_C, AdjoinRoot.mk_X] using hs",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.encode_sum",
+          "ancestors": [],
+          "spec_sha256": "7f1dd7a590f7c51de20178a70d01b4ea58f7feb2fcefb582cf905399fb3e24bd"
+        },
+        "sha256": "fb8a55758f775d8ae320b901f380f0146dc59f52780eb6d0d64af313d5c87a27"
+      }
+    }
+  }
+}

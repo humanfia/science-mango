@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (a h : M6.Physical.Block N), M6.Coordinates.encode N (M6.Physical.conv N a h) = M6.Coordinates.encode N a * M6.Coordinates.encode N h\nintro N inst a h\nclassical\nsimp only [M6.Coordinates.encode_sum, M6.Physical.conv, map_sum, map_mul,\n  Finset.sum_mul, Finset.mul_sum]\nrw [Finset.sum_comm]\napply Finset.sum_congr rfl\nintro r hr\nlet e : ZMod N ≃ ZMod N :=\n  { toFun := fun j => j + r\n    invFun := fun k => k - r\n    left_inv := fun j => add_sub_cancel_right j r\n    right_inv := fun k => sub_add_cancel k r }\nhave hs := e.sum_comp (fun k : ZMod N =>\n  (AdjoinRoot.of (M6.Cyclic.modulus N) (a r) *\n    AdjoinRoot.of (M6.Cyclic.modulus N) (h (k - r))) *\n    M6.Coordinates.rootPow N k)\ncalc\n  _ = ∑ j : ZMod N,\n      (AdjoinRoot.of (M6.Cyclic.modulus N) (a r) *\n        AdjoinRoot.of (M6.Cyclic.modulus N) (h ((j + r) - r))) *\n        M6.Coordinates.rootPow N (j + r) := hs.symm\n  _ = _ := by\n    apply Finset.sum_congr rfl\n    intro j hj\n    simp only [add_sub_cancel_right, M6.Coordinates.rootPow_add]\n    ring",
+  "queries": [
+    "Equiv.sum_comp",
+    "Finset.sum_comm",
+    "M6.Physical.conv"
+  ]
+}

@@ -1,0 +1,14 @@
+import FrozenTarget_0f705fbe90cb7840
+theorem M6.Coordinates.block_degree : QuantumHarnessFrozenTarget := by
+  intro N _ h
+  classical
+  unfold M6.Coordinates.blockPolynomial
+  simp only [Polynomial.C_mul_X_pow_eq_monomial]
+  apply lt_of_le_of_lt (Polynomial.degree_sum_le _ _)
+  apply (Finset.sup_lt_iff (by simp)).2
+  intro i hi
+  apply lt_of_le_of_lt (Polynomial.degree_monomial_le _ _)
+  first
+  | exact_mod_cast i.isLt
+  | exact_mod_cast ZMod.val_lt i
+  | exact_mod_cast Finset.mem_range.mp hi

@@ -1,0 +1,82 @@
+{
+  "id": "encode_surjective",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Coordinates.encode_surjective",
+    "spec_sha256": "20d5269211bd8a4f8d272675d4aa172a0911a622f522fe86cfcdaa63a77114d9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-wvuji52n/attempt-001/Candidate_53b41c5fdfce1f30.lean",
+        "target_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-wvuji52n/attempt-001/FrozenTarget_53b41c5fdfce1f30.lean",
+        "feedback": "",
+        "target_sha256": "a6c244c1f3ded7f0115c86cbc0592b967623efea338a0ed8f8f831d03e4b1547",
+        "target_olean_sha256": "0adb8340319964466ba688f2da69e8817a380405dcd4d45760584c7599b18bf8",
+        "source_sha256": "1b472ed81341cafb5ebf3ca4c6937232e9f12da46b70f15ef51ec4be0f95f698",
+        "olean_sha256": "077e5048f1cc8280df9fb6942be3bcca6affbdd4ebb482d2edada03c1da52c80",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:06:45.023318+00:00",
+    "work": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-wvuji52n",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5e325cf9850f30696bb2de458ca8ad8126702863c7219124150bc48a65c741e6",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-wvuji52n/attempt-001/Candidate_53b41c5fdfce1f30.lean",
+    "environment_sha256": "985f164967ba4accfc9033cfc561fab60a260718cf9c0369adc4a653a02b3263",
+    "artifacts": {
+      "modulus_monic_degree": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.modulus_monic_degree : ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic ∧ (M6.Cyclic.modulus N).natDegree = N := by\n  change ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic ∧ (M6.Cyclic.modulus N).natDegree = N\n  intro N inst\n  change (Polynomial.X ^ N + (1 : Polynomial (ZMod 2))).Monic ∧ (Polynomial.X ^ N + (1 : Polynomial (ZMod 2))).natDegree = N\n  constructor\n  · simpa only [Polynomial.C_1] using (Polynomial.monic_X_pow_add_C (1 : ZMod 2) (NeZero.ne N))\n  · simpa only [Polynomial.C_1] using (Polynomial.natDegree_X_pow_add_C (n := N) (r := (1 : ZMod 2)))",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.modulus_monic_degree",
+          "ancestors": [],
+          "spec_sha256": "9e3f96efc37e582ab0d1c4f3dd334823c5d164a994c0eb60fb3270a46d1ea2e5"
+        },
+        "sha256": "4b49145e88284315c1e5d8765c74ae18cefcad822b1e6063729db1366acecbe2"
+      },
+      "block_reconstruct": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.block_reconstruct : ∀ (N : ℕ) [NeZero N] (p : M6.Cyclic.BinaryPolynomial), p.degree < (N : WithBot ℕ) → M6.Coordinates.blockPolynomial N (M6.Coordinates.coefficients N p) = p := by\n  intro N inst p hp\n  classical\n  change (∑ i : Fin N, Polynomial.C (p.coeff ((i.val : ZMod N).val)) * Polynomial.X ^ i.val) = p\n  have hval (i : Fin N) : (i.val : ZMod N).val = i.val := by\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt i.isLt]\n  simp only [hval]\n  ext k\n  rw [Polynomial.finsetSum_coeff]\n  by_cases hk : k < N\n  · rw [Finset.sum_eq_single (⟨k, hk⟩ : Fin N)]\n    · simp\n    · intro i hi hne\n      have hv : i.val ≠ k := by\n        intro h\n        apply hne\n        exact Fin.ext h\n      simp [Polynomial.coeff_C_mul_X_pow, hv, Ne.symm hv]\n    · simp\n  · have hNk : N ≤ k := Nat.le_of_not_gt hk\n    have hdeg : p.degree < (k : WithBot ℕ) := by\n      apply lt_of_lt_of_le hp\n      exact_mod_cast hNk\n    rw [Polynomial.coeff_eq_zero_of_degree_lt hdeg]\n    apply Finset.sum_eq_zero\n    intro i hi\n    have hv : i.val ≠ k := by\n      intro h\n      exact hk (h ▸ i.isLt)\n    simp [Polynomial.coeff_C_mul_X_pow, hv, Ne.symm hv]",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.block_reconstruct",
+          "ancestors": [],
+          "spec_sha256": "90a521235bc671578ecea672f32a9de71aa3a04375fcc28a433ca9f9671c1180"
+        },
+        "sha256": "50e10d37957456886f89077972018c3811602e202beabe3b781ee0addda21fd9"
+      },
+      "encode_surjective": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.encode_surjective : ∀ (N : ℕ) [NeZero N], Function.Surjective (M6.Coordinates.encode N) := by\n  change ∀ (N : ℕ) [NeZero N], Function.Surjective (M6.Coordinates.encode N)\n  intro N inst y\n  classical\n  refine AdjoinRoot.induction_on _ y ?_\n  intro p\n  obtain ⟨hm, hn⟩ := M6.Coordinates.modulus_monic_degree N\n  have hd : (M6.Cyclic.modulus N).degree = (N : WithBot ℕ) := by\n    rw [Polynomial.degree_eq_natDegree hm.ne_zero, hn]\n  have hr : (p %ₘ M6.Cyclic.modulus N).degree < (N : WithBot ℕ) := by\n    rw [← hd]\n    exact Polynomial.degree_modByMonic_lt p hm\n  refine ⟨M6.Coordinates.coefficients N (p %ₘ M6.Cyclic.modulus N), ?_⟩\n  change AdjoinRoot.mk (M6.Cyclic.modulus N) (M6.Coordinates.blockPolynomial N (M6.Coordinates.coefficients N (p %ₘ M6.Cyclic.modulus N))) = AdjoinRoot.mk (M6.Cyclic.modulus N) p\n  rw [M6.Coordinates.block_reconstruct N _ hr]\n  symm\n  apply AdjoinRoot.mk_eq_mk.mpr\n  rw [Polynomial.modByMonic_eq_sub_mul_div, sub_sub_cancel]\n  exact dvd_mul_right _ _",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.encode_surjective",
+          "ancestors": [
+            "block_reconstruct",
+            "modulus_monic_degree"
+          ],
+          "spec_sha256": "e78c1b1506208fceb393cec93afd4ee1bb08986db369157c8dadeb8511fdf945"
+        },
+        "sha256": "15c0c43dbcabc06dad9c9733ff8c452926bf3d3108142a2b8f797476ca74f7d8"
+      }
+    }
+  }
+}

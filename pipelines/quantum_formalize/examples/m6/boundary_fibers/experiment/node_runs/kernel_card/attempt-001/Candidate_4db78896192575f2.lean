@@ -1,0 +1,9 @@
+import FrozenTarget_4db78896192575f2
+theorem M6.BoundaryFibers.kernel_card : QuantumHarnessFrozenTarget := by
+  change ∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → Nat.card {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = (0, 0)} = 2 ^ (M6.Cyclic.signature a b M).natDegree
+  intro a b M hM
+  simp_rw [M6.BoundaryFibers.kernel_iff]
+  exact M6.BoundaryFibers.annihilator_general
+    (M6.Cyclic.signature a b M) M
+    (M6.BoundaryFibers.nonzero_monic _ (M6.BoundaryFibers.signature_nonzero a b M hM))
+    (M6.Cyclic.signature_divides a b M).2.2 hM

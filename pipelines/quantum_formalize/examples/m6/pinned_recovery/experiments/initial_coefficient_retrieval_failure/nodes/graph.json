@@ -1,0 +1,345 @@
+[
+  {
+    "id": "weight_bound",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.weight_bound",
+      "statement": "∀ (m : ℕ) (v : M6.Pinned.Vector m), M6.Pinned.weight v ≤ m",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Unfold weight; filtered-universe cardinality is bounded by univ.card=m. Preserve m=0. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "agrees_pin",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.agrees_pin",
+      "statement": "∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Pinned.Vector m) (i : Fin m) (b : ZMod 2), P i = none → (M6.Pinned.agrees (M6.Pinned.pin P i b) v ↔ M6.Pinned.agrees P v ∧ v i = b)",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Unfold agrees/pin/Function.update; split coordinates equal to i or distinct. The none hypothesis makes the old constraint at i vacuous. All other coordinates remain unchanged. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "enumerator_coeff",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.enumerator_coeff",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m) (d : ℕ), (M6.Pinned.enumerator L P).coeff d = M6.Pinned.count L P d",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Use Polynomial.finset_sum_coeff/coeff_X_pow and card_eq_sum_ones with narrow simp only. Both sides count agreed vectors of exact total physical weight, including pinned ones. Avoid broad simp card/sum loops; handle filter equality by explicit membership if inferred instances differ. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "count_nonnegative_positive",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.count_nonnegative_positive",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m) (d : ℕ), 0 ≤ M6.Pinned.count L P d ∧ (0 < M6.Pinned.count L P d ↔ ∃ v ∈ L, M6.Pinned.agrees P v ∧ M6.Pinned.weight v = d)",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "count is the integer cast of a finite filtered cardinality. Use natCast_nonneg, natCast_pos, card_pos, nonempty and filter membership. No nonemptiness assumption is needed. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "count_pin_partition",
+    "dependencies": [
+      "agrees_pin"
+    ],
+    "spec": {
+      "name": "M6.Pinned.count_pin_partition",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ), M6.Pinned.partitions (fun P => M6.Pinned.count L P d)",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "At a free coordinate every ZMod2 value is exactly0 or1; obtain ∀b:ZMod2,b=0∨b=1 by ordinary decide (not native_decide). The two pin filters are disjoint and their union is the old filter. Apply agrees_pin and finite cardinality additivity, or narrow pointwise indicator sums. Preserve empty L and d outside the weight range. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "decode_unique",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.decode_unique",
+      "statement": "∀ (m : ℕ) (P : M6.Pinned.Pins m), M6.Pinned.assigned P → ∀ v : M6.Pinned.Vector m, (M6.Pinned.agrees P v ↔ v = M6.Pinned.decode P)",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Every assigned Option is some b; extensionality and Option.getD give the unique vector. Prove both directions coordinatewise. Do not assume any particular pin value or positive dimension. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "distance_spec",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.distance_spec",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), (M6.Pinned.distance L = none ↔ L = ∅) ∧ ∀ d : ℕ, (M6.Pinned.distance L = some d ↔ (∃ v ∈ L, M6.Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ M6.Pinned.weight v)",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Split finite-set nonemptiness in distance. Use min_prime membership and least-element property of image weight; exact min witness exists. Empty L yields none. A zero-weight member is permitted at this generic level; cycle-minus-boundary later excludes it. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "first_positive_distance",
+    "dependencies": [
+      "weight_bound",
+      "enumerator_coeff",
+      "count_nonnegative_positive",
+      "distance_spec"
+    ],
+    "spec": {
+      "name": "M6.Pinned.first_positive_distance",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), M6.Pinned.firstPositive m (M6.Pinned.enumerator L (M6.Pinned.free m)) = M6.Pinned.distance L",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "All vectors agree with free pins. Coefficient positivity iff an L member has that weight, by prior lemmas; every weight lies in List.range(m+1). List.find? over the increasing range therefore returns exactly the minimum in distance_spec, or none if L empty. Use List.find?_range_eq_some and List.find?_range_eq_none, available in Init.Data.List.Nat.Range, with decide_eq_true_eq; these state positivity at i and failure at every j<i. Do not brute-force physical vectors. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "choose_properties",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.choose_properties",
+      "statement": "∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (i : Fin m), M6.Pinned.refines P (M6.Pinned.choose c P i).1 ∧ (M6.Pinned.choose c P i).1 i ≠ none ∧ (M6.Pinned.choose c P i).2 ≤ 1",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Split P i into none/some and the positivity test. An assigned coordinate is skipped with zero queries; a free coordinate is updated once to0 or1. Function.update preserves all existing some constraints. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "recover_properties",
+    "dependencies": [
+      "choose_properties"
+    ],
+    "spec": {
+      "name": "M6.Pinned.recover_properties",
+      "statement": "∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (xs : List (Fin m)), M6.Pinned.refines P (M6.Pinned.recover c P xs).1 ∧ (∀ i ∈ xs, (M6.Pinned.recover c P xs).1 i ≠ none) ∧ (M6.Pinned.recover c P xs).2 ≤ xs.length",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Induct xs generalizing P. Compose refines by its coordinatewise definition, preserve already assigned coordinates, and use choose_properties for the new head. Query counts add and are bounded by length. No nodup or distinct-coordinate hypothesis: assigned coordinates are skipped. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "recover_positive",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Pinned.recover_positive",
+      "statement": "∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ), M6.Pinned.partitions c → ∀ (P : M6.Pinned.Pins m) (xs : List (Fin m)), 0 < c P → 0 < c (M6.Pinned.recover c P xs).1",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Induct xs generalizing P. For a free head, partition c P=c(pin0)+c(pin1); if zero branch is not positive, integer order implies one branch positive. Assigned heads preserve P. This is a generic helper only; downstream count and polynomial identities discharge partitions explicitly. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "recover_from_counts",
+    "dependencies": [
+      "count_nonnegative_positive",
+      "count_pin_partition",
+      "decode_unique",
+      "recover_properties",
+      "recover_positive"
+    ],
+    "spec": {
+      "name": "M6.Pinned.recover_from_counts",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ) (c : M6.Pinned.Pins m → ℤ), (∀ P, c P = M6.Pinned.count L P d) → 0 < c (M6.Pinned.free m) → let r := M6.Pinned.recover c (M6.Pinned.free m) (List.finRange m); M6.Pinned.decode r.1 ∈ L ∧ M6.Pinned.weight (M6.Pinned.decode r.1) = d ∧ r.2 ≤ m",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "The supplied exact count identity implies partitions by count_pin_partition. Positive recovery count gives an agreed L vector of weightd. recover_properties and mem_finRange assign every coordinate; decode_unique identifies that vector with the returned decode. length_finRange gives ≤m further coefficient queries. The final M6 theorem will instantiate the identity with proven trace coefficients. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "solve_exact",
+    "dependencies": [
+      "distance_spec",
+      "first_positive_distance",
+      "recover_from_counts"
+    ],
+    "spec": {
+      "name": "M6.Pinned.solve_exact",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (Q : M6.Pinned.Pins m → Polynomial ℤ), (∀ P, Q P = M6.Pinned.enumerator L P) → (M6.Pinned.solve Q = none ↔ L = ∅) ∧ ∀ (d : ℕ) (v : M6.Pinned.Vector m) (k : ℕ), M6.Pinned.solve Q = some (d, v, k) → v ∈ L ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ L, d ≤ M6.Pinned.weight u) ∧ k ≤ m",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Rewrite Q coefficient and firstPositive using exact polynomial identity. distance_spec gives the minimum and its witness, hence positive free count. Apply recover_from_counts to c(P)=(Q P).coeffd. Split firstPositive/distance Option to establish none iff empty and every returned triple exact minimum witness with querybound. No abstract oracle-correctness hypothesis is left when Q is the actual enumerator or a proved-equal transfer formula. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  },
+  {
+    "id": "minimum_witness",
+    "dependencies": [
+      "solve_exact"
+    ],
+    "spec": {
+      "name": "M6.Pinned.minimum_witness",
+      "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), L.Nonempty → ∃ (d : ℕ) (v : M6.Pinned.Vector m) (k : ℕ), M6.Pinned.solve (M6.Pinned.enumerator L) = some (d, v, k) ∧ v ∈ L ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ L, d ≤ M6.Pinned.weight u) ∧ k ≤ m",
+      "imports": [
+        "M6Pinned"
+      ],
+      "context": "",
+      "queries": [
+        "finite binary vector weight pinned enumerator coefficient",
+        "List find? minimum finite set pin recursive recovery"
+      ],
+      "guidance": "Instantiate solve_exact with Q=enumerator L and reflexive equality. Nonempty rules out none; split the actual solve result and obtain all minimum-witness properties. This concrete finite-enumerator theorem has no oracle-correctness or partition assumption. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+    },
+    "metadata": {
+      "source_section": "M6 original §5 pinned enumerators and constructive witness",
+      "fallback_queries": [
+        "finite set cardinality filter"
+      ]
+    }
+  }
+]

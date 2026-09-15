@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m) (d : ℕ), (M6.Pinned.enumerator L P).coeff d = M6.Pinned.count L P d\nintro m L P d\nclassical\nsimp only [M6.Pinned.enumerator, M6.Pinned.count,\n  Polynomial.finset_sum_coeff, Polynomial.coeff_X_pow,\n  Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one,\n  Finset.sum_filter]\napply Finset.sum_congr rfl\nintro v hv\nhave hrev : (d = M6.Pinned.weight v) ↔ (M6.Pinned.weight v = d) := eq_comm\nby_cases ha : M6.Pinned.agrees P v <;>\n  by_cases hw : M6.Pinned.weight v = d <;>\n  simp [ha, hw, Polynomial.coeff_X_pow, eq_comm]\nall_goals omega",
+  "queries": [
+    "Polynomial.coeff_X_pow Polynomial.finset_sum_coeff",
+    "Finset.card_eq_sum_ones Finset.sum_filter Nat.cast_sum"
+  ]
+}

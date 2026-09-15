@@ -1,0 +1,177 @@
+{
+  "title": "M6 actual gcd-dependent boundary fiber cardinality",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Every actual boundary has exactly2^deg gcd(a,b,M) preimages.",
+  "nodes": [
+    {
+      "id": "nonzero_monic",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.BoundaryFibers.nonzero_monic",
+        "statement": "∀ p : M6.BoundaryFibers.BP, p ≠ 0 → p.Monic",
+        "imports": [
+          "M6BoundaryFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk polynomial gcd kernel",
+          "finite cardinality subtype equivalence fibers additive map"
+        ],
+        "guidance": "A nonzero polynomial overZMod2 has nonzero leading coefficient; enumerate its two possible values to show leadingCoeff=1. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "signature_nonzero",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.BoundaryFibers.signature_nonzero",
+        "statement": "∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → M6.Cyclic.signature a b M ≠ 0",
+        "imports": [
+          "M6BoundaryFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk polynomial gcd kernel",
+          "finite cardinality subtype equivalence fibers additive map"
+        ],
+        "guidance": "signature divides M by accepted Cyclic.signature_divides; ifzero then zero divides nonzeroM contradiction. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "boundary_add",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.BoundaryFibers.boundary_add",
+        "statement": "∀ (a b M : M6.BoundaryFibers.BP) (h k : AdjoinRoot M), M6.BoundaryFibers.boundary a b M (h+k) = M6.BoundaryFibers.boundary a b M h + M6.BoundaryFibers.boundary a b M k",
+        "imports": [
+          "M6BoundaryFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk polynomial gcd kernel",
+          "finite cardinality subtype equivalence fibers additive map"
+        ],
+        "guidance": "Unfold boundary; Prod.ext and mul_add. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "kernel_iff",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.BoundaryFibers.kernel_iff",
+        "statement": "∀ (a b M : M6.BoundaryFibers.BP) (h : AdjoinRoot M), M6.BoundaryFibers.boundary a b M h = (0,0) ↔ AdjoinRoot.mk M (M6.Cyclic.signature a b M) * h = 0",
+        "imports": [
+          "M6BoundaryFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk polynomial gcd kernel",
+          "finite cardinality subtype equivalence fibers additive map"
+        ],
+        "guidance": "Represent h using AdjoinRoot.induction_on. map_mul and mk_eq_zero reduce both sides to accepted Cyclic.kernel_divisibility. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "annihilator_general",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.BoundaryFibers.annihilator_general",
+        "statement": "∀ (F M : M6.BoundaryFibers.BP), F.Monic → F ∣ M → M ≠ 0 → Nat.card {h : AdjoinRoot M // AdjoinRoot.mk M F * h = 0} = 2^F.natDegree",
+        "imports": [
+          "M6BoundaryFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk polynomial gcd kernel",
+          "finite cardinality subtype equivalence fibers additive map"
+        ],
+        "guidance": "Write M=F*K using divisibility, deduce K≠0, exact KernelFibers.annihilator_card with subtype definition unfolded. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "kernel_card",
+      "dependencies": [
+        "nonzero_monic",
+        "signature_nonzero",
+        "kernel_iff",
+        "annihilator_general"
+      ],
+      "spec": {
+        "name": "M6.BoundaryFibers.kernel_card",
+        "statement": "∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → Nat.card {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = (0,0)} = 2^(M6.Cyclic.signature a b M).natDegree",
+        "imports": [
+          "M6BoundaryFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk polynomial gcd kernel",
+          "finite cardinality subtype equivalence fibers additive map"
+        ],
+        "guidance": "Subtype equivalence via kernel_iff, annihilator_general with signature monic and dividesM. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    },
+    {
+      "id": "fiber_card",
+      "dependencies": [
+        "boundary_add",
+        "kernel_card"
+      ],
+      "spec": {
+        "name": "M6.BoundaryFibers.fiber_card",
+        "statement": "∀ (a b M : M6.BoundaryFibers.BP), M ≠ 0 → ∀ h₀ : AdjoinRoot M, Nat.card {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = M6.BoundaryFibers.boundary a b M h₀} = 2^(M6.Cyclic.signature a b M).natDegree",
+        "imports": [
+          "M6BoundaryFibers"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk polynomial gcd kernel",
+          "finite cardinality subtype equivalence fibers additive map"
+        ],
+        "guidance": "Construct bijection kernel→fiber by h↦h+h₀, inverse h↦h-h₀, using boundary_add and linear multiplication. Then Nat.card_congr and kernel_card. General additive group proof works without characteristic2 shortcuts. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "source_section": 2
+      }
+    }
+  ]
+}

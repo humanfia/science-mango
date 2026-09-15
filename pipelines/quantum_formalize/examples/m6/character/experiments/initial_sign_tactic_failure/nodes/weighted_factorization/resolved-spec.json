@@ -1,0 +1,13 @@
+{
+  "name": "M6.Character.weighted_factorization",
+  "statement": "∀ (m : ℕ) (w : Fin m → ZMod 2 → Polynomial ℤ) (q : M6.Character.Vector m), M6.Character.localTransform w q = ∑ z : M6.Character.Vector m, Polynomial.C (M6.Character.character q z) * ∏ i, w i (z i)",
+  "imports": [
+    "M6Character"
+  ],
+  "context": "theorem M6.Character.sign_add : ∀ (a b : ZMod 2), M6.Character.sign (a+b) = M6.Character.sign a * M6.Character.sign b := by\n  change ∀ (a b : ZMod 2), M6.Character.sign (a + b) = M6.Character.sign a * M6.Character.sign b\n  intro a b\n  fin_cases a <;> fin_cases b <;> decide\n\ntheorem M6.Character.sign_sum : ∀ (m : ℕ) (f : Fin m → ZMod 2), M6.Character.sign (∑ i, f i) = ∏ i, M6.Character.sign (f i) := by\n  change ∀ (m : ℕ) (f : Fin m → ZMod 2), M6.Character.sign (∑ i, f i) = ∏ i, M6.Character.sign (f i)\n  intro m f\n  have h : ∀ s : Finset (Fin m), M6.Character.sign (∑ i ∈ s, f i) = ∏ i ∈ s, M6.Character.sign (f i) := by\n    intro s\n    induction s using Finset.induction_on with\n    | empty =>\n        simp only [Finset.sum_empty, Finset.prod_empty]\n        decide\n    | @insert a s ha ih =>\n        rw [Finset.sum_insert ha, Finset.prod_insert ha, M6.Character.sign_add, ih]\n  exact h Finset.univ\n\ntheorem M6.Character.character_product : ∀ (m : ℕ) (q z : M6.Character.Vector m), M6.Character.character q z = ∏ i, M6.Character.sign (q i * z i) := by\n  change ∀ (m : ℕ) (q z : M6.Character.Vector m), M6.Character.character q z = ∏ i, M6.Character.sign (q i * z i)\n  intro m q z\n  change M6.Character.sign (∑ i, q i * z i) = ∏ i, M6.Character.sign (q i * z i)\n  exact M6.Character.sign_sum m (fun i => q i * z i)",
+  "queries": [
+    "finite binary character orthogonality sum translation",
+    "Fintype prod_sum polynomial integer"
+  ],
+  "guidance": "Fintype.prod_sum expands coordinate factors. Finset.prod_mul_distrib and map_prod combine character factors, then character_product. Integer polynomial arithmetic, no division. Return tactic lines only, without leading by. Preserve exact target."
+}

@@ -1,0 +1,55 @@
+{
+  "id": "recover_positive",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Pinned.recover_positive",
+    "spec_sha256": "495cd2b739821cd835c053079f41d55bf1dc452012f2ec471e213bfb0d396b51",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-3blzy2d6/attempt-001/Candidate_5fb43daae0d00956.lean",
+        "target_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-3blzy2d6/attempt-001/FrozenTarget_5fb43daae0d00956.lean",
+        "feedback": "",
+        "target_sha256": "bab53b7e39e08524c2cbdd0b9959e63fa319e3c737b6b544540647a804e77c6f",
+        "target_olean_sha256": "55fed0daaeb32247934885dd1446d3357188a7b07bca1ce4f1824251be511bf0",
+        "source_sha256": "3938a9990d00c3565306b7e79a36cfc1b666db94e7a1f77e0c7fdc2849dc16f6",
+        "olean_sha256": "ca0b595405132b9d6e6d370f569b7d9b96fb9ec8f6d6814a5ff68c19bc6e2713",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:00:02.116206+00:00",
+    "work": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-3blzy2d6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d5137ef2e22702c223214cf9ab178280088fb1a194804e298bffe37945ced814",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-3blzy2d6/attempt-001/Candidate_5fb43daae0d00956.lean",
+    "environment_sha256": "76bffabaf33c42b35384f14efc593582b70cf33ae709e114f6960df01a5880a6",
+    "artifacts": {
+      "recover_positive": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.recover_positive : ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ), M6.Pinned.partitions c → ∀ (P : M6.Pinned.Pins m) (xs : List (Fin m)), 0 < c P → 0 < c (M6.Pinned.recover c P xs).1 := by\n  change ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ), M6.Pinned.partitions c → ∀ (P : M6.Pinned.Pins m) (xs : List (Fin m)), 0 < c P → 0 < c (M6.Pinned.recover c P xs).1\n  intro m c hc\n  unfold M6.Pinned.partitions at hc\n  have hchoose : ∀ (P : M6.Pinned.Pins m) (i : Fin m), 0 < c P → 0 < c (M6.Pinned.choose c P i).1 := by\n    intro P i hP\n    unfold M6.Pinned.choose\n    split\n    all_goals\n      first\n      | exact hP\n      | (split <;> dsimp only <;>\n          first\n          | assumption\n          | (have hsum := hc P i (by assumption)\n             omega))\n  intro P xs\n  induction xs generalizing P with\n  | nil =>\n      simpa only [M6.Pinned.recover] using (fun h : 0 < c P => h)\n  | cons i xs ih =>\n      intro hP\n      simpa only [M6.Pinned.recover] using\n        (ih (M6.Pinned.choose c P i).1 (hchoose P i hP))",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.recover_positive",
+          "ancestors": [],
+          "spec_sha256": "495cd2b739821cd835c053079f41d55bf1dc452012f2ec471e213bfb0d396b51"
+        },
+        "sha256": "877e510b43211f442c5976760baff1845dd4e01e70d48cc1a540968289d23de2"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "M6.Transfer.trace_work_bound",
+  "statement": "∀ R N : ℕ, R < N → M6.Transfer.traceWorkModel R N ≤ 4096 * N^3 * 4^R",
+  "imports": [
+    "M6TransferResources"
+  ],
+  "context": "theorem M6.Transfer.state_count : ∀ R : ℕ, Fintype.card (M6.Transfer.Memory R) = 2^R := by\n  change ∀ R : ℕ, Fintype.card (M6.Transfer.Memory R) = 2 ^ R\n  intro R\n  simp [M6.Transfer.Memory, M6.Transfer.Bit, Fintype.card_fun, ZMod.card]\n\ntheorem M6.Transfer.scatter_loop_count : ∀ R N : ℕ, M6.Transfer.traceCoefficientOps R N = 6 * N * (2*N+1) * 4^R := by\n  change ∀ R N : ℕ, M6.Transfer.traceCoefficientOps R N = 6 * N * (2 * N + 1) * 4 ^ R\n  intro R N\n  simp only [M6.Transfer.traceCoefficientOps, M6.Transfer.ScatterEvent,\n    Fintype.card_prod, M6.Transfer.state_count, Fintype.card_fin,\n    M6.Transfer.Bit, ZMod.card]\n  have hpow : (4 : ℕ) ^ R = 2 ^ R * 2 ^ R := by\n    simpa using (mul_pow (2 : ℕ) 2 R)\n  rw [hpow]\n  ring",
+  "queries": [
+    "Nat power monotonicity polynomial inequality",
+    "Fintype card function product"
+  ],
+  "guidance": "Use R<N gives N>=1, coefficientBits<=6N,addressBits<=7N and eventBitCharge<=60N. Use 2N+1<=3N and (2^R)^2=4^R. Obtain counter including layer clearing <=21N^2*4^R, then multiply inequalities. Constants deliberately conservative within original asymptotic bound. Return tactic lines without leading by. Fixed definitions:\nimport M6Transfer\nnamespace M6.Transfer\n\n-- A scatter loop visits each source state, both bit-labelled edges, every\n-- coefficient slot and each of the at-most-three edge coefficients.\nabbrev ScatterEvent (R N : ℕ) := Memory R × Bit × Fin (2*N+1) × Fin 3\n\ndef coefficientBits (R N : ℕ) : ℕ := R + 3*N + 2\ndef addressBits (R N : ℕ) : ℕ := R + 2*N + 4\n\ndef eventBitCharge (R N : ℕ) : ℕ :=\n  4 * coefficientBits R N + 4 * addressBits R N + 8\n\nnoncomputable def traceCoefficientOps (R N : ℕ) : ℕ :=\n  Fintype.card (Memory R) * N * Fintype.card (ScatterEvent R N)\n\n-- Include clearing each destination layer for every start/layer in the model.\nnoncomputable def traceWorkModel (R N : ℕ) : ℕ :=\n  (traceCoefficientOps R N + (2^R)^2 * N * (2*N+1)) * eventBitCharge R N\n\ndef traceStorageModel (R N : ℕ) : ℕ :=\n  2 * 2^R * (2*N+1) * coefficientBits R N +\n  (2*N+1) * coefficientBits R N + 2 * 2^R * (R+2) + 2*N + 16\n\ndef addressLocations (R N : ℕ) : ℕ := 16 * 2^R * (N+1)^2\n\nend M6.Transfer\n"
+}

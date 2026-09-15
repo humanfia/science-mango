@@ -1,0 +1,55 @@
+{
+  "id": "enumerator_coeff",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Pinned.enumerator_coeff",
+    "spec_sha256": "8fbaaaea536106eb379968ce190cd8f004f13e11f62b94a60e62947f7be9879d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-buoihwx8/attempt-001/Candidate_0421d159b0a1f4b7.lean",
+        "target_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-buoihwx8/attempt-001/FrozenTarget_0421d159b0a1f4b7.lean",
+        "feedback": "",
+        "target_sha256": "174db7b9998317eb0a2c6849409b8be237ed46ae4f7387bd0cb1c386e6bb23b5",
+        "target_olean_sha256": "65976f7b8ec10c93a97777361bac40d4ef03a83cda53f59792e468833263a7f0",
+        "source_sha256": "226eba00e44e93a9ed7856af7428e8b280a53d83072bbd4d80443ed67a48eb87",
+        "olean_sha256": "0f7c2d01ca27b52c436b4cfbe1bbd013ddbed7eee76e17dd8318d686d152bd66",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:06:45.361211+00:00",
+    "work": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-buoihwx8",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d5137ef2e22702c223214cf9ab178280088fb1a194804e298bffe37945ced814",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-buoihwx8/attempt-001/Candidate_0421d159b0a1f4b7.lean",
+    "environment_sha256": "76bffabaf33c42b35384f14efc593582b70cf33ae709e114f6960df01a5880a6",
+    "artifacts": {
+      "enumerator_coeff": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.enumerator_coeff : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m) (d : ℕ), (M6.Pinned.enumerator L P).coeff d = M6.Pinned.count L P d := by\n  change ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m) (d : ℕ), (M6.Pinned.enumerator L P).coeff d = M6.Pinned.count L P d\n  intro m L P d\n  classical\n  simp only [M6.Pinned.enumerator, M6.Pinned.count,\n    Polynomial.finset_sum_coeff, Polynomial.coeff_X_pow,\n    Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one,\n    Finset.sum_filter]\n  apply Finset.sum_congr rfl\n  intro v hv\n  have hrev : (d = M6.Pinned.weight v) ↔ (M6.Pinned.weight v = d) := eq_comm\n  by_cases ha : M6.Pinned.agrees P v <;>\n    by_cases hw : M6.Pinned.weight v = d <;>\n    simp [ha, hw, Polynomial.coeff_X_pow, eq_comm]\n  all_goals omega",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.enumerator_coeff",
+          "ancestors": [],
+          "spec_sha256": "8fbaaaea536106eb379968ce190cd8f004f13e11f62b94a60e62947f7be9879d"
+        },
+        "sha256": "835b4bbe149dba273f63fec4ca2fc60f33259c7d7c489f8dbd4dcd0a316febb1"
+      }
+    }
+  }
+}

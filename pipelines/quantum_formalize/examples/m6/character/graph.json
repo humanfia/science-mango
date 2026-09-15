@@ -1,0 +1,206 @@
+{
+  "title": "M6 character orthogonality and general weighted MacWilliams over integer polynomials",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Original M6 sections4/5 generic character foundation. Exact weighted integer-polynomial formula is proved from binary subspace orthogonality; pinned specialization follows using M6.Pinned frozen definitions. No cyclic squarefree restriction or formula hypothesis.",
+  "nodes": [
+    {
+      "id": "sign_add",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Character.sign_add",
+        "statement": "\u2200 (a b : ZMod 2), M6.Character.sign (a+b) = M6.Character.sign a * M6.Character.sign b",
+        "imports": [
+          "M6Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character orthogonality sum translation",
+          "Fintype prod_sum polynomial integer"
+        ],
+        "guidance": "Use fin_cases a; fin_cases b; norm_num [sign]. Return tactic lines only, without leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": "M6 sections4/5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "sign_eq_one",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Character.sign_eq_one",
+        "statement": "\u2200 (a : ZMod 2), (M6.Character.sign a = 1 \u2194 a = 0) \u2227 (M6.Character.sign a = -1 \u2194 a \u2260 0)",
+        "imports": [
+          "M6Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character orthogonality sum translation",
+          "Fintype prod_sum polynomial integer"
+        ],
+        "guidance": "Two explicit binary cases; no assumption about character sums. Return tactic lines only, without leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": "M6 sections4/5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "sign_sum",
+      "dependencies": [
+        "sign_add"
+      ],
+      "spec": {
+        "name": "M6.Character.sign_sum",
+        "statement": "\u2200 (m : \u2115) (f : Fin m \u2192 ZMod 2), M6.Character.sign (\u2211 i, f i) = \u220f i, M6.Character.sign (f i)",
+        "imports": [
+          "M6Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character orthogonality sum translation",
+          "Fintype prod_sum polynomial integer"
+        ],
+        "guidance": "Induct over Finset.univ using sign_add and sign0=1, or Fin induction sum_univ_succ/prod_univ_succ. Return tactic lines only, without leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": "M6 sections4/5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "character_add",
+      "dependencies": [
+        "sign_add"
+      ],
+      "spec": {
+        "name": "M6.Character.character_add",
+        "statement": "\u2200 (m : \u2115) (q r z : M6.Character.Vector m), M6.Character.character (q+r) z = M6.Character.character q z * M6.Character.character r z",
+        "imports": [
+          "M6Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character orthogonality sum translation",
+          "Fintype prod_sum polynomial integer"
+        ],
+        "guidance": "Unfold dot, use Pi.add_apply, add_mul, sum_add_distrib, sign_add. Return tactic lines only, without leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": "M6 sections4/5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "character_product",
+      "dependencies": [
+        "sign_sum"
+      ],
+      "spec": {
+        "name": "M6.Character.character_product",
+        "statement": "\u2200 (m : \u2115) (q z : M6.Character.Vector m), M6.Character.character q z = \u220f i, M6.Character.sign (q i * z i)",
+        "imports": [
+          "M6Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character orthogonality sum translation",
+          "Fintype prod_sum polynomial integer"
+        ],
+        "guidance": "Direct sign_sum specialization. Return tactic lines only, without leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": "M6 sections4/5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "orthogonality",
+      "dependencies": [
+        "character_add",
+        "sign_eq_one"
+      ],
+      "spec": {
+        "name": "M6.Character.orthogonality",
+        "statement": "\u2200 (m : \u2115) (D : Submodule (ZMod 2) (M6.Character.Vector m)) (z : M6.Character.Vector m), M6.Character.characterSum D z = M6.Character.orthogonalIndicator D z",
+        "imports": [
+          "M6Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character orthogonality sum translation",
+          "Fintype prod_sum polynomial integer"
+        ],
+        "guidance": "Unfold orthogonalIndicator to the exact if Orthogonal then card else0 statement. Inside orthogonal all characters1. Outside obtain q0\u2208D with dot q0 z\u22600, hence character q0z=-1. Translation by q0 bijects finite subspaceWords; character_add gives sum=-sum and integer cancellation gives0. Prove translation/reindex; do not assume orthogonality formula. Return tactic lines only, without leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": "M6 sections4/5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "weighted_factorization",
+      "dependencies": [
+        "character_product"
+      ],
+      "spec": {
+        "name": "M6.Character.weighted_factorization",
+        "statement": "\u2200 (m : \u2115) (w : Fin m \u2192 ZMod 2 \u2192 Polynomial \u2124) (q : M6.Character.Vector m), M6.Character.localTransform w q = \u2211 z : M6.Character.Vector m, Polynomial.C (M6.Character.character q z) * \u220f i, w i (z i)",
+        "imports": [
+          "M6Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character orthogonality sum translation",
+          "Fintype prod_sum polynomial integer"
+        ],
+        "guidance": "Fintype.prod_sum expands coordinate factors. Finset.prod_mul_distrib and map_prod combine character factors, then character_product. Integer polynomial arithmetic, no division. Return tactic lines only, without leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": "M6 sections4/5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "weighted_macwilliams",
+      "dependencies": [
+        "orthogonality",
+        "weighted_factorization"
+      ],
+      "spec": {
+        "name": "M6.Character.weighted_macwilliams",
+        "statement": "\u2200 (m : \u2115) (D : Submodule (ZMod 2) (M6.Character.Vector m)) (w : Fin m \u2192 ZMod 2 \u2192 Polynomial \u2124), Polynomial.C ((M6.Character.subspaceWords D).card : \u2124) * M6.Character.weightedDual D w = M6.Character.weightedTransform D w",
+        "imports": [
+          "M6Character"
+        ],
+        "context": "",
+        "queries": [
+          "finite binary character orthogonality sum translation",
+          "Fintype prod_sum polynomial integer"
+        ],
+        "guidance": "Expand weightedTransform using weighted_factorization, swap the two finite sums once, collect Polynomial.C(characterSum), use orthogonality, and identify dualWords filter. No formula premise or rational normalization; exact integer polynomial identity. Return tactic lines only, without leading by. Preserve exact target."
+      },
+      "metadata": {
+        "source_section": "M6 sections4/5",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

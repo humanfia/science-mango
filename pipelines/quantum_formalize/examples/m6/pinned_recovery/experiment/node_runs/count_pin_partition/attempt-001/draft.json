@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ), M6.Pinned.partitions (fun P => M6.Pinned.count L P d)\nclassical\nintro m L d\nunfold M6.Pinned.partitions\nintro P i hP\nhave hbits : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide\ninduction L using Finset.induction_on with\n| empty =>\n    simp [M6.Pinned.count, M6.Pinned.enumerator]\n| @insert v L hv ih =>\n    rcases hbits (v i) with hb | hb <;>\n      by_cases ha : M6.Pinned.agrees P v <;>\n      by_cases hw : M6.Pinned.weight v = d <;>\n      simp_all [M6.Pinned.count, M6.Pinned.enumerator,\n        M6.Pinned.agrees_pin, Finset.filter_insert,\n        Finset.sum_insert, Polynomial.coeff_sum,\n        Polynomial.coeff_monomial] <;> omega",
+  "queries": [
+    "Finset.card_filter",
+    "Finset.card_filter_add_card_filter_not"
+  ]
+}

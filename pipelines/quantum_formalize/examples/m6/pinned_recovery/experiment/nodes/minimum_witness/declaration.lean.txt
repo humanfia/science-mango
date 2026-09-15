@@ -1,0 +1,15 @@
+theorem M6.Pinned.minimum_witness : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), L.Nonempty → ∃ (d : ℕ) (v : M6.Pinned.Vector m) (k : ℕ), M6.Pinned.solve (M6.Pinned.enumerator L) = some (d, v, k) ∧ v ∈ L ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ L, d ≤ M6.Pinned.weight u) ∧ k ≤ m := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), L.Nonempty → ∃ (d : ℕ) (v : M6.Pinned.Vector m) (k : ℕ), M6.Pinned.solve (M6.Pinned.enumerator L) = some (d, v, k) ∧ v ∈ L ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ L, d ≤ M6.Pinned.weight u) ∧ k ≤ m
+  )
+  change QuantumHarnessFrozenTarget
+  classical
+  unfold QuantumHarnessFrozenTarget
+  intro m L hL
+  have hspec := M6.Pinned.solve_exact m L (M6.Pinned.enumerator L) (fun P => rfl)
+  cases hs : M6.Pinned.solve (M6.Pinned.enumerator L) with
+  | none =>
+      exact False.elim (hL.ne_empty (hspec.1.mp hs))
+  | some result =>
+      rcases result with ⟨d, v, k⟩
+      exact ⟨d, v, k, rfl, hspec.2 d v k hs⟩

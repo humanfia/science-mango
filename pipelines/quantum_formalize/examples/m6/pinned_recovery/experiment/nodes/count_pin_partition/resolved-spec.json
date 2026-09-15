@@ -1,0 +1,13 @@
+{
+  "name": "M6.Pinned.count_pin_partition",
+  "statement": "∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ), M6.Pinned.partitions (fun P => M6.Pinned.count L P d)",
+  "imports": [
+    "M6Pinned"
+  ],
+  "context": "theorem M6.Pinned.agrees_pin : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Pinned.Vector m) (i : Fin m) (b : ZMod 2), P i = none → (M6.Pinned.agrees (M6.Pinned.pin P i b) v ↔ M6.Pinned.agrees P v ∧ v i = b) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Pinned.Vector m) (i : Fin m) (b : ZMod 2), P i = none → (M6.Pinned.agrees (M6.Pinned.pin P i b) v ↔ M6.Pinned.agrees P v ∧ v i = b)\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro m P v i b hP\n  unfold M6.Pinned.agrees\n  constructor\n  · intro h\n    constructor\n    · intro j\n      by_cases hji : j = i\n      · subst j\n        simp [hP]\n      · simpa [M6.Pinned.pin, Function.update, hji, Ne.symm hji] using h j\n    · simpa [M6.Pinned.pin, Function.update] using h i\n  · rintro ⟨h, hv⟩ j\n    by_cases hji : j = i\n    · subst j\n      simp [M6.Pinned.pin, Function.update, hv]\n    · simpa [M6.Pinned.pin, Function.update, hji, Ne.symm hji] using h j",
+  "queries": [
+    "finite binary vector weight pinned enumerator coefficient",
+    "List find? minimum finite set pin recursive recovery"
+  ],
+  "guidance": "At a free coordinate every ZMod2 value is exactly0 or1; obtain ∀b:ZMod2,b=0∨b=1 by ordinary decide (not native_decide). The two pin filters are disjoint and their union is the old filter. Apply agrees_pin and finite cardinality additivity, or narrow pointwise indicator sums. Preserve empty L and d outside the weight range. Return tactic lines only without leading by; keep the exact frozen statement and default limits."
+}

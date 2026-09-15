@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nchange ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), M6.Pinned.firstPositive m (M6.Pinned.enumerator L (M6.Pinned.free m)) = M6.Pinned.distance L\nintro m L\nhave hc : ∀ d : ℕ, (0 < (M6.Pinned.enumerator L (M6.Pinned.free m)).coeff d) ↔ ∃ v ∈ L, M6.Pinned.weight v = d := by\n  intro d\n  rw [M6.Pinned.enumerator_coeff]\n  simpa [M6.Pinned.agrees, M6.Pinned.free] using\n    (M6.Pinned.count_nonnegative_positive m L (M6.Pinned.free m) d).2\ncases hd : M6.Pinned.distance L with\n| none =>\n    have he : L = ∅ := (M6.Pinned.distance_spec m L).1.mp hd\n    simp [M6.Pinned.firstPositive, List.find?_range_eq_none, hc, he]\n| some d =>\n    obtain ⟨hwitness, hleast⟩ := (M6.Pinned.distance_spec m L).2 d |>.mp hd\n    have hbound : d < m + 1 := by\n      obtain ⟨v, hv, hweight⟩ := hwitness\n      have hb := M6.Pinned.weight_bound m v\n      omega\n    have hn : ∀ j < d, ¬ ∃ v ∈ L, M6.Pinned.weight v = j := by\n      intro j hj\n      rintro ⟨v, hv, hw⟩\n      have hl := hleast v hv\n      omega\n    simp [M6.Pinned.firstPositive, List.find?_range_eq_some, hc, hbound, hwitness, hn]",
+  "queries": [
+    "List.find?_range_eq_some",
+    "List.find?_range_eq_none"
+  ]
+}

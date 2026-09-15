@@ -1,0 +1,69 @@
+{
+  "id": "count_pin_partition",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Pinned.count_pin_partition",
+    "spec_sha256": "de888aaacf8045263a60881c74483226f62984c7af6baf9759dc86ad18a8b706",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-fin6m_50/attempt-001/Candidate_765972e50988d88c.lean",
+        "target_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-fin6m_50/attempt-001/FrozenTarget_765972e50988d88c.lean",
+        "feedback": "",
+        "target_sha256": "8a556f64e87d7dc774d414346e87b276fb9ab792ce1ea2c01314ac142973776b",
+        "target_olean_sha256": "539df623e16339e955dc1d2ef6c2da96d9122c218a0aa3e23b0438f70e413c55",
+        "source_sha256": "23a75316a1711893b58bc520ad1e7445e4db36fc10ebac911d2cc608cfee18c2",
+        "olean_sha256": "0b76b1f9d9da8ea5d9cee4dcee816919b3e8ff26f454e0e6a64ad33c5eff609e",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:08:13.701758+00:00",
+    "work": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-fin6m_50",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d5137ef2e22702c223214cf9ab178280088fb1a194804e298bffe37945ced814",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-fin6m_50/attempt-001/Candidate_765972e50988d88c.lean",
+    "environment_sha256": "76bffabaf33c42b35384f14efc593582b70cf33ae709e114f6960df01a5880a6",
+    "artifacts": {
+      "agrees_pin": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.agrees_pin : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Pinned.Vector m) (i : Fin m) (b : ZMod 2), P i = none → (M6.Pinned.agrees (M6.Pinned.pin P i b) v ↔ M6.Pinned.agrees P v ∧ v i = b) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Pinned.Vector m) (i : Fin m) (b : ZMod 2), P i = none → (M6.Pinned.agrees (M6.Pinned.pin P i b) v ↔ M6.Pinned.agrees P v ∧ v i = b)\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro m P v i b hP\n  unfold M6.Pinned.agrees\n  constructor\n  · intro h\n    constructor\n    · intro j\n      by_cases hji : j = i\n      · subst j\n        simp [hP]\n      · simpa [M6.Pinned.pin, Function.update, hji, Ne.symm hji] using h j\n    · simpa [M6.Pinned.pin, Function.update] using h i\n  · rintro ⟨h, hv⟩ j\n    by_cases hji : j = i\n    · subst j\n      simp [M6.Pinned.pin, Function.update, hv]\n    · simpa [M6.Pinned.pin, Function.update, hji, Ne.symm hji] using h j",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.agrees_pin",
+          "ancestors": [],
+          "spec_sha256": "947afb430f3f2d5cf3433084d2ca699bdf15151835add96571b2bdeb3ec72343"
+        },
+        "sha256": "ce8ab8fc2c7c10d86c80ee68f628fd26b7fb0a7a293325a5b833ead03aced10a"
+      },
+      "count_pin_partition": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.count_pin_partition : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ), M6.Pinned.partitions (fun P => M6.Pinned.count L P d) := by\n  change ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ), M6.Pinned.partitions (fun P => M6.Pinned.count L P d)\n  classical\n  intro m L d\n  unfold M6.Pinned.partitions\n  intro P i hP\n  have hbits : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide\n  induction L using Finset.induction_on with\n  | empty =>\n      simp [M6.Pinned.count, M6.Pinned.enumerator]\n  | @insert v L hv ih =>\n      rcases hbits (v i) with hb | hb <;>\n        by_cases ha : M6.Pinned.agrees P v <;>\n        by_cases hw : M6.Pinned.weight v = d <;>\n        simp_all [M6.Pinned.count, M6.Pinned.enumerator,\n          M6.Pinned.agrees_pin, Finset.filter_insert,\n          Finset.sum_insert, Polynomial.coeff_sum,\n          Polynomial.coeff_monomial] <;> omega",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.count_pin_partition",
+          "ancestors": [
+            "agrees_pin"
+          ],
+          "spec_sha256": "819d88f429f01880f068c5c19384c15d6411ab704d5ed84f8df53bfc096095b3"
+        },
+        "sha256": "f2d52a132bcf8f354d074e44691e933d9939915c6521ab34fc297c40a359f821"
+      }
+    }
+  }
+}

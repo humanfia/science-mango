@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (i : Fin m), M6.Pinned.refines P (M6.Pinned.choose c P i).1 ∧ (M6.Pinned.choose c P i).1 i ≠ none ∧ (M6.Pinned.choose c P i).2 ≤ 1\nintro m c P i\ncases h : P i with\n| none =>\n    have hr (b : ZMod 2) : M6.Pinned.refines P (M6.Pinned.pin P i b) := by\n      unfold M6.Pinned.refines\n      intro j\n      by_cases hj : j = i\n      · subst j\n        simp [h]\n      · simp [M6.Pinned.pin, hj]\n    have hn (b : ZMod 2) : M6.Pinned.pin P i b i ≠ none := by\n      simp [M6.Pinned.pin]\n    simp only [M6.Pinned.choose, h]\n    split <;> simp_all\n| some b =>\n    simp [M6.Pinned.choose, h, M6.Pinned.refines]",
+  "queries": []
+}

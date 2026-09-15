@@ -1,0 +1,108 @@
+{
+  "id": "kernel_card",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.BoundaryFibers.kernel_card",
+    "spec_sha256": "d6267d206ba76fb9d66d95a78a31b31af8a1f37b27e46c609a9d9ac1eaab27de",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-boundary-fibers-formalization/.humanize-formal-runs/run-c4lh5rg0/attempt-001/Candidate_4db78896192575f2.lean",
+        "target_path": "/home/jing/m6-lean-boundary-fibers-formalization/.humanize-formal-runs/run-c4lh5rg0/attempt-001/FrozenTarget_4db78896192575f2.lean",
+        "feedback": "",
+        "target_sha256": "bd0076da078d956fc20f9de2bc3b6532983115914a96b05771c661a5688d8690",
+        "target_olean_sha256": "137c01f9aebd705253b9a138fe7834c3e41040c3d6c16627f74af66cd9a3a119",
+        "source_sha256": "16405decf35a9f26734fa4f64416b3d4c7b1d26a3653f52372f8290b617846da",
+        "olean_sha256": "b36684a5af9990339e8ec0ff14ddb3acf654e0611bf940ac923013af9f2ab690",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:10:41.936702+00:00",
+    "work": "/home/jing/m6-lean-boundary-fibers-formalization/.humanize-formal-runs/run-c4lh5rg0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "3536496734b8b57f4d19529f6393feb74f0917db6775ad7f73c0d24966a86882",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-boundary-fibers-formalization/.humanize-formal-runs/run-c4lh5rg0/attempt-001/Candidate_4db78896192575f2.lean",
+    "environment_sha256": "94f2d73cf5038cad93bb436421862fba0e1606af3323466695e1a90362fd7450",
+    "artifacts": {
+      "nonzero_monic": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.nonzero_monic : ∀ p : M6.BoundaryFibers.BP, p ≠ 0 → p.Monic := by\n  change ∀ p : M6.BoundaryFibers.BP, p ≠ 0 → p.Monic\n  intro p hp\n  have hlc : p.leadingCoeff ≠ 0 := by\n    intro h\n    exact hp (Polynomial.leadingCoeff_eq_zero.mp h)\n  change p.leadingCoeff = 1\n  have hbinary : ∀ x : ZMod 2, x ≠ 0 → x = 1 := by decide\n  exact hbinary p.leadingCoeff hlc",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.nonzero_monic",
+          "ancestors": [],
+          "spec_sha256": "23c22866be28b6bdfcdd1692f24856f0cdce4c8ebe894280102e9af4976b047b"
+        },
+        "sha256": "2a27cfc4995282e31f84d93c15dda9cd5d95802f6e67e07caaa27eac4e5de872"
+      },
+      "signature_nonzero": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.signature_nonzero : ∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → M6.Cyclic.signature a b M ≠ 0 := by\n  change ∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → M6.Cyclic.signature a b M ≠ 0\n  intro a b M hM hs\n  have hd := (M6.Cyclic.signature_divides a b M).2.2\n  apply hM\n  simpa [hs] using hd",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.signature_nonzero",
+          "ancestors": [],
+          "spec_sha256": "131a80403062c6b5ec6667ddaddaa2a5f40fcfa7b2bdb7308485c9e8ee7f9a55"
+        },
+        "sha256": "dede86144ebde52bcc76025a9cc809b14899251fcac0e389a4cf8acfdbdbaa5f"
+      },
+      "kernel_iff": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.kernel_iff : ∀ (a b M : M6.BoundaryFibers.BP) (h : AdjoinRoot M), M6.BoundaryFibers.boundary a b M h = (0,0) ↔ AdjoinRoot.mk M (M6.Cyclic.signature a b M) * h = 0 := by\n  change ∀ (a b M : M6.BoundaryFibers.BP) (h : AdjoinRoot M), M6.BoundaryFibers.boundary a b M h = (0, 0) ↔ AdjoinRoot.mk M (M6.Cyclic.signature a b M) * h = 0\n  intro a b M h\n  refine AdjoinRoot.induction_on M h ?_\n  intro p\n  simpa only [M6.BoundaryFibers.boundary, Prod.mk.injEq, ← map_mul, AdjoinRoot.mk_eq_zero, and_comm] using M6.Cyclic.kernel_divisibility a b M p",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.kernel_iff",
+          "ancestors": [],
+          "spec_sha256": "00e4564a9d302bbf259ae8ec79322a26dcd8a2f86dec31450bd4e12e2a4f70c0"
+        },
+        "sha256": "2e577aeb2ea2aa830e132ec5e946b38254692c38f4f9e4d0a7c1a25a59d24e3c"
+      },
+      "annihilator_general": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.annihilator_general : ∀ (F M : M6.BoundaryFibers.BP), F.Monic → F ∣ M → M ≠ 0 → Nat.card {h : AdjoinRoot M // AdjoinRoot.mk M F * h = 0} = 2^F.natDegree := by\n  intro F M hF hFM hM\n  rcases hFM with ⟨K, rfl⟩\n  have hK : K ≠ 0 := by\n    intro hK\n    apply hM\n    simp [hK]\n  simpa only [M6.KernelFibers.annihilator] using\n    (M6.KernelFibers.annihilator_card F K hF hK)",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.annihilator_general",
+          "ancestors": [],
+          "spec_sha256": "4a02cb6bf67c7e7c0e0ca1342f1673254d7436a87873389adb684ad4da7ce7ef"
+        },
+        "sha256": "c6110a76e6214331e9eccbffe9603e15fdbd9e0d190b3f601c5e9aaac74ca2d9"
+      },
+      "kernel_card": {
+        "payload": {
+          "declaration": "theorem M6.BoundaryFibers.kernel_card : ∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → Nat.card {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = (0,0)} = 2^(M6.Cyclic.signature a b M).natDegree := by\n  change ∀ a b M : M6.BoundaryFibers.BP, M ≠ 0 → Nat.card {h : AdjoinRoot M // M6.BoundaryFibers.boundary a b M h = (0, 0)} = 2 ^ (M6.Cyclic.signature a b M).natDegree\n  intro a b M hM\n  simp_rw [M6.BoundaryFibers.kernel_iff]\n  exact M6.BoundaryFibers.annihilator_general\n    (M6.Cyclic.signature a b M) M\n    (M6.BoundaryFibers.nonzero_monic _ (M6.BoundaryFibers.signature_nonzero a b M hM))\n    (M6.Cyclic.signature_divides a b M).2.2 hM",
+          "imports": [
+            "M6BoundaryFibers"
+          ],
+          "name": "M6.BoundaryFibers.kernel_card",
+          "ancestors": [
+            "annihilator_general",
+            "kernel_iff",
+            "nonzero_monic",
+            "signature_nonzero"
+          ],
+          "spec_sha256": "d6115e627982532c64a0006cd4237ac1b70d265c9d3c65e8eb51014bb72aec2d"
+        },
+        "sha256": "faf8896a033dff3499966125f313dff0462e39b836532110aa90d4d07dff9775"
+      }
+    }
+  }
+}

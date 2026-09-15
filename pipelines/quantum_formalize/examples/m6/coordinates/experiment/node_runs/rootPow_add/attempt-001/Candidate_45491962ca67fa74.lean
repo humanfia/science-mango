@@ -1,0 +1,8 @@
+import FrozenTarget_45491962ca67fa74
+theorem M6.Coordinates.rootPow_add : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (i j : ZMod N), M6.Coordinates.rootPow N (i + j) = M6.Coordinates.rootPow N i * M6.Coordinates.rootPow N j
+  intro N hN i j
+  change (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ (i + j).val = (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ i.val * (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ j.val
+  rw [ZMod.val_add, ← pow_add]
+  have h := congrArg (fun k : ℕ => (AdjoinRoot.root (M6.Cyclic.modulus N)) ^ k) (Nat.mod_add_div (i.val + j.val) N)
+  simpa only [pow_add, pow_mul, M6.Coordinates.root_period, one_pow, mul_one] using h

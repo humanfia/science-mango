@@ -1,0 +1,466 @@
+[
+  {
+    "queries": [
+      "finite binary character orthogonality sum translation",
+      "Fintype prod_sum polynomial integer"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite binary character orthogonality sum translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 295561,
+            "name": "Order.IsOfFiniteCharacter",
+            "module": "Mathlib.Order.TeichmullerTukey",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/TeichmullerTukey.lean#L41-L43",
+            "source_text": "/-- A family of sets $F$ is of finite character iff for every set $X$, $X ∈ F$ iff every finite\nsubset of $X$ is in $F$ -/\ndef IsOfFiniteCharacter := ∀ x, x ∈ F ↔ ∀ y ⊆ x, y.Finite → y ∈ F\n",
+            "docstring": "A family of sets $F$ is of finite character iff for every set $X$, $X ∈ F$ iff every finite\nsubset of $X$ is in $F$ "
+          },
+          {
+            "id": 57569,
+            "name": "finsum",
+            "module": "Mathlib.Algebra.BigOperators.Finprod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L101-L104",
+            "source_text": "/-- Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. -/\nnoncomputable irreducible_def finsum (lemma := finsum_def') [AddCommMonoid M] (f : α → M) : M :=\n  if h : HasFiniteSupport (f ∘ PLift.down) then ∑ i ∈ h.toFinset, f i.down else 0\n",
+            "docstring": "Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. "
+          },
+          {
+            "id": 271956,
+            "name": "DirichletCharacter.sum_characters_eq_zero",
+            "module": "Mathlib.NumberTheory.DirichletCharacter.Orthogonality",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Orthogonality.lean#L56-L64",
+            "source_text": "/-- If `R` is an integral domain that has enough roots of unity and `n ≠ 0`, then\nfor each `a ≠ 1` in `ZMod n`, the sum of `χ a` over all Dirichlet characters mod `n`\nwith values in `R` vanishes. -/\ntheorem sum_characters_eq_zero ⦃a : ZMod n⦄ (ha : a ≠ 1) :\n    ∑ χ : DirichletCharacter R n, χ a = 0 := by\n  obtain ⟨χ, hχ⟩ := exists_apply_ne_one_of_hasEnoughRootsOfUnity R ha\n  refine eq_zero_of_mul_eq_self_left hχ ?_\n  simp only [Finset.mul_sum, ← MulChar.mul_apply]\n  exact Fintype.sum_bijective _ (Group.mulLeft_bijective χ) _ _ fun χ' ↦ rfl\n",
+            "docstring": "If `R` is an integral domain that has enough roots of unity and `n ≠ 0`, then\nfor each `a ≠ 1` in `ZMod n`, the sum of `χ a` over all Dirichlet characters mod `n`\nwith values in `R` vanishes. "
+          },
+          {
+            "id": 271957,
+            "name": "DirichletCharacter.sum_characters_eq",
+            "module": "Mathlib.NumberTheory.DirichletCharacter.Orthogonality",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Orthogonality.lean#L66-L75",
+            "source_text": "/-- If `R` is an integral domain that has enough roots of unity and `n ≠ 0`, then\nfor `a` in `ZMod n`, the sum of `χ a` over all Dirichlet characters mod `n`\nwith values in `R` vanishes if `a ≠ 1` and has the value `n.totient` if `a = 1`. -/\ntheorem sum_characters_eq (a : ZMod n) :\n    ∑ χ : DirichletCharacter R n, χ a = if a = 1 then (n.totient : R) else 0 := by\n  split_ifs with ha\n  · simpa only [ha, map_one, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one,\n      ← Nat.card_eq_fintype_card]\n      using congrArg Nat.cast <| card_eq_totient_of_hasEnoughRootsOfUnity R n\n  · exact sum_characters_eq_zero R ha\n",
+            "docstring": "If `R` is an integral domain that has enough roots of unity and `n ≠ 0`, then\nfor `a` in `ZMod n`, the sum of `χ a` over all Dirichlet characters mod `n`\nwith values in `R` vanishes if `a ≠ 1` and has the value `n.totient` if `a = 1`. "
+          },
+          {
+            "id": 346988,
+            "name": "locallyFinite_sum",
+            "module": "Mathlib.Topology.LocallyFinite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/LocallyFinite.lean#L200-L203",
+            "source_text": "theorem locallyFinite_sum {f : ι ⊕ ι' → Set X} :\n    LocallyFinite f ↔ LocallyFinite (f ∘ Sum.inl) ∧ LocallyFinite (f ∘ Sum.inr) := by\n  simp only [locallyFinite_iff_smallSets, ← forall_and, ← finite_preimage_inl_and_inr,\n    preimage_setOf_eq, (· ∘ ·), eventually_and]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite binary character orthogonality sum translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393008,
+            "name": "EuclideanGroup.mul_translation",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L72-L73",
+            "source_text": "@[simp] lemma mul_translation (A B : EuclideanGroup n) :\n    (A * B).translation = A.translation + A.linear • B.translation := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393012,
+            "name": "EuclideanGroup.TranslationGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L107-L118",
+            "source_text": "/-- Translation is the subgroup with Q = 1. -/\ndef TranslationGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val = 1\n    rw [Submonoid.coe_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val = 1\n    rw [OneMemClass.coe_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val = 1\n    rw [coe_inv, ha, inv_one]\n",
+            "docstring": "Translation is the subgroup with Q = 1. "
+          },
+          {
+            "id": 393013,
+            "name": "EuclideanGroup.TranslationGroup.incl",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L120-L122",
+            "source_text": "/-- The inclusion of the translation subgroup into the Euclidean group. -/\nnoncomputable def TranslationGroup.incl (n : ℕ) :\n    TranslationGroup n →* EuclideanGroup n := (TranslationGroup n).subtype\n",
+            "docstring": "The inclusion of the translation subgroup into the Euclidean group. "
+          },
+          {
+            "id": 392710,
+            "name": "GalileanGroup.ofSpaceTranslation",
+            "module": "Physlib.SpaceAndTime.GalileanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/GalileanGroup/Basic.lean#L269-L271",
+            "source_text": "/-- A pure spatial translation as a Galilean transformation. -/\ndef ofSpaceTranslation (a : EuclideanSpace ℝ (Fin d)) : GalileanGroup d :=\n  ⟨1, 0, a, 0⟩\n",
+            "docstring": "A pure spatial translation as a Galilean transformation. "
+          },
+          {
+            "id": 392717,
+            "name": "GalileanGroup.ofTimeTranslation",
+            "module": "Physlib.SpaceAndTime.GalileanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/GalileanGroup/Basic.lean#L302-L304",
+            "source_text": "/-- A pure time translation as a Galilean transformation. -/\ndef ofTimeTranslation (b : Time) : GalileanGroup d :=\n  ⟨1, 0, 0, b⟩\n",
+            "docstring": "A pure time translation as a Galilean transformation. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype prod_sum polynomial integer",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205828,
+            "name": "Fintype.prod_sum_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L264-L267",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem Fintype.prod_sum_type (f : α₁ ⊕ α₂ → M) :\n    ∏ x, f x = (∏ a₁, f (Sum.inl a₁)) * ∏ a₂, f (Sum.inr a₂) :=\n  prod_disjSum _ _ _",
+            "docstring": null
+          },
+          {
+            "id": 59079,
+            "name": "Fintype.prod_sum",
+            "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L300-L302",
+            "source_text": "/-- A product of sums can be written as a sum of products. -/\nlemma prod_sum {κ : ι → Type*} [∀ i, Fintype (κ i)] (f : ∀ i, κ i → R) :\n    ∏ i, ∑ j, f i j = ∑ x : ∀ i, κ i, ∏ i, f i (x i) := Finset.prod_univ_sum _ _\n",
+            "docstring": "A product of sums can be written as a sum of products. "
+          },
+          {
+            "id": 101067,
+            "name": "Polynomial.sum",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L843-L845",
+            "source_text": "/-- Summing the values of a function applied to the coefficients of a polynomial -/\ndef sum {S : Type*} [AddCommMonoid S] (p : R[X]) (f : ℕ → R → S) : S :=\n  ∑ n ∈ p.support, f n (p.coeff n)\n",
+            "docstring": "Summing the values of a function applied to the coefficients of a polynomial "
+          },
+          {
+            "id": 101068,
+            "name": "Polynomial.sum_def",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L847-L849",
+            "source_text": "theorem sum_def {S : Type*} [AddCommMonoid S] (p : R[X]) (f : ℕ → R → S) :\n    p.sum f = ∑ n ∈ p.support, f n (p.coeff n) :=\n  rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 271740,
+            "name": "IsPoly.add",
+            "module": "Mathlib.NumberTheory.Dioph",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Dioph.lean#L89-L90",
+            "source_text": "theorem IsPoly.add {f g : (α → ℕ) → ℤ} (hf : IsPoly f) (hg : IsPoly g) : IsPoly (f + g) := by\n  rw [← sub_neg_eq_add]; exact hf.sub hg.neg\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fintype prod_sum polynomial integer",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "finite binary character orthogonality sum translation",
+      "Fintype prod_sum polynomial integer"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "finite binary character orthogonality sum translation",
+      "Fintype prod_sum polynomial integer"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite binary character orthogonality sum translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 295561,
+            "name": "Order.IsOfFiniteCharacter",
+            "module": "Mathlib.Order.TeichmullerTukey",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/TeichmullerTukey.lean#L41-L43",
+            "source_text": "/-- A family of sets $F$ is of finite character iff for every set $X$, $X ∈ F$ iff every finite\nsubset of $X$ is in $F$ -/\ndef IsOfFiniteCharacter := ∀ x, x ∈ F ↔ ∀ y ⊆ x, y.Finite → y ∈ F\n",
+            "docstring": "A family of sets $F$ is of finite character iff for every set $X$, $X ∈ F$ iff every finite\nsubset of $X$ is in $F$ "
+          },
+          {
+            "id": 57569,
+            "name": "finsum",
+            "module": "Mathlib.Algebra.BigOperators.Finprod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L101-L104",
+            "source_text": "/-- Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. -/\nnoncomputable irreducible_def finsum (lemma := finsum_def') [AddCommMonoid M] (f : α → M) : M :=\n  if h : HasFiniteSupport (f ∘ PLift.down) then ∑ i ∈ h.toFinset, f i.down else 0\n",
+            "docstring": "Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. "
+          },
+          {
+            "id": 271956,
+            "name": "DirichletCharacter.sum_characters_eq_zero",
+            "module": "Mathlib.NumberTheory.DirichletCharacter.Orthogonality",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Orthogonality.lean#L56-L64",
+            "source_text": "/-- If `R` is an integral domain that has enough roots of unity and `n ≠ 0`, then\nfor each `a ≠ 1` in `ZMod n`, the sum of `χ a` over all Dirichlet characters mod `n`\nwith values in `R` vanishes. -/\ntheorem sum_characters_eq_zero ⦃a : ZMod n⦄ (ha : a ≠ 1) :\n    ∑ χ : DirichletCharacter R n, χ a = 0 := by\n  obtain ⟨χ, hχ⟩ := exists_apply_ne_one_of_hasEnoughRootsOfUnity R ha\n  refine eq_zero_of_mul_eq_self_left hχ ?_\n  simp only [Finset.mul_sum, ← MulChar.mul_apply]\n  exact Fintype.sum_bijective _ (Group.mulLeft_bijective χ) _ _ fun χ' ↦ rfl\n",
+            "docstring": "If `R` is an integral domain that has enough roots of unity and `n ≠ 0`, then\nfor each `a ≠ 1` in `ZMod n`, the sum of `χ a` over all Dirichlet characters mod `n`\nwith values in `R` vanishes. "
+          },
+          {
+            "id": 271957,
+            "name": "DirichletCharacter.sum_characters_eq",
+            "module": "Mathlib.NumberTheory.DirichletCharacter.Orthogonality",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Orthogonality.lean#L66-L75",
+            "source_text": "/-- If `R` is an integral domain that has enough roots of unity and `n ≠ 0`, then\nfor `a` in `ZMod n`, the sum of `χ a` over all Dirichlet characters mod `n`\nwith values in `R` vanishes if `a ≠ 1` and has the value `n.totient` if `a = 1`. -/\ntheorem sum_characters_eq (a : ZMod n) :\n    ∑ χ : DirichletCharacter R n, χ a = if a = 1 then (n.totient : R) else 0 := by\n  split_ifs with ha\n  · simpa only [ha, map_one, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one,\n      ← Nat.card_eq_fintype_card]\n      using congrArg Nat.cast <| card_eq_totient_of_hasEnoughRootsOfUnity R n\n  · exact sum_characters_eq_zero R ha\n",
+            "docstring": "If `R` is an integral domain that has enough roots of unity and `n ≠ 0`, then\nfor `a` in `ZMod n`, the sum of `χ a` over all Dirichlet characters mod `n`\nwith values in `R` vanishes if `a ≠ 1` and has the value `n.totient` if `a = 1`. "
+          },
+          {
+            "id": 346988,
+            "name": "locallyFinite_sum",
+            "module": "Mathlib.Topology.LocallyFinite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/LocallyFinite.lean#L200-L203",
+            "source_text": "theorem locallyFinite_sum {f : ι ⊕ ι' → Set X} :\n    LocallyFinite f ↔ LocallyFinite (f ∘ Sum.inl) ∧ LocallyFinite (f ∘ Sum.inr) := by\n  simp only [locallyFinite_iff_smallSets, ← forall_and, ← finite_preimage_inl_and_inr,\n    preimage_setOf_eq, (· ∘ ·), eventually_and]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite binary character orthogonality sum translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393008,
+            "name": "EuclideanGroup.mul_translation",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L72-L73",
+            "source_text": "@[simp] lemma mul_translation (A B : EuclideanGroup n) :\n    (A * B).translation = A.translation + A.linear • B.translation := rfl",
+            "docstring": null
+          },
+          {
+            "id": 393012,
+            "name": "EuclideanGroup.TranslationGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L107-L118",
+            "source_text": "/-- Translation is the subgroup with Q = 1. -/\ndef TranslationGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val = 1\n    rw [Submonoid.coe_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val = 1\n    rw [OneMemClass.coe_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val = 1\n    rw [coe_inv, ha, inv_one]\n",
+            "docstring": "Translation is the subgroup with Q = 1. "
+          },
+          {
+            "id": 393013,
+            "name": "EuclideanGroup.TranslationGroup.incl",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L120-L122",
+            "source_text": "/-- The inclusion of the translation subgroup into the Euclidean group. -/\nnoncomputable def TranslationGroup.incl (n : ℕ) :\n    TranslationGroup n →* EuclideanGroup n := (TranslationGroup n).subtype\n",
+            "docstring": "The inclusion of the translation subgroup into the Euclidean group. "
+          },
+          {
+            "id": 392710,
+            "name": "GalileanGroup.ofSpaceTranslation",
+            "module": "Physlib.SpaceAndTime.GalileanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/GalileanGroup/Basic.lean#L269-L271",
+            "source_text": "/-- A pure spatial translation as a Galilean transformation. -/\ndef ofSpaceTranslation (a : EuclideanSpace ℝ (Fin d)) : GalileanGroup d :=\n  ⟨1, 0, a, 0⟩\n",
+            "docstring": "A pure spatial translation as a Galilean transformation. "
+          },
+          {
+            "id": 392717,
+            "name": "GalileanGroup.ofTimeTranslation",
+            "module": "Physlib.SpaceAndTime.GalileanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/GalileanGroup/Basic.lean#L302-L304",
+            "source_text": "/-- A pure time translation as a Galilean transformation. -/\ndef ofTimeTranslation (b : Time) : GalileanGroup d :=\n  ⟨1, 0, 0, b⟩\n",
+            "docstring": "A pure time translation as a Galilean transformation. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype prod_sum polynomial integer",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205828,
+            "name": "Fintype.prod_sum_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L264-L267",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem Fintype.prod_sum_type (f : α₁ ⊕ α₂ → M) :\n    ∏ x, f x = (∏ a₁, f (Sum.inl a₁)) * ∏ a₂, f (Sum.inr a₂) :=\n  prod_disjSum _ _ _",
+            "docstring": null
+          },
+          {
+            "id": 59079,
+            "name": "Fintype.prod_sum",
+            "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L300-L302",
+            "source_text": "/-- A product of sums can be written as a sum of products. -/\nlemma prod_sum {κ : ι → Type*} [∀ i, Fintype (κ i)] (f : ∀ i, κ i → R) :\n    ∏ i, ∑ j, f i j = ∑ x : ∀ i, κ i, ∏ i, f i (x i) := Finset.prod_univ_sum _ _\n",
+            "docstring": "A product of sums can be written as a sum of products. "
+          },
+          {
+            "id": 101067,
+            "name": "Polynomial.sum",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L843-L845",
+            "source_text": "/-- Summing the values of a function applied to the coefficients of a polynomial -/\ndef sum {S : Type*} [AddCommMonoid S] (p : R[X]) (f : ℕ → R → S) : S :=\n  ∑ n ∈ p.support, f n (p.coeff n)\n",
+            "docstring": "Summing the values of a function applied to the coefficients of a polynomial "
+          },
+          {
+            "id": 101068,
+            "name": "Polynomial.sum_def",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L847-L849",
+            "source_text": "theorem sum_def {S : Type*} [AddCommMonoid S] (p : R[X]) (f : ℕ → R → S) :\n    p.sum f = ∑ n ∈ p.support, f n (p.coeff n) :=\n  rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 271740,
+            "name": "IsPoly.add",
+            "module": "Mathlib.NumberTheory.Dioph",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Dioph.lean#L89-L90",
+            "source_text": "theorem IsPoly.add {f g : (α → ℕ) → ℤ} (hf : IsPoly f) (hg : IsPoly g) : IsPoly (f + g) := by\n  rw [← sub_neg_eq_add]; exact hf.sub hg.neg\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "sign_add",
+    "receipts_sha256": "c29b7436edb367255bd8a11e0801347081d940bb6c61edc64d5837d7fe6ae11c"
+  }
+]

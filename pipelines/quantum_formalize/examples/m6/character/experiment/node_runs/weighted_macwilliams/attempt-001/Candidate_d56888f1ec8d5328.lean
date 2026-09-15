@@ -1,0 +1,20 @@
+import FrozenTarget_d56888f1ec8d5328
+theorem M6.Character.weighted_macwilliams : QuantumHarnessFrozenTarget := by
+  change ∀ (m : ℕ) (D : Submodule (ZMod 2) (M6.Character.Vector m)) (w : Fin m → ZMod 2 → Polynomial ℤ), Polynomial.C ((M6.Character.subspaceWords D).card : ℤ) * M6.Character.weightedDual D w = M6.Character.weightedTransform D w
+  intro m D w
+  classical
+  symm
+  calc
+    M6.Character.weightedTransform D w =
+        ∑ z : M6.Character.Vector m, Polynomial.C (M6.Character.characterSum D z) * ∏ i, w i (z i) := by
+      unfold M6.Character.weightedTransform
+      simp_rw [M6.Character.weighted_factorization]
+      rw [Finset.sum_comm]
+      simp only [M6.Character.characterSum, map_sum, Finset.sum_mul]
+    _ = Polynomial.C ((M6.Character.subspaceWords D).card : ℤ) * M6.Character.weightedDual D w := by
+      simp only [M6.Character.orthogonality, M6.Character.orthogonalIndicator,
+        M6.Character.weightedDual, M6.Character.dualWords,
+        Finset.mul_sum, Finset.sum_filter]
+      apply Finset.sum_congr rfl
+      intro z hz
+      by_cases h : M6.Character.Orthogonal D z <;> simp [h]

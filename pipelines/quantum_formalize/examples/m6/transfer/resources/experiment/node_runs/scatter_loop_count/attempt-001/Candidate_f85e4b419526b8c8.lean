@@ -1,0 +1,11 @@
+import FrozenTarget_f85e4b419526b8c8
+theorem M6.Transfer.scatter_loop_count : QuantumHarnessFrozenTarget := by
+  change ∀ R N : ℕ, M6.Transfer.traceCoefficientOps R N = 6 * N * (2 * N + 1) * 4 ^ R
+  intro R N
+  simp only [M6.Transfer.traceCoefficientOps, M6.Transfer.ScatterEvent,
+    Fintype.card_prod, M6.Transfer.state_count, Fintype.card_fin,
+    M6.Transfer.Bit, ZMod.card]
+  have hpow : (4 : ℕ) ^ R = 2 ^ R * 2 ^ R := by
+    simpa using (mul_pow (2 : ℕ) 2 R)
+  rw [hpow]
+  ring

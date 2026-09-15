@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], Function.Surjective (M6.Coordinates.encode N)\nintro N inst y\nclassical\nrefine AdjoinRoot.induction_on _ y ?_\nintro p\nobtain ⟨hm, hn⟩ := M6.Coordinates.modulus_monic_degree N\nhave hd : (M6.Cyclic.modulus N).degree = (N : WithBot ℕ) := by\n  rw [Polynomial.degree_eq_natDegree hm.ne_zero, hn]\nhave hr : (p %ₘ M6.Cyclic.modulus N).degree < (N : WithBot ℕ) := by\n  rw [← hd]\n  exact Polynomial.degree_modByMonic_lt p hm\nrefine ⟨M6.Coordinates.coefficients N (p %ₘ M6.Cyclic.modulus N), ?_⟩\nchange AdjoinRoot.mk (M6.Cyclic.modulus N) (M6.Coordinates.blockPolynomial N (M6.Coordinates.coefficients N (p %ₘ M6.Cyclic.modulus N))) = AdjoinRoot.mk (M6.Cyclic.modulus N) p\nrw [M6.Coordinates.block_reconstruct N _ hr]\nsymm\napply AdjoinRoot.mk_eq_mk.mpr\nrw [Polynomial.modByMonic_eq_sub_mul_div, sub_sub_cancel]\nexact dvd_mul_right _ _",
+  "queries": [
+    "Polynomial.degree_modByMonic_lt",
+    "AdjoinRoot.mk_eq_mk",
+    "Polynomial.modByMonic_eq_sub_mul_div"
+  ]
+}

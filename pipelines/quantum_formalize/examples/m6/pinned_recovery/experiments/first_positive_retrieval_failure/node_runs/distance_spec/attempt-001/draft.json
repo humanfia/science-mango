@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro m L\nby_cases h : L.Nonempty\n· have hi : (L.image M6.Pinned.weight).Nonempty := h.image M6.Pinned.weight\n  constructor\n  · simp [M6.Pinned.distance, h, h.ne_empty]\n  · intro d\n    change (if h : L.Nonempty then\n      some ((L.image M6.Pinned.weight).min' (h.image M6.Pinned.weight))\n      else none) = some d ↔ _\n    rw [dif_pos h, Option.some.injEq]\n    constructor\n    · intro hd\n      obtain ⟨v, hv, hw⟩ := Finset.mem_image.mp\n        (Finset.min'_mem (L.image M6.Pinned.weight) hi)\n      constructor\n      · exact ⟨v, hv, hw.trans hd⟩\n      · intro w hw\n        rw [← hd]\n        exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨w, hw, rfl⟩)\n    · rintro ⟨⟨v, hv, hvd⟩, hleast⟩\n      apply le_antisymm\n      · rw [← hvd]\n        exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨v, hv, rfl⟩)\n      · obtain ⟨w, hw, hweight⟩ := Finset.mem_image.mp\n          (Finset.min'_mem (L.image M6.Pinned.weight) hi)\n        rw [← hweight]\n        exact hleast w hw\n· have he : L = ∅ := Finset.not_nonempty_iff_eq_empty.mp h\n  subst L\n  simp [M6.Pinned.distance]",
+  "queries": [
+    "Finset.min'_mem",
+    "Finset.min'_le",
+    "Finset.not_nonempty_iff_eq_empty"
+  ]
+}

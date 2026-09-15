@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst h\nclassical\nlet e : Fin N ≃ ZMod N :=\n  { toFun := fun i => (i.val : ZMod N)\n    invFun := fun i => ⟨i.val, ZMod.val_lt i⟩\n    left_inv := by\n      intro i\n      apply Fin.ext\n      exact (ZMod.val_natCast N i.val).trans (Nat.mod_eq_of_lt i.isLt)\n    right_inv := fun i => ZMod.natCast_zmod_val i }\nhave hv (i : Fin N) : (i.val : ZMod N).val = i.val := by\n  rw [ZMod.val_natCast, Nat.mod_eq_of_lt i.isLt]\nhave hs := e.sum_comp (fun i : ZMod N =>\n  AdjoinRoot.of (M6.Cyclic.modulus N) (h i) *\n    AdjoinRoot.root (M6.Cyclic.modulus N) ^ i.val)\nchange (∑ i : Fin N,\n  AdjoinRoot.of (M6.Cyclic.modulus N) (h (i.val : ZMod N)) *\n    AdjoinRoot.root (M6.Cyclic.modulus N) ^ (i.val : ZMod N).val) = _ at hs\nsimp only [hv] at hs\nsimpa only [M6.Coordinates.encode, M6.Coordinates.blockPolynomial,\n  M6.Cyclic.image, M6.Coordinates.rootPow, map_sum, map_mul, map_pow,\n  AdjoinRoot.mk_C, AdjoinRoot.mk_X] using hs",
+  "queries": []
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nunfold QuantumHarnessFrozenTarget\nintro m L d c hc hpos\nlet r := M6.Pinned.recover c (M6.Pinned.free m) (List.finRange m)\nchange M6.Pinned.decode r.1 ∈ L ∧ M6.Pinned.weight (M6.Pinned.decode r.1) = d ∧ r.2 ≤ m\nhave heq : c = fun P => M6.Pinned.count L P d := funext hc\nhave hpart : M6.Pinned.partitions c := by\n  rw [heq]\n  exact M6.Pinned.count_pin_partition m L d\nhave hp := M6.Pinned.recover_positive m c hpart (M6.Pinned.free m) (List.finRange m) hpos\nchange 0 < c r.1 at hp\nrw [hc r.1] at hp\nhave hr := M6.Pinned.recover_properties m c (M6.Pinned.free m) (List.finRange m)\nhave ha : M6.Pinned.assigned r.1 := by\n  intro i\n  exact hr.2.1 i (by simp)\nobtain ⟨v, hvL, hvA, hvW⟩ := (M6.Pinned.count_nonnegative_positive m L r.1 d).2.mp hp\nhave hv : v = M6.Pinned.decode r.1 := (M6.Pinned.decode_unique m r.1 ha v).mp hvA\nrefine ⟨hv ▸ hvL, hv ▸ hvW, ?_⟩\nsimpa only [List.length_finRange] using hr.2.2",
+  "queries": []
+}

@@ -1,0 +1,149 @@
+[
+  {
+    "queries": [
+      "polynomial degree sum coefficients reconstruction",
+      "AdjoinRoot quotient mk power basis ZMod finite sum"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial degree sum coefficients reconstruction",
+        "status": "ok",
+        "results": [
+          {
+            "id": 102988,
+            "name": "Polynomial.ofFn_comp_toFn_eq_id_of_natDegree_lt",
+            "module": "Mathlib.Algebra.Polynomial.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/OfFn.lean#L111-L117",
+            "source_text": "theorem ofFn_comp_toFn_eq_id_of_natDegree_lt {n : ℕ} {p : R[X]} (h_deg : p.natDegree < n) :\n    ofFn n (toFn n p) = p := by\n  ext i\n  by_cases! h : i < n\n  · simp [h, toFn]\n  · have : p.coeff i = 0 := coeff_eq_zero_of_natDegree_lt <| by lia\n    simp [*]\n",
+            "docstring": null
+          },
+          {
+            "id": 101359,
+            "name": "Polynomial.degree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L45-L49",
+            "source_text": "/-- `degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`. -/\ndef degree (p : R[X]) : WithBot ℕ :=\n  p.support.max\n",
+            "docstring": "`degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`. "
+          },
+          {
+            "id": 101441,
+            "name": "Polynomial.degree_sum_le",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L385-L392",
+            "source_text": "theorem degree_sum_le (s : Finset ι) (f : ι → R[X]) :\n    degree (∑ i ∈ s, f i) ≤ s.sup fun b => degree (f b) :=\n  Finset.cons_induction_on s (by simp)\n    fun a s has ih =>\n    calc\n      degree (∑ i ∈ cons a s has, f i) ≤ max (degree (f a)) (degree (∑ i ∈ s, f i)) := by\n        rw [Finset.sum_cons]; exact degree_add_le _ _\n      _ ≤ _ := by rw [sup_cons]; exact max_le_max le_rfl ih\n",
+            "docstring": null
+          },
+          {
+            "id": 101360,
+            "name": "Polynomial.natDegree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+            "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+            "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+          },
+          {
+            "id": 101148,
+            "name": "Polynomial.natDegree_sum_le",
+            "module": "Mathlib.Algebra.Polynomial.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/BigOperators.lean#L61-L63",
+            "source_text": "theorem natDegree_sum_le (f : ι → S[X]) :\n    natDegree (∑ i ∈ s, f i) ≤ s.fold max 0 (natDegree ∘ f) := by\n  simpa using! natDegree_multiset_sum_le (s.val.map f)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "AdjoinRoot quotient mk power basis ZMod finite sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 303632,
+            "name": "AdjoinRoot.powerBasisAux'",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L589-L611",
+            "source_text": "/-- The elements `1, root g, ..., root g ^ (d - 1)` form a basis for `AdjoinRoot g`,\nwhere `g` is a monic polynomial of degree `d`. -/\ndef powerBasisAux' (hg : g.Monic) : Basis (Fin g.natDegree) R (AdjoinRoot g) :=\n  .ofEquivFun\n    { toFun := fun f i => (modByMonicHom hg f).coeff i\n      invFun := fun c => mk g <| ∑ i : Fin g.natDegree, monomial i (c i)\n      map_add' := fun f₁ f₂ =>\n        funext fun i => by simp only [(modByMonicHom hg).map_add, coeff_add, Pi.add_apply]\n      map_smul' := fun f₁ f₂ =>\n        funext fun i => by\n          simp only [(modByMonicHom hg).map_smul, coeff_smul, Pi.smul_apply, RingHom.id_apply]\n      left_inv f := AdjoinRoot.induction_on _ f fun f => Eq.symm <| mk_eq_mk.mpr <| by\n        simp only [modByMonicHom_mk, sum_modByMonic_coeff hg degree_le_natDegree]\n        rw [modByMonic_eq_sub_mul_div, sub_sub_cancel]\n        exact dvd_mul_right _ _\n      right_inv := fun x =>\n        funext fun i => by\n          nontriviality R\n          simp only [modByMonicHom_mk]\n          rw [(modByMonic_eq_self_iff hg).mpr, finsetSum_coeff]\n          · simp_rw [coeff_monomial, Fin.val_eq_val, Finset.sum_ite_eq', if_pos (Finset.mem_univ _)]\n          · simp_rw [← C_mul_X_pow_eq_monomial]\n            exact (degree_eq_natDegree <| hg.ne_zero).symm ▸ degree_sum_fin_lt _ }\n",
+            "docstring": "The elements `1, root g, ..., root g ^ (d - 1)` form a basis for `AdjoinRoot g`,\nwhere `g` is a monic polynomial of degree `d`. "
+          },
+          {
+            "id": 303529,
+            "name": "AdjoinRoot",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L60-L63",
+            "source_text": "/-- Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. -/\ndef AdjoinRoot [CommRing R] (f : R[X]) : Type _ :=\n  Polynomial R ⧸ (span {f} : Ideal R[X])\n",
+            "docstring": "Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. "
+          },
+          {
+            "id": 303644,
+            "name": "AdjoinRoot.powerBasisAux",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L684-L701",
+            "source_text": "/-- The elements `1, root f, ..., root f ^ (d - 1)` form a basis for `AdjoinRoot f`,\nwhere `f` is an irreducible polynomial over a field of degree `d`. -/\ndef powerBasisAux (hf : f ≠ 0) : Basis (Fin f.natDegree) K (AdjoinRoot f) := by\n  let f' := f * C f.leadingCoeff⁻¹\n  have deg_f' : f'.natDegree = f.natDegree := by\n    rw [natDegree_mul hf, natDegree_C, add_zero]\n    · rwa [Ne, C_eq_zero, inv_eq_zero, leadingCoeff_eq_zero]\n  have minpoly_eq : minpoly K (root f) = f' := minpoly_root hf\n  apply Basis.mk (v := fun i : Fin f.natDegree ↦ root f ^ i.val)\n  · rw [← deg_f', ← minpoly_eq]\n    exact linearIndependent_pow (root f)\n  · rintro y -\n    rw [← deg_f', ← minpoly_eq]\n    apply (isIntegral_root hf).mem_span_pow\n    obtain ⟨g⟩ := y\n    use g\n    rw [aeval_eq]\n    rfl\n",
+            "docstring": "The elements `1, root f, ..., root f ^ (d - 1)` form a basis for `AdjoinRoot f`,\nwhere `f` is an irreducible polynomial over a field of degree `d`. "
+          },
+          {
+            "id": 303645,
+            "name": "AdjoinRoot.powerBasis",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L703-L710",
+            "source_text": "/-- The power basis `1, root f, ..., root f ^ (d - 1)` for `AdjoinRoot f`,\nwhere `f` is an irreducible polynomial over a field of degree `d`. -/\n@[simps!]\ndef powerBasis (hf : f ≠ 0) : PowerBasis K (AdjoinRoot f) where\n  gen := root f\n  dim := f.natDegree\n  basis := powerBasisAux hf\n  basis_eq_pow := by simp [powerBasisAux]\n",
+            "docstring": "The power basis `1, root f, ..., root f ^ (d - 1)` for `AdjoinRoot f`,\nwhere `f` is an irreducible polynomial over a field of degree `d`. "
+          },
+          {
+            "id": 303635,
+            "name": "AdjoinRoot.powerBasis'",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L627-L643",
+            "source_text": "/-- The power basis `1, root g, ..., root g ^ (d - 1)` for `AdjoinRoot g`,\nwhere `g` is a monic polynomial of degree `d`. -/\n@[simps]\ndef powerBasis' (hg : g.Monic) : PowerBasis R (AdjoinRoot g) where\n  gen := root g\n  dim := g.natDegree\n  basis := powerBasisAux' hg\n  basis_eq_pow i := by\n    simp only [powerBasisAux', Basis.coe_ofEquivFun, LinearEquiv.coe_symm_mk]\n    rw [Finset.sum_eq_single i]\n    · rw [Pi.single_eq_same, monomial_one_right_eq_X_pow, (mk g).map_pow, mk_X]\n    · intro j _ hj\n      rw [← monomial_zero_right _, Pi.single_eq_of_ne hj]\n    -- Fix `DecidableEq` mismatch\n    · intros\n      have := Finset.mem_univ i\n      contradiction\n",
+            "docstring": "The power basis `1, root g, ..., root g ^ (d - 1)` for `AdjoinRoot g`,\nwhere `g` is a monic polynomial of degree `d`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "block_coeff",
+    "receipts_sha256": "dab846233fc964e38f32b5c4911fc46c3ac829ad22ec2c2d01855a5bf93785bc"
+  }
+]

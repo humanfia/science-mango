@@ -1,0 +1,380 @@
+[
+  {
+    "queries": [
+      "finite binary vector weight pinned enumerator coefficient",
+      "List find? minimum finite set pin recursive recovery"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite binary vector weight pinned enumerator coefficient",
+        "status": "ok",
+        "results": [
+          {
+            "id": 314598,
+            "name": "MvPowerSeries.exists_coeff_ne_zero_and_weightedOrder",
+            "module": "Mathlib.RingTheory.MvPowerSeries.Order",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPowerSeries/Order.lean#L158-L166",
+            "source_text": "/-- If the order of a formal power series `f` is finite,\nthen some coefficient of weight equal to the order of `f` is nonzero. -/\ntheorem exists_coeff_ne_zero_and_weightedOrder\n    (h : (toNat (f.weightedOrder w) : ℕ∞) = f.weightedOrder w) :\n    ∃ d, coeff d f ≠ 0 ∧ weight w d = f.weightedOrder w := by\n  classical\n  simp_rw [weightedOrder, dif_neg ((ne_zero_iff_weightedOrder_finite w).mpr h), Nat.cast_inj]\n  generalize_proofs h1\n  exact Nat.find_spec h1\n",
+            "docstring": "If the order of a formal power series `f` is finite,\nthen some coefficient of weight equal to the order of `f` is nonzero. "
+          },
+          {
+            "id": 205700,
+            "name": "Finsupp.finite_of_nat_weight_eq",
+            "module": "Mathlib.Data.Finsupp.Weight",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Weight.lean#L207-L209",
+            "source_text": "theorem finite_of_nat_weight_eq [Finite σ] (w : σ → ℕ) (hw : ∀ x, w x ≠ 0) (n : ℕ) :\n    {d : σ →₀ ℕ | weight w d = n}.Finite :=\n  Set.Finite.subset (finite_of_nat_weight_le w hw n) (by grind)\n",
+            "docstring": null
+          },
+          {
+            "id": 145500,
+            "name": "ordinaryHypergeometricCoefficient",
+            "module": "Mathlib.Analysis.SpecialFunctions.OrdinaryHypergeometric",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/OrdinaryHypergeometric.lean#L64-L66",
+            "source_text": "/-- The coefficients in the ordinary hypergeometric sum. -/\nnoncomputable abbrev ordinaryHypergeometricCoefficient (a b c : 𝕂) (n : ℕ) := ((n !⁻¹ : 𝕂) *\n    (ascPochhammer 𝕂 n).eval a * (ascPochhammer 𝕂 n).eval b * ((ascPochhammer 𝕂 n).eval c)⁻¹)\n",
+            "docstring": "The coefficients in the ordinary hypergeometric sum. "
+          },
+          {
+            "id": 145524,
+            "name": "descPochhammer_eval_div_factorial_le_sum_choose",
+            "module": "Mathlib.Analysis.SpecialFunctions.Pochhammer",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Pochhammer.lean#L106-L115",
+            "source_text": "/-- Special case of **Jensen's inequality** for `Nat.choose`. -/\ntheorem descPochhammer_eval_div_factorial_le_sum_choose\n    (hn : n ≠ 0) {ι : Type*} {t : Finset ι} (p : ι → ℕ) (w : ι → ℝ)\n    (h₀ : ∀ i ∈ t, 0 ≤ w i) (h₁ : ∑ i ∈ t, w i = 1) (h_avg : n - 1 ≤ ∑ i ∈ t, w i * p i) :\n    (descPochhammer ℝ n).eval (∑ i ∈ t, w i * p i) / n.factorial\n      ≤ ∑ i ∈ t, w i * (p i).choose n := by\n  simp_rw [Nat.cast_choose_eq_descPochhammer_div,\n    mul_div, ← Finset.sum_div, descPochhammer_eval_eq_descFactorial]\n  apply div_le_div_of_nonneg_right _ (by positivity)\n  exact descPochhammer_eval_le_sum_descFactorial hn p w h₀ h₁ h_avg\n",
+            "docstring": "Special case of **Jensen's inequality** for `Nat.choose`. "
+          },
+          {
+            "id": 86307,
+            "name": "LieModule.weight_vector_multiplication",
+            "module": "Mathlib.Algebra.Lie.Weights.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Lie/Weights/Basic.lean#L75-L141",
+            "source_text": "/-- See also `bourbaki1975b` Chapter VII §1.1, Proposition 2 (ii). -/\nprotected theorem weight_vector_multiplication (M₁ M₂ M₃ : Type*)\n    [AddCommGroup M₁] [Module R M₁] [LieRingModule L M₁] [LieModule R L M₁] [AddCommGroup M₂]\n    [Module R M₂] [LieRingModule L M₂] [LieModule R L M₂] [AddCommGroup M₃] [Module R M₃]\n    [LieRingModule L M₃] [LieModule R L M₃] (g : M₁ ⊗[R] M₂ →ₗ⁅R,L⁆ M₃) (χ₁ χ₂ : R) (x : L) :\n    LinearMap.range ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (mapIncl 𝕎(M₁, χ₁, x) 𝕎(M₂, χ₂, x))) ≤\n      𝕎(M₃, χ₁ + χ₂, x) := by\n  -- Unpack the statement of the goal.\n  intro m₃\n  simp only [TensorProduct.mapIncl, LinearMap.mem_range, LinearMap.coe_comp,\n    LieModuleHom.coe_toLinearMap, Function.comp_apply, exists_imp, Module.End.mem_maxGenEigenspace]\n  rintro t rfl\n  -- Set up some notation.\n  let F : Module.End R M₃ := toEnd R L M₃ x - (χ₁ + χ₂) • ↑1\n  -- The goal is linear in `t` so use induction to reduce to the case that `t` is a pure tensor.\n  refine t.induction_on ?_ ?_ ?_\n  · use 0; simp only [map_zero]\n  swap\n  · rintro t₁ t₂ ⟨k₁, hk₁⟩ ⟨k₂, hk₂⟩; use max k₁ k₂\n    simp only [map_add, Module.End.pow_map_zero_of_le (le_max_left k₁ k₂) hk₁,\n      Module.End.pow_map_zero_of_le (le_max_right k₁ k₂) hk₂, add_zero]\n  -- Now the main argument: pure tensors.\n  rintro ⟨m₁, hm₁⟩ ⟨m₂, hm₂⟩\n  change ∃ k, (F ^ k) ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃) (m₁ ⊗ₜ m₂)) = (0 : M₃)\n  -- Eliminate `g` from the picture.\n  let f₁ : Module.End R (M₁ ⊗[R] M₂) := (toEnd R L M₁ x - χ₁ • ↑1).rTensor M₂\n  let f₂ : Module.End R (M₁ ⊗[R] M₂) := (toEnd R L M₂ x - χ₂ • ↑1).lTensor M₁\n  have h_comm_square : F ∘ₗ ↑g = (g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (f₁ + f₂) := by\n    ext m₁ m₂\n    simp only [f₁, f₂, F, ← g.map_lie x (m₁ ⊗ₜ m₂), add_smul, sub_tmul, tmul_sub, smul_tmul,\n      lie_tmul_right, tmul_smul, toEnd_apply_apply, map_smul, Module.End.one_apply,\n      LieModuleHom.coe_toLinearMap, LinearMap.smul_apply, Function.comp_apply, LinearMap.coe_comp,\n      LinearMap.rTensor_tmul, map_add, LinearMap.add_apply, map_sub, LinearMap.sub_apply,\n      LinearMap.lTensor_tmul, AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,\n      LinearMap.coe_restrictScalars]\n    abel\n  rsuffices ⟨k, hk⟩ : ∃ k : ℕ, ((f₁ + f₂) ^ k) (m₁ ⊗ₜ m₂) = 0\n  · use k\n    rw [← LinearMap.comp_apply, Module.End.commute_pow_left_of_commute h_comm_square,\n      LinearMap.comp_apply, hk, map_zero]\n  -- Unpack the information we have about `m₁`, `m₂`.\n  simp only [Module.End.mem_maxGenEigenspace] at hm₁ hm₂\n  obtain ⟨k₁, hk₁⟩ := hm₁\n  obtain ⟨k₂, hk₂⟩ := hm₂\n  have hf₁ : (f₁ ^ k₁) (m₁ ⊗ₜ m₂) = 0 := by\n    simp only [f₁, hk₁, zero_tmul, LinearMap.rTensor_tmul, LinearMap.rTensor_pow]\n  have hf₂ : (f₂ ^ k₂) (m₁ ⊗ₜ m₂) = 0 := by\n    simp only [f₂, hk₂, tmul_zero, LinearMap.lTensor_tmul, LinearMap.lTensor_pow]\n  -- It's now just an application of the binomial theorem.\n  use k₁ + k₂ - 1\n  have hf_comm : Commute f₁ f₂ := by\n    ext m₁ m₂\n    simp only [f₁, f₂, Module.End.mul_apply, LinearMap.rTensor_tmul, LinearMap.lTensor_tmul,\n      AlgebraTensorModule.curry_apply, LinearMap.lTensor_tmul, TensorProduct.curry_apply,\n      LinearMap.coe_restrictScalars]\n  rw [hf_comm.add_pow']\n  simp only [Finset.sum_apply, LinearMap.coe_sum, LinearMap.smul_apply]\n  -- The required sum is zero because each individual term is zero.\n  apply Finset.sum_eq_zero\n  rintro ⟨i, j⟩ hij\n  -- Eliminate the binomial coefficients from the picture.\n  suffices (f₁ ^ i * f₂ ^ j) (m₁ ⊗ₜ m₂) = 0 by rw [this]; apply smul_zero\n  -- Finish off with appropriate case analysis.\n  rcases Nat.le_or_le_of_add_eq_add_pred (Finset.mem_antidiagonal.mp hij) with hi | hj\n  · rw [(hf_comm.pow_pow i j).eq, Module.End.mul_apply, Module.End.pow_map_zero_of_le hi hf₁,\n      map_zero]\n  · rw [Module.End.mul_apply, Module.End.pow_map_zero_of_le hj hf₂, map_zero]\n",
+            "docstring": "See also `bourbaki1975b` Chapter VII §1.1, Proposition 2 (ii). "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite binary vector weight pinned enumerator coefficient",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394136,
+            "name": "FTheory.SU5.FiveQuanta.anomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L909-L918",
+            "source_text": "/--\n  The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : FiveQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+            "docstring": "The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\nsee equation (23) of arXiv:1401.5084.\n"
+          },
+          {
+            "id": 394195,
+            "name": "FTheory.SU5.TenQuanta.anomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.TenQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/TenQuanta.lean#L1052-L1061",
+            "source_text": "/--\n  The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n    see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : TenQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, 3 * (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+            "docstring": "The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n"
+          },
+          {
+            "id": 394087,
+            "name": "FTheory.SU5.Quanta.HuAnomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L240-L244",
+            "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hu` particle. -/\ndef HuAnomalyCoefficient [CommRing 𝓩] (qHu : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHu with\n  | none => (0, 0)\n  | some qHu => (-qHu, -qHu ^ 2)\n",
+            "docstring": "The pair of anomaly cancellation coefficients associated with the `Hu` particle. "
+          },
+          {
+            "id": 394085,
+            "name": "FTheory.SU5.Quanta.HdAnomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L222-L226",
+            "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hd` particle. -/\ndef HdAnomalyCoefficient [CommRing 𝓩] (qHd : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHd with\n  | none => (0, 0)\n  | some qHd => (qHd, qHd ^ 2)\n",
+            "docstring": "The pair of anomaly cancellation coefficients associated with the `Hd` particle. "
+          },
+          {
+            "id": 394086,
+            "name": "FTheory.SU5.Quanta.HdAnomalyCoefficient_map",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L228-L232",
+            "source_text": "@[simp]\nlemma HdAnomalyCoefficient_map {𝓩 𝓩1 : Type} [CommRing 𝓩] [CommRing 𝓩1]\n    (f : 𝓩 →+* 𝓩1) (qHd : Option 𝓩) :\n    HdAnomalyCoefficient (qHd.map f) = (f.prodMap f) (HdAnomalyCoefficient qHd) := by\n  cases qHd <;> simp [HdAnomalyCoefficient]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List find? minimum finite set pin recursive recovery",
+        "status": "ok",
+        "results": [
+          {
+            "id": 208405,
+            "name": "List.minimum",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L238-L241",
+            "source_text": "/-- `minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` -/\ndef minimum (l : List α) : WithTop α :=\n  argmin id l\n",
+            "docstring": "`minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` "
+          },
+          {
+            "id": 208427,
+            "name": "List.minimum_append",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L325-L326",
+            "source_text": "lemma minimum_append (l₁ l₂ : List α) : (l₁ ++ l₂).minimum = min l₁.minimum l₂.minimum :=\n  @maximum_append αᵒᵈ _ _ _\n",
+            "docstring": null
+          },
+          {
+            "id": 295869,
+            "name": "LowerSet.erase_sup_Iic",
+            "module": "Mathlib.Order.UpperLower.Closure",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/UpperLower/Closure.lean#L288-L288",
+            "source_text": "@[to_dual]\nlemma erase_inf_Ici (ha : a ∈ s) (has : ∀ b ∈ s, b ≤ a → b = a) : s.erase a ⊓ Ici a = s := by",
+            "docstring": null
+          },
+          {
+            "id": 109431,
+            "name": "List.trop_minimum",
+            "module": "Mathlib.Algebra.Tropical.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Tropical/BigOperators.lean#L73-L77",
+            "source_text": "theorem List.trop_minimum [LinearOrder R] (l : List R) :\n    trop l.minimum = List.sum (l.map (trop ∘ WithTop.some)) := by\n  induction l with\n  | nil => simp\n  | cons hd tl IH => simp [List.minimum_cons, ← IH]\n",
+            "docstring": null
+          },
+          {
+            "id": 201560,
+            "name": "Fin.find_spec",
+            "module": "Mathlib.Data.Fin.Tuple.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L1102-L1103",
+            "source_text": "/-- `Fin.find p h` satisfies `p`. -/\nprotected theorem find_spec (h : ∃ k, p k) : p (Fin.find p h) := (Fin.findX p h).2.1\n",
+            "docstring": "`Fin.find p h` satisfies `p`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List find? minimum finite set pin recursive recovery",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386728,
+            "name": "Physlib.List.insertionSortMinPosFin",
+            "module": "Physlib.Mathematics.List.InsertionSort",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L27-L31",
+            "source_text": "/-- Given a list `i :: l` the left-most minimal position `a` of `i :: l` wrt `r`\n  as an element of `Fin (insertionSortDropMinPos r i l).length.succ`. -/\ndef insertionSortMinPosFin {α : Type} (r : α → α → Prop) [DecidableRel r] (i : α) (l : List α) :\n    Fin (insertionSortDropMinPos r i l).length.succ :=\n  ⟨insertionSortMinPos r i l, insertionSortMin_lt_length_succ r i l⟩\n",
+            "docstring": "Given a list `i :: l` the left-most minimal position `a` of `i :: l` wrt `r`\nas an element of `Fin (insertionSortDropMinPos r i l).length.succ`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "agrees_pin",
+    "receipts_sha256": "b102710b0f8ea643b50b7fd6fece04ac5c9f9482df531160f4c5c41066b0a7ab"
+  },
+  {
+    "queries": [
+      "List.find?_range_eq_some",
+      "List.find?_range_eq_none"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List.find?_range_eq_some",
+        "status": "ok",
+        "results": [
+          {
+            "id": 208584,
+            "name": "List.find?_ofFn_eq_some",
+            "module": "Mathlib.Data.List.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L133-L141",
+            "source_text": "lemma find?_ofFn_eq_some {n} {f : Fin n → α} {p : α → Bool} {b : α} :\n    (ofFn f).find? p = some b ↔ p b = true ∧ ∃ i, f i = b ∧ ∀ j < i, ¬(p (f j) = true) := by\n  rw [find?_eq_some_iff_getElem]\n  exact ⟨fun ⟨hpb, i, hi, hfb, h⟩ ↦\n      ⟨hpb, ⟨⟨i, length_ofFn (f := f) ▸ hi⟩, by simpa\n        using! hfb, fun j hj ↦ by simpa using! h j hj⟩⟩,\n    fun ⟨hpb, i, hfb, h⟩ ↦\n      ⟨hpb, ⟨i, (length_ofFn (f := f)).symm ▸ i.isLt, by simpa using! hfb,\n        fun j hj ↦ by simpa using! h ⟨j, by lia⟩ (by simpa using! hj)⟩⟩⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 210705,
+            "name": "Multiset.find?_eq_some_iff",
+            "module": "Mathlib.Data.Multiset.Find",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Find.lean#L70-L82",
+            "source_text": "@[simp, grind =]\ntheorem find?_eq_some_iff {a : α} {s : Multiset α} (hp) :\n    s.find? p hp = some a ↔ a ∈ s ∧ p a := by\n  induction s using Multiset.induction_on with\n  | empty => simp\n  | cons x s ih =>\n    rw [find?_cons]\n    split\n    · dsimp [Set.Subsingleton] at hp\n      specialize hp ⟨mem_cons_self _ _, ‹p x›⟩\n      grind\n    · simp_rw [ih]\n      grind",
+            "docstring": null
+          },
+          {
+            "id": 208015,
+            "name": "List.find?_congr",
+            "module": "Mathlib.Data.List.Find",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Find.lean#L33-L37",
+            "source_text": "/-- If two predicates agree on all the elements, so does `find?`. -/\n@[congr]\ntheorem find?_congr {p₁ p₂ : α → Bool} {l : List α} (h : ∀ x ∈ l, p₁ x = p₂ x) :\n    l.find? p₁ = l.find? p₂ := by\n  induction l with grind\n",
+            "docstring": "If two predicates agree on all the elements, so does `find?`. "
+          },
+          {
+            "id": 208585,
+            "name": "List.find?_ofFn_eq_some_of_injective",
+            "module": "Mathlib.Data.List.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L143-L146",
+            "source_text": "lemma find?_ofFn_eq_some_of_injective {n} {f : Fin n → α} {p : α → Bool} {i : Fin n}\n    (h : Function.Injective f) :\n    (ofFn f).find? p = some (f i) ↔ p (f i) = true ∧ ∀ j < i, ¬(p (f j) = true) := by\n  simp only [find?_ofFn_eq_some, h.eq_iff, Bool.not_eq_true, exists_eq_left]\n",
+            "docstring": null
+          },
+          {
+            "id": 219806,
+            "name": "Set.range_list_getElem?",
+            "module": "Mathlib.Data.Set.List",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/List.lean#L44-L51",
+            "source_text": "theorem range_list_getElem? :\n    range (l[·]? : ℕ → Option α) = insert none (some '' { x | x ∈ l }) := by\n  rw [← range_list_get, ← range_comp]\n  refine (range_subset_iff.2 fun n => ?_).antisymm (insert_subset_iff.2 ⟨?_, ?_⟩)\n  · exact (le_or_gt l.length n).imp getElem?_eq_none_iff.mpr\n      (fun hlt => ⟨⟨_, hlt⟩, (getElem?_eq_getElem hlt).symm⟩)\n  · exact ⟨_, getElem?_eq_none_iff.mpr le_rfl⟩\n  · exact range_subset_iff.2 fun k => ⟨_, getElem?_eq_getElem _⟩\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List.find?_range_eq_some",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List.find?_range_eq_none",
+        "status": "ok",
+        "results": [
+          {
+            "id": 210706,
+            "name": "Multiset.find?_eq_none_iff",
+            "module": "Mathlib.Data.Multiset.Find",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Find.lean#L85-L93",
+            "source_text": "@[simp, grind =]\ntheorem find?_eq_none_iff {s : Multiset α} (hp) :\n    s.find? p hp = none ↔ ∀ a ∈ s, ¬ p a := by\n  induction s using Multiset.induction_on with\n  | empty => simp\n  | cons x s ih =>\n    rw [find?_cons]\n    dsimp [Set.Subsingleton] at hp\n    grind",
+            "docstring": null
+          },
+          {
+            "id": 208392,
+            "name": "List.argmax_eq_none",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L135-L136",
+            "source_text": "@[simp]\ntheorem argmax_eq_none : l.argmax f = none ↔ l = [] := by simp [argmax]",
+            "docstring": null
+          },
+          {
+            "id": 207546,
+            "name": "List.filterMap_none",
+            "module": "Mathlib.Data.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L915-L918",
+            "source_text": "@[simp]\nlemma filterMap_none (l : List α) :\n    l.filterMap (fun _ ↦ @Option.none β) = [] := by\n  induction l <;> simp [*]",
+            "docstring": null
+          },
+          {
+            "id": 208393,
+            "name": "List.argmin_eq_none",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L138-L140",
+            "source_text": "@[simp]\ntheorem argmin_eq_none : l.argmin f = none ↔ l = [] :=\n  @argmax_eq_none _ βᵒᵈ _ _ _ _",
+            "docstring": null
+          },
+          {
+            "id": 219141,
+            "name": "Set.range_some_inter_none",
+            "module": "Mathlib.Data.Set.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Image.lean#L989-L991",
+            "source_text": "@[simp]\ntheorem range_some_inter_none (α : Type*) : range (some : α → Option α) ∩ {none} = ∅ :=\n  (isCompl_range_some_none α).inf_eq_bot",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List.find?_range_eq_none",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "finite set cardinality filter"
+    ],
+    "fallback_for": [
+      "List.find?_range_eq_some",
+      "List.find?_range_eq_none"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite set cardinality filter",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202363,
+            "name": "Finset.card_filter_le",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L270-L272",
+            "source_text": "theorem card_filter_le (s : Finset α) (p : α → Prop) [DecidablePred p] :\n    #(s.filter p) ≤ #s :=\n  card_le_card <| filter_subset _ _\n",
+            "docstring": null
+          },
+          {
+            "id": 283576,
+            "name": "Filter.map_card_atTop",
+            "module": "Mathlib.Order.Filter.AtTopBot.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/AtTopBot/Finset.lean#L103-L111",
+            "source_text": "/-- The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. -/\nlemma map_card_atTop [Infinite α] :\n    map (Finset.card (α := α)) atTop = atTop := by\n  rw [map_atTop_eq, atTop]\n  refine Function.Surjective.iInf_congr Finset.card Finset.exists_card_eq fun s ↦ congr(𝓟 $(?_))\n  ext\n  refine ⟨Infinite.exists_superset_card_eq _ _, ?_⟩\n  aesop (add safe apply Finset.card_le_card)\n",
+            "docstring": "The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. "
+          },
+          {
+            "id": 201912,
+            "name": "Set.Finite",
+            "module": "Mathlib.Data.Finite.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Defs.lean#L183-L185",
+            "source_text": "/-- A set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`. -/\nprotected def Finite (s : Set α) : Prop := Finite s\n",
+            "docstring": "A set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`. "
+          },
+          {
+            "id": 284287,
+            "name": "Finset.eventually_cocardinal_notMem",
+            "module": "Mathlib.Order.Filter.Cocardinal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Cocardinal.lean#L95-L97",
+            "source_text": "theorem _root_.Finset.eventually_cocardinal_notMem (s : Finset α) :\n    ∀ᶠ x in cocardinal α hreg, x ∉ s :=\n  eventually_cocardinal_notMem_of_card_lt <| (finset_card_lt_aleph0 s).trans_le (hreg.aleph0_le)\n",
+            "docstring": null
+          },
+          {
+            "id": 284285,
+            "name": "Set.Finite.compl_mem_cocardinal",
+            "module": "Mathlib.Order.Filter.Cocardinal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Cocardinal.lean#L87-L89",
+            "source_text": "theorem _root_.Set.Finite.compl_mem_cocardinal {s : Set α} (hs : s.Finite) :\n    sᶜ ∈ cocardinal α hreg :=\n  compl_mem_cocardinal_of_card_lt <| lt_of_lt_of_le (Finite.lt_aleph0 hs) (hreg.aleph0_le)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite set cardinality filter",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  }
+]

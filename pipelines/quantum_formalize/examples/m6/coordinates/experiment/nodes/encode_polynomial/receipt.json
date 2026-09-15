@@ -1,0 +1,69 @@
+{
+  "id": "encode_polynomial",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Coordinates.encode_polynomial",
+    "spec_sha256": "16f2a88b266abe31f8f2178dc7b5d430827c4d8301c7ac1e06a89a3c4bfadc19",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-d13fxfwd/attempt-001/Candidate_83d28baa4b64a3dd.lean",
+        "target_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-d13fxfwd/attempt-001/FrozenTarget_83d28baa4b64a3dd.lean",
+        "feedback": "",
+        "target_sha256": "24d44ec61ae37ff4628c7dcb2e6a1e0c19640924950f15a47be53f08ac2abe10",
+        "target_olean_sha256": "02864debf8652a7f3212e29830152b4cf3769ccbf55e3becf8d137a4700f7f4b",
+        "source_sha256": "f4f761088f60f5335a004f04346ecac308862ec1427630ccb0943961aca543d2",
+        "olean_sha256": "1ac1f740d1c1b4c54c729194c6899f028202ac985c58b14f60892a8aed319e69",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:04:06.948188+00:00",
+    "work": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-d13fxfwd",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5e325cf9850f30696bb2de458ca8ad8126702863c7219124150bc48a65c741e6",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-d13fxfwd/attempt-001/Candidate_83d28baa4b64a3dd.lean",
+    "environment_sha256": "985f164967ba4accfc9033cfc561fab60a260718cf9c0369adc4a653a02b3263",
+    "artifacts": {
+      "block_reconstruct": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.block_reconstruct : ∀ (N : ℕ) [NeZero N] (p : M6.Cyclic.BinaryPolynomial), p.degree < (N : WithBot ℕ) → M6.Coordinates.blockPolynomial N (M6.Coordinates.coefficients N p) = p := by\n  intro N inst p hp\n  classical\n  change (∑ i : Fin N, Polynomial.C (p.coeff ((i.val : ZMod N).val)) * Polynomial.X ^ i.val) = p\n  have hval (i : Fin N) : (i.val : ZMod N).val = i.val := by\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt i.isLt]\n  simp only [hval]\n  ext k\n  rw [Polynomial.finsetSum_coeff]\n  by_cases hk : k < N\n  · rw [Finset.sum_eq_single (⟨k, hk⟩ : Fin N)]\n    · simp\n    · intro i hi hne\n      have hv : i.val ≠ k := by\n        intro h\n        apply hne\n        exact Fin.ext h\n      simp [Polynomial.coeff_C_mul_X_pow, hv, Ne.symm hv]\n    · simp\n  · have hNk : N ≤ k := Nat.le_of_not_gt hk\n    have hdeg : p.degree < (k : WithBot ℕ) := by\n      apply lt_of_lt_of_le hp\n      exact_mod_cast hNk\n    rw [Polynomial.coeff_eq_zero_of_degree_lt hdeg]\n    apply Finset.sum_eq_zero\n    intro i hi\n    have hv : i.val ≠ k := by\n      intro h\n      exact hk (h ▸ i.isLt)\n    simp [Polynomial.coeff_C_mul_X_pow, hv, Ne.symm hv]",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.block_reconstruct",
+          "ancestors": [],
+          "spec_sha256": "90a521235bc671578ecea672f32a9de71aa3a04375fcc28a433ca9f9671c1180"
+        },
+        "sha256": "50e10d37957456886f89077972018c3811602e202beabe3b781ee0addda21fd9"
+      },
+      "encode_polynomial": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.encode_polynomial : ∀ (N : ℕ) [NeZero N] (p : M6.Cyclic.BinaryPolynomial), p.degree < (N : WithBot ℕ) → M6.Coordinates.encode N (M6.Coordinates.coefficients N p) = M6.Cyclic.image N p := by\n  intro N inst p hp\n  change M6.Cyclic.image N (M6.Coordinates.blockPolynomial N (M6.Coordinates.coefficients N p)) = M6.Cyclic.image N p\n  rw [M6.Coordinates.block_reconstruct N p hp]",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.encode_polynomial",
+          "ancestors": [
+            "block_reconstruct"
+          ],
+          "spec_sha256": "5e32f5c9d7168f431cf15077754ab53e4fec1bd690db49f589ca05d86baaed81"
+        },
+        "sha256": "abd72068dca08a5bfb0483276d7fa067379306b80bc00bc845389eb07abcd2e1"
+      }
+    }
+  }
+}

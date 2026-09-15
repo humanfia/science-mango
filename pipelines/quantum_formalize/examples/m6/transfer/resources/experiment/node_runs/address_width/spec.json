@@ -1,0 +1,13 @@
+{
+  "name": "M6.Transfer.address_width",
+  "statement": "∀ R N : ℕ, 0 < N → M6.Transfer.addressLocations R N ≤ 2^(M6.Transfer.addressBits R N)",
+  "imports": [
+    "M6TransferResources"
+  ],
+  "context": "",
+  "queries": [
+    "Nat power monotonicity polynomial inequality",
+    "Fintype card function product"
+  ],
+  "guidance": "Use N+1<=2^N for positive N (Nat.lt_two_pow_self or induction). Square and multiply by 16*2^R, then pow_add/pow_mul. This bounds the declared superset of array locations. Return tactic lines without leading by. Fixed definitions:\nimport M6Transfer\nnamespace M6.Transfer\n\n-- A scatter loop visits each source state, both bit-labelled edges, every\n-- coefficient slot and each of the at-most-three edge coefficients.\nabbrev ScatterEvent (R N : ℕ) := Memory R × Bit × Fin (2*N+1) × Fin 3\n\ndef coefficientBits (R N : ℕ) : ℕ := R + 3*N + 2\ndef addressBits (R N : ℕ) : ℕ := R + 2*N + 4\n\ndef eventBitCharge (R N : ℕ) : ℕ :=\n  4 * coefficientBits R N + 4 * addressBits R N + 8\n\nnoncomputable def traceCoefficientOps (R N : ℕ) : ℕ :=\n  Fintype.card (Memory R) * N * Fintype.card (ScatterEvent R N)\n\n-- Include clearing each destination layer for every start/layer in the model.\nnoncomputable def traceWorkModel (R N : ℕ) : ℕ :=\n  (traceCoefficientOps R N + (2^R)^2 * N * (2*N+1)) * eventBitCharge R N\n\ndef traceStorageModel (R N : ℕ) : ℕ :=\n  2 * 2^R * (2*N+1) * coefficientBits R N +\n  (2*N+1) * coefficientBits R N + 2 * 2^R * (R+2) + 2*N + 16\n\ndef addressLocations (R N : ℕ) : ℕ := 16 * 2^R * (N+1)^2\n\nend M6.Transfer\n"
+}

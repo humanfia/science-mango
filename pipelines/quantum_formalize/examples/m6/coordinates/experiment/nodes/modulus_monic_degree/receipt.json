@@ -1,0 +1,61 @@
+{
+  "id": "modulus_monic_degree",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Coordinates.modulus_monic_degree",
+    "spec_sha256": "9e3f96efc37e582ab0d1c4f3dd334823c5d164a994c0eb60fb3270a46d1ea2e5",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-85uc61ty/attempt-001/Candidate_560e940ee665b614.lean:7:4: error: Type mismatch: After simplification, term\n  have this := Polynomial.monic_X_pow_add_C 1 (NeZero.ne N);\n  this\n has type\n  @Polynomial.Monic (ZMod 2) Field.toSemifield.toDivisionSemiring.toSemiring (Polynomial.X ^ N + Polynomial.C 1)\nbut is expected to have type\n  @Polynomial.Monic (ZMod 2) Field.toSemifield.toDivisionSemiring.toSemiring (Polynomial.X ^ N + 1)\n/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-85uc61ty/attempt-001/Candidate_560e940ee665b614.lean:12:35: error: No goals to be solved\n/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-85uc61ty/attempt-001/Candidate_560e940ee665b614.lean:10:4: error: Type mismatch: After simplification, term\n  have this := Polynomial.natDegree_X_pow_add_C;\n  this\n has type\n  @Eq ℕ (Polynomial.X ^ N + Polynomial.C 1).natDegree N\nbut is expected to have type\n  @Eq ℕ (Polynomial.natDegree (Polynomial.X ^ N + 1)) N\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-85uc61ty/attempt-002/Candidate_c099b99235250443.lean",
+        "target_path": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-85uc61ty/attempt-002/FrozenTarget_c099b99235250443.lean",
+        "feedback": "",
+        "target_sha256": "47604d27b9871dea9ec4069ac043edcc03894dcaf5a51e01d76e6242eec97096",
+        "target_olean_sha256": "43ae35f1707e3264030f101a2cba034f26522e3c085203c2012a1239b22b3d90",
+        "source_sha256": "4c4c28d0e3dc933fa6c0b069964079f1c2ef3561fb313152294a8156f740db1d",
+        "olean_sha256": "d7bfbad41d75275c1de01ec91b3a2c9f2916ba23d506fddea97ac5b09b58e212",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:03:50.100656+00:00",
+    "work": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-85uc61ty",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5e325cf9850f30696bb2de458ca8ad8126702863c7219124150bc48a65c741e6",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-coordinates-formalization/.humanize-formal-runs/run-85uc61ty/attempt-002/Candidate_c099b99235250443.lean",
+    "environment_sha256": "985f164967ba4accfc9033cfc561fab60a260718cf9c0369adc4a653a02b3263",
+    "artifacts": {
+      "modulus_monic_degree": {
+        "payload": {
+          "declaration": "theorem M6.Coordinates.modulus_monic_degree : ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic ∧ (M6.Cyclic.modulus N).natDegree = N := by\n  change ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic ∧ (M6.Cyclic.modulus N).natDegree = N\n  intro N inst\n  change (Polynomial.X ^ N + (1 : Polynomial (ZMod 2))).Monic ∧ (Polynomial.X ^ N + (1 : Polynomial (ZMod 2))).natDegree = N\n  constructor\n  · simpa only [Polynomial.C_1] using (Polynomial.monic_X_pow_add_C (1 : ZMod 2) (NeZero.ne N))\n  · simpa only [Polynomial.C_1] using (Polynomial.natDegree_X_pow_add_C (n := N) (r := (1 : ZMod 2)))",
+          "imports": [
+            "M6Coordinates"
+          ],
+          "name": "M6.Coordinates.modulus_monic_degree",
+          "ancestors": [],
+          "spec_sha256": "9e3f96efc37e582ab0d1c4f3dd334823c5d164a994c0eb60fb3270a46d1ea2e5"
+        },
+        "sha256": "4b49145e88284315c1e5d8765c74ae18cefcad822b1e6063729db1366acecbe2"
+      }
+    }
+  }
+}

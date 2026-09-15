@@ -1,0 +1,69 @@
+{
+  "id": "recover_properties",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Pinned.recover_properties",
+    "spec_sha256": "904c4619540f657d8dd16d293ef7baf9b745b5c5bf93fc71322611f1f97a3d7b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-0mse6f7h/attempt-001/Candidate_be887a7a234560e9.lean",
+        "target_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-0mse6f7h/attempt-001/FrozenTarget_be887a7a234560e9.lean",
+        "feedback": "",
+        "target_sha256": "4ead9f39b800d781b434007262cded6adda7398ee72b4566594e747c46a0554d",
+        "target_olean_sha256": "5497e539176d33bcdfff4ff547c7dbcaadfd34c5e7e37d73251847da95263720",
+        "source_sha256": "dff236ab43546cc6faed88638bb05f31ae381685e847302c830b46a1cfc60b48",
+        "olean_sha256": "848b5681e30fe2a3920d813c42faf800620672f56c74bae0f03c946960994c5d",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:08:06.702000+00:00",
+    "work": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-0mse6f7h",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d5137ef2e22702c223214cf9ab178280088fb1a194804e298bffe37945ced814",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-0mse6f7h/attempt-001/Candidate_be887a7a234560e9.lean",
+    "environment_sha256": "76bffabaf33c42b35384f14efc593582b70cf33ae709e114f6960df01a5880a6",
+    "artifacts": {
+      "choose_properties": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.choose_properties : ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (i : Fin m), M6.Pinned.refines P (M6.Pinned.choose c P i).1 ∧ (M6.Pinned.choose c P i).1 i ≠ none ∧ (M6.Pinned.choose c P i).2 ≤ 1 := by\n  classical\n  change ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (i : Fin m), M6.Pinned.refines P (M6.Pinned.choose c P i).1 ∧ (M6.Pinned.choose c P i).1 i ≠ none ∧ (M6.Pinned.choose c P i).2 ≤ 1\n  intro m c P i\n  cases h : P i with\n  | none =>\n      have hr (b : ZMod 2) : M6.Pinned.refines P (M6.Pinned.pin P i b) := by\n        unfold M6.Pinned.refines\n        intro j\n        by_cases hj : j = i\n        · subst j\n          simp [h]\n        · simp [M6.Pinned.pin, hj]\n      have hn (b : ZMod 2) : M6.Pinned.pin P i b i ≠ none := by\n        simp [M6.Pinned.pin]\n      simp only [M6.Pinned.choose, h]\n      split <;> simp_all\n  | some b =>\n      simp [M6.Pinned.choose, h, M6.Pinned.refines]",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.choose_properties",
+          "ancestors": [],
+          "spec_sha256": "d386b8e77052c4970b91829fa41caf1cafb7598f52adea2e2d19e30306ca84b3"
+        },
+        "sha256": "9c6cd4fbb4da484c4e8ca154eefe2ca62ea446423935a8176bf4e4d5e990b4d1"
+      },
+      "recover_properties": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.recover_properties : ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (xs : List (Fin m)), M6.Pinned.refines P (M6.Pinned.recover c P xs).1 ∧ (∀ i ∈ xs, (M6.Pinned.recover c P xs).1 i ≠ none) ∧ (M6.Pinned.recover c P xs).2 ≤ xs.length := by\n  classical\n  change ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (xs : List (Fin m)), M6.Pinned.refines P (M6.Pinned.recover c P xs).1 ∧ (∀ i ∈ xs, (M6.Pinned.recover c P xs).1 i ≠ none) ∧ (M6.Pinned.recover c P xs).2 ≤ xs.length\n  intro m c P xs\n  have trans_refines (A B C : M6.Pinned.Pins m)\n      (hAB : M6.Pinned.refines A B) (hBC : M6.Pinned.refines B C) :\n      M6.Pinned.refines A C := by\n    unfold M6.Pinned.refines at hAB hBC ⊢\n    intro j b hj\n    exact hBC j b (hAB j b hj)\n  have preserve (A B : M6.Pinned.Pins m)\n      (hAB : M6.Pinned.refines A B) (j : Fin m)\n      (hj : A j ≠ none) : B j ≠ none := by\n    unfold M6.Pinned.refines at hAB\n    cases h : A j with\n    | none => exact False.elim (hj h)\n    | some b =>\n        rw [hAB j b h]\n        simp\n  induction xs generalizing P with\n  | nil =>\n      simp [M6.Pinned.recover, M6.Pinned.refines]\n  | cons i xs ih =>\n      have hcprop := M6.Pinned.choose_properties m c P i\n      cases hc : M6.Pinned.choose c P i with\n      | mk Q k =>\n          have hrprop := ih Q\n          cases hr : M6.Pinned.recover c Q xs with\n          | mk R n =>\n              simp only [hc, Prod.fst, Prod.snd] at hcprop\n              simp only [hr, Prod.fst, Prod.snd] at hrprop\n              simp only [M6.Pinned.recover, hc, hr, Prod.fst, Prod.snd]\n              refine ⟨trans_refines P Q R hcprop.1 hrprop.1, ?_, ?_⟩\n              · intro j hj\n                rcases List.mem_cons.mp hj with hji | hj\n                · rw [hji]\n                  exact preserve Q R hrprop.1 i hcprop.2.1\n                · exact hrprop.2.1 j hj\n              · have hk := hcprop.2.2\n                have hn := hrprop.2.2\n                simp only [List.length_cons]\n                omega",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.recover_properties",
+          "ancestors": [
+            "choose_properties"
+          ],
+          "spec_sha256": "aaa9b5dbe37b40d7ae13503115bfdc033d9bf7a895d54f808bf69e9e31230d9b"
+        },
+        "sha256": "cde191af4ec08d48d67203ddc481a76dffae2e134428c552f1416c50c3e3f775"
+      }
+    }
+  }
+}

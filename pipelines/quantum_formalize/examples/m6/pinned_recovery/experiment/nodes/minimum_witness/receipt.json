@@ -1,0 +1,255 @@
+{
+  "id": "minimum_witness",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Pinned.minimum_witness",
+    "spec_sha256": "799f44a1098830fd8cf6fbe7488b5927f74e298aa9eabc9f647a8902555fc3fd",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-9ui2dtog/attempt-001/Candidate_d403c2bdff5f355c.lean",
+        "target_path": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-9ui2dtog/attempt-001/FrozenTarget_d403c2bdff5f355c.lean",
+        "feedback": "",
+        "target_sha256": "fda4ea5226dd4687911e5b3113d27770879bf5e1de49e9145bb5ab80981b7af8",
+        "target_olean_sha256": "dcbb750c48f2c0a4c36b0bc7280c4d5cd657fca8f8ab79b4afe728568c90fb93",
+        "source_sha256": "8fc25db6fbb20eba0b49a80e36cac1792be58fa13aee080e70e3ecac92b3f4b9",
+        "olean_sha256": "e646ffc1e0ff0890af6517a568ccea455055bbfd1163aa9c634818343fb408a2",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:12:24.124896+00:00",
+    "work": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-9ui2dtog",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d5137ef2e22702c223214cf9ab178280088fb1a194804e298bffe37945ced814",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-pinned-recovery-formalization/.humanize-formal-runs/run-9ui2dtog/attempt-001/Candidate_d403c2bdff5f355c.lean",
+    "environment_sha256": "76bffabaf33c42b35384f14efc593582b70cf33ae709e114f6960df01a5880a6",
+    "artifacts": {
+      "distance_spec": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.distance_spec : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), (M6.Pinned.distance L = none ↔ L = ∅) ∧ ∀ d : ℕ, (M6.Pinned.distance L = some d ↔ (∃ v ∈ L, M6.Pinned.weight v = d) ∧ ∀ v ∈ L, d ≤ M6.Pinned.weight v) := by\n  classical\n  intro m L\n  by_cases h : L.Nonempty\n  · have hi : (L.image M6.Pinned.weight).Nonempty := h.image M6.Pinned.weight\n    constructor\n    · simp [M6.Pinned.distance, h, h.ne_empty]\n    · intro d\n      change (if h : L.Nonempty then\n        some ((L.image M6.Pinned.weight).min' (h.image M6.Pinned.weight))\n        else none) = some d ↔ _\n      rw [dif_pos h, Option.some.injEq]\n      constructor\n      · intro hd\n        obtain ⟨v, hv, hw⟩ := Finset.mem_image.mp\n          (Finset.min'_mem (L.image M6.Pinned.weight) hi)\n        constructor\n        · exact ⟨v, hv, hw.trans hd⟩\n        · intro w hw\n          rw [← hd]\n          exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨w, hw, rfl⟩)\n      · rintro ⟨⟨v, hv, hvd⟩, hleast⟩\n        apply le_antisymm\n        · rw [← hvd]\n          exact Finset.min'_le _ _ (Finset.mem_image.mpr ⟨v, hv, rfl⟩)\n        · obtain ⟨w, hw, hweight⟩ := Finset.mem_image.mp\n            (Finset.min'_mem (L.image M6.Pinned.weight) hi)\n          rw [← hweight]\n          exact hleast w hw\n  · have he : L = ∅ := Finset.not_nonempty_iff_eq_empty.mp h\n    subst L\n    simp [M6.Pinned.distance]",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.distance_spec",
+          "ancestors": [],
+          "spec_sha256": "6d6efaab4321a942631776e7a8c0516d2187dc5357edffbe7fb8d9cfbe9d9098"
+        },
+        "sha256": "6ac1001bbf9de8039c79604ca734dfe97a19261f6dcad59d3fc88c7da981af07"
+      },
+      "weight_bound": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.weight_bound : ∀ (m : ℕ) (v : M6.Pinned.Vector m), M6.Pinned.weight v ≤ m := by\n  change ∀ (m : ℕ) (v : M6.Pinned.Vector m), M6.Pinned.weight v ≤ m\n  intro m v\n  classical\n  unfold M6.Pinned.weight\n  calc\n    _ ≤ (Finset.univ : Finset (Fin m)).card :=\n      Finset.card_le_card (Finset.filter_subset _ _)\n    _ = m := by simp",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.weight_bound",
+          "ancestors": [],
+          "spec_sha256": "76152d11ec821ed124dd35bc22ba4b9f57553220826bf47a694171c69621aae7"
+        },
+        "sha256": "590f59e5dd016b0c924244d7008f3c767d51c16bff3a8ba9451ee70b28f3d1d4"
+      },
+      "enumerator_coeff": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.enumerator_coeff : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m) (d : ℕ), (M6.Pinned.enumerator L P).coeff d = M6.Pinned.count L P d := by\n  change ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m) (d : ℕ), (M6.Pinned.enumerator L P).coeff d = M6.Pinned.count L P d\n  intro m L P d\n  classical\n  simp only [M6.Pinned.enumerator, M6.Pinned.count,\n    Polynomial.finset_sum_coeff, Polynomial.coeff_X_pow,\n    Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one,\n    Finset.sum_filter]\n  apply Finset.sum_congr rfl\n  intro v hv\n  have hrev : (d = M6.Pinned.weight v) ↔ (M6.Pinned.weight v = d) := eq_comm\n  by_cases ha : M6.Pinned.agrees P v <;>\n    by_cases hw : M6.Pinned.weight v = d <;>\n    simp [ha, hw, Polynomial.coeff_X_pow, eq_comm]\n  all_goals omega",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.enumerator_coeff",
+          "ancestors": [],
+          "spec_sha256": "8fbaaaea536106eb379968ce190cd8f004f13e11f62b94a60e62947f7be9879d"
+        },
+        "sha256": "835b4bbe149dba273f63fec4ca2fc60f33259c7d7c489f8dbd4dcd0a316febb1"
+      },
+      "count_nonnegative_positive": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.count_nonnegative_positive : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (P : M6.Pinned.Pins m) (d : ℕ), 0 ≤ M6.Pinned.count L P d ∧ (0 < M6.Pinned.count L P d ↔ ∃ v ∈ L, M6.Pinned.agrees P v ∧ M6.Pinned.weight v = d) := by\n  classical\n  intro m L P d\n  unfold M6.Pinned.count\n  constructor\n  · exact Int.natCast_nonneg _\n  · simp [Int.natCast_pos, Finset.card_pos, Finset.Nonempty, and_assoc]",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.count_nonnegative_positive",
+          "ancestors": [],
+          "spec_sha256": "1864857135515fa9ef9814b9e6a94a357fc09258a9764c5b07d35f232a8d4405"
+        },
+        "sha256": "5a5de7def598dbfa1f6409e5cd287e6bc6d99b0f5282dd90c520cdb69be6201f"
+      },
+      "first_positive_distance": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.first_positive_distance : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), M6.Pinned.firstPositive m (M6.Pinned.enumerator L (M6.Pinned.free m)) = M6.Pinned.distance L := by\n  classical\n  change ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), M6.Pinned.firstPositive m (M6.Pinned.enumerator L (M6.Pinned.free m)) = M6.Pinned.distance L\n  intro m L\n  have hc : ∀ d : ℕ, (0 < (M6.Pinned.enumerator L (M6.Pinned.free m)).coeff d) ↔ ∃ v ∈ L, M6.Pinned.weight v = d := by\n    intro d\n    rw [M6.Pinned.enumerator_coeff]\n    simpa [M6.Pinned.agrees, M6.Pinned.free] using\n      (M6.Pinned.count_nonnegative_positive m L (M6.Pinned.free m) d).2\n  cases hd : M6.Pinned.distance L with\n  | none =>\n      have he : L = ∅ := (M6.Pinned.distance_spec m L).1.mp hd\n      simp [M6.Pinned.firstPositive, he, M6.Pinned.enumerator]\n  | some d =>\n      obtain ⟨hwitness, hleast⟩ := (M6.Pinned.distance_spec m L).2 d |>.mp hd\n      have hbound : d < m + 1 := by\n        obtain ⟨v, hv, hweight⟩ := hwitness\n        have hb := M6.Pinned.weight_bound m v\n        omega\n      have hn : ∀ j < d, ¬ ∃ v ∈ L, M6.Pinned.weight v = j := by\n        intro j hj\n        rintro ⟨v, hv, hw⟩\n        have hl := hleast v hv\n        omega\n      simp only [M6.Pinned.firstPositive, List.find?_range_eq_some, decide_eq_true_eq, List.mem_range, hc]\n      refine ⟨hwitness, hbound, ?_⟩\n      intro j hj\n      simpa using hn j hj",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.first_positive_distance",
+          "ancestors": [
+            "count_nonnegative_positive",
+            "distance_spec",
+            "enumerator_coeff",
+            "weight_bound"
+          ],
+          "spec_sha256": "48302815fc82f94f7732be4eb224f244719723811ca70487ebad3fe953495d02"
+        },
+        "sha256": "59edf8114b1f9690ec25ca207d00ae352ac5c24005b7a2e659b59246999285c5"
+      },
+      "agrees_pin": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.agrees_pin : ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Pinned.Vector m) (i : Fin m) (b : ZMod 2), P i = none → (M6.Pinned.agrees (M6.Pinned.pin P i b) v ↔ M6.Pinned.agrees P v ∧ v i = b) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (m : ℕ) (P : M6.Pinned.Pins m) (v : M6.Pinned.Vector m) (i : Fin m) (b : ZMod 2), P i = none → (M6.Pinned.agrees (M6.Pinned.pin P i b) v ↔ M6.Pinned.agrees P v ∧ v i = b)\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro m P v i b hP\n  unfold M6.Pinned.agrees\n  constructor\n  · intro h\n    constructor\n    · intro j\n      by_cases hji : j = i\n      · subst j\n        simp [hP]\n      · simpa [M6.Pinned.pin, Function.update, hji, Ne.symm hji] using h j\n    · simpa [M6.Pinned.pin, Function.update] using h i\n  · rintro ⟨h, hv⟩ j\n    by_cases hji : j = i\n    · subst j\n      simp [M6.Pinned.pin, Function.update, hv]\n    · simpa [M6.Pinned.pin, Function.update, hji, Ne.symm hji] using h j",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.agrees_pin",
+          "ancestors": [],
+          "spec_sha256": "947afb430f3f2d5cf3433084d2ca699bdf15151835add96571b2bdeb3ec72343"
+        },
+        "sha256": "ce8ab8fc2c7c10d86c80ee68f628fd26b7fb0a7a293325a5b833ead03aced10a"
+      },
+      "count_pin_partition": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.count_pin_partition : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ), M6.Pinned.partitions (fun P => M6.Pinned.count L P d) := by\n  change ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ), M6.Pinned.partitions (fun P => M6.Pinned.count L P d)\n  classical\n  intro m L d\n  unfold M6.Pinned.partitions\n  intro P i hP\n  have hbits : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide\n  induction L using Finset.induction_on with\n  | empty =>\n      simp [M6.Pinned.count, M6.Pinned.enumerator]\n  | @insert v L hv ih =>\n      rcases hbits (v i) with hb | hb <;>\n        by_cases ha : M6.Pinned.agrees P v <;>\n        by_cases hw : M6.Pinned.weight v = d <;>\n        simp_all [M6.Pinned.count, M6.Pinned.enumerator,\n          M6.Pinned.agrees_pin, Finset.filter_insert,\n          Finset.sum_insert, Polynomial.coeff_sum,\n          Polynomial.coeff_monomial] <;> omega",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.count_pin_partition",
+          "ancestors": [
+            "agrees_pin"
+          ],
+          "spec_sha256": "819d88f429f01880f068c5c19384c15d6411ab704d5ed84f8df53bfc096095b3"
+        },
+        "sha256": "f2d52a132bcf8f354d074e44691e933d9939915c6521ab34fc297c40a359f821"
+      },
+      "decode_unique": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.decode_unique : ∀ (m : ℕ) (P : M6.Pinned.Pins m), M6.Pinned.assigned P → ∀ v : M6.Pinned.Vector m, (M6.Pinned.agrees P v ↔ v = M6.Pinned.decode P) := by\n  intro m P hP v\n  unfold M6.Pinned.assigned at hP\n  constructor\n  · intro hv\n    unfold M6.Pinned.agrees at hv\n    funext i\n    have ha := hP i\n    have hv' := hv i\n    cases hi : P i <;> simp_all [M6.Pinned.decode]\n  · intro hv\n    subst v\n    unfold M6.Pinned.agrees\n    intro i\n    cases hi : P i <;> simp [M6.Pinned.decode, hi]",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.decode_unique",
+          "ancestors": [],
+          "spec_sha256": "9fd84bf6571c7a65e42592385da63ad971af705ecdc1f6f078b9cd1e68249fdf"
+        },
+        "sha256": "a5bfa77e1f320891ccae5ed2a91a4504f438e3bbd8b8983a48c3849f8b018d19"
+      },
+      "choose_properties": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.choose_properties : ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (i : Fin m), M6.Pinned.refines P (M6.Pinned.choose c P i).1 ∧ (M6.Pinned.choose c P i).1 i ≠ none ∧ (M6.Pinned.choose c P i).2 ≤ 1 := by\n  classical\n  change ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (i : Fin m), M6.Pinned.refines P (M6.Pinned.choose c P i).1 ∧ (M6.Pinned.choose c P i).1 i ≠ none ∧ (M6.Pinned.choose c P i).2 ≤ 1\n  intro m c P i\n  cases h : P i with\n  | none =>\n      have hr (b : ZMod 2) : M6.Pinned.refines P (M6.Pinned.pin P i b) := by\n        unfold M6.Pinned.refines\n        intro j\n        by_cases hj : j = i\n        · subst j\n          simp [h]\n        · simp [M6.Pinned.pin, hj]\n      have hn (b : ZMod 2) : M6.Pinned.pin P i b i ≠ none := by\n        simp [M6.Pinned.pin]\n      simp only [M6.Pinned.choose, h]\n      split <;> simp_all\n  | some b =>\n      simp [M6.Pinned.choose, h, M6.Pinned.refines]",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.choose_properties",
+          "ancestors": [],
+          "spec_sha256": "d386b8e77052c4970b91829fa41caf1cafb7598f52adea2e2d19e30306ca84b3"
+        },
+        "sha256": "9c6cd4fbb4da484c4e8ca154eefe2ca62ea446423935a8176bf4e4d5e990b4d1"
+      },
+      "recover_properties": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.recover_properties : ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (xs : List (Fin m)), M6.Pinned.refines P (M6.Pinned.recover c P xs).1 ∧ (∀ i ∈ xs, (M6.Pinned.recover c P xs).1 i ≠ none) ∧ (M6.Pinned.recover c P xs).2 ≤ xs.length := by\n  classical\n  change ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ) (P : M6.Pinned.Pins m) (xs : List (Fin m)), M6.Pinned.refines P (M6.Pinned.recover c P xs).1 ∧ (∀ i ∈ xs, (M6.Pinned.recover c P xs).1 i ≠ none) ∧ (M6.Pinned.recover c P xs).2 ≤ xs.length\n  intro m c P xs\n  have trans_refines (A B C : M6.Pinned.Pins m)\n      (hAB : M6.Pinned.refines A B) (hBC : M6.Pinned.refines B C) :\n      M6.Pinned.refines A C := by\n    unfold M6.Pinned.refines at hAB hBC ⊢\n    intro j b hj\n    exact hBC j b (hAB j b hj)\n  have preserve (A B : M6.Pinned.Pins m)\n      (hAB : M6.Pinned.refines A B) (j : Fin m)\n      (hj : A j ≠ none) : B j ≠ none := by\n    unfold M6.Pinned.refines at hAB\n    cases h : A j with\n    | none => exact False.elim (hj h)\n    | some b =>\n        rw [hAB j b h]\n        simp\n  induction xs generalizing P with\n  | nil =>\n      simp [M6.Pinned.recover, M6.Pinned.refines]\n  | cons i xs ih =>\n      have hcprop := M6.Pinned.choose_properties m c P i\n      cases hc : M6.Pinned.choose c P i with\n      | mk Q k =>\n          have hrprop := ih Q\n          cases hr : M6.Pinned.recover c Q xs with\n          | mk R n =>\n              simp only [hc, Prod.fst, Prod.snd] at hcprop\n              simp only [hr, Prod.fst, Prod.snd] at hrprop\n              simp only [M6.Pinned.recover, hc, hr, Prod.fst, Prod.snd]\n              refine ⟨trans_refines P Q R hcprop.1 hrprop.1, ?_, ?_⟩\n              · intro j hj\n                rcases List.mem_cons.mp hj with hji | hj\n                · rw [hji]\n                  exact preserve Q R hrprop.1 i hcprop.2.1\n                · exact hrprop.2.1 j hj\n              · have hk := hcprop.2.2\n                have hn := hrprop.2.2\n                simp only [List.length_cons]\n                omega",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.recover_properties",
+          "ancestors": [
+            "choose_properties"
+          ],
+          "spec_sha256": "aaa9b5dbe37b40d7ae13503115bfdc033d9bf7a895d54f808bf69e9e31230d9b"
+        },
+        "sha256": "cde191af4ec08d48d67203ddc481a76dffae2e134428c552f1416c50c3e3f775"
+      },
+      "recover_positive": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.recover_positive : ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ), M6.Pinned.partitions c → ∀ (P : M6.Pinned.Pins m) (xs : List (Fin m)), 0 < c P → 0 < c (M6.Pinned.recover c P xs).1 := by\n  change ∀ (m : ℕ) (c : M6.Pinned.Pins m → ℤ), M6.Pinned.partitions c → ∀ (P : M6.Pinned.Pins m) (xs : List (Fin m)), 0 < c P → 0 < c (M6.Pinned.recover c P xs).1\n  intro m c hc\n  unfold M6.Pinned.partitions at hc\n  have hchoose : ∀ (P : M6.Pinned.Pins m) (i : Fin m), 0 < c P → 0 < c (M6.Pinned.choose c P i).1 := by\n    intro P i hP\n    unfold M6.Pinned.choose\n    split\n    all_goals\n      first\n      | exact hP\n      | (split <;> dsimp only <;>\n          first\n          | assumption\n          | (have hsum := hc P i (by assumption)\n             omega))\n  intro P xs\n  induction xs generalizing P with\n  | nil =>\n      simpa only [M6.Pinned.recover] using (fun h : 0 < c P => h)\n  | cons i xs ih =>\n      intro hP\n      simpa only [M6.Pinned.recover] using\n        (ih (M6.Pinned.choose c P i).1 (hchoose P i hP))",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.recover_positive",
+          "ancestors": [],
+          "spec_sha256": "495cd2b739821cd835c053079f41d55bf1dc452012f2ec471e213bfb0d396b51"
+        },
+        "sha256": "877e510b43211f442c5976760baff1845dd4e01e70d48cc1a540968289d23de2"
+      },
+      "recover_from_counts": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.recover_from_counts : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ) (c : M6.Pinned.Pins m → ℤ), (∀ P, c P = M6.Pinned.count L P d) → 0 < c (M6.Pinned.free m) → let r := M6.Pinned.recover c (M6.Pinned.free m) (List.finRange m); M6.Pinned.decode r.1 ∈ L ∧ M6.Pinned.weight (M6.Pinned.decode r.1) = d ∧ r.2 ≤ m := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (d : ℕ) (c : M6.Pinned.Pins m → ℤ), (∀ P, c P = M6.Pinned.count L P d) → 0 < c (M6.Pinned.free m) → let r := M6.Pinned.recover c (M6.Pinned.free m) (List.finRange m); M6.Pinned.decode r.1 ∈ L ∧ M6.Pinned.weight (M6.Pinned.decode r.1) = d ∧ r.2 ≤ m\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro m L d c hc hpos\n  let r := M6.Pinned.recover c (M6.Pinned.free m) (List.finRange m)\n  change M6.Pinned.decode r.1 ∈ L ∧ M6.Pinned.weight (M6.Pinned.decode r.1) = d ∧ r.2 ≤ m\n  have heq : c = fun P => M6.Pinned.count L P d := funext hc\n  have hpart : M6.Pinned.partitions c := by\n    rw [heq]\n    exact M6.Pinned.count_pin_partition m L d\n  have hp := M6.Pinned.recover_positive m c hpart (M6.Pinned.free m) (List.finRange m) hpos\n  change 0 < c r.1 at hp\n  rw [hc r.1] at hp\n  have hr := M6.Pinned.recover_properties m c (M6.Pinned.free m) (List.finRange m)\n  have ha : M6.Pinned.assigned r.1 := by\n    intro i\n    exact hr.2.1 i (by simp)\n  obtain ⟨v, hvL, hvA, hvW⟩ := (M6.Pinned.count_nonnegative_positive m L r.1 d).2.mp hp\n  have hv : v = M6.Pinned.decode r.1 := (M6.Pinned.decode_unique m r.1 ha v).mp hvA\n  refine ⟨hv ▸ hvL, hv ▸ hvW, ?_⟩\n  simpa only [List.length_finRange] using hr.2.2",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.recover_from_counts",
+          "ancestors": [
+            "agrees_pin",
+            "choose_properties",
+            "count_nonnegative_positive",
+            "count_pin_partition",
+            "decode_unique",
+            "recover_positive",
+            "recover_properties"
+          ],
+          "spec_sha256": "c05f80dcc496cbc40d0b07da83c373dfc6e94467b9b918137ef4f2d932000d50"
+        },
+        "sha256": "4693467721fd081368864308535386ced71f3cd94720bf4822279d5aa8f3fec2"
+      },
+      "solve_exact": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.solve_exact : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (Q : M6.Pinned.Pins m → Polynomial ℤ), (∀ P, Q P = M6.Pinned.enumerator L P) → (M6.Pinned.solve Q = none ↔ L = ∅) ∧ ∀ (d : ℕ) (v : M6.Pinned.Vector m) (k : ℕ), M6.Pinned.solve Q = some (d, v, k) → v ∈ L ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ L, d ≤ M6.Pinned.weight u) ∧ k ≤ m := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)) (Q : M6.Pinned.Pins m → Polynomial ℤ), (∀ P, Q P = M6.Pinned.enumerator L P) → (M6.Pinned.solve Q = none ↔ L = ∅) ∧ ∀ (d : ℕ) (v : M6.Pinned.Vector m) (k : ℕ), M6.Pinned.solve Q = some (d, v, k) → v ∈ L ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ L, d ≤ M6.Pinned.weight u) ∧ k ≤ m\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro m L Q hQ\n  have hf : M6.Pinned.firstPositive m (Q (M6.Pinned.free m)) = M6.Pinned.distance L := by\n    rw [hQ]\n    exact M6.Pinned.first_positive_distance m L\n  cases hd : M6.Pinned.distance L with\n  | none =>\n      have he : L = ∅ := (M6.Pinned.distance_spec m L).1.mp hd\n      have hs : M6.Pinned.solve Q = none := by\n        simp [M6.Pinned.solve, hf, hd]\n      simp [hs, he]\n  | some d =>\n      obtain ⟨hwitness, hleast⟩ := (M6.Pinned.distance_spec m L).2 d |>.mp hd\n      have hn : L ≠ ∅ := by\n        intro he\n        have hh := (M6.Pinned.distance_spec m L).1.mpr he\n        rw [hd] at hh\n        cases hh\n      let c : M6.Pinned.Pins m → ℤ := fun P => (Q P).coeff d\n      have hc : ∀ P, c P = M6.Pinned.count L P d := by\n        intro P\n        dsimp [c]\n        rw [hQ, M6.Pinned.enumerator_coeff]\n      have hp : 0 < c (M6.Pinned.free m) := by\n        rw [hc]\n        apply (M6.Pinned.count_nonnegative_positive m L (M6.Pinned.free m) d).2.mpr\n        obtain ⟨v, hv, hw⟩ := hwitness\n        exact ⟨v, hv, by simp [M6.Pinned.agrees, M6.Pinned.free], hw⟩\n      let r := M6.Pinned.recover c (M6.Pinned.free m) (List.finRange m)\n      have hr := M6.Pinned.recover_from_counts m L d c hc hp\n      change M6.Pinned.decode r.1 ∈ L ∧ M6.Pinned.weight (M6.Pinned.decode r.1) = d ∧ r.2 ≤ m at hr\n      have hs : M6.Pinned.solve Q = some (d, M6.Pinned.decode r.1, r.2) := by\n        simp [M6.Pinned.solve, hf, hd, r, c]\n      constructor\n      · simp [hs, hn]\n      · intro d' v k h\n        have he := hs.symm.trans h\n        simp only [Option.some.injEq, Prod.mk.injEq] at he\n        rcases he with ⟨rfl, rfl, rfl⟩\n        exact ⟨hr.1, hr.2.1, hleast, hr.2.2⟩",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.solve_exact",
+          "ancestors": [
+            "agrees_pin",
+            "choose_properties",
+            "count_nonnegative_positive",
+            "count_pin_partition",
+            "decode_unique",
+            "distance_spec",
+            "enumerator_coeff",
+            "first_positive_distance",
+            "recover_from_counts",
+            "recover_positive",
+            "recover_properties",
+            "weight_bound"
+          ],
+          "spec_sha256": "e4fa800d5cade7252d74f12402312f485f440ba25be8144ccec16da6bdad654a"
+        },
+        "sha256": "08bc2c82b694bb34880d1124da178c26359a217046d5940604538c28481e728c"
+      },
+      "minimum_witness": {
+        "payload": {
+          "declaration": "theorem M6.Pinned.minimum_witness : ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), L.Nonempty → ∃ (d : ℕ) (v : M6.Pinned.Vector m) (k : ℕ), M6.Pinned.solve (M6.Pinned.enumerator L) = some (d, v, k) ∧ v ∈ L ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ L, d ≤ M6.Pinned.weight u) ∧ k ≤ m := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (m : ℕ) (L : Finset (M6.Pinned.Vector m)), L.Nonempty → ∃ (d : ℕ) (v : M6.Pinned.Vector m) (k : ℕ), M6.Pinned.solve (M6.Pinned.enumerator L) = some (d, v, k) ∧ v ∈ L ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ L, d ≤ M6.Pinned.weight u) ∧ k ≤ m\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro m L hL\n  have hspec := M6.Pinned.solve_exact m L (M6.Pinned.enumerator L) (fun P => rfl)\n  cases hs : M6.Pinned.solve (M6.Pinned.enumerator L) with\n  | none =>\n      exact False.elim (hL.ne_empty (hspec.1.mp hs))\n  | some result =>\n      rcases result with ⟨d, v, k⟩\n      exact ⟨d, v, k, rfl, hspec.2 d v k hs⟩",
+          "imports": [
+            "M6Pinned"
+          ],
+          "name": "M6.Pinned.minimum_witness",
+          "ancestors": [
+            "agrees_pin",
+            "choose_properties",
+            "count_nonnegative_positive",
+            "count_pin_partition",
+            "decode_unique",
+            "distance_spec",
+            "enumerator_coeff",
+            "first_positive_distance",
+            "recover_from_counts",
+            "recover_positive",
+            "recover_properties",
+            "solve_exact",
+            "weight_bound"
+          ],
+          "spec_sha256": "cedc8f525033a37fcf3c2800565c1b48696a4397e57e1fb9fa1668ea5e066739"
+        },
+        "sha256": "1527dcc8db2f60c8a46074a3a937fcde9c05d4939ac40245a4474595f98315c7"
+      }
+    }
+  }
+}

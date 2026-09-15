@@ -1,0 +1,269 @@
+[
+  {
+    "id": "modulus_monic_degree",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Coordinates.modulus_monic_degree",
+      "statement": "∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic ∧ (M6.Cyclic.modulus N).natDegree = N",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "Use N>0 from NeZero.pos N; monic_X_pow_add_C and natDegree_X_pow_add_C, or leading term degree. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "block_coeff",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Coordinates.block_coeff",
+      "statement": "∀ (N : ℕ) [NeZero N] (h : M6.Physical.Block N) (i : Fin N), (M6.Coordinates.blockPolynomial N h).coeff i.val = h (i.val : ZMod N)",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "Expand finite coefficient sum, coeff_C_mul_X_pow, isolate unique index. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "block_degree",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Coordinates.block_degree",
+      "statement": "∀ (N : ℕ) [NeZero N] (h : M6.Physical.Block N), (M6.Coordinates.blockPolynomial N h).degree < (N : WithBot ℕ)",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "Each monomial degree≤i<N, apply degree_sum_le and finite max bound, including zero polynomial. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "block_reconstruct",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Coordinates.block_reconstruct",
+      "statement": "∀ (N : ℕ) [NeZero N] (p : M6.Cyclic.BinaryPolynomial), p.degree < (N : WithBot ℕ) → M6.Coordinates.blockPolynomial N (M6.Coordinates.coefficients N p) = p",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "sum of coefficients C*X^i for i<N reconstructs degree<N polynomial. Fin indices cast into ZMod have val=i. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "root_period",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Coordinates.root_period",
+      "statement": "∀ (N : ℕ) [NeZero N], (AdjoinRoot.root (M6.Cyclic.modulus N))^N = 1",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "aeval root modulus=0 gives root^N+1=0; characteristic two implies -1=1. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "rootPow_add",
+    "dependencies": [
+      "root_period"
+    ],
+    "spec": {
+      "name": "M6.Coordinates.rootPow_add",
+      "statement": "∀ (N : ℕ) [NeZero N] (i j : ZMod N), M6.Coordinates.rootPow N (i+j) = M6.Coordinates.rootPow N i * M6.Coordinates.rootPow N j",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "ZMod.val_add reduces sum moduloN. Use pow_mod from root^N=1, then pow_add. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "encode_injective",
+    "dependencies": [
+      "modulus_monic_degree",
+      "block_coeff",
+      "block_degree"
+    ],
+    "spec": {
+      "name": "M6.Coordinates.encode_injective",
+      "statement": "∀ (N : ℕ) [NeZero N], Function.Injective (M6.Coordinates.encode N)",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "Equality of quotient classes implies modulus divides blockPolynomial difference. Its degree<N forces zero via monic not_dvd_of_degree_lt. Coefficients recover both functions using ZMod.val_lt. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "encode_surjective",
+    "dependencies": [
+      "modulus_monic_degree",
+      "block_reconstruct"
+    ],
+    "spec": {
+      "name": "M6.Coordinates.encode_surjective",
+      "statement": "∀ (N : ℕ) [NeZero N], Function.Surjective (M6.Coordinates.encode N)",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "Represent quotient by p, use remainder p%ₘmodulus with degree<N. block_reconstruct and quotient remainder equality. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "encode_polynomial",
+    "dependencies": [
+      "block_reconstruct"
+    ],
+    "spec": {
+      "name": "M6.Coordinates.encode_polynomial",
+      "statement": "∀ (N : ℕ) [NeZero N] (p : M6.Cyclic.BinaryPolynomial), p.degree < (N : WithBot ℕ) → M6.Coordinates.encode N (M6.Coordinates.coefficients N p) = M6.Cyclic.image N p",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "Unfold encode, accepted block_reconstruct, image. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "encode_sum",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Coordinates.encode_sum",
+      "statement": "∀ (N : ℕ) [NeZero N] (h : M6.Physical.Block N), M6.Coordinates.encode N h = ∑ i : ZMod N, AdjoinRoot.of (M6.Cyclic.modulus N) (h i) * M6.Coordinates.rootPow N i",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "Map polynomial finite sum through AdjoinRoot.mk, map_C/map_X; convert FinN sum to ZModN via explicit equivalence preserving val. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  },
+  {
+    "id": "encode_conv",
+    "dependencies": [
+      "encode_sum",
+      "rootPow_add"
+    ],
+    "spec": {
+      "name": "M6.Coordinates.encode_conv",
+      "statement": "∀ (N : ℕ) [NeZero N] (a h : M6.Physical.Block N), M6.Coordinates.encode N (M6.Physical.conv N a h) = M6.Coordinates.encode N a * M6.Coordinates.encode N h",
+      "imports": [
+        "M6Coordinates"
+      ],
+      "context": "",
+      "queries": [
+        "polynomial degree sum coefficients reconstruction",
+        "AdjoinRoot quotient mk power basis ZMod finite sum"
+      ],
+      "guidance": "Use encode_sum, expand products and conv; reindex (r,s) to (r,r+s), rootPow_add gives product of powers. Standard finite sum translations, ring arithmetic. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "source_section": 2
+    }
+  }
+]
