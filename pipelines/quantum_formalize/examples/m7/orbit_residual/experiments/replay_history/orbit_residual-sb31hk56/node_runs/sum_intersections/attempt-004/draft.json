@@ -1,0 +1,8 @@
+{
+  "proof": "by\n  classical\n  intro N inst C bases hsep\n  have hcount (c : M7.Action.Recipe N) :\n      M7.ActualOrbit.distinctCount c (fun y => y ∈ C) =\n        ((M7.ActualOrbit.orbit c).filter (fun y => y ∈ C)).card := by\n    unfold M7.ActualOrbit.distinctCount\n    congr 1\n    ext y\n    simp [M7.ActualOrbit.orbit, M7.OrbitFibers.orbitCount,\n      M7.OrbitFibers.orbit] <;> aesop\n  have hd : (bases : Set (M7.Action.Recipe N)).PairwiseDisjoint\n      (fun c => (M7.ActualOrbit.orbit c).filter (fun y => y ∈ C)) := by\n    intro c hc d hd hcd\n    exact (hsep c hc d hd hcd).mono\n      (Finset.filter_subset _ _) (Finset.filter_subset _ _)\n  have hu : bases.biUnion\n      (fun c => (M7.ActualOrbit.orbit c).filter (fun y => y ∈ C)) =\n      C ∩ M7.OrbitResidual.covered bases := by\n    ext y\n    simp only [M7.OrbitResidual.covered, Finset.mem_biUnion,\n      Finset.mem_filter, Finset.mem_inter]\n    aesop\n  simp_rw [hcount]\n  rw [← hu]\n  exact (Finset.card_biUnion hd).symm",
+  "queries": [
+    "M7.ActualOrbit.distinctCount",
+    "Finset.filter_image",
+    "Finset.filter_subset"
+  ]
+}

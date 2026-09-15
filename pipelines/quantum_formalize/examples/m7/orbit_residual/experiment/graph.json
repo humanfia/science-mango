@@ -1,0 +1,214 @@
+{
+  "title": "M7 actual disjoint-orbit residual invariant and strict insertion descent",
+  "nodes": [
+    {
+      "id": "orbit_self",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitResidual.orbit_self",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, c ∈ M7.ActualOrbit.orbit c",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "orbit_action",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitResidual.orbit_action",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (c : M7.Action.Recipe N) (g : M7.Action.Record N), M7.ActualOrbit.orbit (M7.Action.act g c) = M7.ActualOrbit.orbit c",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "orbit_disjoint",
+      "dependencies": [
+        "orbit_action"
+      ],
+      "spec": {
+        "name": "M7.OrbitResidual.orbit_disjoint",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ c d : M7.Action.Recipe N, Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d) ↔ d ∉ M7.ActualOrbit.orbit c",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "covered_membership",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitResidual.covered_membership",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), y ∈ M7.OrbitResidual.covered bases ↔ ∃ c ∈ bases, y ∈ M7.ActualOrbit.orbit c",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "sum_intersections",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitResidual.sum_intersections",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ C bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.Separated bases → (∑ c ∈ bases, M7.ActualOrbit.distinctCount c (fun y => y ∈ C)) = (C ∩ M7.OrbitResidual.covered bases).card",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "subtraction_card",
+      "dependencies": [
+        "sum_intersections"
+      ],
+      "spec": {
+        "name": "M7.OrbitResidual.subtraction_card",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ C bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.Separated bases → M7.OrbitResidual.subtraction C bases = (M7.OrbitResidual.remaining C bases).card",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "nonnegative_positive",
+      "dependencies": [
+        "subtraction_card"
+      ],
+      "spec": {
+        "name": "M7.OrbitResidual.nonnegative_positive",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ C bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.Separated bases → 0 ≤ M7.OrbitResidual.subtraction C bases ∧ (0 < M7.OrbitResidual.subtraction C bases ↔ ∃ y ∈ C, y ∉ M7.OrbitResidual.covered bases)",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "remaining_partition",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitResidual.remaining_partition",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ C0 C1 bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.remaining (C0 ∪ C1) bases = M7.OrbitResidual.remaining C0 bases ∪ M7.OrbitResidual.remaining C1 bases",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "subtraction_partition",
+      "dependencies": [
+        "subtraction_card",
+        "remaining_partition"
+      ],
+      "spec": {
+        "name": "M7.OrbitResidual.subtraction_partition",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ C0 C1 bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.Separated bases → Disjoint C0 C1 → M7.OrbitResidual.subtraction (C0 ∪ C1) bases = M7.OrbitResidual.subtraction C0 bases + M7.OrbitResidual.subtraction C1 bases",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "insert_remaining",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.OrbitResidual.insert_remaining",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (C bases : Finset (M7.Action.Recipe N)) (c : M7.Action.Recipe N), M7.OrbitResidual.remaining C (insert c bases) = M7.OrbitResidual.remaining C bases \\ M7.ActualOrbit.orbit c",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "fresh_separated",
+      "dependencies": [
+        "orbit_action",
+        "orbit_disjoint",
+        "covered_membership"
+      ],
+      "spec": {
+        "name": "M7.OrbitResidual.fresh_separated",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N) (g : M7.Action.Record N), M7.OrbitResidual.Separated bases → y ∉ M7.OrbitResidual.covered bases → M7.OrbitResidual.Separated (insert (M7.Action.act g y) bases)",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    },
+    {
+      "id": "insert_strict",
+      "dependencies": [
+        "insert_remaining",
+        "orbit_self",
+        "orbit_action"
+      ],
+      "spec": {
+        "name": "M7.OrbitResidual.insert_strict",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (C bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N) (g : M7.Action.Record N), y ∈ M7.OrbitResidual.remaining C bases → (M7.OrbitResidual.remaining C (insert (M7.Action.act g y) bases)).card < (M7.OrbitResidual.remaining C bases).card",
+        "imports": [
+          "M7OrbitResidual"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Prove the original finite disjoint-orbit subtraction invariant for the actual M7 Action.Record action. This module is a semantic proof bridge: final arithmetic total and factorized numerator will be substituted by already planned exact count identities, and Separated will be discharged by the actual canonical form. Do not assume a complete transversal. orbit is univ.image(act g c); use accepted act_identity/act_compose/act_inverse and concrete group instances. orbit_action via compose and inverse; orbit_disjoint via common point then inverse action. covered is actual biUnion. sum_intersections: filter/biUnion commutation plus Finset.card_biUnion for pairwise disjoint orbit filters, or finite induction on bases. Integer subtraction_card follows card_sdiff/inter and cast of finite sums, ensuring no truncated-natural subtraction masks negativity. Partition requires disjoint children. Fresh canonical insertion here takes any actual realizing action g, so the final caller supplies the already proved realizer. insert_strict removes at least the witnessed y and proves strict finite cardinal decrease. No raw support-pair generator is introduced. Return tactic lines only.\nimport M7ActualOrbitAccepted\n\nnamespace M7.OrbitResidual\nopen scoped BigOperators\nnoncomputable def covered {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact bases.biUnion M7.ActualOrbit.orbit\nnoncomputable def remaining {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : Finset (M7.Action.Recipe N) := by\n  classical\n  exact C \\ covered bases\ndef Separated {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, ∀ d ∈ bases, c ≠ d → Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d)\nnoncomputable def subtraction {N : ℕ} [NeZero N] (C bases : Finset (M7.Action.Recipe N)) : ℤ := by\n  classical\n  exact (C.card : ℤ) - ∑ c ∈ bases, (M7.ActualOrbit.distinctCount c (fun y => y ∈ C) : ℤ)\nend M7.OrbitResidual\n"
+      }
+    }
+  ]
+}

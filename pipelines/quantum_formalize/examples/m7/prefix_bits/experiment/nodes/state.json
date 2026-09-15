@@ -1,0 +1,657 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T18:49:03.350243+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "base": {
+      "id": "base",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.base",
+        "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-ndtqwqos/attempt-001/Candidate_89924323ecfaa02d.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-ndtqwqos/attempt-001/FrozenTarget_89924323ecfaa02d.lean",
+            "feedback": "",
+            "target_sha256": "833bf40f7c928c459a201319f84cc386fda3f70e6ff2b906b324019b6be1cf72",
+            "target_olean_sha256": "b63b7be6ef0dbf62be11efc4f48cd7f78a4127f964d24a24c707d5233d20130e",
+            "source_sha256": "9b26689ad91c3a6afba8fc010cd0fe66f4570a3b46b28bdabcfbf71c7c143cfd",
+            "olean_sha256": "5601c580c04ae4b4fa3875d8b236cf595ddd26a3078ad8d587ffdf5005265987",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:42:40.828376+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-ndtqwqos",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-ndtqwqos/attempt-001/Candidate_89924323ecfaa02d.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "base": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.base : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n  intro N hN p\n  classical\n  have hs (o : ℕ) : M7.PrefixBits.selected N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    apply Finset.mem_range.mpr\n    rcases hx with rfl | ⟨j, ⟨hj, _⟩, rfl⟩\n    · exact hN\n    · omega\n  have hu (o : ℕ) : M7.PrefixBits.undecided N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hx\n    rcases hx with ⟨j, ⟨hj, _⟩, rfl⟩\n    apply Finset.mem_range.mpr\n    omega\n  have hz (o : ℕ) : 0 ∈ M7.PrefixBits.selected N o p := by\n    simp [M7.PrefixBits.selected]\n  have hd (o : ℕ) : Disjoint (M7.PrefixBits.selected N o p) (M7.PrefixBits.undecided N o p) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hy\n    rcases hy with ⟨k, ⟨hk, hku⟩, hke⟩\n    rcases hx with hx | ⟨j, ⟨hj, hjd, hjb⟩, hje⟩\n    · omega\n    · omega\n  have hs0 := hs 0\n  have hs1 := hs (N - 1)\n  have hu0 := hu 0\n  have hu1 := hu (N - 1)\n  have hz0 := hz 0\n  have hz1 := hz (N - 1)\n  have hd0 := hd 0\n  have hd1 := hd (N - 1)\n  unfold M7.PrefixCompleted.Base\n  simp only [M7.PrefixBits.A, M7.PrefixBits.B, M7.PrefixBits.WA, M7.PrefixBits.WB]\n  aesop",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.base",
+              "ancestors": [],
+              "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9"
+            },
+            "sha256": "d3d5656d4fe5196516f1de5d968b3f3dccaa29518b2cb2bf8cf519b3fdf51508"
+          }
+        }
+      }
+    },
+    "count_card": {
+      "id": "count_card",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.count_card",
+        "spec_sha256": "159643887da0c20cc8ce8965377ef8a9b76eafea5751aeaa6ca98663bcd11f89",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-m0yxvqoo/attempt-001/Candidate_d96278eed1eefb0b.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-m0yxvqoo/attempt-001/FrozenTarget_d96278eed1eefb0b.lean",
+            "feedback": "",
+            "target_sha256": "59a12af310a3b595449e038c15c8d313bd5e0251a6d82e630bc3910ab25bfac4",
+            "target_olean_sha256": "b90f57d0de0abf9fa84004cfaed2e893af01ed7da743f8c898a56edd5993dfb6",
+            "source_sha256": "35660037ea52586196687cede89926878dbd6eb1a7d7c781e13e080523d8ed43",
+            "olean_sha256": "0c0f9ad96ea9aa887c9e9cf7d3752c0a1747122079e2c18da825404d8c835151",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:43:55.755076+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-m0yxvqoo",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-m0yxvqoo/attempt-001/Candidate_d96278eed1eefb0b.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "base": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.base : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n  intro N hN p\n  classical\n  have hs (o : ℕ) : M7.PrefixBits.selected N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    apply Finset.mem_range.mpr\n    rcases hx with rfl | ⟨j, ⟨hj, _⟩, rfl⟩\n    · exact hN\n    · omega\n  have hu (o : ℕ) : M7.PrefixBits.undecided N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hx\n    rcases hx with ⟨j, ⟨hj, _⟩, rfl⟩\n    apply Finset.mem_range.mpr\n    omega\n  have hz (o : ℕ) : 0 ∈ M7.PrefixBits.selected N o p := by\n    simp [M7.PrefixBits.selected]\n  have hd (o : ℕ) : Disjoint (M7.PrefixBits.selected N o p) (M7.PrefixBits.undecided N o p) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hy\n    rcases hy with ⟨k, ⟨hk, hku⟩, hke⟩\n    rcases hx with hx | ⟨j, ⟨hj, hjd, hjb⟩, hje⟩\n    · omega\n    · omega\n  have hs0 := hs 0\n  have hs1 := hs (N - 1)\n  have hu0 := hu 0\n  have hu1 := hu (N - 1)\n  have hz0 := hz 0\n  have hz1 := hz (N - 1)\n  have hd0 := hd 0\n  have hd1 := hd (N - 1)\n  unfold M7.PrefixCompleted.Base\n  simp only [M7.PrefixBits.A, M7.PrefixBits.B, M7.PrefixBits.WA, M7.PrefixBits.WB]\n  aesop",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.base",
+              "ancestors": [],
+              "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9"
+            },
+            "sha256": "d3d5656d4fe5196516f1de5d968b3f3dccaa29518b2cb2bf8cf519b3fdf51508"
+          },
+          "count_card": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.count_card : ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E → M7.PrefixBits.count N w E p = (M7.PrefixBits.completed N w E p).card := by\n  change ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E → M7.PrefixBits.count N w E p = (M7.PrefixBits.completed N w E p).card\n  intro N hN w E p hE\n  exact M7.PrefixCompleted.count_completed N w E (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) hN hE (M7.PrefixBits.base N hN p)",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.count_card",
+              "ancestors": [
+                "base"
+              ],
+              "spec_sha256": "01cf39584bc68daa5cf331a055b7f38b404473e20b3746e852ea883d3c62e281"
+            },
+            "sha256": "48e43013344281307437ae4549bb125b6e49176faa9310399385697cedb53293"
+          }
+        }
+      }
+    },
+    "leaf_undecided": {
+      "id": "leaf_undecided",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.leaf_undecided",
+        "spec_sha256": "a61e14e88b5a8268db310b7dba3f6fa1bdcb59fbe4129d4bfbabeb35b7cc2d69",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7xgq752p/attempt-001/Candidate_3498aeb0b7a42ee0.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7xgq752p/attempt-001/FrozenTarget_3498aeb0b7a42ee0.lean",
+            "feedback": "",
+            "target_sha256": "4306556782c2c2a42233a7be1e56315fe7d353f1c151f84226971f85748c56f6",
+            "target_olean_sha256": "2087d8bb7f612efe181a82c1e28ecf17d5eb440ab2c6394d7ae8152b3230916f",
+            "source_sha256": "916b1ac1a19320fbc6f713ee32a809772b69973f725ab43f8c8ef83c44566354",
+            "olean_sha256": "63186791ac1017acf16ecca6477fa32d23cde64656919cf3f93444d0508ceb55",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:42:40.930503+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7xgq752p",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7xgq752p/attempt-001/Candidate_3498aeb0b7a42ee0.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "leaf_undecided": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.leaf_undecided : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, p.length = M7.PrefixBits.depth N → M7.PrefixBits.WA N p = ∅ ∧ M7.PrefixBits.WB N p = ∅ := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, p.length = M7.PrefixBits.depth N → M7.PrefixBits.WA N p = ∅ ∧ M7.PrefixBits.WB N p = ∅\n  intro N hN p hp\n  unfold M7.PrefixBits.depth at hp\n  unfold M7.PrefixBits.WA M7.PrefixBits.WB M7.PrefixBits.undecided\n  constructor <;>\n    (apply Finset.ext\n     intro x\n     constructor\n     · intro hx\n       rcases Finset.mem_image.mp hx with ⟨j, hj, heq⟩\n       rcases Finset.mem_filter.mp hj with ⟨hj, hlen⟩\n       have hj' := Finset.mem_range.mp hj\n       omega\n     · intro hx\n       simp at hx)",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.leaf_undecided",
+              "ancestors": [],
+              "spec_sha256": "a61e14e88b5a8268db310b7dba3f6fa1bdcb59fbe4129d4bfbabeb35b7cc2d69"
+            },
+            "sha256": "69dcd0023d06b084af896397649de3f4ac7086452da2d166dd980dd0c9be1ec3"
+          }
+        }
+      }
+    },
+    "leaf_singleton": {
+      "id": "leaf_singleton",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.leaf_singleton",
+        "spec_sha256": "76324bd6feba6ce49566c83d25429c176ed9f2a73fb9da3ecb7121237f89d087",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eklx9in2/attempt-001/Candidate_9b73e33d783a2bf0.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eklx9in2/attempt-001/FrozenTarget_9b73e33d783a2bf0.lean",
+            "feedback": "",
+            "target_sha256": "587c8b7f4d7268ced356a5b5094b9b184dd9140460022f2e4d4262447e18f1be",
+            "target_olean_sha256": "c8f80441497083a3bf1608aeab778e409114f24ec43b12b0f04a3969d0949c4e",
+            "source_sha256": "e5379ecdf876ca7b77eeac927738b6580e561b369bd365e48f1429a6d3d1f400",
+            "olean_sha256": "c9f13b84cc0cc43a92048c604d87db05eec1f49b4fed5a8f6e1aafe6b8449792",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:45:02.283627+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eklx9in2",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eklx9in2/attempt-001/Candidate_9b73e33d783a2bf0.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "base": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.base : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n  intro N hN p\n  classical\n  have hs (o : ℕ) : M7.PrefixBits.selected N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    apply Finset.mem_range.mpr\n    rcases hx with rfl | ⟨j, ⟨hj, _⟩, rfl⟩\n    · exact hN\n    · omega\n  have hu (o : ℕ) : M7.PrefixBits.undecided N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hx\n    rcases hx with ⟨j, ⟨hj, _⟩, rfl⟩\n    apply Finset.mem_range.mpr\n    omega\n  have hz (o : ℕ) : 0 ∈ M7.PrefixBits.selected N o p := by\n    simp [M7.PrefixBits.selected]\n  have hd (o : ℕ) : Disjoint (M7.PrefixBits.selected N o p) (M7.PrefixBits.undecided N o p) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hy\n    rcases hy with ⟨k, ⟨hk, hku⟩, hke⟩\n    rcases hx with hx | ⟨j, ⟨hj, hjd, hjb⟩, hje⟩\n    · omega\n    · omega\n  have hs0 := hs 0\n  have hs1 := hs (N - 1)\n  have hu0 := hu 0\n  have hu1 := hu (N - 1)\n  have hz0 := hz 0\n  have hz1 := hz (N - 1)\n  have hd0 := hd 0\n  have hd1 := hd (N - 1)\n  unfold M7.PrefixCompleted.Base\n  simp only [M7.PrefixBits.A, M7.PrefixBits.B, M7.PrefixBits.WA, M7.PrefixBits.WB]\n  aesop",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.base",
+              "ancestors": [],
+              "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9"
+            },
+            "sha256": "d3d5656d4fe5196516f1de5d968b3f3dccaa29518b2cb2bf8cf519b3fdf51508"
+          },
+          "leaf_undecided": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.leaf_undecided : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, p.length = M7.PrefixBits.depth N → M7.PrefixBits.WA N p = ∅ ∧ M7.PrefixBits.WB N p = ∅ := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, p.length = M7.PrefixBits.depth N → M7.PrefixBits.WA N p = ∅ ∧ M7.PrefixBits.WB N p = ∅\n  intro N hN p hp\n  unfold M7.PrefixBits.depth at hp\n  unfold M7.PrefixBits.WA M7.PrefixBits.WB M7.PrefixBits.undecided\n  constructor <;>\n    (apply Finset.ext\n     intro x\n     constructor\n     · intro hx\n       rcases Finset.mem_image.mp hx with ⟨j, hj, heq⟩\n       rcases Finset.mem_filter.mp hj with ⟨hj, hlen⟩\n       have hj' := Finset.mem_range.mp hj\n       omega\n     · intro hx\n       simp at hx)",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.leaf_undecided",
+              "ancestors": [],
+              "spec_sha256": "a61e14e88b5a8268db310b7dba3f6fa1bdcb59fbe4129d4bfbabeb35b7cc2d69"
+            },
+            "sha256": "69dcd0023d06b084af896397649de3f4ac7086452da2d166dd980dd0c9be1ec3"
+          },
+          "leaf_singleton": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.leaf_singleton : ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N → M7.PrefixBits.completed N w E p ⊆ {(M7.PrefixBits.A N p, M7.PrefixBits.B N p)} := by\n  change ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N → M7.PrefixBits.completed N w E p ⊆ {(M7.PrefixBits.A N p, M7.PrefixBits.B N p)}\n  intro N hN w E p hp\n  classical\n  obtain ⟨hWA, hWB⟩ := M7.PrefixBits.leaf_undecided N hN p hp\n  intro x hx\n  unfold M7.PrefixBits.completed at hx\n  rw [hWA, hWB] at hx\n  have h := ((M7.PrefixCompleted.completed_membership N w E\n    (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) ∅ ∅\n    (by simp) (by simp) x).mp hx).1\n  simp only [M7.PrefixCompleted.Within, Finset.union_empty] at h\n  apply Finset.mem_singleton.mpr\n  apply Prod.ext\n  · apply Finset.Subset.antisymm <;> tauto\n  · apply Finset.Subset.antisymm <;> tauto",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.leaf_singleton",
+              "ancestors": [
+                "base",
+                "leaf_undecided"
+              ],
+              "spec_sha256": "b21274d72386c31a6826423138b3ffad0bea53cc292d6434a7da6e006e1ebc76"
+            },
+            "sha256": "b60a75058f7b41e86058d9cc4339aae2911807bac77024e51392722ed679c43d"
+          }
+        }
+      }
+    },
+    "left_step": {
+      "id": "left_step",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.left_step",
+        "spec_sha256": "951014c16ac354185a6622fb12e26ee7926c51a7dd952ec2870580b722e53c6a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-qpazwju_/attempt-001/Candidate_0af7ed7f4358b007.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-qpazwju_/attempt-001/FrozenTarget_0af7ed7f4358b007.lean",
+            "feedback": "",
+            "target_sha256": "7177a33c2a0b1e13d95284108194a0ee07b801a174bd441e734ec9416b51a2ee",
+            "target_olean_sha256": "c3c6d2f012f352dcba51341f64965cf3c16f5a9f61b3520f35ca0a582ee19eb6",
+            "source_sha256": "259c29f0d8fab6975424e210c7dfa90f0c1a49e7953fa7e32269f84b1557b433",
+            "olean_sha256": "e923eb1f890d3910761d15d12ca44fd1283caca1de6a31c3ded7d060e55e6f71",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:43:52.926336+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-qpazwju_",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-qpazwju_/attempt-001/Candidate_0af7ed7f4358b007.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "left_step": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.left_step : ∀ (N : ℕ), 0 < N → ∀ (p : List Bool) (bit : Bool), p.length < N-1 → let j := p.length+1; j ∈ M7.PrefixBits.WA N p ∧ M7.PrefixBits.A N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.A N p) else M7.PrefixBits.A N p) ∧ M7.PrefixBits.B N (p ++ [bit]) = M7.PrefixBits.B N p ∧ M7.PrefixBits.WA N (p ++ [bit]) = (M7.PrefixBits.WA N p).erase j ∧ M7.PrefixBits.WB N (p ++ [bit]) = M7.PrefixBits.WB N p := by\n  intro N hN p bit hp\n  dsimp only\n  classical\n  have hg : ∀ (q : List Bool) (k : ℕ),\n      (q ++ [bit]).getD k false =\n        if k < q.length then q.getD k false else if k = q.length then bit else false := by\n    intro q\n    induction q with\n    | nil =>\n        intro k\n        cases k <;> simp [List.getD]\n    | cons a q ih =>\n        intro k\n        cases k with\n        | zero => simp [List.getD]\n        | succ k => simpa [List.getD] using ih k\n  have hs : ∀ (q : List Bool) (off k : ℕ),\n      k + 1 ∈ M7.PrefixBits.selected N off q ↔\n        k < N - 1 ∧ off + k < q.length ∧ q.getD (off + k) false = true := by\n    intros q off k\n    simp [M7.PrefixBits.selected, Finset.mem_image]\n  have hu : ∀ (q : List Bool) (off k : ℕ),\n      k + 1 ∈ M7.PrefixBits.undecided N off q ↔\n        k < N - 1 ∧ q.length ≤ off + k := by\n    intros q off k\n    simp [M7.PrefixBits.undecided, Finset.mem_image]\n  have hs0 : ∀ (q : List Bool) (off : ℕ),\n      0 ∈ M7.PrefixBits.selected N off q := by\n    intros q off\n    simp [M7.PrefixBits.selected]\n  have hu0 : ∀ (q : List Bool) (off : ℕ),\n      0 ∉ M7.PrefixBits.undecided N off q := by\n    intros q off\n    simp [M7.PrefixBits.undecided, Finset.mem_image]\n  refine ⟨?_, ?_, ?_, ?_, ?_⟩\n  · simpa [M7.PrefixBits.WA, hu] using hp\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => cases bit <;> simp [M7.PrefixBits.A, hs0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.A N (p ++ [bit])) ↔ _\n        by_cases hk : k < p.length\n        · have he : k ≠ p.length := by omega\n          have he' : k + 1 ≠ p.length + 1 := by omega\n          have hl : k < p.length + 1 := by omega\n          cases bit <;>\n            simp [M7.PrefixBits.A, hs, hg, hk, he, he', hl]\n        · by_cases he : k = p.length\n          · subst k\n            cases bit <;> simp [M7.PrefixBits.A, hs, hg, hp]\n          · have he' : k + 1 ≠ p.length + 1 := by omega\n            have hl : ¬ k < p.length + 1 := by omega\n            cases bit <;>\n              simp [M7.PrefixBits.A, hs, hg, hk, he, he', hl]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.B, hs0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.B N (p ++ [bit])) ↔ _\n        have h0 : ¬ N - 1 + k < p.length := by omega\n        have h1 : ¬ N - 1 + k < p.length + 1 := by omega\n        simp [M7.PrefixBits.B, hs, h0, h1]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WA, hu0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.WA N (p ++ [bit])) ↔ _\n        simp only [M7.PrefixBits.WA, Finset.mem_erase, hu,\n          List.length_append, List.length_singleton, zero_add]\n        omega\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WB, hu0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.WB N (p ++ [bit])) ↔ _\n        simp only [M7.PrefixBits.WB, hu, List.length_append, List.length_singleton]\n        omega",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.left_step",
+              "ancestors": [],
+              "spec_sha256": "951014c16ac354185a6622fb12e26ee7926c51a7dd952ec2870580b722e53c6a"
+            },
+            "sha256": "c1d7f2febd240e12bbd12062eff11d051beecffef1bc817d0bedfc3aa2931b60"
+          }
+        }
+      }
+    },
+    "right_step": {
+      "id": "right_step",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.right_step",
+        "spec_sha256": "e4f76d4c960dbb888cf2c4c7d6d784fe7674c716205a766fc640b14510f9107d",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-j50itut6/attempt-001/Candidate_f98a7c7b81c2feb8.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-j50itut6/attempt-001/FrozenTarget_f98a7c7b81c2feb8.lean",
+            "feedback": "",
+            "target_sha256": "455184c1671cb476a5148a822321e66c8bc1b71cf2f4bfabae6a639d61e2146e",
+            "target_olean_sha256": "313cb2b097b8001788f68e32faf937d2577cdaa0c310b4071da8c296335509e3",
+            "source_sha256": "1130c6f1219eb1007a20071578a65c35df7c3e7cde451ad546f45ca8f00e9bfc",
+            "olean_sha256": "5bec3559dcafbef52eebdc44824a435131852bbdeececc64835832edec400ea8",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:45:03.329509+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-j50itut6",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-j50itut6/attempt-001/Candidate_f98a7c7b81c2feb8.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "right_step": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.right_step : ∀ (N : ℕ), 0 < N → ∀ (p : List Bool) (bit : Bool), N-1 ≤ p.length → p.length < M7.PrefixBits.depth N → let j := p.length-(N-1)+1; j ∈ M7.PrefixBits.WB N p ∧ M7.PrefixBits.A N (p ++ [bit]) = M7.PrefixBits.A N p ∧ M7.PrefixBits.B N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.B N p) else M7.PrefixBits.B N p) ∧ M7.PrefixBits.WA N (p ++ [bit]) = M7.PrefixBits.WA N p ∧ M7.PrefixBits.WB N (p ++ [bit]) = (M7.PrefixBits.WB N p).erase j := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ), 0 < N → ∀ (p : List Bool) (bit : Bool), N-1 ≤ p.length → p.length < M7.PrefixBits.depth N → let j := p.length-(N-1)+1; j ∈ M7.PrefixBits.WB N p ∧ M7.PrefixBits.A N (p ++ [bit]) = M7.PrefixBits.A N p ∧ M7.PrefixBits.B N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.B N p) else M7.PrefixBits.B N p) ∧ M7.PrefixBits.WA N (p ++ [bit]) = M7.PrefixBits.WA N p ∧ M7.PrefixBits.WB N (p ++ [bit]) = (M7.PrefixBits.WB N p).erase j\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N hN p bit hlo hhi\n  dsimp only\n  unfold M7.PrefixBits.depth at hhi\n  have lookup : ∀ (q : List Bool) (i : ℕ),\n      (q ++ [bit]).getD i false =\n        if i < q.length then q.getD i false else if i = q.length then bit else false := by\n    intro q\n    induction q with\n    | nil =>\n        intro i\n        cases i <;> simp [List.getD]\n    | cons a q ih =>\n        intro i\n        cases i with\n        | zero => simp [List.getD]\n        | succ i => simpa [List.getD] using ih i\n  have ms : ∀ (o : ℕ) (q : List Bool) (k : ℕ),\n      k + 1 ∈ M7.PrefixBits.selected N o q ↔\n        k < N - 1 ∧ o + k < q.length ∧ q.getD (o + k) false = true := by\n    intro o q k\n    simp [M7.PrefixBits.selected, Finset.mem_image]\n  have mu : ∀ (o : ℕ) (q : List Bool) (k : ℕ),\n      k + 1 ∈ M7.PrefixBits.undecided N o q ↔\n        k < N - 1 ∧ q.length ≤ o + k := by\n    intro o q k\n    simp [M7.PrefixBits.undecided, Finset.mem_image]\n  refine ⟨?_, ?_, ?_, ?_, ?_⟩\n  · rw [M7.PrefixBits.WB, mu]\n    constructor <;> omega\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.A, M7.PrefixBits.selected]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.selected N 0 (p ++ [bit])) ↔\n          (k + 1 ∈ M7.PrefixBits.selected N 0 p)\n        rw [ms, ms]\n        by_cases hk : k < N - 1\n        · have hp : k < p.length := by omega\n          have hp' : k < (p ++ [bit]).length := by\n            simp only [List.length_append, List.length_singleton]\n            omega\n          simp only [Nat.zero_add, lookup, if_pos hp]\n          have hle : k ≤ p.length := by omega\n          simp [hk, hp, hle]\n        · simp [hk]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero =>\n        cases bit <;> simp [M7.PrefixBits.B, M7.PrefixBits.selected]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.B N (p ++ [bit])) ↔\n          (k + 1 ∈ if bit then insert (p.length - (N - 1) + 1) (M7.PrefixBits.B N p)\n            else M7.PrefixBits.B N p)\n        by_cases hb : N - 1 + k < p.length\n        · have hn : N - 1 + k < (p ++ [bit]).length := by\n            simp only [List.length_append, List.length_singleton]\n            omega\n          have hj : k + 1 ≠ p.length - (N - 1) + 1 := by omega\n          have hle : N - 1 + k ≤ p.length := by omega\n          have hne : k ≠ p.length - (N - 1) := by omega\n          cases bit <;>\n            simp only [M7.PrefixBits.B, Bool.false_eq_true, if_false, if_true,\n              Finset.mem_insert, ms, lookup, if_pos hb] <;>\n            simp [hb, hle, hne]\n        · by_cases he : N - 1 + k = p.length\n          · have hk : k < N - 1 := by omega\n            have hj : k + 1 = p.length - (N - 1) + 1 := by omega\n            have hn : N - 1 + k < (p ++ [bit]).length := by\n              simp only [List.length_append, List.length_singleton]\n              omega\n            cases bit <;>\n              simp only [Bool.false_eq_true, if_false, if_true,\n                M7.PrefixBits.B, Finset.mem_insert, ms] <;>\n              simp only [lookup] <;>\n              simp [hb, he, hk, hj, hn]\n          · have hn : ¬ N - 1 + k < (p ++ [bit]).length := by\n              simp only [List.length_append, List.length_singleton]\n              omega\n            have hj : k + 1 ≠ p.length - (N - 1) + 1 := by omega\n            have hne : k ≠ p.length - (N - 1) := by omega\n            cases bit <;>\n              simp only [M7.PrefixBits.B, Bool.false_eq_true, if_false, if_true,\n                Finset.mem_insert, ms, lookup, if_neg hb, if_neg he] <;>\n              simp [hb, hne]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WA, M7.PrefixBits.undecided]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.undecided N 0 (p ++ [bit])) ↔\n          (k + 1 ∈ M7.PrefixBits.undecided N 0 p)\n        simp only [mu, Nat.zero_add, List.length_append, List.length_singleton]\n        omega\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WB, M7.PrefixBits.undecided]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.undecided N (N - 1) (p ++ [bit])) ↔\n          (k + 1 ∈ (M7.PrefixBits.undecided N (N - 1) p).erase\n            (p.length - (N - 1) + 1))\n        simp only [Finset.mem_erase, mu, List.length_append, List.length_singleton]\n        omega",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.right_step",
+              "ancestors": [],
+              "spec_sha256": "e4f76d4c960dbb888cf2c4c7d6d784fe7674c716205a766fc640b14510f9107d"
+            },
+            "sha256": "9d3970304c2f31f34d617b3b762bf7214b66dc01db32699bc08b73d40e76c362"
+          }
+        }
+      }
+    },
+    "completed_partition": {
+      "id": "completed_partition",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.completed_partition",
+        "spec_sha256": "e9c70d02cbcfb2e110923c31782fc18c184743b85cb99cac248c68ecc4ef753f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wgwqxqzm/attempt-001/Candidate_31e5cb7a6fe97492.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wgwqxqzm/attempt-001/FrozenTarget_31e5cb7a6fe97492.lean",
+            "feedback": "",
+            "target_sha256": "e60a0b137207f55637d3bd9730da0f68c8a68e06abedccde5cc6acf4ec53e89c",
+            "target_olean_sha256": "81efdaf244fbb70e26debede020cdc327838f402c9fd2c816722ca2b9d818d9a",
+            "source_sha256": "dbcb74823092cd78b3ed7a63952fa9fcbf240e3fc557bc435f3eb609b59cdf5f",
+            "olean_sha256": "9927cbc402489a982d8a0826bead17ae239da428d5a5fa5504c86a7ca4d872b2",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:46:23.040262+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wgwqxqzm",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wgwqxqzm/attempt-001/Candidate_31e5cb7a6fe97492.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "base": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.base : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n  intro N hN p\n  classical\n  have hs (o : ℕ) : M7.PrefixBits.selected N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    apply Finset.mem_range.mpr\n    rcases hx with rfl | ⟨j, ⟨hj, _⟩, rfl⟩\n    · exact hN\n    · omega\n  have hu (o : ℕ) : M7.PrefixBits.undecided N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hx\n    rcases hx with ⟨j, ⟨hj, _⟩, rfl⟩\n    apply Finset.mem_range.mpr\n    omega\n  have hz (o : ℕ) : 0 ∈ M7.PrefixBits.selected N o p := by\n    simp [M7.PrefixBits.selected]\n  have hd (o : ℕ) : Disjoint (M7.PrefixBits.selected N o p) (M7.PrefixBits.undecided N o p) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hy\n    rcases hy with ⟨k, ⟨hk, hku⟩, hke⟩\n    rcases hx with hx | ⟨j, ⟨hj, hjd, hjb⟩, hje⟩\n    · omega\n    · omega\n  have hs0 := hs 0\n  have hs1 := hs (N - 1)\n  have hu0 := hu 0\n  have hu1 := hu (N - 1)\n  have hz0 := hz 0\n  have hz1 := hz (N - 1)\n  have hd0 := hd 0\n  have hd1 := hd (N - 1)\n  unfold M7.PrefixCompleted.Base\n  simp only [M7.PrefixBits.A, M7.PrefixBits.B, M7.PrefixBits.WA, M7.PrefixBits.WB]\n  aesop",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.base",
+              "ancestors": [],
+              "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9"
+            },
+            "sha256": "d3d5656d4fe5196516f1de5d968b3f3dccaa29518b2cb2bf8cf519b3fdf51508"
+          },
+          "left_step": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.left_step : ∀ (N : ℕ), 0 < N → ∀ (p : List Bool) (bit : Bool), p.length < N-1 → let j := p.length+1; j ∈ M7.PrefixBits.WA N p ∧ M7.PrefixBits.A N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.A N p) else M7.PrefixBits.A N p) ∧ M7.PrefixBits.B N (p ++ [bit]) = M7.PrefixBits.B N p ∧ M7.PrefixBits.WA N (p ++ [bit]) = (M7.PrefixBits.WA N p).erase j ∧ M7.PrefixBits.WB N (p ++ [bit]) = M7.PrefixBits.WB N p := by\n  intro N hN p bit hp\n  dsimp only\n  classical\n  have hg : ∀ (q : List Bool) (k : ℕ),\n      (q ++ [bit]).getD k false =\n        if k < q.length then q.getD k false else if k = q.length then bit else false := by\n    intro q\n    induction q with\n    | nil =>\n        intro k\n        cases k <;> simp [List.getD]\n    | cons a q ih =>\n        intro k\n        cases k with\n        | zero => simp [List.getD]\n        | succ k => simpa [List.getD] using ih k\n  have hs : ∀ (q : List Bool) (off k : ℕ),\n      k + 1 ∈ M7.PrefixBits.selected N off q ↔\n        k < N - 1 ∧ off + k < q.length ∧ q.getD (off + k) false = true := by\n    intros q off k\n    simp [M7.PrefixBits.selected, Finset.mem_image]\n  have hu : ∀ (q : List Bool) (off k : ℕ),\n      k + 1 ∈ M7.PrefixBits.undecided N off q ↔\n        k < N - 1 ∧ q.length ≤ off + k := by\n    intros q off k\n    simp [M7.PrefixBits.undecided, Finset.mem_image]\n  have hs0 : ∀ (q : List Bool) (off : ℕ),\n      0 ∈ M7.PrefixBits.selected N off q := by\n    intros q off\n    simp [M7.PrefixBits.selected]\n  have hu0 : ∀ (q : List Bool) (off : ℕ),\n      0 ∉ M7.PrefixBits.undecided N off q := by\n    intros q off\n    simp [M7.PrefixBits.undecided, Finset.mem_image]\n  refine ⟨?_, ?_, ?_, ?_, ?_⟩\n  · simpa [M7.PrefixBits.WA, hu] using hp\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => cases bit <;> simp [M7.PrefixBits.A, hs0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.A N (p ++ [bit])) ↔ _\n        by_cases hk : k < p.length\n        · have he : k ≠ p.length := by omega\n          have he' : k + 1 ≠ p.length + 1 := by omega\n          have hl : k < p.length + 1 := by omega\n          cases bit <;>\n            simp [M7.PrefixBits.A, hs, hg, hk, he, he', hl]\n        · by_cases he : k = p.length\n          · subst k\n            cases bit <;> simp [M7.PrefixBits.A, hs, hg, hp]\n          · have he' : k + 1 ≠ p.length + 1 := by omega\n            have hl : ¬ k < p.length + 1 := by omega\n            cases bit <;>\n              simp [M7.PrefixBits.A, hs, hg, hk, he, he', hl]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.B, hs0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.B N (p ++ [bit])) ↔ _\n        have h0 : ¬ N - 1 + k < p.length := by omega\n        have h1 : ¬ N - 1 + k < p.length + 1 := by omega\n        simp [M7.PrefixBits.B, hs, h0, h1]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WA, hu0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.WA N (p ++ [bit])) ↔ _\n        simp only [M7.PrefixBits.WA, Finset.mem_erase, hu,\n          List.length_append, List.length_singleton, zero_add]\n        omega\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WB, hu0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.WB N (p ++ [bit])) ↔ _\n        simp only [M7.PrefixBits.WB, hu, List.length_append, List.length_singleton]\n        omega",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.left_step",
+              "ancestors": [],
+              "spec_sha256": "951014c16ac354185a6622fb12e26ee7926c51a7dd952ec2870580b722e53c6a"
+            },
+            "sha256": "c1d7f2febd240e12bbd12062eff11d051beecffef1bc817d0bedfc3aa2931b60"
+          },
+          "right_step": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.right_step : ∀ (N : ℕ), 0 < N → ∀ (p : List Bool) (bit : Bool), N-1 ≤ p.length → p.length < M7.PrefixBits.depth N → let j := p.length-(N-1)+1; j ∈ M7.PrefixBits.WB N p ∧ M7.PrefixBits.A N (p ++ [bit]) = M7.PrefixBits.A N p ∧ M7.PrefixBits.B N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.B N p) else M7.PrefixBits.B N p) ∧ M7.PrefixBits.WA N (p ++ [bit]) = M7.PrefixBits.WA N p ∧ M7.PrefixBits.WB N (p ++ [bit]) = (M7.PrefixBits.WB N p).erase j := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ), 0 < N → ∀ (p : List Bool) (bit : Bool), N-1 ≤ p.length → p.length < M7.PrefixBits.depth N → let j := p.length-(N-1)+1; j ∈ M7.PrefixBits.WB N p ∧ M7.PrefixBits.A N (p ++ [bit]) = M7.PrefixBits.A N p ∧ M7.PrefixBits.B N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.B N p) else M7.PrefixBits.B N p) ∧ M7.PrefixBits.WA N (p ++ [bit]) = M7.PrefixBits.WA N p ∧ M7.PrefixBits.WB N (p ++ [bit]) = (M7.PrefixBits.WB N p).erase j\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N hN p bit hlo hhi\n  dsimp only\n  unfold M7.PrefixBits.depth at hhi\n  have lookup : ∀ (q : List Bool) (i : ℕ),\n      (q ++ [bit]).getD i false =\n        if i < q.length then q.getD i false else if i = q.length then bit else false := by\n    intro q\n    induction q with\n    | nil =>\n        intro i\n        cases i <;> simp [List.getD]\n    | cons a q ih =>\n        intro i\n        cases i with\n        | zero => simp [List.getD]\n        | succ i => simpa [List.getD] using ih i\n  have ms : ∀ (o : ℕ) (q : List Bool) (k : ℕ),\n      k + 1 ∈ M7.PrefixBits.selected N o q ↔\n        k < N - 1 ∧ o + k < q.length ∧ q.getD (o + k) false = true := by\n    intro o q k\n    simp [M7.PrefixBits.selected, Finset.mem_image]\n  have mu : ∀ (o : ℕ) (q : List Bool) (k : ℕ),\n      k + 1 ∈ M7.PrefixBits.undecided N o q ↔\n        k < N - 1 ∧ q.length ≤ o + k := by\n    intro o q k\n    simp [M7.PrefixBits.undecided, Finset.mem_image]\n  refine ⟨?_, ?_, ?_, ?_, ?_⟩\n  · rw [M7.PrefixBits.WB, mu]\n    constructor <;> omega\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.A, M7.PrefixBits.selected]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.selected N 0 (p ++ [bit])) ↔\n          (k + 1 ∈ M7.PrefixBits.selected N 0 p)\n        rw [ms, ms]\n        by_cases hk : k < N - 1\n        · have hp : k < p.length := by omega\n          have hp' : k < (p ++ [bit]).length := by\n            simp only [List.length_append, List.length_singleton]\n            omega\n          simp only [Nat.zero_add, lookup, if_pos hp]\n          have hle : k ≤ p.length := by omega\n          simp [hk, hp, hle]\n        · simp [hk]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero =>\n        cases bit <;> simp [M7.PrefixBits.B, M7.PrefixBits.selected]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.B N (p ++ [bit])) ↔\n          (k + 1 ∈ if bit then insert (p.length - (N - 1) + 1) (M7.PrefixBits.B N p)\n            else M7.PrefixBits.B N p)\n        by_cases hb : N - 1 + k < p.length\n        · have hn : N - 1 + k < (p ++ [bit]).length := by\n            simp only [List.length_append, List.length_singleton]\n            omega\n          have hj : k + 1 ≠ p.length - (N - 1) + 1 := by omega\n          have hle : N - 1 + k ≤ p.length := by omega\n          have hne : k ≠ p.length - (N - 1) := by omega\n          cases bit <;>\n            simp only [M7.PrefixBits.B, Bool.false_eq_true, if_false, if_true,\n              Finset.mem_insert, ms, lookup, if_pos hb] <;>\n            simp [hb, hle, hne]\n        · by_cases he : N - 1 + k = p.length\n          · have hk : k < N - 1 := by omega\n            have hj : k + 1 = p.length - (N - 1) + 1 := by omega\n            have hn : N - 1 + k < (p ++ [bit]).length := by\n              simp only [List.length_append, List.length_singleton]\n              omega\n            cases bit <;>\n              simp only [Bool.false_eq_true, if_false, if_true,\n                M7.PrefixBits.B, Finset.mem_insert, ms] <;>\n              simp only [lookup] <;>\n              simp [hb, he, hk, hj, hn]\n          · have hn : ¬ N - 1 + k < (p ++ [bit]).length := by\n              simp only [List.length_append, List.length_singleton]\n              omega\n            have hj : k + 1 ≠ p.length - (N - 1) + 1 := by omega\n            have hne : k ≠ p.length - (N - 1) := by omega\n            cases bit <;>\n              simp only [M7.PrefixBits.B, Bool.false_eq_true, if_false, if_true,\n                Finset.mem_insert, ms, lookup, if_neg hb, if_neg he] <;>\n              simp [hb, hne]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WA, M7.PrefixBits.undecided]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.undecided N 0 (p ++ [bit])) ↔\n          (k + 1 ∈ M7.PrefixBits.undecided N 0 p)\n        simp only [mu, Nat.zero_add, List.length_append, List.length_singleton]\n        omega\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WB, M7.PrefixBits.undecided]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.undecided N (N - 1) (p ++ [bit])) ↔\n          (k + 1 ∈ (M7.PrefixBits.undecided N (N - 1) p).erase\n            (p.length - (N - 1) + 1))\n        simp only [Finset.mem_erase, mu, List.length_append, List.length_singleton]\n        omega",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.right_step",
+              "ancestors": [],
+              "spec_sha256": "e4f76d4c960dbb888cf2c4c7d6d784fe7674c716205a766fc640b14510f9107d"
+            },
+            "sha256": "9d3970304c2f31f34d617b3b762bf7214b66dc01db32699bc08b73d40e76c362"
+          },
+          "completed_partition": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.completed_partition : ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length < M7.PrefixBits.depth N → M7.PrefixBits.completed N w E p = M7.PrefixBits.completed N w E (p ++ [false]) ∪ M7.PrefixBits.completed N w E (p ++ [true]) ∧ Disjoint (M7.PrefixBits.completed N w E (p ++ [false])) (M7.PrefixBits.completed N w E (p ++ [true])) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length < M7.PrefixBits.depth N → M7.PrefixBits.completed N w E p = M7.PrefixBits.completed N w E (p ++ [false]) ∪ M7.PrefixBits.completed N w E (p ++ [true]) ∧ Disjoint (M7.PrefixBits.completed N w E (p ++ [false])) (M7.PrefixBits.completed N w E (p ++ [true]))\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N hN w E p hp\n  have hd : Disjoint (M7.PrefixBits.A N p) (M7.PrefixBits.WA N p) ∧\n      Disjoint (M7.PrefixBits.B N p) (M7.PrefixBits.WB N p) := by\n    have hb := M7.PrefixBits.base N hN p\n    unfold M7.PrefixCompleted.Base at hb\n    aesop\n  rcases hd with ⟨hdA, hdB⟩\n  by_cases hl : p.length < N - 1\n  · rcases M7.PrefixBits.left_step N hN p false hl with\n      ⟨hi, hAf, hBf, hWAf, hWBf⟩\n    rcases M7.PrefixBits.left_step N hN p true hl with\n      ⟨_, hAt, hBt, hWAt, hWBt⟩\n    simp at hAf hAt\n    simp only [M7.PrefixBits.completed, hAf, hBf, hWAf, hWBf,\n      hAt, hBt, hWAt, hWBt]\n    exact ⟨M7.PrefixCompleted.left_sets N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hdA hdB (p.length + 1) hi,\n      M7.PrefixCompleted.left_disjoint N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hdA hdB (p.length + 1) hi⟩\n  · have hr : N - 1 ≤ p.length := by omega\n    rcases M7.PrefixBits.right_step N hN p false hr hp with\n      ⟨hi, hAf, hBf, hWAf, hWBf⟩\n    rcases M7.PrefixBits.right_step N hN p true hr hp with\n      ⟨_, hAt, hBt, hWAt, hWBt⟩\n    simp at hBf hBt\n    simp only [M7.PrefixBits.completed, hAf, hBf, hWAf, hWBf,\n      hAt, hBt, hWAt, hWBt]\n    exact ⟨M7.PrefixCompleted.right_sets N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hdA hdB (p.length - (N - 1) + 1) hi,\n      M7.PrefixCompleted.right_disjoint N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hdA hdB (p.length - (N - 1) + 1) hi⟩",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.completed_partition",
+              "ancestors": [
+                "base",
+                "left_step",
+                "right_step"
+              ],
+              "spec_sha256": "24fe641ec6385bfc0229f77dc5ab1a7d33b07ded0794f44ae17bd3c5acc80768"
+            },
+            "sha256": "0b2f04734ac2aecebb3e8d3c104f5010b296fcf6de0809ec9bc74c6f8053bcf7"
+          }
+        }
+      }
+    },
+    "count_partition": {
+      "id": "count_partition",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.count_partition",
+        "spec_sha256": "74bb1cdb1344aa415dfc64d2677afcd9ca84a3f9245ae94d568aeeccfa9b8568",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-w9z7y_ku/attempt-001/Candidate_6632dec6b39972c0.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-w9z7y_ku/attempt-001/FrozenTarget_6632dec6b39972c0.lean",
+            "feedback": "",
+            "target_sha256": "a37f4b44c5f8f37c4018ff7729ac8f3784ff7e155acec73db235ec6fa64a445b",
+            "target_olean_sha256": "ae11bbd6aadce3bf26b3ac8921742ea5a96ce97bf02dc3fe5a2679af6c05fb41",
+            "source_sha256": "4c6e5378348a5bb711693b0c0c518cde4d4a9fb0a3b2089cf6779f6fbc7b7851",
+            "olean_sha256": "bc8aeea643735ac78dbd5d2261e6678ae9fdc4d3f1083aa8a2fe1ff4ef182f92",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:47:38.083783+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-w9z7y_ku",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-w9z7y_ku/attempt-001/Candidate_6632dec6b39972c0.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "base": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.base : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n  intro N hN p\n  classical\n  have hs (o : ℕ) : M7.PrefixBits.selected N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    apply Finset.mem_range.mpr\n    rcases hx with rfl | ⟨j, ⟨hj, _⟩, rfl⟩\n    · exact hN\n    · omega\n  have hu (o : ℕ) : M7.PrefixBits.undecided N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hx\n    rcases hx with ⟨j, ⟨hj, _⟩, rfl⟩\n    apply Finset.mem_range.mpr\n    omega\n  have hz (o : ℕ) : 0 ∈ M7.PrefixBits.selected N o p := by\n    simp [M7.PrefixBits.selected]\n  have hd (o : ℕ) : Disjoint (M7.PrefixBits.selected N o p) (M7.PrefixBits.undecided N o p) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hy\n    rcases hy with ⟨k, ⟨hk, hku⟩, hke⟩\n    rcases hx with hx | ⟨j, ⟨hj, hjd, hjb⟩, hje⟩\n    · omega\n    · omega\n  have hs0 := hs 0\n  have hs1 := hs (N - 1)\n  have hu0 := hu 0\n  have hu1 := hu (N - 1)\n  have hz0 := hz 0\n  have hz1 := hz (N - 1)\n  have hd0 := hd 0\n  have hd1 := hd (N - 1)\n  unfold M7.PrefixCompleted.Base\n  simp only [M7.PrefixBits.A, M7.PrefixBits.B, M7.PrefixBits.WA, M7.PrefixBits.WB]\n  aesop",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.base",
+              "ancestors": [],
+              "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9"
+            },
+            "sha256": "d3d5656d4fe5196516f1de5d968b3f3dccaa29518b2cb2bf8cf519b3fdf51508"
+          },
+          "count_card": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.count_card : ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E → M7.PrefixBits.count N w E p = (M7.PrefixBits.completed N w E p).card := by\n  change ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E → M7.PrefixBits.count N w E p = (M7.PrefixBits.completed N w E p).card\n  intro N hN w E p hE\n  exact M7.PrefixCompleted.count_completed N w E (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) hN hE (M7.PrefixBits.base N hN p)",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.count_card",
+              "ancestors": [
+                "base"
+              ],
+              "spec_sha256": "01cf39584bc68daa5cf331a055b7f38b404473e20b3746e852ea883d3c62e281"
+            },
+            "sha256": "48e43013344281307437ae4549bb125b6e49176faa9310399385697cedb53293"
+          },
+          "left_step": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.left_step : ∀ (N : ℕ), 0 < N → ∀ (p : List Bool) (bit : Bool), p.length < N-1 → let j := p.length+1; j ∈ M7.PrefixBits.WA N p ∧ M7.PrefixBits.A N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.A N p) else M7.PrefixBits.A N p) ∧ M7.PrefixBits.B N (p ++ [bit]) = M7.PrefixBits.B N p ∧ M7.PrefixBits.WA N (p ++ [bit]) = (M7.PrefixBits.WA N p).erase j ∧ M7.PrefixBits.WB N (p ++ [bit]) = M7.PrefixBits.WB N p := by\n  intro N hN p bit hp\n  dsimp only\n  classical\n  have hg : ∀ (q : List Bool) (k : ℕ),\n      (q ++ [bit]).getD k false =\n        if k < q.length then q.getD k false else if k = q.length then bit else false := by\n    intro q\n    induction q with\n    | nil =>\n        intro k\n        cases k <;> simp [List.getD]\n    | cons a q ih =>\n        intro k\n        cases k with\n        | zero => simp [List.getD]\n        | succ k => simpa [List.getD] using ih k\n  have hs : ∀ (q : List Bool) (off k : ℕ),\n      k + 1 ∈ M7.PrefixBits.selected N off q ↔\n        k < N - 1 ∧ off + k < q.length ∧ q.getD (off + k) false = true := by\n    intros q off k\n    simp [M7.PrefixBits.selected, Finset.mem_image]\n  have hu : ∀ (q : List Bool) (off k : ℕ),\n      k + 1 ∈ M7.PrefixBits.undecided N off q ↔\n        k < N - 1 ∧ q.length ≤ off + k := by\n    intros q off k\n    simp [M7.PrefixBits.undecided, Finset.mem_image]\n  have hs0 : ∀ (q : List Bool) (off : ℕ),\n      0 ∈ M7.PrefixBits.selected N off q := by\n    intros q off\n    simp [M7.PrefixBits.selected]\n  have hu0 : ∀ (q : List Bool) (off : ℕ),\n      0 ∉ M7.PrefixBits.undecided N off q := by\n    intros q off\n    simp [M7.PrefixBits.undecided, Finset.mem_image]\n  refine ⟨?_, ?_, ?_, ?_, ?_⟩\n  · simpa [M7.PrefixBits.WA, hu] using hp\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => cases bit <;> simp [M7.PrefixBits.A, hs0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.A N (p ++ [bit])) ↔ _\n        by_cases hk : k < p.length\n        · have he : k ≠ p.length := by omega\n          have he' : k + 1 ≠ p.length + 1 := by omega\n          have hl : k < p.length + 1 := by omega\n          cases bit <;>\n            simp [M7.PrefixBits.A, hs, hg, hk, he, he', hl]\n        · by_cases he : k = p.length\n          · subst k\n            cases bit <;> simp [M7.PrefixBits.A, hs, hg, hp]\n          · have he' : k + 1 ≠ p.length + 1 := by omega\n            have hl : ¬ k < p.length + 1 := by omega\n            cases bit <;>\n              simp [M7.PrefixBits.A, hs, hg, hk, he, he', hl]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.B, hs0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.B N (p ++ [bit])) ↔ _\n        have h0 : ¬ N - 1 + k < p.length := by omega\n        have h1 : ¬ N - 1 + k < p.length + 1 := by omega\n        simp [M7.PrefixBits.B, hs, h0, h1]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WA, hu0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.WA N (p ++ [bit])) ↔ _\n        simp only [M7.PrefixBits.WA, Finset.mem_erase, hu,\n          List.length_append, List.length_singleton, zero_add]\n        omega\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WB, hu0]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.WB N (p ++ [bit])) ↔ _\n        simp only [M7.PrefixBits.WB, hu, List.length_append, List.length_singleton]\n        omega",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.left_step",
+              "ancestors": [],
+              "spec_sha256": "951014c16ac354185a6622fb12e26ee7926c51a7dd952ec2870580b722e53c6a"
+            },
+            "sha256": "c1d7f2febd240e12bbd12062eff11d051beecffef1bc817d0bedfc3aa2931b60"
+          },
+          "right_step": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.right_step : ∀ (N : ℕ), 0 < N → ∀ (p : List Bool) (bit : Bool), N-1 ≤ p.length → p.length < M7.PrefixBits.depth N → let j := p.length-(N-1)+1; j ∈ M7.PrefixBits.WB N p ∧ M7.PrefixBits.A N (p ++ [bit]) = M7.PrefixBits.A N p ∧ M7.PrefixBits.B N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.B N p) else M7.PrefixBits.B N p) ∧ M7.PrefixBits.WA N (p ++ [bit]) = M7.PrefixBits.WA N p ∧ M7.PrefixBits.WB N (p ++ [bit]) = (M7.PrefixBits.WB N p).erase j := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ), 0 < N → ∀ (p : List Bool) (bit : Bool), N-1 ≤ p.length → p.length < M7.PrefixBits.depth N → let j := p.length-(N-1)+1; j ∈ M7.PrefixBits.WB N p ∧ M7.PrefixBits.A N (p ++ [bit]) = M7.PrefixBits.A N p ∧ M7.PrefixBits.B N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.B N p) else M7.PrefixBits.B N p) ∧ M7.PrefixBits.WA N (p ++ [bit]) = M7.PrefixBits.WA N p ∧ M7.PrefixBits.WB N (p ++ [bit]) = (M7.PrefixBits.WB N p).erase j\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N hN p bit hlo hhi\n  dsimp only\n  unfold M7.PrefixBits.depth at hhi\n  have lookup : ∀ (q : List Bool) (i : ℕ),\n      (q ++ [bit]).getD i false =\n        if i < q.length then q.getD i false else if i = q.length then bit else false := by\n    intro q\n    induction q with\n    | nil =>\n        intro i\n        cases i <;> simp [List.getD]\n    | cons a q ih =>\n        intro i\n        cases i with\n        | zero => simp [List.getD]\n        | succ i => simpa [List.getD] using ih i\n  have ms : ∀ (o : ℕ) (q : List Bool) (k : ℕ),\n      k + 1 ∈ M7.PrefixBits.selected N o q ↔\n        k < N - 1 ∧ o + k < q.length ∧ q.getD (o + k) false = true := by\n    intro o q k\n    simp [M7.PrefixBits.selected, Finset.mem_image]\n  have mu : ∀ (o : ℕ) (q : List Bool) (k : ℕ),\n      k + 1 ∈ M7.PrefixBits.undecided N o q ↔\n        k < N - 1 ∧ q.length ≤ o + k := by\n    intro o q k\n    simp [M7.PrefixBits.undecided, Finset.mem_image]\n  refine ⟨?_, ?_, ?_, ?_, ?_⟩\n  · rw [M7.PrefixBits.WB, mu]\n    constructor <;> omega\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.A, M7.PrefixBits.selected]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.selected N 0 (p ++ [bit])) ↔\n          (k + 1 ∈ M7.PrefixBits.selected N 0 p)\n        rw [ms, ms]\n        by_cases hk : k < N - 1\n        · have hp : k < p.length := by omega\n          have hp' : k < (p ++ [bit]).length := by\n            simp only [List.length_append, List.length_singleton]\n            omega\n          simp only [Nat.zero_add, lookup, if_pos hp]\n          have hle : k ≤ p.length := by omega\n          simp [hk, hp, hle]\n        · simp [hk]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero =>\n        cases bit <;> simp [M7.PrefixBits.B, M7.PrefixBits.selected]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.B N (p ++ [bit])) ↔\n          (k + 1 ∈ if bit then insert (p.length - (N - 1) + 1) (M7.PrefixBits.B N p)\n            else M7.PrefixBits.B N p)\n        by_cases hb : N - 1 + k < p.length\n        · have hn : N - 1 + k < (p ++ [bit]).length := by\n            simp only [List.length_append, List.length_singleton]\n            omega\n          have hj : k + 1 ≠ p.length - (N - 1) + 1 := by omega\n          have hle : N - 1 + k ≤ p.length := by omega\n          have hne : k ≠ p.length - (N - 1) := by omega\n          cases bit <;>\n            simp only [M7.PrefixBits.B, Bool.false_eq_true, if_false, if_true,\n              Finset.mem_insert, ms, lookup, if_pos hb] <;>\n            simp [hb, hle, hne]\n        · by_cases he : N - 1 + k = p.length\n          · have hk : k < N - 1 := by omega\n            have hj : k + 1 = p.length - (N - 1) + 1 := by omega\n            have hn : N - 1 + k < (p ++ [bit]).length := by\n              simp only [List.length_append, List.length_singleton]\n              omega\n            cases bit <;>\n              simp only [Bool.false_eq_true, if_false, if_true,\n                M7.PrefixBits.B, Finset.mem_insert, ms] <;>\n              simp only [lookup] <;>\n              simp [hb, he, hk, hj, hn]\n          · have hn : ¬ N - 1 + k < (p ++ [bit]).length := by\n              simp only [List.length_append, List.length_singleton]\n              omega\n            have hj : k + 1 ≠ p.length - (N - 1) + 1 := by omega\n            have hne : k ≠ p.length - (N - 1) := by omega\n            cases bit <;>\n              simp only [M7.PrefixBits.B, Bool.false_eq_true, if_false, if_true,\n                Finset.mem_insert, ms, lookup, if_neg hb, if_neg he] <;>\n              simp [hb, hne]\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WA, M7.PrefixBits.undecided]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.undecided N 0 (p ++ [bit])) ↔\n          (k + 1 ∈ M7.PrefixBits.undecided N 0 p)\n        simp only [mu, Nat.zero_add, List.length_append, List.length_singleton]\n        omega\n  · apply Finset.ext\n    intro x\n    cases x with\n    | zero => simp [M7.PrefixBits.WB, M7.PrefixBits.undecided]\n    | succ k =>\n        change (k + 1 ∈ M7.PrefixBits.undecided N (N - 1) (p ++ [bit])) ↔\n          (k + 1 ∈ (M7.PrefixBits.undecided N (N - 1) p).erase\n            (p.length - (N - 1) + 1))\n        simp only [Finset.mem_erase, mu, List.length_append, List.length_singleton]\n        omega",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.right_step",
+              "ancestors": [],
+              "spec_sha256": "e4f76d4c960dbb888cf2c4c7d6d784fe7674c716205a766fc640b14510f9107d"
+            },
+            "sha256": "9d3970304c2f31f34d617b3b762bf7214b66dc01db32699bc08b73d40e76c362"
+          },
+          "completed_partition": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.completed_partition : ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length < M7.PrefixBits.depth N → M7.PrefixBits.completed N w E p = M7.PrefixBits.completed N w E (p ++ [false]) ∪ M7.PrefixBits.completed N w E (p ++ [true]) ∧ Disjoint (M7.PrefixBits.completed N w E (p ++ [false])) (M7.PrefixBits.completed N w E (p ++ [true])) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length < M7.PrefixBits.depth N → M7.PrefixBits.completed N w E p = M7.PrefixBits.completed N w E (p ++ [false]) ∪ M7.PrefixBits.completed N w E (p ++ [true]) ∧ Disjoint (M7.PrefixBits.completed N w E (p ++ [false])) (M7.PrefixBits.completed N w E (p ++ [true]))\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N hN w E p hp\n  have hd : Disjoint (M7.PrefixBits.A N p) (M7.PrefixBits.WA N p) ∧\n      Disjoint (M7.PrefixBits.B N p) (M7.PrefixBits.WB N p) := by\n    have hb := M7.PrefixBits.base N hN p\n    unfold M7.PrefixCompleted.Base at hb\n    aesop\n  rcases hd with ⟨hdA, hdB⟩\n  by_cases hl : p.length < N - 1\n  · rcases M7.PrefixBits.left_step N hN p false hl with\n      ⟨hi, hAf, hBf, hWAf, hWBf⟩\n    rcases M7.PrefixBits.left_step N hN p true hl with\n      ⟨_, hAt, hBt, hWAt, hWBt⟩\n    simp at hAf hAt\n    simp only [M7.PrefixBits.completed, hAf, hBf, hWAf, hWBf,\n      hAt, hBt, hWAt, hWBt]\n    exact ⟨M7.PrefixCompleted.left_sets N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hdA hdB (p.length + 1) hi,\n      M7.PrefixCompleted.left_disjoint N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hdA hdB (p.length + 1) hi⟩\n  · have hr : N - 1 ≤ p.length := by omega\n    rcases M7.PrefixBits.right_step N hN p false hr hp with\n      ⟨hi, hAf, hBf, hWAf, hWBf⟩\n    rcases M7.PrefixBits.right_step N hN p true hr hp with\n      ⟨_, hAt, hBt, hWAt, hWBt⟩\n    simp at hBf hBt\n    simp only [M7.PrefixBits.completed, hAf, hBf, hWAf, hWBf,\n      hAt, hBt, hWAt, hWBt]\n    exact ⟨M7.PrefixCompleted.right_sets N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hdA hdB (p.length - (N - 1) + 1) hi,\n      M7.PrefixCompleted.right_disjoint N w E\n        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)\n        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n        hdA hdB (p.length - (N - 1) + 1) hi⟩",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.completed_partition",
+              "ancestors": [
+                "base",
+                "left_step",
+                "right_step"
+              ],
+              "spec_sha256": "24fe641ec6385bfc0229f77dc5ab1a7d33b07ded0794f44ae17bd3c5acc80768"
+            },
+            "sha256": "0b2f04734ac2aecebb3e8d3c104f5010b296fcf6de0809ec9bc74c6f8053bcf7"
+          },
+          "count_partition": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.count_partition : ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E → p.length < M7.PrefixBits.depth N → M7.PrefixBits.count N w E p = M7.PrefixBits.count N w E (p ++ [false]) + M7.PrefixBits.count N w E (p ++ [true]) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E → p.length < M7.PrefixBits.depth N → M7.PrefixBits.count N w E p = M7.PrefixBits.count N w E (p ++ [false]) + M7.PrefixBits.count N w E (p ++ [true])\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N hN w E p hE hp\n  classical\n  rcases M7.PrefixBits.completed_partition N hN w E p hp with ⟨hu, hd⟩\n  rw [M7.PrefixBits.count_card N hN w E p hE,\n    M7.PrefixBits.count_card N hN w E (p ++ [false]) hE,\n    M7.PrefixBits.count_card N hN w E (p ++ [true]) hE,\n    hu, Finset.card_union_of_disjoint hd, Nat.cast_add]",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.count_partition",
+              "ancestors": [
+                "base",
+                "completed_partition",
+                "count_card",
+                "left_step",
+                "right_step"
+              ],
+              "spec_sha256": "576a97238a7541afdee7fd480b9c6edcb32de6e70710c0c849a2309ebb25b21d"
+            },
+            "sha256": "5c45f43618c518dcb56805597604c2820a003d539607b0fec3dbd302618f4f93"
+          }
+        }
+      }
+    },
+    "root": {
+      "id": "root",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.root",
+        "spec_sha256": "baa3507d6195634edde1fa8497c881bf1188154069dc61b57bb738c6dfb3c32c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wrnm_rdu/attempt-001/Candidate_db8ea60c8ebb77e2.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wrnm_rdu/attempt-001/FrozenTarget_db8ea60c8ebb77e2.lean",
+            "feedback": "",
+            "target_sha256": "773c5a7c75bd3c14e017165dc8fb1dec97e6508c3c8d23e5da2a3bf372b97a74",
+            "target_olean_sha256": "498ac2342592beb2b04d79fab13a4a5049a3c0befa5425125561f626e9b5f65e",
+            "source_sha256": "1a9347928276e09325657a35b6fc561da7953bdf2e46c1e47fe85e9345f1b952",
+            "olean_sha256": "95b5e5ae88a5c21645a80640f3e22539780453b3bcc231b25a2088fbc08db711",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:46:14.721671+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wrnm_rdu",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wrnm_rdu/attempt-001/Candidate_db8ea60c8ebb77e2.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "root": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.root : ∀ (N : ℕ), 0 < N → M7.PrefixBits.A N [] = {0} ∧ M7.PrefixBits.B N [] = {0} ∧ M7.PrefixBits.WA N [] = Finset.range N \\ {0} ∧ M7.PrefixBits.WB N [] = Finset.range N \\ {0} := by\n  intro N hN\n  have hu (offset : ℕ) : M7.PrefixBits.undecided N offset [] = Finset.range N \\ {0} := by\n    apply Finset.ext\n    intro x\n    simp only [M7.PrefixBits.undecided, List.length_nil, Nat.zero_le,\n      Finset.filter_true, Finset.mem_image, Finset.mem_range,\n      Finset.mem_sdiff, Finset.mem_singleton]\n    constructor\n    · rintro ⟨j, hj, rfl⟩\n      constructor <;> omega\n    · rintro ⟨hx, hx0⟩\n      refine ⟨x - 1, ?_, ?_⟩ <;> omega\n  refine ⟨?_, ?_, hu 0, hu (N - 1)⟩\n  · simp [M7.PrefixBits.A, M7.PrefixBits.selected]\n  · simp [M7.PrefixBits.B, M7.PrefixBits.selected]",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.root",
+              "ancestors": [],
+              "spec_sha256": "baa3507d6195634edde1fa8497c881bf1188154069dc61b57bb738c6dfb3c32c"
+            },
+            "sha256": "24b49e69c2b20e7cc1307e323e79e6555e9769c1b08e81fad492857815921c84"
+          }
+        }
+      }
+    }
+  }
+}

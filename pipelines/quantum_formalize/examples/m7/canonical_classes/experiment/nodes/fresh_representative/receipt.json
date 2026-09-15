@@ -1,0 +1,98 @@
+{
+  "id": "fresh_representative",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalClasses.fresh_representative",
+    "spec_sha256": "ca961c1c581680701a582b5ff4945d12921166aaaacc0b7de35992c506638951",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-_0uflunz/attempt-001/Candidate_62e0891f075253d8.lean",
+        "target_path": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-_0uflunz/attempt-001/FrozenTarget_62e0891f075253d8.lean",
+        "feedback": "",
+        "target_sha256": "096cb74b5923b2186cff2464f306a8b6e3c6d2eccf5a5cd8fd374d5a6573d9dc",
+        "target_olean_sha256": "30854361ae5b10d1544dcef04f08c32ed27b7bd7ee5d9fda37d07b643a09907f",
+        "source_sha256": "1f64c1d3d38ed475976cf0a17ecda96c96647fe45467bac101c47f635ceb3e94",
+        "olean_sha256": "32e055faa697bb4932d961635509f746212e029b51d7b554b297b0d9ba09bef6",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:34:43.953732+00:00",
+    "work": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-_0uflunz",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d263325d302a199d8e350cb8a8d2842ae9c0b22a1be0c5ce9a6583f2749c6d98",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-_0uflunz/attempt-001/Candidate_62e0891f075253d8.lean",
+    "environment_sha256": "883527a8cc2dd2c76d24ea9db870babb386867de29915f17a87e6520f2007a04",
+    "artifacts": {
+      "orbit_membership": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalClasses.orbit_membership : ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c\n  intro N _ c y\n  classical\n  simp only [M7.ActualOrbit.orbit, Finset.mem_image, Finset.mem_univ, true_and]\n  exact (M7.CanonicalOuter.orbit_complete N c y).trans eq_comm",
+          "imports": [
+            "M7CanonicalClasses"
+          ],
+          "name": "M7.CanonicalClasses.orbit_membership",
+          "ancestors": [],
+          "spec_sha256": "9a4e105eb4e2205def795addf5407b1107fe8035641d7e13600ec6d09fdc9258"
+        },
+        "sha256": "11e1bbffe071650f83a72ca340492dd0580e12ae0738e9507dd817901219868b"
+      },
+      "idempotent": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalClasses.idempotent : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.canonical (M7.CanonicalOuter.canonical c) = M7.CanonicalOuter.canonical c := by\n  intro N inst c\n  simpa only [M7.CanonicalOuter.realizer_correct N c] using\n    M7.CanonicalOuter.canonical_invariant N (M7.CanonicalOuter.realizer c) c",
+          "imports": [
+            "M7CanonicalClasses"
+          ],
+          "name": "M7.CanonicalClasses.idempotent",
+          "ancestors": [],
+          "spec_sha256": "2c6b123ac2dae249f760dbd42122c59be81f57999b05e45578507b38d9ea43d7"
+        },
+        "sha256": "93a0d2cbf38ce8d804feaae287d2928af47bc3c3ccc0b5951666a8fd867c2731"
+      },
+      "coverage_iff": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalClasses.coverage_iff : ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → (y ∈ M7.OrbitResidual.covered bases ↔ M7.CanonicalOuter.canonical y ∈ bases) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → (y ∈ M7.OrbitResidual.covered bases ↔ M7.CanonicalOuter.canonical y ∈ bases)\n  intro N inst bases y hn\n  classical\n  simp only [M7.OrbitResidual.covered, Finset.mem_biUnion]\n  constructor\n  · rintro ⟨c, hc, hy⟩\n    have he : M7.CanonicalOuter.canonical y = c :=\n      ((M7.CanonicalClasses.orbit_membership N c y).mp hy).trans (hn c hc)\n    rw [he]\n    exact hc\n  · intro hy\n    refine ⟨M7.CanonicalOuter.canonical y, hy, ?_⟩\n    apply (M7.CanonicalClasses.orbit_membership N (M7.CanonicalOuter.canonical y) y).mpr\n    exact (hn (M7.CanonicalOuter.canonical y) hy).symm",
+          "imports": [
+            "M7CanonicalClasses"
+          ],
+          "name": "M7.CanonicalClasses.coverage_iff",
+          "ancestors": [
+            "idempotent",
+            "orbit_membership"
+          ],
+          "spec_sha256": "3a8d50dfaf4376d8ebb4574ba17959d7f4eca05393df593ea20730e9298fc518"
+        },
+        "sha256": "74a2f4daa848d9b487a2ccb24df5b5124dbe6e4804526fa96395cd2bdaabb120"
+      },
+      "fresh_representative": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalClasses.fresh_representative : ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → y ∉ M7.OrbitResidual.covered bases → M7.CanonicalOuter.canonical y ∉ bases := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → y ∉ M7.OrbitResidual.covered bases → M7.CanonicalOuter.canonical y ∉ bases\n  intro N inst bases y hn hy hc\n  exact hy ((M7.CanonicalClasses.coverage_iff N bases y hn).mpr hc)",
+          "imports": [
+            "M7CanonicalClasses"
+          ],
+          "name": "M7.CanonicalClasses.fresh_representative",
+          "ancestors": [
+            "coverage_iff",
+            "idempotent",
+            "orbit_membership"
+          ],
+          "spec_sha256": "15b699489f77e52da80c05624c87b5383c0e52ae0123399cc12ec20412c69448"
+        },
+        "sha256": "77b57d232b444ac15f5bf60974f172427135bb4b69a8edd4a3a3b0a987cc7700"
+      }
+    }
+  }
+}

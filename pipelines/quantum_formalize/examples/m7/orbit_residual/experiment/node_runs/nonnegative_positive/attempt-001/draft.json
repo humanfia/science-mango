@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst C bases hsep\nrw [M7.OrbitResidual.subtraction_card N C bases hsep]\nconstructor\n· positivity\n· constructor\n  · intro h\n    have hcard : 0 < (M7.OrbitResidual.remaining C bases).card := by omega\n    obtain ⟨y, hy⟩ := Finset.card_pos.mp hcard\n    have hy' : y ∈ C ∧ y ∉ M7.OrbitResidual.covered bases := by\n      simpa [M7.OrbitResidual.remaining] using hy\n    exact ⟨y, hy'.1, hy'.2⟩\n  · rintro ⟨y, hyC, hy⟩\n    have hmem : y ∈ M7.OrbitResidual.remaining C bases := by\n      simpa [M7.OrbitResidual.remaining] using And.intro hyC hy\n    have hcard := Finset.card_pos.mpr ⟨y, hmem⟩\n    omega",
+  "queries": []
+}

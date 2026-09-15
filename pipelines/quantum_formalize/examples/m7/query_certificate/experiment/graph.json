@@ -1,0 +1,205 @@
+{
+  "title": "M7 actual finite query certificate checker",
+  "source": "/home/jing/quantum_code_discovery_proof/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md",
+  "source_sha256": "8ad32a3432f4b7fd3ad15aa4467e0f01255ce593ac9e474b1af38c9424addf19",
+  "scope": "Recompute actual finite feasibility/global comparisons, supplied strict dominators for omissions, and factorized leastAction presentation conditions. Sound and complete for all actual GlobalWin/GlobalPresent ties; explicit invalid-signature error. No assumed complete family or runtime extraction/efficiency gate.",
+  "nodes": [
+    {
+      "id": "winner_pass_spec",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QueryCertificate.winner_pass_spec",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.winnerPass q bases W dominator = true ↔ (∀ x ∈ W, M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.QueryCertificate.strictBetter q bases y x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x → x ∉ W → ∃ y : M7.GlobalQuery.Index H N, dominator x = some y ∧ y ∈ W ∧ M7.QueryCertificate.strictBetter q bases y x))",
+        "imports": [
+          "M7QueryCertificate",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "List all_eq_true Finset mem_toList finite set verification"
+        ],
+        "guidance": "Unfold winnerPass and allOn. allOn is the actual finite Finset.toList.all loop: use List.all_eq_true, Finset.mem_toList, Bool.and_eq_true and decide_eq_true_eq. Split the omitted-index condition and dominator x option. The some branch verifies the supplied witness; none fails for an omitted feasible index. Preserve every explicit global comparison. Return tactic proof lines without leading by; preserve the exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8–10 finite query certificate replay and all optima",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "winner_pass_sound",
+      "dependencies": [
+        "winner_pass_spec"
+      ],
+      "spec": {
+        "name": "M7.QueryCertificate.winner_pass_sound",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), M7.QueryCertificate.winnerPass q bases W dominator = true → W = M7.GlobalQuery.winners q bases",
+        "imports": [
+          "M7QueryCertificate",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "List all_eq_true Finset mem_toList finite set verification"
+        ],
+        "guidance": "Use winner_pass_spec and accepted GlobalQuery.winners_exact. Claimed winners are feasible and globally undominated, hence genuine winners. A genuine winner omitted from W would have a supplied strict dominator in W, which is feasible by the claimed-winner checks, contradicting global undominatedness. This also rules out omitting any tied winner. Return tactic proof lines without leading by; preserve the exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8–10 finite query certificate replay and all optima",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "winner_pass_complete",
+      "dependencies": [
+        "winner_pass_spec"
+      ],
+      "spec": {
+        "name": "M7.QueryCertificate.winner_pass_complete",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.winnerPass q bases (M7.GlobalQuery.winners q bases) dominator = true",
+        "imports": [
+          "M7QueryCertificate",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "List all_eq_true Finset mem_toList finite set verification"
+        ],
+        "guidance": "Use GlobalQuery.winners_exact for every true winner. For each omitted feasible index, accepted GlobalQuery.strict_dominator supplies a strict winning dominator. Choose that finite witness when the omission condition holds and return none otherwise; a dependent if with Classical.choose works. Apply winner_pass_spec. No complete-family or free comparator premise is allowed. Return tactic proof lines without leading by; preserve the exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8–10 finite query certificate replay and all optima",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "presentation_pass_spec",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QueryCertificate.presentation_pass_spec",
+        "statement": "∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (W P : Finset (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.presentationPass bases W P = true ↔ ∀ x : M7.GlobalQuery.Index H N, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x)",
+        "imports": [
+          "M7QueryCertificate",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "List all_eq_true Finset mem_toList finite set verification"
+        ],
+        "guidance": "Unfold the two finite allOn loops. The P loop checks claimed membership in W and the actual leastAction equality; the W loop checks every minimal preimage is included in P. Convert the two implications to pointwise iff. Do not replace the checker definition by equality with a semantic expected set. Return tactic proof lines without leading by; preserve the exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8–10 finite query certificate replay and all optima",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "invalid_rule",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QueryCertificate.invalid_rule",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (certificate : M7.QueryCertificate.Certificate H N), (M7.QueryCertificate.check q bases certificate = Except.error M7.DefaultQuery.QueryError.invalidSignature ↔ ¬ M7.DefaultQuery.valid N q) ∧ (M7.DefaultQuery.valid N q → M7.QueryCertificate.check q bases certificate = Except.ok (M7.QueryCertificate.winnerPass q bases certificate.winners certificate.dominator && M7.QueryCertificate.presentationPass bases certificate.winners certificate.presentations))",
+        "imports": [
+          "M7QueryCertificate",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "List all_eq_true Finset mem_toList finite set verification"
+        ],
+        "guidance": "Unfold check and split the actual signature-validity conditional. Invalid signatures always return the explicit error; valid inputs return the finite Boolean checks. Distinguish false certificates from invalid-input errors. Return tactic proof lines without leading by; preserve the exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8–10 finite query certificate replay and all optima",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "check_sound",
+      "dependencies": [
+        "winner_pass_sound",
+        "presentation_pass_spec"
+      ],
+      "spec": {
+        "name": "M7.QueryCertificate.check_sound",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (certificate : M7.QueryCertificate.Certificate H N), M7.QueryCertificate.check q bases certificate = Except.ok true → M7.DefaultQuery.valid N q ∧ certificate.winners = M7.GlobalQuery.winners q bases ∧ certificate.presentations = M7.QueryCertificate.allPresentations q bases",
+        "imports": [
+          "M7QueryCertificate",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "List all_eq_true Finset mem_toList finite set verification"
+        ],
+        "guidance": "Unfold check and rule out invalid input; Boolean conjunction true gives both actual passes. Use winner_pass_sound, then presentation_pass_spec and Finset.ext. allPresentations is only the semantic target; its filter predicate is GlobalQuery.present = true winner membership and the actual leastAction equality. No expected-set equality is checked in the algorithm. Return tactic proof lines without leading by; preserve the exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8–10 finite query certificate replay and all optima",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "check_complete",
+      "dependencies": [
+        "winner_pass_complete",
+        "presentation_pass_spec"
+      ],
+      "spec": {
+        "name": "M7.QueryCertificate.check_complete",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), M7.DefaultQuery.valid N q → ∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.check q bases (⟨M7.GlobalQuery.winners q bases, M7.QueryCertificate.allPresentations q bases, dominator⟩ : M7.QueryCertificate.Certificate H N) = Except.ok true",
+        "imports": [
+          "M7QueryCertificate",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "List all_eq_true Finset mem_toList finite set verification"
+        ],
+        "guidance": "Take the supplied dominator map from winner_pass_complete. The actual presentation set satisfies presentation_pass_spec by unfolding its filter and GlobalQuery.present/isLeast. Unfold check and use input validity and both Boolean passes. This is existence of a valid finite certificate, not trust in recorded numbers. Return tactic proof lines without leading by; preserve the exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8–10 finite query certificate replay and all optima",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "check_exact",
+      "dependencies": [
+        "check_sound",
+        "check_complete"
+      ],
+      "spec": {
+        "name": "M7.QueryCertificate.check_exact",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W P : Finset (M7.GlobalQuery.Index H N)), ((∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.check q bases (⟨W, P, dominator⟩ : M7.QueryCertificate.Certificate H N) = Except.ok true) ↔ M7.DefaultQuery.valid N q ∧ W = M7.GlobalQuery.winners q bases ∧ P = M7.QueryCertificate.allPresentations q bases)",
+        "imports": [
+          "M7QueryCertificate",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "List all_eq_true Finset mem_toList finite set verification"
+        ],
+        "guidance": "Forward uses check_sound on the explicit certificate. Reverse substitutes the exact winner/presentation sets and invokes check_complete. The equality with all actual global winners retains every tie, and equality with GlobalPresent gives precisely the verified least-preimage reconstruction. Family coverage remains the independent final root obligation. Return tactic proof lines without leading by; preserve the exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8–10 finite query certificate replay and all optima",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    }
+  ]
+}

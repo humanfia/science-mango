@@ -1,0 +1,6 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic ∧ M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N\nintro N inst c\nhave hd : M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N := by\n  unfold M7.RecipeSignature.signature\n  first\n  | exact M6.Cyclic.signature_divides _ _ _\n  | exact (M6.Cyclic.signature_divides _ _ _).2.2\n  | exact (M6.Cyclic.signature_divides _ _ _).2\nrefine ⟨M7.SignatureTau.binary_monic _ ?_, hd⟩\nintro hz\nhave hm := (M7.SignatureTau.modulus_monic N).ne_zero\napply hm\nsimpa only [hz, zero_dvd_iff] using hd",
+  "queries": [
+    "M6.Cyclic.signature_divides"
+  ]
+}

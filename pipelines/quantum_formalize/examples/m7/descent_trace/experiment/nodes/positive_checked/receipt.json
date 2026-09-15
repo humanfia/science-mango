@@ -1,0 +1,97 @@
+{
+  "id": "positive_checked",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.DescentTrace.positive_checked",
+    "spec_sha256": "978a3590cf5aa9f1876ca52e139e796a98667f1d8d95cf1c6b44e25946d4865e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-descent-trace-formalization/.humanize-formal-runs/run-49zh3awt/attempt-001/Candidate_0d5be73325579255.lean",
+        "target_path": "/home/jing/m7-lean-descent-trace-formalization/.humanize-formal-runs/run-49zh3awt/attempt-001/FrozenTarget_0d5be73325579255.lean",
+        "feedback": "",
+        "target_sha256": "0c861af1ee6650b4c40c34c83552923c28dc1ffec619e314b025752a8e23aebe",
+        "target_olean_sha256": "5dc5b0633a5475e4c28dcc0d0bb8e1e5921d2ceb7c0eb4510615dcb2a193ca68",
+        "source_sha256": "a4fffc3209d2791ba70e7f7df5e2e60fe63771057a6ed4b27aec39de7978d18d",
+        "olean_sha256": "cfb5c3462773926730dd29efc1f612f4f79a720fe7de027ff1804c2e9d8ba9e6",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:29:38.537921+00:00",
+    "work": "/home/jing/m7-lean-descent-trace-formalization/.humanize-formal-runs/run-49zh3awt",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b53bf2c8829ea0fca580dc837694baeb86c8876bb7724920b86db642acbf00ef",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-descent-trace-formalization/.humanize-formal-runs/run-49zh3awt/attempt-001/Candidate_0d5be73325579255.lean",
+    "environment_sha256": "b5ba689901c1fb41aebb988b7bca58b791b7d9136f683fc5fffa242afd0359f6",
+    "artifacts": {
+      "check_unique": {
+        "payload": {
+          "declaration": "theorem M7.DescentTrace.check_unique : ∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → ss = M7.DescentTrace.trace c p ss.length := by\n  change ∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → ss = M7.DescentTrace.trace c p ss.length\n  intro c p ss\n  induction ss generalizing p with\n  | nil =>\n      intro h\n      rfl\n  | cons s ss ih =>\n      intro h\n      rcases s with ⟨a, b, z, o⟩\n      simp only [M7.DescentTrace.check] at h\n      split at h\n      · rename_i hg\n        simp only [Bool.and_eq_true, beq_iff_eq] at hg\n        rcases hg with ⟨⟨⟨ha, hz⟩, ho⟩, hb⟩\n        subst a\n        subst z\n        subst o\n        subst b\n        change (M7.DescentTrace.check c (p ++ [M7.DescentTrace.choose (c (p ++ [false]))]) ss).1 = true at h\n        change M7.DescentTrace.Step.mk p (M7.DescentTrace.choose (c (p ++ [false]))) (c (p ++ [false])) (c (p ++ [true])) :: ss = M7.DescentTrace.Step.mk p (M7.DescentTrace.choose (c (p ++ [false]))) (c (p ++ [false])) (c (p ++ [true])) :: M7.DescentTrace.trace c (p ++ [M7.DescentTrace.choose (c (p ++ [false]))]) ss.length\n        exact congrArg (List.cons _) (ih _ h)\n      · cases h",
+          "imports": [
+            "M7DescentTrace"
+          ],
+          "name": "M7.DescentTrace.check_unique",
+          "ancestors": [],
+          "spec_sha256": "6d4998cbda5c8d9a056a119b51925e2a432a7eaa938bc739935bd3cef2b4fa4a"
+        },
+        "sha256": "451d7f9c9c87bc004751186604e784b385f4f06265fa7f202375fb5a0cba6a2f"
+      },
+      "endpoint_recover": {
+        "payload": {
+          "declaration": "theorem M7.DescentTrace.endpoint_recover : ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), M7.DescentTrace.endpoint p (M7.DescentTrace.trace c p n) = M5.BinaryRecovery.recover c p n := by\n  change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), M7.DescentTrace.endpoint p (M7.DescentTrace.trace c p n) = M5.BinaryRecovery.recover c p n\n  intro c p n\n  induction n generalizing p with\n  | zero => rfl\n  | succ n ih =>\n      by_cases h : 0 < c (p ++ [false])\n      · simpa [M7.DescentTrace.trace, M7.DescentTrace.endpoint, M7.DescentTrace.choose, M5.BinaryRecovery.recover, h] using ih (p ++ [false])\n      · simpa [M7.DescentTrace.trace, M7.DescentTrace.endpoint, M7.DescentTrace.choose, M5.BinaryRecovery.recover, h] using ih (p ++ [true])",
+          "imports": [
+            "M7DescentTrace"
+          ],
+          "name": "M7.DescentTrace.endpoint_recover",
+          "ancestors": [],
+          "spec_sha256": "6bdfe278d4570abdd1cc477589580b7b061e6097c6008666b3bf7b383d23693d"
+        },
+        "sha256": "c89bbbf2a0980f0d93302abe3ed6dfc5b2c303604d76caef8a4625814f50536e"
+      },
+      "checked_endpoint": {
+        "payload": {
+          "declaration": "theorem M7.DescentTrace.checked_endpoint : ∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → M7.DescentTrace.endpoint p ss = M5.BinaryRecovery.recover c p ss.length := by\n  change ∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → M7.DescentTrace.endpoint p ss = M5.BinaryRecovery.recover c p ss.length\n  intro c p ss h\n  exact (congrArg (M7.DescentTrace.endpoint p) (M7.DescentTrace.check_unique c p ss h)).trans (M7.DescentTrace.endpoint_recover c p ss.length)",
+          "imports": [
+            "M7DescentTrace"
+          ],
+          "name": "M7.DescentTrace.checked_endpoint",
+          "ancestors": [
+            "check_unique",
+            "endpoint_recover"
+          ],
+          "spec_sha256": "2819c51e8aad2afde302e2f6e9a2b5b17b9c58bd3e4ea2cbf74d14c7804cd339"
+        },
+        "sha256": "54882d588c671853038a8bfe5689c5b5156225d14a30acdef25cde018cf14d98"
+      },
+      "positive_checked": {
+        "payload": {
+          "declaration": "theorem M7.DescentTrace.positive_checked : ∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → (∀ q : List Bool, q.length < p.length + ss.length → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M7.DescentTrace.endpoint p ss) := by\n  change ∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → (∀ q : List Bool, q.length < p.length + ss.length → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M7.DescentTrace.endpoint p ss)\n  intro c p ss hcheck hpartition hpositive\n  rw [M7.DescentTrace.checked_endpoint c p ss hcheck]\n  exact M5.BinaryRecovery.recover_positive c p ss.length hpartition hpositive",
+          "imports": [
+            "M7DescentTrace"
+          ],
+          "name": "M7.DescentTrace.positive_checked",
+          "ancestors": [
+            "check_unique",
+            "checked_endpoint",
+            "endpoint_recover"
+          ],
+          "spec_sha256": "242cd6e95014ad7b28637bbc51ab98210f0328a658f4523853cfc61b039a781e"
+        },
+        "sha256": "585a84e94a8256f24f7deba91002e3ad25865faec02748a476edc8acc409984f"
+      }
+    }
+  }
+}

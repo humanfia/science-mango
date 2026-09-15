@@ -1,0 +1,14 @@
+import FrozenTarget_d12b8543dee04b51
+theorem M7.DescentTrace.check_bound : QuantumHarnessFrozenTarget := by
+  change ∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).2 ≤ 2 * ss.length
+  intro c p ss
+  induction ss generalizing p with
+  | nil => simp [M7.DescentTrace.check]
+  | cons s ss ih =>
+      simp only [M7.DescentTrace.check, List.length_cons]
+      split
+      · dsimp only
+        have h := ih (p ++ [s.bit])
+        omega
+      · dsimp only
+        omega

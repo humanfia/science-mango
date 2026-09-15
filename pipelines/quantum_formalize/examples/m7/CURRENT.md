@@ -2,7 +2,7 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**221 targets in 25 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+**273 targets in 31 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -31,16 +31,20 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [canonical_outer](canonical_outer/experiment/result.json) | 17 | M7 actual unit/exchange canonical representatives using separate block normalization |
 | [residue_prefix](residue_prefix/experiment/result.json) | 10 | M7 arithmetic prefix counts on literal residue supports |
 | [query_rebase](query_rebase/experiment/result.json) | 8 | M7 actual base-action reparameterization of global queries |
+| [actual_signature](actual_signature/experiment/result.json) | 9 | Actual M7 literal recipe signature and source sector numerator |
+| [canonical_classes](canonical_classes/experiment/result.json) | 6 | M7 actual canonical values discharge orbit separation and fresh insertion |
+| [descent_trace](descent_trace/experiment/result.json) | 8 | M7 concrete finite descent-trace checker and original call bound |
+| [orbit_residual](orbit_residual/experiment/result.json) | 12 | M7 actual disjoint-orbit residual invariant and strict insertion descent |
+| [prefix_bits](prefix_bits/experiment/result.json) | 9 | M7 concrete binary prefix states and actual arithmetic descent partitions |
+| [query_certificate](query_certificate/experiment/result.json) | 8 | M7 actual finite query certificate checker |
 
 Active work:
 
-- `prefix_bits`: fixed original bit traversal and actual arithmetic child partitions (9 targets; running).
+- `connectivity`: the full anchored gcd equivalence has passed; the final actual M6 domain interfaces are running.
+- `prefix_orbit`: actual arithmetic residual and orbit-count integration, gated on canonical parent acceptance.
+- `recovery_instance`: preparing the actual arithmetic recovery instance and fresh-class insertion proofs.
 
-- `orbit_residual`: actual disjoint orbit subtraction and strict fresh insertion (12 targets; running).
-
-- `connectivity`: subgroup-connectedness, actual action invariance and the complete anchored gcd equivalence (being prepared).
-
-Original remaining integration gates include the subgroup-connectedness/anchored-gcd equivalence, full signature and degree transport, actual compact residual generation and structural coverage, complete default-query/global-optimum integration, replay and original resource bounds. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
+Original remaining integration gates include closing the actual domain interfaces, actual compact residual generation and structural coverage, complete default-query/global-optimum integration, replay and original resource bounds. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 
 The frozen definitions and goals are preserved through repairs. Successful late live proofs are retained. Explicit local tactic repairs are independently checked and then pass normal exact-target replay; their origins and all failures are preserved. LeanExplore broader-query recovery records the actual fallback query and original unavailable requests; persistent failures remain unavailable.
 

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).2 ≤ 2 * ss.length\nintro c p ss\ninduction ss generalizing p with\n| nil => simp [M7.DescentTrace.check]\n| cons s ss ih =>\n    simp only [M7.DescentTrace.check, List.length_cons]\n    split\n    · dsimp only\n      have h := ih (p ++ [s.bit])\n      omega\n    · dsimp only\n      omega",
+  "queries": []
+}

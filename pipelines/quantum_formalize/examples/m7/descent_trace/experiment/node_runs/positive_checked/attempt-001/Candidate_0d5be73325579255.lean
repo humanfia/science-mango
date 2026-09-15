@@ -1,0 +1,6 @@
+import FrozenTarget_0d5be73325579255
+theorem M7.DescentTrace.positive_checked : QuantumHarnessFrozenTarget := by
+  change ∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → (∀ q : List Bool, q.length < p.length + ss.length → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M7.DescentTrace.endpoint p ss)
+  intro c p ss hcheck hpartition hpositive
+  rw [M7.DescentTrace.checked_endpoint c p ss hcheck]
+  exact M5.BinaryRecovery.recover_positive c p ss.length hpartition hpositive

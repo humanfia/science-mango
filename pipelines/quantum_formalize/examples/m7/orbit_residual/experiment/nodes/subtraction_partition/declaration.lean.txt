@@ -1,0 +1,17 @@
+theorem M7.OrbitResidual.subtraction_partition : ∀ (N : ℕ) [NeZero N], ∀ C0 C1 bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.Separated bases → Disjoint C0 C1 → M7.OrbitResidual.subtraction (C0 ∪ C1) bases = M7.OrbitResidual.subtraction C0 bases + M7.OrbitResidual.subtraction C1 bases := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N], ∀ C0 C1 bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.Separated bases → Disjoint C0 C1 → M7.OrbitResidual.subtraction (C0 ∪ C1) bases = M7.OrbitResidual.subtraction C0 bases + M7.OrbitResidual.subtraction C1 bases
+  )
+  change QuantumHarnessFrozenTarget
+  classical
+  unfold QuantumHarnessFrozenTarget
+  intro N inst C0 C1 bases hsep hdisj
+  have hd : Disjoint (M7.OrbitResidual.remaining C0 bases)
+      (M7.OrbitResidual.remaining C1 bases) := by
+    unfold M7.OrbitResidual.remaining
+    exact hdisj.mono Finset.sdiff_subset Finset.sdiff_subset
+  rw [M7.OrbitResidual.subtraction_card N (C0 ∪ C1) bases hsep,
+      M7.OrbitResidual.subtraction_card N C0 bases hsep,
+      M7.OrbitResidual.subtraction_card N C1 bases hsep,
+      M7.OrbitResidual.remaining_partition N C0 C1 bases,
+      Finset.card_union_of_disjoint hd, Nat.cast_add]

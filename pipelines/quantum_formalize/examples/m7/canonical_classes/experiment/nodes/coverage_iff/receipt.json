@@ -1,0 +1,82 @@
+{
+  "id": "coverage_iff",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalClasses.coverage_iff",
+    "spec_sha256": "dd1c036182e07139505229e08156151f9b0dcc07eeb1fd274f98264515d9656b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-xkqa77zz/attempt-001/Candidate_9445f7012a6d676d.lean",
+        "target_path": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-xkqa77zz/attempt-001/FrozenTarget_9445f7012a6d676d.lean",
+        "feedback": "",
+        "target_sha256": "78671a1bc04acce7d851f01b4d875e97dd0100e5606a1f6b530fec39287b5305",
+        "target_olean_sha256": "b0c869e2b42c2a38b72fde88aba2ec907c406f49b1ed8ad272bc4f1807820571",
+        "source_sha256": "9bfcd2da1f68b03b82437bfcb83f680d91c58064a3eba4289dbfefbd550b2457",
+        "olean_sha256": "cbb9630005319b4b72a1c780de4432653dc364deafb6f88d2f8601ee7d0656a1",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:32:44.822438+00:00",
+    "work": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-xkqa77zz",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d263325d302a199d8e350cb8a8d2842ae9c0b22a1be0c5ce9a6583f2749c6d98",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-xkqa77zz/attempt-001/Candidate_9445f7012a6d676d.lean",
+    "environment_sha256": "883527a8cc2dd2c76d24ea9db870babb386867de29915f17a87e6520f2007a04",
+    "artifacts": {
+      "orbit_membership": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalClasses.orbit_membership : ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c\n  intro N _ c y\n  classical\n  simp only [M7.ActualOrbit.orbit, Finset.mem_image, Finset.mem_univ, true_and]\n  exact (M7.CanonicalOuter.orbit_complete N c y).trans eq_comm",
+          "imports": [
+            "M7CanonicalClasses"
+          ],
+          "name": "M7.CanonicalClasses.orbit_membership",
+          "ancestors": [],
+          "spec_sha256": "9a4e105eb4e2205def795addf5407b1107fe8035641d7e13600ec6d09fdc9258"
+        },
+        "sha256": "11e1bbffe071650f83a72ca340492dd0580e12ae0738e9507dd817901219868b"
+      },
+      "idempotent": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalClasses.idempotent : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.canonical (M7.CanonicalOuter.canonical c) = M7.CanonicalOuter.canonical c := by\n  intro N inst c\n  simpa only [M7.CanonicalOuter.realizer_correct N c] using\n    M7.CanonicalOuter.canonical_invariant N (M7.CanonicalOuter.realizer c) c",
+          "imports": [
+            "M7CanonicalClasses"
+          ],
+          "name": "M7.CanonicalClasses.idempotent",
+          "ancestors": [],
+          "spec_sha256": "2c6b123ac2dae249f760dbd42122c59be81f57999b05e45578507b38d9ea43d7"
+        },
+        "sha256": "93a0d2cbf38ce8d804feaae287d2928af47bc3c3ccc0b5951666a8fd867c2731"
+      },
+      "coverage_iff": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalClasses.coverage_iff : ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → (y ∈ M7.OrbitResidual.covered bases ↔ M7.CanonicalOuter.canonical y ∈ bases) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → (y ∈ M7.OrbitResidual.covered bases ↔ M7.CanonicalOuter.canonical y ∈ bases)\n  intro N inst bases y hn\n  classical\n  simp only [M7.OrbitResidual.covered, Finset.mem_biUnion]\n  constructor\n  · rintro ⟨c, hc, hy⟩\n    have he : M7.CanonicalOuter.canonical y = c :=\n      ((M7.CanonicalClasses.orbit_membership N c y).mp hy).trans (hn c hc)\n    rw [he]\n    exact hc\n  · intro hy\n    refine ⟨M7.CanonicalOuter.canonical y, hy, ?_⟩\n    apply (M7.CanonicalClasses.orbit_membership N (M7.CanonicalOuter.canonical y) y).mpr\n    exact (hn (M7.CanonicalOuter.canonical y) hy).symm",
+          "imports": [
+            "M7CanonicalClasses"
+          ],
+          "name": "M7.CanonicalClasses.coverage_iff",
+          "ancestors": [
+            "idempotent",
+            "orbit_membership"
+          ],
+          "spec_sha256": "3a8d50dfaf4376d8ebb4574ba17959d7f4eca05393df593ea20730e9298fc518"
+        },
+        "sha256": "74a2f4daa848d9b487a2ccb24df5b5124dbe6e4804526fa96395cd2bdaabb120"
+      }
+    }
+  }
+}

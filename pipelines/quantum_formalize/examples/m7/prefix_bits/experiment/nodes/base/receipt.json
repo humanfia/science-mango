@@ -1,0 +1,55 @@
+{
+  "id": "base",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.PrefixBits.base",
+    "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-ndtqwqos/attempt-001/Candidate_89924323ecfaa02d.lean",
+        "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-ndtqwqos/attempt-001/FrozenTarget_89924323ecfaa02d.lean",
+        "feedback": "",
+        "target_sha256": "833bf40f7c928c459a201319f84cc386fda3f70e6ff2b906b324019b6be1cf72",
+        "target_olean_sha256": "b63b7be6ef0dbf62be11efc4f48cd7f78a4127f964d24a24c707d5233d20130e",
+        "source_sha256": "9b26689ad91c3a6afba8fc010cd0fe66f4570a3b46b28bdabcfbf71c7c143cfd",
+        "olean_sha256": "5601c580c04ae4b4fa3875d8b236cf595ddd26a3078ad8d587ffdf5005265987",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:42:40.828376+00:00",
+    "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-ndtqwqos",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-ndtqwqos/attempt-001/Candidate_89924323ecfaa02d.lean",
+    "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+    "artifacts": {
+      "base": {
+        "payload": {
+          "declaration": "theorem M7.PrefixBits.base : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n  intro N hN p\n  classical\n  have hs (o : ℕ) : M7.PrefixBits.selected N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    apply Finset.mem_range.mpr\n    rcases hx with rfl | ⟨j, ⟨hj, _⟩, rfl⟩\n    · exact hN\n    · omega\n  have hu (o : ℕ) : M7.PrefixBits.undecided N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hx\n    rcases hx with ⟨j, ⟨hj, _⟩, rfl⟩\n    apply Finset.mem_range.mpr\n    omega\n  have hz (o : ℕ) : 0 ∈ M7.PrefixBits.selected N o p := by\n    simp [M7.PrefixBits.selected]\n  have hd (o : ℕ) : Disjoint (M7.PrefixBits.selected N o p) (M7.PrefixBits.undecided N o p) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hy\n    rcases hy with ⟨k, ⟨hk, hku⟩, hke⟩\n    rcases hx with hx | ⟨j, ⟨hj, hjd, hjb⟩, hje⟩\n    · omega\n    · omega\n  have hs0 := hs 0\n  have hs1 := hs (N - 1)\n  have hu0 := hu 0\n  have hu1 := hu (N - 1)\n  have hz0 := hz 0\n  have hz1 := hz (N - 1)\n  have hd0 := hd 0\n  have hd1 := hd (N - 1)\n  unfold M7.PrefixCompleted.Base\n  simp only [M7.PrefixBits.A, M7.PrefixBits.B, M7.PrefixBits.WA, M7.PrefixBits.WB]\n  aesop",
+          "imports": [
+            "M7PrefixBits"
+          ],
+          "name": "M7.PrefixBits.base",
+          "ancestors": [],
+          "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9"
+        },
+        "sha256": "d3d5656d4fe5196516f1de5d968b3f3dccaa29518b2cb2bf8cf519b3fdf51508"
+      }
+    }
+  }
+}

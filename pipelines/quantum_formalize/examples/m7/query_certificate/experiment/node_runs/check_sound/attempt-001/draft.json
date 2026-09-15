@@ -1,0 +1,4 @@
+{
+  "proof": "intro H N inst q bases certificate hcheck\nclassical\nby_cases hv : M7.DefaultQuery.valid N q\n· have hpasses := hcheck\n  simp [M7.QueryCertificate.check, hv, Bool.and_eq_true] at hpasses\n  have hW : certificate.winners = M7.GlobalQuery.winners q bases :=\n    M7.QueryCertificate.winner_pass_sound H N q bases certificate.winners _ hpasses.1\n  refine ⟨hv, hW, ?_⟩\n  have hP := (M7.QueryCertificate.presentation_pass_spec H N bases\n    certificate.winners certificate.presentations).mp hpasses.2\n  apply Finset.ext\n  intro x\n  simpa [M7.QueryCertificate.allPresentations, M7.GlobalQuery.present,\n    M7.QueryCertificate.isLeast, hW] using hP x\n· simp [M7.QueryCertificate.check, hv] at hcheck",
+  "queries": []
+}

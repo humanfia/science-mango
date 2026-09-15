@@ -1,0 +1,13 @@
+{
+  "name": "M7.QueryCertificate.invalid_rule",
+  "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (certificate : M7.QueryCertificate.Certificate H N), (M7.QueryCertificate.check q bases certificate = Except.error M7.DefaultQuery.QueryError.invalidSignature ↔ ¬ M7.DefaultQuery.valid N q) ∧ (M7.DefaultQuery.valid N q → M7.QueryCertificate.check q bases certificate = Except.ok (M7.QueryCertificate.winnerPass q bases certificate.winners certificate.dominator && M7.QueryCertificate.presentationPass bases certificate.winners certificate.presentations))",
+  "imports": [
+    "M7GlobalQueryAccepted",
+    "M7QueryCertificate"
+  ],
+  "context": "",
+  "queries": [
+    "List all_eq_true Finset mem_toList finite set verification"
+  ],
+  "guidance": "Unfold check and split the actual signature-validity conditional. Invalid signatures always return the explicit error; valid inputs return the finite Boolean checks. Distinguish false certificates from invalid-input errors. Return tactic proof lines without leading by; preserve the exact target and default limits."
+}

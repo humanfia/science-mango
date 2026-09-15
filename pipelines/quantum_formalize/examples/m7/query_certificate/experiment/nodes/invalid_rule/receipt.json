@@ -1,0 +1,56 @@
+{
+  "id": "invalid_rule",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.QueryCertificate.invalid_rule",
+    "spec_sha256": "dd6853f97d573fa9a0c58ab151252c2e3cf32234911c4be69049f9ffecec4439",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-qyac2x5d/attempt-001/Candidate_7a4fb88090cf9985.lean",
+        "target_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-qyac2x5d/attempt-001/FrozenTarget_7a4fb88090cf9985.lean",
+        "feedback": "",
+        "target_sha256": "84911a039ac9eb7cab9bf57344fd5e9522f8677903791a85e18450fe7497310c",
+        "target_olean_sha256": "65b2117c21bdf3b82b29bc070794d498fae77019df387e500c123a26d8533784",
+        "source_sha256": "ae203ea4442d15ba213f53ee009b9a643d704e4cd20f569ac1ae0c8f1f48a58b",
+        "olean_sha256": "a6f12225abb45e4dfc8d636a8d8b2cda5280055a09d33eaf2fd873f34debfc3b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:37:27.357924+00:00",
+    "work": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-qyac2x5d",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9f805a376a70617c43396714e9040c00b1efcd0a2fa756205eae64f63cba7f2b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-qyac2x5d/attempt-001/Candidate_7a4fb88090cf9985.lean",
+    "environment_sha256": "213d43c63afc5a7bdc11b4ffa9a3ae96f6b36d9846d159ce628c03421b17e20a",
+    "artifacts": {
+      "invalid_rule": {
+        "payload": {
+          "declaration": "theorem M7.QueryCertificate.invalid_rule : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (certificate : M7.QueryCertificate.Certificate H N), (M7.QueryCertificate.check q bases certificate = Except.error M7.DefaultQuery.QueryError.invalidSignature ↔ ¬ M7.DefaultQuery.valid N q) ∧ (M7.DefaultQuery.valid N q → M7.QueryCertificate.check q bases certificate = Except.ok (M7.QueryCertificate.winnerPass q bases certificate.winners certificate.dominator && M7.QueryCertificate.presentationPass bases certificate.winners certificate.presentations)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (certificate : M7.QueryCertificate.Certificate H N), (M7.QueryCertificate.check q bases certificate = Except.error M7.DefaultQuery.QueryError.invalidSignature ↔ ¬ M7.DefaultQuery.valid N q) ∧ (M7.DefaultQuery.valid N q → M7.QueryCertificate.check q bases certificate = Except.ok (M7.QueryCertificate.winnerPass q bases certificate.winners certificate.dominator && M7.QueryCertificate.presentationPass bases certificate.winners certificate.presentations))\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro H N inst q bases certificate\n  classical\n  by_cases h : M7.DefaultQuery.valid N q\n  <;> simp [M7.QueryCertificate.check, h]",
+          "imports": [
+            "M7GlobalQueryAccepted",
+            "M7QueryCertificate"
+          ],
+          "name": "M7.QueryCertificate.invalid_rule",
+          "ancestors": [],
+          "spec_sha256": "1b3adfa5355ed4b11aa2aca317327676a4fd2c8c7a132a4a68935bdf0cac9d19"
+        },
+        "sha256": "638c06d3064ab15188042ebeaeb9817e6dd078647728d89188782539eb668794"
+      }
+    }
+  }
+}

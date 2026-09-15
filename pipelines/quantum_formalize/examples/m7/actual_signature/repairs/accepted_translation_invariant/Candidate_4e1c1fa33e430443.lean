@@ -1,0 +1,9 @@
+import FrozenTarget_4e1c1fa33e430443
+theorem M7.RecipeSignature.translation_invariant : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ E : M6.Cyclic.BinaryPolynomial → Prop, M7.ActualFactorized.TranslationInvariant (N := N) (M7.RecipeSignature.region E)
+  intro N inst E c s t
+  obtain ⟨hm, hd⟩ := M7.RecipeSignature.signature_properties N c
+  have h := M7.RecipeSignature.action_signature N c (M7.Action.translate s t)
+  change M7.RecipeSignature.signature (M7.Action.act (M7.Action.translate s t) c) = M7.SignatureTau.sourceTau (1 : (ZMod N)ˣ) (M7.RecipeSignature.signature c) at h
+  rw [M7.SignatureTau.source_tau_equal N, M7.SignatureTau.tau_one N _ hm hd] at h
+  simp only [M7.RecipeSignature.region, h]

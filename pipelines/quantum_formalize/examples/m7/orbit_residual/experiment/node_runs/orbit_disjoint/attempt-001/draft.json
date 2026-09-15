@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ c d : M7.Action.Recipe N, Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d) ↔ d ∉ M7.ActualOrbit.orbit c\nintro N inst c d\nclassical\nconstructor\n· intro h hd\n  have hself : d ∈ M7.ActualOrbit.orbit d := by\n    unfold M7.ActualOrbit.orbit\n    exact Finset.mem_image.mpr ⟨M7.Action.identity N, Finset.mem_univ _, M7.Action.act_identity N d⟩\n  exact Finset.disjoint_left.mp h hd hself\n· intro hd\n  apply Finset.disjoint_left.mpr\n  intro y hc hy\n  apply hd\n  unfold M7.ActualOrbit.orbit at hc hy ⊢\n  simp only [Finset.mem_image, Finset.mem_univ, true_and] at hc hy ⊢\n  obtain ⟨g, hg⟩ := hc\n  obtain ⟨h, hh⟩ := hy\n  refine ⟨M7.Action.compose (M7.Action.inverse h) g, ?_⟩\n  rw [M7.Action.act_compose, hg, ← hh, M7.Action.act_inverse]",
+  "queries": []
+}

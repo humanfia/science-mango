@@ -1,0 +1,98 @@
+{
+  "id": "translation_invariant",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.RecipeSignature.translation_invariant",
+    "spec_sha256": "fb107a3a3933c64945e1216a82130f741ced095dd7c5244beec0cea1c4e85214",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-fi7phqoq/attempt-001/Candidate_d4fa53b8ea8c0b63.lean",
+        "target_path": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-fi7phqoq/attempt-001/FrozenTarget_d4fa53b8ea8c0b63.lean",
+        "feedback": "",
+        "target_sha256": "20d640ae571a2aef388b23aed39943e4c495d374888e3d1de2da0ad339de264f",
+        "target_olean_sha256": "57e2358ebac539b0f421e72b53be866a4b52fecd5dcb88f0918625fb92374870",
+        "source_sha256": "8d60a0461e6b8f8c9c5f01af1d01cda80bb972a4ffb9a0bf5eef2cba1bf4d5ff",
+        "olean_sha256": "c631770678eb1de24ebaed8585a5b3008d6345a45d08b928804db686a6c7b137",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:37:37.400233+00:00",
+    "work": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-fi7phqoq",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9272f5c59df427ca0c20cda95b96899cb65483f37c701df6e9e3d29174e6487e",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-fi7phqoq/attempt-001/Candidate_d4fa53b8ea8c0b63.lean",
+    "environment_sha256": "13bd1759c27fb2db61ddd89665a55eee7edaba701bb696da1a4b5841d2f840a2",
+    "artifacts": {
+      "signature_properties": {
+        "payload": {
+          "declaration": "theorem M7.RecipeSignature.signature_properties : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic ∧ M7.RecipeSignature.signature c ∣ (M6.Cyclic.modulus N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic ∧ M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N\n  intro N inst c\n  have hd : M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N := by\n    unfold M7.RecipeSignature.signature\n    first\n    | exact M6.Cyclic.signature_divides _ _ _\n    | exact (M6.Cyclic.signature_divides _ _ _).2.2\n    | exact (M6.Cyclic.signature_divides _ _ _).2\n  refine ⟨M7.SignatureTau.binary_monic _ ?_, hd⟩\n  intro hz\n  have hm := (M7.SignatureTau.modulus_monic N).ne_zero\n  apply hm\n  simpa only [hz, zero_dvd_iff] using hd",
+          "imports": [
+            "M7RecipeSignatureReady"
+          ],
+          "name": "M7.RecipeSignature.signature_properties",
+          "ancestors": [],
+          "spec_sha256": "9a1195cd9633cc17ae88b6da76116dab3ec65a26af892615b1a8f0c8bb4d61f0"
+        },
+        "sha256": "ec6a3d9907ee6637a78fc613b06c989935032bf7afbbaa1b28863df6c2de901b"
+      },
+      "pair_ideal_action": {
+        "payload": {
+          "declaration": "theorem M7.RecipeSignature.pair_ideal_action : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.SignatureIdeal.pairIdeal N (M7.Supports.polynomial (M7.Action.act g c).1) (M7.Supports.polynomial (M7.Action.act g c).2) = (M7.SignatureIdeal.pairIdeal N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)).map (M7.QuotientAuto.substitution g.unit) := by\n  intro N inst c g\n  change Ideal.span ({M7.AffinePolynomial.image (M7.Action.act g c).1,\n      M7.AffinePolynomial.image (M7.Action.act g c).2} : Set (M6.Cyclic.CycleRing N)) =\n    (Ideal.span ({M7.AffinePolynomial.image c.1,\n      M7.AffinePolynomial.image c.2} : Set (M6.Cyclic.CycleRing N))).map\n        (M7.QuotientAuto.substitution g.unit)\n  obtain ⟨hleft, hright⟩ := M7.AffinePolynomial.action_images N g c\n  have hu := M7.AffinePolynomial.rho_power_unit N g.leftShift\n  have hv := M7.AffinePolynomial.rho_power_unit N g.rightShift\n  rw [hleft, hright, Ideal.map_span, Set.image_pair]\n  cases he : g.exchange <;>\n    simp [he, Ideal.span_insert, Ideal.span_singleton_mul_left_unit, hu, hv, sup_comm]",
+          "imports": [
+            "M7RecipeSignatureReady"
+          ],
+          "name": "M7.RecipeSignature.pair_ideal_action",
+          "ancestors": [],
+          "spec_sha256": "69cba03dfa3526b7fcfcffc62e0b8b86853c01e673a4bd6d4a0ca42d0bc51219"
+        },
+        "sha256": "17651167a60594393887e04536d3e81307ae4e71641ba7b39d2e55f3b4e3e13c"
+      },
+      "action_signature": {
+        "payload": {
+          "declaration": "theorem M7.RecipeSignature.action_signature : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g c) = M7.SignatureTau.sourceTau g.unit (M7.RecipeSignature.signature c) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g c) = M7.SignatureTau.sourceTau g.unit (M7.RecipeSignature.signature c)\n  intro N inst c g\n  rw [M7.SignatureTau.source_tau_equal N]\n  obtain ⟨hm, hd⟩ := M7.RecipeSignature.signature_properties N (M7.Action.act g c)\n  obtain ⟨htm, htd⟩ := M7.SignatureTau.tau_properties N g.unit (M7.RecipeSignature.signature c)\n  apply (M7.SignatureIdeal.monic_injective N _ _ hm htm hd htd).mp\n  rw [M7.SignatureTau.tau_principal N]\n  simpa only [M7.SignatureIdeal.full_signature_ideal, M7.RecipeSignature.signature] using M7.RecipeSignature.pair_ideal_action N c g",
+          "imports": [
+            "M7RecipeSignatureReady"
+          ],
+          "name": "M7.RecipeSignature.action_signature",
+          "ancestors": [
+            "pair_ideal_action",
+            "signature_properties"
+          ],
+          "spec_sha256": "4e33133ac72ad08fc1daf32b45ea29d14f0b36be21c81da7606225a205bd6f1e"
+        },
+        "sha256": "fd23c967bae28d57149e6b5580c25614388773f048f5db6ddcd1d02474e339e3"
+      },
+      "translation_invariant": {
+        "payload": {
+          "declaration": "theorem M7.RecipeSignature.translation_invariant : ∀ (N : ℕ) [NeZero N], ∀ E : M6.Cyclic.BinaryPolynomial → Prop, M7.ActualFactorized.TranslationInvariant (N := N) (M7.RecipeSignature.region (N := N) E) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ E : M6.Cyclic.BinaryPolynomial → Prop, M7.ActualFactorized.TranslationInvariant (N := N) (M7.RecipeSignature.region E)\n  intro N inst E c s t\n  obtain ⟨hm, hd⟩ := M7.RecipeSignature.signature_properties N c\n  have h := M7.RecipeSignature.action_signature N c (M7.Action.translate s t)\n  change M7.RecipeSignature.signature (M7.Action.act (M7.Action.translate s t) c) = M7.SignatureTau.sourceTau (1 : (ZMod N)ˣ) (M7.RecipeSignature.signature c) at h\n  rw [M7.SignatureTau.source_tau_equal N, M7.SignatureTau.tau_one N _ hm hd] at h\n  simp only [M7.RecipeSignature.region, h]",
+          "imports": [
+            "M7RecipeSignatureReady"
+          ],
+          "name": "M7.RecipeSignature.translation_invariant",
+          "ancestors": [
+            "action_signature",
+            "pair_ideal_action",
+            "signature_properties"
+          ],
+          "spec_sha256": "54091baf660d72ae4f1fae9018e4159817c0b9ccb24e760a1f61f36495239136"
+        },
+        "sha256": "321cf0cfed06e93e2542e32210a3b89fd9ea7c53ef1a6fbf29c64e11e4518013"
+      }
+    }
+  }
+}

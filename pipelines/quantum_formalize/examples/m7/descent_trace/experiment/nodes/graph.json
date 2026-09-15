@@ -1,0 +1,143 @@
+[
+  {
+    "id": "trace_length",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.DescentTrace.trace_length",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M7.DescentTrace.trace c p n).length = n",
+      "imports": [
+        "M7DescentTrace"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "This is the exact finite checker for original M7 zero-first descent certificates, reusing the accepted M5.BinaryRecovery.recover and its length/positivity/correctness. c is an intermediate parameter: the final root must instantiate it with actual arithmetic residuals and the proved partition, not assume a count oracle. check explicitly recomputes both child counts and checks stored prefix, counts and chosen bit; only then advances. Its Nat component counts these actual residual calls (at most2 per recorded step, stops at first invalid record). trace is the deterministic legitimate certificate. Prove by induction generalizing prefix p; unfold choose and split positivity, simplifying Bool conjunction/BEq equalities into actual field equalities. check_unique needs cases Step fields and all four checked equalities, then induction on tail. Prefix preservation follows repeated append and List.IsPrefix transitivity. endpoint equality bridges to original recover; positive_checked reuses accepted recover_positive with exactly the stated depth partition. No raw support enumeration or extra practical efficiency gate. Return tactic lines only.\nimport M5BinaryRecoveryAccepted\n\nnamespace M7.DescentTrace\nstructure Step where\n  atPrefix : List Bool\n  bit : Bool\n  zero : ℤ\n  one : ℤ\n  deriving DecidableEq\n\ndef choose (z : ℤ) : Bool := if 0 < z then false else true\n\ndef trace (c : List Bool → ℤ) (p : List Bool) : ℕ → List Step\n  | 0 => []\n  | n+1 =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    let b := choose z\n    ⟨p,b,z,o⟩ :: trace c (p ++ [b]) n\n\ndef endpoint (p : List Bool) : List Step → List Bool\n  | [] => p\n  | s :: ss => endpoint (p ++ [s.bit]) ss\n\n/-- Recomputes both child counts. The second component counts residual calls. -/\ndef check (c : List Bool → ℤ) (p : List Bool) : List Step → Bool × ℕ\n  | [] => (true,0)\n  | s :: ss =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    if s.atPrefix == p && s.zero == z && s.one == o && s.bit == choose z then\n      let t := check c (p ++ [s.bit]) ss\n      (t.1,2+t.2)\n    else (false,2)\nend M7.DescentTrace\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "endpoint_recover",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.DescentTrace.endpoint_recover",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), M7.DescentTrace.endpoint p (M7.DescentTrace.trace c p n) = M5.BinaryRecovery.recover c p n",
+      "imports": [
+        "M7DescentTrace"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "This is the exact finite checker for original M7 zero-first descent certificates, reusing the accepted M5.BinaryRecovery.recover and its length/positivity/correctness. c is an intermediate parameter: the final root must instantiate it with actual arithmetic residuals and the proved partition, not assume a count oracle. check explicitly recomputes both child counts and checks stored prefix, counts and chosen bit; only then advances. Its Nat component counts these actual residual calls (at most2 per recorded step, stops at first invalid record). trace is the deterministic legitimate certificate. Prove by induction generalizing prefix p; unfold choose and split positivity, simplifying Bool conjunction/BEq equalities into actual field equalities. check_unique needs cases Step fields and all four checked equalities, then induction on tail. Prefix preservation follows repeated append and List.IsPrefix transitivity. endpoint equality bridges to original recover; positive_checked reuses accepted recover_positive with exactly the stated depth partition. No raw support enumeration or extra practical efficiency gate. Return tactic lines only.\nimport M5BinaryRecoveryAccepted\n\nnamespace M7.DescentTrace\nstructure Step where\n  atPrefix : List Bool\n  bit : Bool\n  zero : ℤ\n  one : ℤ\n  deriving DecidableEq\n\ndef choose (z : ℤ) : Bool := if 0 < z then false else true\n\ndef trace (c : List Bool → ℤ) (p : List Bool) : ℕ → List Step\n  | 0 => []\n  | n+1 =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    let b := choose z\n    ⟨p,b,z,o⟩ :: trace c (p ++ [b]) n\n\ndef endpoint (p : List Bool) : List Step → List Bool\n  | [] => p\n  | s :: ss => endpoint (p ++ [s.bit]) ss\n\n/-- Recomputes both child counts. The second component counts residual calls. -/\ndef check (c : List Bool → ℤ) (p : List Bool) : List Step → Bool × ℕ\n  | [] => (true,0)\n  | s :: ss =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    if s.atPrefix == p && s.zero == z && s.one == o && s.bit == choose z then\n      let t := check c (p ++ [s.bit]) ss\n      (t.1,2+t.2)\n    else (false,2)\nend M7.DescentTrace\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "recover_prefix",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.DescentTrace.recover_prefix",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), p.IsPrefix (M5.BinaryRecovery.recover c p n)",
+      "imports": [
+        "M7DescentTrace"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "This is the exact finite checker for original M7 zero-first descent certificates, reusing the accepted M5.BinaryRecovery.recover and its length/positivity/correctness. c is an intermediate parameter: the final root must instantiate it with actual arithmetic residuals and the proved partition, not assume a count oracle. check explicitly recomputes both child counts and checks stored prefix, counts and chosen bit; only then advances. Its Nat component counts these actual residual calls (at most2 per recorded step, stops at first invalid record). trace is the deterministic legitimate certificate. Prove by induction generalizing prefix p; unfold choose and split positivity, simplifying Bool conjunction/BEq equalities into actual field equalities. check_unique needs cases Step fields and all four checked equalities, then induction on tail. Prefix preservation follows repeated append and List.IsPrefix transitivity. endpoint equality bridges to original recover; positive_checked reuses accepted recover_positive with exactly the stated depth partition. No raw support enumeration or extra practical efficiency gate. Return tactic lines only.\nimport M5BinaryRecoveryAccepted\n\nnamespace M7.DescentTrace\nstructure Step where\n  atPrefix : List Bool\n  bit : Bool\n  zero : ℤ\n  one : ℤ\n  deriving DecidableEq\n\ndef choose (z : ℤ) : Bool := if 0 < z then false else true\n\ndef trace (c : List Bool → ℤ) (p : List Bool) : ℕ → List Step\n  | 0 => []\n  | n+1 =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    let b := choose z\n    ⟨p,b,z,o⟩ :: trace c (p ++ [b]) n\n\ndef endpoint (p : List Bool) : List Step → List Bool\n  | [] => p\n  | s :: ss => endpoint (p ++ [s.bit]) ss\n\n/-- Recomputes both child counts. The second component counts residual calls. -/\ndef check (c : List Bool → ℤ) (p : List Bool) : List Step → Bool × ℕ\n  | [] => (true,0)\n  | s :: ss =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    if s.atPrefix == p && s.zero == z && s.one == o && s.bit == choose z then\n      let t := check c (p ++ [s.bit]) ss\n      (t.1,2+t.2)\n    else (false,2)\nend M7.DescentTrace\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "check_trace",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.DescentTrace.check_trace",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), M7.DescentTrace.check c p (M7.DescentTrace.trace c p n) = (true,2*n)",
+      "imports": [
+        "M7DescentTrace"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "This is the exact finite checker for original M7 zero-first descent certificates, reusing the accepted M5.BinaryRecovery.recover and its length/positivity/correctness. c is an intermediate parameter: the final root must instantiate it with actual arithmetic residuals and the proved partition, not assume a count oracle. check explicitly recomputes both child counts and checks stored prefix, counts and chosen bit; only then advances. Its Nat component counts these actual residual calls (at most2 per recorded step, stops at first invalid record). trace is the deterministic legitimate certificate. Prove by induction generalizing prefix p; unfold choose and split positivity, simplifying Bool conjunction/BEq equalities into actual field equalities. check_unique needs cases Step fields and all four checked equalities, then induction on tail. Prefix preservation follows repeated append and List.IsPrefix transitivity. endpoint equality bridges to original recover; positive_checked reuses accepted recover_positive with exactly the stated depth partition. No raw support enumeration or extra practical efficiency gate. Return tactic lines only.\nimport M5BinaryRecoveryAccepted\n\nnamespace M7.DescentTrace\nstructure Step where\n  atPrefix : List Bool\n  bit : Bool\n  zero : ℤ\n  one : ℤ\n  deriving DecidableEq\n\ndef choose (z : ℤ) : Bool := if 0 < z then false else true\n\ndef trace (c : List Bool → ℤ) (p : List Bool) : ℕ → List Step\n  | 0 => []\n  | n+1 =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    let b := choose z\n    ⟨p,b,z,o⟩ :: trace c (p ++ [b]) n\n\ndef endpoint (p : List Bool) : List Step → List Bool\n  | [] => p\n  | s :: ss => endpoint (p ++ [s.bit]) ss\n\n/-- Recomputes both child counts. The second component counts residual calls. -/\ndef check (c : List Bool → ℤ) (p : List Bool) : List Step → Bool × ℕ\n  | [] => (true,0)\n  | s :: ss =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    if s.atPrefix == p && s.zero == z && s.one == o && s.bit == choose z then\n      let t := check c (p ++ [s.bit]) ss\n      (t.1,2+t.2)\n    else (false,2)\nend M7.DescentTrace\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "check_bound",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.DescentTrace.check_bound",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).2 ≤ 2*ss.length",
+      "imports": [
+        "M7DescentTrace"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "This is the exact finite checker for original M7 zero-first descent certificates, reusing the accepted M5.BinaryRecovery.recover and its length/positivity/correctness. c is an intermediate parameter: the final root must instantiate it with actual arithmetic residuals and the proved partition, not assume a count oracle. check explicitly recomputes both child counts and checks stored prefix, counts and chosen bit; only then advances. Its Nat component counts these actual residual calls (at most2 per recorded step, stops at first invalid record). trace is the deterministic legitimate certificate. Prove by induction generalizing prefix p; unfold choose and split positivity, simplifying Bool conjunction/BEq equalities into actual field equalities. check_unique needs cases Step fields and all four checked equalities, then induction on tail. Prefix preservation follows repeated append and List.IsPrefix transitivity. endpoint equality bridges to original recover; positive_checked reuses accepted recover_positive with exactly the stated depth partition. No raw support enumeration or extra practical efficiency gate. Return tactic lines only.\nimport M5BinaryRecoveryAccepted\n\nnamespace M7.DescentTrace\nstructure Step where\n  atPrefix : List Bool\n  bit : Bool\n  zero : ℤ\n  one : ℤ\n  deriving DecidableEq\n\ndef choose (z : ℤ) : Bool := if 0 < z then false else true\n\ndef trace (c : List Bool → ℤ) (p : List Bool) : ℕ → List Step\n  | 0 => []\n  | n+1 =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    let b := choose z\n    ⟨p,b,z,o⟩ :: trace c (p ++ [b]) n\n\ndef endpoint (p : List Bool) : List Step → List Bool\n  | [] => p\n  | s :: ss => endpoint (p ++ [s.bit]) ss\n\n/-- Recomputes both child counts. The second component counts residual calls. -/\ndef check (c : List Bool → ℤ) (p : List Bool) : List Step → Bool × ℕ\n  | [] => (true,0)\n  | s :: ss =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    if s.atPrefix == p && s.zero == z && s.one == o && s.bit == choose z then\n      let t := check c (p ++ [s.bit]) ss\n      (t.1,2+t.2)\n    else (false,2)\nend M7.DescentTrace\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "check_unique",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.DescentTrace.check_unique",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → ss = M7.DescentTrace.trace c p ss.length",
+      "imports": [
+        "M7DescentTrace"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "This is the exact finite checker for original M7 zero-first descent certificates, reusing the accepted M5.BinaryRecovery.recover and its length/positivity/correctness. c is an intermediate parameter: the final root must instantiate it with actual arithmetic residuals and the proved partition, not assume a count oracle. check explicitly recomputes both child counts and checks stored prefix, counts and chosen bit; only then advances. Its Nat component counts these actual residual calls (at most2 per recorded step, stops at first invalid record). trace is the deterministic legitimate certificate. Prove by induction generalizing prefix p; unfold choose and split positivity, simplifying Bool conjunction/BEq equalities into actual field equalities. check_unique needs cases Step fields and all four checked equalities, then induction on tail. Prefix preservation follows repeated append and List.IsPrefix transitivity. endpoint equality bridges to original recover; positive_checked reuses accepted recover_positive with exactly the stated depth partition. No raw support enumeration or extra practical efficiency gate. Return tactic lines only.\nimport M5BinaryRecoveryAccepted\n\nnamespace M7.DescentTrace\nstructure Step where\n  atPrefix : List Bool\n  bit : Bool\n  zero : ℤ\n  one : ℤ\n  deriving DecidableEq\n\ndef choose (z : ℤ) : Bool := if 0 < z then false else true\n\ndef trace (c : List Bool → ℤ) (p : List Bool) : ℕ → List Step\n  | 0 => []\n  | n+1 =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    let b := choose z\n    ⟨p,b,z,o⟩ :: trace c (p ++ [b]) n\n\ndef endpoint (p : List Bool) : List Step → List Bool\n  | [] => p\n  | s :: ss => endpoint (p ++ [s.bit]) ss\n\n/-- Recomputes both child counts. The second component counts residual calls. -/\ndef check (c : List Bool → ℤ) (p : List Bool) : List Step → Bool × ℕ\n  | [] => (true,0)\n  | s :: ss =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    if s.atPrefix == p && s.zero == z && s.one == o && s.bit == choose z then\n      let t := check c (p ++ [s.bit]) ss\n      (t.1,2+t.2)\n    else (false,2)\nend M7.DescentTrace\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "checked_endpoint",
+    "dependencies": [
+      "check_unique",
+      "endpoint_recover"
+    ],
+    "spec": {
+      "name": "M7.DescentTrace.checked_endpoint",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → M7.DescentTrace.endpoint p ss = M5.BinaryRecovery.recover c p ss.length",
+      "imports": [
+        "M7DescentTrace"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "This is the exact finite checker for original M7 zero-first descent certificates, reusing the accepted M5.BinaryRecovery.recover and its length/positivity/correctness. c is an intermediate parameter: the final root must instantiate it with actual arithmetic residuals and the proved partition, not assume a count oracle. check explicitly recomputes both child counts and checks stored prefix, counts and chosen bit; only then advances. Its Nat component counts these actual residual calls (at most2 per recorded step, stops at first invalid record). trace is the deterministic legitimate certificate. Prove by induction generalizing prefix p; unfold choose and split positivity, simplifying Bool conjunction/BEq equalities into actual field equalities. check_unique needs cases Step fields and all four checked equalities, then induction on tail. Prefix preservation follows repeated append and List.IsPrefix transitivity. endpoint equality bridges to original recover; positive_checked reuses accepted recover_positive with exactly the stated depth partition. No raw support enumeration or extra practical efficiency gate. Return tactic lines only.\nimport M5BinaryRecoveryAccepted\n\nnamespace M7.DescentTrace\nstructure Step where\n  atPrefix : List Bool\n  bit : Bool\n  zero : ℤ\n  one : ℤ\n  deriving DecidableEq\n\ndef choose (z : ℤ) : Bool := if 0 < z then false else true\n\ndef trace (c : List Bool → ℤ) (p : List Bool) : ℕ → List Step\n  | 0 => []\n  | n+1 =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    let b := choose z\n    ⟨p,b,z,o⟩ :: trace c (p ++ [b]) n\n\ndef endpoint (p : List Bool) : List Step → List Bool\n  | [] => p\n  | s :: ss => endpoint (p ++ [s.bit]) ss\n\n/-- Recomputes both child counts. The second component counts residual calls. -/\ndef check (c : List Bool → ℤ) (p : List Bool) : List Step → Bool × ℕ\n  | [] => (true,0)\n  | s :: ss =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    if s.atPrefix == p && s.zero == z && s.one == o && s.bit == choose z then\n      let t := check c (p ++ [s.bit]) ss\n      (t.1,2+t.2)\n    else (false,2)\nend M7.DescentTrace\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "positive_checked",
+    "dependencies": [
+      "checked_endpoint"
+    ],
+    "spec": {
+      "name": "M7.DescentTrace.positive_checked",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (ss : List M7.DescentTrace.Step), (M7.DescentTrace.check c p ss).1 = true → (∀ q : List Bool, q.length < p.length + ss.length → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M7.DescentTrace.endpoint p ss)",
+      "imports": [
+        "M7DescentTrace"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "This is the exact finite checker for original M7 zero-first descent certificates, reusing the accepted M5.BinaryRecovery.recover and its length/positivity/correctness. c is an intermediate parameter: the final root must instantiate it with actual arithmetic residuals and the proved partition, not assume a count oracle. check explicitly recomputes both child counts and checks stored prefix, counts and chosen bit; only then advances. Its Nat component counts these actual residual calls (at most2 per recorded step, stops at first invalid record). trace is the deterministic legitimate certificate. Prove by induction generalizing prefix p; unfold choose and split positivity, simplifying Bool conjunction/BEq equalities into actual field equalities. check_unique needs cases Step fields and all four checked equalities, then induction on tail. Prefix preservation follows repeated append and List.IsPrefix transitivity. endpoint equality bridges to original recover; positive_checked reuses accepted recover_positive with exactly the stated depth partition. No raw support enumeration or extra practical efficiency gate. Return tactic lines only.\nimport M5BinaryRecoveryAccepted\n\nnamespace M7.DescentTrace\nstructure Step where\n  atPrefix : List Bool\n  bit : Bool\n  zero : ℤ\n  one : ℤ\n  deriving DecidableEq\n\ndef choose (z : ℤ) : Bool := if 0 < z then false else true\n\ndef trace (c : List Bool → ℤ) (p : List Bool) : ℕ → List Step\n  | 0 => []\n  | n+1 =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    let b := choose z\n    ⟨p,b,z,o⟩ :: trace c (p ++ [b]) n\n\ndef endpoint (p : List Bool) : List Step → List Bool\n  | [] => p\n  | s :: ss => endpoint (p ++ [s.bit]) ss\n\n/-- Recomputes both child counts. The second component counts residual calls. -/\ndef check (c : List Bool → ℤ) (p : List Bool) : List Step → Bool × ℕ\n  | [] => (true,0)\n  | s :: ss =>\n    let z := c (p ++ [false])\n    let o := c (p ++ [true])\n    if s.atPrefix == p && s.zero == z && s.one == o && s.bit == choose z then\n      let t := check c (p ++ [s.bit]) ss\n      (t.1,2+t.2)\n    else (false,2)\nend M7.DescentTrace\n"
+    },
+    "metadata": {}
+  }
+]

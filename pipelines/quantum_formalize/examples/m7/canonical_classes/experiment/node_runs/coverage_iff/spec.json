@@ -1,0 +1,12 @@
+{
+  "name": "M7.CanonicalClasses.coverage_iff",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → (y ∈ M7.OrbitResidual.covered bases ↔ M7.CanonicalOuter.canonical y ∈ bases)",
+  "imports": [
+    "M7CanonicalClasses"
+  ],
+  "context": "theorem M7.CanonicalClasses.idempotent : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.canonical (M7.CanonicalOuter.canonical c) = M7.CanonicalOuter.canonical c := by\n  intro N inst c\n  simpa only [M7.CanonicalOuter.realizer_correct N c] using\n    M7.CanonicalOuter.canonical_invariant N (M7.CanonicalOuter.realizer c) c\n\ntheorem M7.CanonicalClasses.orbit_membership : ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c\n  intro N _ c y\n  classical\n  simp only [M7.ActualOrbit.orbit, Finset.mem_image, Finset.mem_univ, true_and]\n  exact (M7.CanonicalOuter.orbit_complete N c y).trans eq_comm",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Discharge original M7 emitted-orbit separation using the now accepted actual canonical form, not a supplied transversal. CanonicalOuter.realizer_correct and canonical_invariant prove idempotence. ActualOrbit.orbit is univ.image(actual action); accepted CanonicalOuter.orbit_complete proves membership iff equality of canonical forms (careful equality orientation). If an image belongs to two orbits, both canonical forms are equal; Normalized bases rewrites each to the literal stored value, contradicting distinctness. covered is actual biUnion. coverage_iff and fresh_representative identify exactly the not-yet-emitted class. Only OrbitResidual semantic definitions are imported; no pending residual theorem is used. All action laws include empty blocks, N=1 and nonfaithful actions; final original input constraints are supplied later. Return tactic lines only.\nimport M7CanonicalOuterAccepted\nimport M7OrbitResidual\n\nnamespace M7.CanonicalClasses\ndef Normalized {N : ℕ} [NeZero N] (bases : Finset (M7.Action.Recipe N)) : Prop :=\n  ∀ c ∈ bases, M7.CanonicalOuter.canonical c = c\nend M7.CanonicalClasses\n"
+}

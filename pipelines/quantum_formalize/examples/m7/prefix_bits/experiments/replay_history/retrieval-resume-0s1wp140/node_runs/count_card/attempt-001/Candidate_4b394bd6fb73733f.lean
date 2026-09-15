@@ -1,0 +1,5 @@
+import FrozenTarget_4b394bd6fb73733f
+theorem M7.PrefixBits.count_card : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E → M7.PrefixBits.count N w E p = (M7.PrefixBits.completed N w E p).card
+  intro N hN w E p hE
+  exact M7.PrefixCompleted.count_completed N w E (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) hN hE (M7.PrefixBits.base N hN p)

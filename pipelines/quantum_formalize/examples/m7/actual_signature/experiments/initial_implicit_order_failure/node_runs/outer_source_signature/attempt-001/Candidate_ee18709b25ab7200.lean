@@ -1,0 +1,7 @@
+import FrozenTarget_ee18709b25ab7200
+theorem M7.RecipeSignature.outer_source_signature : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ u : M7.ActualFactorized.Outer N, M7.RecipeSignature.signature (M7.ActualFactorized.outerImage c u) = M7.SignatureTau.sourceTau u.1 (M7.RecipeSignature.signature c)
+  intro N inst c u
+  simpa only [M7.ActualFactorized.outerImage] using
+    (M7.RecipeSignature.action_signature N c
+      { unit := u.1, exchange := u.2, leftShift := 0, rightShift := 0 })

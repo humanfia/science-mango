@@ -1,0 +1,32 @@
+import M7RecipeSignatureReady
+
+theorem M7.RecipeSignature.pair_ideal_action : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.SignatureIdeal.pairIdeal N (M7.Supports.polynomial (M7.Action.act g c).1) (M7.Supports.polynomial (M7.Action.act g c).2) = (M7.SignatureIdeal.pairIdeal N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)).map (M7.QuotientAuto.substitution g.unit) := by
+  intro N inst c g
+  change Ideal.span ({M7.AffinePolynomial.image (M7.Action.act g c).1,
+      M7.AffinePolynomial.image (M7.Action.act g c).2} : Set (M6.Cyclic.CycleRing N)) =
+    (Ideal.span ({M7.AffinePolynomial.image c.1,
+      M7.AffinePolynomial.image c.2} : Set (M6.Cyclic.CycleRing N))).map
+        (M7.QuotientAuto.substitution g.unit)
+  obtain ⟨hleft, hright⟩ := M7.AffinePolynomial.action_images N g c
+  have hu := M7.AffinePolynomial.rho_power_unit N g.leftShift
+  have hv := M7.AffinePolynomial.rho_power_unit N g.rightShift
+  rw [hleft, hright, Ideal.map_span, Set.image_pair]
+  cases he : g.exchange <;>
+    simp [he, Ideal.span_insert, Ideal.span_singleton_mul_left_unit, hu, hv, sup_comm]
+
+theorem M7.RecipeSignature.signature_properties : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic ∧ M7.RecipeSignature.signature c ∣ (M6.Cyclic.modulus N) := by
+  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic ∧ M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N
+  intro N inst c
+  have hd : M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N := by
+    unfold M7.RecipeSignature.signature
+    first
+    | exact M6.Cyclic.signature_divides _ _ _
+    | exact (M6.Cyclic.signature_divides _ _ _).2.2
+    | exact (M6.Cyclic.signature_divides _ _ _).2
+  refine ⟨M7.SignatureTau.binary_monic _ ?_, hd⟩
+  intro hz
+  have hm := (M7.SignatureTau.modulus_monic N).ne_zero
+  apply hm
+  simpa only [hz, zero_dvd_iff] using hd
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g c) = M7.SignatureTau.sourceTau g.unit (M7.RecipeSignature.signature c)

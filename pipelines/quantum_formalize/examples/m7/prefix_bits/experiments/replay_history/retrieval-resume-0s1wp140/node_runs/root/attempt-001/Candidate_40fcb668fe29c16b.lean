@@ -1,0 +1,17 @@
+import FrozenTarget_40fcb668fe29c16b
+theorem M7.PrefixBits.root : QuantumHarnessFrozenTarget := by
+  intro N hN
+  have hu (offset : ℕ) : M7.PrefixBits.undecided N offset [] = Finset.range N \ {0} := by
+    apply Finset.ext
+    intro x
+    simp only [M7.PrefixBits.undecided, List.length_nil, Nat.zero_le,
+      Finset.filter_true, Finset.mem_image, Finset.mem_range,
+      Finset.mem_sdiff, Finset.mem_singleton]
+    constructor
+    · rintro ⟨j, hj, rfl⟩
+      constructor <;> omega
+    · rintro ⟨hx, hx0⟩
+      refine ⟨x - 1, ?_, ?_⟩ <;> omega
+  refine ⟨?_, ?_, hu 0, hu (N - 1)⟩
+  · simp [M7.PrefixBits.A, M7.PrefixBits.selected]
+  · simp [M7.PrefixBits.B, M7.PrefixBits.selected]

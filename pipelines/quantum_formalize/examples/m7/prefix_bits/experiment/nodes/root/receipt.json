@@ -1,0 +1,55 @@
+{
+  "id": "root",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.PrefixBits.root",
+    "spec_sha256": "baa3507d6195634edde1fa8497c881bf1188154069dc61b57bb738c6dfb3c32c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wrnm_rdu/attempt-001/Candidate_db8ea60c8ebb77e2.lean",
+        "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wrnm_rdu/attempt-001/FrozenTarget_db8ea60c8ebb77e2.lean",
+        "feedback": "",
+        "target_sha256": "773c5a7c75bd3c14e017165dc8fb1dec97e6508c3c8d23e5da2a3bf372b97a74",
+        "target_olean_sha256": "498ac2342592beb2b04d79fab13a4a5049a3c0befa5425125561f626e9b5f65e",
+        "source_sha256": "1a9347928276e09325657a35b6fc561da7953bdf2e46c1e47fe85e9345f1b952",
+        "olean_sha256": "95b5e5ae88a5c21645a80640f3e22539780453b3bcc231b25a2088fbc08db711",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:46:14.721671+00:00",
+    "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wrnm_rdu",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-wrnm_rdu/attempt-001/Candidate_db8ea60c8ebb77e2.lean",
+    "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+    "artifacts": {
+      "root": {
+        "payload": {
+          "declaration": "theorem M7.PrefixBits.root : ∀ (N : ℕ), 0 < N → M7.PrefixBits.A N [] = {0} ∧ M7.PrefixBits.B N [] = {0} ∧ M7.PrefixBits.WA N [] = Finset.range N \\ {0} ∧ M7.PrefixBits.WB N [] = Finset.range N \\ {0} := by\n  intro N hN\n  have hu (offset : ℕ) : M7.PrefixBits.undecided N offset [] = Finset.range N \\ {0} := by\n    apply Finset.ext\n    intro x\n    simp only [M7.PrefixBits.undecided, List.length_nil, Nat.zero_le,\n      Finset.filter_true, Finset.mem_image, Finset.mem_range,\n      Finset.mem_sdiff, Finset.mem_singleton]\n    constructor\n    · rintro ⟨j, hj, rfl⟩\n      constructor <;> omega\n    · rintro ⟨hx, hx0⟩\n      refine ⟨x - 1, ?_, ?_⟩ <;> omega\n  refine ⟨?_, ?_, hu 0, hu (N - 1)⟩\n  · simp [M7.PrefixBits.A, M7.PrefixBits.selected]\n  · simp [M7.PrefixBits.B, M7.PrefixBits.selected]",
+          "imports": [
+            "M7PrefixBits"
+          ],
+          "name": "M7.PrefixBits.root",
+          "ancestors": [],
+          "spec_sha256": "baa3507d6195634edde1fa8497c881bf1188154069dc61b57bb738c6dfb3c32c"
+        },
+        "sha256": "24b49e69c2b20e7cc1307e323e79e6555e9769c1b08e81fad492857815921c84"
+      }
+    }
+  }
+}

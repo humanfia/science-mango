@@ -1,0 +1,5 @@
+import FrozenTarget_62e0891f075253d8
+theorem M7.CanonicalClasses.fresh_representative : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → y ∉ M7.OrbitResidual.covered bases → M7.CanonicalOuter.canonical y ∉ bases
+  intro N inst bases y hn hy hc
+  exact hy ((M7.CanonicalClasses.coverage_iff N bases y hn).mpr hc)

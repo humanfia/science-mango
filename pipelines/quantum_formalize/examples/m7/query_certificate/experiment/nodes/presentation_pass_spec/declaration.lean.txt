@@ -1,0 +1,17 @@
+theorem M7.QueryCertificate.presentation_pass_spec : ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (W P : Finset (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.presentationPass bases W P = true ↔ ∀ x : M7.GlobalQuery.Index H N, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x) := by
+  intro H N inst bases W P
+  classical
+  simp only [M7.QueryCertificate.presentationPass, M7.QueryCertificate.allOn,
+    Bool.and_eq_true, List.all_eq_true, Finset.mem_toList, decide_eq_true_eq]
+  change ((∀ x, x ∈ P → x ∈ W ∧ M7.QueryCertificate.isLeast bases x) ∧
+    (∀ x, x ∈ W → M7.QueryCertificate.isLeast bases x → x ∈ P)) ↔
+    ∀ x, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x
+  constructor
+  · rintro ⟨hP, hW⟩ x
+    exact ⟨hP x, fun h => hW x h.1 h.2⟩
+  · intro h
+    constructor
+    · intro x hx
+      exact (h x).mp hx
+    · intro x hx hl
+      exact (h x).mpr ⟨hx, hl⟩

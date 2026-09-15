@@ -1,0 +1,69 @@
+{
+  "id": "orbit_disjoint",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.OrbitResidual.orbit_disjoint",
+    "spec_sha256": "c111b9cc6bc8cc830d8cec4d0883a8ef56fd03786625018a00d3ab127531b65a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-nywllgav/attempt-001/Candidate_0cd63942f485375c.lean",
+        "target_path": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-nywllgav/attempt-001/FrozenTarget_0cd63942f485375c.lean",
+        "feedback": "",
+        "target_sha256": "0c55a1e34ee814c883571fed6d13feedd3c2f29f5983211c91292fe8ff106788",
+        "target_olean_sha256": "05f2c149494c2a5ac731eaee17b43b4fdfbd363f6181119ec1d9bab9282018f9",
+        "source_sha256": "f96fd73fd27a337db08928bf5e42c48c381203a81eaa3aed33ea1d99950e89cd",
+        "olean_sha256": "5c189b012c817da96c8a6c758c277da818050088e9745bff4f81ebc9dc1f69fd",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:41:59.780475+00:00",
+    "work": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-nywllgav",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9195e94e515efc58b575997d28e545c8c5b61e88c50ef1fcf4eb674ce515bee4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-nywllgav/attempt-001/Candidate_0cd63942f485375c.lean",
+    "environment_sha256": "0045639962c93f6a2660d20ff98e773a0ab54d46b3fc8712ff25d93e187358f8",
+    "artifacts": {
+      "orbit_action": {
+        "payload": {
+          "declaration": "theorem M7.OrbitResidual.orbit_action : ∀ (N : ℕ) [NeZero N], ∀ (c : M7.Action.Recipe N) (g : M7.Action.Record N), M7.ActualOrbit.orbit (M7.Action.act g c) = M7.ActualOrbit.orbit c := by\n  intro N inst c g\n  classical\n  unfold M7.ActualOrbit.orbit\n  ext y\n  simp only [Finset.mem_image, Finset.mem_univ, true_and]\n  constructor\n  · rintro ⟨h, hh⟩\n    refine ⟨M7.Action.compose h g, ?_⟩\n    rw [M7.Action.act_compose]\n    exact hh\n  · rintro ⟨h, hh⟩\n    refine ⟨M7.Action.compose h (M7.Action.inverse g), ?_⟩\n    rw [M7.Action.act_compose, M7.Action.act_inverse]\n    exact hh",
+          "imports": [
+            "M7OrbitResidual"
+          ],
+          "name": "M7.OrbitResidual.orbit_action",
+          "ancestors": [],
+          "spec_sha256": "125d1116ac99530ccffb3df7bb28b76fd295903f6c9d0142c37f447a24e2442d"
+        },
+        "sha256": "3bc31d397e3d0de920400efe2f3d4d85823381fe4a525805d2b34343d97abd2e"
+      },
+      "orbit_disjoint": {
+        "payload": {
+          "declaration": "theorem M7.OrbitResidual.orbit_disjoint : ∀ (N : ℕ) [NeZero N], ∀ c d : M7.Action.Recipe N, Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d) ↔ d ∉ M7.ActualOrbit.orbit c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c d : M7.Action.Recipe N, Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit d) ↔ d ∉ M7.ActualOrbit.orbit c\n  intro N inst c d\n  classical\n  constructor\n  · intro h hd\n    have hself : d ∈ M7.ActualOrbit.orbit d := by\n      unfold M7.ActualOrbit.orbit\n      exact Finset.mem_image.mpr ⟨M7.Action.identity N, Finset.mem_univ _, M7.Action.act_identity N d⟩\n    exact Finset.disjoint_left.mp h hd hself\n  · intro hd\n    apply Finset.disjoint_left.mpr\n    intro y hc hy\n    apply hd\n    unfold M7.ActualOrbit.orbit at hc hy ⊢\n    simp only [Finset.mem_image, Finset.mem_univ, true_and] at hc hy ⊢\n    obtain ⟨g, hg⟩ := hc\n    obtain ⟨h, hh⟩ := hy\n    refine ⟨M7.Action.compose (M7.Action.inverse h) g, ?_⟩\n    rw [M7.Action.act_compose, hg, ← hh, M7.Action.act_inverse]",
+          "imports": [
+            "M7OrbitResidual"
+          ],
+          "name": "M7.OrbitResidual.orbit_disjoint",
+          "ancestors": [
+            "orbit_action"
+          ],
+          "spec_sha256": "f68a71954c25cb44ed4a82d6f977145166135ae458aade0fa92fee1188528247"
+        },
+        "sha256": "6829bf7bce612a0dadf25f9755fe47d52269602efe8a95d51af072937b47c947"
+      }
+    }
+  }
+}

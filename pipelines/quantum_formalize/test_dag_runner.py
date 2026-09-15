@@ -1,6 +1,8 @@
 import asyncio
 import hashlib
 import json
+import shutil
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -29,6 +31,27 @@ def node(name, deps=(), imports=None):
 
 
 class DependencyTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which('lean'), 'Lean is required for the assembly regression')
+    def test_indented_alias_candidate_compiles_after_transport(self):
+        spec = engine.Spec(name='Transport.indented',
+                           statement='∀ n : Nat, n = n ∧ True', imports=[], queries=['reflexivity'])
+        draft = ('  unfold QuantumHarnessFrozenTarget\n'
+                 '  intro n\n'
+                 '  constructor\n'
+                 '  · rfl\n'
+                 '  · exact True.intro')
+        candidate = ('def QuantumHarnessFrozenTarget : Prop := ' + spec.statement +
+                     '\ntheorem candidate : QuantumHarnessFrozenTarget := by\n' + draft + '\n')
+        transported = (runner.portable_declaration(spec, draft) +
+                       '\ntheorem downstream (n : Nat) : n = n := (Transport.indented n).1\n')
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, source in [('Candidate', candidate), ('Transported', transported)]:
+                path = Path(tmp) / (name + '.lean')
+                path.write_text(source)
+                result = subprocess.run([shutil.which('lean'), str(path)], cwd=tmp,
+                                        capture_output=True, text=True, timeout=60)
+                self.assertEqual(result.returncode, 0, name + ': ' + result.stdout + result.stderr)
+
     def test_transport_keeps_frozen_alias_local_and_original_body_intact(self):
         spec = engine.Spec(name='Transport.test', statement='∀ n : Nat, n = n',
                            imports=['Mathlib.Data.Nat.Basic'], queries=['reflexivity'])

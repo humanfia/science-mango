@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N inst C bases hsep\nchange (∑ c ∈ bases, ((M7.ActualOrbit.orbit c).filter (fun y => y ∈ C)).card) = (C ∩ M7.OrbitResidual.covered bases).card\nhave hdisj : bases.PairwiseDisjoint (fun c => (M7.ActualOrbit.orbit c).filter (fun y => y ∈ C)) := by\n  intro c hc d hd hcd\n  exact (hsep c hc d hd hcd).mono (Finset.filter_subset _ _) (Finset.filter_subset _ _)\nhave hunion : bases.biUnion (fun c => (M7.ActualOrbit.orbit c).filter (fun y => y ∈ C)) = C ∩ M7.OrbitResidual.covered bases := by\n  ext y\n  simp only [M7.OrbitResidual.covered, Finset.mem_biUnion, Finset.mem_filter, Finset.mem_inter]\n  aesop\nrw [← Finset.card_biUnion hdisj, hunion]",
+  "queries": [
+    "Finset.card_biUnion",
+    "Finset.PairwiseDisjoint",
+    "Finset.filter_subset"
+  ]
+}

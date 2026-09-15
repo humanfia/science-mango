@@ -1,0 +1,13 @@
+{
+  "name": "M7.QueryCertificate.winner_pass_spec",
+  "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.winnerPass q bases W dominator = true ↔ (∀ x ∈ W, M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.QueryCertificate.strictBetter q bases y x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x → x ∉ W → ∃ y : M7.GlobalQuery.Index H N, dominator x = some y ∧ y ∈ W ∧ M7.QueryCertificate.strictBetter q bases y x))",
+  "imports": [
+    "M7GlobalQueryAccepted",
+    "M7QueryCertificate"
+  ],
+  "context": "",
+  "queries": [
+    "List all_eq_true Finset mem_toList finite set verification"
+  ],
+  "guidance": "Unfold winnerPass and allOn. allOn is the actual finite Finset.toList.all loop: use List.all_eq_true, Finset.mem_toList, Bool.and_eq_true and decide_eq_true_eq. Split the omitted-index condition and dominator x option. The some branch verifies the supplied witness; none fails for an omitted feasible index. Preserve every explicit global comparison. Return tactic proof lines without leading by; preserve the exact target and default limits."
+}

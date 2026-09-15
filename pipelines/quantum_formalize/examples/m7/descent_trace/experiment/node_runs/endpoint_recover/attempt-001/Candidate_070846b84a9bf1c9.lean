@@ -1,0 +1,10 @@
+import FrozenTarget_070846b84a9bf1c9
+theorem M7.DescentTrace.endpoint_recover : QuantumHarnessFrozenTarget := by
+  change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), M7.DescentTrace.endpoint p (M7.DescentTrace.trace c p n) = M5.BinaryRecovery.recover c p n
+  intro c p n
+  induction n generalizing p with
+  | zero => rfl
+  | succ n ih =>
+      by_cases h : 0 < c (p ++ [false])
+      · simpa [M7.DescentTrace.trace, M7.DescentTrace.endpoint, M7.DescentTrace.choose, M5.BinaryRecovery.recover, h] using ih (p ++ [false])
+      · simpa [M7.DescentTrace.trace, M7.DescentTrace.endpoint, M7.DescentTrace.choose, M5.BinaryRecovery.recover, h] using ih (p ++ [true])

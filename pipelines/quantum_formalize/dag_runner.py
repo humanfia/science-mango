@@ -3,6 +3,7 @@ import asyncio
 import hashlib
 import json
 import re
+from textwrap import dedent
 from pathlib import Path
 
 from .dag import Node, run_dag, validate
@@ -49,13 +50,15 @@ def proof_context(dependencies):
 
 def portable_declaration(spec, draft):
     """Keep a candidate's target alias available when moving its exact tactic body."""
-    body = draft
+    # Candidates may indent the entire tactic block. Align its outer level with
+    # the local alias prelude while preserving every nested tactic's indentation.
+    body = dedent(draft)
     if re.search(r'\bQuantumHarnessFrozenTarget\b', draft):
         # Candidate modules expose this reducible alias. A local definition keeps
         # unfold/dsimp tactics valid without introducing shared global names.
         body = ('let QuantumHarnessFrozenTarget : Prop := (\n' +
                 '\n'.join('  ' + line for line in spec.statement.splitlines()) +
-                '\n)\nchange QuantumHarnessFrozenTarget\n' + draft)
+                '\n)\nchange QuantumHarnessFrozenTarget\n' + body)
     return f'theorem {spec.name} : {spec.statement} := by\n' + '\n'.join(
         '  ' + line for line in body.splitlines())
 

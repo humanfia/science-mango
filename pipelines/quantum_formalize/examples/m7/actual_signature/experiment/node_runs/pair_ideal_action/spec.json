@@ -1,0 +1,12 @@
+{
+  "name": "M7.RecipeSignature.pair_ideal_action",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.SignatureIdeal.pairIdeal N (M7.Supports.polynomial (M7.Action.act g c).1) (M7.Supports.polynomial (M7.Action.act g c).2) = (M7.SignatureIdeal.pairIdeal N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)).map (M7.QuotientAuto.substitution g.unit)",
+  "imports": [
+    "M7RecipeSignatureReady"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Unfold actual pairIdeal and identify AffinePolynomial.image. Accepted action_images gives both generators as separate rho shift units times substituted original images. Use accepted rho_power_unit and Ideal.span_insert / Ideal.span_singleton_mul_left_unit to remove these units. Ideal.map_span + Set.image_pair give the actual mapped pair; exchange is handled by Ideal.span_pair_comm. Do not assume arbitrary isometry or signature invariance. Return tactic lines without leading by."
+}

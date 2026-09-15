@@ -1,0 +1,4 @@
+{
+  "proof": "intro H N inst q bases W dominator\nclassical\nsimp only [M7.QueryCertificate.winnerPass, M7.QueryCertificate.allOn,\n  List.all_eq_true, Finset.mem_toList, Bool.and_eq_true,\n  decide_eq_true_eq, Finset.mem_univ, true_implies]\nrefine and_congr Iff.rfl ?_\nconstructor\n· intro h x hf hn\n  have hx := h x\n  cases hd : dominator x with\n  | none => simp [hf, hn, hd] at hx\n  | some y =>\n      exact ⟨y, hd, by simpa [hf, hn, hd] using hx⟩\n· intro h x\n  by_cases hc : M7.GlobalQuery.feasible q bases x ∧ x ∉ W\n  · obtain ⟨y, hy, hw, hb⟩ := h x hc.1 hc.2\n    simp [hc, hy, hw, hb]\n  · simp [hc]",
+  "queries": []
+}

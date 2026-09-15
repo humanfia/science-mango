@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → (y ∈ M7.OrbitResidual.covered bases ↔ M7.CanonicalOuter.canonical y ∈ bases)\nintro N inst bases y hn\nclassical\nsimp only [M7.OrbitResidual.covered, Finset.mem_biUnion]\nconstructor\n· rintro ⟨c, hc, hy⟩\n  have he : M7.CanonicalOuter.canonical y = c :=\n    ((M7.CanonicalClasses.orbit_membership N c y).mp hy).trans (hn c hc)\n  rw [he]\n  exact hc\n· intro hy\n  refine ⟨M7.CanonicalOuter.canonical y, hy, ?_⟩\n  apply (M7.CanonicalClasses.orbit_membership N (M7.CanonicalOuter.canonical y) y).mpr\n  exact (hn (M7.CanonicalOuter.canonical y) hy).symm",
+  "queries": []
+}

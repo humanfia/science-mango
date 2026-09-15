@@ -1,0 +1,9 @@
+import FrozenTarget_e41e9f108fbee1cb
+theorem M7.DescentTrace.check_trace : QuantumHarnessFrozenTarget := by
+  change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), M7.DescentTrace.check c p (M7.DescentTrace.trace c p n) = (true, 2 * n)
+  intro c p n
+  induction n generalizing p with
+  | zero =>
+      simp [M7.DescentTrace.trace, M7.DescentTrace.check]
+  | succ n ih =>
+      simp [M7.DescentTrace.trace, M7.DescentTrace.check, ih, Nat.mul_succ, Nat.add_comm]

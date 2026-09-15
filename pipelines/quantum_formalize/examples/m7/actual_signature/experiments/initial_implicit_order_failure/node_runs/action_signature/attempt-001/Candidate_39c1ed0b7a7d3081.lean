@@ -1,0 +1,10 @@
+import FrozenTarget_39c1ed0b7a7d3081
+theorem M7.RecipeSignature.action_signature : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g c) = M7.SignatureTau.sourceTau g.unit (M7.RecipeSignature.signature c)
+  intro N inst c g
+  rw [M7.SignatureTau.source_tau_equal N]
+  obtain ⟨hm, hd⟩ := M7.RecipeSignature.signature_properties N (M7.Action.act g c)
+  obtain ⟨htm, htd⟩ := M7.SignatureTau.tau_properties N g.unit (M7.RecipeSignature.signature c)
+  apply (M7.SignatureIdeal.monic_injective N _ _ hm htm hd htd).mp
+  rw [M7.SignatureTau.tau_principal N]
+  simpa only [M7.SignatureIdeal.full_signature_ideal, M7.RecipeSignature.signature] using M7.RecipeSignature.pair_ideal_action N c g

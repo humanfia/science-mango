@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro H N inst q bases W dominator hpass\nrcases (M7.QueryCertificate.winner_pass_spec H N q bases W dominator).mp hpass with ⟨hclaimed, hdominator⟩\nhave hexact := (M7.GlobalQuery.winners_exact H N q bases).1\napply Finset.ext\nintro x\nconstructor\n· intro hx\n  apply (hexact x).mpr\n  simpa only [M7.QueryCertificate.strictBetter] using hclaimed x hx\n· intro hx\n  by_contra hmissing\n  have hwin := (hexact x).mp hx\n  rcases hdominator x hwin.1 hmissing with ⟨y, hlookup, hy, hbetter⟩\n  apply hwin.2 y (hclaimed y hy).1\n  simpa only [M7.QueryCertificate.strictBetter] using hbetter",
+  "queries": []
+}

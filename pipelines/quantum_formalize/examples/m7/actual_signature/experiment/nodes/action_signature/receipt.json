@@ -1,0 +1,82 @@
+{
+  "id": "action_signature",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.RecipeSignature.action_signature",
+    "spec_sha256": "dcbe015bc15524e703e1f236742c29c5e19ea5b1593a135caf8bb66c3cd30890",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-4ox2grnx/attempt-001/Candidate_70640051ceda6cc0.lean",
+        "target_path": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-4ox2grnx/attempt-001/FrozenTarget_70640051ceda6cc0.lean",
+        "feedback": "",
+        "target_sha256": "82545aa735eaeadbdf2853ca6738df31aeb9dad14d7a04177ed9e32a8622f4d2",
+        "target_olean_sha256": "aaf2a3d19eb0ed4fced2021e1f024361fbddc0d6063776cc024029e792307534",
+        "source_sha256": "f3779dbed5e4f4f3c4dc804bc4dc6c5fc78a8106b3097c02b1e10e604dbdc890",
+        "olean_sha256": "f3751627448789c14bc73cb4c0677d49c9cb3ecd5adbd348645c20977a23f7c9",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:34:34.689318+00:00",
+    "work": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-4ox2grnx",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9272f5c59df427ca0c20cda95b96899cb65483f37c701df6e9e3d29174e6487e",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-4ox2grnx/attempt-001/Candidate_70640051ceda6cc0.lean",
+    "environment_sha256": "13bd1759c27fb2db61ddd89665a55eee7edaba701bb696da1a4b5841d2f840a2",
+    "artifacts": {
+      "signature_properties": {
+        "payload": {
+          "declaration": "theorem M7.RecipeSignature.signature_properties : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic ∧ M7.RecipeSignature.signature c ∣ (M6.Cyclic.modulus N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic ∧ M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N\n  intro N inst c\n  have hd : M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N := by\n    unfold M7.RecipeSignature.signature\n    first\n    | exact M6.Cyclic.signature_divides _ _ _\n    | exact (M6.Cyclic.signature_divides _ _ _).2.2\n    | exact (M6.Cyclic.signature_divides _ _ _).2\n  refine ⟨M7.SignatureTau.binary_monic _ ?_, hd⟩\n  intro hz\n  have hm := (M7.SignatureTau.modulus_monic N).ne_zero\n  apply hm\n  simpa only [hz, zero_dvd_iff] using hd",
+          "imports": [
+            "M7RecipeSignatureReady"
+          ],
+          "name": "M7.RecipeSignature.signature_properties",
+          "ancestors": [],
+          "spec_sha256": "9a1195cd9633cc17ae88b6da76116dab3ec65a26af892615b1a8f0c8bb4d61f0"
+        },
+        "sha256": "ec6a3d9907ee6637a78fc613b06c989935032bf7afbbaa1b28863df6c2de901b"
+      },
+      "pair_ideal_action": {
+        "payload": {
+          "declaration": "theorem M7.RecipeSignature.pair_ideal_action : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.SignatureIdeal.pairIdeal N (M7.Supports.polynomial (M7.Action.act g c).1) (M7.Supports.polynomial (M7.Action.act g c).2) = (M7.SignatureIdeal.pairIdeal N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)).map (M7.QuotientAuto.substitution g.unit) := by\n  intro N inst c g\n  change Ideal.span ({M7.AffinePolynomial.image (M7.Action.act g c).1,\n      M7.AffinePolynomial.image (M7.Action.act g c).2} : Set (M6.Cyclic.CycleRing N)) =\n    (Ideal.span ({M7.AffinePolynomial.image c.1,\n      M7.AffinePolynomial.image c.2} : Set (M6.Cyclic.CycleRing N))).map\n        (M7.QuotientAuto.substitution g.unit)\n  obtain ⟨hleft, hright⟩ := M7.AffinePolynomial.action_images N g c\n  have hu := M7.AffinePolynomial.rho_power_unit N g.leftShift\n  have hv := M7.AffinePolynomial.rho_power_unit N g.rightShift\n  rw [hleft, hright, Ideal.map_span, Set.image_pair]\n  cases he : g.exchange <;>\n    simp [he, Ideal.span_insert, Ideal.span_singleton_mul_left_unit, hu, hv, sup_comm]",
+          "imports": [
+            "M7RecipeSignatureReady"
+          ],
+          "name": "M7.RecipeSignature.pair_ideal_action",
+          "ancestors": [],
+          "spec_sha256": "69cba03dfa3526b7fcfcffc62e0b8b86853c01e673a4bd6d4a0ca42d0bc51219"
+        },
+        "sha256": "17651167a60594393887e04536d3e81307ae4e71641ba7b39d2e55f3b4e3e13c"
+      },
+      "action_signature": {
+        "payload": {
+          "declaration": "theorem M7.RecipeSignature.action_signature : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g c) = M7.SignatureTau.sourceTau g.unit (M7.RecipeSignature.signature c) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g c) = M7.SignatureTau.sourceTau g.unit (M7.RecipeSignature.signature c)\n  intro N inst c g\n  rw [M7.SignatureTau.source_tau_equal N]\n  obtain ⟨hm, hd⟩ := M7.RecipeSignature.signature_properties N (M7.Action.act g c)\n  obtain ⟨htm, htd⟩ := M7.SignatureTau.tau_properties N g.unit (M7.RecipeSignature.signature c)\n  apply (M7.SignatureIdeal.monic_injective N _ _ hm htm hd htd).mp\n  rw [M7.SignatureTau.tau_principal N]\n  simpa only [M7.SignatureIdeal.full_signature_ideal, M7.RecipeSignature.signature] using M7.RecipeSignature.pair_ideal_action N c g",
+          "imports": [
+            "M7RecipeSignatureReady"
+          ],
+          "name": "M7.RecipeSignature.action_signature",
+          "ancestors": [
+            "pair_ideal_action",
+            "signature_properties"
+          ],
+          "spec_sha256": "4e33133ac72ad08fc1daf32b45ea29d14f0b36be21c81da7606225a205bd6f1e"
+        },
+        "sha256": "fd23c967bae28d57149e6b5580c25614388773f048f5db6ddcd1d02474e339e3"
+      }
+    }
+  }
+}

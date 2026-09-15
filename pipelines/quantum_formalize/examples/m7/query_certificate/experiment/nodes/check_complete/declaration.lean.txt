@@ -1,0 +1,18 @@
+theorem M7.QueryCertificate.check_complete : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), M7.DefaultQuery.valid N q → ∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.check q bases (⟨M7.GlobalQuery.winners q bases, M7.QueryCertificate.allPresentations q bases, dominator⟩ : M7.QueryCertificate.Certificate H N) = Except.ok true := by
+  classical
+  intro H N inst q bases hvalid
+  obtain ⟨dominator, hwin⟩ := M7.QueryCertificate.winner_pass_complete H N q bases
+  have hpres : M7.QueryCertificate.presentationPass bases
+      (M7.GlobalQuery.winners q bases)
+      (M7.QueryCertificate.allPresentations q bases) = true := by
+    apply (M7.QueryCertificate.presentation_pass_spec H N bases
+      (M7.GlobalQuery.winners q bases)
+      (M7.QueryCertificate.allPresentations q bases)).2
+    intro x
+    simp [M7.QueryCertificate.allPresentations, M7.GlobalQuery.present,
+      M7.QueryCertificate.isLeast,
+      (M7.ActualPresentation.leastAction_spec N (bases x.1)
+        (M7.GlobalQuery.realize bases x)).1,
+      M7.GlobalQuery.realize]
+  refine ⟨dominator, ?_⟩
+  simp [M7.QueryCertificate.check, hvalid, hwin, hpres]

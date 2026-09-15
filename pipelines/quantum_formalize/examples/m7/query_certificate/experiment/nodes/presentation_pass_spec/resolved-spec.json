@@ -1,0 +1,13 @@
+{
+  "name": "M7.QueryCertificate.presentation_pass_spec",
+  "statement": "∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (W P : Finset (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.presentationPass bases W P = true ↔ ∀ x : M7.GlobalQuery.Index H N, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x)",
+  "imports": [
+    "M7GlobalQueryAccepted",
+    "M7QueryCertificate"
+  ],
+  "context": "",
+  "queries": [
+    "List all_eq_true Finset mem_toList finite set verification"
+  ],
+  "guidance": "Unfold the two finite allOn loops. The P loop checks claimed membership in W and the actual leastAction equality; the W loop checks every minimal preimage is included in P. Convert the two implications to pointwise iff. Do not replace the checker definition by equality with a semantic expected set. Return tactic proof lines without leading by; preserve the exact target and default limits."
+}

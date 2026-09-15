@@ -1,0 +1,69 @@
+{
+  "id": "normalized_separated",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalClasses.normalized_separated",
+    "spec_sha256": "a31ab1783ae4e6a6945ac6bf6c11522eb00f7bb55788c290655f5975c00f00b8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-lu73o8f7/attempt-001/Candidate_531608b022a6b72b.lean",
+        "target_path": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-lu73o8f7/attempt-001/FrozenTarget_531608b022a6b72b.lean",
+        "feedback": "",
+        "target_sha256": "fcaf0f8a19277c190b3b77017bfd083dfc01ef66d738141c3bef43addca75b5a",
+        "target_olean_sha256": "9ee9662fb1c3cd808900ac54a69bf23b9a21f29ea8dd3e8eb4979bad662ff4c0",
+        "source_sha256": "1b3b23c1b0ea6763dae761d9877b7d28df98d3239a2649efbd81b2d2497a87a3",
+        "olean_sha256": "d4b42e3246faf56ad53b40213aac2755703d0e71e16966f9d7d9f32f50547a09",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:32:48.303917+00:00",
+    "work": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-lu73o8f7",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d263325d302a199d8e350cb8a8d2842ae9c0b22a1be0c5ce9a6583f2749c6d98",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-classes-formalization/.humanize-formal-runs/run-lu73o8f7/attempt-001/Candidate_531608b022a6b72b.lean",
+    "environment_sha256": "883527a8cc2dd2c76d24ea9db870babb386867de29915f17a87e6520f2007a04",
+    "artifacts": {
+      "orbit_membership": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalClasses.orbit_membership : ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c\n  intro N _ c y\n  classical\n  simp only [M7.ActualOrbit.orbit, Finset.mem_image, Finset.mem_univ, true_and]\n  exact (M7.CanonicalOuter.orbit_complete N c y).trans eq_comm",
+          "imports": [
+            "M7CanonicalClasses"
+          ],
+          "name": "M7.CanonicalClasses.orbit_membership",
+          "ancestors": [],
+          "spec_sha256": "9a4e105eb4e2205def795addf5407b1107fe8035641d7e13600ec6d09fdc9258"
+        },
+        "sha256": "11e1bbffe071650f83a72ca340492dd0580e12ae0738e9507dd817901219868b"
+      },
+      "normalized_separated": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalClasses.normalized_separated : ∀ (N : ℕ) [NeZero N], ∀ bases : Finset (M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → M7.OrbitResidual.Separated bases := by\n  change ∀ (N : ℕ) [NeZero N], ∀ bases : Finset (M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → M7.OrbitResidual.Separated bases\n  intro N _ bases hnorm\n  classical\n  unfold M7.OrbitResidual.Separated\n  intro c hc d hd hcd\n  apply Finset.disjoint_left.mpr\n  intro y hyc hyd\n  apply hcd\n  calc\n    c = M7.CanonicalOuter.canonical c := (hnorm c hc).symm\n    _ = M7.CanonicalOuter.canonical y := ((M7.CanonicalClasses.orbit_membership N c y).mp hyc).symm\n    _ = M7.CanonicalOuter.canonical d := (M7.CanonicalClasses.orbit_membership N d y).mp hyd\n    _ = d := hnorm d hd",
+          "imports": [
+            "M7CanonicalClasses"
+          ],
+          "name": "M7.CanonicalClasses.normalized_separated",
+          "ancestors": [
+            "orbit_membership"
+          ],
+          "spec_sha256": "2a7b9a46cde59250c5eaf44b0bac877bd8dfcdfbacd8e8c81d70d5d9b9352360"
+        },
+        "sha256": "647e630cf6e0a6743bd5998d1c5f259d216f97f7362ac28a3edd689877ddaaa3"
+      }
+    }
+  }
+}

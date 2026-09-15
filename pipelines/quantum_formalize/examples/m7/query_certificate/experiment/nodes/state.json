@@ -1,0 +1,710 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T18:52:04.640222+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "invalid_rule": {
+      "id": "invalid_rule",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.QueryCertificate.invalid_rule",
+        "spec_sha256": "dd6853f97d573fa9a0c58ab151252c2e3cf32234911c4be69049f9ffecec4439",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-qyac2x5d/attempt-001/Candidate_7a4fb88090cf9985.lean",
+            "target_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-qyac2x5d/attempt-001/FrozenTarget_7a4fb88090cf9985.lean",
+            "feedback": "",
+            "target_sha256": "84911a039ac9eb7cab9bf57344fd5e9522f8677903791a85e18450fe7497310c",
+            "target_olean_sha256": "65b2117c21bdf3b82b29bc070794d498fae77019df387e500c123a26d8533784",
+            "source_sha256": "ae203ea4442d15ba213f53ee009b9a643d704e4cd20f569ac1ae0c8f1f48a58b",
+            "olean_sha256": "a6f12225abb45e4dfc8d636a8d8b2cda5280055a09d33eaf2fd873f34debfc3b",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:37:27.357924+00:00",
+        "work": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-qyac2x5d",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "9f805a376a70617c43396714e9040c00b1efcd0a2fa756205eae64f63cba7f2b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-qyac2x5d/attempt-001/Candidate_7a4fb88090cf9985.lean",
+        "environment_sha256": "213d43c63afc5a7bdc11b4ffa9a3ae96f6b36d9846d159ce628c03421b17e20a",
+        "artifacts": {
+          "invalid_rule": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.invalid_rule : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (certificate : M7.QueryCertificate.Certificate H N), (M7.QueryCertificate.check q bases certificate = Except.error M7.DefaultQuery.QueryError.invalidSignature ↔ ¬ M7.DefaultQuery.valid N q) ∧ (M7.DefaultQuery.valid N q → M7.QueryCertificate.check q bases certificate = Except.ok (M7.QueryCertificate.winnerPass q bases certificate.winners certificate.dominator && M7.QueryCertificate.presentationPass bases certificate.winners certificate.presentations)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (certificate : M7.QueryCertificate.Certificate H N), (M7.QueryCertificate.check q bases certificate = Except.error M7.DefaultQuery.QueryError.invalidSignature ↔ ¬ M7.DefaultQuery.valid N q) ∧ (M7.DefaultQuery.valid N q → M7.QueryCertificate.check q bases certificate = Except.ok (M7.QueryCertificate.winnerPass q bases certificate.winners certificate.dominator && M7.QueryCertificate.presentationPass bases certificate.winners certificate.presentations))\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro H N inst q bases certificate\n  classical\n  by_cases h : M7.DefaultQuery.valid N q\n  <;> simp [M7.QueryCertificate.check, h]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.invalid_rule",
+              "ancestors": [],
+              "spec_sha256": "1b3adfa5355ed4b11aa2aca317327676a4fd2c8c7a132a4a68935bdf0cac9d19"
+            },
+            "sha256": "638c06d3064ab15188042ebeaeb9817e6dd078647728d89188782539eb668794"
+          }
+        }
+      }
+    },
+    "presentation_pass_spec": {
+      "id": "presentation_pass_spec",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.QueryCertificate.presentation_pass_spec",
+        "spec_sha256": "6f442e893274a379f46a02abba1b1d52dfff66fe41777745abfb916f6e776831",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-001/Candidate_edd2fe18c8e79ed3.lean:6:55: warning: aesop: failed to prove the goal after exhaustive search.\n/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-001/Candidate_edd2fe18c8e79ed3.lean:2:83: error: unsolved goals\ncase mp.mp.left\nH N : ℕ\ninst : NeZero N\nbases : GlobalQuery.Family H N\nW P : Finset (GlobalQuery.Index H N)\na_1 : Fin H\nb : Action.Record N\nleft :\n  ∀ (a : Fin H) (b : Action.Record N),\n    (a, b) ∈ P →\n      decide ((a, b) ∈ W ∧ ActualPresentation.leastAction (bases a) (GlobalQuery.realize bases (a, b)) = some b) = true\nright :\n  ∀ (a : Fin H) (b : Action.Record N),\n    (a, b) ∈ W →\n      decide (ActualPresentation.leastAction (bases a) (GlobalQuery.realize bases (a, b)) = some b → (a, b) ∈ P) = true\na : (a_1, b) ∈ P\n⊢ (a_1, b) ∈ W\n\ncase mp.mp.right\nH N : ℕ\ninst : NeZero N\nbases : GlobalQuery.Family H N\nW P : Finset (GlobalQuery.Index H N)\na_1 : Fin H\nb : Action.Record N\nleft :\n  ∀ (a : Fin H) (b : Action.Record N),\n    (a, b) ∈ P →\n      decide ((a, b) ∈ W ∧ ActualPresentation.leastAction (bases a) (GlobalQuery.realize bases (a, b)) = some b) = true\nright :\n  ∀ (a : Fin H) (b : Action.Record N),\n    (a, b) ∈ W →\n      decide (ActualPresentation.leastAction (bases a) (GlobalQuery.realize bases (a, b)) = some b → (a, b) ∈ P) = true\na : (a_1, b) ∈ P\n⊢ ActualPresentation.leastAction (bases a_1) (GlobalQuery.realize bases (a_1, b)) = some b\n\ncase mp.mpr\nH N : ℕ\ninst : NeZero N\nbases : GlobalQuery.Family H N\nW P : Finset (GlobalQuery.Index H N)\na_1 : Fin H\nb : Action.Record N\nleft :\n  ∀ (a : Fin H) (b : Action.Record N),\n    (a, b) ∈ P →\n      decide ((a, b) ∈ W ∧ ActualPresentation.leastAction (bases a) (GlobalQuery.realize bases (a, b)) = some b) = true\nright :\n  ∀ (a : Fin H) (b : Action.Record N),\n    (a, b) ∈ W →\n      decide (ActualPresentation.leastAction (bases a) (GlobalQuery.realize bases (a, b)) = some b → (a, b) ∈ P) = true\nleft_1 : (a_1, b) ∈ W\nright_1 : ActualPresentation.leastAction (bases a_1) (GlobalQuery.realize bases (a_1, b)) = some b\n⊢ (a_1, b) ∈ P\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-002/Candidate_d08c6842b00339a1.lean:12:6: error: Type mismatch\n  hP x hx\nhas type\n  decide (x ∈ W ∧ ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2) = true\nbut is expected to have type\n  x ∈ W ∧ ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2\n/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-002/Candidate_d08c6842b00339a1.lean:14:12: error: Function expected at\n  hW x hxW\nbut this term has type\n  decide (ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2 → x ∈ P) = true\n\nNote: Expected a function because this term is being applied to the argument\n  hxLeast\n/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-002/Candidate_d08c6842b00339a1.lean:18:6: error: Type mismatch\n  (h x).mp hx\nhas type\n  x ∈ W ∧ ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2\nbut is expected to have type\n  decide (x ∈ W ∧ ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2) = true\n/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-002/Candidate_d08c6842b00339a1.lean:19:18: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ncase mpr.right\nH N : ℕ\ninst : NeZero N\nbases : GlobalQuery.Family H N\nW P : Finset (GlobalQuery.Index H N)\nh :\n  ∀ (x : GlobalQuery.Index H N),\n    x ∈ P ↔ x ∈ W ∧ ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2\nx : GlobalQuery.Index H N\nhxW : x ∈ W\n⊢ decide (ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2 → x ∈ P) = true\n/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-002/Candidate_d08c6842b00339a1.lean:7:23: warning: This simp argument is unused:\n  decide_eq_true_eq\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.QueryCertificate.presentationPass, M7.QueryCertificate.allOn, M7.QueryCertificate.isLeast,\n    Bool.and_eq_true, List.all_eq_true, Finset.mem_toList]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-003/Candidate_6eacf7d955824bb5.lean:11:12: error: synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized\n  @instDecidableAnd (x ∈ W) (ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2)\n    (Finset.decidableMem x W)\n    ((ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x)).instDecidableEq (some x.2))\ninferred\n  @instDecidableAnd (x ∈ W) (isLeast bases x) (Finset.decidableMem x W) (Classical.propDecidable (isLeast bases x))\n/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-003/Candidate_6eacf7d955824bb5.lean:13:12: error: synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized\n  @forall_prop_decidable (ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2)\n    (fun a => x ∈ P)\n    ((ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x)).instDecidableEq (some x.2)) fun h =>\n    Finset.decidableMem x P\ninferred\n  @forall_prop_decidable (isLeast bases x) (fun a => x ∈ P) (Classical.propDecidable (isLeast bases x)) fun h =>\n    Finset.decidableMem x P\n/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-003/Candidate_6eacf7d955824bb5.lean:17:12: error: synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized\n  @instDecidableAnd (x ∈ W) (ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2)\n    (Finset.decidableMem x W)\n    ((ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x)).instDecidableEq (some x.2))\ninferred\n  @instDecidableAnd (x ∈ W) (isLeast bases x) (Finset.decidableMem x W) (Classical.propDecidable (isLeast bases x))\n/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-003/Candidate_6eacf7d955824bb5.lean:19:6: error: Tactic `apply` failed: failed to assign synthesized instance\n\ncase mpr.right\nH N : ℕ\ninst : NeZero N\nbases : GlobalQuery.Family H N\nW P : Finset (GlobalQuery.Index H N)\nh :\n  ∀ (x : GlobalQuery.Index H N),\n    x ∈ P ↔ x ∈ W ∧ ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2\nx : GlobalQuery.Index H N\nhxW : x ∈ W\n⊢ decide (ActualPresentation.leastAction (bases x.1) (GlobalQuery.realize bases x) = some x.2 → x ∈ P) = true\n",
+            "attempt": 3
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-004/Candidate_18a6b3f68cdfce97.lean",
+            "target_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-004/FrozenTarget_18a6b3f68cdfce97.lean",
+            "feedback": "",
+            "target_sha256": "26e97bfa8e85b8d5bbf3fd243ce7cc13044996ba75d159eca4926643ff40d492",
+            "target_olean_sha256": "58565d23681d7d3ab0f84a59967baf8fe983ecd33815f829ef90e2d1730b4a28",
+            "source_sha256": "87c35a277714d01aadb10b0a0cb1fe9df22f2e89b76d106bb4191abadd61afa7",
+            "olean_sha256": "789847af176fccd80c96d0e44d59e288f8fc9b09a29f259601c338a4774063f8",
+            "attempt": 4
+          }
+        ],
+        "created_at": "2026-09-15T18:37:27.499823+00:00",
+        "work": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "9f805a376a70617c43396714e9040c00b1efcd0a2fa756205eae64f63cba7f2b",
+        "phase": "finished",
+        "round": 4,
+        "proof": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-8rtsz1ub/attempt-004/Candidate_18a6b3f68cdfce97.lean",
+        "environment_sha256": "213d43c63afc5a7bdc11b4ffa9a3ae96f6b36d9846d159ce628c03421b17e20a",
+        "artifacts": {
+          "presentation_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.presentation_pass_spec : ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (W P : Finset (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.presentationPass bases W P = true ↔ ∀ x : M7.GlobalQuery.Index H N, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x) := by\n  intro H N inst bases W P\n  classical\n  simp only [M7.QueryCertificate.presentationPass, M7.QueryCertificate.allOn,\n    Bool.and_eq_true, List.all_eq_true, Finset.mem_toList, decide_eq_true_eq]\n  change ((∀ x, x ∈ P → x ∈ W ∧ M7.QueryCertificate.isLeast bases x) ∧\n    (∀ x, x ∈ W → M7.QueryCertificate.isLeast bases x → x ∈ P)) ↔\n    ∀ x, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x\n  constructor\n  · rintro ⟨hP, hW⟩ x\n    exact ⟨hP x, fun h => hW x h.1 h.2⟩\n  · intro h\n    constructor\n    · intro x hx\n      exact (h x).mp hx\n    · intro x hx hl\n      exact (h x).mpr ⟨hx, hl⟩",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.presentation_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "2ffa8d799085e8959c57ea7055f79577879c7eb46f85967fb440b60a6a3aa5e5"
+            },
+            "sha256": "2abaaa109abc167254d84f60ae7bb4ac9f6b499e3c1a0aedd9fa48c63d4feb2d"
+          }
+        }
+      }
+    },
+    "winner_pass_spec": {
+      "id": "winner_pass_spec",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.QueryCertificate.winner_pass_spec",
+        "spec_sha256": "dee605fce4b1db5cd80492709d3b9b0cccdcd008092ec59fad92f8daf003c8bf",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-agqfrg33/attempt-001/Candidate_f32af829afb5f429.lean:11:4: error: Tactic `apply` failed: could not unify the conclusion of `@forall_congr`\n  (∀ (a : ?α), ?p a) = ∀ (a : ?α), ?q a\nwith the goal\n  (∀ (x : GlobalQuery.Index H N),\n      (if GlobalQuery.feasible q bases x ∧ x ∉ W then\n          match dominator x with\n          | none => false\n          | some y => decide (y ∈ W ∧ strictBetter q bases y x)\n        else true) =\n        true) ↔\n    ∀ (x : GlobalQuery.Index H N),\n      GlobalQuery.feasible q bases x → x ∉ W → ∃ y, dominator x = some y ∧ y ∈ W ∧ strictBetter q bases y x\n\nNote: The full type of `@forall_congr` is\n  ∀ {α : Sort ?u.11} {p q : α → Prop}, (∀ (a : α), p a = q a) → (∀ (a : α), p a) = ∀ (a : α), q a\n\ncase h₂\nH N : ℕ\ninst : NeZero N\nq : DefaultQuery.Query\nbases : GlobalQuery.Family H N\nW : Finset (GlobalQuery.Index H N)\ndominator : GlobalQuery.Index H N → Option (GlobalQuery.Index H N)\n⊢ (∀ (x : GlobalQuery.Index H N),\n      (if GlobalQuery.feasible q bases x ∧ x ∉ W then\n          match dominator x with\n          | none => false\n          | some y => decide (y ∈ W ∧ strictBetter q bases y x)\n        else true) =\n        true) ↔\n    ∀ (x : GlobalQuery.Index H N),\n      GlobalQuery.feasible q bases x → x ∉ W → ∃ y, dominator x = some y ∧ y ∈ W ∧ strictBetter q bases y x\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-agqfrg33/attempt-002/Candidate_44de93af0c4a6a96.lean:15:18: error: Application type mismatch: The argument\n  hd\nhas type\n  dominator x = some y\nbut is expected to have type\n  some y = some y\nin the application\n  And.intro hd\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-agqfrg33/attempt-003/Candidate_c12d0833c55289fc.lean:10:4: error: Tactic `apply` failed: could not unify the conclusion of `@forall_congr`\n  (∀ (a : ?α), ?p a) = ∀ (a : ?α), ?q a\nwith the goal\n  (∀ (x : GlobalQuery.Index H N),\n      (if GlobalQuery.feasible q bases x ∧ x ∉ W then\n          match dominator x with\n          | none => false\n          | some y => decide (y ∈ W ∧ strictBetter q bases y x)\n        else true) =\n        true) ↔\n    ∀ (x : GlobalQuery.Index H N),\n      GlobalQuery.feasible q bases x → x ∉ W → ∃ y, dominator x = some y ∧ y ∈ W ∧ strictBetter q bases y x\n\nNote: The full type of `@forall_congr` is\n  ∀ {α : Sort ?u.11} {p q : α → Prop}, (∀ (a : α), p a = q a) → (∀ (a : α), p a) = ∀ (a : α), q a\n\ncase h₂\nH N : ℕ\ninst✝ : NeZero N\nq : DefaultQuery.Query\nbases : GlobalQuery.Family H N\nW : Finset (GlobalQuery.Index H N)\ndominator : GlobalQuery.Index H N → Option (GlobalQuery.Index H N)\n⊢ (∀ (x : GlobalQuery.Index H N),\n      (if GlobalQuery.feasible q bases x ∧ x ∉ W then\n          match dominator x with\n          | none => false\n          | some y => decide (y ∈ W ∧ strictBetter q bases y x)\n        else true) =\n        true) ↔\n    ∀ (x : GlobalQuery.Index H N),\n      GlobalQuery.feasible q bases x → x ∉ W → ∃ y, dominator x = some y ∧ y ∈ W ∧ strictBetter q bases y x\n",
+            "attempt": 3
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-agqfrg33/attempt-004/Candidate_959007a92837e40c.lean",
+            "target_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-agqfrg33/attempt-004/FrozenTarget_959007a92837e40c.lean",
+            "feedback": "",
+            "target_sha256": "328cf5604f3a1e939f5bd2d550338b60175caa1e03dd3e03a069654097d30c3b",
+            "target_olean_sha256": "91cb4cc7f69c8e21a8af7c612de3cec9b50c5bb91e309d5c58121be7b08261b7",
+            "source_sha256": "406ce5721725371c6d93904a377e182778b44fba0a195d06a7db8a6f5fb00be0",
+            "olean_sha256": "ff3d404175461a9b76c1b783465705eb8a98a8896001def36ed35f9f89ae7f4c",
+            "attempt": 4
+          }
+        ],
+        "created_at": "2026-09-15T18:39:18.974522+00:00",
+        "work": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-agqfrg33",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "9f805a376a70617c43396714e9040c00b1efcd0a2fa756205eae64f63cba7f2b",
+        "phase": "finished",
+        "round": 4,
+        "proof": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-agqfrg33/attempt-004/Candidate_959007a92837e40c.lean",
+        "environment_sha256": "213d43c63afc5a7bdc11b4ffa9a3ae96f6b36d9846d159ce628c03421b17e20a",
+        "artifacts": {
+          "winner_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_spec : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.winnerPass q bases W dominator = true ↔ (∀ x ∈ W, M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.QueryCertificate.strictBetter q bases y x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x → x ∉ W → ∃ y : M7.GlobalQuery.Index H N, dominator x = some y ∧ y ∈ W ∧ M7.QueryCertificate.strictBetter q bases y x)) := by\n  classical\n  intro H N inst q bases W dominator\n  simp only [M7.QueryCertificate.winnerPass, M7.QueryCertificate.allOn,\n    List.all_eq_true, Finset.mem_toList, Bool.and_eq_true,\n    decide_eq_true_eq, Finset.mem_univ, forall_const]\n  apply and_congr Iff.rfl\n  apply forall_congr'\n  intro x\n  by_cases hf : M7.GlobalQuery.feasible q bases x\n  · by_cases hw : x ∈ W\n    · simp [hf, hw]\n    · cases hd : dominator x <;> simp [hf, hw, hd]\n  · simp [hf]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "e2676738822546afed417afb8698b0aaacc5c13b7ba04f528051ad68e95522d7"
+            },
+            "sha256": "1f8250d04393747e09a5a4ce918da9de6a1001a0b52d1e4d2a74ce4c9a6b28ff"
+          }
+        }
+      }
+    },
+    "winner_pass_complete": {
+      "id": "winner_pass_complete",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.QueryCertificate.winner_pass_complete",
+        "spec_sha256": "06542d839afdfafb2f195d58d7ede80dcef6e5ff683c96c9976df06bcf2842dc",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-9z9pnboo/attempt-001/Candidate_edf7cfc26b4f7ae3.lean",
+            "target_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-9z9pnboo/attempt-001/FrozenTarget_edf7cfc26b4f7ae3.lean",
+            "feedback": "",
+            "target_sha256": "a2099cce9257a94723b9c18f3957486202ce41237d20aa0bdb3b5ced64b64fba",
+            "target_olean_sha256": "a09280b6b1fc82ca2af820a5a436e0e5cc2ecef5f75f7f991ae025c1e890a333",
+            "source_sha256": "91df9763a74651c04eaaf1e1b3bd0f2a6164ca3f20257734ec44bb1339a23945",
+            "olean_sha256": "890f3a117406ce8ad4f93abf96eb43d721f94307593d9e144a881ed33f3c77d5",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:47:05.781618+00:00",
+        "work": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-9z9pnboo",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "9f805a376a70617c43396714e9040c00b1efcd0a2fa756205eae64f63cba7f2b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-9z9pnboo/attempt-001/Candidate_edf7cfc26b4f7ae3.lean",
+        "environment_sha256": "213d43c63afc5a7bdc11b4ffa9a3ae96f6b36d9846d159ce628c03421b17e20a",
+        "artifacts": {
+          "winner_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_spec : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.winnerPass q bases W dominator = true ↔ (∀ x ∈ W, M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.QueryCertificate.strictBetter q bases y x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x → x ∉ W → ∃ y : M7.GlobalQuery.Index H N, dominator x = some y ∧ y ∈ W ∧ M7.QueryCertificate.strictBetter q bases y x)) := by\n  classical\n  intro H N inst q bases W dominator\n  simp only [M7.QueryCertificate.winnerPass, M7.QueryCertificate.allOn,\n    List.all_eq_true, Finset.mem_toList, Bool.and_eq_true,\n    decide_eq_true_eq, Finset.mem_univ, forall_const]\n  apply and_congr Iff.rfl\n  apply forall_congr'\n  intro x\n  by_cases hf : M7.GlobalQuery.feasible q bases x\n  · by_cases hw : x ∈ W\n    · simp [hf, hw]\n    · cases hd : dominator x <;> simp [hf, hw, hd]\n  · simp [hf]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "e2676738822546afed417afb8698b0aaacc5c13b7ba04f528051ad68e95522d7"
+            },
+            "sha256": "1f8250d04393747e09a5a4ce918da9de6a1001a0b52d1e4d2a74ce4c9a6b28ff"
+          },
+          "winner_pass_complete": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_complete : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.winnerPass q bases (M7.GlobalQuery.winners q bases) dominator = true := by\n  classical\n  intro H N inst q bases\n  have hd : ∀ x : M7.GlobalQuery.Index H N,\n      M7.GlobalQuery.feasible q bases x ∧ x ∉ M7.GlobalQuery.winners q bases →\n      ∃ y ∈ M7.GlobalQuery.winners q bases, M7.QueryCertificate.strictBetter q bases y x := by\n    intro x hx\n    exact M7.GlobalQuery.strict_dominator H N q bases x hx.1 hx.2\n  let dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N) :=\n    fun x => if hx : M7.GlobalQuery.feasible q bases x ∧ x ∉ M7.GlobalQuery.winners q bases\n      then some (Classical.choose (hd x hx)) else none\n  refine ⟨dominator, ?_⟩\n  apply (M7.QueryCertificate.winner_pass_spec H N q bases\n    (M7.GlobalQuery.winners q bases) dominator).2\n  constructor\n  · intro x hx\n    exact ((M7.GlobalQuery.winners_exact H N q bases).1 x).1 hx\n  · intro x hf hw\n    have hx : M7.GlobalQuery.feasible q bases x ∧ x ∉ M7.GlobalQuery.winners q bases := ⟨hf, hw⟩\n    refine ⟨Classical.choose (hd x hx), ?_, Classical.choose_spec (hd x hx)⟩\n    simp only [dominator, dif_pos hx]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_complete",
+              "ancestors": [
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "ee48af408eac14c1f5b28cfe9a2ba6277b6adc948a21261711c32605635ab248"
+            },
+            "sha256": "26c0a1d10df4f095dd6b87215041278c92a04abc3e686a118c9d9d70e97f893a"
+          }
+        }
+      }
+    },
+    "check_complete": {
+      "id": "check_complete",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.QueryCertificate.check_complete",
+        "spec_sha256": "ff2146117307fac603a1191100d5972a65b4cd4092af7403eda2c9b85b7e411f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-v_y_5t73/attempt-001/Candidate_67ea70806fe6f4fd.lean",
+            "target_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-v_y_5t73/attempt-001/FrozenTarget_67ea70806fe6f4fd.lean",
+            "feedback": "",
+            "target_sha256": "45eb22f6088d4a2099d65f8325a88e7bbdddc181fbf938994d433f7ed396daa8",
+            "target_olean_sha256": "380e50df7593483562216ab449f583736f7b6f3bf6ade4da233ec5172048217d",
+            "source_sha256": "4f4453924ed652f9f02d9509d24ccf2581feeef13c38d1503333638e1a97c9a8",
+            "olean_sha256": "1701756fa2a5b8e554d0e35b6904b219055569726ce88d389f5923586944266c",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:49:23.328416+00:00",
+        "work": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-v_y_5t73",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "9f805a376a70617c43396714e9040c00b1efcd0a2fa756205eae64f63cba7f2b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-v_y_5t73/attempt-001/Candidate_67ea70806fe6f4fd.lean",
+        "environment_sha256": "213d43c63afc5a7bdc11b4ffa9a3ae96f6b36d9846d159ce628c03421b17e20a",
+        "artifacts": {
+          "winner_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_spec : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.winnerPass q bases W dominator = true ↔ (∀ x ∈ W, M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.QueryCertificate.strictBetter q bases y x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x → x ∉ W → ∃ y : M7.GlobalQuery.Index H N, dominator x = some y ∧ y ∈ W ∧ M7.QueryCertificate.strictBetter q bases y x)) := by\n  classical\n  intro H N inst q bases W dominator\n  simp only [M7.QueryCertificate.winnerPass, M7.QueryCertificate.allOn,\n    List.all_eq_true, Finset.mem_toList, Bool.and_eq_true,\n    decide_eq_true_eq, Finset.mem_univ, forall_const]\n  apply and_congr Iff.rfl\n  apply forall_congr'\n  intro x\n  by_cases hf : M7.GlobalQuery.feasible q bases x\n  · by_cases hw : x ∈ W\n    · simp [hf, hw]\n    · cases hd : dominator x <;> simp [hf, hw, hd]\n  · simp [hf]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "e2676738822546afed417afb8698b0aaacc5c13b7ba04f528051ad68e95522d7"
+            },
+            "sha256": "1f8250d04393747e09a5a4ce918da9de6a1001a0b52d1e4d2a74ce4c9a6b28ff"
+          },
+          "winner_pass_complete": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_complete : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.winnerPass q bases (M7.GlobalQuery.winners q bases) dominator = true := by\n  classical\n  intro H N inst q bases\n  have hd : ∀ x : M7.GlobalQuery.Index H N,\n      M7.GlobalQuery.feasible q bases x ∧ x ∉ M7.GlobalQuery.winners q bases →\n      ∃ y ∈ M7.GlobalQuery.winners q bases, M7.QueryCertificate.strictBetter q bases y x := by\n    intro x hx\n    exact M7.GlobalQuery.strict_dominator H N q bases x hx.1 hx.2\n  let dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N) :=\n    fun x => if hx : M7.GlobalQuery.feasible q bases x ∧ x ∉ M7.GlobalQuery.winners q bases\n      then some (Classical.choose (hd x hx)) else none\n  refine ⟨dominator, ?_⟩\n  apply (M7.QueryCertificate.winner_pass_spec H N q bases\n    (M7.GlobalQuery.winners q bases) dominator).2\n  constructor\n  · intro x hx\n    exact ((M7.GlobalQuery.winners_exact H N q bases).1 x).1 hx\n  · intro x hf hw\n    have hx : M7.GlobalQuery.feasible q bases x ∧ x ∉ M7.GlobalQuery.winners q bases := ⟨hf, hw⟩\n    refine ⟨Classical.choose (hd x hx), ?_, Classical.choose_spec (hd x hx)⟩\n    simp only [dominator, dif_pos hx]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_complete",
+              "ancestors": [
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "ee48af408eac14c1f5b28cfe9a2ba6277b6adc948a21261711c32605635ab248"
+            },
+            "sha256": "26c0a1d10df4f095dd6b87215041278c92a04abc3e686a118c9d9d70e97f893a"
+          },
+          "presentation_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.presentation_pass_spec : ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (W P : Finset (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.presentationPass bases W P = true ↔ ∀ x : M7.GlobalQuery.Index H N, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x) := by\n  intro H N inst bases W P\n  classical\n  simp only [M7.QueryCertificate.presentationPass, M7.QueryCertificate.allOn,\n    Bool.and_eq_true, List.all_eq_true, Finset.mem_toList, decide_eq_true_eq]\n  change ((∀ x, x ∈ P → x ∈ W ∧ M7.QueryCertificate.isLeast bases x) ∧\n    (∀ x, x ∈ W → M7.QueryCertificate.isLeast bases x → x ∈ P)) ↔\n    ∀ x, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x\n  constructor\n  · rintro ⟨hP, hW⟩ x\n    exact ⟨hP x, fun h => hW x h.1 h.2⟩\n  · intro h\n    constructor\n    · intro x hx\n      exact (h x).mp hx\n    · intro x hx hl\n      exact (h x).mpr ⟨hx, hl⟩",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.presentation_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "2ffa8d799085e8959c57ea7055f79577879c7eb46f85967fb440b60a6a3aa5e5"
+            },
+            "sha256": "2abaaa109abc167254d84f60ae7bb4ac9f6b499e3c1a0aedd9fa48c63d4feb2d"
+          },
+          "check_complete": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.check_complete : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), M7.DefaultQuery.valid N q → ∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.check q bases (⟨M7.GlobalQuery.winners q bases, M7.QueryCertificate.allPresentations q bases, dominator⟩ : M7.QueryCertificate.Certificate H N) = Except.ok true := by\n  classical\n  intro H N inst q bases hvalid\n  obtain ⟨dominator, hwin⟩ := M7.QueryCertificate.winner_pass_complete H N q bases\n  have hpres : M7.QueryCertificate.presentationPass bases\n      (M7.GlobalQuery.winners q bases)\n      (M7.QueryCertificate.allPresentations q bases) = true := by\n    apply (M7.QueryCertificate.presentation_pass_spec H N bases\n      (M7.GlobalQuery.winners q bases)\n      (M7.QueryCertificate.allPresentations q bases)).2\n    intro x\n    simp [M7.QueryCertificate.allPresentations, M7.GlobalQuery.present,\n      M7.QueryCertificate.isLeast,\n      (M7.ActualPresentation.leastAction_spec N (bases x.1)\n        (M7.GlobalQuery.realize bases x)).1,\n      M7.GlobalQuery.realize]\n  refine ⟨dominator, ?_⟩\n  simp [M7.QueryCertificate.check, hvalid, hwin, hpres]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.check_complete",
+              "ancestors": [
+                "presentation_pass_spec",
+                "winner_pass_complete",
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "e1f1a0fdb0d87a2c64d1c5a61f2431833f125f3798bb9b5ccd265745a3a129e1"
+            },
+            "sha256": "971af281ef0eccb66a7da13477ffe6cd0d5b7c1e82edeb6e295b90f2bb6cc296"
+          }
+        }
+      }
+    },
+    "winner_pass_sound": {
+      "id": "winner_pass_sound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.QueryCertificate.winner_pass_sound",
+        "spec_sha256": "b3e0203500841bb651b0c81bf142a2579d12d5d8414e329f937f2ffdb845fb70",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-k3uio77i/attempt-001/Candidate_926dd9643e4cb54e.lean",
+            "target_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-k3uio77i/attempt-001/FrozenTarget_926dd9643e4cb54e.lean",
+            "feedback": "",
+            "target_sha256": "eb80f4630952b2861259f3d45be8e215fd5df6a1a8b3f4f57c946d277e65b44f",
+            "target_olean_sha256": "35f117b31bb4ab71f752cc03587e3988cce695843c94245ff6cd5f165773c8aa",
+            "source_sha256": "add57abf60a43fb1bd256c72603c52ac711b513f342476cbc96aceac1c51e232",
+            "olean_sha256": "7fdbe30b899329ec479012c087150b82419f5651f9b1d463691d57f5a3687227",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:47:05.976232+00:00",
+        "work": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-k3uio77i",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "9f805a376a70617c43396714e9040c00b1efcd0a2fa756205eae64f63cba7f2b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-k3uio77i/attempt-001/Candidate_926dd9643e4cb54e.lean",
+        "environment_sha256": "213d43c63afc5a7bdc11b4ffa9a3ae96f6b36d9846d159ce628c03421b17e20a",
+        "artifacts": {
+          "winner_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_spec : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.winnerPass q bases W dominator = true ↔ (∀ x ∈ W, M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.QueryCertificate.strictBetter q bases y x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x → x ∉ W → ∃ y : M7.GlobalQuery.Index H N, dominator x = some y ∧ y ∈ W ∧ M7.QueryCertificate.strictBetter q bases y x)) := by\n  classical\n  intro H N inst q bases W dominator\n  simp only [M7.QueryCertificate.winnerPass, M7.QueryCertificate.allOn,\n    List.all_eq_true, Finset.mem_toList, Bool.and_eq_true,\n    decide_eq_true_eq, Finset.mem_univ, forall_const]\n  apply and_congr Iff.rfl\n  apply forall_congr'\n  intro x\n  by_cases hf : M7.GlobalQuery.feasible q bases x\n  · by_cases hw : x ∈ W\n    · simp [hf, hw]\n    · cases hd : dominator x <;> simp [hf, hw, hd]\n  · simp [hf]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "e2676738822546afed417afb8698b0aaacc5c13b7ba04f528051ad68e95522d7"
+            },
+            "sha256": "1f8250d04393747e09a5a4ce918da9de6a1001a0b52d1e4d2a74ce4c9a6b28ff"
+          },
+          "winner_pass_sound": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_sound : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), M7.QueryCertificate.winnerPass q bases W dominator = true → W = M7.GlobalQuery.winners q bases := by\n  classical\n  intro H N inst q bases W dominator hpass\n  rcases (M7.QueryCertificate.winner_pass_spec H N q bases W dominator).mp hpass with ⟨hclaimed, hdominator⟩\n  have hexact := (M7.GlobalQuery.winners_exact H N q bases).1\n  apply Finset.ext\n  intro x\n  constructor\n  · intro hx\n    apply (hexact x).mpr\n    simpa only [M7.QueryCertificate.strictBetter] using hclaimed x hx\n  · intro hx\n    by_contra hmissing\n    have hwin := (hexact x).mp hx\n    rcases hdominator x hwin.1 hmissing with ⟨y, hlookup, hy, hbetter⟩\n    apply hwin.2 y (hclaimed y hy).1\n    simpa only [M7.QueryCertificate.strictBetter] using hbetter",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_sound",
+              "ancestors": [
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "a38012ccfb795c2bba949063e1f7ebcdbf9fcff8a4df734c8148f5aa50aa0946"
+            },
+            "sha256": "ae81a44695cac2cd7f28f6477e097c94abb509e231aa99d06b6dbdb2e93d9719"
+          }
+        }
+      }
+    },
+    "check_sound": {
+      "id": "check_sound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.QueryCertificate.check_sound",
+        "spec_sha256": "0b3839939dcecd678b20c750ab3bda7189d20f1eaa379aebbd7df9ad50eeb0c2",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-3q_c7rwn/attempt-001/Candidate_b0f09af57938e73b.lean",
+            "target_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-3q_c7rwn/attempt-001/FrozenTarget_b0f09af57938e73b.lean",
+            "feedback": "",
+            "target_sha256": "9eaf23ca47750644e2d79b7b2a0acba487c9a24b7b4e128fa833d90db25d0314",
+            "target_olean_sha256": "a4294c32be389da7593549b1238d7e13f596c831aa646046e879ec5a32e7e0ab",
+            "source_sha256": "e72a5a3e2704f636cc9446aa513738e1a1326c2e04fbf793949e6c989067d188",
+            "olean_sha256": "a833940d2de4c5da11f4425cab58cf8fe8f65f04c9bb094f86424371ceda5f02",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:49:22.890189+00:00",
+        "work": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-3q_c7rwn",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "9f805a376a70617c43396714e9040c00b1efcd0a2fa756205eae64f63cba7f2b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-3q_c7rwn/attempt-001/Candidate_b0f09af57938e73b.lean",
+        "environment_sha256": "213d43c63afc5a7bdc11b4ffa9a3ae96f6b36d9846d159ce628c03421b17e20a",
+        "artifacts": {
+          "winner_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_spec : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.winnerPass q bases W dominator = true ↔ (∀ x ∈ W, M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.QueryCertificate.strictBetter q bases y x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x → x ∉ W → ∃ y : M7.GlobalQuery.Index H N, dominator x = some y ∧ y ∈ W ∧ M7.QueryCertificate.strictBetter q bases y x)) := by\n  classical\n  intro H N inst q bases W dominator\n  simp only [M7.QueryCertificate.winnerPass, M7.QueryCertificate.allOn,\n    List.all_eq_true, Finset.mem_toList, Bool.and_eq_true,\n    decide_eq_true_eq, Finset.mem_univ, forall_const]\n  apply and_congr Iff.rfl\n  apply forall_congr'\n  intro x\n  by_cases hf : M7.GlobalQuery.feasible q bases x\n  · by_cases hw : x ∈ W\n    · simp [hf, hw]\n    · cases hd : dominator x <;> simp [hf, hw, hd]\n  · simp [hf]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "e2676738822546afed417afb8698b0aaacc5c13b7ba04f528051ad68e95522d7"
+            },
+            "sha256": "1f8250d04393747e09a5a4ce918da9de6a1001a0b52d1e4d2a74ce4c9a6b28ff"
+          },
+          "winner_pass_sound": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_sound : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), M7.QueryCertificate.winnerPass q bases W dominator = true → W = M7.GlobalQuery.winners q bases := by\n  classical\n  intro H N inst q bases W dominator hpass\n  rcases (M7.QueryCertificate.winner_pass_spec H N q bases W dominator).mp hpass with ⟨hclaimed, hdominator⟩\n  have hexact := (M7.GlobalQuery.winners_exact H N q bases).1\n  apply Finset.ext\n  intro x\n  constructor\n  · intro hx\n    apply (hexact x).mpr\n    simpa only [M7.QueryCertificate.strictBetter] using hclaimed x hx\n  · intro hx\n    by_contra hmissing\n    have hwin := (hexact x).mp hx\n    rcases hdominator x hwin.1 hmissing with ⟨y, hlookup, hy, hbetter⟩\n    apply hwin.2 y (hclaimed y hy).1\n    simpa only [M7.QueryCertificate.strictBetter] using hbetter",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_sound",
+              "ancestors": [
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "a38012ccfb795c2bba949063e1f7ebcdbf9fcff8a4df734c8148f5aa50aa0946"
+            },
+            "sha256": "ae81a44695cac2cd7f28f6477e097c94abb509e231aa99d06b6dbdb2e93d9719"
+          },
+          "presentation_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.presentation_pass_spec : ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (W P : Finset (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.presentationPass bases W P = true ↔ ∀ x : M7.GlobalQuery.Index H N, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x) := by\n  intro H N inst bases W P\n  classical\n  simp only [M7.QueryCertificate.presentationPass, M7.QueryCertificate.allOn,\n    Bool.and_eq_true, List.all_eq_true, Finset.mem_toList, decide_eq_true_eq]\n  change ((∀ x, x ∈ P → x ∈ W ∧ M7.QueryCertificate.isLeast bases x) ∧\n    (∀ x, x ∈ W → M7.QueryCertificate.isLeast bases x → x ∈ P)) ↔\n    ∀ x, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x\n  constructor\n  · rintro ⟨hP, hW⟩ x\n    exact ⟨hP x, fun h => hW x h.1 h.2⟩\n  · intro h\n    constructor\n    · intro x hx\n      exact (h x).mp hx\n    · intro x hx hl\n      exact (h x).mpr ⟨hx, hl⟩",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.presentation_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "2ffa8d799085e8959c57ea7055f79577879c7eb46f85967fb440b60a6a3aa5e5"
+            },
+            "sha256": "2abaaa109abc167254d84f60ae7bb4ac9f6b499e3c1a0aedd9fa48c63d4feb2d"
+          },
+          "check_sound": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.check_sound : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (certificate : M7.QueryCertificate.Certificate H N), M7.QueryCertificate.check q bases certificate = Except.ok true → M7.DefaultQuery.valid N q ∧ certificate.winners = M7.GlobalQuery.winners q bases ∧ certificate.presentations = M7.QueryCertificate.allPresentations q bases := by\n  intro H N inst q bases certificate hcheck\n  classical\n  by_cases hv : M7.DefaultQuery.valid N q\n  · have hpasses := hcheck\n    simp [M7.QueryCertificate.check, hv, Bool.and_eq_true] at hpasses\n    have hW : certificate.winners = M7.GlobalQuery.winners q bases :=\n      M7.QueryCertificate.winner_pass_sound H N q bases certificate.winners _ hpasses.1\n    refine ⟨hv, hW, ?_⟩\n    have hP := (M7.QueryCertificate.presentation_pass_spec H N bases\n      certificate.winners certificate.presentations).mp hpasses.2\n    apply Finset.ext\n    intro x\n    simpa [M7.QueryCertificate.allPresentations, M7.GlobalQuery.present,\n      M7.QueryCertificate.isLeast, hW] using hP x\n  · simp [M7.QueryCertificate.check, hv] at hcheck",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.check_sound",
+              "ancestors": [
+                "presentation_pass_spec",
+                "winner_pass_sound",
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "ee415f1f4bf4afea80d25f248090ba182c5b4bc4442a05de5d435772601557c6"
+            },
+            "sha256": "191548aa87eb46b07a11a4af3a88ac2bb8aeaa87660a7ab5a06c2ca40616851f"
+          }
+        }
+      }
+    },
+    "check_exact": {
+      "id": "check_exact",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.QueryCertificate.check_exact",
+        "spec_sha256": "21f9dfb4783f93a8e395d473a069992e338dbe8d5ba6216145c939128e387202",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-1dfzb451/attempt-001/Candidate_18ddbaf8a8180b19.lean",
+            "target_path": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-1dfzb451/attempt-001/FrozenTarget_18ddbaf8a8180b19.lean",
+            "feedback": "",
+            "target_sha256": "93b68d0a3b26708129e57bdb264c8603e8171b4dd126d64f11f9fb613d58d4d7",
+            "target_olean_sha256": "e61e1e182b9cda15e5f423d4747ee9ca0e377a962b01bafd10e17cafdde65b59",
+            "source_sha256": "15151ff6c83e59c75e5adcbb15f34a453f1c866f8add71b9ebadbf2ae58fca0c",
+            "olean_sha256": "74fd1fecb2ad874d588c356991e285c1160eb3c96895bc13e5985621d534c04f",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:50:53.493161+00:00",
+        "work": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-1dfzb451",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "9f805a376a70617c43396714e9040c00b1efcd0a2fa756205eae64f63cba7f2b",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-query-certificate-formalization/.humanize-formal-runs/run-1dfzb451/attempt-001/Candidate_18ddbaf8a8180b19.lean",
+        "environment_sha256": "213d43c63afc5a7bdc11b4ffa9a3ae96f6b36d9846d159ce628c03421b17e20a",
+        "artifacts": {
+          "winner_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_spec : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.winnerPass q bases W dominator = true ↔ (∀ x ∈ W, M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.QueryCertificate.strictBetter q bases y x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x → x ∉ W → ∃ y : M7.GlobalQuery.Index H N, dominator x = some y ∧ y ∈ W ∧ M7.QueryCertificate.strictBetter q bases y x)) := by\n  classical\n  intro H N inst q bases W dominator\n  simp only [M7.QueryCertificate.winnerPass, M7.QueryCertificate.allOn,\n    List.all_eq_true, Finset.mem_toList, Bool.and_eq_true,\n    decide_eq_true_eq, Finset.mem_univ, forall_const]\n  apply and_congr Iff.rfl\n  apply forall_congr'\n  intro x\n  by_cases hf : M7.GlobalQuery.feasible q bases x\n  · by_cases hw : x ∈ W\n    · simp [hf, hw]\n    · cases hd : dominator x <;> simp [hf, hw, hd]\n  · simp [hf]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "e2676738822546afed417afb8698b0aaacc5c13b7ba04f528051ad68e95522d7"
+            },
+            "sha256": "1f8250d04393747e09a5a4ce918da9de6a1001a0b52d1e4d2a74ce4c9a6b28ff"
+          },
+          "winner_pass_sound": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_sound : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W : Finset (M7.GlobalQuery.Index H N)) (dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N)), M7.QueryCertificate.winnerPass q bases W dominator = true → W = M7.GlobalQuery.winners q bases := by\n  classical\n  intro H N inst q bases W dominator hpass\n  rcases (M7.QueryCertificate.winner_pass_spec H N q bases W dominator).mp hpass with ⟨hclaimed, hdominator⟩\n  have hexact := (M7.GlobalQuery.winners_exact H N q bases).1\n  apply Finset.ext\n  intro x\n  constructor\n  · intro hx\n    apply (hexact x).mpr\n    simpa only [M7.QueryCertificate.strictBetter] using hclaimed x hx\n  · intro hx\n    by_contra hmissing\n    have hwin := (hexact x).mp hx\n    rcases hdominator x hwin.1 hmissing with ⟨y, hlookup, hy, hbetter⟩\n    apply hwin.2 y (hclaimed y hy).1\n    simpa only [M7.QueryCertificate.strictBetter] using hbetter",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_sound",
+              "ancestors": [
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "a38012ccfb795c2bba949063e1f7ebcdbf9fcff8a4df734c8148f5aa50aa0946"
+            },
+            "sha256": "ae81a44695cac2cd7f28f6477e097c94abb509e231aa99d06b6dbdb2e93d9719"
+          },
+          "presentation_pass_spec": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.presentation_pass_spec : ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (W P : Finset (M7.GlobalQuery.Index H N)), (M7.QueryCertificate.presentationPass bases W P = true ↔ ∀ x : M7.GlobalQuery.Index H N, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x) := by\n  intro H N inst bases W P\n  classical\n  simp only [M7.QueryCertificate.presentationPass, M7.QueryCertificate.allOn,\n    Bool.and_eq_true, List.all_eq_true, Finset.mem_toList, decide_eq_true_eq]\n  change ((∀ x, x ∈ P → x ∈ W ∧ M7.QueryCertificate.isLeast bases x) ∧\n    (∀ x, x ∈ W → M7.QueryCertificate.isLeast bases x → x ∈ P)) ↔\n    ∀ x, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x\n  constructor\n  · rintro ⟨hP, hW⟩ x\n    exact ⟨hP x, fun h => hW x h.1 h.2⟩\n  · intro h\n    constructor\n    · intro x hx\n      exact (h x).mp hx\n    · intro x hx hl\n      exact (h x).mpr ⟨hx, hl⟩",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.presentation_pass_spec",
+              "ancestors": [],
+              "spec_sha256": "2ffa8d799085e8959c57ea7055f79577879c7eb46f85967fb440b60a6a3aa5e5"
+            },
+            "sha256": "2abaaa109abc167254d84f60ae7bb4ac9f6b499e3c1a0aedd9fa48c63d4feb2d"
+          },
+          "check_sound": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.check_sound : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (certificate : M7.QueryCertificate.Certificate H N), M7.QueryCertificate.check q bases certificate = Except.ok true → M7.DefaultQuery.valid N q ∧ certificate.winners = M7.GlobalQuery.winners q bases ∧ certificate.presentations = M7.QueryCertificate.allPresentations q bases := by\n  intro H N inst q bases certificate hcheck\n  classical\n  by_cases hv : M7.DefaultQuery.valid N q\n  · have hpasses := hcheck\n    simp [M7.QueryCertificate.check, hv, Bool.and_eq_true] at hpasses\n    have hW : certificate.winners = M7.GlobalQuery.winners q bases :=\n      M7.QueryCertificate.winner_pass_sound H N q bases certificate.winners _ hpasses.1\n    refine ⟨hv, hW, ?_⟩\n    have hP := (M7.QueryCertificate.presentation_pass_spec H N bases\n      certificate.winners certificate.presentations).mp hpasses.2\n    apply Finset.ext\n    intro x\n    simpa [M7.QueryCertificate.allPresentations, M7.GlobalQuery.present,\n      M7.QueryCertificate.isLeast, hW] using hP x\n  · simp [M7.QueryCertificate.check, hv] at hcheck",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.check_sound",
+              "ancestors": [
+                "presentation_pass_spec",
+                "winner_pass_sound",
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "ee415f1f4bf4afea80d25f248090ba182c5b4bc4442a05de5d435772601557c6"
+            },
+            "sha256": "191548aa87eb46b07a11a4af3a88ac2bb8aeaa87660a7ab5a06c2ca40616851f"
+          },
+          "winner_pass_complete": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.winner_pass_complete : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.winnerPass q bases (M7.GlobalQuery.winners q bases) dominator = true := by\n  classical\n  intro H N inst q bases\n  have hd : ∀ x : M7.GlobalQuery.Index H N,\n      M7.GlobalQuery.feasible q bases x ∧ x ∉ M7.GlobalQuery.winners q bases →\n      ∃ y ∈ M7.GlobalQuery.winners q bases, M7.QueryCertificate.strictBetter q bases y x := by\n    intro x hx\n    exact M7.GlobalQuery.strict_dominator H N q bases x hx.1 hx.2\n  let dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N) :=\n    fun x => if hx : M7.GlobalQuery.feasible q bases x ∧ x ∉ M7.GlobalQuery.winners q bases\n      then some (Classical.choose (hd x hx)) else none\n  refine ⟨dominator, ?_⟩\n  apply (M7.QueryCertificate.winner_pass_spec H N q bases\n    (M7.GlobalQuery.winners q bases) dominator).2\n  constructor\n  · intro x hx\n    exact ((M7.GlobalQuery.winners_exact H N q bases).1 x).1 hx\n  · intro x hf hw\n    have hx : M7.GlobalQuery.feasible q bases x ∧ x ∉ M7.GlobalQuery.winners q bases := ⟨hf, hw⟩\n    refine ⟨Classical.choose (hd x hx), ?_, Classical.choose_spec (hd x hx)⟩\n    simp only [dominator, dif_pos hx]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.winner_pass_complete",
+              "ancestors": [
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "ee48af408eac14c1f5b28cfe9a2ba6277b6adc948a21261711c32605635ab248"
+            },
+            "sha256": "26c0a1d10df4f095dd6b87215041278c92a04abc3e686a118c9d9d70e97f893a"
+          },
+          "check_complete": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.check_complete : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), M7.DefaultQuery.valid N q → ∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.check q bases (⟨M7.GlobalQuery.winners q bases, M7.QueryCertificate.allPresentations q bases, dominator⟩ : M7.QueryCertificate.Certificate H N) = Except.ok true := by\n  classical\n  intro H N inst q bases hvalid\n  obtain ⟨dominator, hwin⟩ := M7.QueryCertificate.winner_pass_complete H N q bases\n  have hpres : M7.QueryCertificate.presentationPass bases\n      (M7.GlobalQuery.winners q bases)\n      (M7.QueryCertificate.allPresentations q bases) = true := by\n    apply (M7.QueryCertificate.presentation_pass_spec H N bases\n      (M7.GlobalQuery.winners q bases)\n      (M7.QueryCertificate.allPresentations q bases)).2\n    intro x\n    simp [M7.QueryCertificate.allPresentations, M7.GlobalQuery.present,\n      M7.QueryCertificate.isLeast,\n      (M7.ActualPresentation.leastAction_spec N (bases x.1)\n        (M7.GlobalQuery.realize bases x)).1,\n      M7.GlobalQuery.realize]\n  refine ⟨dominator, ?_⟩\n  simp [M7.QueryCertificate.check, hvalid, hwin, hpres]",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.check_complete",
+              "ancestors": [
+                "presentation_pass_spec",
+                "winner_pass_complete",
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "e1f1a0fdb0d87a2c64d1c5a61f2431833f125f3798bb9b5ccd265745a3a129e1"
+            },
+            "sha256": "971af281ef0eccb66a7da13477ffe6cd0d5b7c1e82edeb6e295b90f2bb6cc296"
+          },
+          "check_exact": {
+            "payload": {
+              "declaration": "theorem M7.QueryCertificate.check_exact : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (W P : Finset (M7.GlobalQuery.Index H N)), ((∃ dominator : M7.GlobalQuery.Index H N → Option (M7.GlobalQuery.Index H N), M7.QueryCertificate.check q bases (⟨W, P, dominator⟩ : M7.QueryCertificate.Certificate H N) = Except.ok true) ↔ M7.DefaultQuery.valid N q ∧ W = M7.GlobalQuery.winners q bases ∧ P = M7.QueryCertificate.allPresentations q bases) := by\n  intro H N inst q bases W P\n  constructor\n  · rintro ⟨dominator, hcheck⟩\n    exact M7.QueryCertificate.check_sound H N q bases\n      (⟨W, P, dominator⟩ : M7.QueryCertificate.Certificate H N) hcheck\n  · rintro ⟨hvalid, hW, hP⟩\n    rw [hW, hP]\n    exact M7.QueryCertificate.check_complete H N q bases hvalid",
+              "imports": [
+                "M7GlobalQueryAccepted",
+                "M7QueryCertificate"
+              ],
+              "name": "M7.QueryCertificate.check_exact",
+              "ancestors": [
+                "check_complete",
+                "check_sound",
+                "presentation_pass_spec",
+                "winner_pass_complete",
+                "winner_pass_sound",
+                "winner_pass_spec"
+              ],
+              "spec_sha256": "cf9b14a3b2c7bff42b983d255e14c76befa1752ec8ed663656d2d2c172b9f9cd"
+            },
+            "sha256": "43006bfb6997ca93bf054e8745e80030674774198ff8d8508c0485b291405c41"
+          }
+        }
+      }
+    }
+  }
+}

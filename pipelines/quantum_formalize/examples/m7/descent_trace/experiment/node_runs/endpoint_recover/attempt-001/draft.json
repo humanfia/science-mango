@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), M7.DescentTrace.endpoint p (M7.DescentTrace.trace c p n) = M5.BinaryRecovery.recover c p n\nintro c p n\ninduction n generalizing p with\n| zero => rfl\n| succ n ih =>\n    by_cases h : 0 < c (p ++ [false])\n    · simpa [M7.DescentTrace.trace, M7.DescentTrace.endpoint, M7.DescentTrace.choose, M5.BinaryRecovery.recover, h] using ih (p ++ [false])\n    · simpa [M7.DescentTrace.trace, M7.DescentTrace.endpoint, M7.DescentTrace.choose, M5.BinaryRecovery.recover, h] using ih (p ++ [true])",
+  "queries": []
+}

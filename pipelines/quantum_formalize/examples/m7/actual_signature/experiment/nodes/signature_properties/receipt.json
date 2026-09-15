@@ -1,0 +1,55 @@
+{
+  "id": "signature_properties",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.RecipeSignature.signature_properties",
+    "spec_sha256": "9a1195cd9633cc17ae88b6da76116dab3ec65a26af892615b1a8f0c8bb4d61f0",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-ake6nexw/attempt-001/Candidate_94579307148397b7.lean",
+        "target_path": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-ake6nexw/attempt-001/FrozenTarget_94579307148397b7.lean",
+        "feedback": "",
+        "target_sha256": "c3dea76444a515aaf197c975faa6809d610dec44661914bdf4235c4d14e920cd",
+        "target_olean_sha256": "6870b0cf28f42b01a32efb829f52dab39674033c3e23833b2c79923be89211ce",
+        "source_sha256": "82a38195d8340cc39418f913bd80bed51159a08d5ee313ef63c72964b6b00f46",
+        "olean_sha256": "8b0a22f937560a00f324195a3b380520c9f4981d7f76ce6da226adb649322634",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:32:43.679128+00:00",
+    "work": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-ake6nexw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9272f5c59df427ca0c20cda95b96899cb65483f37c701df6e9e3d29174e6487e",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-recipe-signature-formalization/.humanize-formal-runs/run-ake6nexw/attempt-001/Candidate_94579307148397b7.lean",
+    "environment_sha256": "13bd1759c27fb2db61ddd89665a55eee7edaba701bb696da1a4b5841d2f840a2",
+    "artifacts": {
+      "signature_properties": {
+        "payload": {
+          "declaration": "theorem M7.RecipeSignature.signature_properties : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic ∧ M7.RecipeSignature.signature c ∣ (M6.Cyclic.modulus N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic ∧ M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N\n  intro N inst c\n  have hd : M7.RecipeSignature.signature c ∣ M6.Cyclic.modulus N := by\n    unfold M7.RecipeSignature.signature\n    first\n    | exact M6.Cyclic.signature_divides _ _ _\n    | exact (M6.Cyclic.signature_divides _ _ _).2.2\n    | exact (M6.Cyclic.signature_divides _ _ _).2\n  refine ⟨M7.SignatureTau.binary_monic _ ?_, hd⟩\n  intro hz\n  have hm := (M7.SignatureTau.modulus_monic N).ne_zero\n  apply hm\n  simpa only [hz, zero_dvd_iff] using hd",
+          "imports": [
+            "M7RecipeSignatureReady"
+          ],
+          "name": "M7.RecipeSignature.signature_properties",
+          "ancestors": [],
+          "spec_sha256": "9a1195cd9633cc17ae88b6da76116dab3ec65a26af892615b1a8f0c8bb4d61f0"
+        },
+        "sha256": "ec6a3d9907ee6637a78fc613b06c989935032bf7afbbaa1b28863df6c2de901b"
+      }
+    }
+  }
+}

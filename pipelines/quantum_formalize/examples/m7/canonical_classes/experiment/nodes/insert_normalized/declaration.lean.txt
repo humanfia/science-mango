@@ -1,0 +1,8 @@
+theorem M7.CanonicalClasses.insert_normalized : ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → M7.CanonicalClasses.Normalized (insert (M7.CanonicalOuter.canonical y) bases) := by
+  classical
+  intro N inst bases y h
+  change ∀ c ∈ insert (M7.CanonicalOuter.canonical y) bases, M7.CanonicalOuter.canonical c = c
+  intro c hc
+  rcases Finset.mem_insert.mp hc with rfl | hc
+  · exact M7.CanonicalClasses.idempotent N y
+  · exact h c hc

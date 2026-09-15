@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), p.IsPrefix (M5.BinaryRecovery.recover c p n)\nintro c p n\ninduction n generalizing p with\n| zero =>\n    exact ⟨[], by simp [M5.BinaryRecovery.recover]⟩\n| succ n ih =>\n    have h (b : Bool) : p.IsPrefix (M5.BinaryRecovery.recover c (p ++ [b]) n) :=\n      (show p.IsPrefix (p ++ [b]) from ⟨[b], rfl⟩).trans (ih (p ++ [b]))\n    simp only [M5.BinaryRecovery.recover]\n    first\n    | exact h _\n    | split <;> exact h _",
+  "queries": [
+    "List.IsPrefix.trans",
+    "M5.BinaryRecovery.recover"
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ E : M6.Cyclic.BinaryPolynomial → Prop, ((∃ g : M7.Action.Record N, E (M7.RecipeSignature.signature (M7.Action.act g c))) ↔ ∃ u : (ZMod N)ˣ, E (M7.SignatureTau.sourceTau u (M7.RecipeSignature.signature c)))\nintro N inst c E\nconstructor\n· rintro ⟨g, hg⟩\n  refine ⟨g.unit, ?_⟩\n  rw [M7.RecipeSignature.action_signature N c g] at hg\n  exact hg\n· rintro ⟨u, hu⟩\n  refine ⟨{ unit := u, exchange := false, leftShift := 0, rightShift := 0 }, ?_⟩\n  rw [M7.RecipeSignature.action_signature N c]\n  exact hu",
+  "queries": []
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "intro N hN\nhave hu (offset : ℕ) : M7.PrefixBits.undecided N offset [] = Finset.range N \\ {0} := by\n  apply Finset.ext\n  intro x\n  simp only [M7.PrefixBits.undecided, List.length_nil, Nat.zero_le,\n    Finset.filter_true, Finset.mem_image, Finset.mem_range,\n    Finset.mem_sdiff, Finset.mem_singleton]\n  constructor\n  · rintro ⟨j, hj, rfl⟩\n    constructor <;> omega\n  · rintro ⟨hx, hx0⟩\n    refine ⟨x - 1, ?_, ?_⟩ <;> omega\nrefine ⟨?_, ?_, hu 0, hu (N - 1)⟩\n· simp [M7.PrefixBits.A, M7.PrefixBits.selected]\n· simp [M7.PrefixBits.B, M7.PrefixBits.selected]",
+  "queries": []
+}

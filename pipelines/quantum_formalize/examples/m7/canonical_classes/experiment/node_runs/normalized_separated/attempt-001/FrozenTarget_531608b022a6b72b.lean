@@ -1,0 +1,10 @@
+import M7CanonicalClasses
+
+theorem M7.CanonicalClasses.orbit_membership : ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c := by
+  change ∀ (N : ℕ) [NeZero N], ∀ c y : M7.Action.Recipe N, y ∈ M7.ActualOrbit.orbit c ↔ M7.CanonicalOuter.canonical y = M7.CanonicalOuter.canonical c
+  intro N _ c y
+  classical
+  simp only [M7.ActualOrbit.orbit, Finset.mem_image, Finset.mem_univ, true_and]
+  exact (M7.CanonicalOuter.orbit_complete N c y).trans eq_comm
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N : ℕ) [NeZero N], ∀ bases : Finset (M7.Action.Recipe N), M7.CanonicalClasses.Normalized bases → M7.OrbitResidual.Separated bases

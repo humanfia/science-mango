@@ -1,0 +1,95 @@
+{
+  "id": "insert_strict",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.OrbitResidual.insert_strict",
+    "spec_sha256": "c0ab3e8068030fd8cbe32c27edc327d44058dcb0c497f55f892cf42da304adce",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-tcblealz/attempt-001/Candidate_bb2a4b366ce28e7b.lean",
+        "target_path": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-tcblealz/attempt-001/FrozenTarget_bb2a4b366ce28e7b.lean",
+        "feedback": "",
+        "target_sha256": "5e2359aae235a4a399f39bff186fbec83325ed85580c7ecc2b26ff92829206da",
+        "target_olean_sha256": "1da7054e66fe74fdf466e83b8ee3b7fa25f8fedae7edc0378f100e32fa5d3e50",
+        "source_sha256": "e616ca904d4c01d7348a57abb72a81c43ea1ae903b7bd7e87b01ad6c49aa3cd8",
+        "olean_sha256": "7dcd524b4c24961a45cf739d99d90efb1e87afe78770441eb929a0b116ac709f",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:12:48.805038+00:00",
+    "work": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-tcblealz",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9195e94e515efc58b575997d28e545c8c5b61e88c50ef1fcf4eb674ce515bee4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-tcblealz/attempt-001/Candidate_bb2a4b366ce28e7b.lean",
+    "environment_sha256": "0045639962c93f6a2660d20ff98e773a0ab54d46b3fc8712ff25d93e187358f8",
+    "artifacts": {
+      "insert_remaining": {
+        "payload": {
+          "declaration": "theorem M7.OrbitResidual.insert_remaining : ∀ (N : ℕ) [NeZero N], ∀ (C bases : Finset (M7.Action.Recipe N)) (c : M7.Action.Recipe N), M7.OrbitResidual.remaining C (insert c bases) = M7.OrbitResidual.remaining C bases \\ M7.ActualOrbit.orbit c := by\n  classical\n  intro N inst C bases c\n  ext x\n  simp only [M7.OrbitResidual.remaining, M7.OrbitResidual.covered,\n    Finset.biUnion_insert, Finset.mem_sdiff, Finset.mem_union]\n  tauto",
+          "imports": [
+            "M7OrbitResidual"
+          ],
+          "name": "M7.OrbitResidual.insert_remaining",
+          "ancestors": [],
+          "spec_sha256": "e9d470a93833528f18d5733f5482b1073c1168efd7483c5b22da61a5ca29c4fd"
+        },
+        "sha256": "6efd14e2fe6269b4c4d466b6c822fed04fc1702897161b30bc7386d6f60fc6eb"
+      },
+      "orbit_self": {
+        "payload": {
+          "declaration": "theorem M7.OrbitResidual.orbit_self : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, c ∈ M7.ActualOrbit.orbit c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, c ∈ M7.ActualOrbit.orbit c\n  intro N inst c\n  classical\n  change c ∈ Finset.univ.image (fun g : M7.Action.Record N => M7.Action.act g c)\n  exact Finset.mem_image.mpr ⟨M7.Action.identity N, Finset.mem_univ _, M7.Action.act_identity N c⟩",
+          "imports": [
+            "M7OrbitResidual"
+          ],
+          "name": "M7.OrbitResidual.orbit_self",
+          "ancestors": [],
+          "spec_sha256": "2104eb7d603fcb9d846d9598f990e42f12e821c72819aae75f682b1f3b04df46"
+        },
+        "sha256": "71bbe967d3a9572ec30f0e364be83107be3d2c75ba7ec989ac7cdaffa6b41a93"
+      },
+      "orbit_action": {
+        "payload": {
+          "declaration": "theorem M7.OrbitResidual.orbit_action : ∀ (N : ℕ) [NeZero N], ∀ (c : M7.Action.Recipe N) (g : M7.Action.Record N), M7.ActualOrbit.orbit (M7.Action.act g c) = M7.ActualOrbit.orbit c := by\n  intro N inst c g\n  classical\n  unfold M7.ActualOrbit.orbit\n  ext y\n  simp only [Finset.mem_image, Finset.mem_univ, true_and]\n  constructor\n  · rintro ⟨h, hh⟩\n    refine ⟨M7.Action.compose h g, ?_⟩\n    rw [M7.Action.act_compose]\n    exact hh\n  · rintro ⟨h, hh⟩\n    refine ⟨M7.Action.compose h (M7.Action.inverse g), ?_⟩\n    rw [M7.Action.act_compose, M7.Action.act_inverse]\n    exact hh",
+          "imports": [
+            "M7OrbitResidual"
+          ],
+          "name": "M7.OrbitResidual.orbit_action",
+          "ancestors": [],
+          "spec_sha256": "125d1116ac99530ccffb3df7bb28b76fd295903f6c9d0142c37f447a24e2442d"
+        },
+        "sha256": "3bc31d397e3d0de920400efe2f3d4d85823381fe4a525805d2b34343d97abd2e"
+      },
+      "insert_strict": {
+        "payload": {
+          "declaration": "theorem M7.OrbitResidual.insert_strict : ∀ (N : ℕ) [NeZero N], ∀ (C bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N) (g : M7.Action.Record N), y ∈ M7.OrbitResidual.remaining C bases → (M7.OrbitResidual.remaining C (insert (M7.Action.act g y) bases)).card < (M7.OrbitResidual.remaining C bases).card := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ (C bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N) (g : M7.Action.Record N), y ∈ M7.OrbitResidual.remaining C bases → (M7.OrbitResidual.remaining C (insert (M7.Action.act g y) bases)).card < (M7.OrbitResidual.remaining C bases).card\n  intro N inst C bases y g hy\n  rw [M7.OrbitResidual.insert_remaining N C bases (M7.Action.act g y),\n    M7.OrbitResidual.orbit_action N y g]\n  apply Finset.card_lt_card\n  refine Finset.ssubset_iff_subset_ne.mpr ⟨Finset.sdiff_subset, ?_⟩\n  intro heq\n  have hm : y ∈ M7.OrbitResidual.remaining C bases \\ M7.ActualOrbit.orbit y := by\n    rw [heq]\n    exact hy\n  exact (Finset.mem_sdiff.mp hm).2 (M7.OrbitResidual.orbit_self N y)",
+          "imports": [
+            "M7OrbitResidual"
+          ],
+          "name": "M7.OrbitResidual.insert_strict",
+          "ancestors": [
+            "insert_remaining",
+            "orbit_action",
+            "orbit_self"
+          ],
+          "spec_sha256": "6a25a4192497c88782a36620ac1e30e200b5be339376a1d91456baf969e82247"
+        },
+        "sha256": "4e8930055f7b3e71056154a00607397491021bc0bdcc4ab8024bca147f12361e"
+      }
+    }
+  }
+}

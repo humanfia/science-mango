@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (N : ℕ) [NeZero N], ∀ (C bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N) (g : M7.Action.Record N), y ∈ M7.OrbitResidual.remaining C bases → (M7.OrbitResidual.remaining C (insert (M7.Action.act g y) bases)).card < (M7.OrbitResidual.remaining C bases).card\nintro N inst C bases y g hy\nrw [M7.OrbitResidual.insert_remaining N C bases (M7.Action.act g y),\n  M7.OrbitResidual.orbit_action N y g]\napply Finset.card_lt_card\nrefine Finset.ssubset_iff_subset_ne.mpr ⟨Finset.sdiff_subset, ?_⟩\nintro heq\nhave hm : y ∈ M7.OrbitResidual.remaining C bases \\ M7.ActualOrbit.orbit y := by\n  rw [heq]\n  exact hy\nexact (Finset.mem_sdiff.mp hm).2 (M7.OrbitResidual.orbit_self N y)",
+  "queries": []
+}

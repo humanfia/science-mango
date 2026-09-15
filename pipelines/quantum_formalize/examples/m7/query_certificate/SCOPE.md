@@ -1,0 +1,11 @@
+# M7 finite query certificate checker
+
+This is the query replay component of original M7 §8–10 on the already generated finite family bases : Fin H → Recipe N. A certificate supplies claimed winning indices W, claimed presentation indices P and an Option-valued strict-dominator witness for each omitted index. Each index is an actual Fin H × Action.Record N. No complete-family or raw-domain coverage assumption enters this checker theorem; the final root establishes coverage separately.
+
+The checker runs explicit finite List.all loops on Finset.toList. For each claimed winner it recomputes actual default feasibility and checks every possible global competitor for strict domination. For each omitted feasible index it checks the certificate's supplied witness is present, belongs to W and strictly improves the actual objective vector. It then checks every P index belongs to W and equals the actual factorized leastAction preimage, and every W index satisfying that least-preimage condition appears in P. Thus all omitted ties are rejected: no equal objective can serve as a strict dominator.
+
+The checker never compares W with GlobalQuery.winners or P with allPresentations. Those sets occur only in semantic theorem targets. allPresentations is the finite filter of the actual GlobalQuery.present predicate, and is not called by check. Invalid signature input returns Except.error invalidSignature before certificate checking; a valid but incorrect certificate returns ok false, distinct from an input error.
+
+Eight exact targets characterize the finite loops, prove claimed winners sound and true winners admit strict-dominator witnesses, characterize actual presentation checks, prove the input error rule, and establish checker soundness, completeness and exactness. Completeness quantifies over the finite supplied witness map, so an incorrect map need not pass even when its W/P sets happen to be correct. This preserves every actual global Pareto/lex tie and actual least-preimage presentation.
+
+The structural generation coverage and uniqueness across distinct canonical classes remain root integration. No Python extraction, practical runtime implementation or stronger efficiency gate is added. Compilation uses the unchanged pin and normal frozen-type/axiom audit, two workers, 600 seconds and five gpt-6-astra medium rounds.

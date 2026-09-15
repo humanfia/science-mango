@@ -1,0 +1,7 @@
+import FrozenTarget_f6dc863a3cc7691b
+theorem M7.RecipeSignature.action_signature_degree : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, ∀ g : M7.Action.Record N, (M7.RecipeSignature.signature (M7.Action.act g c)).natDegree = (M7.RecipeSignature.signature c).natDegree
+  intro N inst c g
+  rw [M7.RecipeSignature.action_signature N c g, M7.SignatureTau.source_tau_equal N]
+  obtain ⟨hm, hd⟩ := M7.RecipeSignature.signature_properties N c
+  exact M7.RecipeSignature.tau_degree N g.unit (M7.RecipeSignature.signature c) hm hd

@@ -1,0 +1,43 @@
+import FrozenTarget_5d16a3c7bd564006
+theorem M7.PrefixBits.completed_partition : QuantumHarnessFrozenTarget := by
+  classical
+  unfold QuantumHarnessFrozenTarget
+  intro N hN w E p hp
+  have hd : Disjoint (M7.PrefixBits.A N p) (M7.PrefixBits.WA N p) ∧
+      Disjoint (M7.PrefixBits.B N p) (M7.PrefixBits.WB N p) := by
+    have hb := M7.PrefixBits.base N hN p
+    unfold M7.PrefixCompleted.Base at hb
+    aesop
+  rcases hd with ⟨hdA, hdB⟩
+  by_cases hl : p.length < N - 1
+  · rcases M7.PrefixBits.left_step N hN p false hl with
+      ⟨hi, hAf, hBf, hWAf, hWBf⟩
+    rcases M7.PrefixBits.left_step N hN p true hl with
+      ⟨_, hAt, hBt, hWAt, hWBt⟩
+    simp at hAf hAt
+    simp only [M7.PrefixBits.completed, hAf, hBf, hWAf, hWBf,
+      hAt, hBt, hWAt, hWBt]
+    exact ⟨M7.PrefixCompleted.left_sets N w E
+        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)
+        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)
+        hdA hdB (p.length + 1) hi,
+      M7.PrefixCompleted.left_disjoint N w E
+        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)
+        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)
+        hdA hdB (p.length + 1) hi⟩
+  · have hr : N - 1 ≤ p.length := by omega
+    rcases M7.PrefixBits.right_step N hN p false hr hp with
+      ⟨hi, hAf, hBf, hWAf, hWBf⟩
+    rcases M7.PrefixBits.right_step N hN p true hr hp with
+      ⟨_, hAt, hBt, hWAt, hWBt⟩
+    simp at hBf hBt
+    simp only [M7.PrefixBits.completed, hAf, hBf, hWAf, hWBf,
+      hAt, hBt, hWAt, hWBt]
+    exact ⟨M7.PrefixCompleted.right_sets N w E
+        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)
+        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)
+        hdA hdB (p.length - (N - 1) + 1) hi,
+      M7.PrefixCompleted.right_disjoint N w E
+        (M7.PrefixBits.A N p) (M7.PrefixBits.B N p)
+        (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)
+        hdA hdB (p.length - (N - 1) + 1) hi⟩

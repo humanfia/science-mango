@@ -1,0 +1,84 @@
+{
+  "id": "nonnegative_positive",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.OrbitResidual.nonnegative_positive",
+    "spec_sha256": "61f479ddb900d1c2f4c0d928d58dd9a0fef827ee80a39ac96ac531ab2d6bdc6b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-m727ekl0/attempt-001/Candidate_87c77162a74a0558.lean",
+        "target_path": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-m727ekl0/attempt-001/FrozenTarget_87c77162a74a0558.lean",
+        "feedback": "",
+        "target_sha256": "21147ef88c535db8bc4a69474fce4ccd93775f4083ee0f178cbe6723866c509f",
+        "target_olean_sha256": "3ec166cac43764787c2d8be2480662e1db8ad802066f8ba8ddb1cd5d7877db11",
+        "source_sha256": "8b2bd2872d2c3be5a5df02e8e07bcf7b18dfeabd8b9bb56535fffdd38d9668c2",
+        "olean_sha256": "cb14809386bd55f0c5c83e8f1d1d27a1a6f4fc1742a15fc32417c01d75a9d8ac",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:51:11.392887+00:00",
+    "work": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-m727ekl0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9195e94e515efc58b575997d28e545c8c5b61e88c50ef1fcf4eb674ce515bee4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-orbit-residual-formalization/.humanize-formal-runs/run-m727ekl0/attempt-001/Candidate_87c77162a74a0558.lean",
+    "environment_sha256": "0045639962c93f6a2660d20ff98e773a0ab54d46b3fc8712ff25d93e187358f8",
+    "artifacts": {
+      "sum_intersections": {
+        "payload": {
+          "declaration": "theorem M7.OrbitResidual.sum_intersections : ∀ (N : ℕ) [NeZero N], ∀ C bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.Separated bases → (∑ c ∈ bases, M7.ActualOrbit.distinctCount c (fun y => y ∈ C)) = (C ∩ M7.OrbitResidual.covered bases).card := by\n  classical\n  intro N inst C bases hsep\n  letI : DecidablePred (fun y : M7.Action.Recipe N => y ∈ C) := fun _ => Classical.propDecidable _\n  unfold M7.ActualOrbit.distinctCount M7.OrbitResidual.covered\n  have hunion : bases.biUnion (fun c => (M7.ActualOrbit.orbit c).filter (fun y => y ∈ C)) = C ∩ bases.biUnion M7.ActualOrbit.orbit := by\n    ext y\n    simp only [Finset.mem_biUnion, Finset.mem_filter, Finset.mem_inter]\n    aesop\n  rw [← hunion]\n  symm\n  apply Finset.card_biUnion (s := bases) (t := fun c : M7.Action.Recipe N => (M7.ActualOrbit.orbit c).filter (fun y => y ∈ C))\n  intro c hc d hd hcd\n  exact (hsep c hc d hd hcd).mono (Finset.filter_subset _ _) (Finset.filter_subset _ _)",
+          "imports": [
+            "M7OrbitResidual"
+          ],
+          "name": "M7.OrbitResidual.sum_intersections",
+          "ancestors": [],
+          "spec_sha256": "eedf7888160889399d93b19c2cc3ee4df863bf616186b0102b3dbead7201406b"
+        },
+        "sha256": "8244b7ec49f25bb7b72ef1da2e92b984e3be8e9683c6de0f8945269d0109b818"
+      },
+      "subtraction_card": {
+        "payload": {
+          "declaration": "theorem M7.OrbitResidual.subtraction_card : ∀ (N : ℕ) [NeZero N], ∀ C bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.Separated bases → M7.OrbitResidual.subtraction C bases = (M7.OrbitResidual.remaining C bases).card := by\n  intro N inst C bases hsep\n  classical\n  have hsum := congrArg (fun n : ℕ => (n : ℤ))\n    (M7.OrbitResidual.sum_intersections N C bases hsep)\n  simp only [Nat.cast_sum] at hsum\n  unfold M7.OrbitResidual.subtraction M7.OrbitResidual.remaining\n  rw [hsum]\n  have hcard :\n      ((C \\ M7.OrbitResidual.covered bases).card : ℤ) +\n        ((C ∩ M7.OrbitResidual.covered bases).card : ℤ) = (C.card : ℤ) := by\n    exact_mod_cast Finset.card_sdiff_add_card_inter C (M7.OrbitResidual.covered bases)\n  omega",
+          "imports": [
+            "M7OrbitResidual"
+          ],
+          "name": "M7.OrbitResidual.subtraction_card",
+          "ancestors": [
+            "sum_intersections"
+          ],
+          "spec_sha256": "0a741d49991f1e8d59dea43391e638a62f3fc41d9b5bac7749eb15c56ce023bf"
+        },
+        "sha256": "7b57501a34e985af8ffbf0fd77c6708d5ada790f34ec467ed55888decfa263b1"
+      },
+      "nonnegative_positive": {
+        "payload": {
+          "declaration": "theorem M7.OrbitResidual.nonnegative_positive : ∀ (N : ℕ) [NeZero N], ∀ C bases : Finset (M7.Action.Recipe N), M7.OrbitResidual.Separated bases → 0 ≤ M7.OrbitResidual.subtraction C bases ∧ (0 < M7.OrbitResidual.subtraction C bases ↔ ∃ y ∈ C, y ∉ M7.OrbitResidual.covered bases) := by\n  classical\n  intro N inst C bases hsep\n  rw [M7.OrbitResidual.subtraction_card N C bases hsep]\n  constructor\n  · positivity\n  · constructor\n    · intro h\n      have hcard : 0 < (M7.OrbitResidual.remaining C bases).card := by omega\n      obtain ⟨y, hy⟩ := Finset.card_pos.mp hcard\n      have hy' : y ∈ C ∧ y ∉ M7.OrbitResidual.covered bases := by\n        simpa [M7.OrbitResidual.remaining] using hy\n      exact ⟨y, hy'.1, hy'.2⟩\n    · rintro ⟨y, hyC, hy⟩\n      have hmem : y ∈ M7.OrbitResidual.remaining C bases := by\n        simpa [M7.OrbitResidual.remaining] using And.intro hyC hy\n      have hcard := Finset.card_pos.mpr ⟨y, hmem⟩\n      omega",
+          "imports": [
+            "M7OrbitResidual"
+          ],
+          "name": "M7.OrbitResidual.nonnegative_positive",
+          "ancestors": [
+            "subtraction_card",
+            "sum_intersections"
+          ],
+          "spec_sha256": "f287956ed955aed144a7818ef5921a04b49c6ef75727e0d29782d7c3947ee298"
+        },
+        "sha256": "72fc98e9c296aa6205032794c3ecd437b08f4cb8b154126c958005d46c52df5a"
+      }
+    }
+  }
+}

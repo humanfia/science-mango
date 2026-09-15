@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro H N inst q bases hvalid\nobtain ⟨dominator, hwin⟩ := M7.QueryCertificate.winner_pass_complete H N q bases\nhave hpres : M7.QueryCertificate.presentationPass bases\n    (M7.GlobalQuery.winners q bases)\n    (M7.QueryCertificate.allPresentations q bases) = true := by\n  apply (M7.QueryCertificate.presentation_pass_spec H N bases\n    (M7.GlobalQuery.winners q bases)\n    (M7.QueryCertificate.allPresentations q bases)).2\n  intro x\n  simp [M7.QueryCertificate.allPresentations, M7.GlobalQuery.present,\n    M7.QueryCertificate.isLeast,\n    (M7.ActualPresentation.leastAction_spec N (bases x.1)\n      (M7.GlobalQuery.realize bases x)).1,\n    M7.GlobalQuery.realize]\nrefine ⟨dominator, ?_⟩\nsimp [M7.QueryCertificate.check, hvalid, hwin, hpres]",
+  "queries": []
+}

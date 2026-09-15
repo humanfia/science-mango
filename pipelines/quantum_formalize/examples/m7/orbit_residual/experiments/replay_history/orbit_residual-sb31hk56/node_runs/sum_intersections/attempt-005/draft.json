@@ -1,0 +1,7 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nclassical\nintro N inst C bases hsep\nchange M7.OrbitResidual.Separated bases at hsep\nhave hcount (c : M7.Action.Recipe N) :\n    M7.ActualOrbit.distinctCount c (fun y => y ∈ C) =\n      ((M7.ActualOrbit.orbit c).filter (fun y => y ∈ C)).card := by\n  simp only [M7.ActualOrbit.distinctCount, M7.ActualOrbit.orbit,\n    Finset.filter_image]\ncalc\n  _ = ∑ c ∈ bases, ((M7.ActualOrbit.orbit c).filter (fun y => y ∈ C)).card := by\n    apply Finset.sum_congr rfl\n    intro c hc\n    exact hcount c\n  _ = (bases.biUnion (fun c => (M7.ActualOrbit.orbit c).filter (fun y => y ∈ C))).card := by\n    symm\n    apply Finset.card_biUnion\n    intro c hc d hd hcd\n    exact (hsep c hc d hd hcd).mono\n      (Finset.filter_subset _)\n      (Finset.filter_subset _)\n  _ = (C ∩ M7.OrbitResidual.covered bases).card := by\n    congr 1\n    ext y\n    simp only [M7.OrbitResidual.covered, Finset.mem_biUnion,\n      Finset.mem_filter, Finset.mem_inter]\n    aesop",
+  "queries": [
+    "Finset.card_biUnion",
+    "Finset.filter_image"
+  ]
+}

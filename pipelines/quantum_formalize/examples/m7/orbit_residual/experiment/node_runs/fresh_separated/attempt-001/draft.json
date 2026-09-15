@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ (bases : Finset (M7.Action.Recipe N)) (y : M7.Action.Recipe N) (g : M7.Action.Record N), M7.OrbitResidual.Separated bases → y ∉ M7.OrbitResidual.covered bases → M7.OrbitResidual.Separated (insert (M7.Action.act g y) bases)\nintro N inst bases y g hsep hfresh\nclassical\nhave hnew : ∀ c ∈ bases, Disjoint (M7.ActualOrbit.orbit c) (M7.ActualOrbit.orbit (M7.Action.act g y)) := by\n  intro c hc\n  rw [M7.OrbitResidual.orbit_action N y g]\n  apply (M7.OrbitResidual.orbit_disjoint N c y).mpr\n  intro hy\n  exact hfresh ((M7.OrbitResidual.covered_membership N bases y).mpr ⟨c, hc, hy⟩)\nunfold M7.OrbitResidual.Separated at hsep ⊢\nintro c hc d hd hcd\nrcases Finset.mem_insert.mp hc with rfl | hc\n· rcases Finset.mem_insert.mp hd with rfl | hd\n  · exact (hcd rfl).elim\n  · exact (hnew d hd).symm\n· rcases Finset.mem_insert.mp hd with rfl | hd\n  · exact hnew c hc\n  · exact hsep c hc d hd hcd",
+  "queries": []
+}

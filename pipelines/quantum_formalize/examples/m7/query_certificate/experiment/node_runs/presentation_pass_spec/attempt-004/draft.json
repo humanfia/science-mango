@@ -1,0 +1,4 @@
+{
+  "proof": "intro H N inst bases W P\nclassical\nsimp only [M7.QueryCertificate.presentationPass, M7.QueryCertificate.allOn,\n  Bool.and_eq_true, List.all_eq_true, Finset.mem_toList, decide_eq_true_eq]\nchange ((∀ x, x ∈ P → x ∈ W ∧ M7.QueryCertificate.isLeast bases x) ∧\n  (∀ x, x ∈ W → M7.QueryCertificate.isLeast bases x → x ∈ P)) ↔\n  ∀ x, x ∈ P ↔ x ∈ W ∧ M7.QueryCertificate.isLeast bases x\nconstructor\n· rintro ⟨hP, hW⟩ x\n  exact ⟨hP x, fun h => hW x h.1 h.2⟩\n· intro h\n  constructor\n  · intro x hx\n    exact (h x).mp hx\n  · intro x hx hl\n    exact (h x).mpr ⟨hx, hl⟩",
+  "queries": []
+}
