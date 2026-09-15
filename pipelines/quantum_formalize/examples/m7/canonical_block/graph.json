@@ -1,0 +1,234 @@
+{
+  "title": "M7 single-block anchor normalization and exact translation invariant",
+  "nodes": [
+    {
+      "id": "shift_identity",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CanonicalBlock.shift_identity",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 A : Support N, shift 0 A = A",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "shift_add",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CanonicalBlock.shift_add",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (s t : ZMod N) (A : Support N), shift s (shift t A) = shift (s+t) A",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "shift_card",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CanonicalBlock.shift_card",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (s : ZMod N) (A : Support N), (shift s A).card = A.card",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "decode_key",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CanonicalBlock.decode_key",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 A : Support N, decode N (key A) = A",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "key_injective",
+      "dependencies": [
+        "decode_key"
+      ],
+      "spec": {
+        "name": "M7.CanonicalBlock.key_injective",
+        "statement": "\u2200 (N : \u2115) [NeZero N], Function.Injective (key (N := N))",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "best_anchor_member",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CanonicalBlock.best_anchor_member",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 A : Support N, A.Nonempty \u2192 bestAnchor A \u2208 A",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "best_key_agrees",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CanonicalBlock.best_key_agrees",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 A : Support N, A.Nonempty \u2192 (ofLex (bestKey A)).1 = key (normalize A)",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "normalize_card",
+      "dependencies": [
+        "shift_card"
+      ],
+      "spec": {
+        "name": "M7.CanonicalBlock.normalize_card",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 A : Support N, (normalize A).card = A.card",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "normalize_anchor",
+      "dependencies": [
+        "best_anchor_member"
+      ],
+      "spec": {
+        "name": "M7.CanonicalBlock.normalize_anchor",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 A : Support N, A.Nonempty \u2192 0 \u2208 normalize A",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "normalize_minimal",
+      "dependencies": [
+        "best_key_agrees"
+      ],
+      "spec": {
+        "name": "M7.CanonicalBlock.normalize_minimal",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 A : Support N, A.Nonempty \u2192 \u2200 q \u2208 A, key (normalize A) \u2264 key (shift (-q) A)",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "anchor_keys_shift",
+      "dependencies": [
+        "shift_add"
+      ],
+      "spec": {
+        "name": "M7.CanonicalBlock.anchor_keys_shift",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (s : ZMod N) (A : Support N), (candidates (shift s A)).image (fun v => (ofLex v).1) = (candidates A).image (fun v => (ofLex v).1)",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "normalize_shift",
+      "dependencies": [
+        "normalize_minimal",
+        "anchor_keys_shift",
+        "key_injective",
+        "best_anchor_member",
+        "best_key_agrees",
+        "shift_card"
+      ],
+      "spec": {
+        "name": "M7.CanonicalBlock.normalize_shift",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (s : ZMod N) (A : Support N), normalize (shift s A) = normalize A",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    },
+    {
+      "id": "translation_complete",
+      "dependencies": [
+        "normalize_shift",
+        "shift_add",
+        "shift_identity"
+      ],
+      "spec": {
+        "name": "M7.CanonicalBlock.translation_complete",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 A B : Support N, (\u2203 s : ZMod N, shift s A = B) \u2194 normalize A = normalize B",
+        "imports": [
+          "M7CanonicalBlock"
+        ],
+        "context": "open M7.CanonicalBlock",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Prove this exact finite-support statement. Return tactic lines only, no leading by. Source definitions follow as reference, not proof authority. Lex primary key minimizes the sorted values, secondary anchor val only chooses a realizing shift. For translation invariance, anchor key sets coincide by q -> q+s; use minima and key injectivity. Handle empty supports separately. Finset min, sorting and image lemmas suffice.\nimport Mathlib\n\nnamespace M7.CanonicalBlock\nabbrev Support (N : \u2115) := Finset (ZMod N)\nabbrev AnchorKey := Lex (List \u2115 \u00d7 \u2115)\nnoncomputable def shift {N : \u2115} [NeZero N] (s : ZMod N) (A : Support N) : Support N :=\n  A.image (fun i => i+s)\nnoncomputable def key {N : \u2115} [NeZero N] (A : Support N) : List \u2115 :=\n  (A.image ZMod.val).sort (\u00b7 \u2264 \u00b7)\nnoncomputable def decode (N : \u2115) [NeZero N] (l : List \u2115) : Support N :=\n  l.toFinset.image (fun i : \u2115 => (i : ZMod N))\nnoncomputable def candidates {N : \u2115} [NeZero N] (A : Support N) : Finset AnchorKey :=\n  A.image (fun q => toLex (key (shift (-q) A), q.val))\nnoncomputable def bestKey {N : \u2115} [NeZero N] (A : Support N) : AnchorKey :=\n  if h : (candidates A).Nonempty then (candidates A).min' h else toLex ([],0)\nnoncomputable def bestAnchor {N : \u2115} [NeZero N] (A : Support N) : ZMod N :=\n  (ofLex (bestKey A)).2\nnoncomputable def normalize {N : \u2115} [NeZero N] (A : Support N) : Support N :=\n  shift (-bestAnchor A) A\nend M7.CanonicalBlock\n"
+      }
+    }
+  ]
+}
