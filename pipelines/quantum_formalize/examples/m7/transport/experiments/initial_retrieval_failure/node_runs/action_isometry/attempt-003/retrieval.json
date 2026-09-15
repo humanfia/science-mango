@@ -1,0 +1,206 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.RecipeIsometries.translation_isometry multiplier_isometry exchange_isometry exact signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 348768,
+        "name": "Isometry",
+        "module": "Mathlib.Topology.MetricSpace.Isometry",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Isometry.lean#L38-L41",
+        "source_text": "/-- An isometry (also known as isometric embedding) is a map preserving the edistance\nbetween pseudoemetric spaces, or equivalently the distance between pseudometric space. -/\ndef Isometry [PseudoEMetricSpace α] [PseudoEMetricSpace β] (f : α → β) : Prop :=\n  ∀ x1 x2 : α, edist (f x1) (f x2) = edist x1 x2\n",
+        "docstring": "An isometry (also known as isometric embedding) is a map preserving the edistance\nbetween pseudoemetric spaces, or equivalently the distance between pseudometric space. "
+      },
+      {
+        "id": 348600,
+        "name": "isometry_mul_right",
+        "module": "Mathlib.Topology.MetricSpace.IsometricSMul",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/IsometricSMul.lean#L92-L95",
+        "source_text": "@[to_additive]\ntheorem isometry_mul_right [Mul M] [PseudoEMetricSpace M] [IsIsometricSMul Mᵐᵒᵖ M] (a : M) :\n    Isometry fun x => x * a :=\n  isometry_smul M (MulOpposite.op a)",
+        "docstring": null
+      },
+      {
+        "id": 348790,
+        "name": "Isometry.continuous",
+        "module": "Mathlib.Topology.MetricSpace.Isometry",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Isometry.lean#L140-L142",
+        "source_text": "/-- An isometry is continuous. -/\nprotected theorem continuous (hf : Isometry f) : Continuous f :=\n  hf.lipschitz.continuous\n",
+        "docstring": "An isometry is continuous. "
+      },
+      {
+        "id": 348616,
+        "name": "IsometryEquiv.constVAdd_toEquiv",
+        "module": "Mathlib.Topology.MetricSpace.IsometricSMul",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/IsometricSMul.lean#L131-L131",
+        "source_text": "@[to_additive (attr := simps! toEquiv apply) /-- If an additive group `G` acts on `X` by isometries,\nthen `IsometryEquiv.constVAdd` is the isometry of `X` given by addition of a constant element of the",
+        "docstring": null
+      },
+      {
+        "id": 348776,
+        "name": "Isometry.lipschitz",
+        "module": "Mathlib.Topology.MetricSpace.Isometry",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Isometry.lean#L77-L78",
+        "source_text": "theorem lipschitz (h : Isometry f) : LipschitzWith 1 f :=\n  LipschitzWith.of_edist_le fun x y => (h x y).le\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.RecipeIsometries.translation_isometry multiplier_isometry exchange_isometry exact signatures",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393038,
+        "name": "EuclideanGroup.specialOrthogonalEquiv",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L377-L381",
+        "source_text": "/-- API feature: SO(n) ≃* RotationGroup n -/\nnoncomputable def specialOrthogonalEquiv :\n    Matrix.specialOrthogonalGroup (Fin n) ℝ ≃* RotationGroup n :=\n    MonoidHom.toMulEquiv (specialOrthogonal.toRotation n) (specialOrthogonal.fromRotation n)\n    specialOrthogonal.fromRotation_comp_toRotation specialOrthogonal.toRotation_comp_fromRotation\n",
+        "docstring": "API feature: SO(n) ≃* RotationGroup n "
+      },
+      {
+        "id": 392996,
+        "name": "EuclideanGroup.linearIsometryEquivToOrthogonal",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.AffineGroup",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/AffineGroup.lean#L118-L132",
+        "source_text": "/-- The `invFun` ingredient of `toAffineIsometryMulEquiv`: a linear isometry equivalence read back\nas an orthogonal matrix, inverse to the linear bridge `orthogonalToLinearIsometryEquiv` (see the\nround-trip `@[simp]` lemmas below). -/\nnoncomputable def linearIsometryEquivToOrthogonal\n    (L : EuclideanSpace ℝ (Fin n) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin n)) :\n    Matrix.orthogonalGroup (Fin n) ℝ :=\n   let b := EuclideanSpace.basisFun (Fin n) ℝ\n   ⟨LinearMap.toMatrix b.toBasis b.toBasis L.toLinearEquiv, by\n    have hb : LinearMap.toMatrix b.toBasis b.toBasis L.toLinearEquiv\n        = b.toBasis.toMatrix (b.map L) := by\n      ext i j\n      simp [LinearMap.toMatrix_apply, Module.Basis.toMatrix_apply,\n        OrthonormalBasis.map_apply, OrthonormalBasis.coe_toBasis_repr_apply]\n    rw [hb]\n    exact b.toMatrix_orthonormalBasis_mem_orthogonal (b.map L)⟩\n",
+        "docstring": "The `invFun` ingredient of `toAffineIsometryMulEquiv`: a linear isometry equivalence read back\nas an orthogonal matrix, inverse to the linear bridge `orthogonalToLinearIsometryEquiv` (see the\nround-trip `@[simp]` lemmas below). "
+      },
+      {
+        "id": 392992,
+        "name": "EuclideanGroup.toAffineIsometryHom",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.AffineGroup",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/AffineGroup.lean#L72-L85",
+        "source_text": "/-- The first leg of the inclusion: `⟨t, Q⟩ ↦ (x ↦ Q x + t)`, bundled as a monoid homomorphism\nfrom the Euclidean group into the affine isometry group of `EuclideanSpace ℝ (Fin n)`. -/\nnoncomputable def toAffineIsometryHom :\n    EuclideanGroup n →*\n      AffineIsometryEquiv ℝ (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin n)) where\n  toFun A := AffineIsometryEquiv.constVAdd ℝ (EuclideanSpace ℝ (Fin n)) A.translation *\n    (orthogonalToLinearIsometryEquiv A.linear).toAffineIsometryEquiv\n  map_one' := by\n    apply AffineIsometryEquiv.ext\n    intro x; simp\n  map_mul' A B := by\n    apply AffineIsometryEquiv.ext\n    intro x\n    simp [mul_smul, add_assoc]\n",
+        "docstring": "The first leg of the inclusion: `⟨t, Q⟩ ↦ (x ↦ Q x + t)`, bundled as a monoid homomorphism\nfrom the Euclidean group into the affine isometry group of `EuclideanSpace ℝ (Fin n)`. "
+      },
+      {
+        "id": 392998,
+        "name": "EuclideanGroup.linearIsometryEquiv_constVAdd_mul",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.AffineGroup",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/AffineGroup.lean#L152-L165",
+        "source_text": "/-- The affine map `x ↦ t +ᵥ L x`, projected to its linear isometry component, is `L`.\nTogether with `orthogonalToLinearIsometryEquiv_left_inv`, this proves `left_inv` of\n`toAffineIsometryMulEquiv`. -/\n@[simp] lemma linearIsometryEquiv_constVAdd_mul\n    (t : EuclideanSpace ℝ (Fin n))\n    (L : EuclideanSpace ℝ (Fin n) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin n)) :\n    ((AffineIsometryEquiv.constVAdd ℝ (EuclideanSpace ℝ (Fin n)) t *\n        L.toAffineIsometryEquiv).linearIsometryEquiv) = L := by\n  apply LinearIsometryEquiv.ext; intro x\n  have h := (AffineIsometryEquiv.constVAdd ℝ (EuclideanSpace ℝ (Fin n)) t *\n      L.toAffineIsometryEquiv).map_vsub x 0\n  rw [vsub_eq_sub, sub_zero] at h\n  rw [h]\n  simp\n",
+        "docstring": "The affine map `x ↦ t +ᵥ L x`, projected to its linear isometry component, is `L`.\nTogether with `orthogonalToLinearIsometryEquiv_left_inv`, this proves `left_inv` of\n`toAffineIsometryMulEquiv`. "
+      },
+      {
+        "id": 392999,
+        "name": "EuclideanGroup.orthogonalToLinearIsometryEquiv_right_inv",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.AffineGroup",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/AffineGroup.lean#L167-L180",
+        "source_text": "/-- `linearIsometryEquivToOrthogonal` is a right inverse of `orthogonalToLinearIsometryEquiv`;\nthis proves `right_inv` of `toAffineIsometryMulEquiv`. -/\n@[simp] lemma orthogonalToLinearIsometryEquiv_right_inv\n    (L : EuclideanSpace ℝ (Fin n) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin n)) :\n    orthogonalToLinearIsometryEquiv (linearIsometryEquivToOrthogonal L) = L := by\n    apply LinearIsometryEquiv.ext; intro x\n    rw [orthogonalToLinearIsometryEquiv_apply]\n    show Matrix.toEuclideanLin (linearIsometryEquivToOrthogonal L).val x = L x\n    rw [Matrix.toEuclideanLin_eq_toLin_orthonormal]\n    show Matrix.toLin _ _\n        (LinearMap.toMatrix _ _\n          (L.toLinearEquiv : EuclideanSpace ℝ (Fin n) →ₗ[ℝ] EuclideanSpace ℝ (Fin n))) x = L x\n    rw [Matrix.toLin_toMatrix]\n    rfl\n",
+        "docstring": "`linearIsometryEquivToOrthogonal` is a right inverse of `orthogonalToLinearIsometryEquiv`;\nthis proves `right_inv` of `toAffineIsometryMulEquiv`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Transport.Xmap M7.Action.act definition bodies",
+    "status": "ok",
+    "results": [
+      {
+        "id": 175009,
+        "name": "CategoryTheory.MonObj.«termγ[_]»",
+        "module": "Mathlib.CategoryTheory.Monoidal.Mod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Monoidal/Mod.lean#L83-L83",
+        "source_text": "@[inherit_doc] scoped[CategoryTheory.MonObj] notation \"γ[\" Y \"]\" => ModObj.smul (X := Y)\n@[inherit_doc] scoped[CategoryTheory.MonObj] notation \"γ[\" N \",\" Y \"]\" =>",
+        "docstring": "The action map "
+      },
+      {
+        "id": 235995,
+        "name": "ConjAct.Subgroup.conjAction",
+        "module": "Mathlib.GroupTheory.GroupAction.ConjAct",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/ConjAct.lean#L233-L236",
+        "source_text": "/-- As normal subgroups are closed under conjugation, they inherit the conjugation action\n  of the underlying group. -/\ninstance Subgroup.conjAction {H : Subgroup G} [hH : H.Normal] : SMul (ConjAct G) H :=\n  ⟨fun g h => ⟨g • (h : G), hH.conj_mem h.1 h.2 (ofConjAct g)⟩⟩\n",
+        "docstring": "As normal subgroups are closed under conjugation, they inherit the conjugation action\nof the underlying group. "
+      },
+      {
+        "id": 236376,
+        "name": "MulActionHom",
+        "module": "Mathlib.GroupTheory.GroupAction.Hom",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Hom.lean#L80-L88",
+        "source_text": "/-- Equivariant functions :\nWhen `φ : M → N` is a function, and types `X` and `Y` are endowed with actions of `M` and `N`,\na function `f : X → Y` is `φ`-equivariant if `f (m • x) = (φ m) • (f x)`. -/\n@[to_additive]\nstructure MulActionHom where\n  /-- The underlying function. -/\n  protected toFun : X → Y\n  /-- The proposition that the function commutes with the actions. -/\n  protected map_smul' : ∀ (m : M) (x : X), toFun (m • x) = (φ m) • toFun x\n",
+        "docstring": "Equivariant functions :\nWhen `φ : M → N` is a function, and types `X` and `Y` are endowed with actions of `M` and `N`,\na function `f : X → Y` is `φ`-equivariant if `f (m • x) = (φ m) • (f x)`. "
+      },
+      {
+        "id": 236154,
+        "name": "DomMulAct",
+        "module": "Mathlib.GroupTheory.GroupAction.DomAct.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/DomAct/Basic.lean#L91-L97",
+        "source_text": "/-- If `M` multiplicatively acts on `α`, then `DomMulAct M` acts on `α → β` as well as some\nbundled maps from `α`. This is a type synonym for `MulOpposite M`, so this corresponds to a right\naction of `M`. -/\n@[to_additive /-- If `M` additively acts on `α`, then `DomAddAct M` acts on `α → β` as\nwell as some bundled maps from `α`. This is a type synonym for `AddOpposite M`, so this corresponds\nto a right action of `M`. -/]\ndef DomMulAct (M : Type*) := MulOpposite M\n",
+        "docstring": "If `M` multiplicatively acts on `α`, then `DomMulAct M` acts on `α → β` as well as some\nbundled maps from `α`. This is a type synonym for `MulOpposite M`, so this corresponds to a right\naction of `M`. "
+      },
+      {
+        "id": 149056,
+        "name": "CategoryTheory.ActionCategory.back",
+        "module": "Mathlib.CategoryTheory.Action",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Action.lean#L69-L71",
+        "source_text": "/-- The canonical map `ActionCategory M X → X`. It is given by `fun x => x.snd`, but\n  has a more explicit type. -/\nprotected def back : ActionCategory M X → X := fun x => x.snd\n",
+        "docstring": "The canonical map `ActionCategory M X → X`. It is given by `fun x => x.snd`, but\nhas a more explicit type. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.Transport.Xmap M7.Action.act definition bodies",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392691,
+        "name": "GalileanGroup.act",
+        "module": "Physlib.SpaceAndTime.GalileanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/GalileanGroup/Basic.lean#L166-L168",
+        "source_text": "/-- The Galilean action on `Time × Space d`. -/\nnoncomputable def act (g : GalileanGroup d) (tx : Time × Space d) : Time × Space d :=\n  (tx.1 + g.timeTranslation, g.actSpace tx.1 tx.2)\n",
+        "docstring": "The Galilean action on `Time × Space d`. "
+      },
+      {
+        "id": 392647,
+        "name": "TensorSpecies.Tensorial.smulLinearMap_apply",
+        "module": "Physlib.Relativity.Tensors.Tensorial",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Tensorial.lean#L201-L202",
+        "source_text": "lemma smulLinearMap_apply {g : G} [Tensorial S c M] (m : M) :\n    smulLinearMap g m = g • m := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

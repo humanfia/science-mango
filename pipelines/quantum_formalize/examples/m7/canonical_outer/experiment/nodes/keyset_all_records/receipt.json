@@ -1,0 +1,82 @@
+{
+  "id": "keyset_all_records",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalOuter.keyset_all_records",
+    "spec_sha256": "332a033f0820861734837005905e00e1dc670bea334d40f43be7b5680dab12b3",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-we9376g7/attempt-001/Candidate_adda47e9cae0b798.lean",
+        "target_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-we9376g7/attempt-001/FrozenTarget_adda47e9cae0b798.lean",
+        "feedback": "",
+        "target_sha256": "af35405f50cd1671610e5dd8f9043c22a401f5cbb49ad3467328d2e30051e447",
+        "target_olean_sha256": "318f52a60cc28f612453148835517096e34e7643cdddae39bc8c4112e8eeb6f8",
+        "source_sha256": "f05687aadd4d91df87dc676515a477fa36b9ffead480bf546f441d06b55b4718",
+        "olean_sha256": "0b5ca0d49a672e730c27846673ab95316c0480d6f9575c582c69a94f5ee7e6bf",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:10:58.303021+00:00",
+    "work": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-we9376g7",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "e2b9937f2c88530885415cbb397848104a579dc4f9802a749cd68de66091a34d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-we9376g7/attempt-001/Candidate_adda47e9cae0b798.lean",
+    "environment_sha256": "c4afe76bd2bc2b078f4a0aaca674d3192b7fbdf34aa57c5d93f4d00e250c88ba",
+    "artifacts": {
+      "unit_index": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.unit_index : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (e : Bool), ∃ i ∈ M7.CanonicalOuter.indices N, M7.CanonicalOuter.outerRecord i = (⟨u,e,0,0⟩ : M7.Action.Record N) := by\n   classical\n   intro N inst u e\n   let i : M7.CanonicalOuter.OuterIndex N :=\n     toLex (⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩, e)\n   have hv : (((ofLex i).1.val : ℕ) : ZMod N) = (u : ZMod N) := by\n     simp [i]\n   have hi : IsUnit (((ofLex i).1.val : ℕ) : ZMod N) := by\n     rw [hv]\n     exact u.isUnit\n   refine ⟨i, ?_, ?_⟩\n   · exact Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n   · have hu : M7.CanonicalOuter.outerUnit i = u := by\n       unfold M7.CanonicalOuter.outerUnit\n       rw [dif_pos hi]\n       apply Units.ext\n       exact hi.unit_spec.trans hv\n     change (⟨M7.CanonicalOuter.outerUnit i, (ofLex i).2, 0, 0⟩ : M7.Action.Record N) = ⟨u, e, 0, 0⟩\n     rw [hu]\n     rfl",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.unit_index",
+          "ancestors": [],
+          "spec_sha256": "69ea588dd20622d263997b98ff19589e903884f12aff48cce57448df257597ac"
+        },
+        "sha256": "76408eda35ca3618f02babbb45c5e7ec843b283c4b9a72e261e2e57b9ccba9c8"
+      },
+      "normalize_act_shifts": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.normalize_act_shifts : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.normalizePair (M7.Action.act g c) = M7.CanonicalOuter.normalizePair (M7.Action.act (⟨g.unit,g.exchange,0,0⟩ : M7.Action.Record N) c) := by\n    intro N inst g c\n    classical\n    have h (u : (ZMod N)ˣ) (s : ZMod N) (A : Finset (ZMod N)) :\n        M7.CanonicalBlock.normalize (A.image (M7.Action.affine u s)) =\n          M7.CanonicalBlock.normalize (A.image (M7.Action.affine u 0)) := by\n      have he : A.image (M7.Action.affine u s) =\n          M7.CanonicalBlock.shift s (A.image (M7.Action.affine u 0)) := by\n        unfold M7.CanonicalBlock.shift\n        rw [Finset.image_image]\n        congr 1\n        funext i\n        simp [M7.Action.affine, Function.comp_def]\n      rw [he]\n      exact M7.CanonicalBlock.normalize_shift N s (A.image (M7.Action.affine u 0))\n    rcases g with ⟨u, e, s, t⟩\n    cases e <;> simp [M7.CanonicalOuter.normalizePair, M7.Action.act, h]",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.normalize_act_shifts",
+          "ancestors": [],
+          "spec_sha256": "5734c94a1e941aebac4ad3d64e5a02223e8c7172830ea6569fab87930b57c6a0"
+        },
+        "sha256": "d49c237045b1ad5be454eb45b7697a03237f93dab7093b49173678e00875c158"
+      },
+      "keyset_all_records": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.keyset_all_records : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.keyset c = (Finset.univ : Finset (M7.Action.Record N)).image (fun g => M7.CanonicalOuter.pairKey (M7.CanonicalOuter.normalizePair (M7.Action.act g c))) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.keyset c = (Finset.univ : Finset (M7.Action.Record N)).image (fun g => M7.CanonicalOuter.pairKey (M7.CanonicalOuter.normalizePair (M7.Action.act g c)))\n  intro N inst c\n  classical\n  unfold M7.CanonicalOuter.keyset M7.CanonicalOuter.candidate\n  ext k\n  constructor\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨i, hi, hik⟩\n    exact Finset.mem_image.mpr ⟨M7.CanonicalOuter.outerRecord i, Finset.mem_univ _, hik⟩\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨g, hg, hgk⟩\n    rcases M7.CanonicalOuter.unit_index N g.unit g.exchange with ⟨i, hi, hir⟩\n    refine Finset.mem_image.mpr ⟨i, hi, ?_⟩\n    rw [hir, ← M7.CanonicalOuter.normalize_act_shifts N g c]\n    exact hgk",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.keyset_all_records",
+          "ancestors": [
+            "normalize_act_shifts",
+            "unit_index"
+          ],
+          "spec_sha256": "14f85f0366c5f78b8eeb2c2626abd72a614188035bea4369c4ce29fdc536cbe3"
+        },
+        "sha256": "b4ac2a1e949025eb92b2fe0aa7a382ad82ca4d163fc96ee13d49bc66c9b948c0"
+      }
+    }
+  }
+}

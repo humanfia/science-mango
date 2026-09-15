@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst A u s\nclassical\nfunext i\nhave h : i ∈ A.image (M7.Action.affine u s) ↔\n    (↑(u⁻¹) : ZMod N) * (i - s) ∈ A := by\n  constructor\n  · intro hi\n    obtain ⟨j, hj, rfl⟩ := Finset.mem_image.mp hi\n    simpa [M7.Action.affine, ← mul_assoc] using hj\n  · intro hi\n    apply Finset.mem_image.mpr\n    refine ⟨(↑(u⁻¹) : ZMod N) * (i - s), hi, ?_⟩\n    simp [M7.Action.affine, ← mul_assoc]\nsimp only [M7.Supports.indicator, M6.RecipeIsometries.shift,\n  M6.RecipeIsometries.multiply, h]",
+  "queries": [
+    "M6.RecipeIsometries.multiply M6.RecipeIsometries.shift definitions",
+    "M7.Supports.indicator definition",
+    "Units.inv_mul Units.mul_inv simp"
+  ]
+}

@@ -1,0 +1,17 @@
+# Original compact-generation integration
+
+This is an integration plan, not an acceptance receipt. It preserves original M7 section 6 and adds no M8, polynomial-time, extraction or raw-support-scan gate.
+
+The source arithmetic remains `PrefixSector.count`, a sum of actual M5 `completionC`. The source orbit evaluator remains `RecipeSignature.sourceCount`: the separate-shift numerator using the literal reduced-polynomial `sourceTau`, divided by the computed full stabilizer. Semantic finite sets occur in correctness proofs, not as the production generator.
+
+## Concrete connections
+
+1. `ResiduePrefix.completed` transports the already accepted natural-support completion set to literal cyclic supports. Its arithmetic-cardinality and polynomial/signature equalities are checked in `residue_prefix`. `PrefixBits` supplies the fixed left-then-right order of 2(N-1) undecided bits, exact root, both children and singleton-or-empty leaves.
+2. For a stored representative with weight w in both blocks and actual subgroup-connectedness, `Connectivity.connected_action` and the actual support-cardinality theorem preserve this class validity. A prefix admits only anchored images. `Connectivity.anchored_gcd`, `ResiduePrefix.gcd_union` and the literal signature equality identify its membership test with the original M5 completion predicate.
+3. Instantiate `RecipeSignature.source_orbit_quotient` with full-signature membership and the two actual prefix-containment tests. On every image of a class-valid stored representative, its predicate is precisely membership in `ResiduePrefix.completed`. This discharges the actual orbit-count identity; it is not assumed as an oracle.
+4. Define the residual by the original integer subtraction, actual total minus the sum of source orbit counts. For pairwise separated emitted orbits, the preceding identities instantiate `OrbitResidual.subtraction_card`. Canonical-form completeness discharges separation for distinct canonical stored values. A stored canonical signature need not lie in E.
+5. Instantiate M5's accepted zero-first `BinaryRecovery.recover` with this actual residual. The concrete child partition and singleton leaf give a valid actual leaf outside all emitted orbits. Store the leaf, its canonical form, both signatures, and the actual realizing action/inverse.
+6. Use the arithmetic initial root count as a finite fuel bound, justified by the remaining-set cardinality. `OrbitResidual.fresh_separated` and `insert_strict` preserve the invariant and prove strict decrease after each insertion. A zero residual stops immediately; the invariant proves final coverage. The final root must eliminate any fuel-exhaustion branch with uncovered input.
+7. Every connected positive-weight raw recipe has an anchored representative; independent shifts preserve its full signature. This extends anchored coverage to all queried structural orbits. Quality filters are applied only after structural generation. The final family then discharges the completeness/separation dependencies of global-query acceptance, including every tie and physical presentation.
+
+Original call/storage bounds and finite replay must inspect this actual recurrence and its checks. Mere list lengths, a supplied complete transversal, a free count identity, or a free distance function are not final proofs. N=1 has depth zero; empty E, periodic supports, even N, full polynomial multiplicities and NoLogical policy remain within the original scope.

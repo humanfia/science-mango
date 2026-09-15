@@ -1,0 +1,16 @@
+import FrozenTarget_3cfecfcbab7ccec8
+theorem M7.CanonicalOuter.canonical_minimal : QuantumHarnessFrozenTarget := by
+  classical
+  change ∀ (N : ℕ) [NeZero N], ∀ (c : M7.Action.Recipe N) k, k ∈ M7.CanonicalOuter.keyset c → M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c) ≤ k
+  intro N inst c k hk
+  unfold M7.CanonicalOuter.keyset at hk
+  obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp hk
+  have hc : toLex (M7.CanonicalOuter.pairKey (M7.CanonicalOuter.candidate c i), i) ∈ M7.CanonicalOuter.choices c := by
+    exact Finset.mem_image.mpr ⟨i, hi, rfl⟩
+  have hm : M7.CanonicalOuter.best c ≤ toLex (M7.CanonicalOuter.pairKey (M7.CanonicalOuter.candidate c i), i) := by
+    unfold M7.CanonicalOuter.best
+    rw [dif_pos (M7.CanonicalOuter.choices_nonempty N c)]
+    exact Finset.min'_le _ _ hc
+  have hf := Prod.Lex.monotone_fst _ _ hm
+  rw [M7.CanonicalOuter.canonical_key_agrees N c] at hf
+  exact hf

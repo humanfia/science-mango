@@ -1,0 +1,11 @@
+import M7SignatureTau
+#check (∀ F : M6.Cyclic.BinaryPolynomial, F ≠ 0 → F.Monic)
+#check (∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic)
+#check (∀ (N : ℕ) [NeZero N], ∀ p : M6.Cyclic.BinaryPolynomial, (EuclideanDomain.gcd p (M6.Cyclic.modulus N)).Monic ∧ EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ (M6.Cyclic.modulus N) ∧ EuclideanDomain.gcd (M6.Cyclic.modulus N) p = EuclideanDomain.gcd p (M6.Cyclic.modulus N))
+#check (∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), (M7.SignatureTau.tau u F).Monic ∧ M7.SignatureTau.tau u F ∣ (M6.Cyclic.modulus N))
+#check (∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M6.Cyclic.image N (M7.SignatureTau.reduced u F) = M7.QuotientAuto.substitution u (M6.Cyclic.image N F))
+#check (∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M7.SignatureIdeal.principal N (M7.SignatureTau.tau u F) = (M7.SignatureIdeal.principal N F).map (M7.QuotientAuto.substitution u))
+#check (∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M7.SignatureTau.sourceTau u F = M7.SignatureTau.tau u F)
+#check (∀ (N : ℕ) [NeZero N], ∀ F : M6.Cyclic.BinaryPolynomial, F.Monic → F ∣ (M6.Cyclic.modulus N) → M7.SignatureTau.tau (1 : (ZMod N)ˣ) F = F)
+#check (∀ (N : ℕ) [NeZero N], ∀ (u v : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ (M6.Cyclic.modulus N) → M7.SignatureTau.tau v (M7.SignatureTau.tau u F) = M7.SignatureTau.tau (v*u) F)
+#check (∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ (M6.Cyclic.modulus N) → (M7.SignatureTau.tau (u⁻¹) (M7.SignatureTau.tau u F) = F ∧ M7.SignatureTau.tau u (M7.SignatureTau.tau (u⁻¹) F) = F))

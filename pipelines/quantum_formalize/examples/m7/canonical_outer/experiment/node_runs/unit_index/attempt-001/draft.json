@@ -1,0 +1,8 @@
+{
+  "proof": " classical\n intro N inst u e\n let i : M7.CanonicalOuter.OuterIndex N :=\n   toLex (⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩, e)\n have hv : (((ofLex i).1.val : ℕ) : ZMod N) = (u : ZMod N) := by\n   simp [i]\n have hi : IsUnit (((ofLex i).1.val : ℕ) : ZMod N) := by\n   rw [hv]\n   exact u.isUnit\n refine ⟨i, ?_, ?_⟩\n · exact Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n · have hu : M7.CanonicalOuter.outerUnit i = u := by\n     unfold M7.CanonicalOuter.outerUnit\n     rw [dif_pos hi]\n     apply Units.ext\n     exact hi.unit_spec.trans hv\n   change (⟨M7.CanonicalOuter.outerUnit i, (ofLex i).2, 0, 0⟩ : M7.Action.Record N) = ⟨u, e, 0, 0⟩\n   rw [hu]\n   rfl",
+  "queries": [
+    "ZMod.val_lt",
+    "ZMod.natCast_zmod_val",
+    "IsUnit.unit_spec"
+  ]
+}

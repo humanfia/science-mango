@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.keyset (M7.Action.act g c) = M7.CanonicalOuter.keyset c\nintro N inst g c\nclassical\nrw [M7.CanonicalOuter.keyset_all_records N (M7.Action.act g c), M7.CanonicalOuter.keyset_all_records N c]\next k\nconstructor\n· intro hk\n  rcases Finset.mem_image.mp hk with ⟨h, _, hkey⟩\n  refine Finset.mem_image.mpr ⟨M7.Action.compose h g, Finset.mem_univ _, ?_⟩\n  rw [M7.Action.act_compose N h g c]\n  exact hkey\n· intro hk\n  rcases Finset.mem_image.mp hk with ⟨h, _, hkey⟩\n  refine Finset.mem_image.mpr ⟨M7.Action.compose h (M7.Action.inverse g), Finset.mem_univ _, ?_⟩\n  rw [M7.Action.act_compose N h (M7.Action.inverse g) (M7.Action.act g c), M7.Action.act_inverse N g c]\n  exact hkey",
+  "queries": []
+}

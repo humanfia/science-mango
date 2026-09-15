@@ -1,0 +1,31 @@
+⚠ [3008/3010] Replayed M5BinaryRecoveryAccepted
+warning: M5BinaryRecoveryAccepted.lean:10:46: This simp argument is unused:
+  Nat.add_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [ih, List.length_append, Nat.add_comm, Nat.add_left_comm]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: M5BinaryRecoveryAccepted.lean:4:2: Unused tactic linter: `change
+  ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M5.BinaryRecovery.recover c p n).length = p.length + n` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: M5BinaryRecoveryAccepted.lean:13:2: Unused tactic linter: `change
+  ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ),
+    (∀ q : List Bool, q.length < p.length + n → c q = c (q ++ [false]) + c (q ++ [true])) →
+      0 < c p → 0 < c (M5.BinaryRecovery.recover c p n)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: M5BinaryRecoveryAccepted.lean:33:2: Unused tactic linter: `change
+  ∀ (c : List Bool → ℤ) (Valid : List Bool → Prop) (m : ℕ),
+    (∀ q : List Bool, q.length < m → c q = c (q ++ [false]) + c (q ++ [true])) →
+      (∀ q : List Bool, q.length = m → 0 < c q → Valid q) →
+        0 < c [] →
+          (M5.BinaryRecovery.recover c [] m).length = m ∧ Valid (M5.BinaryRecovery.recover c [] m)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+info: M5BinaryRecoveryAccepted.lean:41:0: 'M5.BinaryRecovery.recover_length' depends on axioms: [propext]
+info: M5BinaryRecoveryAccepted.lean:42:0: 'M5.BinaryRecovery.recover_positive' depends on axioms: [propext, Quot.sound]
+info: M5BinaryRecoveryAccepted.lean:43:0: 'M5.BinaryRecovery.recover_valid' depends on axioms: [propext, Quot.sound]
+✔ [3009/3010] Built M7DescentTrace (8.2s)
+Build completed successfully (3010 jobs).

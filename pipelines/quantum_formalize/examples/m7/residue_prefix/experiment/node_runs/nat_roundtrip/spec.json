@@ -1,0 +1,12 @@
+{
+  "name": "M7.ResiduePrefix.nat_roundtrip",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A",
+  "imports": [
+    "M7ResiduePrefix"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "This is only the literal Nat support / ZMod support bridge for the already proved M5 arithmetic prefix count. No arbitrary count oracle. encode = image val and decode = image Nat.cast. Use ZMod.natCast_zmod_val and val_natCast_of_lt, Finset.image_image/ext and injectivity of val (N positive). polynomial bridge via Finset.sum_image of injective val. M5.completeSignature and M6.Cyclic.signature unfold to identical nested gcd and X^N+1. M5 supportGcd is gcd N (gcd (A.gcd id)(B.gcd id)); Finset gcd_union identifies union gcd. completed_bounds follows accepted PrefixCompleted.completed_membership and Base bounds. completed_membership uses both roundtrips; for reverse use encodePair x itself and accepted membership. count_completed uses accepted PrefixCompleted.count_completed and Finset.card_image_iff on the actual completed subset, with decode_injective/bounds. E is a finite set of full monic divisor polynomials; preserve N=1 and even N. Return tactic lines only.\nimport M7PrefixCompletedAccepted\nimport M7SupportsAccepted\nimport M6Cyclic\n\nnamespace M7.ResiduePrefix\nnoncomputable def decode (N : ℕ) (A : Finset ℕ) : Finset (ZMod N) := A.image (fun i : ℕ => (i : ZMod N))\nnoncomputable def encode {N : ℕ} (A : Finset (ZMod N)) : Finset ℕ := M7.Supports.natSupport A\nnoncomputable def decodePair (N : ℕ) (x : Finset ℕ × Finset ℕ) := (decode N x.1, decode N x.2)\nnoncomputable def encodePair {N : ℕ} (x : Finset (ZMod N) × Finset (ZMod N)) := (encode x.1, encode x.2)\nnoncomputable def completed (N w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) : Finset (Finset (ZMod N) × Finset (ZMod N)) := by\n  classical\n  exact (M7.PrefixCompleted.completed N w E A B WA WB).image (decodePair N)\nend M7.ResiduePrefix\n"
+}

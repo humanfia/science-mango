@@ -1,0 +1,111 @@
+[
+  {
+    "queries": [
+      "finite group action inverse composition bijection"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite group action inverse composition bijection",
+        "status": "ok",
+        "results": [
+          {
+            "id": 236877,
+            "name": "AddAction.orbitEquivQuotientStabilizer_symm_apply",
+            "module": "Mathlib.GroupTheory.GroupAction.Quotient",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Quotient.lean#L194-L194",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem orbitEquivQuotientStabilizer_symm_apply (b : X) (g : G) :",
+            "docstring": null
+          },
+          {
+            "id": 236427,
+            "name": "AddActionHom.inverse",
+            "module": "Mathlib.GroupTheory.GroupAction.Hom",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Hom.lean#L290-L290",
+            "source_text": "@[to_additive (attr := simps) /-- The inverse of a bijective equivariant map is equivariant. -/]\ndef inverse (f : X →[M] Y₁) (g : Y₁ → X)",
+            "docstring": "The inverse of a bijective equivariant map is equivariant. "
+          },
+          {
+            "id": 173311,
+            "name": "CategoryTheory.bijection",
+            "module": "Mathlib.CategoryTheory.Monoidal.Closed.Ideal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Monoidal/Closed/Ideal.lean#L240-L270",
+            "source_text": "/-- We construct a bijection between morphisms `L(A ⊗ B) ⟶ X` and morphisms `LA ⊗ LB ⟶ X`.\nThis bijection has two key properties:\n* It is natural in `X`: See `bijection_natural`.\n* When `X = LA ⨯ LB`, then the backwards direction sends the identity morphism to the product\n  comparison morphism: See `bijection_symm_apply_id`.\n\nTogether these help show that `L` preserves binary products. This should be considered\n*internal implementation* towards `preservesBinaryProductsOfExponentialIdeal`.\n-/\nnoncomputable def bijection (A B : C) (X : D) :\n    ((reflector i).obj (A ⊗ B) ⟶ X) ≃ ((reflector i).obj A ⊗ (reflector i).obj B ⟶ X) :=\n  calc\n    _ ≃ (A ⊗ B ⟶ i.obj X) := (reflectorAdjunction i).homEquiv _ _\n    _ ≃ (B ⊗ A ⟶ i.obj X) := (β_ _ _).homCongr (Iso.refl _)\n    _ ≃ (A ⟶ B ⟹ i.obj X) := (ihom.adjunction _).homEquiv _ _\n    _ ≃ (i.obj ((reflector i).obj A) ⟶ B ⟹ i.obj X) :=\n      (unitCompPartialBijective _ (ExponentialIdeal.exp_closed (i.obj_mem_essImage _) _))\n    _ ≃ (B ⊗ i.obj ((reflector i).obj A) ⟶ i.obj X) := ((ihom.adjunction _).homEquiv _ _).symm\n    _ ≃ (i.obj ((reflector i).obj A) ⊗ B ⟶ i.obj X) :=\n      ((β_ _ _).homCongr (Iso.refl _))\n    _ ≃ (B ⟶ i.obj ((reflector i).obj A) ⟹ i.obj X) := (ihom.adjunction _).homEquiv _ _\n    _ ≃ (i.obj ((reflector i).obj B) ⟶ i.obj ((reflector i).obj A) ⟹ i.obj X) :=\n      (unitCompPartialBijective _ (ExponentialIdeal.exp_closed (i.obj_mem_essImage _) _))\n    _ ≃ (i.obj ((reflector i).obj A) ⊗ i.obj ((reflector i).obj B) ⟶ i.obj X) :=\n      ((ihom.adjunction _).homEquiv _ _).symm\n    _ ≃ (i.obj ((reflector i).obj A ⊗ (reflector i).obj B) ⟶ i.obj X) :=\n      haveI : Limits.PreservesLimits i := (reflectorAdjunction i).rightAdjoint_preservesLimits\n      haveI := Limits.preservesSmallestLimits_of_preservesLimits i\n      Iso.homCongr (prodComparisonIso _ _ _).symm (Iso.refl (i.obj X))\n    _ ≃ ((reflector i).obj A ⊗ (reflector i).obj B ⟶ X) :=\n      i.fullyFaithfulOfReflective.homEquiv.symm\n",
+            "docstring": "We construct a bijection between morphisms `L(A ⊗ B) ⟶ X` and morphisms `LA ⊗ LB ⟶ X`.\nThis bijection has two key properties:\n* It is natural in `X`: See `bijection_natural`.\n* When `X = LA ⨯ LB`, then the backwards direction sends the identity morphism to the product\n  comparison morphism: See `bijection_symm_apply_id`.\n\nTogether these help show that `L` preserves binary products. This should be considered\n*internal implementation* towards `preservesBinaryProductsOfExponentialIdeal`.\n"
+          },
+          {
+            "id": 188816,
+            "name": "Composition",
+            "module": "Mathlib.Combinatorics.Enumerative.Composition",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Composition.lean#L99-L108",
+            "source_text": "/-- A composition of `n` is a list of positive integers summing to `n`. -/\n@[ext]\nstructure Composition (n : ℕ) where\n  /-- List of positive integers summing to `n` -/\n  blocks : List ℕ\n  /-- Proof of positivity for `blocks` -/\n  blocks_pos : ∀ {i}, i ∈ blocks → 0 < i\n  /-- Proof that `blocks` sums to `n` -/\n  blocks_sum : blocks.sum = n\n  deriving DecidableEq\n",
+            "docstring": "A composition of `n` is a list of positive integers summing to `n`. "
+          },
+          {
+            "id": 188828,
+            "name": "Composition.length",
+            "module": "Mathlib.Combinatorics.Enumerative.Composition",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Composition.lean#L146-L148",
+            "source_text": "/-- The length of a composition, i.e., the number of blocks in the composition. -/\nabbrev length : ℕ :=\n  c.blocks.length\n",
+            "docstring": "The length of a composition, i.e., the number of blocks in the composition. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite group action inverse composition bijection",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391176,
+            "name": "LorentzGroup.boost_inverse",
+            "module": "Physlib.Relativity.LorentzGroup.Boosts.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzGroup/Boosts/Basic.lean#L184-L208",
+            "source_text": "lemma boost_inverse (i : Fin d) {β : ℝ} (hβ : |β| < 1) :\n    (boost i β hβ)⁻¹ = boost i (-β) (by simpa using hβ) := by\n  rw [inv_eq_dual]\n  ext j k\n  simp only\n  rw [minkowskiMatrix.dual_apply]\n  match j, k with\n  | Sum.inl 0, Sum.inl 0 =>\n    rw [minkowskiMatrix.inl_0_inl_0]\n    simp [boost]\n  | Sum.inl 0, Sum.inr k =>\n    rw [minkowskiMatrix.inl_0_inl_0, minkowskiMatrix.inr_i_inr_i]\n    simp only [boost, Fin.isValue, neg_mul, reduceCtorEq, and_false, ↓reduceIte, Sum.inr.injEq,\n      true_and, and_self, false_and, mul_ite, mul_neg, one_mul, mul_zero, mul_one, neg_neg,\n      and_true, γ_neg]\n    split <;> simp\n  | Sum.inr j, Sum.inl 0 =>\n    rw [minkowskiMatrix.inl_0_inl_0, minkowskiMatrix.inr_i_inr_i]\n    simp [boost]\n  | Sum.inr j, Sum.inr k =>\n    rw [minkowskiMatrix.inr_i_inr_i, minkowskiMatrix.inr_i_inr_i]\n    simp only [boost, Fin.isValue, neg_mul, reduceCtorEq, and_self, ↓reduceIte, Sum.inr.injEq,\n      false_and, and_false, mul_ite, one_mul, mul_one, mul_zero, mul_neg, neg_neg, γ_neg,\n      and_comm (a := k = i), eq_comm (a := k) (b := j)]\n    split <;> [skip; split] <;> simp\n",
+            "docstring": null
+          },
+          {
+            "id": 388685,
+            "name": "ACCSystemGroupAction.solAction",
+            "module": "Physlib.QFT.AnomalyCancellation.GroupActions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/GroupActions.lean#L102-L117",
+            "source_text": "/-- The group action acting on solutions to the anomaly cancellation conditions. -/\ninstance solAction {χ : ACCSystem} (G : ACCSystemGroupAction χ) : MulAction G.group χ.Sols where\n  smul g S := ⟨G.quadSolAction.toFun _ _ S.1 g, by\n    simp only [MulAction.toFun_apply]\n    change χ.cubicACC (G.rep g S.val) = 0\n    rw [G.cubicInvariant, S.cubicSol]⟩\n  mul_smul f1 f2 S := by\n    apply ACCSystem.Sols.ext\n    change (G.rep.toFun (f1 * f2)) S.val = _\n    rw [G.rep.map_mul']\n    rfl\n  one_smul S := by\n    apply ACCSystem.Sols.ext\n    change (G.rep.toFun 1) S.val = _\n    rw [G.rep.map_one']\n    rfl\n",
+            "docstring": "The group action acting on solutions to the anomaly cancellation conditions. "
+          },
+          {
+            "id": 388676,
+            "name": "ACCSystemGroupAction",
+            "module": "Physlib.QFT.AnomalyCancellation.GroupActions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/GroupActions.lean#L25-L40",
+            "source_text": "/-- The type of a group action on a system of charges is defined as a representation on\nthe vector spaces of charges under which the anomaly equations are invariant.\n-/\nstructure ACCSystemGroupAction (χ : ACCSystem) where\n  /-- The underlying type of the group. -/\n  group : Type\n  /-- An instance given the `group` component the structure of a `Group`. -/\n  groupInst : Group group\n  /-- The representation of group acting on the vector space of charges. -/\n  rep : Representation ℚ group χ.Charges\n  /-- The invariance of the linear ACCs under the group action. -/\n  linearInvariant : ∀ i g S, χ.linearACCs i (rep g S) = χ.linearACCs i S\n  /-- The invariance of the quadratic ACCs under the group action. -/\n  quadInvariant : ∀ i g S, (χ.quadraticACCs i) (rep g S) = (χ.quadraticACCs i) S\n  /-- The invariance of the cubic ACC under the group action. -/\n  cubicInvariant : ∀ g S, χ.cubicACC (rep g S) = χ.cubicACC S\n",
+            "docstring": "The type of a group action on a system of charges is defined as a representation on\nthe vector spaces of charges under which the anomaly equations are invariant.\n"
+          },
+          {
+            "id": 388677,
+            "name": "ACCSystemGroupAction.instGroupGroup",
+            "module": "Physlib.QFT.AnomalyCancellation.GroupActions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/GroupActions.lean#L44-L45",
+            "source_text": "/-- The given instance of a group on the `group` field of a `ACCSystemGroupAction`. -/\ninstance {χ : ACCSystem} (G : ACCSystemGroupAction χ) : Group G.group := G.groupInst\n",
+            "docstring": "The given instance of a group on the `group` field of a `ACCSystemGroupAction`. "
+          },
+          {
+            "id": 388679,
+            "name": "ACCSystemGroupAction.linSolRep",
+            "module": "Physlib.QFT.AnomalyCancellation.GroupActions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/GroupActions.lean#L56-L70",
+            "source_text": "/-- The representation acting on the vector space of solutions to the linear ACCs. -/\n@[simps!]\ndef linSolRep {χ : ACCSystem} (G : ACCSystemGroupAction χ) :\n    Representation ℚ G.group χ.LinSols where\n  toFun := G.linSolMap\n  map_mul' g1 g2 := by\n    refine LinearMap.ext fun S ↦ ACCSystemLinear.LinSols.ext ?_\n    change (G.rep (g1 * g2)) S.val = _\n    rw [G.rep.map_mul]\n    rfl\n  map_one' := by\n    refine LinearMap.ext fun S ↦ ACCSystemLinear.LinSols.ext ?_\n    change (G.rep.toFun 1) S.val = _\n    rw [G.rep.map_one']\n    rfl\n",
+            "docstring": "The representation acting on the vector space of solutions to the linear ACCs. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

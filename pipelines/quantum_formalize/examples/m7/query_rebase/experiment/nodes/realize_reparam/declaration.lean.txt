@@ -1,0 +1,9 @@
+theorem M7.QueryRebase.realize_reparam : ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.realize (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.realize bases (M7.QueryRebase.reparam moves x) := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.realize (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.realize bases (M7.QueryRebase.reparam moves x)
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro H N inst bases moves x
+  simpa only [M7.QueryRebase.rebase, M7.QueryRebase.reparam, M7.GlobalQuery.realize] using
+    (M7.Action.act_compose N x.2 (moves x.1) (bases x.1)).symm

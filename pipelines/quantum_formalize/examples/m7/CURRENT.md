@@ -2,7 +2,8 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**169 targets in 20 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+**221 targets in 25 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
 | [supports](supports/experiment/result.json) | 6 | Actual support polynomials |
@@ -25,28 +26,19 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [affine_polynomial](affine_polynomial/experiment/result.json) | 7 | Literal affine support images and invertible shift factors |
 | [quotient_degree](quotient_degree/experiment/result.json) | 5 | Full quotient cardinality and induced degree invariance |
 | [global_query](global_query/experiment/result.json) | 9 | Global family optima, all ties, winning dominators and unique physical output |
+| [transport](transport/experiment/result.json) | 7 | Actual M6 distance and minimum-witness action transport |
+| [signature_tau](signature_tau/experiment/result.json) | 10 | Actual M7 full-multiplicity signature substitution and reduced-source tau |
+| [canonical_outer](canonical_outer/experiment/result.json) | 17 | M7 actual unit/exchange canonical representatives using separate block normalization |
+| [residue_prefix](residue_prefix/experiment/result.json) | 10 | M7 arithmetic prefix counts on literal residue supports |
+| [query_rebase](query_rebase/experiment/result.json) | 8 | M7 actual base-action reparameterization of global queries |
 
 Active work:
 
-- `canonical_outer`: actual unit/exchange canonical representative, realizing action and complete invariant (17 targets; running, verified local syntax/image repair in normal replay).
-- `transport`: actual M6 logical, distance and minimum-witness action transport (7 targets; running).
-
-
-
-
-- `affine_polynomial`: literal support-polynomial images under the actual affine action (7 targets; running).
-
-- `quotient_degree`: cardinality of the full polynomial quotient and induced degree invariance (5 targets; preflight).
-
-- `global_query`: optimum and all ties across the complete supplied class/action family (9 targets; running; generation completeness remains downstream).
-
-- `signature_tau`: concrete unit automorphism, full gcd transport and equality with the source reduced-polynomial formula (10 targets; running).
-
-- `residue_prefix`: bounded natural support sets and literal residue supports, with identical actual arithmetic count (10 targets; running).
-
-- `prefix_bits`: fixed original bit traversal and actual arithmetic child partitions (9 targets; preflight).
+- `prefix_bits`: fixed original bit traversal and actual arithmetic child partitions (9 targets; running).
 
 - `orbit_residual`: actual disjoint orbit subtraction and strict fresh insertion (12 targets; running).
+
+- `connectivity`: subgroup-connectedness, actual action invariance and the complete anchored gcd equivalence (being prepared).
 
 Original remaining integration gates include the subgroup-connectedness/anchored-gcd equivalence, full signature and degree transport, actual compact residual generation and structural coverage, complete default-query/global-optimum integration, replay and original resource bounds. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 

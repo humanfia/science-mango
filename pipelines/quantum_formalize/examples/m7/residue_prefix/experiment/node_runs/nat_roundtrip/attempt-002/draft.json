@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A\nintro N inst A hA\nclassical\nchange (A.image (fun i : ℕ => (i : ZMod N))).image ZMod.val = A\nrw [Finset.image_image]\next n\nsimp only [Finset.mem_image, Function.comp_apply]\nconstructor\n· rintro ⟨i, hi, he⟩\n  have hv : (i : ZMod N).val = i :=\n    ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hi))\n  rw [hv] at he\n  exact he ▸ hi\n· intro hn\n  exact ⟨n, hn, ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hn))⟩",
+  "queries": []
+}

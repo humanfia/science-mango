@@ -1,0 +1,18 @@
+import FrozenTarget_07018f19050d3bac
+theorem M7.Transport.actual_witness : QuantumHarnessFrozenTarget := by
+  intro N w inst g c d k v hA hB h0A h0B hg hs
+  have ha := M7.Domain.admissible N w c.1 c.2 hA hB h0A h0B hg
+  have hc := M6.Final.answer_correct N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) ha
+  have hr := hc.2.2.1 d v k hs
+  rcases hr with ⟨hd, hv, hw, hz, hwz, hk⟩
+  have hv' : v ∈ M7.Transport.LX c := by
+    simpa only [M6.Final.LX, M6.Final.CX, M6.Final.BX, M7.Domain.coefficients_indicator,
+      M7.Transport.LX, M7.Transport.CX, M7.Transport.BX] using hv
+  have hx := (M7.Transport.x_logical N g c v).mpr hv'
+  have hwx := ((M7.Transport.action_isometry N g c).2 v).2.2.trans hw
+  refine ⟨(M7.Transport.distance_invariant N g c).trans hd, hx, hwx, ?_, ?_, hk⟩
+  · exact (M6.ActualCSS.J_logical_iff N
+      (M7.Supports.indicator (M7.Action.act g c).1)
+      (M7.Supports.indicator (M7.Action.act g c).2)
+      (M7.Transport.Xmap g v)).mp hx
+  · exact (M6.Flatten.J_weight N (M7.Transport.Xmap g v)).trans hwx

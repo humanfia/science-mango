@@ -1,0 +1,69 @@
+{
+  "id": "signature_bridge",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ResiduePrefix.signature_bridge",
+    "spec_sha256": "0eb6fd88676bead8b5e5b1f0315e2fde3d8596d25052b2151e92a7aaba0d169a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-tixt4eg5/attempt-001/Candidate_85188bbb4c13f2c5.lean",
+        "target_path": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-tixt4eg5/attempt-001/FrozenTarget_85188bbb4c13f2c5.lean",
+        "feedback": "",
+        "target_sha256": "1c42cd797d3358aa4d822c970fe1720f47231a5cabf6c61a4d15efa5ff93bd3e",
+        "target_olean_sha256": "adebc65a33b81b0bd6e4ba15c73bc7d8d82ef9c30ab55fd3fe99707156ce95c2",
+        "source_sha256": "0773142ee9d2e0dc9f9291b537e305e1c216daef3ba4600052c59af49c5f3a8a",
+        "olean_sha256": "8ee9f458e4c06b7d245e219e30b490bd78e34dca80671758a5891835fb740550",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:16:31.620101+00:00",
+    "work": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-tixt4eg5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c3d2b109a17f1b7b9f61c1de46ae4a1bdbf90f987db30b50fbac08997da49016",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-tixt4eg5/attempt-001/Candidate_85188bbb4c13f2c5.lean",
+    "environment_sha256": "e78a846400d0418deab7d7c51813437ed7aaa957b123576225aaac42728d66d6",
+    "artifacts": {
+      "polynomial_bridge": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.polynomial_bridge : ∀ (N : ℕ) [NeZero N], ∀ A : Finset (ZMod N), M5.SupportPolynomial.ofSupport (M7.ResiduePrefix.encode A) = M7.Supports.polynomial A := by\n  classical\n  intro N inst A\n  unfold M7.ResiduePrefix.encode M7.Supports.natSupport M5.SupportPolynomial.ofSupport M7.Supports.polynomial\n  rw [Finset.sum_image]\n  intro a ha b hb hab\n  have h := congrArg (fun k : ℕ => (k : ZMod N)) hab\n  simpa only [ZMod.natCast_zmod_val] using h",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.polynomial_bridge",
+          "ancestors": [],
+          "spec_sha256": "c0ad9b3d40bf4f208dcbf60c603d511aa8646e39b30e45c98e28554f21844964"
+        },
+        "sha256": "323ebc998b8dd456069b5d71a8d2fe30628a2849d1f46c8a1a92e89e807f092b"
+      },
+      "signature_bridge": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.signature_bridge : ∀ (N : ℕ) [NeZero N], ∀ A B : Finset (ZMod N), M5.completeSignature (M5.SupportPolynomial.ofSupport (M7.ResiduePrefix.encode A)) (M5.SupportPolynomial.ofSupport (M7.ResiduePrefix.encode B)) N = M6.Cyclic.signature (M7.Supports.polynomial A) (M7.Supports.polynomial B) (M6.Cyclic.modulus N) := by\n  classical\n  intro N inst A B\n  rw [M7.ResiduePrefix.polynomial_bridge N A, M7.ResiduePrefix.polynomial_bridge N B]\n  rfl",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.signature_bridge",
+          "ancestors": [
+            "polynomial_bridge"
+          ],
+          "spec_sha256": "6a6626cdb89780818adefb89cfecbe132b9c7c539e74f093c995c3d476f53e13"
+        },
+        "sha256": "b7a62c63a116b994b19f04f5ed3c3e262f71ec64ce45842d1d09f5fcbe9150a7"
+      }
+    }
+  }
+}

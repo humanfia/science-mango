@@ -1,0 +1,101 @@
+{
+  "id": "completed_membership",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ResiduePrefix.completed_membership",
+    "spec_sha256": "b8f7ec7fbd933b46c06b43609efd920bef5747888e6a6c51bc8214c264dc79e4",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-kq01yn4j/attempt-001/Candidate_aca4cc339bd0b9a7.lean:2:78: error: unsolved goals\n⊢ QuantumHarnessFrozenTarget\n/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-kq01yn4j/attempt-001/Candidate_aca4cc339bd0b9a7.lean:3:2: error: unexpected token 'by'; expected command\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-kq01yn4j/attempt-002/Candidate_e891e161ec59b1e8.lean",
+        "target_path": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-kq01yn4j/attempt-002/FrozenTarget_e891e161ec59b1e8.lean",
+        "feedback": "",
+        "target_sha256": "28eaaddd223a119eb541efecfb3cbe0d6b061f53be042f92cbb7b0c78eb9b80a",
+        "target_olean_sha256": "a745cc78d769f6fc5d741be8e0be042bbd930705b4fcda03f9ea535323072827",
+        "source_sha256": "d806fbceeb4da09484750d05c270d3676e1892f009c6c2e28ea9440b68e0854a",
+        "olean_sha256": "faf331ec1a2a2eba5badb0da67817a91d39f6fce0863dd6012bc7153ff4c5084",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T18:13:30.586849+00:00",
+    "work": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-kq01yn4j",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c3d2b109a17f1b7b9f61c1de46ae4a1bdbf90f987db30b50fbac08997da49016",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-kq01yn4j/attempt-002/Candidate_e891e161ec59b1e8.lean",
+    "environment_sha256": "e78a846400d0418deab7d7c51813437ed7aaa957b123576225aaac42728d66d6",
+    "artifacts": {
+      "nat_roundtrip": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.nat_roundtrip : ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A := by\n  change ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A\n  intro N inst A hA\n  classical\n  change (A.image (fun i : ℕ => (i : ZMod N))).image ZMod.val = A\n  rw [Finset.image_image]\n  ext n\n  simp only [Finset.mem_image, Function.comp_apply]\n  constructor\n  · rintro ⟨i, hi, he⟩\n    have hv : (i : ZMod N).val = i :=\n      ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hi))\n    rw [hv] at he\n    exact he ▸ hi\n  · intro hn\n    exact ⟨n, hn, ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hn))⟩",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.nat_roundtrip",
+          "ancestors": [],
+          "spec_sha256": "e3fa618babe7263e0d2dd2a7d6c1f59dfc040ad169814d6495cce5f95ee900d6"
+        },
+        "sha256": "2d00b30c8bfb508b933d501ed4ca04043089bb234b10c400276140b35ba2b9af"
+      },
+      "residue_roundtrip": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.residue_roundtrip : ∀ (N : ℕ) [NeZero N], ∀ A : Finset (ZMod N), M7.ResiduePrefix.decode N (M7.ResiduePrefix.encode A) = A := by\n  classical\n  intro N hN A\n  change (A.image (fun x : ZMod N => x.val)).image (fun i : ℕ => (i : ZMod N)) = A\n  simp [Finset.image_image, ZMod.natCast_zmod_val]",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.residue_roundtrip",
+          "ancestors": [],
+          "spec_sha256": "596a4dc100256732d8f47ce24049b3c41103e53d3f0b2f3d44d893a8f23923a7"
+        },
+        "sha256": "b4fe78b179fc96a4a780947157315a70855b4a5e6c923feb607476c0043e2da1"
+      },
+      "completed_bounds": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.completed_bounds : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixCompleted.Base N A B WA WB → ∀ x ∈ M7.PrefixCompleted.completed N w E A B WA WB, x.1 ⊆ Finset.range N ∧ x.2 ⊆ Finset.range N := by\n  intro N inst w E A B WA WB hBase x hx\n  have hDA : Disjoint A WA := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hDB : Disjoint B WB := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hWithin := ((M7.PrefixCompleted.completed_membership N w E A B WA WB hDA hDB x).mp hx).1\n  have hXA : x.1 ⊆ A ∪ WA := by\n    unfold M7.PrefixCompleted.Within at hWithin\n    tauto\n  have hXB : x.2 ⊆ B ∪ WB := by\n    unfold M7.PrefixCompleted.Within at hWithin\n    tauto\n  have hA : A ⊆ Finset.range N := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hB : B ⊆ Finset.range N := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hWA : WA ⊆ Finset.range N := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hWB : WB ⊆ Finset.range N := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  constructor\n  · intro i hi\n    rcases Finset.mem_union.mp (hXA hi) with h | h\n    · exact hA h\n    · exact hWA h\n  · intro i hi\n    rcases Finset.mem_union.mp (hXB hi) with h | h\n    · exact hB h\n    · exact hWB h",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.completed_bounds",
+          "ancestors": [],
+          "spec_sha256": "be3fdf421a15726cb948ffbd55b318918a9a4d767e73f68f6e3cdafe5aa220fb"
+        },
+        "sha256": "401d6fcbbf34b5ad639bca2d393620af6d06538d516d53e4c9ffcd577f16edd1"
+      },
+      "completed_membership": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.completed_membership : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixCompleted.Base N A B WA WB → ∀ x : Finset (ZMod N) × Finset (ZMod N), x ∈ M7.ResiduePrefix.completed N w E A B WA WB ↔ M7.PrefixCompleted.Within A B WA WB (M7.ResiduePrefix.encodePair x) ∧ M7.PrefixCompleted.Valid N w E (M7.ResiduePrefix.encodePair x) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixCompleted.Base N A B WA WB → ∀ x : Finset (ZMod N) × Finset (ZMod N), x ∈ M7.ResiduePrefix.completed N w E A B WA WB ↔ M7.PrefixCompleted.Within A B WA WB (M7.ResiduePrefix.encodePair x) ∧ M7.PrefixCompleted.Valid N w E (M7.ResiduePrefix.encodePair x)\n  intro N inst w E A B WA WB hBase x\n  classical\n  have hDA : Disjoint A WA := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hDB : Disjoint B WB := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  unfold M7.ResiduePrefix.completed\n  constructor\n  · intro hx\n    rcases Finset.mem_image.mp hx with ⟨y, hy, hxy⟩\n    have hb := M7.ResiduePrefix.completed_bounds N w E A B WA WB hBase y hy\n    have hr : M7.ResiduePrefix.encodePair (M7.ResiduePrefix.decodePair N y) = y := by\n      apply Prod.ext\n      · exact M7.ResiduePrefix.nat_roundtrip N y.1 hb.1\n      · exact M7.ResiduePrefix.nat_roundtrip N y.2 hb.2\n    rw [← hxy, hr]\n    exact (M7.PrefixCompleted.completed_membership N w E A B WA WB hDA hDB y).mp hy\n  · intro hx\n    apply Finset.mem_image.mpr\n    refine ⟨M7.ResiduePrefix.encodePair x, ?_, ?_⟩\n    · exact (M7.PrefixCompleted.completed_membership N w E A B WA WB hDA hDB (M7.ResiduePrefix.encodePair x)).mpr hx\n    · apply Prod.ext\n      · exact M7.ResiduePrefix.residue_roundtrip N x.1\n      · exact M7.ResiduePrefix.residue_roundtrip N x.2",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.completed_membership",
+          "ancestors": [
+            "completed_bounds",
+            "nat_roundtrip",
+            "residue_roundtrip"
+          ],
+          "spec_sha256": "bc9add5b221175d7b5528f347938788cc26d8fb445763c797a2ac8a3a093ad1d"
+        },
+        "sha256": "c3cab4515f1058779d6310f6ea9c93f4841b7112e09eac18db042224830030f8"
+      }
+    }
+  }
+}

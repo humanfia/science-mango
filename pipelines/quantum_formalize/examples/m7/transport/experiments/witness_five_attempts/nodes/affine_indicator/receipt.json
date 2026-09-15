@@ -1,0 +1,55 @@
+{
+  "id": "affine_indicator",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Transport.affine_indicator",
+    "spec_sha256": "481e28ec9c05b3a7d38b5a9e7a253a50948caf94978e0da6bc3849f807477627",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-transport-formalization/.humanize-formal-runs/run-udlm_ff6/attempt-001/Candidate_4e93744c0929ecf6.lean",
+        "target_path": "/home/jing/m7-lean-transport-formalization/.humanize-formal-runs/run-udlm_ff6/attempt-001/FrozenTarget_4e93744c0929ecf6.lean",
+        "feedback": "",
+        "target_sha256": "69625c985ca0c4bf7eedc4b3af7b3fb6cc1769a42c91bf0795d3db0e88472443",
+        "target_olean_sha256": "1bd857074a3abda8e15e1cfb2a2b5b0f1800b63f36340e00bffbee0a93f0285b",
+        "source_sha256": "8340585af1026fdb9f0d5841e9d64699f1867ba50714129d9823e514aed24cff",
+        "olean_sha256": "4c1a3b8d73137b6aee43a99940648205267a0e7519a9498d3ead91e880f08d8a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:39:10.741303+00:00",
+    "work": "/home/jing/m7-lean-transport-formalization/.humanize-formal-runs/run-udlm_ff6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "27fceced8fb3492bff1822983f682e6bb78555aff0adfa4fac6d0de4cc514be9",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-transport-formalization/.humanize-formal-runs/run-udlm_ff6/attempt-001/Candidate_4e93744c0929ecf6.lean",
+    "environment_sha256": "a2b27e1077548f582e0aefededc44c473653e4a548364e44092244bcd5ed3ce6",
+    "artifacts": {
+      "affine_indicator": {
+        "payload": {
+          "declaration": "theorem M7.Transport.affine_indicator : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N) (u : (ZMod N)ˣ) (s : ZMod N), M7.Supports.indicator (A.image (M7.Action.affine u s)) = M6.RecipeIsometries.shift N s (M6.RecipeIsometries.multiply N u (M7.Supports.indicator A)) := by\n  intro N inst A u s\n  classical\n  funext i\n  have h : i ∈ A.image (M7.Action.affine u s) ↔\n      (↑(u⁻¹) : ZMod N) * (i - s) ∈ A := by\n    constructor\n    · intro hi\n      obtain ⟨j, hj, rfl⟩ := Finset.mem_image.mp hi\n      simpa [M7.Action.affine, ← mul_assoc] using hj\n    · intro hi\n      apply Finset.mem_image.mpr\n      refine ⟨(↑(u⁻¹) : ZMod N) * (i - s), hi, ?_⟩\n      simp [M7.Action.affine, ← mul_assoc]\n  simp only [M7.Supports.indicator, M6.RecipeIsometries.shift,\n    M6.RecipeIsometries.multiply, h]",
+          "imports": [
+            "M7Transport"
+          ],
+          "name": "M7.Transport.affine_indicator",
+          "ancestors": [],
+          "spec_sha256": "481e28ec9c05b3a7d38b5a9e7a253a50948caf94978e0da6bc3849f807477627"
+        },
+        "sha256": "41e7b958cca06a4c8648905f9e6bcc15e45b1eb8f91d444c51ec648b562ce6d4"
+      }
+    }
+  }
+}

@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.answer_correct",
+    "status": "ok",
+    "results": [
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 215055,
+        "name": "PFunctor.M",
+        "module": "Mathlib.Data.PFunctor.Univariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Univariate/M.lean#L147-L149",
+        "source_text": "/-- For polynomial functor `F`, `M F` is its final coalgebra -/\ndef M :=\n  MIntl F\n",
+        "docstring": "For polynomial functor `F`, `M F` is its final coalgebra "
+      },
+      {
+        "id": 215078,
+        "name": "PFunctor.M.casesOn",
+        "module": "Mathlib.Data.PFunctor.Univariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Univariate/M.lean#L287-L289",
+        "source_text": "/-- destructor for M-types -/\nprotected def casesOn {r : M F → Sort w} (x : M F) (f : ∀ x : F (M F), r (M.mk x)) : r x :=\n  M.cases f x\n",
+        "docstring": "destructor for M-types "
+      },
+      {
+        "id": 215077,
+        "name": "PFunctor.M.cases",
+        "module": "Mathlib.Data.PFunctor.Univariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Univariate/M.lean#L280-L285",
+        "source_text": "/-- destructor for M-types -/\nprotected def cases {r : M F → Sort w} (f : ∀ x : F (M F), r (M.mk x)) (x : M F) : r x :=\n  suffices r (M.mk (dest x)) by\n    rw [← mk_dest x]\n    exact this\n  f _\n",
+        "docstring": "destructor for M-types "
+      },
+      {
+        "id": 214951,
+        "name": "MvPFunctor.M.corec",
+        "module": "Mathlib.Data.PFunctor.Multivariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Multivariate/M.lean#L152-L154",
+        "source_text": "/-- Corecursor for M-type of `P` -/\ndef M.corec {α : TypeVec n} {β : Type u} (g : β → P (α.append1 β)) : β → P.M α :=\n  M.corec' P (fun b => (g b).fst) (fun b => dropFun (g b).snd) fun b => lastFun (g b).snd\n",
+        "docstring": "Corecursor for M-type of `P` "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.answer_correct",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394366,
+        "name": "integral_isDimensionallyCorrect",
+        "module": "Physlib.Units.Integral",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Integral.lean#L60-L114",
+        "source_text": "/-- The statement that for a measure `μ` of dimension `d`, and a function\n  `f : M → G` of dimension `(CarriesDimension.d G * d⁻¹)` (where `CarriesDimension.d G`\n  is the dimension associated with terms of type `G`), then\n  `∫ x, f x ∂μ `\n  has the correct dimension, namely `CarriesDimension.d G`.\n\n  In other words, the function:\n```\nfun (μ : DimSet (MeasureTheory.Measure M) d)\n    (f : DimSet (M → G) (CarriesDimension.d G * d⁻¹)) ↦ ∫ x, f.1 x ∂μ.1\n```\n  is dimensionally correct. -/\nlemma integral_isDimensionallyCorrect (d : Dimension) :\n    IsDimensionallyCorrect (fun (μ : DimSet (MeasureTheory.Measure M) d)\n      (f : DimSet (M → G) (dim G * d⁻¹)) ↦ ∫ x, f.1 x ∂μ.1) := by\n  intro u1 u2\n  funext ⟨μ, hμ⟩ ⟨f, hf⟩\n  /- We have to prove that\n    `scaleUnit u1 (fun μ f ↦ ∫ x, f x ∂μ) u2 ⟨μ, hμ⟩ ⟨f, hf⟩ = ∫ x, f x ∂μ` -/\n  calc _\n    /- By definition the LHS is equal to\n    `scaleUnit u1 u2 (∫ x, (scaleUnit u2 u1 f) x ∂(scaleUnit u2 u1 μ)) `\n    The statement says, suppose `f` and `μ` are in units `u2`, we change them to units `u1`,\n    then do the integral, and then we take the result back to `u2`.\n    If the integral is dimensionally correct, this should be the same as just doing the\n    original integral in `u2` units i.e. `∫ x, f x ∂μ`. -/\n    _ = scaleUnit u1 u2 (∫ x, (scaleUnit u2 u1 f) x ∂(scaleUnit u2 u1 μ)) := by\n      simp\n    /- Since we have assumed `μ` has dimension `d`, `(scaleUnit u2 μ u1)`\n      is equal to `(u2.dimScale u1 d) • μ` -/\n    _ = scaleUnit u1 u2 (u2.dimScale u1 d • ∫ (x : M), scaleUnit u2 u1 f x ∂ μ) := by\n      rw [hμ, integral_smul_nnreal_measure]\n    /- Since we assumed `f` has dimension `CarriesDimension.d G * d⁻¹`, `(scaleUnit u2 f u1)`\n      is equal to `u2.dimScale u1 (CarriesDimension.d G * d⁻¹) • f`. -/\n    _ = scaleUnit u1 u2 (u2.dimScale u1 d •\n      u2.dimScale u1 (dim G * d⁻¹) • ∫ (x : M), f x ∂ μ) := by\n      rw [hf]\n      congr\n      erw [MeasureTheory.integral_smul]\n      rfl\n    /- What remains is a simple cancellation of the dimensional scales. -/\n    _ = (u1.dimScale u2 (dim G)) • ((u2.dimScale u1 d) •\n        u2.dimScale u1 (dim G * d⁻¹) • ∫ (x : M), f x ∂ μ) := by\n      rw [← HasDim.scaleUnit_apply]\n    _ = (u1.dimScale u2 (dim G) * (u2.dimScale u1 d) *\n        u2.dimScale u1 (dim G * d⁻¹)) • ∫ (x : M), f x ∂ μ := by\n      simp [smul_smul]\n      ring_nf\n    _ = ((u1.dimScale u2 (dim G) * u2.dimScale u1 (dim G))\n        * (u2.dimScale u1 d * u1.dimScale u2 d)) • ∫ (x : M), f x ∂ μ := by\n      congr 1\n      conv_lhs => simp only [map_mul]\n      rw [UnitChoices.dimScale_of_inv_eq_swap]\n      ring\n    _ = ∫ (x : M), f x ∂ μ := by simp\n",
+        "docstring": "The statement that for a measure `μ` of dimension `d`, and a function\n  `f : M → G` of dimension `(CarriesDimension.d G * d⁻¹)` (where `CarriesDimension.d G`\n  is the dimension associated with terms of type `G`), then\n  `∫ x, f x ∂μ `\n  has the correct dimension, namely `CarriesDimension.d G`.\n\n  In other words, the function:\n```\nfun (μ : DimSet (MeasureTheory.Measure M) d)\n    (f : DimSet (M → G) (CarriesDimension.d G * d⁻¹)) ↦ ∫ x, f.1 x ∂μ.1\n```\n  is dimensionally correct. "
+      },
+      {
+        "id": 394399,
+        "name": "IsDimensionallyCorrect",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+        "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+        "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+      },
+      {
+        "id": 394362,
+        "name": "fderiv_isDimensionallyCorrect",
+        "module": "Physlib.Units.FDeriv",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/FDeriv.lean#L49-L58",
+        "source_text": "/-- If a function is dimensionally valid then so is it's derivative. -/\nlemma fderiv_isDimensionallyCorrect (f : M1 → M2) (hf : IsDimensionallyCorrect f)\n    (f_diff : Differentiable ℝ f) :\n    IsDimensionallyCorrect (fderiv ℝ f) := by\n  simp only [isDimensionallyCorrect_fun_iff]\n  intro u1 u2 m\n  ext m'\n  simp only [ContinuousLinearUnitDependent.scaleUnit_apply_fun]\n  rw [fderiv_apply_scaleUnit u1 u2 m (scaleUnit u2 u1 m') f hf f_diff]\n  simp [HasDim.scaleUnit_apply, smul_smul]\n",
+        "docstring": "If a function is dimensionally valid then so is it's derivative. "
+      },
+      {
+        "id": 394400,
+        "name": "isDimensionallyCorrect_iff",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L421-L423",
+        "source_text": "lemma isDimensionallyCorrect_iff {M : Type} [UnitDependent M] (m : M) :\n    IsDimensionallyCorrect m ↔ ∀ u1 u2 : UnitChoices,\n      scaleUnit u1 u2 m = m := by rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 394401,
+        "name": "isDimensionallyCorrect_fun_iff",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L425-L430",
+        "source_text": "@[simp]\nlemma isDimensionallyCorrect_fun_iff {M1 M2 : Type} [UnitDependent M1] [UnitDependent M2]\n    {f : M1 → M2} :\n    IsDimensionallyCorrect f ↔\n    ∀ u1 u2 : UnitChoices, ∀ m, scaleUnit u1 u2 (f (scaleUnit u2 u1 m)) = f m := by\n  simp [IsDimensionallyCorrect, funext_iff]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Final.AnswerCorrect",
+    "status": "ok",
+    "results": [
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 215055,
+        "name": "PFunctor.M",
+        "module": "Mathlib.Data.PFunctor.Univariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Univariate/M.lean#L147-L149",
+        "source_text": "/-- For polynomial functor `F`, `M F` is its final coalgebra -/\ndef M :=\n  MIntl F\n",
+        "docstring": "For polynomial functor `F`, `M F` is its final coalgebra "
+      },
+      {
+        "id": 215078,
+        "name": "PFunctor.M.casesOn",
+        "module": "Mathlib.Data.PFunctor.Univariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Univariate/M.lean#L287-L289",
+        "source_text": "/-- destructor for M-types -/\nprotected def casesOn {r : M F → Sort w} (x : M F) (f : ∀ x : F (M F), r (M.mk x)) : r x :=\n  M.cases f x\n",
+        "docstring": "destructor for M-types "
+      },
+      {
+        "id": 215077,
+        "name": "PFunctor.M.cases",
+        "module": "Mathlib.Data.PFunctor.Univariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Univariate/M.lean#L280-L285",
+        "source_text": "/-- destructor for M-types -/\nprotected def cases {r : M F → Sort w} (f : ∀ x : F (M F), r (M.mk x)) (x : M F) : r x :=\n  suffices r (M.mk (dest x)) by\n    rw [← mk_dest x]\n    exact this\n  f _\n",
+        "docstring": "destructor for M-types "
+      },
+      {
+        "id": 214951,
+        "name": "MvPFunctor.M.corec",
+        "module": "Mathlib.Data.PFunctor.Multivariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Multivariate/M.lean#L152-L154",
+        "source_text": "/-- Corecursor for M-type of `P` -/\ndef M.corec {α : TypeVec n} {β : Type u} (g : β → P (α.append1 β)) : β → P.M α :=\n  M.corec' P (fun b => (g b).fst) (fun b => dropFun (g b).snd) fun b => lastFun (g b).snd\n",
+        "docstring": "Corecursor for M-type of `P` "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Final.AnswerCorrect",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394399,
+        "name": "IsDimensionallyCorrect",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+        "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+        "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+      },
+      {
+        "id": 394366,
+        "name": "integral_isDimensionallyCorrect",
+        "module": "Physlib.Units.Integral",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Integral.lean#L60-L114",
+        "source_text": "/-- The statement that for a measure `μ` of dimension `d`, and a function\n  `f : M → G` of dimension `(CarriesDimension.d G * d⁻¹)` (where `CarriesDimension.d G`\n  is the dimension associated with terms of type `G`), then\n  `∫ x, f x ∂μ `\n  has the correct dimension, namely `CarriesDimension.d G`.\n\n  In other words, the function:\n```\nfun (μ : DimSet (MeasureTheory.Measure M) d)\n    (f : DimSet (M → G) (CarriesDimension.d G * d⁻¹)) ↦ ∫ x, f.1 x ∂μ.1\n```\n  is dimensionally correct. -/\nlemma integral_isDimensionallyCorrect (d : Dimension) :\n    IsDimensionallyCorrect (fun (μ : DimSet (MeasureTheory.Measure M) d)\n      (f : DimSet (M → G) (dim G * d⁻¹)) ↦ ∫ x, f.1 x ∂μ.1) := by\n  intro u1 u2\n  funext ⟨μ, hμ⟩ ⟨f, hf⟩\n  /- We have to prove that\n    `scaleUnit u1 (fun μ f ↦ ∫ x, f x ∂μ) u2 ⟨μ, hμ⟩ ⟨f, hf⟩ = ∫ x, f x ∂μ` -/\n  calc _\n    /- By definition the LHS is equal to\n    `scaleUnit u1 u2 (∫ x, (scaleUnit u2 u1 f) x ∂(scaleUnit u2 u1 μ)) `\n    The statement says, suppose `f` and `μ` are in units `u2`, we change them to units `u1`,\n    then do the integral, and then we take the result back to `u2`.\n    If the integral is dimensionally correct, this should be the same as just doing the\n    original integral in `u2` units i.e. `∫ x, f x ∂μ`. -/\n    _ = scaleUnit u1 u2 (∫ x, (scaleUnit u2 u1 f) x ∂(scaleUnit u2 u1 μ)) := by\n      simp\n    /- Since we have assumed `μ` has dimension `d`, `(scaleUnit u2 μ u1)`\n      is equal to `(u2.dimScale u1 d) • μ` -/\n    _ = scaleUnit u1 u2 (u2.dimScale u1 d • ∫ (x : M), scaleUnit u2 u1 f x ∂ μ) := by\n      rw [hμ, integral_smul_nnreal_measure]\n    /- Since we assumed `f` has dimension `CarriesDimension.d G * d⁻¹`, `(scaleUnit u2 f u1)`\n      is equal to `u2.dimScale u1 (CarriesDimension.d G * d⁻¹) • f`. -/\n    _ = scaleUnit u1 u2 (u2.dimScale u1 d •\n      u2.dimScale u1 (dim G * d⁻¹) • ∫ (x : M), f x ∂ μ) := by\n      rw [hf]\n      congr\n      erw [MeasureTheory.integral_smul]\n      rfl\n    /- What remains is a simple cancellation of the dimensional scales. -/\n    _ = (u1.dimScale u2 (dim G)) • ((u2.dimScale u1 d) •\n        u2.dimScale u1 (dim G * d⁻¹) • ∫ (x : M), f x ∂ μ) := by\n      rw [← HasDim.scaleUnit_apply]\n    _ = (u1.dimScale u2 (dim G) * (u2.dimScale u1 d) *\n        u2.dimScale u1 (dim G * d⁻¹)) • ∫ (x : M), f x ∂ μ := by\n      simp [smul_smul]\n      ring_nf\n    _ = ((u1.dimScale u2 (dim G) * u2.dimScale u1 (dim G))\n        * (u2.dimScale u1 d * u1.dimScale u2 d)) • ∫ (x : M), f x ∂ μ := by\n      congr 1\n      conv_lhs => simp only [map_mul]\n      rw [UnitChoices.dimScale_of_inv_eq_swap]\n      ring\n    _ = ∫ (x : M), f x ∂ μ := by simp\n",
+        "docstring": "The statement that for a measure `μ` of dimension `d`, and a function\n  `f : M → G` of dimension `(CarriesDimension.d G * d⁻¹)` (where `CarriesDimension.d G`\n  is the dimension associated with terms of type `G`), then\n  `∫ x, f x ∂μ `\n  has the correct dimension, namely `CarriesDimension.d G`.\n\n  In other words, the function:\n```\nfun (μ : DimSet (MeasureTheory.Measure M) d)\n    (f : DimSet (M → G) (CarriesDimension.d G * d⁻¹)) ↦ ∫ x, f.1 x ∂μ.1\n```\n  is dimensionally correct. "
+      },
+      {
+        "id": 394362,
+        "name": "fderiv_isDimensionallyCorrect",
+        "module": "Physlib.Units.FDeriv",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/FDeriv.lean#L49-L58",
+        "source_text": "/-- If a function is dimensionally valid then so is it's derivative. -/\nlemma fderiv_isDimensionallyCorrect (f : M1 → M2) (hf : IsDimensionallyCorrect f)\n    (f_diff : Differentiable ℝ f) :\n    IsDimensionallyCorrect (fderiv ℝ f) := by\n  simp only [isDimensionallyCorrect_fun_iff]\n  intro u1 u2 m\n  ext m'\n  simp only [ContinuousLinearUnitDependent.scaleUnit_apply_fun]\n  rw [fderiv_apply_scaleUnit u1 u2 m (scaleUnit u2 u1 m') f hf f_diff]\n  simp [HasDim.scaleUnit_apply, smul_smul]\n",
+        "docstring": "If a function is dimensionally valid then so is it's derivative. "
+      },
+      {
+        "id": 394400,
+        "name": "isDimensionallyCorrect_iff",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L421-L423",
+        "source_text": "lemma isDimensionallyCorrect_iff {M : Type} [UnitDependent M] (m : M) :\n    IsDimensionallyCorrect m ↔ ∀ u1 u2 : UnitChoices,\n      scaleUnit u1 u2 m = m := by rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 393839,
+        "name": "CanonicalEnsemble.instIsFiniteMeasureμOfIsFinite",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L147-L149",
+        "source_text": "instance [IsFinite 𝓒] : IsFiniteMeasure (𝓒.μ) := by\n  rw [IsFinite.μ_eq_count]\n  infer_instance\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Transport.distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 346184,
+        "name": "Int.dist_eq'",
+        "module": "Mathlib.Topology.Instances.Int",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Instances/Int.lean#L36-L36",
+        "source_text": "theorem dist_eq' (m n : ℤ) : dist m n = |m - n| := by rw [dist_eq]; norm_cast\n",
+        "docstring": null
+      },
+      {
+        "id": 266688,
+        "name": "MeasureTheory.MeasuredSets.dist_def",
+        "module": "Mathlib.MeasureTheory.Measure.MeasuredSets",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/MeasuredSets.lean#L71-L72",
+        "source_text": "lemma MeasuredSets.dist_def [IsFiniteMeasure μ] (s t : MeasuredSets μ) :\n    dist s t = μ.real ((s : Set α) ∆ t) := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 266684,
+        "name": "MeasureTheory.MeasuredSets.edist_def",
+        "module": "Mathlib.MeasureTheory.Measure.MeasuredSets",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/MeasuredSets.lean#L53-L53",
+        "source_text": "lemma MeasuredSets.edist_def (s t : MeasuredSets μ) : edist s t = μ ((s : Set α) ∆ t) := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 155547,
+        "name": "CategoryTheory.TransportEnrichment",
+        "module": "Mathlib.CategoryTheory.Enriched.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Enriched/Basic.lean#L110-L116",
+        "source_text": "/-- A type synonym for `C`, which should come equipped with a `V`-enriched category structure.\nIn a moment we will equip this with the `W`-enriched category structure\nobtained by applying the functor `F : LaxMonoidalFunctor V W` to each hom object.\n-/\n@[nolint unusedArguments]\ndef TransportEnrichment (F : V ⥤ W) [F.LaxMonoidal] (C : Type u₁) :=\n  C\n",
+        "docstring": "A type synonym for `C`, which should come equipped with a `V`-enriched category structure.\nIn a moment we will equip this with the `W`-enriched category structure\nobtained by applying the functor `F : LaxMonoidalFunctor V W` to each hom object.\n"
+      },
+      {
+        "id": 348913,
+        "name": "Fin.edist_append_eq_max_edist",
+        "module": "Mathlib.Topology.MetricSpace.Isometry",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Isometry.lean#L634-L637",
+        "source_text": "theorem _root_.Fin.edist_append_eq_max_edist (m n : ℕ) {x x2 : Fin m → α} {y y2 : Fin n → α} :\n    edist (Fin.append x y) (Fin.append x2 y2) = max (edist x x2) (edist y y2) := by\n  simp [edist_pi_def, Finset.sup_univ_eq_iSup, ← Equiv.iSup_comp (e := finSumFinEquiv),\n    iSup_sum]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.Transport.distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393498,
+        "name": "Time.instDist",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L271-L272",
+        "source_text": "instance : Dist Time where\n  dist t1 t2 := ‖t1 - t2‖\n",
+        "docstring": null
+      },
+      {
+        "id": 394344,
+        "name": "UnitExamples.SpeedEq",
+        "module": "Physlib.Units.Examples",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Examples.lean#L70-L72",
+        "source_text": "/-- An example of dimensions corresponding to `s = d/t` using `WithDim`. -/\ndef SpeedEq (s : WithDim (L𝓭 * T𝓭⁻¹) ℝ) (d : WithDim L𝓭 ℝ) (t : WithDim T𝓭 ℝ) : Prop :=\n  s = cast (d / t)\n",
+        "docstring": "An example of dimensions corresponding to `s = d/t` using `WithDim`. "
+      },
+      {
+        "id": 393169,
+        "name": "LengthUnit.miles",
+        "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L201-L202",
+        "source_text": "/-- The length unit of a mile (1609.344 meters). -/\nnoncomputable def miles : LengthUnit := scale (1609.344) meters\n",
+        "docstring": "The length unit of a mile (1609.344 meters). "
+      },
+      {
+        "id": 394494,
+        "name": "DimSpeed.oneMeterPerSecond_eq_mul_oneMilePerHour",
+        "module": "Physlib.Units.WithDim.Speed",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Speed.lean#L113-L117",
+        "source_text": "lemma oneMeterPerSecond_eq_mul_oneMilePerHour :\n    oneMeterPerSecond = (3125/1397 : ℝ≥0) • oneMilePerHour := by\n  apply (toDimensionful SI).symm.injective\n  ext\n  norm_num [toDimensionful]\n",
+        "docstring": null
+      },
+      {
+        "id": 393174,
+        "name": "LengthUnit.miles_div_yards",
+        "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L223-L225",
+        "source_text": "/-- There are exactly 1760 yards in a mile. -/\nlemma miles_div_yards : miles / yards = (⟨1760, by norm_num⟩ : ℝ≥0) :=\n  NNReal.eq <| by simp [miles, yards]; rw [toReal]; norm_num\n",
+        "docstring": "There are exactly 1760 yards in a mile. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

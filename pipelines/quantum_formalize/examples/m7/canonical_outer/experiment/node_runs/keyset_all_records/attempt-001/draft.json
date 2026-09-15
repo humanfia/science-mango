@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.keyset c = (Finset.univ : Finset (M7.Action.Record N)).image (fun g => M7.CanonicalOuter.pairKey (M7.CanonicalOuter.normalizePair (M7.Action.act g c)))\nintro N inst c\nclassical\nunfold M7.CanonicalOuter.keyset M7.CanonicalOuter.candidate\next k\nconstructor\n· intro hk\n  rcases Finset.mem_image.mp hk with ⟨i, hi, hik⟩\n  exact Finset.mem_image.mpr ⟨M7.CanonicalOuter.outerRecord i, Finset.mem_univ _, hik⟩\n· intro hk\n  rcases Finset.mem_image.mp hk with ⟨g, hg, hgk⟩\n  rcases M7.CanonicalOuter.unit_index N g.unit g.exchange with ⟨i, hi, hir⟩\n  refine Finset.mem_image.mpr ⟨i, hi, ?_⟩\n  rw [hir, ← M7.CanonicalOuter.normalize_act_shifts N g c]\n  exact hgk",
+  "queries": []
+}

@@ -1,0 +1,14 @@
+{
+  "name": "M7.QueryRebase.feasible_objective",
+  "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), (M7.GlobalQuery.feasible q (M7.QueryRebase.rebase bases moves) x ↔ M7.GlobalQuery.feasible q bases (M7.QueryRebase.reparam moves x)) ∧ M7.GlobalQuery.objective q (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.objective q bases (M7.QueryRebase.reparam moves x)",
+  "imports": [
+    "M7ActionAccepted",
+    "M7GlobalQueryAccepted",
+    "M7QueryRebase"
+  ],
+  "context": "theorem M7.QueryRebase.realize_reparam : ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.realize (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.realize bases (M7.QueryRebase.reparam moves x) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.realize (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.realize bases (M7.QueryRebase.reparam moves x)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro H N inst bases moves x\n  simpa only [M7.QueryRebase.rebase, M7.QueryRebase.reparam, M7.GlobalQuery.realize] using\n    (M7.Action.act_compose N x.2 (moves x.1) (bases x.1)).symm\n\ntheorem M7.QueryRebase.sector_base : ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N) (g : M7.Action.Record N), (M7.DefaultQuery.sectorTest q (M7.Action.act g base) placed ↔ M7.DefaultQuery.sectorTest q base placed) := by\n  intro N inst q base placed g\n  cases hmode : q.sectorMode <;> simp only [M7.DefaultQuery.sectorTest, hmode]\n  all_goals\n    first\n    | exact Iff.rfl\n    | constructor\n      · rintro ⟨h, hh⟩\n        refine ⟨M7.Action.compose h g, ?_⟩\n        simpa only [M7.Action.act_compose] using hh\n      · rintro ⟨h, hh⟩\n        refine ⟨M7.Action.compose h (M7.Action.inverse g), ?_⟩\n        simpa only [M7.Action.act_compose, M7.Action.act_inverse] using hh",
+  "queries": [
+    "finite group action inverse composition bijection"
+  ],
+  "guidance": "Use literal realization equality from realize_reparam. Unfold GlobalQuery.feasible/objective and DefaultQuery.feasible; every placement-dependent term is identical. Only the class-sector base changes, handled by sector_base. This retains caps, NoLogical policy and all objective coordinates without class-label invariance assumptions. Return tactic lines without leading by; preserve exact target and default limits."
+}

@@ -1,0 +1,243 @@
+[
+  {
+    "id": "binary_monic",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.SignatureTau.binary_monic",
+      "statement": "∀ F : M6.Cyclic.BinaryPolynomial, F ≠ 0 → F.Monic",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Every nonzero binary polynomial is monic: leadingCoeff_ne_zero and the finite fact ∀c:ZMod2,c≠0→c=1 (decide). No squarefree assumption. Explicitly reduce Monic to leadingCoeff=1. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "modulus_monic",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.SignatureTau.modulus_monic",
+      "statement": "∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Use Polynomial.monic_X_pow_add_C (1:ZMod2) (NeZero.ne N), converting C1 to1 without globally unfolding the quotient-ring type. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "gcd_canonical",
+    "dependencies": [
+      "binary_monic",
+      "modulus_monic"
+    ],
+    "spec": {
+      "name": "M7.SignatureTau.gcd_canonical",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ p : M6.Cyclic.BinaryPolynomial, (EuclideanDomain.gcd p (M6.Cyclic.modulus N)).Monic ∧ EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ (M6.Cyclic.modulus N) ∧ EuclideanDomain.gcd (M6.Cyclic.modulus N) p = EuclideanDomain.gcd p (M6.Cyclic.modulus N)",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Both gcd orders are nonzero because modulus is monic and gcd_eq_zero_iff. Apply binary_monic. Divisibility is gcd_dvd_right. For swapped equality do not assume a generic EuclideanDomain gcd_comm theorem: prove mutual divisibility by dvd_gcd/gcd_dvd_left/right and use monic polynomial antisymmetry, e.g. Polynomial.eq_of_monic_of_dvd_of_natDegree_le. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "tau_properties",
+    "dependencies": [
+      "gcd_canonical"
+    ],
+    "spec": {
+      "name": "M7.SignatureTau.tau_properties",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), (M7.SignatureTau.tau u F).Monic ∧ M7.SignatureTau.tau u F ∣ (M6.Cyclic.modulus N)",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Unfold tau and use first two conclusions of gcd_canonical. F may be arbitrary; modulus positive ensures gcd nonzero. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "reduced_image",
+    "dependencies": [
+      "modulus_monic"
+    ],
+    "spec": {
+      "name": "M7.SignatureTau.reduced_image",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M6.Cyclic.image N (M7.SignatureTau.reduced u F) = M7.QuotientAuto.substitution u (M6.Cyclic.image N F)",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "AdjoinRoot.modByMonicHom_mk and AdjoinRoot.mk_leftInverse for the proved monic modulus show remainder has same quotient image. Then apply accepted QuotientAuto.polynomial_substitution. Actual substitution, not arbitrary automorphism. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "tau_principal",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.SignatureTau.tau_principal",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M7.SignatureIdeal.principal N (M7.SignatureTau.tau u F) = (M7.SignatureIdeal.principal N F).map (M7.QuotientAuto.substitution u)",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Unfold tau and reverse accepted SignatureIdeal.principal_gcd. Ideal.map_span and Set.image_singleton reduce to the actual accepted polynomial_substitution equality. This equality is between actual ideals and keeps every repeated factor. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "source_tau_equal",
+    "dependencies": [
+      "gcd_canonical",
+      "tau_properties",
+      "reduced_image",
+      "tau_principal"
+    ],
+    "spec": {
+      "name": "M7.SignatureTau.source_tau_equal",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M7.SignatureTau.sourceTau u F = M7.SignatureTau.tau u F",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "First use gcd_canonical swapped-order result on reduced u F. Both gcds are monic divisors. Apply SignatureIdeal.monic_injective; principal_gcd identifies the reduced gcd ideal with principal reduced, while reduced_image and polynomial_substitution identify its actual quotient generator with substituted u F. This proves equivalence of the original gcd(M,reduced sigma) algorithm, not a definition change. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "tau_one",
+    "dependencies": [
+      "tau_properties",
+      "tau_principal"
+    ],
+    "spec": {
+      "name": "M7.SignatureTau.tau_one",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ F : M6.Cyclic.BinaryPolynomial, F.Monic → F ∣ (M6.Cyclic.modulus N) → M7.SignatureTau.tau (1 : (ZMod N)ˣ) F = F",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Use monic_injective on monic divisors. Rewrite tau_principal and actual substitution_one, then Ideal.map_id. N=1 remains included; do not replace unit.val1 by1 unconditionally. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "tau_comp",
+    "dependencies": [
+      "tau_properties",
+      "tau_principal"
+    ],
+    "spec": {
+      "name": "M7.SignatureTau.tau_comp",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (u v : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ (M6.Cyclic.modulus N) → M7.SignatureTau.tau v (M7.SignatureTau.tau u F) = M7.SignatureTau.tau (v*u) F",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Apply monic_injective with tau_properties on both sides. Rewrite tau_principal twice and Ideal.map_map; accepted QuotientAuto.substitution_comp gives the actual composition. No assumed automorphism or root-set argument. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "tau_inverse",
+    "dependencies": [
+      "tau_one",
+      "tau_comp"
+    ],
+    "spec": {
+      "name": "M7.SignatureTau.tau_inverse",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ (M6.Cyclic.modulus N) → (M7.SignatureTau.tau (u⁻¹) (M7.SignatureTau.tau u F) = F ∧ M7.SignatureTau.tau u (M7.SignatureTau.tau (u⁻¹) F) = F)",
+      "imports": [
+        "M7SignatureTau"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Apply tau_comp in the two inverse orders, simplify inv_mul_cancel/mul_inv_cancel, then tau_one with original monic-divisor hypotheses. Exact conjunction is parenthesized. Degree invariance is a separate root-owned batch and is not assumed here. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M7 section3 full multiplicity signature transport",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

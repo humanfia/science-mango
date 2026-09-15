@@ -1,0 +1,240 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.getD append",
+    "status": "ok",
+    "results": [
+      {
+        "id": 208102,
+        "name": "List.getD_append",
+        "module": "Mathlib.Data.List.GetD",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/GetD.lean#L70-L72",
+        "source_text": "theorem getD_append (l l' : List α) (d : α) (n : ℕ) (h : n < l.length) :\n    (l ++ l').getD n d = l.getD n d := by\n  grind\n",
+        "docstring": null
+      },
+      {
+        "id": 208095,
+        "name": "List.getD_map",
+        "module": "Mathlib.Data.List.GetD",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/GetD.lean#L43-L44",
+        "source_text": "theorem getD_map {n : ℕ} (f : α → β) : (map f l).getD n (f d) = f (l.getD n d) := by\n  simp only [getD_eq_getElem?_getD, getElem?_map, Option.getD_map]\n",
+        "docstring": null
+      },
+      {
+        "id": 208103,
+        "name": "List.getD_append_right",
+        "module": "Mathlib.Data.List.GetD",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/GetD.lean#L74-L76",
+        "source_text": "theorem getD_append_right (l l' : List α) (d : α) (n : ℕ) (h : l.length ≤ n) :\n    (l ++ l').getD n d = l'.getD (n - l.length) d := by\n  grind\n",
+        "docstring": null
+      },
+      {
+        "id": 208113,
+        "name": "List.getI_append",
+        "module": "Mathlib.Data.List.GetD",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/GetD.lean#L118-L119",
+        "source_text": "theorem getI_append (l l' : List α) (n : ℕ) (h : n < l.length) :\n    (l ++ l').getI n = l.getI n := getD_append _ _ _ _ h\n",
+        "docstring": null
+      },
+      {
+        "id": 196258,
+        "name": "Computable.list_concat",
+        "module": "Mathlib.Computability.Partrec",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/Partrec.lean#L330-L331",
+        "source_text": "theorem list_concat : Computable₂ fun l (a : α) => l ++ [a] :=\n  Primrec.list_concat.to_comp\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "List.getD append",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386709,
+        "name": "Physlib.List.optionEraseZ",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L703-L710",
+        "source_text": "/-- Optional erase of an element in a list, with addition for `none`. For `none` adds `a` to the\n  front of the list, for `some i` removes the `i`th element of the list (does not add `a`).\n  E.g. `optionEraseZ [0, 1, 2] 4 none = [4, 0, 1, 2]` and\n  `optionEraseZ [0, 1, 2] 4 (some 1) = [0, 2]`. -/\n@[expose] def optionEraseZ {I : Type} (l : List I) (a : I) (i : Option (Fin l.length)) : List I :=\n  match i with\n  | none => a :: l\n  | some i => List.eraseIdx l i\n",
+        "docstring": "Optional erase of an element in a list, with addition for `none`. For `none` adds `a` to the\nfront of the list, for `some i` removes the `i`th element of the list (does not add `a`).\nE.g. `optionEraseZ [0, 1, 2] 4 none = [4, 0, 1, 2]` and\n`optionEraseZ [0, 1, 2] 4 (some 1) = [0, 2]`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.getD cons",
+    "status": "ok",
+    "results": [
+      {
+        "id": 66182,
+        "name": "List.dProd_cons",
+        "module": "Mathlib.Algebra.GradedMonoid",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GradedMonoid.lean#L407-L410",
+        "source_text": "@[simp]\ntheorem List.dProd_cons (fι : α → ι) (fA : ∀ a, A (fι a)) (a : α) (l : List α) :\n    (a :: l).dProd fι fA = (GradedMonoid.GMul.mul (fA a) (l.dProd fι fA) :) :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 328409,
+        "name": "Mathlib.Meta.List.proveNilOrCons",
+        "module": "Mathlib.Tactic.NormNum.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/BigOperators.lean#L109-L147",
+        "source_text": "/-- Either show the expression `s : Q(List α)` is Nil, or remove one element from it.\n\nFails if we cannot determine which of the alternatives apply to the expression.\n-/\npartial def List.proveNilOrCons {u : Level} {α : Q(Type u)} (s : Q(List $α)) :\n    MetaM (List.ProveNilOrConsResult s) :=\n  s.withApp fun e a =>\n  match (e, e.constName, a) with\n  | (_, ``EmptyCollection.emptyCollection, _) => haveI : $s =Q {} := ⟨⟩; pure (.nil q(.refl []))\n  | (_, ``List.nil, _) => haveI : $s =Q [] := ⟨⟩; pure (.nil q(rfl))\n  | (_, ``List.cons, #[_, (a : Q($α)), (s' : Q(List $α))]) =>\n    haveI : $s =Q $a :: $s' := ⟨⟩; pure (.cons a s' q(rfl))\n  | (_, ``List.range, #[(n : Q(ℕ))]) =>\n    have s : Q(List ℕ) := s; .uncheckedCast _ _ <$> show MetaM (ProveNilOrConsResult s) from do\n    let ⟨nn, pn⟩ ← NormNum.deriveNat n _\n    haveI' : $s =Q .range $n := ⟨⟩\n    let nnL := nn.natLit!\n    if nnL = 0 then\n      haveI' : $nn =Q 0 := ⟨⟩\n      return .nil q(List.range_zero' $pn)\n    else\n      have n' : Q(ℕ) := mkRawNatLit (nnL - 1)\n      have : $nn =Q .succ $n' := ⟨⟩\n      return .cons _ _ q(List.range_succ_eq_map' $pn (.refl $nn))\n  | (_, ``List.finRange, #[(n : Q(ℕ))]) =>\n    have s : Q(List (Fin $n)) := s\n    .uncheckedCast _ _ <$> show MetaM (ProveNilOrConsResult s) from do\n    haveI' : $s =Q .finRange $n := ⟨⟩\n    return match ← Nat.unifyZeroOrSucc n with -- We want definitional equality on `n`.\n    | .zero _pf => .nil q(List.finRange_zero)\n    | .succ n' _pf => .cons _ _ q(List.finRange_succ)\n  | (.const ``List.map [v, _], _, #[(β : Q(Type v)), _, (f : Q($β → $α)), (xxs : Q(List $β))]) => do\n    haveI' : $s =Q ($xxs).map $f := ⟨⟩\n    return match ← List.proveNilOrCons xxs with\n    | .nil pf => .nil q(($pf ▸ List.map_nil : List.map _ _ = _))\n    | .cons x xs pf => .cons q($f $x) q(($xs).map $f)\n      q(($pf ▸ List.map_cons : List.map _ _ = _))\n  | (_, fn, args) =>\n    throwError \"List.proveNilOrCons: unsupported List expression {s} ({fn}, {args})\"\n",
+        "docstring": "Either show the expression `s : Q(List α)` is Nil, or remove one element from it.\n\nFails if we cannot determine which of the alternatives apply to the expression.\n"
+      },
+      {
+        "id": 197354,
+        "name": "Turing.PartrecToTM2.trList_ne_consₗ",
+        "module": "Mathlib.Computability.TuringMachine.ToPartrec",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/ToPartrec.lean#L694-L701",
+        "source_text": "theorem trList_ne_consₗ : ∀ (l), ∀ x ∈ trList l, x ≠ Γ'.consₗ\n  | a :: l, x, h => by\n    simp only [trList, List.mem_append, List.mem_cons] at h\n    obtain h | rfl | h := h\n    · rintro rfl\n      cases trNat_natEnd _ _ h\n    · rintro ⟨⟩\n    · exact trList_ne_consₗ l _ h\n",
+        "docstring": null
+      },
+      {
+        "id": 199419,
+        "name": "Batteries.instLawfulTraversableDList",
+        "module": "Mathlib.Data.DList.Instances",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/DList/Instances.lean#L39-L40",
+        "source_text": "instance : LawfulTraversable DList :=\n  Equiv.isLawfulTraversable DList.listEquivDList\n",
+        "docstring": null
+      },
+      {
+        "id": 197261,
+        "name": "Turing.PartrecToTM2.Γ'.consₗ",
+        "module": "Mathlib.Computability.TuringMachine.ToPartrec",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/ToPartrec.lean#L161-L161",
+        "source_text": "  | consₗ\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "List.getD cons",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386696,
+        "name": "Physlib.List.optionErase",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L583-L588",
+        "source_text": "/-- Optional erase of an element in a list. For `none` returns the list, for `some i` returns\n  the list with the `i`'th element erased. -/\n@[expose] def optionErase {I : Type} (l : List I) (i : Option (Fin l.length)) : List I :=\n  match i with\n  | none => l\n  | some i => List.eraseIdx l i\n",
+        "docstring": "Optional erase of an element in a list. For `none` returns the list, for `some i` returns\nthe list with the `i`'th element erased. "
+      },
+      {
+        "id": 392964,
+        "name": "Physlib.MultiIndex.toList_single",
+        "module": "Physlib.SpaceAndTime.Space.Derivatives.MultiIndex",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Derivatives/MultiIndex.lean#L184-L198",
+        "source_text": "@[simp]\nlemma toList_single (i : Fin d) : toList (increment 0 i : MultiIndex d) = [i] := by\n  induction d with\n  | zero =>\n      exact Fin.elim0 i\n  | succ d ih =>\n      refine Fin.cases ?_ ?_ i\n      · simp [toList_increment_zero]\n      · intro j\n        have htail :\n            tail (increment (0 : MultiIndex d.succ) j.succ) = increment (0 : MultiIndex d) j := by\n          rw [tail_increment_succ, tail_zero]\n        have hzero : increment (0 : MultiIndex d.succ) j.succ 0 = 0 := by\n          simp [increment]\n        simp [toList, hzero, htail, ih j]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.mem_image",
+    "status": "ok",
+    "results": [
+      {
+        "id": 202912,
+        "name": "Finset.mem_image",
+        "module": "Mathlib.Data.Finset.Image",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L291-L293",
+        "source_text": "@[simp, grind =]\ntheorem mem_image : b ∈ s.image f ↔ ∃ a ∈ s, f a = b := by\n  simp only [mem_def, image_val, mem_dedup, Multiset.mem_map]",
+        "docstring": null
+      },
+      {
+        "id": 202909,
+        "name": "Finset.image",
+        "module": "Mathlib.Data.Finset.Image",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L277-L279",
+        "source_text": "/-- `image f s` is the forward image of `s` under `f`. -/\ndef image (f : α → β) (s : Finset α) : Finset β :=\n  (s.1.map f).toFinset\n",
+        "docstring": "`image f s` is the forward image of `s` under `f`. "
+      },
+      {
+        "id": 202913,
+        "name": "Finset.mem_image_of_mem",
+        "module": "Mathlib.Data.Finset.Image",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L295-L296",
+        "source_text": "theorem mem_image_of_mem (f : α → β) {a} (h : a ∈ s) : f a ∈ s.image f :=\n  mem_image.2 ⟨_, h, rfl⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 218319,
+        "name": "Set.Finite.toFinset_image",
+        "module": "Mathlib.Data.Set.Finite.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Basic.lean#L213-L216",
+        "source_text": "protected theorem toFinset_image [DecidableEq β] (f : α → β) (hs : s.Finite) (h : (f '' s).Finite) :\n    h.toFinset = hs.toFinset.image f := by\n  ext\n  simp\n",
+        "docstring": null
+      },
+      {
+        "id": 203002,
+        "name": "Multiset.toFinset_map",
+        "module": "Mathlib.Data.Finset.Image",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L732-L734",
+        "source_text": "theorem Multiset.toFinset_map [DecidableEq α] [DecidableEq β] (f : α → β) (m : Multiset α) :\n    (m.map f).toFinset = m.toFinset.image f :=\n  Finset.val_inj.1 (Multiset.dedup_map_dedup_eq _ _).symm\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Finset.mem_image",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.mem_image",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

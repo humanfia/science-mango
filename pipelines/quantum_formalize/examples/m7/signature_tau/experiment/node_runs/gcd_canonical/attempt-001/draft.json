@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ p : M6.Cyclic.BinaryPolynomial, _\nintro N inst p\nhave hm : M6.Cyclic.modulus N ≠ 0 := (M7.SignatureTau.modulus_monic N).ne_zero\nhave hd := EuclideanDomain.gcd_dvd_right p (M6.Cyclic.modulus N)\nhave hs := EuclideanDomain.gcd_dvd_left (M6.Cyclic.modulus N) p\nhave hg : EuclideanDomain.gcd p (M6.Cyclic.modulus N) ≠ 0 := by\n  intro h\n  rw [h] at hd\n  exact hm (zero_dvd_iff.mp hd)\nhave hk : EuclideanDomain.gcd (M6.Cyclic.modulus N) p ≠ 0 := by\n  intro h\n  rw [h] at hs\n  exact hm (zero_dvd_iff.mp hs)\nhave hgm := M7.SignatureTau.binary_monic _ hg\nhave hkm := M7.SignatureTau.binary_monic _ hk\nrefine ⟨hgm, hd, ?_⟩\nhave hkg : EuclideanDomain.gcd (M6.Cyclic.modulus N) p ∣ EuclideanDomain.gcd p (M6.Cyclic.modulus N) :=\n  EuclideanDomain.dvd_gcd (EuclideanDomain.gcd_dvd_right _ _) (EuclideanDomain.gcd_dvd_left _ _)\nhave hgk : EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ EuclideanDomain.gcd (M6.Cyclic.modulus N) p :=\n  EuclideanDomain.dvd_gcd (EuclideanDomain.gcd_dvd_right _ _) (EuclideanDomain.gcd_dvd_left _ _)\nhave hdeg := Polynomial.natDegree_le_of_dvd hgk hk\napply Polynomial.eq_of_monic_of_dvd_of_natDegree_le <;> assumption",
+  "queries": [
+    "Polynomial.eq_of_monic_of_dvd_of_natDegree_le",
+    "EuclideanDomain.dvd_gcd",
+    "Polynomial.natDegree_le_of_dvd"
+  ]
+}

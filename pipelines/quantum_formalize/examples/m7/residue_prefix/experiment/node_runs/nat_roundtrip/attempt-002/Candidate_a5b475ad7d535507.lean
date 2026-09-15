@@ -1,0 +1,17 @@
+import FrozenTarget_a5b475ad7d535507
+theorem M7.ResiduePrefix.nat_roundtrip : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A
+  intro N inst A hA
+  classical
+  change (A.image (fun i : ℕ => (i : ZMod N))).image ZMod.val = A
+  rw [Finset.image_image]
+  ext n
+  simp only [Finset.mem_image, Function.comp_apply]
+  constructor
+  · rintro ⟨i, hi, he⟩
+    have hv : (i : ZMod N).val = i :=
+      ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hi))
+    rw [hv] at he
+    exact he ▸ hi
+  · intro hn
+    exact ⟨n, hn, ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hn))⟩

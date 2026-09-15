@@ -1,0 +1,98 @@
+{
+  "id": "keyset_action",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalOuter.keyset_action",
+    "spec_sha256": "4e150e79fd6891ca61ab621e5295c6284b2bcd7ed04736212e9e7969e153825d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-cpul7kqw/attempt-001/Candidate_8d59804a07905699.lean",
+        "target_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-cpul7kqw/attempt-001/FrozenTarget_8d59804a07905699.lean",
+        "feedback": "",
+        "target_sha256": "d8f50644ac4e78f17786757c18020c2a07bc0fb581dc0908113c133828d14764",
+        "target_olean_sha256": "32d81af7447508f8db991a48cbfc4781570e5eb3774fbcde41fc1787cf2456f2",
+        "source_sha256": "ca2aa194c85f4b6af3cc8d80b83ed943328357dde93d959908de2610519f469a",
+        "olean_sha256": "07bb42bb262fc036dfcb9013a50003832e53f48faff6de3dbe29b6ab31ce597d",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:17:01.067761+00:00",
+    "work": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-cpul7kqw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "e2b9937f2c88530885415cbb397848104a579dc4f9802a749cd68de66091a34d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-cpul7kqw/attempt-001/Candidate_8d59804a07905699.lean",
+    "environment_sha256": "c4afe76bd2bc2b078f4a0aaca674d3192b7fbdf34aa57c5d93f4d00e250c88ba",
+    "artifacts": {
+      "unit_index": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.unit_index : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (e : Bool), ∃ i ∈ M7.CanonicalOuter.indices N, M7.CanonicalOuter.outerRecord i = (⟨u,e,0,0⟩ : M7.Action.Record N) := by\n   classical\n   intro N inst u e\n   let i : M7.CanonicalOuter.OuterIndex N :=\n     toLex (⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩, e)\n   have hv : (((ofLex i).1.val : ℕ) : ZMod N) = (u : ZMod N) := by\n     simp [i]\n   have hi : IsUnit (((ofLex i).1.val : ℕ) : ZMod N) := by\n     rw [hv]\n     exact u.isUnit\n   refine ⟨i, ?_, ?_⟩\n   · exact Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n   · have hu : M7.CanonicalOuter.outerUnit i = u := by\n       unfold M7.CanonicalOuter.outerUnit\n       rw [dif_pos hi]\n       apply Units.ext\n       exact hi.unit_spec.trans hv\n     change (⟨M7.CanonicalOuter.outerUnit i, (ofLex i).2, 0, 0⟩ : M7.Action.Record N) = ⟨u, e, 0, 0⟩\n     rw [hu]\n     rfl",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.unit_index",
+          "ancestors": [],
+          "spec_sha256": "69ea588dd20622d263997b98ff19589e903884f12aff48cce57448df257597ac"
+        },
+        "sha256": "76408eda35ca3618f02babbb45c5e7ec843b283c4b9a72e261e2e57b9ccba9c8"
+      },
+      "normalize_act_shifts": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.normalize_act_shifts : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.normalizePair (M7.Action.act g c) = M7.CanonicalOuter.normalizePair (M7.Action.act (⟨g.unit,g.exchange,0,0⟩ : M7.Action.Record N) c) := by\n    intro N inst g c\n    classical\n    have h (u : (ZMod N)ˣ) (s : ZMod N) (A : Finset (ZMod N)) :\n        M7.CanonicalBlock.normalize (A.image (M7.Action.affine u s)) =\n          M7.CanonicalBlock.normalize (A.image (M7.Action.affine u 0)) := by\n      have he : A.image (M7.Action.affine u s) =\n          M7.CanonicalBlock.shift s (A.image (M7.Action.affine u 0)) := by\n        unfold M7.CanonicalBlock.shift\n        rw [Finset.image_image]\n        congr 1\n        funext i\n        simp [M7.Action.affine, Function.comp_def]\n      rw [he]\n      exact M7.CanonicalBlock.normalize_shift N s (A.image (M7.Action.affine u 0))\n    rcases g with ⟨u, e, s, t⟩\n    cases e <;> simp [M7.CanonicalOuter.normalizePair, M7.Action.act, h]",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.normalize_act_shifts",
+          "ancestors": [],
+          "spec_sha256": "5734c94a1e941aebac4ad3d64e5a02223e8c7172830ea6569fab87930b57c6a0"
+        },
+        "sha256": "d49c237045b1ad5be454eb45b7697a03237f93dab7093b49173678e00875c158"
+      },
+      "keyset_all_records": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.keyset_all_records : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.keyset c = (Finset.univ : Finset (M7.Action.Record N)).image (fun g => M7.CanonicalOuter.pairKey (M7.CanonicalOuter.normalizePair (M7.Action.act g c))) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.keyset c = (Finset.univ : Finset (M7.Action.Record N)).image (fun g => M7.CanonicalOuter.pairKey (M7.CanonicalOuter.normalizePair (M7.Action.act g c)))\n  intro N inst c\n  classical\n  unfold M7.CanonicalOuter.keyset M7.CanonicalOuter.candidate\n  ext k\n  constructor\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨i, hi, hik⟩\n    exact Finset.mem_image.mpr ⟨M7.CanonicalOuter.outerRecord i, Finset.mem_univ _, hik⟩\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨g, hg, hgk⟩\n    rcases M7.CanonicalOuter.unit_index N g.unit g.exchange with ⟨i, hi, hir⟩\n    refine Finset.mem_image.mpr ⟨i, hi, ?_⟩\n    rw [hir, ← M7.CanonicalOuter.normalize_act_shifts N g c]\n    exact hgk",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.keyset_all_records",
+          "ancestors": [
+            "normalize_act_shifts",
+            "unit_index"
+          ],
+          "spec_sha256": "14f85f0366c5f78b8eeb2c2626abd72a614188035bea4369c4ce29fdc536cbe3"
+        },
+        "sha256": "b4ac2a1e949025eb92b2fe0aa7a382ad82ca4d163fc96ee13d49bc66c9b948c0"
+      },
+      "keyset_action": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.keyset_action : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.keyset (M7.Action.act g c) = M7.CanonicalOuter.keyset c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.keyset (M7.Action.act g c) = M7.CanonicalOuter.keyset c\n  intro N inst g c\n  classical\n  rw [M7.CanonicalOuter.keyset_all_records N (M7.Action.act g c), M7.CanonicalOuter.keyset_all_records N c]\n  ext k\n  constructor\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨h, _, hkey⟩\n    refine Finset.mem_image.mpr ⟨M7.Action.compose h g, Finset.mem_univ _, ?_⟩\n    rw [M7.Action.act_compose N h g c]\n    exact hkey\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨h, _, hkey⟩\n    refine Finset.mem_image.mpr ⟨M7.Action.compose h (M7.Action.inverse g), Finset.mem_univ _, ?_⟩\n    rw [M7.Action.act_compose N h (M7.Action.inverse g) (M7.Action.act g c), M7.Action.act_inverse N g c]\n    exact hkey",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.keyset_action",
+          "ancestors": [
+            "keyset_all_records",
+            "normalize_act_shifts",
+            "unit_index"
+          ],
+          "spec_sha256": "c437a2884b5e044ffc61dc4a5ee82a14d7d38f87fe9f18cb0f46863fbbb9fac9"
+        },
+        "sha256": "0b1b86aaa93fa810b19520a76bf82d73052b3b327950ac522bf75a8484d39a27"
+      }
+    }
+  }
+}

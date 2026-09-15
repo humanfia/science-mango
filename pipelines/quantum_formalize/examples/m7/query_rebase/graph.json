@@ -1,0 +1,215 @@
+{
+  "title": "M7 actual base-action reparameterization of global queries",
+  "source": "/home/jing/quantum_code_discovery_proof/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md",
+  "source_sha256": "8ad32a3432f4b7fd3ad15aa4467e0f01255ce593ac9e474b1af38c9424addf19",
+  "scope": "Literal query equivalence under independently rebasing each stored class by an actual action; preserves all global winning classes/actions via a bijection and the physical winner/presentation image sets. No complete-family or distance-invariance hypothesis.",
+  "nodes": [
+    {
+      "id": "reparameterization",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QueryRebase.reparameterization",
+        "statement": "∀ (H N : ℕ) [NeZero N] (moves : Fin H → M7.Action.Record N), (∀ x : M7.GlobalQuery.Index H N, M7.QueryRebase.undo moves (M7.QueryRebase.reparam moves x) = x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.QueryRebase.reparam moves (M7.QueryRebase.undo moves x) = x) ∧ Function.Bijective (M7.QueryRebase.reparam moves)",
+        "imports": [
+          "M7QueryRebase",
+          "M7ActionAccepted",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite group action inverse composition bijection"
+        ],
+        "guidance": "Unfold the explicit right-composition and undo with inverse. Use actual accepted Action.associative, right_inverse, left_inverse and right_identity, plus product equality. Prove injectivity and surjectivity from the two explicit inverse identities. No abstract assumed action is used. Return tactic lines without leading by; preserve exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8/9 raw-presentation comparison through actual class actions",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "realize_reparam",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QueryRebase.realize_reparam",
+        "statement": "∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.realize (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.realize bases (M7.QueryRebase.reparam moves x)",
+        "imports": [
+          "M7QueryRebase",
+          "M7ActionAccepted",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite group action inverse composition bijection"
+        ],
+        "guidance": "Unfold rebase, reparam and GlobalQuery.realize; this is exactly actual Action.act_compose, oriented symmetrically. Return tactic lines without leading by; preserve exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8/9 raw-presentation comparison through actual class actions",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "sector_base",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QueryRebase.sector_base",
+        "statement": "∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N) (g : M7.Action.Record N), (M7.DefaultQuery.sectorTest q (M7.Action.act g base) placed ↔ M7.DefaultQuery.sectorTest q base placed)",
+        "imports": [
+          "M7QueryRebase",
+          "M7ActionAccepted",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite group action inverse composition bijection"
+        ],
+        "guidance": "Split sectorMode. Placement-sector is identical. Class-sector existential records reparameterize by h ↦ compose h g. Reverse direction chooses compose h (inverse g), using associative, left_inverse/right_inverse, right_identity and act_compose. Keep the literal full signature predicate; no signature transport or distance-invariance theorem is required. Return tactic lines without leading by; preserve exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8/9 raw-presentation comparison through actual class actions",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "feasible_objective",
+      "dependencies": [
+        "realize_reparam",
+        "sector_base"
+      ],
+      "spec": {
+        "name": "M7.QueryRebase.feasible_objective",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), (M7.GlobalQuery.feasible q (M7.QueryRebase.rebase bases moves) x ↔ M7.GlobalQuery.feasible q bases (M7.QueryRebase.reparam moves x)) ∧ M7.GlobalQuery.objective q (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.objective q bases (M7.QueryRebase.reparam moves x)",
+        "imports": [
+          "M7QueryRebase",
+          "M7ActionAccepted",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite group action inverse composition bijection"
+        ],
+        "guidance": "Use literal realization equality from realize_reparam. Unfold GlobalQuery.feasible/objective and DefaultQuery.feasible; every placement-dependent term is identical. Only the class-sector base changes, handled by sector_base. This retains caps, NoLogical policy and all objective coordinates without class-label invariance assumptions. Return tactic lines without leading by; preserve exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8/9 raw-presentation comparison through actual class actions",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "winners_reparam",
+      "dependencies": [
+        "reparameterization",
+        "feasible_objective"
+      ],
+      "spec": {
+        "name": "M7.QueryRebase.winners_reparam",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), x ∈ M7.GlobalQuery.winners q (M7.QueryRebase.rebase bases moves) ↔ (M7.QueryRebase.reparam moves x) ∈ M7.GlobalQuery.winners q bases",
+        "imports": [
+          "M7QueryRebase",
+          "M7ActionAccepted",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite group action inverse composition bijection"
+        ],
+        "guidance": "Use verified GlobalQuery.winners_exact on both families, feasible_objective on each competitor, and surjectivity of reparam from reparameterization to transport the universal global comparison. Competitors span every class/action index; no per-class-optimum shortcut. Return tactic lines without leading by; preserve exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8/9 raw-presentation comparison through actual class actions",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "winning_classes",
+      "dependencies": [
+        "winners_reparam",
+        "reparameterization"
+      ],
+      "spec": {
+        "name": "M7.QueryRebase.winning_classes",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N), M7.GlobalQuery.winningClasses q (M7.QueryRebase.rebase bases moves) = M7.GlobalQuery.winningClasses q bases",
+        "imports": [
+          "M7QueryRebase",
+          "M7ActionAccepted",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite group action inverse composition bijection"
+        ],
+        "guidance": "Use verified GlobalQuery.winning_classes membership equivalence. reparam preserves the class index definitionally and is bijective; undo also preserves it. Transport every winning action, keeping all tied class indices. Return tactic lines without leading by; preserve exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8/9 raw-presentation comparison through actual class actions",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "winner_images",
+      "dependencies": [
+        "winners_reparam",
+        "realize_reparam",
+        "reparameterization"
+      ],
+      "spec": {
+        "name": "M7.QueryRebase.winner_images",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (placed : M7.Action.Recipe N), ((∃ x ∈ M7.GlobalQuery.winners q (M7.QueryRebase.rebase bases moves), M7.GlobalQuery.realize (M7.QueryRebase.rebase bases moves) x = placed) ↔ ∃ x ∈ M7.GlobalQuery.winners q bases, M7.GlobalQuery.realize bases x = placed)",
+        "imports": [
+          "M7QueryRebase",
+          "M7ActionAccepted",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite group action inverse composition bijection"
+        ],
+        "guidance": "Transport witnesses by reparam and its explicit undo, using winners_reparam and realize_reparam. This is equality of physical winner-image sets, not equality of redundant action encodings. Return tactic lines without leading by; preserve exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8/9 raw-presentation comparison through actual class actions",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "presentation_images",
+      "dependencies": [
+        "winner_images"
+      ],
+      "spec": {
+        "name": "M7.QueryRebase.presentation_images",
+        "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (placed : M7.Action.Recipe N), ((∃ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.present q (M7.QueryRebase.rebase bases moves) x ∧ M7.GlobalQuery.realize (M7.QueryRebase.rebase bases moves) x = placed) ↔ ∃ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.present q bases x ∧ M7.GlobalQuery.realize bases x = placed)",
+        "imports": [
+          "M7QueryRebase",
+          "M7ActionAccepted",
+          "M7GlobalQueryAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "finite group action inverse composition bijection"
+        ],
+        "guidance": "For each family, presented physical images equal winning physical images: present implies winner by definition; conversely apply verified GlobalQuery.same_class_presentation to any winning index and use its realizing equality. Then use winner_images. Least action indices may change after rebasing, so only the actual physical-image sets are equated. No separation/coverage/full-transversal hypothesis is needed. Return tactic lines without leading by; preserve exact target and default limits."
+      },
+      "metadata": {
+        "source_section": "M7 original §8/9 raw-presentation comparison through actual class actions",
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    }
+  ]
+}

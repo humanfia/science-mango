@@ -1,0 +1,13 @@
+theorem M7.QueryRebase.sector_base : ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N) (g : M7.Action.Record N), (M7.DefaultQuery.sectorTest q (M7.Action.act g base) placed ↔ M7.DefaultQuery.sectorTest q base placed) := by
+  intro N inst q base placed g
+  cases hmode : q.sectorMode <;> simp only [M7.DefaultQuery.sectorTest, hmode]
+  all_goals
+    first
+    | exact Iff.rfl
+    | constructor
+      · rintro ⟨h, hh⟩
+        refine ⟨M7.Action.compose h g, ?_⟩
+        simpa only [M7.Action.act_compose] using hh
+      · rintro ⟨h, hh⟩
+        refine ⟨M7.Action.compose h (M7.Action.inverse g), ?_⟩
+        simpa only [M7.Action.act_compose, M7.Action.act_inverse] using hh

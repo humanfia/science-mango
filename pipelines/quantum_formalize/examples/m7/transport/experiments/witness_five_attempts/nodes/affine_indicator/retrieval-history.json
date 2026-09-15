@@ -1,0 +1,150 @@
+[
+  {
+    "queries": [
+      "Finset image membership bijection",
+      "Function Bijective composition finite image minimum"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset image membership bijection",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202905,
+            "name": "Finset.equivMap",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L257-L262",
+            "source_text": "/-- A `Finset` is in bijection with its image under an `Embedding`. -/\n@[simps!]\nnoncomputable def equivMap : s ≃ s.map f :=\n  .ofBijective (fun x ↦ ⟨f x, s.mem_map_of_mem f x.2⟩) (⟨fun x y ↦ by simp, fun ⟨x, hx⟩ ↦ by\n    obtain ⟨x, hxs, rfl⟩ := mem_map.mp hx\n    exact ⟨⟨x, hxs⟩, rfl⟩⟩)\n",
+            "docstring": "A `Finset` is in bijection with its image under an `Embedding`. "
+          },
+          {
+            "id": 202907,
+            "name": "Finset.equivMap_apply_coe",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L258-L258",
+            "source_text": "@[simps!]\nnoncomputable def equivMap : s ≃ s.map f :=",
+            "docstring": null
+          },
+          {
+            "id": 202909,
+            "name": "Finset.image",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L277-L279",
+            "source_text": "/-- `image f s` is the forward image of `s` under `f`. -/\ndef image (f : α → β) (s : Finset α) : Finset β :=\n  (s.1.map f).toFinset\n",
+            "docstring": "`image f s` is the forward image of `s` under `f`. "
+          },
+          {
+            "id": 202933,
+            "name": "Finset.image_image",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L377-L378",
+            "source_text": "theorem image_image [DecidableEq γ] {g : β → γ} : (s.image f).image g = s.image (g ∘ f) :=\n  eq_of_veq <| by simp only [image_val, dedup_map_dedup_eq, Multiset.map_map]\n",
+            "docstring": null
+          },
+          {
+            "id": 173311,
+            "name": "CategoryTheory.bijection",
+            "module": "Mathlib.CategoryTheory.Monoidal.Closed.Ideal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Monoidal/Closed/Ideal.lean#L240-L270",
+            "source_text": "/-- We construct a bijection between morphisms `L(A ⊗ B) ⟶ X` and morphisms `LA ⊗ LB ⟶ X`.\nThis bijection has two key properties:\n* It is natural in `X`: See `bijection_natural`.\n* When `X = LA ⨯ LB`, then the backwards direction sends the identity morphism to the product\n  comparison morphism: See `bijection_symm_apply_id`.\n\nTogether these help show that `L` preserves binary products. This should be considered\n*internal implementation* towards `preservesBinaryProductsOfExponentialIdeal`.\n-/\nnoncomputable def bijection (A B : C) (X : D) :\n    ((reflector i).obj (A ⊗ B) ⟶ X) ≃ ((reflector i).obj A ⊗ (reflector i).obj B ⟶ X) :=\n  calc\n    _ ≃ (A ⊗ B ⟶ i.obj X) := (reflectorAdjunction i).homEquiv _ _\n    _ ≃ (B ⊗ A ⟶ i.obj X) := (β_ _ _).homCongr (Iso.refl _)\n    _ ≃ (A ⟶ B ⟹ i.obj X) := (ihom.adjunction _).homEquiv _ _\n    _ ≃ (i.obj ((reflector i).obj A) ⟶ B ⟹ i.obj X) :=\n      (unitCompPartialBijective _ (ExponentialIdeal.exp_closed (i.obj_mem_essImage _) _))\n    _ ≃ (B ⊗ i.obj ((reflector i).obj A) ⟶ i.obj X) := ((ihom.adjunction _).homEquiv _ _).symm\n    _ ≃ (i.obj ((reflector i).obj A) ⊗ B ⟶ i.obj X) :=\n      ((β_ _ _).homCongr (Iso.refl _))\n    _ ≃ (B ⟶ i.obj ((reflector i).obj A) ⟹ i.obj X) := (ihom.adjunction _).homEquiv _ _\n    _ ≃ (i.obj ((reflector i).obj B) ⟶ i.obj ((reflector i).obj A) ⟹ i.obj X) :=\n      (unitCompPartialBijective _ (ExponentialIdeal.exp_closed (i.obj_mem_essImage _) _))\n    _ ≃ (i.obj ((reflector i).obj A) ⊗ i.obj ((reflector i).obj B) ⟶ i.obj X) :=\n      ((ihom.adjunction _).homEquiv _ _).symm\n    _ ≃ (i.obj ((reflector i).obj A ⊗ (reflector i).obj B) ⟶ i.obj X) :=\n      haveI : Limits.PreservesLimits i := (reflectorAdjunction i).rightAdjoint_preservesLimits\n      haveI := Limits.preservesSmallestLimits_of_preservesLimits i\n      Iso.homCongr (prodComparisonIso _ _ _).symm (Iso.refl (i.obj X))\n    _ ≃ ((reflector i).obj A ⊗ (reflector i).obj B ⟶ X) :=\n      i.fullyFaithfulOfReflective.homEquiv.symm\n",
+            "docstring": "We construct a bijection between morphisms `L(A ⊗ B) ⟶ X` and morphisms `LA ⊗ LB ⟶ X`.\nThis bijection has two key properties:\n* It is natural in `X`: See `bijection_natural`.\n* When `X = LA ⨯ LB`, then the backwards direction sends the identity morphism to the product\n  comparison morphism: See `bijection_symm_apply_id`.\n\nTogether these help show that `L` preserves binary products. This should be considered\n*internal implementation* towards `preservesBinaryProductsOfExponentialIdeal`.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset image membership bijection",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389484,
+            "name": "WickContraction.consAddContract_bijection",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.Card",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/Card.lean#L213-L224",
+            "source_text": "lemma consAddContract_bijection (i : Fin n.succ) :\n    Function.Bijective (fun c => (⟨(consAddContract i c), by simp⟩ :\n    {c : WickContraction n.succ.succ // (c.getDual? 0).isSome ∧\n      ∀ (h : (c.getDual? 0).isSome), (c.getDual? 0).get h = Fin.succ i})) := by\n  apply And.intro\n  · intro c1 c2 h\n    simp only [succ_eq_add_one, Subtype.mk.injEq] at h\n    exact consAddContract_injective i h\n  · intro c\n    obtain ⟨c', hc⟩ := consAddContract_surjective_on_zero_contract i c.1 c.2.1 (c.2.2 c.2.1)\n    use c'\n    simp [hc]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Function Bijective composition finite image minimum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 201894,
+            "name": "Finite.ofBijective",
+            "module": "Mathlib.Data.Finite.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Defs.lean#L119-L120",
+            "source_text": "theorem Finite.ofBijective [Finite α] {f : α → β} (h : Bijective f) : Finite β :=\n  h.finite_iff.mp ‹_›\n",
+            "docstring": null
+          },
+          {
+            "id": 256500,
+            "name": "Function.Bijective",
+            "module": "Mathlib.Logic.Function.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Function/Defs.lean#L125-L127",
+            "source_text": "/-- A function is called bijective if it is both injective and surjective. -/\ndef Bijective (f : α → β) :=\n  Injective f ∧ Surjective f\n",
+            "docstring": "A function is called bijective if it is both injective and surjective. "
+          },
+          {
+            "id": 201893,
+            "name": "Function.Bijective.finite_iff",
+            "module": "Mathlib.Data.Finite.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Defs.lean#L116-L117",
+            "source_text": "theorem Function.Bijective.finite_iff {f : α → β} (h : Bijective f) : Finite α ↔ Finite β :=\n  (Equiv.ofBijective f h).finite_iff\n",
+            "docstring": null
+          },
+          {
+            "id": 205779,
+            "name": "Multiset.bijective_iff_map_univ_eq_univ",
+            "module": "Mathlib.Data.Fintype.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Basic.lean#L231-L238",
+            "source_text": "/-- For functions on finite sets, they are bijections iff they map universes into universes. -/\n@[simp]\ntheorem bijective_iff_map_univ_eq_univ (f : α → β) :\n    f.Bijective ↔ map f (Finset.univ : Finset α).val = univ.val :=\n  ⟨fun bij ↦ congr_arg (·.val) (map_univ_equiv <| Equiv.ofBijective f bij),\n    fun eq ↦ ⟨\n      fun a₁ a₂ ↦ inj_on_of_nodup_map (eq.symm ▸ univ.nodup) _ (mem_univ a₁) _ (mem_univ a₂),\n      fun b ↦ have ⟨a, _, h⟩ := mem_map.mp (eq.symm ▸ mem_univ_val b); ⟨a, h⟩⟩⟩\n",
+            "docstring": "For functions on finite sets, they are bijections iff they map universes into universes. "
+          },
+          {
+            "id": 202909,
+            "name": "Finset.image",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L277-L279",
+            "source_text": "/-- `image f s` is the forward image of `s` under `f`. -/\ndef image (f : α → β) (s : Finset α) : Finset β :=\n  (s.1.map f).toFinset\n",
+            "docstring": "`image f s` is the forward image of `s` under `f`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Function Bijective composition finite image minimum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393851,
+            "name": "CanonicalEnsemble.partitionFunction_pos_finite",
+            "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L241-L247",
+            "source_text": "/-- Finite specialization: strict positivity of the (physical) partition function. -/\nlemma partitionFunction_pos_finite\n    [MeasurableSingletonClass ι] [IsFinite 𝓒] [Nonempty ι] (T : Temperature) :\n    0 < 𝓒.partitionFunction T := by\n  simpa [partitionFunction, IsFinite.dof_eq_zero (𝓒:=𝓒),\n        IsFinite.phase_space_unit_eq_one (𝓒:=𝓒), pow_zero]\n    using mathematicalPartitionFunction_pos_finite (𝓒:=𝓒) (T:=T)\n",
+            "docstring": "Finite specialization: strict positivity of the (physical) partition function. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

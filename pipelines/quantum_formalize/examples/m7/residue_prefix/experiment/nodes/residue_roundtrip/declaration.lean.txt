@@ -1,0 +1,5 @@
+theorem M7.ResiduePrefix.residue_roundtrip : ∀ (N : ℕ) [NeZero N], ∀ A : Finset (ZMod N), M7.ResiduePrefix.decode N (M7.ResiduePrefix.encode A) = A := by
+  classical
+  intro N hN A
+  change (A.image (fun x : ZMod N => x.val)).image (fun i : ℕ => (i : ZMod N)) = A
+  simp [Finset.image_image, ZMod.natCast_zmod_val]

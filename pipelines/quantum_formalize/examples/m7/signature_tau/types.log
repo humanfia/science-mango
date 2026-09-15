@@ -1,0 +1,25 @@
+∀ (F : M6.Cyclic.BinaryPolynomial), F ≠ 0 → Polynomial.Monic F : Prop
+∀ (N : ℕ) [NeZero N], Polynomial.Monic (M6.Cyclic.modulus N) : Prop
+∀ (N : ℕ) [NeZero N] (p : M6.Cyclic.BinaryPolynomial),
+  Polynomial.Monic (EuclideanDomain.gcd p (M6.Cyclic.modulus N)) ∧
+    EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ M6.Cyclic.modulus N ∧
+      EuclideanDomain.gcd (M6.Cyclic.modulus N) p = EuclideanDomain.gcd p (M6.Cyclic.modulus N) : Prop
+∀ (N : ℕ) [inst : NeZero N] (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial),
+  Polynomial.Monic (M7.SignatureTau.tau u F) ∧ M7.SignatureTau.tau u F ∣ M6.Cyclic.modulus N : Prop
+∀ (N : ℕ) [inst : NeZero N] (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial),
+  M6.Cyclic.image N (M7.SignatureTau.reduced u F) = (M7.QuotientAuto.substitution u) (M6.Cyclic.image N F) : Prop
+∀ (N : ℕ) [inst : NeZero N] (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial),
+  M7.SignatureIdeal.principal N (M7.SignatureTau.tau u F) =
+    Ideal.map (M7.QuotientAuto.substitution u) (M7.SignatureIdeal.principal N F) : Prop
+∀ (N : ℕ) [inst : NeZero N] (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial),
+  M7.SignatureTau.sourceTau u F = M7.SignatureTau.tau u F : Prop
+∀ (N : ℕ) [inst : NeZero N] (F : M6.Cyclic.BinaryPolynomial),
+  Polynomial.Monic F → F ∣ M6.Cyclic.modulus N → M7.SignatureTau.tau 1 F = F : Prop
+∀ (N : ℕ) [inst : NeZero N] (u v : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial),
+  Polynomial.Monic F →
+    F ∣ M6.Cyclic.modulus N → M7.SignatureTau.tau v (M7.SignatureTau.tau u F) = M7.SignatureTau.tau (v * u) F : Prop
+∀ (N : ℕ) [inst : NeZero N] (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial),
+  Polynomial.Monic F →
+    F ∣ M6.Cyclic.modulus N →
+      M7.SignatureTau.tau u⁻¹ (M7.SignatureTau.tau u F) = F ∧
+        M7.SignatureTau.tau u (M7.SignatureTau.tau u⁻¹ F) = F : Prop

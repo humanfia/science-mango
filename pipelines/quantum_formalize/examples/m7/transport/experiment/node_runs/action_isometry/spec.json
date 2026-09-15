@@ -1,0 +1,13 @@
+{
+  "name": "M7.Transport.action_isometry",
+  "statement": "∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Transport.Recipe N), Function.Bijective (M7.Transport.Xmap g) ∧ ∀ v : M6.Pinned.Vector (2*N), (M7.Transport.Xmap g v ∈ M7.Transport.BX (M7.Action.act g c) ↔ v ∈ M7.Transport.BX c) ∧ (M7.Transport.Xmap g v ∈ M7.Transport.CX (M7.Action.act g c) ↔ v ∈ M7.Transport.CX c) ∧ M6.Pinned.weight (M7.Transport.Xmap g v) = M6.Pinned.weight v",
+  "imports": [
+    "M7Transport"
+  ],
+  "context": "theorem M7.Transport.affine_indicator : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N) (u : (ZMod N)ˣ) (s : ZMod N), M7.Supports.indicator (A.image (M7.Action.affine u s)) = M6.RecipeIsometries.shift N s (M6.RecipeIsometries.multiply N u (M7.Supports.indicator A)) := by\n  intro N inst A u s\n  classical\n  funext i\n  have h : i ∈ A.image (M7.Action.affine u s) ↔\n      (↑(u⁻¹) : ZMod N) * (i - s) ∈ A := by\n    constructor\n    · intro hi\n      obtain ⟨j, hj, rfl⟩ := Finset.mem_image.mp hi\n      simpa [M7.Action.affine, ← mul_assoc] using hj\n    · intro hi\n      apply Finset.mem_image.mpr\n      refine ⟨(↑(u⁻¹) : ZMod N) * (i - s), hi, ?_⟩\n      simp [M7.Action.affine, ← mul_assoc]\n  simp only [M7.Supports.indicator, M6.RecipeIsometries.shift,\n    M6.RecipeIsometries.multiply, h]",
+  "queries": [
+    "Finset image membership bijection",
+    "Function Bijective composition finite image minimum"
+  ],
+  "guidance": "Compose existing M6 translation_isometry, multiplier_isometry, exchange_isometry; cases exchange Boolean. affine_indicator rewrites exact block indicators. Do not reprove convolution or introduce generic isometry premises. Return tactic lines without leading by; preserve exact target."
+}

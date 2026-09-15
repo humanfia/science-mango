@@ -1,0 +1,97 @@
+{
+  "id": "count_completed",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ResiduePrefix.count_completed",
+    "spec_sha256": "12656a72aa2fa3160e10d41e3e18a1df8842471c998b891f9fac2f46b0af0830",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-t4r9beo6/attempt-001/Candidate_59484e59f6ea9a37.lean",
+        "target_path": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-t4r9beo6/attempt-001/FrozenTarget_59484e59f6ea9a37.lean",
+        "feedback": "",
+        "target_sha256": "97c306ba0a5dc4322494c5cb334bc173ab03ceff15bfb8c9f1df1f49d4506031",
+        "target_olean_sha256": "7215fb5b3512f7eef976eba3c106504cf8b6df13b168910b41cbd35a298c4b09",
+        "source_sha256": "d113745589919ebf794a87b3410dc4d2a9831e6453dfa98540327f0799e0a67e",
+        "olean_sha256": "5c3abc25f394a8506f164cfa70dab59d0117a1ce42cd09a80c87bd2ee08a4b63",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:15:03.583093+00:00",
+    "work": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-t4r9beo6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c3d2b109a17f1b7b9f61c1de46ae4a1bdbf90f987db30b50fbac08997da49016",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-t4r9beo6/attempt-001/Candidate_59484e59f6ea9a37.lean",
+    "environment_sha256": "e78a846400d0418deab7d7c51813437ed7aaa957b123576225aaac42728d66d6",
+    "artifacts": {
+      "nat_roundtrip": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.nat_roundtrip : ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A := by\n  change ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A\n  intro N inst A hA\n  classical\n  change (A.image (fun i : ℕ => (i : ZMod N))).image ZMod.val = A\n  rw [Finset.image_image]\n  ext n\n  simp only [Finset.mem_image, Function.comp_apply]\n  constructor\n  · rintro ⟨i, hi, he⟩\n    have hv : (i : ZMod N).val = i :=\n      ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hi))\n    rw [hv] at he\n    exact he ▸ hi\n  · intro hn\n    exact ⟨n, hn, ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hn))⟩",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.nat_roundtrip",
+          "ancestors": [],
+          "spec_sha256": "e3fa618babe7263e0d2dd2a7d6c1f59dfc040ad169814d6495cce5f95ee900d6"
+        },
+        "sha256": "2d00b30c8bfb508b933d501ed4ca04043089bb234b10c400276140b35ba2b9af"
+      },
+      "decode_injective": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.decode_injective : ∀ (N : ℕ) [NeZero N], ∀ (x y : Finset ℕ × Finset ℕ), x.1 ⊆ Finset.range N → x.2 ⊆ Finset.range N → y.1 ⊆ Finset.range N → y.2 ⊆ Finset.range N → M7.ResiduePrefix.decodePair N x = M7.ResiduePrefix.decodePair N y → x = y := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (x y : Finset ℕ × Finset ℕ), x.1 ⊆ Finset.range N → x.2 ⊆ Finset.range N → y.1 ⊆ Finset.range N → y.2 ⊆ Finset.range N → M7.ResiduePrefix.decodePair N x = M7.ResiduePrefix.decodePair N y → x = y\n  intro N inst x y hx₁ hx₂ hy₁ hy₂ h\n  apply Prod.ext\n  · have h₁ := congrArg (fun p : Finset (ZMod N) × Finset (ZMod N) => M7.ResiduePrefix.encode p.1) h\n    change M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N x.1) = M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N y.1) at h₁\n    rw [M7.ResiduePrefix.nat_roundtrip N x.1 hx₁, M7.ResiduePrefix.nat_roundtrip N y.1 hy₁] at h₁\n    exact h₁\n  · have h₂ := congrArg (fun p : Finset (ZMod N) × Finset (ZMod N) => M7.ResiduePrefix.encode p.2) h\n    change M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N x.2) = M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N y.2) at h₂\n    rw [M7.ResiduePrefix.nat_roundtrip N x.2 hx₂, M7.ResiduePrefix.nat_roundtrip N y.2 hy₂] at h₂\n    exact h₂",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.decode_injective",
+          "ancestors": [
+            "nat_roundtrip"
+          ],
+          "spec_sha256": "fcf2635ef106aa282b423a05a5dc5362fcea93418fe0f5d3d610d38f9321b9ec"
+        },
+        "sha256": "53924aae5d7f956c1a77530d65693b75c4a3f8602c259444ec6bb2d1f3398d9d"
+      },
+      "completed_bounds": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.completed_bounds : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixCompleted.Base N A B WA WB → ∀ x ∈ M7.PrefixCompleted.completed N w E A B WA WB, x.1 ⊆ Finset.range N ∧ x.2 ⊆ Finset.range N := by\n  intro N inst w E A B WA WB hBase x hx\n  have hDA : Disjoint A WA := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hDB : Disjoint B WB := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hWithin := ((M7.PrefixCompleted.completed_membership N w E A B WA WB hDA hDB x).mp hx).1\n  have hXA : x.1 ⊆ A ∪ WA := by\n    unfold M7.PrefixCompleted.Within at hWithin\n    tauto\n  have hXB : x.2 ⊆ B ∪ WB := by\n    unfold M7.PrefixCompleted.Within at hWithin\n    tauto\n  have hA : A ⊆ Finset.range N := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hB : B ⊆ Finset.range N := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hWA : WA ⊆ Finset.range N := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  have hWB : WB ⊆ Finset.range N := by\n    unfold M7.PrefixCompleted.Base at hBase\n    tauto\n  constructor\n  · intro i hi\n    rcases Finset.mem_union.mp (hXA hi) with h | h\n    · exact hA h\n    · exact hWA h\n  · intro i hi\n    rcases Finset.mem_union.mp (hXB hi) with h | h\n    · exact hB h\n    · exact hWB h",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.completed_bounds",
+          "ancestors": [],
+          "spec_sha256": "be3fdf421a15726cb948ffbd55b318918a9a4d767e73f68f6e3cdafe5aa220fb"
+        },
+        "sha256": "401d6fcbbf34b5ad639bca2d393620af6d06538d516d53e4c9ffcd577f16edd1"
+      },
+      "count_completed": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.count_completed : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → M7.PrefixSector.count N w E A B WA WB = (M7.ResiduePrefix.completed N w E A B WA WB).card := by\n  intro N inst w E A B WA WB hSector hBase\n  classical\n  have hcard : ((M7.PrefixCompleted.completed N w E A B WA WB).image (M7.ResiduePrefix.decodePair N)).card = (M7.PrefixCompleted.completed N w E A B WA WB).card := by\n    apply Finset.card_image_iff.mpr\n    intro x hx y hy hxy\n    obtain ⟨hx₁, hx₂⟩ := M7.ResiduePrefix.completed_bounds N w E A B WA WB hBase x hx\n    obtain ⟨hy₁, hy₂⟩ := M7.ResiduePrefix.completed_bounds N w E A B WA WB hBase y hy\n    exact M7.ResiduePrefix.decode_injective N x y hx₁ hx₂ hy₁ hy₂ hxy\n  change M7.PrefixSector.count N w E A B WA WB = ↑(((M7.PrefixCompleted.completed N w E A B WA WB).image (M7.ResiduePrefix.decodePair N)).card)\n  rw [hcard]\n  exact M7.PrefixCompleted.count_completed N w E A B WA WB (Nat.pos_of_ne_zero (NeZero.ne N)) hSector hBase",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.count_completed",
+          "ancestors": [
+            "completed_bounds",
+            "decode_injective",
+            "nat_roundtrip"
+          ],
+          "spec_sha256": "65c88031e1636f444652012851e1e6061c3d616d1fa6d041c73bb7cd62a8ce4d"
+        },
+        "sha256": "04871ad57330163f291fe7def761336cf72c03970566b0b15679fc9133c06cd5"
+      }
+    }
+  }
+}

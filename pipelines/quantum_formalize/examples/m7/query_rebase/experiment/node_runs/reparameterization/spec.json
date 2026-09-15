@@ -1,0 +1,14 @@
+{
+  "name": "M7.QueryRebase.reparameterization",
+  "statement": "∀ (H N : ℕ) [NeZero N] (moves : Fin H → M7.Action.Record N), (∀ x : M7.GlobalQuery.Index H N, M7.QueryRebase.undo moves (M7.QueryRebase.reparam moves x) = x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.QueryRebase.reparam moves (M7.QueryRebase.undo moves x) = x) ∧ Function.Bijective (M7.QueryRebase.reparam moves)",
+  "imports": [
+    "M7ActionAccepted",
+    "M7GlobalQueryAccepted",
+    "M7QueryRebase"
+  ],
+  "context": "",
+  "queries": [
+    "finite group action inverse composition bijection"
+  ],
+  "guidance": "Unfold the explicit right-composition and undo with inverse. Use actual accepted Action.associative, right_inverse, left_inverse and right_identity, plus product equality. Prove injectivity and surjectivity from the two explicit inverse identities. No abstract assumed action is used. Return tactic lines without leading by; preserve exact target and default limits."
+}

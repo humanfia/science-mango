@@ -1,0 +1,150 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.getD cons successor definitional equation",
+    "status": "ok",
+    "results": [
+      {
+        "id": 207689,
+        "name": "List.nextOr_cons_of_ne",
+        "module": "Mathlib.Data.List.Cycle",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L54-L58",
+        "source_text": "theorem nextOr_cons_of_ne (xs : List α) (y x d : α) (h : x ≠ y) :\n    nextOr (y :: xs) x d = nextOr xs x d := by\n  rcases xs with - | ⟨z, zs⟩\n  · rfl\n  · exact if_neg h\n",
+        "docstring": null
+      },
+      {
+        "id": 207695,
+        "name": "List.next",
+        "module": "Mathlib.Data.List.Cycle",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L110-L122",
+        "source_text": "/-- Given an element `x : α` of `l : List α` such that `x ∈ l`, get the next\nelement of `l`. This works from head to tail, (including a check for last element)\nso it will match on first hit, ignoring later duplicates.\n\nFor example:\n* `next [1, 2, 3] 2 _ = 3`\n* `next [1, 2, 3] 3 _ = 1`\n* `next [1, 2, 3, 2, 4] 2 _ = 3`\n* `next [1, 2, 3, 2] 2 _ = 3`\n* `next [1, 1, 2, 3, 2] 1 _ = 1`\n-/\ndef next (l : List α) (x : α) (h : x ∈ l) : α :=\n  nextOr l x (l.get ⟨0, length_pos_of_mem h⟩)\n",
+        "docstring": "Given an element `x : α` of `l : List α` such that `x ∈ l`, get the next\nelement of `l`. This works from head to tail, (including a check for last element)\nso it will match on first hit, ignoring later duplicates.\n\nFor example:\n* `next [1, 2, 3] 2 _ = 3`\n* `next [1, 2, 3] 3 _ = 1`\n* `next [1, 2, 3, 2, 4] 2 _ = 3`\n* `next [1, 2, 3, 2] 2 _ = 3`\n* `next [1, 1, 2, 3, 2] 1 _ = 1`\n"
+      },
+      {
+        "id": 207691,
+        "name": "List.nextOr_eq_nextOr_of_mem_of_ne",
+        "module": "Mathlib.Data.List.Cycle",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L73-L75",
+        "source_text": "@[deprecated \"Use `grind [nextOr_eq_nextOr_of_mem_dropLast, dropLast_concat_getLast]` to get the \\\n  original statement\" (since := \"2025-11-29\")]\nalias nextOr_eq_nextOr_of_mem_of_ne := nextOr_eq_nextOr_of_mem_dropLast",
+        "docstring": "**Alias** of `List.nextOr_eq_nextOr_of_mem_dropLast`.\n\n---\n\n`nextOr` does not depend on the default value, if the next value appears. "
+      },
+      {
+        "id": 207687,
+        "name": "List.nextOr_singleton",
+        "module": "Mathlib.Data.List.Cycle",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L46-L48",
+        "source_text": "@[simp]\ntheorem nextOr_singleton (x y d : α) : nextOr [y] x d = d :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 207717,
+        "name": "List.nextOr_infix_of_mem_dropLast",
+        "module": "Mathlib.Data.List.Cycle",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L259-L266",
+        "source_text": "theorem nextOr_infix_of_mem_dropLast {l : List α} {a : α} (ha : a ∈ l.dropLast) (d : α) :\n    [a, l.nextOr a d] <:+: l := by\n  refine infix_iff_getElem?.mpr ⟨l.idxOf a, ?_, fun i hi ↦ ?_⟩\n  · have ⟨_, _⟩ := l.dropLast_prefix\n    grind\n  by_cases hi₁ : i = 1\n  · grind [next, nextOr_eq_getElem?_idxOf_succ_of_mem_dropLast]\n  · grind [getElem?_idxOf, mem_of_mem_dropLast]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "List.getD cons successor definitional equation",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386679,
+        "name": "Physlib.List.orderedInsertEquiv_fin_succ",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L333-L348",
+        "source_text": "lemma orderedInsertEquiv_fin_succ {I : Type} (le1 : I → I → Prop) [DecidableRel le1] (r : List I)\n    (r0 : I) (n : Fin r.length) :\n    orderedInsertEquiv le1 r r0 n.succ = Fin.cast (List.orderedInsert_length le1 r r0).symm\n    ((Fin.succAbove ⟨(orderedInsertPos le1 r r0), orderedInsertPos_lt_length le1 r r0⟩)\n      ⟨n, n.isLt⟩) := by\n  simp only [orderedInsertEquiv, Equiv.trans_apply]\n  match r with\n  | [] =>\n    simp\n  | r1 :: r =>\n    simp only [List.length_cons, Fin.eta]\n    rw [finExtractOne_apply_neq]\n    simp only [orderedInsertPos, decide_not, Nat.succ_eq_add_one,\n      finExtractOne_symm_inr_apply]\n    rfl\n    exact ne_of_beq_false rfl\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.getD append length singleton",
+    "status": "ok",
+    "results": [
+      {
+        "id": 207426,
+        "name": "List.getLast_append_singleton",
+        "module": "Mathlib.Data.List.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L301-L303",
+        "source_text": "theorem getLast_append_singleton {a : α} (l : List α) :\n    getLast (l ++ [a]) (append_ne_nil_of_right_ne_nil l (cons_ne_nil a _)) = a := by\n  simp\n",
+        "docstring": null
+      },
+      {
+        "id": 208102,
+        "name": "List.getD_append",
+        "module": "Mathlib.Data.List.GetD",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/GetD.lean#L70-L72",
+        "source_text": "theorem getD_append (l l' : List α) (d : α) (n : ℕ) (h : n < l.length) :\n    (l ++ l').getD n d = l.getD n d := by\n  grind\n",
+        "docstring": null
+      },
+      {
+        "id": 207457,
+        "name": "List.tail_append_singleton_of_ne_nil",
+        "module": "Mathlib.Data.List.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L440-L441",
+        "source_text": "theorem tail_append_singleton_of_ne_nil {a : α} {l : List α} (h : l ≠ nil) :\n    tail (l ++ [a]) = tail l ++ [a] := by grind\n",
+        "docstring": null
+      },
+      {
+        "id": 208103,
+        "name": "List.getD_append_right",
+        "module": "Mathlib.Data.List.GetD",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/GetD.lean#L74-L76",
+        "source_text": "theorem getD_append_right (l l' : List α) (d : α) (n : ℕ) (h : l.length ≤ n) :\n    (l ++ l').getD n d = l'.getD (n - l.length) d := by\n  grind\n",
+        "docstring": null
+      },
+      {
+        "id": 221431,
+        "name": "Stream'.get_append_length",
+        "module": "Mathlib.Data.Stream.Init",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Stream/Init.lean#L466-L466",
+        "source_text": "@[simp] lemma get_append_length : (x ++ₛ a).get x.length = a.get 0 := get_append_right 0 x a",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "List.getD append length singleton",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386738,
+        "name": "Physlib.List.orderedInsert_length",
+        "module": "Physlib.Mathematics.List.InsertionSort",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L146-L150",
+        "source_text": "@[simp]\nlemma orderedInsert_length {α : Type} (r : α → α → Prop) [DecidableRel r] (a : α) (l : List α) :\n    (List.orderedInsert r a l).length = (a :: l).length := by\n  apply List.Perm.length_eq\n  exact List.perm_orderedInsert r a l",
+        "docstring": null
+      },
+      {
+        "id": 386720,
+        "name": "Physlib.List.insertIdx_length_fst_append",
+        "module": "Physlib.Mathematics.List.InsertIdx",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L127-L133",
+        "source_text": "lemma insertIdx_length_fst_append {I : Type} (φ : I) : (φs φs' : List I) →\n    List.insertIdx (φs ++ φs') φs.length φ = (φs ++ φ :: φs')\n  | [], φs' => by simp\n  | φ' :: φs, φs' => by\n    simp only [List.length_cons, List.cons_append, List.insertIdx_succ_cons, List.cons.injEq,\n      true_and]\n    exact insertIdx_length_fst_append φ φs φs'\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

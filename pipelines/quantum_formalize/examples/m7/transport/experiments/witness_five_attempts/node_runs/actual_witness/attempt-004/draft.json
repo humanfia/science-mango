@@ -1,0 +1,8 @@
+{
+  "proof": "intro N w inst g c d k v hA hB h0A h0B hg hs\nclassical\nhave ha := M7.Domain.admissible N w c.1 c.2 hA hB h0A h0B hg\nhave hc := M6.Final.answer_correct N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) ha\nsimp only [M6.Final.AnswerCorrect, M6.Final.LX, M7.Domain.coefficients_indicator] at hc\nhave hb : M7.Transport.distance c = some d ∧ v ∈ M7.Transport.LX c ∧ M6.Pinned.weight v = d ∧ k ≤ 2*N := by\n  simp only [M7.Transport.distance, M7.Transport.LX, M7.Transport.BX, M7.Transport.CX]\n  aesop\nhave hx := (M7.Transport.x_logical N g c v).mpr hb.2.1\nhave hw : M6.Pinned.weight (M7.Transport.Xmap g v) = d :=\n  ((M7.Transport.action_isometry N g c).2 v).2.2.trans hb.2.2.1\nrefine ⟨(M7.Transport.distance_invariant N g c).trans hb.1, hx, hw, ?_, ?_, hb.2.2.2⟩\n· exact (M6.ActualCSS.J_logical_iff N\n    (M7.Supports.indicator (M7.Action.act g c).1)\n    (M7.Supports.indicator (M7.Action.act g c).2)\n    (M7.Transport.Xmap g v)).mp hx\n· exact (M6.Flatten.J_weight N (M7.Transport.Xmap g v)).trans hw",
+  "queries": [
+    "M6.Final.answer_correct",
+    "M6.Final.AnswerCorrect",
+    "M7.Transport.distance"
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "id": "tau_inverse",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.SignatureTau.tau_inverse",
+    "spec_sha256": "d9754e1f0b72d62e5e0704c9e9353006e14d6071869e66e7d6f18b274f34c6b7",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-signature-tau-formalization/.humanize-formal-runs/run-a9lk_zd4/attempt-001/Candidate_e1c42221ac40a6aa.lean",
+        "target_path": "/home/jing/m7-lean-signature-tau-formalization/.humanize-formal-runs/run-a9lk_zd4/attempt-001/FrozenTarget_e1c42221ac40a6aa.lean",
+        "feedback": "",
+        "target_sha256": "525340dec0645fc328d03ddd06c27d68d6d18dcb50b436bb48ed66e2d9fc196c",
+        "target_olean_sha256": "16ac89e23a24c427d3fbfc95efe7d2fb4c56e473a49573e6c7e8450513ec4710",
+        "source_sha256": "92e680fbec0a3ed9798d3561783b6fe82e087438c5287a09774f1ab63f510883",
+        "olean_sha256": "48d6dba24395a1799ee1ad35c04562e79cb40f1f3a41b42d77e5df3b2abee81e",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:12:22.091277+00:00",
+    "work": "/home/jing/m7-lean-signature-tau-formalization/.humanize-formal-runs/run-a9lk_zd4",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "eb3e0effbbd15df2d795c04cf906c629b03051d1c1e0cd1538cc823532153a45",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-signature-tau-formalization/.humanize-formal-runs/run-a9lk_zd4/attempt-001/Candidate_e1c42221ac40a6aa.lean",
+    "environment_sha256": "5c578b4fd7c2b60f5c85e2bb2cb86095fbd9a171b1b00d61a9122da335c0d496",
+    "artifacts": {
+      "binary_monic": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.binary_monic : ∀ F : M6.Cyclic.BinaryPolynomial, F ≠ 0 → F.Monic := by\n  change ∀ F : M6.Cyclic.BinaryPolynomial, F ≠ 0 → F.Monic\n  intro F hF\n  change F.leadingCoeff = 1\n  have hbinary : ∀ c : ZMod 2, c ≠ 0 → c = 1 := by decide\n  exact hbinary F.leadingCoeff (Polynomial.leadingCoeff_ne_zero.mpr hF)",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.binary_monic",
+          "ancestors": [],
+          "spec_sha256": "42f2ffa22d05540335573d7cc6c386ad019feaf6c7dc3f4ea1fa1c35306c9949"
+        },
+        "sha256": "697b4f43fd04bc6efb568d44d43b883e989b317b0c5366a83a63e82b15dc33cb"
+      },
+      "modulus_monic": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.modulus_monic : ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic := by\n  change ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic\n  intro N inst\n  change (Polynomial.X ^ N + 1 : Polynomial (ZMod 2)).Monic\n  simpa only [Polynomial.C_1] using\n    (Polynomial.monic_X_pow_add_C (1 : ZMod 2) (NeZero.ne N))",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.modulus_monic",
+          "ancestors": [],
+          "spec_sha256": "3bb49e19e737c9b5c73f3e22ae40358e87a16c5372689335480729845e4e7b0a"
+        },
+        "sha256": "48245c7bf0721b4d2a250aee32a8e1815fb858f572c46cb55c93b9f91d2a5c93"
+      },
+      "gcd_canonical": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.gcd_canonical : ∀ (N : ℕ) [NeZero N], ∀ p : M6.Cyclic.BinaryPolynomial, (EuclideanDomain.gcd p (M6.Cyclic.modulus N)).Monic ∧ EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ (M6.Cyclic.modulus N) ∧ EuclideanDomain.gcd (M6.Cyclic.modulus N) p = EuclideanDomain.gcd p (M6.Cyclic.modulus N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ p : M6.Cyclic.BinaryPolynomial, (EuclideanDomain.gcd p (M6.Cyclic.modulus N)).Monic ∧ EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ M6.Cyclic.modulus N ∧ EuclideanDomain.gcd (M6.Cyclic.modulus N) p = EuclideanDomain.gcd p (M6.Cyclic.modulus N)\n  intro N inst p\n  have hm : M6.Cyclic.modulus N ≠ 0 := (M7.SignatureTau.modulus_monic N).ne_zero\n  have hd := EuclideanDomain.gcd_dvd_right p (M6.Cyclic.modulus N)\n  have hs := EuclideanDomain.gcd_dvd_left (M6.Cyclic.modulus N) p\n  have hg : EuclideanDomain.gcd p (M6.Cyclic.modulus N) ≠ 0 := by\n    intro h\n    apply hm\n    simpa only [h, zero_dvd_iff] using hd\n  have hk : EuclideanDomain.gcd (M6.Cyclic.modulus N) p ≠ 0 := by\n    intro h\n    apply hm\n    simpa only [h, zero_dvd_iff] using hs\n  have hgm := M7.SignatureTau.binary_monic _ hg\n  have hkm := M7.SignatureTau.binary_monic _ hk\n  have hkg : EuclideanDomain.gcd (M6.Cyclic.modulus N) p ∣ EuclideanDomain.gcd p (M6.Cyclic.modulus N) :=\n    EuclideanDomain.dvd_gcd (EuclideanDomain.gcd_dvd_right _ _) hs\n  have hgk : EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ EuclideanDomain.gcd (M6.Cyclic.modulus N) p :=\n    EuclideanDomain.dvd_gcd hd (EuclideanDomain.gcd_dvd_left _ _)\n  refine ⟨hgm, hd, ?_⟩\n  exact Polynomial.eq_of_monic_of_dvd_of_natDegree_le hgm hkm hgk\n    (Polynomial.natDegree_le_of_dvd hkg hg)",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.gcd_canonical",
+          "ancestors": [
+            "binary_monic",
+            "modulus_monic"
+          ],
+          "spec_sha256": "5dc20820373888bc064bbd147290276be29dde008e3173f325ba6e521c0730cc"
+        },
+        "sha256": "b3b1a3587d67f690fcd072ad1dc2d299cb2bb6f51abe453569b183abfe24fd13"
+      },
+      "tau_properties": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.tau_properties : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), (M7.SignatureTau.tau u F).Monic ∧ M7.SignatureTau.tau u F ∣ (M6.Cyclic.modulus N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), (M7.SignatureTau.tau u F).Monic ∧ M7.SignatureTau.tau u F ∣ M6.Cyclic.modulus N\n  intro N inst u F\n  unfold M7.SignatureTau.tau\n  exact ⟨(M7.SignatureTau.gcd_canonical N _).1, (M7.SignatureTau.gcd_canonical N _).2.1⟩",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.tau_properties",
+          "ancestors": [
+            "binary_monic",
+            "gcd_canonical",
+            "modulus_monic"
+          ],
+          "spec_sha256": "71428375a89e104f672eab9bb922e101194f6063bd2c493fe58e3429b6cbea07"
+        },
+        "sha256": "b896f74901504907ca3dc5a2346075c913aef582166b0933a34a792829671a30"
+      },
+      "tau_principal": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.tau_principal : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M7.SignatureIdeal.principal N (M7.SignatureTau.tau u F) = (M7.SignatureIdeal.principal N F).map (M7.QuotientAuto.substitution u) := by\n  intro N inst u F\n  unfold M7.SignatureTau.tau\n  rw [← M7.SignatureIdeal.principal_gcd]\n  simp only [M7.SignatureIdeal.principal, M7.SignatureTau.substituted,\n    Ideal.map_span, Set.image_singleton,\n    M7.QuotientAuto.polynomial_substitution]",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.tau_principal",
+          "ancestors": [],
+          "spec_sha256": "1c16ab06cf8a9d9ff370b86da1d3013b91bd314e492346c2f840de143bcb6ad6"
+        },
+        "sha256": "19f2ae36998acce0b50656504d0c084df7f02a4823d17cad40762696524d3d93"
+      },
+      "tau_one": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.tau_one : ∀ (N : ℕ) [NeZero N], ∀ F : M6.Cyclic.BinaryPolynomial, F.Monic → F ∣ (M6.Cyclic.modulus N) → M7.SignatureTau.tau (1 : (ZMod N)ˣ) F = F := by\n  change ∀ (N : ℕ) [NeZero N], ∀ F : M6.Cyclic.BinaryPolynomial, F.Monic → F ∣ M6.Cyclic.modulus N → M7.SignatureTau.tau (1 : (ZMod N)ˣ) F = F\n  intro N inst F hF hdF\n  have ht := M7.SignatureTau.tau_properties N (1 : (ZMod N)ˣ) F\n  apply (M7.SignatureIdeal.monic_injective N _ F ht.1 hF ht.2 hdF).mp\n  rw [M7.SignatureTau.tau_principal, M7.QuotientAuto.substitution_one, Ideal.map_id]",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.tau_one",
+          "ancestors": [
+            "binary_monic",
+            "gcd_canonical",
+            "modulus_monic",
+            "tau_principal",
+            "tau_properties"
+          ],
+          "spec_sha256": "f99a5e9c2cee304e2af2d465be96c29babfe802aeb9db8a4659fcf04240c1ac3"
+        },
+        "sha256": "ad1983edae3afe31dc06fa0aabf9f7d35a974a1c35a20a2ea965a9a899ae4032"
+      },
+      "tau_comp": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.tau_comp : ∀ (N : ℕ) [NeZero N], ∀ (u v : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ (M6.Cyclic.modulus N) → M7.SignatureTau.tau v (M7.SignatureTau.tau u F) = M7.SignatureTau.tau (v*u) F := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (u v : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ M6.Cyclic.modulus N → M7.SignatureTau.tau v (M7.SignatureTau.tau u F) = M7.SignatureTau.tau (v * u) F\n  intro N inst u v F hF hdiv\n  have hL := M7.SignatureTau.tau_properties N v (M7.SignatureTau.tau u F)\n  have hR := M7.SignatureTau.tau_properties N (v * u) F\n  apply (M7.SignatureIdeal.monic_injective N _ _ hL.1 hR.1 hL.2 hR.2).mp\n  rw [M7.SignatureTau.tau_principal N v,\n    M7.SignatureTau.tau_principal N u,\n    M7.SignatureTau.tau_principal N (v * u),\n    Ideal.map_map, M7.QuotientAuto.substitution_comp N u v]",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.tau_comp",
+          "ancestors": [
+            "binary_monic",
+            "gcd_canonical",
+            "modulus_monic",
+            "tau_principal",
+            "tau_properties"
+          ],
+          "spec_sha256": "e5692c4a60bb461b1d0760efddd188093e33fbcf29052d9cfaa55f8dfcdc1303"
+        },
+        "sha256": "f457abf790a1948d3bc975b9de8c97b05cf80a5dfb29e80ca709c6db2a2dd64e"
+      },
+      "tau_inverse": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.tau_inverse : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ (M6.Cyclic.modulus N) → (M7.SignatureTau.tau (u⁻¹) (M7.SignatureTau.tau u F) = F ∧ M7.SignatureTau.tau u (M7.SignatureTau.tau (u⁻¹) F) = F) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ M6.Cyclic.modulus N → (M7.SignatureTau.tau (u⁻¹) (M7.SignatureTau.tau u F) = F ∧ M7.SignatureTau.tau u (M7.SignatureTau.tau (u⁻¹) F) = F)\n  intro N inst u F hF hdiv\n  constructor\n  · rw [M7.SignatureTau.tau_comp N u (u⁻¹) F hF hdiv, inv_mul_cancel]\n    exact M7.SignatureTau.tau_one N F hF hdiv\n  · rw [M7.SignatureTau.tau_comp N (u⁻¹) u F hF hdiv, mul_inv_cancel]\n    exact M7.SignatureTau.tau_one N F hF hdiv",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.tau_inverse",
+          "ancestors": [
+            "binary_monic",
+            "gcd_canonical",
+            "modulus_monic",
+            "tau_comp",
+            "tau_one",
+            "tau_principal",
+            "tau_properties"
+          ],
+          "spec_sha256": "306865f07eaaa22e8d439f5a2949655ac689db4c5a851d8a4ff8ca7b6ce5cab7"
+        },
+        "sha256": "61d6aff3eb114429fd3daed857c788f172426fdd893851683af54ef59cf7ac73"
+      }
+    }
+  }
+}

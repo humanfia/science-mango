@@ -1,0 +1,7 @@
+{
+  "proof": "set_option maxHeartbeats 4000000 in\nset_option maxRecDepth 4096 in\n  intro N w inst g c d k v hA hB h0A h0B hconn hsolve\n  classical\n  have ha := M7.Domain.admissible N w c.1 c.2 hA hB h0A h0B hconn\n  have hc := M6.Final.answer_correct N (M7.Supports.polynomial c.1)\n    (M7.Supports.polynomial c.2) ha\n  simp only [M6.Final.AnswerCorrect, M6.Final.LX,\n    M7.Domain.coefficients_indicator] at hc\n  have hb : M7.Transport.distance c = some d ∧\n      v ∈ M7.Transport.LX c ∧ M6.Pinned.weight v = d ∧ k ≤ 2*N := by\n    simp only [M7.Transport.distance, M7.Transport.LX,\n      M7.Transport.BX, M7.Transport.CX,\n      M7.Domain.coefficients_indicator]\n    aesop\n  have hx : M7.Transport.Xmap g v ∈ M7.Transport.LX (M7.Action.act g c) :=\n    (M7.Transport.x_logical N g c v).mpr hb.2.1\n  have hw : M6.Pinned.weight (M7.Transport.Xmap g v) = d :=\n    ((M7.Transport.action_isometry N g c).2 v).2.2.trans hb.2.2.1\n  refine ⟨(M7.Transport.distance_invariant N g c).trans hb.1,\n    hx, hw, ?_, ?_, hb.2.2.2⟩\n  · exact (M6.ActualCSS.J_logical_iff N\n      (M7.Supports.indicator (M7.Action.act g c).1)\n      (M7.Supports.indicator (M7.Action.act g c).2)\n      (M7.Transport.Xmap g v)).mp hx\n  · exact (M6.Flatten.J_weight N (M7.Transport.Xmap g v)).trans hw",
+  "queries": [
+    "M6.Final.answer_correct",
+    "M6.Final.AnswerCorrect"
+  ]
+}

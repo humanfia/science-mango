@@ -1,0 +1,469 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T18:29:29.996271+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "base": {
+      "id": "base",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.base",
+        "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-j9u3tfx5/attempt-001/Candidate_e5a2b07d4c89e835.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-j9u3tfx5/attempt-001/FrozenTarget_e5a2b07d4c89e835.lean",
+            "feedback": "",
+            "target_sha256": "833bf40f7c928c459a201319f84cc386fda3f70e6ff2b906b324019b6be1cf72",
+            "target_olean_sha256": "d7425aba13e352110c78736d0dce5f7e16b3250aee6690e4168fa8acac5df0b5",
+            "source_sha256": "20a3bda89b1031c76d5921c7538c672c955625782b1b2340e54fb69923c35eac",
+            "olean_sha256": "21872fc144cbab8a5f242bfffc933bf04da7ebc80fa0593b63fecf161933bd00",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:13:21.876887+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-j9u3tfx5",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-j9u3tfx5/attempt-001/Candidate_e5a2b07d4c89e835.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "base": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.base : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n  intro N hN p\n  classical\n  have hs (o : ℕ) : M7.PrefixBits.selected N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    apply Finset.mem_range.mpr\n    rcases hx with rfl | ⟨j, ⟨hj, _⟩, rfl⟩\n    · exact hN\n    · omega\n  have hu (o : ℕ) : M7.PrefixBits.undecided N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hx\n    rcases hx with ⟨j, ⟨hj, _⟩, rfl⟩\n    apply Finset.mem_range.mpr\n    omega\n  have hz (o : ℕ) : 0 ∈ M7.PrefixBits.selected N o p := by\n    simp [M7.PrefixBits.selected]\n  have hd (o : ℕ) : Disjoint (M7.PrefixBits.selected N o p) (M7.PrefixBits.undecided N o p) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hy\n    rcases hy with ⟨k, ⟨hk, hku⟩, hke⟩\n    rcases hx with hx | ⟨j, ⟨hj, hjd, hjb⟩, hje⟩\n    · omega\n    · omega\n  have hs0 := hs 0\n  have hs1 := hs (N - 1)\n  have hu0 := hu 0\n  have hu1 := hu (N - 1)\n  have hz0 := hz 0\n  have hz1 := hz (N - 1)\n  have hd0 := hd 0\n  have hd1 := hd (N - 1)\n  unfold M7.PrefixCompleted.Base\n  simp only [M7.PrefixBits.A, M7.PrefixBits.B, M7.PrefixBits.WA, M7.PrefixBits.WB]\n  aesop",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.base",
+              "ancestors": [],
+              "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9"
+            },
+            "sha256": "d3d5656d4fe5196516f1de5d968b3f3dccaa29518b2cb2bf8cf519b3fdf51508"
+          }
+        }
+      }
+    },
+    "count_card": {
+      "id": "count_card",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.count_card",
+        "spec_sha256": "159643887da0c20cc8ce8965377ef8a9b76eafea5751aeaa6ca98663bcd11f89",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-bfk1aw9r/attempt-001/Candidate_5693d0862f0f34b0.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-bfk1aw9r/attempt-001/FrozenTarget_5693d0862f0f34b0.lean",
+            "feedback": "",
+            "target_sha256": "59a12af310a3b595449e038c15c8d313bd5e0251a6d82e630bc3910ab25bfac4",
+            "target_olean_sha256": "faf72cec40e9d3d051c8fc752a231f686d4d939e1e86d24d708e7e80e2a9d098",
+            "source_sha256": "de94a8c8bbc9025afcebbaf5396caf02166a7b98a21fe71ae4a02d004016ad48",
+            "olean_sha256": "e85a04c0019f509487fa9fa3364a6f1c3930e5050f4f924d95078bf529e60a9e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:15:02.236679+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-bfk1aw9r",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-bfk1aw9r/attempt-001/Candidate_5693d0862f0f34b0.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "base": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.base : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n  intro N hN p\n  classical\n  have hs (o : ℕ) : M7.PrefixBits.selected N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    apply Finset.mem_range.mpr\n    rcases hx with rfl | ⟨j, ⟨hj, _⟩, rfl⟩\n    · exact hN\n    · omega\n  have hu (o : ℕ) : M7.PrefixBits.undecided N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hx\n    rcases hx with ⟨j, ⟨hj, _⟩, rfl⟩\n    apply Finset.mem_range.mpr\n    omega\n  have hz (o : ℕ) : 0 ∈ M7.PrefixBits.selected N o p := by\n    simp [M7.PrefixBits.selected]\n  have hd (o : ℕ) : Disjoint (M7.PrefixBits.selected N o p) (M7.PrefixBits.undecided N o p) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hy\n    rcases hy with ⟨k, ⟨hk, hku⟩, hke⟩\n    rcases hx with hx | ⟨j, ⟨hj, hjd, hjb⟩, hje⟩\n    · omega\n    · omega\n  have hs0 := hs 0\n  have hs1 := hs (N - 1)\n  have hu0 := hu 0\n  have hu1 := hu (N - 1)\n  have hz0 := hz 0\n  have hz1 := hz (N - 1)\n  have hd0 := hd 0\n  have hd1 := hd (N - 1)\n  unfold M7.PrefixCompleted.Base\n  simp only [M7.PrefixBits.A, M7.PrefixBits.B, M7.PrefixBits.WA, M7.PrefixBits.WB]\n  aesop",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.base",
+              "ancestors": [],
+              "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9"
+            },
+            "sha256": "d3d5656d4fe5196516f1de5d968b3f3dccaa29518b2cb2bf8cf519b3fdf51508"
+          },
+          "count_card": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.count_card : ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E → M7.PrefixBits.count N w E p = (M7.PrefixBits.completed N w E p).card := by\n  change ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E → M7.PrefixBits.count N w E p = (M7.PrefixBits.completed N w E p).card\n  intro N hN w E p hE\n  exact M7.PrefixCompleted.count_completed N w E (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) hN hE (M7.PrefixBits.base N hN p)",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.count_card",
+              "ancestors": [
+                "base"
+              ],
+              "spec_sha256": "01cf39584bc68daa5cf331a055b7f38b404473e20b3746e852ea883d3c62e281"
+            },
+            "sha256": "48e43013344281307437ae4549bb125b6e49176faa9310399385697cedb53293"
+          }
+        }
+      }
+    },
+    "leaf_undecided": {
+      "id": "leaf_undecided",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.leaf_undecided",
+        "spec_sha256": "a61e14e88b5a8268db310b7dba3f6fa1bdcb59fbe4129d4bfbabeb35b7cc2d69",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-001/Candidate_f603029eef14a02e.lean:6:24: error(lean.unknownIdentifier): Unknown constant `Finset.eq_empty_iff_forall_not_mem.mpr`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-001/Candidate_f603029eef14a02e.lean:6:24: error(lean.unknownIdentifier): Unknown constant `Finset.eq_empty_iff_forall_not_mem.mpr`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-002/Candidate_fee4e9f7ec0ae910.lean:9:61: error(lean.unknownIdentifier): Unknown constant `Finset.mem_empty`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-002/Candidate_fee4e9f7ec0ae910.lean:14:14: error(lean.invalidField): Invalid field `elim`: The environment does not contain `List.Mem.elim`, so it is not possible to project the field `elim` from an expression\n  h\nof type `List.Mem x []`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-002/Candidate_fee4e9f7ec0ae910.lean:9:61: error(lean.unknownIdentifier): Unknown constant `Finset.mem_empty`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-002/Candidate_fee4e9f7ec0ae910.lean:14:14: error(lean.invalidField): Invalid field `elim`: The environment does not contain `List.Mem.elim`, so it is not possible to project the field `elim` from an expression\n  h\nof type `List.Mem x []`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-003/Candidate_396ee5306757abd4.lean:7:24: error(lean.unknownIdentifier): Unknown constant `Finset.eq_empty_iff_forall_not_mem.mpr`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-003/Candidate_396ee5306757abd4.lean:7:24: error(lean.unknownIdentifier): Unknown constant `Finset.eq_empty_iff_forall_not_mem.mpr`\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-004/Candidate_132b1887ceb0deb7.lean:10:6: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-004/Candidate_132b1887ceb0deb7.lean:11:11: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ncase left\nN : ℕ\nhN : 0 < N\np : List Bool\nhp : p.length = 2 * (N - 1)\nx : ℕ\n⊢ (∃ a, (a < N - 1 ∧ p.length ≤ 0 + a) ∧ a + 1 = x) ↔ x ∈ ∅\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-004/Candidate_132b1887ceb0deb7.lean:10:6: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-004/Candidate_132b1887ceb0deb7.lean:11:11: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ncase right\nN : ℕ\nhN : 0 < N\np : List Bool\nhp : p.length = 2 * (N - 1)\nx : ℕ\n⊢ (∃ a, (a < N - 1 ∧ p.length ≤ N - 1 + a) ∧ a + 1 = x) ↔ x ∈ ∅\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-004/Candidate_132b1887ceb0deb7.lean:10:28: warning: This simp argument is unused:\n  iff_false\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.PrefixBits.WA, M7.PrefixBits.WB, M7.PrefixBits.undecided, Finset.mem_image, Finset.mem_filter,\n    Finset.mem_range, Finset.not_mem_empty]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 4
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-005/Candidate_5885532791e9aa95.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-005/FrozenTarget_5885532791e9aa95.lean",
+            "feedback": "",
+            "target_sha256": "4306556782c2c2a42233a7be1e56315fe7d353f1c151f84226971f85748c56f6",
+            "target_olean_sha256": "1d11ec67dcf12f9f9a3f2341c34c87d56a14f60c3e1ff4d313ebbaa3b261ce05",
+            "source_sha256": "96edf8f05c421e21f8649ab28587d8384fcd22ba2aa77387d77cdecfaa2eb85d",
+            "olean_sha256": "b7e9cb68a5144d726923f6acb0cd59bce4f6abf9e6e8d07533c1e15e5e767ca6",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T18:13:21.969077+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 5,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-xlkx55zf/attempt-005/Candidate_5885532791e9aa95.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "leaf_undecided": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.leaf_undecided : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, p.length = M7.PrefixBits.depth N → M7.PrefixBits.WA N p = ∅ ∧ M7.PrefixBits.WB N p = ∅ := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, p.length = M7.PrefixBits.depth N → M7.PrefixBits.WA N p = ∅ ∧ M7.PrefixBits.WB N p = ∅\n  intro N hN p hp\n  unfold M7.PrefixBits.depth at hp\n  unfold M7.PrefixBits.WA M7.PrefixBits.WB M7.PrefixBits.undecided\n  constructor <;>\n    (apply Finset.ext\n     intro x\n     constructor\n     · intro hx\n       rcases Finset.mem_image.mp hx with ⟨j, hj, heq⟩\n       rcases Finset.mem_filter.mp hj with ⟨hj, hlen⟩\n       have hj' := Finset.mem_range.mp hj\n       omega\n     · intro hx\n       simp at hx)",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.leaf_undecided",
+              "ancestors": [],
+              "spec_sha256": "a61e14e88b5a8268db310b7dba3f6fa1bdcb59fbe4129d4bfbabeb35b7cc2d69"
+            },
+            "sha256": "69dcd0023d06b084af896397649de3f4ac7086452da2d166dd980dd0c9be1ec3"
+          }
+        }
+      }
+    },
+    "leaf_singleton": {
+      "id": "leaf_singleton",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.leaf_singleton",
+        "spec_sha256": "76324bd6feba6ce49566c83d25429c176ed9f2a73fb9da3ecb7121237f89d087",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-a2eyw9p8/attempt-001/Candidate_e46b10fdf74053d6.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-a2eyw9p8/attempt-001/FrozenTarget_e46b10fdf74053d6.lean",
+            "feedback": "",
+            "target_sha256": "587c8b7f4d7268ced356a5b5094b9b184dd9140460022f2e4d4262447e18f1be",
+            "target_olean_sha256": "546e883e7b4c4ed71a5024cf85fb5f9aa021b3a29f6bb09577be33968019ae22",
+            "source_sha256": "0ee543de58a5521be63c0180f81d3c01653cffd2df2be983e9257ba3d6ec8aec",
+            "olean_sha256": "d29bd2e4c49c8674c1111c8b4739cf509778010b10c77c7bcd1b7f797295104b",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:18:59.493648+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-a2eyw9p8",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-a2eyw9p8/attempt-001/Candidate_e46b10fdf74053d6.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "base": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.base : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p) := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)\n  intro N hN p\n  classical\n  have hs (o : ℕ) : M7.PrefixBits.selected N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    apply Finset.mem_range.mpr\n    rcases hx with rfl | ⟨j, ⟨hj, _⟩, rfl⟩\n    · exact hN\n    · omega\n  have hu (o : ℕ) : M7.PrefixBits.undecided N o p ⊆ Finset.range N := by\n    intro x hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hx\n    rcases hx with ⟨j, ⟨hj, _⟩, rfl⟩\n    apply Finset.mem_range.mpr\n    omega\n  have hz (o : ℕ) : 0 ∈ M7.PrefixBits.selected N o p := by\n    simp [M7.PrefixBits.selected]\n  have hd (o : ℕ) : Disjoint (M7.PrefixBits.selected N o p) (M7.PrefixBits.undecided N o p) := by\n    apply Finset.disjoint_left.mpr\n    intro x hx hy\n    simp only [M7.PrefixBits.selected, Finset.mem_union, Finset.mem_singleton,\n      Finset.mem_image, Finset.mem_filter, Finset.mem_range] at hx\n    simp only [M7.PrefixBits.undecided, Finset.mem_image,\n      Finset.mem_filter, Finset.mem_range] at hy\n    rcases hy with ⟨k, ⟨hk, hku⟩, hke⟩\n    rcases hx with hx | ⟨j, ⟨hj, hjd, hjb⟩, hje⟩\n    · omega\n    · omega\n  have hs0 := hs 0\n  have hs1 := hs (N - 1)\n  have hu0 := hu 0\n  have hu1 := hu (N - 1)\n  have hz0 := hz 0\n  have hz1 := hz (N - 1)\n  have hd0 := hd 0\n  have hd1 := hd (N - 1)\n  unfold M7.PrefixCompleted.Base\n  simp only [M7.PrefixBits.A, M7.PrefixBits.B, M7.PrefixBits.WA, M7.PrefixBits.WB]\n  aesop",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.base",
+              "ancestors": [],
+              "spec_sha256": "ff755cc4546d8a256b1e025f9d5b75665a8bc89e01b251b6f42b41ee48555af9"
+            },
+            "sha256": "d3d5656d4fe5196516f1de5d968b3f3dccaa29518b2cb2bf8cf519b3fdf51508"
+          },
+          "leaf_undecided": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.leaf_undecided : ∀ (N : ℕ), 0 < N → ∀ p : List Bool, p.length = M7.PrefixBits.depth N → M7.PrefixBits.WA N p = ∅ ∧ M7.PrefixBits.WB N p = ∅ := by\n  change ∀ (N : ℕ), 0 < N → ∀ p : List Bool, p.length = M7.PrefixBits.depth N → M7.PrefixBits.WA N p = ∅ ∧ M7.PrefixBits.WB N p = ∅\n  intro N hN p hp\n  unfold M7.PrefixBits.depth at hp\n  unfold M7.PrefixBits.WA M7.PrefixBits.WB M7.PrefixBits.undecided\n  constructor <;>\n    (apply Finset.ext\n     intro x\n     constructor\n     · intro hx\n       rcases Finset.mem_image.mp hx with ⟨j, hj, heq⟩\n       rcases Finset.mem_filter.mp hj with ⟨hj, hlen⟩\n       have hj' := Finset.mem_range.mp hj\n       omega\n     · intro hx\n       simp at hx)",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.leaf_undecided",
+              "ancestors": [],
+              "spec_sha256": "a61e14e88b5a8268db310b7dba3f6fa1bdcb59fbe4129d4bfbabeb35b7cc2d69"
+            },
+            "sha256": "69dcd0023d06b084af896397649de3f4ac7086452da2d166dd980dd0c9be1ec3"
+          },
+          "leaf_singleton": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.leaf_singleton : ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N → M7.PrefixBits.completed N w E p ⊆ {(M7.PrefixBits.A N p, M7.PrefixBits.B N p)} := by\n  change ∀ (N : ℕ), 0 < N → ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N → M7.PrefixBits.completed N w E p ⊆ {(M7.PrefixBits.A N p, M7.PrefixBits.B N p)}\n  intro N hN w E p hp\n  classical\n  obtain ⟨hWA, hWB⟩ := M7.PrefixBits.leaf_undecided N hN p hp\n  intro x hx\n  unfold M7.PrefixBits.completed at hx\n  rw [hWA, hWB] at hx\n  have h := ((M7.PrefixCompleted.completed_membership N w E\n    (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) ∅ ∅\n    (by simp) (by simp) x).mp hx).1\n  simp only [M7.PrefixCompleted.Within, Finset.union_empty] at h\n  apply Finset.mem_singleton.mpr\n  apply Prod.ext\n  · apply Finset.Subset.antisymm <;> tauto\n  · apply Finset.Subset.antisymm <;> tauto",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.leaf_singleton",
+              "ancestors": [
+                "base",
+                "leaf_undecided"
+              ],
+              "spec_sha256": "b21274d72386c31a6826423138b3ffad0bea53cc292d6434a7da6e006e1ebc76"
+            },
+            "sha256": "b60a75058f7b41e86058d9cc4339aae2911807bac77024e51392722ed679c43d"
+          }
+        }
+      }
+    },
+    "left_step": {
+      "id": "left_step",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M7.PrefixBits.left_step",
+        "spec_sha256": "951014c16ac354185a6622fb12e26ee7926c51a7dd952ec2870580b722e53c6a",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-001/Candidate_1c86ad759d43abc4.lean:2:64: error: unsolved goals\n⊢ QuantumHarnessFrozenTarget\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-001/Candidate_1c86ad759d43abc4.lean:3:2: error: unexpected token 'by'; expected command\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-002/Candidate_98c7305fd241074e.lean:18:10: error(lean.unknownIdentifier): Unknown constant `List.getD_append`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-002/Candidate_98c7305fd241074e.lean:24:12: error(lean.unknownIdentifier): Unknown constant `List.getD_append_right`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-002/Candidate_98c7305fd241074e.lean:35:38: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  b ≥ 0\n  a ≥ 0\n  a - b ≥ 1\nwhere\n a := ↑(N - 1)\n b := ↑k\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-002/Candidate_98c7305fd241074e.lean:35:38: error: omega could not prove the goal:\na possible counterexample may satisfy the constraints\n  c ≥ 0\n  b ≥ 0\n  b - c ≥ 1\n  a ≥ 0\n  a - b ≥ 1\n  a - c ≥ 1\nwhere\n a := ↑(N - 1)\n b := ↑p.length\n c := ↑k\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-002/Candidate_98c7305fd241074e.lean:34:31: warning: This simp argument is unused:\n  Nat.succ_eq_add_one\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.A, hs, List.length_append, hg]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-002/Candidate_98c7305fd241074e.lean:35:30: warning: This simp argument is unused:\n  hg\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.A, Nat.succ_eq_add_one, hs, List.length_append]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-002/Candidate_98c7305fd241074e.lean:40:36: warning: This simp argument is unused:\n  Nat.succ_eq_add_one\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.PrefixBits.B, hs, List.length_append, List.length_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-002/Candidate_98c7305fd241074e.lean:48:37: warning: This simp argument is unused:\n  Nat.succ_eq_add_one\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.PrefixBits.WA, Finset.mem_erase, hu, List.length_append, List.length_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-002/Candidate_98c7305fd241074e.lean:56:37: warning: This simp argument is unused:\n  Nat.succ_eq_add_one\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.PrefixBits.WB, hu, List.length_append, List.length_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-003/Candidate_2595bcbaf8508999.lean:4:9: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\nN : ℕ\nhN : 0 < N\np : List Bool\nbit : Bool\nhp : p.length < N - 1\ndsimp : ℕ := p.length + 1\n⊢ dsimp ∈ WA N p ∧\n    (A N (p ++ [bit]) = if bit = true then insert dsimp (A N p) else A N p) ∧\n      B N (p ++ [bit]) = B N p ∧ WA N (p ++ [bit]) = (WA N p).erase dsimp ∧ WB N (p ++ [bit]) = WB N p\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-003/Candidate_2595bcbaf8508999.lean:6:3: error: unexpected token 'have'; expected command\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-004/Candidate_33b76e1b4d30aacb.lean:2:64: error: unsolved goals\n⊢ QuantumHarnessFrozenTarget\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-004/Candidate_33b76e1b4d30aacb.lean:3:2: error: unexpected token 'by'; expected command\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-005/Candidate_77102b34978cbd22.lean:2:64: error: unsolved goals\n⊢ QuantumHarnessFrozenTarget\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi/attempt-005/Candidate_77102b34978cbd22.lean:3:2: error: unexpected token 'by'; expected command\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T18:16:22.710438+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-7j4djqbi",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "right_step": {
+      "id": "right_step",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M7.PrefixBits.right_step",
+        "spec_sha256": "e4f76d4c960dbb888cf2c4c7d6d784fe7674c716205a766fc640b14510f9107d",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-001/Candidate_4093e9c4cd0952fa.lean:57:6: error: unsolved goals\ncase pos.true\nN : ℕ\nhN : 0 < N\np : List Bool\nhlo : N - 1 ≤ p.length\nhhi : p.length < 2 * (N - 1)\nhs :\n  ∀ (offset : ℕ) (q : List Bool) (k : ℕ),\n    k + 1 ∈ selected N offset q ↔ k < N - 1 ∧ offset + k < q.length ∧ q.getD (offset + k) false = true\nhu : ∀ (offset : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ undecided N offset q ↔ k < N - 1 ∧ q.length ≤ offset + k\nk : ℕ\nhi : N - 1 + k < p.length\nhi' : N - 1 + k < p.length + 1\nhne : k + 1 ≠ p.length - (N - 1) + 1\nhget : ∀ (q : List Bool), ∀ i < q.length, (q ++ [true]).getD i false = q.getD i false\nhend : ∀ (q : List Bool), (q ++ [true]).getD q.length false = true\n⊢ k = p.length - (N - 1) → k < N - 1 ∧ p[N - 1 + k] = true\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-001/Candidate_4093e9c4cd0952fa.lean:65:8: error: unsolved goals\ncase neg.true\nN : ℕ\nhN : 0 < N\np : List Bool\nhlo : N - 1 ≤ p.length\nhhi : p.length < 2 * (N - 1)\nhs :\n  ∀ (offset : ℕ) (q : List Bool) (k : ℕ),\n    k + 1 ∈ selected N offset q ↔ k < N - 1 ∧ offset + k < q.length ∧ q.getD (offset + k) false = true\nhu : ∀ (offset : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ undecided N offset q ↔ k < N - 1 ∧ q.length ≤ offset + k\nk : ℕ\nhi : ¬N - 1 + k < p.length\nhe : ¬N - 1 + k = p.length\nhi' : ¬N - 1 + k < p.length + 1\nhne : k + 1 ≠ p.length - (N - 1) + 1\nhget : ∀ (q : List Bool), ∀ i < q.length, (q ++ [true]).getD i false = q.getD i false\nhend : ∀ (q : List Bool), (q ++ [true]).getD q.length false = true\n⊢ ¬k = p.length - (N - 1)\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-001/Candidate_4093e9c4cd0952fa.lean:45:27: warning: This simp argument is unused:\n  hget p k hp\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hk, hp, hp']\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-001/Candidate_4093e9c4cd0952fa.lean:60:46: warning: This simp argument is unused:\n  hne\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, hs, hi, hi', hget p (N - 1 + k) hi]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-001/Candidate_4093e9c4cd0952fa.lean:60:51: warning: This simp argument is unused:\n  hget p (N - 1 + k) hi\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, hs, hi, hi', hne]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-001/Candidate_4093e9c4cd0952fa.lean:64:39: warning: This simp argument is unused:\n  hi\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, hs, he, hk, hend]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-001/Candidate_4093e9c4cd0952fa.lean:64:51: warning: This simp argument is unused:\n  hend\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, hs, hi, he, hk]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-001/Candidate_4093e9c4cd0952fa.lean:67:60: warning: This simp argument is unused:\n  hne\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, hs, hi, hi']\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-002/Candidate_f69ef01da26b3c6b.lean:2:65: error: unsolved goals\n⊢ QuantumHarnessFrozenTarget\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-002/Candidate_f69ef01da26b3c6b.lean:3:2: error: unexpected token 'by'; expected command\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-003/Candidate_06829853bcbf8d10.lean:39:6: error: unsolved goals\ncase pos\nN : ℕ\nhN : 0 < N\np : List Bool\nbit : Bool\nhlo : N - 1 ≤ p.length\nhhi : p.length < 2 * (N - 1)\nhget :\n  ∀ (q : List Bool) (i : ℕ),\n    (q ++ [bit]).getD i false = if i < q.length then q.getD i false else if i = q.length then bit else false\nhs :\n  ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ selected N o q ↔ k < N - 1 ∧ o + k < q.length ∧ q.getD (o + k) false = true\nhw : ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ undecided N o q ↔ k < N - 1 ∧ q.length ≤ o + k\nk : ℕ\nhk : k < N - 1\nhkp : k < p.length\n⊢ k ≤ p.length ∧ (p ++ [bit])[k]?.getD false = true ↔ p[k] = true\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-003/Candidate_06829853bcbf8d10.lean:48:6: error: `simp` made no progress\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-003/Candidate_06829853bcbf8d10.lean:37:17: warning: This simp argument is unused:\n  Nat.succ_eq_add_one\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.PrefixBits.A, hs]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-003/Candidate_06829853bcbf8d10.lean:40:18: warning: This simp argument is unused:\n  hget\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hk, hkp]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-003/Candidate_06829853bcbf8d10.lean:59:17: warning: This simp argument is unused:\n  Nat.succ_eq_add_one\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.PrefixBits.WA, hw, List.length_append, List.length_singleton, Nat.zero_add]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-003/Candidate_06829853bcbf8d10.lean:67:17: warning: This simp argument is unused:\n  Nat.succ_eq_add_one\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.PrefixBits.WB, Finset.mem_erase, hw, List.length_append, List.length_singleton]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-004/Candidate_6a9ac315ac0d4591.lean:2:65: error: unsolved goals\n⊢ QuantumHarnessFrozenTarget\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-004/Candidate_6a9ac315ac0d4591.lean:3:2: error: unexpected token 'by'; expected command\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:43:10: error: unsolved goals\ncase pos\nN : ℕ\nhN : 0 < N\np : List Bool\nbit : Bool\nhlo : N - 1 ≤ p.length\nhhi : p.length < 2 * (N - 1)\nlookup :\n  ∀ (q : List Bool) (i : ℕ),\n    (q ++ [bit]).getD i false = if i < q.length then q.getD i false else if i = q.length then bit else false\nms :\n  ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ selected N o q ↔ k < N - 1 ∧ o + k < q.length ∧ q.getD (o + k) false = true\nmu : ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ undecided N o q ↔ k < N - 1 ∧ q.length ≤ o + k\nk : ℕ\nhk : k < N - 1\nhp : k < p.length\nhp' : k < (p ++ [bit]).length\n⊢ k ≤ p.length ∧ (p ++ [bit])[k]?.getD false = true ↔ p[k] = true\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:59:10: error: unsolved goals\ncase pos.false\nN : ℕ\nhN : 0 < N\np : List Bool\nhlo : N - 1 ≤ p.length\nhhi : p.length < 2 * (N - 1)\nms :\n  ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ selected N o q ↔ k < N - 1 ∧ o + k < q.length ∧ q.getD (o + k) false = true\nmu : ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ undecided N o q ↔ k < N - 1 ∧ q.length ≤ o + k\nk : ℕ\nhb : N - 1 + k < p.length\nhj : k + 1 ≠ p.length - (N - 1) + 1\nlookup :\n  ∀ (q : List Bool) (i : ℕ),\n    (q ++ [false]).getD i false = if i < q.length then q.getD i false else if i = q.length then false else false\nhn : N - 1 + k < (p ++ [false]).length\n⊢ k < N - 1 → (N - 1 + k ≤ p.length ∧ (p ++ [false])[N - 1 + k]?.getD false = true ↔ p[N - 1 + k] = true)\n\ncase pos.true\nN : ℕ\nhN : 0 < N\np : List Bool\nhlo : N - 1 ≤ p.length\nhhi : p.length < 2 * (N - 1)\nms :\n  ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ selected N o q ↔ k < N - 1 ∧ o + k < q.length ∧ q.getD (o + k) false = true\nmu : ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ undecided N o q ↔ k < N - 1 ∧ q.length ≤ o + k\nk : ℕ\nhb : N - 1 + k < p.length\nhj : k + 1 ≠ p.length - (N - 1) + 1\nlookup :\n  ∀ (q : List Bool) (i : ℕ),\n    (q ++ [true]).getD i false = if i < q.length then q.getD i false else if i = q.length then true else false\nhn : N - 1 + k < (p ++ [true]).length\n⊢ k < N - 1 ∧ N - 1 + k ≤ p.length ∧ (p ++ [true])[N - 1 + k]?.getD false = true ↔\n    k = p.length - (N - 1) ∨ k < N - 1 ∧ p[N - 1 + k] = true\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:72:47: warning: `if_false` has been deprecated: Use `ite_false` instead\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:72:57: warning: `if_true` has been deprecated: Use `ite_true` instead\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:72:47: warning: `if_false` has been deprecated: Use `ite_false` instead\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:72:57: warning: `if_true` has been deprecated: Use `ite_true` instead\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:75:12: error: unsolved goals\ncase neg.false\nN : ℕ\nhN : 0 < N\np : List Bool\nhlo : N - 1 ≤ p.length\nhhi : p.length < 2 * (N - 1)\nms :\n  ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ selected N o q ↔ k < N - 1 ∧ o + k < q.length ∧ q.getD (o + k) false = true\nmu : ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ undecided N o q ↔ k < N - 1 ∧ q.length ≤ o + k\nk : ℕ\nhb : ¬N - 1 + k < p.length\nhe : ¬N - 1 + k = p.length\nhj : k + 1 ≠ p.length - (N - 1) + 1\nlookup :\n  ∀ (q : List Bool) (i : ℕ),\n    (q ++ [false]).getD i false = if i < q.length then q.getD i false else if i = q.length then false else false\nhn : ¬N - 1 + k < (p ++ [false]).length\n⊢ k < N - 1 → N - 1 + k ≤ p.length → (p ++ [false])[N - 1 + k]?.getD false = false\n\ncase neg.true\nN : ℕ\nhN : 0 < N\np : List Bool\nhlo : N - 1 ≤ p.length\nhhi : p.length < 2 * (N - 1)\nms :\n  ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ selected N o q ↔ k < N - 1 ∧ o + k < q.length ∧ q.getD (o + k) false = true\nmu : ∀ (o : ℕ) (q : List Bool) (k : ℕ), k + 1 ∈ undecided N o q ↔ k < N - 1 ∧ q.length ≤ o + k\nk : ℕ\nhb : ¬N - 1 + k < p.length\nhe : ¬N - 1 + k = p.length\nhj : k + 1 ≠ p.length - (N - 1) + 1\nlookup :\n  ∀ (q : List Bool) (i : ℕ),\n    (q ++ [true]).getD i false = if i < q.length then q.getD i false else if i = q.length then true else false\nhn : ¬N - 1 + k < (p ++ [true]).length\n⊢ k < N - 1 ∧ N - 1 + k ≤ p.length ∧ (p ++ [true])[N - 1 + k]?.getD false = true ↔ k = p.length - (N - 1)\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:47:26: warning: This simp argument is unused:\n  hp'\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hk, hp, lookup]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:47:31: warning: This simp argument is unused:\n  lookup\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hk, hp, hp']\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:64:41: warning: This simp argument is unused:\n  lookup\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, ms, hb, hn, hj]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:64:53: warning: This simp argument is unused:\n  hn\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, ms, lookup, hb, hj]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:64:57: warning: This simp argument is unused:\n  hj\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, ms, lookup, hb, hn]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:74:22: warning: This simp argument is unused:\n  lookup\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hb, he, hk, hj, hn]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:74:30: warning: This simp argument is unused:\n  hb\n\nHint: Omit it from the simp argument list.\n  [apply] simp [lookup, he, hk, hj, hn]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:74:46: warning: This simp argument is unused:\n  hn\n\nHint: Omit it from the simp argument list.\n  [apply] simp [lookup, hb, he, hk, hj]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:80:47: warning: This simp argument is unused:\n  hn\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, ms, hb, hj]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn/attempt-005/Candidate_02cfe9e337fea439.lean:80:51: warning: This simp argument is unused:\n  hj\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.PrefixBits.B, ms, hb, hn]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T18:20:12.590046+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-eins6qhn",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "completed_partition": {
+      "id": "completed_partition",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "left_step"
+      ]
+    },
+    "count_partition": {
+      "id": "count_partition",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "completed_partition"
+      ]
+    },
+    "root": {
+      "id": "root",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.PrefixBits.root",
+        "spec_sha256": "baa3507d6195634edde1fa8497c881bf1188154069dc61b57bb738c6dfb3c32c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-3s941tws/attempt-001/Candidate_a89a0bb8f6824fd0.lean",
+            "target_path": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-3s941tws/attempt-001/FrozenTarget_a89a0bb8f6824fd0.lean",
+            "feedback": "",
+            "target_sha256": "773c5a7c75bd3c14e017165dc8fb1dec97e6508c3c8d23e5da2a3bf372b97a74",
+            "target_olean_sha256": "045e0548983e23adf1953600fc6143ad59ba6246b2b9621684c3d2e487f7931f",
+            "source_sha256": "c37896d3bf8b530f2e8fef9f8b7b9b7ab9d2d7850b234e13c057342b4398a3b5",
+            "olean_sha256": "06eaaf2cf1087c32ec03bd5da573d61441ee786cf33ec5d717a21be6faf8fb1a",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T18:25:34.260807+00:00",
+        "work": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-3s941tws",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0470fb12de93bc547465b19336e6b03895ab63caeaf0834412785e7ee9838054",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-prefix-bits-formalization/.humanize-formal-runs/run-3s941tws/attempt-001/Candidate_a89a0bb8f6824fd0.lean",
+        "environment_sha256": "7219460156d111b1eaf2ed00da03519fff5808151c8f16cbdd3ebc6c2cd2e71c",
+        "artifacts": {
+          "root": {
+            "payload": {
+              "declaration": "theorem M7.PrefixBits.root : ∀ (N : ℕ), 0 < N → M7.PrefixBits.A N [] = {0} ∧ M7.PrefixBits.B N [] = {0} ∧ M7.PrefixBits.WA N [] = Finset.range N \\ {0} ∧ M7.PrefixBits.WB N [] = Finset.range N \\ {0} := by\n  intro N hN\n  have hu (offset : ℕ) : M7.PrefixBits.undecided N offset [] = Finset.range N \\ {0} := by\n    apply Finset.ext\n    intro x\n    simp only [M7.PrefixBits.undecided, List.length_nil, Nat.zero_le,\n      Finset.filter_true, Finset.mem_image, Finset.mem_range,\n      Finset.mem_sdiff, Finset.mem_singleton]\n    constructor\n    · rintro ⟨j, hj, rfl⟩\n      constructor <;> omega\n    · rintro ⟨hx, hx0⟩\n      refine ⟨x - 1, ?_, ?_⟩ <;> omega\n  refine ⟨?_, ?_, hu 0, hu (N - 1)⟩\n  · simp [M7.PrefixBits.A, M7.PrefixBits.selected]\n  · simp [M7.PrefixBits.B, M7.PrefixBits.selected]",
+              "imports": [
+                "M7PrefixBits"
+              ],
+              "name": "M7.PrefixBits.root",
+              "ancestors": [],
+              "spec_sha256": "baa3507d6195634edde1fa8497c881bf1188154069dc61b57bb738c6dfb3c32c"
+            },
+            "sha256": "24b49e69c2b20e7cc1307e323e79e6555e9769c1b08e81fad492857815921c84"
+          }
+        }
+      }
+    }
+  }
+}

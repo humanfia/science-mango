@@ -1,0 +1,23 @@
+theorem M7.SignatureTau.gcd_canonical : ∀ (N : ℕ) [NeZero N], ∀ p : M6.Cyclic.BinaryPolynomial, (EuclideanDomain.gcd p (M6.Cyclic.modulus N)).Monic ∧ EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ (M6.Cyclic.modulus N) ∧ EuclideanDomain.gcd (M6.Cyclic.modulus N) p = EuclideanDomain.gcd p (M6.Cyclic.modulus N) := by
+  change ∀ (N : ℕ) [NeZero N], ∀ p : M6.Cyclic.BinaryPolynomial, (EuclideanDomain.gcd p (M6.Cyclic.modulus N)).Monic ∧ EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ M6.Cyclic.modulus N ∧ EuclideanDomain.gcd (M6.Cyclic.modulus N) p = EuclideanDomain.gcd p (M6.Cyclic.modulus N)
+  intro N inst p
+  have hm : M6.Cyclic.modulus N ≠ 0 := (M7.SignatureTau.modulus_monic N).ne_zero
+  have hd := EuclideanDomain.gcd_dvd_right p (M6.Cyclic.modulus N)
+  have hs := EuclideanDomain.gcd_dvd_left (M6.Cyclic.modulus N) p
+  have hg : EuclideanDomain.gcd p (M6.Cyclic.modulus N) ≠ 0 := by
+    intro h
+    apply hm
+    simpa only [h, zero_dvd_iff] using hd
+  have hk : EuclideanDomain.gcd (M6.Cyclic.modulus N) p ≠ 0 := by
+    intro h
+    apply hm
+    simpa only [h, zero_dvd_iff] using hs
+  have hgm := M7.SignatureTau.binary_monic _ hg
+  have hkm := M7.SignatureTau.binary_monic _ hk
+  have hkg : EuclideanDomain.gcd (M6.Cyclic.modulus N) p ∣ EuclideanDomain.gcd p (M6.Cyclic.modulus N) :=
+    EuclideanDomain.dvd_gcd (EuclideanDomain.gcd_dvd_right _ _) hs
+  have hgk : EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ EuclideanDomain.gcd (M6.Cyclic.modulus N) p :=
+    EuclideanDomain.dvd_gcd hd (EuclideanDomain.gcd_dvd_left _ _)
+  refine ⟨hgm, hd, ?_⟩
+  exact Polynomial.eq_of_monic_of_dvd_of_natDegree_le hgm hkm hgk
+    (Polynomial.natDegree_le_of_dvd hkg hg)

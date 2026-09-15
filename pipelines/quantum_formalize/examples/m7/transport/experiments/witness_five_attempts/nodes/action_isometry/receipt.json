@@ -1,0 +1,69 @@
+{
+  "id": "action_isometry",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Transport.action_isometry",
+    "spec_sha256": "4872b99e829a1686471b53e5c8dd9936d240c4f04e021e1d6dcbb1857b879314",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-transport-formalization/.humanize-formal-runs/run-ay2ga3gp/attempt-001/Candidate_06df78f82f02d5b4.lean",
+        "target_path": "/home/jing/m7-lean-transport-formalization/.humanize-formal-runs/run-ay2ga3gp/attempt-001/FrozenTarget_06df78f82f02d5b4.lean",
+        "feedback": "",
+        "target_sha256": "177261875757ce45c232bc05501cccc85614b9e6eddfc2c97534986c06051623",
+        "target_olean_sha256": "9fac800b8c7866f84517f3328344d8bd4b075ec54d6d7aed9f7be673b0e0cc37",
+        "source_sha256": "52382f1b73194dc615fa2771d5a2448369800aff7fe0805ecb38a2733b5fb5ab",
+        "olean_sha256": "bfb0fb6bad7e9c0b848b9464154c58cb679e6a0b6ffdc82a25e7c2313c7380be",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:41:30.854573+00:00",
+    "work": "/home/jing/m7-lean-transport-formalization/.humanize-formal-runs/run-ay2ga3gp",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "27fceced8fb3492bff1822983f682e6bb78555aff0adfa4fac6d0de4cc514be9",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-transport-formalization/.humanize-formal-runs/run-ay2ga3gp/attempt-001/Candidate_06df78f82f02d5b4.lean",
+    "environment_sha256": "a2b27e1077548f582e0aefededc44c473653e4a548364e44092244bcd5ed3ce6",
+    "artifacts": {
+      "affine_indicator": {
+        "payload": {
+          "declaration": "theorem M7.Transport.affine_indicator : ∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N) (u : (ZMod N)ˣ) (s : ZMod N), M7.Supports.indicator (A.image (M7.Action.affine u s)) = M6.RecipeIsometries.shift N s (M6.RecipeIsometries.multiply N u (M7.Supports.indicator A)) := by\n  intro N inst A u s\n  classical\n  funext i\n  have h : i ∈ A.image (M7.Action.affine u s) ↔\n      (↑(u⁻¹) : ZMod N) * (i - s) ∈ A := by\n    constructor\n    · intro hi\n      obtain ⟨j, hj, rfl⟩ := Finset.mem_image.mp hi\n      simpa [M7.Action.affine, ← mul_assoc] using hj\n    · intro hi\n      apply Finset.mem_image.mpr\n      refine ⟨(↑(u⁻¹) : ZMod N) * (i - s), hi, ?_⟩\n      simp [M7.Action.affine, ← mul_assoc]\n  simp only [M7.Supports.indicator, M6.RecipeIsometries.shift,\n    M6.RecipeIsometries.multiply, h]",
+          "imports": [
+            "M7Transport"
+          ],
+          "name": "M7.Transport.affine_indicator",
+          "ancestors": [],
+          "spec_sha256": "481e28ec9c05b3a7d38b5a9e7a253a50948caf94978e0da6bc3849f807477627"
+        },
+        "sha256": "41e7b958cca06a4c8648905f9e6bcc15e45b1eb8f91d444c51ec648b562ce6d4"
+      },
+      "action_isometry": {
+        "payload": {
+          "declaration": "theorem M7.Transport.action_isometry : ∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Transport.Recipe N), Function.Bijective (M7.Transport.Xmap g) ∧ ∀ v : M6.Pinned.Vector (2*N), (M7.Transport.Xmap g v ∈ M7.Transport.BX (M7.Action.act g c) ↔ v ∈ M7.Transport.BX c) ∧ (M7.Transport.Xmap g v ∈ M7.Transport.CX (M7.Action.act g c) ↔ v ∈ M7.Transport.CX c) ∧ M6.Pinned.weight (M7.Transport.Xmap g v) = M6.Pinned.weight v := by\n  intro N inst g c\n  classical\n  rcases g with ⟨u, e, s, t⟩\n  cases e\n  · have hm := M6.RecipeIsometries.multiplier_isometry N (M7.Supports.indicator c.1) (M7.Supports.indicator c.2) u\n    have ht := M6.RecipeIsometries.translation_isometry N\n      (M6.RecipeIsometries.multiply N u (M7.Supports.indicator c.1))\n      (M6.RecipeIsometries.multiply N u (M7.Supports.indicator c.2)) s t\n    simp only [M7.Transport.Xmap, M7.Transport.BX, M7.Transport.CX, M7.Action.act,\n      Bool.false_eq_true, Bool.true_eq_false, reduceIte, M7.Transport.affine_indicator]\n    refine ⟨ht.1.comp hm.1, ?_⟩\n    intro v\n    have htV := ht.2 (M6.RecipeIsometries.multiplier N u v)\n    have hmV := hm.2 v\n    exact ⟨htV.1.trans hmV.1, htV.2.1.trans hmV.2.1, htV.2.2.trans hmV.2.2⟩\n  · have hm := M6.RecipeIsometries.multiplier_isometry N (M7.Supports.indicator c.2) (M7.Supports.indicator c.1) u\n    have ht := M6.RecipeIsometries.translation_isometry N\n      (M6.RecipeIsometries.multiply N u (M7.Supports.indicator c.2))\n      (M6.RecipeIsometries.multiply N u (M7.Supports.indicator c.1)) s t\n    have he := M6.RecipeIsometries.exchange_isometry N (M7.Supports.indicator c.1) (M7.Supports.indicator c.2)\n    simp only [M7.Transport.Xmap, M7.Transport.BX, M7.Transport.CX, M7.Action.act,\n      Bool.false_eq_true, Bool.true_eq_false, reduceIte, M7.Transport.affine_indicator]\n    refine ⟨ht.1.comp (hm.1.comp he.1), ?_⟩\n    intro v\n    have htV := ht.2 (M6.RecipeIsometries.multiplier N u (M6.RecipeIsometries.blockExchange N v))\n    have hmV := hm.2 (M6.RecipeIsometries.blockExchange N v)\n    have heV := he.2 v\n    exact ⟨htV.1.trans (hmV.1.trans heV.1), htV.2.1.trans (hmV.2.1.trans heV.2.1), htV.2.2.trans (hmV.2.2.trans heV.2.2)⟩",
+          "imports": [
+            "M7Transport"
+          ],
+          "name": "M7.Transport.action_isometry",
+          "ancestors": [
+            "affine_indicator"
+          ],
+          "spec_sha256": "631788b3bfc43ed57915c2568a86ce43e47314bbf9a0b893f7481ee95b7ad6db"
+        },
+        "sha256": "329193dde7b16a5dc33f57c005bf66b39fd0b8ecdbdd28a6ae9d209704fa7fef"
+      }
+    }
+  }
+}

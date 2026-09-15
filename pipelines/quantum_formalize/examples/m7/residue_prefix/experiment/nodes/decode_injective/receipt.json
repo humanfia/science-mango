@@ -1,0 +1,69 @@
+{
+  "id": "decode_injective",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.ResiduePrefix.decode_injective",
+    "spec_sha256": "2d7eaf62aa7552705a2e6b74e747565ea2082f4e40c633ac35dc210b21fe03b8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-ifpyg1pn/attempt-001/Candidate_7187b4d3c41b3b04.lean",
+        "target_path": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-ifpyg1pn/attempt-001/FrozenTarget_7187b4d3c41b3b04.lean",
+        "feedback": "",
+        "target_sha256": "2a37732a47476a3957f1136e611dc6c8807de11f27e25420b9d43d281c792c6f",
+        "target_olean_sha256": "1d6373dcade8c063ffab2284819c5eb2292fc8338254a5f94d9b8146fa831d17",
+        "source_sha256": "2ebc4910c702026574a026720fadad437837f2cd6e6c7b6093e2eb9ec04778b2",
+        "olean_sha256": "020191077c93fe3e1cb0b4e8aacf859eaa325edddf48ebfe272137a3a43aa1c2",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:13:06.378999+00:00",
+    "work": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-ifpyg1pn",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c3d2b109a17f1b7b9f61c1de46ae4a1bdbf90f987db30b50fbac08997da49016",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-residue-prefix-formalization/.humanize-formal-runs/run-ifpyg1pn/attempt-001/Candidate_7187b4d3c41b3b04.lean",
+    "environment_sha256": "e78a846400d0418deab7d7c51813437ed7aaa957b123576225aaac42728d66d6",
+    "artifacts": {
+      "nat_roundtrip": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.nat_roundtrip : ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A := by\n  change ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A\n  intro N inst A hA\n  classical\n  change (A.image (fun i : ℕ => (i : ZMod N))).image ZMod.val = A\n  rw [Finset.image_image]\n  ext n\n  simp only [Finset.mem_image, Function.comp_apply]\n  constructor\n  · rintro ⟨i, hi, he⟩\n    have hv : (i : ZMod N).val = i :=\n      ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hi))\n    rw [hv] at he\n    exact he ▸ hi\n  · intro hn\n    exact ⟨n, hn, ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hn))⟩",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.nat_roundtrip",
+          "ancestors": [],
+          "spec_sha256": "e3fa618babe7263e0d2dd2a7d6c1f59dfc040ad169814d6495cce5f95ee900d6"
+        },
+        "sha256": "2d00b30c8bfb508b933d501ed4ca04043089bb234b10c400276140b35ba2b9af"
+      },
+      "decode_injective": {
+        "payload": {
+          "declaration": "theorem M7.ResiduePrefix.decode_injective : ∀ (N : ℕ) [NeZero N], ∀ (x y : Finset ℕ × Finset ℕ), x.1 ⊆ Finset.range N → x.2 ⊆ Finset.range N → y.1 ⊆ Finset.range N → y.2 ⊆ Finset.range N → M7.ResiduePrefix.decodePair N x = M7.ResiduePrefix.decodePair N y → x = y := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (x y : Finset ℕ × Finset ℕ), x.1 ⊆ Finset.range N → x.2 ⊆ Finset.range N → y.1 ⊆ Finset.range N → y.2 ⊆ Finset.range N → M7.ResiduePrefix.decodePair N x = M7.ResiduePrefix.decodePair N y → x = y\n  intro N inst x y hx₁ hx₂ hy₁ hy₂ h\n  apply Prod.ext\n  · have h₁ := congrArg (fun p : Finset (ZMod N) × Finset (ZMod N) => M7.ResiduePrefix.encode p.1) h\n    change M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N x.1) = M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N y.1) at h₁\n    rw [M7.ResiduePrefix.nat_roundtrip N x.1 hx₁, M7.ResiduePrefix.nat_roundtrip N y.1 hy₁] at h₁\n    exact h₁\n  · have h₂ := congrArg (fun p : Finset (ZMod N) × Finset (ZMod N) => M7.ResiduePrefix.encode p.2) h\n    change M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N x.2) = M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N y.2) at h₂\n    rw [M7.ResiduePrefix.nat_roundtrip N x.2 hx₂, M7.ResiduePrefix.nat_roundtrip N y.2 hy₂] at h₂\n    exact h₂",
+          "imports": [
+            "M7ResiduePrefix"
+          ],
+          "name": "M7.ResiduePrefix.decode_injective",
+          "ancestors": [
+            "nat_roundtrip"
+          ],
+          "spec_sha256": "fcf2635ef106aa282b423a05a5dc5362fcea93418fe0f5d3d610d38f9321b9ec"
+        },
+        "sha256": "53924aae5d7f956c1a77530d65693b75c4a3f8602c259444ec6bb2d1f3398d9d"
+      }
+    }
+  }
+}

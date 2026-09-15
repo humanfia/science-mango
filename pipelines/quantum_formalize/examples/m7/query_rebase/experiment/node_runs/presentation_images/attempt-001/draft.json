@@ -1,0 +1,4 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro H N inst q bases moves placed\nhave himages (bs : M7.GlobalQuery.Family H N) :\n    (∃ x : M7.GlobalQuery.Index H N,\n      M7.GlobalQuery.present q bs x ∧ M7.GlobalQuery.realize bs x = placed) ↔\n    (∃ x ∈ M7.GlobalQuery.winners q bs,\n      M7.GlobalQuery.realize bs x = placed) := by\n  constructor\n  · rintro ⟨x, hx, hp⟩\n    exact ⟨x, (M7.GlobalQuery.presentation_sound H N q bs x hx).1, hp⟩\n  · rintro ⟨x, hx, hp⟩\n    obtain ⟨g, ⟨hg, heq⟩, _⟩ :=\n      M7.GlobalQuery.same_class_presentation H N q bs x hx\n    refine ⟨(x.1, g), hg, ?_⟩\n    change M7.Action.act g (bs x.1) = placed\n    exact heq.trans hp\nexact (himages (M7.QueryRebase.rebase bases moves)).trans\n  ((M7.QueryRebase.winner_images H N q bases moves placed).trans\n    (himages bases).symm)",
+  "queries": []
+}

@@ -1,0 +1,12 @@
+{
+  "name": "M7.SignatureTau.reduced_image",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M6.Cyclic.image N (M7.SignatureTau.reduced u F) = M7.QuotientAuto.substitution u (M6.Cyclic.image N F)",
+  "imports": [
+    "M7SignatureTau"
+  ],
+  "context": "theorem M7.SignatureTau.modulus_monic : ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic := by\n  change ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic\n  intro N inst\n  change (Polynomial.X ^ N + 1 : Polynomial (ZMod 2)).Monic\n  simpa only [Polynomial.C_1] using\n    (Polynomial.monic_X_pow_add_C (1 : ZMod 2) (NeZero.ne N))",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "AdjoinRoot.modByMonicHom_mk and AdjoinRoot.mk_leftInverse for the proved monic modulus show remainder has same quotient image. Then apply accepted QuotientAuto.polynomial_substitution. Actual substitution, not arbitrary automorphism. Return tactic lines only without leading by."
+}

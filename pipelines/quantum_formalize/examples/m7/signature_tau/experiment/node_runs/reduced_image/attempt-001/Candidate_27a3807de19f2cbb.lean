@@ -1,0 +1,9 @@
+import FrozenTarget_27a3807de19f2cbb
+theorem M7.SignatureTau.reduced_image : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M6.Cyclic.image N (M7.SignatureTau.reduced u F) = M7.QuotientAuto.substitution u (M6.Cyclic.image N F)
+  intro N inst u F
+  rw [← M7.QuotientAuto.polynomial_substitution N u F]
+  change AdjoinRoot.mk (M6.Cyclic.modulus N) ((F.comp (Polynomial.X ^ (u : ZMod N).val)) %ₘ M6.Cyclic.modulus N) = AdjoinRoot.mk (M6.Cyclic.modulus N) (F.comp (Polynomial.X ^ (u : ZMod N).val))
+  simpa only [AdjoinRoot.modByMonicHom_mk] using
+    (AdjoinRoot.mk_leftInverse (M7.SignatureTau.modulus_monic N)
+      (AdjoinRoot.mk (M6.Cyclic.modulus N) (F.comp (Polynomial.X ^ (u : ZMod N).val))))

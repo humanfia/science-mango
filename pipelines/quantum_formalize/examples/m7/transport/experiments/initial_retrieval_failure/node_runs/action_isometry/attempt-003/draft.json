@@ -1,0 +1,8 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro N inst g c\nclassical\nhave ht := M6.RecipeIsometries.translation_isometry N\nhave hm := M6.RecipeIsometries.multiplier_isometry N\nhave he := M6.RecipeIsometries.exchange_isometry N\nhave hc : ∀ (f h : M6.Pinned.Vector (2*N) → M6.Pinned.Vector (2*N)),\n    Function.Bijective f → Function.Bijective h →\n    Function.Bijective (fun v => f (h v)) := by\n  intro f h hf hh\n  exact hf.comp hh\nsimp only [M7.Transport.Xmap, M7.Transport.BX, M7.Transport.CX,\n  M7.Action.act]\nsplit_ifs <;>\n  (try simp only [M7.Transport.affine_indicator]) <;>\n  grind only [ht, hm, he, hc]",
+  "queries": [
+    "M6.RecipeIsometries.translation_isometry full statement",
+    "M6.RecipeIsometries.multiplier_isometry exchange_isometry full statements",
+    "M7.Transport.Xmap M7.Action.act definition bodies"
+  ]
+}

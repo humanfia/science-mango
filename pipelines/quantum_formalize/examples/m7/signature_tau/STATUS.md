@@ -1,0 +1,1 @@
+Accepted:10/10, assembly/environment true, canonical experiment196 files verified. Concrete actual RingEquiv, reduced-source tau equivalence and full-multiplicity composition/inverse complete. No active model remains in this batch.

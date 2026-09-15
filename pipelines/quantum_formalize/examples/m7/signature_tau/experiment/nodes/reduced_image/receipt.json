@@ -1,0 +1,69 @@
+{
+  "id": "reduced_image",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.SignatureTau.reduced_image",
+    "spec_sha256": "dc9022c36efa42ef3211883043889a9dd2df72a1232693882c59ecc9a8c7b487",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-signature-tau-formalization/.humanize-formal-runs/run-hnz_6pw2/attempt-001/Candidate_27a3807de19f2cbb.lean",
+        "target_path": "/home/jing/m7-lean-signature-tau-formalization/.humanize-formal-runs/run-hnz_6pw2/attempt-001/FrozenTarget_27a3807de19f2cbb.lean",
+        "feedback": "",
+        "target_sha256": "15e9848d2bf48a6ad4d586f636f5ca1ede1d24bb7fa6e75da189fbe4967ecf95",
+        "target_olean_sha256": "810a25aaf02a8664dc2ce83a3f7b94fa19abcf2a1d25b6e1017a6d5e1aba0f56",
+        "source_sha256": "811cc13eda8832905abf66c31b60fef9e9376e01610277d60e0a1b32b0ebbb95",
+        "olean_sha256": "0c466e2e2cda2fc409c8b235c08e55633a77d6ef1e5e5c755a06e0f4a39a9018",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:05:12.966186+00:00",
+    "work": "/home/jing/m7-lean-signature-tau-formalization/.humanize-formal-runs/run-hnz_6pw2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "eb3e0effbbd15df2d795c04cf906c629b03051d1c1e0cd1538cc823532153a45",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-signature-tau-formalization/.humanize-formal-runs/run-hnz_6pw2/attempt-001/Candidate_27a3807de19f2cbb.lean",
+    "environment_sha256": "5c578b4fd7c2b60f5c85e2bb2cb86095fbd9a171b1b00d61a9122da335c0d496",
+    "artifacts": {
+      "modulus_monic": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.modulus_monic : ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic := by\n  change ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic\n  intro N inst\n  change (Polynomial.X ^ N + 1 : Polynomial (ZMod 2)).Monic\n  simpa only [Polynomial.C_1] using\n    (Polynomial.monic_X_pow_add_C (1 : ZMod 2) (NeZero.ne N))",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.modulus_monic",
+          "ancestors": [],
+          "spec_sha256": "3bb49e19e737c9b5c73f3e22ae40358e87a16c5372689335480729845e4e7b0a"
+        },
+        "sha256": "48245c7bf0721b4d2a250aee32a8e1815fb858f572c46cb55c93b9f91d2a5c93"
+      },
+      "reduced_image": {
+        "payload": {
+          "declaration": "theorem M7.SignatureTau.reduced_image : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M6.Cyclic.image N (M7.SignatureTau.reduced u F) = M7.QuotientAuto.substitution u (M6.Cyclic.image N F) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), M6.Cyclic.image N (M7.SignatureTau.reduced u F) = M7.QuotientAuto.substitution u (M6.Cyclic.image N F)\n  intro N inst u F\n  rw [← M7.QuotientAuto.polynomial_substitution N u F]\n  change AdjoinRoot.mk (M6.Cyclic.modulus N) ((F.comp (Polynomial.X ^ (u : ZMod N).val)) %ₘ M6.Cyclic.modulus N) = AdjoinRoot.mk (M6.Cyclic.modulus N) (F.comp (Polynomial.X ^ (u : ZMod N).val))\n  simpa only [AdjoinRoot.modByMonicHom_mk] using\n    (AdjoinRoot.mk_leftInverse (M7.SignatureTau.modulus_monic N)\n      (AdjoinRoot.mk (M6.Cyclic.modulus N) (F.comp (Polynomial.X ^ (u : ZMod N).val))))",
+          "imports": [
+            "M7SignatureTau"
+          ],
+          "name": "M7.SignatureTau.reduced_image",
+          "ancestors": [
+            "modulus_monic"
+          ],
+          "spec_sha256": "bcb6a7ba758d8fd5503a24d89d86c946eb7e2a7f01a287a1338fbabf9772d8ed"
+        },
+        "sha256": "13b23d42f7c781a565eb3730c470d92498e7cfafe7c11ae06418f4c46ca032f3"
+      }
+    }
+  }
+}

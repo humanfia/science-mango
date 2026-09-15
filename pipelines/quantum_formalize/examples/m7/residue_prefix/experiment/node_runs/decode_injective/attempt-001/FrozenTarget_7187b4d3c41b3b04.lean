@@ -1,0 +1,20 @@
+import M7ResiduePrefix
+
+theorem M7.ResiduePrefix.nat_roundtrip : ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A := by
+  change ∀ (N : ℕ) [NeZero N], ∀ A : Finset ℕ, A ⊆ Finset.range N → M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N A) = A
+  intro N inst A hA
+  classical
+  change (A.image (fun i : ℕ => (i : ZMod N))).image ZMod.val = A
+  rw [Finset.image_image]
+  ext n
+  simp only [Finset.mem_image, Function.comp_apply]
+  constructor
+  · rintro ⟨i, hi, he⟩
+    have hv : (i : ZMod N).val = i :=
+      ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hi))
+    rw [hv] at he
+    exact he ▸ hi
+  · intro hn
+    exact ⟨n, hn, ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hn))⟩
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N : ℕ) [NeZero N], ∀ (x y : Finset ℕ × Finset ℕ), x.1 ⊆ Finset.range N → x.2 ⊆ Finset.range N → y.1 ⊆ Finset.range N → y.2 ⊆ Finset.range N → M7.ResiduePrefix.decodePair N x = M7.ResiduePrefix.decodePair N y → x = y

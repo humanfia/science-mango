@@ -1,0 +1,7 @@
+{
+  "proof": "by\n  classical\n  intro N inst A hA\n  change (A.image (fun i : ℕ => (i : ZMod N))).image ZMod.val = A\n  rw [Finset.image_image]\n  ext i\n  simp only [Finset.mem_image]\n  constructor\n  · rintro ⟨j, hj, hji⟩\n    have hv : (j : ZMod N).val = j :=\n      ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hj))\n    change (j : ZMod N).val = i at hji\n    rw [hv] at hji\n    exact hji ▸ hj\n  · intro hi\n    refine ⟨i, hi, ?_⟩\n    exact ZMod.val_natCast_of_lt (Finset.mem_range.mp (hA hi))",
+  "queries": [
+    "ZMod.val_natCast_of_lt",
+    "Finset.image_image"
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro H N inst q bases moves x\nrw [(M7.GlobalQuery.winners_exact H N q (M7.QueryRebase.rebase bases moves)).1 x,\n  (M7.GlobalQuery.winners_exact H N q bases).1 (M7.QueryRebase.reparam moves x)]\nhave hx := M7.QueryRebase.feasible_objective H N q bases moves x\nconstructor\n· rintro ⟨hfx, hopt⟩\n  refine ⟨hx.1.mp hfx, ?_⟩\n  intro y hfy\n  obtain ⟨z, rfl⟩ := (M7.QueryRebase.reparameterization H N moves).2.2.2 y\n  have hz := M7.QueryRebase.feasible_objective H N q bases moves z\n  have h := hopt z (hz.1.mpr hfy)\n  simpa only [hz.2, hx.2] using h\n· rintro ⟨hfx, hopt⟩\n  refine ⟨hx.1.mpr hfx, ?_⟩\n  intro y hfy\n  have hy := M7.QueryRebase.feasible_objective H N q bases moves y\n  rw [hy.2, hx.2]\n  exact hopt (M7.QueryRebase.reparam moves y) (hy.1.mp hfy)",
+  "queries": []
+}

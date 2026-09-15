@@ -1,0 +1,9 @@
+import FrozenTarget_e1c42221ac40a6aa
+theorem M7.SignatureTau.tau_inverse : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ M6.Cyclic.modulus N → (M7.SignatureTau.tau (u⁻¹) (M7.SignatureTau.tau u F) = F ∧ M7.SignatureTau.tau u (M7.SignatureTau.tau (u⁻¹) F) = F)
+  intro N inst u F hF hdiv
+  constructor
+  · rw [M7.SignatureTau.tau_comp N u (u⁻¹) F hF hdiv, inv_mul_cancel]
+    exact M7.SignatureTau.tau_one N F hF hdiv
+  · rw [M7.SignatureTau.tau_comp N (u⁻¹) u F hF hdiv, mul_inv_cancel]
+    exact M7.SignatureTau.tau_one N F hF hdiv

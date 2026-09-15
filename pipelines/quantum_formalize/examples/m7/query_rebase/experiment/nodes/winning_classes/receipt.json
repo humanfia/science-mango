@@ -1,0 +1,141 @@
+{
+  "id": "winning_classes",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.QueryRebase.winning_classes",
+    "spec_sha256": "cb99563ac04a8ced36672d08959e561671ee5254b0b79dfcd4ac376b3626f85a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-query-rebase-formalization/.humanize-formal-runs/run-lidclwjw/attempt-001/Candidate_25068b738c820c3a.lean",
+        "target_path": "/home/jing/m7-lean-query-rebase-formalization/.humanize-formal-runs/run-lidclwjw/attempt-001/FrozenTarget_25068b738c820c3a.lean",
+        "feedback": "",
+        "target_sha256": "9996262c5204a114fc89e0e95eb9eb172c19a6eb4cfe128d8be71897dca70d1e",
+        "target_olean_sha256": "92dcc9210fd3a7dadbacf42e47a63b80394aa6d9d2e042a78d81cdf2cb8cc9a4",
+        "source_sha256": "60c9c5fe438bd67c5e7c622b71b5531f23f4b06c98a67848a9aa7fe57a6e1ffc",
+        "olean_sha256": "23b3199130fe382e1d207b5b90c6b507bf9ee7727c307fe6a7ae3d489afc76cc",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:23:36.578842+00:00",
+    "work": "/home/jing/m7-lean-query-rebase-formalization/.humanize-formal-runs/run-lidclwjw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d9ac55d6bc100179bffdb98f7aa1477214b1e9f47507420b309aa2bd06ded6af",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-query-rebase-formalization/.humanize-formal-runs/run-lidclwjw/attempt-001/Candidate_25068b738c820c3a.lean",
+    "environment_sha256": "8cb5c2daf1903aa085341d2896827fcc979d7b7283761c37e9e767ba97c0f0c9",
+    "artifacts": {
+      "reparameterization": {
+        "payload": {
+          "declaration": "theorem M7.QueryRebase.reparameterization : ∀ (H N : ℕ) [NeZero N] (moves : Fin H → M7.Action.Record N), (∀ x : M7.GlobalQuery.Index H N, M7.QueryRebase.undo moves (M7.QueryRebase.reparam moves x) = x) ∧ (∀ x : M7.GlobalQuery.Index H N, M7.QueryRebase.reparam moves (M7.QueryRebase.undo moves x) = x) ∧ Function.Bijective (M7.QueryRebase.reparam moves) := by\n  intro H N inst moves\n  have hundo : ∀ x : M7.GlobalQuery.Index H N,\n      M7.QueryRebase.undo moves (M7.QueryRebase.reparam moves x) = x := by\n    rintro ⟨i, g⟩\n    simp [M7.QueryRebase.undo, M7.QueryRebase.reparam,\n      M7.Action.associative, M7.Action.right_inverse,\n      M7.Action.left_inverse, M7.Action.right_identity]\n  have hreparam : ∀ x : M7.GlobalQuery.Index H N,\n      M7.QueryRebase.reparam moves (M7.QueryRebase.undo moves x) = x := by\n    rintro ⟨i, g⟩\n    simp [M7.QueryRebase.undo, M7.QueryRebase.reparam,\n      M7.Action.associative, M7.Action.right_inverse,\n      M7.Action.left_inverse, M7.Action.right_identity]\n  refine ⟨hundo, hreparam, ?_, ?_⟩\n  · intro x y h\n    calc\n      x = M7.QueryRebase.undo moves (M7.QueryRebase.reparam moves x) := (hundo x).symm\n      _ = M7.QueryRebase.undo moves (M7.QueryRebase.reparam moves y) := congrArg (M7.QueryRebase.undo moves) h\n      _ = y := hundo y\n  · intro y\n    exact ⟨M7.QueryRebase.undo moves y, hreparam y⟩",
+          "imports": [
+            "M7ActionAccepted",
+            "M7GlobalQueryAccepted",
+            "M7QueryRebase"
+          ],
+          "name": "M7.QueryRebase.reparameterization",
+          "ancestors": [],
+          "spec_sha256": "a51510947a12d8ffeee60a0662c840299950d122a73a71d19decae030d328d94"
+        },
+        "sha256": "93c906807a4d93dcdafecfc7ca2692ccbb95341f791eeca63ba5bd657acf0977"
+      },
+      "realize_reparam": {
+        "payload": {
+          "declaration": "theorem M7.QueryRebase.realize_reparam : ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.realize (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.realize bases (M7.QueryRebase.reparam moves x) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (H N : ℕ) [NeZero N] (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.realize (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.realize bases (M7.QueryRebase.reparam moves x)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro H N inst bases moves x\n  simpa only [M7.QueryRebase.rebase, M7.QueryRebase.reparam, M7.GlobalQuery.realize] using\n    (M7.Action.act_compose N x.2 (moves x.1) (bases x.1)).symm",
+          "imports": [
+            "M7ActionAccepted",
+            "M7GlobalQueryAccepted",
+            "M7QueryRebase"
+          ],
+          "name": "M7.QueryRebase.realize_reparam",
+          "ancestors": [],
+          "spec_sha256": "b57686e2cbe4152fafde840e5041626dd175725f44359813c96c854bb5a4702c"
+        },
+        "sha256": "28c8f61566873d78d5f5bda5a6c3f427a2403d81fb1c613324cec2eebdf04d58"
+      },
+      "sector_base": {
+        "payload": {
+          "declaration": "theorem M7.QueryRebase.sector_base : ∀ (N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N) (g : M7.Action.Record N), (M7.DefaultQuery.sectorTest q (M7.Action.act g base) placed ↔ M7.DefaultQuery.sectorTest q base placed) := by\n  intro N inst q base placed g\n  cases hmode : q.sectorMode <;> simp only [M7.DefaultQuery.sectorTest, hmode]\n  all_goals\n    first\n    | exact Iff.rfl\n    | constructor\n      · rintro ⟨h, hh⟩\n        refine ⟨M7.Action.compose h g, ?_⟩\n        simpa only [M7.Action.act_compose] using hh\n      · rintro ⟨h, hh⟩\n        refine ⟨M7.Action.compose h (M7.Action.inverse g), ?_⟩\n        simpa only [M7.Action.act_compose, M7.Action.act_inverse] using hh",
+          "imports": [
+            "M7ActionAccepted",
+            "M7GlobalQueryAccepted",
+            "M7QueryRebase"
+          ],
+          "name": "M7.QueryRebase.sector_base",
+          "ancestors": [],
+          "spec_sha256": "beaa25ad517b96c5c46ea0338971715646e6cd5462b63bd3479274c482d767c5"
+        },
+        "sha256": "f6383483ae920650585055b9a25887c7c8d7544cd431af4fbb9108c99c2093d7"
+      },
+      "feasible_objective": {
+        "payload": {
+          "declaration": "theorem M7.QueryRebase.feasible_objective : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), (M7.GlobalQuery.feasible q (M7.QueryRebase.rebase bases moves) x ↔ M7.GlobalQuery.feasible q bases (M7.QueryRebase.reparam moves x)) ∧ M7.GlobalQuery.objective q (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.objective q bases (M7.QueryRebase.reparam moves x) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), (M7.GlobalQuery.feasible q (M7.QueryRebase.rebase bases moves) x ↔ M7.GlobalQuery.feasible q bases (M7.QueryRebase.reparam moves x)) ∧ M7.GlobalQuery.objective q (M7.QueryRebase.rebase bases moves) x = M7.GlobalQuery.objective q bases (M7.QueryRebase.reparam moves x)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro H N inst q bases moves x\n  constructor\n  · unfold M7.GlobalQuery.feasible\n    rw [M7.QueryRebase.realize_reparam]\n    simp only [M7.DefaultQuery.feasible, M7.QueryRebase.rebase,\n      M7.QueryRebase.reparam, M7.QueryRebase.sector_base]\n  · unfold M7.GlobalQuery.objective\n    rw [M7.QueryRebase.realize_reparam]",
+          "imports": [
+            "M7ActionAccepted",
+            "M7GlobalQueryAccepted",
+            "M7QueryRebase"
+          ],
+          "name": "M7.QueryRebase.feasible_objective",
+          "ancestors": [
+            "realize_reparam",
+            "sector_base"
+          ],
+          "spec_sha256": "1700b79c73091c467b3eaf85f8a3aa4412212d8d20a072d47cf46de99b923063"
+        },
+        "sha256": "38ae21122fb944146317886736847aefa0f36f899c2c8a0f682cda3f71ba8f0a"
+      },
+      "winners_reparam": {
+        "payload": {
+          "declaration": "theorem M7.QueryRebase.winners_reparam : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), x ∈ M7.GlobalQuery.winners q (M7.QueryRebase.rebase bases moves) ↔ (M7.QueryRebase.reparam moves x) ∈ M7.GlobalQuery.winners q bases := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N) (x : M7.GlobalQuery.Index H N), x ∈ M7.GlobalQuery.winners q (M7.QueryRebase.rebase bases moves) ↔ (M7.QueryRebase.reparam moves x) ∈ M7.GlobalQuery.winners q bases\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro H N inst q bases moves x\n  rw [(M7.GlobalQuery.winners_exact H N q (M7.QueryRebase.rebase bases moves)).1 x,\n    (M7.GlobalQuery.winners_exact H N q bases).1 (M7.QueryRebase.reparam moves x)]\n  have hx := M7.QueryRebase.feasible_objective H N q bases moves x\n  constructor\n  · rintro ⟨hfx, hopt⟩\n    refine ⟨hx.1.mp hfx, ?_⟩\n    intro y hfy\n    obtain ⟨z, rfl⟩ := (M7.QueryRebase.reparameterization H N moves).2.2.2 y\n    have hz := M7.QueryRebase.feasible_objective H N q bases moves z\n    have h := hopt z (hz.1.mpr hfy)\n    simpa only [hz.2, hx.2] using h\n  · rintro ⟨hfx, hopt⟩\n    refine ⟨hx.1.mpr hfx, ?_⟩\n    intro y hfy\n    have hy := M7.QueryRebase.feasible_objective H N q bases moves y\n    rw [hy.2, hx.2]\n    exact hopt (M7.QueryRebase.reparam moves y) (hy.1.mp hfy)",
+          "imports": [
+            "M7ActionAccepted",
+            "M7GlobalQueryAccepted",
+            "M7QueryRebase"
+          ],
+          "name": "M7.QueryRebase.winners_reparam",
+          "ancestors": [
+            "feasible_objective",
+            "realize_reparam",
+            "reparameterization",
+            "sector_base"
+          ],
+          "spec_sha256": "ac1685ed6ba5d8f84133abeb5521f01e663d0922272d4f1e8224472e70c979fe"
+        },
+        "sha256": "409fe98510dde60bd4c7cf1b6947e295680ac8e24f48c50fa64f0fe0eb944bd6"
+      },
+      "winning_classes": {
+        "payload": {
+          "declaration": "theorem M7.QueryRebase.winning_classes : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N), M7.GlobalQuery.winningClasses q (M7.QueryRebase.rebase bases moves) = M7.GlobalQuery.winningClasses q bases := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (moves : Fin H → M7.Action.Record N), M7.GlobalQuery.winningClasses q (M7.QueryRebase.rebase bases moves) = M7.GlobalQuery.winningClasses q bases\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro H N inst q bases moves\n  apply Finset.ext\n  intro i\n  rw [M7.GlobalQuery.winning_classes H N q (M7.QueryRebase.rebase bases moves) i,\n    M7.GlobalQuery.winning_classes H N q bases i]\n  constructor\n  · rintro ⟨g, hg⟩\n    refine ⟨(M7.QueryRebase.reparam moves (i, g)).2, ?_⟩\n    exact (M7.QueryRebase.winners_reparam H N q bases moves (i, g)).mp hg\n  · rintro ⟨g, hg⟩\n    refine ⟨(M7.QueryRebase.undo moves (i, g)).2, ?_⟩\n    change M7.QueryRebase.undo moves (i, g) ∈ M7.GlobalQuery.winners q (M7.QueryRebase.rebase bases moves)\n    apply (M7.QueryRebase.winners_reparam H N q bases moves (M7.QueryRebase.undo moves (i, g))).mpr\n    rw [(M7.QueryRebase.reparameterization H N moves).2.1 (i, g)]\n    exact hg",
+          "imports": [
+            "M7ActionAccepted",
+            "M7GlobalQueryAccepted",
+            "M7QueryRebase"
+          ],
+          "name": "M7.QueryRebase.winning_classes",
+          "ancestors": [
+            "feasible_objective",
+            "realize_reparam",
+            "reparameterization",
+            "sector_base",
+            "winners_reparam"
+          ],
+          "spec_sha256": "88524e0a5984bd70c3234906d454b71ce087297c227dc33368e5d45259b37923"
+        },
+        "sha256": "b983639fd91521744a21a94982de28ea66b0d3f2646326daba7958d98b68427e"
+      }
+    }
+  }
+}

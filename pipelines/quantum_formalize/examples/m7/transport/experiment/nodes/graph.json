@@ -1,0 +1,181 @@
+[
+  {
+    "id": "affine_indicator",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.Transport.affine_indicator",
+      "statement": "∀ (N : ℕ) [NeZero N] (A : M7.Supports.Support N) (u : (ZMod N)ˣ) (s : ZMod N), M7.Supports.indicator (A.image (M7.Action.affine u s)) = M6.RecipeIsometries.shift N s (M6.RecipeIsometries.multiply N u (M7.Supports.indicator A))",
+      "imports": [
+        "M7Transport"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image membership bijection",
+        "Function Bijective composition finite image minimum"
+      ],
+      "guidance": "Extensionality; image membership equivalent to u⁻¹*(i-s)∈A, since units act invertibly. Respect existing multiply pullback and shift conventions. Return tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ACTUAL_DISTANCE_WITNESS_ACTION",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "action_isometry",
+    "dependencies": [
+      "affine_indicator"
+    ],
+    "spec": {
+      "name": "M7.Transport.action_isometry",
+      "statement": "∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Transport.Recipe N), Function.Bijective (M7.Transport.Xmap g) ∧ ∀ v : M6.Pinned.Vector (2*N), (M7.Transport.Xmap g v ∈ M7.Transport.BX (M7.Action.act g c) ↔ v ∈ M7.Transport.BX c) ∧ (M7.Transport.Xmap g v ∈ M7.Transport.CX (M7.Action.act g c) ↔ v ∈ M7.Transport.CX c) ∧ M6.Pinned.weight (M7.Transport.Xmap g v) = M6.Pinned.weight v",
+      "imports": [
+        "M7Transport"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image membership bijection",
+        "Function Bijective composition finite image minimum"
+      ],
+      "guidance": "Compose existing M6 translation_isometry, multiplier_isometry, exchange_isometry; cases exchange Boolean. affine_indicator rewrites exact block indicators. Do not reprove convolution or introduce generic isometry premises. Return tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ACTUAL_DISTANCE_WITNESS_ACTION",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "x_logical",
+    "dependencies": [
+      "action_isometry"
+    ],
+    "spec": {
+      "name": "M7.Transport.x_logical",
+      "statement": "∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Transport.Recipe N), ∀ v : M6.Pinned.Vector (2*N), (M7.Transport.Xmap g v ∈ M7.Transport.LX (M7.Action.act g c) ↔ v ∈ M7.Transport.LX c)",
+      "imports": [
+        "M7Transport"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image membership bijection",
+        "Function Bijective composition finite image minimum"
+      ],
+      "guidance": "Unfold LX and Finset.mem_sdiff; action_isometry supplies both equivalences. Return tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ACTUAL_DISTANCE_WITNESS_ACTION",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "z_logical",
+    "dependencies": [
+      "x_logical",
+      "action_isometry"
+    ],
+    "spec": {
+      "name": "M7.Transport.z_logical",
+      "statement": "∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Transport.Recipe N), Function.Bijective (M7.Transport.Zmap g) ∧ ∀ v : M6.Pinned.Vector (2*N), (M7.Transport.Zmap g v ∈ M7.Transport.LZ (M7.Action.act g c) ↔ v ∈ M7.Transport.LZ c) ∧ M6.Pinned.weight (M7.Transport.Zmap g v) = M6.Pinned.weight v ∧ M7.Transport.Zmap g (M6.Flatten.J N v) = M6.Flatten.J N (M7.Transport.Xmap g v)",
+      "imports": [
+        "M7Transport"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image membership bijection",
+        "Function Bijective composition finite image minimum"
+      ],
+      "guidance": "Use M6.ActualCSS.J_logical_iff, J_involution,J_weight and x_logical. Zmap must be J conjugate, not same translation as Xmap. Return tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ACTUAL_DISTANCE_WITNESS_ACTION",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "weight_sets",
+    "dependencies": [
+      "x_logical",
+      "action_isometry"
+    ],
+    "spec": {
+      "name": "M7.Transport.weight_sets",
+      "statement": "∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Transport.Recipe N), (M7.Transport.LX (M7.Action.act g c)).image M6.Pinned.weight = (M7.Transport.LX c).image M6.Pinned.weight",
+      "imports": [
+        "M7Transport"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image membership bijection",
+        "Function Bijective composition finite image minimum"
+      ],
+      "guidance": "Two image inclusions. Forward use actual Xmap surjectivity then logical iff; reverse use its image and exact weight equality. Return tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ACTUAL_DISTANCE_WITNESS_ACTION",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "distance_invariant",
+    "dependencies": [
+      "weight_sets",
+      "action_isometry"
+    ],
+    "spec": {
+      "name": "M7.Transport.distance_invariant",
+      "statement": "∀ (N : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Transport.Recipe N), M7.Transport.distance (M7.Action.act g c) = M7.Transport.distance c",
+      "imports": [
+        "M7Transport"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image membership bijection",
+        "Function Bijective composition finite image minimum"
+      ],
+      "guidance": "Unfold actual physical distance and rewrite polynomial coefficients to indicators using Domain.coefficients_indicator; apply accepted ActualCSS.common_quantum_distance. LogicalWords is CX\\BX. Pinned.distance is none for empty, otherwise min of weight image. Equal weight image implies equal nonemptiness and min. Preserve none behavior. Return tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ACTUAL_DISTANCE_WITNESS_ACTION",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "actual_witness",
+    "dependencies": [
+      "distance_invariant",
+      "x_logical",
+      "z_logical",
+      "action_isometry"
+    ],
+    "spec": {
+      "name": "M7.Transport.actual_witness",
+      "statement": "∀ (N w : ℕ) [NeZero N] (g : M7.Action.Record N) (c : M7.Transport.Recipe N) (d k : ℕ) (v : M6.Pinned.Vector (2*N)), c.1.card = w → c.2.card = w → (0 : ZMod N) ∈ c.1 → (0 : ZMod N) ∈ c.2 → M7.Domain.connectivityGcd c.1 c.2 = 1 → M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) = some (d,v,k) → M7.Transport.distance (M7.Action.act g c) = some d ∧ M7.Transport.Xmap g v ∈ M7.Transport.LX (M7.Action.act g c) ∧ M6.Pinned.weight (M7.Transport.Xmap g v) = d ∧ M6.Flatten.J N (M7.Transport.Xmap g v) ∈ M7.Transport.LZ (M7.Action.act g c) ∧ M6.Pinned.weight (M6.Flatten.J N (M7.Transport.Xmap g v)) = d ∧ k ≤ 2*N",
+      "imports": [
+        "M7Transport"
+      ],
+      "context": "",
+      "queries": [
+        "Finset image membership bijection",
+        "Function Bijective composition finite image minimum"
+      ],
+      "guidance": "Domain.admissible gives actual M6 domain. M6.Final.answer_correct actual solve clause gives distance, logical X and J witnesses and k bound. Rewrite Domain.coefficients_indicator; apply action maps, distance_invariant and J_logical_iff. No need target presentation anchored; do not add domain or oracle premises. Return tactic lines without leading by; preserve exact target."
+    },
+    "metadata": {
+      "supports_obligation": "M7_ACTUAL_DISTANCE_WITNESS_ACTION",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  }
+]

@@ -1,0 +1,17 @@
+theorem M7.CanonicalOuter.keyset_action : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.keyset (M7.Action.act g c) = M7.CanonicalOuter.keyset c := by
+  change ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.keyset (M7.Action.act g c) = M7.CanonicalOuter.keyset c
+  intro N inst g c
+  classical
+  rw [M7.CanonicalOuter.keyset_all_records N (M7.Action.act g c), M7.CanonicalOuter.keyset_all_records N c]
+  ext k
+  constructor
+  · intro hk
+    rcases Finset.mem_image.mp hk with ⟨h, _, hkey⟩
+    refine Finset.mem_image.mpr ⟨M7.Action.compose h g, Finset.mem_univ _, ?_⟩
+    rw [M7.Action.act_compose N h g c]
+    exact hkey
+  · intro hk
+    rcases Finset.mem_image.mp hk with ⟨h, _, hkey⟩
+    refine Finset.mem_image.mpr ⟨M7.Action.compose h (M7.Action.inverse g), Finset.mem_univ _, ?_⟩
+    rw [M7.Action.act_compose N h (M7.Action.inverse g) (M7.Action.act g c), M7.Action.act_inverse N g c]
+    exact hkey

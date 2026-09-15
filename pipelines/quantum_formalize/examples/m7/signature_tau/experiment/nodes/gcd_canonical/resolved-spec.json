@@ -1,0 +1,12 @@
+{
+  "name": "M7.SignatureTau.gcd_canonical",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ p : M6.Cyclic.BinaryPolynomial, (EuclideanDomain.gcd p (M6.Cyclic.modulus N)).Monic ∧ EuclideanDomain.gcd p (M6.Cyclic.modulus N) ∣ (M6.Cyclic.modulus N) ∧ EuclideanDomain.gcd (M6.Cyclic.modulus N) p = EuclideanDomain.gcd p (M6.Cyclic.modulus N)",
+  "imports": [
+    "M7SignatureTau"
+  ],
+  "context": "theorem M7.SignatureTau.binary_monic : ∀ F : M6.Cyclic.BinaryPolynomial, F ≠ 0 → F.Monic := by\n  change ∀ F : M6.Cyclic.BinaryPolynomial, F ≠ 0 → F.Monic\n  intro F hF\n  change F.leadingCoeff = 1\n  have hbinary : ∀ c : ZMod 2, c ≠ 0 → c = 1 := by decide\n  exact hbinary F.leadingCoeff (Polynomial.leadingCoeff_ne_zero.mpr hF)\n\ntheorem M7.SignatureTau.modulus_monic : ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic := by\n  change ∀ (N : ℕ) [NeZero N], (M6.Cyclic.modulus N).Monic\n  intro N inst\n  change (Polynomial.X ^ N + 1 : Polynomial (ZMod 2)).Monic\n  simpa only [Polynomial.C_1] using\n    (Polynomial.monic_X_pow_add_C (1 : ZMod 2) (NeZero.ne N))",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Both gcd orders are nonzero because modulus is monic and gcd_eq_zero_iff. Apply binary_monic. Divisibility is gcd_dvd_right. For swapped equality do not assume a generic EuclideanDomain gcd_comm theorem: prove mutual divisibility by dvd_gcd/gcd_dvd_left/right and use monic polynomial antisymmetry, e.g. Polynomial.eq_of_monic_of_dvd_of_natDegree_le. Return tactic lines only without leading by."
+}

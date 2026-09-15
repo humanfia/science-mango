@@ -1,0 +1,12 @@
+theorem M7.ResiduePrefix.count_completed : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → M7.PrefixSector.count N w E A B WA WB = (M7.ResiduePrefix.completed N w E A B WA WB).card := by
+  intro N inst w E A B WA WB hSector hBase
+  classical
+  have hcard : ((M7.PrefixCompleted.completed N w E A B WA WB).image (M7.ResiduePrefix.decodePair N)).card = (M7.PrefixCompleted.completed N w E A B WA WB).card := by
+    apply Finset.card_image_iff.mpr
+    intro x hx y hy hxy
+    obtain ⟨hx₁, hx₂⟩ := M7.ResiduePrefix.completed_bounds N w E A B WA WB hBase x hx
+    obtain ⟨hy₁, hy₂⟩ := M7.ResiduePrefix.completed_bounds N w E A B WA WB hBase y hy
+    exact M7.ResiduePrefix.decode_injective N x y hx₁ hx₂ hy₁ hy₂ hxy
+  change M7.PrefixSector.count N w E A B WA WB = ↑(((M7.PrefixCompleted.completed N w E A B WA WB).image (M7.ResiduePrefix.decodePair N)).card)
+  rw [hcard]
+  exact M7.PrefixCompleted.count_completed N w E A B WA WB (Nat.pos_of_ne_zero (NeZero.ne N)) hSector hBase

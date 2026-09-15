@@ -1,0 +1,282 @@
+{
+  "id": "orbit_complete",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalOuter.orbit_complete",
+    "spec_sha256": "059ea35334bc526b18ac27aca008fefd7193b5c5c971fdddd1416442f9abb4df",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-_688p3c9/attempt-001/Candidate_f18e963e784a3401.lean",
+        "target_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-_688p3c9/attempt-001/FrozenTarget_f18e963e784a3401.lean",
+        "feedback": "",
+        "target_sha256": "e396156f098f259c19e42552193afece790f9b68bb3cfc3a307fbe368c55bab5",
+        "target_olean_sha256": "297bb64a0f4cca7d2dab81ecf3b01e5d30e90af6df153621c6d55124a66bc1db",
+        "source_sha256": "0ad16c2f98d0c1bd7773172ee7c5890b378f3ab6df204b33d489e3b5b1b96b6c",
+        "olean_sha256": "0135b144bba17d2d64cca9686e5d45de40eb3aa6e90470bf68d6ad78eb34341b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:20:12.583115+00:00",
+    "work": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-_688p3c9",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "e2b9937f2c88530885415cbb397848104a579dc4f9802a749cd68de66091a34d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-_688p3c9/attempt-001/Candidate_f18e963e784a3401.lean",
+    "environment_sha256": "c4afe76bd2bc2b078f4a0aaca674d3192b7fbdf34aa57c5d93f4d00e250c88ba",
+    "artifacts": {
+      "pair_key_injective": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.pair_key_injective : ∀ (N : ℕ) [NeZero N], Function.Injective (M7.CanonicalOuter.pairKey (N := N)) := by\n  change ∀ (N : ℕ) [NeZero N], Function.Injective (M7.CanonicalOuter.pairKey (N := N))\n  intro N inst a b h\n  apply Prod.ext\n  · have hk : M7.CanonicalBlock.key a.1 = M7.CanonicalBlock.key b.1 :=\n      congrArg (fun k : M7.CanonicalOuter.PairKey => (ofLex k).1) h\n    have hd := congrArg (M7.CanonicalBlock.decode N) hk\n    simpa only [M7.CanonicalBlock.decode_key] using hd\n  · have hk : M7.CanonicalBlock.key a.2 = M7.CanonicalBlock.key b.2 :=\n      congrArg (fun k : M7.CanonicalOuter.PairKey => (ofLex k).2) h\n    have hd := congrArg (M7.CanonicalBlock.decode N) hk\n    simpa only [M7.CanonicalBlock.decode_key] using hd",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.pair_key_injective",
+          "ancestors": [],
+          "spec_sha256": "8f93fdc005a314d2cac25a2c0998efe22a5eac840f691c872c660a6c592836ce"
+        },
+        "sha256": "d195b9c822234986cc5bccafde64e1d3a33a61ea17d2a0a937eedbf33cc0b388"
+      },
+      "unit_index": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.unit_index : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (e : Bool), ∃ i ∈ M7.CanonicalOuter.indices N, M7.CanonicalOuter.outerRecord i = (⟨u,e,0,0⟩ : M7.Action.Record N) := by\n   classical\n   intro N inst u e\n   let i : M7.CanonicalOuter.OuterIndex N :=\n     toLex (⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩, e)\n   have hv : (((ofLex i).1.val : ℕ) : ZMod N) = (u : ZMod N) := by\n     simp [i]\n   have hi : IsUnit (((ofLex i).1.val : ℕ) : ZMod N) := by\n     rw [hv]\n     exact u.isUnit\n   refine ⟨i, ?_, ?_⟩\n   · exact Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n   · have hu : M7.CanonicalOuter.outerUnit i = u := by\n       unfold M7.CanonicalOuter.outerUnit\n       rw [dif_pos hi]\n       apply Units.ext\n       exact hi.unit_spec.trans hv\n     change (⟨M7.CanonicalOuter.outerUnit i, (ofLex i).2, 0, 0⟩ : M7.Action.Record N) = ⟨u, e, 0, 0⟩\n     rw [hu]\n     rfl",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.unit_index",
+          "ancestors": [],
+          "spec_sha256": "69ea588dd20622d263997b98ff19589e903884f12aff48cce57448df257597ac"
+        },
+        "sha256": "76408eda35ca3618f02babbb45c5e7ec843b283c4b9a72e261e2e57b9ccba9c8"
+      },
+      "indices_nonempty": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.indices_nonempty : ∀ (N : ℕ) [NeZero N], (M7.CanonicalOuter.indices N).Nonempty := by\n  change ∀ (N : ℕ) [NeZero N], (M7.CanonicalOuter.indices N).Nonempty\n  intro N inst\n  obtain ⟨i, hi, _⟩ := M7.CanonicalOuter.unit_index N (1 : (ZMod N)ˣ) false\n  exact ⟨i, hi⟩",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.indices_nonempty",
+          "ancestors": [
+            "unit_index"
+          ],
+          "spec_sha256": "b6cf2c0f28c9695305aeb42edd5a654096682402fd52a0270e4049078043c561"
+        },
+        "sha256": "df321781c7407329d7660f7b03d34ddaaa37608f5ae3c68ee24c37d02038842e"
+      },
+      "choices_nonempty": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.choices_nonempty : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.CanonicalOuter.choices c).Nonempty := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.CanonicalOuter.choices c).Nonempty\n  intro N inst c\n  obtain ⟨i, hi⟩ := M7.CanonicalOuter.indices_nonempty N\n  unfold M7.CanonicalOuter.choices\n  exact ⟨_, Finset.mem_image.mpr ⟨i, hi, rfl⟩⟩",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.choices_nonempty",
+          "ancestors": [
+            "indices_nonempty",
+            "unit_index"
+          ],
+          "spec_sha256": "e928b1d43eb6a2cf0fac7fc2b42aa52218342abe75602017c0e0b0ac7eb6d28b"
+        },
+        "sha256": "9c867028fe77ec2e27d121434b9e35049f13bca51e68bc322c85374c88be9b82"
+      },
+      "chosen_outer_member": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.chosen_outer_member : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.chosenOuter c ∈ M7.CanonicalOuter.indices N := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.chosenOuter c ∈ M7.CanonicalOuter.indices N\n  intro N inst c\n  have h := M7.CanonicalOuter.choices_nonempty N c\n  have hb : M7.CanonicalOuter.best c ∈ M7.CanonicalOuter.choices c := by\n    simpa only [M7.CanonicalOuter.best, dif_pos h] using (M7.CanonicalOuter.choices c).min'_mem h\n  unfold M7.CanonicalOuter.choices at hb\n  obtain ⟨i, hi, he⟩ := Finset.mem_image.mp hb\n  unfold M7.CanonicalOuter.chosenOuter\n  rw [← he]\n  exact hi",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.chosen_outer_member",
+          "ancestors": [
+            "choices_nonempty",
+            "indices_nonempty",
+            "unit_index"
+          ],
+          "spec_sha256": "91ed503e8adcfab15f1625636b992644dfefc01c06b72de79dd8cd67f7b387dd"
+        },
+        "sha256": "cf35fd886696a94d6d48e60b040bb77a77da9eac2701cbb9220de001baa1c5e3"
+      },
+      "canonical_key_member": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.canonical_key_member : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c) ∈ M7.CanonicalOuter.keyset c := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c) ∈ M7.CanonicalOuter.keyset c\n  intro N inst c\n  unfold M7.CanonicalOuter.keyset M7.CanonicalOuter.canonical\n  exact Finset.mem_image.mpr ⟨M7.CanonicalOuter.chosenOuter c, M7.CanonicalOuter.chosen_outer_member N c, rfl⟩",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.canonical_key_member",
+          "ancestors": [
+            "choices_nonempty",
+            "chosen_outer_member",
+            "indices_nonempty",
+            "unit_index"
+          ],
+          "spec_sha256": "4b55c408ef6ec8fb895e6bb2e31772344432efd0e676daffe7a1538847acf9f4"
+        },
+        "sha256": "2b21e7de2b01ccd656952217782f90ef71d7ac8ad0fe36ff6f8e7fa75a2aa62b"
+      },
+      "canonical_key_agrees": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.canonical_key_agrees : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (ofLex (M7.CanonicalOuter.best c)).1 = M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c) := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (ofLex (M7.CanonicalOuter.best c)).1 = M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c)\n  intro N inst c\n  have h := M7.CanonicalOuter.choices_nonempty N c\n  have hb : M7.CanonicalOuter.best c ∈ M7.CanonicalOuter.choices c := by\n    unfold M7.CanonicalOuter.best\n    rw [dif_pos h]\n    exact Finset.min'_mem _ _\n  unfold M7.CanonicalOuter.choices at hb\n  obtain ⟨i, hi, he⟩ := Finset.mem_image.mp hb\n  change (ofLex (M7.CanonicalOuter.best c)).1 = M7.CanonicalOuter.pairKey (M7.CanonicalOuter.candidate c (ofLex (M7.CanonicalOuter.best c)).2)\n  rw [← he]\n  rfl",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.canonical_key_agrees",
+          "ancestors": [
+            "choices_nonempty",
+            "indices_nonempty",
+            "unit_index"
+          ],
+          "spec_sha256": "fd23843ecebe513f09a75437a95b7af7b82378812f24b8106185b787bbbe5457"
+        },
+        "sha256": "e6774e942d701e16654fd481ee970236062d26d151133eee4e09e10df6179f11"
+      },
+      "canonical_minimal": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.canonical_minimal : ∀ (N : ℕ) [NeZero N], ∀ (c : M7.Action.Recipe N) k, k ∈ M7.CanonicalOuter.keyset c → M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c) ≤ k := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ (c : M7.Action.Recipe N) k, k ∈ M7.CanonicalOuter.keyset c → M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c) ≤ k\n  intro N inst c k hk\n  unfold M7.CanonicalOuter.keyset at hk\n  obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp hk\n  have hc : toLex (M7.CanonicalOuter.pairKey (M7.CanonicalOuter.candidate c i), i) ∈ M7.CanonicalOuter.choices c := by\n    exact Finset.mem_image.mpr ⟨i, hi, rfl⟩\n  have hm : M7.CanonicalOuter.best c ≤ toLex (M7.CanonicalOuter.pairKey (M7.CanonicalOuter.candidate c i), i) := by\n    unfold M7.CanonicalOuter.best\n    rw [dif_pos (M7.CanonicalOuter.choices_nonempty N c)]\n    exact Finset.min'_le _ _ hc\n  have hf := Prod.Lex.monotone_fst _ _ hm\n  rw [M7.CanonicalOuter.canonical_key_agrees N c] at hf\n  exact hf",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.canonical_minimal",
+          "ancestors": [
+            "canonical_key_agrees",
+            "choices_nonempty",
+            "indices_nonempty",
+            "unit_index"
+          ],
+          "spec_sha256": "0a8e03d8d1c629252ce6cce3a1cbc66563b1df1e40e14e75efb6b0540242ae3f"
+        },
+        "sha256": "abe66c4f19c231ff1e05d2b40f1aa92741186023f04a75402661463107e4f67e"
+      },
+      "normalize_act_shifts": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.normalize_act_shifts : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.normalizePair (M7.Action.act g c) = M7.CanonicalOuter.normalizePair (M7.Action.act (⟨g.unit,g.exchange,0,0⟩ : M7.Action.Record N) c) := by\n    intro N inst g c\n    classical\n    have h (u : (ZMod N)ˣ) (s : ZMod N) (A : Finset (ZMod N)) :\n        M7.CanonicalBlock.normalize (A.image (M7.Action.affine u s)) =\n          M7.CanonicalBlock.normalize (A.image (M7.Action.affine u 0)) := by\n      have he : A.image (M7.Action.affine u s) =\n          M7.CanonicalBlock.shift s (A.image (M7.Action.affine u 0)) := by\n        unfold M7.CanonicalBlock.shift\n        rw [Finset.image_image]\n        congr 1\n        funext i\n        simp [M7.Action.affine, Function.comp_def]\n      rw [he]\n      exact M7.CanonicalBlock.normalize_shift N s (A.image (M7.Action.affine u 0))\n    rcases g with ⟨u, e, s, t⟩\n    cases e <;> simp [M7.CanonicalOuter.normalizePair, M7.Action.act, h]",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.normalize_act_shifts",
+          "ancestors": [],
+          "spec_sha256": "5734c94a1e941aebac4ad3d64e5a02223e8c7172830ea6569fab87930b57c6a0"
+        },
+        "sha256": "d49c237045b1ad5be454eb45b7697a03237f93dab7093b49173678e00875c158"
+      },
+      "keyset_all_records": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.keyset_all_records : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.keyset c = (Finset.univ : Finset (M7.Action.Record N)).image (fun g => M7.CanonicalOuter.pairKey (M7.CanonicalOuter.normalizePair (M7.Action.act g c))) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.keyset c = (Finset.univ : Finset (M7.Action.Record N)).image (fun g => M7.CanonicalOuter.pairKey (M7.CanonicalOuter.normalizePair (M7.Action.act g c)))\n  intro N inst c\n  classical\n  unfold M7.CanonicalOuter.keyset M7.CanonicalOuter.candidate\n  ext k\n  constructor\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨i, hi, hik⟩\n    exact Finset.mem_image.mpr ⟨M7.CanonicalOuter.outerRecord i, Finset.mem_univ _, hik⟩\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨g, hg, hgk⟩\n    rcases M7.CanonicalOuter.unit_index N g.unit g.exchange with ⟨i, hi, hir⟩\n    refine Finset.mem_image.mpr ⟨i, hi, ?_⟩\n    rw [hir, ← M7.CanonicalOuter.normalize_act_shifts N g c]\n    exact hgk",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.keyset_all_records",
+          "ancestors": [
+            "normalize_act_shifts",
+            "unit_index"
+          ],
+          "spec_sha256": "14f85f0366c5f78b8eeb2c2626abd72a614188035bea4369c4ce29fdc536cbe3"
+        },
+        "sha256": "b4ac2a1e949025eb92b2fe0aa7a382ad82ca4d163fc96ee13d49bc66c9b948c0"
+      },
+      "keyset_action": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.keyset_action : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.keyset (M7.Action.act g c) = M7.CanonicalOuter.keyset c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.keyset (M7.Action.act g c) = M7.CanonicalOuter.keyset c\n  intro N inst g c\n  classical\n  rw [M7.CanonicalOuter.keyset_all_records N (M7.Action.act g c), M7.CanonicalOuter.keyset_all_records N c]\n  ext k\n  constructor\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨h, _, hkey⟩\n    refine Finset.mem_image.mpr ⟨M7.Action.compose h g, Finset.mem_univ _, ?_⟩\n    rw [M7.Action.act_compose N h g c]\n    exact hkey\n  · intro hk\n    rcases Finset.mem_image.mp hk with ⟨h, _, hkey⟩\n    refine Finset.mem_image.mpr ⟨M7.Action.compose h (M7.Action.inverse g), Finset.mem_univ _, ?_⟩\n    rw [M7.Action.act_compose N h (M7.Action.inverse g) (M7.Action.act g c), M7.Action.act_inverse N g c]\n    exact hkey",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.keyset_action",
+          "ancestors": [
+            "keyset_all_records",
+            "normalize_act_shifts",
+            "unit_index"
+          ],
+          "spec_sha256": "c437a2884b5e044ffc61dc4a5ee82a14d7d38f87fe9f18cb0f46863fbbb9fac9"
+        },
+        "sha256": "0b1b86aaa93fa810b19520a76bf82d73052b3b327950ac522bf75a8484d39a27"
+      },
+      "canonical_invariant": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.canonical_invariant : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.canonical (M7.Action.act g c) = M7.CanonicalOuter.canonical c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.canonical (M7.Action.act g c) = M7.CanonicalOuter.canonical c\n  intro N inst g c\n  apply M7.CanonicalOuter.pair_key_injective N\n  apply le_antisymm\n  · apply M7.CanonicalOuter.canonical_minimal N (M7.Action.act g c)\n    rw [M7.CanonicalOuter.keyset_action N g c]\n    exact M7.CanonicalOuter.canonical_key_member N c\n  · apply M7.CanonicalOuter.canonical_minimal N c\n    rw [← M7.CanonicalOuter.keyset_action N g c]\n    exact M7.CanonicalOuter.canonical_key_member N (M7.Action.act g c)",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.canonical_invariant",
+          "ancestors": [
+            "canonical_key_agrees",
+            "canonical_key_member",
+            "canonical_minimal",
+            "choices_nonempty",
+            "chosen_outer_member",
+            "indices_nonempty",
+            "keyset_action",
+            "keyset_all_records",
+            "normalize_act_shifts",
+            "pair_key_injective",
+            "unit_index"
+          ],
+          "spec_sha256": "ac130820d31d2e31da8474a30852a947e7632cfb32692e1fae6151801b4adcee"
+        },
+        "sha256": "99c7aa8b6075e01bc01de87fc6c89806dd0def754546461c1ff92a4f6cdd748d"
+      },
+      "realizer_correct": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.realizer_correct : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.Action.act (M7.CanonicalOuter.realizer c) c = M7.CanonicalOuter.canonical c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.Action.act (M7.CanonicalOuter.realizer c) c = M7.CanonicalOuter.canonical c\n  intro N _ c\n  classical\n  have hs (s : ZMod N) (A : M7.CanonicalBlock.Support N) :\n      A.image (M7.Action.affine 1 s) = M7.CanonicalBlock.shift s A := by\n    unfold M7.Action.affine M7.CanonicalBlock.shift\n    simp [add_comm]\n  have hn (r : M7.Action.Recipe N) :\n      M7.Action.act\n        (M7.Action.translate (-M7.CanonicalBlock.bestAnchor r.1)\n          (-M7.CanonicalBlock.bestAnchor r.2)) r =\n        M7.CanonicalOuter.normalizePair r := by\n    change\n      (r.1.image (M7.Action.affine 1 (-M7.CanonicalBlock.bestAnchor r.1)),\n        r.2.image (M7.Action.affine 1 (-M7.CanonicalBlock.bestAnchor r.2))) =\n      (M7.CanonicalBlock.shift (-M7.CanonicalBlock.bestAnchor r.1) r.1,\n        M7.CanonicalBlock.shift (-M7.CanonicalBlock.bestAnchor r.2) r.2)\n    exact Prod.ext (hs _ _) (hs _ _)\n  unfold M7.CanonicalOuter.realizer\n  rw [M7.Action.act_compose]\n  exact hn _",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.realizer_correct",
+          "ancestors": [],
+          "spec_sha256": "49c296160061365eefd6a7b0db3b4974e1978dc5a2f3421e97a9eda4ad5d26f9"
+        },
+        "sha256": "a302d8917421ceb976351eba7ddd92505c714c57b77e42fcc1c6ec6bee7dfba9"
+      },
+      "realizer_inverse": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.realizer_inverse : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.Action.act (M7.Action.inverse (M7.CanonicalOuter.realizer c)) (M7.CanonicalOuter.canonical c) = c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.Action.act (M7.Action.inverse (M7.CanonicalOuter.realizer c)) (M7.CanonicalOuter.canonical c) = c\n  intro N _ c\n  rw [← M7.CanonicalOuter.realizer_correct N c]\n  exact M7.Action.act_inverse N (M7.CanonicalOuter.realizer c) c",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.realizer_inverse",
+          "ancestors": [
+            "realizer_correct"
+          ],
+          "spec_sha256": "bb93a6ba01bf4ea2f2abb8f3a722cfefa487eb360f4f5b38a5db85d1f55c197e"
+        },
+        "sha256": "2fa2706cfc5e0ca7f0511474c52cf9b8301f850c0228e2b7f5bad714f21a25d1"
+      },
+      "orbit_complete": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.orbit_complete : ∀ (N : ℕ) [NeZero N], ∀ c d : M7.Action.Recipe N, (∃ g : M7.Action.Record N, M7.Action.act g c = d) ↔ M7.CanonicalOuter.canonical c = M7.CanonicalOuter.canonical d := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c d : M7.Action.Recipe N, (∃ g : M7.Action.Record N, M7.Action.act g c = d) ↔ M7.CanonicalOuter.canonical c = M7.CanonicalOuter.canonical d\n  intro N inst c d\n  constructor\n  · rintro ⟨g, rfl⟩\n    exact (M7.CanonicalOuter.canonical_invariant N g c).symm\n  · intro h\n    refine ⟨M7.Action.compose (M7.Action.inverse (M7.CanonicalOuter.realizer d)) (M7.CanonicalOuter.realizer c), ?_⟩\n    rw [M7.Action.act_compose N, M7.CanonicalOuter.realizer_correct N c, h]\n    exact M7.CanonicalOuter.realizer_inverse N d",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.orbit_complete",
+          "ancestors": [
+            "canonical_invariant",
+            "canonical_key_agrees",
+            "canonical_key_member",
+            "canonical_minimal",
+            "choices_nonempty",
+            "chosen_outer_member",
+            "indices_nonempty",
+            "keyset_action",
+            "keyset_all_records",
+            "normalize_act_shifts",
+            "pair_key_injective",
+            "realizer_correct",
+            "realizer_inverse",
+            "unit_index"
+          ],
+          "spec_sha256": "0a1ff5d50909373d5d5f02a058e7eb3338b813448d9ff86bf47a965f5cbb9c4f"
+        },
+        "sha256": "15522e4fa12b48ca6475e4b7128c3ab1351821eb732fbf8f44377d18d93fd36f"
+      }
+    }
+  }
+}

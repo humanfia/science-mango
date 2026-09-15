@@ -1,0 +1,9 @@
+# Actual base-orbit query comparison
+
+Original M7 §8/9 compares raw physical presentations with actions on their generated class representatives. This module rebases each stored family member by an arbitrary actual Action.Record and explicitly reparameterizes all Fin H × Action.Record indices by right composition, with undo given by right composition with the inverse. It proves the bijection and literal realization equality from the verified original action laws.
+
+Class-sector feasibility is invariant under changing its base within that actual orbit because the existential action records reparameterize. Placement-sector tests the unchanged literal placement. Every other feasibility and objective term is computed on that same actual placement, including full polynomial signature, dimension, M6 CSS distance, caps and joint locality. Consequently no pending distance-invariance theorem or free label oracle is required.
+
+The eight targets preserve global winner comparisons, every tied winning class, and the sets of winning/presented physical images. Least action encodings can change under rebasing; the theorem equates the resulting physical presentation sets instead of incorrectly asserting equal least indices. The within-class presentation theorem suffices, so no separation, coverage or assumed complete family is introduced. Actual canonical coverage and separation are still discharged by the final root's generation closure.
+
+Only actual accepted action13 and global_query9 were newly promoted, with original manifest, receipt, frozen type, source, payload and portable-declaration verification. The source module contains explicit definitions only; proofs are frozen separately. The batch uses two workers, 600 seconds per compilation, five rounds and gpt-6-astra medium with the existing retrieval and exact-type/axiom gates.

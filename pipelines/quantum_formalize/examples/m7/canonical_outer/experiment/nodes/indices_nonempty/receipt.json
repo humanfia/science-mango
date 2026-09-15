@@ -1,0 +1,69 @@
+{
+  "id": "indices_nonempty",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalOuter.indices_nonempty",
+    "spec_sha256": "3a6a877bc686c46a86a36cc59f56e6165434954e371d216889a0ad634272a062",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-rxqlru4p/attempt-001/Candidate_dc8b1afd4a148fac.lean",
+        "target_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-rxqlru4p/attempt-001/FrozenTarget_dc8b1afd4a148fac.lean",
+        "feedback": "",
+        "target_sha256": "9f84e959db9ec733276f7acaeddc4f4848e7506acff143210b636a0e35a42368",
+        "target_olean_sha256": "6f30e2d50a6ef20bd714af86e265f9e259dc90492fac5200b2c1edb8e852a0a2",
+        "source_sha256": "e4e2a7616830dc8f681f0ac868ba97993f9a7532324815d6bbd6618fa93183e5",
+        "olean_sha256": "2e1904d9ff3618c544ff08dc48bdd69ba029c2d486f68778446ae7ee63fbf6e5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:09:07.084673+00:00",
+    "work": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-rxqlru4p",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "e2b9937f2c88530885415cbb397848104a579dc4f9802a749cd68de66091a34d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-rxqlru4p/attempt-001/Candidate_dc8b1afd4a148fac.lean",
+    "environment_sha256": "c4afe76bd2bc2b078f4a0aaca674d3192b7fbdf34aa57c5d93f4d00e250c88ba",
+    "artifacts": {
+      "unit_index": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.unit_index : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (e : Bool), ∃ i ∈ M7.CanonicalOuter.indices N, M7.CanonicalOuter.outerRecord i = (⟨u,e,0,0⟩ : M7.Action.Record N) := by\n   classical\n   intro N inst u e\n   let i : M7.CanonicalOuter.OuterIndex N :=\n     toLex (⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩, e)\n   have hv : (((ofLex i).1.val : ℕ) : ZMod N) = (u : ZMod N) := by\n     simp [i]\n   have hi : IsUnit (((ofLex i).1.val : ℕ) : ZMod N) := by\n     rw [hv]\n     exact u.isUnit\n   refine ⟨i, ?_, ?_⟩\n   · exact Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n   · have hu : M7.CanonicalOuter.outerUnit i = u := by\n       unfold M7.CanonicalOuter.outerUnit\n       rw [dif_pos hi]\n       apply Units.ext\n       exact hi.unit_spec.trans hv\n     change (⟨M7.CanonicalOuter.outerUnit i, (ofLex i).2, 0, 0⟩ : M7.Action.Record N) = ⟨u, e, 0, 0⟩\n     rw [hu]\n     rfl",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.unit_index",
+          "ancestors": [],
+          "spec_sha256": "69ea588dd20622d263997b98ff19589e903884f12aff48cce57448df257597ac"
+        },
+        "sha256": "76408eda35ca3618f02babbb45c5e7ec843b283c4b9a72e261e2e57b9ccba9c8"
+      },
+      "indices_nonempty": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.indices_nonempty : ∀ (N : ℕ) [NeZero N], (M7.CanonicalOuter.indices N).Nonempty := by\n  change ∀ (N : ℕ) [NeZero N], (M7.CanonicalOuter.indices N).Nonempty\n  intro N inst\n  obtain ⟨i, hi, _⟩ := M7.CanonicalOuter.unit_index N (1 : (ZMod N)ˣ) false\n  exact ⟨i, hi⟩",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.indices_nonempty",
+          "ancestors": [
+            "unit_index"
+          ],
+          "spec_sha256": "b6cf2c0f28c9695305aeb42edd5a654096682402fd52a0270e4049078043c561"
+        },
+        "sha256": "df321781c7407329d7660f7b03d34ddaaa37608f5ae3c68ee24c37d02038842e"
+      }
+    }
+  }
+}

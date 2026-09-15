@@ -1,0 +1,17 @@
+import FrozenTarget_adda47e9cae0b798
+theorem M7.CanonicalOuter.keyset_all_records : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.keyset c = (Finset.univ : Finset (M7.Action.Record N)).image (fun g => M7.CanonicalOuter.pairKey (M7.CanonicalOuter.normalizePair (M7.Action.act g c)))
+  intro N inst c
+  classical
+  unfold M7.CanonicalOuter.keyset M7.CanonicalOuter.candidate
+  ext k
+  constructor
+  · intro hk
+    rcases Finset.mem_image.mp hk with ⟨i, hi, hik⟩
+    exact Finset.mem_image.mpr ⟨M7.CanonicalOuter.outerRecord i, Finset.mem_univ _, hik⟩
+  · intro hk
+    rcases Finset.mem_image.mp hk with ⟨g, hg, hgk⟩
+    rcases M7.CanonicalOuter.unit_index N g.unit g.exchange with ⟨i, hi, hir⟩
+    refine Finset.mem_image.mpr ⟨i, hi, ?_⟩
+    rw [hir, ← M7.CanonicalOuter.normalize_act_shifts N g c]
+    exact hgk

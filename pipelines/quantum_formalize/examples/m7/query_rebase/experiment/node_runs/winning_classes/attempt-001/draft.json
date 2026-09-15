@@ -1,0 +1,4 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro H N inst q bases moves\napply Finset.ext\nintro i\nrw [M7.GlobalQuery.winning_classes H N q (M7.QueryRebase.rebase bases moves) i,\n  M7.GlobalQuery.winning_classes H N q bases i]\nconstructor\n· rintro ⟨g, hg⟩\n  refine ⟨(M7.QueryRebase.reparam moves (i, g)).2, ?_⟩\n  exact (M7.QueryRebase.winners_reparam H N q bases moves (i, g)).mp hg\n· rintro ⟨g, hg⟩\n  refine ⟨(M7.QueryRebase.undo moves (i, g)).2, ?_⟩\n  change M7.QueryRebase.undo moves (i, g) ∈ M7.GlobalQuery.winners q (M7.QueryRebase.rebase bases moves)\n  apply (M7.QueryRebase.winners_reparam H N q bases moves (M7.QueryRebase.undo moves (i, g))).mpr\n  rw [(M7.QueryRebase.reparameterization H N moves).2.1 (i, g)]\n  exact hg",
+  "queries": []
+}

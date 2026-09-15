@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst w E A B WA WB hSector hBase\nclassical\nhave hcard : ((M7.PrefixCompleted.completed N w E A B WA WB).image (M7.ResiduePrefix.decodePair N)).card = (M7.PrefixCompleted.completed N w E A B WA WB).card := by\n  apply Finset.card_image_iff.mpr\n  intro x hx y hy hxy\n  obtain ⟨hx₁, hx₂⟩ := M7.ResiduePrefix.completed_bounds N w E A B WA WB hBase x hx\n  obtain ⟨hy₁, hy₂⟩ := M7.ResiduePrefix.completed_bounds N w E A B WA WB hBase y hy\n  exact M7.ResiduePrefix.decode_injective N x y hx₁ hx₂ hy₁ hy₂ hxy\nchange M7.PrefixSector.count N w E A B WA WB = ↑(((M7.PrefixCompleted.completed N w E A B WA WB).image (M7.ResiduePrefix.decodePair N)).card)\nrw [hcard]\nexact M7.PrefixCompleted.count_completed N w E A B WA WB (Nat.pos_of_ne_zero (NeZero.ne N)) hSector hBase",
+  "queries": []
+}

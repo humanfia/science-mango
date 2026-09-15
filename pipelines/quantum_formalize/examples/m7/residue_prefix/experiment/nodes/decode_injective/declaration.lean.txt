@@ -1,0 +1,12 @@
+theorem M7.ResiduePrefix.decode_injective : ∀ (N : ℕ) [NeZero N], ∀ (x y : Finset ℕ × Finset ℕ), x.1 ⊆ Finset.range N → x.2 ⊆ Finset.range N → y.1 ⊆ Finset.range N → y.2 ⊆ Finset.range N → M7.ResiduePrefix.decodePair N x = M7.ResiduePrefix.decodePair N y → x = y := by
+  change ∀ (N : ℕ) [NeZero N], ∀ (x y : Finset ℕ × Finset ℕ), x.1 ⊆ Finset.range N → x.2 ⊆ Finset.range N → y.1 ⊆ Finset.range N → y.2 ⊆ Finset.range N → M7.ResiduePrefix.decodePair N x = M7.ResiduePrefix.decodePair N y → x = y
+  intro N inst x y hx₁ hx₂ hy₁ hy₂ h
+  apply Prod.ext
+  · have h₁ := congrArg (fun p : Finset (ZMod N) × Finset (ZMod N) => M7.ResiduePrefix.encode p.1) h
+    change M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N x.1) = M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N y.1) at h₁
+    rw [M7.ResiduePrefix.nat_roundtrip N x.1 hx₁, M7.ResiduePrefix.nat_roundtrip N y.1 hy₁] at h₁
+    exact h₁
+  · have h₂ := congrArg (fun p : Finset (ZMod N) × Finset (ZMod N) => M7.ResiduePrefix.encode p.2) h
+    change M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N x.2) = M7.ResiduePrefix.encode (M7.ResiduePrefix.decode N y.2) at h₂
+    rw [M7.ResiduePrefix.nat_roundtrip N x.2 hx₂, M7.ResiduePrefix.nat_roundtrip N y.2 hy₂] at h₂
+    exact h₂

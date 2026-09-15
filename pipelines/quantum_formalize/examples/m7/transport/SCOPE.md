@@ -1,0 +1,3 @@
+# M7 actual coordinate distance bridge
+
+Seven exact targets on the concrete Action.act. Existing accepted M6 translation/unit/exchange coordinate maps compose in the literal action order; Z coordinates use J conjugation. Physical distance is the actual M6.Final.quantumDistance on support polynomials, not a new definition as component distance. Actual solve witnesses are transported from an anchored admissible source to arbitrary unanchored action outputs. No free isometry, distance oracle, group-law premise or new signature assertion is introduced. Original M7 §§3/7. M6 final single deduplicated accepted closure avoids duplicate global declarations.
