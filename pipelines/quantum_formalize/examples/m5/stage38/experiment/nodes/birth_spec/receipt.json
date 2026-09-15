@@ -1,0 +1,55 @@
+{
+  "id": "birth_spec",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.BirthSearch.birth_spec",
+    "spec_sha256": "8267e4d7d62a0cd888b093d8332afd9dbeb5cc9fb5ef0084632554014254ef27",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-birth-search-formalization/.humanize-formal-runs/run-31o0rdd9/attempt-001/Candidate_aaf448944ccf6013.lean",
+        "target_path": "/home/jing/m5-lean-birth-search-formalization/.humanize-formal-runs/run-31o0rdd9/attempt-001/FrozenTarget_aaf448944ccf6013.lean",
+        "feedback": "",
+        "target_sha256": "457157a5bda0771734b5a13f424956626896ee2c3ddac9b7032e27681bb8cb01",
+        "target_olean_sha256": "5071a4982bc0b950d2b167a346e0c45e8102c84280f60e15ebb3ef313d3b43b4",
+        "source_sha256": "2df259b606e13209d8bde69e6d89283ee08727c1884dfd23a51a6605cc5159fe",
+        "olean_sha256": "f9499331f1338e3ba969bc0ea4245f9c98f77fb1f8502ed010ef7a73e6214a88",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:53:31.923693+00:00",
+    "work": "/home/jing/m5-lean-birth-search-formalization/.humanize-formal-runs/run-31o0rdd9",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "019206136d802621ac4b08a28f092e9c6efaf51ad3396f218dadef378c0f9e52",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-birth-search-formalization/.humanize-formal-runs/run-31o0rdd9/attempt-001/Candidate_aaf448944ccf6013.lean",
+    "environment_sha256": "b025d2b10f6cb3fcafd0238e90e953a52c72421535bd39b8ecebd909aaf1b20d",
+    "artifacts": {
+      "birth_spec": {
+        "payload": {
+          "declaration": "theorem M5.BirthSearch.birth_spec : ∀ (T lower B : ℕ) (C : ℕ → ℤ), (∃ N : ℕ, N ≤ B ∧ lower ≤ N ∧ T ∣ N ∧ 0 < C N) → ∃ b : ℕ, M5.BirthSearch.birth T lower B C = some b ∧ b ≤ B ∧ lower ≤ b ∧ T ∣ b ∧ 0 < C b ∧ ∀ N : ℕ, lower ≤ N → T ∣ N → 0 < C N → b ≤ N := by\n  classical\n  change ∀ (T lower B : ℕ) (C : ℕ → ℤ), _\n  intro T lower B C hex\n  have hmem (n : ℕ) : n ∈ M5.BirthSearch.candidates T lower B C ↔\n      n ≤ B ∧ lower ≤ n ∧ T ∣ n ∧ 0 < C n := by\n    simp [M5.BirthSearch.candidates, Nat.lt_succ_iff, and_assoc, and_left_comm, and_comm]\n  have hne : (M5.BirthSearch.candidates T lower B C).Nonempty := by\n    obtain ⟨n, hn⟩ := hex\n    exact ⟨n, (hmem n).mpr hn⟩\n  let b := (M5.BirthSearch.candidates T lower B C).min' hne\n  have hb : b ≤ B ∧ lower ≤ b ∧ T ∣ b ∧ 0 < C b :=\n    (hmem b).mp (Finset.min'_mem _ hne)\n  refine ⟨b, ?_, hb.1, hb.2.1, hb.2.2.1, hb.2.2.2, ?_⟩\n  · simp [M5.BirthSearch.birth, hne, b]\n  · intro N hlow hdiv hpos\n    by_cases hNB : N ≤ B\n    · exact Finset.min'_le _ N ((hmem N).mpr ⟨hNB, hlow, hdiv, hpos⟩)\n    · exact le_trans hb.1 (le_of_lt (Nat.lt_of_not_ge hNB))",
+          "imports": [
+            "M5BirthSearch"
+          ],
+          "name": "M5.BirthSearch.birth_spec",
+          "ancestors": [],
+          "spec_sha256": "8267e4d7d62a0cd888b093d8332afd9dbeb5cc9fb5ef0084632554014254ef27"
+        },
+        "sha256": "85b28094069c4d5874a49390f457d341afc64fbc57b49281be81d946051c8d85"
+      }
+    }
+  }
+}

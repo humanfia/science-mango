@@ -1,0 +1,13 @@
+{
+  "name": "M5.BirthSearch.birth_spec",
+  "statement": "∀ (T lower B : ℕ) (C : ℕ → ℤ), (∃ N : ℕ, N ≤ B ∧ lower ≤ N ∧ T ∣ N ∧ 0 < C N) → ∃ b : ℕ, M5.BirthSearch.birth T lower B C = some b ∧ b ≤ B ∧ lower ≤ b ∧ T ∣ b ∧ 0 < C b ∧ ∀ N : ℕ, lower ≤ N → T ∣ N → 0 < C N → b ≤ N",
+  "imports": [
+    "M5BirthSearch"
+  ],
+  "context": "",
+  "queries": [
+    "Finset min prime membership lower bound",
+    "finset filter nonempty iff"
+  ],
+  "guidance": "The witness makes candidates nonempty. Use Finset.min'_mem for its bounds/positivecount. For any positive candidateN, if N<=B apply min'_le; otherwise b<=B<N. Unfold birth at the proved nonempty case. This proves minimum even against orders beyond the search interval. Return only tactic lines without leading by; preserve exact statement."
+}

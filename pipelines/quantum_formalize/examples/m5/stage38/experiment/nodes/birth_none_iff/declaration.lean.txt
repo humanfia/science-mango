@@ -1,0 +1,21 @@
+theorem M5.BirthSearch.birth_none_iff : ∀ (T lower B : ℕ) (C : ℕ → ℤ), M5.BirthSearch.birth T lower B C = none ↔ ∀ N : ℕ, N ≤ B → lower ≤ N → T ∣ N → C N ≤ 0 := by
+  classical
+  change ∀ (T lower B : ℕ) (C : ℕ → ℤ), M5.BirthSearch.birth T lower B C = none ↔ ∀ N : ℕ, N ≤ B → lower ≤ N → T ∣ N → C N ≤ 0
+  intro T lower B C
+  by_cases h : (M5.BirthSearch.candidates T lower B C).Nonempty
+  · constructor
+    · intro hn
+      simp [M5.BirthSearch.birth, h] at hn
+    · intro hall
+      obtain ⟨N, hN⟩ := h
+      have hm : N ≤ B ∧ lower ≤ N ∧ T ∣ N ∧ 0 < C N := by
+        simpa [M5.BirthSearch.candidates, Nat.lt_succ_iff, and_assoc, and_left_comm, and_comm] using hN
+      exact False.elim ((not_lt_of_ge (hall N hm.1 hm.2.1 hm.2.2.1)) hm.2.2.2)
+  · constructor
+    · intro _ N hB hl hd
+      apply le_of_not_gt
+      intro hp
+      apply h
+      exact ⟨N, by simp [M5.BirthSearch.candidates, Nat.lt_succ_iff, hB, hl, hd, hp]⟩
+    · intro _
+      simp [M5.BirthSearch.birth, h]

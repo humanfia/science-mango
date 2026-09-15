@@ -1,0 +1,105 @@
+{
+  "title": "M5 stage37: finite residue recovery with candidate-test bound",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Explicit finite-residue branching algorithm with counted oracle evaluations and generic partition correctness; actual A completion-count instantiation remains required.",
+  "nodes": [
+    {
+      "id": "pick_bound",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.ResidueRecovery.pick_bound",
+        "statement": "∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (M5.ResidueRecovery.pick f xs).2 ≤ xs.length",
+        "imports": [
+          "M5ResidueRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum positive exists positive summand",
+          "list find positive recursion"
+        ],
+        "guidance": "Induct xs; unfold pick and split on positive first count. Each unsuccessful candidate costs1, successcost1, emptycost0. Return only tactic lines without leading by; preserve exact statement."
+      },
+      "metadata": {
+        "source_section": "4 recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "pick_positive",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.ResidueRecovery.pick_positive",
+        "statement": "∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a",
+        "imports": [
+          "M5ResidueRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum positive exists positive summand",
+          "list find positive recursion"
+        ],
+        "guidance": "Induct xs. Positive head succeeds; otherwise any positive candidate must be in the tail and the induction witness is retained by pick. This establishes the returned residue as positive, not just list membership. Return only tactic lines without leading by; preserve exact statement."
+      },
+      "metadata": {
+        "source_section": "4 recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "recover_success",
+      "dependencies": [
+        "pick_bound",
+        "pick_positive"
+      ],
+      "spec": {
+        "name": "M5.ResidueRecovery.recover_success",
+        "statement": "∀ (T : ℕ) (c : List (Fin T) → ℤ) (p : List (Fin T)) (n : ℕ), (∀ q : List (Fin T), q.length < p.length + n → c q = ∑ a : Fin T, c (q ++ [a])) → 0 < c p → ∃ q : List (Fin T), (M5.ResidueRecovery.recover c p n).1 = some q ∧ q.length = p.length + n ∧ 0 < c q ∧ (M5.ResidueRecovery.recover c p n).2 ≤ n * T",
+        "imports": [
+          "M5ResidueRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum positive exists positive summand",
+          "list find positive recursion"
+        ],
+        "guidance": "Induct n generalizing p. Positive parent and sum partition imply some positive child (otherwise sum_nonpos contradicts positivity). Every FinT value belongs to List.finRangeT; pick_positive returns such child and pick_bound bounds searchcost byT. Recurse with one fewer coordinate; new prefixlen+n=old prefixlen+(n+1). Add cost<=T+n*T=(n+1)*T. No strict positivity assumption on T is needed separately because a positive sum provides a candidate. Return only tactic lines without leading by; preserve exact statement."
+      },
+      "metadata": {
+        "source_section": "4 recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "recover_valid",
+      "dependencies": [
+        "recover_success"
+      ],
+      "spec": {
+        "name": "M5.ResidueRecovery.recover_valid",
+        "statement": "∀ (T : ℕ) (c : List (Fin T) → ℤ) (Valid : List (Fin T) → Prop) (m : ℕ), (∀ q : List (Fin T), q.length < m → c q = ∑ a : Fin T, c (q ++ [a])) → (∀ q : List (Fin T), q.length = m → 0 < c q → Valid q) → 0 < c [] → ∃ q : List (Fin T), (M5.ResidueRecovery.recover c [] m).1 = some q ∧ q.length = m ∧ Valid q ∧ (M5.ResidueRecovery.recover c [] m).2 ≤ m * T",
+        "imports": [
+          "M5ResidueRecovery"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum positive exists positive summand",
+          "list find positive recursion"
+        ],
+        "guidance": "Apply recover_success with empty prefix and the supplied terminal-correctness condition. Taking m=2*(w-1) later gives the source residue-test bound after the actual conditional A count is instantiated. Do not assume an already recovered tuple. Return only tactic lines without leading by; preserve exact statement."
+      },
+      "metadata": {
+        "source_section": "4 recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

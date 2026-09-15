@@ -1,0 +1,268 @@
+[
+  {
+    "queries": [
+      "Finset min prime membership lower bound",
+      "finset filter nonempty iff"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset min prime membership lower bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 276904,
+            "name": "Nat.mem_primesBelow",
+            "module": "Mathlib.NumberTheory.PrimeCounting",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/PrimeCounting.lean#L159-L160",
+            "source_text": "lemma mem_primesBelow :\n    n ∈ primesBelow k ↔ n < k ∧ n.Prime := by simp [primesBelow]\n",
+            "docstring": null
+          },
+          {
+            "id": 203585,
+            "name": "Finset.min'",
+            "module": "Mathlib.Data.Finset.Max",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Max.lean#L177-L181",
+            "source_text": "/-- Given a nonempty finset `s` in a linear order `α`, then `s.min' H` is its minimum, as an\nelement of `α`, where `H` is a proof of nonemptiness. Without this assumption, use instead `s.min`,\ntaking values in `WithTop α`. -/\ndef min' (s : Finset α) (H : s.Nonempty) : α :=\n  inf' s H id\n",
+            "docstring": "Given a nonempty finset `s` in a linear order `α`, then `s.min' H` is its minimum, as an\nelement of `α`, where `H` is a proof of nonemptiness. Without this assumption, use instead `s.min`,\ntaking values in `WithTop α`. "
+          },
+          {
+            "id": 276905,
+            "name": "Nat.mem_primesLE",
+            "module": "Mathlib.NumberTheory.PrimeCounting",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/PrimeCounting.lean#L162-L163",
+            "source_text": "lemma mem_primesLE : p ∈ primesLE n ↔ p ≤ n ∧ p.Prime := by\n  simp [primesLE, mem_primesBelow]\n",
+            "docstring": null
+          },
+          {
+            "id": 202750,
+            "name": "Finset.mem_attachFin",
+            "module": "Mathlib.Data.Finset.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Fin.lean#L33-L39",
+            "source_text": "@[simp]\ntheorem mem_attachFin {s : Finset ℕ} (h : ∀ m ∈ s, m < n) {a : Fin n} :\n    a ∈ s.attachFin h ↔ (a : ℕ) ∈ s :=\n  ⟨fun h ↦\n    let ⟨_, hb₁, hb₂⟩ := Multiset.mem_pmap.1 h\n    hb₂ ▸ hb₁,\n    fun h ↦ Multiset.mem_pmap.2 ⟨a, h, Fin.eta _ _⟩⟩",
+            "docstring": null
+          },
+          {
+            "id": 312041,
+            "name": "Ring.KrullDimLE.mem_minimalPrimes_iff_le_of_isPrime",
+            "module": "Mathlib.RingTheory.KrullDimension.Zero",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/KrullDimension/Zero.lean#L30-L32",
+            "source_text": "lemma Ring.KrullDimLE.mem_minimalPrimes_iff_le_of_isPrime {I J : Ideal R} [I.IsPrime] :\n    I ∈ J.minimalPrimes ↔ J ≤ I := by\n  rwa [mem_minimalPrimes_iff, and_iff_right]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset min prime membership lower bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390554,
+            "name": "LinearPMap.IsLowerBound",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L116-L117",
+            "source_text": "/-- `IsLowerBound T z c` is the property that `c * ‖x‖ ≤ ‖T x - z • x‖` for all `x : T.domain`. -/\ndef IsLowerBound (T : H →ₗ.[ℂ] H) (z : ℂ) (c : ℝ) : Prop := ∀ x : T.domain, c * ‖x‖ ≤ ‖T x - z • x‖\n",
+            "docstring": "`IsLowerBound T z c` is the property that `c * ‖x‖ ≤ ‖T x - z • x‖` for all `x : T.domain`. "
+          },
+          {
+            "id": 390557,
+            "name": "LinearPMap.isLowerBound_of_left_le",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L128-L131",
+            "source_text": "lemma isLowerBound_of_left_le\n    {T₁ T₂ : H →ₗ.[ℂ] H} (hle : T₁ ≤ T₂) {z : ℂ} {c : ℝ} (h : IsLowerBound T₂ z c) :\n    IsLowerBound T₁ z c :=\n  fun x ↦ @hle.2 x ⟨x, hle.1 x.2⟩ rfl ▸ h ⟨x, hle.1 x.2⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 390558,
+            "name": "LinearPMap.isLowerBound_closure",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L133-L144",
+            "source_text": "lemma isLowerBound_closure\n    {T : H →ₗ.[ℂ] H} {z : ℂ} {c : ℝ} (h : IsLowerBound T z c) : IsLowerBound T.closure z c := by\n  by_cases hT : T.IsClosable\n  · intro x\n    obtain ⟨b, hb, hb'⟩ := mem_closure_iff_seq_limit.mp <|\n      hT.graph_closure_eq_closure_graph ▸ T.closure.mem_graph x\n    rw [nhds_prod_eq] at hb'\n    refine le_of_tendsto_of_tendsto' (hb'.fst.norm.const_mul c)\n      ((hb'.snd.sub <| hb'.fst.const_smul z).norm) fun n ↦ ?_\n    obtain ⟨y, hy₁, hy₂⟩ := (mem_graph_iff _).mp (hb n)\n    exact hy₁ ▸ hy₂ ▸ h y\n  · rwa [closure_def' hT]\n",
+            "docstring": null
+          },
+          {
+            "id": 387518,
+            "name": "TwoHiggsDoublet.massTermReduced_lower_bound",
+            "module": "Physlib.Particles.BeyondTheStandardModel.TwoHDM.Potential",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/TwoHDM/Potential.lean#L544-L563",
+            "source_text": "lemma massTermReduced_lower_bound (P : PotentialParameters) (k : EuclideanSpace ℝ (Fin 3))\n    (hk : ‖k‖ ^ 2 ≤ 1) : P.ξ (Sum.inl 0) - √(∑ a, |P.ξ (Sum.inr a)| ^ 2) ≤ massTermReduced P k := by\n  simp only [Fin.isValue, massTermReduced]\n  have h1 (a b c : ℝ) (h : - b ≤ c) : a - b ≤ a + c:= by grind\n  apply h1\n  let ξEuclid : EuclideanSpace ℝ (Fin 3) := WithLp.toLp 2 (fun a => P.ξ (Sum.inr a))\n  trans - ‖ξEuclid‖\n  · simp [PiLp.norm_eq_of_L2, ξEuclid]\n  trans - (‖k‖ * ‖ξEuclid‖)\n  · simp\n    simp at hk\n    have ha (a b : ℝ) (h : a ≤ 1) (ha : 0 ≤ a) (hb : 0 ≤ b) : a * b ≤ b := by nlinarith\n    exact ha _ _ hk (norm_nonneg k) (norm_nonneg ξEuclid)\n  trans - ‖⟪k, ξEuclid⟫_ℝ‖\n  · simp\n    exact abs_real_inner_le_norm k ξEuclid\n  trans ⟪k, ξEuclid⟫_ℝ\n  · simp\n    grind\n  simp [PiLp.inner_apply, ξEuclid]\n",
+            "docstring": null
+          },
+          {
+            "id": 390555,
+            "name": "LinearPMap.isLowerBound_neg",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L119-L121",
+            "source_text": "lemma isLowerBound_neg {T : H →ₗ.[ℂ] H} {z : ℂ} {c : ℝ} (h : IsLowerBound T z c) :\n    IsLowerBound (-T) (-z) c :=\n  fun x ↦ by simpa [neg_apply, norm_neg_add] using h x\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finset filter nonempty iff",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202732,
+            "name": "Finset.filter_nonempty_iff",
+            "module": "Mathlib.Data.Finset.Filter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L161-L163",
+            "source_text": "theorem filter_nonempty_iff : (s.filter p).Nonempty ↔ ∃ a ∈ s, p a := by\n  simp only [nonempty_iff_ne_empty, Ne, filter_eq_empty_iff, Classical.not_not, not_forall,\n    exists_prop]\n",
+            "docstring": null
+          },
+          {
+            "id": 202654,
+            "name": "Finset.Nonempty",
+            "module": "Mathlib.Data.Finset.Empty",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Empty.lean#L44-L47",
+            "source_text": "/-- The property `s.Nonempty` expresses the fact that the finset `s` is not empty. It should be used\nin theorem assumptions instead of `∃ x, x ∈ s` or `s ≠ ∅` as it gives access to a nice API thanks\nto the dot notation. -/\nprotected def Nonempty (s : Finset α) : Prop := ∃ x : α, x ∈ s\n",
+            "docstring": "The property `s.Nonempty` expresses the fact that the finset `s` is not empty. It should be used\nin theorem assumptions instead of `∃ x, x ∈ s` or `s ≠ ∅` as it gives access to a nice API thanks\nto the dot notation. "
+          },
+          {
+            "id": 283997,
+            "name": "Filter.nonempty_of_mem",
+            "module": "Mathlib.Order.Filter.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Basic.lean#L390-L391",
+            "source_text": "theorem nonempty_of_mem {f : Filter α} [hf : NeBot f] {s : Set α} (hs : s ∈ f) : s.Nonempty :=\n  s.eq_empty_or_nonempty.elim (fun h => absurd hs (h.symm ▸ mt empty_mem_iff_bot.mp hf.1)) id\n",
+            "docstring": null
+          },
+          {
+            "id": 283998,
+            "name": "Filter.NeBot.nonempty_of_mem",
+            "module": "Mathlib.Order.Filter.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Basic.lean#L393-L394",
+            "source_text": "theorem NeBot.nonempty_of_mem {f : Filter α} (hf : NeBot f) {s : Set α} (hs : s ∈ f) : s.Nonempty :=\n  @Filter.nonempty_of_mem α f hf s hs\n",
+            "docstring": null
+          },
+          {
+            "id": 284013,
+            "name": "Filter.nontrivial_iff_nonempty",
+            "module": "Mathlib.Order.Filter.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Basic.lean#L447-L452",
+            "source_text": "theorem nontrivial_iff_nonempty : Nontrivial (Filter α) ↔ Nonempty α :=\n  ⟨fun _ =>\n    by_contra fun h' =>\n      haveI := not_nonempty_iff.1 h'\n      not_subsingleton (Filter α) inferInstance,\n    @Filter.instNontrivialFilter α⟩\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finset filter nonempty iff",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset min prime membership lower bound",
+      "finset filter nonempty iff"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

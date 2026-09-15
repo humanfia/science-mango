@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (T lower B : ℕ) (C : ℕ → ℤ), M5.BirthSearch.birth T lower B C = none ↔ ∀ N : ℕ, N ≤ B → lower ≤ N → T ∣ N → C N ≤ 0\nintro T lower B C\nby_cases h : (M5.BirthSearch.candidates T lower B C).Nonempty\n· constructor\n  · intro hn\n    simp [M5.BirthSearch.birth, h] at hn\n  · intro hall\n    obtain ⟨N, hN⟩ := h\n    have hm : N ≤ B ∧ lower ≤ N ∧ T ∣ N ∧ 0 < C N := by\n      simpa [M5.BirthSearch.candidates, Nat.lt_succ_iff, and_assoc, and_left_comm, and_comm] using hN\n    exact False.elim ((not_lt_of_ge (hall N hm.1 hm.2.1 hm.2.2.1)) hm.2.2.2)\n· constructor\n  · intro _ N hB hl hd\n    apply le_of_not_gt\n    intro hp\n    apply h\n    exact ⟨N, by simp [M5.BirthSearch.candidates, Nat.lt_succ_iff, hB, hl, hd, hp]⟩\n  · intro _\n    simp [M5.BirthSearch.birth, h]",
+  "queries": []
+}

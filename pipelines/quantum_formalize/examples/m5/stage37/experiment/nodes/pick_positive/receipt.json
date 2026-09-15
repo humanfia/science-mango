@@ -1,0 +1,54 @@
+{
+  "id": "pick_positive",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ResidueRecovery.pick_positive",
+    "spec_sha256": "90918302561d721e81978da78930034895b365fa93afa1a349d06d8b0a21aa77",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-nhtbz2_6/attempt-001/Candidate_a2c0af99d739776b.lean",
+        "target_path": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-nhtbz2_6/attempt-001/FrozenTarget_a2c0af99d739776b.lean",
+        "feedback": "",
+        "target_sha256": "8017ad6e3e7aaf4607da4771fd8e7fd8948aaf504be1da1f0a790f534a2ad4d0",
+        "target_olean_sha256": "6372777ec361160f775565bf37103c0c7d251929b3012efacb144608ee4eb2d6",
+        "source_sha256": "6778e3de317ecc6188647a8dd0f5fea926d92e589fb6a163af7188f22b6c0296",
+        "olean_sha256": "2d45e945c9596b9f353da00e9d7ab520126c10cd8ec4e9807ee1b079832f0dc4",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:45:50.650316+00:00",
+    "work": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-nhtbz2_6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d0db9d93b13f55d907e25ad2b3519505d7a85f680a2a43eee799bef3960d2f5c",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-nhtbz2_6/attempt-001/Candidate_a2c0af99d739776b.lean",
+    "environment_sha256": "0b2fc398551b54d05b1790bc5ad329f9e83ff36ae36cb247f5caab66718e1a7f",
+    "artifacts": {
+      "pick_positive": {
+        "payload": {
+          "declaration": "theorem M5.ResidueRecovery.pick_positive : ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a := by\n  change ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a\n  intro T f xs\n  induction xs with\n  | nil =>\n      simp\n  | cons x xs ih =>\n      intro hex\n      by_cases hx : 0 < f x\n      · refine ⟨x, List.mem_cons_self, ?_, hx⟩\n        simp [M5.ResidueRecovery.pick, hx]\n      · have htail : ∃ a ∈ xs, 0 < f a := by\n          obtain ⟨a, ha, hpos⟩ := hex\n          rcases List.mem_cons.mp ha with hax | ha\n          · subst a\n            exact (hx hpos).elim\n          · exact ⟨a, ha, hpos⟩\n        obtain ⟨a, ha, heq, hpos⟩ := ih htail\n        refine ⟨a, List.mem_cons_of_mem x ha, ?_, hpos⟩\n        cases hp : M5.ResidueRecovery.pick f xs with\n        | mk o n =>\n            simpa [M5.ResidueRecovery.pick, hx, hp] using heq",
+          "imports": [
+            "M5ResidueRecovery"
+          ],
+          "name": "M5.ResidueRecovery.pick_positive",
+          "ancestors": [],
+          "spec_sha256": "90918302561d721e81978da78930034895b365fa93afa1a349d06d8b0a21aa77"
+        },
+        "sha256": "bcf72b0fd91db45fa05cdf094a69556183f8080b777ffe22c0985ca496bbd49c"
+      }
+    }
+  }
+}

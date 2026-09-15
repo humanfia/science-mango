@@ -1,0 +1,13 @@
+{
+  "name": "M5.ResidueRecovery.pick_positive",
+  "statement": "∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a",
+  "imports": [
+    "M5ResidueRecovery"
+  ],
+  "context": "",
+  "queries": [
+    "finite sum positive exists positive summand",
+    "list find positive recursion"
+  ],
+  "guidance": "Induct xs. Positive head succeeds; otherwise any positive candidate must be in the tail and the induction witness is retained by pick. This establishes the returned residue as positive, not just list membership. Return only tactic lines without leading by; preserve exact statement."
+}

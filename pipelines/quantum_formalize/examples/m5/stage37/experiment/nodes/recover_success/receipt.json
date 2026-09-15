@@ -1,0 +1,94 @@
+{
+  "id": "recover_success",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ResidueRecovery.recover_success",
+    "spec_sha256": "aca01a1af3263b01a56994efe8b4b53380fde6e49aa38daa3ae6b7d1a5ee6aac",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-001/Candidate_311fef136d11d5ac.lean:13:8: warning: `push_neg` has been deprecated. Prefer using `push Not` instead.\nIf you'd rather continue using `push_neg` in your project, you can implement it as follows:\n```\nopen Lean.Parser.Tactic in\nmacro \"push_neg\" cfg:optConfig loc:(location)? : tactic =>\n  `(tactic| push $cfg:optConfig Not $[$loc]?)\n```\n/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-001/Candidate_311fef136d11d5ac.lean:38:8: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-001/Candidate_311fef136d11d5ac.lean:42:8: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-002/Candidate_00ed5bbecdeb1503.lean:42:48: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  recover c (p ++ [a]) n\nin the target expression\n  (match (some a, k).1 with\n    | none => (none, (some a, k).2)\n    | some a_1 =>\n      have result := recover c (p ++ [a_1]) n;\n      (result.1, (some a, k).2 + result.2)) =\n    (some q, k + d)\n\nT : ℕ\nc : List (Fin T) → ℤ\nn : ℕ\nih :\n  ∀ (p : List (Fin T)),\n    (∀ (q : List (Fin T)), q.length < p.length + n → c q = ∑ a, c (q ++ [a])) →\n      0 < c p → ∃ q, (recover c p n).1 = some q ∧ q.length = p.length + n ∧ 0 < c q ∧ (recover c p n).2 ≤ n * T\np : List (Fin T)\nhpart : ∀ (q : List (Fin T)), q.length < p.length + (n + 1) → c q = ∑ a, c (q ++ [a])\nhpos : 0 < c p\nhsum : 0 < ∑ a, c (p ++ [a])\nhex : ∃ a, 0 < c (p ++ [a])\nhexList : ∃ a ∈ List.finRange T, 0 < c (p ++ [a])\na : Fin T\nleft✝ : a ∈ List.finRange T\nhpick : (pick (fun a => c (p ++ [a])) (List.finRange T)).1 = some a\nha : 0 < c (p ++ [a])\nk : ℕ := (pick (fun a => c (p ++ [a])) (List.finRange T)).2\nhk : k ≤ T\nhpfull : pick (fun a => c (p ++ [a])) (List.finRange T) = (some a, k)\nhpart' : ∀ (q : List (Fin T)), q.length < (p ++ [a]).length + n → c q = ∑ b, c (q ++ [b])\nq : List (Fin T)\nhq : (recover c (p ++ [a]) n).1 = some q\nhlen : q.length = (p ++ [a]).length + n\nhpositive : 0 < c q\nhcost : (recover c (p ++ [a]) n).2 ≤ n * T\nd : ℕ := (recover c (p ++ [a]) n).2\nhrfull : recover c (p ++ [a]) n = (some q, d)\n⊢ (match (some a, k).1 with\n    | none => (none, (some a, k).2)\n    | some a_1 =>\n      have result := recover c (p ++ [a_1]) n;\n      (result.1, (some a, k).2 + result.2)) =\n    (some q, k + d)\n",
+        "attempt": 2
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-003/Candidate_970a6170f12238e6.lean",
+        "target_path": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-003/FrozenTarget_970a6170f12238e6.lean",
+        "feedback": "",
+        "target_sha256": "518af323bf23c1e50299d44a054862e265bb0774f5dce2fe7198d3dac72b10b1",
+        "target_olean_sha256": "1d03a2a04dfaa99d36ea69cef6c7bfe9366a1336d9ea0a5f6a3c3165659bc3bc",
+        "source_sha256": "033bb61a1ac5251d72450ca735261644cfbe2d764bd612ecf533019c9025ba2e",
+        "olean_sha256": "30f0305e7fadecabf4fed590a11af9daf573e62dc09b04dd0e7d825e0b21db4b",
+        "attempt": 3
+      }
+    ],
+    "created_at": "2026-09-15T08:47:27.976460+00:00",
+    "work": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d0db9d93b13f55d907e25ad2b3519505d7a85f680a2a43eee799bef3960d2f5c",
+    "phase": "finished",
+    "round": 3,
+    "proof": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-003/Candidate_970a6170f12238e6.lean",
+    "environment_sha256": "0b2fc398551b54d05b1790bc5ad329f9e83ff36ae36cb247f5caab66718e1a7f",
+    "artifacts": {
+      "pick_bound": {
+        "payload": {
+          "declaration": "theorem M5.ResidueRecovery.pick_bound : ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (M5.ResidueRecovery.pick f xs).2 ≤ xs.length := by\n  change ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (M5.ResidueRecovery.pick f xs).2 ≤ xs.length\n  intro T f xs\n  induction xs with\n  | nil => simp [M5.ResidueRecovery.pick]\n  | cons x xs ih =>\n      simp only [M5.ResidueRecovery.pick, List.length_cons]\n      split\n      · simp\n      · cases h : M5.ResidueRecovery.pick f xs with\n        | mk result cost =>\n            simp_all only [Prod.snd] <;> omega",
+          "imports": [
+            "M5ResidueRecovery"
+          ],
+          "name": "M5.ResidueRecovery.pick_bound",
+          "ancestors": [],
+          "spec_sha256": "775049a7ebb4934c7b97f4afb1632d33fb15c3f558bf5ac2ddfa17daf1e33b46"
+        },
+        "sha256": "eb86000a219cb88a18b004c7eb2b21780c84f2f59e78cc01b310fb36a745ccbe"
+      },
+      "pick_positive": {
+        "payload": {
+          "declaration": "theorem M5.ResidueRecovery.pick_positive : ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a := by\n  change ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a\n  intro T f xs\n  induction xs with\n  | nil =>\n      simp\n  | cons x xs ih =>\n      intro hex\n      by_cases hx : 0 < f x\n      · refine ⟨x, List.mem_cons_self, ?_, hx⟩\n        simp [M5.ResidueRecovery.pick, hx]\n      · have htail : ∃ a ∈ xs, 0 < f a := by\n          obtain ⟨a, ha, hpos⟩ := hex\n          rcases List.mem_cons.mp ha with hax | ha\n          · subst a\n            exact (hx hpos).elim\n          · exact ⟨a, ha, hpos⟩\n        obtain ⟨a, ha, heq, hpos⟩ := ih htail\n        refine ⟨a, List.mem_cons_of_mem x ha, ?_, hpos⟩\n        cases hp : M5.ResidueRecovery.pick f xs with\n        | mk o n =>\n            simpa [M5.ResidueRecovery.pick, hx, hp] using heq",
+          "imports": [
+            "M5ResidueRecovery"
+          ],
+          "name": "M5.ResidueRecovery.pick_positive",
+          "ancestors": [],
+          "spec_sha256": "90918302561d721e81978da78930034895b365fa93afa1a349d06d8b0a21aa77"
+        },
+        "sha256": "bcf72b0fd91db45fa05cdf094a69556183f8080b777ffe22c0985ca496bbd49c"
+      },
+      "recover_success": {
+        "payload": {
+          "declaration": "theorem M5.ResidueRecovery.recover_success : ∀ (T : ℕ) (c : List (Fin T) → ℤ) (p : List (Fin T)) (n : ℕ), (∀ q : List (Fin T), q.length < p.length + n → c q = ∑ a : Fin T, c (q ++ [a])) → 0 < c p → ∃ q : List (Fin T), (M5.ResidueRecovery.recover c p n).1 = some q ∧ q.length = p.length + n ∧ 0 < c q ∧ (M5.ResidueRecovery.recover c p n).2 ≤ n * T := by\n  change ∀ (T : ℕ) (c : List (Fin T) → ℤ) (p : List (Fin T)) (n : ℕ), (∀ q : List (Fin T), q.length < p.length + n → c q = ∑ a : Fin T, c (q ++ [a])) → 0 < c p → ∃ q : List (Fin T), (M5.ResidueRecovery.recover c p n).1 = some q ∧ q.length = p.length + n ∧ 0 < c q ∧ (M5.ResidueRecovery.recover c p n).2 ≤ n * T\n  intro T c p n\n  induction n generalizing p with\n  | zero =>\n      intro hpart hpos\n      exact ⟨p, by simp [M5.ResidueRecovery.recover], by simp, hpos, by simp [M5.ResidueRecovery.recover]⟩\n  | succ n ih =>\n      intro hpart hpos\n      have hsum : 0 < ∑ a : Fin T, c (p ++ [a]) := by\n        rw [← hpart p (by omega)]\n        exact hpos\n      have hex : ∃ a : Fin T, 0 < c (p ++ [a]) := by\n        by_contra h\n        push_neg at h\n        have hn : (∑ a : Fin T, c (p ++ [a])) ≤ 0 :=\n          Finset.sum_nonpos (fun a _ => h a)\n        omega\n      have hexList : ∃ a ∈ List.finRange T, 0 < c (p ++ [a]) := by\n        obtain ⟨a, ha⟩ := hex\n        exact ⟨a, by simp, ha⟩\n      obtain ⟨a, _, hpick, ha⟩ :=\n        M5.ResidueRecovery.pick_positive T (fun a => c (p ++ [a])) (List.finRange T) hexList\n      let k := (M5.ResidueRecovery.pick (fun a => c (p ++ [a])) (List.finRange T)).2\n      have hk : k ≤ T := by\n        simpa [k] using M5.ResidueRecovery.pick_bound T (fun a => c (p ++ [a])) (List.finRange T)\n      have hpfull : M5.ResidueRecovery.pick (fun a => c (p ++ [a])) (List.finRange T) = (some a, k) :=\n        Prod.ext hpick rfl\n      have hpart' : ∀ q : List (Fin T), q.length < (p ++ [a]).length + n → c q = ∑ b : Fin T, c (q ++ [b]) := by\n        intro q hq\n        apply hpart q\n        simp only [List.length_append, List.length_singleton] at hq\n        omega\n      obtain ⟨q, hq, hlen, hpositive, hcost⟩ := ih (p ++ [a]) hpart' ha\n      let d := (M5.ResidueRecovery.recover c (p ++ [a]) n).2\n      have hrfull : M5.ResidueRecovery.recover c (p ++ [a]) n = (some q, d) :=\n        Prod.ext hq rfl\n      have hfull : M5.ResidueRecovery.recover c p (n + 1) = (some q, k + d) := by\n        rw [M5.ResidueRecovery.recover, hpfull]\n        simp only [Prod.fst, Prod.snd, hrfull]\n      refine ⟨q, ?_, ?_, hpositive, ?_⟩\n      · rw [hfull]\n      · simp only [List.length_append, List.length_singleton] at hlen\n        omega\n      · rw [hfull]\n        change k + d ≤ (n + 1) * T\n        have hd : d ≤ n * T := hcost\n        rw [Nat.add_mul, Nat.one_mul]\n        omega",
+          "imports": [
+            "M5ResidueRecovery"
+          ],
+          "name": "M5.ResidueRecovery.recover_success",
+          "ancestors": [
+            "pick_bound",
+            "pick_positive"
+          ],
+          "spec_sha256": "cf4b3feb21f0991cd6eb3d6446a6e71e11b43cf6628b6f5f80638c737733eee0"
+        },
+        "sha256": "0d4c2b05f6152bea23d5282a13c01960b5a7acc2b6d410712e9cb7cc1cba47d1"
+      }
+    }
+  }
+}

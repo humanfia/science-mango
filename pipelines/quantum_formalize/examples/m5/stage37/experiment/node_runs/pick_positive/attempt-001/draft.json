@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a\nintro T f xs\ninduction xs with\n| nil =>\n    simp\n| cons x xs ih =>\n    intro hex\n    by_cases hx : 0 < f x\n    · refine ⟨x, List.mem_cons_self, ?_, hx⟩\n      simp [M5.ResidueRecovery.pick, hx]\n    · have htail : ∃ a ∈ xs, 0 < f a := by\n        obtain ⟨a, ha, hpos⟩ := hex\n        rcases List.mem_cons.mp ha with hax | ha\n        · subst a\n          exact (hx hpos).elim\n        · exact ⟨a, ha, hpos⟩\n      obtain ⟨a, ha, heq, hpos⟩ := ih htail\n      refine ⟨a, List.mem_cons_of_mem x ha, ?_, hpos⟩\n      cases hp : M5.ResidueRecovery.pick f xs with\n      | mk o n =>\n          simpa [M5.ResidueRecovery.pick, hx, hp] using heq",
+  "queries": []
+}

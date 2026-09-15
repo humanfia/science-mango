@@ -1,0 +1,13 @@
+{
+  "name": "M5.ResidueRecovery.recover_success",
+  "statement": "∀ (T : ℕ) (c : List (Fin T) → ℤ) (p : List (Fin T)) (n : ℕ), (∀ q : List (Fin T), q.length < p.length + n → c q = ∑ a : Fin T, c (q ++ [a])) → 0 < c p → ∃ q : List (Fin T), (M5.ResidueRecovery.recover c p n).1 = some q ∧ q.length = p.length + n ∧ 0 < c q ∧ (M5.ResidueRecovery.recover c p n).2 ≤ n * T",
+  "imports": [
+    "M5ResidueRecovery"
+  ],
+  "context": "theorem M5.ResidueRecovery.pick_bound : ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (M5.ResidueRecovery.pick f xs).2 ≤ xs.length := by\n  change ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (M5.ResidueRecovery.pick f xs).2 ≤ xs.length\n  intro T f xs\n  induction xs with\n  | nil => simp [M5.ResidueRecovery.pick]\n  | cons x xs ih =>\n      simp only [M5.ResidueRecovery.pick, List.length_cons]\n      split\n      · simp\n      · cases h : M5.ResidueRecovery.pick f xs with\n        | mk result cost =>\n            simp_all only [Prod.snd] <;> omega\n\ntheorem M5.ResidueRecovery.pick_positive : ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a := by\n  change ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a\n  intro T f xs\n  induction xs with\n  | nil =>\n      simp\n  | cons x xs ih =>\n      intro hex\n      by_cases hx : 0 < f x\n      · refine ⟨x, List.mem_cons_self, ?_, hx⟩\n        simp [M5.ResidueRecovery.pick, hx]\n      · have htail : ∃ a ∈ xs, 0 < f a := by\n          obtain ⟨a, ha, hpos⟩ := hex\n          rcases List.mem_cons.mp ha with hax | ha\n          · subst a\n            exact (hx hpos).elim\n          · exact ⟨a, ha, hpos⟩\n        obtain ⟨a, ha, heq, hpos⟩ := ih htail\n        refine ⟨a, List.mem_cons_of_mem x ha, ?_, hpos⟩\n        cases hp : M5.ResidueRecovery.pick f xs with\n        | mk o n =>\n            simpa [M5.ResidueRecovery.pick, hx, hp] using heq",
+  "queries": [
+    "finite sum positive exists positive summand",
+    "list find positive recursion"
+  ],
+  "guidance": "Induct n generalizing p. Positive parent and sum partition imply some positive child (otherwise sum_nonpos contradicts positivity). Every FinT value belongs to List.finRangeT; pick_positive returns such child and pick_bound bounds searchcost byT. Recurse with one fewer coordinate; new prefixlen+n=old prefixlen+(n+1). Add cost<=T+n*T=(n+1)*T. No strict positivity assumption on T is needed separately because a positive sum provides a candidate. Return only tactic lines without leading by; preserve exact statement."
+}

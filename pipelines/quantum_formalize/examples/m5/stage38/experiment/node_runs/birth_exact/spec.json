@@ -1,0 +1,13 @@
+{
+  "name": "M5.BirthSearch.birth_exact",
+  "statement": "∀ (T lower B : ℕ) (C : ℕ → ℤ) (Valid : ℕ → Prop), (∀ N : ℕ, Valid N → lower ≤ N ∧ T ∣ N) → (∀ N : ℕ, lower ≤ N → T ∣ N → (0 < C N ↔ Valid N)) → (∃ N : ℕ, N ≤ B ∧ Valid N) → ∃ b : ℕ, M5.BirthSearch.birth T lower B C = some b ∧ Valid b ∧ ∀ N : ℕ, Valid N → b ≤ N",
+  "imports": [
+    "M5BirthSearch"
+  ],
+  "context": "theorem M5.BirthSearch.birth_spec : ∀ (T lower B : ℕ) (C : ℕ → ℤ), (∃ N : ℕ, N ≤ B ∧ lower ≤ N ∧ T ∣ N ∧ 0 < C N) → ∃ b : ℕ, M5.BirthSearch.birth T lower B C = some b ∧ b ≤ B ∧ lower ≤ b ∧ T ∣ b ∧ 0 < C b ∧ ∀ N : ℕ, lower ≤ N → T ∣ N → 0 < C N → b ≤ N := by\n  classical\n  change ∀ (T lower B : ℕ) (C : ℕ → ℤ), _\n  intro T lower B C hex\n  have hmem (n : ℕ) : n ∈ M5.BirthSearch.candidates T lower B C ↔\n      n ≤ B ∧ lower ≤ n ∧ T ∣ n ∧ 0 < C n := by\n    simp [M5.BirthSearch.candidates, Nat.lt_succ_iff, and_assoc, and_left_comm, and_comm]\n  have hne : (M5.BirthSearch.candidates T lower B C).Nonempty := by\n    obtain ⟨n, hn⟩ := hex\n    exact ⟨n, (hmem n).mpr hn⟩\n  let b := (M5.BirthSearch.candidates T lower B C).min' hne\n  have hb : b ≤ B ∧ lower ≤ b ∧ T ∣ b ∧ 0 < C b :=\n    (hmem b).mp (Finset.min'_mem _ hne)\n  refine ⟨b, ?_, hb.1, hb.2.1, hb.2.2.1, hb.2.2.2, ?_⟩\n  · simp [M5.BirthSearch.birth, hne, b]\n  · intro N hlow hdiv hpos\n    by_cases hNB : N ≤ B\n    · exact Finset.min'_le _ N ((hmem N).mpr ⟨hNB, hlow, hdiv, hpos⟩)\n    · exact le_trans hb.1 (le_of_lt (Nat.lt_of_not_ge hNB))",
+  "queries": [
+    "Finset min prime membership lower bound",
+    "finset filter nonempty iff"
+  ],
+  "guidance": "Convert the bounded valid witness to birth_spec premises using necessary bounds and exactcount. Convert returned positive count to validity. Every validN satisfies lower/period conditions and positivecount, so the global minimum property applies. Later instantiate C with original arithmeticC, Valid with physical realizability, and bounded witness from28/A; do not assume these in the final M5 theorem. Return only tactic lines without leading by; preserve exact statement."
+}

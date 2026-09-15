@@ -1,0 +1,23 @@
+import FrozenTarget_a2c0af99d739776b
+theorem M5.ResidueRecovery.pick_positive : QuantumHarnessFrozenTarget := by
+  change ∀ (T : ℕ) (f : Fin T → ℤ) (xs : List (Fin T)), (∃ a ∈ xs, 0 < f a) → ∃ a ∈ xs, (M5.ResidueRecovery.pick f xs).1 = some a ∧ 0 < f a
+  intro T f xs
+  induction xs with
+  | nil =>
+      simp
+  | cons x xs ih =>
+      intro hex
+      by_cases hx : 0 < f x
+      · refine ⟨x, List.mem_cons_self, ?_, hx⟩
+        simp [M5.ResidueRecovery.pick, hx]
+      · have htail : ∃ a ∈ xs, 0 < f a := by
+          obtain ⟨a, ha, hpos⟩ := hex
+          rcases List.mem_cons.mp ha with hax | ha
+          · subst a
+            exact (hx hpos).elim
+          · exact ⟨a, ha, hpos⟩
+        obtain ⟨a, ha, heq, hpos⟩ := ih htail
+        refine ⟨a, List.mem_cons_of_mem x ha, ?_, hpos⟩
+        cases hp : M5.ResidueRecovery.pick f xs with
+        | mk o n =>
+            simpa [M5.ResidueRecovery.pick, hx, hp] using heq

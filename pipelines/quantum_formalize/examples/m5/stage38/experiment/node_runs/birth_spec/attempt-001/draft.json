@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (T lower B : ℕ) (C : ℕ → ℤ), _\nintro T lower B C hex\nhave hmem (n : ℕ) : n ∈ M5.BirthSearch.candidates T lower B C ↔\n    n ≤ B ∧ lower ≤ n ∧ T ∣ n ∧ 0 < C n := by\n  simp [M5.BirthSearch.candidates, Nat.lt_succ_iff, and_assoc, and_left_comm, and_comm]\nhave hne : (M5.BirthSearch.candidates T lower B C).Nonempty := by\n  obtain ⟨n, hn⟩ := hex\n  exact ⟨n, (hmem n).mpr hn⟩\nlet b := (M5.BirthSearch.candidates T lower B C).min' hne\nhave hb : b ≤ B ∧ lower ≤ b ∧ T ∣ b ∧ 0 < C b :=\n  (hmem b).mp (Finset.min'_mem _ hne)\nrefine ⟨b, ?_, hb.1, hb.2.1, hb.2.2.1, hb.2.2.2, ?_⟩\n· simp [M5.BirthSearch.birth, hne, b]\n· intro N hlow hdiv hpos\n  by_cases hNB : N ≤ B\n  · exact Finset.min'_le _ N ((hmem N).mpr ⟨hNB, hlow, hdiv, hpos⟩)\n  · exact le_trans hb.1 (le_of_lt (Nat.lt_of_not_ge hNB))",
+  "queries": []
+}

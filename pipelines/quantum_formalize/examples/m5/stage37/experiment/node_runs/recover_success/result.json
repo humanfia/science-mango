@@ -1,0 +1,48 @@
+{
+  "status": "accepted",
+  "target": "M5.ResidueRecovery.recover_success",
+  "spec_sha256": "aca01a1af3263b01a56994efe8b4b53380fde6e49aa38daa3ae6b7d1a5ee6aac",
+  "accepted": true,
+  "attempts": [
+    {
+      "accepted": false,
+      "stage": "compile",
+      "feedback": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-001/Candidate_311fef136d11d5ac.lean:13:8: warning: `push_neg` has been deprecated. Prefer using `push Not` instead.\nIf you'd rather continue using `push_neg` in your project, you can implement it as follows:\n```\nopen Lean.Parser.Tactic in\nmacro \"push_neg\" cfg:optConfig loc:(location)? : tactic =>\n  `(tactic| push $cfg:optConfig Not $[$loc]?)\n```\n/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-001/Candidate_311fef136d11d5ac.lean:38:8: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-001/Candidate_311fef136d11d5ac.lean:42:8: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n",
+      "attempt": 1
+    },
+    {
+      "accepted": false,
+      "stage": "compile",
+      "feedback": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-002/Candidate_00ed5bbecdeb1503.lean:42:48: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  recover c (p ++ [a]) n\nin the target expression\n  (match (some a, k).1 with\n    | none => (none, (some a, k).2)\n    | some a_1 =>\n      have result := recover c (p ++ [a_1]) n;\n      (result.1, (some a, k).2 + result.2)) =\n    (some q, k + d)\n\nT : ℕ\nc : List (Fin T) → ℤ\nn : ℕ\nih :\n  ∀ (p : List (Fin T)),\n    (∀ (q : List (Fin T)), q.length < p.length + n → c q = ∑ a, c (q ++ [a])) →\n      0 < c p → ∃ q, (recover c p n).1 = some q ∧ q.length = p.length + n ∧ 0 < c q ∧ (recover c p n).2 ≤ n * T\np : List (Fin T)\nhpart : ∀ (q : List (Fin T)), q.length < p.length + (n + 1) → c q = ∑ a, c (q ++ [a])\nhpos : 0 < c p\nhsum : 0 < ∑ a, c (p ++ [a])\nhex : ∃ a, 0 < c (p ++ [a])\nhexList : ∃ a ∈ List.finRange T, 0 < c (p ++ [a])\na : Fin T\nleft✝ : a ∈ List.finRange T\nhpick : (pick (fun a => c (p ++ [a])) (List.finRange T)).1 = some a\nha : 0 < c (p ++ [a])\nk : ℕ := (pick (fun a => c (p ++ [a])) (List.finRange T)).2\nhk : k ≤ T\nhpfull : pick (fun a => c (p ++ [a])) (List.finRange T) = (some a, k)\nhpart' : ∀ (q : List (Fin T)), q.length < (p ++ [a]).length + n → c q = ∑ b, c (q ++ [b])\nq : List (Fin T)\nhq : (recover c (p ++ [a]) n).1 = some q\nhlen : q.length = (p ++ [a]).length + n\nhpositive : 0 < c q\nhcost : (recover c (p ++ [a]) n).2 ≤ n * T\nd : ℕ := (recover c (p ++ [a]) n).2\nhrfull : recover c (p ++ [a]) n = (some q, d)\n⊢ (match (some a, k).1 with\n    | none => (none, (some a, k).2)\n    | some a_1 =>\n      have result := recover c (p ++ [a_1]) n;\n      (result.1, (some a, k).2 + result.2)) =\n    (some q, k + d)\n",
+      "attempt": 2
+    },
+    {
+      "accepted": true,
+      "stage": "acceptance",
+      "axioms": [
+        "propext",
+        "Classical.choice",
+        "Quot.sound"
+      ],
+      "proof_path": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-003/Candidate_970a6170f12238e6.lean",
+      "target_path": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-003/FrozenTarget_970a6170f12238e6.lean",
+      "feedback": "",
+      "target_sha256": "518af323bf23c1e50299d44a054862e265bb0774f5dce2fe7198d3dac72b10b1",
+      "target_olean_sha256": "1d03a2a04dfaa99d36ea69cef6c7bfe9366a1336d9ea0a5f6a3c3165659bc3bc",
+      "source_sha256": "033bb61a1ac5251d72450ca735261644cfbe2d764bd612ecf533019c9025ba2e",
+      "olean_sha256": "30f0305e7fadecabf4fed590a11af9daf573e62dc09b04dd0e7d825e0b21db4b",
+      "attempt": 3
+    }
+  ],
+  "created_at": "2026-09-15T08:47:27.976460+00:00",
+  "work": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70",
+  "library_mapping": {
+    "Mathlib": "Mathlib",
+    "Physlib": "Physlib"
+  },
+  "local_interfaces_sha256": "d0db9d93b13f55d907e25ad2b3519505d7a85f680a2a43eee799bef3960d2f5c",
+  "phase": "finished",
+  "round": 3,
+  "proof": "/home/jing/m5-lean-residue-recovery-formalization/.humanize-formal-runs/run-y1o59x70/attempt-003/Candidate_970a6170f12238e6.lean",
+  "environment_sha256": "0b2fc398551b54d05b1790bc5ad329f9e83ff36ae36cb247f5caab66718e1a7f"
+}
