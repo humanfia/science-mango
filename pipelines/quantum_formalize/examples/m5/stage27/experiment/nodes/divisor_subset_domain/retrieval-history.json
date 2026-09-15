@@ -1,0 +1,174 @@
+[
+  {
+    "queries": [
+      "finite sum product cardinality filter",
+      "finite powersetCard filter subset"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum product cardinality filter",
+        "status": "ok",
+        "results": [
+          {
+            "id": 332719,
+            "name": "tsum",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Defs.lean#L132-L141",
+            "source_text": "@[to_additive /-- `∑' i, f i` is the unconditional sum of `f` if it exists, or 0 otherwise.\n\nMore generally, if `L` is a `SummationFilter`, `∑'[L] i, f i` is the sum of `f` with respect to\n`L` if it exists, and `0` otherwise.\n\n(Note that even if the unconditional sum exists, it might not be unique if the topology is not\nseparated. When the support of `f` is finite, we make the most reasonable choice, to use the sum\nover the support. Otherwise, we choose arbitrarily an `a` satisfying `HasSum f a`. Similar remarks\napply to more general summation filters.)\n-/]\nnoncomputable irreducible_def tprod (f : β → α) (L := unconditional β) :=",
+            "docstring": "`∑' i, f i` is the unconditional sum of `f` if it exists, or 0 otherwise.\n\nMore generally, if `L` is a `SummationFilter`, `∑'[L] i, f i` is the sum of `f` with respect to\n`L` if it exists, and `0` otherwise.\n\n(Note that even if the unconditional sum exists, it might not be unique if the topology is not\nseparated. When the support of `f` is finite, we make the most reasonable choice, to use the sum\nover the support. Otherwise, we choose arbitrarily an `a` satisfying `HasSum f a`. Similar remarks\napply to more general summation filters.)\n"
+          },
+          {
+            "id": 332729,
+            "name": "tsum_bot",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Defs.lean#L179-L183",
+            "source_text": "@[to_additive /-- If the summation filter is the trivial filter `⊥`, then the topological sum is\nequal to the finite sum (which is taken to be 1 if the support of `f` is infinite).\n\nNote that in this case `HasSum f a` is satisfied for *every* element `a` of the target, so the\nvalue assigned to the `tsum` is a question of conventions. -/]\nlemma tprod_bot (hL : ¬L.NeBot) (f : β → α) : ∏'[L] b, f b = ∏ᶠ b, f b := by",
+            "docstring": "If the summation filter is the trivial filter `⊥`, then the topological sum is\nequal to the finite sum (which is taken to be 1 if the support of `f` is infinite).\n\nNote that in this case `HasSum f a` is satisfied for *every* element `a` of the target, so the\nvalue assigned to the `tsum` is a question of conventions. "
+          },
+          {
+            "id": 333341,
+            "name": "SummationFilter.conditional",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L214-L217",
+            "source_text": "/-- **Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. -/\n@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)\n",
+            "docstring": "**Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. "
+          },
+          {
+            "id": 58100,
+            "name": "Finset.sum_filter_of_ne",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L309-L309",
+            "source_text": "@[to_additive]\ntheorem prod_filter_of_ne {p : ι → Prop} [DecidablePred p] (hp : ∀ x ∈ s, f x ≠ 1 → p x) :\n    ∏ x ∈ s with p x, f x = ∏ x ∈ s, f x :=",
+            "docstring": null
+          },
+          {
+            "id": 253563,
+            "name": "TensorProduct",
+            "module": "Mathlib.LinearAlgebra.TensorProduct.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/TensorProduct/Defs.lean#L79-L83",
+            "source_text": "/-- The tensor product of two modules `M` and `N` over the same commutative semiring `R`.\nThe localized notations are `M ⊗ N` and `M ⊗[R] N`, accessed by `open scoped TensorProduct`. -/\ndef TensorProduct : Type _ :=\n  (addConGen (TensorProduct.Eqv R M N)).Quotient\nderiving Zero, Add, AddZeroClass, AddSemigroup\n",
+            "docstring": "The tensor product of two modules `M` and `N` over the same commutative semiring `R`.\nThe localized notations are `M ⊗ N` and `M ⊗[R] N`, accessed by `open scoped TensorProduct`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite sum product cardinality filter",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390254,
+            "name": "QuantumMechanics.FiniteHilbertSpace.instInnerProductSpaceComplex",
+            "module": "Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/HilbertSpaces/FiniteTarget/Basic.lean#L126-L127",
+            "source_text": "noncomputable instance : InnerProductSpace ℂ (FiniteHilbertSpace d) :=\n  InnerProductSpace.induced linearEquivEuclidean.toLinearMap\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite powersetCard filter subset",
+        "status": "ok",
+        "results": [
+          {
+            "id": 204061,
+            "name": "Finset.powersetCard_eq_filter",
+            "module": "Mathlib.Data.Finset.Powerset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Powerset.lean#L272-L275",
+            "source_text": "theorem powersetCard_eq_filter {n} {s : Finset α} :\n    powersetCard n s = (powerset s).filter fun x => x.card = n := by\n  ext\n  simp [mem_powersetCard]\n",
+            "docstring": null
+          },
+          {
+            "id": 204054,
+            "name": "Finset.card_filter_powersetCard_subset",
+            "module": "Mathlib.Data.Finset.Powerset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Powerset.lean#L232-L244",
+            "source_text": "/-- The number of `n`-element subsets of `t` containing `s` equals\n`Nat.choose (#t - #s) (n - #s)`. -/\nlemma card_filter_powersetCard_subset [DecidableEq α] (s t : Finset α) (n : ℕ)\n    (hst : s ⊆ t) (hsn : #s ≤ n) :\n    #((t.powersetCard n).filter (s ⊆ ·)) = Nat.choose (#t - #s) (n - #s) := by\n  have hinj : Set.InjOn (· ∪ s) ↑((t \\ s).powersetCard (n - #s)) := fun a ha b hb hab =>\n    (union_sdiff_cancel_right\n      (disjoint_of_subset_left (mem_powersetCard.mp ha).1 disjoint_sdiff_self_left)).symm.trans\n    ((congrArg (· \\ s) hab).trans\n      (union_sdiff_cancel_right\n        (disjoint_of_subset_left (mem_powersetCard.mp hb).1 disjoint_sdiff_self_left)))\n  simp only [filter_powersetCard_subset s t n hst hsn, card_image_of_injOn hinj,\n             card_powersetCard, card_sdiff_of_subset hst]\n",
+            "docstring": "The number of `n`-element subsets of `t` containing `s` equals\n`Nat.choose (#t - #s) (n - #s)`. "
+          },
+          {
+            "id": 204053,
+            "name": "Finset.filter_powersetCard_subset",
+            "module": "Mathlib.Data.Finset.Powerset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Powerset.lean#L216-L230",
+            "source_text": "/-- The `n`-element subsets of `t` containing `s` are exactly the `(n - s.card)`-element\nsubsets of `t \\ s`, unioned with `s`. -/\ntheorem filter_powersetCard_subset [DecidableEq α] (s t : Finset α) (n : ℕ)\n    (hst : s ⊆ t) (hsn : #s ≤ n) :\n    (t.powersetCard n).filter (s ⊆ ·) = ((t \\ s).powersetCard (n - #s)).image (· ∪ s) := by\n  ext x\n  simp only [mem_filter, mem_powersetCard, mem_image]\n  constructor\n  · intro ⟨⟨hxt, hxn⟩, hsx⟩\n    exact ⟨x \\ s, ⟨fun y hy => mem_sdiff.mpr ⟨hxt (mem_sdiff.mp hy).1, (mem_sdiff.mp hy).2⟩,\n           by rw [card_sdiff_of_subset hsx, hxn]⟩, sdiff_union_of_subset hsx⟩\n  · rintro ⟨y, ⟨hyt, hyn⟩, rfl⟩\n    refine ⟨⟨union_subset (hyt.trans sdiff_subset) hst, ?_⟩, subset_union_right⟩\n    rw [card_union_of_disjoint (disjoint_of_subset_left hyt disjoint_sdiff_self_left), hyn]\n    lia\n",
+            "docstring": "The `n`-element subsets of `t` containing `s` are exactly the `(n - s.card)`-element\nsubsets of `t \\ s`, unioned with `s`. "
+          },
+          {
+            "id": 202717,
+            "name": "Finset.filter",
+            "module": "Mathlib.Data.Finset.Filter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L48-L53",
+            "source_text": "/-- `Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). -/\ndef filter (s : Finset α) : Finset α :=\n  ⟨_, s.2.filter p⟩\n",
+            "docstring": "`Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). "
+          },
+          {
+            "id": 284285,
+            "name": "Set.Finite.compl_mem_cocardinal",
+            "module": "Mathlib.Order.Filter.Cocardinal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Cocardinal.lean#L87-L89",
+            "source_text": "theorem _root_.Set.Finite.compl_mem_cocardinal {s : Set α} (hs : s.Finite) :\n    sᶜ ∈ cocardinal α hreg :=\n  compl_mem_cocardinal_of_card_lt <| lt_of_lt_of_le (Finite.lt_aleph0 hs) (hreg.aleph0_le)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite powersetCard filter subset",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388416,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.mem_powerset_iff_subset",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L306-L309",
+            "source_text": "@[simp]\nlemma mem_powerset_iff_subset {x y : ChargeSpectrum 𝓩} :\n    x ∈ powerset y ↔ x ⊆ y := by\n  simp [mem_powerset_iff, subset_def]",
+            "docstring": null
+          },
+          {
+            "id": 388412,
+            "name": "Option.powerset",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L280-L285",
+            "source_text": "/-- The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\n  and `{none, some y}` is `x` is `some y`. -/\ndef _root_.Option.powerset (x : Option 𝓩) : Finset (Option 𝓩) :=\n  match x with\n  | none => {none}\n  | some x => {none, some x}\n",
+            "docstring": "The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\nand `{none, some y}` is `x` is `some y`. "
+          },
+          {
+            "id": 388484,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.subset_insert_filter_card_zero",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.MinimalSuperSet",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/MinimalSuperSet.lean#L452-L472",
+            "source_text": "/-- For a proposition `p` if `(T.uniqueMap4 (insert q10.1)).toMultiset.filter p`\n  and `(T.uniqueMap3 (insert q5.1)).toMultiset.filter p` for all `q5 ∈ S5` and `q10 ∈ S10` then\n  if `x ∈ T` and `x ⊆ y` if `y ∉ T` then `¬ p y`.\n  This assumes that all charges in `T` are complete, and that `p` satisfies\n  `x ⊆ y → ¬ p x → ¬ p y`. -/\nlemma subset_insert_filter_card_zero\n    (T : Multiset (ChargeSpectrum 𝓩))\n    (S5 S10 : Finset 𝓩)\n    (p : ChargeSpectrum 𝓩 → Prop) [DecidablePred p]\n    (hnotSubset : ∀ (x y : ChargeSpectrum 𝓩), x ⊆ y → ¬ p x → ¬ p y)\n    (hComplet : ∀ x ∈ T, IsComplete x)\n    (x : ChargeSpectrum 𝓩)\n    (hx : x ∈ T) (y : ChargeSpectrum 𝓩) (hsubset : x ⊆ y)\n    (hy : y ∈ ofFinset S5 S10)\n    (h10 : ∀ q10 : S10, ((T.map fun x => ⟨x.qHd, x.qHu, x.Q5, insert q10.1 x.Q10⟩).filter\n      fun y => (y ∉ T ∧ p y)) = ∅)\n    (h5 : ∀ q5 : S5, ((T.map fun x => ⟨x.qHd, x.qHu, insert q5.1 x.Q5, x.Q10⟩).filter\n      fun y => (y ∉ T ∧ p y)) = ∅) :\n      y ∉ T → ¬ p y :=\n  subset_insert_filter_card_zero_inductive T S5 S10 p hnotSubset hComplet x hx y hsubset hy h10 h5\n    (y.card - x.card) rfl\n",
+            "docstring": "For a proposition `p` if `(T.uniqueMap4 (insert q10.1)).toMultiset.filter p`\nand `(T.uniqueMap3 (insert q5.1)).toMultiset.filter p` for all `q5 ∈ S5` and `q10 ∈ S10` then\nif `x ∈ T` and `x ⊆ y` if `y ∉ T` then `¬ p y`.\nThis assumes that all charges in `T` are complete, and that `p` satisfies\n`x ⊆ y → ¬ p x → ¬ p y`. "
+          },
+          {
+            "id": 388483,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.subset_insert_filter_card_zero_inductive",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.MinimalSuperSet",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/MinimalSuperSet.lean#L410-L450",
+            "source_text": "lemma subset_insert_filter_card_zero_inductive\n    (T : Multiset (ChargeSpectrum 𝓩))\n    (S5 S10 : Finset 𝓩)\n    (p : ChargeSpectrum 𝓩 → Prop) [DecidablePred p]\n    (hnotSubset : ∀ (x y : ChargeSpectrum 𝓩), x ⊆ y → ¬ p x → ¬ p y)\n    (hComplet : ∀ x ∈ T, IsComplete x)\n    (x : ChargeSpectrum 𝓩)\n    (hx : x ∈ T) (y : ChargeSpectrum 𝓩) (hsubset : x ⊆ y)\n    (hy : y ∈ ofFinset S5 S10)\n    (h10 : ∀ q10 : S10, ((T.map fun x => ⟨x.qHd, x.qHu, x.Q5, insert q10.1 x.Q10⟩).filter\n      fun y => (y ∉ T ∧ p y)) = ∅)\n    (h5 : ∀ q5 : S5, ((T.map fun x => ⟨x.qHd, x.qHu, insert q5.1 x.Q5, x.Q10⟩).filter\n      fun y => (y ∉ T ∧ p y)) = ∅) :\n    (n : ℕ) → (hn : n = y.card - x.card) → y ∉ T → ¬ p y\n  | 0, hn, hnot_in_T => by\n    have hxy : x = y := by\n      refine eq_of_subset_card hsubset ?_\n      have hl : x.card ≤ y.card := card_mono hsubset\n      omega\n    subst hxy\n    simp_all\n  | Nat.succ n, hn, hnot_in_T => by\n    have hxy : x ≠ y := by\n      intro h\n      subst h\n      simp at hn\n    obtain ⟨z, hz, hsubsetz⟩ := exists_minimalSuperSet S5 S10 hy hsubset hxy\n    have hz' := insert_filter_card_zero T S5 S10 p hComplet h10 h5 x hx z hz\n    by_cases hz_not_in_T : z ∉ T\n    · apply hnotSubset\n      · exact hsubsetz\n      · exact hz' hz_not_in_T\n    apply subset_insert_filter_card_zero_inductive T S5 S10 p hnotSubset hComplet z (n := n)\n    · simpa using hz_not_in_T\n    · exact hsubsetz\n    · exact hy\n    · exact fun q10 => h10 q10\n    · exact fun q5 => h5 q5\n    · rw [card_of_mem_minimalSuperSet z hz]\n      omega\n    · exact hnot_in_T\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

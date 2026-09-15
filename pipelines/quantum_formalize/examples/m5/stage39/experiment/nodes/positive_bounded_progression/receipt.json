@@ -1,0 +1,61 @@
+{
+  "id": "positive_bounded_progression",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.GlobalCriterion.positive_bounded_progression",
+    "spec_sha256": "a8264dca399d84d5f1573cfc7f65c958964a0c11c260742b4d19318f1097c463",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-xx8mo60m/attempt-001/Candidate_80ffeb5a78f9932a.lean:20:6: error: Type mismatch: After simplification, term\n  hab.left\n has type\n  (signaturePeriod F).gcd ((Finset.univ.gcd fun i => ↑(a✝ i)).gcd (Finset.univ.gcd fun i => ↑(b✝ i))) = 1\nbut is expected to have type\n  (signaturePeriod F).gcd ((Finset.univ.gcd fun i => ↑(a i)).gcd (Finset.univ.gcd fun i => ↑(b i))) = 1\n/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-xx8mo60m/attempt-001/Candidate_80ffeb5a78f9932a.lean:27:6: error: Type mismatch: After simplification, term\n  hab.right\n has type\n  completeSignature (1 + ∑ i, Polynomial.X ^ ↑(a✝ i)) (1 + ∑ i, Polynomial.X ^ ↑(b✝ i)) (signaturePeriod F) = F\nbut is expected to have type\n  completeSignature (1 + ∑ i, Polynomial.X ^ ↑(a i)) (1 + ∑ i, Polynomial.X ^ ↑(b i)) (signaturePeriod F) = F\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-xx8mo60m/attempt-002/Candidate_a29bc95e640f313b.lean",
+        "target_path": "/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-xx8mo60m/attempt-002/FrozenTarget_a29bc95e640f313b.lean",
+        "feedback": "",
+        "target_sha256": "64a3f64e341ba5feb20bf7e7634d56c879767378bbe6e4be5da0e60c6c711dbb",
+        "target_olean_sha256": "6dc2bbcc3969f37098a05445e8bcb5a92590c046027e41e82f2130cf52009f15",
+        "source_sha256": "c5f72203b6865f13b4b78633aa9dd654874202959b5173436918150eec239cc1",
+        "olean_sha256": "6be031dd0e45888ca195fe3ef2b5d8c7d955a559947fc7a4f042d09a051f3f22",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T09:09:21.880271+00:00",
+    "work": "/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-xx8mo60m",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2fc02b9e557775c8a98fc76af7bc76fd2da332c2670cfe105b99ddec2b42373d",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-xx8mo60m/attempt-002/Candidate_a29bc95e640f313b.lean",
+    "environment_sha256": "097d8a02c15ad2b0ddad2fe128c6c8445b5cee6d5fbe8dd8bfd2c4949f9f31f5",
+    "artifacts": {
+      "positive_bounded_progression": {
+        "payload": {
+          "declaration": "theorem M5.GlobalCriterion.positive_bounded_progression : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 < M5.ResidueCount.A w F → ∃ (S U : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w (M5.signaturePeriod F) ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F S U := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 < M5.ResidueCount.A w F → ∃ (S U : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w (M5.signaturePeriod F) ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F S U\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro w F hw hF hF0 hA\n  cases w with\n  | zero => omega\n  | succ k =>\n    have hT := (M5.Period.period_law F hF hF0).1\n    have htails := (M5.ResidueCount.period_A_exact (k + 1) F (by omega) hF hF0).2.2.mp hA\n    change ∃ a b : Fin k → Fin (M5.signaturePeriod F), M5.ResidueCount.feasible F a b at htails\n    obtain ⟨a, b, hab⟩ := htails\n    let r := M5.ResidueTailBridge.anchored hT a\n    let s := M5.ResidueTailBridge.anchored hT b\n    have hr : M5.BoundedConstruction.anchoredTuple r := by\n      exact M5.ResidueTailBridge.anchor_zero (M5.signaturePeriod F) k hT a\n    have hs : M5.BoundedConstruction.anchoredTuple s := by\n      exact M5.ResidueTailBridge.anchor_zero (M5.signaturePeriod F) k hT b\n    have hg : M5.BoundedConstruction.tupleSupportGcd r s = 1 := by\n      simpa [M5.BoundedConstruction.tupleSupportGcd, r, s,\n        M5.ResidueCount.residueSupport, Finset.gcd_union, Finset.gcd_image,\n        Function.comp_def, M5.ResidueTailBridge.gcd_cons] using hab.1\n    have hp : M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r)\n        (M5.SupportPolynomial.ofResidueTuple s) (M5.signaturePeriod F) = F := by\n      simpa [r, s, M5.ResidueTailBridge.polynomial_cons,\n        M5.ResidueCount.tailPolynomial] using hab.2\n    obtain ⟨S, N, E, hE, hN, hprogress⟩ :=\n      M5.FeasibleSource.same_support_infinite_progression (k + 1)\n        (M5.signaturePeriod F) r s F hw hT hr hs hg hp\n    exact ⟨S, M5.Packing.packedSupport s, N, E, hE, hN, hprogress⟩",
+          "imports": [
+            "M5GlobalCriterionReady"
+          ],
+          "name": "M5.GlobalCriterion.positive_bounded_progression",
+          "ancestors": [],
+          "spec_sha256": "a8264dca399d84d5f1573cfc7f65c958964a0c11c260742b4d19318f1097c463"
+        },
+        "sha256": "c639c4128bc6a4bec99f25b8a965623114ca999e42f4b6fe36797095da25107e"
+      }
+    }
+  }
+}

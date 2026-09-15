@@ -1,0 +1,158 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_congr simp congr membership hypotheses conditional rewrite",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58038,
+        "name": "Finset.sum_congr",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L103-L103",
+        "source_text": "@[to_additive (attr := congr)]\ntheorem prod_congr (h : s₁ = s₂) : (∀ x ∈ s₂, f x = g x) → s₁.prod f = s₂.prod g := by",
+        "docstring": null
+      },
+      {
+        "id": 58138,
+        "name": "Finset.sum_congr_set",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L475-L477",
+        "source_text": "@[to_additive /-- The sum of a function `g` defined only on a set `s` is equal to\nthe sum of a function `f` defined everywhere,\nas long as `f` and `g` agree on `s`, and `f = 0` off `s`. -/]\ntheorem prod_congr_set [Fintype ι] (s : Set ι) [DecidablePred (· ∈ s)] (f : ι → M) (g : s → M)\n    (w : ∀ x (hx : x ∈ s), f x = g ⟨x, hx⟩) (w' : ∀ x ∉ s, f x = 1) : ∏ i, f i = ∏ i, g i := by",
+        "docstring": "The sum of a function `g` defined only on a set `s` is equal to\nthe sum of a function `f` defined everywhere,\nas long as `f` and `g` agree on `s`, and `f = 0` off `s`. "
+      },
+      {
+        "id": 203855,
+        "name": "Finset.noncommSum_congr",
+        "module": "Mathlib.Data.Finset.NoncommProd",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/NoncommProd.lean#L257-L257",
+        "source_text": "@[to_additive (attr := congr)]\ntheorem noncommProd_congr {s₁ s₂ : Finset α} {f g : α → β} (h₁ : s₁ = s₂)",
+        "docstring": null
+      },
+      {
+        "id": 256094,
+        "name": "Equiv.Perm.sumCongr",
+        "module": "Mathlib.Logic.Equiv.Sum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Sum.lean#L111-L113",
+        "source_text": "/-- Combine a permutation of `α` and of `β` into a permutation of `α ⊕ β`. -/\nabbrev sumCongr {α β} (ea : Equiv.Perm α) (eb : Equiv.Perm β) : Equiv.Perm (α ⊕ β) :=\n  Equiv.sumCongr ea eb\n",
+        "docstring": "Combine a permutation of `α` and of `β` into a permutation of `α ⊕ β`. "
+      },
+      {
+        "id": 330056,
+        "name": "Mathlib.Tactic.LibraryRewrite.getHypotheses",
+        "module": "Mathlib.Tactic.Widget.LibraryRewrite",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Widget/LibraryRewrite.lean#L274-L283",
+        "source_text": "/-- Construct the `RefinedDiscrTree` of all local hypotheses. -/\ndef getHypotheses (except : Option FVarId) : MetaM (RefinedDiscrTree (FVarId × Bool)) :=\n  withReducible do\n  let mut tree : PreDiscrTree (FVarId × Bool) := {}\n  for decl in ← getLCtx do\n    if !decl.isImplementationDetail && except.all (· != decl.fvarId) then\n      for (val, entries) in ← addLocalRewriteEntry decl do\n        for (key, entry) in entries do\n          tree := tree.push key (entry, val)\n  return tree.toRefinedDiscrTree\n",
+        "docstring": "Construct the `RefinedDiscrTree` of all local hypotheses. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.sum_congr simp congr membership hypotheses conditional rewrite",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389502,
+        "name": "WickContraction.sum_extractEquiv_congr",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.ExtractEquiv",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/ExtractEquiv.lean#L106-L114",
+        "source_text": "lemma sum_extractEquiv_congr [AddCommMonoid M] {n m : ℕ} (i : Fin n) (f : WickContraction n → M)\n    (h : n = m.succ) :\n    ∑ c, f c = ∑ (c : WickContraction m), ∑ (k : Option c.uncontracted),\n    f (congr h.symm ((extractEquiv (finCongr h i)).symm ⟨c, k⟩)) := by\n  subst h\n  simp only [finCongr_refl, Equiv.refl_apply, congr_refl]\n  rw [← (extractEquiv i).symm.sum_comp]\n  rw [Finset.sum_sigma']\n  rfl\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_ite_irrel Finset.sum_comm",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58360,
+        "name": "Finset.sum_ite_irrel",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L573-L573",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem prod_ite_irrel (p : Prop) [Decidable p] (s : Finset ι) (f g : ι → M) :",
+        "docstring": null
+      },
+      {
+        "id": 58362,
+        "name": "Finset.sum_dite_irrel",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L578-L578",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem prod_dite_irrel (p : Prop) [Decidable p] (s : Finset ι) (f : p → ι → M) (g : ¬p → ι → M) :",
+        "docstring": null
+      },
+      {
+        "id": 58052,
+        "name": "Finset.sum_filter_add_sum_filter_not",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L143-L143",
+        "source_text": "@[to_additive]\ntheorem prod_filter_mul_prod_filter_not\n    (s : Finset ι) (p : ι → Prop) [DecidablePred p] [∀ x, Decidable (¬p x)] (f : ι → M) :\n    (∏ x ∈ s with p x, f x) * ∏ x ∈ s with ¬p x, f x = ∏ x ∈ s, f x := by",
+        "docstring": null
+      },
+      {
+        "id": 58036,
+        "name": "Finset.sum_attach",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L99-L99",
+        "source_text": "@[to_additive]\nlemma prod_attach (s : Finset ι) (f : ι → M) : ∏ x ∈ s.attach, f x = ∏ x ∈ s, f x := by",
+        "docstring": null
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

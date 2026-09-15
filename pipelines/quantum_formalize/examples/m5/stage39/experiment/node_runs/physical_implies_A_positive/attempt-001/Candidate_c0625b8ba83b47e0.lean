@@ -1,0 +1,7 @@
+import FrozenTarget_c0625b8ba83b47e0
+theorem M5.GlobalCriterion.physical_implies_A_positive : QuantumHarnessFrozenTarget := by
+  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (S U : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F S U → 0 < M5.ResidueCount.A w F
+  intro N w F S U hw hF hF0 hphys
+  rcases M5.ResidueNecessity.period_necessity N w F S U hw hF hF0 hphys with ⟨r, s, hr, hs, hgcd, hsig⟩
+  apply (M5.ResidueCount.period_A_exact w F hw hF hF0).2.2.mpr
+  exact M5.GlobalCriterion.full_to_tail w (M5.signaturePeriod F) F r s hw (M5.Period.period_law F hF hF0).1 hr hs hgcd hsig

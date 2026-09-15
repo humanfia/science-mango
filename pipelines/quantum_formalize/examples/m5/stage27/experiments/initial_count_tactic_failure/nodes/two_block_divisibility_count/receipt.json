@@ -1,0 +1,55 @@
+{
+  "id": "two_block_divisibility_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.OrderCount.two_block_divisibility_count",
+    "spec_sha256": "a5bb9ae147056f50d64b1e4254cb8e09e9ce753aec8b2adb803fe84d56cc54ed",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-hmhd3_ml/attempt-001/Candidate_c498ec77009a3f79.lean",
+        "target_path": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-hmhd3_ml/attempt-001/FrozenTarget_c498ec77009a3f79.lean",
+        "feedback": "",
+        "target_sha256": "096518536e64f59a469dd497c4c9c0606d8b5c7e8e83c35fd5bc87c65cf77873",
+        "target_olean_sha256": "77113f46f959f342bec2ab47ef12205a78e6292a16a86f59465b8ce245cb3646",
+        "source_sha256": "b3ff3f07cfa32bcf0a9137944bc0c0012f2ccf83b56ce021bed6127b490bbbce",
+        "olean_sha256": "005fee79e3fa8ea3b2d45efc3b6c7ba7087c221c7c6ffc9bb17be7cdbbf624ae",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:49:18.188636+00:00",
+    "work": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-hmhd3_ml",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b34f752b9fcca2405f78cd9a9823fb4b1f8838c887cd8b49fea24fae5b25fa23",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-hmhd3_ml/attempt-001/Candidate_c498ec77009a3f79.lean",
+    "environment_sha256": "682014b7a09bcb90ba8eca460b9b4a9f2324a663740240d667f3b37e0dfc8b4d",
+    "artifacts": {
+      "two_block_divisibility_count": {
+        "payload": {
+          "declaration": "theorem M5.OrderCount.two_block_divisibility_count : ∀ (P : M5.BinaryPolynomial) (W : Finset ℕ) (k : ℕ), P.Monic → 0 ∉ W → M5.OrderCount.nOne P W k ^ 2 = M5.OrderCount.twoBlockIndicatorSum P W k := by\n  classical\n  intro P W k hP hW\n  simp only [M5.OrderCount.nOne, dif_pos hP]\n  rw [M5.AnchoredCount.anchored_single_block_count P hP W k hW]\n  unfold M5.AnchoredCount.count M5.OrderCount.twoBlockIndicatorSum\n  simp only [pow_two, Finset.card_eq_sum_ones, Nat.cast_sum, Finset.sum_filter]\n  simp [Finset.sum_mul, Finset.mul_sum, ite_mul, mul_ite, ite_and]\n  rw [← Finset.sum_filter]\n  simp [nsmul_eq_mul]",
+          "imports": [
+            "M5OrderCount"
+          ],
+          "name": "M5.OrderCount.two_block_divisibility_count",
+          "ancestors": [],
+          "spec_sha256": "a5bb9ae147056f50d64b1e4254cb8e09e9ce753aec8b2adb803fe84d56cc54ed"
+        },
+        "sha256": "9e8b3e80e7dff5ce9b9cdb04105c6f58c1f9518c211ee7fb0712f71a48fd16ea"
+      }
+    }
+  }
+}

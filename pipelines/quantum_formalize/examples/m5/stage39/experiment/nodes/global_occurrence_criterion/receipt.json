@@ -1,0 +1,82 @@
+{
+  "id": "global_occurrence_criterion",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.GlobalCriterion.global_occurrence_criterion",
+    "spec_sha256": "2fad4f274f9b301844be0ad54df004135720a72bce9cc1cce8d4062d5b611974",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-gxb4ecn1/attempt-001/Candidate_c3e678b0ac88923b.lean",
+        "target_path": "/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-gxb4ecn1/attempt-001/FrozenTarget_c3e678b0ac88923b.lean",
+        "feedback": "",
+        "target_sha256": "88405396da82fc5ba3f4d1f23b423420a1deb60f42c36e67d29923caa1d08d16",
+        "target_olean_sha256": "4abbd7a2647daa6c4c259d6925988e9245b8b6ccbd53f367ec30c9bc3e6a4679",
+        "source_sha256": "37e7937803d4950b7643a1bb0e50fe204bb280b61ce7742382b170c700acb5f4",
+        "olean_sha256": "82b27b40af513f1f55fcda0e14a1a0c8fa7f30b37047dc676d45e49c7d0d8337",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:12:44.204615+00:00",
+    "work": "/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-gxb4ecn1",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2fc02b9e557775c8a98fc76af7bc76fd2da332c2670cfe105b99ddec2b42373d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-global-criterion-formalization/.humanize-formal-runs/run-gxb4ecn1/attempt-001/Candidate_c3e678b0ac88923b.lean",
+    "environment_sha256": "097d8a02c15ad2b0ddad2fe128c6c8445b5cee6d5fbe8dd8bfd2c4949f9f31f5",
+    "artifacts": {
+      "physical_implies_A_positive": {
+        "payload": {
+          "declaration": "theorem M5.GlobalCriterion.physical_implies_A_positive : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (S U : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F S U → 0 < M5.ResidueCount.A w F := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (S U : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F S U → 0 < M5.ResidueCount.A w F\n  intro N w F S U hw hF hF0 hphys\n  rcases M5.ResidueNecessity.period_necessity N w F S U hw hF hF0 hphys with ⟨r, s, hr, hs, hgcd, hsig⟩\n  apply (M5.ResidueCount.period_A_exact w F hw hF hF0).2.2.mpr\n  exact M5.GlobalCriterion.full_to_tail w (M5.signaturePeriod F) F r s hw (M5.Period.period_law F hF hF0).1 hr hs hgcd hsig",
+          "imports": [
+            "M5GlobalCriterionReady"
+          ],
+          "name": "M5.GlobalCriterion.physical_implies_A_positive",
+          "ancestors": [],
+          "spec_sha256": "b62d72e92b45ef4944367238540b5ad32049a281220ecf0bab45f69bc518896c"
+        },
+        "sha256": "0550b868939ad52d9fe34d17035bbf5dc65e56f52ce50e53ac80c3ee57a15364"
+      },
+      "positive_bounded_progression": {
+        "payload": {
+          "declaration": "theorem M5.GlobalCriterion.positive_bounded_progression : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 < M5.ResidueCount.A w F → ∃ (S U : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w (M5.signaturePeriod F) ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F S U := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 < M5.ResidueCount.A w F → ∃ (S U : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w (M5.signaturePeriod F) ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F S U\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro w F hw hF hF0 hA\n  cases w with\n  | zero => omega\n  | succ k =>\n    have hT := (M5.Period.period_law F hF hF0).1\n    have htails := (M5.ResidueCount.period_A_exact (k + 1) F (by omega) hF hF0).2.2.mp hA\n    change ∃ a b : Fin k → Fin (M5.signaturePeriod F), M5.ResidueCount.feasible F a b at htails\n    obtain ⟨a, b, hab⟩ := htails\n    let r := M5.ResidueTailBridge.anchored hT a\n    let s := M5.ResidueTailBridge.anchored hT b\n    have hr : M5.BoundedConstruction.anchoredTuple r := by\n      exact M5.ResidueTailBridge.anchor_zero (M5.signaturePeriod F) k hT a\n    have hs : M5.BoundedConstruction.anchoredTuple s := by\n      exact M5.ResidueTailBridge.anchor_zero (M5.signaturePeriod F) k hT b\n    have hg : M5.BoundedConstruction.tupleSupportGcd r s = 1 := by\n      simpa [M5.BoundedConstruction.tupleSupportGcd, r, s,\n        M5.ResidueCount.residueSupport, Finset.gcd_union, Finset.gcd_image,\n        Function.comp_def, M5.ResidueTailBridge.gcd_cons] using hab.1\n    have hp : M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r)\n        (M5.SupportPolynomial.ofResidueTuple s) (M5.signaturePeriod F) = F := by\n      simpa [r, s, M5.ResidueTailBridge.polynomial_cons,\n        M5.ResidueCount.tailPolynomial] using hab.2\n    obtain ⟨S, N, E, hE, hN, hprogress⟩ :=\n      M5.FeasibleSource.same_support_infinite_progression (k + 1)\n        (M5.signaturePeriod F) r s F hw hT hr hs hg hp\n    exact ⟨S, M5.Packing.packedSupport s, N, E, hE, hN, hprogress⟩",
+          "imports": [
+            "M5GlobalCriterionReady"
+          ],
+          "name": "M5.GlobalCriterion.positive_bounded_progression",
+          "ancestors": [],
+          "spec_sha256": "a8264dca399d84d5f1573cfc7f65c958964a0c11c260742b4d19318f1097c463"
+        },
+        "sha256": "c639c4128bc6a4bec99f25b8a965623114ca999e42f4b6fe36797095da25107e"
+      },
+      "global_occurrence_criterion": {
+        "payload": {
+          "declaration": "theorem M5.GlobalCriterion.global_occurrence_criterion : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.ResidueCount.A w F ∧ (0 < M5.ResidueCount.A w F ↔ ∃ (N : ℕ) (S U : Finset ℕ), M5.PhysicalOrder.realizes N w F S U) ∧ (M5.ResidueCount.A w F = 0 ↔ ¬ (∃ (N : ℕ) (S U : Finset ℕ), M5.PhysicalOrder.realizes N w F S U)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.ResidueCount.A w F ∧ (0 < M5.ResidueCount.A w F ↔ ∃ (N : ℕ) (S U : Finset ℕ), M5.PhysicalOrder.realizes N w F S U) ∧ (M5.ResidueCount.A w F = 0 ↔ ¬ (∃ (N : ℕ) (S U : Finset ℕ), M5.PhysicalOrder.realizes N w F S U))\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro w F hw hF hF0\n  have hwpos : 0 < w := by omega\n  have hnonneg := (M5.ResidueCount.period_A_exact w F hwpos hF hF0).2.1\n  have hiff : 0 < M5.ResidueCount.A w F ↔ ∃ (N : ℕ) (S U : Finset ℕ), M5.PhysicalOrder.realizes N w F S U := by\n    constructor\n    · intro hA\n      obtain ⟨S, U, N, E, hE, hN, hprogress⟩ :=\n        M5.GlobalCriterion.positive_bounded_progression w F hw hF hF0 hA\n      refine ⟨N, S, U, ?_⟩\n      simpa only [Nat.zero_mul, Nat.add_zero] using hprogress 0\n    · rintro ⟨N, S, U, hphys⟩\n      exact M5.GlobalCriterion.physical_implies_A_positive N w F S U hwpos hF hF0 hphys\n  refine ⟨hnonneg, hiff, ?_⟩\n  constructor\n  · intro hzero hexists\n    have hpos := hiff.mpr hexists\n    omega\n  · intro hnone\n    have hnotpos : ¬ 0 < M5.ResidueCount.A w F := fun hpos => hnone (hiff.mp hpos)\n    omega",
+          "imports": [
+            "M5GlobalCriterionReady"
+          ],
+          "name": "M5.GlobalCriterion.global_occurrence_criterion",
+          "ancestors": [
+            "physical_implies_A_positive",
+            "positive_bounded_progression"
+          ],
+          "spec_sha256": "176c112598fe9b25bf6cb7d66d8beddbba77dccaeb1a14bf3e9af3d115338102"
+        },
+        "sha256": "02596f8e9ff3b213bfd9bed7452e4ca4f9fe35fc09b2f53c4c69d5375b3c359e"
+      }
+    }
+  }
+}

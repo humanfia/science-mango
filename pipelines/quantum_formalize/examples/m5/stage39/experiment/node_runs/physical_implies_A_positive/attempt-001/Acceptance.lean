@@ -1,0 +1,3 @@
+import Candidate_c0625b8ba83b47e0
+example : QuantumHarnessFrozenTarget := M5.GlobalCriterion.physical_implies_A_positive
+#print axioms M5.GlobalCriterion.physical_implies_A_positive

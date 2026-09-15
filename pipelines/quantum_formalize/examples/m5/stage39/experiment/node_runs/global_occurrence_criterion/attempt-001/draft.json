@@ -1,0 +1,4 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro w F hw hF hF0\nhave hwpos : 0 < w := by omega\nhave hnonneg := (M5.ResidueCount.period_A_exact w F hwpos hF hF0).2.1\nhave hiff : 0 < M5.ResidueCount.A w F ↔ ∃ (N : ℕ) (S U : Finset ℕ), M5.PhysicalOrder.realizes N w F S U := by\n  constructor\n  · intro hA\n    obtain ⟨S, U, N, E, hE, hN, hprogress⟩ :=\n      M5.GlobalCriterion.positive_bounded_progression w F hw hF hF0 hA\n    refine ⟨N, S, U, ?_⟩\n    simpa only [Nat.zero_mul, Nat.add_zero] using hprogress 0\n  · rintro ⟨N, S, U, hphys⟩\n    exact M5.GlobalCriterion.physical_implies_A_positive N w F S U hwpos hF hF0 hphys\nrefine ⟨hnonneg, hiff, ?_⟩\nconstructor\n· intro hzero hexists\n  have hpos := hiff.mpr hexists\n  omega\n· intro hnone\n  have hnotpos : ¬ 0 < M5.ResidueCount.A w F := fun hpos => hnone (hiff.mp hpos)\n  omega",
+  "queries": []
+}

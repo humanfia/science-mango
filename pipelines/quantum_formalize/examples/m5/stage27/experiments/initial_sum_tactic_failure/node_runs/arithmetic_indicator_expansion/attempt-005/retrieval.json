@@ -1,0 +1,252 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_comm nested finite sums simplification",
+    "status": "ok",
+    "results": [
+      {
+        "id": 328434,
+        "name": "Mathlib.Meta.NormNum.evalFinsetSum",
+        "module": "Mathlib.Tactic.NormNum.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/BigOperators.lean#L383-L406",
+        "source_text": "/-- `norm_num` plugin for evaluating sums of finsets.\n\nIf your finset is not supported, you can add it to the match in `Finset.proveEmptyOrCons`.\n-/\n@[norm_num @Finset.sum _ _ _ _ _]\npartial def evalFinsetSum : NormNumExt where eval {u β} e := do\n  let .app (.app (.app (.app (.app (.const ``Finset.sum [v, _]) α) β') _) s) f ←\n    whnfR e | failure\n  guard <| ← withNewMCtxDepth <| isDefEq β β'\n  have α : Q(Type v) := α\n  have s : Q(Finset $α) := s\n  have f : Q($α → $β) := f\n  let instCS : Q(CommSemiring $β) ← synthInstanceQ q(CommSemiring $β) <|>\n    throwError \"not a commutative semiring: {β}\"\n  let pf : Q(IsNat (Finset.sum ∅ $f) (nat_lit 0)) := q(@Finset.sum_empty $β $α $instCS $f)\n  let res_empty := Result.isNat _ _ q($pf)\n\n  evalFinsetBigop q(Finset.sum) f res_empty (fun {a s' h} res_fa res_sum_s' ↦ do\n      let fa : Q($β) := Expr.app f a\n      let res ← res_fa.add res_sum_s'\n      let eq : Q(Finset.sum (Finset.cons $a $s' $h) $f = $fa + Finset.sum $s' $f) :=\n        q(Finset.sum_cons $h)\n      pure <| res.eq_trans eq)\n    s\n",
+        "docstring": "`norm_num` plugin for evaluating sums of finsets.\n\nIf your finset is not supported, you can add it to the match in `Finset.proveEmptyOrCons`.\n"
+      },
+      {
+        "id": 57677,
+        "name": "finsum_mem_finset_eq_sum",
+        "module": "Mathlib.Algebra.BigOperators.Finprod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L530-L530",
+        "source_text": "@[to_additive]\ntheorem finprod_mem_finset_eq_prod (f : α → M) (s : Finset α) : ∏ᶠ i ∈ s, f i = ∏ i ∈ s, f i :=",
+        "docstring": null
+      },
+      {
+        "id": 58602,
+        "name": "Finset.sum_comm",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L120-L120",
+        "source_text": "@[to_additive]\ntheorem prod_comm {s : Finset γ} {t : Finset α} {f : γ → α → β} :\n    (∏ x ∈ s, ∏ y ∈ t, f x y) = ∏ y ∈ t, ∏ x ∈ s, f x y :=",
+        "docstring": null
+      },
+      {
+        "id": 57569,
+        "name": "finsum",
+        "module": "Mathlib.Algebra.BigOperators.Finprod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L101-L104",
+        "source_text": "/-- Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. -/\nnoncomputable irreducible_def finsum (lemma := finsum_def') [AddCommMonoid M] (f : α → M) : M :=\n  if h : HasFiniteSupport (f ∘ PLift.down) then ∑ i ∈ h.toFinset, f i.down else 0\n",
+        "docstring": "Sum of `f x` as `x` ranges over the elements of the support of `f`, if it's finite. Zero\notherwise. "
+      },
+      {
+        "id": 58600,
+        "name": "Finset.sum_comm'",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L105-L106",
+        "source_text": "@[to_additive /-- Generalization of `Finset.sum_comm` to the case when the inner `Finset`s depend on\nthe outer variable. -/]\ntheorem prod_comm' {s : Finset γ} {t : γ → Finset α} {t' : Finset α} {s' : α → Finset γ}\n    (h : ∀ x y, x ∈ s ∧ y ∈ t x ↔ x ∈ s' y ∧ y ∈ t') {f : γ → α → β} :\n    (∏ x ∈ s, ∏ y ∈ t x, f x y) = ∏ y ∈ t', ∏ x ∈ s' y, f x y := by",
+        "docstring": "Generalization of `Finset.sum_comm` to the case when the inner `Finset`s depend on\nthe outer variable. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_congr conditional simp membership powerset",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58500,
+        "name": "Finset.sum_ite_mem",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Piecewise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Piecewise.lean#L101-L101",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem prod_ite_mem [DecidableEq ι] (s t : Finset ι) (f : ι → M) :",
+        "docstring": null
+      },
+      {
+        "id": 58552,
+        "name": "Fintype.sum_ite_mem",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Piecewise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Piecewise.lean#L295-L295",
+        "source_text": "@[to_additive]\nlemma prod_ite_mem (s : Finset ι) (f : ι → M) : ∏ i, (if i ∈ s then f i else 1) = ∏ i ∈ s, f i := by",
+        "docstring": null
+      },
+      {
+        "id": 204018,
+        "name": "Finset.powerset",
+        "module": "Mathlib.Data.Finset.Powerset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Powerset.lean#L31-L34",
+        "source_text": "/-- When `s` is a finset, `s.powerset` is the finset of all subsets of `s` (seen as finsets). -/\ndef powerset (s : Finset α) : Finset (Finset α) :=\n  ⟨(s.1.powerset.pmap Finset.mk) fun _t h => nodup_of_le (mem_powerset.1 h) s.nodup,\n    s.nodup.powerset.pmap fun _a _ha _b _hb => congr_arg Finset.val⟩\n",
+        "docstring": "When `s` is a finset, `s.powerset` is the finset of all subsets of `s` (seen as finsets). "
+      },
+      {
+        "id": 58570,
+        "name": "Finset.sum_powerset",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Powerset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Powerset.lean#L52-L53",
+        "source_text": "@[to_additive /-- A sum over `powerset s` is equal to the double sum over sets of subsets of `s`\nwith `#s = k`, for `k = 0, ..., #s` -/]\nlemma prod_powerset (s : Finset α) (f : Finset α → β) :\n    ∏ t ∈ powerset s, f t = ∏ j ∈ range (#s + 1), ∏ t ∈ powersetCard j s, f t := by",
+        "docstring": "A sum over `powerset s` is equal to the double sum over sets of subsets of `s`\nwith `#s = k`, for `k = 0, ..., #s` "
+      },
+      {
+        "id": 58568,
+        "name": "Finset.sum_powerset_cons",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Powerset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Powerset.lean#L41-L42",
+        "source_text": "@[to_additive /-- A sum over all subsets of `s ∪ {x}` is obtained by summing the sum over all\nsubsets of `s`, and over all subsets of `s` to which one adds `x`. -/]\nlemma prod_powerset_cons (ha : a ∉ s) (f : Finset α → β) :\n    ∏ t ∈ (s.cons a ha).powerset, f t = (∏ t ∈ s.powerset, f t) *\n      ∏ t ∈ s.powerset.attach, f (cons a t <| notMem_mono (mem_powerset.1 t.2) ha) := by",
+        "docstring": "A sum over all subsets of `s ∪ {x}` is obtained by summing the sum over all\nsubsets of `s`, and over all subsets of `s` to which one adds `x`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.sum_congr conditional simp membership powerset",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386826,
+        "name": "Equiv.finAddEquivSigmaCond",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L45-L48",
+        "source_text": "/-- The composition of `finSumFinEquiv` and `Equiv.sumEquivSigmalCond` used by\n`LinearMap.SchurTriangulationAux.of`. -/\ndef finAddEquivSigmaCond : Fin (m + n) ≃ Σ b, cond b (Fin m) (Fin n) :=\n  finSumFinEquiv.symm.trans sumEquivSigmalCond\n",
+        "docstring": "The composition of `finSumFinEquiv` and `Equiv.sumEquivSigmalCond` used by\n`LinearMap.SchurTriangulationAux.of`. "
+      },
+      {
+        "id": 388412,
+        "name": "Option.powerset",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L280-L285",
+        "source_text": "/-- The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\n  and `{none, some y}` is `x` is `some y`. -/\ndef _root_.Option.powerset (x : Option 𝓩) : Finset (Option 𝓩) :=\n  match x with\n  | none => {none}\n  | some x => {none, some x}\n",
+        "docstring": "The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\nand `{none, some y}` is `x` is `some y`. "
+      },
+      {
+        "id": 386828,
+        "name": "Equiv.finAddEquivSigmaCond_false",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L55-L61",
+        "source_text": "lemma finAddEquivSigmaCond_false (h : ¬ i < m) : finAddEquivSigmaCond i = ⟨false, i.subNat' h⟩ :=\n  let j : Fin n := i.subNat' h\n  calc finAddEquivSigmaCond i\n    _ = finAddEquivSigmaCond (Fin.natAdd m j) :=\n      suffices m + (i - m) = i from congrArg _ (Fin.ext this.symm)\n      Nat.add_sub_of_le (Nat.le_of_not_gt h)\n    _ = ⟨false, i.subNat' h⟩ := congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_natAdd j\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_ite_irrel if then sum else zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58360,
+        "name": "Finset.sum_ite_irrel",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L573-L573",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem prod_ite_irrel (p : Prop) [Decidable p] (s : Finset ι) (f g : ι → M) :",
+        "docstring": null
+      },
+      {
+        "id": 58366,
+        "name": "Finset.ite_zero_sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L589-L589",
+        "source_text": "@[to_additive]\ntheorem ite_one_prod (p : Prop) [Decidable p] (s : Finset ι) (f : ι → M) :\n    (if p then 1 else (∏ x ∈ s, f x)) = ∏ x ∈ s, if p then 1 else f x := by",
+        "docstring": null
+      },
+      {
+        "id": 58364,
+        "name": "Finset.ite_sum_zero",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L584-L584",
+        "source_text": "@[to_additive]\ntheorem ite_prod_one (p : Prop) [Decidable p] (s : Finset ι) (f : ι → M) :\n    (if p then (∏ x ∈ s, f x) else 1) = ∏ x ∈ s, if p then f x else 1 := by",
+        "docstring": null
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 332719,
+        "name": "tsum",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Defs.lean#L132-L141",
+        "source_text": "@[to_additive /-- `∑' i, f i` is the unconditional sum of `f` if it exists, or 0 otherwise.\n\nMore generally, if `L` is a `SummationFilter`, `∑'[L] i, f i` is the sum of `f` with respect to\n`L` if it exists, and `0` otherwise.\n\n(Note that even if the unconditional sum exists, it might not be unique if the topology is not\nseparated. When the support of `f` is finite, we make the most reasonable choice, to use the sum\nover the support. Otherwise, we choose arbitrarily an `a` satisfying `HasSum f a`. Similar remarks\napply to more general summation filters.)\n-/]\nnoncomputable irreducible_def tprod (f : β → α) (L := unconditional β) :=",
+        "docstring": "`∑' i, f i` is the unconditional sum of `f` if it exists, or 0 otherwise.\n\nMore generally, if `L` is a `SummationFilter`, `∑'[L] i, f i` is the sum of `f` with respect to\n`L` if it exists, and `0` otherwise.\n\n(Note that even if the unconditional sum exists, it might not be unique if the topology is not\nseparated. When the support of `f` is finite, we make the most reasonable choice, to use the sum\nover the support. Otherwise, we choose arbitrarily an `a` satisfying `HasSum f a`. Similar remarks\napply to more general summation filters.)\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.sum_ite_irrel if then sum else zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386542,
+        "name": "KroneckerDelta.sum_sum_smul_eq_zero",
+        "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L156-L158",
+        "source_text": "lemma sum_sum_smul_eq_zero [Fintype α] {f : α → α → M} (hf : ∀ i : α, f i i = 0) :\n    ∑ i : α, ∑ j : α, δ[i,j] • f i j = 0 := by\n  simp [sum_smul, hf, sum_const_zero]\n",
+        "docstring": null
+      },
+      {
+        "id": 386544,
+        "name": "KroneckerDelta.finset_sum_sum_smul_eq_zero",
+        "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L164-L168",
+        "source_text": "lemma finset_sum_sum_smul_eq_zero {s s' : Finset α} {f : α → α → M}\n    (hf : ∀ i ∈ s ∩ s', f i i = 0) : ∑ i ∈ s, ∑ j ∈ s', δ[i,j] • f i j = 0 := by\n  simp only [finset_sum_smul, Finset.sum_ite_mem]\n  rw [← sum_coe_sort]\n  simp [hf]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

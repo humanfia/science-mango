@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → _\nintro N w F hN hw hF hFN\nclassical\nhave hcount (d : ℕ) (H : Finset M5.BinaryPolynomial)\n    (hH : H ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset) :\n    M5.OrderCount.nOne (F * ∏ p ∈ H, p) (M5.OrderCount.divisorPositions N d) (w - 1) ^ 2 =\n      M5.OrderCount.twoBlockIndicatorSum (F * ∏ p ∈ H, p)\n        (M5.OrderCount.divisorPositions N d) (w - 1) := by\n  apply M5.OrderCount.two_block_divisibility_count\n  · apply hF.mul\n    apply Polynomial.monic_prod_of_monic\n    intro p hp\n    exact (M5.PolynomialIndicator.residual_factors_regular F N hN hF hFN p\n      ((Finset.mem_powerset.mp hH) hp)).1\n  · simp [M5.OrderCount.divisorPositions, M5.OrderCount.positivePositions]\nhave hsum (p : Prop) (s : Finset (Finset ℕ)) (f : Finset ℕ → ℤ) :\n    (if p then ∑ x ∈ s, f x else 0) = ∑ x ∈ s, if p then f x else 0 := by\n  by_cases hp : p <;> simp [hp]\nsimp only [M5.OrderCount.rawC, hcount]\nunfold M5.OrderCount.twoBlockIndicatorSum M5.OrderCount.pairIndicator\n  M5.PolynomialIndicator.factorExclusionSum\nsimp only [M5.OrderCount.divisor_subset_domain, Finset.sum_filter,\n  Finset.forall_mem_insert, dvd_zero, true_and]\nsimp only [Finset.mul_sum, Finset.sum_mul, mul_ite, ite_mul,\n  mul_zero, zero_mul, hsum]\nsimp [Finset.sum_comm, mul_assoc, mul_left_comm, mul_comm,\n  ite_and, and_assoc, and_left_comm, and_comm]",
+  "queries": [
+    "Finset.sum_comm nested finite sums simplification",
+    "Finset.sum_congr conditional simp membership powerset",
+    "Finset.sum_ite_irrel if then sum else zero"
+  ]
+}

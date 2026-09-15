@@ -1,0 +1,139 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ResidueCount.feasible M5.BoundedConstruction.tupleSupportGcd definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 320528,
+        "name": "UniqueFactorizationMonoid.toGCDMonoid",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.GCDMonoid",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/GCDMonoid.lean#L28-L48",
+        "source_text": "/-- `toGCDMonoid` constructs a GCD monoid out of a unique factorization domain. -/\n@[instance_reducible]\nnoncomputable def UniqueFactorizationMonoid.toGCDMonoid (α : Type*) [CommMonoidWithZero α]\n    [UniqueFactorizationMonoid α] : GCDMonoid α where\n  gcd a b := Quot.out (Associates.mk a ⊓ Associates.mk b : Associates α)\n  lcm a b := Quot.out (Associates.mk a ⊔ Associates.mk b : Associates α)\n  gcd_dvd_left a b := by\n    rw [← mk_dvd_mk, Associates.quot_out, congr_fun₂ dvd_eq_le]\n    exact inf_le_left\n  gcd_dvd_right a b := by\n    rw [← mk_dvd_mk, Associates.quot_out, congr_fun₂ dvd_eq_le]\n    exact inf_le_right\n  dvd_gcd {a b c} hac hab := by\n    rw [← mk_dvd_mk, Associates.quot_out, congr_fun₂ dvd_eq_le, le_inf_iff,\n      mk_le_mk_iff_dvd, mk_le_mk_iff_dvd]\n    exact ⟨hac, hab⟩\n  lcm_zero_left a := by simp\n  lcm_zero_right a := by simp\n  gcd_mul_lcm a b := by\n    rw [← mk_eq_mk_iff_associated, ← Associates.mk_mul_mk, ← associated_iff_eq, Associates.quot_out,\n      Associates.quot_out, mul_comm, sup_mul_inf, Associates.mk_mul_mk]\n",
+        "docstring": "`toGCDMonoid` constructs a GCD monoid out of a unique factorization domain. "
+      },
+      {
+        "id": 65992,
+        "name": "gcdMonoidOfGCD",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L1090-L1115",
+        "source_text": "/-- Define `GCDMonoid` on a structure just from the `gcd` and its properties. -/\n@[implicit_reducible]\nnoncomputable def gcdMonoidOfGCD [DecidableEq α] (gcd : α → α → α)\n    (gcd_dvd_left : ∀ a b, gcd a b ∣ a) (gcd_dvd_right : ∀ a b, gcd a b ∣ b)\n    (dvd_gcd : ∀ {a b c}, a ∣ c → a ∣ b → a ∣ gcd c b) : GCDMonoid α :=\n  { gcd\n    gcd_dvd_left\n    gcd_dvd_right\n    dvd_gcd := fun {_ _ _} => dvd_gcd\n    lcm := fun a b =>\n      if a = 0 then 0 else Classical.choose ((gcd_dvd_left a b).trans (Dvd.intro b rfl))\n    gcd_mul_lcm := fun a b => by\n      split_ifs with a0\n      · rw [mul_zero, a0, zero_mul]\n      · rw [← Classical.choose_spec ((gcd_dvd_left a b).trans (Dvd.intro b rfl))]\n    lcm_zero_left := fun _ => if_pos rfl\n    lcm_zero_right := fun a => by\n      split_ifs with a0\n      · rfl\n      have h := (Classical.choose_spec ((gcd_dvd_left a 0).trans (Dvd.intro 0 rfl))).symm\n      have a0' : gcd a 0 ≠ 0 := by\n        contrapose a0\n        rw [← associated_zero_iff_eq_zero, ← a0]\n        exact associated_of_dvd_dvd (dvd_gcd (dvd_refl a) (dvd_zero a)) (gcd_dvd_left _ _)\n      apply Or.resolve_left (mul_eq_zero.1 _) a0'\n      rw [h, mul_zero] }\n",
+        "docstring": "Define `GCDMonoid` on a structure just from the `gcd` and its properties. "
+      },
+      {
+        "id": 317932,
+        "name": "Finset.gcd_eq_sum_mul",
+        "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L232-L247",
+        "source_text": "/-- A version of Bézout's lemma for greatest common divisors over arbitrary `Finset`s. -/\nlemma Finset.gcd_eq_sum_mul {α : Type*} [CommRing R] [IsBezout R] [NormalizedGCDMonoid R]\n    (s : Finset α) (f : α → R) :\n    ∃ g : α → R, s.gcd f = ∑ a ∈ s, f a * g a := by classical\n  induction s using Finset.induction with\n  | empty => simp\n  | insert a s ha ih =>\n    obtain ⟨x, y, hxy⟩ := IsBezout.gcd_eq_sum (f a) (s.gcd f)\n    obtain ⟨u, hu⟩ := IsBezout.associated_gcd_gcd R (x := f a) (y := s.gcd f)\n    rw [← hxy, add_mul, mul_comm x, mul_comm y] at hu\n    obtain ⟨g, hg⟩ := ih\n    refine ⟨Function.update (g · * (y * u)) a (x * u), ?_⟩\n    rw [gcd_insert, sum_insert ha, ← hu, hg]\n    simp only [Function.update_self, add_right_inj, sum_mul, mul_assoc]\n    exact sum_congr rfl fun b hb ↦ congrArg (f b * ·) <|\n      (Function.update_of_ne (show b ≠ a by grind) (x * u) (g · * (y * u))).symm\n",
+        "docstring": "A version of Bézout's lemma for greatest common divisors over arbitrary `Finset`s. "
+      },
+      {
+        "id": 201707,
+        "name": "Tuple.sort",
+        "module": "Mathlib.Data.Fin.Tuple.Sort",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Sort.lean#L77-L79",
+        "source_text": "/-- `sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. -/\ndef sort (f : Fin n → α) : Equiv.Perm (Fin n) :=\n  (graphEquiv₂ f).toEquiv.trans (graphEquiv₁ f).symm\n",
+        "docstring": "`sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. "
+      },
+      {
+        "id": 65251,
+        "name": "Multiset.hasFiniteSupport_count",
+        "module": "Mathlib.Algebra.FiniteSupport.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/FiniteSupport/Basic.lean#L212-L215",
+        "source_text": "@[fun_prop]\nlemma Multiset.hasFiniteSupport_count {α : Type*} [DecidableEq α] (s : Multiset α) :\n    (count · s).HasFiniteSupport :=\n  s.toFinset.finite_toSet.subset <| by simp",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.gcd_image Finset.gcd_union",
+    "status": "ok",
+    "results": [
+      {
+        "id": 66030,
+        "name": "Finset.gcd",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L123-L125",
+        "source_text": "/-- Greatest common divisor of a finite set -/\ndef gcd (s : Finset β) (f : β → α) : α :=\n  s.fold GCDMonoid.gcd 0 f\n",
+        "docstring": "Greatest common divisor of a finite set "
+      },
+      {
+        "id": 66037,
+        "name": "Finset.gcd_insert",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L151-L157",
+        "source_text": "@[simp]\ntheorem gcd_insert [DecidableEq β] {b : β} :\n    (insert b s : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) := by\n  by_cases h : b ∈ s\n  · rw [insert_eq_of_mem h,\n      (gcd_eq_right_iff (f b) (s.gcd f) (Multiset.normalize_gcd (s.1.map f))).2 (gcd_dvd h)]\n  apply fold_insert h",
+        "docstring": null
+      },
+      {
+        "id": 66044,
+        "name": "Finset.gcd_image",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L181-L183",
+        "source_text": "theorem gcd_image [DecidableEq β] {g : γ → β} (s : Finset γ) :\n    (s.image g).gcd f = s.gcd (f ∘ g) := by\n  classical induction s using Finset.induction <;> simp [*]\n",
+        "docstring": null
+      },
+      {
+        "id": 202909,
+        "name": "Finset.image",
+        "module": "Mathlib.Data.Finset.Image",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L277-L279",
+        "source_text": "/-- `image f s` is the forward image of `s` under `f`. -/\ndef image (f : α → β) (s : Finset α) : Finset β :=\n  (s.1.map f).toFinset\n",
+        "docstring": "`image f s` is the forward image of `s` under `f`. "
+      },
+      {
+        "id": 66040,
+        "name": "Finset.gcd_union",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L166-L168",
+        "source_text": "theorem gcd_union [DecidableEq β] : (s₁ ∪ s₂).gcd f = GCDMonoid.gcd (s₁.gcd f) (s₂.gcd f) :=\n  Finset.induction_on s₁ (by rw [empty_union, gcd_empty, gcd_zero_left, normalize_gcd])\n    fun a s _ ih ↦ by rw [insert_union, gcd_insert, gcd_insert, ih, gcd_assoc]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

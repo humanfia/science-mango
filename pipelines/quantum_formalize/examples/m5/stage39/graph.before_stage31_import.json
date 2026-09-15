@@ -1,0 +1,97 @@
+{
+  "title": "M5 stage39: global arithmetic residue occurrence criterion",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Original w>=2 global occurrence criterion, bounded source and same-support progression; A is the existing divisor/factor arithmetic formula. Stage31 proof import pending.",
+  "nodes": [
+    {
+      "id": "stage31_imports",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "status": "pending_verified_import",
+        "source_stage": 31
+      }
+    },
+    {
+      "id": "physical_implies_A_positive",
+      "dependencies": [
+        "stage31_imports"
+      ],
+      "spec": {
+        "name": "M5.GlobalCriterion.physical_implies_A_positive",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial) (S U : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F S U → 0 < M5.ResidueCount.A w F",
+        "imports": [
+          "M5GlobalCriterionReady"
+        ],
+        "context": "",
+        "queries": [
+          "Fin cons self tail successor sum",
+          "integer nonnegative positive zero iff"
+        ],
+        "guidance": "Use accepted period_necessity35 to get full feasible tuples, period_law for positive T, and full_to_tail. The positivity equivalence in stage31 period_A_exact gives A>0. No supplied periodpattern premise.\nReturn tactic lines without leading by; preserve exact target.\nExact imported local API (period_A_exact available only after verified stage31 promotion):\nM5.ResidueTailBridge.anchor_zero : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), ∀ i : Fin (k + 1), i.val = 0 → (M5.ResidueTailBridge.anchored hT r i).val = 0\nM5.ResidueTailBridge.polynomial_cons : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), M5.SupportPolynomial.ofResidueTuple (M5.ResidueTailBridge.anchored hT r) = 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (r i).val\nM5.ResidueTailBridge.gcd_cons : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), Finset.univ.gcd (fun i : Fin (k + 1) => (M5.ResidueTailBridge.anchored hT r i).val) = Finset.univ.gcd (fun i : Fin k => (r i).val)\nM5.ResidueNecessity.period_necessity : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F A B → ∃ r s : Fin w → Fin (M5.signaturePeriod F), M5.BoundedConstruction.anchoredTuple r ∧ M5.BoundedConstruction.anchoredTuple s ∧ M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) (M5.signaturePeriod F) = F\nM5.FeasibleSource.same_support_infinite_progression : ∀ (w T : ℕ) (r s : Fin w → Fin T) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ (A : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w T ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F A (M5.Packing.packedSupport s)\nM5.Period.period_law : ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N\nM5.ResidueCount.period_A_exact : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.ResidueCount.A w F = (M5.ResidueCount.validTailPairs (M5.signaturePeriod F) w F).card ∧ 0 ≤ M5.ResidueCount.A w F ∧ (0 < M5.ResidueCount.A w F ↔ ∃ a b : Fin (w-1) → Fin (M5.signaturePeriod F), M5.ResidueCount.feasible F a b)\nRetained accepted helper: M5.GlobalCriterion.full_to_tail : ∀ (w T : ℕ) (F : M5.BinaryPolynomial) (r s : Fin w → Fin T), 0 < w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ a b : Fin (w-1) → Fin T, M5.ResidueCount.feasible F a b"
+      },
+      "metadata": {
+        "source_section": "4,5",
+        "supports_obligation": "M5_OCCURRENCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "positive_bounded_progression",
+      "dependencies": [
+        "stage31_imports"
+      ],
+      "spec": {
+        "name": "M5.GlobalCriterion.positive_bounded_progression",
+        "statement": "∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 < M5.ResidueCount.A w F → ∃ (S U : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w (M5.signaturePeriod F) ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F S U",
+        "imports": [
+          "M5GlobalCriterionReady"
+        ],
+        "context": "",
+        "queries": [
+          "Fin cons self tail successor sum",
+          "integer nonnegative positive zero iff"
+        ],
+        "guidance": "Use period_A_exact for feasible tails and period_law for positive T. Cases w to write w=k+1; prepend zero via ResidueTailBridge.anchored, use anchor_zero/gcd_cons/polynomial_cons to get full feasible tuples, then accepted same_support_infinite_progression28. Keep actual A arithmetic definition unchanged. Conclusion gives both a bounded source at j0 and a positive-step infinite progression using the same supports.\nReturn tactic lines without leading by; preserve exact target.\nExact imported local API (period_A_exact available only after verified stage31 promotion):\nM5.ResidueTailBridge.anchor_zero : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), ∀ i : Fin (k + 1), i.val = 0 → (M5.ResidueTailBridge.anchored hT r i).val = 0\nM5.ResidueTailBridge.polynomial_cons : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), M5.SupportPolynomial.ofResidueTuple (M5.ResidueTailBridge.anchored hT r) = 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (r i).val\nM5.ResidueTailBridge.gcd_cons : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), Finset.univ.gcd (fun i : Fin (k + 1) => (M5.ResidueTailBridge.anchored hT r i).val) = Finset.univ.gcd (fun i : Fin k => (r i).val)\nM5.ResidueNecessity.period_necessity : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F A B → ∃ r s : Fin w → Fin (M5.signaturePeriod F), M5.BoundedConstruction.anchoredTuple r ∧ M5.BoundedConstruction.anchoredTuple s ∧ M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) (M5.signaturePeriod F) = F\nM5.FeasibleSource.same_support_infinite_progression : ∀ (w T : ℕ) (r s : Fin w → Fin T) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ (A : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w T ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F A (M5.Packing.packedSupport s)\nM5.Period.period_law : ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N\nM5.ResidueCount.period_A_exact : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.ResidueCount.A w F = (M5.ResidueCount.validTailPairs (M5.signaturePeriod F) w F).card ∧ 0 ≤ M5.ResidueCount.A w F ∧ (0 < M5.ResidueCount.A w F ↔ ∃ a b : Fin (w-1) → Fin (M5.signaturePeriod F), M5.ResidueCount.feasible F a b)\nRetained accepted helper: M5.GlobalCriterion.full_to_tail : ∀ (w T : ℕ) (F : M5.BinaryPolynomial) (r s : Fin w → Fin T), 0 < w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ a b : Fin (w-1) → Fin T, M5.ResidueCount.feasible F a b"
+      },
+      "metadata": {
+        "source_section": "4,5",
+        "supports_obligation": "M5_OCCURRENCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "global_occurrence_criterion",
+      "dependencies": [
+        "physical_implies_A_positive",
+        "positive_bounded_progression",
+        "stage31_imports"
+      ],
+      "spec": {
+        "name": "M5.GlobalCriterion.global_occurrence_criterion",
+        "statement": "∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.ResidueCount.A w F ∧ (0 < M5.ResidueCount.A w F ↔ ∃ (N : ℕ) (S U : Finset ℕ), M5.PhysicalOrder.realizes N w F S U) ∧ (M5.ResidueCount.A w F = 0 ↔ ¬ (∃ (N : ℕ) (S U : Finset ℕ), M5.PhysicalOrder.realizes N w F S U))",
+        "imports": [
+          "M5GlobalCriterionReady"
+        ],
+        "context": "",
+        "queries": [
+          "Fin cons self tail successor sum",
+          "integer nonnegative positive zero iff"
+        ],
+        "guidance": "Nonnegativity is period_A_exact. Positive A gives actual physical existence by positive_bounded_progression at j=0; reverse is physical_implies_A_positive. Use integer nonnegativity to get zero iff no realization. This is the global existence criterion: no input physical witness or periodpattern premise, and no new efficiency/distance/ordering goal.\nReturn tactic lines without leading by; preserve exact target.\nExact imported local API (period_A_exact available only after verified stage31 promotion):\nM5.ResidueTailBridge.anchor_zero : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), ∀ i : Fin (k + 1), i.val = 0 → (M5.ResidueTailBridge.anchored hT r i).val = 0\nM5.ResidueTailBridge.polynomial_cons : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), M5.SupportPolynomial.ofResidueTuple (M5.ResidueTailBridge.anchored hT r) = 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (r i).val\nM5.ResidueTailBridge.gcd_cons : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), Finset.univ.gcd (fun i : Fin (k + 1) => (M5.ResidueTailBridge.anchored hT r i).val) = Finset.univ.gcd (fun i : Fin k => (r i).val)\nM5.ResidueNecessity.period_necessity : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F A B → ∃ r s : Fin w → Fin (M5.signaturePeriod F), M5.BoundedConstruction.anchoredTuple r ∧ M5.BoundedConstruction.anchoredTuple s ∧ M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) (M5.signaturePeriod F) = F\nM5.FeasibleSource.same_support_infinite_progression : ∀ (w T : ℕ) (r s : Fin w → Fin T) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ (A : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w T ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F A (M5.Packing.packedSupport s)\nM5.Period.period_law : ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N\nM5.ResidueCount.period_A_exact : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.ResidueCount.A w F = (M5.ResidueCount.validTailPairs (M5.signaturePeriod F) w F).card ∧ 0 ≤ M5.ResidueCount.A w F ∧ (0 < M5.ResidueCount.A w F ↔ ∃ a b : Fin (w-1) → Fin (M5.signaturePeriod F), M5.ResidueCount.feasible F a b)\nRetained accepted helper: M5.GlobalCriterion.full_to_tail : ∀ (w T : ℕ) (F : M5.BinaryPolynomial) (r s : Fin w → Fin T), 0 < w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ a b : Fin (w-1) → Fin T, M5.ResidueCount.feasible F a b"
+      },
+      "metadata": {
+        "source_section": "4,5",
+        "supports_obligation": "M5_OCCURRENCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+∀ (N d k : ℕ),
+  Finset.powersetCard k (M5.OrderCount.divisorPositions N d) =
+    {U ∈ Finset.powersetCard k (M5.OrderCount.positivePositions N) | ∀ s ∈ U, d ∣ s} : Prop
+M5OrderCountPreflight.lean:3:158: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  Decidable (P ∣ M5.SupportPolynomial.ofSupport (insert 0 U) ∧ P ∣ M5.SupportPolynomial.ofSupport (insert 0 V))
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+∀ (P : M5.BinaryPolynomial) (W : Finset ℕ) (k : ℕ),
+  Polynomial.Monic P →
+    0 ∉ W → M5.OrderCount.nOne P W k ^ 2 = ∑ U ∈ Finset.powersetCard k W, ∑ V ∈ Finset.powersetCard k W, sorry : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N →
+    0 < w →
+      Polynomial.Monic F →
+        F ∣ M5.cyclicModulus N →
+          M5.OrderCount.rawC N w F =
+            ∑ U ∈ Finset.powersetCard (w - 1) (M5.OrderCount.positivePositions N),
+              ∑ V ∈ Finset.powersetCard (w - 1) (M5.OrderCount.positivePositions N),
+                M5.OrderCount.pairIndicator N F U V : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N →
+    0 < w →
+      Polynomial.Monic F →
+        F ∣ M5.cyclicModulus N → M5.OrderCount.C N w F = ↑(M5.OrderCount.validPairs N w F).card : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N → 0 < w → Polynomial.Monic F → F ∣ M5.cyclicModulus N → 0 ≤ M5.OrderCount.C N w F : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial),
+  0 < N →
+    0 < w →
+      Polynomial.Monic F →
+        F ∣ M5.cyclicModulus N →
+          (0 < M5.OrderCount.C N w F ↔
+            ∃ A B,
+              A ⊆ Finset.range N ∧
+                B ⊆ Finset.range N ∧
+                  0 ∈ A ∧
+                    0 ∈ B ∧
+                      A.card = w ∧
+                        B.card = w ∧
+                          M5.Connectivity.supportGcd N A B = 1 ∧
+                            M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B)
+                                N =
+                              F) : Prop

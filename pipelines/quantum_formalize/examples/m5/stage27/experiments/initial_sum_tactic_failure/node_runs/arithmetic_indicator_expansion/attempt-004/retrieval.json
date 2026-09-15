@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.monic_prod_of_monic",
+    "status": "ok",
+    "results": [
+      {
+        "id": 102935,
+        "name": "Polynomial.monic_prod_of_monic",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L283-L285",
+        "source_text": "theorem monic_prod_of_monic (s : Finset ι) (f : ι → R[X]) (hs : ∀ i ∈ s, Monic (f i)) :\n    Monic (∏ i ∈ s, f i) :=\n  monic_multiset_prod_of_monic s.1 f hs\n",
+        "docstring": null
+      },
+      {
+        "id": 102934,
+        "name": "Polynomial.monic_multiset_prod_of_monic",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L275-L281",
+        "source_text": "theorem monic_multiset_prod_of_monic (t : Multiset ι) (f : ι → R[X]) (ht : ∀ i ∈ t, Monic (f i)) :\n    Monic (t.map f).prod := by\n  revert ht\n  refine t.induction_on ?_ ?_; · simp\n  intro a t ih ht\n  rw [Multiset.map_cons, Multiset.prod_cons]\n  exact (ht _ (Multiset.mem_cons_self _ _)).mul (ih fun _ hi => ht _ (Multiset.mem_cons_of_mem hi))\n",
+        "docstring": null
+      },
+      {
+        "id": 101362,
+        "name": "Polynomial.Monic",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L59-L61",
+        "source_text": "/-- a polynomial is `Monic` if its leading coefficient is 1 -/\ndef Monic (p : R[X]) :=\n  leadingCoeff p = (1 : R)\n",
+        "docstring": "a polynomial is `Monic` if its leading coefficient is 1 "
+      },
+      {
+        "id": 102902,
+        "name": "Polynomial.Monic.mul",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L85-L93",
+        "source_text": "theorem Monic.mul (hp : Monic p) (hq : Monic q) : Monic (p * q) :=\n  letI := Classical.decEq R\n  if h0 : (0 : R) = 1 then\n    haveI := subsingleton_of_zero_eq_one h0\n    Subsingleton.elim _ _\n  else by\n    have : p.leadingCoeff * q.leadingCoeff ≠ 0 := by\n      simp [Monic.def.1 hp, Monic.def.1 hq, Ne.symm h0]\n    rw [Monic.def, leadingCoeff_mul' this, Monic.def.1 hp, Monic.def.1 hq, one_mul]\n",
+        "docstring": null
+      },
+      {
+        "id": 314036,
+        "name": "MonomialOrder.Monic.mul",
+        "module": "Mathlib.RingTheory.MvPolynomial.MonomialOrder",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/MonomialOrder.lean#L508-L516",
+        "source_text": "theorem Monic.mul {f g : MvPolynomial σ R} (hf : m.Monic f) (hg : m.Monic g) :\n    m.Monic (f * g) := by\n  nontriviality R\n  suffices m.leadingCoeff f * m.leadingCoeff g = 1 by\n    rw [Monic, MonomialOrder.leadingCoeff,\n      degree_mul_of_mul_leadingCoeff_ne_zero, coeff_mul_of_degree_add, this]\n    rw [this]\n    exact one_ne_zero\n  rw [hf.leadingCoeff_eq_one, hg.leadingCoeff_eq_one, one_mul]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_congr simplifier membership hypotheses",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58038,
+        "name": "Finset.sum_congr",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L103-L103",
+        "source_text": "@[to_additive (attr := congr)]\ntheorem prod_congr (h : s₁ = s₂) : (∀ x ∈ s₂, f x = g x) → s₁.prod f = s₂.prod g := by",
+        "docstring": null
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 58138,
+        "name": "Finset.sum_congr_set",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L475-L477",
+        "source_text": "@[to_additive /-- The sum of a function `g` defined only on a set `s` is equal to\nthe sum of a function `f` defined everywhere,\nas long as `f` and `g` agree on `s`, and `f = 0` off `s`. -/]\ntheorem prod_congr_set [Fintype ι] (s : Set ι) [DecidablePred (· ∈ s)] (f : ι → M) (g : s → M)\n    (w : ∀ x (hx : x ∈ s), f x = g ⟨x, hx⟩) (w' : ∀ x ∉ s, f x = 1) : ∏ i, f i = ∏ i, g i := by",
+        "docstring": "The sum of a function `g` defined only on a set `s` is equal to\nthe sum of a function `f` defined everywhere,\nas long as `f` and `g` agree on `s`, and `f = 0` off `s`. "
+      },
+      {
+        "id": 203855,
+        "name": "Finset.noncommSum_congr",
+        "module": "Mathlib.Data.Finset.NoncommProd",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/NoncommProd.lean#L257-L257",
+        "source_text": "@[to_additive (attr := congr)]\ntheorem noncommProd_congr {s₁ s₂ : Finset α} {f g : α → β} (h₁ : s₁ = s₂)",
+        "docstring": null
+      },
+      {
+        "id": 58118,
+        "name": "Finset.sum_congr_of_eq_on_inter",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L381-L383",
+        "source_text": "@[to_additive /-- The sum of two functions `f g : ι → M` over finite sets `s₁ s₂ : Finset ι`\nare equal if the functions agree on `s₁ ∩ s₂`, `f = 0` and `g = 0` on the respective\nset differences. -/]\nlemma prod_congr_of_eq_on_inter {ι M : Type*} {s₁ s₂ : Finset ι} {f g : ι → M} [CommMonoid M]\n    (h₁ : ∀ a ∈ s₁, a ∉ s₂ → f a = 1) (h₂ : ∀ a ∈ s₂, a ∉ s₁ → g a = 1)\n    (h : ∀ a ∈ s₁, a ∈ s₂ → f a = g a) :\n    ∏ a ∈ s₁, f a = ∏ a ∈ s₂, g a := by",
+        "docstring": "The sum of two functions `f g : ι → M` over finite sets `s₁ s₂ : Finset ι`\nare equal if the functions agree on `s₁ ∩ s₂`, `f = 0` and `g = 0` on the respective\nset differences. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_ite_irrel",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58360,
+        "name": "Finset.sum_ite_irrel",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L573-L573",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem prod_ite_irrel (p : Prop) [Decidable p] (s : Finset ι) (f g : ι → M) :",
+        "docstring": null
+      },
+      {
+        "id": 58036,
+        "name": "Finset.sum_attach",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L99-L99",
+        "source_text": "@[to_additive]\nlemma prod_attach (s : Finset ι) (f : ι → M) : ∏ x ∈ s.attach, f x = ∏ x ∈ s, f x := by",
+        "docstring": null
+      },
+      {
+        "id": 57677,
+        "name": "finsum_mem_finset_eq_sum",
+        "module": "Mathlib.Algebra.BigOperators.Finprod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L530-L530",
+        "source_text": "@[to_additive]\ntheorem finprod_mem_finset_eq_prod (f : α → M) (s : Finset α) : ∏ᶠ i ∈ s, f i = ∏ i ∈ s, f i :=",
+        "docstring": null
+      },
+      {
+        "id": 58359,
+        "name": "Finset.prod_ite_irrel",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L573-L576",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem prod_ite_irrel (p : Prop) [Decidable p] (s : Finset ι) (f g : ι → M) :\n    ∏ x ∈ s, (if p then f x else g x) = if p then ∏ x ∈ s, f x else ∏ x ∈ s, g x := by\n  split_ifs with h <;> rfl",
+        "docstring": null
+      },
+      {
+        "id": 71102,
+        "name": "Finset.coe_sum",
+        "module": "Mathlib.Algebra.Group.Pointwise.Finset.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/BigOperators.lean#L43-L43",
+        "source_text": "@[to_additive (attr := simp, norm_cast)]\ntheorem coe_prod (s : Finset ι) (f : ι → Finset α) :",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,166 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_product Finset.sum_filter card_eq_sum_ones",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58250,
+        "name": "Finset.card_eq_sum_ones",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L952-L952",
+        "source_text": "lemma card_eq_sum_ones (s : Finset ι) : #s = ∑ _ ∈ s, 1 := by simp\n",
+        "docstring": null
+      },
+      {
+        "id": 58052,
+        "name": "Finset.sum_filter_add_sum_filter_not",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L143-L143",
+        "source_text": "@[to_additive]\ntheorem prod_filter_mul_prod_filter_not\n    (s : Finset ι) (p : ι → Prop) [DecidablePred p] [∀ x, Decidable (¬p x)] (f : ι → M) :\n    (∏ x ∈ s with p x, f x) * ∏ x ∈ s with ¬p x, f x = ∏ x ∈ s, f x := by",
+        "docstring": null
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 202420,
+        "name": "Finset.filter_card_add_filter_neg_card_eq_card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L649-L650",
+        "source_text": "@[deprecated (since := \"2025-12-12\")]\nalias filter_card_add_filter_neg_card_eq_card := card_filter_add_card_filter_not",
+        "docstring": "**Alias** of `Finset.card_filter_add_card_filter_not`."
+      },
+      {
+        "id": 92675,
+        "name": "Finset.sum_card",
+        "module": "Mathlib.Algebra.Order.BigOperators.Group.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/BigOperators/Group/Finset.lean#L379-L383",
+        "source_text": "/-- If every element belongs to exactly `n` Finsets, then the sum of their sizes is `n` times how\nmany they are. -/\ntheorem sum_card [Fintype α] (h : ∀ a, #{b ∈ B | a ∈ b} = n) :\n    ∑ s ∈ B, #s = Fintype.card α * n := by\n  simp_rw [Fintype.card, ← sum_card_inter fun a _ ↦ h a, univ_inter]\n",
+        "docstring": "If every element belongs to exactly `n` Finsets, then the sum of their sizes is `n` times how\nmany they are. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.card_erase_of_mem",
+    "status": "ok",
+    "results": [
+      {
+        "id": 202337,
+        "name": "Finset.card_erase_of_mem",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L150-L153",
+        "source_text": "/-- $\\#(s \\setminus \\{a\\}) = \\#s - 1$ if $a \\in s$. -/\n@[simp, grind =]\ntheorem card_erase_of_mem : a ∈ s → #(s.erase a) = #s - 1 :=\n  Multiset.card_erase_of_mem\n",
+        "docstring": "$\\#(s \\setminus \\{a\\}) = \\#s - 1$ if $a \\in s$. "
+      },
+      {
+        "id": 203921,
+        "name": "Finset.card_eraseNone_of_mem",
+        "module": "Mathlib.Data.Finset.Option",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Option.lean#L164-L165",
+        "source_text": "theorem card_eraseNone_of_mem {s : Finset (Option α)} (h : none ∈ s) : #s.eraseNone = #s - 1 := by\n  classical rw [card_eraseNone_eq_card_erase, card_erase_of_mem h]\n",
+        "docstring": null
+      },
+      {
+        "id": 202306,
+        "name": "Finset.card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+        "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+        "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+      },
+      {
+        "id": 202704,
+        "name": "Finset.mem_erase_of_ne_of_mem",
+        "module": "Mathlib.Data.Finset.Erase",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Erase.lean#L68-L69",
+        "source_text": "theorem mem_erase_of_ne_of_mem : a ≠ b → a ∈ s → a ∈ erase s b := by\n  simp only [mem_erase]; exact And.intro\n",
+        "docstring": null
+      },
+      {
+        "id": 202700,
+        "name": "Finset.mem_erase",
+        "module": "Mathlib.Data.Finset.Erase",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Erase.lean#L56-L58",
+        "source_text": "@[simp, grind =]\ntheorem mem_erase {a b : α} {s : Finset α} : a ∈ erase s b ↔ a ≠ b ∧ a ∈ s :=\n  s.2.mem_erase_iff",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.card_erase_of_mem",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389108,
+        "name": "FieldStatistic.ofFinset_erase",
+        "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L74-L83",
+        "source_text": "lemma ofFinset_erase (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a : Finset (Fin φs.length))\n    (i : Fin φs.length) (h : i ∈ a) :\n    ofFinset q φs.get (a.erase i) = (q φs[i]) * ofFinset q φs.get a := by\n  have ha : a = Insert.insert i (a.erase i) := by\n    exact Eq.symm (Finset.insert_erase h)\n  conv_rhs => rw [ha]\n  rw [ofFinset_insert]\n  rw [← mul_assoc]\n  simp only [Fin.getElem_fin, mul_self, one_mul]\n  simp\n",
+        "docstring": null
+      },
+      {
+        "id": 388934,
+        "name": "FieldSpecification.CrAnSection.eraseIdx",
+        "module": "Physlib.QFT.PerturbationTheory.FieldSpecification.CrAnSection",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldSpecification/CrAnSection.lean#L351-L353",
+        "source_text": "/-- Erasing an element from a section and it's underlying list. -/\ndef eraseIdx (n : ℕ) (ψs : CrAnSection φs) : CrAnSection (φs.eraseIdx n) :=\n  ⟨ψs.1.eraseIdx n, by simp [ψs.2]⟩\n",
+        "docstring": "Erasing an element from a section and it's underlying list. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

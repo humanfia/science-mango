@@ -1,0 +1,121 @@
+{
+  "id": "C_positive_iff_realization",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.OrderCount.C_positive_iff_realization",
+    "spec_sha256": "78316242932901c69bbcd2f3122c3df71b469687749a11fde9641ab589797fed",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-z5khlsxi/attempt-001/Candidate_a8becbf0febc83a2.lean:38:21: error: Tactic `rcases` failed: `left✝ : Quot.lift (fun l => (U, V) ∈ l) ⋯\n  ((Finset.powersetCard (w - 1) (positivePositions N)).product\n      (Finset.powersetCard (w - 1) (positivePositions N))).val` is not an inductive datatype\n/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-z5khlsxi/attempt-001/Candidate_a8becbf0febc83a2.lean:9:43: warning: This simp argument is unused:\n  and_comm\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.OrderCount.positivePositions]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-z5khlsxi/attempt-001/Candidate_a8becbf0febc83a2.lean:36:60: warning: This simp argument is unused:\n  Finset.mem_product\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M5.OrderCount.validPairs, Finset.mem_filter, Finset.mem_powersetCard] at hUV\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-z5khlsxi/attempt-001/Candidate_a8becbf0febc83a2.lean:37:6: warning: This simp argument is unused:\n  Finset.mem_powersetCard\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M5.OrderCount.validPairs, Finset.mem_filter, Finset.mem_product] at hUV\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-z5khlsxi/attempt-002/Candidate_884510f32a27cb8e.lean",
+        "target_path": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-z5khlsxi/attempt-002/FrozenTarget_884510f32a27cb8e.lean",
+        "feedback": "",
+        "target_sha256": "6df5c0b621290d48db75e6d9311ee84b83b97c03eb47603431f04ed8a522f3d6",
+        "target_olean_sha256": "ef8cf46428e37fca2c5d05c04867bfaa1d4c4b92d06c23feaf3ddc0008334413",
+        "source_sha256": "05eba5c93a85b7c248b5c376f7ed0aeed293bce8e72a5d45e038fa7328709c59",
+        "olean_sha256": "d1f7a34263e14797f7a1a75e2b8414f82564c96da4c54080c94ffabfae057b32",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T09:10:47.814107+00:00",
+    "work": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-z5khlsxi",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b34f752b9fcca2405f78cd9a9823fb4b1f8838c887cd8b49fea24fae5b25fa23",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-z5khlsxi/attempt-002/Candidate_884510f32a27cb8e.lean",
+    "environment_sha256": "682014b7a09bcb90ba8eca460b9b4a9f2324a663740240d667f3b37e0dfc8b4d",
+    "artifacts": {
+      "divisor_subset_domain": {
+        "payload": {
+          "declaration": "theorem M5.OrderCount.divisor_subset_domain : ∀ (N d k : ℕ), (M5.OrderCount.divisorPositions N d).powersetCard k = ((M5.OrderCount.positivePositions N).powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s) := by\n  change ∀ (N d k : ℕ), (M5.OrderCount.divisorPositions N d).powersetCard k = ((M5.OrderCount.positivePositions N).powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s)\n  intro N d k\n  classical\n  ext U\n  simp [M5.OrderCount.divisorPositions, Finset.mem_powersetCard, Finset.subset_iff, forall_and, and_assoc, and_left_comm, and_comm]",
+          "imports": [
+            "M5OrderCount"
+          ],
+          "name": "M5.OrderCount.divisor_subset_domain",
+          "ancestors": [],
+          "spec_sha256": "318b5cc4b6044e019ac4bc6ed88bd6cabf4db7e030b120b0db661e567c41aa56"
+        },
+        "sha256": "1e261f65ee754f0a6a13e5c71bd299c69c15dec9f4ab4f549677462731ead0fc"
+      },
+      "two_block_divisibility_count": {
+        "payload": {
+          "declaration": "theorem M5.OrderCount.two_block_divisibility_count : ∀ (P : M5.BinaryPolynomial) (W : Finset ℕ) (k : ℕ), P.Monic → 0 ∉ W → M5.OrderCount.nOne P W k ^ 2 = M5.OrderCount.twoBlockIndicatorSum P W k := by\n  classical\n  intro P W k hP hW\n  simp only [M5.OrderCount.nOne, dif_pos hP]\n  rw [M5.AnchoredCount.anchored_single_block_count P hP W k hW]\n  unfold M5.AnchoredCount.count M5.OrderCount.twoBlockIndicatorSum\n  simp only [pow_two, Finset.card_eq_sum_ones, Nat.cast_sum, Finset.sum_filter]\n  simp [Finset.sum_mul, Finset.mul_sum, ite_mul, mul_ite, ite_and]\n  rw [← Finset.sum_filter]\n  simp [nsmul_eq_mul]",
+          "imports": [
+            "M5OrderCount"
+          ],
+          "name": "M5.OrderCount.two_block_divisibility_count",
+          "ancestors": [],
+          "spec_sha256": "a5bb9ae147056f50d64b1e4254cb8e09e9ce753aec8b2adb803fe84d56cc54ed"
+        },
+        "sha256": "9e8b3e80e7dff5ce9b9cdb04105c6f58c1f9518c211ee7fb0712f71a48fd16ea"
+      },
+      "arithmetic_indicator_expansion": {
+        "payload": {
+          "declaration": "theorem M5.OrderCount.arithmetic_indicator_expansion : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.OrderCount.rawC N w F = ∑ U ∈ (M5.OrderCount.positivePositions N).powersetCard (w-1), ∑ V ∈ (M5.OrderCount.positivePositions N).powersetCard (w-1), M5.OrderCount.pairIndicator N F U V := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → _\n  intro N w F hN hw hF hFN\n  classical\n  have hprod : ∀ S : Finset M5.BinaryPolynomial, (∀ p ∈ S, p.Monic) → (∏ p ∈ S, p).Monic := by\n    intro S\n    induction S using Finset.induction_on with\n    | empty =>\n        intro h\n        simpa using (Polynomial.monic_one : (1 : M5.BinaryPolynomial).Monic)\n    | @insert p S hp ih =>\n        intro h\n        rw [Finset.prod_insert hp]\n        exact (h p (Finset.mem_insert_self p S)).mul\n          (ih (fun q hq => h q (Finset.mem_insert_of_mem hq)))\n  have hexpand (d : ℕ) :\n      (∑ S ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n        (-1 : ℤ) ^ S.card * M5.OrderCount.nOne (F * ∏ p ∈ S, p)\n          (M5.OrderCount.divisorPositions N d) (w - 1) ^ 2) =\n      ∑ S ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n        (-1 : ℤ) ^ S.card * M5.OrderCount.twoBlockIndicatorSum (F * ∏ p ∈ S, p)\n          (M5.OrderCount.divisorPositions N d) (w - 1) := by\n    apply Finset.sum_congr rfl\n    intro S hS\n    congr 1\n    apply M5.OrderCount.two_block_divisibility_count\n    · apply hF.mul\n      apply hprod\n      intro p hp\n      exact (M5.PolynomialIndicator.residual_factors_regular F N hN hF hFN p\n        (Finset.mem_powerset.mp hS hp)).1\n    · simp [M5.OrderCount.divisorPositions, M5.OrderCount.positivePositions]\n  unfold M5.OrderCount.rawC\n  simp_rw [hexpand]\n  unfold M5.OrderCount.twoBlockIndicatorSum M5.OrderCount.pairIndicator\n  unfold M5.PolynomialIndicator.factorExclusionSum\n  simp_rw [M5.OrderCount.divisor_subset_domain]\n  simp only [Finset.sum_filter, Finset.forall_mem_insert, dvd_zero, true_and]\n  simp only [Finset.mul_sum, Finset.sum_mul, Finset.ite_sum_zero,\n    ite_mul, mul_ite, mul_zero, zero_mul]\n  conv_lhs =>\n    rw [Finset.sum_comm]\n    arg 2\n    ext S\n    rw [Finset.sum_comm]\n    arg 2\n    ext U\n    rw [Finset.sum_comm]\n  conv_lhs =>\n    rw [Finset.sum_comm]\n    arg 2\n    ext U\n    rw [Finset.sum_comm]\n  apply Finset.sum_congr rfl\n  intro U hU\n  apply Finset.sum_congr rfl\n  intro V hV\n  apply Finset.sum_congr rfl\n  intro S hS\n  apply Finset.sum_congr rfl\n  intro d hd\n  simp only [mul_one]\n  split_ifs <;> simp_all",
+          "imports": [
+            "M5OrderCount"
+          ],
+          "name": "M5.OrderCount.arithmetic_indicator_expansion",
+          "ancestors": [
+            "divisor_subset_domain",
+            "two_block_divisibility_count"
+          ],
+          "spec_sha256": "4d2066d434605ab1c132def78dea5db761e2c4a35100d5b7ba3a9a569c7101bb"
+        },
+        "sha256": "f5eac218ec5c7f93b166c226c4064a0731bed1c79f0d97391bf73d376d429b8f"
+      },
+      "exact_C": {
+        "payload": {
+          "declaration": "theorem M5.OrderCount.exact_C : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.OrderCount.C N w F = (M5.OrderCount.validPairs N w F).card := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.OrderCount.C N w F = (M5.OrderCount.validPairs N w F).card\n  intro N w F hN hw hF hFN\n  classical\n  by_cases hwN : w ≤ N\n  · have hC : M5.OrderCount.C N w F = M5.OrderCount.rawC N w F := by\n      simp [M5.OrderCount.C, hFN, hwN]\n    rw [hC, M5.OrderCount.arithmetic_indicator_expansion N w F hN hw hF hFN]\n    unfold M5.OrderCount.validPairs\n    simp only [Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one, Finset.sum_filter]\n    simp only [Finset.product_eq_sprod, Finset.sum_product]\n    apply Finset.sum_congr rfl\n    intro U hU\n    apply Finset.sum_congr rfl\n    intro V hV\n    unfold M5.OrderCount.pairIndicator\n    have hconn : (∑ d ∈ N.divisors,\n        if (∀ s ∈ insert 0 U, d ∣ s) ∧ (∀ s ∈ insert 0 V, d ∣ s)\n        then ArithmeticFunction.moebius d else 0) =\n        (if M5.Connectivity.supportGcd N (insert 0 U) (insert 0 V) = 1 then (1 : ℤ) else 0) := by\n      convert M5.Connectivity.connected_indicator N (insert 0 U) (insert 0 V) hN using 1\n      apply Finset.sum_congr rfl\n      intro d hd\n      split_ifs <;> simp_all\n    rw [hconn]\n    rw [M5.PolynomialIndicator.exact_signature_indicator _ _ F N hN hF hFN]\n    split_ifs <;> simp_all\n  · have hc : (M5.OrderCount.positivePositions N).card = N - 1 := by\n      have heq : M5.OrderCount.positivePositions N = (Finset.range N).erase 0 := by\n        ext s\n        simp [M5.OrderCount.positivePositions, Nat.pos_iff_ne_zero, and_comm]\n      rw [heq, Finset.card_erase_of_mem (Finset.mem_range.mpr hN), Finset.card_range]\n    have hempty : (M5.OrderCount.positivePositions N).powersetCard (w - 1) = ∅ := by\n      apply Finset.powersetCard_eq_empty.mpr\n      rw [hc]\n      omega\n    simp [M5.OrderCount.C, M5.OrderCount.validPairs, hempty, hwN, hFN]",
+          "imports": [
+            "M5OrderCount"
+          ],
+          "name": "M5.OrderCount.exact_C",
+          "ancestors": [
+            "arithmetic_indicator_expansion",
+            "divisor_subset_domain",
+            "two_block_divisibility_count"
+          ],
+          "spec_sha256": "028bcb4264f84881eb037e717c8a1a541c780363952552bb3ecd25e68f13a76f"
+        },
+        "sha256": "1d6544ede54420f010859611468cce5826dd1e0073a82439d6a486e0989f1694"
+      },
+      "C_positive_iff_realization": {
+        "payload": {
+          "declaration": "theorem M5.OrderCount.C_positive_iff_realization : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → (0 < M5.OrderCount.C N w F ↔ ∃ A B : Finset ℕ, A ⊆ Finset.range N ∧ B ⊆ Finset.range N ∧ 0 ∈ A ∧ 0 ∈ B ∧ A.card = w ∧ B.card = w ∧ M5.Connectivity.supportGcd N A B = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) N = F) := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → _\n  intro N w F hN hw hF hFN\n  classical\n  rw [M5.OrderCount.exact_C N w F hN hw hF hFN]\n  have hpositions : M5.OrderCount.positivePositions N = (Finset.range N).erase 0 := by\n    ext s\n    simp [M5.OrderCount.positivePositions, Nat.pos_iff_ne_zero, and_comm]\n  have hmem (U V : Finset ℕ) :\n      (U, V) ∈ M5.OrderCount.validPairs N w F ↔\n        (U ⊆ M5.OrderCount.positivePositions N ∧ U.card = w - 1) ∧\n        (V ⊆ M5.OrderCount.positivePositions N ∧ V.card = w - 1) ∧\n        M5.Connectivity.supportGcd N (insert 0 U) (insert 0 V) = 1 ∧\n        M5.completeSignature (M5.SupportPolynomial.ofSupport (insert 0 U))\n          (M5.SupportPolynomial.ofSupport (insert 0 V)) N = F := by\n    simp [M5.OrderCount.validPairs, Finset.product_eq_sprod,\n      Finset.mem_powersetCard, and_assoc]\n  have hanchor (U : Finset ℕ)\n      (hU : U ⊆ M5.OrderCount.positivePositions N) (hc : U.card = w - 1) :\n      insert 0 U ⊆ Finset.range N ∧ (insert 0 U).card = w := by\n    have hsub : U ⊆ (Finset.range N).erase 0 := by\n      simpa only [hpositions] using hU\n    have hz : 0 ∉ U := by\n      intro hz\n      have := hsub hz\n      simp at this\n    constructor\n    · intro s hs\n      rcases Finset.mem_insert.mp hs with rfl | hs\n      · exact Finset.mem_range.mpr hN\n      · exact Finset.mem_of_mem_erase (hsub hs)\n    · rw [Finset.card_insert_of_notMem hz, hc]\n      omega\n  have herase (A : Finset ℕ) (hA : A ⊆ Finset.range N)\n      (hzero : 0 ∈ A) (hc : A.card = w) :\n      A.erase 0 ⊆ M5.OrderCount.positivePositions N ∧ (A.erase 0).card = w - 1 := by\n    constructor\n    · rw [hpositions]\n      intro s hs\n      obtain ⟨hne, hsA⟩ := Finset.mem_erase.mp hs\n      exact Finset.mem_erase.mpr ⟨hne, hA hsA⟩\n    · rw [Finset.card_erase_of_mem hzero, hc]\n  constructor\n  · intro h\n    have hc : 0 < (M5.OrderCount.validPairs N w F).card := by\n      exact_mod_cast h\n    obtain ⟨⟨U, V⟩, hUV⟩ := Finset.card_pos.mp hc\n    obtain ⟨⟨hU, hcU⟩, ⟨hV, hcV⟩, hg, hs⟩ := (hmem U V).mp hUV\n    obtain ⟨hAU, hcwU⟩ := hanchor U hU hcU\n    obtain ⟨hBV, hcwV⟩ := hanchor V hV hcV\n    exact ⟨insert 0 U, insert 0 V, hAU, hBV,\n      Finset.mem_insert_self 0 U, Finset.mem_insert_self 0 V,\n      hcwU, hcwV, hg, hs⟩\n  · rintro ⟨A, B, hA, hB, hzA, hzB, hcA, hcB, hg, hs⟩\n    have hU := herase A hA hzA hcA\n    have hV := herase B hB hzB hcB\n    have hUV : (A.erase 0, B.erase 0) ∈ M5.OrderCount.validPairs N w F := by\n      apply (hmem (A.erase 0) (B.erase 0)).mpr\n      refine ⟨hU, hV, ?_, ?_⟩\n      · simpa only [Finset.insert_erase hzA, Finset.insert_erase hzB] using hg\n      · simpa only [Finset.insert_erase hzA, Finset.insert_erase hzB] using hs\n    have hc : 0 < (M5.OrderCount.validPairs N w F).card :=\n      Finset.card_pos.mpr ⟨(A.erase 0, B.erase 0), hUV⟩\n    exact_mod_cast hc",
+          "imports": [
+            "M5OrderCount"
+          ],
+          "name": "M5.OrderCount.C_positive_iff_realization",
+          "ancestors": [
+            "arithmetic_indicator_expansion",
+            "divisor_subset_domain",
+            "exact_C",
+            "two_block_divisibility_count"
+          ],
+          "spec_sha256": "6e0e49f3e7fbc95ceb0ede8d18be5179faa08b08da554b0f7140f60716feb027"
+        },
+        "sha256": "c1caf69bd503bc18f10f732b5668e61cb961ac84e54fa4bc312e04753fa1b15e"
+      }
+    }
+  }
+}

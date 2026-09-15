@@ -1,0 +1,3 @@
+import Candidate_c3e678b0ac88923b
+example : QuantumHarnessFrozenTarget := M5.GlobalCriterion.global_occurrence_criterion
+#print axioms M5.GlobalCriterion.global_occurrence_criterion

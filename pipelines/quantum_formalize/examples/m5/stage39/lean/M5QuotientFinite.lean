@@ -1,0 +1,7 @@
+import M5Period
+
+theorem M5.Period.quotient_finite : ∀ (F : M5.BinaryPolynomial), F.Monic → Finite (AdjoinRoot F) := by
+  change ∀ (F : M5.BinaryPolynomial), F.Monic → Finite (AdjoinRoot F)
+  intro F hF
+  letI : Module.Finite (ZMod 2) (AdjoinRoot F) := hF.finite_adjoinRoot
+  apply Module.finite_of_finite (ZMod 2)

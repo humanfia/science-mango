@@ -1,0 +1,6 @@
+import FrozenTarget_29b07465cd2f26dc
+theorem M5.OrderCount.C_nonnegative : QuantumHarnessFrozenTarget := by
+  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → 0 ≤ M5.OrderCount.C N w F
+  intro N w F hN hw hF hFN
+  rw [M5.OrderCount.exact_C N w F hN hw hF hFN]
+  exact Int.natCast_nonneg _

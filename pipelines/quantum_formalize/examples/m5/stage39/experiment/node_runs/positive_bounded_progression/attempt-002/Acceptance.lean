@@ -1,0 +1,3 @@
+import Candidate_a29bc95e640f313b
+example : QuantumHarnessFrozenTarget := M5.GlobalCriterion.positive_bounded_progression
+#print axioms M5.GlobalCriterion.positive_bounded_progression

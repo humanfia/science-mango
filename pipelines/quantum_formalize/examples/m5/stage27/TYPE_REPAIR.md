@@ -1,0 +1,1 @@
+The first type check found no synthesized Decidable instance for polynomial divisibility inside a raw indicator sum. The identical sum now lives in twoBlockIndicatorSum, defined with classical decidability; the target references that definition. All mathematical parameters and hypotheses are unchanged. The original graph and failed type-check log are retained.

@@ -1,0 +1,4 @@
+{
+  "proof": "intro w T F r s hw hT hr hs hg hp\ncases w with\n| zero => omega\n| succ k =>\n  have hr0 : r 0 = ⟨0, hT⟩ := Fin.ext (hr 0 rfl)\n  have hs0 : s 0 = ⟨0, hT⟩ := Fin.ext (hs 0 rfl)\n  have er : M5.ResidueTailBridge.anchored hT (Fin.tail r) = r := by\n    simpa [M5.ResidueTailBridge.anchored, hr0] using Fin.cons_self_tail r\n  have es : M5.ResidueTailBridge.anchored hT (Fin.tail s) = s := by\n    simpa [M5.ResidueTailBridge.anchored, hs0] using Fin.cons_self_tail s\n  unfold M5.BoundedConstruction.tupleSupportGcd at hg\n  rw [← er, ← es] at hg hp\n  simp only [M5.ResidueTailBridge.gcd_cons] at hg\n  simp only [M5.ResidueTailBridge.polynomial_cons] at hp\n  refine ⟨Fin.tail r, Fin.tail s, ?_⟩\n  clear er es hr0 hs0 hr hs\n  simp_all [M5.ResidueCount.feasible, M5.ResidueCount.tailPolynomial,\n    M5.ResidueCount.residueSupport, M5.Connectivity.supportGcd,\n    Finset.gcd_image, Function.comp_def]",
+  "queries": []
+}

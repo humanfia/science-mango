@@ -1,0 +1,82 @@
+{
+  "id": "arithmetic_indicator_expansion",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.OrderCount.arithmetic_indicator_expansion",
+    "spec_sha256": "caccf37b122e53b75621ed3c5182d05b5c16a381226051480db5a791fe91c004",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-2by19b8s/attempt-001/Candidate_6ab364892f214bdc.lean",
+        "target_path": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-2by19b8s/attempt-001/FrozenTarget_6ab364892f214bdc.lean",
+        "feedback": "",
+        "target_sha256": "f6089565f0796e9076d2f1b74ed4475a843bd2460fa9567e20e3ea449edc030d",
+        "target_olean_sha256": "cfdf545b3515e8786e7112887e6fdf1f9d3187f72923d1637da1c6adea71eb89",
+        "source_sha256": "53604389fd6be1ee2b69c38be442a59e4634edcdfdc199f8b617840911be1e77",
+        "olean_sha256": "2062a2f9bda82891c2a9b2346bbc36cda8c2442e6391c245297bc99b895bdffd",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:50:26.223685+00:00",
+    "work": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-2by19b8s",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b34f752b9fcca2405f78cd9a9823fb4b1f8838c887cd8b49fea24fae5b25fa23",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-order-count-formalization/.humanize-formal-runs/run-2by19b8s/attempt-001/Candidate_6ab364892f214bdc.lean",
+    "environment_sha256": "682014b7a09bcb90ba8eca460b9b4a9f2324a663740240d667f3b37e0dfc8b4d",
+    "artifacts": {
+      "divisor_subset_domain": {
+        "payload": {
+          "declaration": "theorem M5.OrderCount.divisor_subset_domain : ∀ (N d k : ℕ), (M5.OrderCount.divisorPositions N d).powersetCard k = ((M5.OrderCount.positivePositions N).powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s) := by\n  change ∀ (N d k : ℕ), (M5.OrderCount.divisorPositions N d).powersetCard k = ((M5.OrderCount.positivePositions N).powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s)\n  intro N d k\n  classical\n  ext U\n  simp [M5.OrderCount.divisorPositions, Finset.mem_powersetCard, Finset.subset_iff, forall_and, and_assoc, and_left_comm, and_comm]",
+          "imports": [
+            "M5OrderCount"
+          ],
+          "name": "M5.OrderCount.divisor_subset_domain",
+          "ancestors": [],
+          "spec_sha256": "318b5cc4b6044e019ac4bc6ed88bd6cabf4db7e030b120b0db661e567c41aa56"
+        },
+        "sha256": "1e261f65ee754f0a6a13e5c71bd299c69c15dec9f4ab4f549677462731ead0fc"
+      },
+      "two_block_divisibility_count": {
+        "payload": {
+          "declaration": "theorem M5.OrderCount.two_block_divisibility_count : ∀ (P : M5.BinaryPolynomial) (W : Finset ℕ) (k : ℕ), P.Monic → 0 ∉ W → M5.OrderCount.nOne P W k ^ 2 = M5.OrderCount.twoBlockIndicatorSum P W k := by\n  classical\n  intro P W k hP hW\n  simp only [M5.OrderCount.nOne, dif_pos hP]\n  rw [M5.AnchoredCount.anchored_single_block_count P hP W k hW]\n  unfold M5.AnchoredCount.count M5.OrderCount.twoBlockIndicatorSum\n  simp only [pow_two, Finset.card_eq_sum_ones, Nat.cast_sum, Finset.sum_filter]\n  simp [Finset.sum_mul, Finset.mul_sum, ite_mul, mul_ite, ite_and]\n  rw [← Finset.sum_filter]\n  simp [nsmul_eq_mul]",
+          "imports": [
+            "M5OrderCount"
+          ],
+          "name": "M5.OrderCount.two_block_divisibility_count",
+          "ancestors": [],
+          "spec_sha256": "a5bb9ae147056f50d64b1e4254cb8e09e9ce753aec8b2adb803fe84d56cc54ed"
+        },
+        "sha256": "9e8b3e80e7dff5ce9b9cdb04105c6f58c1f9518c211ee7fb0712f71a48fd16ea"
+      },
+      "arithmetic_indicator_expansion": {
+        "payload": {
+          "declaration": "theorem M5.OrderCount.arithmetic_indicator_expansion : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.OrderCount.rawC N w F = ∑ U ∈ (M5.OrderCount.positivePositions N).powersetCard (w-1), ∑ V ∈ (M5.OrderCount.positivePositions N).powersetCard (w-1), M5.OrderCount.pairIndicator N F U V := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → _\n  intro N w F hN hw hF hFN\n  classical\n  have hprod : ∀ S : Finset M5.BinaryPolynomial, (∀ p ∈ S, p.Monic) → (∏ p ∈ S, p).Monic := by\n    intro S\n    induction S using Finset.induction_on with\n    | empty =>\n        intro h\n        simpa using (Polynomial.monic_one : (1 : M5.BinaryPolynomial).Monic)\n    | @insert p S hp ih =>\n        intro h\n        rw [Finset.prod_insert hp]\n        exact (h p (Finset.mem_insert_self p S)).mul\n          (ih (fun q hq => h q (Finset.mem_insert_of_mem hq)))\n  have hexpand (d : ℕ) :\n      (∑ S ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n        (-1 : ℤ) ^ S.card * M5.OrderCount.nOne (F * ∏ p ∈ S, p)\n          (M5.OrderCount.divisorPositions N d) (w - 1) ^ 2) =\n      ∑ S ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n        (-1 : ℤ) ^ S.card * M5.OrderCount.twoBlockIndicatorSum (F * ∏ p ∈ S, p)\n          (M5.OrderCount.divisorPositions N d) (w - 1) := by\n    apply Finset.sum_congr rfl\n    intro S hS\n    congr 1\n    apply M5.OrderCount.two_block_divisibility_count\n    · apply hF.mul\n      apply hprod\n      intro p hp\n      exact (M5.PolynomialIndicator.residual_factors_regular F N hN hF hFN p\n        (Finset.mem_powerset.mp hS hp)).1\n    · simp [M5.OrderCount.divisorPositions, M5.OrderCount.positivePositions]\n  unfold M5.OrderCount.rawC\n  simp_rw [hexpand]\n  unfold M5.OrderCount.twoBlockIndicatorSum M5.OrderCount.pairIndicator\n  unfold M5.PolynomialIndicator.factorExclusionSum\n  simp_rw [M5.OrderCount.divisor_subset_domain]\n  simp only [Finset.sum_filter, Finset.forall_mem_insert, dvd_zero, true_and]\n  simp only [Finset.mul_sum, Finset.sum_mul, Finset.ite_sum_zero,\n    ite_mul, mul_ite, mul_zero, zero_mul]\n  conv_lhs =>\n    rw [Finset.sum_comm]\n    arg 2\n    ext S\n    rw [Finset.sum_comm]\n    arg 2\n    ext U\n    rw [Finset.sum_comm]\n  conv_lhs =>\n    rw [Finset.sum_comm]\n    arg 2\n    ext U\n    rw [Finset.sum_comm]\n  apply Finset.sum_congr rfl\n  intro U hU\n  apply Finset.sum_congr rfl\n  intro V hV\n  apply Finset.sum_congr rfl\n  intro S hS\n  apply Finset.sum_congr rfl\n  intro d hd\n  simp only [mul_one]\n  split_ifs <;> simp_all",
+          "imports": [
+            "M5OrderCount"
+          ],
+          "name": "M5.OrderCount.arithmetic_indicator_expansion",
+          "ancestors": [
+            "divisor_subset_domain",
+            "two_block_divisibility_count"
+          ],
+          "spec_sha256": "4d2066d434605ab1c132def78dea5db761e2c4a35100d5b7ba3a9a569c7101bb"
+        },
+        "sha256": "f5eac218ec5c7f93b166c226c4064a0731bed1c79f0d97391bf73d376d429b8f"
+      }
+    }
+  }
+}

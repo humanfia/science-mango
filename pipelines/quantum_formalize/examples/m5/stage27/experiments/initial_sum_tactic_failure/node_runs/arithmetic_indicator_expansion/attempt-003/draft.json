@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N w F hN hw hF hFd\nhave hmonic : ∀ H ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset, (F * ∏ p ∈ H, p).Monic := by\n  intro H hH\n  apply hF.mul\n  apply Polynomial.monic_prod_of_monic\n  intro p hp\n  exact (M5.PolynomialIndicator.residual_factors_regular F N hN hF hFd p ((Finset.mem_powerset.mp hH) hp)).1\nhave hzero : ∀ d, 0 ∉ M5.OrderCount.divisorPositions N d := by\n  intro d\n  simp [M5.OrderCount.divisorPositions, M5.OrderCount.positivePositions]\nhave hcount : ∀ H ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset, ∀ d, M5.OrderCount.nOne (F * ∏ p ∈ H, p) (M5.OrderCount.divisorPositions N d) (w - 1) ^ 2 = M5.OrderCount.twoBlockIndicatorSum (F * ∏ p ∈ H, p) (M5.OrderCount.divisorPositions N d) (w - 1) := by\n  intro H hH d\n  exact M5.OrderCount.two_block_divisibility_count _ _ _ (hmonic H hH) (hzero d)\nunfold M5.OrderCount.rawC\nsimp (disch := assumption) only [hcount]\nunfold M5.OrderCount.twoBlockIndicatorSum M5.OrderCount.pairIndicator M5.PolynomialIndicator.factorExclusionSum\nsimp only [M5.OrderCount.divisor_subset_domain, Finset.sum_filter, Finset.forall_mem_insert, dvd_zero, true_and]\nsimp only [Finset.mul_sum, Finset.sum_mul, ite_mul, mul_ite, zero_mul, mul_zero]\nsimp only [← Finset.sum_ite_irrel, Finset.sum_const_zero]\nsimp only [Finset.sum_comm, mul_assoc, mul_left_comm, mul_comm, ite_and, and_assoc, and_left_comm, and_comm]",
+  "queries": [
+    "Polynomial.monic_prod_of_monic",
+    "Finset.sum_congr simplifier membership hypotheses",
+    "Finset.sum_ite_irrel"
+  ]
+}

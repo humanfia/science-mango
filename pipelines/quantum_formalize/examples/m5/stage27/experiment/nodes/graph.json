@@ -1,0 +1,155 @@
+[
+  {
+    "id": "divisor_subset_domain",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.OrderCount.divisor_subset_domain",
+      "statement": "∀ (N d k : ℕ), (M5.OrderCount.divisorPositions N d).powersetCard k = ((M5.OrderCount.positivePositions N).powersetCard k).filter (fun U => ∀ s ∈ U, d ∣ s)",
+      "imports": [
+        "M5OrderCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finite powersetCard filter subset"
+      ],
+      "guidance": "Use Finset.mem_powersetCard and membership of filter to show equivalence of subsets of positivePositions restricted by divisibility; ext U and simp. No positivity premise on d is necessary. Return tactic lines only without leading by. Keep the target unchanged."
+    },
+    "metadata": {
+      "source_section": "3",
+      "supports_obligation": "M5_ORDER_COUNT",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "two_block_divisibility_count",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.OrderCount.two_block_divisibility_count",
+      "statement": "∀ (P : M5.BinaryPolynomial) (W : Finset ℕ) (k : ℕ), P.Monic → 0 ∉ W → M5.OrderCount.nOne P W k ^ 2 = M5.OrderCount.twoBlockIndicatorSum P W k",
+      "imports": [
+        "M5OrderCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finite powersetCard filter subset"
+      ],
+      "guidance": "Unfold twoBlockIndicatorSum with classical decidability. Unfold nOne with monicity, then apply pending accepted M5.AnchoredCount.anchored_single_block_count. Expand square as product of two identical filter cardinalities, cast to integer and distribute finite sums of 0/1 indicators. Handles empty domains and k larger than W.card. Return tactic lines only without leading by. Keep the target unchanged."
+    },
+    "metadata": {
+      "source_section": "3",
+      "supports_obligation": "M5_ORDER_COUNT",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "arithmetic_indicator_expansion",
+    "dependencies": [
+      "divisor_subset_domain",
+      "two_block_divisibility_count"
+    ],
+    "spec": {
+      "name": "M5.OrderCount.arithmetic_indicator_expansion",
+      "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.OrderCount.rawC N w F = ∑ U ∈ (M5.OrderCount.positivePositions N).powersetCard (w-1), ∑ V ∈ (M5.OrderCount.positivePositions N).powersetCard (w-1), M5.OrderCount.pairIndicator N F U V",
+      "imports": [
+        "M5OrderCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finite powersetCard filter subset"
+      ],
+      "guidance": "For each subset of residual factors, pending accepted residual_factors_regular gives monic factors; monic products and F monic imply F*product monic. Use two_block_divisibility_count and divisor_subset_domain, and commute the four finite sums. Divisibility by d of inserted0 is automatic for0. Distribute products to match pairIndicator and factorExclusionSum. Preserve the factor-subset representation, repeated factors in F, and cases w>N; do not assume F squarefree. Return tactic lines only without leading by. Keep the target unchanged."
+    },
+    "metadata": {
+      "source_section": "3",
+      "supports_obligation": "M5_ORDER_COUNT",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "exact_C",
+    "dependencies": [
+      "arithmetic_indicator_expansion"
+    ],
+    "spec": {
+      "name": "M5.OrderCount.exact_C",
+      "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → M5.OrderCount.C N w F = (M5.OrderCount.validPairs N w F).card",
+      "imports": [
+        "M5OrderCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finite powersetCard filter subset"
+      ],
+      "guidance": "For w<=N, expand rawC, apply accepted Connectivity.connected_indicator and pending PolynomialIndicator.exact_signature_indicator to each anchored pair, then multiply 0/1 indicators and identify a filtered product cardinality. For w>N, C is zero by definition and the positive-position powersetCard(w-1) is empty: positivePositions N has cardinal N-1 for positive N, so w-1 exceeds it. This handles the source cutoff without adding w<=N to the target. Return tactic lines only without leading by. Keep the target unchanged."
+    },
+    "metadata": {
+      "source_section": "3",
+      "supports_obligation": "M5_ORDER_COUNT",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "C_nonnegative",
+    "dependencies": [
+      "exact_C"
+    ],
+    "spec": {
+      "name": "M5.OrderCount.C_nonnegative",
+      "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → 0 ≤ M5.OrderCount.C N w F",
+      "imports": [
+        "M5OrderCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finite powersetCard filter subset"
+      ],
+      "guidance": "Rewrite exact_C; the integer cast of a natural cardinality is nonnegative. Return tactic lines only without leading by. Keep the target unchanged."
+    },
+    "metadata": {
+      "source_section": "3",
+      "supports_obligation": "M5_ORDER_COUNT",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "C_positive_iff_realization",
+    "dependencies": [
+      "exact_C"
+    ],
+    "spec": {
+      "name": "M5.OrderCount.C_positive_iff_realization",
+      "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F ∣ M5.cyclicModulus N → (0 < M5.OrderCount.C N w F ↔ ∃ A B : Finset ℕ, A ⊆ Finset.range N ∧ B ⊆ Finset.range N ∧ 0 ∈ A ∧ 0 ∈ B ∧ A.card = w ∧ B.card = w ∧ M5.Connectivity.supportGcd N A B = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) N = F)",
+      "imports": [
+        "M5OrderCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum product cardinality filter",
+        "finite powersetCard filter subset"
+      ],
+      "guidance": "Rewrite exact_C and positive-card iff nonempty. Forward a valid tail pair gives A=insert0U and B=insert0V; positivePositions excludes0 and w>0 gives tail-card+1=w. Reverse erase0 from anchored A,B, show tails lie in positivePositions, have cardw-1, and insert-erase restores A,B. No algorithmic recovery claimed by this existence equivalence alone. Return tactic lines only without leading by. Keep the target unchanged."
+    },
+    "metadata": {
+      "source_section": "3",
+      "supports_obligation": "M5_ORDER_COUNT",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  }
+]
