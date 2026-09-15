@@ -1,0 +1,8 @@
+{
+  "proof": "intro N w inst q hw hwN hq c hc\nhave hv : M7.PrefixOrbit.ClassValid w c := hc.1\nhave hs : M7.DefaultQuery.sectorTest q c c := by\n  unfold M7.FinalSelector.RawFeasible M7.DefaultQuery.feasible at hc\n  tauto\nhave hall : ∀ d : M7.Action.Recipe N,\n    M7.DefaultQuery.allows q (M7.DefaultQuery.signature d) →\n      M7.RecipeSignature.signature d ∈ M7.QuerySectors.effective N q := by\n  intro d hd\n  exact (M7.QuerySectors.signature_allowed N q d).mpr hd\nhave horbit : ∃ g : M7.Action.Record N,\n    M7.RecipeSignature.signature (M7.Action.act g c) ∈ M7.QuerySectors.effective N q := by\n  unfold M7.DefaultQuery.sectorTest at hs\n  split at hs\n  all_goals\n    first\n    | obtain ⟨g, hg⟩ := hs\n      exact ⟨g, hall _ hg⟩\n    | refine ⟨M7.Action.identity N, ?_⟩\n      rw [M7.Action.act_identity]\n      exact hall c hs\nobtain ⟨i, g, hg⟩ :=\n  (M7.GeneratedFamily.family_complete N w (M7.QuerySectors.effective N q)\n    hw hwN (M7.QuerySectors.effective_valid N q hq) c).mpr ⟨hv, horbit⟩\nexact ⟨(i, g), hg⟩",
+  "queries": [
+    "M7.DefaultQuery.feasible definition",
+    "M7.DefaultQuery.sectorTest definition",
+    "M7.DefaultQuery.signature definition"
+  ]
+}

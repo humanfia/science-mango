@@ -1,0 +1,98 @@
+{
+  "id": "raw_output",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalSelector.raw_output",
+    "spec_sha256": "06b1ee3fc140355e9f9d1e48b813709c299b4830c5ee3895cd869a0597409541",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-x4u0ddfv/attempt-001/Candidate_9b3744a74a93d203.lean",
+        "target_path": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-x4u0ddfv/attempt-001/FrozenTarget_9b3744a74a93d203.lean",
+        "feedback": "",
+        "target_sha256": "38bb80791e7d8cbef62a25b13e4777dee762d05995bb84d906ea2ab6af2e4ab8",
+        "target_olean_sha256": "89bc8129f63f165250c8bfda5ab4cb3e95501b35ecd73a2930ef1333ce4473ae",
+        "source_sha256": "eba34ca60dd7b2b8be02a4742da05ae632aa7f3f042d988323ab10ef2421656a",
+        "olean_sha256": "fd74a5f59f4e5ca3c8fc65ff04f7595075244547c593bbd4d6ca7aa4b646b795",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T21:19:22.723084+00:00",
+    "work": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-x4u0ddfv",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a93e77adccffdf0a2e502ffffa8f5ae4560d8796ed5e410296a2eb16c3e00398",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-x4u0ddfv/attempt-001/Candidate_9b3744a74a93d203.lean",
+    "environment_sha256": "6a41b34a3c1784ed7a55dff750944a57b0bc29ce7a130b6c17b08d5366807bde",
+    "artifacts": {
+      "raw_realizable": {
+        "payload": {
+          "declaration": "theorem M7.FinalSelector.raw_realizable : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c → ∃ x : M7.FinalSelector.Index N w q, M7.FinalSelector.realize q x = c := by\n  intro N w inst q hw hwN hq c hc\n  have hv : M7.PrefixOrbit.ClassValid w c := hc.1\n  have hs : M7.DefaultQuery.sectorTest q c c := by\n    unfold M7.FinalSelector.RawFeasible M7.DefaultQuery.feasible at hc\n    tauto\n  have hall : ∀ d : M7.Action.Recipe N,\n      M7.DefaultQuery.allows q (M7.DefaultQuery.signature d) →\n        M7.RecipeSignature.signature d ∈ M7.QuerySectors.effective N q := by\n    intro d hd\n    exact (M7.QuerySectors.signature_allowed N q d).mpr hd\n  have horbit : ∃ g : M7.Action.Record N,\n      M7.RecipeSignature.signature (M7.Action.act g c) ∈ M7.QuerySectors.effective N q := by\n    unfold M7.DefaultQuery.sectorTest at hs\n    split at hs\n    all_goals\n      first\n      | obtain ⟨g, hg⟩ := hs\n        exact ⟨g, hall _ hg⟩\n      | refine ⟨M7.Action.identity N, ?_⟩\n        rw [M7.Action.act_identity]\n        exact hall c hs\n  obtain ⟨i, g, hg⟩ :=\n    (M7.GeneratedFamily.family_complete N w (M7.QuerySectors.effective N q)\n      hw hwN (M7.QuerySectors.effective_valid N q hq) c).mpr ⟨hv, horbit⟩\n  exact ⟨(i, g), hg⟩",
+          "imports": [
+            "M7FinalSelector"
+          ],
+          "name": "M7.FinalSelector.raw_realizable",
+          "ancestors": [],
+          "spec_sha256": "ab73fad9538c7abc004296f562c9cbfa8bfee8d3761411af716b6eb0c03b0520"
+        },
+        "sha256": "60ec5e5e49c5d1127d0724b3a1c69821b13c6edd30e9d5b3b86e428212feee88"
+      },
+      "index_feasible": {
+        "payload": {
+          "declaration": "theorem M7.FinalSelector.index_feasible : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ x : M7.FinalSelector.Index N w q, M7.GlobalQuery.feasible q (M7.FinalSelector.family N w q) x ↔ M7.FinalSelector.RawFeasible w q (M7.FinalSelector.realize q x) := by\n  intro N w inst q hw hwN hq x\n  have hb : M7.PrefixOrbit.ClassValid w (M7.FinalSelector.family N w q x.1) :=\n    (M7.GeneratedFamily.family_good N w (M7.QuerySectors.effective N q) hw hwN\n      (M7.QuerySectors.effective_valid N q hq) x.1).1\n  have hc : M7.PrefixOrbit.ClassValid w\n      (M7.Action.act x.2 (M7.FinalSelector.family N w q x.1)) := by\n    first\n    | simpa only [M7.PrefixOrbit.class_action] using hb\n    | solve_by_elim [M7.PrefixOrbit.class_action]\n  simp only [M7.GlobalQuery.feasible, M7.FinalSelector.RawFeasible,\n    M7.FinalSelector.realize, M7.GlobalQuery.realize,\n    M7.DefaultQuery.feasible, M7.Action.act_identity,\n    M7.QueryRebase.sector_base, hc, true_and, and_true]",
+          "imports": [
+            "M7FinalSelector"
+          ],
+          "name": "M7.FinalSelector.index_feasible",
+          "ancestors": [],
+          "spec_sha256": "94f9e371ab93faa47b94de5dbb41cae596a65714a576c8a861bc1b65e2483c6e"
+        },
+        "sha256": "6177afde2970aac2eaac8003279a5740863f1105192d4028ed64dd7e04bfc465"
+      },
+      "winner_exact": {
+        "payload": {
+          "declaration": "theorem M7.FinalSelector.winner_exact : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = true ↔ M7.FinalSelector.RawWinner w q (M7.FinalSelector.realize q x) := by\n  intro N w inst q hw hwN hq x\n  rw [M7.FinalSelector.win, M7.StreamingIndices.stream_winners]\n  rw [(M7.GlobalQuery.winners_exact _ N q (M7.FinalSelector.family N w q)).1 x]\n  unfold M7.FinalSelector.RawWinner\n  constructor\n  · rintro ⟨hx, hmin⟩\n    refine ⟨(M7.FinalSelector.index_feasible N w q hw hwN hq x).mp hx, ?_⟩\n    intro c hc\n    obtain ⟨y, hy⟩ := M7.FinalSelector.raw_realizable N w q hw hwN hq c hc\n    have hf := (M7.FinalSelector.index_feasible N w q hw hwN hq y).mpr (hy ▸ hc)\n    have hm := hmin y hf\n    rw [← hy]\n    simpa only [M7.GlobalQuery.objective, M7.FinalSelector.realize,\n      M7.GlobalQuery.realize, M7.Action.act_identity] using hm\n  · rintro ⟨hx, hmin⟩\n    refine ⟨(M7.FinalSelector.index_feasible N w q hw hwN hq x).mpr hx, ?_⟩\n    intro y hy\n    have hm := hmin (M7.FinalSelector.realize q y)\n      ((M7.FinalSelector.index_feasible N w q hw hwN hq y).mp hy)\n    simpa only [M7.GlobalQuery.objective, M7.FinalSelector.realize,\n      M7.GlobalQuery.realize, M7.Action.act_identity] using hm",
+          "imports": [
+            "M7FinalSelector"
+          ],
+          "name": "M7.FinalSelector.winner_exact",
+          "ancestors": [
+            "index_feasible",
+            "raw_realizable"
+          ],
+          "spec_sha256": "bbc6747359f535e5d1c0d8b12edf196cf5bdfde7bb0fbf2d17ddc3738ae69869"
+        },
+        "sha256": "f49f59c6f41ade449074dd20d8c9e8860180579de4705d917ea563714c50f96e"
+      },
+      "raw_output": {
+        "payload": {
+          "declaration": "theorem M7.FinalSelector.raw_output : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ c : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q c ↔ ∃ x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = true ∧ M7.FinalSelector.realize q x = c := by\n  intro N w inst q hw hwN hq c\n  constructor\n  · intro hc\n    obtain ⟨x, hx⟩ := M7.FinalSelector.raw_realizable N w q hw hwN hq c hc.1\n    refine ⟨x, ?_, hx⟩\n    apply (M7.FinalSelector.winner_exact N w q hw hwN hq x).mpr\n    rw [hx]\n    exact hc\n  · rintro ⟨x, hx, hxc⟩\n    have hc := (M7.FinalSelector.winner_exact N w q hw hwN hq x).mp hx\n    rw [hxc] at hc\n    exact hc",
+          "imports": [
+            "M7FinalSelector"
+          ],
+          "name": "M7.FinalSelector.raw_output",
+          "ancestors": [
+            "index_feasible",
+            "raw_realizable",
+            "winner_exact"
+          ],
+          "spec_sha256": "3e8738a13ce890d23702bfe0fd1fc5c9c935fdbde045b33998262b6667b13103"
+        },
+        "sha256": "fc616dbcf5c50788df0b1ca254abcad9d8139de063a20b31619bb4cff78c3181"
+      }
+    }
+  }
+}

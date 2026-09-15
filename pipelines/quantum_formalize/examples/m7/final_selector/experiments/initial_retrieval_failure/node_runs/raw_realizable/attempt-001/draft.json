@@ -1,0 +1,8 @@
+{
+  "proof": "intro N w inst q hw hwN hq c hc\nclassical\nhave hv : M7.PrefixOrbit.ClassValid w c := by\n  unfold M7.FinalSelector.RawFeasible at hc\n  tauto\nhave hs : M7.DefaultQuery.sectorTest q c c := by\n  unfold M7.FinalSelector.RawFeasible at hc\n  tauto\nhave ho : ∃ g : M7.Action.Record N,\n    M7.RecipeSignature.signature (M7.Action.act g c) ∈ M7.QuerySectors.effective N q := by\n  unfold M7.DefaultQuery.sectorTest at hs\n  split at hs\n  all_goals\n    first\n    | obtain ⟨g, hg⟩ := hs\n      exact ⟨g, (M7.QuerySectors.signature_allowed N q (M7.Action.act g c)).mpr hg⟩\n    | refine ⟨M7.Action.identity N, ?_⟩\n      rw [M7.Action.act_identity N c]\n      exact (M7.QuerySectors.signature_allowed N q c).mpr hs\nobtain ⟨i, g, hg⟩ :=\n  (M7.GeneratedFamily.family_complete N w (M7.QuerySectors.effective N q)\n    hw hwN (M7.QuerySectors.effective_valid N q hq) c).mpr ⟨hv, ho⟩\nexact ⟨(i, g), hg⟩",
+  "queries": [
+    "M7.FinalSelector.RawFeasible",
+    "M7.DefaultQuery.sectorTest",
+    "M7.FinalSelector.realize"
+  ]
+}

@@ -22,11 +22,11 @@ No machine-code extraction, runtime benchmark, practical superiority, M8 efficie
 
 ```mermaid
 flowchart TD
-  GF[Generated family: accepted] --> FS[Final selector: build and preflight]
-  GF --> GL[Generated physical labels: build and preflight]
-  RC[Generation calls, scalar work, storage, cursor and comparator: accepted] --> FR[Final resource composition: gated]
+  GF[Generated family: accepted] --> FS[Final selector: accepted]
+  GF --> GL[Generated physical labels: accepted]
+  RC[Generation calls, scalar work, storage, cursor and comparator: accepted] --> FR[Final resource composition: accepted]
   GL --> FR
-  RP[Generation, label, factor and query replay: accepted] --> JR[Joint replay: gated]
+  RP[Generation, label, factor and query replay: accepted] --> JR[Joint replay: build and preflight]
   FS --> JR
   GL --> JR
   FR --> ROOT[Closed OriginalM7 root: gated]

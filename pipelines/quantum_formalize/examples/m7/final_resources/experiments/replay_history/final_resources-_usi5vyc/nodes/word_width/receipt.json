@@ -1,0 +1,55 @@
+{
+  "id": "word_width",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalResources.word_width",
+    "spec_sha256": "2f4a6e49507facdb9fc1e6ae4dcd7d88313a9da966ee5e7546f5f73401c49a31",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-s2ey8l1r/attempt-001/Candidate_de325e962ceee8c8.lean",
+        "target_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-s2ey8l1r/attempt-001/FrozenTarget_de325e962ceee8c8.lean",
+        "feedback": "",
+        "target_sha256": "44be2940cc55ce0c5b7d68f3aaa1b7167b5af245a660e67242739d67a1be520b",
+        "target_olean_sha256": "72d06dbbc939c65d5c1e8e7ff35dfb136a84f99ea0be2998b4975f5adc1acabb",
+        "source_sha256": "ed23c57e3799c9e18860d3ccf9bb3320f7ddf566fdc878c982542308e4bb777c",
+        "olean_sha256": "5444d1ed6f57f151198c6f32b1ac7e3c418d608cb31e5aacfacde2413b912509",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T21:21:15.145253+00:00",
+    "work": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-s2ey8l1r",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2d2c8bdb9f5441477cb141716c6bd0fb12a3f48a28bd4d43a575db4120929613",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-s2ey8l1r/attempt-001/Candidate_de325e962ceee8c8.lean",
+    "environment_sha256": "feb8bc41ae72dc9ff6e8d8b788934b334bfbccd5f693738a9592a1a2684d58ed",
+    "artifacts": {
+      "word_width": {
+        "payload": {
+          "declaration": "theorem M7.FinalResources.word_width : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∀ (x : M7.GlobalQuery.Index H N) (j : Fin q.objectives.length), 1 + (M7.GlobalQuery.objective q bases x j).natAbs.size ≤ M7.FinalResources.objectiveBits q bases := by\n  classical\n  intro H N inst q bases x j\n  unfold M7.FinalResources.objectiveBits\n  apply Nat.add_le_add_left\n  exact le_trans\n    (Finset.le_sup (f := fun k : Fin q.objectives.length =>\n      (M7.GlobalQuery.objective q bases x k).natAbs.size) (Finset.mem_univ j))\n    (Finset.le_sup (f := fun y : M7.GlobalQuery.Index H N =>\n      Finset.univ.sup (fun k : Fin q.objectives.length =>\n        (M7.GlobalQuery.objective q bases y k).natAbs.size)) (Finset.mem_univ x))",
+          "imports": [
+            "M7FinalResources"
+          ],
+          "name": "M7.FinalResources.word_width",
+          "ancestors": [],
+          "spec_sha256": "2f4a6e49507facdb9fc1e6ae4dcd7d88313a9da966ee5e7546f5f73401c49a31"
+        },
+        "sha256": "47aa3b58ffa17776d2ab4d5147e95d9b07de3bcd2db8fd21abada5e0403e0553"
+      }
+    }
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "title": "M7 actual generated streaming selector versus full raw optimum",
+  "source": "/home/jing/quantum_code_discovery_proof/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md",
+  "source_sha256": "8ad32a3432f4b7fd3ad15aa4467e0f01255ce593ac9e474b1af38c9424addf19",
+  "scope": "Actual generated finite family and streamed comparisons; full raw feasibility/optimality only semantic RHS. All ties, actual least preimage, original query errors and 0<w<=N are preserved. Not final M7 resource/replay acceptance.",
+  "nodes": [
+    {
+      "id": "raw_realizable",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.FinalSelector.raw_realizable",
+        "statement": "∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c → ∃ x : M7.FinalSelector.Index N w q, M7.FinalSelector.realize q x = c",
+        "imports": [
+          "M7FinalSelector"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Use GeneratedFamily.family_complete at effective N q and QuerySectors.effective_valid. Raw feasibility supplies class validity and sectorTest: classSector directly provides an orbit signature witness; placementSector supplies the current signature and the identity action. QuerySectors.signature_allowed converts actual full signatures. No free complete-family premise. Return tactic lines only, no leading by."
+      }
+    },
+    {
+      "id": "index_feasible",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.FinalSelector.index_feasible",
+        "statement": "∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ x : M7.FinalSelector.Index N w q, M7.GlobalQuery.feasible q (M7.FinalSelector.family N w q) x ↔ M7.FinalSelector.RawFeasible w q (M7.FinalSelector.realize q x)",
+        "imports": [
+          "M7FinalSelector"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual family_good and PrefixOrbit.class_action give class validity of every realized index. QueryRebase.sector_base transports the base from family x.1 to act x.2(base); all other DefaultQuery.feasible fields already depend on identical literal placement. Preserve classSector/placementSector and NoLogical policies. Return tactic lines only, no leading by."
+      }
+    },
+    {
+      "id": "winner_exact",
+      "dependencies": [
+        "raw_realizable",
+        "index_feasible"
+      ],
+      "spec": {
+        "name": "M7.FinalSelector.winner_exact",
+        "statement": "∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = true ↔ M7.FinalSelector.RawWinner w q (M7.FinalSelector.realize q x)",
+        "imports": [
+          "M7FinalSelector"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Use StreamingIndices.stream_winners and GlobalQuery.winners_exact. For universal raw competitors use raw_realizable and index_feasible; all objectives are actual DefaultQuery.objective of the literal realized support pair. Preserve every tie and empty objective list. Return tactic lines only, no leading by."
+      }
+    },
+    {
+      "id": "raw_output",
+      "dependencies": [
+        "winner_exact",
+        "raw_realizable"
+      ],
+      "spec": {
+        "name": "M7.FinalSelector.raw_output",
+        "statement": "∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ c : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q c ↔ ∃ x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = true ∧ M7.FinalSelector.realize q x = c",
+        "imports": [
+          "M7FinalSelector"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Forward realize the raw feasible winner then use winner_exact; reverse rewrite by the realized equality. No support-pair enumeration is introduced into production. Return tactic lines only, no leading by."
+      }
+    },
+    {
+      "id": "presentation_exact",
+      "dependencies": [
+        "raw_output",
+        "winner_exact"
+      ],
+      "spec": {
+        "name": "M7.FinalSelector.presentation_exact",
+        "statement": "∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ c : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q c ↔ ∃! x : M7.FinalSelector.Index N w q, M7.FinalSelector.present q x = true ∧ M7.FinalSelector.realize q x = c",
+        "imports": [
+          "M7FinalSelector"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Use actual GeneratedFamily.family_separated and accepted GlobalQuery.physical_presentation. Unfold present, use StreamingIndices.stream_winners for equivalence to GlobalQuery.present. Forward raw_output supplies a winning index; reverse existence implies winner_exact. Unique index includes both actual family index and leastAction record, so this is physical uniqueness across classes. Return tactic lines only, no leading by."
+      }
+    },
+    {
+      "id": "empty_exact",
+      "dependencies": [
+        "raw_realizable",
+        "index_feasible"
+      ],
+      "spec": {
+        "name": "M7.FinalSelector.empty_exact",
+        "statement": "∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ((∀ x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = false) ↔ ¬ ∃ c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c)",
+        "imports": [
+          "M7FinalSelector"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Translate pointwise Bool false to empty GlobalQuery.winners using stream_winners, then apply winners_exact emptiness. Use actual raw_realizable/index_feasible, not an assumed finite raw oracle. Return tactic lines only, no leading by."
+      }
+    },
+    {
+      "id": "strict_dominator",
+      "dependencies": [
+        "raw_realizable",
+        "index_feasible",
+        "winner_exact"
+      ],
+      "spec": {
+        "name": "M7.FinalSelector.strict_dominator",
+        "statement": "∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c → ¬ M7.FinalSelector.RawWinner w q c → ∃ d : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q d ∧ M7.Selection.better q.order (M7.DefaultQuery.objective q d) (M7.DefaultQuery.objective q c)",
+        "imports": [
+          "M7FinalSelector"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Realize c, use GlobalQuery.strict_dominator for the finite actual family, then transport the winning comparator with winner_exact. This excludes only strictly dominated values and never drops ties. Return tactic lines only, no leading by."
+      }
+    },
+    {
+      "id": "invalid_rejection",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.FinalSelector.invalid_rejection",
+        "statement": "∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), (¬ M7.DefaultQuery.valid N q) → (∀ x : M7.FinalSelector.Index N w q, M7.FinalSelector.answer q x = Except.error M7.DefaultQuery.QueryError.invalidSignature) ∧ (¬ ∃ c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c)",
+        "imports": [
+          "M7FinalSelector"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "answer checks actual DefaultQuery.valid first; RawFeasible contains actual DefaultQuery.feasible, whose first conjunct is validity. No weight hypotheses are needed for invalid rejection. Return tactic lines only, no leading by."
+      }
+    }
+  ]
+}

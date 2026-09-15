@@ -1,0 +1,336 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-15T21:22:27.699613+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "comparison": {
+      "id": "comparison",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.FinalResources.comparison",
+        "spec_sha256": "2d51e1154a2bd5578b9d6317d924b2f005903a26a296c0e4533067f586083909",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-j80aalq3/attempt-001/Candidate_2ec85c70ce082cbf.lean",
+            "target_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-j80aalq3/attempt-001/FrozenTarget_2ec85c70ce082cbf.lean",
+            "feedback": "",
+            "target_sha256": "11fc5cd9f09421fe364c59f7124bdd5a7430fdacf6f2cee2f28289b45d639362",
+            "target_olean_sha256": "b5b3c521c07ebe4da52c616a90f0054b09e94a52f406677a5b6c18a7ba3ea250",
+            "source_sha256": "78b85ad00713b8c57b4143f271a3a116defcff1f4cafc2740c3757cb91ae4c3e",
+            "olean_sha256": "abae639dde15adf9e226965082ce57dcf2b8225e873cf340b80ef763bfb1cc05",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T21:14:31.424173+00:00",
+        "work": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-j80aalq3",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2d2c8bdb9f5441477cb141716c6bd0fb12a3f48a28bd4d43a575db4120929613",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-j80aalq3/attempt-001/Candidate_2ec85c70ce082cbf.lean",
+        "environment_sha256": "feb8bc41ae72dc9ff6e8d8b788934b334bfbccd5f693738a9592a1a2684d58ed",
+        "artifacts": {
+          "comparison": {
+            "payload": {
+              "declaration": "theorem M7.FinalResources.comparison : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ q : M7.DefaultQuery.Query, M7.FinalResources.comparisonCharge q (M7.GeneratedFamily.family N w E) ≤ 2 * ((M7.GeneratedFamily.size N w E) * (2*Nat.totient N*N^2))^2 * (q.objectives.length+1) * M7.FinalResources.objectiveBits q (M7.GeneratedFamily.family N w E) := by\n  intro N w inst E hw hwN hE q\n  have h := (M7.StreamingCost.scan_bound (M7.GeneratedFamily.size N w E) N q (M7.GeneratedFamily.family N w E)).2\n  rw [(M7.StreamingCost.record_cardinality N).2] at h\n  have hcharge := Nat.mul_le_mul_right (M7.FinalResources.objectiveBits q (M7.GeneratedFamily.family N w E)) (Nat.mul_le_mul_right (2 * (q.objectives.length + 1)) h)\n  simpa [M7.FinalResources.comparisonCharge, Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm] using hcharge",
+              "imports": [
+                "M7FinalResources"
+              ],
+              "name": "M7.FinalResources.comparison",
+              "ancestors": [],
+              "spec_sha256": "2d51e1154a2bd5578b9d6317d924b2f005903a26a296c0e4533067f586083909"
+            },
+            "sha256": "68cd5d4140e115438c17915535a3f2ec3ff842bdb6f6c850e4e5741584da8588"
+          }
+        }
+      }
+    },
+    "generation": {
+      "id": "generation",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M7.FinalResources.generation",
+        "spec_sha256": "c0ff89ac33ee03c207d7e099799114ed92380e5f3c5efebe8988617a820184c2",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-001/Candidate_8a43ba14076ea1f7.lean:4:58: error: Application type mismatch: The argument\n  hw\nhas type\n  0 < w\nbut is expected to have type\n  PrefixSector.ValidSector N E\nin the application\n  CompactCorrectness.generate_card N w E hw\n/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-001/Candidate_8a43ba14076ea1f7.lean:2:69: error: unsolved goals\nN w : ℕ\ninst : NeZero N\nE : Finset M5.BinaryPolynomial\nhw : 0 < w\nhwN : w ≤ N\nhE : PrefixSector.ValidSector N E\n⊢ (CompactGeneration.generate w E).finalBases.card = GeneratedFamily.size N w E ∧\n    (GenerationCalls.generateMeasured w E).2.root + (GenerationCalls.generateMeasured w E).2.children =\n        1 + GeneratedFamily.size N w E * (2 * PrefixBits.depth N + 1) ∧\n      (GenerationCalls.generateMeasured w E).2.orbitCounts ≤\n        GeneratedFamily.size N w E * (1 + GeneratedFamily.size N w E * (2 * PrefixBits.depth N + 1))\n/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-001/Candidate_8a43ba14076ea1f7.lean:7:3: error: unexpected identifier; expected command\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-002/Candidate_e6567899dbda1208.lean:7:3: error: unknown tactic\n/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-002/Candidate_e6567899dbda1208.lean:2:69: error: unsolved goals\nN w : ℕ\ninst : NeZero N\nE : Finset M5.BinaryPolynomial\nhw : 0 < w\nhwN : w ≤ N\nhE : PrefixSector.ValidSector N E\nhcard : (CompactGeneration.generate w E).finalBases.card = (CompactGeneration.generate w E).emitted.length\nhcount :\n  (GenerationCalls.generateMeasured w E).1 = CompactGeneration.generate w E ∧\n    (GenerationCalls.generateMeasured w E).2.root + (GenerationCalls.generateMeasured w E).2.children =\n        1 + (CompactGeneration.generate w E).emitted.length * (2 * PrefixBits.depth N + 1) ∧\n      (GenerationCalls.generateMeasured w E).2.orbitCounts ≤\n        (CompactGeneration.generate w E).finalBases.card *\n          (1 + (CompactGeneration.generate w E).emitted.length * (2 * PrefixBits.depth N + 1))\n⊢ (CompactGeneration.generate w E).finalBases.card = (CompactGeneration.generate w E).emitted.length ∧\n    (GenerationCalls.generateMeasured w E).2.root + (GenerationCalls.generateMeasured w E).2.children =\n        1 + (CompactGeneration.generate w E).emitted.length * (2 * PrefixBits.depth N + 1) ∧\n      (GenerationCalls.generateMeasured w E).2.orbitCounts ≤\n        (CompactGeneration.generate w E).emitted.length *\n          (1 + (CompactGeneration.generate w E).emitted.length * (2 * PrefixBits.depth N + 1))\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-003/Candidate_c48610d5448f3758.lean:4:58: error: Application type mismatch: The argument\n  hw\nhas type\n  0 < w\nbut is expected to have type\n  PrefixSector.ValidSector N E\nin the application\n  CompactCorrectness.generate_card N w E hw\n/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-003/Candidate_c48610d5448f3758.lean:2:69: error: unsolved goals\nN w : ℕ\ninst : NeZero N\nE : Finset M5.BinaryPolynomial\nhw : 0 < w\nhwN : w ≤ N\nhE : PrefixSector.ValidSector N E\n⊢ (CompactGeneration.generate w E).finalBases.card = GeneratedFamily.size N w E ∧\n    (GenerationCalls.generateMeasured w E).2.root + (GenerationCalls.generateMeasured w E).2.children =\n        1 + GeneratedFamily.size N w E * (2 * PrefixBits.depth N + 1) ∧\n      (GenerationCalls.generateMeasured w E).2.orbitCounts ≤\n        GeneratedFamily.size N w E * (1 + GeneratedFamily.size N w E * (2 * PrefixBits.depth N + 1))\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-004/Candidate_68f3f52a14f74a70.lean:9:7: error: unexpected token ':'; expected '=>'\n/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-004/Candidate_68f3f52a14f74a70.lean:2:69: error: unsolved goals\nN w : ℕ\ninst : NeZero N\nE : Finset M5.BinaryPolynomial\nhw : 0 < w\nhwN : w ≤ N\nhE : PrefixSector.ValidSector N E\nhcard : (CompactGeneration.generate w E).finalBases.card = GeneratedFamily.size N w E\nhcount :\n  (GenerationCalls.generateMeasured w E).1 = CompactGeneration.generate w E ∧\n    (GenerationCalls.generateMeasured w E).2.root + (GenerationCalls.generateMeasured w E).2.children =\n        1 + (CompactGeneration.generate w E).emitted.length * (2 * PrefixBits.depth N + 1) ∧\n      (GenerationCalls.generateMeasured w E).2.orbitCounts ≤\n        (CompactGeneration.generate w E).finalBases.card *\n          (1 + (CompactGeneration.generate w E).emitted.length * (2 * PrefixBits.depth N + 1))\n⊢ (CompactGeneration.generate w E).finalBases.card = GeneratedFamily.size N w E ∧\n    (GenerationCalls.generateMeasured w E).2.root + (GenerationCalls.generateMeasured w E).2.children =\n        1 + GeneratedFamily.size N w E * (2 * PrefixBits.depth N + 1) ∧\n      (GenerationCalls.generateMeasured w E).2.orbitCounts ≤\n        GeneratedFamily.size N w E * (1 + GeneratedFamily.size N w E * (2 * PrefixBits.depth N + 1))\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95/attempt-005/Candidate_a99a9a8e3b09f048.lean:5:85: error: Application type mismatch: The argument\n  hw\nhas type\n  0 < w\nbut is expected to have type\n  PrefixSector.ValidSector N E\nin the application\n  CompactCorrectness.generate_card N w E hw\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T21:14:31.630695+00:00",
+        "work": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-z7pd0u95",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2d2c8bdb9f5441477cb141716c6bd0fb12a3f48a28bd4d43a575db4120929613",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "label_work": {
+      "id": "label_work",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.FinalResources.label_work",
+        "spec_sha256": "5f3c94e1e8321038eb57a90a2b37a6a0806c703744b7300e5ccd7986f5cf0ac2",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-phq5o5ub/attempt-001/Candidate_a17887c9e48a8718.lean",
+            "target_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-phq5o5ub/attempt-001/FrozenTarget_a17887c9e48a8718.lean",
+            "feedback": "",
+            "target_sha256": "c3d4955d75d45c13f21e12c8b2197ca98673813b32726ab08cf090a7eb04a57c",
+            "target_olean_sha256": "b55a2204e79c1ec7b39efa4bfc2373830e0027fc7b83a0e21acb6515db58184d",
+            "source_sha256": "f21cf96cf9751e2e44d38b5ccf077ffedca9f66e9167ec6e6ee64ad630508eae",
+            "olean_sha256": "6afc13cdd509a8474d5821cc476af8005d241b6f1b078a1647579c0048b3e9ac",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T21:16:25.973713+00:00",
+        "work": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-phq5o5ub",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2d2c8bdb9f5441477cb141716c6bd0fb12a3f48a28bd4d43a575db4120929613",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-phq5o5ub/attempt-001/Candidate_a17887c9e48a8718.lean",
+        "environment_sha256": "feb8bc41ae72dc9ff6e8d8b788934b334bfbccd5f693738a9592a1a2684d58ed",
+        "artifacts": {
+          "label_work": {
+            "payload": {
+              "declaration": "theorem M7.FinalResources.label_work : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → M7.FinalResources.distanceWork N w E ≤ 50000*N^3 * (∑ i : Fin (M7.GeneratedFamily.size N w E), 4^(M6.ActualTransfer.span (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2))) ∧ ∀ i : Fin (M7.GeneratedFamily.size N w E), M6.ActualTransfer.actualSolveStorage N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) ≤ 16384*N^2*2^(M6.ActualTransfer.span (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2)) := by\n  intro N w inst E hw hwN hE\n  classical\n  have hp := M7.GeneratedLabels.pointwise N w E hw hwN hE\n  constructor\n  · unfold M7.FinalResources.distanceWork\n    rw [Finset.mul_sum]\n    apply Finset.sum_le_sum\n    intro i hi\n    have h := hp i\n    simp only [M6.Final.PointwiseCorrect, M6.Final.ExecutionCorrect,\n      M6.Final.StorageCorrect] at h\n    aesop\n  · intro i\n    have h := hp i\n    simp only [M6.Final.PointwiseCorrect, M6.Final.ExecutionCorrect,\n      M6.Final.StorageCorrect] at h\n    aesop",
+              "imports": [
+                "M7FinalResources"
+              ],
+              "name": "M7.FinalResources.label_work",
+              "ancestors": [],
+              "spec_sha256": "5f3c94e1e8321038eb57a90a2b37a6a0806c703744b7300e5ccd7986f5cf0ac2"
+            },
+            "sha256": "7397ead9928a67b6a38816705817bf5b46f81f81dfc2908c5ba4137f4adae0ed"
+          }
+        }
+      }
+    },
+    "storage": {
+      "id": "storage",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.FinalResources.storage",
+        "spec_sha256": "e1c131c8b87ae635a52b33c2250ebdffcb33f262a8101dc4f5b735f55ace3664",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-lm_brm2a/attempt-001/Candidate_26875886d53e48a3.lean",
+            "target_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-lm_brm2a/attempt-001/FrozenTarget_26875886d53e48a3.lean",
+            "feedback": "",
+            "target_sha256": "3968bb119d01091f428f82491395682b060a51df993dbc4d77eb279ee4cee9a2",
+            "target_olean_sha256": "20e5565abb4985d9ee3cb94c1df763af3dee853c760306f61b2df8255bd3137e",
+            "source_sha256": "3cdbc2fee2f93cf5020ed16e02268550be08ec1307681803e27f9009694d32ba",
+            "olean_sha256": "c98584c536ab98f14e31e6c3e05f86e1d6cfd8175725204f145226ec535383b9",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T21:17:56.763896+00:00",
+        "work": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-lm_brm2a",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2d2c8bdb9f5441477cb141716c6bd0fb12a3f48a28bd4d43a575db4120929613",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-lm_brm2a/attempt-001/Candidate_26875886d53e48a3.lean",
+        "environment_sha256": "feb8bc41ae72dc9ff6e8d8b788934b334bfbccd5f693738a9592a1a2684d58ed",
+        "artifacts": {
+          "storage": {
+            "payload": {
+              "declaration": "theorem M7.FinalResources.storage : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → M7.CompactStorage.storedCoreBits N (M7.GeneratedFamily.size N w E) ≤ 16*(M7.GeneratedFamily.size N w E)*N ∧ M7.CompactStorage.storedWithTablesBits N (M7.GeneratedFamily.size N w E) ≤ 16*(M7.GeneratedFamily.size N w E)*N + 2*(M7.GeneratedFamily.size N w E)*Nat.totient N*N := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → M7.CompactStorage.storedCoreBits N (M7.GeneratedFamily.size N w E) ≤ 16*(M7.GeneratedFamily.size N w E)*N ∧ M7.CompactStorage.storedWithTablesBits N (M7.GeneratedFamily.size N w E) ≤ 16*(M7.GeneratedFamily.size N w E)*N + 2*(M7.GeneratedFamily.size N w E)*Nat.totient N*N\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N w inst E hw hwN hE\n  exact (M7.CompactStorage.storage_bounds N (M7.GeneratedFamily.size N w E)).2.2.2",
+              "imports": [
+                "M7FinalResources"
+              ],
+              "name": "M7.FinalResources.storage",
+              "ancestors": [],
+              "spec_sha256": "e1c131c8b87ae635a52b33c2250ebdffcb33f262a8101dc4f5b735f55ace3664"
+            },
+            "sha256": "be26578c5539aed32f33d4a51b9dae88a6c673d137ceaef4f6bf3752204ff67f"
+          }
+        }
+      }
+    },
+    "witness_work": {
+      "id": "witness_work",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.FinalResources.witness_work",
+        "spec_sha256": "5260e93496286fcbde13404c21cb7b3ece95dc9d73b56150b2e67b5894b553e6",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-sb362sa5/attempt-001/Candidate_21ec20b482f98b0e.lean",
+            "target_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-sb362sa5/attempt-001/FrozenTarget_21ec20b482f98b0e.lean",
+            "feedback": "",
+            "target_sha256": "d8fd13fee0add1f8968c5f542d131b845d935a7bd02d96feff0fe5b9a3706cd2",
+            "target_olean_sha256": "972a5cfefecffe7f4647d7196028f342d22996d5f9fd32f34e70f0655e4725c8",
+            "source_sha256": "0708dc9c1b7ce2f8a98475de2e43cd07ecf5df4024420f41f3eb7a8002e94eac",
+            "olean_sha256": "483f30e61ed9fb3e7986bcce7457b27c2db0f7a429bd9e03e9d4bc496a72e28a",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T21:19:27.086543+00:00",
+        "work": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-sb362sa5",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2d2c8bdb9f5441477cb141716c6bd0fb12a3f48a28bd4d43a575db4120929613",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-sb362sa5/attempt-001/Candidate_21ec20b482f98b0e.lean",
+        "environment_sha256": "feb8bc41ae72dc9ff6e8d8b788934b334bfbccd5f693738a9592a1a2684d58ed",
+        "artifacts": {
+          "witness_work": {
+            "payload": {
+              "declaration": "theorem M7.FinalResources.witness_work : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ (d k : Fin (M7.GeneratedFamily.size N w E) → ℕ) (v : Fin (M7.GeneratedFamily.size N w E) → M6.Pinned.Vector (2*N)), (∀ i, M6.ActualTransfer.solve N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) = some (d i,v i,k i)) → (∑ i : Fin (M7.GeneratedFamily.size N w E), M6.ActualTransfer.actualWitnessWork N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) (k i)) ≤ 200000*N^4 * (∑ i : Fin (M7.GeneratedFamily.size N w E), 4^(M6.ActualTransfer.span (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2))) := by\n  classical\n  intro N w inst E hw hwN hE d k v hsolve\n  rw [Finset.mul_sum]\n  apply Finset.sum_le_sum\n  intro i hi\n  have hp := M7.GeneratedLabels.pointwise N w E hw hwN hE i\n  have hs := hsolve i\n  simp only [M6.Final.PointwiseCorrect, M6.Final.ExecutionCorrect,\n    M6.Final.StorageCorrect] at hp\n  aesop",
+              "imports": [
+                "M7FinalResources"
+              ],
+              "name": "M7.FinalResources.witness_work",
+              "ancestors": [],
+              "spec_sha256": "5260e93496286fcbde13404c21cb7b3ece95dc9d73b56150b2e67b5894b553e6"
+            },
+            "sha256": "620de308502a81c02195fa549c6bd21a99c3a9d43cee022eda539e5696c90741"
+          }
+        }
+      }
+    },
+    "word_width": {
+      "id": "word_width",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M7.FinalResources.word_width",
+        "spec_sha256": "2f4a6e49507facdb9fc1e6ae4dcd7d88313a9da966ee5e7546f5f73401c49a31",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-s2ey8l1r/attempt-001/Candidate_de325e962ceee8c8.lean",
+            "target_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-s2ey8l1r/attempt-001/FrozenTarget_de325e962ceee8c8.lean",
+            "feedback": "",
+            "target_sha256": "44be2940cc55ce0c5b7d68f3aaa1b7167b5af245a660e67242739d67a1be520b",
+            "target_olean_sha256": "72d06dbbc939c65d5c1e8e7ff35dfb136a84f99ea0be2998b4975f5adc1acabb",
+            "source_sha256": "ed23c57e3799c9e18860d3ccf9bb3320f7ddf566fdc878c982542308e4bb777c",
+            "olean_sha256": "5444d1ed6f57f151198c6f32b1ac7e3c418d608cb31e5aacfacde2413b912509",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T21:21:15.145253+00:00",
+        "work": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-s2ey8l1r",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "2d2c8bdb9f5441477cb141716c6bd0fb12a3f48a28bd4d43a575db4120929613",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-s2ey8l1r/attempt-001/Candidate_de325e962ceee8c8.lean",
+        "environment_sha256": "feb8bc41ae72dc9ff6e8d8b788934b334bfbccd5f693738a9592a1a2684d58ed",
+        "artifacts": {
+          "word_width": {
+            "payload": {
+              "declaration": "theorem M7.FinalResources.word_width : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∀ (x : M7.GlobalQuery.Index H N) (j : Fin q.objectives.length), 1 + (M7.GlobalQuery.objective q bases x j).natAbs.size ≤ M7.FinalResources.objectiveBits q bases := by\n  classical\n  intro H N inst q bases x j\n  unfold M7.FinalResources.objectiveBits\n  apply Nat.add_le_add_left\n  exact le_trans\n    (Finset.le_sup (f := fun k : Fin q.objectives.length =>\n      (M7.GlobalQuery.objective q bases x k).natAbs.size) (Finset.mem_univ j))\n    (Finset.le_sup (f := fun y : M7.GlobalQuery.Index H N =>\n      Finset.univ.sup (fun k : Fin q.objectives.length =>\n        (M7.GlobalQuery.objective q bases y k).natAbs.size)) (Finset.mem_univ x))",
+              "imports": [
+                "M7FinalResources"
+              ],
+              "name": "M7.FinalResources.word_width",
+              "ancestors": [],
+              "spec_sha256": "2f4a6e49507facdb9fc1e6ae4dcd7d88313a9da966ee5e7546f5f73401c49a31"
+            },
+            "sha256": "47aa3b58ffa17776d2ab4d5147e95d9b07de3bcd2db8fd21abada5e0403e0553"
+          }
+        }
+      }
+    }
+  }
+}

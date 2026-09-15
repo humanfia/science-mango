@@ -1,0 +1,55 @@
+{
+  "id": "raw_realizable",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalSelector.raw_realizable",
+    "spec_sha256": "ab73fad9538c7abc004296f562c9cbfa8bfee8d3761411af716b6eb0c03b0520",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-g5jwumx7/attempt-001/Candidate_27375aca6b9bad5b.lean",
+        "target_path": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-g5jwumx7/attempt-001/FrozenTarget_27375aca6b9bad5b.lean",
+        "feedback": "",
+        "target_sha256": "3145975cb33ea101723d8c83831621c03df406c755418c06e18caa82d73be0c1",
+        "target_olean_sha256": "9777f7968d303e80e2108ae1d4f96aaaee2da2d73c3ff0677a25481df137d72e",
+        "source_sha256": "9123d378de0175be9115dd051834c5892a02424e18acf15255b50c1215fa7814",
+        "olean_sha256": "cb3d6029dbc59f8b9623782cc5fb75d16fdbdcd95a31410a787f424246e77a36",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T21:16:54.344936+00:00",
+    "work": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-g5jwumx7",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a93e77adccffdf0a2e502ffffa8f5ae4560d8796ed5e410296a2eb16c3e00398",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-g5jwumx7/attempt-001/Candidate_27375aca6b9bad5b.lean",
+    "environment_sha256": "6a41b34a3c1784ed7a55dff750944a57b0bc29ce7a130b6c17b08d5366807bde",
+    "artifacts": {
+      "raw_realizable": {
+        "payload": {
+          "declaration": "theorem M7.FinalSelector.raw_realizable : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c → ∃ x : M7.FinalSelector.Index N w q, M7.FinalSelector.realize q x = c := by\n  intro N w inst q hw hwN hq c hc\n  have hv : M7.PrefixOrbit.ClassValid w c := hc.1\n  have hs : M7.DefaultQuery.sectorTest q c c := by\n    unfold M7.FinalSelector.RawFeasible M7.DefaultQuery.feasible at hc\n    tauto\n  have hall : ∀ d : M7.Action.Recipe N,\n      M7.DefaultQuery.allows q (M7.DefaultQuery.signature d) →\n        M7.RecipeSignature.signature d ∈ M7.QuerySectors.effective N q := by\n    intro d hd\n    exact (M7.QuerySectors.signature_allowed N q d).mpr hd\n  have horbit : ∃ g : M7.Action.Record N,\n      M7.RecipeSignature.signature (M7.Action.act g c) ∈ M7.QuerySectors.effective N q := by\n    unfold M7.DefaultQuery.sectorTest at hs\n    split at hs\n    all_goals\n      first\n      | obtain ⟨g, hg⟩ := hs\n        exact ⟨g, hall _ hg⟩\n      | refine ⟨M7.Action.identity N, ?_⟩\n        rw [M7.Action.act_identity]\n        exact hall c hs\n  obtain ⟨i, g, hg⟩ :=\n    (M7.GeneratedFamily.family_complete N w (M7.QuerySectors.effective N q)\n      hw hwN (M7.QuerySectors.effective_valid N q hq) c).mpr ⟨hv, horbit⟩\n  exact ⟨(i, g), hg⟩",
+          "imports": [
+            "M7FinalSelector"
+          ],
+          "name": "M7.FinalSelector.raw_realizable",
+          "ancestors": [],
+          "spec_sha256": "ab73fad9538c7abc004296f562c9cbfa8bfee8d3761411af716b6eb0c03b0520"
+        },
+        "sha256": "60ec5e5e49c5d1127d0724b3a1c69821b13c6edd30e9d5b3b86e428212feee88"
+      }
+    }
+  }
+}

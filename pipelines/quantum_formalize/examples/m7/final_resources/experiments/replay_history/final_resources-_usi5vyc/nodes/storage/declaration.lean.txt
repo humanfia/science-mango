@@ -1,0 +1,8 @@
+theorem M7.FinalResources.storage : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → M7.CompactStorage.storedCoreBits N (M7.GeneratedFamily.size N w E) ≤ 16*(M7.GeneratedFamily.size N w E)*N ∧ M7.CompactStorage.storedWithTablesBits N (M7.GeneratedFamily.size N w E) ≤ 16*(M7.GeneratedFamily.size N w E)*N + 2*(M7.GeneratedFamily.size N w E)*Nat.totient N*N := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → M7.CompactStorage.storedCoreBits N (M7.GeneratedFamily.size N w E) ≤ 16*(M7.GeneratedFamily.size N w E)*N ∧ M7.CompactStorage.storedWithTablesBits N (M7.GeneratedFamily.size N w E) ≤ 16*(M7.GeneratedFamily.size N w E)*N + 2*(M7.GeneratedFamily.size N w E)*Nat.totient N*N
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N w inst E hw hwN hE
+  exact (M7.CompactStorage.storage_bounds N (M7.GeneratedFamily.size N w E)).2.2.2

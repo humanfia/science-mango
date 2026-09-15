@@ -1,0 +1,13 @@
+theorem M7.FinalSelector.raw_output : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ c : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q c ↔ ∃ x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = true ∧ M7.FinalSelector.realize q x = c := by
+  intro N w inst q hw hwN hq c
+  constructor
+  · intro hc
+    obtain ⟨x, hx⟩ := M7.FinalSelector.raw_realizable N w q hw hwN hq c hc.1
+    refine ⟨x, ?_, hx⟩
+    apply (M7.FinalSelector.winner_exact N w q hw hwN hq x).mpr
+    rw [hx]
+    exact hc
+  · rintro ⟨x, hx, hxc⟩
+    have hc := (M7.FinalSelector.winner_exact N w q hw hwN hq x).mp hx
+    rw [hxc] at hc
+    exact hc

@@ -1,0 +1,55 @@
+{
+  "id": "witness_work",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalResources.witness_work",
+    "spec_sha256": "5260e93496286fcbde13404c21cb7b3ece95dc9d73b56150b2e67b5894b553e6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-sb362sa5/attempt-001/Candidate_21ec20b482f98b0e.lean",
+        "target_path": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-sb362sa5/attempt-001/FrozenTarget_21ec20b482f98b0e.lean",
+        "feedback": "",
+        "target_sha256": "d8fd13fee0add1f8968c5f542d131b845d935a7bd02d96feff0fe5b9a3706cd2",
+        "target_olean_sha256": "972a5cfefecffe7f4647d7196028f342d22996d5f9fd32f34e70f0655e4725c8",
+        "source_sha256": "0708dc9c1b7ce2f8a98475de2e43cd07ecf5df4024420f41f3eb7a8002e94eac",
+        "olean_sha256": "483f30e61ed9fb3e7986bcce7457b27c2db0f7a429bd9e03e9d4bc496a72e28a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T21:19:27.086543+00:00",
+    "work": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-sb362sa5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "2d2c8bdb9f5441477cb141716c6bd0fb12a3f48a28bd4d43a575db4120929613",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-final-resources-formalization/.humanize-formal-runs/run-sb362sa5/attempt-001/Candidate_21ec20b482f98b0e.lean",
+    "environment_sha256": "feb8bc41ae72dc9ff6e8d8b788934b334bfbccd5f693738a9592a1a2684d58ed",
+    "artifacts": {
+      "witness_work": {
+        "payload": {
+          "declaration": "theorem M7.FinalResources.witness_work : ∀ (N w : ℕ) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w → w ≤ N → M7.PrefixSector.ValidSector N E → ∀ (d k : Fin (M7.GeneratedFamily.size N w E) → ℕ) (v : Fin (M7.GeneratedFamily.size N w E) → M6.Pinned.Vector (2*N)), (∀ i, M6.ActualTransfer.solve N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) = some (d i,v i,k i)) → (∑ i : Fin (M7.GeneratedFamily.size N w E), M6.ActualTransfer.actualWitnessWork N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) (k i)) ≤ 200000*N^4 * (∑ i : Fin (M7.GeneratedFamily.size N w E), 4^(M6.ActualTransfer.span (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2))) := by\n  classical\n  intro N w inst E hw hwN hE d k v hsolve\n  rw [Finset.mul_sum]\n  apply Finset.sum_le_sum\n  intro i hi\n  have hp := M7.GeneratedLabels.pointwise N w E hw hwN hE i\n  have hs := hsolve i\n  simp only [M6.Final.PointwiseCorrect, M6.Final.ExecutionCorrect,\n    M6.Final.StorageCorrect] at hp\n  aesop",
+          "imports": [
+            "M7FinalResources"
+          ],
+          "name": "M7.FinalResources.witness_work",
+          "ancestors": [],
+          "spec_sha256": "5260e93496286fcbde13404c21cb7b3ece95dc9d73b56150b2e67b5894b553e6"
+        },
+        "sha256": "620de308502a81c02195fa549c6bd21a99c3a9d43cee022eda539e5696c90741"
+      }
+    }
+  }
+}

@@ -1,0 +1,276 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.GenerationCalls.generate_count",
+    "status": "ok",
+    "results": [
+      {
+        "id": 264406,
+        "name": "MeasurableSpace.generateFrom",
+        "module": "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/MeasurableSpace/Defs.lean#L328-L334",
+        "source_text": "/-- Construct the smallest measure space containing a collection of basic sets -/\n@[implicit_reducible]\ndef generateFrom (s : Set (Set α)) : MeasurableSpace α where\n  MeasurableSet' := GenerateMeasurable s\n  measurableSet_empty := .empty\n  measurableSet_compl := .compl\n  measurableSet_iUnion := .iUnion\n",
+        "docstring": "Construct the smallest measure space containing a collection of basic sets "
+      },
+      {
+        "id": 212299,
+        "name": "Nat.count",
+        "module": "Mathlib.Data.Nat.Count",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Count.lean#L36-L38",
+        "source_text": "/-- Count the number of naturals `k < n` satisfying `p k`. -/\ndef count (n : ℕ) : ℕ :=\n  (List.range n).countP p\n",
+        "docstring": "Count the number of naturals `k < n` satisfying `p k`. "
+      },
+      {
+        "id": 210496,
+        "name": "Multiset.count",
+        "module": "Mathlib.Data.Multiset.Count",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Count.lean#L122-L124",
+        "source_text": "/-- `count a s` is the multiplicity of `a` in `s`. -/\ndef count (a : α) : Multiset α → ℕ :=\n  countP (a = ·)\n",
+        "docstring": "`count a s` is the multiplicity of `a` in `s`. "
+      },
+      {
+        "id": 350655,
+        "name": "TopologicalSpace.generateFrom",
+        "module": "Mathlib.Topology.Order",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Order.lean#L66-L72",
+        "source_text": "/-- The smallest topological space containing the collection `g` of basic sets -/\n@[implicit_reducible]\ndef generateFrom (g : Set (Set α)) : TopologicalSpace α where\n  IsOpen := GenerateOpen g\n  isOpen_univ := GenerateOpen.univ\n  isOpen_inter := GenerateOpen.inter\n  isOpen_sUnion := GenerateOpen.sUnion\n",
+        "docstring": "The smallest topological space containing the collection `g` of basic sets "
+      },
+      {
+        "id": 283947,
+        "name": "Filter.generate",
+        "module": "Mathlib.Order.Filter.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Basic.lean#L164-L169",
+        "source_text": "/-- `generate g` is the largest filter containing the sets `g`. -/\ndef generate (g : Set (Set α)) : Filter α where\n  sets := {s | GenerateSets g s}\n  univ_sets := GenerateSets.univ\n  sets_of_superset := GenerateSets.superset\n  inter_sets := GenerateSets.inter\n",
+        "docstring": "`generate g` is the largest filter containing the sets `g`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.GenerationCalls.generate_count",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387051,
+        "name": "Physlib.noLemmas",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L185-L189",
+        "source_text": "/-- Number of definitions. -/\ndef noLemmas : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return !c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      },
+      {
+        "id": 387055,
+        "name": "Physlib.noLines",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L213-L217",
+        "source_text": "/-- The number of lines in Physlib. -/\ndef noLines : IO Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getLines\n  return x.flatSize\n",
+        "docstring": "The number of lines in Physlib. "
+      },
+      {
+        "id": 387070,
+        "name": "Physlib.noInformalDefs",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L74-L78",
+        "source_text": "/-- The number of informal definitions in Physlib. -/\ndef noInformalDefs : CoreM Nat := do\n  let imports ← allImports\n  let x ← imports.mapM Imports.getUserConsts\n  x.flatFilterSizeM fun c => return Informal.isInformalDef c\n",
+        "docstring": "The number of informal definitions in Physlib. "
+      },
+      {
+        "id": 387069,
+        "name": "Physlib.noInformalLemmas",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L68-L72",
+        "source_text": "/-- The number of informal lemmas in Physlib. -/\ndef noInformalLemmas : CoreM Nat := do\n  let imports ← allImports\n  let x ← imports.mapM Imports.getUserConsts\n  x.flatFilterSizeM fun c => return Informal.isInformalLemma c\n",
+        "docstring": "The number of informal lemmas in Physlib. "
+      },
+      {
+        "id": 387050,
+        "name": "Physlib.noDefs",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L179-L183",
+        "source_text": "/-- Number of definitions. -/\ndef noDefs : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.CompactCorrectness.generate_card",
+    "status": "ok",
+    "results": [
+      {
+        "id": 327653,
+        "name": "Lean.Parser.Attr.compactness!?",
+        "module": "Mathlib.Tactic.GrindAttrs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/GrindAttrs.lean#L68-L70",
+        "source_text": "/-- The `compactness` attribute is a custom grind-set specialized to prove that sets are compact.\nIt is called by the `compactness` tactic. -/\nregister_grind_attr compactness\n",
+        "docstring": "The `compactness` attribute is a custom grind-set specialized to prove that sets are compact.\nIt is called by the `compactness` tactic. "
+      },
+      {
+        "id": 327655,
+        "name": "Lean.Parser.Attr.compactness!",
+        "module": "Mathlib.Tactic.GrindAttrs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/GrindAttrs.lean#L68-L70",
+        "source_text": "/-- The `compactness` attribute is a custom grind-set specialized to prove that sets are compact.\nIt is called by the `compactness` tactic. -/\nregister_grind_attr compactness\n",
+        "docstring": "The `compactness` attribute is a custom grind-set specialized to prove that sets are compact.\nIt is called by the `compactness` tactic. "
+      },
+      {
+        "id": 340169,
+        "name": "isCompact_generateFrom'",
+        "module": "Mathlib.Topology.Compactness.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Compactness/Compact.lean#L567-L573",
+        "source_text": "theorem isCompact_generateFrom' [T : TopologicalSpace X]\n    {S : Set (Set X)} (hTS : T = generateFrom S) {s : Set X}\n    (h : ∀ (ι : Type u) (U : ι → S), s ⊆ ⋃ i, U i → ∃ J : Set ι, J.Finite ∧ s ⊆ ⋃ i ∈ J, U i) :\n    IsCompact s :=\n  isCompact_generateFrom hTS fun P hP hs ↦\n    have ⟨J, hJ, cover⟩ := h P (fun a ↦ ⟨a.1, hP a.2⟩) (sUnion_eq_iUnion ▸ hs)\n    ⟨(·.1) '' J, ⟨by simp, hJ.image _, by aesop⟩⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 340168,
+        "name": "isCompact_generateFrom",
+        "module": "Mathlib.Topology.Compactness.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Compactness/Compact.lean#L544-L564",
+        "source_text": "/--\n**Alexander's subbasis theorem**. Suppose `X` is a topological space with a subbasis `S` and `s` is\na subset of `X`. Then `s` is compact if for any open cover of `s` with all elements taken from `S`,\nthere is a finite subcover.\n-/\ntheorem isCompact_generateFrom [T : TopologicalSpace X]\n    {S : Set (Set X)} (hTS : T = generateFrom S) {s : Set X}\n    (h : ∀ P ⊆ S, s ⊆ ⋃₀ P → ∃ Q ⊆ P, Q.Finite ∧ s ⊆ ⋃₀ Q) :\n    IsCompact s := by\n  rw [isCompact_iff_ultrafilter_le_nhds', hTS]\n  intro F hsF\n  by_contra hF\n  have hSF : ∀ x ∈ s, ∃ t, x ∈ t ∧ t ∈ S ∧ t ∉ F := by simpa [nhds_generateFrom] using hF\n  choose! U hxU hSU hUF using hSF\n  obtain ⟨Q, hQU, hQ, hsQ⟩ := h (U '' s) (by simpa [Set.subset_def])\n    (fun x hx ↦ Set.mem_sUnion_of_mem (hxU _ hx) (by grind))\n  have : ∀ s ∈ Q, s ∉ F := fun s hsQ ↦ (hQU hsQ).choose_spec.2 ▸ hUF _ (hQU hsQ).choose_spec.1\n  have hQF : ⋂₀ (compl '' Q) ∈ F.sets := by simpa [Filter.biInter_mem hQ, F.compl_mem_iff_notMem]\n  have : ⋃₀ Q ∉ F := by\n    simpa [-Set.sInter_image, ← Set.compl_sUnion, hsQ, F.compl_mem_iff_notMem] using hQF\n  exact this (F.mem_of_superset hsF hsQ)\n",
+        "docstring": "**Alexander's subbasis theorem**. Suppose `X` is a topological space with a subbasis `S` and `s` is\na subset of `X`. Then `s` is compact if for any open cover of `s` with all elements taken from `S`,\nthere is a finite subcover.\n"
+      },
+      {
+        "id": 343460,
+        "name": "IsCompact",
+        "module": "Mathlib.Topology.Defs.Filter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Defs/Filter.lean#L274-L277",
+        "source_text": "/-- A set `s` is compact if for every nontrivial filter `f` that contains `s`,\nthere exists `a ∈ s` such that every set of `f` meets every neighborhood of `a`. -/\ndef IsCompact (s : Set X) :=\n  ∀ ⦃f⦄ [NeBot f], f ≤ 𝓟 s → ∃ x ∈ s, ClusterPt x f\n",
+        "docstring": "A set `s` is compact if for every nontrivial filter `f` that contains `s`,\nthere exists `a ∈ s` such that every set of `f` meets every neighborhood of `a`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.CompactCorrectness.generate_card",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388408,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.card",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L243-L246",
+        "source_text": "/-- The cardinality of a `Charges` is defined to be the sum of the cardinalities\n  of each of the underlying finite sets of charges, with `Option ℤ` turned to finsets. -/\ndef card (x : ChargeSpectrum 𝓩) : Nat :=\n  x.qHu.toFinset.card + x.qHd.toFinset.card + x.Q5.card + x.Q10.card\n",
+        "docstring": "The cardinality of a `Charges` is defined to be the sum of the cardinalities\nof each of the underlying finite sets of charges, with `Option ℤ` turned to finsets. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.GeneratedFamily.size",
+    "status": "ok",
+    "results": [
+      {
+        "id": 343218,
+        "name": "Topology.IsGeneratedBy",
+        "module": "Mathlib.Topology.Convenient.GeneratedBy",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Convenient/GeneratedBy.lean#L128-L134",
+        "source_text": "/-- Given a family of topological spaces `X i`, we say that a topological space is\n`X`-generated (`IsGeneratedBy X Y`) when the topology on `Y` is the `X`-generated\ntopology, i.e. when the identity is a homeomorphism\n`WithGeneratedByTopology X Y ≃ₜ Y` (see `IsGeneratedBy.homeomorph`). -/\n@[mk_iff]\nclass IsGeneratedBy : Prop where\n  continuous_equiv_symm : Continuous (WithGeneratedByTopology.equiv (X := X) (Y := Y)).symm\n",
+        "docstring": "Given a family of topological spaces `X i`, we say that a topological space is\n`X`-generated (`IsGeneratedBy X Y`) when the topology on `Y` is the `X`-generated\ntopology, i.e. when the identity is a homeomorphism\n`WithGeneratedByTopology X Y ≃ₜ Y` (see `IsGeneratedBy.homeomorph`). "
+      },
+      {
+        "id": 183929,
+        "name": "CategoryTheory.Sieve.ofArrows_mk",
+        "module": "Mathlib.CategoryTheory.Sites.Sieves",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Sites/Sieves.lean#L807-L808",
+        "source_text": "lemma ofArrows_mk (i : I) : ofArrows Y f (f i) :=\n  ⟨_, 𝟙 _, _, ⟨i⟩, by simp⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 258038,
+        "name": "VitaliFamily",
+        "module": "Mathlib.MeasureTheory.Covering.VitaliFamily",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Covering/VitaliFamily.lean#L58-L84",
+        "source_text": "/-- On a metric space `X` with a measure `μ`, consider for each `x : X` a family of measurable sets\nwith nonempty interiors, called `setsAt x`. This family is a Vitali family if it satisfies the\nfollowing property: consider a (possibly non-measurable) set `s`, and for any `x` in `s` a\nsubfamily `f x` of `setsAt x` containing sets of arbitrarily small diameter. Then one can extract\na disjoint subfamily covering almost all `s`.\n\nVitali families are provided by covering theorems such as the Besicovitch covering theorem or the\nVitali covering theorem. They make it possible to formulate general versions of theorems on\ndifferentiations of measure that apply in both contexts.\n-/\nstructure VitaliFamily {m : MeasurableSpace X} (μ : Measure X) where\n  /-- Sets of the family \"centered\" at a given point. -/\n  setsAt : X → Set (Set X)\n  /-- All sets of the family are measurable. -/\n  measurableSet : ∀ x : X, ∀ s ∈ setsAt x, MeasurableSet s\n  /-- All sets of the family have nonempty interior. -/\n  nonempty_interior : ∀ x : X, ∀ s ∈ setsAt x, (interior s).Nonempty\n  /-- For any closed ball around `x`, there exists a set of the family contained in this ball. -/\n  nontrivial : ∀ (x : X), ∀ ε > (0 : ℝ), ∃ s ∈ setsAt x, s ⊆ closedBall x ε\n  /-- Consider a (possibly non-measurable) set `s`,\n  and for any `x` in `s` a subfamily `f x` of `setsAt x`\n  containing sets of arbitrarily small diameter.\n  Then one can extract a disjoint subfamily covering almost all `s`. -/\n  covering : ∀ (s : Set X) (f : X → Set (Set X)),\n    (∀ x ∈ s, f x ⊆ setsAt x) → (∀ x ∈ s, ∀ ε > (0 : ℝ), ∃ t ∈ f x, t ⊆ closedBall x ε) →\n    ∃ t : Set (X × Set X), (∀ p ∈ t, p.1 ∈ s) ∧ (t.PairwiseDisjoint fun p ↦ p.2) ∧\n      (∀ p ∈ t, p.2 ∈ f p.1) ∧ μ (s \\ ⋃ p ∈ t, p.2) = 0\n",
+        "docstring": "On a metric space `X` with a measure `μ`, consider for each `x : X` a family of measurable sets\nwith nonempty interiors, called `setsAt x`. This family is a Vitali family if it satisfies the\nfollowing property: consider a (possibly non-measurable) set `s`, and for any `x` in `s` a\nsubfamily `f x` of `setsAt x` containing sets of arbitrarily small diameter. Then one can extract\na disjoint subfamily covering almost all `s`.\n\nVitali families are provided by covering theorems such as the Besicovitch covering theorem or the\nVitali covering theorem. They make it possible to formulate general versions of theorems on\ndifferentiations of measure that apply in both contexts.\n"
+      },
+      {
+        "id": 338491,
+        "name": "CompactlyGenerated",
+        "module": "Mathlib.Topology.Category.CompactlyGenerated",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Category/CompactlyGenerated.lean#L31-L37",
+        "source_text": "/-- `CompactlyGenerated.{u, w}` is the type of `u`-compactly generated `w`-small topological spaces.\nThis should always be used with explicit universe parameters. -/\nstructure CompactlyGenerated where\n  /-- The underlying topological space of an object of `CompactlyGenerated`. -/\n  toTop : TopCat.{w}\n  /-- The underlying topological space is compactly generated. -/\n  [is_compactly_generated : UCompactlyGeneratedSpace.{u} toTop]\n",
+        "docstring": "`CompactlyGenerated.{u, w}` is the type of `u`-compactly generated `w`-small topological spaces.\nThis should always be used with explicit universe parameters. "
+      },
+      {
+        "id": 338552,
+        "name": "DeltaGenerated",
+        "module": "Mathlib.Topology.Category.DeltaGenerated",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Category/DeltaGenerated.lean#L36-L37",
+        "source_text": "/-- The category of delta-generated topological spaces. -/\nabbrev DeltaGenerated := GeneratedByTopCat.{u} (fun n ↦ Fin n → ℝ)\n",
+        "docstring": "The category of delta-generated topological spaces. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.GeneratedFamily.size",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387814,
+        "name": "SM.familyEmbedding",
+        "module": "Physlib.Particles.StandardModel.AnomalyCancellation.FamilyMaps",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/FamilyMaps.lean#L79-L82",
+        "source_text": "/-- The embedding of the `m`-family charges onto the `n`-family charges, with all\nother charges zero. -/\ndef familyEmbedding (m n : ℕ) : (SMCharges m).Charges →ₗ[ℚ] (SMCharges n).Charges :=\n  chargesMapOfSpeciesMap (speciesEmbed m n)\n",
+        "docstring": "The embedding of the `m`-family charges onto the `n`-family charges, with all\nother charges zero. "
+      },
+      {
+        "id": 387203,
+        "name": "SMRHN.sum_familyUniversal_two",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.FamilyMaps",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/FamilyMaps.lean#L125-L134",
+        "source_text": "lemma sum_familyUniversal_two {n : ℕ} (S : (SMνCharges 1).Charges)\n    (T : (SMνCharges n).Charges) (j : Fin 6) :\n    ∑ i, (toSpecies j (familyUniversal n S) i * toSpecies j T i) =\n    (toSpecies j S ⟨0, by simp⟩) * ∑ i, toSpecies j T i := by\n  simp only [toSpecies_apply, toSpeciesEquiv_apply, Fin.zero_eta,\n    Fin.isValue, Nat.reduceMul]\n  rw [Finset.mul_sum]\n  refine Finset.sum_congr rfl (fun i _ => ?_)\n  erw [toSpecies_familyUniversal]\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 387200,
+        "name": "SMRHN.toSpecies_familyUniversal",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.FamilyMaps",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/FamilyMaps.lean#L101-L104",
+        "source_text": "lemma toSpecies_familyUniversal {n : ℕ} (j : Fin 6) (S : (SMνCharges 1).Charges)\n    (i : Fin n) : toSpecies j (familyUniversal n S) i = toSpecies j S ⟨0, by simp⟩ := by\n  rw [familyUniversal, chargesMapOfSpeciesMap_toSpecies]\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 387202,
+        "name": "SMRHN.sum_familyUniversal_one",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.FamilyMaps",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/FamilyMaps.lean#L120-L122",
+        "source_text": "lemma sum_familyUniversal_one {n : ℕ} (S : (SMνCharges 1).Charges) (j : Fin 6) :\n    ∑ i, toSpecies j (familyUniversal n S) i = n * (toSpecies j S ⟨0, by simp⟩) := by\n  simpa using @sum_familyUniversal n 1 S j\n",
+        "docstring": null
+      },
+      {
+        "id": 387199,
+        "name": "SMRHN.familyUniversal",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.FamilyMaps",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/FamilyMaps.lean#L96-L99",
+        "source_text": "/-- The embedding of the `1`-family charges into the `n`-family charges in\na universal manner. -/\ndef familyUniversal (n : ℕ) : (SMνCharges 1).Charges →ₗ[ℚ] (SMνCharges n).Charges :=\n  chargesMapOfSpeciesMap (speciesFamilyUniversial n)\n",
+        "docstring": "The embedding of the `1`-family charges into the `n`-family charges in\na universal manner. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

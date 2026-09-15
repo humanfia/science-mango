@@ -1,0 +1,55 @@
+{
+  "id": "index_feasible",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalSelector.index_feasible",
+    "spec_sha256": "94f9e371ab93faa47b94de5dbb41cae596a65714a576c8a861bc1b65e2483c6e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-0rvo72t_/attempt-001/Candidate_bb5ae18aa55595cc.lean",
+        "target_path": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-0rvo72t_/attempt-001/FrozenTarget_bb5ae18aa55595cc.lean",
+        "feedback": "",
+        "target_sha256": "a411714febc4f6817de8fafc0afe95e4a4e1a25c1dc3da98689ff17328eb9213",
+        "target_olean_sha256": "422666f026108f732303d4cc2b39b0e934ae4f07a786153b595d8a9a5195d8cd",
+        "source_sha256": "60f56c70fbf77faae1bd49e51e727369b989d75ea425b952f196a5de1d89b1a9",
+        "olean_sha256": "61dd3bf51f061d4d20b5d9518e567297d06431f7de6af51e89d22d61b3b0b14a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T20:58:30.831888+00:00",
+    "work": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-0rvo72t_",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a93e77adccffdf0a2e502ffffa8f5ae4560d8796ed5e410296a2eb16c3e00398",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-0rvo72t_/attempt-001/Candidate_bb5ae18aa55595cc.lean",
+    "environment_sha256": "6a41b34a3c1784ed7a55dff750944a57b0bc29ce7a130b6c17b08d5366807bde",
+    "artifacts": {
+      "index_feasible": {
+        "payload": {
+          "declaration": "theorem M7.FinalSelector.index_feasible : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ x : M7.FinalSelector.Index N w q, M7.GlobalQuery.feasible q (M7.FinalSelector.family N w q) x ↔ M7.FinalSelector.RawFeasible w q (M7.FinalSelector.realize q x) := by\n  intro N w inst q hw hwN hq x\n  have hb : M7.PrefixOrbit.ClassValid w (M7.FinalSelector.family N w q x.1) :=\n    (M7.GeneratedFamily.family_good N w (M7.QuerySectors.effective N q) hw hwN\n      (M7.QuerySectors.effective_valid N q hq) x.1).1\n  have hc : M7.PrefixOrbit.ClassValid w\n      (M7.Action.act x.2 (M7.FinalSelector.family N w q x.1)) := by\n    first\n    | simpa only [M7.PrefixOrbit.class_action] using hb\n    | solve_by_elim [M7.PrefixOrbit.class_action]\n  simp only [M7.GlobalQuery.feasible, M7.FinalSelector.RawFeasible,\n    M7.FinalSelector.realize, M7.GlobalQuery.realize,\n    M7.DefaultQuery.feasible, M7.Action.act_identity,\n    M7.QueryRebase.sector_base, hc, true_and, and_true]",
+          "imports": [
+            "M7FinalSelector"
+          ],
+          "name": "M7.FinalSelector.index_feasible",
+          "ancestors": [],
+          "spec_sha256": "94f9e371ab93faa47b94de5dbb41cae596a65714a576c8a861bc1b65e2483c6e"
+        },
+        "sha256": "6177afde2970aac2eaac8003279a5740863f1105192d4028ed64dd7e04bfc465"
+      }
+    }
+  }
+}

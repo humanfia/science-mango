@@ -1,0 +1,94 @@
+{
+  "id": "empty_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalSelector.empty_exact",
+    "spec_sha256": "ad6b384ad6d102453195186d1364a11d7801064a8b6b28718bf666288403d1b7",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-7jaaep7y/attempt-001/Candidate_40f66be21c2fe8a4.lean:26:8: error(lean.unknownIdentifier): Unknown constant `Finset.eq_empty_iff_forall_not_mem`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-7jaaep7y/attempt-002/Candidate_db2057ba95e85a9f.lean:12:17: error(lean.unknownIdentifier): Unknown constant `Finset.mem_empty`\n/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-7jaaep7y/attempt-002/Candidate_db2057ba95e85a9f.lean:12:6: error: `simp` made no progress\n/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-7jaaep7y/attempt-002/Candidate_db2057ba95e85a9f.lean:29:14: error(lean.unknownIdentifier): Unknown constant `Finset.not_mem_empty`\n",
+        "attempt": 2
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-7jaaep7y/attempt-003/Candidate_60f5db3d16c806ff.lean",
+        "target_path": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-7jaaep7y/attempt-003/FrozenTarget_60f5db3d16c806ff.lean",
+        "feedback": "",
+        "target_sha256": "02d5d51cc018358842644edd1ed3d0bc376950db9a04c15a7de0c4562cc8a6e4",
+        "target_olean_sha256": "f36cf8daceaf75cecb3f523cf630985b8c8a3f20d75beda63bb031a9fd48fe6d",
+        "source_sha256": "3b0d0a9989d62c70fb256766225f8d8fd3ea593b91f531679c38f925129525ba",
+        "olean_sha256": "9beb97ce233e4cd04e30ebc45786c109b51405d013ce39721c010adfcb144359",
+        "attempt": 3
+      }
+    ],
+    "created_at": "2026-09-15T21:02:04.857225+00:00",
+    "work": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-7jaaep7y",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a93e77adccffdf0a2e502ffffa8f5ae4560d8796ed5e410296a2eb16c3e00398",
+    "phase": "finished",
+    "round": 3,
+    "proof": "/home/jing/m7-lean-final-selector-formalization/.humanize-formal-runs/run-7jaaep7y/attempt-003/Candidate_60f5db3d16c806ff.lean",
+    "environment_sha256": "6a41b34a3c1784ed7a55dff750944a57b0bc29ce7a130b6c17b08d5366807bde",
+    "artifacts": {
+      "raw_realizable": {
+        "payload": {
+          "declaration": "theorem M7.FinalSelector.raw_realizable : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c → ∃ x : M7.FinalSelector.Index N w q, M7.FinalSelector.realize q x = c := by\n  intro N w inst q hw hwN hq c hc\n  have hv : M7.PrefixOrbit.ClassValid w c := hc.1\n  have hs : M7.DefaultQuery.sectorTest q c c := by\n    unfold M7.FinalSelector.RawFeasible M7.DefaultQuery.feasible at hc\n    tauto\n  have hall : ∀ d : M7.Action.Recipe N,\n      M7.DefaultQuery.allows q (M7.DefaultQuery.signature d) →\n        M7.RecipeSignature.signature d ∈ M7.QuerySectors.effective N q := by\n    intro d hd\n    exact (M7.QuerySectors.signature_allowed N q d).mpr hd\n  have horbit : ∃ g : M7.Action.Record N,\n      M7.RecipeSignature.signature (M7.Action.act g c) ∈ M7.QuerySectors.effective N q := by\n    unfold M7.DefaultQuery.sectorTest at hs\n    split at hs\n    all_goals\n      first\n      | obtain ⟨g, hg⟩ := hs\n        exact ⟨g, hall _ hg⟩\n      | refine ⟨M7.Action.identity N, ?_⟩\n        rw [M7.Action.act_identity]\n        exact hall c hs\n  obtain ⟨i, g, hg⟩ :=\n    (M7.GeneratedFamily.family_complete N w (M7.QuerySectors.effective N q)\n      hw hwN (M7.QuerySectors.effective_valid N q hq) c).mpr ⟨hv, horbit⟩\n  exact ⟨(i, g), hg⟩",
+          "imports": [
+            "M7FinalSelector"
+          ],
+          "name": "M7.FinalSelector.raw_realizable",
+          "ancestors": [],
+          "spec_sha256": "ab73fad9538c7abc004296f562c9cbfa8bfee8d3761411af716b6eb0c03b0520"
+        },
+        "sha256": "60ec5e5e49c5d1127d0724b3a1c69821b13c6edd30e9d5b3b86e428212feee88"
+      },
+      "index_feasible": {
+        "payload": {
+          "declaration": "theorem M7.FinalSelector.index_feasible : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∀ x : M7.FinalSelector.Index N w q, M7.GlobalQuery.feasible q (M7.FinalSelector.family N w q) x ↔ M7.FinalSelector.RawFeasible w q (M7.FinalSelector.realize q x) := by\n  intro N w inst q hw hwN hq x\n  have hb : M7.PrefixOrbit.ClassValid w (M7.FinalSelector.family N w q x.1) :=\n    (M7.GeneratedFamily.family_good N w (M7.QuerySectors.effective N q) hw hwN\n      (M7.QuerySectors.effective_valid N q hq) x.1).1\n  have hc : M7.PrefixOrbit.ClassValid w\n      (M7.Action.act x.2 (M7.FinalSelector.family N w q x.1)) := by\n    first\n    | simpa only [M7.PrefixOrbit.class_action] using hb\n    | solve_by_elim [M7.PrefixOrbit.class_action]\n  simp only [M7.GlobalQuery.feasible, M7.FinalSelector.RawFeasible,\n    M7.FinalSelector.realize, M7.GlobalQuery.realize,\n    M7.DefaultQuery.feasible, M7.Action.act_identity,\n    M7.QueryRebase.sector_base, hc, true_and, and_true]",
+          "imports": [
+            "M7FinalSelector"
+          ],
+          "name": "M7.FinalSelector.index_feasible",
+          "ancestors": [],
+          "spec_sha256": "94f9e371ab93faa47b94de5dbb41cae596a65714a576c8a861bc1b65e2483c6e"
+        },
+        "sha256": "6177afde2970aac2eaac8003279a5740863f1105192d4028ed64dd7e04bfc465"
+      },
+      "empty_exact": {
+        "payload": {
+          "declaration": "theorem M7.FinalSelector.empty_exact : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ((∀ x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = false) ↔ ¬ ∃ c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c) := by\n  intro N w inst q hw hwN hq\n  classical\n  have hbridge : (∀ x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = false) ↔ M7.GlobalQuery.winners q (M7.FinalSelector.family N w q) = ∅ := by\n    constructor\n    · intro h\n      apply Finset.ext\n      intro x\n      constructor\n      · intro hx\n        have ht := (M7.StreamingIndices.stream_winners _ N q (M7.FinalSelector.family N w q) x).mpr hx\n        change M7.FinalSelector.win q x = true at ht\n        rw [h x] at ht\n        cases ht\n      · intro hx\n        simpa using hx\n    · intro he x\n      cases hx : M7.FinalSelector.win q x with\n      | false => rfl\n      | true =>\n        have ht : M7.StreamingIndices.streamWin q (M7.FinalSelector.family N w q) x = true := hx\n        have hm := (M7.StreamingIndices.stream_winners _ N q (M7.FinalSelector.family N w q) x).mp ht\n        rw [he] at hm\n        simpa using hm\n  rw [hbridge, (M7.GlobalQuery.winners_exact _ N q (M7.FinalSelector.family N w q)).2]\n  constructor\n  · intro h ⟨c, hc⟩\n    obtain ⟨x, hx⟩ := M7.FinalSelector.raw_realizable N w q hw hwN hq c hc\n    apply h\n    refine ⟨x, (M7.FinalSelector.index_feasible N w q hw hwN hq x).mpr ?_⟩\n    rw [hx]\n    exact hc\n  · intro h ⟨x, hx⟩\n    exact h ⟨M7.FinalSelector.realize q x, (M7.FinalSelector.index_feasible N w q hw hwN hq x).mp hx⟩",
+          "imports": [
+            "M7FinalSelector"
+          ],
+          "name": "M7.FinalSelector.empty_exact",
+          "ancestors": [
+            "index_feasible",
+            "raw_realizable"
+          ],
+          "spec_sha256": "ec2847eb1b2e6a22c467fc1ee492ae81c271c12886ab90a5b1d89302b45848cf"
+        },
+        "sha256": "2a8019d86253098f58581b3ab0aa56cf911b6119b2e20f7a50c5d52d97a19024"
+      }
+    }
+  }
+}

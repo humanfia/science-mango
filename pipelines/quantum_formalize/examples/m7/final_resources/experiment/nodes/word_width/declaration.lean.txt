@@ -1,0 +1,11 @@
+theorem M7.FinalResources.word_width : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), ∀ (x : M7.GlobalQuery.Index H N) (j : Fin q.objectives.length), 1 + (M7.GlobalQuery.objective q bases x j).natAbs.size ≤ M7.FinalResources.objectiveBits q bases := by
+  classical
+  intro H N inst q bases x j
+  unfold M7.FinalResources.objectiveBits
+  apply Nat.add_le_add_left
+  exact le_trans
+    (Finset.le_sup (f := fun k : Fin q.objectives.length =>
+      (M7.GlobalQuery.objective q bases x k).natAbs.size) (Finset.mem_univ j))
+    (Finset.le_sup (f := fun y : M7.GlobalQuery.Index H N =>
+      Finset.univ.sup (fun k : Fin q.objectives.length =>
+        (M7.GlobalQuery.objective q bases y k).natAbs.size)) (Finset.mem_univ x))

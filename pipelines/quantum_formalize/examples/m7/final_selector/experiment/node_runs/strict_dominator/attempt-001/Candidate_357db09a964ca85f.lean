@@ -1,0 +1,23 @@
+import FrozenTarget_357db09a964ca85f
+theorem M7.FinalSelector.strict_dominator : QuantumHarnessFrozenTarget := by
+  intro N w inst q hw hwN hq c hc hnot
+  obtain ⟨x, hx⟩ := M7.FinalSelector.raw_realizable N w q hw hwN hq c hc
+  have hbridge : ∀ y : M7.FinalSelector.Index N w q,
+      y ∈ M7.GlobalQuery.winners q (M7.FinalSelector.family N w q) ↔
+        M7.FinalSelector.RawWinner w q (M7.FinalSelector.realize q y) := by
+    intro y
+    simpa only [M7.FinalSelector.win, M7.StreamingIndices.stream_winners] using
+      (M7.FinalSelector.winner_exact N w q hw hwN hq y)
+  have hf : M7.GlobalQuery.feasible q (M7.FinalSelector.family N w q) x :=
+    (M7.FinalSelector.index_feasible N w q hw hwN hq x).mpr (hx ▸ hc)
+  have hn : x ∉ M7.GlobalQuery.winners q (M7.FinalSelector.family N w q) := by
+    intro h
+    apply hnot
+    rw [← hx]
+    exact (hbridge x).mp h
+  obtain ⟨y, hy, hbetter⟩ :=
+    M7.GlobalQuery.strict_dominator _ N q (M7.FinalSelector.family N w q) x hf hn
+  refine ⟨M7.FinalSelector.realize q y, (hbridge y).mp hy, ?_⟩
+  rw [← hx]
+  simpa only [M7.GlobalQuery.objective, M7.FinalSelector.realize,
+    M7.GlobalQuery.realize, M7.Action.act_identity] using hbetter

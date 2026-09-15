@@ -1,0 +1,276 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.FinalSelector.RawFeasible",
+    "status": "ok",
+    "results": [
+      {
+        "id": 215092,
+        "name": "PFunctor.M.iselect",
+        "module": "Mathlib.Data.PFunctor.Univariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Univariate/M.lean#L383-L386",
+        "source_text": "/-- similar to `isubtree` but returns the data at the end of the path instead\nof the whole subtree -/\ndef iselect [DecidableEq F.A] [Inhabited (M F)] (ps : Path F) : M F → F.A := fun x : M F =>\n  head <| isubtree ps x\n",
+        "docstring": "similar to `isubtree` but returns the data at the end of the path instead\nof the whole subtree "
+      },
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 215093,
+        "name": "PFunctor.M.iselect_eq_default",
+        "module": "Mathlib.Data.PFunctor.Univariate.M",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PFunctor/Univariate/M.lean#L388-L407",
+        "source_text": "theorem iselect_eq_default [DecidableEq F.A] [Inhabited (M F)] (ps : Path F) (x : M F)\n    (h : ¬IsPath ps x) : iselect ps x = head default := by\n  induction ps generalizing x with\n  | nil =>\n    exfalso\n    apply h\n    constructor\n  | cons ps_hd ps_tail ps_ih =>\n    obtain ⟨a, i⟩ := ps_hd\n    induction x using PFunctor.M.casesOn' with | _ x_a x_f\n    simp only [iselect, isubtree] at ps_ih ⊢\n    by_cases h'' : a = x_a\n    · subst x_a\n      simp only [dif_pos, casesOn_mk']\n      rw [ps_ih]\n      intro h'\n      apply h\n      constructor <;> try rfl\n      apply h'\n    · simp [*]\n",
+        "docstring": null
+      },
+      {
+        "id": 327937,
+        "name": "Mathlib.Tactic.Linarith.SimplexAlgorithm.SimplexAlgorithmException.infeasible",
+        "module": "Mathlib.Tactic.Linarith.Oracle.SimplexAlgorithm.SimplexAlgorithm",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Linarith/Oracle/SimplexAlgorithm/SimplexAlgorithm.lean#L24-L25",
+        "source_text": "  /-- The solution is infeasible. -/\n| infeasible : SimplexAlgorithmException\n",
+        "docstring": "The solution is infeasible. "
+      },
+      {
+        "id": 330034,
+        "name": "Mathlib.Tactic.Conv.SelectionPanel",
+        "module": "Mathlib.Tactic.Widget.Conv",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Widget/Conv.lean#L268-L271",
+        "source_text": "/-- The conv widget. -/\n@[widget_module]\npublic protected def SelectionPanel : ProofWidgets.Component SelectInsertParams :=\n  mk_rpc_widget% SelectionPanel.rpc\n",
+        "docstring": "The conv widget. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.FinalSelector.RawFeasible",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388497,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.instDecidableMinimallyAllowsFinsetTerms",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.MinimallyAllowsTerm.FinsetTerms",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/MinimallyAllowsTerm/FinsetTerms.lean#L86-L88",
+        "source_text": "instance (x : ChargeSpectrum 𝓩) (Ts : Finset PotentialTerm) :\n    Decidable (x.MinimallyAllowsFinsetTerms Ts) :=\n  inferInstanceAs (Decidable (∀ y ∈ powerset x, y = x ↔ ∀ T ∈ Ts, y.AllowsTerm T))\n",
+        "docstring": null
+      },
+      {
+        "id": 390967,
+        "name": "Fermion.metricRaw_comm",
+        "module": "Physlib.Relativity.Fermions.Weyl.Metric",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Fermions/Weyl/Metric.lean#L45-L54",
+        "source_text": "lemma metricRaw_comm (M : SL(2,ℂ)) : metricRaw * M.1 = (M.1⁻¹)ᵀ * metricRaw := by\n  rw [metricRaw]\n  rw [Lorentz.SL2C.inverse_coe, eta_fin_two M.1]\n  rw [SpecialLinearGroup.coe_inv, Matrix.adjugate_fin_two,\n      Matrix.mul_fin_two, eta_fin_two !![M.1 1 1, -M.1 0 1; -M.1 1 0, M.1 0 0]ᵀ]\n  simp only [Fin.isValue, zero_mul, one_mul, zero_add, neg_mul, add_zero, transpose_apply, of_apply,\n    cons_val', cons_val_zero, empty_val', cons_val_fin_one, cons_val_one, cons_mul,\n    Nat.succ_eq_add_one, Nat.reduceAdd, vecMul_cons, head_cons, smul_cons, smul_eq_mul, mul_zero,\n    mul_one, smul_empty, tail_cons, neg_smul, mul_neg, neg_cons, neg_neg, neg_zero, neg_empty,\n    empty_vecMul, add_cons, empty_add_empty, empty_mul, Equiv.symm_apply_apply]\n",
+        "docstring": null
+      },
+      {
+        "id": 390966,
+        "name": "Fermion.comm_metricRaw",
+        "module": "Physlib.Relativity.Fermions.Weyl.Metric",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Fermions/Weyl/Metric.lean#L33-L43",
+        "source_text": "/-- Multiplying an element of `SL(2, ℂ)` on the left with the metric `𝓔` is equivalent\n  to multiplying the inverse-transpose of that element on the right with the metric. -/\nlemma comm_metricRaw (M : SL(2,ℂ)) : M.1 * metricRaw = metricRaw * (M.1⁻¹)ᵀ := by\n  rw [metricRaw]\n  rw [Lorentz.SL2C.inverse_coe, eta_fin_two M.1]\n  rw [SpecialLinearGroup.coe_inv, Matrix.adjugate_fin_two,\n      Matrix.mul_fin_two, eta_fin_two !![M.1 1 1, -M.1 0 1; -M.1 1 0, M.1 0 0]ᵀ]\n  simp only [Fin.isValue, mul_zero, mul_neg, mul_one, zero_add, add_zero, transpose_apply, of_apply,\n    cons_val', cons_val_zero, empty_val', cons_val_fin_one, cons_val_one, cons_mul,\n    Nat.succ_eq_add_one, Nat.reduceAdd, vecMul_cons, head_cons, zero_smul, tail_cons, one_smul,\n    empty_vecMul, neg_smul, neg_cons, neg_neg, neg_empty, empty_mul, Equiv.symm_apply_apply]\n",
+        "docstring": "Multiplying an element of `SL(2, ℂ)` on the left with the metric `𝓔` is equivalent\nto multiplying the inverse-transpose of that element on the right with the metric. "
+      },
+      {
+        "id": 390965,
+        "name": "Fermion.metricRaw",
+        "module": "Physlib.Relativity.Fermions.Weyl.Metric",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Fermions/Weyl/Metric.lean#L30-L31",
+        "source_text": "/-- The raw `2x2` matrix corresponding to the metric for fermions. -/\ndef metricRaw : Matrix (Fin 2) (Fin 2) ℂ := !![0, 1; -1, 0]\n",
+        "docstring": "The raw `2x2` matrix corresponding to the metric for fermions. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.DefaultQuery.sectorTest",
+    "status": "ok",
+    "results": [
+      {
+        "id": 282610,
+        "name": "maxDefault",
+        "module": "Mathlib.Order.Defs.LinearOrder",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Defs/LinearOrder.lean#L36-L38",
+        "source_text": "/-- Default definition of `max`. -/\ndef maxDefault [LE α] [DecidableLE α] (a b : α) :=\n  if a ≤ b then b else a\n",
+        "docstring": "Default definition of `max`. "
+      },
+      {
+        "id": 282611,
+        "name": "minDefault",
+        "module": "Mathlib.Order.Defs.LinearOrder",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Defs/LinearOrder.lean#L40-L42",
+        "source_text": "/-- Default definition of `min`. -/\ndef minDefault [LE α] [DecidableLE α] (a b : α) :=\n  if a ≤ b then a else b\n",
+        "docstring": "Default definition of `min`. "
+      },
+      {
+        "id": 132350,
+        "name": "TestFunction",
+        "module": "Mathlib.Analysis.Distribution.TestFunction",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Distribution/TestFunction.lean#L66-L72",
+        "source_text": "/-- The type of bundled `n`-times continuously differentiable maps with compact support -/\nstructure TestFunction : Type _ where\n  /-- The underlying function. Use coercion instead. -/\n  protected toFun : E → F\n  protected contDiff' : ContDiff ℝ n toFun\n  protected hasCompactSupport' : HasCompactSupport toFun\n  protected tsupport_subset' : tsupport toFun ⊆ Ω\n",
+        "docstring": "The type of bundled `n`-times continuously differentiable maps with compact support "
+      },
+      {
+        "id": 329699,
+        "name": "Mathlib.TacticAnalysis.testTacticSeq",
+        "module": "Mathlib.Tactic.TacticAnalysis",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TacticAnalysis.lean#L312-L332",
+        "source_text": "/-- Test the `config` against a sequence of tactics, using the context info and tactic info\nfrom the start of the sequence. -/\ndef testTacticSeq (config : ComplexConfig) (tacticSeq : Array (TSyntax `tactic))\n    (i : TacticNode) (ctx : config.ctx) :\n    CommandElabM Unit := do\n  /- Syntax quotations use the current ref's position info even for nodes which do not usually\n  carry position info. We set the ref here to ensure we log messages on the correct range. -/\n  withRef (mkNullNode tacticSeq) do\n    let stx ← `(tactic| $tacticSeq;*)\n    -- TODO: support more than 1 goal. Probably by requiring all tests to succeed in a row\n    if let [goal] := i.tacI.goalsBefore then\n      let (oldGoals, oldHeartbeats) ← withHeartbeats <|\n        try\n          i.runTacticCode goal stx\n        catch e =>\n          if !i.mayFail then\n            logWarning m!\"original tactic '{stx}' failed: {e.toMessageData}\"\n          return [goal]\n      let (new, newHeartbeats) ← withHeartbeats <| config.test i.ctxI i.tacI ctx goal\n      if let some msg ← config.tell stx oldGoals oldHeartbeats new newHeartbeats  then\n        logWarning msg\n",
+        "docstring": "Test the `config` against a sequence of tactics, using the context info and tactic info\nfrom the start of the sequence. "
+      },
+      {
+        "id": 251722,
+        "name": "Submodule.Quotient.instInhabitedQuotient",
+        "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Quotient/Defs.lean#L90-L91",
+        "source_text": "instance : Inhabited (M ⧸ p) :=\n  ⟨0⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.DefaultQuery.sectorTest",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386993,
+        "name": "IsTestFunction",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsTestFunction",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsTestFunction.lean#L26-L30",
+        "source_text": "/-- A test function is a smooth function with compact support. -/\n@[fun_prop]\nstructure IsTestFunction (f : X → U) where\n  smooth : ContDiff ℝ ∞ f\n  supp : HasCompactSupport f\n",
+        "docstring": "A test function is a smooth function with compact support. "
+      },
+      {
+        "id": 385365,
+        "name": "MassUnit.div_eq_val",
+        "module": "Physlib.ClassicalMechanics.Mass.MassUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/Mass/MassUnit.lean#L59-L60",
+        "source_text": "lemma div_eq_val (x y : MassUnit) :\n    x / y = (⟨x.val / y.val, div_nonneg (le_of_lt x.val_pos) (le_of_lt y.val_pos)⟩ : ℝ≥0) := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 387008,
+        "name": "IsTestFunction.sub",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsTestFunction",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsTestFunction.lean#L133-L135",
+        "source_text": "@[fun_prop]\nlemma IsTestFunction.sub {f g : X → U} (hf : IsTestFunction f) (hg : IsTestFunction g) :\n    IsTestFunction (fun x => f x - g x) := by fun_prop (disch:=simp)",
+        "docstring": null
+      },
+      {
+        "id": 387001,
+        "name": "IsTestFunction.pi",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsTestFunction",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsTestFunction.lean#L77-L91",
+        "source_text": "@[fun_prop]\nlemma IsTestFunction.pi {ι} [Fintype ι] {φ : X → ι → U} (hφ : ∀ i, IsTestFunction (φ · i)) :\n    IsTestFunction (fun x i => φ x i) where\n  smooth := contDiff_pi' (fun i => (hφ i).smooth)\n  supp := by\n    let K : ι → Set X := fun i =>\n      Classical.choose (exists_compact_iff_hasCompactSupport.mpr (hφ i).supp)\n    have hK (i : ι) := Classical.choose_spec (exists_compact_iff_hasCompactSupport.mpr (hφ i).supp)\n    refine exists_compact_iff_hasCompactSupport.mp\n      ⟨⋃ i, K i, isCompact_iUnion (fun i => (hK i).1), fun x hx => ?_⟩\n    simp at hx\n    conv_lhs =>\n      enter [i]\n      rw [(hK i).2 x (hx i)]\n    rfl",
+        "docstring": null
+      },
+      {
+        "id": 393480,
+        "name": "Time.default_eq_zero",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L158-L159",
+        "source_text": "@[simp]\nlemma default_eq_zero : default = 0 := rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.FinalSelector.realize",
+    "status": "ok",
+    "results": [
+      {
+        "id": 198365,
+        "name": "CFilter.toRealizer",
+        "module": "Mathlib.Data.Analysis.Filter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Analysis/Filter.lean#L100-L102",
+        "source_text": "/-- A `CFilter` realizes the filter it generates. -/\nprotected def CFilter.toRealizer (F : CFilter (Set α) σ) : F.toFilter.Realizer :=\n  ⟨σ, F, rfl⟩\n",
+        "docstring": "A `CFilter` realizes the filter it generates. "
+      },
+      {
+        "id": 271051,
+        "name": "FirstOrder.Language.Theory.realizedTypes",
+        "module": "Mathlib.ModelTheory.Types",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Types.lean#L220-L224",
+        "source_text": "/-- A complete type `p` is realized in a particular structure when there is some\n  tuple `v` whose type is `p`. -/\n@[simp]\ndef realizedTypes (α : Type w) : Set (T.CompleteType α) :=\n  Set.range (T.typeOf : (α → M) → T.CompleteType α)\n",
+        "docstring": "A complete type `p` is realized in a particular structure when there is some\ntuple `v` whose type is `p`. "
+      },
+      {
+        "id": 161238,
+        "name": "CategoryTheory.Functor.Final",
+        "module": "Mathlib.CategoryTheory.Limits.Final",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Limits/Final.lean#L92-L97",
+        "source_text": "/--\nA functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. -/\n@[stacks 04E6]\nclass Final (F : C ⥤ D) : Prop where\n  out (d : D) : IsConnected (StructuredArrow d F)\n",
+        "docstring": "A functor `F : C ⥤ D` is final if for every `d : D`, the comma category of morphisms `d ⟶ F.obj c`\nis connected. "
+      },
+      {
+        "id": 198368,
+        "name": "Filter.Realizer.ofFilter",
+        "module": "Mathlib.Data.Analysis.Filter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Analysis/Filter.lean#L114-L122",
+        "source_text": "/-- A filter realizes itself. -/\ndef ofFilter (f : Filter α) : f.Realizer :=\n  ⟨f.sets,\n    { f := Subtype.val\n      pt := ⟨univ, univ_mem⟩\n      inf := fun ⟨_, h₁⟩ ⟨_, h₂⟩ ↦ ⟨_, inter_mem h₁ h₂⟩\n      inf_le_left := fun ⟨_, _⟩ ⟨_, _⟩ ↦ inter_subset_left\n      inf_le_right := fun ⟨_, _⟩ ⟨_, _⟩ ↦ inter_subset_right },\n    filter_eq <| Set.ext fun _ ↦ by simp [exists_mem_subset_iff]⟩\n",
+        "docstring": "A filter realizes itself. "
+      },
+      {
+        "id": 198364,
+        "name": "Filter.Realizer",
+        "module": "Mathlib.Data.Analysis.Filter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Analysis/Filter.lean#L94-L98",
+        "source_text": "/-- A realizer for filter `f` is a cfilter which generates `f`. -/\nstructure Filter.Realizer (f : Filter α) where\n  σ : Type*\n  F : CFilter (Set α) σ\n  eq : F.toFilter = f\n",
+        "docstring": "A realizer for filter `f` is a cfilter which generates `f`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.FinalSelector.realize",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392272,
+        "name": "realLorentzTensor.evalIdxToComplex",
+        "module": "Physlib.Relativity.Tensors.RealTensor.ToComplex",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/ToComplex.lean#L673-L677",
+        "source_text": "/-- Convert an evaluation index from the real repDim to the complex repDim. -/\nnoncomputable def evalIdxToComplex {n : ℕ}\n    {c : Fin (n + 1) → realLorentzTensor.Color} (i : Fin (n + 1))\n    (b : Fin 1 ⊕ Fin 3) : Fin (complexLorentzTensor.repDim ((colorToComplex ∘ c) i)) :=\n  Fin.cast repDim_colorToComplex.symm (finSumFinEquiv b)\n",
+        "docstring": "Convert an evaluation index from the real repDim to the complex repDim. "
+      },
+      {
+        "id": 386829,
+        "name": "instFintypeCond_physlib",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L65-L66",
+        "source_text": "/-- The type family parameterized by `Bool` is finite if each type variant is finite. -/\ninstance [M : Fintype m] [N : Fintype n] (b : Bool) : Fintype (cond b m n) := b.rec N M\n",
+        "docstring": "The type family parameterized by `Bool` is finite if each type variant is finite. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]
