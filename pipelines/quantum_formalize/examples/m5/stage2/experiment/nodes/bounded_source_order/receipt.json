@@ -1,0 +1,67 @@
+{
+  "id": "bounded_source_order",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Lift.bounded_source_order",
+    "spec_sha256": "aba33a223d6da80a51bd2c055b6d0af6d58f5655bbf7dffe0747d1472f564f73",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-nccgeq7v/attempt-001/Candidate_fb6cf207b33a941c.lean",
+        "target_path": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-nccgeq7v/attempt-001/FrozenTarget_fb6cf207b33a941c.lean",
+        "feedback": "",
+        "target_sha256": "efd0cf2232cb9b04e8bea5bed3a5d6f59fea20c0dc605b3579b1f3332c32ba99",
+        "target_olean_sha256": "0d0f9e4d6de8ec4d8f4be2dab5e995e63f5499f853b4e5f0a688450f9265477a",
+        "source_sha256": "81cc7ee6b0db93083fc21515ede20102106fb3d02f51408b945a4cf07d930b4b",
+        "olean_sha256": "70b83b24edfc19708f20ed122f61a6b2a43e216e6a392bcffbfa9268edfae825",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:13:10.445977+00:00",
+    "work": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-nccgeq7v",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-nccgeq7v/attempt-001/Candidate_fb6cf207b33a941c.lean",
+    "environment_sha256": "52f13587f0cca4526dad6e25a30ce3de5d97d86bfd7803eec3cddde650f53fe6",
+    "artifacts": {
+      "bounded_progression": {
+        "payload": {
+          "declaration": "theorem M5.Lift.bounded_progression : ∀ T E L : ℕ, 0 < E → T < L → ∃ j : ℕ, L ≤ T + j * E ∧ T + j * E < L + E := by\n  change ∀ T E L : ℕ, 0 < E → T < L → ∃ j : ℕ, L ≤ T + j * E ∧ T + j * E < L + E\n  intro T E L hE hTL\n  let a := L - T - 1\n  have ha : T + a + 1 = L := by\n    dsimp [a]\n    omega\n  have hdiv := Nat.mod_add_div a E\n  have hmod := Nat.mod_lt a hE\n  rw [Nat.mul_comm E (a / E)] at hdiv\n  refine ⟨a / E + 1, ?_⟩\n  rw [Nat.add_mul, Nat.one_mul]\n  constructor <;> omega",
+          "imports": [
+            "M5Lift"
+          ],
+          "name": "M5.Lift.bounded_progression",
+          "ancestors": [],
+          "spec_sha256": "d77f967b3a54f90161bcec24647ec47fe428eb076ba1f753aed9f4863bf9a824"
+        },
+        "sha256": "07b9b406fd84f413a377afff4d6299c3cd240e18364c8096ae9611838b368278"
+      },
+      "bounded_source_order": {
+        "payload": {
+          "declaration": "theorem M5.Lift.bounded_source_order : ∀ w T E : ℕ, 2 ≤ w → 0 < T → 0 < E → E ≤ 2 ^ (w * T) → ∃ j : ℕ, M5.packingCutoff w T ≤ T + j * E ∧ T + j * E < M5.birthBound w T := by\n  change ∀ w T E : ℕ, 2 ≤ w → 0 < T → 0 < E → E ≤ 2 ^ (w * T) → ∃ j : ℕ, M5.packingCutoff w T ≤ T + j * E ∧ T + j * E < M5.birthBound w T\n  intro w T E hw hT hE hbound\n  have hcut : T < M5.packingCutoff w T := by\n    apply M5.cutoff_gt_period <;> assumption\n  obtain ⟨j, hjlo, hjhi⟩ := M5.Lift.bounded_progression T E (M5.packingCutoff w T) hE hcut\n  refine ⟨j, hjlo, ?_⟩\n  apply M5.source_below_birth_bound <;> omega",
+          "imports": [
+            "M5Lift"
+          ],
+          "name": "M5.Lift.bounded_source_order",
+          "ancestors": [
+            "bounded_progression"
+          ],
+          "spec_sha256": "2f1a0582c1a3c9a60e49eb482545805083108ed7d5db81b9a3eabe29e251f976"
+        },
+        "sha256": "ef1216ddb169091d87cdc72a430635042445fca5491dc8cbd18d2c27885907a0"
+      }
+    }
+  }
+}

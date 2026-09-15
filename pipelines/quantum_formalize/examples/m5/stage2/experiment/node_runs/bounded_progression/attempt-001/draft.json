@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ T E L : ℕ, 0 < E → T < L → ∃ j : ℕ, L ≤ T + j * E ∧ T + j * E < L + E\nintro T E L hE hTL\nlet a := L - T - 1\nhave ha : T + a + 1 = L := by\n  dsimp [a]\n  omega\nhave hdiv := Nat.mod_add_div a E\nhave hmod := Nat.mod_lt a hE\nrw [Nat.mul_comm E (a / E)] at hdiv\nrefine ⟨a / E + 1, ?_⟩\nrw [Nat.add_mul, Nat.one_mul]\nconstructor <;> omega",
+  "queries": []
+}

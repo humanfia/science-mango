@@ -1,0 +1,602 @@
+{
+  "title": "M5 third experiment: finite quotient and exact signature period",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Six frozen period-foundation targets; cardinality bound and full M5 remain separate obligations",
+  "nodes": [
+    {
+      "id": "quotient_finite",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Period.quotient_finite",
+        "statement": "∀ (F : M5.BinaryPolynomial), F.Monic → Finite (AdjoinRoot F)",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Install the local instance F.Monic.finite_adjoinRoot, then use Module.finite_of_finite (ZMod 2). This must include monic F = 1; do not require a nontrivial quotient. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "The quotient is finite for every monic binary polynomial.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "root_is_unit",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Period.root_is_unit",
+        "statement": "∀ (F : M5.BinaryPolynomial), F.coeff 0 = 1 → IsUnit (AdjoinRoot.root F)",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Map Polynomial.X_mul_divX_add F through AdjoinRoot.mk F. AdjoinRoot.mk_self gives zero and the constant term maps to one. Thus the image of -F.divX is an inverse of root F; construct IsUnit using that inverse or isUnit_iff_exists_inv. No monicity, squarefreeness or irreducibility is necessary. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "Constant coefficient one supplies an explicit inverse for the residue of X.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "cyclic_dvd_iff_root_pow",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Period.cyclic_dvd_iff_root_pow",
+        "statement": "∀ (F : M5.BinaryPolynomial) (N : ℕ), F ∣ M5.cyclicModulus N ↔ (AdjoinRoot.root F) ^ N = 1",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Use AdjoinRoot.mk_eq_zero after unfolding cyclicModulus, and map_add/map_pow/map_one/mk_X. The quotient is characteristic two: CharTwo.neg_eq or add_eq_zero_iff_eq_neg removes minus one. This includes N = 0 and F = 1. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "Polynomial cyclic divisibility equals a power identity in the full quotient ring.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "period_law",
+      "dependencies": [
+        "quotient_finite",
+        "root_is_unit",
+        "cyclic_dvd_iff_root_pow"
+      ],
+      "spec": {
+        "name": "M5.Period.period_law",
+        "statement": "∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Install a local Finite (AdjoinRoot F) instance using quotient_finite. root_is_unit and IsUnit.isOfFinOrder give positive order. The equivalence follows from cyclic_dvd_iff_root_pow and orderOf_dvd_iff_pow_eq_one. This proves period existence and the exact all-order divisibility law for repeated factors too. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "The period is positive and cyclic occurrence orders are exactly its multiples.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [
+          "M5.Period.quotient_finite",
+          "M5.Period.root_is_unit",
+          "M5.Period.cyclic_dvd_iff_root_pow"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "period_one",
+      "dependencies": [
+        "period_law"
+      ],
+      "spec": {
+        "name": "M5.Period.period_one",
+        "statement": "M5.signaturePeriod (1 : M5.BinaryPolynomial) = 1",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Apply period_law to F = 1 at N = 1. Since 1 divides cyclicModulus 1, the resulting natural-number divisibility into 1 proves period equals 1. Avoid requiring a nontrivial ring instance. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "The degenerate quotient case agrees with the original convention t(1) = 1.",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [
+          "M5.Period.period_law"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "period_dvd_of_dvd",
+      "dependencies": [
+        "period_law"
+      ],
+      "spec": {
+        "name": "M5.Period.period_dvd_of_dvd",
+        "statement": "∀ (F G : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → G.Monic → G.coeff 0 = 1 → F ∣ G → M5.signaturePeriod F ∣ M5.signaturePeriod G",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot polynomial quotient",
+          "orderOf finite monoid"
+        ],
+        "guidance": "By period_law, G divides its own cyclic modulus at signaturePeriod G. Compose F | G with this divisibility, and apply the period_law equivalence for F. This is the T | E step used in the packing/lift proof. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": [
+          1,
+          4,
+          5
+        ],
+        "supports_obligation": "M5_PERIOD",
+        "meaning": "Signature inclusion makes periods divide, supplying T | E for G = gcd(a,b).",
+        "scope": "period_foundation_only",
+        "dependency_declarations": [
+          "M5.Period.period_law"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "M5_DEFS",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.DEFS",
+        "source_section": "§1–4",
+        "obligation": "Shared objects and exact root statement; definition correspondence review",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_PERIOD",
+      "dependencies": [
+        "M5_DEFS",
+        "period_law",
+        "period_one",
+        "period_dvd_of_dvd"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.PERIOD",
+        "source_section": "§1, §4–5",
+        "obligation": "Existence/computation of t(F), `F ∣ M N ↔ t(F) ∣ N` for positive N; repeated factors and F=1",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_TRANSLATE",
+      "dependencies": [
+        "M5_DEFS"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.TRANSLATE",
+        "source_section": "§1",
+        "obligation": "Anchoring by independent translations preserves signature and connectivity",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_CHAR_ORTHO",
+      "dependencies": [
+        "M5_DEFS"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.CHAR_ORTHO",
+        "source_section": "§2",
+        "obligation": "Binary additive-character orthogonality, including dimension zero",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_SUBSET_COUNT",
+      "dependencies": [
+        "M5_CHAR_ORTHO"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.SUBSET_COUNT",
+        "source_section": "§2",
+        "obligation": "Character product coefficient equals the k-subset residue count",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_BINOM_EVAL",
+      "dependencies": [
+        "M5_SUBSET_COUNT"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.BINOM_EVAL",
+        "source_section": "§2",
+        "obligation": "Signed binomial coefficient formula evaluates that coefficient without subset enumeration",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_TUPLE_COUNT",
+      "dependencies": [
+        "M5_CHAR_ORTHO"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.TUPLE_COUNT",
+        "source_section": "§2",
+        "obligation": "Character power sum counts ordered residue tuples with repetition, including length zero",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_POLY_IE",
+      "dependencies": [
+        "M5_DEFS"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.POLY_IE",
+        "source_section": "§3",
+        "obligation": "Squarefree divisors of `rad(M_N/F)` detect exact complete gcd, retaining the next multiplicity exclusion",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_INT_IE",
+      "dependencies": [
+        "M5_DEFS"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.INT_IE",
+        "source_section": "§3",
+        "obligation": "Integer divisor Möbius indicator detects combined support gcd one",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_ORDER_COUNT",
+      "dependencies": [
+        "M5_SUBSET_COUNT",
+        "M5_POLY_IE",
+        "M5_INT_IE"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.ORDER_COUNT",
+        "source_section": "§3",
+        "obligation": "C equals the number of connected anchored weight-w pairs of exact signature F; inadmissible cases zero",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_ORDER_CONDITIONAL",
+      "dependencies": [
+        "M5_ORDER_COUNT"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.ORDER_CONDITIONAL",
+        "source_section": "§3",
+        "obligation": "Selected/available completion formula is exact for both blocks",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_ORDER_RECOVER",
+      "dependencies": [
+        "M5_ORDER_CONDITIONAL"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.ORDER_RECOVER",
+        "source_section": "§3",
+        "obligation": "Positive C deterministically yields a valid pair in at most `2(N-1)` position decisions",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_RESIDUE_COUNT",
+      "dependencies": [
+        "M5_PERIOD",
+        "M5_TUPLE_COUNT",
+        "M5_POLY_IE",
+        "M5_INT_IE"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.RESIDUE_COUNT",
+        "source_section": "§4",
+        "obligation": "A equals the number of feasible anchored ordered residue patterns",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_RESIDUE_RECOVER",
+      "dependencies": [
+        "M5_RESIDUE_COUNT"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.RESIDUE_RECOVER",
+        "source_section": "§4",
+        "obligation": "Conditional tuple counts recover a feasible pattern in at most `2(w-1)T` candidate tests",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_RESIDUE_NECESSITY",
+      "dependencies": [
+        "M5_PERIOD",
+        "M5_TRANSLATE",
+        "M5_RESIDUE_COUNT"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.RESIDUE_NECESSITY",
+        "source_section": "§4",
+        "obligation": "Every connected physical source reduces to a feasible period pattern",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_PACK",
+      "dependencies": [
+        "M5_DEFS"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.PACK",
+        "source_section": "§5",
+        "obligation": "Pack each residue's multiplicities into distinct anchored exponents at most `wT-1`, preserving reduction",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_CRT_REPAIR",
+      "dependencies": [
+        "M5_PACK"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.CRT_REPAIR",
+        "source_section": "§5",
+        "obligation": "A shift of one positive first-block exponent by kT makes total support gcd one, preserving weight and residues, with every exponent below `wT(T+2)`",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_GCD_DEGREE",
+      "dependencies": [
+        "M5_CRT_REPAIR"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.GCD_DEGREE",
+        "source_section": "§5",
+        "obligation": "Ordinary G has constant term one, `gcd(G,M_T)=F`, and degree at most `wT-1` because the second block is unchanged",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_PERIOD_BOUND",
+      "dependencies": [
+        "M5_PERIOD",
+        "M5_GCD_DEGREE"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.PERIOD_BOUND",
+        "source_section": "§5",
+        "obligation": "`E=t(G) ≤ 2^deg(G)` and `T ∣ E`, including G=1",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_LIFT",
+      "dependencies": [
+        "M5_GCD_DEGREE",
+        "M5_PERIOD_BOUND"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.LIFT",
+        "source_section": "§5",
+        "obligation": "Same literal supports have exact F at all `N=T+jE` above their support cutoff; ring congruence preserves multiplicities",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_BOUNDED_SOURCE",
+      "dependencies": [
+        "M5_RESIDUE_RECOVER",
+        "M5_CRT_REPAIR",
+        "M5_PERIOD_BOUND",
+        "M5_LIFT"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.BOUNDED_SOURCE",
+        "source_section": "§5",
+        "obligation": "Positive A constructs a connected source below `B=wT(T+2)+2^(wT)` and an infinite progression",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_GLOBAL_IFF",
+      "dependencies": [
+        "M5_RESIDUE_NECESSITY",
+        "M5_BOUNDED_SOURCE"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.GLOBAL_IFF",
+        "source_section": "§4–6",
+        "obligation": "`A>0` iff any-order connected realization exists; A=0 is a global nonrealizability certificate",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_LOWER_ORDERS",
+      "dependencies": [
+        "M5_PERIOD",
+        "M5_DEFS"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.LOWER_ORDERS",
+        "source_section": "§1, §6",
+        "obligation": "A realization requires `T ∣ N` and `max(w,deg(F)+1) ≤ N`",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_BIRTH",
+      "dependencies": [
+        "M5_BOUNDED_SOURCE",
+        "M5_LOWER_ORDERS",
+        "M5_ORDER_COUNT",
+        "M5_ORDER_RECOVER"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.BIRTH",
+        "source_section": "§6",
+        "obligation": "The bounded minimum of positive C values is nonempty and is the exact first birth; recover its witness",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_LATER",
+      "dependencies": [
+        "M5_ORDER_COUNT",
+        "M5_ORDER_RECOVER"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.LATER",
+        "source_section": "§6",
+        "obligation": "Every proposed order is classified by exact C; positive reconstructs and zero proves sector absence",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_ARITHMETIC",
+      "dependencies": [
+        "M5_BINOM_EVAL",
+        "M5_TUPLE_COUNT",
+        "M5_PERIOD",
+        "M5_RESIDUE_RECOVER",
+        "M5_ORDER_RECOVER",
+        "M5_BIRTH"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.ARITHMETIC",
+        "source_section": "§2–6",
+        "obligation": "All invoked evaluations are finite factorization, divisor, character, power and binomial arithmetic; reconstruction terminates without raw pair scans",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_WEIGHT_ONE",
+      "dependencies": [
+        "M5_DEFS"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.WEIGHT_ONE",
+        "source_section": "§1",
+        "obligation": "At w=1 the only connected anchored source is N=1 with F=1",
+        "status": "planned"
+      }
+    },
+    {
+      "id": "M5_COMPLETE",
+      "dependencies": [
+        "M5_GLOBAL_IFF",
+        "M5_BIRTH",
+        "M5_LATER",
+        "M5_ARITHMETIC",
+        "M5_WEIGHT_ONE"
+      ],
+      "spec": null,
+      "metadata": {
+        "roadmap_id": "M5.COMPLETE",
+        "source_section": "§1, §6",
+        "obligation": "Assemble the full original arithmetic M5 theorem for all positive weights and complete signatures",
+        "status": "planned"
+      }
+    }
+  ]
+}

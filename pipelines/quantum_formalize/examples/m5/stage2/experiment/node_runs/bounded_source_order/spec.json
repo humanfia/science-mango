@@ -1,0 +1,12 @@
+{
+  "name": "M5.Lift.bounded_source_order",
+  "statement": "∀ w T E : ℕ, 2 ≤ w → 0 < T → 0 < E → E ≤ 2 ^ (w * T) → ∃ j : ℕ, M5.packingCutoff w T ≤ T + j * E ∧ T + j * E < M5.birthBound w T",
+  "imports": [
+    "M5Lift"
+  ],
+  "context": "theorem M5.Lift.bounded_progression : ∀ T E L : ℕ, 0 < E → T < L → ∃ j : ℕ, L ≤ T + j * E ∧ T + j * E < L + E := by\n  change ∀ T E L : ℕ, 0 < E → T < L → ∃ j : ℕ, L ≤ T + j * E ∧ T + j * E < L + E\n  intro T E L hE hTL\n  let a := L - T - 1\n  have ha : T + a + 1 = L := by\n    dsimp [a]\n    omega\n  have hdiv := Nat.mod_add_div a E\n  have hmod := Nat.mod_lt a hE\n  rw [Nat.mul_comm E (a / E)] at hdiv\n  refine ⟨a / E + 1, ?_⟩\n  rw [Nat.add_mul, Nat.one_mul]\n  constructor <;> omega",
+  "queries": [
+    "natural number bounds"
+  ],
+  "guidance": "Use accepted M5.cutoff_gt_period then M5.Lift.bounded_progression and M5.source_below_birth_bound. This is only the numerical order bound; it does not assume or prove feasible supports exist. Return tactic lines without a leading by. This is a conditional lemma in section 5, not the full M5 theorem."
+}

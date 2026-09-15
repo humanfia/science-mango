@@ -87,9 +87,15 @@ async def run_graph(graph_path, project, output, propose, *, concurrency=16, rou
                 if any(r['status'] != 'ok' for r in receipts):
                     fallback = node.metadata.get('fallback_queries', [])
                     if fallback:
-                        receipts = await provider(fallback)
-                        history.append({'queries': fallback, 'fallback_for': queries, 'receipts': receipts})
+                        original_receipts = receipts
+                        recovered = await provider(fallback)
+                        history.append({'queries': fallback, 'fallback_for': queries, 'receipts': recovered})
                         save(area/'retrieval-history.json', history)
+                        failed_libraries = {r['library'] for r in original_receipts if r['status'] != 'ok'}
+                        receipts = [r for r in original_receipts if r['status'] == 'ok']
+                        for library in sorted(failed_libraries):
+                            replacements = [r for r in recovered if r['library'] == library]
+                            receipts.extend(replacements or [r for r in original_receipts if r['library'] == library and r['status'] != 'ok'])
                 return receipts
         result = await run(spec, project, node_propose, max_rounds=rounds, timeout=timeout,
                            build=False, search=node_search)

@@ -1,0 +1,7 @@
+import FrozenTarget_cadf541228649778
+theorem M5.Lift.modulus_multiple : QuantumHarnessFrozenTarget := by
+  change ∀ E N : ℕ, E ∣ N → M5.cyclicModulus E ∣ M5.cyclicModulus N
+  intro E N h
+  rcases h with ⟨k, rfl⟩
+  rw [M5.Lift.cyclic_as_sub, M5.Lift.cyclic_as_sub, pow_mul]
+  exact sub_one_dvd_pow_sub_one ((Polynomial.X : M5.BinaryPolynomial) ^ E) k

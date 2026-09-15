@@ -1,0 +1,8 @@
+theorem M5.Lift.bounded_source_order : ∀ w T E : ℕ, 2 ≤ w → 0 < T → 0 < E → E ≤ 2 ^ (w * T) → ∃ j : ℕ, M5.packingCutoff w T ≤ T + j * E ∧ T + j * E < M5.birthBound w T := by
+  change ∀ w T E : ℕ, 2 ≤ w → 0 < T → 0 < E → E ≤ 2 ^ (w * T) → ∃ j : ℕ, M5.packingCutoff w T ≤ T + j * E ∧ T + j * E < M5.birthBound w T
+  intro w T E hw hT hE hbound
+  have hcut : T < M5.packingCutoff w T := by
+    apply M5.cutoff_gt_period <;> assumption
+  obtain ⟨j, hjlo, hjhi⟩ := M5.Lift.bounded_progression T E (M5.packingCutoff w T) hE hcut
+  refine ⟨j, hjlo, ?_⟩
+  apply M5.source_below_birth_bound <;> omega

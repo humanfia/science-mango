@@ -153,10 +153,10 @@ class RunnerTests(unittest.IsolatedAsyncioTestCase):
                     searched.append(list(queries))
                     return [{'library': lib, 'status': 'ok' if lib == 'Mathlib' or
                              (queries == ['fallback query'] and fallback_ok) else 'unavailable',
-                             'query': queries[0], 'results': []} for lib in ['Mathlib', 'Physlib']]
+                             'query': queries[0], 'results': [{'name': ('original' if queries == ['True'] else 'fallback') + ' ' + lib + ' lemma'}]} for lib in ['Mathlib', 'Physlib']]
 
                 async def propose(*args):
-                    proposed.append(True)
+                    proposed.append(args[1])
                     return {'proof': 'trivial', 'queries': []}
 
                 def checker(spec, proof, project, attempt, timeout):
@@ -187,6 +187,10 @@ class RunnerTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(bool(proposed), fallback_ok)
                 self.assertEqual(bool(compiled), fallback_ok)
                 self.assertEqual(result['experiment_passed'], fallback_ok)
+                if fallback_ok:
+                    self.assertIn('original Mathlib lemma', proposed[0])
+                    self.assertNotIn('fallback Mathlib lemma', proposed[0])
+                    self.assertIn('fallback Physlib lemma', proposed[0])
                 if not fallback_ok:
                     state = json.loads((area / 'out/nodes/state.json').read_text())
                     self.assertEqual(state['nodes']['a']['result']['status'], 'retrieval_unavailable')

@@ -1,0 +1,68 @@
+{
+  "id": "progression_difference",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Lift.progression_difference",
+    "spec_sha256": "9aa62704710c8dad75d8e1f421a0df7f85cec7dca9aca7f44c4a6e44c8e4d6f5",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-_1qhi6qy/attempt-001/Candidate_e081e7648340443a.lean",
+        "target_path": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-_1qhi6qy/attempt-001/FrozenTarget_e081e7648340443a.lean",
+        "feedback": "",
+        "target_sha256": "a12575ae011dde27fc546f1b9eb399077b080efd693800f6c8f3813bcbe3c830",
+        "target_olean_sha256": "f3e0cb0c111a13865f3a0e14106185458bbd99a781685f732e4c316a19c51ea9",
+        "source_sha256": "b5d8f6f49e7ffd340cc8e810d9779e2ae6ca0df63f6fef3bca190dc95134117e",
+        "olean_sha256": "78209f1de99d4a128651397d3cbe593cc6116addb01e179bc0b53ade84a62940",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:12:58.732535+00:00",
+    "work": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-_1qhi6qy",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-formalization/.humanize-formal-runs/run-_1qhi6qy/attempt-001/Candidate_e081e7648340443a.lean",
+    "environment_sha256": "52f13587f0cca4526dad6e25a30ce3de5d97d86bfd7803eec3cddde650f53fe6",
+    "artifacts": {
+      "cyclic_as_sub": {
+        "payload": {
+          "declaration": "theorem M5.Lift.cyclic_as_sub : ∀ N : ℕ, M5.cyclicModulus N = (Polynomial.X : M5.BinaryPolynomial) ^ N - 1 := by\n  change ∀ N : ℕ, M5.cyclicModulus N = (Polynomial.X : M5.BinaryPolynomial) ^ N - 1\n  intro N\n  simp [M5.cyclicModulus, sub_eq_add_neg, CharTwo.neg_eq]",
+          "imports": [
+            "M5Lift"
+          ],
+          "name": "M5.Lift.cyclic_as_sub",
+          "ancestors": [],
+          "spec_sha256": "05b7765c9920df9f01a7c48eb2b7af8b70e3f70a718041bceee87c1607af2e56"
+        },
+        "sha256": "967f1eb5e9590d1a1ed4aba64fe66922bcfee0844901512a3892bd083748aafe"
+      },
+      "progression_difference": {
+        "payload": {
+          "declaration": "theorem M5.Lift.progression_difference : ∀ T E j : ℕ, M5.cyclicModulus (T + j * E) - M5.cyclicModulus T = (Polynomial.X : M5.BinaryPolynomial) ^ T * M5.cyclicModulus (j * E) := by\n  change ∀ T E j : ℕ, M5.cyclicModulus (T + j * E) - M5.cyclicModulus T = (Polynomial.X : M5.BinaryPolynomial) ^ T * M5.cyclicModulus (j * E)\n  intro T E j\n  simp only [M5.Lift.cyclic_as_sub, pow_add]\n  ring",
+          "imports": [
+            "M5Lift"
+          ],
+          "name": "M5.Lift.progression_difference",
+          "ancestors": [
+            "cyclic_as_sub"
+          ],
+          "spec_sha256": "e0090b03750201edd92afb893e141313e01fa7350d94fa8087ea097e4c7625f3"
+        },
+        "sha256": "b589eb37b4e28682520af88ebb667288f5a897ccd7bc7e9326b435c2f59cf384"
+      }
+    }
+  }
+}

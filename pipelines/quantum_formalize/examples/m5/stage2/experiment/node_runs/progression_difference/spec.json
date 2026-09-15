@@ -1,0 +1,12 @@
+{
+  "name": "M5.Lift.progression_difference",
+  "statement": "∀ T E j : ℕ, M5.cyclicModulus (T + j * E) - M5.cyclicModulus T = (Polynomial.X : M5.BinaryPolynomial) ^ T * M5.cyclicModulus (j * E)",
+  "imports": [
+    "M5Lift"
+  ],
+  "context": "theorem M5.Lift.cyclic_as_sub : ∀ N : ℕ, M5.cyclicModulus N = (Polynomial.X : M5.BinaryPolynomial) ^ N - 1 := by\n  change ∀ N : ℕ, M5.cyclicModulus N = (Polynomial.X : M5.BinaryPolynomial) ^ N - 1\n  intro N\n  simp [M5.cyclicModulus, sub_eq_add_neg, CharTwo.neg_eq]",
+  "queries": [
+    "polynomial divisibility"
+  ],
+  "guidance": "Rewrite cyclic_as_sub, pow_add, then ring. Return tactic lines without a leading by. This is a conditional lemma in section 5, not the full M5 theorem."
+}

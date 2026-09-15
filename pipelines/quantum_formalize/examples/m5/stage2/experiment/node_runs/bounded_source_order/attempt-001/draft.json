@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ w T E : ℕ, 2 ≤ w → 0 < T → 0 < E → E ≤ 2 ^ (w * T) → ∃ j : ℕ, M5.packingCutoff w T ≤ T + j * E ∧ T + j * E < M5.birthBound w T\nintro w T E hw hT hE hbound\nhave hcut : T < M5.packingCutoff w T := by\n  apply M5.cutoff_gt_period <;> assumption\nobtain ⟨j, hjlo, hjhi⟩ := M5.Lift.bounded_progression T E (M5.packingCutoff w T) hE hcut\nrefine ⟨j, hjlo, ?_⟩\napply M5.source_below_birth_bound <;> omega",
+  "queries": [
+    "M5.cutoff_gt_period",
+    "M5.source_below_birth_bound"
+  ]
+}

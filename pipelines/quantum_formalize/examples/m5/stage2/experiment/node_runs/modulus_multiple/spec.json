@@ -1,0 +1,12 @@
+{
+  "name": "M5.Lift.modulus_multiple",
+  "statement": "∀ E N : ℕ, E ∣ N → M5.cyclicModulus E ∣ M5.cyclicModulus N",
+  "imports": [
+    "M5Lift"
+  ],
+  "context": "theorem M5.Lift.cyclic_as_sub : ∀ N : ℕ, M5.cyclicModulus N = (Polynomial.X : M5.BinaryPolynomial) ^ N - 1 := by\n  change ∀ N : ℕ, M5.cyclicModulus N = (Polynomial.X : M5.BinaryPolynomial) ^ N - 1\n  intro N\n  simp [M5.cyclicModulus, sub_eq_add_neg, CharTwo.neg_eq]",
+  "queries": [
+    "polynomial divisibility"
+  ],
+  "guidance": "Rewrite using M5.Lift.cyclic_as_sub, then pow_sub_one_dvd_pow_sub_one. No squarefree assumption. Return tactic lines without a leading by. This is a conditional lemma in section 5, not the full M5 theorem."
+}

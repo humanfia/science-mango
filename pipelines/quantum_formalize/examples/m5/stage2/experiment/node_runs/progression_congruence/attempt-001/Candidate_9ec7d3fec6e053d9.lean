@@ -1,0 +1,11 @@
+import FrozenTarget_9ec7d3fec6e053d9
+theorem M5.Lift.progression_congruence : QuantumHarnessFrozenTarget := by
+  change ∀ (G : M5.BinaryPolynomial) (T E j : ℕ), G ∣ M5.cyclicModulus E → G ∣ M5.cyclicModulus (T + j * E) - M5.cyclicModulus T
+  intro G T E j h
+  have hE : E ∣ j * E := ⟨j, Nat.mul_comm j E⟩
+  have hG := dvd_trans h (M5.Lift.modulus_multiple E (j * E) hE)
+  rw [M5.Lift.progression_difference]
+  rcases hG with ⟨k, hk⟩
+  refine ⟨(Polynomial.X : M5.BinaryPolynomial) ^ T * k, ?_⟩
+  rw [hk]
+  ring
