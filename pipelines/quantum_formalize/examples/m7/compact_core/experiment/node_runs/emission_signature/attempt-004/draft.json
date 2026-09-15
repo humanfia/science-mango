@@ -1,0 +1,6 @@
+{
+  "proof": "intro N inst w E bases\nconstructor\n· rfl\n· let c := (M7.CompactGeneration.emission w E bases).leaf\n  change M7.RecipeSignature.signature (M7.CanonicalOuter.canonical c) =\n    M7.SignatureTau.sourceTau (M7.CanonicalOuter.realizer c).unit\n      (M7.RecipeSignature.signature c)\n  have h : M7.Action.act (M7.CanonicalOuter.realizer c) c =\n      M7.CanonicalOuter.canonical c := by\n    first\n    | exact M7.CanonicalOuter.realizer_spec N c\n    | exact M7.CanonicalOuter.realizer_spec c\n    | exact M7.CanonicalOuter.realizer_correct N c\n    | exact M7.CanonicalOuter.realizer_correct c\n    | exact M7.CanonicalOuter.realizer_action N c\n    | exact M7.CanonicalOuter.realizer_action c\n    | exact M7.CanonicalOuter.realizes N c\n    | exact M7.CanonicalOuter.realizes c\n    | unfold M7.CanonicalOuter.realizer\n      exact Classical.choose_spec _\n  rw [← h]\n  exact M7.RecipeSignature.action_signature N c (M7.CanonicalOuter.realizer c)",
+  "queries": [
+    "M7.CanonicalOuter.realizer specification action equals canonical"
+  ]
+}

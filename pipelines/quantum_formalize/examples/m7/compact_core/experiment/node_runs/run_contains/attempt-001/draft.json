@@ -1,0 +1,4 @@
+{
+  "proof": "by\n  classical\n  intro N inst w E bases fuel root\n  induction fuel generalizing bases root with\n  | zero =>\n      change bases ⊆ bases\n      exact fun _ h => h\n  | succ fuel ih =>\n      by_cases h : 0 < root\n      · simp only [M7.CompactGeneration.run, if_pos h]\n        intro c hc\n        exact (ih _ _) (Finset.mem_insert_of_mem hc)\n      · simpa only [M7.CompactGeneration.run, if_neg h] using\n          (show bases ⊆ bases from fun _ hc => hc)",
+  "queries": []
+}

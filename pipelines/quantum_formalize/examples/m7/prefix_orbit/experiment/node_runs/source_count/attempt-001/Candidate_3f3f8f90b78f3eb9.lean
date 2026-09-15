@@ -1,0 +1,22 @@
+import FrozenTarget_3f3f8f90b78f3eb9
+theorem M7.PrefixOrbit.source_count : QuantumHarnessFrozenTarget := by
+  intro N inst w E A B WA WB hbase c hc
+  classical
+  unfold M7.PrefixOrbit.orbitCount
+  rw [(M7.RecipeSignature.source_orbit_quotient N c (fun F => F ∈ E)
+    (M7.PrefixOrbit.Within A WA) (M7.PrefixOrbit.Within B WB)).1]
+  have hvalid : ∀ y ∈ M7.ActualOrbit.orbit c, M7.PrefixOrbit.ClassValid w y := by
+    intro y hy
+    change y ∈ Finset.image (fun g : M7.Action.Record N => M7.Action.act g c) Finset.univ at hy
+    obtain ⟨g, _, rfl⟩ := Finset.mem_image.mp hy
+    exact M7.PrefixOrbit.class_action N w c g hc
+  unfold M7.ActualOrbit.distinctCount
+  apply congrArg Finset.card
+  ext y
+  simp only [Finset.mem_filter]
+  constructor
+  · rintro ⟨hy, hp⟩
+    exact ⟨hy, (M7.PrefixOrbit.membership N w E A B WA WB hbase y).mpr
+      ⟨hvalid y hy, hp⟩⟩
+  · rintro ⟨hy, hp⟩
+    exact ⟨hy, ((M7.PrefixOrbit.membership N w E A B WA WB hbase y).mp hp).2⟩

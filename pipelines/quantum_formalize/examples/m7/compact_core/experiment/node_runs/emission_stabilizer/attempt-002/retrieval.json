@@ -1,0 +1,198 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.ActualOrbit.stabilizerCount positivity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 236126,
+        "name": "MulAction.stabilizer",
+        "module": "Mathlib.GroupTheory.GroupAction.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Defs.lean#L500-L506",
+        "source_text": "/-- The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. -/\n@[to_additive /-- The stabilizer of an element under an action, i.e. what sends the element to\nitself. An additive subgroup. -/]\ndef stabilizer (a : α) : Subgroup G :=\n  { stabilizerSubmonoid G a with\n    inv_mem' := fun {m} (ha : m • a = a) => show m⁻¹ • a = a by rw [inv_smul_eq_iff, ha] }\n",
+        "docstring": "The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. "
+      },
+      {
+        "id": 237042,
+        "name": "SubMulAction.stabilizer_of_subMul",
+        "module": "Mathlib.GroupTheory.GroupAction.SubMulAction",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction.lean#L459-L464",
+        "source_text": "/-- Stabilizers in group SubMulAction coincide with stabilizers in the ambient space -/\n@[to_additive]\ntheorem stabilizer_of_subMul {p : SubMulAction R M} (m : p) :\n    MulAction.stabilizer R m = MulAction.stabilizer R (m : M) := by\n  rw [← Subgroup.toSubmonoid_inj]\n  exact stabilizer_of_subMul.submonoid m\n",
+        "docstring": "Stabilizers in group SubMulAction coincide with stabilizers in the ambient space "
+      },
+      {
+        "id": 235923,
+        "name": "AddAction.stabilizer_orbit_eq",
+        "module": "Mathlib.GroupTheory.GroupAction.Blocks",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Blocks.lean#L550-L552",
+        "source_text": "@[to_additive\n  /-- A subgroup containing the stabilizer of `a`\n  is the stabilizer of the orbit of `a` under that subgroup -/]\ntheorem stabilizer_orbit_eq {a : X} {H : Subgroup G} (hH : stabilizer G a ≤ H) :\n    stabilizer G (orbit H a) = H := by",
+        "docstring": "A subgroup containing the stabilizer of `a`\nis the stabilizer of the orbit of `a` under that subgroup "
+      },
+      {
+        "id": 235922,
+        "name": "MulAction.stabilizer_orbit_eq",
+        "module": "Mathlib.GroupTheory.GroupAction.Blocks",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Blocks.lean#L548-L563",
+        "source_text": "/-- A subgroup containing the stabilizer of `a`\n  is the stabilizer of the orbit of `a` under that subgroup -/\n@[to_additive\n  /-- A subgroup containing the stabilizer of `a`\n  is the stabilizer of the orbit of `a` under that subgroup -/]\ntheorem stabilizer_orbit_eq {a : X} {H : Subgroup G} (hH : stabilizer G a ≤ H) :\n    stabilizer G (orbit H a) = H := by\n  ext g\n  constructor\n  · intro hg\n    obtain ⟨-, ⟨b, rfl⟩, h⟩ := hg.symm ▸ mem_orbit_self a\n    simp_rw [H.toSubmonoid.smul_def, ← mul_smul, ← mem_stabilizer_iff] at h\n    exact (mul_mem_cancel_right b.2).mp (hH h)\n  · intro hg\n    rw [mem_stabilizer_iff, ← Subgroup.coe_mk H g hg, ← Submonoid.smul_def (S := H.toSubmonoid)]\n    apply smul_orbit (G := H)\n",
+        "docstring": "A subgroup containing the stabilizer of `a`\nis the stabilizer of the orbit of `a` under that subgroup "
+      },
+      {
+        "id": 237142,
+        "name": "SubAddAction.mem_fixingAddSubgroup_insert_iff",
+        "module": "Mathlib.GroupTheory.GroupAction.SubMulAction.OfFixingSubgroup",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/SubMulAction/OfFixingSubgroup.lean#L147-L147",
+        "source_text": "@[to_additive]\ntheorem mem_fixingSubgroup_insert_iff {a : α} {s : Set α} {m : M} :\n    m ∈ fixingSubgroup M (insert a s) ↔ m • a = a ∧ m ∈ fixingSubgroup M s := by",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.ActualOrbit.stabilizerCount positivity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387517,
+        "name": "TwoHiggsDoublet.massTermReduced",
+        "module": "Physlib.Particles.BeyondTheStandardModel.TwoHDM.Potential",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/TwoHDM/Potential.lean#L538-L542",
+        "source_text": "/-- A function related to the mass term of the potential, used in the stableness\n  condition and equivalent to the term `J2` in\n  https://arxiv.org/abs/hep-ph/0605184. -/\nnoncomputable def massTermReduced (P : PotentialParameters) (k : EuclideanSpace ℝ (Fin 3)) : ℝ :=\n  P.ξ (Sum.inl 0) + ∑ μ, P.ξ (Sum.inr μ) * k μ\n",
+        "docstring": "A function related to the mass term of the potential, used in the stableness\ncondition and equivalent to the term `J2` in\nhttps://arxiv.org/abs/hep-ph/0605184. "
+      },
+      {
+        "id": 385447,
+        "name": "RigidBody.small_oscillations_about_equilibrium",
+        "module": "Physlib.ClassicalMechanics.RigidBody.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/RigidBody/Basic.lean#L264-L269",
+        "source_text": "/-- Small oscillations about a stable equilibrium orientation are governed by linearised equations\n    obtained by expanding energy to second order in angular displacements. Normal modes and\n    frequencies depend on inertia and restoring torques. -/\ninformal_lemma small_oscillations_about_equilibrium where\n  tag := \"LL32-SO\"\n  deps := [``RigidBody]\n",
+        "docstring": "Small oscillations about a stable equilibrium orientation are governed by linearised equations\nobtained by expanding energy to second order in angular displacements. Normal modes and\nfrequencies depend on inertia and restoring torques. "
+      },
+      {
+        "id": 387509,
+        "name": "TwoHiggsDoublet.massTerm_zero_of_quarticTerm_zero_stabilityCounterExample",
+        "module": "Physlib.Particles.BeyondTheStandardModel.TwoHDM.Potential",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/TwoHDM/Potential.lean#L374-L380",
+        "source_text": "lemma massTerm_zero_of_quarticTerm_zero_stabilityCounterExample (H : TwoHiggsDoublet)\n    (h : quarticTerm .stabilityCounterExample H = 0) :\n    massTerm .stabilityCounterExample H = 0 := by\n  rw [quarticTerm_stabilityCounterExample_eq_norm_pow_four] at h\n  rw [massTerm_stabilityCounterExample]\n  have h1 : H.Φ1 = H.Φ2 := by simpa [sub_eq_zero] using h\n  simp [← Complex.ofReal_pow, h1]\n",
+        "docstring": null
+      },
+      {
+        "id": 387520,
+        "name": "TwoHiggsDoublet.massTermReduced_stabilityCounterExample",
+        "module": "Physlib.Particles.BeyondTheStandardModel.TwoHDM.Potential",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/TwoHDM/Potential.lean#L570-L573",
+        "source_text": "lemma massTermReduced_stabilityCounterExample (k : EuclideanSpace ℝ (Fin 3)) :\n    massTermReduced .stabilityCounterExample k = k 1 := by\n  simp [massTermReduced, PotentialParameters.ξ, Fin.isValue,\n    PotentialParameters.stabilityCounterExample, Fin.sum_univ_three]\n",
+        "docstring": null
+      },
+      {
+        "id": 387500,
+        "name": "TwoHiggsDoublet.massTerm_stabilityCounterExample",
+        "module": "Physlib.Particles.BeyondTheStandardModel.TwoHDM.Potential",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/TwoHDM/Potential.lean#L289-L294",
+        "source_text": "lemma massTerm_stabilityCounterExample (H : TwoHiggsDoublet) :\n    massTerm PotentialParameters.stabilityCounterExample H =\n    2 * (⟪H.Φ1, H.Φ2⟫_ℂ).im := by\n  simp [massTerm, PotentialParameters.stabilityCounterExample]\n  rw [← inner_conj_symm H.Φ2 H.Φ1, Complex.conj_im]\n  ring_nf\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.ActualFactorized stabilizerNumerator positive",
+    "status": "ok",
+    "results": [
+      {
+        "id": 236126,
+        "name": "MulAction.stabilizer",
+        "module": "Mathlib.GroupTheory.GroupAction.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Defs.lean#L500-L506",
+        "source_text": "/-- The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. -/\n@[to_additive /-- The stabilizer of an element under an action, i.e. what sends the element to\nitself. An additive subgroup. -/]\ndef stabilizer (a : α) : Subgroup G :=\n  { stabilizerSubmonoid G a with\n    inv_mem' := fun {m} (ha : m • a = a) => show m⁻¹ • a = a by rw [inv_smul_eq_iff, ha] }\n",
+        "docstring": "The stabilizer of an element under an action, i.e. what sends the element to itself.\nA subgroup. "
+      },
+      {
+        "id": 327281,
+        "name": "Mathlib.Tactic.FieldSimp.DenomCondition",
+        "module": "Mathlib.Tactic.FieldSimp",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/FieldSimp.lean#L247-L253",
+        "source_text": "/-- Constraints on denominators which may need to be considered in `field_simp`: no condition,\nnonzeroness, or strict positivity. -/\ninductive DenomCondition (iM : Q(GroupWithZero $M))\n  | none\n  | nonzero\n  | positive (iM' : Q(PartialOrder $M)) (iM'' : Q(PosMulStrictMono $M))\n      (iM''' : Q(PosMulReflectLT $M)) (iM'''' : Q(ZeroLEOneClass $M))\n",
+        "docstring": "Constraints on denominators which may need to be considered in `field_simp`: no condition,\nnonzeroness, or strict positivity. "
+      },
+      {
+        "id": 135999,
+        "name": "Function.FactorizedRational.divisor",
+        "module": "Mathlib.Analysis.Meromorphic.FactorizedRational",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Meromorphic/FactorizedRational.lean#L173-L180",
+        "source_text": "/--\nIf `D` is a divisor, then the divisor of the factorized rational function equals `D`.\n-/\ntheorem divisor {U : Set 𝕜} {D : locallyFinsuppWithin U ℤ} (hD : D.support.Finite) :\n    MeromorphicOn.divisor (∏ᶠ u, (· - u) ^ D u) U = D := by\n  ext z\n  by_cases hz : z ∈ U\n  <;> simp [(meromorphicNFOn D U).meromorphicOn, hz, meromorphicOrderAt_eq D hD]\n",
+        "docstring": "If `D` is a divisor, then the divisor of the factorized rational function equals `D`.\n"
+      },
+      {
+        "id": 239145,
+        "name": "OreLocalization.numeratorHom",
+        "module": "Mathlib.GroupTheory.OreLocalization.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/OreLocalization/Basic.lean#L473-L480",
+        "source_text": "/-- The multiplicative homomorphism from `R` to `R[S⁻¹]`, mapping `r : R` to the\nfraction `r /ₒ 1`. -/\n@[to_additive /-- The additive homomorphism from `R` to `AddOreLocalization R S`,\n  mapping `r : R` to the difference `r -ₒ 0`. -/]\nabbrev numeratorHom : R →* R[S⁻¹] where\n  toFun r := r /ₒ 1\n  map_one' := by with_unfolding_all rfl\n  map_mul' _ _ := mul_div_one.symm\n",
+        "docstring": "The multiplicative homomorphism from `R` to `R[S⁻¹]`, mapping `r : R` to the\nfraction `r /ₒ 1`. "
+      },
+      {
+        "id": 239143,
+        "name": "OreLocalization.numeratorUnit",
+        "module": "Mathlib.GroupTheory.OreLocalization.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/OreLocalization/Basic.lean#L465-L471",
+        "source_text": "/-- The fraction `s /ₒ 1` as a unit in `R[S⁻¹]`, where `s : S`. -/\n@[to_additive /-- The difference `s -ₒ 0` as an additive unit. -/]\ndef numeratorUnit (s : S) : Units R[S⁻¹] where\n  val := (s : R) /ₒ 1\n  inv := (1 : R) /ₒ s\n  val_inv := OreLocalization.mul_inv s 1\n  inv_val := OreLocalization.mul_inv 1 s\n",
+        "docstring": "The fraction `s /ₒ 1` as a unit in `R[S⁻¹]`, where `s : S`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.ActualFactorized stabilizerNumerator positive",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393866,
+        "name": "CanonicalEnsemble.meanEnergyNumerator",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L380-L384",
+        "source_text": "/-- The numerator in the finite-sum expression of the mean energy as a function of the\ninverse temperature `b = β`,\nnamely `∑ i, E i * exp (-b * E i)` (so that `U(b) = meanEnergyNumerator b / Z(b)`). -/\nnoncomputable def meanEnergyNumerator (b : ℝ) : ℝ :=\n  ∑ i, 𝓒.energy i * Real.exp (-b * 𝓒.energy i)\n",
+        "docstring": "The numerator in the finite-sum expression of the mean energy as a function of the\ninverse temperature `b = β`,\nnamely `∑ i, E i * exp (-b * E i)` (so that `U(b) = meanEnergyNumerator b / Z(b)`). "
+      },
+      {
+        "id": 393869,
+        "name": "CanonicalEnsemble.deriv_meanEnergyNumerator",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L404-L418",
+        "source_text": "lemma deriv_meanEnergyNumerator (b : ℝ) :\n    deriv 𝓒.meanEnergyNumerator b =\n      -∑ i, (𝓒.energy i)^2 * Real.exp (-b * 𝓒.energy i) := by\n  unfold meanEnergyNumerator\n  have hd : ∀ c : ℝ, HasDerivAt (fun x => Real.exp (-x * c)) (-c * Real.exp (-b * c)) b := by\n    intro c\n    have h : HasDerivAt (fun x => -x * c) (-c) b := by\n      simpa using (hasDerivAt_id b).neg.mul_const c\n    simpa [mul_comm] using h.exp\n  have h_sum : HasDerivAt (fun x => ∑ i, 𝓒.energy i * Real.exp (-x * 𝓒.energy i))\n      (∑ i, -(𝓒.energy i)^2 * Real.exp (-b * 𝓒.energy i)) b := by\n    refine HasDerivAt.fun_sum fun i _ => ?_\n    simpa [sq, mul_comm, mul_left_comm, mul_assoc] using\n      (hd (𝓒.energy i)).const_mul (𝓒.energy i)\n  simpa [Finset.sum_neg_distrib, sq, mul_comm, mul_left_comm, mul_assoc] using h_sum.deriv\n",
+        "docstring": null
+      },
+      {
+        "id": 393017,
+        "name": "EuclideanGroup.OriginStabilizer",
+        "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L160-L170",
+        "source_text": "/-- The subgroup of `EuclideanGroup n` whose elements fix the origin\n(translation = 0). This is the copy of `O(n)` sitting inside `E(n)`. -/\ndef OriginStabilizer (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.translation = 0}\n  mul_mem' {a b} ha hb := by\n    show a.translation + a.linear • b.translation = 0\n    rw [ha, hb, smul_zero, zero_add]\n  one_mem' := rfl\n  inv_mem' {a} ha := by\n    show a.linear⁻¹ • (-a.translation) = 0\n    rw [ha, neg_zero, smul_zero]\n",
+        "docstring": "The subgroup of `EuclideanGroup n` whose elements fix the origin\n(translation = 0). This is the copy of `O(n)` sitting inside `E(n)`. "
+      },
+      {
+        "id": 393867,
+        "name": "CanonicalEnsemble.differentiable_meanEnergyNumerator",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L386-L389",
+        "source_text": "lemma differentiable_meanEnergyNumerator :\n    Differentiable ℝ 𝓒.meanEnergyNumerator := by\n  unfold meanEnergyNumerator\n  refine Differentiable.fun_sum ?_; intro i _; apply Differentiable.const_mul; simp\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

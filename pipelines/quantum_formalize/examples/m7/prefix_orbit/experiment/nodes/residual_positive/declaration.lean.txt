@@ -1,0 +1,6 @@
+theorem M7.PrefixOrbit.residual_positive : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → ∀ bases : Finset (M7.Action.Recipe N), (∀ c ∈ bases, M7.PrefixOrbit.ClassValid w c) → M7.CanonicalClasses.Normalized bases → 0 ≤ M7.PrefixOrbit.residual w E A B WA WB bases ∧ (0 < M7.PrefixOrbit.residual w E A B WA WB bases ↔ ∃ y ∈ M7.ResiduePrefix.completed N w E A B WA WB, y ∉ M7.OrbitResidual.covered bases) := by
+  intro N inst w E A B WA WB hE hbase bases hbases hnorm
+  rw [M7.PrefixOrbit.residual_eq N w E A B WA WB hE hbase bases hbases]
+  exact M7.OrbitResidual.nonnegative_positive N
+    (M7.ResiduePrefix.completed N w E A B WA WB) bases
+    (M7.CanonicalClasses.normalized_separated N bases hnorm)

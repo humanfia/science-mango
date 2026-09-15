@@ -2,7 +2,7 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**290 targets in 33 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+**308 targets in 36 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -39,13 +39,20 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [query_certificate](query_certificate/experiment/result.json) | 8 | M7 actual finite query certificate checker |
 | [connectivity](connectivity/experiment/result.json) | 14 | M7 original within-block generated subgroup connectivity bridge |
 | [recovery_prefix](recovery_prefix/experiment/result.json) | 3 | M7 actual residue-prefix geometry for arithmetic recovery |
+| [closed_solve](closed_solve/experiment/result.json) | 1 | Original M7 connected anchored literal recipe receives the sealed actual M6 algorithm contract |
+| [prefix_orbit](prefix_orbit/experiment/result.json) | 9 | M7 actual arithmetic orbit-prefix and residual invariant integration |
+| [compact_core](compact_core/experiment/result.json) | 8 | M7 concrete compact emission records and finite recurrence structure |
 
 Active work:
 
-- `prefix_orbit`: actual arithmetic orbit-prefix residual integration; canonical parents are complete and preflight is running.
-- `recovery_prefix` / `recovery_instance`: actual prefix geometry and arithmetic recovery, fresh insertion and strict decrease.
-- `compact_core`: actual emission records and finite recurrence; eight closed target types are in preflight.
-- Raw structural coverage: extending anchored final coverage to all connected queried raw orbits.
+- `recovery_instance`: seven actual arithmetic recovery/freshness/decrease targets; canonical dependency gate resolved and final import build running.
+- `raw_coverage`: six actual raw-to-anchored coverage targets; dependency gate resolved.
+- `arithmetic_loops`: five bounds on actual arithmetic character-loop indices.
+- `generation_calls`: measured actual generator and original root/child/orbit-count bounds, after accepted compact_core.
+- `query_sectors`: complete finite full-multiplicity sector enumeration for E/all queries.
+- `streaming_indices`: actual finite action cursors and streaming Win predicate.
+- `quality_table`: actual M6 solve labels and single-block locality/radius arrays.
+- `compact_correctness` and `generated_family`: prepared exact downstream integration, gated on complete parent acceptance.
 
 Original remaining integration gates include actual compact residual generation and structural coverage, complete default-query/global-optimum integration, replay and original resource bounds. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 

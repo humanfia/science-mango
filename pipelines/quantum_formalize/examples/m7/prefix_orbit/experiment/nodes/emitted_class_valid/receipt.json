@@ -1,0 +1,111 @@
+{
+  "id": "emitted_class_valid",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.PrefixOrbit.emitted_class_valid",
+    "spec_sha256": "6479decb7e62a4f63a50980801e32cebdfd75dc05d4f9f294c91548cbb21e315",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-prefix-orbit-formalization/.humanize-formal-runs/run-tz9mcfhw/attempt-001/Candidate_6b0a8cf7895ce8a4.lean",
+        "target_path": "/home/jing/m7-lean-prefix-orbit-formalization/.humanize-formal-runs/run-tz9mcfhw/attempt-001/FrozenTarget_6b0a8cf7895ce8a4.lean",
+        "feedback": "",
+        "target_sha256": "9fe400df71e4908d8e4944d21853392cb375acd3bd076dae132a316708105e64",
+        "target_olean_sha256": "7dfad5b7d69d4acf91658fc97abd46d805db0005e0e5c7f8808bb765721fa291",
+        "source_sha256": "b20e3c9ad67dcd7bbd6fab4db9df95d12da9d4c14d1a0c972d8f79a54cfa2007",
+        "olean_sha256": "ed91932f82b471151c8e09d0b02589cfff526c6e72d202fe23a015138cca63a0",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T19:18:02.339656+00:00",
+    "work": "/home/jing/m7-lean-prefix-orbit-formalization/.humanize-formal-runs/run-tz9mcfhw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "3ae6abd08afedf4fa55a87a338ce13094205725724d8e4cfb1ba7b40088ba5d4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-prefix-orbit-formalization/.humanize-formal-runs/run-tz9mcfhw/attempt-001/Candidate_6b0a8cf7895ce8a4.lean",
+    "environment_sha256": "488eea677d3a9e577e522b34016afff64ef1fa2ecda7f709a02636e9d7f0ccd4",
+    "artifacts": {
+      "prefix_anchors": {
+        "payload": {
+          "declaration": "theorem M7.PrefixOrbit.prefix_anchors : ∀ (N : ℕ) [NeZero N], ∀ (A B WA WB : Finset ℕ) (y : M7.Action.Recipe N), M7.PrefixCompleted.Base N A B WA WB → M7.PrefixOrbit.Within A WA y.1 → M7.PrefixOrbit.Within B WB y.2 → (0 : ZMod N) ∈ y.1 ∧ (0 : ZMod N) ∈ y.2 := by\n  intro N inst A B WA WB y hbase hA hB\n  classical\n  have hzero : 0 ∈ A ∧ 0 ∈ B := by\n    unfold M7.PrefixCompleted.Base at hbase\n    tauto\n  have hleft : 0 ∈ M7.ResiduePrefix.encode y.1 := hA.1 hzero.1\n  have hright : 0 ∈ M7.ResiduePrefix.encode y.2 := hB.1 hzero.2\n  constructor\n  · rw [← M7.ResiduePrefix.residue_roundtrip N y.1]\n    unfold M7.ResiduePrefix.decode\n    exact Finset.mem_image.mpr ⟨0, hleft, by simp⟩\n  · rw [← M7.ResiduePrefix.residue_roundtrip N y.2]\n    unfold M7.ResiduePrefix.decode\n    exact Finset.mem_image.mpr ⟨0, hright, by simp⟩",
+          "imports": [
+            "M7PrefixOrbit"
+          ],
+          "name": "M7.PrefixOrbit.prefix_anchors",
+          "ancestors": [],
+          "spec_sha256": "a3d540542b388f347feaa94e81f27e1ef70d142bea4808a52965905392afd6da"
+        },
+        "sha256": "d9f33a540ef9fd4ff72d1e4decc5e94546f0500025bb656bbf9f81cec332813e"
+      },
+      "gcd_bridge": {
+        "payload": {
+          "declaration": "theorem M7.PrefixOrbit.gcd_bridge : ∀ (N : ℕ) [NeZero N], ∀ y : M7.Action.Recipe N, M7.Domain.connectivityGcd y.1 y.2 = M5.Connectivity.supportGcd N (M7.ResiduePrefix.encode y.1) (M7.ResiduePrefix.encode y.2) := by\n  intro N _ y\n  rw [M7.ResiduePrefix.gcd_union]\n  rfl",
+          "imports": [
+            "M7PrefixOrbit"
+          ],
+          "name": "M7.PrefixOrbit.gcd_bridge",
+          "ancestors": [],
+          "spec_sha256": "535bcc674e9fc0e5a21fa9ea3d058914b29f440f8af07e843885971785600efb"
+        },
+        "sha256": "dbd5bcaf80cbb34a53359a0d33a7f9165daa98329563e52df1401625b1f000de"
+      },
+      "membership": {
+        "payload": {
+          "declaration": "theorem M7.PrefixOrbit.membership : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixCompleted.Base N A B WA WB → ∀ y : M7.Action.Recipe N, y ∈ M7.ResiduePrefix.completed N w E A B WA WB ↔ M7.PrefixOrbit.ClassValid w y ∧ M7.RecipeSignature.signature y ∈ E ∧ M7.PrefixOrbit.Within A WA y.1 ∧ M7.PrefixOrbit.Within B WB y.2 := by\n  intro N inst w E A B WA WB hbase y\n  classical\n  have hs : M5.completeSignature\n      (M5.SupportPolynomial.ofSupport (M7.ResiduePrefix.encode y.1))\n      (M5.SupportPolynomial.ofSupport (M7.ResiduePrefix.encode y.2)) N =\n      M7.RecipeSignature.signature y :=\n    M7.ResiduePrefix.signature_bridge N y.1 y.2\n  have hm := M7.ResiduePrefix.completed_membership N w E A B WA WB hbase y\n  simp only [M7.PrefixCompleted.Within, M7.PrefixCompleted.Valid,\n    M7.ResiduePrefix.encodePair, M7.ResiduePrefix.encode_card, hs,\n    ← M7.PrefixOrbit.gcd_bridge N y] at hm\n  constructor\n  · intro hy\n    have hp := hm.mp hy\n    have hA : M7.PrefixOrbit.Within A WA y.1 := by\n      unfold M7.PrefixOrbit.Within\n      tauto\n    have hB : M7.PrefixOrbit.Within B WB y.2 := by\n      unfold M7.PrefixOrbit.Within\n      tauto\n    obtain ⟨ha, hb⟩ := M7.PrefixOrbit.prefix_anchors N A B WA WB y hbase hA hB\n    have hc := M7.Connectivity.anchored_gcd N y.1 y.2 ha hb\n    change M7.Connectivity.connected y ↔ M7.Domain.connectivityGcd y.1 y.2 = 1 at hc\n    unfold M7.PrefixOrbit.ClassValid\n    tauto\n  · intro hy\n    obtain ⟨hv, hs', hA, hB⟩ := hy\n    obtain ⟨ha, hb⟩ := M7.PrefixOrbit.prefix_anchors N A B WA WB y hbase hA hB\n    have hc := M7.Connectivity.anchored_gcd N y.1 y.2 ha hb\n    change M7.Connectivity.connected y ↔ M7.Domain.connectivityGcd y.1 y.2 = 1 at hc\n    unfold M7.PrefixOrbit.ClassValid at hv\n    unfold M7.PrefixOrbit.Within at hA hB\n    apply hm.mpr\n    tauto",
+          "imports": [
+            "M7PrefixOrbit"
+          ],
+          "name": "M7.PrefixOrbit.membership",
+          "ancestors": [
+            "gcd_bridge",
+            "prefix_anchors"
+          ],
+          "spec_sha256": "cb2eb4d767e2ce99804f62bb289c156106f23fad54cc818917b088bf96966469"
+        },
+        "sha256": "ec2ce0e7b04f37914ef1370ee13290b4d223d1bb5412c2351a8cc2028549c721"
+      },
+      "class_action": {
+        "payload": {
+          "declaration": "theorem M7.PrefixOrbit.class_action : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), M7.PrefixOrbit.ClassValid w c → M7.PrefixOrbit.ClassValid w (M7.Action.act g c) := by\n  intro N inst w c g h\n  change c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c at h\n  change (M7.Action.act g c).1.card = w ∧ (M7.Action.act g c).2.card = w ∧ M7.Connectivity.connected (M7.Action.act g c)\n  have hc := (M7.Connectivity.connected_action N g c).mpr h.2.2\n  first\n  | have hcards := M7.Action.support_cards N g c\n  | have hcards := M7.Action.support_cards N c g\n  all_goals\n    aesop",
+          "imports": [
+            "M7PrefixOrbit"
+          ],
+          "name": "M7.PrefixOrbit.class_action",
+          "ancestors": [],
+          "spec_sha256": "17e53c3d1f530fe532971b0592cc0fe4bc6c88fe8db750617cf9a656bc71332f"
+        },
+        "sha256": "065e9ae18aa772f8320f05c0bcb83fbd21b9d92a8eeb6abc3ea667b5f2939704"
+      },
+      "emitted_class_valid": {
+        "payload": {
+          "declaration": "theorem M7.PrefixOrbit.emitted_class_valid : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixCompleted.Base N A B WA WB → ∀ y ∈ M7.ResiduePrefix.completed N w E A B WA WB, M7.PrefixOrbit.ClassValid w (M7.CanonicalOuter.canonical y) := by\n  intro N inst w E A B WA WB hbase y hy\n  classical\n  have hv : M7.PrefixOrbit.ClassValid w y :=\n    ((M7.PrefixOrbit.membership N w E A B WA WB hbase y).mp hy).1\n  have ho : M7.CanonicalOuter.canonical y ∈ M7.ActualOrbit.orbit y :=\n    (M7.CanonicalClasses.orbit_membership N y (M7.CanonicalOuter.canonical y)).mpr\n      (M7.CanonicalClasses.idempotent N y)\n  obtain ⟨g, hg, heq⟩ := Finset.mem_image.mp ho\n  rw [← heq]\n  exact M7.PrefixOrbit.class_action N w y g hv",
+          "imports": [
+            "M7PrefixOrbit"
+          ],
+          "name": "M7.PrefixOrbit.emitted_class_valid",
+          "ancestors": [
+            "class_action",
+            "gcd_bridge",
+            "membership",
+            "prefix_anchors"
+          ],
+          "spec_sha256": "2bd3814d9c76fca9a35dcabe0a1bb98d2970e3d4be512b0316f04925863faa90"
+        },
+        "sha256": "ca7d96222c2440878b78795fa69785cb24478f3d1efd816a172f4dbe5569273c"
+      }
+    }
+  }
+}

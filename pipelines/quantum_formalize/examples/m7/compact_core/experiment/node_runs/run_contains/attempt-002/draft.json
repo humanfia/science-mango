@@ -1,0 +1,4 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nclassical\nintro N inst w E bases fuel root\ninduction fuel generalizing bases root with\n| zero =>\n    simpa only [M7.CompactGeneration.run] using (Finset.Subset.refl bases)\n| succ fuel ih =>\n    by_cases h : 0 < root\n    · simp only [M7.CompactGeneration.run, if_pos h]\n      intro x hx\n      apply ih (insert (M7.CompactGeneration.emission w E bases).representative bases)\n        (M7.CompactGeneration.residual w E\n          (insert (M7.CompactGeneration.emission w E bases).representative bases) [])\n      exact Finset.mem_insert_of_mem hx\n    · simpa only [M7.CompactGeneration.run, if_neg h] using (Finset.Subset.refl bases)",
+  "queries": []
+}

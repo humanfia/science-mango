@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst w E A B WA WB hbase c hc\nclassical\nunfold M7.PrefixOrbit.orbitCount\nrw [(M7.RecipeSignature.source_orbit_quotient N c (fun F => F ∈ E)\n  (M7.PrefixOrbit.Within A WA) (M7.PrefixOrbit.Within B WB)).1]\nhave hvalid : ∀ y ∈ M7.ActualOrbit.orbit c, M7.PrefixOrbit.ClassValid w y := by\n  intro y hy\n  change y ∈ Finset.image (fun g : M7.Action.Record N => M7.Action.act g c) Finset.univ at hy\n  obtain ⟨g, _, rfl⟩ := Finset.mem_image.mp hy\n  exact M7.PrefixOrbit.class_action N w c g hc\nunfold M7.ActualOrbit.distinctCount\napply congrArg Finset.card\next y\nsimp only [Finset.mem_filter]\nconstructor\n· rintro ⟨hy, hp⟩\n  exact ⟨hy, (M7.PrefixOrbit.membership N w E A B WA WB hbase y).mpr\n    ⟨hvalid y hy, hp⟩⟩\n· rintro ⟨hy, hp⟩\n  exact ⟨hy, ((M7.PrefixOrbit.membership N w E A B WA WB hbase y).mp hp).2⟩",
+  "queries": [
+    "M7.ActualOrbit.distinctCount",
+    "M7.ActualOrbit.orbit",
+    "Finset.filter_congr_decidable"
+  ]
+}

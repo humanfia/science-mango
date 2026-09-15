@@ -1,0 +1,61 @@
+{
+  "id": "run_length",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CompactGeneration.run_length",
+    "spec_sha256": "857f150c1825f53353dcd459267aebc21239ee134b74996dfa8b29bac81bec90",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-compact-core-formalization/.humanize-formal-runs/run-wa02hey_/attempt-001/Candidate_85bf9b09ae02abc4.lean:2:72: error: unsolved goals\n⊢ QuantumHarnessFrozenTarget\n/home/jing/m7-lean-compact-core-formalization/.humanize-formal-runs/run-wa02hey_/attempt-001/Candidate_85bf9b09ae02abc4.lean:3:2: error: unexpected token 'by'; expected command\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-compact-core-formalization/.humanize-formal-runs/run-wa02hey_/attempt-002/Candidate_9412b34d211e31a8.lean",
+        "target_path": "/home/jing/m7-lean-compact-core-formalization/.humanize-formal-runs/run-wa02hey_/attempt-002/FrozenTarget_9412b34d211e31a8.lean",
+        "feedback": "",
+        "target_sha256": "d2794a6720ff08c01297eb2c20386b73cd45f7b0066af584256f749e86f7ac8b",
+        "target_olean_sha256": "b5b5d6c3c473b26579b7b066443a5e3980aa386c70cb92329f0199ee669d49ac",
+        "source_sha256": "a97e56a6d334c9642a014075bad0051419e1247544e98807ca1fb80a25a6f3de",
+        "olean_sha256": "451679624b33024a84452f5519b515dd58d55595f231b47ca550220e56dd4675",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T19:27:14.282956+00:00",
+    "work": "/home/jing/m7-lean-compact-core-formalization/.humanize-formal-runs/run-wa02hey_",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "83c8a0fdd3da41a617e1c0abba05f6d9867cbd7d8d8f6a064471fab452fcd2ea",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-compact-core-formalization/.humanize-formal-runs/run-wa02hey_/attempt-002/Candidate_9412b34d211e31a8.lean",
+    "environment_sha256": "d5d05b90a6bf7b6e182c344e730be516e55146767c40f6718eafa72aa34bf4d1",
+    "artifacts": {
+      "run_length": {
+        "payload": {
+          "declaration": "theorem M7.CompactGeneration.run_length : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), ∀ (fuel : ℕ) (root : ℤ), (M7.CompactGeneration.run w E fuel bases root).emitted.length ≤ fuel := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), ∀ (fuel : ℕ) (root : ℤ), (M7.CompactGeneration.run w E fuel bases root).emitted.length ≤ fuel\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst w E bases fuel root\n  classical\n  induction fuel generalizing bases root with\n  | zero =>\n      simp [M7.CompactGeneration.run]\n  | succ fuel ih =>\n      by_cases h : 0 < root\n      · simp only [M7.CompactGeneration.run, if_pos h, List.length_cons]\n        exact Nat.succ_le_succ (ih _ _)\n      · simp [M7.CompactGeneration.run, h]",
+          "imports": [
+            "M7CompactGeneration"
+          ],
+          "name": "M7.CompactGeneration.run_length",
+          "ancestors": [],
+          "spec_sha256": "857f150c1825f53353dcd459267aebc21239ee134b74996dfa8b29bac81bec90"
+        },
+        "sha256": "f42de096a33ca5d4f5831b6ad97745337ecf0f2f1ddeedc5e55d3003c53f9a8a"
+      }
+    }
+  }
+}

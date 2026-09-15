@@ -1,0 +1,5 @@
+# Closed actual M6 recipe bridge
+
+The existing Transport.actual_witness already has no AnswerCorrect premise: it calls accepted M6.Final.answer_correct after proving Admissible. This batch therefore does not repeat witness mathematics. One exact target supplies the entire sealed PointwiseCorrect contract from the original equal-weight anchored subgroup-connected recipe. Its actual polynomial inputs are Supports.polynomial; Transport.distance is definitionally the same M6.Final.quantumDistance. PointwiseCorrect includes the NoLogical branch, minimum X/JZ witnesses, actual solve calls and all original execution/storage bounds. Root can use its existing conjuncts directly.
+
+Canonical M6 seal, Transport and Connectivity receipts/manifests are verified, as is the sealed definition-source manifest. All shared module files must match byte for byte. The one union closure is compiled together, including the three final seal declarations; no accepted source is modified and no free correctness oracle remains.

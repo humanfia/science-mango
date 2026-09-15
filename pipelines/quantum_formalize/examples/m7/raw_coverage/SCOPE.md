@@ -1,0 +1,3 @@
+# Actual raw structural coverage
+
+Six original-scope targets connect positive-weight connected raw recipes to the actual anchored root completion set by independent translations, preserving the full polynomial signature. Given the original stored-class invariant and root remaining set empty, every queried raw recipe has its canonical representative in the stored bases and an actual Action.Record mapping that base back to the raw recipe. Canonical signatures are not required to belong to E. Empty E and N=1 are retained. This module proves neither a new generation recursion nor any distance oracle assumption. PrefixOrbit proof import is explicitly gated until canonical acceptance.

@@ -1,0 +1,9 @@
+# Actual arithmetic recovery instance
+
+The count is exactly PrefixOrbit.residual at the concrete left-then-right PrefixBits state, using original M5 arithmetic total count minus original factorized source orbit counts. GoodBases means actual equal support weight/subgroup-connectedness for every stored value and actual canonical normalization. Semantic remaining sets occur only in correctness theorems, never in the production count.
+
+Seven exact targets identify count/cardinality/toNat/nonnegativity, prove the real child partition and zero-root coverage, and connect one actual DescentTrace.trace plus endpoint to a fresh decoded full leaf. Canonical insertion preserves GoodBases and produces a new value. The actual remaining cardinality and arithmetic root.toNat strictly decrease, furnishing precisely the parent's finite-fuel induction. The canonical signature is not required to lie in E; its selected leaf witnesses the sector.
+
+Recovery generates one path and then uses its endpoint. The production generation module shares that path in a let-binding and does not call a second recover computation or re-evaluate the initial root inside recovery. The checker equality records the exact two-child replay count per step; original production H+1+2mH accounting is handled by the parent on the actual cached-root recurrence. Full path transcripts are optional and their storage is separate from the baseline O(HN) class cache.
+
+The two definition-only adapters used for type preparation contain no proof declarations. DEPENDENCY_GATE and the launch assertion prevent any model execution until prefix_orbit9 and recovery_prefix3 canonical closures are verified and promoted, after which imports/types are recompiled. All other 68 direct parent targets and source environments have already been verified. No assumed complete transversal, count identity, stronger well-founded recursion or runtime-extraction gate is introduced.

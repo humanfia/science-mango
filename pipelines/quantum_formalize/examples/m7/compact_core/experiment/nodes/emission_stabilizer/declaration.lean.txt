@@ -1,0 +1,12 @@
+theorem M7.CompactGeneration.emission_stabilizer : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), 0 < (M7.CompactGeneration.emission w E bases).stabilizer ∧ (M7.CompactGeneration.emission w E bases).stabilizer = M7.ActualOrbit.stabilizerCount (M7.CompactGeneration.emission w E bases).representative := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), 0 < (M7.CompactGeneration.emission w E bases).stabilizer ∧ (M7.CompactGeneration.emission w E bases).stabilizer = M7.ActualOrbit.stabilizerCount (M7.CompactGeneration.emission w E bases).representative
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N inst w E bases
+  change 0 < M7.ActualFactorized.stabilizerNumerator (M7.CompactGeneration.emission w E bases).representative ∧ M7.ActualFactorized.stabilizerNumerator (M7.CompactGeneration.emission w E bases).representative = M7.ActualOrbit.stabilizerCount (M7.CompactGeneration.emission w E bases).representative
+  constructor
+  · rw [M7.ActualFactorized.stabilizer_numerator N]
+    exact?
+  · exact M7.ActualFactorized.stabilizer_numerator N _

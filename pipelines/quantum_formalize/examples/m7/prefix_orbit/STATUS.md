@@ -1,0 +1,1 @@
+Completed: 9/9 exact targets accepted; assembly/environment/experiment true. Canonical `experiment` contains 185 verified files. Seven first-draft and two second-draft live successes; no changed targets or definitions. Downstream consumers have been notified.

@@ -1,0 +1,90 @@
+{
+  "title": "M7 actual arithmetic prefix character-loop cardinality bounds",
+  "nodes": [
+    {
+      "id": "character_card",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ArithmeticLoops.character_card",
+        "statement": "\u2200 D : \u2115, Fintype.card (M5.Character.BinaryVector D) = 2^D",
+        "imports": [
+          "M7ArithmeticLoops"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 section 11 arithmetic-prefix loop cardinality foundations, not the complete operation-cost theorem. characterVisits follows the actual M5 ConditionalCount.completionC guard, sector sum, support-gcd divisor sum, residual-factor powerset and TWO ArithmeticSubset.nSelected character sums. Under ValidSector, all F*prod S are monic so these actual calls enter their character loops. The BinaryVector index is Fin D\u2192ZMod2, so Fintype.card_fun gives 2^D. Reuse accepted M5.FactorProduct.cyclic_cap (in M5Checkpoint90) for F*prodS\u2223cyclicModulus; its residualFactors definition is identical to PolynomialExclusion.residualFactors. For monicity use accepted PolynomialIndicator.residual_factors_regular and monic product, as already used in ConditionalCountAccepted. Degree uses Polynomial.natDegree_le_of_dvd and cyclicModulus=X^N+1 with N>0. For factor_card use (M/F)\u2223M, normalizedFactors multiset monotonicity under divisibility, then toFinset.card; no squarefree or odd-N assumption. supportGcd divides N, use Nat.divisors_subset_of_dvd and Finset.card_le_card. For character_visits split the actual overfull guard, bound each powerset sum by its card*2*2^N, use card_powerset and factor_card, then divisors and sectors. This is only exact character-loop accounting; per-character arithmetic, factorized shift costs and global generator resources remain downstream. Return tactic lines only.\nimport M7ResiduePrefixAccepted\n\nnamespace M7.ArithmeticLoops\nopen scoped BigOperators\nnoncomputable def factorCount (N : \u2115) : \u2115 :=\n  (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\nnoncomputable def divisorCount (N : \u2115) : \u2115 := N.divisors.card\n/-- Actual character-loop repetitions in the two nSelected calls of completionC.\n    ValidSector makes every selected exclusion polynomial monic, so neither call is skipped. -/\nnoncomputable def characterVisits (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B : Finset \u2115) : \u2115 := by\n  classical\n  exact if A.card \u2264 w \u2227 B.card \u2264 w then\n    \u2211 F \u2208 E, \u2211 _d \u2208 (M5.Connectivity.supportGcd N A B).divisors,\n      \u2211 S \u2208 (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n        2 * Fintype.card (M5.Character.BinaryVector (F * (\u220f p \u2208 S, p)).natDegree)\n    else 0\nend M7.ArithmeticLoops\n"
+      }
+    },
+    {
+      "id": "exclusion_cap",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ArithmeticLoops.exclusion_cap",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 (F : M5.BinaryPolynomial) (S : Finset M5.BinaryPolynomial), F.Monic \u2192 F \u2223 M5.cyclicModulus N \u2192 S \u2286 M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F \u2192 (F * (\u220f p \u2208 S, p)).Monic \u2227 (F * (\u220f p \u2208 S, p)).natDegree \u2264 N",
+        "imports": [
+          "M7ArithmeticLoops"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 section 11 arithmetic-prefix loop cardinality foundations, not the complete operation-cost theorem. characterVisits follows the actual M5 ConditionalCount.completionC guard, sector sum, support-gcd divisor sum, residual-factor powerset and TWO ArithmeticSubset.nSelected character sums. Under ValidSector, all F*prod S are monic so these actual calls enter their character loops. The BinaryVector index is Fin D\u2192ZMod2, so Fintype.card_fun gives 2^D. Reuse accepted M5.FactorProduct.cyclic_cap (in M5Checkpoint90) for F*prodS\u2223cyclicModulus; its residualFactors definition is identical to PolynomialExclusion.residualFactors. For monicity use accepted PolynomialIndicator.residual_factors_regular and monic product, as already used in ConditionalCountAccepted. Degree uses Polynomial.natDegree_le_of_dvd and cyclicModulus=X^N+1 with N>0. For factor_card use (M/F)\u2223M, normalizedFactors multiset monotonicity under divisibility, then toFinset.card; no squarefree or odd-N assumption. supportGcd divides N, use Nat.divisors_subset_of_dvd and Finset.card_le_card. For character_visits split the actual overfull guard, bound each powerset sum by its card*2*2^N, use card_powerset and factor_card, then divisors and sectors. This is only exact character-loop accounting; per-character arithmetic, factorized shift costs and global generator resources remain downstream. Return tactic lines only.\nimport M7ResiduePrefixAccepted\n\nnamespace M7.ArithmeticLoops\nopen scoped BigOperators\nnoncomputable def factorCount (N : \u2115) : \u2115 :=\n  (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\nnoncomputable def divisorCount (N : \u2115) : \u2115 := N.divisors.card\n/-- Actual character-loop repetitions in the two nSelected calls of completionC.\n    ValidSector makes every selected exclusion polynomial monic, so neither call is skipped. -/\nnoncomputable def characterVisits (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B : Finset \u2115) : \u2115 := by\n  classical\n  exact if A.card \u2264 w \u2227 B.card \u2264 w then\n    \u2211 F \u2208 E, \u2211 _d \u2208 (M5.Connectivity.supportGcd N A B).divisors,\n      \u2211 S \u2208 (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n        2 * Fintype.card (M5.Character.BinaryVector (F * (\u220f p \u2208 S, p)).natDegree)\n    else 0\nend M7.ArithmeticLoops\n"
+      }
+    },
+    {
+      "id": "factor_card",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ArithmeticLoops.factor_card",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 F : M5.BinaryPolynomial, F.Monic \u2192 F \u2223 M5.cyclicModulus N \u2192 (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).card \u2264 M7.ArithmeticLoops.factorCount N",
+        "imports": [
+          "M7ArithmeticLoops"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 section 11 arithmetic-prefix loop cardinality foundations, not the complete operation-cost theorem. characterVisits follows the actual M5 ConditionalCount.completionC guard, sector sum, support-gcd divisor sum, residual-factor powerset and TWO ArithmeticSubset.nSelected character sums. Under ValidSector, all F*prod S are monic so these actual calls enter their character loops. The BinaryVector index is Fin D\u2192ZMod2, so Fintype.card_fun gives 2^D. Reuse accepted M5.FactorProduct.cyclic_cap (in M5Checkpoint90) for F*prodS\u2223cyclicModulus; its residualFactors definition is identical to PolynomialExclusion.residualFactors. For monicity use accepted PolynomialIndicator.residual_factors_regular and monic product, as already used in ConditionalCountAccepted. Degree uses Polynomial.natDegree_le_of_dvd and cyclicModulus=X^N+1 with N>0. For factor_card use (M/F)\u2223M, normalizedFactors multiset monotonicity under divisibility, then toFinset.card; no squarefree or odd-N assumption. supportGcd divides N, use Nat.divisors_subset_of_dvd and Finset.card_le_card. For character_visits split the actual overfull guard, bound each powerset sum by its card*2*2^N, use card_powerset and factor_card, then divisors and sectors. This is only exact character-loop accounting; per-character arithmetic, factorized shift costs and global generator resources remain downstream. Return tactic lines only.\nimport M7ResiduePrefixAccepted\n\nnamespace M7.ArithmeticLoops\nopen scoped BigOperators\nnoncomputable def factorCount (N : \u2115) : \u2115 :=\n  (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\nnoncomputable def divisorCount (N : \u2115) : \u2115 := N.divisors.card\n/-- Actual character-loop repetitions in the two nSelected calls of completionC.\n    ValidSector makes every selected exclusion polynomial monic, so neither call is skipped. -/\nnoncomputable def characterVisits (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B : Finset \u2115) : \u2115 := by\n  classical\n  exact if A.card \u2264 w \u2227 B.card \u2264 w then\n    \u2211 F \u2208 E, \u2211 _d \u2208 (M5.Connectivity.supportGcd N A B).divisors,\n      \u2211 S \u2208 (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n        2 * Fintype.card (M5.Character.BinaryVector (F * (\u220f p \u2208 S, p)).natDegree)\n    else 0\nend M7.ArithmeticLoops\n"
+      }
+    },
+    {
+      "id": "divisor_card",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.ArithmeticLoops.divisor_card",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 A B : Finset \u2115, (M5.Connectivity.supportGcd N A B).divisors.card \u2264 M7.ArithmeticLoops.divisorCount N",
+        "imports": [
+          "M7ArithmeticLoops"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 section 11 arithmetic-prefix loop cardinality foundations, not the complete operation-cost theorem. characterVisits follows the actual M5 ConditionalCount.completionC guard, sector sum, support-gcd divisor sum, residual-factor powerset and TWO ArithmeticSubset.nSelected character sums. Under ValidSector, all F*prod S are monic so these actual calls enter their character loops. The BinaryVector index is Fin D\u2192ZMod2, so Fintype.card_fun gives 2^D. Reuse accepted M5.FactorProduct.cyclic_cap (in M5Checkpoint90) for F*prodS\u2223cyclicModulus; its residualFactors definition is identical to PolynomialExclusion.residualFactors. For monicity use accepted PolynomialIndicator.residual_factors_regular and monic product, as already used in ConditionalCountAccepted. Degree uses Polynomial.natDegree_le_of_dvd and cyclicModulus=X^N+1 with N>0. For factor_card use (M/F)\u2223M, normalizedFactors multiset monotonicity under divisibility, then toFinset.card; no squarefree or odd-N assumption. supportGcd divides N, use Nat.divisors_subset_of_dvd and Finset.card_le_card. For character_visits split the actual overfull guard, bound each powerset sum by its card*2*2^N, use card_powerset and factor_card, then divisors and sectors. This is only exact character-loop accounting; per-character arithmetic, factorized shift costs and global generator resources remain downstream. Return tactic lines only.\nimport M7ResiduePrefixAccepted\n\nnamespace M7.ArithmeticLoops\nopen scoped BigOperators\nnoncomputable def factorCount (N : \u2115) : \u2115 :=\n  (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\nnoncomputable def divisorCount (N : \u2115) : \u2115 := N.divisors.card\n/-- Actual character-loop repetitions in the two nSelected calls of completionC.\n    ValidSector makes every selected exclusion polynomial monic, so neither call is skipped. -/\nnoncomputable def characterVisits (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B : Finset \u2115) : \u2115 := by\n  classical\n  exact if A.card \u2264 w \u2227 B.card \u2264 w then\n    \u2211 F \u2208 E, \u2211 _d \u2208 (M5.Connectivity.supportGcd N A B).divisors,\n      \u2211 S \u2208 (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n        2 * Fintype.card (M5.Character.BinaryVector (F * (\u220f p \u2208 S, p)).natDegree)\n    else 0\nend M7.ArithmeticLoops\n"
+      }
+    },
+    {
+      "id": "character_visits",
+      "dependencies": [
+        "character_card",
+        "exclusion_cap",
+        "factor_card",
+        "divisor_card"
+      ],
+      "spec": {
+        "name": "M7.ArithmeticLoops.character_visits",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 (w : \u2115) (E : Finset M5.BinaryPolynomial) (A B : Finset \u2115), M7.PrefixSector.ValidSector N E \u2192 M7.ArithmeticLoops.characterVisits N w E A B \u2264 2 * E.card * M7.ArithmeticLoops.divisorCount N * 2^(M7.ArithmeticLoops.factorCount N + N)",
+        "imports": [
+          "M7ArithmeticLoops"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M7 section 11 arithmetic-prefix loop cardinality foundations, not the complete operation-cost theorem. characterVisits follows the actual M5 ConditionalCount.completionC guard, sector sum, support-gcd divisor sum, residual-factor powerset and TWO ArithmeticSubset.nSelected character sums. Under ValidSector, all F*prod S are monic so these actual calls enter their character loops. The BinaryVector index is Fin D\u2192ZMod2, so Fintype.card_fun gives 2^D. Reuse accepted M5.FactorProduct.cyclic_cap (in M5Checkpoint90) for F*prodS\u2223cyclicModulus; its residualFactors definition is identical to PolynomialExclusion.residualFactors. For monicity use accepted PolynomialIndicator.residual_factors_regular and monic product, as already used in ConditionalCountAccepted. Degree uses Polynomial.natDegree_le_of_dvd and cyclicModulus=X^N+1 with N>0. For factor_card use (M/F)\u2223M, normalizedFactors multiset monotonicity under divisibility, then toFinset.card; no squarefree or odd-N assumption. supportGcd divides N, use Nat.divisors_subset_of_dvd and Finset.card_le_card. For character_visits split the actual overfull guard, bound each powerset sum by its card*2*2^N, use card_powerset and factor_card, then divisors and sectors. This is only exact character-loop accounting; per-character arithmetic, factorized shift costs and global generator resources remain downstream. Return tactic lines only.\nimport M7ResiduePrefixAccepted\n\nnamespace M7.ArithmeticLoops\nopen scoped BigOperators\nnoncomputable def factorCount (N : \u2115) : \u2115 :=\n  (UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N)).toFinset.card\nnoncomputable def divisorCount (N : \u2115) : \u2115 := N.divisors.card\n/-- Actual character-loop repetitions in the two nSelected calls of completionC.\n    ValidSector makes every selected exclusion polynomial monic, so neither call is skipped. -/\nnoncomputable def characterVisits (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B : Finset \u2115) : \u2115 := by\n  classical\n  exact if A.card \u2264 w \u2227 B.card \u2264 w then\n    \u2211 F \u2208 E, \u2211 _d \u2208 (M5.Connectivity.supportGcd N A B).divisors,\n      \u2211 S \u2208 (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F).powerset,\n        2 * Fintype.card (M5.Character.BinaryVector (F * (\u220f p \u2208 S, p)).natDegree)\n    else 0\nend M7.ArithmeticLoops\n"
+      }
+    }
+  ]
+}

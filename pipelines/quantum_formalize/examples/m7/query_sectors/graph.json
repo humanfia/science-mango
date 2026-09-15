@@ -1,0 +1,125 @@
+{
+  "title": "M7 concrete complete query signature sectors",
+  "source": "/home/jing/quantum_code_discovery_proof/research_checkpoints/m7_compact_selector_final_20260915/PROOF.md",
+  "source_sha256": "8ad32a3432f4b7fd3ad15aa4467e0f01255ce593ac9e474b1af38c9424addf19",
+  "scope": "Concrete finite monic divisor enumeration with multiplicities, exact none/all versus some E query semantics. No free sector oracle or squarefree assumption.",
+  "nodes": [
+    {
+      "id": "all_sound",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QuerySectors.all_sound",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F ∈ M7.QuerySectors.allSectors N → F.Monic ∧ F ∣ M6.Cyclic.modulus N",
+        "imports": [
+          "M7QuerySectors"
+        ],
+        "context": "",
+        "queries": [
+          "normalizedFactors Multiset powerset polynomial monic divisors"
+        ],
+        "guidance": "Use Multiset.mem_powerset iff multiset <=, product divisibility and normalizedFactors product. Over ZMod 2 every nonzero polynomial is monic (accepted SignatureTau.binary_monic); factor product is nonzero. M7.SignatureTau.modulus_monic N provides modulus nonzero. Return tactic lines only, without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ],
+        "source_section": "M7 original E/all signature query semantics"
+      }
+    },
+    {
+      "id": "all_complete",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QuerySectors.all_complete",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F.Monic → F ∣ M6.Cyclic.modulus N → F ∈ M7.QuerySectors.allSectors N",
+        "imports": [
+          "M7QuerySectors"
+        ],
+        "context": "",
+        "queries": [
+          "normalizedFactors Multiset powerset polynomial monic divisors"
+        ],
+        "guidance": "Choose normalizedFactors F as a submultiset via dvd_iff_normalizedFactors_le_normalizedFactors. Polynomial.leadingCoeff_mul_prod_normalizedFactors and F.Monic identify its product with F. Preserve repeated factors; never replace factor multiset with a Finset before powerset. Return tactic lines only, without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ],
+        "source_section": "M7 original E/all signature query semantics"
+      }
+    },
+    {
+      "id": "all_membership",
+      "dependencies": [
+        "all_sound",
+        "all_complete"
+      ],
+      "spec": {
+        "name": "M7.QuerySectors.all_membership",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (F : M6.Cyclic.BinaryPolynomial), F ∈ M7.QuerySectors.allSectors N ↔ F.Monic ∧ F ∣ M6.Cyclic.modulus N",
+        "imports": [
+          "M7QuerySectors"
+        ],
+        "context": "",
+        "queries": [
+          "normalizedFactors Multiset powerset polynomial monic divisors"
+        ],
+        "guidance": "Combine exact soundness and completeness. Return tactic lines only, without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ],
+        "source_section": "M7 original E/all signature query semantics"
+      }
+    },
+    {
+      "id": "effective_valid",
+      "dependencies": [
+        "all_membership"
+      ],
+      "spec": {
+        "name": "M7.QuerySectors.effective_valid",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ q : M7.DefaultQuery.Query, M7.DefaultQuery.valid N q → M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q)",
+        "imports": [
+          "M7QuerySectors"
+        ],
+        "context": "",
+        "queries": [
+          "normalizedFactors Multiset powerset polynomial monic divisors"
+        ],
+        "guidance": "Split q.signatures. none uses all_membership; some retains the exact supplied set. M5.cyclicModulus and M6.Cyclic.modulus are definitionally the same binary polynomial. Return tactic lines only, without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ],
+        "source_section": "M7 original E/all signature query semantics"
+      }
+    },
+    {
+      "id": "signature_allowed",
+      "dependencies": [
+        "all_membership"
+      ],
+      "spec": {
+        "name": "M7.QuerySectors.signature_allowed",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (q : M7.DefaultQuery.Query) (c : M7.Action.Recipe N), M7.DefaultQuery.signature c ∈ M7.QuerySectors.effective N q ↔ M7.DefaultQuery.allows q (M7.DefaultQuery.signature c)",
+        "imports": [
+          "M7QuerySectors"
+        ],
+        "context": "",
+        "queries": [
+          "normalizedFactors Multiset powerset polynomial monic divisors"
+        ],
+        "guidance": "Split q.signatures. none uses the accepted actual RecipeSignature.signature_properties N c, whose full signature agrees with DefaultQuery.signature by unfolding. some is reflexive. No validity premise needed for this exact membership equivalence. Return tactic lines only, without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ],
+        "source_section": "M7 original E/all signature query semantics"
+      }
+    }
+  ]
+}

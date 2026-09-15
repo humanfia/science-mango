@@ -1,0 +1,9 @@
+theorem M7.CompactGeneration.emission_trace : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.DescentTrace.check (M7.CompactGeneration.residual w E bases) [] (M7.CompactGeneration.emission w E bases).path = (true, 2 * M7.PrefixBits.depth N) := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.DescentTrace.check (M7.CompactGeneration.residual w E bases) [] (M7.CompactGeneration.emission w E bases).path = (true, 2 * M7.PrefixBits.depth N)
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N inst w E bases
+  change M7.DescentTrace.check (M7.CompactGeneration.residual w E bases) [] (M7.DescentTrace.trace (M7.CompactGeneration.residual w E bases) [] (M7.PrefixBits.depth N)) = (true, 2 * M7.PrefixBits.depth N)
+  exact M7.DescentTrace.check_trace (M7.CompactGeneration.residual w E bases) [] (M7.PrefixBits.depth N)

@@ -1,0 +1,164 @@
+{
+  "title": "M7 actual arithmetic orbit-prefix and residual invariant integration",
+  "nodes": [
+    {
+      "id": "prefix_anchors",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixOrbit.prefix_anchors",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (A B WA WB : Finset ℕ) (y : M7.Action.Recipe N), M7.PrefixCompleted.Base N A B WA WB → M7.PrefixOrbit.Within A WA y.1 → M7.PrefixOrbit.Within B WB y.2 → (0 : ZMod N) ∈ y.1 ∧ (0 : ZMod N) ∈ y.2",
+        "imports": [
+          "M7PrefixOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This instantiates original M7 arithmetic orbit-prefix subtraction with concrete supports and exact original counts. No free TranslationInvariant, complete transversal or count oracle remains in these target interfaces. Prefix anchors come from Base's selected zero and Within/encode; residue_roundtrip converts membership. gcd_bridge is the accepted ResiduePrefix.gcd_union with Domain's literal gcd union. Membership uses ResiduePrefix.completed_membership, encode_card, signature_bridge and Connectivity.anchored_gcd after prefix_anchors. ClassValid is equal weight plus the unique actual subgroup-connected predicate; preserve it with Action.support_cards and Connectivity.connected_action. source_count uses accepted RecipeSignature.source_orbit_quotient. On each actual orbit image, ClassValid follows by class_action, so the actual source sector/left/right predicate equals completed-set membership. Use Finset.filter_congr for predicate equality; align classical DecidablePred explicitly or Finset.filter_congr_decidable if needed. residual_eq uses accepted ResiduePrefix.count_completed and source_count termwise. Normalized stored values discharge Separated via CanonicalClasses.normalized_separated, giving remaining-cardinality/nonnegative-positive through the accepted OrbitResidual identities. A canonical emitted signature need not belong to E: only ClassValid is preserved by the actual realizer. All full multiplicities, even N, N=1 and empty E stay included. Return tactic lines only.\nimport M7ResiduePrefixAccepted\nimport M7RecipeSignatureAccepted\nimport M7ConnectivityAccepted\nimport M7CanonicalClassesAccepted\nimport M7OrbitResidualAccepted\n\nnamespace M7.PrefixOrbit\nopen scoped BigOperators\ndef Within {N : ℕ} (D W : Finset ℕ) (S : Finset (ZMod N)) : Prop :=\n  D ⊆ M7.ResiduePrefix.encode S ∧ M7.ResiduePrefix.encode S ⊆ D ∪ W\ndef ClassValid {N : ℕ} (w : ℕ) (c : M7.Action.Recipe N) : Prop :=\n  c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c\nnoncomputable def orbitCount {N : ℕ} [NeZero N] (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (c : M7.Action.Recipe N) : ℕ :=\n  M7.RecipeSignature.sourceCount c (fun F => F ∈ E) (Within A WA) (Within B WB)\nnoncomputable def residual {N : ℕ} [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (bases : Finset (M7.Action.Recipe N)) : ℤ :=\n  M7.PrefixSector.count N w E A B WA WB - ∑ c ∈ bases, (orbitCount E A B WA WB c : ℤ)\nend M7.PrefixOrbit\n"
+      }
+    },
+    {
+      "id": "gcd_bridge",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixOrbit.gcd_bridge",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ y : M7.Action.Recipe N, M7.Domain.connectivityGcd y.1 y.2 = M5.Connectivity.supportGcd N (M7.ResiduePrefix.encode y.1) (M7.ResiduePrefix.encode y.2)",
+        "imports": [
+          "M7PrefixOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This instantiates original M7 arithmetic orbit-prefix subtraction with concrete supports and exact original counts. No free TranslationInvariant, complete transversal or count oracle remains in these target interfaces. Prefix anchors come from Base's selected zero and Within/encode; residue_roundtrip converts membership. gcd_bridge is the accepted ResiduePrefix.gcd_union with Domain's literal gcd union. Membership uses ResiduePrefix.completed_membership, encode_card, signature_bridge and Connectivity.anchored_gcd after prefix_anchors. ClassValid is equal weight plus the unique actual subgroup-connected predicate; preserve it with Action.support_cards and Connectivity.connected_action. source_count uses accepted RecipeSignature.source_orbit_quotient. On each actual orbit image, ClassValid follows by class_action, so the actual source sector/left/right predicate equals completed-set membership. Use Finset.filter_congr for predicate equality; align classical DecidablePred explicitly or Finset.filter_congr_decidable if needed. residual_eq uses accepted ResiduePrefix.count_completed and source_count termwise. Normalized stored values discharge Separated via CanonicalClasses.normalized_separated, giving remaining-cardinality/nonnegative-positive through the accepted OrbitResidual identities. A canonical emitted signature need not belong to E: only ClassValid is preserved by the actual realizer. All full multiplicities, even N, N=1 and empty E stay included. Return tactic lines only.\nimport M7ResiduePrefixAccepted\nimport M7RecipeSignatureAccepted\nimport M7ConnectivityAccepted\nimport M7CanonicalClassesAccepted\nimport M7OrbitResidualAccepted\n\nnamespace M7.PrefixOrbit\nopen scoped BigOperators\ndef Within {N : ℕ} (D W : Finset ℕ) (S : Finset (ZMod N)) : Prop :=\n  D ⊆ M7.ResiduePrefix.encode S ∧ M7.ResiduePrefix.encode S ⊆ D ∪ W\ndef ClassValid {N : ℕ} (w : ℕ) (c : M7.Action.Recipe N) : Prop :=\n  c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c\nnoncomputable def orbitCount {N : ℕ} [NeZero N] (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (c : M7.Action.Recipe N) : ℕ :=\n  M7.RecipeSignature.sourceCount c (fun F => F ∈ E) (Within A WA) (Within B WB)\nnoncomputable def residual {N : ℕ} [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (bases : Finset (M7.Action.Recipe N)) : ℤ :=\n  M7.PrefixSector.count N w E A B WA WB - ∑ c ∈ bases, (orbitCount E A B WA WB c : ℤ)\nend M7.PrefixOrbit\n"
+      }
+    },
+    {
+      "id": "membership",
+      "dependencies": [
+        "prefix_anchors",
+        "gcd_bridge"
+      ],
+      "spec": {
+        "name": "M7.PrefixOrbit.membership",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixCompleted.Base N A B WA WB → ∀ y : M7.Action.Recipe N, y ∈ M7.ResiduePrefix.completed N w E A B WA WB ↔ M7.PrefixOrbit.ClassValid w y ∧ M7.RecipeSignature.signature y ∈ E ∧ M7.PrefixOrbit.Within A WA y.1 ∧ M7.PrefixOrbit.Within B WB y.2",
+        "imports": [
+          "M7PrefixOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This instantiates original M7 arithmetic orbit-prefix subtraction with concrete supports and exact original counts. No free TranslationInvariant, complete transversal or count oracle remains in these target interfaces. Prefix anchors come from Base's selected zero and Within/encode; residue_roundtrip converts membership. gcd_bridge is the accepted ResiduePrefix.gcd_union with Domain's literal gcd union. Membership uses ResiduePrefix.completed_membership, encode_card, signature_bridge and Connectivity.anchored_gcd after prefix_anchors. ClassValid is equal weight plus the unique actual subgroup-connected predicate; preserve it with Action.support_cards and Connectivity.connected_action. source_count uses accepted RecipeSignature.source_orbit_quotient. On each actual orbit image, ClassValid follows by class_action, so the actual source sector/left/right predicate equals completed-set membership. Use Finset.filter_congr for predicate equality; align classical DecidablePred explicitly or Finset.filter_congr_decidable if needed. residual_eq uses accepted ResiduePrefix.count_completed and source_count termwise. Normalized stored values discharge Separated via CanonicalClasses.normalized_separated, giving remaining-cardinality/nonnegative-positive through the accepted OrbitResidual identities. A canonical emitted signature need not belong to E: only ClassValid is preserved by the actual realizer. All full multiplicities, even N, N=1 and empty E stay included. Return tactic lines only.\nimport M7ResiduePrefixAccepted\nimport M7RecipeSignatureAccepted\nimport M7ConnectivityAccepted\nimport M7CanonicalClassesAccepted\nimport M7OrbitResidualAccepted\n\nnamespace M7.PrefixOrbit\nopen scoped BigOperators\ndef Within {N : ℕ} (D W : Finset ℕ) (S : Finset (ZMod N)) : Prop :=\n  D ⊆ M7.ResiduePrefix.encode S ∧ M7.ResiduePrefix.encode S ⊆ D ∪ W\ndef ClassValid {N : ℕ} (w : ℕ) (c : M7.Action.Recipe N) : Prop :=\n  c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c\nnoncomputable def orbitCount {N : ℕ} [NeZero N] (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (c : M7.Action.Recipe N) : ℕ :=\n  M7.RecipeSignature.sourceCount c (fun F => F ∈ E) (Within A WA) (Within B WB)\nnoncomputable def residual {N : ℕ} [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (bases : Finset (M7.Action.Recipe N)) : ℤ :=\n  M7.PrefixSector.count N w E A B WA WB - ∑ c ∈ bases, (orbitCount E A B WA WB c : ℤ)\nend M7.PrefixOrbit\n"
+      }
+    },
+    {
+      "id": "class_action",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixOrbit.class_action",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), M7.PrefixOrbit.ClassValid w c → M7.PrefixOrbit.ClassValid w (M7.Action.act g c)",
+        "imports": [
+          "M7PrefixOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This instantiates original M7 arithmetic orbit-prefix subtraction with concrete supports and exact original counts. No free TranslationInvariant, complete transversal or count oracle remains in these target interfaces. Prefix anchors come from Base's selected zero and Within/encode; residue_roundtrip converts membership. gcd_bridge is the accepted ResiduePrefix.gcd_union with Domain's literal gcd union. Membership uses ResiduePrefix.completed_membership, encode_card, signature_bridge and Connectivity.anchored_gcd after prefix_anchors. ClassValid is equal weight plus the unique actual subgroup-connected predicate; preserve it with Action.support_cards and Connectivity.connected_action. source_count uses accepted RecipeSignature.source_orbit_quotient. On each actual orbit image, ClassValid follows by class_action, so the actual source sector/left/right predicate equals completed-set membership. Use Finset.filter_congr for predicate equality; align classical DecidablePred explicitly or Finset.filter_congr_decidable if needed. residual_eq uses accepted ResiduePrefix.count_completed and source_count termwise. Normalized stored values discharge Separated via CanonicalClasses.normalized_separated, giving remaining-cardinality/nonnegative-positive through the accepted OrbitResidual identities. A canonical emitted signature need not belong to E: only ClassValid is preserved by the actual realizer. All full multiplicities, even N, N=1 and empty E stay included. Return tactic lines only.\nimport M7ResiduePrefixAccepted\nimport M7RecipeSignatureAccepted\nimport M7ConnectivityAccepted\nimport M7CanonicalClassesAccepted\nimport M7OrbitResidualAccepted\n\nnamespace M7.PrefixOrbit\nopen scoped BigOperators\ndef Within {N : ℕ} (D W : Finset ℕ) (S : Finset (ZMod N)) : Prop :=\n  D ⊆ M7.ResiduePrefix.encode S ∧ M7.ResiduePrefix.encode S ⊆ D ∪ W\ndef ClassValid {N : ℕ} (w : ℕ) (c : M7.Action.Recipe N) : Prop :=\n  c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c\nnoncomputable def orbitCount {N : ℕ} [NeZero N] (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (c : M7.Action.Recipe N) : ℕ :=\n  M7.RecipeSignature.sourceCount c (fun F => F ∈ E) (Within A WA) (Within B WB)\nnoncomputable def residual {N : ℕ} [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (bases : Finset (M7.Action.Recipe N)) : ℤ :=\n  M7.PrefixSector.count N w E A B WA WB - ∑ c ∈ bases, (orbitCount E A B WA WB c : ℤ)\nend M7.PrefixOrbit\n"
+      }
+    },
+    {
+      "id": "source_count",
+      "dependencies": [
+        "membership",
+        "class_action"
+      ],
+      "spec": {
+        "name": "M7.PrefixOrbit.source_count",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixCompleted.Base N A B WA WB → ∀ c : M7.Action.Recipe N, M7.PrefixOrbit.ClassValid w c → M7.PrefixOrbit.orbitCount E A B WA WB c = M7.ActualOrbit.distinctCount c (fun y => y ∈ M7.ResiduePrefix.completed N w E A B WA WB)",
+        "imports": [
+          "M7PrefixOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This instantiates original M7 arithmetic orbit-prefix subtraction with concrete supports and exact original counts. No free TranslationInvariant, complete transversal or count oracle remains in these target interfaces. Prefix anchors come from Base's selected zero and Within/encode; residue_roundtrip converts membership. gcd_bridge is the accepted ResiduePrefix.gcd_union with Domain's literal gcd union. Membership uses ResiduePrefix.completed_membership, encode_card, signature_bridge and Connectivity.anchored_gcd after prefix_anchors. ClassValid is equal weight plus the unique actual subgroup-connected predicate; preserve it with Action.support_cards and Connectivity.connected_action. source_count uses accepted RecipeSignature.source_orbit_quotient. On each actual orbit image, ClassValid follows by class_action, so the actual source sector/left/right predicate equals completed-set membership. Use Finset.filter_congr for predicate equality; align classical DecidablePred explicitly or Finset.filter_congr_decidable if needed. residual_eq uses accepted ResiduePrefix.count_completed and source_count termwise. Normalized stored values discharge Separated via CanonicalClasses.normalized_separated, giving remaining-cardinality/nonnegative-positive through the accepted OrbitResidual identities. A canonical emitted signature need not belong to E: only ClassValid is preserved by the actual realizer. All full multiplicities, even N, N=1 and empty E stay included. Return tactic lines only.\nimport M7ResiduePrefixAccepted\nimport M7RecipeSignatureAccepted\nimport M7ConnectivityAccepted\nimport M7CanonicalClassesAccepted\nimport M7OrbitResidualAccepted\n\nnamespace M7.PrefixOrbit\nopen scoped BigOperators\ndef Within {N : ℕ} (D W : Finset ℕ) (S : Finset (ZMod N)) : Prop :=\n  D ⊆ M7.ResiduePrefix.encode S ∧ M7.ResiduePrefix.encode S ⊆ D ∪ W\ndef ClassValid {N : ℕ} (w : ℕ) (c : M7.Action.Recipe N) : Prop :=\n  c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c\nnoncomputable def orbitCount {N : ℕ} [NeZero N] (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (c : M7.Action.Recipe N) : ℕ :=\n  M7.RecipeSignature.sourceCount c (fun F => F ∈ E) (Within A WA) (Within B WB)\nnoncomputable def residual {N : ℕ} [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (bases : Finset (M7.Action.Recipe N)) : ℤ :=\n  M7.PrefixSector.count N w E A B WA WB - ∑ c ∈ bases, (orbitCount E A B WA WB c : ℤ)\nend M7.PrefixOrbit\n"
+      }
+    },
+    {
+      "id": "residual_eq",
+      "dependencies": [
+        "source_count"
+      ],
+      "spec": {
+        "name": "M7.PrefixOrbit.residual_eq",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → ∀ bases : Finset (M7.Action.Recipe N), (∀ c ∈ bases, M7.PrefixOrbit.ClassValid w c) → M7.PrefixOrbit.residual w E A B WA WB bases = M7.OrbitResidual.subtraction (M7.ResiduePrefix.completed N w E A B WA WB) bases",
+        "imports": [
+          "M7PrefixOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This instantiates original M7 arithmetic orbit-prefix subtraction with concrete supports and exact original counts. No free TranslationInvariant, complete transversal or count oracle remains in these target interfaces. Prefix anchors come from Base's selected zero and Within/encode; residue_roundtrip converts membership. gcd_bridge is the accepted ResiduePrefix.gcd_union with Domain's literal gcd union. Membership uses ResiduePrefix.completed_membership, encode_card, signature_bridge and Connectivity.anchored_gcd after prefix_anchors. ClassValid is equal weight plus the unique actual subgroup-connected predicate; preserve it with Action.support_cards and Connectivity.connected_action. source_count uses accepted RecipeSignature.source_orbit_quotient. On each actual orbit image, ClassValid follows by class_action, so the actual source sector/left/right predicate equals completed-set membership. Use Finset.filter_congr for predicate equality; align classical DecidablePred explicitly or Finset.filter_congr_decidable if needed. residual_eq uses accepted ResiduePrefix.count_completed and source_count termwise. Normalized stored values discharge Separated via CanonicalClasses.normalized_separated, giving remaining-cardinality/nonnegative-positive through the accepted OrbitResidual identities. A canonical emitted signature need not belong to E: only ClassValid is preserved by the actual realizer. All full multiplicities, even N, N=1 and empty E stay included. Return tactic lines only.\nimport M7ResiduePrefixAccepted\nimport M7RecipeSignatureAccepted\nimport M7ConnectivityAccepted\nimport M7CanonicalClassesAccepted\nimport M7OrbitResidualAccepted\n\nnamespace M7.PrefixOrbit\nopen scoped BigOperators\ndef Within {N : ℕ} (D W : Finset ℕ) (S : Finset (ZMod N)) : Prop :=\n  D ⊆ M7.ResiduePrefix.encode S ∧ M7.ResiduePrefix.encode S ⊆ D ∪ W\ndef ClassValid {N : ℕ} (w : ℕ) (c : M7.Action.Recipe N) : Prop :=\n  c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c\nnoncomputable def orbitCount {N : ℕ} [NeZero N] (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (c : M7.Action.Recipe N) : ℕ :=\n  M7.RecipeSignature.sourceCount c (fun F => F ∈ E) (Within A WA) (Within B WB)\nnoncomputable def residual {N : ℕ} [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (bases : Finset (M7.Action.Recipe N)) : ℤ :=\n  M7.PrefixSector.count N w E A B WA WB - ∑ c ∈ bases, (orbitCount E A B WA WB c : ℤ)\nend M7.PrefixOrbit\n"
+      }
+    },
+    {
+      "id": "residual_card",
+      "dependencies": [
+        "residual_eq"
+      ],
+      "spec": {
+        "name": "M7.PrefixOrbit.residual_card",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → ∀ bases : Finset (M7.Action.Recipe N), (∀ c ∈ bases, M7.PrefixOrbit.ClassValid w c) → M7.CanonicalClasses.Normalized bases → M7.PrefixOrbit.residual w E A B WA WB bases = (M7.OrbitResidual.remaining (M7.ResiduePrefix.completed N w E A B WA WB) bases).card",
+        "imports": [
+          "M7PrefixOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This instantiates original M7 arithmetic orbit-prefix subtraction with concrete supports and exact original counts. No free TranslationInvariant, complete transversal or count oracle remains in these target interfaces. Prefix anchors come from Base's selected zero and Within/encode; residue_roundtrip converts membership. gcd_bridge is the accepted ResiduePrefix.gcd_union with Domain's literal gcd union. Membership uses ResiduePrefix.completed_membership, encode_card, signature_bridge and Connectivity.anchored_gcd after prefix_anchors. ClassValid is equal weight plus the unique actual subgroup-connected predicate; preserve it with Action.support_cards and Connectivity.connected_action. source_count uses accepted RecipeSignature.source_orbit_quotient. On each actual orbit image, ClassValid follows by class_action, so the actual source sector/left/right predicate equals completed-set membership. Use Finset.filter_congr for predicate equality; align classical DecidablePred explicitly or Finset.filter_congr_decidable if needed. residual_eq uses accepted ResiduePrefix.count_completed and source_count termwise. Normalized stored values discharge Separated via CanonicalClasses.normalized_separated, giving remaining-cardinality/nonnegative-positive through the accepted OrbitResidual identities. A canonical emitted signature need not belong to E: only ClassValid is preserved by the actual realizer. All full multiplicities, even N, N=1 and empty E stay included. Return tactic lines only.\nimport M7ResiduePrefixAccepted\nimport M7RecipeSignatureAccepted\nimport M7ConnectivityAccepted\nimport M7CanonicalClassesAccepted\nimport M7OrbitResidualAccepted\n\nnamespace M7.PrefixOrbit\nopen scoped BigOperators\ndef Within {N : ℕ} (D W : Finset ℕ) (S : Finset (ZMod N)) : Prop :=\n  D ⊆ M7.ResiduePrefix.encode S ∧ M7.ResiduePrefix.encode S ⊆ D ∪ W\ndef ClassValid {N : ℕ} (w : ℕ) (c : M7.Action.Recipe N) : Prop :=\n  c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c\nnoncomputable def orbitCount {N : ℕ} [NeZero N] (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (c : M7.Action.Recipe N) : ℕ :=\n  M7.RecipeSignature.sourceCount c (fun F => F ∈ E) (Within A WA) (Within B WB)\nnoncomputable def residual {N : ℕ} [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (bases : Finset (M7.Action.Recipe N)) : ℤ :=\n  M7.PrefixSector.count N w E A B WA WB - ∑ c ∈ bases, (orbitCount E A B WA WB c : ℤ)\nend M7.PrefixOrbit\n"
+      }
+    },
+    {
+      "id": "residual_positive",
+      "dependencies": [
+        "residual_eq"
+      ],
+      "spec": {
+        "name": "M7.PrefixOrbit.residual_positive",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixSector.ValidSector N E → M7.PrefixCompleted.Base N A B WA WB → ∀ bases : Finset (M7.Action.Recipe N), (∀ c ∈ bases, M7.PrefixOrbit.ClassValid w c) → M7.CanonicalClasses.Normalized bases → 0 ≤ M7.PrefixOrbit.residual w E A B WA WB bases ∧ (0 < M7.PrefixOrbit.residual w E A B WA WB bases ↔ ∃ y ∈ M7.ResiduePrefix.completed N w E A B WA WB, y ∉ M7.OrbitResidual.covered bases)",
+        "imports": [
+          "M7PrefixOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This instantiates original M7 arithmetic orbit-prefix subtraction with concrete supports and exact original counts. No free TranslationInvariant, complete transversal or count oracle remains in these target interfaces. Prefix anchors come from Base's selected zero and Within/encode; residue_roundtrip converts membership. gcd_bridge is the accepted ResiduePrefix.gcd_union with Domain's literal gcd union. Membership uses ResiduePrefix.completed_membership, encode_card, signature_bridge and Connectivity.anchored_gcd after prefix_anchors. ClassValid is equal weight plus the unique actual subgroup-connected predicate; preserve it with Action.support_cards and Connectivity.connected_action. source_count uses accepted RecipeSignature.source_orbit_quotient. On each actual orbit image, ClassValid follows by class_action, so the actual source sector/left/right predicate equals completed-set membership. Use Finset.filter_congr for predicate equality; align classical DecidablePred explicitly or Finset.filter_congr_decidable if needed. residual_eq uses accepted ResiduePrefix.count_completed and source_count termwise. Normalized stored values discharge Separated via CanonicalClasses.normalized_separated, giving remaining-cardinality/nonnegative-positive through the accepted OrbitResidual identities. A canonical emitted signature need not belong to E: only ClassValid is preserved by the actual realizer. All full multiplicities, even N, N=1 and empty E stay included. Return tactic lines only.\nimport M7ResiduePrefixAccepted\nimport M7RecipeSignatureAccepted\nimport M7ConnectivityAccepted\nimport M7CanonicalClassesAccepted\nimport M7OrbitResidualAccepted\n\nnamespace M7.PrefixOrbit\nopen scoped BigOperators\ndef Within {N : ℕ} (D W : Finset ℕ) (S : Finset (ZMod N)) : Prop :=\n  D ⊆ M7.ResiduePrefix.encode S ∧ M7.ResiduePrefix.encode S ⊆ D ∪ W\ndef ClassValid {N : ℕ} (w : ℕ) (c : M7.Action.Recipe N) : Prop :=\n  c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c\nnoncomputable def orbitCount {N : ℕ} [NeZero N] (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (c : M7.Action.Recipe N) : ℕ :=\n  M7.RecipeSignature.sourceCount c (fun F => F ∈ E) (Within A WA) (Within B WB)\nnoncomputable def residual {N : ℕ} [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (bases : Finset (M7.Action.Recipe N)) : ℤ :=\n  M7.PrefixSector.count N w E A B WA WB - ∑ c ∈ bases, (orbitCount E A B WA WB c : ℤ)\nend M7.PrefixOrbit\n"
+      }
+    },
+    {
+      "id": "emitted_class_valid",
+      "dependencies": [
+        "membership",
+        "class_action"
+      ],
+      "spec": {
+        "name": "M7.PrefixOrbit.emitted_class_valid",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), M7.PrefixCompleted.Base N A B WA WB → ∀ y ∈ M7.ResiduePrefix.completed N w E A B WA WB, M7.PrefixOrbit.ClassValid w (M7.CanonicalOuter.canonical y)",
+        "imports": [
+          "M7PrefixOrbit"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This instantiates original M7 arithmetic orbit-prefix subtraction with concrete supports and exact original counts. No free TranslationInvariant, complete transversal or count oracle remains in these target interfaces. Prefix anchors come from Base's selected zero and Within/encode; residue_roundtrip converts membership. gcd_bridge is the accepted ResiduePrefix.gcd_union with Domain's literal gcd union. Membership uses ResiduePrefix.completed_membership, encode_card, signature_bridge and Connectivity.anchored_gcd after prefix_anchors. ClassValid is equal weight plus the unique actual subgroup-connected predicate; preserve it with Action.support_cards and Connectivity.connected_action. source_count uses accepted RecipeSignature.source_orbit_quotient. On each actual orbit image, ClassValid follows by class_action, so the actual source sector/left/right predicate equals completed-set membership. Use Finset.filter_congr for predicate equality; align classical DecidablePred explicitly or Finset.filter_congr_decidable if needed. residual_eq uses accepted ResiduePrefix.count_completed and source_count termwise. Normalized stored values discharge Separated via CanonicalClasses.normalized_separated, giving remaining-cardinality/nonnegative-positive through the accepted OrbitResidual identities. A canonical emitted signature need not belong to E: only ClassValid is preserved by the actual realizer. All full multiplicities, even N, N=1 and empty E stay included. Return tactic lines only.\nimport M7ResiduePrefixAccepted\nimport M7RecipeSignatureAccepted\nimport M7ConnectivityAccepted\nimport M7CanonicalClassesAccepted\nimport M7OrbitResidualAccepted\n\nnamespace M7.PrefixOrbit\nopen scoped BigOperators\ndef Within {N : ℕ} (D W : Finset ℕ) (S : Finset (ZMod N)) : Prop :=\n  D ⊆ M7.ResiduePrefix.encode S ∧ M7.ResiduePrefix.encode S ⊆ D ∪ W\ndef ClassValid {N : ℕ} (w : ℕ) (c : M7.Action.Recipe N) : Prop :=\n  c.1.card = w ∧ c.2.card = w ∧ M7.Connectivity.connected c\nnoncomputable def orbitCount {N : ℕ} [NeZero N] (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (c : M7.Action.Recipe N) : ℕ :=\n  M7.RecipeSignature.sourceCount c (fun F => F ∈ E) (Within A WA) (Within B WB)\nnoncomputable def residual {N : ℕ} [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) (bases : Finset (M7.Action.Recipe N)) : ℤ :=\n  M7.PrefixSector.count N w E A B WA WB - ∑ c ∈ bases, (orbitCount E A B WA WB c : ℤ)\nend M7.PrefixOrbit\n"
+      }
+    }
+  ]
+}

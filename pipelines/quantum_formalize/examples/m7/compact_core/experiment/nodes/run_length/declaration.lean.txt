@@ -1,0 +1,16 @@
+theorem M7.CompactGeneration.run_length : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), ∀ (fuel : ℕ) (root : ℤ), (M7.CompactGeneration.run w E fuel bases root).emitted.length ≤ fuel := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), ∀ (fuel : ℕ) (root : ℤ), (M7.CompactGeneration.run w E fuel bases root).emitted.length ≤ fuel
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N inst w E bases fuel root
+  classical
+  induction fuel generalizing bases root with
+  | zero =>
+      simp [M7.CompactGeneration.run]
+  | succ fuel ih =>
+      by_cases h : 0 < root
+      · simp only [M7.CompactGeneration.run, if_pos h, List.length_cons]
+        exact Nat.succ_le_succ (ih _ _)
+      · simp [M7.CompactGeneration.run, h]

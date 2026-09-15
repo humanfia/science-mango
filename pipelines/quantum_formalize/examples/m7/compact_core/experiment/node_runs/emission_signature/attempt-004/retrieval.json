@@ -1,0 +1,104 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.CanonicalOuter realizer canonical theorem",
+    "status": "ok",
+    "results": [
+      {
+        "id": 215858,
+        "name": "MvQPF.mRepr",
+        "module": "Mathlib.Data.QPF.Multivariate.Constructions.Cofix",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/QPF/Multivariate/Constructions/Cofix.lean#L93-L95",
+        "source_text": "/-- maps every element of the W type to a canonical representative -/\ndef mRepr {α : TypeVec n} : q.P.M α → q.P.M α :=\n  corecF (abs ∘ M.dest q.P)\n",
+        "docstring": "maps every element of the W type to a canonical representative "
+      },
+      {
+        "id": 198367,
+        "name": "Filter.Realizer.ofEq",
+        "module": "Mathlib.Data.Analysis.Filter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Analysis/Filter.lean#L109-L112",
+        "source_text": "/-- Transfer a realizer along an equality of filter. This has better definitional equalities than\nthe `Eq.rec` proof. -/\ndef ofEq {f g : Filter α} (e : f = g) (F : f.Realizer) : g.Realizer :=\n  ⟨F.σ, F.F, F.eq.trans e⟩\n",
+        "docstring": "Transfer a realizer along an equality of filter. This has better definitional equalities than\nthe `Eq.rec` proof. "
+      },
+      {
+        "id": 88070,
+        "name": "Module.Relations.Solution.ofQuotient_var",
+        "module": "Mathlib.Algebra.Module.Presentation.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/Presentation/Basic.lean#L403-L403",
+        "source_text": "@[simps!]\ndef ofQuotient : relations.Solution relations.Quotient :=",
+        "docstring": null
+      },
+      {
+        "id": 128033,
+        "name": "Complex.CanonicalDecomp",
+        "module": "Mathlib.Analysis.Complex.CanonicalDecomposition",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Complex/CanonicalDecomposition.lean#L225-L242",
+        "source_text": "/--\nGiven functions `f`, `g` and a real number `R`, the following convenience structure packs the\ninformation relevant in the canonical decomposition.  The condition \"`g` is without zeros or poles\"\nis formulated by saying that `g` is meromorphic in normal form and `g ≠ 0`.\n-/\nstructure CanonicalDecomp (f g : ℂ → E) (R : ℝ) : Prop where\n  /-- A proof that `f` is meromorphic on `closedBall 0 R`. -/\n  meromorphicOn : MeromorphicOn f (closedBall 0 R)\n  /-- A proof that `g` is meromorphic in normal form on `closedBall 0 R`. -/\n  meromorphicNFOn : MeromorphicNFOn g (closedBall 0 R)\n  /-- A proof that `g` does not vanish in the interior of the ball. -/\n  ne_zero : ∀ u ∈ (ball 0 R), g u ≠ 0\n  /--\n  A proof that `f` is equal, up to modification over a discrete set, to a product of `g` and\n  canonical factors prescribed by the divisor of `f`.\n  -/\n  eventuallyEq : f =ᶠ[codiscreteWithin (closedBall 0 R)]\n    (∏ᶠ u, (canonicalFactor R u) ^ (-MeromorphicOn.divisor f (ball 0 R) u)) • g\n",
+        "docstring": "Given functions `f`, `g` and a real number `R`, the following convenience structure packs the\ninformation relevant in the canonical decomposition.  The condition \"`g` is without zeros or poles\"\nis formulated by saying that `g` is meromorphic in normal form and `g ≠ 0`.\n"
+      },
+      {
+        "id": 88069,
+        "name": "Module.Relations.Solution.ofQuotient",
+        "module": "Mathlib.Algebra.Module.Presentation.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/Presentation/Basic.lean#L401-L405",
+        "source_text": "/-- Given `relations : Relations A`, this is the obvious solution to `relations`\nin the quotient `relations.Quotient`. -/\n@[simps!]\ndef ofQuotient : relations.Solution relations.Quotient :=\n  ofπ relations.toQuotient (by simp)\n",
+        "docstring": "Given `relations : Relations A`, this is the obvious solution to `relations`\nin the quotient `relations.Quotient`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.CanonicalOuter realizer canonical theorem",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393734,
+        "name": "CanonicalEnsemble",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L108-L128",
+        "source_text": "/-- A Canonical ensemble is described by a type `ι`, corresponding to the type of microstates,\nand a map `ι → ℝ` which associates which each microstate an energy\nand physical constants needed to define dimensionless thermodynamic quantities. -/\nstructure CanonicalEnsemble (ι : Type) [MeasurableSpace ι] : Type where\n  /-- The energy of associated with a microstate of the canonical ensemble. -/\n  energy : ι → ℝ\n  /-- The number of degrees of freedom, used to make the partition function dimensionless.\n  For a classical system of N particles in 3D, this is `3N`. For a system of N spins,\n  this is typically `0` as the state space is already discrete. -/\n  dof : ℕ\n  /-- The unit of action used to make the phase space volume dimensionless.\n  This constant is necessary to define an absolute (rather than relative) thermodynamic\n  entropy. In the semi-classical approach, this unit is identified with Planck's constant `h`.\n  For discrete systems with a counting measure, this unit should be set to `1`. -/\n  phaseSpaceunit : ℝ := 1\n  /-- Assumption that the phase space unit is positive. -/\n  hPos : 0 < phaseSpaceunit := by positivity\n  energy_measurable : Measurable energy\n  /-- The measure on the indexing set of microstates. -/\n  μ : MeasureTheory.Measure ι := by volume_tac\n  [μ_sigmaFinite : SigmaFinite μ]\n",
+        "docstring": "A Canonical ensemble is described by a type `ι`, corresponding to the type of microstates,\nand a map `ι → ℝ` which associates which each microstate an energy\nand physical constants needed to define dimensionless thermodynamic quantities. "
+      },
+      {
+        "id": 393779,
+        "name": "CanonicalEnsemble.probability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L414-L420",
+        "source_text": "/-- The probability density function of the canonical ensemble.\nNote: In the general measure-theoretic case, this is a density with respect to the\nunderlying measure `𝓒.μ` and is not necessarily less than or equal to 1. In the\ncase of a finite ensemble with the counting measure, this value corresponds to the\nprobability of the microstate. -/\nnoncomputable def probability (T : Temperature) (i : ι) : ℝ :=\n  (exp (- T.β * 𝓒.energy i)) / 𝓒.mathematicalPartitionFunction T\n",
+        "docstring": "The probability density function of the canonical ensemble.\nNote: In the general measure-theoretic case, this is a density with respect to the\nunderlying measure `𝓒.μ` and is not necessarily less than or equal to 1. In the\ncase of a finite ensemble with the counting measure, this value corresponds to the\nprobability of the microstate. "
+      },
+      {
+        "id": 393872,
+        "name": "CanonicalEnsemble.fluctuation_dissipation_theorem_finite",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Finite",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Finite.lean#L473-L487",
+        "source_text": "/-- FDT for finite canonical ensembles: C_V = Var(E) / (k_B T²). -/\ntheorem fluctuation_dissipation_theorem_finite\n    [MeasurableSingletonClass ι] [𝓒.IsFinite] (T : Temperature) (hT_pos : 0 < T.val) :\n    𝓒.heatCapacity T = 𝓒.energyVariance T / (kB * (T.val : ℝ)^2) := by\n  have hβ₀_pos : 0 < (T.β : ℝ) := beta_pos T hT_pos\n  let β₀ := (T.β : ℝ)\n  have h_diff_U_beta : DifferentiableWithinAt ℝ 𝓒.meanEnergyBeta (Set.Ioi 0) β₀ := by\n    have h_eq_on : Set.EqOn 𝓒.meanEnergyBeta 𝓒.meanEnergyBetaReal (Set.Ioi 0) := by\n      intro b hb; exact meanEnergy_Beta_eq_finite 𝓒 b hb\n    have h_diff' := (differentiable_meanEnergyBetaReal 𝓒) (T.β : ℝ)\n    exact DifferentiableWithinAt.congr_of_eventuallyEq h_diff'.differentiableWithinAt\n      (eventuallyEq_nhdsWithin_of_eqOn h_eq_on) (h_eq_on hβ₀_pos)\n  have h_Var_eq_neg_dUdβ := derivWithin_meanEnergy_Beta_eq_neg_variance 𝓒 T hT_pos\n  exact CanonicalEnsemble.fluctuation_dissipation_energy_parametric 𝓒 T hT_pos\n    (by simp_all only [NNReal.coe_pos, neg_neg, β₀]) h_diff_U_beta\n",
+        "docstring": "FDT for finite canonical ensembles: C_V = Var(E) / (k_B T²). "
+      },
+      {
+        "id": 393761,
+        "name": "CanonicalEnsemble.μBolt",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L292-L294",
+        "source_text": "/-- The Boltzmann measure on the space of microstates. -/\nnoncomputable def μBolt (T : Temperature) : MeasureTheory.Measure ι :=\n  𝓒.μ.withDensity (fun i => ENNReal.ofReal (exp (- T.β * 𝓒.energy i)))\n",
+        "docstring": "The Boltzmann measure on the space of microstates. "
+      },
+      {
+        "id": 393770,
+        "name": "CanonicalEnsemble.mathematicalPartitionFunction",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L356-L359",
+        "source_text": "/-- The mathematical partition function, defined as the integral of the Boltzmann factor.\nThis quantity may have physical dimensions. See `CanonicalEnsemble.partitionFunction` for\nthe dimensionless physical version. -/\nnoncomputable def mathematicalPartitionFunction (T : Temperature) : ℝ := (𝓒.μBolt T).real Set.univ\n",
+        "docstring": "The mathematical partition function, defined as the integral of the Boltzmann factor.\nThis quantity may have physical dimensions. See `CanonicalEnsemble.partitionFunction` for\nthe dimensionless physical version. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

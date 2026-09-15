@@ -1,0 +1,16 @@
+theorem M7.CompactGeneration.run_fold : ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), ∀ (fuel : ℕ) (root : ℤ), (M7.CompactGeneration.run w E fuel bases root).finalBases = (M7.CompactGeneration.run w E fuel bases root).emitted.foldl (fun acc e => insert e.representative acc) bases := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (w : ℕ) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), ∀ (fuel : ℕ) (root : ℤ), (M7.CompactGeneration.run w E fuel bases root).finalBases = (M7.CompactGeneration.run w E fuel bases root).emitted.foldl (fun acc e => insert e.representative acc) bases
+  )
+  change QuantumHarnessFrozenTarget
+  classical
+  unfold QuantumHarnessFrozenTarget
+  intro N inst w E bases fuel root
+  induction fuel generalizing bases root with
+  | zero =>
+      rfl
+  | succ fuel ih =>
+      by_cases h : 0 < root
+      · simp only [M7.CompactGeneration.run, if_pos h, List.foldl_cons]
+        exact ih _ _
+      · simp only [M7.CompactGeneration.run, if_neg h, List.foldl_nil]
