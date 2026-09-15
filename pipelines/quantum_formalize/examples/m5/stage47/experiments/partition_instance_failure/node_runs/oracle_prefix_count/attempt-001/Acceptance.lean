@@ -1,0 +1,3 @@
+import Candidate_76cc9f786a68f59b
+example : QuantumHarnessFrozenTarget := M5.ArithmeticResidueRecovery.oracle_prefix_count
+#print axioms M5.ArithmeticResidueRecovery.oracle_prefix_count

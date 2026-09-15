@@ -1,0 +1,3 @@
+import Candidate_e7e876f729815f2f
+example : QuantumHarnessFrozenTarget := M5.ArithmeticResidueRecovery.completion_word_split
+#print axioms M5.ArithmeticResidueRecovery.completion_word_split

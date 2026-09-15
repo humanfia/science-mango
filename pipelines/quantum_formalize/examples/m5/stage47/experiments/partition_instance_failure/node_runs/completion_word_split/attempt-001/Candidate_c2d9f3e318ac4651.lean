@@ -1,0 +1,29 @@
+import FrozenTarget_c2d9f3e318ac4651
+theorem M5.ArithmeticResidueRecovery.completion_word_split : QuantumHarnessFrozenTarget := by
+  intro α k u a b hu
+  have hta : (u.take k).length ≤ k := by simp only [List.length_take]; omega
+  have hdb : (u.drop k).length ≤ k := by simp only [List.length_drop]; omega
+  have hA : (u.take k ++ List.ofFn a).length = k := by
+    simp only [List.length_append, List.length_ofFn]
+    omega
+  have hB : (u.drop k ++ List.ofFn b).length = k := by
+    simp only [List.length_append, List.length_ofFn]
+    omega
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · unfold M5.ArithmeticResidueRecovery.completionWord
+    rw [List.length_append, hA, hB]
+    omega
+  · by_cases h : u.length ≤ k
+    · have ht : u.take k = u := List.take_of_length_le h
+      have hup : u.IsPrefix (u.take k) := by rw [ht]
+      exact hup.trans ((List.prefix_append (u.take k) (List.ofFn a)).trans
+        (List.prefix_append (u.take k ++ List.ofFn a) (u.drop k ++ List.ofFn b)))
+    · have ht : (u.take k).length = k := by simp only [List.length_take]; omega
+      have ha : List.ofFn a = [] := by
+        apply List.eq_nil_of_length_eq_zero
+        simp only [List.length_ofFn, ht, Nat.sub_self]
+      unfold M5.ArithmeticResidueRecovery.completionWord
+      rw [ha, List.append_nil, ← List.append_assoc, List.take_append_drop]
+      exact List.prefix_append u _
+  · exact List.take_left' hA
+  · exact List.drop_left' hA

@@ -1,0 +1,16 @@
+{
+  "name": "M5.ArithmeticResidueRecovery.prefix_algebra",
+  "statement": "∀ (T k : ℕ) (p : List (Fin T)) (a : Fin k → Fin T), M5.ConditionalResidueCount.selectedPolynomial (p ++ List.ofFn a) = M5.ConditionalResidueCount.completedPolynomial (M5.ConditionalResidueCount.selectedPolynomial p) a ∧ M5.ConditionalResidueCount.prefixGcd (p ++ List.ofFn a) = Nat.gcd (M5.ConditionalResidueCount.prefixGcd p) (Finset.univ.gcd (fun i : Fin k => (a i).val))",
+  "imports": [
+    "M5ArithmeticResidueRecovery",
+    "M5ConditionalResidueCountAccepted",
+    "M5PrefixPartitionAccepted",
+    "M5ResidueRecoveryAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "List ofFn prefix take drop cardinality bijection",
+    "Finset card_bij filter image list length"
+  ],
+  "guidance": "Polynomial identity follows map_append/list.sum_append and sum_ofFn. Gcd identity follows foldr gcd on append and ofFn: use divisibility antisymmetry and every-coordinate characterization if direct fold lemmas inconvenient. Repetitions are retained and k=0 allowed. Return tactic lines only, without leading by."
+}

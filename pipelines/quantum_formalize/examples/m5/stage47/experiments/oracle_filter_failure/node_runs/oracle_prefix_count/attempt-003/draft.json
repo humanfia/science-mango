@@ -1,0 +1,4 @@
+{
+  "proof": "intro w F hw hF hF0 u hu\nclassical\nhave hfit : M5.ConditionalResidueCount.fits w (u.take (w - 1)) (u.drop (w - 1)) := by\n  simp only [M5.ConditionalResidueCount.fits, List.length_take, List.length_drop]\n  omega\nrw [← M5.ArithmeticResidueRecovery.completion_prefix_card (w - 1) u\n  (M5.ArithmeticResidueRecovery.wordValid w F) hu]\nunfold M5.ArithmeticResidueRecovery.oracle\nrw [(M5.ConditionalResidueCount.period_conditionalA_exact w F\n  (u.take (w - 1)) (u.drop (w - 1)) hw hF hF0).1]\nunfold M5.ConditionalResidueCount.validCompletions\nrw [if_pos hfit]\nunfold M5.ArithmeticResidueRecovery.completionCount\napply congrArg (fun n : ℕ => (n : ℤ))\napply congrArg Finset.card\next ab\nsimp only [Finset.mem_filter, Finset.mem_univ, true_and]\nexact M5.ArithmeticResidueRecovery.completion_feasible\n  (M5.signaturePeriod F) w F u ab.1 ab.2 hu",
+  "queries": []
+}

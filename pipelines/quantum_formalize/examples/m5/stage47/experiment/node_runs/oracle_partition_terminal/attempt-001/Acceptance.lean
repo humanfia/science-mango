@@ -1,0 +1,3 @@
+import Candidate_a5def6bb14165d76
+example : QuantumHarnessFrozenTarget := M5.ArithmeticResidueRecovery.oracle_partition_terminal
+#print axioms M5.ArithmeticResidueRecovery.oracle_partition_terminal

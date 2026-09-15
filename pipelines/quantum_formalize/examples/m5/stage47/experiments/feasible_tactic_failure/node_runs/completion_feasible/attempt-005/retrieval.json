@@ -1,0 +1,96 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.gcd_assoc Nat.gcd_left_comm Nat.gcd_comm",
+    "status": "ok",
+    "results": [
+      {
+        "id": 212950,
+        "name": "Nat.gcd_right_comm",
+        "module": "Mathlib.Data.Nat.GCD.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/GCD/Basic.lean#L39-L40",
+        "source_text": "theorem gcd_right_comm (a b c : ℕ) : gcd (gcd a b) c = gcd (gcd a c) b := by\n  rw [gcd_assoc, gcd_assoc, gcd_comm b c]\n",
+        "docstring": null
+      },
+      {
+        "id": 65876,
+        "name": "gcd_comm",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L390-L393",
+        "source_text": "theorem gcd_comm [NormalizedGCDMonoid α] (a b : α) : gcd a b = gcd b a :=\n  dvd_antisymm_of_normalize_eq (normalize_gcd _ _) (normalize_gcd _ _)\n    (dvd_gcd (gcd_dvd_right _ _) (gcd_dvd_left _ _))\n    (dvd_gcd (gcd_dvd_right _ _) (gcd_dvd_left _ _))\n",
+        "docstring": null
+      },
+      {
+        "id": 65863,
+        "name": "GCDMonoid",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L304-L324",
+        "source_text": "/-- GCD monoid: a cancellative `CommMonoidWithZero` with `gcd` (greatest common divisor) and\n`lcm` (least common multiple) operations, determined up to a unit. The type class focuses on `gcd`\nand we derive the corresponding `lcm` facts from `gcd`.\n-/\nclass GCDMonoid (α : Type*) [CommMonoidWithZero α] extends IsCancelMulZero α where\n  /-- The greatest common divisor between two elements. -/\n  gcd : α → α → α\n  /-- The least common multiple between two elements. -/\n  lcm : α → α → α\n  /-- The GCD is a divisor of the first element. -/\n  gcd_dvd_left : ∀ a b, gcd a b ∣ a\n  /-- The GCD is a divisor of the second element. -/\n  gcd_dvd_right : ∀ a b, gcd a b ∣ b\n  /-- Any common divisor of both elements is a divisor of the GCD. -/\n  dvd_gcd : ∀ {a b c}, a ∣ c → a ∣ b → a ∣ gcd c b\n  /-- The product of two elements is `Associated` with the product of their GCD and LCM. -/\n  gcd_mul_lcm : ∀ a b, Associated (gcd a b * lcm a b) (a * b)\n  /-- `0` is left-absorbing. -/\n  lcm_zero_left : ∀ a, lcm 0 a = 0\n  /-- `0` is right-absorbing. -/\n  lcm_zero_right : ∀ a, lcm a 0 = 0\n",
+        "docstring": "GCD monoid: a cancellative `CommMonoidWithZero` with `gcd` (greatest common divisor) and\n`lcm` (least common multiple) operations, determined up to a unit. The type class focuses on `gcd`\nand we derive the corresponding `lcm` facts from `gcd`.\n"
+      },
+      {
+        "id": 65992,
+        "name": "gcdMonoidOfGCD",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L1090-L1115",
+        "source_text": "/-- Define `GCDMonoid` on a structure just from the `gcd` and its properties. -/\n@[implicit_reducible]\nnoncomputable def gcdMonoidOfGCD [DecidableEq α] (gcd : α → α → α)\n    (gcd_dvd_left : ∀ a b, gcd a b ∣ a) (gcd_dvd_right : ∀ a b, gcd a b ∣ b)\n    (dvd_gcd : ∀ {a b c}, a ∣ c → a ∣ b → a ∣ gcd c b) : GCDMonoid α :=\n  { gcd\n    gcd_dvd_left\n    gcd_dvd_right\n    dvd_gcd := fun {_ _ _} => dvd_gcd\n    lcm := fun a b =>\n      if a = 0 then 0 else Classical.choose ((gcd_dvd_left a b).trans (Dvd.intro b rfl))\n    gcd_mul_lcm := fun a b => by\n      split_ifs with a0\n      · rw [mul_zero, a0, zero_mul]\n      · rw [← Classical.choose_spec ((gcd_dvd_left a b).trans (Dvd.intro b rfl))]\n    lcm_zero_left := fun _ => if_pos rfl\n    lcm_zero_right := fun a => by\n      split_ifs with a0\n      · rfl\n      have h := (Classical.choose_spec ((gcd_dvd_left a 0).trans (Dvd.intro 0 rfl))).symm\n      have a0' : gcd a 0 ≠ 0 := by\n        contrapose a0\n        rw [← associated_zero_iff_eq_zero, ← a0]\n        exact associated_of_dvd_dvd (dvd_gcd (dvd_refl a) (dvd_zero a)) (gcd_dvd_left _ _)\n      apply Or.resolve_left (mul_eq_zero.1 _) a0'\n      rw [h, mul_zero] }\n",
+        "docstring": "Define `GCDMonoid` on a structure just from the `gcd` and its properties. "
+      },
+      {
+        "id": 66010,
+        "name": "Associates.instGCDMonoid",
+        "module": "Mathlib.Algebra.GCDMonoid.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L1388-L1401",
+        "source_text": "instance instGCDMonoid : GCDMonoid (Associates α) where\n  gcd := Quotient.map₂ gcd fun _ _ (ha : Associated _ _) _ _ (hb : Associated _ _) => ha.gcd hb\n  lcm := Quotient.map₂ lcm fun _ _ (ha : Associated _ _) _ _ (hb : Associated _ _) => ha.lcm hb\n  gcd_dvd_left := by rintro ⟨a⟩ ⟨b⟩; exact mk_le_mk_of_dvd (gcd_dvd_left _ _)\n  gcd_dvd_right := by rintro ⟨a⟩ ⟨b⟩; exact mk_le_mk_of_dvd (gcd_dvd_right _ _)\n  dvd_gcd := by\n    rintro ⟨a⟩ ⟨b⟩ ⟨c⟩ hac hbc\n    exact mk_le_mk_of_dvd (dvd_gcd (dvd_of_mk_le_mk hac) (dvd_of_mk_le_mk hbc))\n  gcd_mul_lcm := by\n    rintro ⟨a⟩ ⟨b⟩\n    rw [associated_iff_eq]\n    exact Quotient.sound <| gcd_mul_lcm _ _\n  lcm_zero_left := by rintro ⟨a⟩; exact congr_arg Associates.mk <| lcm_zero_left _\n  lcm_zero_right := by rintro ⟨a⟩; exact congr_arg Associates.mk <| lcm_zero_right _\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "List take drop append",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388926,
+        "name": "FieldSpecification.CrAnSection.take_append_drop",
+        "module": "Physlib.QFT.PerturbationTheory.FieldSpecification.CrAnSection",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldSpecification/CrAnSection.lean#L285-L289",
+        "source_text": "@[simp]\nlemma take_append_drop {n : ℕ} (ψs : CrAnSection φs) :\n    append (take n ψs) (drop n ψs) = congr (List.take_append_drop n φs).symm ψs := by\n  apply Subtype.ext\n  simp [take, drop, append]",
+        "docstring": null
+      },
+      {
+        "id": 386716,
+        "name": "Physlib.List.insertIdx_eq_take_drop",
+        "module": "Physlib.Mathematics.List.InsertIdx",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L78-L86",
+        "source_text": "lemma insertIdx_eq_take_drop {I : Type} (i : I) : (r : List I) → (n : Fin r.length.succ) →\n    List.insertIdx r n i = List.take n r ++ i :: r.drop n\n  | [], 0 => by simp\n  | a :: as, 0 => by\n    simp\n  | a :: as, ⟨n + 1, h⟩ => by\n    simp only [List.insertIdx_succ_cons, List.take_succ_cons, List.drop_succ_cons, List.cons_append,\n      List.cons.injEq, true_and]\n    exact insertIdx_eq_take_drop i as ⟨n, Nat.succ_lt_succ_iff.mp h⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 386724,
+        "name": "Physlib.List.drop_eraseIdx_succ",
+        "module": "Physlib.Mathematics.List.InsertIdx",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L159-L169",
+        "source_text": "lemma drop_eraseIdx_succ {I : Type} :\n    (n : ℕ) → (r : List I) → (hn : n < r.length) →\n    r[n] :: List.drop n (List.eraseIdx r n) = List.drop n r\n  | 0, _, _=> by\n    simp only [List.eraseIdx_zero, List.drop_tail, zero_add, List.drop_one, List.drop_zero]\n    rw [@List.getElem_zero]\n    exact List.cons_head_tail _\n  | n+1, [], hn => by simp at hn\n  | n+1, a::as, hn => by\n    simp only [List.getElem_cons_succ, List.eraseIdx_cons_succ, List.drop_succ_cons]\n    refine drop_eraseIdx_succ n as _\n",
+        "docstring": null
+      },
+      {
+        "id": 386656,
+        "name": "Physlib.List.dropWile_eraseIdx",
+        "module": "Physlib.Mathematics.List",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L51-L87",
+        "source_text": "lemma dropWile_eraseIdx {I : Type} (P : I → Prop) [DecidablePred P] :\n    (l : List I) → (i : ℕ) → (hi : ∀ (i j : Fin l.length), i < j → P (l.get j) → P (l.get i)) →\n    List.dropWhile P (List.eraseIdx l i) =\n      if (List.takeWhile P l).length ≤ i then\n        (List.dropWhile P l).eraseIdx (i - (List.takeWhile P l).length)\n      else (List.dropWhile P l)\n  | [], _, h => by\n    simp\n  | a :: [], 0, h => by\n    by_cases hPa : P a <;> simp [hPa]\n  | a :: [], Nat.succ n, h => by\n    by_cases hPa : P a <;> simp [hPa, List.eraseIdx_of_length_le]\n  | a :: b :: l, 0, h => by\n    by_cases hPb : P b\n    · have hPa : P a := by\n        simpa using h ⟨0, by simp⟩ ⟨1, by simp⟩ (by simp) (by simpa using hPb)\n      simp [hPb, hPa]\n    · by_cases hPa : P a <;> simp [hPa, hPb]\n  | a :: b :: l, Nat.succ n, h => by\n    simp only [Nat.succ_eq_add_one, List.eraseIdx_cons_succ]\n    by_cases hPb : P b\n    · have hPa : P a := by\n        simpa using h ⟨0, by simp⟩ ⟨1, by simp⟩ (by simp) (by simpa using hPb)\n      simp only [List.dropWhile, hPa, decide_true, List.takeWhile, hPb, List.length_cons,\n        add_le_add_iff_right, Nat.reduceSubDiff]\n      rw [dropWile_eraseIdx P (b :: l) n (fun i j hij hP => by\n        simpa using h i.succ j.succ (by simpa using hij) (by simpa using hP))]\n      simp_all only [List.length_cons, List.get_eq_getElem, decide_true, List.takeWhile_cons_of_pos,\n        List.dropWhile_cons_of_pos]\n    · simp only [List.dropWhile, List.takeWhile, hPb, decide_false]\n      by_cases hPa : P a\n      · rw [dropWile_eraseIdx P (b :: l) n (fun i j hij hP => by\n          simpa using h i.succ j.succ (by simpa using hij) (by simpa using hP))]\n        simp only [hPa, decide_true, hPb, decide_false, Bool.false_eq_true, not_false_eq_true,\n          List.takeWhile_cons_of_neg, List.length_nil, zero_le, ↓reduceIte, List.dropWhile,\n          tsub_zero, List.length_singleton, le_add_iff_nonneg_left, add_tsub_cancel_right]\n      · simp [hPa]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

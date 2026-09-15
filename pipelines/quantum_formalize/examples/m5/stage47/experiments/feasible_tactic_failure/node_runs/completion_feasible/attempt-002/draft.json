@@ -1,0 +1,4 @@
+{
+  "proof": "set_option maxHeartbeats 1600000 in\n  intro T w F u a b hu\n  classical\n  obtain ⟨hlen, _, ht, hd⟩ :=\n    M5.ArithmeticResidueRecovery.completion_word_split (w - 1) u a b hu\n  obtain ⟨hpa, hga⟩ :=\n    M5.ArithmeticResidueRecovery.prefix_algebra T _ (u.take (w - 1)) a\n  obtain ⟨hpb, hgb⟩ :=\n    M5.ArithmeticResidueRecovery.prefix_algebra T _ (u.drop (w - 1)) b\n  simp only [M5.ArithmeticResidueRecovery.wordValid,\n    M5.ConditionalResidueCount.feasible,\n    hlen, ht, hd, M5.ConditionalResidueCount.selectedGcd,\n    hpa, hpb, hga, hgb,\n    Nat.gcd_assoc, Nat.gcd_comm, Nat.gcd_left_comm,\n    true_and, and_true, eq_self_iff_true]",
+  "queries": []
+}

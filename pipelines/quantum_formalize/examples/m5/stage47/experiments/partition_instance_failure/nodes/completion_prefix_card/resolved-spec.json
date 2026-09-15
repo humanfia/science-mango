@@ -1,0 +1,16 @@
+{
+  "name": "M5.ArithmeticResidueRecovery.completion_prefix_card",
+  "statement": "∀ {α : Type} [Fintype α] [DecidableEq α] (k : ℕ) (u : List α) (Valid : List α → Prop), u.length ≤ 2*k → M5.ArithmeticResidueRecovery.completionCount k u Valid = M5.PrefixPartition.count (M5.ArithmeticResidueRecovery.fullWords (2*k) Valid) u",
+  "imports": [
+    "M5ArithmeticResidueRecovery",
+    "M5ConditionalResidueCountAccepted",
+    "M5PrefixPartitionAccepted",
+    "M5ResidueRecoveryAccepted"
+  ],
+  "context": "theorem M5.ArithmeticResidueRecovery.completion_word_split : ∀ {α : Type} (k : ℕ) (u : List α) (a : Fin (k - (u.take k).length) → α) (b : Fin (k - (u.drop k).length) → α), u.length ≤ 2*k → (M5.ArithmeticResidueRecovery.completionWord k u a b).length = 2*k ∧ u.IsPrefix (M5.ArithmeticResidueRecovery.completionWord k u a b) ∧ (M5.ArithmeticResidueRecovery.completionWord k u a b).take k = u.take k ++ List.ofFn a ∧ (M5.ArithmeticResidueRecovery.completionWord k u a b).drop k = u.drop k ++ List.ofFn b := by\n  intro α k u a b hu\n  have hta : (u.take k).length ≤ k := by simp only [List.length_take]; omega\n  have hdb : (u.drop k).length ≤ k := by simp only [List.length_drop]; omega\n  have hA : (u.take k ++ List.ofFn a).length = k := by\n    simp only [List.length_append, List.length_ofFn]\n    omega\n  have hB : (u.drop k ++ List.ofFn b).length = k := by\n    simp only [List.length_append, List.length_ofFn]\n    omega\n  refine ⟨?_, ?_, ?_, ?_⟩\n  · unfold M5.ArithmeticResidueRecovery.completionWord\n    rw [List.length_append, hA, hB]\n    omega\n  · by_cases h : u.length ≤ k\n    · have ht : u.take k = u := List.take_of_length_le h\n      have hup : u.IsPrefix (u.take k) := by rw [ht]\n      exact hup.trans ((List.prefix_append (u.take k) (List.ofFn a)).trans\n        (List.prefix_append (u.take k ++ List.ofFn a) (u.drop k ++ List.ofFn b)))\n    · have ht : (u.take k).length = k := by simp only [List.length_take]; omega\n      have ha : List.ofFn a = [] := by\n        apply List.eq_nil_of_length_eq_zero\n        simp only [List.length_ofFn, ht, Nat.sub_self]\n      unfold M5.ArithmeticResidueRecovery.completionWord\n      rw [ha, List.append_nil, ← List.append_assoc, List.take_append_drop]\n      exact List.prefix_append u _\n  · exact List.take_left' hA\n  · exact List.drop_left' hA",
+  "queries": [
+    "List ofFn prefix take drop cardinality bijection",
+    "Finset card_bij filter image list length"
+  ],
+  "guidance": "Establish cardinality bijection via completionWord. A target word v has length2k and extendsu; inverse completions are the portions of v.take k and v.drop k after their selected prefixes, converted to functions on the known remaining lengths. Injectivity uses equal take/drop blocks and cancellation plus List.ofFn injectivity. For surjectivity use prefix u v to prove selected portions agree. Semantic count only; no arithmetic oracle assumption. Use card_bij or subtype equivalence. Avoid change across inferred Decidable instances; identify filters by extensional membership first. Return tactic lines only, without leading by."
+}

@@ -1,0 +1,3 @@
+import Candidate_12db826d96898b27
+example : QuantumHarnessFrozenTarget := M5.ArithmeticResidueRecovery.recovery_correct
+#print axioms M5.ArithmeticResidueRecovery.recovery_correct

@@ -1,0 +1,8 @@
+{
+  "proof": "intro T k p a\nclassical\nconstructor\n· simp [M5.ConditionalResidueCount.selectedPolynomial,\n    M5.ConditionalResidueCount.completedPolynomial,\n    List.map_append, List.sum_append, List.map_ofFn, List.sum_ofFn,\n    add_assoc]\n· have hd : ∀ (l : List (Fin T)) (d : ℕ),\n      d ∣ M5.ConditionalResidueCount.prefixGcd l ↔ ∀ r ∈ l, d ∣ r.val := by\n    intro l d\n    induction l with\n    | nil => simp [M5.ConditionalResidueCount.prefixGcd]\n    | cons r l ih =>\n      simp_all [M5.ConditionalResidueCount.prefixGcd, Nat.dvd_gcd_iff]\n  have h : ∀ d : ℕ,\n      d ∣ M5.ConditionalResidueCount.prefixGcd (p ++ List.ofFn a) ↔\n      d ∣ Nat.gcd (M5.ConditionalResidueCount.prefixGcd p)\n        (Finset.univ.gcd (fun i : Fin k => (a i).val)) := by\n    intro d\n    simp [Nat.dvd_gcd_iff, hd, Finset.dvd_gcd_iff, List.mem_ofFn]\n  apply Nat.dvd_antisymm\n  · exact (h _).mp (dvd_refl _)\n  · exact (h _).mpr (dvd_refl _)",
+  "queries": [
+    "Finset.dvd_gcd_iff",
+    "List.sum_ofFn List.map_ofFn",
+    "Nat.dvd_gcd_iff List.foldr"
+  ]
+}

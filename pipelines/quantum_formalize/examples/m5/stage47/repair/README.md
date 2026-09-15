@@ -1,0 +1,11 @@
+# Completion feasibility tactic repair
+
+The initial normal experiment accepted the two generic helper seeds and live `oracle_initial`/`prefix_algebra` proofs. `completion_feasible` exhausted its live attempts: broad simplification exceeded the default heartbeat budget, and two attempts proposed forbidden proof-body commands. All original attempts and accepted proofs remain in `experiments/feasible_tactic_failure` (132-file manifest).
+
+The third live draft was repaired by changing its broad `simp` to `simp only` and closing the resulting reflexive equivalence with `rfl`. No type, arithmetic definition, hypothesis or kernel resource limit changed. The independent exact-target/axiom check passed; `completion_feasible.debug.json` records the source and frozen-target hashes.
+
+The continuation replays all four previously accepted proofs unchanged, then the independently verified local repair, through the normal frozen-target checks. The three remaining concrete oracle/recovery targets use live generation. A successful local repair is not recorded as whole-experiment completion before the combined assembly and full DAG acceptance.
+
+The next live oracle_prefix_count attempts all stopped at the final filter membership simplification. The exact standalone target was repaired by explicit Finset.mem_filter.mp/mpr in both directions, preserving the same completion_feasible equivalence. Source, draft and compiler log hashes are in oracle_prefix/CHECKS.json. The five already accepted nodes remain unchanged in experiments/oracle_filter_failure (143-file manifest), and the repair is submitted to normal frozen engine acceptance before the two final live targets.
+
+The partition/terminal live attempts alternated between an omitted finite-word type annotation and a list equality-instance mismatch. The second draft already had the correct type annotation; adding the explicit local DecidableEq (Fin (signaturePeriod F)) instance matching the source definition's classical instance made it pass an independent normal exact-target/axiom audit. The six accepted ancestors and all attempts remain in experiments/partition_instance_failure (160-file manifest). The final continuation replays this verified repair and runs recovery_correct live.

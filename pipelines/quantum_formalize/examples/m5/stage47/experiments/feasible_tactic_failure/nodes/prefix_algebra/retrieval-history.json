@@ -1,0 +1,479 @@
+[
+  {
+    "queries": [
+      "List ofFn prefix take drop cardinality bijection",
+      "Finset card_bij filter image list length"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List ofFn prefix take drop cardinality bijection",
+        "status": "ok",
+        "results": [
+          {
+            "id": 323214,
+            "name": "Nat.card_eq_of_bijective",
+            "module": "Mathlib.SetTheory.Cardinal.Finite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Finite.lean#L103-L104",
+            "source_text": "theorem card_eq_of_bijective (f : α → β) (hf : Function.Bijective f) : Nat.card α = Nat.card β :=\n  card_congr (Equiv.ofBijective f hf)\n",
+            "docstring": null
+          },
+          {
+            "id": 57549,
+            "name": "finFunctionFinEquiv_apply_val",
+            "module": "Mathlib.Algebra.BigOperators.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L579-L579",
+            "source_text": "@[simps!]\ndef finFunctionFinEquiv {m n : ℕ} : (Fin n → Fin m) ≃ Fin (m ^ n) :=",
+            "docstring": null
+          },
+          {
+            "id": 218025,
+            "name": "Set.BijOn.ncard_eq",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L935-L935",
+            "source_text": "theorem BijOn.ncard_eq {t : Set β} (h : Set.BijOn f s t) : s.ncard = t.ncard := ncard_congr' h.equiv\n",
+            "docstring": null
+          },
+          {
+            "id": 322475,
+            "name": "Cardinal.mk_equiv_eq_arrow_of_eq",
+            "module": "Mathlib.SetTheory.Cardinal.Arithmetic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Arithmetic.lean#L680-L681",
+            "source_text": "theorem mk_equiv_eq_arrow_of_eq (eq : #α = #β) : #(α ≃ β) = #(α → β) :=\n  mk_equiv_eq_arrow_of_lift_eq congr(lift $eq)\n",
+            "docstring": null
+          },
+          {
+            "id": 322979,
+            "name": "Cardinal.map",
+            "module": "Mathlib.SetTheory.Cardinal.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Defs.lean#L130-L132",
+            "source_text": "/-- Lift a function between `Type*`s to a function between `Cardinal`s. -/\ndef map (f : Type u → Type v) (hf : ∀ α β, α ≃ β → f α ≃ f β) : Cardinal.{u} → Cardinal.{v} :=\n  Quotient.map f fun α β ⟨e⟩ => ⟨hf α β e⟩\n",
+            "docstring": "Lift a function between `Type*`s to a function between `Cardinal`s. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List ofFn prefix take drop cardinality bijection",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391964,
+            "name": "Fin.funPredPredAbove",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L357-L365",
+            "source_text": "/-- Given a bijection `Fin (n1 + 1 + 1) → Fin (n + 1 + 1))` and a pair `i j : Fin (n1 + 1 + 1)`,\n  then `funPredPredAbove i j _ σ _ : Fin n1 → Fin n` corresponds to the induced bijection\n  formed by dropping `i` and `j` in the source and their image in the target. -/\ndef funPredPredAbove {n n1 : ℕ} (i j : Fin (n1 + 1 + 1)) (hij : i ≠ j)\n    (σ : Fin (n1 + 1 + 1) → Fin (n + 1 + 1)) (hσ : Function.Bijective σ)\n    (m : Fin n1) : Fin n :=\n  predPredAbove (σ i) (σ j)\n    (by simp [hσ.injective.eq_iff, hij])\n    (σ (succSuccAbove i j m)) (by simp [hσ.injective.eq_iff, Ne.symm])\n",
+            "docstring": "Given a bijection `Fin (n1 + 1 + 1) → Fin (n + 1 + 1))` and a pair `i j : Fin (n1 + 1 + 1)`,\nthen `funPredPredAbove i j _ σ _ : Fin n1 → Fin n` corresponds to the induced bijection\nformed by dropping `i` and `j` in the source and their image in the target. "
+          },
+          {
+            "id": 391967,
+            "name": "Fin.funPredPredAbove_bijective",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L388-L393",
+            "source_text": "lemma funPredPredAbove_bijective {n n1 : ℕ} (i j : Fin (n1 + 1 + 1)) (hij : i ≠ j)\n    (σ : Fin (n1 + 1 + 1) → Fin (n + 1 + 1)) (hσ : Function.Bijective σ) :\n    Function.Bijective (funPredPredAbove i j hij σ hσ) := by\n  apply And.intro\n  · apply funPredPredAbove_injective\n  · apply funPredPredAbove_surjective\n",
+            "docstring": null
+          },
+          {
+            "id": 386716,
+            "name": "Physlib.List.insertIdx_eq_take_drop",
+            "module": "Physlib.Mathematics.List.InsertIdx",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L78-L86",
+            "source_text": "lemma insertIdx_eq_take_drop {I : Type} (i : I) : (r : List I) → (n : Fin r.length.succ) →\n    List.insertIdx r n i = List.take n r ++ i :: r.drop n\n  | [], 0 => by simp\n  | a :: as, 0 => by\n    simp\n  | a :: as, ⟨n + 1, h⟩ => by\n    simp only [List.insertIdx_succ_cons, List.take_succ_cons, List.drop_succ_cons, List.cons_append,\n      List.cons.injEq, true_and]\n    exact insertIdx_eq_take_drop i as ⟨n, Nat.succ_lt_succ_iff.mp h⟩\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset card_bij filter image list length",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 202376,
+            "name": "Finset.card_bij",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L340-L363",
+            "source_text": "/-- Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.card_nbij` is that the bijection is allowed to use membership of the\ndomain, rather than being a non-dependent function. -/\nlemma card_bij (i : ∀ a ∈ s, β) (hi : ∀ a ha, i a ha ∈ t)\n    (i_inj : ∀ a₁ ha₁ a₂ ha₂, i a₁ ha₁ = i a₂ ha₂ → a₁ = a₂)\n    (i_surj : ∀ b ∈ t, ∃ a ha, i a ha = b) : #s = #t := by\n  classical\n  calc\n    #s = #s.attach := card_attach.symm\n    _ = #(s.attach.image fun a ↦ i a.1 a.2) := Eq.symm ?_\n    _ = #t := ?_\n  · apply card_image_of_injective\n    intro ⟨_, _⟩ ⟨_, _⟩ h\n    simpa using i_inj _ _ _ _ h\n  · congr 1\n    ext b\n    constructor <;> intro h\n    · obtain ⟨_, _, rfl⟩ := mem_image.1 h; apply hi\n    · obtain ⟨a, ha, rfl⟩ := i_surj b h; exact mem_image.2 ⟨⟨a, ha⟩, by simp⟩\n",
+            "docstring": "Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.card_nbij` is that the bijection is allowed to use membership of the\ndomain, rather than being a non-dependent function. "
+          },
+          {
+            "id": 202377,
+            "name": "Finset.card_bij'",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L365-L378",
+            "source_text": "/-- Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij` is that the bijection is specified with an inverse, rather\nthan as a surjective injection.\n\nThe difference with `Finset.card_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains, rather than being non-dependent functions. -/\nlemma card_bij' (i : ∀ a ∈ s, β) (j : ∀ a ∈ t, α) (hi : ∀ a ha, i a ha ∈ t)\n    (hj : ∀ a ha, j a ha ∈ s) (left_inv : ∀ a ha, j (i a ha) (hi a ha) = a)\n    (right_inv : ∀ a ha, i (j a ha) (hj a ha) = a) : #s = #t := by\n  refine card_bij i hi (fun a1 h1 a2 h2 eq ↦ ?_) (fun b hb ↦ ⟨_, hj b hb, right_inv b hb⟩)\n  rw [← left_inv a1 h1, ← left_inv a2 h2]\n  simp only [eq]\n",
+            "docstring": "Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij` is that the bijection is specified with an inverse, rather\nthan as a surjective injection.\n\nThe difference with `Finset.card_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains, rather than being non-dependent functions. "
+          },
+          {
+            "id": 202980,
+            "name": "Finset.filterMap",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L584-L593",
+            "source_text": "/-- `filterMap f s` is a combination filter/map operation on `s`.\n  The function `f : α → Option β` is applied to each element of `s`;\n  if `f a` is `some b` then `b` is included in the result, otherwise\n  `a` is excluded from the resulting finset.\n\n  In notation, `filterMap f s` is the finset `{b : β | ∃ a ∈ s, f a = some b}`. -/\n-- TODO: should there be `filterImage` too?\ndef filterMap (f : α → Option β) (s : Finset α)\n    (f_inj : ∀ a a' b, b ∈ f a → b ∈ f a' → a = a') : Finset β :=\n  ⟨s.val.filterMap f, s.nodup.filterMap f f_inj⟩\n",
+            "docstring": "`filterMap f s` is a combination filter/map operation on `s`.\nThe function `f : α → Option β` is applied to each element of `s`;\nif `f a` is `some b` then `b` is included in the result, otherwise\n`a` is excluded from the resulting finset.\n\nIn notation, `filterMap f s` is the finset `{b : β | ∃ a ∈ s, f a = some b}`. "
+          },
+          {
+            "id": 283576,
+            "name": "Filter.map_card_atTop",
+            "module": "Mathlib.Order.Filter.AtTopBot.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/AtTopBot/Finset.lean#L103-L111",
+            "source_text": "/-- The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. -/\nlemma map_card_atTop [Infinite α] :\n    map (Finset.card (α := α)) atTop = atTop := by\n  rw [map_atTop_eq, atTop]\n  refine Function.Surjective.iInf_congr Finset.card Finset.exists_card_eq fun s ↦ congr(𝓟 $(?_))\n  ext\n  refine ⟨Infinite.exists_superset_card_eq _ _, ?_⟩\n  aesop (add safe apply Finset.card_le_card)\n",
+            "docstring": "The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset card_bij filter image list length",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389780,
+            "name": "WickContraction.uncontractedList_length_eq_card",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.UncontractedList",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/UncontractedList.lean#L220-L222",
+            "source_text": "lemma uncontractedList_length_eq_card (c : WickContraction n) :\n    c.uncontractedList.length = c.uncontracted.card := by\n  rw [uncontractedList_eq_sort, Finset.length_sort]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "completion_word_split",
+    "receipts_sha256": "69d42d6c26846b3badd6248d73832f2ece99a10a195bedec7337cb68f6595144"
+  },
+  {
+    "queries": [
+      "Finset.dvd_gcd_iff",
+      "List.sum_ofFn List.map_ofFn",
+      "Nat.dvd_gcd_iff List.foldr"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.dvd_gcd_iff",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66033,
+            "name": "Finset.dvd_gcd_iff",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L136-L139",
+            "source_text": "theorem dvd_gcd_iff {a : α} : a ∣ s.gcd f ↔ ∀ b ∈ s, a ∣ f b := by\n  apply Iff.trans Multiset.dvd_gcd\n  simp only [Multiset.mem_map, and_imp, exists_imp]\n  exact ⟨fun k b hb ↦ k _ _ hb rfl, fun k a' b hb h ↦ h ▸ k _ hb⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 66030,
+            "name": "Finset.gcd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L123-L125",
+            "source_text": "/-- Greatest common divisor of a finite set -/\ndef gcd (s : Finset β) (f : β → α) : α :=\n  s.fold GCDMonoid.gcd 0 f\n",
+            "docstring": "Greatest common divisor of a finite set "
+          },
+          {
+            "id": 66034,
+            "name": "Finset.gcd_dvd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L141-L142",
+            "source_text": "theorem gcd_dvd {b : β} (hb : b ∈ s) : s.gcd f ∣ f b :=\n  dvd_gcd_iff.1 dvd_rfl _ hb\n",
+            "docstring": null
+          },
+          {
+            "id": 66057,
+            "name": "Finset.gcd_eq_of_dvd_sub",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L278-L289",
+            "source_text": "theorem gcd_eq_of_dvd_sub {s : Finset β} {f g : β → α} {a : α}\n    (h : ∀ x : β, x ∈ s → a ∣ f x - g x) :\n    GCDMonoid.gcd a (s.gcd f) = GCDMonoid.gcd a (s.gcd g) := by\n  classical\n    revert h\n    refine s.induction_on ?_ ?_\n    · simp\n    intro b s _ hi h\n    rw [gcd_insert, gcd_insert, gcd_comm (f b), ← gcd_assoc,\n      hi fun x hx ↦ h _ (mem_insert_of_mem hx), gcd_comm a, gcd_assoc,\n      gcd_comm a (GCDMonoid.gcd _ _), gcd_comm (g b), gcd_assoc _ _ a, gcd_comm _ a]\n    exact congr_arg _ (gcd_eq_of_dvd_sub_right (h _ (mem_insert_self _ _)))\n",
+            "docstring": null
+          },
+          {
+            "id": 66032,
+            "name": "Finset.gcd_empty",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L132-L134",
+            "source_text": "@[simp]\ntheorem gcd_empty : (∅ : Finset β).gcd f = 0 :=\n  rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.dvd_gcd_iff",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List.sum_ofFn List.map_ofFn",
+        "status": "ok",
+        "results": [
+          {
+            "id": 57560,
+            "name": "List.sum_take_ofFn",
+            "module": "Mathlib.Algebra.BigOperators.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L725-L725",
+            "source_text": "@[to_additive]\ntheorem prod_take_ofFn {n : ℕ} (f : Fin n → M) (i : ℕ) :\n    ((ofFn f).take i).prod = ∏ j with j.val < i, f j := by",
+            "docstring": null
+          },
+          {
+            "id": 57562,
+            "name": "List.sum_ofFn",
+            "module": "Mathlib.Algebra.BigOperators.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L748-L748",
+            "source_text": "@[to_additive]\ntheorem prod_ofFn {n : ℕ} {f : Fin n → M} : (ofFn f).prod = ∏ i, f i :=",
+            "docstring": null
+          },
+          {
+            "id": 58617,
+            "name": "List.sum_map_add",
+            "module": "Mathlib.Algebra.BigOperators.Group.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/List/Basic.lean#L69-L69",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem prod_map_mul {M : Type*} [CommMonoid M] {l : List ι} {f g : ι → M} :",
+            "docstring": null
+          },
+          {
+            "id": 66176,
+            "name": "List.dProdIndex",
+            "module": "Mathlib.Algebra.GradedMonoid",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GradedMonoid.lean#L372-L375",
+            "source_text": "/-- The index used by `List.dProd`. Propositionally this is equal to `(l.map fι).Sum`, but\ndefinitionally it needs to have a different form to avoid introducing `Eq.rec`s in `List.dProd`. -/\ndef List.dProdIndex (l : List α) (fι : α → ι) : ι :=\n  l.foldr (fun i b => fι i + b) 0\n",
+            "docstring": "The index used by `List.dProd`. Propositionally this is equal to `(l.map fι).Sum`, but\ndefinitionally it needs to have a different form to avoid introducing `Eq.rec`s in `List.dProd`. "
+          },
+          {
+            "id": 58334,
+            "name": "Finset.sum_map_toList",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L409-L409",
+            "source_text": "@[to_additive (attr := simp, grind =)]\ntheorem prod_map_toList (s : Finset ι) (f : ι → M) : (s.toList.map f).prod = s.prod f := by",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List.sum_ofFn List.map_ofFn",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386713,
+            "name": "Physlib.List.insertIdx_map",
+            "module": "Physlib.Mathematics.List.InsertIdx",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L23-L30",
+            "source_text": "lemma insertIdx_map {I J : Type} (f : I → J) : (i : ℕ) → (r : List I) → (r0 : I) →\n    (List.insertIdx r i r0).map f = List.insertIdx (r.map f) i (f r0)\n  | 0, [], r0 => by simp\n  | n+1, [], r0 => by simp\n  | 0, a::as, r0 => by simp\n  | n+1, a::as, r0 => by\n    simp only [List.insertIdx_succ_cons, List.map_cons, List.cons.injEq, true_and]\n    exact insertIdx_map f n as r0\n",
+            "docstring": null
+          },
+          {
+            "id": 386694,
+            "name": "Physlib.List.insertionSort_eq_ofFn",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L557-L559",
+            "source_text": "lemma insertionSort_eq_ofFn {α : Type} {r : α → α → Prop} [DecidableRel r] (l : List α) :\n    List.insertionSort r l = List.ofFn (l.get ∘ (insertionSortEquiv r l).symm) := by\n  rw [insertionSortEquiv_get (r := r), List.ofFn_get]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Nat.dvd_gcd_iff List.foldr",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66030,
+            "name": "Finset.gcd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L123-L125",
+            "source_text": "/-- Greatest common divisor of a finite set -/\ndef gcd (s : Finset β) (f : β → α) : α :=\n  s.fold GCDMonoid.gcd 0 f\n",
+            "docstring": "Greatest common divisor of a finite set "
+          },
+          {
+            "id": 65875,
+            "name": "dvd_gcd_iff",
+            "module": "Mathlib.Algebra.GCDMonoid.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L386-L388",
+            "source_text": "theorem dvd_gcd_iff [GCDMonoid α] (a b c : α) : a ∣ gcd b c ↔ a ∣ b ∧ a ∣ c :=\n  Iff.intro (fun h => ⟨h.trans (gcd_dvd_left _ _), h.trans (gcd_dvd_right _ _)⟩) fun ⟨hab, hac⟩ =>\n    dvd_gcd hab hac\n",
+            "docstring": null
+          },
+          {
+            "id": 272374,
+            "name": "Nat.dvd_setGcd_iff",
+            "module": "Mathlib.NumberTheory.FrobeniusNumber",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/FrobeniusNumber.lean#L97-L100",
+            "source_text": "/-- The characterizing property of `Nat.setGcd`. -/\nlemma dvd_setGcd_iff : n ∣ setGcd s ↔ ∀ m ∈ s, n ∣ m := by\n  simp_rw [setGcd, ← Int.natCast_dvd, dvd_generator_span_iff,\n    Set.forall_mem_image, Int.natCast_dvd_natCast]\n",
+            "docstring": "The characterizing property of `Nat.setGcd`. "
+          },
+          {
+            "id": 66083,
+            "name": "Multiset.gcd",
+            "module": "Mathlib.Algebra.GCDMonoid.Multiset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Multiset.lean#L117-L119",
+            "source_text": "/-- Greatest common divisor of a multiset -/\ndef gcd (s : Multiset α) : α :=\n  s.fold GCDMonoid.gcd 0\n",
+            "docstring": "Greatest common divisor of a multiset "
+          },
+          {
+            "id": 207537,
+            "name": "List.foldr_hom₂",
+            "module": "Mathlib.Data.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L832-L836",
+            "source_text": "theorem foldr_hom₂ (l : List ι) (f : α → β → γ) (op₁ : ι → α → α) (op₂ : ι → β → β)\n    (op₃ : ι → γ → γ) (a : α) (b : β) (h : ∀ a b i, f (op₁ i a) (op₂ i b) = op₃ i (f a b)) :\n    foldr op₃ (f a b) l = f (foldr op₁ a l) (foldr op₂ b l) := by\n  revert a\n  induction l <;> intros <;> [rfl; simp only [*, foldr]]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Nat.dvd_gcd_iff List.foldr",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "List take drop append"
+    ],
+    "fallback_for": [
+      "Finset.dvd_gcd_iff",
+      "List.sum_ofFn List.map_ofFn",
+      "Nat.dvd_gcd_iff List.foldr"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List take drop append",
+        "status": "ok",
+        "results": [
+          {
+            "id": 208821,
+            "name": "List.rotate'_eq_drop_append_take",
+            "module": "Mathlib.Data.List.Rotate",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Rotate.lean#L61-L70",
+            "source_text": "theorem rotate'_eq_drop_append_take :\n    ∀ {l : List α} {n : ℕ}, n ≤ l.length → l.rotate' n = l.drop n ++ l.take n\n  | [], n, h => by simp\n  | l, 0, h => by simp\n  | a :: l, n + 1, h => by\n    have hnl : n ≤ l.length := le_of_succ_le_succ h\n    have hnl' : n ≤ (l ++ [a]).length := by\n      rw [length_append, length_cons, List.length]; exact le_of_succ_le h\n    rw [rotate'_cons_succ, rotate'_eq_drop_append_take hnl', drop, take,\n        drop_append_of_le_length hnl, take_append_of_le_length hnl]; simp\n",
+            "docstring": null
+          },
+          {
+            "id": 208831,
+            "name": "List.rotate_eq_drop_append_take",
+            "module": "Mathlib.Data.List.Rotate",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Rotate.lean#L127-L129",
+            "source_text": "theorem rotate_eq_drop_append_take {l : List α} {n : ℕ} :\n    n ≤ l.length → l.rotate n = l.drop n ++ l.take n := by\n  rw [rotate_eq_rotate']; exact rotate'_eq_drop_append_take\n",
+            "docstring": null
+          },
+          {
+            "id": 221450,
+            "name": "Stream'.append_take_drop",
+            "module": "Mathlib.Data.Stream.Init",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Stream/Init.lean#L550-L554",
+            "source_text": "@[simp]\ntheorem append_take_drop (n : ℕ) (s : Stream' α) : appendStream' (take n s) (drop n s) = s := by\n  induction n generalizing s with\n  | zero => rfl\n  | succ n ih => rw [take_succ, drop_succ, cons_append_stream, ih (tail s), Stream'.eta]",
+            "docstring": null
+          },
+          {
+            "id": 209397,
+            "name": "List.drop_take_append_drop",
+            "module": "Mathlib.Data.List.TakeDrop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L57-L58",
+            "source_text": "@[simp] lemma drop_take_append_drop (x : List α) (m n : ℕ) :\n    (x.drop m).take n ++ x.drop (m + n) = x.drop m := by rw [← drop_drop, take_append_drop]",
+            "docstring": null
+          },
+          {
+            "id": 209398,
+            "name": "List.drop_take_append_drop'",
+            "module": "Mathlib.Data.List.TakeDrop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/TakeDrop.lean#L60-L62",
+            "source_text": "/-- Compared to `drop_take_append_drop`, the order of summands is swapped. -/\n@[simp] lemma drop_take_append_drop' (x : List α) (m n : ℕ) :\n    (x.drop m).take n ++ x.drop (n + m) = x.drop m := by rw [Nat.add_comm, drop_take_append_drop]\n",
+            "docstring": "Compared to `drop_take_append_drop`, the order of summands is swapped. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List take drop append",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388926,
+            "name": "FieldSpecification.CrAnSection.take_append_drop",
+            "module": "Physlib.QFT.PerturbationTheory.FieldSpecification.CrAnSection",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldSpecification/CrAnSection.lean#L285-L289",
+            "source_text": "@[simp]\nlemma take_append_drop {n : ℕ} (ψs : CrAnSection φs) :\n    append (take n ψs) (drop n ψs) = congr (List.take_append_drop n φs).symm ψs := by\n  apply Subtype.ext\n  simp [take, drop, append]",
+            "docstring": null
+          },
+          {
+            "id": 386716,
+            "name": "Physlib.List.insertIdx_eq_take_drop",
+            "module": "Physlib.Mathematics.List.InsertIdx",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L78-L86",
+            "source_text": "lemma insertIdx_eq_take_drop {I : Type} (i : I) : (r : List I) → (n : Fin r.length.succ) →\n    List.insertIdx r n i = List.take n r ++ i :: r.drop n\n  | [], 0 => by simp\n  | a :: as, 0 => by\n    simp\n  | a :: as, ⟨n + 1, h⟩ => by\n    simp only [List.insertIdx_succ_cons, List.take_succ_cons, List.drop_succ_cons, List.cons_append,\n      List.cons.injEq, true_and]\n    exact insertIdx_eq_take_drop i as ⟨n, Nat.succ_lt_succ_iff.mp h⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 386724,
+            "name": "Physlib.List.drop_eraseIdx_succ",
+            "module": "Physlib.Mathematics.List.InsertIdx",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L159-L169",
+            "source_text": "lemma drop_eraseIdx_succ {I : Type} :\n    (n : ℕ) → (r : List I) → (hn : n < r.length) →\n    r[n] :: List.drop n (List.eraseIdx r n) = List.drop n r\n  | 0, _, _=> by\n    simp only [List.eraseIdx_zero, List.drop_tail, zero_add, List.drop_one, List.drop_zero]\n    rw [@List.getElem_zero]\n    exact List.cons_head_tail _\n  | n+1, [], hn => by simp at hn\n  | n+1, a::as, hn => by\n    simp only [List.getElem_cons_succ, List.eraseIdx_cons_succ, List.drop_succ_cons]\n    refine drop_eraseIdx_succ n as _\n",
+            "docstring": null
+          },
+          {
+            "id": 386656,
+            "name": "Physlib.List.dropWile_eraseIdx",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L51-L87",
+            "source_text": "lemma dropWile_eraseIdx {I : Type} (P : I → Prop) [DecidablePred P] :\n    (l : List I) → (i : ℕ) → (hi : ∀ (i j : Fin l.length), i < j → P (l.get j) → P (l.get i)) →\n    List.dropWhile P (List.eraseIdx l i) =\n      if (List.takeWhile P l).length ≤ i then\n        (List.dropWhile P l).eraseIdx (i - (List.takeWhile P l).length)\n      else (List.dropWhile P l)\n  | [], _, h => by\n    simp\n  | a :: [], 0, h => by\n    by_cases hPa : P a <;> simp [hPa]\n  | a :: [], Nat.succ n, h => by\n    by_cases hPa : P a <;> simp [hPa, List.eraseIdx_of_length_le]\n  | a :: b :: l, 0, h => by\n    by_cases hPb : P b\n    · have hPa : P a := by\n        simpa using h ⟨0, by simp⟩ ⟨1, by simp⟩ (by simp) (by simpa using hPb)\n      simp [hPb, hPa]\n    · by_cases hPa : P a <;> simp [hPa, hPb]\n  | a :: b :: l, Nat.succ n, h => by\n    simp only [Nat.succ_eq_add_one, List.eraseIdx_cons_succ]\n    by_cases hPb : P b\n    · have hPa : P a := by\n        simpa using h ⟨0, by simp⟩ ⟨1, by simp⟩ (by simp) (by simpa using hPb)\n      simp only [List.dropWhile, hPa, decide_true, List.takeWhile, hPb, List.length_cons,\n        add_le_add_iff_right, Nat.reduceSubDiff]\n      rw [dropWile_eraseIdx P (b :: l) n (fun i j hij hP => by\n        simpa using h i.succ j.succ (by simpa using hij) (by simpa using hP))]\n      simp_all only [List.length_cons, List.get_eq_getElem, decide_true, List.takeWhile_cons_of_pos,\n        List.dropWhile_cons_of_pos]\n    · simp only [List.dropWhile, List.takeWhile, hPb, decide_false]\n      by_cases hPa : P a\n      · rw [dropWile_eraseIdx P (b :: l) n (fun i j hij hP => by\n          simpa using h i.succ j.succ (by simpa using hij) (by simpa using hP))]\n        simp only [hPa, decide_true, hPb, decide_false, Bool.false_eq_true, not_false_eq_true,\n          List.takeWhile_cons_of_neg, List.length_nil, zero_le, ↓reduceIte, List.dropWhile,\n          tsub_zero, List.length_singleton, le_add_iff_nonneg_left, add_tsub_cancel_right]\n      · simp [hPa]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

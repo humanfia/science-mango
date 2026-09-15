@@ -1,0 +1,223 @@
+[
+  {
+    "id": "completion_word_split",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.ArithmeticResidueRecovery.completion_word_split",
+      "statement": "∀ {α : Type} (k : ℕ) (u : List α) (a : Fin (k - (u.take k).length) → α) (b : Fin (k - (u.drop k).length) → α), u.length ≤ 2*k → (M5.ArithmeticResidueRecovery.completionWord k u a b).length = 2*k ∧ u.IsPrefix (M5.ArithmeticResidueRecovery.completionWord k u a b) ∧ (M5.ArithmeticResidueRecovery.completionWord k u a b).take k = u.take k ++ List.ofFn a ∧ (M5.ArithmeticResidueRecovery.completionWord k u a b).drop k = u.drop k ++ List.ofFn b",
+      "imports": [
+        "M5ArithmeticResidueRecovery",
+        "M5ConditionalResidueCountAccepted",
+        "M5ResidueRecoveryAccepted",
+        "M5PrefixPartitionAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "List ofFn prefix take drop cardinality bijection",
+        "Finset card_bij filter image list length"
+      ],
+      "guidance": "Prove lengths of both completed blocks equal k using take/drop lengths and omega. take/drop of concatenation at first-block length give split identities. Prefix property splits on u.length≤k: then drop k u=[], otherwise take k u has length k and a has empty domain. Use list associativity and take_append_drop. Keep α possibly empty. Return tactic lines only, without leading by."
+    },
+    "metadata": {
+      "source_section": "§4 concrete residue recovery",
+      "fallback_queries": [
+        "List take drop append"
+      ]
+    }
+  },
+  {
+    "id": "completion_prefix_card",
+    "dependencies": [
+      "completion_word_split"
+    ],
+    "spec": {
+      "name": "M5.ArithmeticResidueRecovery.completion_prefix_card",
+      "statement": "∀ {α : Type} [Fintype α] [DecidableEq α] (k : ℕ) (u : List α) (Valid : List α → Prop), u.length ≤ 2*k → M5.ArithmeticResidueRecovery.completionCount k u Valid = M5.PrefixPartition.count (M5.ArithmeticResidueRecovery.fullWords (2*k) Valid) u",
+      "imports": [
+        "M5ArithmeticResidueRecovery",
+        "M5ConditionalResidueCountAccepted",
+        "M5ResidueRecoveryAccepted",
+        "M5PrefixPartitionAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "List ofFn prefix take drop cardinality bijection",
+        "Finset card_bij filter image list length"
+      ],
+      "guidance": "Establish cardinality bijection via completionWord. A target word v has length2k and extendsu; inverse completions are the portions of v.take k and v.drop k after their selected prefixes, converted to functions on the known remaining lengths. Injectivity uses equal take/drop blocks and cancellation plus List.ofFn injectivity. For surjectivity use prefix u v to prove selected portions agree. Semantic count only; no arithmetic oracle assumption. Use card_bij or subtype equivalence. Avoid change across inferred Decidable instances; identify filters by extensional membership first. Return tactic lines only, without leading by."
+    },
+    "metadata": {
+      "source_section": "§4 concrete residue recovery",
+      "fallback_queries": [
+        "List take drop append"
+      ]
+    }
+  },
+  {
+    "id": "prefix_algebra",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.ArithmeticResidueRecovery.prefix_algebra",
+      "statement": "∀ (T k : ℕ) (p : List (Fin T)) (a : Fin k → Fin T), M5.ConditionalResidueCount.selectedPolynomial (p ++ List.ofFn a) = M5.ConditionalResidueCount.completedPolynomial (M5.ConditionalResidueCount.selectedPolynomial p) a ∧ M5.ConditionalResidueCount.prefixGcd (p ++ List.ofFn a) = Nat.gcd (M5.ConditionalResidueCount.prefixGcd p) (Finset.univ.gcd (fun i : Fin k => (a i).val))",
+      "imports": [
+        "M5ArithmeticResidueRecovery",
+        "M5ConditionalResidueCountAccepted",
+        "M5ResidueRecoveryAccepted",
+        "M5PrefixPartitionAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "List ofFn prefix take drop cardinality bijection",
+        "Finset card_bij filter image list length"
+      ],
+      "guidance": "Polynomial identity follows map_append/list.sum_append and sum_ofFn. Gcd identity follows foldr gcd on append and ofFn: use divisibility antisymmetry and every-coordinate characterization if direct fold lemmas inconvenient. Repetitions are retained and k=0 allowed. Return tactic lines only, without leading by."
+    },
+    "metadata": {
+      "source_section": "§4 concrete residue recovery",
+      "fallback_queries": [
+        "List take drop append"
+      ]
+    }
+  },
+  {
+    "id": "completion_feasible",
+    "dependencies": [
+      "completion_word_split",
+      "prefix_algebra"
+    ],
+    "spec": {
+      "name": "M5.ArithmeticResidueRecovery.completion_feasible",
+      "statement": "∀ (T w : ℕ) (F : M5.BinaryPolynomial) (u : List (Fin T)) (a : Fin ((w-1) - (u.take (w-1)).length) → Fin T) (b : Fin ((w-1) - (u.drop (w-1)).length) → Fin T), u.length ≤ 2*(w-1) → (M5.ConditionalResidueCount.feasible w F (u.take (w-1)) (u.drop (w-1)) a b ↔ M5.ArithmeticResidueRecovery.wordValid w F (M5.ArithmeticResidueRecovery.completionWord (w-1) u a b))",
+      "imports": [
+        "M5ArithmeticResidueRecovery",
+        "M5ConditionalResidueCountAccepted",
+        "M5ResidueRecoveryAccepted",
+        "M5PrefixPartitionAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "List ofFn prefix take drop cardinality bijection",
+        "Finset card_bij filter image list length"
+      ],
+      "guidance": "Rewrite word split and prefix_algebra. Unfold selectedGcd and feasible; reassociate and commute Nat.gcd to identify raw-coordinate gcd. Polynomial signature inputs agree exactly, including zero polynomials and cancellations. Return tactic lines only, without leading by."
+    },
+    "metadata": {
+      "source_section": "§4 concrete residue recovery",
+      "fallback_queries": [
+        "List take drop append"
+      ]
+    }
+  },
+  {
+    "id": "oracle_prefix_count",
+    "dependencies": [
+      "completion_prefix_card",
+      "completion_feasible"
+    ],
+    "spec": {
+      "name": "M5.ArithmeticResidueRecovery.oracle_prefix_count",
+      "statement": "∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → ∀ (u : List (Fin (M5.signaturePeriod F))), u.length ≤ 2*(w-1) → M5.ArithmeticResidueRecovery.oracle w F u = M5.PrefixPartition.count (M5.ArithmeticResidueRecovery.fullWords (2*(w-1)) (M5.ArithmeticResidueRecovery.wordValid w F)) u",
+      "imports": [
+        "M5ArithmeticResidueRecovery",
+        "M5ConditionalResidueCountAccepted",
+        "M5ResidueRecoveryAccepted",
+        "M5PrefixPartitionAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "List ofFn prefix take drop cardinality bijection",
+        "Finset card_bij filter image list length"
+      ],
+      "guidance": "Apply accepted stage42 period_conditionalA_exact cardinality equality. Prefix lengths fit by take/drop arithmetic and omega. Unfold validCompletions guard, match feasibility filter with completionCount using completion_feasible and filter extensionality; apply completion_prefix_card. Preserve exact arithmetic oracle definition. Return tactic lines only, without leading by."
+    },
+    "metadata": {
+      "source_section": "§4 concrete residue recovery",
+      "fallback_queries": [
+        "List take drop append"
+      ]
+    }
+  },
+  {
+    "id": "oracle_initial",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.ArithmeticResidueRecovery.oracle_initial",
+      "statement": "∀ (w : ℕ) (F : M5.BinaryPolynomial), M5.ArithmeticResidueRecovery.oracle w F [] = M5.ResidueCount.A w F",
+      "imports": [
+        "M5ArithmeticResidueRecovery",
+        "M5ConditionalResidueCountAccepted",
+        "M5ResidueRecoveryAccepted",
+        "M5PrefixPartitionAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "List ofFn prefix take drop cardinality bijection",
+        "Finset card_bij filter image list length"
+      ],
+      "guidance": "Unfold arithmetic definitions: selectedPolynomial []=1, prefixGcd []=0, selectedGcd T [] []=T, remaining=w−1, fits true. RSelected with Z=1 equals ROne by the same monicity wrapper. Both divisor/factor sums agree, multiplication square is pow_two. No mathematical assumptions needed, including w=0. Return tactic lines only, without leading by."
+    },
+    "metadata": {
+      "source_section": "§4 concrete residue recovery",
+      "fallback_queries": [
+        "List take drop append"
+      ]
+    }
+  },
+  {
+    "id": "oracle_partition_terminal",
+    "dependencies": [
+      "oracle_prefix_count"
+    ],
+    "spec": {
+      "name": "M5.ArithmeticResidueRecovery.oracle_partition_terminal",
+      "statement": "∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → (∀ (u : List (Fin (M5.signaturePeriod F))), u.length < 2*(w-1) → M5.ArithmeticResidueRecovery.oracle w F u = ∑ a : Fin (M5.signaturePeriod F), M5.ArithmeticResidueRecovery.oracle w F (u ++ [a])) ∧ (∀ (u : List (Fin (M5.signaturePeriod F))), u.length = 2*(w-1) → 0 < M5.ArithmeticResidueRecovery.oracle w F u → M5.ArithmeticResidueRecovery.wordValid w F u)",
+      "imports": [
+        "M5ArithmeticResidueRecovery",
+        "M5ConditionalResidueCountAccepted",
+        "M5ResidueRecoveryAccepted",
+        "M5PrefixPartitionAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "List ofFn prefix take drop cardinality bijection",
+        "Finset card_bij filter image list length"
+      ],
+      "guidance": "All members of fullWords have length2k, by mem_image/ofFn length. Apply accepted stage44 count_partition and count_terminal after rewriting oracle_prefix_count for prefixes and children. Terminal positive indicator gives wordValid from filtered membership. No oracle assumptions may remain. Return tactic lines only, without leading by."
+    },
+    "metadata": {
+      "source_section": "§4 concrete residue recovery",
+      "fallback_queries": [
+        "List take drop append"
+      ]
+    }
+  },
+  {
+    "id": "recovery_correct",
+    "dependencies": [
+      "oracle_initial",
+      "oracle_partition_terminal"
+    ],
+    "spec": {
+      "name": "M5.ArithmeticResidueRecovery.recovery_correct",
+      "statement": "∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → 0 < M5.ResidueCount.A w F → ∃ u : List (Fin (M5.signaturePeriod F)), (M5.ArithmeticResidueRecovery.recover w F).1 = some u ∧ u.length = 2*(w-1) ∧ M5.ArithmeticResidueRecovery.wordValid w F u ∧ (M5.ArithmeticResidueRecovery.recover w F).2 ≤ 2*(w-1)*(M5.signaturePeriod F)",
+      "imports": [
+        "M5ArithmeticResidueRecovery",
+        "M5ConditionalResidueCountAccepted",
+        "M5ResidueRecoveryAccepted",
+        "M5PrefixPartitionAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "List ofFn prefix take drop cardinality bijection",
+        "Finset card_bij filter image list length"
+      ],
+      "guidance": "Instantiate accepted M5.ResidueRecovery.recover_valid with the concrete oracle, wordValid and m=2*(w−1), using oracle_partition_terminal and oracle_initial. The final theorem contains no abstract oracle correctness hypotheses; bound counts arithmetic candidate tests, not wall time. Return tactic lines only, without leading by."
+    },
+    "metadata": {
+      "source_section": "§4 concrete residue recovery",
+      "fallback_queries": [
+        "List take drop append"
+      ]
+    }
+  }
+]

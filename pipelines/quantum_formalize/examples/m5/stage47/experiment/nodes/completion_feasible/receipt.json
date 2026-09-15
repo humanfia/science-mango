@@ -1,0 +1,91 @@
+{
+  "id": "completion_feasible",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ArithmeticResidueRecovery.completion_feasible",
+    "spec_sha256": "1320716b60955b72c1e01e0a19556cffc8e9b50fb047477696993b3a8b92eac2",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-arithmetic-residue-recovery-formalization/.humanize-formal-runs/run-8nqyx7mu/attempt-001/Candidate_9efc2f7ba52e20c2.lean",
+        "target_path": "/home/jing/m5-lean-arithmetic-residue-recovery-formalization/.humanize-formal-runs/run-8nqyx7mu/attempt-001/FrozenTarget_9efc2f7ba52e20c2.lean",
+        "feedback": "",
+        "target_sha256": "2b3fc9b619a7755cc9aa786afc62a4188da64828d402ab1d749a7ae270830483",
+        "target_olean_sha256": "d876b65ed8525e490396792951f7466bd188dda450445bdaf5dc270026e7f805",
+        "source_sha256": "e0af4e95d2d2689652992c82e09c9ea8c5c965063ce78603bec40898b08f1366",
+        "olean_sha256": "713a261a1287c1d40f913adc97e519f4181835c2e20820c478dd05cd03f638fa",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T10:22:01.905778+00:00",
+    "work": "/home/jing/m5-lean-arithmetic-residue-recovery-formalization/.humanize-formal-runs/run-8nqyx7mu",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b358ec1565758f05bcc347fe16ba01efd1de6b554c9fc15c6b54da4d608e91c4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-arithmetic-residue-recovery-formalization/.humanize-formal-runs/run-8nqyx7mu/attempt-001/Candidate_9efc2f7ba52e20c2.lean",
+    "environment_sha256": "7fef853493dbd80d65ead26d06978df15abc8d840b90f2b7047eaa7aecfb6e63",
+    "artifacts": {
+      "completion_word_split": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticResidueRecovery.completion_word_split : ∀ {α : Type} (k : ℕ) (u : List α) (a : Fin (k - (u.take k).length) → α) (b : Fin (k - (u.drop k).length) → α), u.length ≤ 2*k → (M5.ArithmeticResidueRecovery.completionWord k u a b).length = 2*k ∧ u.IsPrefix (M5.ArithmeticResidueRecovery.completionWord k u a b) ∧ (M5.ArithmeticResidueRecovery.completionWord k u a b).take k = u.take k ++ List.ofFn a ∧ (M5.ArithmeticResidueRecovery.completionWord k u a b).drop k = u.drop k ++ List.ofFn b := by\n  intro α k u a b hu\n  have hta : (u.take k).length ≤ k := by simp only [List.length_take]; omega\n  have hdb : (u.drop k).length ≤ k := by simp only [List.length_drop]; omega\n  have hA : (u.take k ++ List.ofFn a).length = k := by\n    simp only [List.length_append, List.length_ofFn]\n    omega\n  have hB : (u.drop k ++ List.ofFn b).length = k := by\n    simp only [List.length_append, List.length_ofFn]\n    omega\n  refine ⟨?_, ?_, ?_, ?_⟩\n  · unfold M5.ArithmeticResidueRecovery.completionWord\n    rw [List.length_append, hA, hB]\n    omega\n  · by_cases h : u.length ≤ k\n    · have ht : u.take k = u := List.take_of_length_le h\n      have hup : u.IsPrefix (u.take k) := by rw [ht]\n      exact hup.trans ((List.prefix_append (u.take k) (List.ofFn a)).trans\n        (List.prefix_append (u.take k ++ List.ofFn a) (u.drop k ++ List.ofFn b)))\n    · have ht : (u.take k).length = k := by simp only [List.length_take]; omega\n      have ha : List.ofFn a = [] := by\n        apply List.eq_nil_of_length_eq_zero\n        simp only [List.length_ofFn, ht, Nat.sub_self]\n      unfold M5.ArithmeticResidueRecovery.completionWord\n      rw [ha, List.append_nil, ← List.append_assoc, List.take_append_drop]\n      exact List.prefix_append u _\n  · exact List.take_left' hA\n  · exact List.drop_left' hA",
+          "imports": [
+            "M5ArithmeticResidueRecovery",
+            "M5ConditionalResidueCountAccepted",
+            "M5PrefixPartitionAccepted",
+            "M5ResidueRecoveryAccepted"
+          ],
+          "name": "M5.ArithmeticResidueRecovery.completion_word_split",
+          "ancestors": [],
+          "spec_sha256": "8d7413a9ab93be830a5c46107d1a0a0018177a97e4cdcdf369824f5772c01a7e"
+        },
+        "sha256": "54f3d38060195b8119afac5b9d1e749921b73b97ceee906f258e95cb799fb5c3"
+      },
+      "prefix_algebra": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticResidueRecovery.prefix_algebra : ∀ (T k : ℕ) (p : List (Fin T)) (a : Fin k → Fin T), M5.ConditionalResidueCount.selectedPolynomial (p ++ List.ofFn a) = M5.ConditionalResidueCount.completedPolynomial (M5.ConditionalResidueCount.selectedPolynomial p) a ∧ M5.ConditionalResidueCount.prefixGcd (p ++ List.ofFn a) = Nat.gcd (M5.ConditionalResidueCount.prefixGcd p) (Finset.univ.gcd (fun i : Fin k => (a i).val)) := by\n  intro T k p a\n  classical\n  constructor\n  · simp [M5.ConditionalResidueCount.selectedPolynomial,\n      M5.ConditionalResidueCount.completedPolynomial,\n      List.map_append, List.sum_append, List.map_ofFn, List.sum_ofFn,\n      add_assoc]\n  · have hd : ∀ (l : List (Fin T)) (d : ℕ),\n        d ∣ M5.ConditionalResidueCount.prefixGcd l ↔ ∀ r ∈ l, d ∣ r.val := by\n      intro l d\n      induction l with\n      | nil => simp [M5.ConditionalResidueCount.prefixGcd]\n      | cons r l ih =>\n        simp_all [M5.ConditionalResidueCount.prefixGcd, Nat.dvd_gcd_iff]\n    have he : ∀ d : ℕ,\n        d ∣ M5.ConditionalResidueCount.prefixGcd (p ++ List.ofFn a) ↔\n        d ∣ Nat.gcd (M5.ConditionalResidueCount.prefixGcd p)\n          (Finset.univ.gcd (fun i : Fin k => (a i).val)) := by\n      intro d\n      rw [hd, Nat.dvd_gcd_iff, hd, Finset.dvd_gcd_iff]\n      constructor\n      · intro h\n        constructor\n        · intro r hr\n          exact h r (List.mem_append.mpr (Or.inl hr))\n        · intro i hi\n          apply h (a i)\n          apply List.mem_append.mpr\n          exact Or.inr (by simp)\n      · rintro ⟨hp, ha⟩ r hr\n        rcases List.mem_append.mp hr with hr | hr\n        · exact hp r hr\n        · have hi : ∃ i, a i = r := by simpa using hr\n          rcases hi with ⟨i, rfl⟩\n          exact ha i (Finset.mem_univ i)\n    apply Nat.dvd_antisymm\n    · exact (he _).mp dvd_rfl\n    · exact (he _).mpr dvd_rfl",
+          "imports": [
+            "M5ArithmeticResidueRecovery",
+            "M5ConditionalResidueCountAccepted",
+            "M5PrefixPartitionAccepted",
+            "M5ResidueRecoveryAccepted"
+          ],
+          "name": "M5.ArithmeticResidueRecovery.prefix_algebra",
+          "ancestors": [],
+          "spec_sha256": "972d5c08791e5761f16dd6c3bd6cf599f5b5459d336c9bcfbe17657a789855ca"
+        },
+        "sha256": "cbce7875a7f627c98b705ef0afc18669de1ceb0ab710a5e37191c6ce66757d6b"
+      },
+      "completion_feasible": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticResidueRecovery.completion_feasible : ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (u : List (Fin T)) (a : Fin ((w-1) - (u.take (w-1)).length) → Fin T) (b : Fin ((w-1) - (u.drop (w-1)).length) → Fin T), u.length ≤ 2*(w-1) → (M5.ConditionalResidueCount.feasible w F (u.take (w-1)) (u.drop (w-1)) a b ↔ M5.ArithmeticResidueRecovery.wordValid w F (M5.ArithmeticResidueRecovery.completionWord (w-1) u a b)) := by\n  intro T w F u a b hu\n  classical\n  rcases M5.ArithmeticResidueRecovery.completion_word_split (w - 1) u a b hu with\n    ⟨hlen, hprefix, htake, hdrop⟩\n  have ha := M5.ArithmeticResidueRecovery.prefix_algebra T _ (u.take (w - 1)) a\n  have hb := M5.ArithmeticResidueRecovery.prefix_algebra T _ (u.drop (w - 1)) b\n  simp only [M5.ArithmeticResidueRecovery.wordValid,\n    M5.ConditionalResidueCount.feasible,\n    hlen, htake, hdrop,\n    M5.ConditionalResidueCount.selectedGcd,\n    ha.1, ha.2, hb.1, hb.2,\n    Nat.gcd_assoc, Nat.gcd_comm, Nat.gcd_left_comm]\n  rfl",
+          "imports": [
+            "M5ArithmeticResidueRecovery",
+            "M5ConditionalResidueCountAccepted",
+            "M5PrefixPartitionAccepted",
+            "M5ResidueRecoveryAccepted"
+          ],
+          "name": "M5.ArithmeticResidueRecovery.completion_feasible",
+          "ancestors": [
+            "completion_word_split",
+            "prefix_algebra"
+          ],
+          "spec_sha256": "09f7d8340bdbef04d60cdff74356f809f947ee0a9a9d5c8bfd2a659bfb05e522"
+        },
+        "sha256": "9e84ddb0c72c123f7e69d9071557bc5a38678d493e0662b5be5ddcb240847f6a"
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "proof": "set_option maxHeartbeats 2000000 in\n  intro T w F u a b hu\n  classical\n  obtain ⟨hlen, hprefix, htake, hdrop⟩ :=\n    M5.ArithmeticResidueRecovery.completion_word_split (w - 1) u a b hu\n  obtain ⟨hpa, hga⟩ := M5.ArithmeticResidueRecovery.prefix_algebra\n    T _ (u.take (w - 1)) a\n  obtain ⟨hpb, hgb⟩ := M5.ArithmeticResidueRecovery.prefix_algebra\n    T _ (u.drop (w - 1)) b\n  have ht : (u.take (w - 1)).length ≤ w - 1 := by\n    simp only [List.length_take]\n    omega\n  have hd : (u.drop (w - 1)).length ≤ w - 1 := by\n    simp only [List.length_drop]\n    omega\n  simp [M5.ArithmeticResidueRecovery.wordValid,\n    M5.ConditionalResidueCount.feasible,\n    hlen, htake, hdrop,\n    M5.ConditionalResidueCount.selectedGcd,\n    hpa, hpb, hga, hgb,\n    M5.ConditionalResidueCount.fits, ht, hd,\n    Nat.gcd_assoc, Nat.gcd_comm, Nat.gcd_left_comm]",
+  "queries": [
+    "Nat.gcd_assoc Nat.gcd_left_comm Nat.gcd_comm"
+  ]
+}

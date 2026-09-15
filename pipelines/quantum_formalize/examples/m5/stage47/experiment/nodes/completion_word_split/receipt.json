@@ -1,0 +1,57 @@
+{
+  "id": "completion_word_split",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ArithmeticResidueRecovery.completion_word_split",
+    "spec_sha256": "dbf2fb42ada756b9a39d37ffd2f88eb6479bbcd61555529f99d44480403ce02c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-arithmetic-residue-recovery-formalization/.humanize-formal-runs/run-codtz27f/attempt-001/Candidate_e7e876f729815f2f.lean",
+        "target_path": "/home/jing/m5-lean-arithmetic-residue-recovery-formalization/.humanize-formal-runs/run-codtz27f/attempt-001/FrozenTarget_e7e876f729815f2f.lean",
+        "feedback": "",
+        "target_sha256": "450fdd8e37ef80a7ac86ddcab500a24a1590363464faf1dafa87698c1395d777",
+        "target_olean_sha256": "9785f8876241ecbc3be0addce1f53efd30a6a7232349b45c91538878fa74c8ce",
+        "source_sha256": "50779e9c28ce7214f731b7a0a9ffb21e36260d7193ce86ee0f9b103ee8c48f3a",
+        "olean_sha256": "dbc77eb461352d675b40ba371e1119c28f7d4ef82daed7d5548ec038d9a059d8",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T10:20:51.388869+00:00",
+    "work": "/home/jing/m5-lean-arithmetic-residue-recovery-formalization/.humanize-formal-runs/run-codtz27f",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b358ec1565758f05bcc347fe16ba01efd1de6b554c9fc15c6b54da4d608e91c4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-arithmetic-residue-recovery-formalization/.humanize-formal-runs/run-codtz27f/attempt-001/Candidate_e7e876f729815f2f.lean",
+    "environment_sha256": "7fef853493dbd80d65ead26d06978df15abc8d840b90f2b7047eaa7aecfb6e63",
+    "artifacts": {
+      "completion_word_split": {
+        "payload": {
+          "declaration": "theorem M5.ArithmeticResidueRecovery.completion_word_split : ∀ {α : Type} (k : ℕ) (u : List α) (a : Fin (k - (u.take k).length) → α) (b : Fin (k - (u.drop k).length) → α), u.length ≤ 2*k → (M5.ArithmeticResidueRecovery.completionWord k u a b).length = 2*k ∧ u.IsPrefix (M5.ArithmeticResidueRecovery.completionWord k u a b) ∧ (M5.ArithmeticResidueRecovery.completionWord k u a b).take k = u.take k ++ List.ofFn a ∧ (M5.ArithmeticResidueRecovery.completionWord k u a b).drop k = u.drop k ++ List.ofFn b := by\n  intro α k u a b hu\n  have hta : (u.take k).length ≤ k := by simp only [List.length_take]; omega\n  have hdb : (u.drop k).length ≤ k := by simp only [List.length_drop]; omega\n  have hA : (u.take k ++ List.ofFn a).length = k := by\n    simp only [List.length_append, List.length_ofFn]\n    omega\n  have hB : (u.drop k ++ List.ofFn b).length = k := by\n    simp only [List.length_append, List.length_ofFn]\n    omega\n  refine ⟨?_, ?_, ?_, ?_⟩\n  · unfold M5.ArithmeticResidueRecovery.completionWord\n    rw [List.length_append, hA, hB]\n    omega\n  · by_cases h : u.length ≤ k\n    · have ht : u.take k = u := List.take_of_length_le h\n      have hup : u.IsPrefix (u.take k) := by rw [ht]\n      exact hup.trans ((List.prefix_append (u.take k) (List.ofFn a)).trans\n        (List.prefix_append (u.take k ++ List.ofFn a) (u.drop k ++ List.ofFn b)))\n    · have ht : (u.take k).length = k := by simp only [List.length_take]; omega\n      have ha : List.ofFn a = [] := by\n        apply List.eq_nil_of_length_eq_zero\n        simp only [List.length_ofFn, ht, Nat.sub_self]\n      unfold M5.ArithmeticResidueRecovery.completionWord\n      rw [ha, List.append_nil, ← List.append_assoc, List.take_append_drop]\n      exact List.prefix_append u _\n  · exact List.take_left' hA\n  · exact List.drop_left' hA",
+          "imports": [
+            "M5ArithmeticResidueRecovery",
+            "M5ConditionalResidueCountAccepted",
+            "M5PrefixPartitionAccepted",
+            "M5ResidueRecoveryAccepted"
+          ],
+          "name": "M5.ArithmeticResidueRecovery.completion_word_split",
+          "ancestors": [],
+          "spec_sha256": "8d7413a9ab93be830a5c46107d1a0a0018177a97e4cdcdf369824f5772c01a7e"
+        },
+        "sha256": "54f3d38060195b8119afac5b9d1e749921b73b97ceee906f258e95cb799fb5c3"
+      }
+    }
+  }
+}

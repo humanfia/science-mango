@@ -1,0 +1,166 @@
+[
+  {
+    "queries": [
+      "List ofFn prefix take drop cardinality bijection",
+      "Finset card_bij filter image list length"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List ofFn prefix take drop cardinality bijection",
+        "status": "ok",
+        "results": [
+          {
+            "id": 323214,
+            "name": "Nat.card_eq_of_bijective",
+            "module": "Mathlib.SetTheory.Cardinal.Finite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Finite.lean#L103-L104",
+            "source_text": "theorem card_eq_of_bijective (f : α → β) (hf : Function.Bijective f) : Nat.card α = Nat.card β :=\n  card_congr (Equiv.ofBijective f hf)\n",
+            "docstring": null
+          },
+          {
+            "id": 57549,
+            "name": "finFunctionFinEquiv_apply_val",
+            "module": "Mathlib.Algebra.BigOperators.Fin",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L579-L579",
+            "source_text": "@[simps!]\ndef finFunctionFinEquiv {m n : ℕ} : (Fin n → Fin m) ≃ Fin (m ^ n) :=",
+            "docstring": null
+          },
+          {
+            "id": 218025,
+            "name": "Set.BijOn.ncard_eq",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L935-L935",
+            "source_text": "theorem BijOn.ncard_eq {t : Set β} (h : Set.BijOn f s t) : s.ncard = t.ncard := ncard_congr' h.equiv\n",
+            "docstring": null
+          },
+          {
+            "id": 322475,
+            "name": "Cardinal.mk_equiv_eq_arrow_of_eq",
+            "module": "Mathlib.SetTheory.Cardinal.Arithmetic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Arithmetic.lean#L680-L681",
+            "source_text": "theorem mk_equiv_eq_arrow_of_eq (eq : #α = #β) : #(α ≃ β) = #(α → β) :=\n  mk_equiv_eq_arrow_of_lift_eq congr(lift $eq)\n",
+            "docstring": null
+          },
+          {
+            "id": 322979,
+            "name": "Cardinal.map",
+            "module": "Mathlib.SetTheory.Cardinal.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Defs.lean#L130-L132",
+            "source_text": "/-- Lift a function between `Type*`s to a function between `Cardinal`s. -/\ndef map (f : Type u → Type v) (hf : ∀ α β, α ≃ β → f α ≃ f β) : Cardinal.{u} → Cardinal.{v} :=\n  Quotient.map f fun α β ⟨e⟩ => ⟨hf α β e⟩\n",
+            "docstring": "Lift a function between `Type*`s to a function between `Cardinal`s. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List ofFn prefix take drop cardinality bijection",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391964,
+            "name": "Fin.funPredPredAbove",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L357-L365",
+            "source_text": "/-- Given a bijection `Fin (n1 + 1 + 1) → Fin (n + 1 + 1))` and a pair `i j : Fin (n1 + 1 + 1)`,\n  then `funPredPredAbove i j _ σ _ : Fin n1 → Fin n` corresponds to the induced bijection\n  formed by dropping `i` and `j` in the source and their image in the target. -/\ndef funPredPredAbove {n n1 : ℕ} (i j : Fin (n1 + 1 + 1)) (hij : i ≠ j)\n    (σ : Fin (n1 + 1 + 1) → Fin (n + 1 + 1)) (hσ : Function.Bijective σ)\n    (m : Fin n1) : Fin n :=\n  predPredAbove (σ i) (σ j)\n    (by simp [hσ.injective.eq_iff, hij])\n    (σ (succSuccAbove i j m)) (by simp [hσ.injective.eq_iff, Ne.symm])\n",
+            "docstring": "Given a bijection `Fin (n1 + 1 + 1) → Fin (n + 1 + 1))` and a pair `i j : Fin (n1 + 1 + 1)`,\nthen `funPredPredAbove i j _ σ _ : Fin n1 → Fin n` corresponds to the induced bijection\nformed by dropping `i` and `j` in the source and their image in the target. "
+          },
+          {
+            "id": 391967,
+            "name": "Fin.funPredPredAbove_bijective",
+            "module": "Physlib.Relativity.Tensors.Contraction.SuccSuccAbove",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Contraction/SuccSuccAbove.lean#L388-L393",
+            "source_text": "lemma funPredPredAbove_bijective {n n1 : ℕ} (i j : Fin (n1 + 1 + 1)) (hij : i ≠ j)\n    (σ : Fin (n1 + 1 + 1) → Fin (n + 1 + 1)) (hσ : Function.Bijective σ) :\n    Function.Bijective (funPredPredAbove i j hij σ hσ) := by\n  apply And.intro\n  · apply funPredPredAbove_injective\n  · apply funPredPredAbove_surjective\n",
+            "docstring": null
+          },
+          {
+            "id": 386716,
+            "name": "Physlib.List.insertIdx_eq_take_drop",
+            "module": "Physlib.Mathematics.List.InsertIdx",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L78-L86",
+            "source_text": "lemma insertIdx_eq_take_drop {I : Type} (i : I) : (r : List I) → (n : Fin r.length.succ) →\n    List.insertIdx r n i = List.take n r ++ i :: r.drop n\n  | [], 0 => by simp\n  | a :: as, 0 => by\n    simp\n  | a :: as, ⟨n + 1, h⟩ => by\n    simp only [List.insertIdx_succ_cons, List.take_succ_cons, List.drop_succ_cons, List.cons_append,\n      List.cons.injEq, true_and]\n    exact insertIdx_eq_take_drop i as ⟨n, Nat.succ_lt_succ_iff.mp h⟩\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset card_bij filter image list length",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 202376,
+            "name": "Finset.card_bij",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L340-L363",
+            "source_text": "/-- Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.card_nbij` is that the bijection is allowed to use membership of the\ndomain, rather than being a non-dependent function. -/\nlemma card_bij (i : ∀ a ∈ s, β) (hi : ∀ a ha, i a ha ∈ t)\n    (i_inj : ∀ a₁ ha₁ a₂ ha₂, i a₁ ha₁ = i a₂ ha₂ → a₁ = a₂)\n    (i_surj : ∀ b ∈ t, ∃ a ha, i a ha = b) : #s = #t := by\n  classical\n  calc\n    #s = #s.attach := card_attach.symm\n    _ = #(s.attach.image fun a ↦ i a.1 a.2) := Eq.symm ?_\n    _ = #t := ?_\n  · apply card_image_of_injective\n    intro ⟨_, _⟩ ⟨_, _⟩ h\n    simpa using i_inj _ _ _ _ h\n  · congr 1\n    ext b\n    constructor <;> intro h\n    · obtain ⟨_, _, rfl⟩ := mem_image.1 h; apply hi\n    · obtain ⟨a, ha, rfl⟩ := i_surj b h; exact mem_image.2 ⟨⟨a, ha⟩, by simp⟩\n",
+            "docstring": "Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.card_nbij` is that the bijection is allowed to use membership of the\ndomain, rather than being a non-dependent function. "
+          },
+          {
+            "id": 202377,
+            "name": "Finset.card_bij'",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L365-L378",
+            "source_text": "/-- Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij` is that the bijection is specified with an inverse, rather\nthan as a surjective injection.\n\nThe difference with `Finset.card_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains, rather than being non-dependent functions. -/\nlemma card_bij' (i : ∀ a ∈ s, β) (j : ∀ a ∈ t, α) (hi : ∀ a ha, i a ha ∈ t)\n    (hj : ∀ a ha, j a ha ∈ s) (left_inv : ∀ a ha, j (i a ha) (hi a ha) = a)\n    (right_inv : ∀ a ha, i (j a ha) (hj a ha) = a) : #s = #t := by\n  refine card_bij i hi (fun a1 h1 a2 h2 eq ↦ ?_) (fun b hb ↦ ⟨_, hj b hb, right_inv b hb⟩)\n  rw [← left_inv a1 h1, ← left_inv a2 h2]\n  simp only [eq]\n",
+            "docstring": "Given a bijection from a finite set `s` to a finite set `t`, the cardinalities of `s` and `t`\nare equal.\n\nThe difference with `Finset.card_bij` is that the bijection is specified with an inverse, rather\nthan as a surjective injection.\n\nThe difference with `Finset.card_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains, rather than being non-dependent functions. "
+          },
+          {
+            "id": 202980,
+            "name": "Finset.filterMap",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L584-L593",
+            "source_text": "/-- `filterMap f s` is a combination filter/map operation on `s`.\n  The function `f : α → Option β` is applied to each element of `s`;\n  if `f a` is `some b` then `b` is included in the result, otherwise\n  `a` is excluded from the resulting finset.\n\n  In notation, `filterMap f s` is the finset `{b : β | ∃ a ∈ s, f a = some b}`. -/\n-- TODO: should there be `filterImage` too?\ndef filterMap (f : α → Option β) (s : Finset α)\n    (f_inj : ∀ a a' b, b ∈ f a → b ∈ f a' → a = a') : Finset β :=\n  ⟨s.val.filterMap f, s.nodup.filterMap f f_inj⟩\n",
+            "docstring": "`filterMap f s` is a combination filter/map operation on `s`.\nThe function `f : α → Option β` is applied to each element of `s`;\nif `f a` is `some b` then `b` is included in the result, otherwise\n`a` is excluded from the resulting finset.\n\nIn notation, `filterMap f s` is the finset `{b : β | ∃ a ∈ s, f a = some b}`. "
+          },
+          {
+            "id": 283576,
+            "name": "Filter.map_card_atTop",
+            "module": "Mathlib.Order.Filter.AtTopBot.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/AtTopBot/Finset.lean#L103-L111",
+            "source_text": "/-- The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. -/\nlemma map_card_atTop [Infinite α] :\n    map (Finset.card (α := α)) atTop = atTop := by\n  rw [map_atTop_eq, atTop]\n  refine Function.Surjective.iInf_congr Finset.card Finset.exists_card_eq fun s ↦ congr(𝓟 $(?_))\n  ext\n  refine ⟨Infinite.exists_superset_card_eq _ _, ?_⟩\n  aesop (add safe apply Finset.card_le_card)\n",
+            "docstring": "The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset card_bij filter image list length",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389780,
+            "name": "WickContraction.uncontractedList_length_eq_card",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.UncontractedList",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/UncontractedList.lean#L220-L222",
+            "source_text": "lemma uncontractedList_length_eq_card (c : WickContraction n) :\n    c.uncontractedList.length = c.uncontracted.card := by\n  rw [uncontractedList_eq_sort, Finset.length_sort]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]
