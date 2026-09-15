@@ -61,7 +61,7 @@ def launch(args):
     env['PYTHONPATH']=str(repo)+os.pathsep+env.get('PYTHONPATH','')
     argv=[str(hmz),'exec','-f',str(repo/'pipelines/quantum_formalize_dag'),'-c',str(control/'config.json'),
           '-a',f'cli=codex,model={args.model},effort={args.effort},permission=read-only,web_search=false',
-          'Prove the frozen M5 auxiliary DAG nodes. Preserve the target and use both LeanExplore libraries.']
+          'Prove the frozen Lean DAG nodes. Preserve the target and use both LeanExplore libraries.']
     print(json.dumps({'launcher':str(control),'concurrency':args.concurrency,'model':args.model,'effort':args.effort}),flush=True)
     run=subprocess.run(argv,cwd=control,env=env,check=False)
     if run.returncode:

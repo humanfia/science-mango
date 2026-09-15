@@ -6,6 +6,16 @@ import unittest
 from .local_interfaces import local_interfaces
 
 class LocalInterfaceTests(unittest.TestCase):
+    def test_m6_import_headers_are_included_without_proof_bodies(self):
+        result = self.collect({
+            'M5Main.lean': 'import M6Cyclic\n',
+            'M6Cyclic.lean': 'namespace M6.Cyclic\ntheorem helper : True := by trivial\nend M6.Cyclic\n',
+        })
+        self.assertEqual([f['module'] for f in result['files']], ['M5Main', 'M6Cyclic'])
+        self.assertEqual(result['entries'][0]['namespace_context'], ['M6.Cyclic'])
+        self.assertEqual(result['entries'][0]['header'], 'theorem helper : True')
+        self.assertNotIn('trivial', str(result['entries']))
+
     def collect(self, sources, **kwargs):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp); hashes={}
