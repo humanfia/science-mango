@@ -1,0 +1,32 @@
+import FrozenTarget_46ff3b6f35e848b7
+theorem M6.Euclid.remainder_aux_correct : QuantumHarnessFrozenTarget := by
+  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ fuel → (M6.Euclid.remainderAux fuel p q).value = p % q ∧ (M6.Euclid.remainderAux fuel p q).cancellations + M6.Euclid.rank (M6.Euclid.remainderAux fuel p q).value ≤ M6.Euclid.rank p
+  intro fuel
+  induction fuel with
+  | zero =>
+      intro p q hf
+      have hp : p = 0 := by
+        by_contra hp
+        simp [M6.Euclid.rank, hp] at hf
+      subst p
+      simp [M6.Euclid.remainderAux, M6.Euclid.rank]
+  | succ fuel ih =>
+      intro p q hf
+      by_cases hp : p = 0
+      · subst p
+        simp [M6.Euclid.remainderAux, M6.Euclid.rank]
+      by_cases hq : q = 0
+      · subst q
+        simp [M6.Euclid.remainderAux]
+      by_cases hd : p.degree < q.degree
+      · have hm : p % q = p := (Polynomial.mod_eq_self_iff hq).2 hd
+        simp [M6.Euclid.remainderAux, hp, hq, hd, hm]
+      · have hle : q.degree ≤ p.degree := le_of_not_gt hd
+        have hdrop := M6.Euclid.cancel_drop p q hp hq hle
+        have hbudget : M6.Euclid.rank (M6.Euclid.cancel p q) ≤ fuel := by omega
+        obtain ⟨hvalue, hcost⟩ := ih (M6.Euclid.cancel p q) q hbudget
+        have hv : (M6.Euclid.remainderAux fuel (M6.Euclid.cancel p q) q).value = p % q :=
+          hvalue.trans (M6.Euclid.cancel_mod p q)
+        have hc : (M6.Euclid.remainderAux fuel (M6.Euclid.cancel p q) q).cancellations + 1 + M6.Euclid.rank (M6.Euclid.remainderAux fuel (M6.Euclid.cancel p q) q).value ≤ M6.Euclid.rank p := by
+          omega
+        simpa [M6.Euclid.remainderAux, hp, hq, hd, hle, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using And.intro hv hc

@@ -1,0 +1,13 @@
+{
+  "name": "M6.Transfer.division_difference_fits",
+  "statement": "∀ (R N : ℕ) (z w : ℤ) (j k : ℕ), z.natAbs ≤ 2^R*8^N → w.natAbs ≤ 2^R*8^N → (z/(2:ℤ)^j - w/(2:ℤ)^k).natAbs < 2^(M6.Transfer.queryCoefficientBits R N - 1)",
+  "imports": [
+    "M6PostSafety"
+  ],
+  "context": "",
+  "queries": [
+    "Int.natAbs_ediv_le_natAbs",
+    "Int natAbs subtraction bound"
+  ],
+  "guidance": "Use Int.natAbs_ediv_le_natAbs and the triangle bound on subtraction, then actual_signed_capacity and queryCoefficientBits=coefficientBits+2. For actual Q, unfold Q and Normalize.divide_coeff. Each trace is scalarTracePolynomial; rewrite scalar_trace_polynomial using actual boundary_edge_bounds or character_edge_bounds for degree, then apply trace_coefficient_bound with their mass bound. No oracle premise or stronger physical conditions. Return tactic lines without leading by."
+}

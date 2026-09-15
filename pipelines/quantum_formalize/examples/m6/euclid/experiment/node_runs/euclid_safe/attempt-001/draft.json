@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (fuel : ℕ) (p q : M6.Euclid.BP) (width : ℕ), M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.euclidSafe fuel p q width\nintro fuel\ninduction fuel with\n| zero =>\n    intro p q width hp hq\n    simp [M6.Euclid.euclidSafe, hp, hq]\n| succ fuel ih =>\n    intro p q width hp hq\n    by_cases hq0 : q = 0\n    · subst q\n      simp [M6.Euclid.euclidSafe, hp, hq]\n    · have hr : M6.Euclid.rank (M6.Euclid.remainder p q).value ≤ width := by\n        have hc := (M6.Euclid.remainder_correct p q).2.1\n        omega\n      have hs : ∀ n, M6.Euclid.remainderSafe n p q width :=\n        fun n => M6.Euclid.remainder_safe n p q width hp hq\n      have ht := ih q (M6.Euclid.remainder p q).value width hq hr\n      simp [M6.Euclid.euclidSafe, hq0, hp, hq, hs, ht]",
+  "queries": []
+}

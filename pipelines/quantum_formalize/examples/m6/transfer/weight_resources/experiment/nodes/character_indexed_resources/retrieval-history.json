@@ -1,0 +1,200 @@
+[
+  {
+    "queries": [
+      "polynomial degree multiplication bound",
+      "finite transfer matrix"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial degree multiplication bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101359,
+            "name": "Polynomial.degree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L45-L49",
+            "source_text": "/-- `degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`. -/\ndef degree (p : R[X]) : WithBot ℕ :=\n  p.support.max\n",
+            "docstring": "`degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`. "
+          },
+          {
+            "id": 142221,
+            "name": "Polynomial.cauchyBound",
+            "module": "Mathlib.Analysis.Polynomial.CauchyBound",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Polynomial/CauchyBound.lean#L29-L34",
+            "source_text": "/--\nCauchy's bound on the roots of a given polynomial.\nSee `IsRoot.norm_lt_cauchyBound` for the proof that the roots satisfy this bound.\n-/\nnoncomputable def cauchyBound (p : K[X]) : ℝ≥0 :=\n  sup (range p.natDegree) (‖p.coeff ·‖₊) / ‖p.leadingCoeff‖₊ + 1\n",
+            "docstring": "Cauchy's bound on the roots of a given polynomial.\nSee `IsRoot.norm_lt_cauchyBound` for the proof that the roots satisfy this bound.\n"
+          },
+          {
+            "id": 319329,
+            "name": "ChevalleyThm.MvPolynomialC.numBound_succ",
+            "module": "Mathlib.RingTheory.Spectrum.Prime.ChevalleyComplexity",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Spectrum/Prime/ChevalleyComplexity.lean#L613-L616",
+            "source_text": "@[simp]\nlemma numBound_succ (k : ℕ) (D : ℕ → ℕ) (n) :\n    numBound k D (n + 1) = numBound k D n * degBound k D n * D n := by\n  rw [numBound]",
+            "docstring": null
+          },
+          {
+            "id": 272686,
+            "name": "Height.mulHeight_sym2_le",
+            "module": "Mathlib.NumberTheory.Height.MvPolynomial",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Height/MvPolynomial.lean#L551-L575",
+            "source_text": "lemma mulHeight_sym2_le :\n    ∃ C > 0, ∀ (a b c d : K),\n      mulHeight ![a * c, a * d + b * c, b * d] ≤ C * mulHeight ![a, b] * mulHeight ![c, d] := by\n  let p : Fin 3 → MvPolynomial (Fin 4) K := ![X 0, X 1 + X 2, X 3]\n  have hom i : (p i).IsHomogeneous 1 := by\n    fin_cases i <;> simp [p, isHomogeneous_X, IsHomogeneous.add]\n  obtain ⟨C, hC₀, hC⟩ := mulHeight_eval_le' hom\n  simp only [pow_one] at hC\n  refine ⟨max C 1, by grind, fun a b c d ↦ ?_⟩\n  by_cases hab : ![a, b] = 0\n  · rw [hab, mulHeight_zero, mul_one, show a = 0 from congrFun hab 0,\n      show b = 0 from congrFun hab 1,\n      show ![0 * c, 0 * d + 0 * c, 0 * d] = 0 by ext i; fin_cases i <;> simp, mulHeight_zero]\n    grw [← one_le_mulHeight]\n    grind\n  by_cases hcd : ![c, d] = 0\n  · rw [hcd, mulHeight_zero, mul_one, show c = 0 from congrFun hcd 0,\n      show d = 0 from congrFun hcd 1,\n      show ![a * 0, a * 0 + b * 0, b * 0] = 0 by ext i; fin_cases i <;> simp, mulHeight_zero]\n    grw [← one_le_mulHeight]\n    grind\n  rw [mul_assoc, mulHeight_mul_mulHeight hab hcd]\n  grw [← le_max_left C 1]\n  convert! hC _ with i\n  fin_cases i <;> simp [p]\n",
+            "docstring": null
+          },
+          {
+            "id": 86307,
+            "name": "LieModule.weight_vector_multiplication",
+            "module": "Mathlib.Algebra.Lie.Weights.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Lie/Weights/Basic.lean#L75-L141",
+            "source_text": "/-- See also `bourbaki1975b` Chapter VII §1.1, Proposition 2 (ii). -/\nprotected theorem weight_vector_multiplication (M₁ M₂ M₃ : Type*)\n    [AddCommGroup M₁] [Module R M₁] [LieRingModule L M₁] [LieModule R L M₁] [AddCommGroup M₂]\n    [Module R M₂] [LieRingModule L M₂] [LieModule R L M₂] [AddCommGroup M₃] [Module R M₃]\n    [LieRingModule L M₃] [LieModule R L M₃] (g : M₁ ⊗[R] M₂ →ₗ⁅R,L⁆ M₃) (χ₁ χ₂ : R) (x : L) :\n    LinearMap.range ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (mapIncl 𝕎(M₁, χ₁, x) 𝕎(M₂, χ₂, x))) ≤\n      𝕎(M₃, χ₁ + χ₂, x) := by\n  -- Unpack the statement of the goal.\n  intro m₃\n  simp only [TensorProduct.mapIncl, LinearMap.mem_range, LinearMap.coe_comp,\n    LieModuleHom.coe_toLinearMap, Function.comp_apply, exists_imp, Module.End.mem_maxGenEigenspace]\n  rintro t rfl\n  -- Set up some notation.\n  let F : Module.End R M₃ := toEnd R L M₃ x - (χ₁ + χ₂) • ↑1\n  -- The goal is linear in `t` so use induction to reduce to the case that `t` is a pure tensor.\n  refine t.induction_on ?_ ?_ ?_\n  · use 0; simp only [map_zero]\n  swap\n  · rintro t₁ t₂ ⟨k₁, hk₁⟩ ⟨k₂, hk₂⟩; use max k₁ k₂\n    simp only [map_add, Module.End.pow_map_zero_of_le (le_max_left k₁ k₂) hk₁,\n      Module.End.pow_map_zero_of_le (le_max_right k₁ k₂) hk₂, add_zero]\n  -- Now the main argument: pure tensors.\n  rintro ⟨m₁, hm₁⟩ ⟨m₂, hm₂⟩\n  change ∃ k, (F ^ k) ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃) (m₁ ⊗ₜ m₂)) = (0 : M₃)\n  -- Eliminate `g` from the picture.\n  let f₁ : Module.End R (M₁ ⊗[R] M₂) := (toEnd R L M₁ x - χ₁ • ↑1).rTensor M₂\n  let f₂ : Module.End R (M₁ ⊗[R] M₂) := (toEnd R L M₂ x - χ₂ • ↑1).lTensor M₁\n  have h_comm_square : F ∘ₗ ↑g = (g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (f₁ + f₂) := by\n    ext m₁ m₂\n    simp only [f₁, f₂, F, ← g.map_lie x (m₁ ⊗ₜ m₂), add_smul, sub_tmul, tmul_sub, smul_tmul,\n      lie_tmul_right, tmul_smul, toEnd_apply_apply, map_smul, Module.End.one_apply,\n      LieModuleHom.coe_toLinearMap, LinearMap.smul_apply, Function.comp_apply, LinearMap.coe_comp,\n      LinearMap.rTensor_tmul, map_add, LinearMap.add_apply, map_sub, LinearMap.sub_apply,\n      LinearMap.lTensor_tmul, AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,\n      LinearMap.coe_restrictScalars]\n    abel\n  rsuffices ⟨k, hk⟩ : ∃ k : ℕ, ((f₁ + f₂) ^ k) (m₁ ⊗ₜ m₂) = 0\n  · use k\n    rw [← LinearMap.comp_apply, Module.End.commute_pow_left_of_commute h_comm_square,\n      LinearMap.comp_apply, hk, map_zero]\n  -- Unpack the information we have about `m₁`, `m₂`.\n  simp only [Module.End.mem_maxGenEigenspace] at hm₁ hm₂\n  obtain ⟨k₁, hk₁⟩ := hm₁\n  obtain ⟨k₂, hk₂⟩ := hm₂\n  have hf₁ : (f₁ ^ k₁) (m₁ ⊗ₜ m₂) = 0 := by\n    simp only [f₁, hk₁, zero_tmul, LinearMap.rTensor_tmul, LinearMap.rTensor_pow]\n  have hf₂ : (f₂ ^ k₂) (m₁ ⊗ₜ m₂) = 0 := by\n    simp only [f₂, hk₂, tmul_zero, LinearMap.lTensor_tmul, LinearMap.lTensor_pow]\n  -- It's now just an application of the binomial theorem.\n  use k₁ + k₂ - 1\n  have hf_comm : Commute f₁ f₂ := by\n    ext m₁ m₂\n    simp only [f₁, f₂, Module.End.mul_apply, LinearMap.rTensor_tmul, LinearMap.lTensor_tmul,\n      AlgebraTensorModule.curry_apply, LinearMap.lTensor_tmul, TensorProduct.curry_apply,\n      LinearMap.coe_restrictScalars]\n  rw [hf_comm.add_pow']\n  simp only [Finset.sum_apply, LinearMap.coe_sum, LinearMap.smul_apply]\n  -- The required sum is zero because each individual term is zero.\n  apply Finset.sum_eq_zero\n  rintro ⟨i, j⟩ hij\n  -- Eliminate the binomial coefficients from the picture.\n  suffices (f₁ ^ i * f₂ ^ j) (m₁ ⊗ₜ m₂) = 0 by rw [this]; apply smul_zero\n  -- Finish off with appropriate case analysis.\n  rcases Nat.le_or_le_of_add_eq_add_pred (Finset.mem_antidiagonal.mp hij) with hi | hj\n  · rw [(hf_comm.pow_pow i j).eq, Module.End.mul_apply, Module.End.pow_map_zero_of_le hi hf₁,\n      map_zero]\n  · rw [Module.End.mul_apply, Module.End.pow_map_zero_of_le hj hf₂, map_zero]\n",
+            "docstring": "See also `bourbaki1975b` Chapter VII §1.1, Proposition 2 (ii). "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite transfer matrix",
+        "status": "ok",
+        "results": [
+          {
+            "id": 249884,
+            "name": "Matrix.updateRow_eq_transvection",
+            "module": "Mathlib.LinearAlgebra.Matrix.Transvection",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Transvection.lean#L90-L106",
+            "source_text": "/-- A transvection matrix is obtained from the identity by adding `c` times the `j`-th row to\nthe `i`-th row. -/\ntheorem updateRow_eq_transvection [Finite n] (c : R) :\n    updateRow (1 : Matrix n n R) i ((1 : Matrix n n R) i + c • (1 : Matrix n n R) j) =\n      transvection i j c := by\n  cases nonempty_fintype n\n  ext a b\n  by_cases ha : i = a\n  · by_cases hb : j = b\n    · simp only [ha, updateRow_self, Pi.add_apply, one_apply, Pi.smul_apply, hb, ↓reduceIte,\n        smul_eq_mul, mul_one, transvection, add_apply, single_apply_same]\n    · simp only [ha, updateRow_self, Pi.add_apply, one_apply, Pi.smul_apply, hb, ↓reduceIte,\n        smul_eq_mul, mul_zero, add_zero, transvection, add_apply, and_false, not_false_eq_true,\n        single_apply_of_ne]\n  · simp only [updateRow_ne, transvection, ha, Ne.symm ha, single_apply_of_ne, add_zero,\n      Ne, not_false_iff,\n      false_and, add_apply]\n",
+            "docstring": "A transvection matrix is obtained from the identity by adding `c` times the `j`-th row to\nthe `i`-th row. "
+          },
+          {
+            "id": 247861,
+            "name": "Matrix",
+            "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L52-L56",
+            "source_text": "/-- `Matrix m n R` is the type of matrices with entries in `R`, whose rows are indexed by `m`\nand whose columns are indexed by `n`. -/\n@[wikidata Q44337]\ndef Matrix (m : Type u) (n : Type u') (α : Type v) : Type max u u' v :=\n  m → n → α\n",
+            "docstring": "`Matrix m n R` is the type of matrices with entries in `R`, whose rows are indexed by `m`\nand whose columns are indexed by `n`. "
+          },
+          {
+            "id": 209482,
+            "name": "Matrix.instFintypeOfDecidableEq",
+            "module": "Mathlib.Data.Matrix.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Matrix/Basic.lean#L48-L49",
+            "source_text": "instance {n m} [Fintype m] [DecidableEq m] [Fintype n] [DecidableEq n] (α) [Fintype α] :\n    Fintype (Matrix m n α) := inferInstanceAs (Fintype (m → n → α))\n",
+            "docstring": null
+          },
+          {
+            "id": 214249,
+            "name": "ZNum.transfer",
+            "module": "Mathlib.Data.Num.ZNum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+            "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+            "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+          },
+          {
+            "id": 214098,
+            "name": "Num.transfer",
+            "module": "Mathlib.Data.Num.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+            "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+            "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite transfer matrix",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390173,
+            "name": "QuantumMechanics.FiniteTarget.timeEvolutionMatrixStandard",
+            "module": "Physlib.QuantumMechanics.FiniteTarget",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/FiniteTarget.lean#L61-L66",
+            "source_text": "/-- An instance of timeEvolutionmatrix over the standard basis. -/\nnoncomputable def timeEvolutionMatrixStandard (t : ℝ) :\n  Matrix (Fin n) (Fin n) ℂ :=\n  -- Use the fact that H ≃ ℂ^n to get a basis\n    let b : Basis (Fin n) ℂ H := Module.finBasisOfFinrankEq ℂ H A.hdim\n    (timeEvolutionMatrix A t b)\n",
+            "docstring": "An instance of timeEvolutionmatrix over the standard basis. "
+          },
+          {
+            "id": 390172,
+            "name": "QuantumMechanics.FiniteTarget.timeEvolutionMatrix",
+            "module": "Physlib.QuantumMechanics.FiniteTarget",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/FiniteTarget.lean#L54-L58",
+            "source_text": "/-- The matrix representation of the time evolution operator in a given basis. Given a\nPlanck constant `ℏ`, the matrix is a self-adjoint `n × n` matrix describing the timeEvolution. -/\nnoncomputable def timeEvolutionMatrix (t : ℝ) (b : Basis (Fin n) ℂ H) :\n  Matrix (Fin n) (Fin n) ℂ :=\n  LinearMap.toMatrix b b (A.timeEvolution t).toLinearMap\n",
+            "docstring": "The matrix representation of the time evolution operator in a given basis. Given a\nPlanck constant `ℏ`, the matrix is a self-adjoint `n × n` matrix describing the timeEvolution. "
+          },
+          {
+            "id": 386833,
+            "name": "LinearMap.SchurTriangulationAux",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L94-L103",
+            "source_text": "/-- **Don't use this definition directly.** Instead, use `Matrix.schurTriangulationBasis`,\n`Matrix.schurTriangulationUnitary`, and `Matrix.schurTriangulation`. See also\n`LinearMap.SchurTriangulationAux.of` and `Matrix.schurTriangulationAux`. -/\nstructure SchurTriangulationAux (f : Module.End 𝕜 E) where\n  /-- The dimension of the inner product space `E`. -/\n  dim : ℕ\n  hdim : Module.finrank 𝕜 E = dim\n  /-- An orthonormal basis of `E` that induces an upper triangular form for `f`. -/\n  basis : OrthonormalBasis (Fin dim) 𝕜 E\n  upperTriangular : (toMatrix basis.toBasis basis.toBasis f).IsUpperTriangular\n",
+            "docstring": "**Don't use this definition directly.** Instead, use `Matrix.schurTriangulationBasis`,\n`Matrix.schurTriangulationUnitary`, and `Matrix.schurTriangulation`. See also\n`LinearMap.SchurTriangulationAux.of` and `Matrix.schurTriangulationAux`. "
+          },
+          {
+            "id": 386254,
+            "name": "Matrix.matrix_tsum_apply",
+            "module": "Physlib.Mathematics.DataStructures.Matrix.LieTrace",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/Matrix/LieTrace.lean#L55-L66",
+            "source_text": "/-- Apply a matrix `tsum` to a given entry. -/\nlemma matrix_tsum_apply\n    {f : ℕ → Matrix m m 𝕂} (hf : Summable f) (i j : m) :\n    (∑' n, f n) i j = ∑' n, (f n) i j := by\n  have h_row_summable : Summable (fun n ↦ (f n) i) := by\n    have h := Pi.summable.1 hf\n    exact h i\n  have h₁ : ((∑' n, f n) : Matrix m m 𝕂) i = (∑' n, (f n) i) := by\n    exact tsum_apply hf\n  have h₂ : ((∑' n, (f n) i) : m → 𝕂) j = (∑' n, (f n) i j) := by\n    exact tsum_apply h_row_summable\n  rw [h₁, h₂]\n",
+            "docstring": "Apply a matrix `tsum` to a given entry. "
+          },
+          {
+            "id": 391307,
+            "name": "minkowskiMatrix",
+            "module": "Physlib.Relativity.MinkowskiMatrix",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L69-L71",
+            "source_text": "/-- The `d.succ`-dimensional real matrix of the form `diag(1, -1, -1, -1, ...)`. -/\ndef minkowskiMatrix {d : ℕ} : Matrix (Fin 1 ⊕ Fin d) (Fin 1 ⊕ Fin d) ℝ :=\n  LieAlgebra.Orthogonal.indefiniteDiagonal (Fin 1) (Fin d) ℝ\n",
+            "docstring": "The `d.succ`-dimensional real matrix of the form `diag(1, -1, -1, -1, ...)`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "boundary_indexed_resources",
+    "receipts_sha256": "d32ba7fdac0e42173a4a4fd6bc1aa69fef6e50bb8e41fea335638c6d72399302"
+  }
+]

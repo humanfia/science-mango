@@ -1,0 +1,18 @@
+import FrozenTarget_94e59bb9397e1a6b
+theorem M6.ActualCSS.common_quantum_distance : QuantumHarnessFrozenTarget := by
+  intro N inst a b
+  classical
+  simpa only [M6.CSS.logical, M6.Spaces.logicalWords] using
+    (M6.CSS.common_quantum_distance (2 * N)
+      (M6.Spaces.boundaryWords N a b)
+      (M6.Spaces.cycleWords N a b)
+      (M6.Character.subspaceWords (M6.Spaces.D N a b))
+      (M6.Character.dualWords (M6.Spaces.B N a b))
+      (M6.Flatten.J N)
+      (M6.ActualCSS.zero_boundaries N a b).1
+      (M6.ActualCSS.zero_boundaries N a b).2
+      (M6.Spaces.boundaries_are_cycles N a b)
+      (M6.ActualCSS.Z_boundaries_are_cycles N a b)
+      (M6.Flatten.J_involution N)
+      (M6.Flatten.J_weight N)
+      (M6.ActualCSS.J_logical_iff N a b))

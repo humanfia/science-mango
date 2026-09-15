@@ -1,0 +1,14 @@
+{
+  "name": "M6.ActualCounts.cycle_card",
+  "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → (M6.Spaces.cycleWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card = 2^(N+(M6.ActualCounts.f N a b))",
+  "imports": [
+    "M6ActualCardinality",
+    "M6ActualCountsAccepted"
+  ],
+  "context": "theorem M6.ActualCounts.f_le_order : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), M6.ActualCounts.f N a b ≤ N := by\n  intro N inst a b\n  change (M6.Cyclic.signature a b (M6.Cyclic.modulus N)).natDegree ≤ N\n  have hm := M6.Coordinates.modulus_monic_degree N\n  have hd := (M6.Cyclic.signature_divides a b (M6.Cyclic.modulus N)).2.2\n  simpa only [hm.2] using Polynomial.natDegree_le_of_dvd hd hm.1.ne_zero\n\ntheorem M6.ActualCounts.boundary_card : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card = 2^(N-(M6.ActualCounts.f N a b)) := by\n  intro N inst a b ha hb\n  have h := M6.ActualCounts.input_normalization N a b ha hb\n  rw [M6.Spaces.dual_boundary_card] at h\n  have hf := M6.ActualCounts.f_le_order N a b\n  have hexp : M6.ActualCounts.f N a b + (N - M6.ActualCounts.f N a b) = N := by\n    omega\n  have hpow : (2 : ℕ)^N = 2^(M6.ActualCounts.f N a b) * 2^(N - M6.ActualCounts.f N a b) := by\n    rw [← pow_add, hexp]\n  apply Nat.eq_of_mul_eq_mul_left (show 0 < (2 : ℕ)^(M6.ActualCounts.f N a b) by positivity)\n  exact h.trans hpow",
+  "queries": [
+    "polynomial divisor natDegree inequality",
+    "natural powers cancellation finite set cardinality"
+  ],
+  "guidance": "Use Character.dual_cardinality at actual Spaces.D, whose word cardinality equals boundaryWords.card. Substitute boundary_card, rewrite2^(2N)=2^(N-f)*2^(N+f), and cancel positive2^(N-f). Return tactic lines only without leading by."
+}

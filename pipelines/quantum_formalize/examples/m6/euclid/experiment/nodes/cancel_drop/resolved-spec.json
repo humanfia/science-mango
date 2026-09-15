@@ -1,0 +1,12 @@
+{
+  "name": "M6.Euclid.cancel_drop",
+  "statement": "∀ p q : M6.Euclid.BP, p ≠ 0 → q ≠ 0 → q.degree ≤ p.degree → M6.Euclid.rank (M6.Euclid.cancel p q) < M6.Euclid.rank p",
+  "imports": [
+    "M6Euclid"
+  ],
+  "context": "theorem M6.Euclid.binary_normalization : ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p := by\n  change ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p\n  intro p\n  have hm : p ≠ 0 → p.Monic := by\n    intro hp\n    change p.leadingCoeff = 1\n    have binary : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide\n    rcases binary p.leadingCoeff with h | h\n    · exact False.elim (hp (Polynomial.leadingCoeff_eq_zero.mp h))\n    · exact h\n  refine ⟨hm, ?_⟩\n  by_cases hp : p = 0\n  · subst p\n    simp\n  · exact (hm hp).normalize_eq_self\n\ntheorem M6.Euclid.rank_order : ∀ p q : M6.Euclid.BP, (M6.Euclid.rank p < M6.Euclid.rank q ↔ p.degree < q.degree) ∧ (M6.Euclid.rank p ≤ M6.Euclid.rank q ↔ p.degree ≤ q.degree) := by\n  change ∀ p q : M6.Euclid.BP, (M6.Euclid.rank p < M6.Euclid.rank q ↔ p.degree < q.degree) ∧ (M6.Euclid.rank p ≤ M6.Euclid.rank q ↔ p.degree ≤ q.degree)\n  intro p q\n  by_cases hp : p = 0 <;> by_cases hq : q = 0\n  · subst p\n    subst q\n    simp [M6.Euclid.rank]\n  · subst p\n    simp [M6.Euclid.rank, hq, Polynomial.degree_eq_natDegree hq]\n  · subst q\n    simp [M6.Euclid.rank, hp, Polynomial.degree_eq_natDegree hp]\n  · simp [M6.Euclid.rank, hp, hq, Polynomial.degree_eq_natDegree hp, Polynomial.degree_eq_natDegree hq]",
+  "queries": [
+    "EuclideanDomain gcd Bezout divisibility"
+  ],
+  "guidance": "Apply Polynomial.div_wf_lemma to the actual cancellation definition and binary_normalization for monicity of q; transport degree strictness through rank_order. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+}

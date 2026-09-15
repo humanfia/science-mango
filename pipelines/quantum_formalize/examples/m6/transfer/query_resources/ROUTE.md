@@ -1,0 +1,7 @@
+# Literal paired-query and solve accounting
+
+The postprocessing event space is `Fin (2*N+1) × Fin 4`: two arithmetic shifts, a signed subtraction and a positive-coefficient test for each coefficient slot. The `postprocessing` proof connects these operations to the existing normalization, Q and first-positive scan. A fixed-width bit operation allowance is charged per event; no polynomial-degree expression is substituted for a program cost. Two `actualTraceWork` calls form each paired query. Storage retains the two traces and output while reusing the scatter workspace.
+
+A recovery query is charged a full pin-array copy/update/test allowance, even when an implementation can reuse it. `witnessWork` counts one initial paired query, k additional actual queries, k pin updates, and final decoding. The component algebra retains parameters e, k and slots, with the final caller required to discharge them from the actual preprocessing, solve and slot-reuse results. Thus these component hypotheses are explicit dependency gates, not free assumptions of the eventual M6 root.
+
+The intended final instances use e ≤ 180*(N+1)^3, k ≤ 2*N and slots ≤ 512*(N+1)^2. The proved constants targeted here are distance work ≤ 50000*N^3*4^R, witness work ≤ 200000*N^4*4^R and storage ≤ 16384*N^2*2^R for R<N. The original asymptotic claims are preserved; preprocessing storage must come from the actual slot model, never a time bound.

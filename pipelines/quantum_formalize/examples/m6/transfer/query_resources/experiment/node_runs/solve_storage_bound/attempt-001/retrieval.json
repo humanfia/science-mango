@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "natural number polynomial inequalities",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      },
+      {
+        "id": 101615,
+        "name": "Polynomial.natDegree_lt_natDegree_iff",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L158-L161",
+        "source_text": "theorem natDegree_lt_natDegree_iff (hp : p ≠ 0) : natDegree p < natDegree q ↔ degree p < degree q :=\n  ⟨degree_lt_degree, fun h ↦ by\n    have hq : q ≠ 0 := ne_zero_of_degree_gt h\n    rwa [degree_eq_natDegree hp, degree_eq_natDegree hq, Nat.cast_lt] at h⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 95176,
+        "name": "m_Birkhoff_inequalities",
+        "module": "Mathlib.Algebra.Order.Group.Unbundled.Abs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Unbundled/Abs.lean#L187-L190",
+        "source_text": "@[to_additive Birkhoff_inequalities]\nlemma m_Birkhoff_inequalities (a b c : α) :\n    |(a ⊔ c) / (b ⊔ c)|ₘ ⊔ |(a ⊓ c) / (b ⊓ c)|ₘ ≤ |a / b|ₘ :=\n  sup_le (mabs_sup_div_sup_le_mabs a b c) (mabs_inf_div_inf_le_mabs a b c)",
+        "docstring": null
+      },
+      {
+        "id": 95177,
+        "name": "Birkhoff_inequalities",
+        "module": "Mathlib.Algebra.Order.Group.Unbundled.Abs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Unbundled/Abs.lean#L187-L187",
+        "source_text": "@[to_additive Birkhoff_inequalities]\nlemma m_Birkhoff_inequalities (a b c : α) :\n    |(a ⊔ c) / (b ⊔ c)|ₘ ⊔ |(a ⊓ c) / (b ⊓ c)|ₘ ≤ |a / b|ₘ :=",
+        "docstring": null
+      },
+      {
+        "id": 129648,
+        "name": "naturalParameterization",
+        "module": "Mathlib.Analysis.ConstantSpeed",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/ConstantSpeed.lean#L224-L230",
+        "source_text": "/-- The natural parameterization of `f` on `s`, which, if `f` has locally bounded variation on `s`,\n* has unit speed on `s` (by `has_unit_speed_naturalParameterization`).\n* composed with `variationOnFromTo f s a`, is at distance zero from `f`\n  (by `edist_naturalParameterization_eq_zero`).\n-/\nnoncomputable def naturalParameterization (f : α → E) (s : Set α) (a : α) : ℝ → E :=\n  f ∘ @Function.invFunOn _ _ ⟨a⟩ (variationOnFromTo f s a) s\n",
+        "docstring": "The natural parameterization of `f` on `s`, which, if `f` has locally bounded variation on `s`,\n* has unit speed on `s` (by `has_unit_speed_naturalParameterization`).\n* composed with `variationOnFromTo f s a`, is at distance zero from `f`\n  (by `edist_naturalParameterization_eq_zero`).\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "natural number polynomial inequalities",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388148,
+        "name": "MSSMSpecies_numberCharges",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L27-L27",
+        "source_text": "@[simps!]\ndef MSSMSpecies : ACCSystemCharges := ⟨3⟩",
+        "docstring": null
+      },
+      {
+        "id": 387778,
+        "name": "SMSpecies_numberCharges",
+        "module": "Physlib.Particles.StandardModel.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/AnomalyCancellation/Basic.lean#L27-L27",
+        "source_text": "@[simps!]\ndef SMSpecies (n : ℕ) : ACCSystemCharges := ⟨n⟩",
+        "docstring": null
+      },
+      {
+        "id": 388146,
+        "name": "MSSMCharges_numberCharges",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L23-L23",
+        "source_text": "@[simps!]\ndef MSSMCharges : ACCSystemCharges := ⟨20⟩",
+        "docstring": null
+      },
+      {
+        "id": 387148,
+        "name": "SMνCharges_numberCharges",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Basic.lean#L24-L24",
+        "source_text": "@[simps!]\ndef SMνCharges (n : ℕ) : ACCSystemCharges := ⟨6 * n⟩",
+        "docstring": null
+      },
+      {
+        "id": 388199,
+        "name": "MSSMACC_numberCharges",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L333-L333",
+        "source_text": "@[simps!]\ndef MSSMACC : ACCSystem where\n  toACCSystemCharges := MSSMCharges",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "finite product cardinality",
+    "status": "ok",
+    "results": [
+      {
+        "id": 322506,
+        "name": "Cardinal.prod_eq_of_fintype",
+        "module": "Mathlib.SetTheory.Cardinal.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Basic.lean#L78-L91",
+        "source_text": "theorem prod_eq_of_fintype {α : Type u} [h : Fintype α] (f : α → Cardinal.{v}) :\n    prod f = Cardinal.lift.{u} (∏ i, f i) := by\n  revert f\n  refine Fintype.induction_empty_option ?_ ?_ ?_ α (h_fintype := h)\n  · intro α β hβ e h f\n    letI := Fintype.ofEquiv β e.symm\n    rw [← e.prod_comp f, ← h]\n    exact mk_congr (e.piCongrLeft _).symm\n  · intro f\n    rw [Fintype.univ_pempty, Finset.prod_empty, lift_one, Cardinal.prod, mk_eq_one]\n  · intro α hα h f\n    rw [Cardinal.prod, mk_congr Equiv.piOptionEquivProd, mk_prod, lift_umax.{v, u}, mk_out, ←\n        Cardinal.prod, lift_prod, Fintype.prod_option, lift_mul, ← h fun a => f (some a)]\n    simp only [lift_id]\n",
+        "docstring": null
+      },
+      {
+        "id": 322599,
+        "name": "Cardinal.mul_lt_aleph0_iff_of_ne_zero",
+        "module": "Mathlib.SetTheory.Cardinal.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Basic.lean#L521-L522",
+        "source_text": "theorem mul_lt_aleph0_iff_of_ne_zero {a b : Cardinal} (ha : a ≠ 0) (hb : b ≠ 0) :\n    a * b < ℵ₀ ↔ a < ℵ₀ ∧ b < ℵ₀ := by simp [mul_lt_aleph0_iff, ha, hb]\n",
+        "docstring": null
+      },
+      {
+        "id": 322595,
+        "name": "Cardinal.mul_lt_aleph0",
+        "module": "Mathlib.SetTheory.Cardinal.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Basic.lean#L490-L492",
+        "source_text": "theorem mul_lt_aleph0 {a b : Cardinal} (ha : a < ℵ₀) (hb : b < ℵ₀) : a * b < ℵ₀ :=\n  match a, b, lt_aleph0.1 ha, lt_aleph0.1 hb with\n  | _, _, ⟨m, rfl⟩, ⟨n, rfl⟩ => by rw [← Nat.cast_mul]; apply natCast_lt_aleph0\n",
+        "docstring": null
+      },
+      {
+        "id": 319855,
+        "name": "Module.Finite.tensorProduct",
+        "module": "Mathlib.RingTheory.TensorProduct.Finite",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/TensorProduct/Finite.lean#L96-L99",
+        "source_text": "instance Module.Finite.tensorProduct [CommSemiring R] [AddCommMonoid M] [Module R M]\n    [AddCommMonoid N] [Module R N] [hM : Module.Finite R M] [hN : Module.Finite R N] :\n    Module.Finite R (TensorProduct R M N) where\n  fg_top := (TensorProduct.map₂_mk_top_top_eq_top R M N).subst (hM.fg_top.map₂ _ hN.fg_top)\n",
+        "docstring": null
+      },
+      {
+        "id": 253563,
+        "name": "TensorProduct",
+        "module": "Mathlib.LinearAlgebra.TensorProduct.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/TensorProduct/Defs.lean#L79-L83",
+        "source_text": "/-- The tensor product of two modules `M` and `N` over the same commutative semiring `R`.\nThe localized notations are `M ⊗ N` and `M ⊗[R] N`, accessed by `open scoped TensorProduct`. -/\ndef TensorProduct : Type _ :=\n  (addConGen (TensorProduct.Eqv R M N)).Quotient\nderiving Zero, Add, AddZeroClass, AddSemigroup\n",
+        "docstring": "The tensor product of two modules `M` and `N` over the same commutative semiring `R`.\nThe localized notations are `M ⊗ N` and `M ⊗[R] N`, accessed by `open scoped TensorProduct`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "finite product cardinality",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386195,
+        "name": "Matrix.crossProductMatrix",
+        "module": "Physlib.Mathematics.CrossProductMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/CrossProductMatrix.lean#L26-L29",
+        "source_text": "/-- The hat map `[ω]ₓ`: the skew-symmetric `3 × 3` matrix acting as the cross product with `ω`,\ni.e. `[ω]ₓ *ᵥ v = ω ⨯₃ v`. -/\ndef crossProductMatrix (ω : Fin 3 → ℝ) : Matrix (Fin 3) (Fin 3) ℝ :=\n  !![0, -ω 2, ω 1; ω 2, 0, -ω 0; -ω 1, ω 0, 0]\n",
+        "docstring": "The hat map `[ω]ₓ`: the skew-symmetric `3 × 3` matrix acting as the cross product with `ω`,\ni.e. `[ω]ₓ *ᵥ v = ω ⨯₃ v`. "
+      },
+      {
+        "id": 386467,
+        "name": "InnerProductSpace'",
+        "module": "Physlib.Mathematics.InnerProductSpace.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Basic.lean#L48-L81",
+        "source_text": "/-- Effectively as `InnerProductSpace 𝕜 E` but it does not requires that `‖x‖^2 = ⟪x,x⟫`. It is\nonly required that they are equivalent `∃ (c > 0) (d > 0), c • ‖x‖^2 ≤ ⟪x,x⟫ ≤ d • ‖x‖^2`. The main\npurpose of this class is to provide inner product space structure on product types `ExF` and\npi types `ι → E` without using `WithLp` gadget.\n\nIf you want to access L₂ norm use `‖x‖₂ := √⟪x,x⟫`.\n\nThis class induces `InnerProductSpace 𝕜 (WithLp 2 E)` which equips `‖·‖` on `X` with L₂ norm.\nThis is very useful when translating results from `InnerProductSpace` to `InnerProductSpace'`\ntogether with `toL2 : E →L[𝕜] (WithLp 2 E)` and `fromL2 : (WithL2 2 E) →L[𝕜] E`.\n\nIn short we have these implications:\n```\n  InnerProductSpace 𝕜 E → InnerProductSpace' 𝕜 E\n  InnerProductSpace' 𝕜 E → InnerProductSpace 𝕜 (WithLp 2 E)\n```\n\nThe reason behind this type class is that with current mathlib design the requirement\n`‖x‖^2 = ⟪x,x⟫` prevents us to give inner product space structure on product type `E×F` and pi\ntype `ι → E` as they are equipped with max norm. One has to work with `WithLp 2 (E×F)` and\n`WithLp 2 (ι → E)`. This places quite a bit inconvenience on users in certain scenarios.\nIn particular, the main motivation behind this class is to make computations of `adjFDeriv` and\n`gradient` easy.\n-/\nclass InnerProductSpace' (𝕜 : Type*) (E : Type*) [RCLike 𝕜] [NormedAddCommGroup E] [NormedSpace 𝕜 E]\n    extends Norm₂ E where\n  /-- Core inner product properties. -/\n  core : InnerProductSpace.Core 𝕜 E\n  /-- The inner product induces the L₂ norm. -/\n  norm₂_sq_eq_re_inner : ∀ x : E, ‖x‖₂ ^ 2 = re (core.inner x x)\n  /-- Norm induced by inner product is topologically equivalent to the given norm on E. -/\n  inner_top_equiv_norm : ∃ c d : ℝ,\n    0 < c ∧ 0 < d ∧\n    ∀ x : E, (c • ‖x‖^2 ≤ re (core.inner x x)) ∧ (re (core.inner x x) ≤ d • ‖x‖^2)\n",
+        "docstring": "Effectively as `InnerProductSpace 𝕜 E` but it does not requires that `‖x‖^2 = ⟪x,x⟫`. It is\nonly required that they are equivalent `∃ (c > 0) (d > 0), c • ‖x‖^2 ≤ ⟪x,x⟫ ≤ d • ‖x‖^2`. The main\npurpose of this class is to provide inner product space structure on product types `ExF` and\npi types `ι → E` without using `WithLp` gadget.\n\nIf you want to access L₂ norm use `‖x‖₂ := √⟪x,x⟫`.\n\nThis class induces `InnerProductSpace 𝕜 (WithLp 2 E)` which equips `‖·‖` on `X` with L₂ norm.\nThis is very useful when translating results from `InnerProductSpace` to `InnerProductSpace'`\ntogether with `toL2 : E →L[𝕜] (WithLp 2 E)` and `fromL2 : (WithL2 2 E) →L[𝕜] E`.\n\nIn short we have these implications:\n```\n  InnerProductSpace 𝕜 E → InnerProductSpace' 𝕜 E\n  InnerProductSpace' 𝕜 E → InnerProductSpace 𝕜 (WithLp 2 E)\n```\n\nThe reason behind this type class is that with current mathlib design the requirement\n`‖x‖^2 = ⟪x,x⟫` prevents us to give inner product space structure on product type `E×F` and pi\ntype `ι → E` as they are equipped with max norm. One has to work with `WithLp 2 (E×F)` and\n`WithLp 2 (ι → E)`. This places quite a bit inconvenience on users in certain scenarios.\nIn particular, the main motivation behind this class is to make computations of `adjFDeriv` and\n`gradient` easy.\n"
+      },
+      {
+        "id": 390254,
+        "name": "QuantumMechanics.FiniteHilbertSpace.instInnerProductSpaceComplex",
+        "module": "Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/HilbertSpaces/FiniteTarget/Basic.lean#L126-L127",
+        "source_text": "noncomputable instance : InnerProductSpace ℂ (FiniteHilbertSpace d) :=\n  InnerProductSpace.induced linearEquivEuclidean.toLinearMap\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

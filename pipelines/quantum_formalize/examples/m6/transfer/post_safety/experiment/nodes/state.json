@@ -1,0 +1,139 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T14:22:53.911194+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "division_difference_fits": {
+      "id": "division_difference_fits",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.Transfer.division_difference_fits",
+        "spec_sha256": "5deca37aa1b3aed11dc951d59641688284496769c3857632f400ede52b68b2a1",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-post-safety-formalization/.humanize-formal-runs/run-fmvdl00n/attempt-001/Candidate_53d099bfde8e33d1.lean:17:4: error: mod_cast has type\n  ∀ (c : ℤ), (z / ↑(2 ^ j) - c).natAbs ≤ (z / ↑(2 ^ j) - w / ↑(2 ^ k)).natAbs + (w / ↑(2 ^ k) - c).natAbs\nbut is expected to have type\n  (z / ↑(2 ^ j) - w / ↑(2 ^ k)).natAbs ≤ (z / ↑(2 ^ j)).natAbs + (w / ↑(2 ^ k)).natAbs\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-post-safety-formalization/.humanize-formal-runs/run-fmvdl00n/attempt-002/Candidate_55647c189a0a2e35.lean",
+            "target_path": "/home/jing/m6-lean-post-safety-formalization/.humanize-formal-runs/run-fmvdl00n/attempt-002/FrozenTarget_55647c189a0a2e35.lean",
+            "feedback": "",
+            "target_sha256": "1a67fc95f0f80a8f7a98d50952aaed9fc7f6031976b826fc93d25f01e33cee14",
+            "target_olean_sha256": "33398678e729019c7e90724a54fbe76f91a3c5cf2ac28a8e9a0d02a32f94bf1e",
+            "source_sha256": "f7103f713ca83c990058429a8a12baa3fa433ded897609f1ccd004023f4f4cfa",
+            "olean_sha256": "a2d9c2f1fd4470ff622a1750c0f3244a8f586da1e24204e26fceb1beda45ddc2",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T14:18:51.114532+00:00",
+        "work": "/home/jing/m6-lean-post-safety-formalization/.humanize-formal-runs/run-fmvdl00n",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "27be62c0b12630cecf0e1a5569fe429cc0fced79a69706d354af50b654c25b7a",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m6-lean-post-safety-formalization/.humanize-formal-runs/run-fmvdl00n/attempt-002/Candidate_55647c189a0a2e35.lean",
+        "environment_sha256": "d6541ec9fcc4d12851ac813617526497c37f74649bcdc59054f6216d02078edd",
+        "artifacts": {
+          "division_difference_fits": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.division_difference_fits : ∀ (R N : ℕ) (z w : ℤ) (j k : ℕ), z.natAbs ≤ 2^R*8^N → w.natAbs ≤ 2^R*8^N → (z/(2:ℤ)^j - w/(2:ℤ)^k).natAbs < 2^(M6.Transfer.queryCoefficientBits R N - 1) := by\n  change ∀ (R N : ℕ) (z w : ℤ) (j k : ℕ), z.natAbs ≤ 2^R*8^N → w.natAbs ≤ 2^R*8^N → (z/(2:ℤ)^j - w/(2:ℤ)^k).natAbs < 2^(M6.Transfer.queryCoefficientBits R N - 1)\n  intro R N z w j k hz hw\n  have hz' := Int.natAbs_ediv_le_natAbs z ((2 : ℤ)^j)\n  have hw' := Int.natAbs_ediv_le_natAbs w ((2 : ℤ)^k)\n  have htri : (z/(2:ℤ)^j - w/(2:ℤ)^k).natAbs ≤\n      (z/(2:ℤ)^j).natAbs + (w/(2:ℤ)^k).natAbs := by\n    simpa only [sub_eq_add_neg, Int.natAbs_neg] using\n      (Int.natAbs_add_le (z/(2:ℤ)^j) (-(w/(2:ℤ)^k)))\n  have hbound : (z/(2:ℤ)^j - w/(2:ℤ)^k).natAbs ≤ 2 * (2^R*8^N) := by\n    omega\n  have hcap := M6.Transfer.actual_signed_capacity R N\n  have hdouble : 2 * (2^R*8^N) < 2^((M6.Transfer.coefficientBits R N - 1) + 1) := by\n    rw [pow_succ]\n    omega\n  have hexp : (M6.Transfer.coefficientBits R N - 1) + 1 ≤\n      M6.Transfer.queryCoefficientBits R N - 1 := by\n    unfold M6.Transfer.queryCoefficientBits\n    omega\n  have hpow : (2 : ℕ)^((M6.Transfer.coefficientBits R N - 1) + 1) ≤\n      2^(M6.Transfer.queryCoefficientBits R N - 1) :=\n    Nat.pow_le_pow_right (by decide) hexp\n  exact lt_of_le_of_lt hbound (lt_of_lt_of_le hdouble hpow)",
+              "imports": [
+                "M6PostSafety"
+              ],
+              "name": "M6.Transfer.division_difference_fits",
+              "ancestors": [],
+              "spec_sha256": "5deca37aa1b3aed11dc951d59641688284496769c3857632f400ede52b68b2a1"
+            },
+            "sha256": "4db910170d4db7d211dc65a3cebee4673c4fa1ac54ac3f0a79aa2c3d7a20c0c5"
+          }
+        }
+      }
+    },
+    "query_coefficients_fit": {
+      "id": "query_coefficients_fit",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.ActualTransfer.query_coefficients_fit",
+        "spec_sha256": "d7d0ebe022c5823c7ff9facb28f2b56fb7e9d8a66eb430dd1f0c9a4464df3b89",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-post-safety-formalization/.humanize-formal-runs/run-jhirie2o/attempt-001/Candidate_d89037cd8ead5ab6.lean",
+            "target_path": "/home/jing/m6-lean-post-safety-formalization/.humanize-formal-runs/run-jhirie2o/attempt-001/FrozenTarget_d89037cd8ead5ab6.lean",
+            "feedback": "",
+            "target_sha256": "471e06fe44c0ce848f6c2700b8d51dde0539cef8f237044315621bf447bfc5f5",
+            "target_olean_sha256": "a9afb4467389db6a167edd8d7fee068be1b51ffce39ec650cb1b508650d35100",
+            "source_sha256": "d357c5f4c283156adee0feaa810eb6bd6818f8175fc8871a6724e8884807295b",
+            "olean_sha256": "4a6867f6bdbc37a9a7aec890064c4bd4c9b9244f90d40bb7dcb3ee6865e2b71d",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:21:28.256258+00:00",
+        "work": "/home/jing/m6-lean-post-safety-formalization/.humanize-formal-runs/run-jhirie2o",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "27be62c0b12630cecf0e1a5569fe429cc0fced79a69706d354af50b654c25b7a",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-post-safety-formalization/.humanize-formal-runs/run-jhirie2o/attempt-001/Candidate_d89037cd8ead5ab6.lean",
+        "environment_sha256": "d6541ec9fcc4d12851ac813617526497c37f74649bcdc59054f6216d02078edd",
+        "artifacts": {
+          "division_difference_fits": {
+            "payload": {
+              "declaration": "theorem M6.Transfer.division_difference_fits : ∀ (R N : ℕ) (z w : ℤ) (j k : ℕ), z.natAbs ≤ 2^R*8^N → w.natAbs ≤ 2^R*8^N → (z/(2:ℤ)^j - w/(2:ℤ)^k).natAbs < 2^(M6.Transfer.queryCoefficientBits R N - 1) := by\n  change ∀ (R N : ℕ) (z w : ℤ) (j k : ℕ), z.natAbs ≤ 2^R*8^N → w.natAbs ≤ 2^R*8^N → (z/(2:ℤ)^j - w/(2:ℤ)^k).natAbs < 2^(M6.Transfer.queryCoefficientBits R N - 1)\n  intro R N z w j k hz hw\n  have hz' := Int.natAbs_ediv_le_natAbs z ((2 : ℤ)^j)\n  have hw' := Int.natAbs_ediv_le_natAbs w ((2 : ℤ)^k)\n  have htri : (z/(2:ℤ)^j - w/(2:ℤ)^k).natAbs ≤\n      (z/(2:ℤ)^j).natAbs + (w/(2:ℤ)^k).natAbs := by\n    simpa only [sub_eq_add_neg, Int.natAbs_neg] using\n      (Int.natAbs_add_le (z/(2:ℤ)^j) (-(w/(2:ℤ)^k)))\n  have hbound : (z/(2:ℤ)^j - w/(2:ℤ)^k).natAbs ≤ 2 * (2^R*8^N) := by\n    omega\n  have hcap := M6.Transfer.actual_signed_capacity R N\n  have hdouble : 2 * (2^R*8^N) < 2^((M6.Transfer.coefficientBits R N - 1) + 1) := by\n    rw [pow_succ]\n    omega\n  have hexp : (M6.Transfer.coefficientBits R N - 1) + 1 ≤\n      M6.Transfer.queryCoefficientBits R N - 1 := by\n    unfold M6.Transfer.queryCoefficientBits\n    omega\n  have hpow : (2 : ℕ)^((M6.Transfer.coefficientBits R N - 1) + 1) ≤\n      2^(M6.Transfer.queryCoefficientBits R N - 1) :=\n    Nat.pow_le_pow_right (by decide) hexp\n  exact lt_of_le_of_lt hbound (lt_of_lt_of_le hdouble hpow)",
+              "imports": [
+                "M6PostSafety"
+              ],
+              "name": "M6.Transfer.division_difference_fits",
+              "ancestors": [],
+              "spec_sha256": "5deca37aa1b3aed11dc951d59641688284496769c3857632f400ede52b68b2a1"
+            },
+            "sha256": "4db910170d4db7d211dc65a3cebee4673c4fa1ac54ac3f0a79aa2c3d7a20c0c5"
+          },
+          "query_coefficients_fit": {
+            "payload": {
+              "declaration": "theorem M6.ActualTransfer.query_coefficients_fit : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (P : M6.Pinned.Pins (2*N)) (d : ℕ), ((M6.ActualTransfer.Q N a b P).coeff d).natAbs < 2^(M6.Transfer.queryCoefficientBits (M6.ActualTransfer.span a b) N - 1) := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (P : M6.Pinned.Pins (2*N)) (d : ℕ), ((M6.ActualTransfer.Q N a b P).coeff d).natAbs < 2^(M6.Transfer.queryCoefficientBits (M6.ActualTransfer.span a b) N - 1)\n  intro N inst a b P d\n  have hb : ((M6.ActualTransfer.boundaryTrace N a b P).coeff d).natAbs ≤ 2^(M6.ActualTransfer.span a b) * 8^N := by\n    have hdeg : ∀ i m t, (M6.ActualTransfer.boundaryWeight (M6.ActualTransfer.span a b) N a b P i m t).natDegree ≤ 2 := by\n      intro i m t\n      exact (M6.Transfer.boundary_edge_bounds _ _ _ _ _ _).2\n    unfold M6.ActualTransfer.boundaryTrace\n    rw [M6.Transfer.scalar_trace_polynomial _ _ _ hdeg]\n    apply M6.Transfer.trace_coefficient_bound\n    intro i m t\n    exact (M6.Transfer.boundary_edge_bounds _ _ _ _ _ _).1\n  have hc : ((M6.ActualTransfer.characterTrace N a b P).coeff d).natAbs ≤ 2^(M6.ActualTransfer.span a b) * 8^N := by\n    have hdeg : ∀ i m t, (M6.ActualTransfer.characterWeight (M6.ActualTransfer.span a b) N a b P i m t).natDegree ≤ 2 := by\n      intro i m t\n      exact (M6.Transfer.character_edge_bounds _ _ _ _ _ _).2\n    unfold M6.ActualTransfer.characterTrace\n    rw [M6.Transfer.scalar_trace_polynomial _ _ _ hdeg]\n    apply M6.Transfer.trace_coefficient_bound\n    intro i m t\n    exact (M6.Transfer.character_edge_bounds _ _ _ _ _ _).1\n  unfold M6.ActualTransfer.Q\n  simp only [Polynomial.coeff_sub, M6.Normalize.divide_coeff]\n  apply M6.Transfer.division_difference_fits <;> assumption",
+              "imports": [
+                "M6PostSafety"
+              ],
+              "name": "M6.ActualTransfer.query_coefficients_fit",
+              "ancestors": [
+                "division_difference_fits"
+              ],
+              "spec_sha256": "95c7157043ea594d9e4ce7bed3c2dc4c6d014ca573d778bf8a0609505f9a8c00"
+            },
+            "sha256": "7cb1272f4c2737044bc665201462287c57e9678f4e7e9783c3b9438e1cec4aae"
+          }
+        }
+      }
+    }
+  }
+}

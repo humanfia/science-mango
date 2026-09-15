@@ -1,0 +1,3 @@
+import M6WeightResources
+#check (∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (P : M6.Pinned.Pins (2*N)), M6.ActualTransfer.span a b < N → M6.Transfer.IndexedArrayGuarantee (M6.ActualTransfer.span a b) N (M6.ActualTransfer.boundaryWeight (M6.ActualTransfer.span a b) N a b P))
+#check (∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (P : M6.Pinned.Pins (2*N)), M6.ActualTransfer.span a b < N → M6.Transfer.IndexedArrayGuarantee (M6.ActualTransfer.span a b) N (M6.ActualTransfer.characterWeight (M6.ActualTransfer.span a b) N a b P))

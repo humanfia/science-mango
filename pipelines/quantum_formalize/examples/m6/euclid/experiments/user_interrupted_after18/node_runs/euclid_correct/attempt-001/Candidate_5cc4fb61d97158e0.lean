@@ -1,0 +1,9 @@
+import FrozenTarget_5cc4fb61d97158e0
+theorem M6.Euclid.euclid_correct : QuantumHarnessFrozenTarget := by
+  change ∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).value = GCDMonoid.gcd p q ∧ (M6.Euclid.euclid p q).cancellations ≤ M6.Euclid.rank p + M6.Euclid.rank q ∧ (M6.Euclid.euclid p q).rounds ≤ M6.Euclid.rank q
+  intro p q
+  obtain ⟨hv, hc, hr⟩ := M6.Euclid.euclid_aux_correct (M6.Euclid.rank q + 1) p q (by omega)
+  have hv' := hv.trans (M6.Euclid.normalized_gcd p q)
+  have hc' : (M6.Euclid.euclidAux (M6.Euclid.rank q + 1) p q).cancellations ≤ M6.Euclid.rank p + M6.Euclid.rank q := by
+    omega
+  simpa only [M6.Euclid.euclid] using And.intro hv' (And.intro hc' hr)

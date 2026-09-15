@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst a b d v k h\nhave hbound : ∀ c : M6.Pinned.Pins (2*N) → ℤ,\n    (M6.Pinned.recover c (M6.Pinned.free (2*N)) (List.finRange (2*N))).2 ≤ 2*N := by\n  intro c\n  simpa using (M6.Pinned.recover_properties (2*N) c\n    (M6.Pinned.free (2*N)) (List.finRange (2*N))).2.2\nunfold M6.ActualTransfer.solve M6.Pinned.solve at h\nsplit at h\n· simp at h\n· simp only [Option.some.injEq, Prod.mk.injEq] at h\n  rcases h with ⟨hd, hv, hk⟩\n  rw [← hk]\n  exact hbound _",
+  "queries": []
+}

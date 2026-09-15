@@ -1,0 +1,276 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Character.free_character_factor",
+    "status": "ok",
+    "results": [
+      {
+        "id": 272949,
+        "name": "DirichletCharacter.gammaFactor",
+        "module": "Mathlib.NumberTheory.LSeries.DirichletContinuation",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/DirichletContinuation.lean#L206-L208",
+        "source_text": "/-- The Archimedean Gamma factor: `Gammaℝ s` if `χ` is even, and `Gammaℝ (s + 1)` otherwise. -/\nnoncomputable def gammaFactor (χ : DirichletCharacter ℂ N) (s : ℂ) :=\n  if χ.Even then Gammaℝ s else Gammaℝ (s + 1)\n",
+        "docstring": "The Archimedean Gamma factor: `Gammaℝ s` if `χ` is even, and `Gammaℝ (s + 1)` otherwise. "
+      },
+      {
+        "id": 271875,
+        "name": "DirichletCharacter.changeLevel_factorsThrough",
+        "module": "Mathlib.NumberTheory.DirichletCharacter.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Basic.lean#L118-L119",
+        "source_text": "lemma changeLevel_factorsThrough {m : ℕ} (hm : n ∣ m) : FactorsThrough (changeLevel hm χ) n :=\n  ⟨hm, χ, rfl⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 271864,
+        "name": "DirichletCharacter.changeLevel",
+        "module": "Mathlib.NumberTheory.DirichletCharacter.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Basic.lean#L64-L70",
+        "source_text": "/-- A function that modifies the level of a Dirichlet character to some multiple\n  of its original level. -/\nnoncomputable def changeLevel {n m : ℕ} (hm : n ∣ m) :\n    DirichletCharacter R n →* DirichletCharacter R m where\n  toFun ψ := MulChar.ofUnitHom (ψ.toUnitHom.comp (ZMod.unitsMap hm))\n  map_one' := by ext; simp\n  map_mul' ψ₁ ψ₂ := by ext; simp\n",
+        "docstring": "A function that modifies the level of a Dirichlet character to some multiple\nof its original level. "
+      },
+      {
+        "id": 272950,
+        "name": "DirichletCharacter.Even.gammaFactor_def",
+        "module": "Mathlib.NumberTheory.LSeries.DirichletContinuation",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/DirichletContinuation.lean#L210-L212",
+        "source_text": "lemma Even.gammaFactor_def {χ : DirichletCharacter ℂ N} (hχ : χ.Even) (s : ℂ) :\n    gammaFactor χ s = Gammaℝ s := by\n  simp [gammaFactor, hχ]\n",
+        "docstring": null
+      },
+      {
+        "id": 271896,
+        "name": "DirichletCharacter.conductor",
+        "module": "Mathlib.NumberTheory.DirichletCharacter.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Basic.lean#L245-L246",
+        "source_text": "/-- The minimum natural number level `n` through which `χ` factors. -/\nnoncomputable def conductor : ℕ := sInf (conductorSet χ)\n",
+        "docstring": "The minimum natural number level `n` through which `χ` factors. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Character.free_character_factor",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392354,
+        "name": "Lorentz.Vector.CausalCharacter",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L25-L31",
+        "source_text": "/-- Classification of lorentz vectors based on their causal character. -/\ninductive CausalCharacter\n  | timeLike\n  | lightLike\n  | spaceLike\n\nderiving DecidableEq\n",
+        "docstring": "Classification of lorentz vectors based on their causal character. "
+      },
+      {
+        "id": 394283,
+        "name": "hasDimension_iff",
+        "module": "Physlib.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Basic.lean#L310-L313",
+        "source_text": "lemma hasDimension_iff {M : Type} [CarriesDimension M] (f : UnitChoices → M) :\n    HasDimension f ↔ ∀ u1 u2 : UnitChoices, f u2 =\n    UnitChoices.dimScale u1 u2 (dim M) • f u1 := by\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 392359,
+        "name": "Lorentz.Vector.causalCharacter",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L33-L43",
+        "source_text": "/-- A Lorentz vector `p` is\n- `lightLike` if `⟪p, p⟫ₘ = 0`.\n- `timeLike` if `0 < ⟪p, p⟫ₘ`.\n- `spaceLike` if `⟪p, p⟫ₘ < 0`.\nNote that `⟪p, p⟫ₘ` is defined in the +--- convention.\n-/\ndef causalCharacter {d : ℕ} (p : Vector d) : CausalCharacter :=\n  let v0 := ⟪p, p⟫ₘ\n  if v0 = 0 then CausalCharacter.lightLike\n  else if 0 < v0 then CausalCharacter.timeLike\n  else CausalCharacter.spaceLike\n",
+        "docstring": "A Lorentz vector `p` is\n- `lightLike` if `⟪p, p⟫ₘ = 0`.\n- `timeLike` if `0 < ⟪p, p⟫ₘ`.\n- `spaceLike` if `⟪p, p⟫ₘ < 0`.\nNote that `⟪p, p⟫ₘ` is defined in the +--- convention.\n"
+      },
+      {
+        "id": 392356,
+        "name": "Lorentz.Vector.CausalCharacter.lightLike",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L28-L28",
+        "source_text": "  | lightLike\n",
+        "docstring": null
+      },
+      {
+        "id": 392377,
+        "name": "Lorentz.Vector.causalCharacter_zero",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.LightLike",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/LightLike.lean#L31-L34",
+        "source_text": "@[simp]\nlemma causalCharacter_zero {d : ℕ} : causalCharacter (0 : Vector d) =\n    CausalCharacter.lightLike := by\n  simp [causalCharacter]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Transfer.edgeMatrix",
+    "status": "ok",
+    "results": [
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      },
+      {
+        "id": 247874,
+        "name": "Matrix.transpose",
+        "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L138-L149",
+        "source_text": "/-- The transpose of a matrix.\n\nThis is available in bundled forms as:\n* `Matrix.transposeAddEquiv`\n* `Matrix.transposeLinearEquiv`\n* `Matrix.transposeRingEquiv`\n* `Matrix.transposeAlgEquiv`\n* `RingEquiv.mopMatrix`\n* `AlgEquiv.mopMatrix`\n-/\ndef transpose (M : Matrix m n α) : Matrix n m α :=\n  of fun x y => M y x\n",
+        "docstring": "The transpose of a matrix.\n\nThis is available in bundled forms as:\n* `Matrix.transposeAddEquiv`\n* `Matrix.transposeLinearEquiv`\n* `Matrix.transposeRingEquiv`\n* `Matrix.transposeAlgEquiv`\n* `RingEquiv.mopMatrix`\n* `AlgEquiv.mopMatrix`\n"
+      },
+      {
+        "id": 195240,
+        "name": "SimpleGraph.Walk.edgeSet_transfer",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Walk.Maps",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Walk/Maps.lean#L166-L167",
+        "source_text": "@[simp]\ntheorem edgeSet_transfer (hp) : (p.transfer H hp).edgeSet = p.edgeSet := by ext; simp",
+        "docstring": null
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      },
+      {
+        "id": 249888,
+        "name": "Matrix.transvection_mul_apply_of_ne",
+        "module": "Mathlib.LinearAlgebra.Matrix.Transvection",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Transvection.lean#L124-L127",
+        "source_text": "@[simp]\ntheorem transvection_mul_apply_of_ne {m : Type*} (a : n) (b : m) (ha : a ≠ i) (c : R)\n    (M : Matrix n m R) :\n    (transvection i j c * M) a b = M a b := by simp [transvection, Matrix.add_mul, ha]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Transfer.edgeMatrix",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392497,
+        "name": "Lorentz.«term_*ᵥ_»",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Pre.Modules",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Pre/Modules.lean#L139-L140",
+        "source_text": "/-- Multiplication of a matrix with a vector in `ContrMod`. -/\nscoped[Lorentz] infixr:73 \" *ᵥ \" => ContrMod.mulVec\n",
+        "docstring": "Multiplication of a matrix with a vector in `ContrMod`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Transfer.localOutput M6.ActualTransfer.window zero span",
+    "status": "ok",
+    "results": [
+      {
+        "id": 214248,
+        "name": "ZNum.transfer_rw",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L371-L373",
+        "source_text": "scoped macro (name := transfer_rw) \"transfer_rw\" : tactic => `(tactic|\n    (repeat first | rw [← to_int_inj] | rw [← lt_to_int] | rw [← le_to_int]\n     repeat first | rw [cast_add] | rw [mul_to_int] | rw [cast_one] | rw [cast_zero]))\n",
+        "docstring": "This tactic tries to turn an (in)equality about `ZNum`s to one about `Int`s by rewriting.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer_rw\n  exact le_add_of_nonneg_right (mul_self_nonneg _)\n```\n"
+      },
+      {
+        "id": 241614,
+        "name": "Subgroup.transferFunction",
+        "module": "Mathlib.GroupTheory.Transfer",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Transfer.lean#L86-L90",
+        "source_text": "/-- The transfer transversal as a function. Given a `⟨g⟩`-orbit `q₀, g • q₀, ..., g ^ (m - 1) • q₀`\n  in `G ⧸ H`, an element `g ^ k • q₀` is mapped to `g ^ k • g₀` for a fixed choice of\n  representative `g₀` of `q₀`. -/\nnoncomputable def transferFunction : G ⧸ H → G := fun q =>\n  g ^ (cast (quotientEquivSigmaZMod H g q).2 : ℤ) * (quotientEquivSigmaZMod H g q).1.out.out\n",
+        "docstring": "The transfer transversal as a function. Given a `⟨g⟩`-orbit `q₀, g • q₀, ..., g ^ (m - 1) • q₀`\nin `G ⧸ H`, an element `g ^ k • q₀` is mapped to `g ^ k • g₀` for a fixed choice of\nrepresentative `g₀` of `q₀`. "
+      },
+      {
+        "id": 253013,
+        "name": "Submodule.span",
+        "module": "Mathlib.LinearAlgebra.Span.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Defs.lean#L47-L49",
+        "source_text": "/-- The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. -/\ndef span (s : Set M) : Submodule R M :=\n  sInf { p | s ⊆ p }\n",
+        "docstring": "The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. "
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      },
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Transfer.localOutput M6.ActualTransfer.window zero span",
+    "status": "ok",
+    "results": [
+      {
+        "id": 385109,
+        "name": "ClassicalFieldTheory.Local.AdmissibleVariation.zero_apply",
+        "module": "Physlib.ClassicalFieldTheory.Local.Variation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalFieldTheory/Local/Variation.lean#L81-L82",
+        "source_text": "@[simp]\nlemma zero_apply (x : Space d) : (0 : AdmissibleVariation d U) x = 0 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 385108,
+        "name": "ClassicalFieldTheory.Local.AdmissibleVariation.instZero",
+        "module": "Physlib.ClassicalFieldTheory.Local.Variation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalFieldTheory/Local/Variation.lean#L76-L79",
+        "source_text": "noncomputable instance : Zero (AdmissibleVariation d U) where\n  zero :=\n    { toFun := fun _ => 0\n      isTestFunction := IsTestFunction.zero }\n",
+        "docstring": null
+      },
+      {
+        "id": 386973,
+        "name": "IsLocalizedFunctionTransform",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsLocalizedfunctionTransform",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsLocalizedfunctionTransform.lean#L34-L38",
+        "source_text": "/-- Function transformation `F` is localizable if the values of the transformed function `F φ` on\nsome compact set `K` can depend only on the values of `φ` on some another compact set `L`. -/\ndef IsLocalizedFunctionTransform (F : (X → U) → (Y → V)) : Prop :=\n  ∀ (K : Set Y) (_ : IsCompact K), ∃ L : Set X,\n    IsCompact L ∧ ∀ (φ φ' : X → U), (∀ x ∈ L, φ x = φ' x) → ∀ x ∈ K, F φ x = F φ' x\n",
+        "docstring": "Function transformation `F` is localizable if the values of the transformed function `F φ` on\nsome compact set `K` can depend only on the values of `φ` on some another compact set `L`. "
+      },
+      {
+        "id": 386990,
+        "name": "IsLocalizedFunctionTransform.snd",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsLocalizedfunctionTransform",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsLocalizedfunctionTransform.lean#L251-L255",
+        "source_text": "lemma snd {F : (X → U) → X → W × V} (hF : IsLocalizedFunctionTransform F) :\n    IsLocalizedFunctionTransform (fun φ x => (F φ x).2) := by\n  intro K cK\n  obtain ⟨L, cL, h⟩ := hF K cK\n  exact ⟨L, cL, fun φ φ' hφ x hx => by dsimp only; rw [h φ φ' hφ x hx]⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 386989,
+        "name": "IsLocalizedFunctionTransform.fst",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsLocalizedfunctionTransform",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsLocalizedfunctionTransform.lean#L245-L249",
+        "source_text": "lemma fst {F : (X → U) → X → W × V} (hF : IsLocalizedFunctionTransform F) :\n    IsLocalizedFunctionTransform (fun φ x => (F φ x).1) := by\n  intro K cK\n  obtain ⟨L, cL, h⟩ := hF K cK\n  exact ⟨L, cL, fun φ φ' hφ x hx => by dsimp only; rw [h φ φ' hφ x hx]⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

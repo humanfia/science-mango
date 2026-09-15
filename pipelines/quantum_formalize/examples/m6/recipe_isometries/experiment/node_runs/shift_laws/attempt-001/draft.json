@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst r a\nhave hinv (b : M6.RecipeIsometries.Block N) :\n    M6.RecipeIsometries.shift N (-r) (M6.RecipeIsometries.shift N r b) = b := by\n  funext i\n  simp [M6.RecipeIsometries.shift, sub_eq_add_neg, add_assoc]\nrefine ⟨?_, hinv a, ?_⟩\n· funext i\n  simp [M6.RecipeIsometries.shift]\n· constructor\n  · intro h\n    calc\n      a = M6.RecipeIsometries.shift N (-r) (M6.RecipeIsometries.shift N r a) := (hinv a).symm\n      _ = M6.RecipeIsometries.shift N (-r) 0 := congrArg (M6.RecipeIsometries.shift N (-r)) h\n      _ = 0 := rfl\n  · intro h\n    subst a\n    rfl",
+  "queries": []
+}

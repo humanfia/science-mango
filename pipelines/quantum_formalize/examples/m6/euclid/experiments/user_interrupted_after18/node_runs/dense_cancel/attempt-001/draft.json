@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) (p q : M6.Euclid.BP), p ≠ 0 → _\nintro N p q hp\nhave hl : p.leadingCoeff = 1 := (M6.Euclid.binary_normalization p).1 hp\nhave hsub : ∀ a b : ZMod 2, a - b = a + b := by decide\nhave hc : M6.Euclid.cancel p q = p - q * Polynomial.X ^ (p.natDegree - q.natDegree) := by\n  simp [M6.Euclid.cancel, hl, mul_comm, mul_left_comm, mul_assoc]\nrw [hc]\nunfold M6.Euclid.dense M6.Euclid.denseXor\ncongr 1\nfunext i\nsimp [Polynomial.coeff_sub, Polynomial.coeff_mul_X_pow', hsub]",
+  "queries": [
+    "Polynomial.coeff_mul_X_pow'",
+    "Polynomial.coeff_X_pow_mul'"
+  ]
+}

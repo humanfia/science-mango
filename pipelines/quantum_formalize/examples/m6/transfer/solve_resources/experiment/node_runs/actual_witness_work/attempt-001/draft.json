@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst a b d v k hspan hsolve\nhave ha : a.natDegree ≤ N := by\n  have h : max a.natDegree b.natDegree < N := hspan\n  exact (le_max_left _ _).trans (Nat.le_of_lt h)\nhave hb : b.natDegree ≤ N := by\n  have h : max a.natDegree b.natDegree < N := hspan\n  exact (le_max_right _ _).trans (Nat.le_of_lt h)\nhave hM : (M6.Cyclic.modulus N).natDegree ≤ N := by\n  change (Polynomial.X ^ N + 1 : Polynomial (ZMod 2)).natDegree ≤ N\n  exact (Polynomial.natDegree_add_le _ _).trans (by simp)\nhave he := (M6.Euclid.preprocess_correct_cost N a b (M6.Cyclic.modulus N) ha hb hM).2\nhave hk := M6.ActualTransfer.actual_solve_queries N a b d v k hsolve\nunfold M6.ActualTransfer.actualWitnessWork\nexact M6.Transfer.witness_work_bound (M6.ActualTransfer.span a b) N _ k hspan he hk",
+  "queries": []
+}

@@ -1,0 +1,3 @@
+import Candidate_2857e881e18dfe15
+example : QuantumHarnessFrozenTarget := M6.ActualTransfer.character_indexed_resources
+#print axioms M6.ActualTransfer.character_indexed_resources

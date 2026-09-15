@@ -1,0 +1,206 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Character.dualWords definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 86749,
+        "name": "CharacterModule.dual",
+        "module": "Mathlib.Algebra.Module.CharacterModule",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/CharacterModule.lean#L75-L82",
+        "source_text": "/--\nGiven an abelian group homomorphism `f : A → B`, `f⋆(L) := L ∘ f` defines a linear map\nfrom `B⋆` to `A⋆`.\n-/\n@[simps] def dual (f : A →ₗ[R] B) : CharacterModule B →ₗ[R] CharacterModule A where\n  toFun L := L.comp f.toAddMonoidHom\n  map_add' := by aesop\n  map_smul' r c := by ext x; exact congr(c $(f.map_smul r x)).symm\n",
+        "docstring": "Given an abelian group homomorphism `f : A → B`, `f⋆(L) := L ∘ f` defines a linear map\nfrom `B⋆` to `A⋆`.\n"
+      },
+      {
+        "id": 86751,
+        "name": "CharacterModule.dual_zero",
+        "module": "Mathlib.Algebra.Module.CharacterModule",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/CharacterModule.lean#L84-L87",
+        "source_text": "@[simp]\nlemma dual_zero : dual (0 : A →ₗ[R] B) = 0 := by\n  ext f\n  exact map_zero f",
+        "docstring": null
+      },
+      {
+        "id": 245498,
+        "name": "Module.Dual",
+        "module": "Mathlib.LinearAlgebra.Dual.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dual/Defs.lean#L60-L63",
+        "source_text": "/-- The left dual space of an R-module M is the R-module of linear maps `M → R`. -/\n@[wikidata Q752487]\nabbrev Dual (R M : Type*) [Semiring R] [AddCommMonoid M] [Module R M] :=\n  M →ₗ[R] R\n",
+        "docstring": "The left dual space of an R-module M is the R-module of linear maps `M → R`. "
+      },
+      {
+        "id": 245545,
+        "name": "Submodule.dualAnnihilator",
+        "module": "Mathlib.LinearAlgebra.Dual.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dual/Defs.lean#L336-L340",
+        "source_text": "/-- The `dualAnnihilator` of a submodule `W` is the set of linear maps `φ` such\n  that `φ w = 0` for all `w ∈ W`. -/\ndef dualAnnihilator {R M : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M]\n    (W : Submodule R M) : Submodule R <| Module.Dual R M :=\n  LinearMap.ker W.dualRestrict\n",
+        "docstring": "The `dualAnnihilator` of a submodule `W` is the set of linear maps `φ` such\nthat `φ w = 0` for all `w ∈ W`. "
+      },
+      {
+        "id": 335194,
+        "name": "WeakDual.characterSpace",
+        "module": "Mathlib.Topology.Algebra.Module.Spaces.CharacterSpace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/Module/Spaces/CharacterSpace.lean#L42-L46",
+        "source_text": "/-- The character space of a topological algebra is the subset of elements of the weak dual that\nare also algebra homomorphisms. -/\ndef characterSpace (𝕜 : Type*) (A : Type*) [CommSemiring 𝕜] [TopologicalSpace 𝕜] [ContinuousAdd 𝕜]\n    [ContinuousConstSMul 𝕜 𝕜] [NonUnitalNonAssocSemiring A] [TopologicalSpace A] [Module 𝕜 A] :=\n  {φ : WeakDual 𝕜 A | φ ≠ 0 ∧ ∀ x y : A, φ (x * y) = φ x * φ y}\n",
+        "docstring": "The character space of a topological algebra is the subset of elements of the weak dual that\nare also algebra homomorphisms. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Character.dualWords definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391323,
+        "name": "minkowskiMatrix.dual",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L235-L237",
+        "source_text": "/-- The dual of a matrix with respect to the Minkowski metric.\n  A suitable name for this construction is the Minkowski dual. -/\ndef dual : Matrix (Fin 1 ⊕ Fin d) (Fin 1 ⊕ Fin d) ℝ := η * Λᵀ * η\n",
+        "docstring": "The dual of a matrix with respect to the Minkowski metric.\nA suitable name for this construction is the Minkowski dual. "
+      },
+      {
+        "id": 391325,
+        "name": "minkowskiMatrix.dual_mul",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L260-L264",
+        "source_text": "/-- The Minkowski dual swaps multiplications (acts contravariantly). -/\n@[simp]\nlemma dual_mul : dual (Λ * Λ') = dual Λ' * dual Λ := by\n  simp only [dual, transpose_mul, ← mul_assoc]\n  noncomm_ring [minkowskiMatrix.sq]\n",
+        "docstring": "The Minkowski dual swaps multiplications (acts contravariantly). "
+      },
+      {
+        "id": 392457,
+        "name": "Lorentz.contrContrContractField.dual_mulVec_left",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Pre.Contraction",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Pre/Contraction.lean#L238-L239",
+        "source_text": "lemma dual_mulVec_left : ⟪dual Λ *ᵥ x, y⟫ₘ = ⟪x, Λ *ᵥ y⟫ₘ := by\n  rw [symm, dual_mulVec_right, symm]\n",
+        "docstring": null
+      },
+      {
+        "id": 391326,
+        "name": "minkowskiMatrix.dual_dual",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L273-L278",
+        "source_text": "/-- The Minkowski dual is involutive (i.e. `dual (dual Λ)) = Λ`). -/\n@[simp]\nlemma dual_dual : Function.Involutive (@dual d) := by\n  intro Λ\n  simp only [dual, transpose_mul, eq_transpose, transpose_transpose, ← mul_assoc]\n  noncomm_ring [minkowskiMatrix.sq]\n",
+        "docstring": "The Minkowski dual is involutive (i.e. `dual (dual Λ)) = Λ`). "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Spaces.B definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 264347,
+        "name": "MeasurableSpace",
+        "module": "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/MeasurableSpace/Defs.lean#L48-L59",
+        "source_text": "/-- A measurable space is a space equipped with a σ-algebra. -/\n@[class] structure MeasurableSpace (α : Type*) where\n  /-- Predicate saying that a given set is measurable. Use `MeasurableSet` in the root namespace\n  instead. -/\n  MeasurableSet' : Set α → Prop\n  /-- The empty set is a measurable set. Use `MeasurableSet.empty` instead. -/\n  measurableSet_empty : MeasurableSet' ∅\n  /-- The complement of a measurable set is a measurable set. Use `MeasurableSet.compl` instead. -/\n  measurableSet_compl : ∀ s, MeasurableSet' s → MeasurableSet' sᶜ\n  /-- The union of a sequence of measurable sets is a measurable set. Use a more general\n  `MeasurableSet.iUnion` instead. -/\n  measurableSet_iUnion : ∀ f : ℕ → Set α, (∀ i, MeasurableSet' (f i)) → MeasurableSet' (⋃ i, f i)\n",
+        "docstring": "A measurable space is a space equipped with a σ-algebra. "
+      },
+      {
+        "id": 266661,
+        "name": "MeasureTheory.MeasureSpace",
+        "module": "Mathlib.MeasureTheory.Measure.MeasureSpaceDef",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/MeasureSpaceDef.lean#L353-L356",
+        "source_text": "/-- A measure space is a measurable space equipped with a\n  measure, referred to as `volume`. -/\nclass MeasureSpace (α : Type*) extends MeasurableSpace α where\n  volume : Measure α\n",
+        "docstring": "A measure space is a measurable space equipped with a\nmeasure, referred to as `volume`. "
+      },
+      {
+        "id": 264385,
+        "name": "MeasurableSpace.ext_iff",
+        "module": "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/MeasurableSpace/Defs.lean#L235-L235",
+        "source_text": "@[ext]\ntheorem MeasurableSpace.ext {m₁ m₂ : MeasurableSpace α}\n    (h : ∀ s : Set α, MeasurableSet[m₁] s ↔ MeasurableSet[m₂] s) : m₁ = m₂ :=",
+        "docstring": null
+      },
+      {
+        "id": 135209,
+        "name": "iInter_halfSpaces_eq",
+        "module": "Mathlib.Analysis.LocallyConvex.Separation",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/LocallyConvex/Separation.lean#L245-L253",
+        "source_text": "/-- A closed convex set is the intersection of the half-spaces containing it. -/\ntheorem iInter_halfSpaces_eq (hs₁ : Convex ℝ s) (hs₂ : IsClosed s) :\n    ⋂ l : StrongDual ℝ E, { x | ∃ y ∈ s, l x ≤ l y } = s := by\n  rw [Set.iInter_setOf]\n  refine Set.Subset.antisymm (fun x hx => ?_) fun x hx l => ⟨x, hx, le_rfl⟩\n  by_contra h\n  obtain ⟨l, s, hlA, hl⟩ := geometric_hahn_banach_closed_point hs₁ hs₂ h\n  obtain ⟨y, hy, hxy⟩ := hx l\n  exact ((hxy.trans_lt (hlA y hy)).trans hl).not_ge le_rfl\n",
+        "docstring": "A closed convex set is the intersection of the half-spaces containing it. "
+      },
+      {
+        "id": 264395,
+        "name": "MeasurableSpace.copy",
+        "module": "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/MeasurableSpace/Defs.lean#L290-L298",
+        "source_text": "/-- Copy of a `MeasurableSpace` with a new `MeasurableSet` equal to the old one. Useful to fix\ndefinitional equalities. -/\n@[implicit_reducible]\nprotected def copy (m : MeasurableSpace α) (p : Set α → Prop) (h : ∀ s, p s ↔ MeasurableSet[m] s) :\n    MeasurableSpace α where\n  MeasurableSet' := p\n  measurableSet_empty := by simpa only [h] using! m.measurableSet_empty\n  measurableSet_compl := by simpa only [h] using! m.measurableSet_compl\n  measurableSet_iUnion := by simpa only [h] using! m.measurableSet_iUnion\n",
+        "docstring": "Copy of a `MeasurableSpace` with a new `MeasurableSet` equal to the old one. Useful to fix\ndefinitional equalities. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Spaces.B definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393188,
+        "name": "Space.instModuleReal",
+        "module": "Physlib.SpaceAndTime.Space.Module",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Module.lean#L131-L149",
+        "source_text": "instance {d} : Module ℝ (Space d) where\n  one_smul x := by\n    ext i\n    simp\n  mul_smul a b x := by\n    ext i\n    simp [mul_assoc]\n  smul_add a x y := by\n    ext i\n    simp [mul_add]\n  smul_zero a := by\n    ext i\n    simp\n  add_smul a b x := by\n    ext i\n    simp [add_mul]\n  zero_smul x := by\n    ext i\n    simp\n",
+        "docstring": null
+      },
+      {
+        "id": 393730,
+        "name": "Constants.kB",
+        "module": "Physlib.StatisticalMechanics.BoltzmannConstant",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/BoltzmannConstant.lean#L31-L33",
+        "source_text": "/-- The Boltzmann constant in a given but arbitrary set of units.\n  Boltzman's constant has dimension equivalent to `Energy/Temperature`. -/\nnoncomputable def kB : ℝ := kBAx.1\n",
+        "docstring": "The Boltzmann constant in a given but arbitrary set of units.\nBoltzman's constant has dimension equivalent to `Energy/Temperature`. "
+      },
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

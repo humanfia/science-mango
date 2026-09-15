@@ -1,0 +1,97 @@
+{
+  "id": "dual_boundary_card",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Spaces.dual_boundary_card",
+    "spec_sha256": "c3dd9bdd3f5b4143e29be8cef7fef1439dca10df5b8405a20de8033be381d779",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-rasu_73q/attempt-001/Candidate_cb5d0310912a074f.lean",
+        "target_path": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-rasu_73q/attempt-001/FrozenTarget_cb5d0310912a074f.lean",
+        "feedback": "",
+        "target_sha256": "d5bf7dbecc630c0a3132e5d5b0041ab58b789b7f6bb1c39ec1e600cc99da5d8b",
+        "target_olean_sha256": "b1d4acebc78a072a1f920af4de852dba37a3e340bbd78493fe749515697d5a60",
+        "source_sha256": "c9389121afb636246cab0d8f788fa209a117aa6cae3c636d089c7d8164e380e7",
+        "olean_sha256": "57cced10c24fedc249ae25d32478c147f68644f7d91330f2b9bc86c5e92008b3",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T13:34:07.051618+00:00",
+    "work": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-rasu_73q",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "aef03b789111dbfaa4b0b1b3a0e238a4bb16f03f5d27d9e12522ce617f6ec5d1",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-spaces-formalization/.humanize-formal-runs/run-rasu_73q/attempt-001/Candidate_cb5d0310912a074f.lean",
+    "environment_sha256": "eedb6f45d70c9d95b80fadc41c1c732e09ab966c14665922ac806b32146da181",
+    "artifacts": {
+      "boundary_eval": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.boundary_eval : ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.boundary N a b h = M6.Flatten.flatten N (M6.Physical.boundary N a b h) := by\n  intro N inst a b h\n  rfl",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.boundary_eval",
+          "ancestors": [],
+          "spec_sha256": "649ae2bd9830f2e0cc091a6c754f4e30d9e0e38fc49ab766b1b3e2e000fddeeb"
+        },
+        "sha256": "5539db7ea3239a1d515188394def2dda5b53667ec94f67fe140c9e69f4b5282e"
+      },
+      "boundary_words_iff": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.boundary_words_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.boundaryWords N a b ↔ ∃ h : M6.Physical.Block N, M6.Flatten.flatten N (M6.Physical.boundary N a b h) = v := by\n  intro N inst a b v\n  classical\n  simp [M6.Spaces.boundaryWords, M6.Character.subspaceWords, M6.Spaces.B,\n    LinearMap.mem_range, M6.Spaces.boundary_eval]",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.boundary_words_iff",
+          "ancestors": [
+            "boundary_eval"
+          ],
+          "spec_sha256": "b2a09049582e1327737d76b20776416cde7ff32fca24f94ddfebfafee053cf76"
+        },
+        "sha256": "633b11b9b3fc2e7dcc7dd1a4083e035ff7bae8bd5c0f82f5b23354f196dafd69"
+      },
+      "dual_boundary_eval": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.dual_boundary_eval : ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.dualBoundary N a b h = M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.dualBoundary N a b h = M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst a b h\n  rfl",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.dual_boundary_eval",
+          "ancestors": [],
+          "spec_sha256": "5514d0245ab330c0983d79a14bb875929eaecc9e2d828b894d1be84799054e1d"
+        },
+        "sha256": "9f19889272f4d9142deb31c821e8337d758ce966eb24da8952160e5fee8d4678"
+      },
+      "dual_boundary_card": {
+        "payload": {
+          "declaration": "theorem M6.Spaces.dual_boundary_card : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (M6.Character.subspaceWords (M6.Spaces.D N a b)).card = (M6.Spaces.boundaryWords N a b).card := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (M6.Character.subspaceWords (M6.Spaces.D N a b)).card = (M6.Spaces.boundaryWords N a b).card\n  intro N inst a b\n  classical\n  have hd (v : M6.Pinned.Vector (2*N)) :\n      v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) ↔\n        ∃ h : M6.Physical.Block N,\n          M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h)) = v := by\n    simp [M6.Character.subspaceWords, M6.Spaces.D, LinearMap.mem_range,\n      M6.Spaces.dual_boundary_eval]\n  refine Finset.card_bij (fun v _ => M6.Flatten.J N v) ?_ ?_ ?_\n  · intro v hv\n    obtain ⟨h, rfl⟩ := (hd v).mp hv\n    apply (M6.Spaces.boundary_words_iff N a b _).mpr\n    refine ⟨h, ?_⟩\n    simp [M6.Flatten.J, M6.Flatten.flatten_left, M6.Physical.J_involution]\n  · intro v hv w hw he\n    have hh := congrArg (M6.Flatten.J N) he\n    simpa only [M6.Flatten.J_involution] using hh\n  · intro v hv\n    obtain ⟨h, rfl⟩ := (M6.Spaces.boundary_words_iff N a b v).mp hv\n    refine ⟨M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h)), ?_, ?_⟩\n    · exact (hd _).mpr ⟨h, rfl⟩\n    · simp [M6.Flatten.J, M6.Flatten.flatten_left, M6.Physical.J_involution]",
+          "imports": [
+            "M6SpacesReady"
+          ],
+          "name": "M6.Spaces.dual_boundary_card",
+          "ancestors": [
+            "boundary_eval",
+            "boundary_words_iff",
+            "dual_boundary_eval"
+          ],
+          "spec_sha256": "d3eaa327630e286743d00c828d3f3ae2796e2a9df04119721493ca6e25fef6f1"
+        },
+        "sha256": "6f21dc02e0beb2f213502bb76d498981e8cc6a34a3e9afa3a50bf31ab26cb0be"
+      }
+    }
+  }
+}

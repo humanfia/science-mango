@@ -1,0 +1,106 @@
+{
+  "title": "M6 actual solve and preprocessing resource specialization",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "nodes": [
+    {
+      "id": "query_import",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "status": "pending_verified_actual_closure"
+      }
+    },
+    {
+      "id": "euclid_import",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "status": "pending_verified_actual_closure"
+      }
+    },
+    {
+      "id": "storage_import",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "status": "pending_verified_actual_closure"
+      }
+    },
+    {
+      "id": "actual_solve_queries",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualTransfer.actual_solve_queries",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (d : ℕ) (v : M6.Pinned.Vector (2*N)) (k : ℕ), M6.ActualTransfer.solve N a b = some (d,v,k) → k ≤ 2*N",
+        "imports": [
+          "M6SolveResources"
+        ],
+        "context": "",
+        "queries": [
+          "List finRange length",
+          "Polynomial natDegree add power"
+        ],
+        "guidance": "Actual solve query bound follows by unfolding ActualTransfer.solve and Pinned.solve, splitting firstPositive, and accepted Pinned.recover_properties applied to finRange(2*N). It requires no enumerator premise. For cost targets use actual preprocess_correct_cost once accepted and generic query cost bounds; max-degree span<N gives both degree bounds, and cyclic modulus degree<=N follows natDegree_add_le and natDegree_X_pow. No free oracle/count/preprocessing premise is allowed in these final specializations. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "supports_obligation": "M6_ACTUAL_SOLVE_RESOURCES"
+      }
+    },
+    {
+      "id": "actual_distance_work",
+      "dependencies": [
+        "query_import",
+        "euclid_import"
+      ],
+      "spec": {
+        "name": "M6.ActualTransfer.actual_distance_work",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → M6.ActualTransfer.actualDistanceWork N a b ≤ 50000*N^3*4^(M6.ActualTransfer.span a b)",
+        "imports": [
+          "M6SolveResources"
+        ],
+        "context": "",
+        "queries": [
+          "List finRange length",
+          "Polynomial natDegree add power"
+        ],
+        "guidance": "Actual solve query bound follows by unfolding ActualTransfer.solve and Pinned.solve, splitting firstPositive, and accepted Pinned.recover_properties applied to finRange(2*N). It requires no enumerator premise. For cost targets use actual preprocess_correct_cost once accepted and generic query cost bounds; max-degree span<N gives both degree bounds, and cyclic modulus degree<=N follows natDegree_add_le and natDegree_X_pow. No free oracle/count/preprocessing premise is allowed in these final specializations. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "supports_obligation": "M6_ACTUAL_SOLVE_RESOURCES"
+      }
+    },
+    {
+      "id": "actual_witness_work",
+      "dependencies": [
+        "actual_solve_queries",
+        "query_import",
+        "euclid_import"
+      ],
+      "spec": {
+        "name": "M6.ActualTransfer.actual_witness_work",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (d : ℕ) (v : M6.Pinned.Vector (2*N)) (k : ℕ), M6.ActualTransfer.span a b < N → M6.ActualTransfer.solve N a b = some (d,v,k) → M6.ActualTransfer.actualWitnessWork N a b k ≤ 200000*N^4*4^(M6.ActualTransfer.span a b)",
+        "imports": [
+          "M6SolveResources"
+        ],
+        "context": "",
+        "queries": [
+          "List finRange length",
+          "Polynomial natDegree add power"
+        ],
+        "guidance": "Actual solve query bound follows by unfolding ActualTransfer.solve and Pinned.solve, splitting firstPositive, and accepted Pinned.recover_properties applied to finRange(2*N). It requires no enumerator premise. For cost targets use actual preprocess_correct_cost once accepted and generic query cost bounds; max-degree span<N gives both degree bounds, and cyclic modulus degree<=N follows natDegree_add_le and natDegree_X_pow. No free oracle/count/preprocessing premise is allowed in these final specializations. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "supports_obligation": "M6_ACTUAL_SOLVE_RESOURCES"
+      }
+    }
+  ]
+}

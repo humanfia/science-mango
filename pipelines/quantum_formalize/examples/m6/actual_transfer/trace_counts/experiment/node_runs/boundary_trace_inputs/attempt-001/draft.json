@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst a b hspan P\nclassical\nunfold M6.ActualTransfer.boundaryTrace\nhave hdeg : ∀ i m t,\n    (M6.ActualTransfer.boundaryWeight (M6.ActualTransfer.span a b) N a b P i m t).natDegree ≤ 2 := by\n  intro i m t\n  unfold M6.ActualTransfer.boundaryWeight\n  exact (M6.Transfer.boundary_edge_bounds (2 * N) P _ _ _ _).2\nrw [M6.Transfer.scalar_trace_polynomial _ _ _ hdeg,\n  M6.Transfer.array_trace_inputs]\napply Finset.sum_congr rfl\nintro h hh\nexact M6.ActualTransfer.boundary_input_product\n  (M6.ActualTransfer.span a b) N a b\n  (by simpa only [M6.ActualTransfer.span] using (le_max_left a.natDegree b.natDegree))\n  (by simpa only [M6.ActualTransfer.span] using (le_max_right a.natDegree b.natDegree))\n  hspan P h",
+  "queries": []
+}

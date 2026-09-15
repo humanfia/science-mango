@@ -1,0 +1,13 @@
+{
+  "name": "M6.ActualTransfer.shift_division",
+  "statement": "∀ (z : ℤ) (k : ℕ), Int.shiftRight z k = z / (2:ℤ)^k",
+  "imports": [
+    "M6Postprocessing"
+  ],
+  "context": "",
+  "queries": [
+    "Int.shiftRight_eq_div_pow",
+    "Polynomial coeff finite sum monomial"
+  ],
+  "guidance": "Use Int.shiftRight_eq_div_pow and accepted Normalize.divide_coeff. scalarTracePolynomial is literally a finite monomial sum over Fin(2*N+1), so coefficients above2N vanish regardless of weights. Q coefficients subtract the two divided trace coefficients. Extensionality proves exact finite reconstruction, and unfolding firstPositive proves the same range find scan. Preserve actual fixed definitions and no extra arithmetic assumptions. Return tactic lines without leading by."
+}

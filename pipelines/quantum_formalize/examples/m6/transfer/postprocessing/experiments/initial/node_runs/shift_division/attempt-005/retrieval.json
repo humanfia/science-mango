@@ -1,0 +1,88 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Int.shiftRight_natCast_right",
+    "status": "ok",
+    "results": [
+      {
+        "id": 206718,
+        "name": "Int.shiftRight_natCast_right",
+        "module": "Mathlib.Data.Int.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L377-L380",
+        "source_text": "/-- Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. -/\nlemma shiftRight_natCast_right (m : ℤ) (n : ℕ) :\n    m >>> (n : ℤ) = m >>> n := by\n  cases m <;> simp\n",
+        "docstring": "Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. "
+      },
+      {
+        "id": 206713,
+        "name": "Int.shiftRight_natCast",
+        "module": "Mathlib.Data.Int.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L346-L347",
+        "source_text": "@[simp]\ntheorem shiftRight_natCast (m n : ℕ) : (m : ℤ) >>> (n : ℤ) = m >>> n := by cases n <;> rfl",
+        "docstring": null
+      },
+      {
+        "id": 206717,
+        "name": "Int.shiftLeft_natCast_right",
+        "module": "Mathlib.Data.Int.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L367-L375",
+        "source_text": "/-- Connection of `HShiftLeft Int Int Int` and `HShiftLeft Int Nat Int`. -/\nlemma shiftLeft_natCast_right (m : ℤ) (n : ℕ) :\n    m <<< (n : ℤ) = m <<< n := by\n  rw [Int.shiftLeft_eq']\n  unfold_projs; cases m <;> simp only [Nat.shiftLeft'_false, natCast_shiftLeft, ofNat_eq_natCast,\n    Nat.pow_eq, Int.natCast_pow, Nat.cast_ofNat, mul_def]\n  · grind [Int.shiftLeft_eq']\n  · simp only [negSucc_eq, ← natCast_add_one, Nat.shiftLeft'_true_eq_mul_pow]\n    grind\n",
+        "docstring": "Connection of `HShiftLeft Int Int Int` and `HShiftLeft Int Nat Int`. "
+      },
+      {
+        "id": 211860,
+        "name": "Nat.shiftRight_eq",
+        "module": "Mathlib.Data.Nat.Bits",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bits.lean#L130-L130",
+        "source_text": "@[simp] lemma shiftRight_eq (m n : Nat) : shiftRight m n = m >>> n := rfl",
+        "docstring": null
+      },
+      {
+        "id": 214179,
+        "name": "Num.castNum_shiftRight",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L823-L848",
+        "source_text": "@[simp, norm_cast]\ntheorem castNum_shiftRight (m : Num) (n : Nat) : ↑(m >>> n) = (m : ℕ) >>> (n : ℕ) := by\n  obtain - | m := m <;> dsimp only [← shiftr_eq_shiftRight, shiftr]\n  · symm\n    apply Nat.zero_shiftRight\n  induction n generalizing m with\n  | zero => cases m <;> rfl\n  | succ n IH => ?_\n  have hdiv2 : ∀ m, Nat.div2 (m + m) = m := by intro; rw [Nat.div2_val]; lia\n  obtain - | m | m := m <;> dsimp only [PosNum.shiftr, ← PosNum.shiftr_eq_shiftRight]\n  · rw [Nat.shiftRight_eq_div_pow]\n    symm\n    apply Nat.div_eq_of_lt\n    simp\n  · trans\n    · apply IH\n    change Nat.shiftRight m n = Nat.shiftRight (m + m + 1) (n + 1)\n    rw [add_comm n 1, @Nat.shiftRight_eq _ (1 + n), Nat.shiftRight_add]\n    apply congr_arg fun x => Nat.shiftRight x n\n    simp [-add_assoc, Nat.shiftRight_succ, Nat.shiftRight_zero, ← Nat.div2_val, hdiv2]\n  · trans\n    · apply IH\n    change Nat.shiftRight m n = Nat.shiftRight (m + m) (n + 1)\n    rw [add_comm n 1, @Nat.shiftRight_eq _ (1 + n), Nat.shiftRight_add]\n    apply congr_arg fun x => Nat.shiftRight x n\n    simp [-add_assoc, Nat.shiftRight_succ, Nat.shiftRight_zero, ← Nat.div2_val, hdiv2]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryStorage R N ≤ 8192 * N^2 * 2^R\nintro R N hRN\nhave hN : 1 ≤ N := by omega\nhave hR : R ≤ N := by omega\nhave hp : 1 ≤ 2^R := Nat.one_le_pow R 2 (by omega)\nhave hNN : N ≤ N^2 := by nlinarith\nhave hRP : R * 2^R ≤ N * 2^R := Nat.mul_le_mul_right _ hR\nhave hNP : N * 2^R ≤ N^2 * 2^R := Nat.mul_le_mul_right _ hNN\nhave hP : 2^R ≤ N * 2^R := by nlinarith\nhave hN2P : N^2 ≤ N^2 * 2^R := by nlinarith\nhave hRNP : R * N * 2^R ≤ N^2 * 2^R := by\n  calc\n    R * N * 2^R ≤ N * N * 2^R := by gcongr\n    _ = N^2 * 2^R := by ring\nhave hs := M6.Transfer.actual_trace_storage_bound R N hRN\nsimp only [M6.Transfer.pairedQueryStorage, M6.Transfer.queryCoefficientBits,\n  M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits,\n  M6.Transfer.PostEvent, Fintype.card_prod, Fintype.card_fin]\nfirst\n| nlinarith\n| simp only [M6.Transfer.actualTraceStorage, M6.Transfer.traceStorageModel,\n    M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits,\n    M6.Transfer.addressBits, M6.Transfer.CoefficientAddress,\n    Fintype.card_prod, Fintype.card_fin, M6.Transfer.state_count]\n  nlinarith",
+  "queries": [
+    "M6.Transfer.pairedQueryStorage definition",
+    "M6.Transfer.queryCoefficientBits definition",
+    "M6.Transfer.actualTraceStorage definition"
+  ]
+}

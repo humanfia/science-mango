@@ -1,0 +1,111 @@
+{
+  "id": "remainder_aux_correct",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Euclid.remainder_aux_correct",
+    "spec_sha256": "f63198622d16c7d618ceba8bb81034f3073b03b46b580c8799afe40e1a4a358b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-15nzsjwx/attempt-001/Candidate_46ff3b6f35e848b7.lean",
+        "target_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-15nzsjwx/attempt-001/FrozenTarget_46ff3b6f35e848b7.lean",
+        "feedback": "",
+        "target_sha256": "349b03553620981d83b1a78069a9f87a06f3a297c7cf6dcf8064b8e3b532f382",
+        "target_olean_sha256": "d4175cdbcadd807943dc04c479e33f2365e86c674f3945f074bfd309f64d910e",
+        "source_sha256": "be4ab01164ff837ee0f2fb0cc3a0c5b4dfcf713428999aef6684769a65c6bfca",
+        "olean_sha256": "ee1434b033f5829a205c5a174c2c83ca62adb3b8241a72de8d204db9f9b17664",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:07:54.541266+00:00",
+    "work": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-15nzsjwx",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "77f2f0a61a166350942b8cde04647e5997bd6f2d2f8fb5f4f56f3285fcd1287c",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-15nzsjwx/attempt-001/Candidate_46ff3b6f35e848b7.lean",
+    "environment_sha256": "81b552595932f7843a5d84c9e1652636cf17eb00709558594967bfaeb7bd9da9",
+    "artifacts": {
+      "binary_normalization": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.binary_normalization : ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p := by\n  change ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p\n  intro p\n  have hm : p ≠ 0 → p.Monic := by\n    intro hp\n    change p.leadingCoeff = 1\n    have binary : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide\n    rcases binary p.leadingCoeff with h | h\n    · exact False.elim (hp (Polynomial.leadingCoeff_eq_zero.mp h))\n    · exact h\n  refine ⟨hm, ?_⟩\n  by_cases hp : p = 0\n  · subst p\n    simp\n  · exact (hm hp).normalize_eq_self",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.binary_normalization",
+          "ancestors": [],
+          "spec_sha256": "853c6e86f5aac369680f9b1d7d0db3c08ac8387a45571fd3d820e77b9ffe800a"
+        },
+        "sha256": "1a1c44fc74b3cf324341ce4673895080644217f700f1d7581e3674f614411049"
+      },
+      "rank_order": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.rank_order : ∀ p q : M6.Euclid.BP, (M6.Euclid.rank p < M6.Euclid.rank q ↔ p.degree < q.degree) ∧ (M6.Euclid.rank p ≤ M6.Euclid.rank q ↔ p.degree ≤ q.degree) := by\n  change ∀ p q : M6.Euclid.BP, (M6.Euclid.rank p < M6.Euclid.rank q ↔ p.degree < q.degree) ∧ (M6.Euclid.rank p ≤ M6.Euclid.rank q ↔ p.degree ≤ q.degree)\n  intro p q\n  by_cases hp : p = 0 <;> by_cases hq : q = 0\n  · subst p\n    subst q\n    simp [M6.Euclid.rank]\n  · subst p\n    simp [M6.Euclid.rank, hq, Polynomial.degree_eq_natDegree hq]\n  · subst q\n    simp [M6.Euclid.rank, hp, Polynomial.degree_eq_natDegree hp]\n  · simp [M6.Euclid.rank, hp, hq, Polynomial.degree_eq_natDegree hp, Polynomial.degree_eq_natDegree hq]",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.rank_order",
+          "ancestors": [],
+          "spec_sha256": "31ef783ed61437a77d380fb5919d990399f5091a6d258bd35db4388c243a8c31"
+        },
+        "sha256": "3f38a5e3dbed0027798b2171191d6e553970afb813d46040bb30cdba24e73780"
+      },
+      "cancel_drop": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.cancel_drop : ∀ p q : M6.Euclid.BP, p ≠ 0 → q ≠ 0 → q.degree ≤ p.degree → M6.Euclid.rank (M6.Euclid.cancel p q) < M6.Euclid.rank p := by\n  change ∀ p q : M6.Euclid.BP, p ≠ 0 → q ≠ 0 → q.degree ≤ p.degree → M6.Euclid.rank (M6.Euclid.cancel p q) < M6.Euclid.rank p\n  intro p q hp hq hdeg\n  apply ((M6.Euclid.rank_order (M6.Euclid.cancel p q) p).1).mpr\n  have hmp := (M6.Euclid.binary_normalization p).1 hp\n  have hmq := (M6.Euclid.binary_normalization q).1 hq\n  simpa [M6.Euclid.cancel, hmp.leadingCoeff, mul_comm, mul_left_comm, mul_assoc] using\n    (Polynomial.div_wf_lemma (p := p) (q := q) ⟨hdeg, hp⟩ hmq)",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.cancel_drop",
+          "ancestors": [
+            "binary_normalization",
+            "rank_order"
+          ],
+          "spec_sha256": "f4982335f6d96cd6761895de26ff96c43e08df9808e53348ec0ecfcaa4b0ea42"
+        },
+        "sha256": "c0c4c6c387ab0aec7518f4e060ae857465599ea071cf849b4399a676e5997c22"
+      },
+      "cancel_mod": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.cancel_mod : ∀ p q : M6.Euclid.BP, M6.Euclid.cancel p q % q = p % q := by\n  change ∀ p q : M6.Euclid.BP, M6.Euclid.cancel p q % q = p % q\n  intro p q\n  apply Polynomial.mod_eq_of_dvd_sub\n  simp [M6.Euclid.cancel, sub_eq_add_neg, add_comm, add_left_comm, add_assoc]",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.cancel_mod",
+          "ancestors": [],
+          "spec_sha256": "b4363483cf0165f143e8c7e0ffd1860d76eb9c1d30174fef9418c6e3f9e2ab75"
+        },
+        "sha256": "a407d2cc28e5dc1d667fe644e843d581e9e536df19623fc0831cdca8fec1f21e"
+      },
+      "remainder_aux_correct": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.remainder_aux_correct : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ fuel → (M6.Euclid.remainderAux fuel p q).value = p % q ∧ (M6.Euclid.remainderAux fuel p q).cancellations + M6.Euclid.rank (M6.Euclid.remainderAux fuel p q).value ≤ M6.Euclid.rank p := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ fuel → (M6.Euclid.remainderAux fuel p q).value = p % q ∧ (M6.Euclid.remainderAux fuel p q).cancellations + M6.Euclid.rank (M6.Euclid.remainderAux fuel p q).value ≤ M6.Euclid.rank p\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q hf\n      have hp : p = 0 := by\n        by_contra hp\n        simp [M6.Euclid.rank, hp] at hf\n      subst p\n      simp [M6.Euclid.remainderAux, M6.Euclid.rank]\n  | succ fuel ih =>\n      intro p q hf\n      by_cases hp : p = 0\n      · subst p\n        simp [M6.Euclid.remainderAux, M6.Euclid.rank]\n      by_cases hq : q = 0\n      · subst q\n        simp [M6.Euclid.remainderAux]\n      by_cases hd : p.degree < q.degree\n      · have hm : p % q = p := (Polynomial.mod_eq_self_iff hq).2 hd\n        simp [M6.Euclid.remainderAux, hp, hq, hd, hm]\n      · have hle : q.degree ≤ p.degree := le_of_not_gt hd\n        have hdrop := M6.Euclid.cancel_drop p q hp hq hle\n        have hbudget : M6.Euclid.rank (M6.Euclid.cancel p q) ≤ fuel := by omega\n        obtain ⟨hvalue, hcost⟩ := ih (M6.Euclid.cancel p q) q hbudget\n        have hv : (M6.Euclid.remainderAux fuel (M6.Euclid.cancel p q) q).value = p % q :=\n          hvalue.trans (M6.Euclid.cancel_mod p q)\n        have hc : (M6.Euclid.remainderAux fuel (M6.Euclid.cancel p q) q).cancellations + 1 + M6.Euclid.rank (M6.Euclid.remainderAux fuel (M6.Euclid.cancel p q) q).value ≤ M6.Euclid.rank p := by\n          omega\n        simpa [M6.Euclid.remainderAux, hp, hq, hd, hle, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using And.intro hv hc",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.remainder_aux_correct",
+          "ancestors": [
+            "binary_normalization",
+            "cancel_drop",
+            "cancel_mod",
+            "rank_order"
+          ],
+          "spec_sha256": "142295214fbc97aca1d5be063bae0b5b77b7b13f608807ef292f43358a4edba6"
+        },
+        "sha256": "e47939de5585ed8a0e5c3b09f8a773d9ce2fe785676e5e8f4f31d9d5cb6b8cf9"
+      }
+    }
+  }
+}

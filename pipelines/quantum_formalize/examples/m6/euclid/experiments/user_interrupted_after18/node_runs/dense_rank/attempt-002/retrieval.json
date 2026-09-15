@@ -1,0 +1,244 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.coeff_eq_zero_of_natDegree_lt",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101603,
+        "name": "Polynomial.coeff_eq_zero_of_natDegree_lt",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L85-L91",
+        "source_text": "theorem coeff_eq_zero_of_natDegree_lt {p : R[X]} {n : ℕ} (h : p.natDegree < n) :\n    p.coeff n = 0 := by\n  apply coeff_eq_zero_of_degree_lt\n  by_cases hp : p = 0\n  · subst hp\n    exact WithBot.bot_lt_coe n\n  · rwa [degree_eq_natDegree hp, Nat.cast_lt]\n",
+        "docstring": null
+      },
+      {
+        "id": 101610,
+        "name": "Polynomial.coeff_natDegree_eq_zero_of_degree_lt",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L135-L137",
+        "source_text": "theorem coeff_natDegree_eq_zero_of_degree_lt (h : degree p < degree q) :\n    coeff p (natDegree q) = 0 :=\n  coeff_eq_zero_of_degree_lt (lt_of_lt_of_le h degree_le_natDegree)\n",
+        "docstring": null
+      },
+      {
+        "id": 101466,
+        "name": "Polynomial.degree_le_iff_coeff_zero",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L492-L495",
+        "source_text": "theorem degree_le_iff_coeff_zero (f : R[X]) (n : WithBot ℕ) :\n    degree f ≤ n ↔ ∀ m : ℕ, n < m → coeff f m = 0 := by\n  simp only [degree, Finset.max, Finset.sup_le_iff, mem_support_iff, Ne, ← not_le,\n    not_imp_comm, Nat.cast_withBot]\n",
+        "docstring": null
+      },
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      },
+      {
+        "id": 101529,
+        "name": "Polynomial.eq_natDegree_of_le_mem_support",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L101-L103",
+        "source_text": "theorem eq_natDegree_of_le_mem_support (pn : p.natDegree ≤ n) (ns : n ∈ p.support) :\n    p.natDegree = n :=\n  le_antisymm pn (le_natDegree_of_mem_supp _ ns)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Polynomial.coeff_eq_zero_of_natDegree_lt",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389914,
+        "name": "PureU1.VectorLikeEvenPlane.P_zero",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L371-L372",
+        "source_text": "lemma P_zero (f : Fin n.succ → ℚ) (h : P f = 0) : ∀ i, f i = 0 := by\n  exact fun i => (P_evenFst f i).symm.trans (congr_fun h (evenFst i))\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.coeff_natDegree_ne_zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101792,
+        "name": "Polynomial.coeff_natTrailingDegree_ne_zero",
+        "module": "Mathlib.Algebra.Polynomial.Degree.TrailingDegree",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/TrailingDegree.lean#L134-L135",
+        "source_text": "lemma coeff_natTrailingDegree_ne_zero : coeff p p.natTrailingDegree ≠ 0 ↔ p ≠ 0 :=\n  coeff_natTrailingDegree_eq_zero.not\n",
+        "docstring": null
+      },
+      {
+        "id": 101599,
+        "name": "Polynomial.natDegree_eq_of_le_of_coeff_ne_zero",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L69-L71",
+        "source_text": "theorem natDegree_eq_of_le_of_coeff_ne_zero (pn : p.natDegree ≤ n) (p1 : p.coeff n ≠ 0) :\n    p.natDegree = n :=\n  pn.antisymm (le_natDegree_of_ne_zero p1)\n",
+        "docstring": null
+      },
+      {
+        "id": 101369,
+        "name": "Polynomial.coeff_natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L84-L86",
+        "source_text": "@[simp]\ntheorem coeff_natDegree : coeff p (natDegree p) = leadingCoeff p :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 101769,
+        "name": "Polynomial.natDegree_mem_support_of_nonzero",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L124-L126",
+        "source_text": "theorem natDegree_mem_support_of_nonzero (H : p ≠ 0) : p.natDegree ∈ p.support := by\n  rw [mem_support_iff]\n  exact (not_congr leadingCoeff_eq_zero).mpr H\n",
+        "docstring": null
+      },
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Polynomial.coeff_natDegree_ne_zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389914,
+        "name": "PureU1.VectorLikeEvenPlane.P_zero",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L371-L372",
+        "source_text": "lemma P_zero (f : Fin n.succ → ℚ) (h : P f = 0) : ∀ i, f i = 0 := by\n  exact fun i => (P_evenFst f i).symm.trans (congr_fun h (evenFst i))\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "List.foldl_append List.range_succ",
+    "status": "ok",
+    "results": [
+      {
+        "id": 207529,
+        "name": "List.foldl_concat",
+        "module": "Mathlib.Data.List.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L796-L799",
+        "source_text": "theorem foldl_concat\n    (f : β → α → β) (b : β) (x : α) (xs : List α) :\n    List.foldl f b (xs ++ [x]) = f (List.foldl f b xs) x := by\n  simp only [List.foldl_append, List.foldl]\n",
+        "docstring": null
+      },
+      {
+        "id": 328408,
+        "name": "Mathlib.Meta.List.range_succ_eq_map'",
+        "module": "Mathlib.Tactic.NormNum.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/BigOperators.lean#L104-L106",
+        "source_text": "lemma List.range_succ_eq_map' {n nn n' : ℕ} (pn : NormNum.IsNat n nn) (pn' : nn = Nat.succ n') :\n    List.range n = 0 :: List.map Nat.succ (List.range n') := by\n  rw [pn.out, Nat.cast_id, pn', List.range_succ_eq_map]\n",
+        "docstring": null
+      },
+      {
+        "id": 58643,
+        "name": "List.sum_range_succ'",
+        "module": "Mathlib.Algebra.BigOperators.Group.List.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/List/Basic.lean#L154-L155",
+        "source_text": "@[to_additive /-- A variant of `sum_range_succ` which pulls off the first term in the sum rather\nthan the last. -/]\nlemma prod_range_succ' (f : ℕ → M) (n : ℕ) :\n    ((range n.succ).map f).prod = f 0 * ((range n).map fun i ↦ f i.succ).prod := by",
+        "docstring": "A variant of `sum_range_succ` which pulls off the first term in the sum rather\nthan the last. "
+      },
+      {
+        "id": 208305,
+        "name": "List.foldl_range_subset_of_range_subset",
+        "module": "Mathlib.Data.List.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Lemmas.lean#L56-L63",
+        "source_text": "theorem foldl_range_subset_of_range_subset {f : α → β → α} {g : α → γ → α}\n    (hfg : (Set.range fun a c => f c a) ⊆ Set.range fun b c => g c b) (a : α) :\n    Set.range (foldl f a) ⊆ Set.range (foldl g a) := by\n  change (Set.range fun l => _) ⊆ Set.range fun l => _\n  -- Porting note: have to write `(foldr_reverse)` instead of `foldr_reverse`.\n  simp_rw [← (foldr_reverse), Set.range_comp' _ reverse,\n    reverse_involutive.bijective.surjective.range_eq, Set.image_univ]\n  exact foldr_range_subset_of_range_subset hfg a\n",
+        "docstring": null
+      },
+      {
+        "id": 208307,
+        "name": "List.foldl_range_eq_of_range_eq",
+        "module": "Mathlib.Data.List.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Lemmas.lean#L70-L74",
+        "source_text": "theorem foldl_range_eq_of_range_eq {f : α → β → α} {g : α → γ → α}\n    (hfg : (Set.range fun a c => f c a) = Set.range fun b c => g c b) (a : α) :\n    Set.range (foldl f a) = Set.range (foldl g a) :=\n  (foldl_range_subset_of_range_subset hfg.le a).antisymm\n    (foldl_range_subset_of_range_subset hfg.ge a)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "polynomial divisibility multiplication cancellation",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394092,
+        "name": "FTheory.SU5.Quanta.instDecidableQuarticAnomalyCancellationOfDecidableEq",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L284-L286",
+        "source_text": "instance [CommRing 𝓩] [DecidableEq 𝓩] (Q : Quanta 𝓩) : Decidable Q.QuarticAnomalyCancellation :=\n    inferInstanceAs (Decidable ((HdAnomalyCoefficient Q.qHd).2 +\n    (HuAnomalyCoefficient Q.qHu).2 + Q.F.anomalyCoefficient.2 + Q.T.anomalyCoefficient.2 = 0))\n",
+        "docstring": null
+      },
+      {
+        "id": 394091,
+        "name": "FTheory.SU5.Quanta.instDecidableLinearAnomalyCancellationOfDecidableEq",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L280-L282",
+        "source_text": "instance [CommRing 𝓩] [DecidableEq 𝓩] (Q : Quanta 𝓩) : Decidable Q.LinearAnomalyCancellation :=\n    inferInstanceAs (Decidable ((HdAnomalyCoefficient Q.qHd).1 +\n    (HuAnomalyCoefficient Q.qHu).1 + Q.F.anomalyCoefficient.1 + Q.T.anomalyCoefficient.1 = 0))\n",
+        "docstring": null
+      },
+      {
+        "id": 394089,
+        "name": "FTheory.SU5.Quanta.LinearAnomalyCancellation",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L258-L263",
+        "source_text": "/-- The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. -/\ndef LinearAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) : Prop :=\n  (HdAnomalyCoefficient Q.qHd).1 + (HuAnomalyCoefficient Q.qHu).1 + Q.F.anomalyCoefficient.1 +\n  Q.T.anomalyCoefficient.1 = 0\n",
+        "docstring": "The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. "
+      },
+      {
+        "id": 394090,
+        "name": "FTheory.SU5.Quanta.QuarticAnomalyCancellation",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L265-L272",
+        "source_text": "/-- The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n-/\ndef QuarticAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) :\n    Prop :=\n  (HdAnomalyCoefficient Q.qHd).2 + (HuAnomalyCoefficient Q.qHu).2 + Q.F.anomalyCoefficient.2 +\n    Q.T.anomalyCoefficient.2 = 0\n",
+        "docstring": "The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n"
+      },
+      {
+        "id": 394148,
+        "name": "FTheory.SU5.Quanta.quarticAnomalyCancellation_iff_mem_of_isViable",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.IsViable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/IsViable.lean#L287-L297",
+        "source_text": "lemma quarticAnomalyCancellation_iff_mem_of_isViable (x : Quanta) (h : IsViable x) :\n    x.QuarticAnomalyCancellation ↔ x ∈\n    ({⟨some 2, some (-2), {(-1, ⟨1, 2⟩), (1, ⟨2, -2⟩)}, {(-1, ⟨3, 0⟩)}⟩,\n    ⟨some 2, some (-2), {(-1, ⟨0, 2⟩), (1, ⟨3, -2⟩)}, {(-1, ⟨3, 0⟩)}⟩,\n    ⟨some (-2), some 2, {(-1, ⟨2, -2⟩), (1, ⟨1, 2⟩)}, {(1, ⟨3, 0⟩)}⟩,\n    ⟨some (-2), some 2, {(-1, ⟨3, -2⟩), (1, ⟨0, 2⟩)}, {(1, ⟨3, 0⟩)}⟩,\n    ⟨some 6, some (-14), {(-9, ⟨1, 2⟩), (1, ⟨2, -2⟩)}, {(-7, ⟨3, 0⟩)}⟩,\n    ⟨some 6, some (-14), {(-9, ⟨0, 2⟩), (1, ⟨3, -2⟩)}, {(-7, ⟨3, 0⟩)}⟩} : Finset Quanta) := by\n  rw [isViable_iff_mem_viableElems] at h\n  revert x\n  decide\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

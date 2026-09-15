@@ -1,0 +1,12 @@
+{
+  "name": "M6.RecipeIsometries.translated_boundary",
+  "statement": "∀ (N : ℕ) [NeZero N] (r s : ZMod N) (a b h : M6.RecipeIsometries.Block N), M6.Physical.boundary N (M6.RecipeIsometries.shift N r a) (M6.RecipeIsometries.shift N s b) h = M6.RecipeIsometries.translateWord N r s (M6.Physical.boundary N a b h)",
+  "imports": [
+    "M6RecipeIsometries"
+  ],
+  "context": "theorem M6.RecipeIsometries.conv_shift : ∀ (N : ℕ) [NeZero N] (r s : ZMod N) (a h : M6.RecipeIsometries.Block N), M6.Physical.conv N (M6.RecipeIsometries.shift N r a) (M6.RecipeIsometries.shift N s h) = M6.RecipeIsometries.shift N (r+s) (M6.Physical.conv N a h) := by\n  intro N inst r s a h\n  classical\n  funext i\n  change Finset.sum Finset.univ (fun k : ZMod N => a (k - r) * h (i - k - s)) =\n    Finset.sum Finset.univ (fun k : ZMod N => a k * h (i - (r + s) - k))\n  refine (Equiv.sum_comp (Equiv.addRight r)\n    (fun k : ZMod N => a (k - r) * h (i - k - s))).symm.trans ?_\n  change Finset.sum Finset.univ (fun k : ZMod N => a (k + r - r) * h (i - (k + r) - s)) = _\n  apply Finset.sum_congr rfl\n  intro k hk\n  have hi : i - (k + r) - s = i - (r + s) - k := by ring\n  simp only [add_sub_cancel_right, hi]\n\ntheorem M6.RecipeIsometries.shift_laws : ∀ (N : ℕ) [NeZero N] (r : ZMod N) (a : M6.RecipeIsometries.Block N), M6.RecipeIsometries.shift N 0 a = a ∧ M6.RecipeIsometries.shift N (-r) (M6.RecipeIsometries.shift N r a) = a ∧ (M6.RecipeIsometries.shift N r a = 0 ↔ a = 0) := by\n  intro N inst r a\n  have hinv (b : M6.RecipeIsometries.Block N) :\n      M6.RecipeIsometries.shift N (-r) (M6.RecipeIsometries.shift N r b) = b := by\n    funext i\n    simp [M6.RecipeIsometries.shift, sub_eq_add_neg, add_assoc]\n  refine ⟨?_, hinv a, ?_⟩\n  · funext i\n    simp [M6.RecipeIsometries.shift]\n  · constructor\n    · intro h\n      calc\n        a = M6.RecipeIsometries.shift N (-r) (M6.RecipeIsometries.shift N r a) := (hinv a).symm\n        _ = M6.RecipeIsometries.shift N (-r) 0 := congrArg (M6.RecipeIsometries.shift N (-r)) h\n        _ = 0 := rfl\n    · intro h\n      subst a\n      rfl",
+  "queries": [
+    "finite sum reindex equivalence translation"
+  ],
+  "guidance": "Apply conv_shift to r,0 and s,0 and shift_laws atzero; expand boundary/translateWord and use pair equality. The generator inputh is unchanged by independent recipe translations. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+}

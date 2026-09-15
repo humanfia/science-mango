@@ -1,0 +1,47 @@
+{
+  "title": "Actual sparse trace equals actual physical input sum",
+  "nodes": [
+    {
+      "id": "boundary_trace_inputs",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualTransfer.boundary_trace_inputs",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N \u2192 \u2200 P : M6.Pinned.Pins (2*N), M6.ActualTransfer.boundaryTrace N a b P = \u2211 h : M6.Transfer.Input N, M6.Character.pinnedMonomial P (M6.Flatten.flatten N (M6.Physical.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h))",
+        "imports": [
+          "M6TraceCountsReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite product sum equivalence cyclic convolution"
+        ],
+        "guidance": "Unfold actual trace, use scalar_trace_polynomial with boundary_edge_bounds for actual pin factors. Then array_trace_inputs and sum_congr using boundary_input_product with le_max_left/right and span<N. Do not replace actual sparse evaluator. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "character_trace_inputs",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualTransfer.character_trace_inputs",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N \u2192 \u2200 P : M6.Pinned.Pins (2*N), M6.ActualTransfer.characterTrace N a b P = \u2211 h : M6.Transfer.Input N, (\u220f q : Fin (2*N), M6.Character.pinnedCharacterFactor P q (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h)) q))",
+        "imports": [
+          "M6TraceCountsReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite product sum equivalence cyclic convolution"
+        ],
+        "guidance": "Unfold actual trace, use scalar_trace_polynomial with character_edge_bounds for actual pin factors. Then array_trace_inputs and sum_congr using character_input_product with le_max_left/right and span<N. Do not replace actual sparse evaluator. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    }
+  ]
+}

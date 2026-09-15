@@ -1,0 +1,18 @@
+import FrozenTarget_cfac39fdc6bb7d98
+theorem M6.Transfer.solve_storage_bound : QuantumHarnessFrozenTarget := by
+  change ∀ R N slots : ℕ, R < N → slots ≤ 512 * (N + 1)^2 → M6.Transfer.solveStorage R N slots ≤ 16384 * N^2 * 2^R
+  intro R N slots hRN hslots
+  have hN : 1 ≤ N := by omega
+  have hR : R ≤ N := by omega
+  have hp : 1 ≤ 2^R := Nat.one_le_pow R 2 (by omega)
+  have hNN : N ≤ N^2 := by nlinarith
+  have hN2P : N^2 ≤ N^2 * 2^R := by nlinarith
+  have hNP : N * 2^R ≤ N^2 * 2^R := Nat.mul_le_mul_right _ hNN
+  have hRP : R * 2^R ≤ N * 2^R := Nat.mul_le_mul_right _ hR
+  have hP : 2^R ≤ N * 2^R := by nlinarith
+  have hslots' : slots ≤ 2048 * (N^2 * 2^R) := by nlinarith
+  have hs := M6.Transfer.paired_storage_bound R N hRN
+  simp only [M6.Transfer.solveStorage, M6.Transfer.queryCoefficientBits,
+    M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits,
+    M6.Transfer.PostEvent, Fintype.card_prod, Fintype.card_fin]
+  nlinarith

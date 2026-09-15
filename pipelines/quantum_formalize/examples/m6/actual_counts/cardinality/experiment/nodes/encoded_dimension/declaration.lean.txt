@@ -1,0 +1,6 @@
+theorem M6.ActualCounts.encoded_dimension : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → 2 * N - Module.finrank (ZMod 2) (M6.Spaces.B N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) - Module.finrank (ZMod 2) (M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = 2 * (M6.ActualCounts.f N a b) := by
+  intro N inst a b ha hb
+  rw [M6.ActualCounts.boundary_finrank N a b ha hb,
+    M6.ActualCounts.dual_boundary_finrank N a b ha hb]
+  have hf := M6.ActualCounts.f_le_order N a b
+  omega

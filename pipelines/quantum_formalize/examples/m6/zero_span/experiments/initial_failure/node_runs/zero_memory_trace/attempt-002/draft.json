@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) (W : ℕ → M6.Transfer.Memory 0 → M6.Transfer.Bit → Polynomial ℤ) (p : Polynomial ℤ), (∀ i m n, M6.Transfer.edgeMatrix (W i) m n = p) → M6.Transfer.arrayTrace W N = p ^ N\nintro N W p h\nclassical\nhaveI : Subsingleton (M6.Transfer.Memory 0) := ⟨fun a b => funext fun i => Fin.elim0 i⟩\nletI : Unique (M6.Transfer.Memory 0) :=\n  { default := fun i => Fin.elim0 i\n    uniq := fun m => Subsingleton.elim _ _ }\nhave hp : ∀ n (m k : M6.Transfer.Memory 0),\n    M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) n m k = p ^ n := by\n  intro n\n  induction n with\n  | zero =>\n      intro m k\n      simp [M6.Transfer.matrixProduct, Matrix.one_apply, Subsingleton.elim m k]\n  | succ n ih =>\n      intro m k\n      simp [M6.Transfer.matrixProduct, Matrix.mul_apply, ih, h, pow_succ, mul_comm]\nrw [M6.Transfer.array_trace_matrix 0 (Polynomial ℤ) W N]\nsimp [Matrix.trace, Matrix.diag, hp]",
+  "queries": []
+}

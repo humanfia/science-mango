@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Transfer.output M6.Transfer.localOutput definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      },
+      {
+        "id": 241623,
+        "name": "MonoidHom.transfer",
+        "module": "Mathlib.GroupTheory.Transfer",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Transfer.lean#L144-L152",
+        "source_text": "/-- Given `ϕ : H →* A` from `H : Subgroup G` to a commutative group `A`,\nthe transfer homomorphism is `transfer ϕ : G →* A`. -/\n@[to_additive /-- Given `ϕ : H →+ A` from `H : AddSubgroup G` to an additive commutative group `A`,\nthe transfer homomorphism is `transfer ϕ : G →+ A`. -/]\nnoncomputable def transfer [FiniteIndex H] : G →* A :=\n  let T : H.LeftTransversal := default\n  { toFun := fun g => diff ϕ T (g • T)\n    map_one' := by rw [one_smul, diff_self]\n    map_mul' := fun g h => by rw [mul_smul, ← diff_mul_diff, smul_diff_smul] }\n",
+        "docstring": "Given `ϕ : H →* A` from `H : Subgroup G` to a commutative group `A`,\nthe transfer homomorphism is `transfer ϕ : G →* A`. "
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      },
+      {
+        "id": 214248,
+        "name": "ZNum.transfer_rw",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L371-L373",
+        "source_text": "scoped macro (name := transfer_rw) \"transfer_rw\" : tactic => `(tactic|\n    (repeat first | rw [← to_int_inj] | rw [← lt_to_int] | rw [← le_to_int]\n     repeat first | rw [cast_add] | rw [mul_to_int] | rw [cast_one] | rw [cast_zero]))\n",
+        "docstring": "This tactic tries to turn an (in)equality about `ZNum`s to one about `Int`s by rewriting.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer_rw\n  exact le_add_of_nonneg_right (mul_self_nonneg _)\n```\n"
+      },
+      {
+        "id": 87704,
+        "name": "LocalizedModule.liftOn₂_mk",
+        "module": "Mathlib.Algebra.Module.LocalizedModule.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/LocalizedModule/Basic.lean#L136-L139",
+        "source_text": "theorem liftOn₂_mk {α : Type*} (f : M × S → M × S → α)\n    (wd : ∀ (p q p' q' : M × S), p ≈ p' → q ≈ q' → f p q = f p' q') (m m' : M)\n    (s s' : S) : liftOn₂ (mk m s) (mk m' s') f wd = f ⟨m, s⟩ ⟨m', s'⟩ := by\n  convert! Quotient.liftOn₂_mk f wd _ _\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Transfer.output M6.Transfer.localOutput definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 386973,
+        "name": "IsLocalizedFunctionTransform",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsLocalizedfunctionTransform",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsLocalizedfunctionTransform.lean#L34-L38",
+        "source_text": "/-- Function transformation `F` is localizable if the values of the transformed function `F φ` on\nsome compact set `K` can depend only on the values of `φ` on some another compact set `L`. -/\ndef IsLocalizedFunctionTransform (F : (X → U) → (Y → V)) : Prop :=\n  ∀ (K : Set Y) (_ : IsCompact K), ∃ L : Set X,\n    IsCompact L ∧ ∀ (φ φ' : X → U), (∀ x ∈ L, φ x = φ' x) → ∀ x ∈ K, F φ x = F φ' x\n",
+        "docstring": "Function transformation `F` is localizable if the values of the transformed function `F φ` on\nsome compact set `K` can depend only on the values of `φ` on some another compact set `L`. "
+      },
+      {
+        "id": 386990,
+        "name": "IsLocalizedFunctionTransform.snd",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsLocalizedfunctionTransform",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsLocalizedfunctionTransform.lean#L251-L255",
+        "source_text": "lemma snd {F : (X → U) → X → W × V} (hF : IsLocalizedFunctionTransform F) :\n    IsLocalizedFunctionTransform (fun φ x => (F φ x).2) := by\n  intro K cK\n  obtain ⟨L, cL, h⟩ := hF K cK\n  exact ⟨L, cL, fun φ φ' hφ x hx => by dsimp only; rw [h φ φ' hφ x hx]⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 386989,
+        "name": "IsLocalizedFunctionTransform.fst",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsLocalizedfunctionTransform",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsLocalizedfunctionTransform.lean#L245-L249",
+        "source_text": "lemma fst {F : (X → U) → X → W × V} (hF : IsLocalizedFunctionTransform F) :\n    IsLocalizedFunctionTransform (fun φ x => (F φ x).1) := by\n  intro K cK\n  obtain ⟨L, cL, h⟩ := hF K cK\n  exact ⟨L, cL, fun φ φ' hφ x hx => by dsimp only; rw [h φ φ' hφ x hx]⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualTransfer.boundaryWeight definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 314222,
+        "name": "MvPolynomial.le_weightedTotalDegree",
+        "module": "Mathlib.RingTheory.MvPolynomial.WeightedHomogeneous",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/WeightedHomogeneous.lean#L118-L120",
+        "source_text": "theorem le_weightedTotalDegree (w : σ → M) {φ : MvPolynomial σ R} {d : σ →₀ ℕ}\n    (hd : d ∈ φ.support) : weight w d ≤ φ.weightedTotalDegree w :=\n  le_sup hd\n",
+        "docstring": null
+      },
+      {
+        "id": 314220,
+        "name": "MvPolynomial.weightedTotalDegree_coe",
+        "module": "Mathlib.RingTheory.MvPolynomial.WeightedHomogeneous",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/WeightedHomogeneous.lean#L99-L111",
+        "source_text": "/-- This lemma relates `weightedTotalDegree` and `weightedTotalDegree'`. -/\ntheorem weightedTotalDegree_coe (w : σ → M) (p : MvPolynomial σ R) (hp : p ≠ 0) :\n    weightedTotalDegree' w p = ↑(weightedTotalDegree w p) := by\n  rw [Ne, ← weightedTotalDegree'_eq_bot_iff w p, ← Ne, WithBot.ne_bot_iff_exists] at hp\n  obtain ⟨m, hm⟩ := hp\n  apply le_antisymm\n  · simp only [weightedTotalDegree, weightedTotalDegree', Finset.sup_le_iff, WithBot.coe_le_coe]\n    intro b\n    exact Finset.le_sup\n  · simp only [weightedTotalDegree]\n    have hm' : weightedTotalDegree' w p ≤ m := le_of_eq hm.symm\n    rw [← hm]\n    simpa [weightedTotalDegree'] using hm'\n",
+        "docstring": "This lemma relates `weightedTotalDegree` and `weightedTotalDegree'`. "
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      },
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      },
+      {
+        "id": 86312,
+        "name": "LieModule.genWeightSpace",
+        "module": "Mathlib.Algebra.Lie.Weights.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Lie/Weights/Basic.lean#L180-L187",
+        "source_text": "/-- If `M` is a representation of a nilpotent Lie algebra `L`\nand `χ : L → R` is a family of scalars,\nthen `genWeightSpace M χ` is the intersection of the maximal generalized `χ x`-eigenspaces\nof the action of `x` on `M` as `x` ranges over `L`.\n\nIt is a Lie submodule because `L` is nilpotent. -/\ndef genWeightSpace (χ : L → R) : LieSubmodule R L M :=\n  ⨅ x, genWeightSpaceOf M (χ x) x\n",
+        "docstring": "If `M` is a representation of a nilpotent Lie algebra `L`\nand `χ : L → R` is a family of scalars,\nthen `genWeightSpace M χ` is the intersection of the maximal generalized `χ x`-eigenspaces\nof the action of `x` on `M` as `x` ranges over `L`.\n\nIt is a Lie submodule because `L` is nilpotent. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualTransfer.boundaryWeight definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 389862,
+        "name": "PureU1.ConstAbsSorted.Boundary",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.ConstAbs",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/ConstAbs.lean#L102-L106",
+        "source_text": "/-- A boundary of `S : (PureU1 n.succ).charges` (assumed sorted, constAbs and non-zero)\nis defined as a element of `k ∈ Fin n` such that `S k.castSucc` and `S k.succ` are different signs.\n-/\n@[simp]\ndef Boundary (S : (PureU1 n.succ).Charges) (k : Fin n) : Prop := S k.castSucc < 0 ∧ 0 < S k.succ\n",
+        "docstring": "A boundary of `S : (PureU1 n.succ).charges` (assumed sorted, constAbs and non-zero)\nis defined as a element of `k ∈ Fin n` such that `S k.castSucc` and `S k.succ` are different signs.\n"
+      },
+      {
+        "id": 392365,
+        "name": "Lorentz.Vector.lightConeBoundary",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L89-L91",
+        "source_text": "/-- The light cone boundary (null surface) of a spacetime point `p`. -/\ndef lightConeBoundary {d : ℕ} (p : Vector d) : Set (Vector d) :=\n  {q | causalCharacter (q - p) = .lightLike}\n",
+        "docstring": "The light cone boundary (null surface) of a spacetime point `p`. "
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Transfer.shift M6.Transfer.edgeMatrix definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      },
+      {
+        "id": 247874,
+        "name": "Matrix.transpose",
+        "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L138-L149",
+        "source_text": "/-- The transpose of a matrix.\n\nThis is available in bundled forms as:\n* `Matrix.transposeAddEquiv`\n* `Matrix.transposeLinearEquiv`\n* `Matrix.transposeRingEquiv`\n* `Matrix.transposeAlgEquiv`\n* `RingEquiv.mopMatrix`\n* `AlgEquiv.mopMatrix`\n-/\ndef transpose (M : Matrix m n α) : Matrix n m α :=\n  of fun x y => M y x\n",
+        "docstring": "The transpose of a matrix.\n\nThis is available in bundled forms as:\n* `Matrix.transposeAddEquiv`\n* `Matrix.transposeLinearEquiv`\n* `Matrix.transposeRingEquiv`\n* `Matrix.transposeAlgEquiv`\n* `RingEquiv.mopMatrix`\n* `AlgEquiv.mopMatrix`\n"
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      },
+      {
+        "id": 249882,
+        "name": "Matrix.transvection",
+        "module": "Mathlib.LinearAlgebra.Matrix.Transvection",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Transvection.lean#L78-L83",
+        "source_text": "/-- The transvection matrix `transvection i j c` is equal to the identity plus `c` at position\n`(i, j)`. Multiplying by it on the left (as in `transvection i j c * M`) corresponds to adding\n`c` times the `j`-th row of `M` to its `i`-th row. Multiplying by it on the right corresponds\nto adding `c` times the `i`-th column to the `j`-th column. -/\ndef transvection (c : R) : Matrix n n R :=\n  1 + Matrix.single i j c\n",
+        "docstring": "The transvection matrix `transvection i j c` is equal to the identity plus `c` at position\n`(i, j)`. Multiplying by it on the left (as in `transvection i j c * M`) corresponds to adding\n`c` times the `j`-th row of `M` to its `i`-th row. Multiplying by it on the right corresponds\nto adding `c` times the `i`-th column to the `j`-th column. "
+      },
+      {
+        "id": 249888,
+        "name": "Matrix.transvection_mul_apply_of_ne",
+        "module": "Mathlib.LinearAlgebra.Matrix.Transvection",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Transvection.lean#L124-L127",
+        "source_text": "@[simp]\ntheorem transvection_mul_apply_of_ne {m : Type*} (a : n) (b : m) (ha : a ≠ i) (c : R)\n    (M : Matrix n m R) :\n    (transvection i j c * M) a b = M a b := by simp [transvection, Matrix.add_mul, ha]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Transfer.shift M6.Transfer.edgeMatrix definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387537,
+        "name": "phaseShiftMatrix_mul",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Basic.lean#L48-L54",
+        "source_text": "/-- The multiple of two phase shift matrices is equal to the phase shift matrix with\n  added phases. -/\nlemma phaseShiftMatrix_mul (a b c d e f : ℝ) :\n    phaseShiftMatrix a b c * phaseShiftMatrix d e f = phaseShiftMatrix (a + d) (b + e) (c + f) := by\n  ext i j\n  fin_cases i <;> fin_cases j <;>\n    simp [phaseShiftMatrix, mul_apply, Fin.sum_univ_three, ← exp_add, mul_add]\n",
+        "docstring": "The multiple of two phase shift matrices is equal to the phase shift matrix with\nadded phases. "
+      },
+      {
+        "id": 387535,
+        "name": "phaseShiftMatrix_one",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Basic.lean#L35-L38",
+        "source_text": "/-- The phase shift matrix for zero-phases is the identity. -/\nlemma phaseShiftMatrix_one : phaseShiftMatrix 0 0 0 = 1 := by\n  ext i j\n  fin_cases i <;> fin_cases j <;> simp [phaseShiftMatrix, one_apply]\n",
+        "docstring": "The phase shift matrix for zero-phases is the identity. "
+      },
+      {
+        "id": 387538,
+        "name": "phaseShift",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Basic.lean#L56-L65",
+        "source_text": "/-- Given three real numbers `a b c` the unitary matrix with `exp (I * a)` etc on the\nleading diagonal. -/\n@[simps!]\ndef phaseShift (a b c : ℝ) : unitaryGroup (Fin 3) ℂ :=\n  ⟨phaseShiftMatrix a b c,\n  by\n    rw [mem_unitaryGroup_iff]\n    change _ * (phaseShiftMatrix a b c)ᴴ = 1\n    rw [phaseShiftMatrix_star, phaseShiftMatrix_mul, ← phaseShiftMatrix_one]\n    simp only [phaseShiftMatrix, add_neg_cancel, ofReal_zero, mul_zero, exp_zero]⟩\n",
+        "docstring": "Given three real numbers `a b c` the unitary matrix with `exp (I * a)` etc on the\nleading diagonal. "
+      },
+      {
+        "id": 387536,
+        "name": "phaseShiftMatrix_star",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Basic.lean#L40-L46",
+        "source_text": "/-- The conjugate transpose of the phase shift matrix is the phase-shift matrix\n  with negated phases. -/\nlemma phaseShiftMatrix_star (a b c : ℝ) :\n    (phaseShiftMatrix a b c)ᴴ = phaseShiftMatrix (- a) (- b) (- c) := by\n  funext i j\n  fin_cases i <;> fin_cases j <;>\n    simp [phaseShiftMatrix, conjTranspose_apply, ← exp_conj, conj_I, conj_ofReal]\n",
+        "docstring": "The conjugate transpose of the phase shift matrix is the phase-shift matrix\nwith negated phases. "
+      },
+      {
+        "id": 387534,
+        "name": "phaseShiftMatrix",
+        "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Basic.lean#L29-L33",
+        "source_text": "/-- Given three real numbers `a b c` the complex matrix with `exp (I * a)` etc on the\nleading diagonal. -/\n@[simp]\ndef phaseShiftMatrix (a b c : ℝ) : Matrix (Fin 3) (Fin 3) ℂ :=\n  ![![cexp (I * a), 0, 0], ![0, cexp (I * b), 0], ![0, 0, cexp (I * c)]]\n",
+        "docstring": "Given three real numbers `a b c` the complex matrix with `exp (I * a)` etc on the\nleading diagonal. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

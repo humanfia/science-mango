@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst a b ha hb\nhave h := M6.ActualCounts.input_normalization N a b ha hb\nrw [M6.Spaces.dual_boundary_card] at h\nhave hf := M6.ActualCounts.f_le_order N a b\nhave hexp : M6.ActualCounts.f N a b + (N - M6.ActualCounts.f N a b) = N := by\n  omega\nhave hpow : (2 : ℕ)^N = 2^(M6.ActualCounts.f N a b) * 2^(N - M6.ActualCounts.f N a b) := by\n  rw [← pow_add, hexp]\napply Nat.eq_of_mul_eq_mul_left (show 0 < (2 : ℕ)^(M6.ActualCounts.f N a b) by positivity)\nexact h.trans hpow",
+  "queries": []
+}

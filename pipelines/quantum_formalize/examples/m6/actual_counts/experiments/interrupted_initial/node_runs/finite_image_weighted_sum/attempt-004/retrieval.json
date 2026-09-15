@@ -1,0 +1,150 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Fintype.subtype_card",
+    "status": "ok",
+    "results": [
+      {
+        "id": 205839,
+        "name": "Fintype.subtype_card",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L43-L45",
+        "source_text": "theorem subtype_card {p : α → Prop} (s : Finset α) (H : ∀ x : α, x ∈ s ↔ p x) :\n    @card { x // p x } (Fintype.subtype s H) = #s :=\n  Multiset.card_pmap _ _ _\n",
+        "docstring": null
+      },
+      {
+        "id": 205838,
+        "name": "Fintype.card",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L39-L41",
+        "source_text": "/-- `card α` is the number of elements in `α`, defined when `α` is a fintype. -/\ndef card (α) [Fintype α] : ℕ :=\n  (@univ α _).card\n",
+        "docstring": "`card α` is the number of elements in `α`, defined when `α` is a fintype. "
+      },
+      {
+        "id": 205912,
+        "name": "Fintype.card_coe",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L370-L372",
+        "source_text": "@[simp]\ntheorem Fintype.card_coe (s : Finset α) [Fintype s] : Fintype.card s = #s :=\n  @Fintype.card_of_finset' _ _ _ (fun _ => Iff.rfl) (id _)",
+        "docstring": null
+      },
+      {
+        "id": 205919,
+        "name": "Fintype.card_subtype",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L400-L403",
+        "source_text": "theorem Fintype.card_subtype [Fintype α] (p : α → Prop) [Fintype {a // p a}] [DecidablePred p] :\n    Fintype.card { x // p x } = #{x | p x} := by\n  refine Fintype.card_of_subtype _ ?_\n  simp\n",
+        "docstring": null
+      },
+      {
+        "id": 218285,
+        "name": "Set.Finite.fintype",
+        "module": "Mathlib.Data.Set.Finite.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Basic.lean#L65-L72",
+        "source_text": "/-- A finite set coerced to a type is a `Fintype`.\nThis is the `Fintype` projection for a `Set.Finite`.\n\nNote that because `Finite` isn't a typeclass, this definition will not fire if it\nis made into an instance -/\n@[implicit_reducible]\nprotected noncomputable def Finite.fintype {s : Set α} (h : s.Finite) : Fintype s :=\n  h.nonempty_fintype.some\n",
+        "docstring": "A finite set coerced to a type is a `Fintype`.\nThis is the `Fintype` projection for a `Set.Finite`.\n\nNote that because `Finite` isn't a typeclass, this definition will not fire if it\nis made into an instance "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Fintype.subtype_card",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393911,
+        "name": "microHamiltonianFintype",
+        "module": "Physlib.StatisticalMechanics.MicroCanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/MicroCanonicalEnsemble/Basic.lean#L40-L42",
+        "source_text": "/-- The dim_fin to the instance cache is added so that things like the measure can be synthesized -/\ninstance microHamiltonianFintype {D} (H : MicroHamiltonian D) (d : D) : Fintype (H.dim d) :=\n  H.dim_fin d\n",
+        "docstring": "The dim_fin to the instance cache is added so that things like the measure can be synthesized "
+      },
+      {
+        "id": 386376,
+        "name": "Physlib.Fin.instFintypeSubtypeForallFinAndInvolutiveForallNe_physlib",
+        "module": "Physlib.Mathematics.Fin.Involutions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L438-L442",
+        "source_text": "/-- The type of fixed-point free involutions of `Fin n` is finite. -/\ninstance {n : ℕ} : Fintype { f // Function.Involutive f ∧ ∀ (i : Fin n), f i ≠ i } := by\n  have : DecidablePred fun x ↦ Function.Involutive x :=\n    fun f ↦ Fintype.decidableForallFintype (α := Fin n)\n  exact Subtype.fintype ..\n",
+        "docstring": "The type of fixed-point free involutions of `Fin n` is finite. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_coe_sort",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58130,
+        "name": "Finset.sum_coe_sort",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L452-L452",
+        "source_text": "@[to_additive]\ntheorem prod_coe_sort : ∏ i : s, f i = ∏ i ∈ s, f i := prod_attach _ _",
+        "docstring": null
+      },
+      {
+        "id": 58356,
+        "name": "Finset.sum_coe_sort_eq_attach",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L562-L562",
+        "source_text": "@[to_additive]\ntheorem prod_coe_sort_eq_attach (f : s → M) : ∏ i : s, f i = ∏ i ∈ s.attach, f i :=",
+        "docstring": null
+      },
+      {
+        "id": 71102,
+        "name": "Finset.coe_sum",
+        "module": "Mathlib.Algebra.Group.Pointwise.Finset.BigOperators",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/BigOperators.lean#L43-L43",
+        "source_text": "@[to_additive (attr := simp, norm_cast)]\ntheorem coe_prod (s : Finset ι) (f : ι → Finset α) :",
+        "docstring": null
+      },
+      {
+        "id": 202527,
+        "name": "Finset.coe_sort_coe",
+        "module": "Mathlib.Data.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Defs.lean#L177-L179",
+        "source_text": "@[norm_cast]\ntheorem coe_sort_coe (s : Finset α) : ((s : Set α) : Sort _) = s :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 70957,
+        "name": "Finset.coe_list_sum",
+        "module": "Mathlib.Algebra.Group.Pointwise.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/Basic.lean#L874-L874",
+        "source_text": "@[to_additive (attr := simp, norm_cast)]\ntheorem coe_list_prod (s : List (Finset α)) : (↑s.prod : Set α) = (s.map (↑)).prod :=",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.sum_coe_sort",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389763,
+        "name": "WickContraction.fin_finset_sort_map_monotone",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.UncontractedList",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/UncontractedList.lean#L40-L50",
+        "source_text": "lemma fin_finset_sort_map_monotone {n m : ℕ} (a : Finset (Fin n)) (f : Fin n ↪ Fin m)\n    (hf : StrictMono f) : (a.sort (· ≤ ·)).map f =\n    ((a.map f).sort (· ≤ ·)) := by\n  have h1 : ((a.sort (· ≤ ·)).map f).Pairwise (· ≤ ·) :=\n    fin_list_sorted_monotone_sorted _ (a.pairwise_sort _) f hf\n  have h2 : ((a.sort (· ≤ ·)).map f).Nodup := (a.sort_nodup _).map f.injective\n  have h3 : ((a.sort (· ≤ ·)).map f).toFinset = a.map f := by\n    ext a\n    simp\n  rw [← h3]\n  exact ((List.toFinset_sort (· ≤ ·) h2).mpr h1).symm\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,25 @@
+theorem M6.Euclid.bit_cost_bound : ∀ (N : ℕ) (p q : M6.Euclid.BP), p.natDegree ≤ N → q.natDegree ≤ N → M6.Euclid.bitCost N p q ≤ 90 * (N + 1) ^ 3 ∧ M6.Euclid.euclidSafe (M6.Euclid.rank q + 1) p q (N + 1) := by
+  change ∀ (N : ℕ) (p q : M6.Euclid.BP), p.natDegree ≤ N → q.natDegree ≤ N → M6.Euclid.bitCost N p q ≤ 90 * (N + 1) ^ 3 ∧ M6.Euclid.euclidSafe (M6.Euclid.rank q + 1) p q (N + 1)
+  intro N p q hp hq
+  have hrp : M6.Euclid.rank p ≤ N + 1 := by
+    by_cases h : p = 0
+    · simp [M6.Euclid.rank, h]
+    · simp only [M6.Euclid.rank, h, ↓reduceIte]
+      omega
+  have hrq : M6.Euclid.rank q ≤ N + 1 := by
+    by_cases h : q = 0
+    · simp [M6.Euclid.rank, h]
+    · simp only [M6.Euclid.rank, h, ↓reduceIte]
+      omega
+  refine ⟨?_, M6.Euclid.euclid_safe _ p q (N + 1) hrp hrq⟩
+  obtain ⟨_, hc, he⟩ := M6.Euclid.euclid_correct p q
+  have hpasses := M6.Euclid.euclid_passes p q
+  have hb : (M6.Euclid.euclid p q).passes ≤ 9 * (N + 1) := by omega
+  have hs : M6.Euclid.scanCost (N + 1) ≤ 10 * (N + 1) ^ 2 :=
+    (M6.Euclid.scan_cost (N + 1)).2 (by omega)
+  have hmul := Nat.mul_le_mul hb hs
+  have hbound : (M6.Euclid.euclid p q).passes * M6.Euclid.scanCost (N + 1) ≤ 90 * (N + 1) ^ 3 := by
+    calc
+      _ ≤ (9 * (N + 1)) * (10 * (N + 1) ^ 2) := hmul
+      _ = 90 * (N + 1) ^ 3 := by ring
+  simpa only [M6.Euclid.bitCost, Nat.mul_comm] using hbound

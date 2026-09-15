@@ -1,0 +1,766 @@
+[
+  {
+    "queries": [
+      "polynomial divisor natDegree inequality",
+      "natural powers cancellation finite set cardinality"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial divisor natDegree inequality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101360,
+            "name": "Polynomial.natDegree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+            "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+            "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+          },
+          {
+            "id": 101384,
+            "name": "Polynomial.natDegree_le_of_degree_le",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L142-L142",
+            "source_text": "alias ⟨degree_le_of_natDegree_le, natDegree_le_of_degree_le⟩ := natDegree_le_iff_degree_le\n",
+            "docstring": "**Alias** of the reverse direction of `Polynomial.natDegree_le_iff_degree_le`."
+          },
+          {
+            "id": 101529,
+            "name": "Polynomial.eq_natDegree_of_le_mem_support",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L101-L103",
+            "source_text": "theorem eq_natDegree_of_le_mem_support (pn : p.natDegree ≤ n) (ns : n ∈ p.support) :\n    p.natDegree = n :=\n  le_antisymm pn (le_natDegree_of_mem_supp _ ns)\n",
+            "docstring": null
+          },
+          {
+            "id": 246762,
+            "name": "Lagrange.natDegree_basisDivisor_self",
+            "module": "Mathlib.LinearAlgebra.Lagrange",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Lagrange.lean#L173-L174",
+            "source_text": "theorem natDegree_basisDivisor_self : (basisDivisor x x).natDegree = 0 := by\n  rw [basisDivisor_self, natDegree_zero]\n",
+            "docstring": null
+          },
+          {
+            "id": 246763,
+            "name": "Lagrange.natDegree_basisDivisor_of_ne",
+            "module": "Mathlib.LinearAlgebra.Lagrange",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Lagrange.lean#L176-L177",
+            "source_text": "theorem natDegree_basisDivisor_of_ne (hxy : x ≠ y) : (basisDivisor x y).natDegree = 1 :=\n  natDegree_eq_of_degree_eq_some (degree_basisDivisor_of_ne hxy)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural powers cancellation finite set cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 217953,
+            "name": "Set.coe_ncard_eq_encard",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L623-L625",
+            "source_text": "@[simp]\ntheorem coe_ncard_eq_encard [Finite s] : s.ncard = s.encard :=\n  s.toFinite.cast_ncard_eq",
+            "docstring": null
+          },
+          {
+            "id": 238829,
+            "name": "finite_powers",
+            "module": "Mathlib.GroupTheory.OrderOfElement",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/OrderOfElement.lean#L644-L650",
+            "source_text": "@[to_additive (attr := simp)]\nlemma finite_powers : (powers a : Set G).Finite ↔ IsOfFinOrder a := by\n  refine ⟨fun h ↦ ?_, IsOfFinOrder.finite_powers⟩\n  obtain ⟨m, n, hmn, ha⟩ := h.exists_lt_map_eq_of_forall_mem (f := fun n : ℕ ↦ a ^ n)\n    (fun n ↦ by simp [mem_powers_iff])\n  refine isOfFinOrder_iff_pow_eq_one.2 ⟨n - m, tsub_pos_iff_lt.2 hmn, ?_⟩\n  rw [← mul_left_cancel_iff (a := a ^ m), ← pow_add, add_tsub_cancel_of_le hmn.le, ha, mul_one]",
+            "docstring": null
+          },
+          {
+            "id": 217952,
+            "name": "Set.Finite.cast_ncard_eq",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L619-L620",
+            "source_text": "theorem Finite.cast_ncard_eq (hs : s.Finite) : s.ncard = s.encard := by\n  rwa [ncard, ENat.coe_toNat_eq_self, ne_eq, encard_eq_top_iff, Set.Infinite, not_not]\n",
+            "docstring": null
+          },
+          {
+            "id": 201912,
+            "name": "Set.Finite",
+            "module": "Mathlib.Data.Finite.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Defs.lean#L183-L185",
+            "source_text": "/-- A set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`. -/\nprotected def Finite (s : Set α) : Prop := Finite s\n",
+            "docstring": "A set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`. "
+          },
+          {
+            "id": 322938,
+            "name": "Cardinal.mk_set_nat",
+            "module": "Mathlib.SetTheory.Cardinal.Continuum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Continuum.lean#L77-L77",
+            "source_text": "theorem mk_set_nat : #(Set ℕ) = 𝔠 := by simp\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "natural powers cancellation finite set cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394090,
+            "name": "FTheory.SU5.Quanta.QuarticAnomalyCancellation",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L265-L272",
+            "source_text": "/-- The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n-/\ndef QuarticAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) :\n    Prop :=\n  (HdAnomalyCoefficient Q.qHd).2 + (HuAnomalyCoefficient Q.qHu).2 + Q.F.anomalyCoefficient.2 +\n    Q.T.anomalyCoefficient.2 = 0\n",
+            "docstring": "The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n"
+          },
+          {
+            "id": 394089,
+            "name": "FTheory.SU5.Quanta.LinearAnomalyCancellation",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L258-L263",
+            "source_text": "/-- The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. -/\ndef LinearAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) : Prop :=\n  (HdAnomalyCoefficient Q.qHd).1 + (HuAnomalyCoefficient Q.qHu).1 + Q.F.anomalyCoefficient.1 +\n  Q.T.anomalyCoefficient.1 = 0\n",
+            "docstring": "The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "f_le_order",
+    "receipts_sha256": "6e5baa69114620f4f1639366cd61291e8c951e164bd2dafd35963d9aded16ee5"
+  },
+  {
+    "queries": [
+      "pow_lt_pow_right₀",
+      "Finset.card_pos"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "pow_lt_pow_right₀",
+        "status": "ok",
+        "results": [
+          {
+            "id": 95669,
+            "name": "pow_lt_pow_right₀",
+            "module": "Mathlib.Algebra.Order.GroupWithZero.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/GroupWithZero/Basic.lean#L567-L568",
+            "source_text": "@[gcongr]\nlemma pow_lt_pow_right₀ (h : 1 < a) (hmn : m < n) : a ^ m < a ^ n := pow_right_strictMono₀ h hmn",
+            "docstring": null
+          },
+          {
+            "id": 95670,
+            "name": "pow_lt_pow_iff_right₀",
+            "module": "Mathlib.Algebra.Order.GroupWithZero.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/GroupWithZero/Basic.lean#L570-L571",
+            "source_text": "lemma pow_lt_pow_iff_right₀ (h : 1 < a) : a ^ n < a ^ m ↔ n < m :=\n  (pow_right_strictMono₀ h).lt_iff_lt\n",
+            "docstring": null
+          },
+          {
+            "id": 271240,
+            "name": "ArithmeticFunction.pow",
+            "module": "Mathlib.NumberTheory.ArithmeticFunction.Misc",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ArithmeticFunction/Misc.lean#L119-L121",
+            "source_text": "/-- `pow k n = n ^ k`, except `pow 0 0 = 0`. -/\ndef pow (k : ℕ) : ArithmeticFunction ℕ :=\n  ArithmeticFunction.id.ppow k\n",
+            "docstring": "`pow k n = n ^ k`, except `pow 0 0 = 0`. "
+          },
+          {
+            "id": 144271,
+            "name": "Real.rpowIntegrand₀₁",
+            "module": "Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.IntegralRepresentation",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/ContinuousFunctionalCalculus/Rpow/IntegralRepresentation.lean#L61-L62",
+            "source_text": "/-- Integrand for representing `x ↦ x ^ p` for `p ∈ (0,1)` -/\nnoncomputable def rpowIntegrand₀₁ (p t x : ℝ) : ℝ := t ^ p * (t⁻¹ - (t + x)⁻¹)\n",
+            "docstring": "Integrand for representing `x ↦ x ^ p` for `p ∈ (0,1)` "
+          },
+          {
+            "id": 144301,
+            "name": "Real.rpowIntegrand₁₂_zero",
+            "module": "Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.IntegralRepresentation",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/ContinuousFunctionalCalculus/Rpow/IntegralRepresentation.lean#L386-L387",
+            "source_text": "lemma rpowIntegrand₁₂_zero (ht : 0 < t) :\n    rpowIntegrand₁₂ p t 0 = 0 := by grind [rpowIntegrand₁₂]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "pow_lt_pow_right₀",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.card_pos",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202316,
+            "name": "Finset.card_pos",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L78-L78",
+            "source_text": "@[simp] lemma card_pos : 0 < #s ↔ s.Nonempty := Nat.pos_iff_ne_zero.trans card_ne_zero\n@[simp] lemma one_le_card : 1 ≤ #s ↔ s.Nonempty := card_pos",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 202318,
+            "name": "Finset.Nonempty.card_pos",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L81-L81",
+            "source_text": "alias ⟨_, Nonempty.card_pos⟩ := card_pos\n",
+            "docstring": "**Alias** of the reverse direction of `Finset.card_pos`."
+          },
+          {
+            "id": 329033,
+            "name": "Mathlib.Meta.Positivity.evalFinsetCard",
+            "module": "Mathlib.Tactic.Positivity.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Positivity/Finset.lean#L26-L37",
+            "source_text": "/-- Extension for `Finset.card`. `#s` is positive if `s` is nonempty.\n\nIt calls `Mathlib.Meta.proveFinsetNonempty` to attempt proving that the finset is nonempty. -/\n@[positivity Finset.card _]\nmeta def evalFinsetCard : PositivityExt where eval {u α} _ pα? e :=\n  match pα? with | none => pure .none | some _ => do\n  match u, α, e with\n  | 0, ~q(ℕ), ~q(Finset.card $s) =>\n    let some ps ← proveFinsetNonempty s | return .none\n    assertInstancesCommute\n    return .positive q(Finset.Nonempty.card_pos $ps)\n  | _ => throwError \"not Finset.card\"\n",
+            "docstring": "Extension for `Finset.card`. `#s` is positive if `s` is nonempty.\n\nIt calls `Mathlib.Meta.proveFinsetNonempty` to attempt proving that the finset is nonempty. "
+          },
+          {
+            "id": 283576,
+            "name": "Filter.map_card_atTop",
+            "module": "Mathlib.Order.Filter.AtTopBot.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/AtTopBot/Finset.lean#L103-L111",
+            "source_text": "/-- The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. -/\nlemma map_card_atTop [Infinite α] :\n    map (Finset.card (α := α)) atTop = atTop := by\n  rw [map_atTop_eq, atTop]\n  refine Function.Surjective.iInf_congr Finset.card Finset.exists_card_eq fun s ↦ congr(𝓟 $(?_))\n  ext\n  refine ⟨Infinite.exists_superset_card_eq _ _, ?_⟩\n  aesop (add safe apply Finset.card_le_card)\n",
+            "docstring": "The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.card_pos",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389891,
+            "name": "PureU1.VectorLikeEvenPlane.evenShiftLast",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L161-L163",
+            "source_text": "/-- The element of `Fin (1 + (n + n + 1))` corresponding to the second `1`,\n  casted into `Fin (2 * n.succ)`. -/\ndef evenShiftLast : Fin (2 * n.succ) := (Fin.cast (n_cond₂ n) (Fin.natAdd 1 (Fin.natAdd (n + n) 0)))\n",
+            "docstring": "The element of `Fin (1 + (n + n + 1))` corresponding to the second `1`,\ncasted into `Fin (2 * n.succ)`. "
+          },
+          {
+            "id": 390017,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftZero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L154-L157",
+            "source_text": "/-- The element representing the `1` in `Fin (1 + n + n)`.\n  This is then casted to `Fin (2 * n + 1)`. -/\ndef oddShiftZero : Fin (2 * n + 1) :=\n  Fin.cast (odd_shift_eq n) (Fin.castAdd n (Fin.castAdd n 1))\n",
+            "docstring": "The element representing the `1` in `Fin (1 + n + n)`.\nThis is then casted to `Fin (2 * n + 1)`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "pow_lt_pow_right₀",
+      "Finset.card_pos"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "polynomial divisor natDegree inequality",
+      "natural powers cancellation finite set cardinality"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial divisor natDegree inequality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101360,
+            "name": "Polynomial.natDegree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+            "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+            "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+          },
+          {
+            "id": 101384,
+            "name": "Polynomial.natDegree_le_of_degree_le",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L142-L142",
+            "source_text": "alias ⟨degree_le_of_natDegree_le, natDegree_le_of_degree_le⟩ := natDegree_le_iff_degree_le\n",
+            "docstring": "**Alias** of the reverse direction of `Polynomial.natDegree_le_iff_degree_le`."
+          },
+          {
+            "id": 101529,
+            "name": "Polynomial.eq_natDegree_of_le_mem_support",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L101-L103",
+            "source_text": "theorem eq_natDegree_of_le_mem_support (pn : p.natDegree ≤ n) (ns : n ∈ p.support) :\n    p.natDegree = n :=\n  le_antisymm pn (le_natDegree_of_mem_supp _ ns)\n",
+            "docstring": null
+          },
+          {
+            "id": 246762,
+            "name": "Lagrange.natDegree_basisDivisor_self",
+            "module": "Mathlib.LinearAlgebra.Lagrange",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Lagrange.lean#L173-L174",
+            "source_text": "theorem natDegree_basisDivisor_self : (basisDivisor x x).natDegree = 0 := by\n  rw [basisDivisor_self, natDegree_zero]\n",
+            "docstring": null
+          },
+          {
+            "id": 246763,
+            "name": "Lagrange.natDegree_basisDivisor_of_ne",
+            "module": "Mathlib.LinearAlgebra.Lagrange",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Lagrange.lean#L176-L177",
+            "source_text": "theorem natDegree_basisDivisor_of_ne (hxy : x ≠ y) : (basisDivisor x y).natDegree = 1 :=\n  natDegree_eq_of_degree_eq_some (degree_basisDivisor_of_ne hxy)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural powers cancellation finite set cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 217953,
+            "name": "Set.coe_ncard_eq_encard",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L623-L625",
+            "source_text": "@[simp]\ntheorem coe_ncard_eq_encard [Finite s] : s.ncard = s.encard :=\n  s.toFinite.cast_ncard_eq",
+            "docstring": null
+          },
+          {
+            "id": 238829,
+            "name": "finite_powers",
+            "module": "Mathlib.GroupTheory.OrderOfElement",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/OrderOfElement.lean#L644-L650",
+            "source_text": "@[to_additive (attr := simp)]\nlemma finite_powers : (powers a : Set G).Finite ↔ IsOfFinOrder a := by\n  refine ⟨fun h ↦ ?_, IsOfFinOrder.finite_powers⟩\n  obtain ⟨m, n, hmn, ha⟩ := h.exists_lt_map_eq_of_forall_mem (f := fun n : ℕ ↦ a ^ n)\n    (fun n ↦ by simp [mem_powers_iff])\n  refine isOfFinOrder_iff_pow_eq_one.2 ⟨n - m, tsub_pos_iff_lt.2 hmn, ?_⟩\n  rw [← mul_left_cancel_iff (a := a ^ m), ← pow_add, add_tsub_cancel_of_le hmn.le, ha, mul_one]",
+            "docstring": null
+          },
+          {
+            "id": 217952,
+            "name": "Set.Finite.cast_ncard_eq",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L619-L620",
+            "source_text": "theorem Finite.cast_ncard_eq (hs : s.Finite) : s.ncard = s.encard := by\n  rwa [ncard, ENat.coe_toNat_eq_self, ne_eq, encard_eq_top_iff, Set.Infinite, not_not]\n",
+            "docstring": null
+          },
+          {
+            "id": 201912,
+            "name": "Set.Finite",
+            "module": "Mathlib.Data.Finite.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Defs.lean#L183-L185",
+            "source_text": "/-- A set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`. -/\nprotected def Finite (s : Set α) : Prop := Finite s\n",
+            "docstring": "A set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`. "
+          },
+          {
+            "id": 322938,
+            "name": "Cardinal.mk_set_nat",
+            "module": "Mathlib.SetTheory.Cardinal.Continuum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Continuum.lean#L77-L77",
+            "source_text": "theorem mk_set_nat : #(Set ℕ) = 𝔠 := by simp\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "natural powers cancellation finite set cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394090,
+            "name": "FTheory.SU5.Quanta.QuarticAnomalyCancellation",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L265-L272",
+            "source_text": "/-- The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n-/\ndef QuarticAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) :\n    Prop :=\n  (HdAnomalyCoefficient Q.qHd).2 + (HuAnomalyCoefficient Q.qHu).2 + Q.F.anomalyCoefficient.2 +\n    Q.T.anomalyCoefficient.2 = 0\n",
+            "docstring": "The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n"
+          },
+          {
+            "id": 394089,
+            "name": "FTheory.SU5.Quanta.LinearAnomalyCancellation",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L258-L263",
+            "source_text": "/-- The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. -/\ndef LinearAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) : Prop :=\n  (HdAnomalyCoefficient Q.qHd).1 + (HuAnomalyCoefficient Q.qHu).1 + Q.F.anomalyCoefficient.1 +\n  Q.T.anomalyCoefficient.1 = 0\n",
+            "docstring": "The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "f_le_order",
+    "receipts_sha256": "6e5baa69114620f4f1639366cd61291e8c951e164bd2dafd35963d9aded16ee5"
+  },
+  {
+    "queries": [
+      "pow_lt_pow_right₀",
+      "Finset.card_pos"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "pow_lt_pow_right₀",
+        "status": "ok",
+        "results": [
+          {
+            "id": 95669,
+            "name": "pow_lt_pow_right₀",
+            "module": "Mathlib.Algebra.Order.GroupWithZero.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/GroupWithZero/Basic.lean#L567-L568",
+            "source_text": "@[gcongr]\nlemma pow_lt_pow_right₀ (h : 1 < a) (hmn : m < n) : a ^ m < a ^ n := pow_right_strictMono₀ h hmn",
+            "docstring": null
+          },
+          {
+            "id": 95670,
+            "name": "pow_lt_pow_iff_right₀",
+            "module": "Mathlib.Algebra.Order.GroupWithZero.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/GroupWithZero/Basic.lean#L570-L571",
+            "source_text": "lemma pow_lt_pow_iff_right₀ (h : 1 < a) : a ^ n < a ^ m ↔ n < m :=\n  (pow_right_strictMono₀ h).lt_iff_lt\n",
+            "docstring": null
+          },
+          {
+            "id": 271240,
+            "name": "ArithmeticFunction.pow",
+            "module": "Mathlib.NumberTheory.ArithmeticFunction.Misc",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ArithmeticFunction/Misc.lean#L119-L121",
+            "source_text": "/-- `pow k n = n ^ k`, except `pow 0 0 = 0`. -/\ndef pow (k : ℕ) : ArithmeticFunction ℕ :=\n  ArithmeticFunction.id.ppow k\n",
+            "docstring": "`pow k n = n ^ k`, except `pow 0 0 = 0`. "
+          },
+          {
+            "id": 144271,
+            "name": "Real.rpowIntegrand₀₁",
+            "module": "Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.IntegralRepresentation",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/ContinuousFunctionalCalculus/Rpow/IntegralRepresentation.lean#L61-L62",
+            "source_text": "/-- Integrand for representing `x ↦ x ^ p` for `p ∈ (0,1)` -/\nnoncomputable def rpowIntegrand₀₁ (p t x : ℝ) : ℝ := t ^ p * (t⁻¹ - (t + x)⁻¹)\n",
+            "docstring": "Integrand for representing `x ↦ x ^ p` for `p ∈ (0,1)` "
+          },
+          {
+            "id": 144301,
+            "name": "Real.rpowIntegrand₁₂_zero",
+            "module": "Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.IntegralRepresentation",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/ContinuousFunctionalCalculus/Rpow/IntegralRepresentation.lean#L386-L387",
+            "source_text": "lemma rpowIntegrand₁₂_zero (ht : 0 < t) :\n    rpowIntegrand₁₂ p t 0 = 0 := by grind [rpowIntegrand₁₂]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.card_pos",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202316,
+            "name": "Finset.card_pos",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L78-L78",
+            "source_text": "@[simp] lemma card_pos : 0 < #s ↔ s.Nonempty := Nat.pos_iff_ne_zero.trans card_ne_zero\n@[simp] lemma one_le_card : 1 ≤ #s ↔ s.Nonempty := card_pos",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 202318,
+            "name": "Finset.Nonempty.card_pos",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L81-L81",
+            "source_text": "alias ⟨_, Nonempty.card_pos⟩ := card_pos\n",
+            "docstring": "**Alias** of the reverse direction of `Finset.card_pos`."
+          },
+          {
+            "id": 329033,
+            "name": "Mathlib.Meta.Positivity.evalFinsetCard",
+            "module": "Mathlib.Tactic.Positivity.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Positivity/Finset.lean#L26-L37",
+            "source_text": "/-- Extension for `Finset.card`. `#s` is positive if `s` is nonempty.\n\nIt calls `Mathlib.Meta.proveFinsetNonempty` to attempt proving that the finset is nonempty. -/\n@[positivity Finset.card _]\nmeta def evalFinsetCard : PositivityExt where eval {u α} _ pα? e :=\n  match pα? with | none => pure .none | some _ => do\n  match u, α, e with\n  | 0, ~q(ℕ), ~q(Finset.card $s) =>\n    let some ps ← proveFinsetNonempty s | return .none\n    assertInstancesCommute\n    return .positive q(Finset.Nonempty.card_pos $ps)\n  | _ => throwError \"not Finset.card\"\n",
+            "docstring": "Extension for `Finset.card`. `#s` is positive if `s` is nonempty.\n\nIt calls `Mathlib.Meta.proveFinsetNonempty` to attempt proving that the finset is nonempty. "
+          },
+          {
+            "id": 283576,
+            "name": "Filter.map_card_atTop",
+            "module": "Mathlib.Order.Filter.AtTopBot.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/AtTopBot/Finset.lean#L103-L111",
+            "source_text": "/-- The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. -/\nlemma map_card_atTop [Infinite α] :\n    map (Finset.card (α := α)) atTop = atTop := by\n  rw [map_atTop_eq, atTop]\n  refine Function.Surjective.iInf_congr Finset.card Finset.exists_card_eq fun s ↦ congr(𝓟 $(?_))\n  ext\n  refine ⟨Infinite.exists_superset_card_eq _ _, ?_⟩\n  aesop (add safe apply Finset.card_le_card)\n",
+            "docstring": "The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.card_pos",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389891,
+            "name": "PureU1.VectorLikeEvenPlane.evenShiftLast",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L161-L163",
+            "source_text": "/-- The element of `Fin (1 + (n + n + 1))` corresponding to the second `1`,\n  casted into `Fin (2 * n.succ)`. -/\ndef evenShiftLast : Fin (2 * n.succ) := (Fin.cast (n_cond₂ n) (Fin.natAdd 1 (Fin.natAdd (n + n) 0)))\n",
+            "docstring": "The element of `Fin (1 + (n + n + 1))` corresponding to the second `1`,\ncasted into `Fin (2 * n.succ)`. "
+          },
+          {
+            "id": 390017,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftZero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L154-L157",
+            "source_text": "/-- The element representing the `1` in `Fin (1 + n + n)`.\n  This is then casted to `Fin (2 * n + 1)`. -/\ndef oddShiftZero : Fin (2 * n + 1) :=\n  Fin.cast (odd_shift_eq n) (Fin.castAdd n (Fin.castAdd n 1))\n",
+            "docstring": "The element representing the `1` in `Fin (1 + n + n)`.\nThis is then casted to `Fin (2 * n + 1)`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "logicals_nonempty_iff",
+    "receipts_sha256": "2b0114e75151932d3d9f3f47e25a5b3e6c9e776a2e48e8d1c64e7cf50e0750c9"
+  }
+]

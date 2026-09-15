@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst r s a h\nclassical\nfunext i\nchange Finset.sum Finset.univ (fun k : ZMod N => a (k - r) * h (i - k - s)) =\n  Finset.sum Finset.univ (fun k : ZMod N => a k * h (i - (r + s) - k))\nrefine (Equiv.sum_comp (Equiv.addRight r)\n  (fun k : ZMod N => a (k - r) * h (i - k - s))).symm.trans ?_\nchange Finset.sum Finset.univ (fun k : ZMod N => a (k + r - r) * h (i - (k + r) - s)) = _\napply Finset.sum_congr rfl\nintro k hk\nhave hi : i - (k + r) - s = i - (r + s) - k := by ring\nsimp only [add_sub_cancel_right, hi]",
+  "queries": []
+}

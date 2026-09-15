@@ -1,0 +1,152 @@
+{
+  "id": "common_quantum_distance",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualCSS.common_quantum_distance",
+    "spec_sha256": "77a84356c07dae5f5efd02c068c86372cf4919a6bf822a4d7ce26a047b3b5359",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-vaovc_q2/attempt-001/Candidate_94e59bb9397e1a6b.lean",
+        "target_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-vaovc_q2/attempt-001/FrozenTarget_94e59bb9397e1a6b.lean",
+        "feedback": "",
+        "target_sha256": "1303f68fccfac5120c1c19174ac862080b50739c9c274f06ed6840c6d7a88b35",
+        "target_olean_sha256": "fe7e87c46461e693242a8d9d8ca42ba0e620a07cbb8e40ce22c3a724959cbd4f",
+        "source_sha256": "61823a2e134df68c1ccffa0b2561809bbc83efb9773a8b546a437384e365d157",
+        "olean_sha256": "2a8a0cb626592fe4263777d0e3b48de9b308be2f57356759eafae15d10bc9ec2",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:25:34.256037+00:00",
+    "work": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-vaovc_q2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "90bd047fe8381377a625417803863e879a04e18e7c57e089cca2653842a8c229",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-vaovc_q2/attempt-001/Candidate_94e59bb9397e1a6b.lean",
+    "environment_sha256": "6d8c6db986ed996087eb85669849f1f62077f0ae3a8aa5322cdb255235f9bfc4",
+    "artifacts": {
+      "zero_boundaries": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.zero_boundaries : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (0 : M6.Pinned.Vector (2*N)) ∈ M6.Spaces.boundaryWords N a b ∧ (0 : M6.Pinned.Vector (2*N)) ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) := by\n  intro N _ a b\n  classical\n  constructor <;> simp [M6.Spaces.boundaryWords, M6.Character.subspaceWords]",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.zero_boundaries",
+          "ancestors": [],
+          "spec_sha256": "531ac9595f78afef2da920566c88d323ce772de8c374d6e5507db4a99f015ad3"
+        },
+        "sha256": "cb2af376b17b686f3941f9cb1bc29037b4fc116f5536bea927ec7c19d477e530"
+      },
+      "J_boundary_iff": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.J_boundary_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.Spaces.boundaryWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) := by\n  intro N inst a b v\n  classical\n  have hJ (h : M6.Physical.Block N) :\n      M6.Spaces.dualBoundary N a b h =\n        M6.Flatten.J N (M6.Flatten.flatten N (M6.Physical.boundary N a b h)) := by\n    rw [M6.Spaces.dual_boundary_eval]\n    simp only [M6.Flatten.J, M6.Flatten.flatten_left]\n  have hmem :\n      M6.Flatten.J N v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) ↔\n        ∃ h : M6.Physical.Block N,\n          M6.Spaces.dualBoundary N a b h = M6.Flatten.J N v := by\n    simp [M6.Character.subspaceWords, M6.Spaces.D, LinearMap.mem_range]\n  rw [M6.Spaces.boundary_words_iff, hmem]\n  constructor\n  · rintro ⟨h, hh⟩\n    exact ⟨h, (hJ h).trans (congrArg (M6.Flatten.J N) hh)⟩\n  · rintro ⟨h, hh⟩\n    refine ⟨h, ?_⟩\n    rw [hJ h] at hh\n    have he := congrArg (M6.Flatten.J N) hh\n    simpa only [M6.Flatten.J_involution] using he",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.J_boundary_iff",
+          "ancestors": [],
+          "spec_sha256": "e2619b2004d999afdf07d05ca9ef3c76ac7af8dbb9e6a28c2af2af9fe237ca6a"
+        },
+        "sha256": "a41aeb4012fbec498c8418cbc6c52016f304482292936497e6508dff8c865081"
+      },
+      "J_dot": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.J_dot : ∀ (N : ℕ) [NeZero N] (v w : M6.Pinned.Vector (2*N)), M6.Character.dot (M6.Flatten.J N v) (M6.Flatten.J N w) = M6.Character.dot v w := by\n  change ∀ (N : ℕ) [NeZero N] (v w : M6.Pinned.Vector (2*N)), M6.Character.dot (M6.Flatten.J N v) (M6.Flatten.J N w) = M6.Character.dot v w\n  intro N _ v w\n  have hrev (a b : M6.Physical.Block N) :\n      M6.Physical.dot N (fun i => a (-i)) (fun i => b (-i)) =\n        M6.Physical.dot N a b := by\n    change (∑ i : ZMod N, a (-i) * b (-i)) = ∑ i : ZMod N, a i * b i\n    exact Fintype.sum_equiv (Equiv.neg (ZMod N)) _ _ (fun _ => rfl)\n  have hJ (z t : M6.Physical.Word N) :\n      M6.Physical.pairing N (M6.Physical.J N z) (M6.Physical.J N t) =\n        M6.Physical.pairing N z t := by\n    change M6.Physical.dot N (fun i => z.2 (-i)) (fun i => t.2 (-i)) +\n        M6.Physical.dot N (fun i => z.1 (-i)) (fun i => t.1 (-i)) =\n      M6.Physical.dot N z.1 t.1 + M6.Physical.dot N z.2 t.2\n    rw [hrev, hrev, add_comm]\n  unfold M6.Flatten.J\n  rw [M6.Flatten.flatten_dot, hJ]\n  exact (by simpa only [M6.Flatten.flatten_right] using\n    (M6.Flatten.flatten_dot N (M6.Flatten.unflatten N v)\n      (M6.Flatten.unflatten N w)).symm)",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.J_dot",
+          "ancestors": [],
+          "spec_sha256": "5e3791b43c3025f3a7e992c1cfbd04ba69a550fb819c47d47227442be4fa37a8"
+        },
+        "sha256": "9a357473abab1a8abf0e8718d039d418f93a7f924ca668ff66ea53229505a4fe"
+      },
+      "J_cycle_iff": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.J_cycle_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.dualWords (M6.Spaces.B N a b) := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.dualWords (M6.Spaces.B N a b)\n  intro N inst a b v\n  classical\n  have hmem :\n      M6.Flatten.J N v ∈ M6.Character.dualWords (M6.Spaces.B N a b) ↔\n        ∀ h : M6.Physical.Block N,\n          M6.Character.dot (M6.Spaces.boundary N a b h) (M6.Flatten.J N v) = 0 := by\n    unfold M6.Character.dualWords\n    rw [Finset.mem_filter]\n    simp only [Finset.mem_univ, true_and, M6.Character.Orthogonal, M6.Spaces.B, LinearMap.mem_range]\n    constructor\n    · intro hh h\n      exact hh _ ⟨h, rfl⟩\n    · intro hh q hq\n      rcases hq with ⟨h, rfl⟩\n      exact hh h\n  have hpair (h : M6.Physical.Block N) :\n      M6.Character.dot (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))) v =\n        M6.Character.dot (M6.Spaces.boundary N a b h) (M6.Flatten.J N v) := by\n    have hJ :\n        M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h)) =\n          M6.Flatten.J N (M6.Spaces.boundary N a b h) := by\n      rw [M6.Spaces.boundary_eval]\n      simp only [M6.Flatten.J, M6.Flatten.flatten_left]\n    rw [hJ]\n    simpa only [M6.Flatten.J_involution] using\n      (M6.ActualCSS.J_dot N (M6.Spaces.boundary N a b h) (M6.Flatten.J N v))\n  rw [M6.Spaces.cycle_words_iff, M6.Flatten.cycle_orthogonal, hmem]\n  simp only [hpair]",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.J_cycle_iff",
+          "ancestors": [
+            "J_boundary_iff",
+            "J_dot"
+          ],
+          "spec_sha256": "32a571dec7c7e7d9c0c8e6ddf6568b909301a9fea30c9f9e5284f9f6c9c1fa09"
+        },
+        "sha256": "f76154a801fd00e0e2732508b004b3087d64389fd4f867bca7ea268b2451d89e"
+      },
+      "Z_boundaries_are_cycles": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.Z_boundaries_are_cycles : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.Character.subspaceWords (M6.Spaces.D N a b) ⊆ M6.Character.dualWords (M6.Spaces.B N a b) := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.Character.subspaceWords (M6.Spaces.D N a b) ⊆ M6.Character.dualWords (M6.Spaces.B N a b)\n  intro N inst a b v hv\n  have hb : M6.Flatten.J N v ∈ M6.Spaces.boundaryWords N a b := by\n    apply (M6.ActualCSS.J_boundary_iff N a b (M6.Flatten.J N v)).mpr\n    simpa only [M6.Flatten.J_involution] using hv\n  have hc : M6.Flatten.J N v ∈ M6.Spaces.cycleWords N a b :=\n    M6.Spaces.boundaries_are_cycles N a b hb\n  simpa only [M6.Flatten.J_involution] using\n    (M6.ActualCSS.J_cycle_iff N a b (M6.Flatten.J N v)).mp hc",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.Z_boundaries_are_cycles",
+          "ancestors": [
+            "J_boundary_iff",
+            "J_cycle_iff",
+            "J_dot"
+          ],
+          "spec_sha256": "8a41c445813bababbf6249e43b7c89e0fc9f6cf62ab2ef3e8333c2128fb7c1ef"
+        },
+        "sha256": "b97f3f2a2ea0284e6b6885046519742ae135b2eb1bbc8207d4821ff8ee160aa7"
+      },
+      "J_logical_iff": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.J_logical_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.CSS.logical (M6.Spaces.boundaryWords N a b) (M6.Spaces.cycleWords N a b) ↔ M6.Flatten.J N v ∈ M6.CSS.logical (M6.Character.subspaceWords (M6.Spaces.D N a b)) (M6.Character.dualWords (M6.Spaces.B N a b)) := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.CSS.logical (M6.Spaces.boundaryWords N a b) (M6.Spaces.cycleWords N a b) ↔ M6.Flatten.J N v ∈ M6.CSS.logical (M6.Character.subspaceWords (M6.Spaces.D N a b)) (M6.Character.dualWords (M6.Spaces.B N a b))\n  intro N inst a b v\n  classical\n  simp only [M6.CSS.logical, Finset.mem_sdiff, M6.ActualCSS.J_cycle_iff N a b v, M6.ActualCSS.J_boundary_iff N a b v]",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.J_logical_iff",
+          "ancestors": [
+            "J_boundary_iff",
+            "J_cycle_iff",
+            "J_dot"
+          ],
+          "spec_sha256": "adeb8264f03c7f35d3f7e59d2757ba7c53f33b53d5b2ad5d32175d53185a7fb4"
+        },
+        "sha256": "9ad28caa93be4549a47d5095b188855dc4d4c92c33f235b5a3ca3a8fceb0bfd2"
+      },
+      "common_quantum_distance": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.common_quantum_distance : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.CSS.quantumDistance (M6.Spaces.boundaryWords N a b) (M6.Spaces.cycleWords N a b) (M6.Character.subspaceWords (M6.Spaces.D N a b)) (M6.Character.dualWords (M6.Spaces.B N a b)) = M6.Pinned.distance (M6.Spaces.logicalWords N a b) := by\n  intro N inst a b\n  classical\n  simpa only [M6.CSS.logical, M6.Spaces.logicalWords] using\n    (M6.CSS.common_quantum_distance (2 * N)\n      (M6.Spaces.boundaryWords N a b)\n      (M6.Spaces.cycleWords N a b)\n      (M6.Character.subspaceWords (M6.Spaces.D N a b))\n      (M6.Character.dualWords (M6.Spaces.B N a b))\n      (M6.Flatten.J N)\n      (M6.ActualCSS.zero_boundaries N a b).1\n      (M6.ActualCSS.zero_boundaries N a b).2\n      (M6.Spaces.boundaries_are_cycles N a b)\n      (M6.ActualCSS.Z_boundaries_are_cycles N a b)\n      (M6.Flatten.J_involution N)\n      (M6.Flatten.J_weight N)\n      (M6.ActualCSS.J_logical_iff N a b))",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.common_quantum_distance",
+          "ancestors": [
+            "J_boundary_iff",
+            "J_cycle_iff",
+            "J_dot",
+            "J_logical_iff",
+            "Z_boundaries_are_cycles",
+            "zero_boundaries"
+          ],
+          "spec_sha256": "fdad27d9575584404433d2854a4592b3fc0142f134b0442f2718985db6d5587c"
+        },
+        "sha256": "7d6ca8bf00473c3f97f125abb6819756ffa19face5f05457ba0eb70fa4c2be7c"
+      }
+    }
+  }
+}

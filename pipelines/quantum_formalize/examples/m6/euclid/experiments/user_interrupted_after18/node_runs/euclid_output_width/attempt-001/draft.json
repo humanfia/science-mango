@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank (M6.Euclid.euclidAux fuel p q).value ≤ max (M6.Euclid.rank p) (M6.Euclid.rank q)\nintro fuel\ninduction fuel with\n| zero =>\n    intro p q\n    simpa [M6.Euclid.euclidAux] using (le_max_left (M6.Euclid.rank p) (M6.Euclid.rank q))\n| succ fuel ih =>\n    intro p q\n    by_cases hq : q = 0\n    · simpa [M6.Euclid.euclidAux, hq] using (le_max_left (M6.Euclid.rank p) (M6.Euclid.rank q))\n    · have hr := (M6.Euclid.remainder_correct p q).2.1\n      have hi := ih q (M6.Euclid.remainder p q).value\n      have hb : M6.Euclid.rank (M6.Euclid.euclidAux fuel q (M6.Euclid.remainder p q).value).value ≤ max (M6.Euclid.rank p) (M6.Euclid.rank q) := by\n        omega\n      simpa [M6.Euclid.euclidAux, hq] using hb",
+  "queries": []
+}

@@ -1,0 +1,103 @@
+{
+  "id": "shifted_output_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualTransfer.shifted_output_exact",
+    "spec_sha256": "6bcd31bb6f404cd1b8336837282beb063d493bc275f7e66654495831ed97517f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-postprocessing-formalization/.humanize-formal-runs/run-v16setct/attempt-001/Candidate_f395d21934be5522.lean:14:6: warning: `Polynomial.finset_sum_coeff` has been deprecated: Use `Polynomial.finsetSum_coeff` instead\n/home/jing/m6-lean-postprocessing-formalization/.humanize-formal-runs/run-v16setct/attempt-001/Candidate_f395d21934be5522.lean:18:4: error: `simp` made no progress\n/home/jing/m6-lean-postprocessing-formalization/.humanize-formal-runs/run-v16setct/attempt-001/Candidate_f395d21934be5522.lean:19:2: error: unsolved goals\ncase neg\nN : ℕ\ninst : NeZero N\na b : BP\nP : Pinned.Pins (2 * N)\nhsupport : ∀ (d : ℕ), 2 * N < d → (Q N a b P).coeff d = 0\nd : ℕ\nhd : ¬d < 2 * N + 1\nhz : (Q N a b P).coeff d = 0\n⊢ (∑ x, if ↑x = d then (Q N a b P).coeff ↑x else 0) = 0\n/home/jing/m6-lean-postprocessing-formalization/.humanize-formal-runs/run-v16setct/attempt-001/Candidate_f395d21934be5522.lean:21:10: warning: This simp argument is unused:\n  Fin.sum_univ_eq_sum_range\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hd, hz]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-postprocessing-formalization/.humanize-formal-runs/run-v16setct/attempt-001/Candidate_f395d21934be5522.lean:21:37: warning: This simp argument is unused:\n  hd\n\nHint: Omit it from the simp argument list.\n  [apply] simp [Fin.sum_univ_eq_sum_range, hz]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-postprocessing-formalization/.humanize-formal-runs/run-v16setct/attempt-002/Candidate_a10ab1bcd1084249.lean",
+        "target_path": "/home/jing/m6-lean-postprocessing-formalization/.humanize-formal-runs/run-v16setct/attempt-002/FrozenTarget_a10ab1bcd1084249.lean",
+        "feedback": "",
+        "target_sha256": "2baae3d04b9689b51825c8b1fc574803b7096fca12e8e36a3722c2da5cafba76",
+        "target_olean_sha256": "c9f079752bfb86ebe149e1ee0afb8dbe8278b90daf91b5bbd677804d18146344",
+        "source_sha256": "2715c896c5d2804edcec7ad6d1a5c979cc581372f6995502f98ed3e6e9c98290",
+        "olean_sha256": "0512a361c123b8a0ba840b18f5d37a06ab32dcabee4ba8aec1d4e7f4965b9357",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T14:19:52.277162+00:00",
+    "work": "/home/jing/m6-lean-postprocessing-formalization/.humanize-formal-runs/run-v16setct",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "c2f6ed3097e6b6d7e4170fd05145df88f3c092bfc8004572fadbcc9acc072629",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-postprocessing-formalization/.humanize-formal-runs/run-v16setct/attempt-002/Candidate_a10ab1bcd1084249.lean",
+    "environment_sha256": "7c86b5dd59cfefc7f97d4a29783ec6120877a6504e9a15b24a6533505d4ece49",
+    "artifacts": {
+      "shift_division": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.shift_division : ∀ (z : ℤ) (k : ℕ), Int.shiftRight z k = z / (2:ℤ)^k := by\n  intro z k\n  simpa only [Int.shiftRight_eq, Nat.cast_pow, Nat.cast_ofNat] using Int.shiftRight_eq_div_pow z k",
+          "imports": [
+            "M6Postprocessing"
+          ],
+          "name": "M6.ActualTransfer.shift_division",
+          "ancestors": [],
+          "spec_sha256": "66fa6b8ff42308b6a0351bdfc5705d8b7a8933dc29742032c23716dfd4a9c548"
+        },
+        "sha256": "e28ae7b921a01d23378290eb57397e4e3ed5ac9cc3f3a7137546239c58ef3a54"
+      },
+      "shifted_coefficient_exact": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.shifted_coefficient_exact : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (P : M6.Pinned.Pins (2*N)) (d : ℕ), M6.ActualTransfer.shiftedCoefficient N a b P d = (M6.ActualTransfer.Q N a b P).coeff d := by\n  intro N inst a b P d\n  simp [M6.ActualTransfer.shiftedCoefficient, M6.ActualTransfer.Q,\n    Polynomial.coeff_sub, M6.Normalize.divide_coeff,\n    M6.ActualTransfer.shift_division]",
+          "imports": [
+            "M6Postprocessing"
+          ],
+          "name": "M6.ActualTransfer.shifted_coefficient_exact",
+          "ancestors": [
+            "shift_division"
+          ],
+          "spec_sha256": "cdb4964aa7d868476eb5a528da67c57347b754fb07c35f4eb820d7eb424a1aef"
+        },
+        "sha256": "9fe622e861bafe081ef1fef86282bcfb879bcf809c1f59bb9862b1a1c8c003b4"
+      },
+      "scalar_trace_support": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.scalar_trace_support : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : ℕ), 2*N < d → (M6.Transfer.scalarTracePolynomial W N).coeff d = 0 := by\n  intro R N W d hd\n  classical\n  unfold M6.Transfer.scalarTracePolynomial\n  rw [Polynomial.finset_sum_coeff]\n  apply Finset.sum_eq_zero\n  intro i hi\n  have hne : (i : ℕ) ≠ d := by\n    have hi_lt := i.isLt\n    omega\n  simp [Polynomial.coeff_monomial, hne]",
+          "imports": [
+            "M6Postprocessing"
+          ],
+          "name": "M6.ActualTransfer.scalar_trace_support",
+          "ancestors": [],
+          "spec_sha256": "15ce70b7b64ea1b5d44ab7560f1763ee70378e147bbceb84df6d82432c1cbe2e"
+        },
+        "sha256": "745817f01c68732ec889b8a8418deaac976e1fc763dab23655cfa970bdb40f32"
+      },
+      "shifted_output_exact": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.shifted_output_exact : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (P : M6.Pinned.Pins (2*N)), M6.ActualTransfer.shiftedOutput N a b P = M6.ActualTransfer.Q N a b P := by\n  intro N inst a b P\n  classical\n  have hsupport : ∀ d, 2 * N < d → (M6.ActualTransfer.Q N a b P).coeff d = 0 := by\n    intro d hd\n    simp only [M6.ActualTransfer.Q, Polynomial.coeff_sub,\n      M6.Normalize.divide_coeff, M6.ActualTransfer.boundaryTrace,\n      M6.ActualTransfer.characterTrace]\n    rw [M6.ActualTransfer.scalar_trace_support _ N _ d hd,\n      M6.ActualTransfer.scalar_trace_support _ N _ d hd]\n    simp\n  apply Polynomial.ext\n  intro d\n  unfold M6.ActualTransfer.shiftedOutput\n  simp only [Polynomial.finset_sum_coeff, Polynomial.coeff_monomial,\n    M6.ActualTransfer.shifted_coefficient_exact]\n  by_cases hd : d < 2 * N + 1\n  · rw [Finset.sum_eq_single (⟨d, hd⟩ : Fin (2 * N + 1))]\n    · simp\n    · intro i hi hne\n      have hval : (i : ℕ) ≠ d := by\n        intro h\n        apply hne\n        exact Fin.ext h\n      simp [hval]\n    · simp\n  · rw [hsupport d (by omega)]\n    apply Finset.sum_eq_zero\n    intro i hi\n    have hval : (i : ℕ) ≠ d := by\n      have hi_lt := i.isLt\n      omega\n    simp [hval]",
+          "imports": [
+            "M6Postprocessing"
+          ],
+          "name": "M6.ActualTransfer.shifted_output_exact",
+          "ancestors": [
+            "scalar_trace_support",
+            "shift_division",
+            "shifted_coefficient_exact"
+          ],
+          "spec_sha256": "a94d99cac171250e3cf09a8ec620a3924a62003518aeda4d86c61e28371885b9"
+        },
+        "sha256": "f9d55bd9e94340a1311a1e96c881fa711765ff4843d62bd020831455f95fc8aa"
+      }
+    }
+  }
+}

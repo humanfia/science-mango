@@ -1,0 +1,182 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Fintype.sum_equiv",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58402,
+        "name": "Fintype.sum_equiv",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L738-L741",
+        "source_text": "@[to_additive /-- `Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. -/]\nlemma prod_equiv (e : ι ≃ κ) (f : ι → M) (g : κ → M) (h : ∀ x, f x = g (e x)) :\n    ∏ x, f x = ∏ x, g x := prod_bijective _ e.bijective _ _ h",
+        "docstring": "`Fintype.sum_equiv` is a specialization of `Finset.sum_bij` that\nautomatically fills in most arguments.\n\nSee `Equiv.sum_comp` for a version without `h`. "
+      },
+      {
+        "id": 205356,
+        "name": "Sym.equivNatSumOfFintype",
+        "module": "Mathlib.Data.Finsupp.Multiset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Multiset.lean#L256-L262",
+        "source_text": "/-- The `n`th symmetric power of a finite type `α` is naturally equivalent to the subtype of maps\n`α → ℕ` with total mass `n`.\n\nSee also `Sym.equivNatSum` when `α` is not necessarily finite. -/\nnoncomputable def equivNatSumOfFintype [Fintype α] :\n    Sym α n ≃ {P : α → ℕ // ∑ i, P i = n} :=\n  (equivNatSum α n).trans <| Finsupp.equivFunOnFinite.subtypeEquiv <| by simp [Finsupp.sum_fintype]\n",
+        "docstring": "The `n`th symmetric power of a finite type `α` is naturally equivalent to the subtype of maps\n`α → ℕ` with total mass `n`.\n\nSee also `Sym.equivNatSum` when `α` is not necessarily finite. "
+      },
+      {
+        "id": 58223,
+        "name": "Finset.sum_map_equiv",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L856-L856",
+        "source_text": "@[to_additive]\ntheorem prod_map_equiv (e : ι ≃ κ) : (s.map e).prod (f ∘ e.symm) = s.prod f := by simp",
+        "docstring": null
+      },
+      {
+        "id": 255113,
+        "name": "Equiv",
+        "module": "Mathlib.Logic.Equiv.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Defs.lean#L68-L79",
+        "source_text": "/-- `α ≃ β` is the type of functions from `α → β` with a two-sided inverse. -/\nstructure Equiv (α β : Sort*) where\n  /-- The forward map of an equivalence.\n\n  Do NOT use directly. Use the coercion instead. -/\n  protected toFun : α → β\n  /-- The backward map of an equivalence.\n\n  Do NOT use `e.invFun` directly. Use the coercion of `e.symm` instead. -/\n  protected invFun : β → α\n  protected left_inv : LeftInverse invFun toFun := by intro; first | rfl | ext <;> rfl\n  protected right_inv : RightInverse invFun toFun := by intro; first | rfl | ext <;> rfl\n",
+        "docstring": "`α ≃ β` is the type of functions from `α → β` with a two-sided inverse. "
+      },
+      {
+        "id": 255290,
+        "name": "Equiv.psigmaCongrRight",
+        "module": "Mathlib.Logic.Equiv.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Equiv/Defs.lean#L606-L613",
+        "source_text": "/-- A family of equivalences `Π a, β₁ a ≃ β₂ a` generates an equivalence between `Σ' a, β₁ a` and\n`Σ' a, β₂ a`. -/\n@[simps (attr := grind =) apply]\ndef psigmaCongrRight {β₁ β₂ : α → Sort*} (F : ∀ a, β₁ a ≃ β₂ a) : (Σ' a, β₁ a) ≃ Σ' a, β₂ a where\n  toFun a := ⟨a.1, F a.1 a.2⟩\n  invFun a := ⟨a.1, (F a.1).symm a.2⟩\n  left_inv := by grind\n  right_inv := by grind\n",
+        "docstring": "A family of equivalences `Π a, β₁ a ≃ β₂ a` generates an equivalence between `Σ' a, β₁ a` and\n`Σ' a, β₂ a`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Fintype.sum_equiv",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386530,
+        "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+        "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+        "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+        "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+      },
+      {
+        "id": 386825,
+        "name": "Equiv.sumEquivSigmalCond",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L38-L43",
+        "source_text": "/-- An alternative form of `Equiv.sumEquivSigmaBool` where `Bool.casesOn` is replaced by `cond`. -/\ndef sumEquivSigmalCond : Fin m ⊕ Fin n ≃ Σ b, cond b (Fin m) (Fin n) :=\n  calc Fin m ⊕ Fin n\n    _ ≃ Fin n ⊕ Fin m := sumComm ..\n    _ ≃ Σ b, bif b then (Fin m) else (Fin n) := sumEquivSigmaBool ..\n    _ ≃ Σ b, cond b (Fin m) (Fin n) := sigmaCongrRight (fun | true | false => Equiv.refl _)\n",
+        "docstring": "An alternative form of `Equiv.sumEquivSigmaBool` where `Bool.casesOn` is replaced by `cond`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Physical.pairing M6.Physical.J M6.Physical.rev definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 250392,
+        "name": "LinearMap.toPerfPair_apply",
+        "module": "Mathlib.LinearAlgebra.PerfectPairing.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/PerfectPairing/Basic.lean#L63-L63",
+        "source_text": "@[simp] lemma toPerfPair_apply (x : M) (y : N) : p.toPerfPair x y = p x y := rfl",
+        "docstring": null
+      },
+      {
+        "id": 250391,
+        "name": "LinearMap.toLinearMap_toPerfPair",
+        "module": "Mathlib.LinearAlgebra.PerfectPairing.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/PerfectPairing/Basic.lean#L62-L62",
+        "source_text": "@[simp] lemma toLinearMap_toPerfPair (x : M) : p.toPerfPair x = p x := rfl\n@[simp] lemma toPerfPair_apply (x : M) (y : N) : p.toPerfPair x y = p x y := rfl",
+        "docstring": null
+      },
+      {
+        "id": 250399,
+        "name": "LinearMap.IsPerfPair.compl₁₂",
+        "module": "Mathlib.LinearAlgebra.PerfectPairing.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/PerfectPairing/Basic.lean#L91-L96",
+        "source_text": "instance IsPerfPair.compl₁₂ (eM : M' ≃ₗ[R] M) (eN : N' ≃ₗ[R] N) :\n    (p.compl₁₂ eM eN : M' →ₗ[R] N' →ₗ[R] R).IsPerfPair :=\n  ⟨((LinearEquiv.congrLeft R R eN).symm.bijective.comp\n    (IsPerfPair.bijective_left p)).comp eM.bijective,\n    ((LinearEquiv.congrLeft R R eM).symm.bijective.comp\n    (IsPerfPair.bijective_right p)).comp eN.bijective⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 245500,
+        "name": "Module.dualPairing_apply",
+        "module": "Mathlib.LinearAlgebra.Dual.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dual/Defs.lean#L71-L72",
+        "source_text": "@[deprecated \"`Module.dualPairing` has been deprecated\" (since := \"2026-04-02\")]\ntheorem dualPairing_apply (v x) : dualPairing R M v x = v x := rfl",
+        "docstring": null
+      },
+      {
+        "id": 245639,
+        "name": "Submodule.dualCopairing_apply",
+        "module": "Mathlib.LinearAlgebra.Dual.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dual/Lemmas.lean#L585-L588",
+        "source_text": "@[simp]\ntheorem dualCopairing_apply {W : Submodule R M} (φ : W.dualAnnihilator) (x : M) :\n    W.dualCopairing φ (Quotient.mk x) = φ x :=\n  rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Physical.pairing M6.Physical.J M6.Physical.rev definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393822,
+        "name": "CanonicalEnsemble.physicalProbability_def",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L726-L729",
+        "source_text": "@[simp]\nlemma physicalProbability_def (T : Temperature) (i : ι) :\n    𝓒.physicalProbability T i\n      = 𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof) := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393831,
+        "name": "CanonicalEnsemble.physicalProbability_congr",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L779-L782",
+        "source_text": "lemma physicalProbability_congr (e : ι1 ≃ᵐ ι) (T : Temperature) (i : ι1) :\n    (𝓒.congr e).physicalProbability T i\n      = 𝓒.physicalProbability T (e i) := by\n  simp [physicalProbability, probability]\n",
+        "docstring": null
+      },
+      {
+        "id": 393826,
+        "name": "CanonicalEnsemble.log_physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L746-L751",
+        "source_text": "lemma log_physicalProbability\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    Real.log (𝓒.physicalProbability T i)\n      = Real.log (𝓒.probability T i) + (𝓒.dof : ℝ) * Real.log 𝓒.phaseSpaceunit := by\n  rw [physicalProbability, Real.log_mul (𝓒.probability_pos T i).ne' (pow_pos 𝓒.hPos _).ne',\n    Real.log_pow]\n",
+        "docstring": null
+      },
+      {
+        "id": 393823,
+        "name": "CanonicalEnsemble.physicalProbability_measurable",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L731-L734",
+        "source_text": "lemma physicalProbability_measurable (T : Temperature) :\n    Measurable (𝓒.physicalProbability T) := by\n  unfold physicalProbability probability\n  fun_prop\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

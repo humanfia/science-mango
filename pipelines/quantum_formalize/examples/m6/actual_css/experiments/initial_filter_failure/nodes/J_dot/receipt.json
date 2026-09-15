@@ -1,0 +1,62 @@
+{
+  "id": "J_dot",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualCSS.J_dot",
+    "spec_sha256": "5e3791b43c3025f3a7e992c1cfbd04ba69a550fb819c47d47227442be4fa37a8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-001/Candidate_1fa22788dac58243.lean:10:4: error: Tactic `apply` failed: could not unify the conclusion of `Fintype.sum_equiv (Equiv.neg (ZMod N))`\n  ∑ x, ?f x = ∑ x, ?g x\nwith the goal\n  ((Physical.dot N (fun i => z.2 (-i)) fun i => t.2 (-i)) + Physical.dot N (fun i => z.1 (-i)) fun i => t.1 (-i)) =\n    Physical.dot N z.1 t.1 + Physical.dot N z.2 t.2\n\nNote: The full type of `Fintype.sum_equiv (Equiv.neg (ZMod N))` is\n  ∀ (f g : ZMod N → ?m.24), (∀ (x : ZMod N), f x = g ((Equiv.neg (ZMod N)) x)) → ∑ x, f x = ∑ x, g x\n\nN : ℕ\ninst✝ : NeZero N\nv w : Pinned.Vector (2 * N)\nz t : Physical.Word N\n⊢ ((Physical.dot N (fun i => z.2 (-i)) fun i => t.2 (-i)) + Physical.dot N (fun i => z.1 (-i)) fun i => t.1 (-i)) =\n    Physical.dot N z.1 t.1 + Physical.dot N z.2 t.2\n/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-001/Candidate_1fa22788dac58243.lean:2:59: error: unsolved goals\nN : ℕ\ninst✝ : NeZero N\nv w : Pinned.Vector (2 * N)\nhJ : ∀ (z t : Physical.Word N), Physical.pairing N (Physical.J N z) (Physical.J N t) = Physical.pairing N z t\n⊢ Physical.pairing N (Flatten.unflatten N v) (Flatten.unflatten N w) = Character.dot v w\n/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-001/Candidate_1fa22788dac58243.lean:9:15: warning: This simp argument is unused:\n  ← Finset.sum_add_distrib\n\nHint: Omit it from the simp argument list.\n  [apply] simp only\n\nNote: Simp arguments with `←` have the additional effect of removing the other direction from the simp set, even if the simp argument itself is unused. If the hint above does not work, try replacing `←` with `-` to only get that effect and silence this warning.\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-001/Candidate_1fa22788dac58243.lean:17:3: error: unexpected identifier; expected command\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-002/Candidate_3070385fb2b6abce.lean",
+        "target_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-002/FrozenTarget_3070385fb2b6abce.lean",
+        "feedback": "",
+        "target_sha256": "125ef5d7bcd53dddbd86440e8df5da3708e3f0eaf67be49e1e4d94a34ad1cba6",
+        "target_olean_sha256": "d01ab84b1ab3c8776d56807348cfd83da0af12953ed5f2b0e5bd09a62f132682",
+        "source_sha256": "31ba2b721bfc34f9f16e2e495ac53c5d21747f5e9b8a2240a47a0425e2e3e690",
+        "olean_sha256": "fc48f9bcc3257f6b327109d87fb740572e6d632b594bc978522ea2f92403982d",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T14:15:47.207694+00:00",
+    "work": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "90bd047fe8381377a625417803863e879a04e18e7c57e089cca2653842a8c229",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-002/Candidate_3070385fb2b6abce.lean",
+    "environment_sha256": "6d8c6db986ed996087eb85669849f1f62077f0ae3a8aa5322cdb255235f9bfc4",
+    "artifacts": {
+      "J_dot": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.J_dot : ∀ (N : ℕ) [NeZero N] (v w : M6.Pinned.Vector (2*N)), M6.Character.dot (M6.Flatten.J N v) (M6.Flatten.J N w) = M6.Character.dot v w := by\n  change ∀ (N : ℕ) [NeZero N] (v w : M6.Pinned.Vector (2*N)), M6.Character.dot (M6.Flatten.J N v) (M6.Flatten.J N w) = M6.Character.dot v w\n  intro N _ v w\n  have hrev (a b : M6.Physical.Block N) :\n      M6.Physical.dot N (fun i => a (-i)) (fun i => b (-i)) =\n        M6.Physical.dot N a b := by\n    change (∑ i : ZMod N, a (-i) * b (-i)) = ∑ i : ZMod N, a i * b i\n    exact Fintype.sum_equiv (Equiv.neg (ZMod N)) _ _ (fun _ => rfl)\n  have hJ (z t : M6.Physical.Word N) :\n      M6.Physical.pairing N (M6.Physical.J N z) (M6.Physical.J N t) =\n        M6.Physical.pairing N z t := by\n    change M6.Physical.dot N (fun i => z.2 (-i)) (fun i => t.2 (-i)) +\n        M6.Physical.dot N (fun i => z.1 (-i)) (fun i => t.1 (-i)) =\n      M6.Physical.dot N z.1 t.1 + M6.Physical.dot N z.2 t.2\n    rw [hrev, hrev, add_comm]\n  unfold M6.Flatten.J\n  rw [M6.Flatten.flatten_dot, hJ]\n  exact (by simpa only [M6.Flatten.flatten_right] using\n    (M6.Flatten.flatten_dot N (M6.Flatten.unflatten N v)\n      (M6.Flatten.unflatten N w)).symm)",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.J_dot",
+          "ancestors": [],
+          "spec_sha256": "5e3791b43c3025f3a7e992c1cfbd04ba69a550fb819c47d47227442be4fa37a8"
+        },
+        "sha256": "9a357473abab1a8abf0e8718d039d418f93a7f924ca668ff66ea53229505a4fe"
+      }
+    }
+  }
+}

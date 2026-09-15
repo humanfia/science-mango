@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro α β _ L k hk w\nlet B := {b : β // b ∈ M6.ActualCounts.imageWords L}\nlet L' : α → B := fun a => ⟨L a, by simp [M6.ActualCounts.imageWords]⟩\nhave hu : M6.FiberSum.UniformFibers L' k := by\n  intro b\n  obtain ⟨a₀, ha₀⟩ : ∃ a₀, L a₀ = b.val := by\n    simpa [M6.ActualCounts.imageWords] using b.property\n  have hb : Nat.card {a : α // L a = b.val} = k := by\n    rw [← ha₀]\n    exact hk a₀\n  have hc : Fintype.card {a : α // L a = b.val} =\n      (Finset.univ.filter (fun a : α => L a = b.val)).card := by\n    apply Fintype.subtype_card\n    intro a\n    simp\n  rw [Nat.card_eq_fintype_card, hc] at hb\n  simpa [M6.FiberSum.fiber, L', Subtype.ext_iff] using hb\nhave hs := M6.FiberSum.uniform_weighted_sum α B L' k hu (fun b => w b.val)\nsimpa [M6.FiberSum.pullbackSum, L', B, Finset.sum_coe_sort] using hs",
+  "queries": [
+    "Fintype.subtype_card",
+    "Finset.sum_coe_sort"
+  ]
+}

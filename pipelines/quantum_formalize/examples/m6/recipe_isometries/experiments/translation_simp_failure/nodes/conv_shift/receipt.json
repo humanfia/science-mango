@@ -1,0 +1,61 @@
+{
+  "id": "conv_shift",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.RecipeIsometries.conv_shift",
+    "spec_sha256": "2448c98e6327a67a2fa1a3f1fca60aa5908199078e171d56ba271c7c61cf156f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-s58kpmji/attempt-001/Candidate_d2e874b1758a750f.lean:10:35: error: Application type mismatch: The argument\n  fun k => a (k - r) * h (i - k - s)\nhas type\n  ZMod N → ZMod 2\nbut is expected to have type\n  Finset (ZMod N)\nin the application\n  Equiv.Perm.sum_comp (Equiv.addRight r) fun k => a (k - r) * h (i - k - s)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-s58kpmji/attempt-002/Candidate_94eed14b0291c751.lean",
+        "target_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-s58kpmji/attempt-002/FrozenTarget_94eed14b0291c751.lean",
+        "feedback": "",
+        "target_sha256": "53d26a4d9eb2f98af7778c01f76234904dec1f7199038b695c8bc4b63ea68947",
+        "target_olean_sha256": "cd67dc0bf2b560b823b64d241c59c14d2f57f044898d69f5f996b00af0469675",
+        "source_sha256": "7ffad16fc1c3a4a4ee4d0331f5fb016e9028ad4e884a5936f02b1d3b98e22534",
+        "olean_sha256": "531bf094e91548c5149d6a7f201823b74e282e51a1b8e37490d0e0df98e4659c",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T14:34:14.346200+00:00",
+    "work": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-s58kpmji",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "55a57ac8060477ab26fffb3466ce9c7eaf76565582acbdc4d51633c9e59ff2c8",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-s58kpmji/attempt-002/Candidate_94eed14b0291c751.lean",
+    "environment_sha256": "105874d9b1f96950dd9cc0ff6ed7f9a0fb22f24362fab932ce70d1d0ca08f217",
+    "artifacts": {
+      "conv_shift": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.conv_shift : ∀ (N : ℕ) [NeZero N] (r s : ZMod N) (a h : M6.RecipeIsometries.Block N), M6.Physical.conv N (M6.RecipeIsometries.shift N r a) (M6.RecipeIsometries.shift N s h) = M6.RecipeIsometries.shift N (r+s) (M6.Physical.conv N a h) := by\n  intro N inst r s a h\n  classical\n  funext i\n  change Finset.sum Finset.univ (fun k : ZMod N => a (k - r) * h (i - k - s)) =\n    Finset.sum Finset.univ (fun k : ZMod N => a k * h (i - (r + s) - k))\n  refine (Equiv.sum_comp (Equiv.addRight r)\n    (fun k : ZMod N => a (k - r) * h (i - k - s))).symm.trans ?_\n  change Finset.sum Finset.univ (fun k : ZMod N => a (k + r - r) * h (i - (k + r) - s)) = _\n  apply Finset.sum_congr rfl\n  intro k hk\n  have hi : i - (k + r) - s = i - (r + s) - k := by ring\n  simp only [add_sub_cancel_right, hi]",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.conv_shift",
+          "ancestors": [],
+          "spec_sha256": "2448c98e6327a67a2fa1a3f1fca60aa5908199078e171d56ba271c7c61cf156f"
+        },
+        "sha256": "6b3d76c6cce2ec2ba294c9d070cbda7cd9d65ff04164af57d3960b62e4415540"
+      }
+    }
+  }
+}

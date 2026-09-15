@@ -1,0 +1,139 @@
+{
+  "title": "Original M6 zero-span two-label edge case",
+  "nodes": [
+    {
+      "id": "anchored_zero",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ZeroSpan.anchored_zero",
+        "statement": "∀ (a b : M6.Final.BP), a.coeff 0 = 1 → b.coeff 0 = 1 → M6.ActualTransfer.span a b = 0 → a = 1 ∧ b = 1",
+        "imports": [
+          "M6ZeroSpan"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "max natDegrees=0 implies both degrees0. Polynomial.eq_C_of_natDegree_eq_zero or ext using coeff_eq_zero above0. Return tactic lines only without leading by."
+      }
+    },
+    {
+      "id": "connected_zero",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ZeroSpan.connected_zero",
+        "statement": "∀ N : ℕ, M6.Final.Admissible N 1 1 → N = 1",
+        "imports": [
+          "M6ZeroSpan"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Unfold Admissible. support_one={0}, gcd_finset=0, gcd N0=N. Return tactic lines only without leading by."
+      }
+    },
+    {
+      "id": "signature_one",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ZeroSpan.signature_one",
+        "statement": "∀ N : ℕ, M6.Cyclic.signature 1 1 (M6.Cyclic.modulus N) = 1",
+        "imports": [
+          "M6ZeroSpan"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Unfold signature and simplify gcd_one/one_gcd. Return tactic lines only without leading by."
+      }
+    },
+    {
+      "id": "boundary_loops",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ZeroSpan.boundary_loops",
+        "statement": "∀ (N : ℕ) [NeZero N] (i : ℕ) (m n : M6.Transfer.Memory 0), M6.Transfer.edgeMatrix (M6.ActualTransfer.boundaryWeight 0 N 1 1 (M6.Pinned.free (2*N)) i) m n = (1 : Polynomial ℤ) + Polynomial.X^2",
+        "imports": [
+          "M6ZeroSpan"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Memory0 singleton; shift m bit=n by Subsingleton.elim. Sum Bit=0,1 explicitly. Actual output for polynomial1 equals bit. Boundary factor free s=X^s.val. Return tactic lines only without leading by."
+      }
+    },
+    {
+      "id": "character_loops",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ZeroSpan.character_loops",
+        "statement": "∀ (N : ℕ) [NeZero N] (i : ℕ) (m n : M6.Transfer.Memory 0), M6.Transfer.edgeMatrix (M6.ActualTransfer.characterWeight 0 N 1 1 (M6.Pinned.free (2*N)) i) m n = Polynomial.C 2 * ((1 : Polynomial ℤ) + Polynomial.X^2)",
+        "imports": [
+          "M6ZeroSpan"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Use free_character_factor, outputs=bit, sum over Bit0,1. (1+X)^2+(1-X)^2=2(1+X²) via ring. Return tactic lines only without leading by."
+      }
+    },
+    {
+      "id": "zero_memory_trace",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ZeroSpan.zero_memory_trace",
+        "statement": "∀ (N : ℕ) (W : ℕ → M6.Transfer.Memory 0 → M6.Transfer.Bit → Polynomial ℤ) (p : Polynomial ℤ), (∀ i m n, M6.Transfer.edgeMatrix (W i) m n = p) → M6.Transfer.arrayTrace W N = p^N",
+        "imports": [
+          "M6ZeroSpan"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "Prove layers W start n only coordinate =p^n by induction, all Memory0 equal default. Or array_trace_matrix with singleton matrix constant p, matrixProduct induction. Count both labels through edgeMatrix premise; no label merger. Return tactic lines only without leading by."
+      }
+    },
+    {
+      "id": "boundary_trace_zero",
+      "dependencies": [
+        "boundary_loops",
+        "zero_memory_trace"
+      ],
+      "spec": {
+        "name": "M6.ZeroSpan.boundary_trace_zero",
+        "statement": "∀ (N : ℕ) [NeZero N], M6.ActualTransfer.boundaryTrace N 1 1 (M6.Pinned.free (2*N)) = ((1 : Polynomial ℤ) + Polynomial.X^2)^N",
+        "imports": [
+          "M6ZeroSpan"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "span1 1=0. scalar_trace_polynomial using actual boundary_edge_bounds, then zero_memory_trace and boundary_loops. Return tactic lines only without leading by."
+      }
+    },
+    {
+      "id": "character_trace_zero",
+      "dependencies": [
+        "character_loops",
+        "zero_memory_trace"
+      ],
+      "spec": {
+        "name": "M6.ZeroSpan.character_trace_zero",
+        "statement": "∀ (N : ℕ) [NeZero N], M6.ActualTransfer.characterTrace N 1 1 (M6.Pinned.free (2*N)) = Polynomial.C ((2 : ℤ)^N) * ((1 : Polynomial ℤ) + Polynomial.X^2)^N",
+        "imports": [
+          "M6ZeroSpan"
+        ],
+        "context": "",
+        "queries": [
+          "weight preserving involution minimum distance"
+        ],
+        "guidance": "span1 1=0; scalar_trace_polynomial using character_edge_bounds; zero_memory_trace and character_loops; mul_pow and Polynomial.C_pow. Return tactic lines only without leading by."
+      }
+    }
+  ]
+}

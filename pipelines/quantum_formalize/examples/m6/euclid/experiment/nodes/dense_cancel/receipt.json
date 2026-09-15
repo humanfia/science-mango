@@ -1,0 +1,69 @@
+{
+  "id": "dense_cancel",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Euclid.dense_cancel",
+    "spec_sha256": "6fac8f4b3e0ec898aaa7ad673c65615adb4e19704c8a641abf7dceef59c61ab1",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-l10h_xz9/attempt-001/Candidate_32ff8fd02faefa29.lean",
+        "target_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-l10h_xz9/attempt-001/FrozenTarget_32ff8fd02faefa29.lean",
+        "feedback": "",
+        "target_sha256": "e9bee86cebe05f884cbf19864f47c1abff3f06444d677db17d78500424cd4846",
+        "target_olean_sha256": "f7c3cdcb3c7dbfeb150e81cb8701b66018a9c5e3d0eb6c95e91cc957db71dc54",
+        "source_sha256": "d9aebf5e3be1c3eaa9711da1638b29b70ac8b9db1e38b196d706305284fc6a19",
+        "olean_sha256": "9c3e3bd617b292024a7ee3d0254188885c095e8dccd730d153067b0edd65c2eb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:07:15.828252+00:00",
+    "work": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-l10h_xz9",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "77f2f0a61a166350942b8cde04647e5997bd6f2d2f8fb5f4f56f3285fcd1287c",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-l10h_xz9/attempt-001/Candidate_32ff8fd02faefa29.lean",
+    "environment_sha256": "81b552595932f7843a5d84c9e1652636cf17eb00709558594967bfaeb7bd9da9",
+    "artifacts": {
+      "binary_normalization": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.binary_normalization : ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p := by\n  change ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p\n  intro p\n  have hm : p ≠ 0 → p.Monic := by\n    intro hp\n    change p.leadingCoeff = 1\n    have binary : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide\n    rcases binary p.leadingCoeff with h | h\n    · exact False.elim (hp (Polynomial.leadingCoeff_eq_zero.mp h))\n    · exact h\n  refine ⟨hm, ?_⟩\n  by_cases hp : p = 0\n  · subst p\n    simp\n  · exact (hm hp).normalize_eq_self",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.binary_normalization",
+          "ancestors": [],
+          "spec_sha256": "853c6e86f5aac369680f9b1d7d0db3c08ac8387a45571fd3d820e77b9ffe800a"
+        },
+        "sha256": "1a1c44fc74b3cf324341ce4673895080644217f700f1d7581e3674f614411049"
+      },
+      "dense_cancel": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.dense_cancel : ∀ (N : ℕ) (p q : M6.Euclid.BP), p ≠ 0 → M6.Euclid.dense N (M6.Euclid.cancel p q) = M6.Euclid.denseXor N p q (p.natDegree - q.natDegree) := by\n  change ∀ (N : ℕ) (p q : M6.Euclid.BP), p ≠ 0 → _\n  intro N p q hp\n  have hl : p.leadingCoeff = 1 := (M6.Euclid.binary_normalization p).1 hp\n  have hsub : ∀ a b : ZMod 2, a - b = a + b := by decide\n  have hc : M6.Euclid.cancel p q = p - q * Polynomial.X ^ (p.natDegree - q.natDegree) := by\n    simp [M6.Euclid.cancel, hl, mul_comm, mul_left_comm, mul_assoc]\n  rw [hc]\n  unfold M6.Euclid.dense M6.Euclid.denseXor\n  congr 1\n  funext i\n  simp [Polynomial.coeff_sub, Polynomial.coeff_mul_X_pow', hsub]",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.dense_cancel",
+          "ancestors": [
+            "binary_normalization"
+          ],
+          "spec_sha256": "9b49083e0405d716344d9d96ca376aecf18641292131d966aac67b4c49f9dbfe"
+        },
+        "sha256": "1ab335b0c844849788ca264498905868a1782030064e745ab18d230ac142acea"
+      }
+    }
+  }
+}

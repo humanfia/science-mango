@@ -1,0 +1,13 @@
+{
+  "name": "M6.Spaces.boundaries_are_cycles",
+  "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.Spaces.boundaryWords N a b ⊆ M6.Spaces.cycleWords N a b",
+  "imports": [
+    "M6SpacesReady"
+  ],
+  "context": "theorem M6.Spaces.boundary_eval : ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.boundary N a b h = M6.Flatten.flatten N (M6.Physical.boundary N a b h) := by\n  intro N inst a b h\n  rfl\n\ntheorem M6.Spaces.dual_boundary_eval : ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.dualBoundary N a b h = M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h)) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (a b h : M6.Physical.Block N), M6.Spaces.dualBoundary N a b h = M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst a b h\n  rfl\n\ntheorem M6.Spaces.boundary_words_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.boundaryWords N a b ↔ ∃ h : M6.Physical.Block N, M6.Flatten.flatten N (M6.Physical.boundary N a b h) = v := by\n  intro N inst a b v\n  classical\n  simp [M6.Spaces.boundaryWords, M6.Character.subspaceWords, M6.Spaces.B,\n    LinearMap.mem_range, M6.Spaces.boundary_eval]\n\ntheorem M6.Spaces.cycle_words_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0 := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Physical.syndrome N a b (M6.Flatten.unflatten N v) = 0\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst a b v\n  classical\n  change v ∈ Finset.filter (M6.Character.Orthogonal (M6.Spaces.dualBoundary N a b).range) Finset.univ ↔ _\n  rw [Finset.mem_filter]\n  simp only [Finset.mem_univ, true_and]\n  change (∀ q, q ∈ (M6.Spaces.dualBoundary N a b).range → M6.Character.dot q v = 0) ↔ _\n  rw [M6.Flatten.cycle_orthogonal]\n  constructor\n  · intro hv h\n    exact hv _ ⟨h, rfl⟩\n  · intro hv q hq\n    obtain ⟨h, rfl⟩ := hq\n    exact hv h",
+  "queries": [
+    "LinearMap range membership finite cardinality",
+    "finite sum orthogonal submodule range"
+  ],
+  "guidance": "Use boundary witness h, Flatten.flatten_left and Physical.boundary_cycle. Return tactic lines only without leading by."
+}

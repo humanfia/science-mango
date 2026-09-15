@@ -1,0 +1,12 @@
+theorem M6.ActualResult.solve_exact : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → (M6.ActualTransfer.solve N a b = none ↔ (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = ∅) ∧ ∀ (d : ℕ) (v : M6.Pinned.Vector (2*N)) (k : ℕ), M6.ActualTransfer.solve N a b = some (d,v,k) → v ∈ (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)), d ≤ M6.Pinned.weight u) ∧ k ≤ 2*N := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → (M6.ActualTransfer.solve N a b = none ↔ (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = ∅) ∧ ∀ (d : ℕ) (v : M6.Pinned.Vector (2*N)) (k : ℕ), M6.ActualTransfer.solve N a b = some (d,v,k) → v ∈ (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) ∧ M6.Pinned.weight v = d ∧ (∀ u ∈ (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)), d ≤ M6.Pinned.weight u) ∧ k ≤ 2*N
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N inst a b h
+  exact M6.Pinned.solve_exact (2 * N)
+    (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a)
+      (M6.Coordinates.coefficients N b))
+    (M6.ActualTransfer.Q N a b)
+    (M6.ActualResult.Q_enumerator N a b h)

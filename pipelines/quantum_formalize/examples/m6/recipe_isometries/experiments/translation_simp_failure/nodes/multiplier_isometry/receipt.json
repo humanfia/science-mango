@@ -1,0 +1,153 @@
+{
+  "id": "multiplier_isometry",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.RecipeIsometries.multiplier_isometry",
+    "spec_sha256": "b0a118609dae99a8ca82b984c71867bf314d1e044d213bf796b96fca7be2a140",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vk1vbjr8/attempt-001/Candidate_79cc94eaf9f2f65d.lean",
+        "target_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vk1vbjr8/attempt-001/FrozenTarget_79cc94eaf9f2f65d.lean",
+        "feedback": "",
+        "target_sha256": "d10c674dca91d50588fe3f586fcd9a2697a8aa4f9af3239b5d996b48a28755e4",
+        "target_olean_sha256": "80efe71b42824a5c8c4fa86c97f3893d054c06131d2866c537b3044575916225",
+        "source_sha256": "15177e25471d66351492989b6601258ac9ff01c3b471793f7bcb3685300e60e7",
+        "olean_sha256": "c298edd342558418bbb546d6a6a2bd229e2c6c1600fe36e44a9c029452e406af",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:37:53.332030+00:00",
+    "work": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vk1vbjr8",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "55a57ac8060477ab26fffb3466ce9c7eaf76565582acbdc4d51633c9e59ff2c8",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vk1vbjr8/attempt-001/Candidate_79cc94eaf9f2f65d.lean",
+    "environment_sha256": "105874d9b1f96950dd9cc0ff6ed7f9a0fb22f24362fab932ce70d1d0ca08f217",
+    "artifacts": {
+      "lift_transport": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.lift_transport : ∀ (N : ℕ) [NeZero N] (a b a1 b1 : M6.RecipeIsometries.Block N) (P : M6.RecipeIsometries.Word N → M6.RecipeIsometries.Word N) (H : M6.RecipeIsometries.Block N → M6.RecipeIsometries.Block N), Function.Bijective P → Function.Surjective H → (∀ h, M6.Physical.boundary N a1 b1 (H h) = P (M6.Physical.boundary N a b h)) → (∀ z, M6.Physical.syndrome N a1 b1 (P z) = 0 ↔ M6.Physical.syndrome N a b z = 0) → (∀ z, M6.Physical.wordWeight N (P z) = M6.Physical.wordWeight N z) → Function.Bijective (M6.RecipeIsometries.lift N P) ∧ ∀ v : M6.Pinned.Vector (2*N), ((M6.RecipeIsometries.lift N P) v ∈ M6.Spaces.boundaryWords N (a1) (b1) ↔ v ∈ M6.Spaces.boundaryWords N a b) ∧ ((M6.RecipeIsometries.lift N P) v ∈ M6.Spaces.cycleWords N (a1) (b1) ↔ v ∈ M6.Spaces.cycleWords N a b) ∧ M6.Pinned.weight ((M6.RecipeIsometries.lift N P) v) = M6.Pinned.weight v := by\n  intro N inst a b a1 b1 P H hP hH hB hC hW\n  have hf : Function.Injective (M6.Flatten.flatten N) := by\n    intro x y h\n    have h' := congrArg (M6.Flatten.unflatten N) h\n    simpa only [M6.Flatten.flatten_left] using h'\n  have hu : Function.Injective (M6.Flatten.unflatten N) := by\n    intro x y h\n    have h' := congrArg (M6.Flatten.flatten N) h\n    simpa only [M6.Flatten.flatten_right] using h'\n  constructor\n  · constructor\n    · intro x y h\n      apply hu\n      apply hP.1\n      apply hf\n      exact h\n    · intro v\n      obtain ⟨z, hz⟩ := hP.2 (M6.Flatten.unflatten N v)\n      refine ⟨M6.Flatten.flatten N z, ?_⟩\n      simp only [M6.RecipeIsometries.lift, M6.Flatten.flatten_left, hz,\n        M6.Flatten.flatten_right]\n  · intro v\n    constructor\n    · rw [M6.Spaces.boundary_words_iff, M6.Spaces.boundary_words_iff]\n      constructor\n      · rintro ⟨k, hk⟩\n        obtain ⟨h, rfl⟩ := hH k\n        rw [hB h] at hk\n        change M6.Flatten.flatten N (P (M6.Physical.boundary N a b h)) =\n          M6.Flatten.flatten N (P (M6.Flatten.unflatten N v)) at hk\n        have he := hP.1 (hf hk)\n        refine ⟨h, ?_⟩\n        exact (congrArg (M6.Flatten.flatten N) he).trans\n          (M6.Flatten.flatten_right N v)\n      · rintro ⟨h, hh⟩\n        have he : M6.Physical.boundary N a b h = M6.Flatten.unflatten N v := by\n          have he' := congrArg (M6.Flatten.unflatten N) hh\n          simpa only [M6.Flatten.flatten_left] using he'\n        refine ⟨H h, ?_⟩\n        rw [hB h, he]\n        rfl\n    · constructor\n      · simp only [M6.Spaces.cycle_words_iff, M6.RecipeIsometries.lift,\n          M6.Flatten.flatten_left]\n        exact hC (M6.Flatten.unflatten N v)\n      · change M6.Pinned.weight\n          (M6.Flatten.flatten N (P (M6.Flatten.unflatten N v))) =\n          M6.Pinned.weight v\n        rw [M6.Flatten.flatten_weight, hW]\n        calc\n          M6.Physical.wordWeight N (M6.Flatten.unflatten N v) =\n              M6.Pinned.weight (M6.Flatten.flatten N (M6.Flatten.unflatten N v)) :=\n            (M6.Flatten.flatten_weight N (M6.Flatten.unflatten N v)).symm\n          _ = M6.Pinned.weight v := by rw [M6.Flatten.flatten_right]",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.lift_transport",
+          "ancestors": [],
+          "spec_sha256": "9c5f7d5f85a4db294d5bf6959635d848d90752af7ed7254faf0710255563a6f5"
+        },
+        "sha256": "e0d2e8b20eff63d1e239fddcd1a8dcabdeab6b31c1cb5dc5cd125702c071b44d"
+      },
+      "multiply_laws": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.multiply_laws : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a : M6.RecipeIsometries.Block N), M6.RecipeIsometries.multiply N 1 a = a ∧ M6.RecipeIsometries.multiply N (u⁻¹) (M6.RecipeIsometries.multiply N u a) = a ∧ (M6.RecipeIsometries.multiply N u a = 0 ↔ a = 0) := by\n  intro N inst u a\n  have hinv : M6.RecipeIsometries.multiply N (u⁻¹) (M6.RecipeIsometries.multiply N u a) = a := by\n    funext i\n    simp [M6.RecipeIsometries.multiply, ← mul_assoc]\n  refine ⟨?_, hinv, ?_⟩\n  · funext i\n    simp [M6.RecipeIsometries.multiply]\n  · constructor\n    · intro h\n      calc\n        a = M6.RecipeIsometries.multiply N (u⁻¹) (M6.RecipeIsometries.multiply N u a) := hinv.symm\n        _ = M6.RecipeIsometries.multiply N (u⁻¹) 0 := congrArg (M6.RecipeIsometries.multiply N (u⁻¹)) h\n        _ = 0 := rfl\n    · intro h\n      subst a\n      rfl",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.multiply_laws",
+          "ancestors": [],
+          "spec_sha256": "f1757b4117d3a0655ec0bc216f7747fd4ef8ccb38776d1af90ce941ba021b3a9"
+        },
+        "sha256": "d1b6d91149704394f76d642f5216c51045380fe4645f918ee05d1b70a5524675"
+      },
+      "conv_multiply": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.conv_multiply : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a h : M6.RecipeIsometries.Block N), M6.Physical.conv N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u h) = M6.RecipeIsometries.multiply N u (M6.Physical.conv N a h) := by\n  intro N _ u a h\n  classical\n  funext i\n  change (∑ j : ZMod N, a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j))) =\n    ∑ k : ZMod N, a k * h ((↑(u⁻¹) : ZMod N) * i - k)\n  calc\n    _ = ∑ k : ZMod N, a ((↑(u⁻¹) : ZMod N) * ((↑u : ZMod N) * k)) *\n        h ((↑(u⁻¹) : ZMod N) * (i - (↑u : ZMod N) * k)) :=\n      (Equiv.sum_comp u.mulLeft (fun j : ZMod N =>\n        a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j)))).symm\n    _ = _ := by\n      apply Finset.sum_congr rfl\n      intro k hk\n      simp [mul_sub, ← mul_assoc]",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.conv_multiply",
+          "ancestors": [],
+          "spec_sha256": "5c82e8f121f8f88f3ced8231433f8ee6c6cd69c432f3b020bd5acc0b446e1c0a"
+        },
+        "sha256": "4270fa2c773aa4fb3a80f67f1bc2c3aaefce32f7b4fc24e7508f2e3ca4be0e43"
+      },
+      "multiplied_boundary": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.multiplied_boundary : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a b h : M6.RecipeIsometries.Block N), M6.Physical.boundary N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) (M6.RecipeIsometries.multiply N u h) = M6.RecipeIsometries.multiplyWord N u (M6.Physical.boundary N a b h) := by\n  intro N _ u a b h\n  simp only [M6.Physical.boundary, M6.RecipeIsometries.multiplyWord,\n    M6.RecipeIsometries.conv_multiply]",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.multiplied_boundary",
+          "ancestors": [
+            "conv_multiply"
+          ],
+          "spec_sha256": "28dac3bcbf1abd6b79ce4cfa47fc8c257cf586e44144dc0ce8eaa85a73c88ad8"
+        },
+        "sha256": "6556f749bb5de8318b17bdf87d602f61375275510691b1942343a4aa5bff0cc9"
+      },
+      "multiplied_syndrome": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.multiplied_syndrome : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a b : M6.RecipeIsometries.Block N) (z : M6.RecipeIsometries.Word N), M6.Physical.syndrome N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) (M6.RecipeIsometries.multiplyWord N u z) = M6.RecipeIsometries.multiply N u (M6.Physical.syndrome N a b z) := by\n  intro N _ u a b z\n  unfold M6.Physical.syndrome M6.RecipeIsometries.multiplyWord\n  dsimp only\n  rw [M6.RecipeIsometries.conv_multiply, M6.RecipeIsometries.conv_multiply]\n  rfl",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.multiplied_syndrome",
+          "ancestors": [
+            "conv_multiply"
+          ],
+          "spec_sha256": "9e2d26314f34c460554873cfc5ae781d121334fa860a0454b761be6a7de74f65"
+        },
+        "sha256": "bab9e557a13b53e2131719f852febd78187875dd36dd40df4b02c1f128b80548"
+      },
+      "permutation_weight": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.permutation_weight : ∀ (N : ℕ) [NeZero N] (e : Equiv.Perm (ZMod N)) (a : M6.RecipeIsometries.Block N), M6.Physical.weight N (fun i => a (e i)) = M6.Physical.weight N a := by\n  change ∀ (N : ℕ) [NeZero N] (e : Equiv.Perm (ZMod N)) (a : M6.RecipeIsometries.Block N), M6.Physical.weight N (fun i => a (e i)) = M6.Physical.weight N a\n  intro N _ e a\n  classical\n  unfold M6.Physical.weight\n  apply Finset.card_bij (fun i _ => e i)\n  · intro i hi\n    simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hi\n  · intro i hi j hj hij\n    exact e.injective hij\n  · intro j hj\n    refine ⟨e.symm j, ?_, e.apply_symm_apply j⟩\n    simpa using hj",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.permutation_weight",
+          "ancestors": [],
+          "spec_sha256": "69bc00a85175f7f692b209e4709d62294de755ae860445ff4b739595ccf7ae24"
+        },
+        "sha256": "1816d59644d4d70c8f6f7982ea1740a662985953b68589155b1cd533c1b0a5da"
+      },
+      "multiplied_weight": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.multiplied_weight : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (z : M6.RecipeIsometries.Word N), M6.Physical.wordWeight N (M6.RecipeIsometries.multiplyWord N u z) = M6.Physical.wordWeight N z := by\n  change ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (z : M6.RecipeIsometries.Word N), M6.Physical.wordWeight N (M6.RecipeIsometries.multiplyWord N u z) = M6.Physical.wordWeight N z\n  intro N _ u z\n  exact congrArg₂ Nat.add\n    (M6.RecipeIsometries.permutation_weight N (u⁻¹).mulLeft z.1)\n    (M6.RecipeIsometries.permutation_weight N (u⁻¹).mulLeft z.2)",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.multiplied_weight",
+          "ancestors": [
+            "permutation_weight"
+          ],
+          "spec_sha256": "ab982d286b3f937d3a5fd4200efb50236b7613376867b0204abc19fee6b91c07"
+        },
+        "sha256": "d55fa379bf01a9e2e22c474cb8a8660817ddd152c1a34c659837ab5ced759ca7"
+      },
+      "multiplier_isometry": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.multiplier_isometry : ∀ (N : ℕ) [NeZero N] (a b : M6.RecipeIsometries.Block N) (u : (ZMod N)ˣ), Function.Bijective (M6.RecipeIsometries.multiplier N u) ∧ ∀ v : M6.Pinned.Vector (2*N), ((M6.RecipeIsometries.multiplier N u) v ∈ M6.Spaces.boundaryWords N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) ↔ v ∈ M6.Spaces.boundaryWords N a b) ∧ ((M6.RecipeIsometries.multiplier N u) v ∈ M6.Spaces.cycleWords N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) ↔ v ∈ M6.Spaces.cycleWords N a b) ∧ M6.Pinned.weight ((M6.RecipeIsometries.multiplier N u) v) = M6.Pinned.weight v := by\n  intro N inst a b u\n  have hInv (t : (ZMod N)ˣ) (z : M6.RecipeIsometries.Word N) :\n      M6.RecipeIsometries.multiplyWord N t⁻¹\n        (M6.RecipeIsometries.multiplyWord N t z) = z := by\n    apply Prod.ext\n    · exact (M6.RecipeIsometries.multiply_laws N t z.1).2.1\n    · exact (M6.RecipeIsometries.multiply_laws N t z.2).2.1\n  refine M6.RecipeIsometries.lift_transport N a b\n    (M6.RecipeIsometries.multiply N u a)\n    (M6.RecipeIsometries.multiply N u b)\n    (M6.RecipeIsometries.multiplyWord N u)\n    (M6.RecipeIsometries.multiply N u) ?_ ?_ ?_ ?_ ?_\n  · constructor\n    · intro x y h\n      calc\n        x = M6.RecipeIsometries.multiplyWord N u⁻¹\n            (M6.RecipeIsometries.multiplyWord N u x) := (hInv u x).symm\n        _ = M6.RecipeIsometries.multiplyWord N u⁻¹\n            (M6.RecipeIsometries.multiplyWord N u y) :=\n          congrArg (M6.RecipeIsometries.multiplyWord N u⁻¹) h\n        _ = y := hInv u y\n    · intro z\n      refine ⟨M6.RecipeIsometries.multiplyWord N u⁻¹ z, ?_⟩\n      simpa only [inv_inv] using hInv u⁻¹ z\n  · intro h\n    refine ⟨M6.RecipeIsometries.multiply N u⁻¹ h, ?_⟩\n    simpa only [inv_inv] using\n      (M6.RecipeIsometries.multiply_laws N u⁻¹ h).2.1\n  · exact M6.RecipeIsometries.multiplied_boundary N u a b\n  · intro z\n    rw [M6.RecipeIsometries.multiplied_syndrome]\n    exact (M6.RecipeIsometries.multiply_laws N u\n      (M6.Physical.syndrome N a b z)).2.2\n  · exact M6.RecipeIsometries.multiplied_weight N u",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.multiplier_isometry",
+          "ancestors": [
+            "conv_multiply",
+            "lift_transport",
+            "multiplied_boundary",
+            "multiplied_syndrome",
+            "multiplied_weight",
+            "multiply_laws",
+            "permutation_weight"
+          ],
+          "spec_sha256": "2e216419406f832be1861f8396640999cdfe21b33036b8291eb76df4cedf8287"
+        },
+        "sha256": "ad5953b59ee4248c8994cd32871576b1f89645ace4af3a5b6166fdf2d69a06d4"
+      }
+    }
+  }
+}

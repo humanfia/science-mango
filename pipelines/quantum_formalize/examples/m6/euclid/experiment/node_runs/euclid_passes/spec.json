@@ -1,0 +1,12 @@
+{
+  "name": "M6.Euclid.euclid_passes",
+  "statement": "∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).passes = 2 * (M6.Euclid.euclid p q).cancellations + 3 * (M6.Euclid.euclid p q).rounds + 2",
+  "imports": [
+    "M6Euclid"
+  ],
+  "context": "theorem M6.Euclid.remainder_passes : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.remainderAux fuel p q).passes = 2 * (M6.Euclid.remainderAux fuel p q).cancellations + 1 := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.remainderAux fuel p q).passes = 2 * (M6.Euclid.remainderAux fuel p q).cancellations + 1\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q\n      rfl\n  | succ fuel ih =>\n      intro p q\n      classical\n      simp only [M6.Euclid.remainderAux]\n      split <;> simp [ih, Nat.mul_add, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]\n\ntheorem M6.Euclid.euclid_aux_passes : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.euclidAux fuel p q).passes = 2 * (M6.Euclid.euclidAux fuel p q).cancellations + 3 * (M6.Euclid.euclidAux fuel p q).rounds + 1 := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.euclidAux fuel p q).passes = 2 * (M6.Euclid.euclidAux fuel p q).cancellations + 3 * (M6.Euclid.euclidAux fuel p q).rounds + 1\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q\n      rfl\n  | succ fuel ih =>\n      intro p q\n      classical\n      simp only [M6.Euclid.euclidAux]\n      split <;> simp [M6.Euclid.remainder, ih, M6.Euclid.remainder_passes, Nat.mul_add, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] <;> omega",
+  "queries": [
+    "EuclideanDomain gcd Bezout divisibility"
+  ],
+  "guidance": "Unfold euclid; its initial rankq fuel scan adds one to the proven auxiliary pass counter. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+}

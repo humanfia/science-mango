@@ -1,0 +1,22 @@
+theorem M6.RecipeIsometries.exchange_isometry : ∀ (N : ℕ) [NeZero N] (a b : M6.RecipeIsometries.Block N), Function.Bijective (M6.RecipeIsometries.blockExchange N) ∧ ∀ v : M6.Pinned.Vector (2*N), ((M6.RecipeIsometries.blockExchange N) v ∈ M6.Spaces.boundaryWords N (b) (a) ↔ v ∈ M6.Spaces.boundaryWords N a b) ∧ ((M6.RecipeIsometries.blockExchange N) v ∈ M6.Spaces.cycleWords N (b) (a) ↔ v ∈ M6.Spaces.cycleWords N a b) ∧ M6.Pinned.weight ((M6.RecipeIsometries.blockExchange N) v) = M6.Pinned.weight v := by
+  intro N inst a b
+  have hinv : ∀ z : M6.RecipeIsometries.Word N,
+      M6.RecipeIsometries.exchange N (M6.RecipeIsometries.exchange N z) = z := by
+    intro z
+    cases z
+    rfl
+  refine M6.RecipeIsometries.lift_transport N a b b a
+    (M6.RecipeIsometries.exchange N) (fun h => h) ?_ ?_ ?_ ?_ ?_
+  · constructor
+    · intro x y h
+      have he := congrArg (M6.RecipeIsometries.exchange N) h
+      simpa only [hinv] using he
+    · intro z
+      exact ⟨M6.RecipeIsometries.exchange N z, hinv z⟩
+  · intro h
+    exact ⟨h, rfl⟩
+  · intro h
+    exact (M6.RecipeIsometries.exchange_laws N a b h (0 : M6.RecipeIsometries.Word N)).1
+  · intro z
+    rw [(M6.RecipeIsometries.exchange_laws N a b a z).2]
+  · exact M6.RecipeIsometries.exchange_weight N

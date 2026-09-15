@@ -1,0 +1,411 @@
+{
+  "title": "M6 original recipe generators preserve actual cycle/boundary pair and weight",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Independent cyclic translations, common unit exponent multipliers and block exchange are bijective physical coordinate maps preserving actual Spaces boundaryWords/cycleWords and Hamming weight. No shear or classification extension.",
+  "nodes": [
+    {
+      "id": "permutation_weight",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.RecipeIsometries.permutation_weight",
+        "statement": "∀ (N : ℕ) [NeZero N] (e : Equiv.Perm (ZMod N)) (a : M6.RecipeIsometries.Block N), M6.Physical.weight N (fun i => a (e i)) = M6.Physical.weight N a",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Finite filtered-universe cardinality is invariant under the explicit index equivalence e. Use a filter-card bijection or convert card to a sum of indicators and reindex with Equiv.sum_comp. No parity or field assumption on ZModN. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "shift_laws",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.RecipeIsometries.shift_laws",
+        "statement": "∀ (N : ℕ) [NeZero N] (r : ZMod N) (a : M6.RecipeIsometries.Block N), M6.RecipeIsometries.shift N 0 a = a ∧ M6.RecipeIsometries.shift N (-r) (M6.RecipeIsometries.shift N r a) = a ∧ (M6.RecipeIsometries.shift N r a = 0 ↔ a = 0)",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Unfold shift and prove function equalities coordinatewise by additive-group arithmetic. For zero iff apply the inverse shift to an equality; shift of the zero function is zero. The reverse inverse follows by using the same law at -r. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "multiply_laws",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.RecipeIsometries.multiply_laws",
+        "statement": "∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a : M6.RecipeIsometries.Block N), M6.RecipeIsometries.multiply N 1 a = a ∧ M6.RecipeIsometries.multiply N (u⁻¹) (M6.RecipeIsometries.multiply N u a) = a ∧ (M6.RecipeIsometries.multiply N u a = 0 ↔ a = 0)",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "The inverse coefficient-index permutation uses the unit inverse. Unfold multiply and simplify inv_inv, units val_mul/val_inv_mul and multiplication associativity. Infer zero iff by applying the inverse. This is an exponent multiplier, not multiplication of a word by an arbitrary polynomial unit. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "conv_shift",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.RecipeIsometries.conv_shift",
+        "statement": "∀ (N : ℕ) [NeZero N] (r s : ZMod N) (a h : M6.RecipeIsometries.Block N), M6.Physical.conv N (M6.RecipeIsometries.shift N r a) (M6.RecipeIsometries.shift N s h) = M6.RecipeIsometries.shift N (r+s) (M6.Physical.conv N a h)",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Expand finite convolution at coordinatei and reindex the summation variable k to k+r using Equiv.addRight r. The index identity i-(k+r)-s=(i-(r+s))-k follows by abelian-group/ring arithmetic. Preserve actual cyclic indexing and all positive N. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "conv_multiply",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.RecipeIsometries.conv_multiply",
+        "statement": "∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a h : M6.RecipeIsometries.Block N), M6.Physical.conv N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u h) = M6.RecipeIsometries.multiply N u (M6.Physical.conv N a h)",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Reindex the finite sum by the genuine equivalence u.mulLeft from Mathlib.Algebra.Group.Units.Equiv (works for units in any monoid; do not assume ZModN is a multiplicative group). Use inverse-unit cancellation and uinv*(i-u*k)=uinv*i-k. Both recipe and input coefficients are permuted. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "translated_boundary",
+      "dependencies": [
+        "conv_shift",
+        "shift_laws"
+      ],
+      "spec": {
+        "name": "M6.RecipeIsometries.translated_boundary",
+        "statement": "∀ (N : ℕ) [NeZero N] (r s : ZMod N) (a b h : M6.RecipeIsometries.Block N), M6.Physical.boundary N (M6.RecipeIsometries.shift N r a) (M6.RecipeIsometries.shift N s b) h = M6.RecipeIsometries.translateWord N r s (M6.Physical.boundary N a b h)",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Apply conv_shift to r,0 and s,0 and shift_laws atzero; expand boundary/translateWord and use pair equality. The generator inputh is unchanged by independent recipe translations. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "translated_syndrome",
+      "dependencies": [
+        "conv_shift"
+      ],
+      "spec": {
+        "name": "M6.RecipeIsometries.translated_syndrome",
+        "statement": "∀ (N : ℕ) [NeZero N] (r s : ZMod N) (a b : M6.RecipeIsometries.Block N) (z : M6.RecipeIsometries.Word N), M6.Physical.syndrome N (M6.RecipeIsometries.shift N r a) (M6.RecipeIsometries.shift N s b) (M6.RecipeIsometries.translateWord N r s z) = M6.RecipeIsometries.shift N (r+s) (M6.Physical.syndrome N a b z)",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Apply conv_shift to the two terms with shifts(s,r) and(r,s); commute s+r once. shift distributes over the pointwise sum definitionally. This is the original x^(r+s) syndrome relation. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "multiplied_boundary",
+      "dependencies": [
+        "conv_multiply"
+      ],
+      "spec": {
+        "name": "M6.RecipeIsometries.multiplied_boundary",
+        "statement": "∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a b h : M6.RecipeIsometries.Block N), M6.Physical.boundary N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) (M6.RecipeIsometries.multiply N u h) = M6.RecipeIsometries.multiplyWord N u (M6.Physical.boundary N a b h)",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Expand the boundary pair and apply conv_multiply to each component. This uses the permuted generator input, as required for exact range transport. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "multiplied_syndrome",
+      "dependencies": [
+        "conv_multiply"
+      ],
+      "spec": {
+        "name": "M6.RecipeIsometries.multiplied_syndrome",
+        "statement": "∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a b : M6.RecipeIsometries.Block N) (z : M6.RecipeIsometries.Word N), M6.Physical.syndrome N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) (M6.RecipeIsometries.multiplyWord N u z) = M6.RecipeIsometries.multiply N u (M6.Physical.syndrome N a b z)",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Apply conv_multiply to both syndrome convolutions, then function extensionality; multiply is a coordinate pullback and distributes over the pointwise sum. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "exchange_laws",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.RecipeIsometries.exchange_laws",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b h : M6.RecipeIsometries.Block N) (z : M6.RecipeIsometries.Word N), M6.Physical.boundary N b a h = M6.RecipeIsometries.exchange N (M6.Physical.boundary N a b h) ∧ M6.Physical.syndrome N b a (M6.RecipeIsometries.exchange N z) = M6.Physical.syndrome N a b z",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "The boundary pair swaps definitionally. For the syndrome, expand exchange and use commutativity of addition in ZMod2. No module shear is involved. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "translated_weight",
+      "dependencies": [
+        "permutation_weight"
+      ],
+      "spec": {
+        "name": "M6.RecipeIsometries.translated_weight",
+        "statement": "∀ (N : ℕ) [NeZero N] (r s : ZMod N) (z : M6.RecipeIsometries.Word N), M6.Physical.wordWeight N (M6.RecipeIsometries.translateWord N r s z) = M6.Physical.wordWeight N z",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Apply permutation_weight independently to the two blocks with index equivalences Equiv.addRight(-r) and Equiv.addRight(-s); shift(i)=a(i-r). Then add the block weight equalities. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "multiplied_weight",
+      "dependencies": [
+        "permutation_weight"
+      ],
+      "spec": {
+        "name": "M6.RecipeIsometries.multiplied_weight",
+        "statement": "∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (z : M6.RecipeIsometries.Word N), M6.Physical.wordWeight N (M6.RecipeIsometries.multiplyWord N u z) = M6.Physical.wordWeight N z",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Use permutation_weight with the unit equivalence (u⁻¹).mulLeft on each block. Units.mulLeft is available; no field or odd-order hypothesis. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "exchange_weight",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.RecipeIsometries.exchange_weight",
+        "statement": "∀ (N : ℕ) [NeZero N] (z : M6.RecipeIsometries.Word N), M6.Physical.wordWeight N (M6.RecipeIsometries.exchange N z) = M6.Physical.wordWeight N z",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Unfold wordWeight/exchange; this is Nat.add_comm for the two physical block weights. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "lift_transport",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.RecipeIsometries.lift_transport",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b a1 b1 : M6.RecipeIsometries.Block N) (P : M6.RecipeIsometries.Word N → M6.RecipeIsometries.Word N) (H : M6.RecipeIsometries.Block N → M6.RecipeIsometries.Block N), Function.Bijective P → Function.Surjective H → (∀ h, M6.Physical.boundary N a1 b1 (H h) = P (M6.Physical.boundary N a b h)) → (∀ z, M6.Physical.syndrome N a1 b1 (P z) = 0 ↔ M6.Physical.syndrome N a b z = 0) → (∀ z, M6.Physical.wordWeight N (P z) = M6.Physical.wordWeight N z) → Function.Bijective (M6.RecipeIsometries.lift N P) ∧ ∀ v : M6.Pinned.Vector (2*N), ((M6.RecipeIsometries.lift N P) v ∈ M6.Spaces.boundaryWords N (a1) (b1) ↔ v ∈ M6.Spaces.boundaryWords N a b) ∧ ((M6.RecipeIsometries.lift N P) v ∈ M6.Spaces.cycleWords N (a1) (b1) ↔ v ∈ M6.Spaces.cycleWords N a b) ∧ M6.Pinned.weight ((M6.RecipeIsometries.lift N P) v) = M6.Pinned.weight v",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Use the verified physical/flatten/space closure. Flatten/unflatten are inverse, so lift of a bijectiveP is bijective. boundary_words_iff identifies actualB with flattened boundary range: H surjectivity handles any new generator, boundary transport and P injectivity give both directions. cycle_words_iff and flatten_left reduce actualC to the supplied exact syndrome equivalence. flatten_weight and flatten_right give physical weight preservation. Generic transport premises are discharged by the three concrete final generators. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "translation_isometry",
+      "dependencies": [
+        "lift_transport",
+        "shift_laws",
+        "translated_boundary",
+        "translated_syndrome",
+        "translated_weight"
+      ],
+      "spec": {
+        "name": "M6.RecipeIsometries.translation_isometry",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.RecipeIsometries.Block N) (r s : ZMod N), Function.Bijective (M6.RecipeIsometries.translate N r s) ∧ ∀ v : M6.Pinned.Vector (2*N), ((M6.RecipeIsometries.translate N r s) v ∈ M6.Spaces.boundaryWords N (M6.RecipeIsometries.shift N r a) (M6.RecipeIsometries.shift N s b) ↔ v ∈ M6.Spaces.boundaryWords N a b) ∧ ((M6.RecipeIsometries.translate N r s) v ∈ M6.Spaces.cycleWords N (M6.RecipeIsometries.shift N r a) (M6.RecipeIsometries.shift N s b) ↔ v ∈ M6.Spaces.cycleWords N a b) ∧ M6.Pinned.weight ((M6.RecipeIsometries.translate N r s) v) = M6.Pinned.weight v",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Instantiate lift_transport with P=translateWord r s and H=id. Inverse shifts(-r,-s) prove bijectivity; id is surjective. Use translated_boundary/syndrome and shift_laws zero iff, then translated_weight. The conclusion is about the actual Spaces boundaryWords and cycleWords, not newly defined image sets. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "multiplier_isometry",
+      "dependencies": [
+        "lift_transport",
+        "multiply_laws",
+        "multiplied_boundary",
+        "multiplied_syndrome",
+        "multiplied_weight"
+      ],
+      "spec": {
+        "name": "M6.RecipeIsometries.multiplier_isometry",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.RecipeIsometries.Block N) (u : (ZMod N)ˣ), Function.Bijective (M6.RecipeIsometries.multiplier N u) ∧ ∀ v : M6.Pinned.Vector (2*N), ((M6.RecipeIsometries.multiplier N u) v ∈ M6.Spaces.boundaryWords N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) ↔ v ∈ M6.Spaces.boundaryWords N a b) ∧ ((M6.RecipeIsometries.multiplier N u) v ∈ M6.Spaces.cycleWords N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) ↔ v ∈ M6.Spaces.cycleWords N a b) ∧ M6.Pinned.weight ((M6.RecipeIsometries.multiplier N u) v) = M6.Pinned.weight v",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Instantiate lift_transport with P=multiplyWordu and H=multiplyu. The inverse-unit laws give P bijective and H surjective (choose inverse image usingu⁻¹). Apply the accepted exact boundary/syndrome/weight transport laws. No free isometry hypothesis remains. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "exchange_isometry",
+      "dependencies": [
+        "lift_transport",
+        "exchange_laws",
+        "exchange_weight"
+      ],
+      "spec": {
+        "name": "M6.RecipeIsometries.exchange_isometry",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.RecipeIsometries.Block N), Function.Bijective (M6.RecipeIsometries.blockExchange N) ∧ ∀ v : M6.Pinned.Vector (2*N), ((M6.RecipeIsometries.blockExchange N) v ∈ M6.Spaces.boundaryWords N (b) (a) ↔ v ∈ M6.Spaces.boundaryWords N a b) ∧ ((M6.RecipeIsometries.blockExchange N) v ∈ M6.Spaces.cycleWords N (b) (a) ↔ v ∈ M6.Spaces.cycleWords N a b) ∧ M6.Pinned.weight ((M6.RecipeIsometries.blockExchange N) v) = M6.Pinned.weight v",
+        "imports": [
+          "M6RecipeIsometries"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum reindex equivalence translation"
+        ],
+        "guidance": "Instantiate lift_transport with P=exchange and H=id. Swapping a pair twice is the identity, hence bijective. exchange_laws gives exact boundary and syndrome statements; exchange_weight supplies physical weight. This proves the original generator without code-classification claims. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §9 recipe translations, unit exponent multipliers and block exchange",
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "M6.Euclid.normalized_gcd",
+  "statement": "∀ p q : M6.Euclid.BP, EuclideanDomain.gcd q p = GCDMonoid.gcd p q",
+  "imports": [
+    "M6Euclid"
+  ],
+  "context": "theorem M6.Euclid.binary_normalization : ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p := by\n  change ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p\n  intro p\n  have hm : p ≠ 0 → p.Monic := by\n    intro hp\n    change p.leadingCoeff = 1\n    have binary : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide\n    rcases binary p.leadingCoeff with h | h\n    · exact False.elim (hp (Polynomial.leadingCoeff_eq_zero.mp h))\n    · exact h\n  refine ⟨hm, ?_⟩\n  by_cases hp : p = 0\n  · subst p\n    simp\n  · exact (hm hp).normalize_eq_self",
+  "queries": [
+    "EuclideanDomain gcd Bezout divisibility"
+  ],
+  "guidance": "Use dvd_antisymm_of_normalize_eq: all binary polynomials normalize to themselves, and normalize_gcd holds for the normalized GCDMonoid gcd. EuclideanDomain.gcd_dvd_left/right/dvd_gcd and root gcd_dvd_left/right/dvd_gcd show mutual divisibility. Keep the EuclideanDomain versus GCDMonoid namespaces explicit. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+}

@@ -1,0 +1,33 @@
+import FrozenTarget_05cdeb08fd41fa30
+theorem M6.Euclid.dense_rank : QuantumHarnessFrozenTarget := by
+  change ∀ (width : ℕ) (p : M6.Euclid.BP), M6.Euclid.rank p ≤ width → M6.Euclid.scanRank width p = M6.Euclid.rank p
+  classical
+  intro width
+  induction width with
+  | zero =>
+      intro p h
+      have hr : M6.Euclid.rank p = 0 := Nat.eq_zero_of_le_zero h
+      simpa [M6.Euclid.scanRank] using hr.symm
+  | succ width ih =>
+      intro p h
+      by_cases hlow : M6.Euclid.rank p ≤ width
+      · have hc : p.coeff width = 0 := by
+          by_cases hp : p = 0
+          · simp [hp]
+          · have hd : p.natDegree < width := by
+              simp [M6.Euclid.rank, hp] at hlow
+              omega
+            exact Polynomial.coeff_eq_zero_of_natDegree_lt hd
+        simpa [M6.Euclid.scanRank, List.range_succ, List.foldl_append, hc] using ih p hlow
+      · have hr : M6.Euclid.rank p = width + 1 := by omega
+        have hp : p ≠ 0 := by
+          intro hp
+          simp [M6.Euclid.rank, hp] at hlow
+        have hd : p.natDegree = width := by
+          simp [M6.Euclid.rank, hp] at hr
+          omega
+        have hc : p.coeff width ≠ 0 := by
+          rw [← hd, Polynomial.coeff_natDegree]
+          intro hz
+          exact hp (Polynomial.leadingCoeff_eq_zero.mp hz)
+        simpa [M6.Euclid.scanRank, List.range_succ, List.foldl_append, hc] using hr.symm

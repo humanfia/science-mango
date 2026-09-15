@@ -1,0 +1,55 @@
+{
+  "id": "multiply_laws",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.RecipeIsometries.multiply_laws",
+    "spec_sha256": "f1757b4117d3a0655ec0bc216f7747fd4ef8ccb38776d1af90ce941ba021b3a9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-uk_x3710/attempt-001/Candidate_7408c25320cf613d.lean",
+        "target_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-uk_x3710/attempt-001/FrozenTarget_7408c25320cf613d.lean",
+        "feedback": "",
+        "target_sha256": "0214ab057988a117d23bed200826ebbb62e3b8f09ac0a2c4ede185895e320946",
+        "target_olean_sha256": "3828ba4ac5cf049ba611a7cceeee9683437e79189013ea936d0f7022552b9791",
+        "source_sha256": "fcd5fe1b71e3b792e52d2395e457562d7416784a83fe7b823a1c5a4277e4f511",
+        "olean_sha256": "f13ca0e858a447446c93edeb752580df15f439deaf8bf54a1486269b98b55dd5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:34:14.440079+00:00",
+    "work": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-uk_x3710",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "55a57ac8060477ab26fffb3466ce9c7eaf76565582acbdc4d51633c9e59ff2c8",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-uk_x3710/attempt-001/Candidate_7408c25320cf613d.lean",
+    "environment_sha256": "105874d9b1f96950dd9cc0ff6ed7f9a0fb22f24362fab932ce70d1d0ca08f217",
+    "artifacts": {
+      "multiply_laws": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.multiply_laws : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a : M6.RecipeIsometries.Block N), M6.RecipeIsometries.multiply N 1 a = a ∧ M6.RecipeIsometries.multiply N (u⁻¹) (M6.RecipeIsometries.multiply N u a) = a ∧ (M6.RecipeIsometries.multiply N u a = 0 ↔ a = 0) := by\n  intro N inst u a\n  have hinv : M6.RecipeIsometries.multiply N (u⁻¹) (M6.RecipeIsometries.multiply N u a) = a := by\n    funext i\n    simp [M6.RecipeIsometries.multiply, ← mul_assoc]\n  refine ⟨?_, hinv, ?_⟩\n  · funext i\n    simp [M6.RecipeIsometries.multiply]\n  · constructor\n    · intro h\n      calc\n        a = M6.RecipeIsometries.multiply N (u⁻¹) (M6.RecipeIsometries.multiply N u a) := hinv.symm\n        _ = M6.RecipeIsometries.multiply N (u⁻¹) 0 := congrArg (M6.RecipeIsometries.multiply N (u⁻¹)) h\n        _ = 0 := rfl\n    · intro h\n      subst a\n      rfl",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.multiply_laws",
+          "ancestors": [],
+          "spec_sha256": "f1757b4117d3a0655ec0bc216f7747fd4ef8ccb38776d1af90ce941ba021b3a9"
+        },
+        "sha256": "d1b6d91149704394f76d642f5216c51045380fe4645f918ee05d1b70a5524675"
+      }
+    }
+  }
+}

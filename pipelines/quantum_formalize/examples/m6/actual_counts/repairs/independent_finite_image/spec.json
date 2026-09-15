@@ -1,0 +1,14 @@
+{
+  "name": "M6.ActualCounts.finite_image_weighted_sum",
+  "statement": "∀ (α β : Type) [Fintype α] (L : α → β) (k : ℕ), (∀ a₀ : α, Nat.card {a : α // L a = L a₀} = k) → ∀ w : β → Polynomial ℤ, (∑ a, w (L a)) = Polynomial.C (k : ℤ) * ∑ b ∈ M6.ActualCounts.imageWords L, w b",
+  "imports": [
+    "M6ActualCounts",
+    "M6ActualCountsDependencies"
+  ],
+  "context": "",
+  "queries": [
+    "finite equivalence subtype fiber cardinality",
+    "finite image sum subtype sum polynomial"
+  ],
+  "guidance": "Restrict codomain to the actual finite imageWords L. Every image point has a preimage, so the hypothesis identifies every fiber.card with k. Apply accepted FiberSum.uniform_weighted_sum on the finite image subtype, then rewrite its subtype sum as the finite image sum. No positivity/surjectivity assumption on arbitrary β; image restriction supplies actual surjectivity. Return tactic lines only, without leading by; preserve exact assumptions and target."
+}

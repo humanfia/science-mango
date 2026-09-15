@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.dualWords (M6.Spaces.B N a b)\nintro N inst a b v\nclassical\nhave hmem :\n    M6.Flatten.J N v ∈ M6.Character.dualWords (M6.Spaces.B N a b) ↔\n      ∀ h : M6.Physical.Block N,\n        M6.Character.dot (M6.Spaces.boundary N a b h) (M6.Flatten.J N v) = 0 := by\n  simp [M6.Character.dualWords, M6.Spaces.B, LinearMap.mem_range]\nrw [M6.Spaces.cycle_words_iff, M6.Flatten.cycle_orthogonal, hmem]\napply forall_congr'\nintro h\nrw [M6.Spaces.boundary_eval]\nhave he := M6.ActualCSS.J_dot N\n  (M6.Flatten.J N (M6.Flatten.flatten N (M6.Physical.boundary N a b h))) v\nsimp only [M6.Flatten.J_involution] at he\nrw [he]\nsimp only [M6.Flatten.J, M6.Flatten.flatten_left]",
+  "queries": [
+    "M6.Character.dualWords definition",
+    "M6.Spaces.B definition"
+  ]
+}

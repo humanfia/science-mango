@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p\nintro p\nhave hm : p ≠ 0 → p.Monic := by\n  intro hp\n  change p.leadingCoeff = 1\n  have binary : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide\n  rcases binary p.leadingCoeff with h | h\n  · exact False.elim (hp (Polynomial.leadingCoeff_eq_zero.mp h))\n  · exact h\nrefine ⟨hm, ?_⟩\nby_cases hp : p = 0\n· subst p\n  simp\n· exact (hm hp).normalize_eq_self",
+  "queries": [
+    "Polynomial.leadingCoeff_eq_zero",
+    "Polynomial.Monic.normalize_eq_self"
+  ]
+}

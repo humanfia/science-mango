@@ -1,0 +1,716 @@
+[
+  {
+    "queries": [
+      "polynomial coefficient finite sum integer division"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial coefficient finite sum integer division",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101067,
+            "name": "Polynomial.sum",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L843-L845",
+            "source_text": "/-- Summing the values of a function applied to the coefficients of a polynomial -/\ndef sum {S : Type*} [AddCommMonoid S] (p : R[X]) (f : ℕ → R → S) : S :=\n  ∑ n ∈ p.support, f n (p.coeff n)\n",
+            "docstring": "Summing the values of a function applied to the coefficients of a polynomial "
+          },
+          {
+            "id": 100995,
+            "name": "Polynomial.coeff",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L562-L564",
+            "source_text": "/-- `coeff p n` (often denoted `p.coeff n`) is the coefficient of `X^n` in `p`. -/\ndef coeff : R[X] → ℕ → R\n  | ⟨p⟩ => p.coeff\n",
+            "docstring": "`coeff p n` (often denoted `p.coeff n`) is the coefficient of `X^n` in `p`. "
+          },
+          {
+            "id": 246117,
+            "name": "divisionRingOfFiniteDimensional",
+            "module": "Mathlib.LinearAlgebra.FiniteDimensional.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/FiniteDimensional/Basic.lean#L512-L527",
+            "source_text": "/-- A domain that is module-finite as an algebra over a field is a division ring. -/\n@[implicit_reducible]\nnoncomputable def divisionRingOfFiniteDimensional (F K : Type*) [Field F] [Ring K] [IsDomain K]\n    [Algebra F K] [FiniteDimensional F K] : DivisionRing K where\n  __ := ‹IsDomain K›\n  inv x :=\n    letI := Classical.decEq K\n    if H : x = 0 then 0 else Classical.choose <| FiniteDimensional.exists_mul_eq_one F H\n  mul_inv_cancel x hx := show x * dite _ (h := _) _ _ = _ by\n    rw [dif_neg hx]\n    exact (Classical.choose_spec (FiniteDimensional.exists_mul_eq_one F hx) :)\n  inv_zero := dif_pos rfl\n  nnqsmul := _\n  nnqsmul_def := fun _ _ => rfl\n  qsmul := _\n  qsmul_def := fun _ _ => rfl\n",
+            "docstring": "A domain that is module-finite as an algebra over a field is a division ring. "
+          },
+          {
+            "id": 312318,
+            "name": "Finite.divisionRing_to_field",
+            "module": "Mathlib.RingTheory.LittleWedderburn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/LittleWedderburn.lean#L169-L169",
+            "source_text": "alias Finite.divisionRing_to_field := littleWedderburn\n",
+            "docstring": "**Alias** of `littleWedderburn`.\n\n---\n\nA finite division ring is a field. See `Finite.isDomain_to_isField` and\n`Fintype.divisionRingOfIsDomain` for more general statements, but these create data, and therefore\nmay cause diamonds if used improperly. "
+          },
+          {
+            "id": 145500,
+            "name": "ordinaryHypergeometricCoefficient",
+            "module": "Mathlib.Analysis.SpecialFunctions.OrdinaryHypergeometric",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/OrdinaryHypergeometric.lean#L64-L66",
+            "source_text": "/-- The coefficients in the ordinary hypergeometric sum. -/\nnoncomputable abbrev ordinaryHypergeometricCoefficient (a b c : 𝕂) (n : ℕ) := ((n !⁻¹ : 𝕂) *\n    (ascPochhammer 𝕂 n).eval a * (ascPochhammer 𝕂 n).eval b * ((ascPochhammer 𝕂 n).eval c)⁻¹)\n",
+            "docstring": "The coefficients in the ordinary hypergeometric sum. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "polynomial coefficient finite sum integer division",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394136,
+            "name": "FTheory.SU5.FiveQuanta.anomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L909-L918",
+            "source_text": "/--\n  The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : FiveQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+            "docstring": "The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\nsee equation (23) of arXiv:1401.5084.\n"
+          },
+          {
+            "id": 394195,
+            "name": "FTheory.SU5.TenQuanta.anomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.TenQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/TenQuanta.lean#L1052-L1061",
+            "source_text": "/--\n  The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n    see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : TenQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, 3 * (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+            "docstring": "The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n"
+          },
+          {
+            "id": 394087,
+            "name": "FTheory.SU5.Quanta.HuAnomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L240-L244",
+            "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hu` particle. -/\ndef HuAnomalyCoefficient [CommRing 𝓩] (qHu : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHu with\n  | none => (0, 0)\n  | some qHu => (-qHu, -qHu ^ 2)\n",
+            "docstring": "The pair of anomaly cancellation coefficients associated with the `Hu` particle. "
+          },
+          {
+            "id": 394086,
+            "name": "FTheory.SU5.Quanta.HdAnomalyCoefficient_map",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L228-L232",
+            "source_text": "@[simp]\nlemma HdAnomalyCoefficient_map {𝓩 𝓩1 : Type} [CommRing 𝓩] [CommRing 𝓩1]\n    (f : 𝓩 →+* 𝓩1) (qHd : Option 𝓩) :\n    HdAnomalyCoefficient (qHd.map f) = (f.prodMap f) (HdAnomalyCoefficient qHd) := by\n  cases qHd <;> simp [HdAnomalyCoefficient]",
+            "docstring": null
+          },
+          {
+            "id": 394085,
+            "name": "FTheory.SU5.Quanta.HdAnomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L222-L226",
+            "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hd` particle. -/\ndef HdAnomalyCoefficient [CommRing 𝓩] (qHd : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHd with\n  | none => (0, 0)\n  | some qHd => (qHd, qHd ^ 2)\n",
+            "docstring": "The pair of anomaly cancellation coefficients associated with the `Hd` particle. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "boundary_normalized",
+    "receipts_sha256": "10ec9e5e96d72c7b92f687a29bfef23c67df59174424133346b18f7f9a5a5bcb"
+  },
+  {
+    "queries": [
+      "M6.ActualCounts.cycle_pinned_sum",
+      "M6.ActualResult.cycle_pinned_sum",
+      "M6.Spaces.cycle_pinned_sum"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.ActualCounts.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 239635,
+            "name": "Equiv.Perm.cycleType",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L52-L54",
+            "source_text": "/-- The cycle type of a permutation -/\ndef cycleType (σ : Perm α) : Multiset ℕ :=\n  σ.cycleFactorsFinset.1.map (Finset.card ∘ support)\n",
+            "docstring": "The cycle type of a permutation "
+          },
+          {
+            "id": 239652,
+            "name": "Equiv.Perm.sum_cycleType_le",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L154-L155",
+            "source_text": "theorem sum_cycleType_le (σ : Perm α) : σ.cycleType.sum ≤ Fintype.card α :=\n  σ.sum_cycleType ▸ Finset.card_le_univ σ.support\n",
+            "docstring": null
+          },
+          {
+            "id": 239651,
+            "name": "Equiv.Perm.sum_cycleType",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L148-L152",
+            "source_text": "theorem sum_cycleType (σ : Perm α) : σ.cycleType.sum = #σ.support := by\n  induction σ using cycle_induction_on with\n  | base_one => simp\n  | base_cycles σ hσ => rw [hσ.cycleType, Multiset.sum_singleton]\n  | induction_disjoint σ τ hd _ hσ hτ => rw [hd.cycleType_mul, sum_add, hσ, hτ, hd.card_support_mul]\n",
+            "docstring": null
+          },
+          {
+            "id": 207783,
+            "name": "Cycle.card_toMultiset",
+            "module": "Mathlib.Data.List.Cycle",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L625-L627",
+            "source_text": "@[simp]\ntheorem card_toMultiset (s : Cycle α) : Multiset.card s.toMultiset = s.length :=\n  Quotient.inductionOn' s (by simp)",
+            "docstring": null
+          },
+          {
+            "id": 320481,
+            "name": "Associates.eq_of_eq_counts",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L291-L293",
+            "source_text": "theorem eq_of_eq_counts {a b : Associates α} (ha : a ≠ 0) (hb : b ≠ 0)\n    (h : ∀ p : Associates α, Irreducible p → p.count a.factors = p.count b.factors) : a = b :=\n  eq_of_factors_eq_factors (eq_factors_of_eq_counts ha hb h)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.ActualCounts.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387287,
+            "name": "SMRHN.toSpecies_sum_invariant",
+            "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Permutations",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Permutations.lean#L67-L71",
+            "source_text": "lemma toSpecies_sum_invariant (m : ℕ) (f : PermGroup n) (S : (SMνCharges n).Charges) (j : Fin 6) :\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j (repCharges f S)) i =\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j S) i := by\n  rw [repCharges_toSpecies]\n  exact Equiv.sum_comp (f⁻¹ j) ((fun a => a ^ m) ∘ toSpecies j S)\n",
+            "docstring": null
+          },
+          {
+            "id": 388149,
+            "name": "MSSMCharges.sum_MSSMSpecies_numberCharges_eq_expand",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L32-L34",
+            "source_text": "lemma sum_MSSMSpecies_numberCharges_eq_expand [AddCommMonoid M]\n    (f : Fin MSSMSpecies.numberCharges → M) :\n    ∑ i, f i = f ⟨0, by simp⟩ + f ⟨1, by simp⟩ + f ⟨2, by simp⟩ := Fin.sum_univ_three f\n",
+            "docstring": null
+          },
+          {
+            "id": 394063,
+            "name": "FTheory.SU5.FluxesFive.sum_of_mem_elemsNoExotics",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L160-L163",
+            "source_text": "lemma sum_of_mem_elemsNoExotics (F : FluxesFive) (h : F ∈ elemsNoExotics) :\n    F.sum = ⟨3, 0⟩ := by\n  revert F h\n  decide\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.ActualResult.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58604,
+            "name": "Finset.sum_comm_cycle",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L126-L126",
+            "source_text": "@[to_additive]\ntheorem prod_comm_cycle {s : Finset γ} {t : Finset α} {u : Finset κ} {f : γ → α → κ → β} :\n    (∏ x ∈ s, ∏ y ∈ t, ∏ z ∈ u, f x y z) = ∏ z ∈ u, ∏ x ∈ s, ∏ y ∈ t, f x y z := by",
+            "docstring": null
+          },
+          {
+            "id": 239652,
+            "name": "Equiv.Perm.sum_cycleType_le",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L154-L155",
+            "source_text": "theorem sum_cycleType_le (σ : Perm α) : σ.cycleType.sum ≤ Fintype.card α :=\n  σ.sum_cycleType ▸ Finset.card_le_univ σ.support\n",
+            "docstring": null
+          },
+          {
+            "id": 239651,
+            "name": "Equiv.Perm.sum_cycleType",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L148-L152",
+            "source_text": "theorem sum_cycleType (σ : Perm α) : σ.cycleType.sum = #σ.support := by\n  induction σ using cycle_induction_on with\n  | base_one => simp\n  | base_cycles σ hσ => rw [hσ.cycleType, Multiset.sum_singleton]\n  | induction_disjoint σ τ hd _ hσ hτ => rw [hd.cycleType_mul, sum_add, hσ, hτ, hd.card_support_mul]\n",
+            "docstring": null
+          },
+          {
+            "id": 239355,
+            "name": "Equiv.Perm.SameCycle",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Basic.lean#L52-L54",
+            "source_text": "/-- The equivalence relation indicating that two points are in the same cycle of a permutation. -/\ndef SameCycle (f : Perm α) (x y : α) : Prop :=\n  ∃ i : ℤ, (f ^ i) x = y\n",
+            "docstring": "The equivalence relation indicating that two points are in the same cycle of a permutation. "
+          },
+          {
+            "id": 239329,
+            "name": "Equiv.Perm.card_of_cycleType_eq_zero_iff",
+            "module": "Mathlib.GroupTheory.Perm.Centralizer",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Centralizer.lean#L669-L674",
+            "source_text": "theorem card_of_cycleType_eq_zero_iff {m : Multiset ℕ} :\n    #({g | g.cycleType = m} : Finset (Perm α)) = 0\n      ↔ ¬ ((m.sum ≤ Fintype.card α ∧ ∀ a ∈ m, 2 ≤ a)) := by\n  rw [Finset.card_eq_zero, Finset.filter_eq_empty_iff,\n    ← exists_with_cycleType_iff, not_exists]\n  simp\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.ActualResult.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387074,
+            "name": "semiformal_result",
+            "module": "Physlib.Meta.Informal.SemiFormal",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/SemiFormal.lean#L50-L61",
+            "source_text": "/-- A semiformal result is either a\n- definition in which the type is given but not the definition.\n- proof in which the proposition is given but not the proof.\nSemiformal results cannot be used in further code. They are essentially\nforgot about after made.\n\nWith minor modification they act in a similar way to `proof_wanted`, however\nthey appear in Physlib's TODO list and must be tagged accordingly.\nThey must also always have a doc-string. -/\n@[command_parser]\nmeta def «semiformal_result» := leading_parser\n    docComment >> \"semiformal_result\" >> strLit >> declId >> ppIndent declSig\n",
+            "docstring": "A semiformal result is either a\n- definition in which the type is given but not the definition.\n- proof in which the proposition is given but not the proof.\nSemiformal results cannot be used in further code. They are essentially\nforgot about after made.\n\nWith minor modification they act in a similar way to `proof_wanted`, however\nthey appear in Physlib's TODO list and must be tagged accordingly.\nThey must also always have a doc-string. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.Spaces.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58604,
+            "name": "Finset.sum_comm_cycle",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L126-L126",
+            "source_text": "@[to_additive]\ntheorem prod_comm_cycle {s : Finset γ} {t : Finset α} {u : Finset κ} {f : γ → α → κ → β} :\n    (∏ x ∈ s, ∏ y ∈ t, ∏ z ∈ u, f x y z) = ∏ z ∈ u, ∏ x ∈ s, ∏ y ∈ t, f x y z := by",
+            "docstring": null
+          },
+          {
+            "id": 82932,
+            "name": "CategoryTheory.ShortComplex.cyclesMap_add",
+            "module": "Mathlib.Algebra.Homology.ShortComplex.Preadditive",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Homology/ShortComplex/Preadditive.lean#L160-L162",
+            "source_text": "@[simp]\nlemma cyclesMap_add : cyclesMap (φ + φ') = cyclesMap φ + cyclesMap φ' :=\n  cyclesMap'_add _ _",
+            "docstring": null
+          },
+          {
+            "id": 239651,
+            "name": "Equiv.Perm.sum_cycleType",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L148-L152",
+            "source_text": "theorem sum_cycleType (σ : Perm α) : σ.cycleType.sum = #σ.support := by\n  induction σ using cycle_induction_on with\n  | base_one => simp\n  | base_cycles σ hσ => rw [hσ.cycleType, Multiset.sum_singleton]\n  | induction_disjoint σ τ hd _ hσ hτ => rw [hd.cycleType_mul, sum_add, hσ, hτ, hd.card_support_mul]\n",
+            "docstring": null
+          },
+          {
+            "id": 239355,
+            "name": "Equiv.Perm.SameCycle",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Basic.lean#L52-L54",
+            "source_text": "/-- The equivalence relation indicating that two points are in the same cycle of a permutation. -/\ndef SameCycle (f : Perm α) (x y : α) : Prop :=\n  ∃ i : ℤ, (f ^ i) x = y\n",
+            "docstring": "The equivalence relation indicating that two points are in the same cycle of a permutation. "
+          },
+          {
+            "id": 135209,
+            "name": "iInter_halfSpaces_eq",
+            "module": "Mathlib.Analysis.LocallyConvex.Separation",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/LocallyConvex/Separation.lean#L245-L253",
+            "source_text": "/-- A closed convex set is the intersection of the half-spaces containing it. -/\ntheorem iInter_halfSpaces_eq (hs₁ : Convex ℝ s) (hs₂ : IsClosed s) :\n    ⋂ l : StrongDual ℝ E, { x | ∃ y ∈ s, l x ≤ l y } = s := by\n  rw [Set.iInter_setOf]\n  refine Set.Subset.antisymm (fun x hx => ?_) fun x hx l => ⟨x, hx, le_rfl⟩\n  by_contra h\n  obtain ⟨l, s, hlA, hl⟩ := geometric_hahn_banach_closed_point hs₁ hs₂ h\n  obtain ⟨y, hy, hxy⟩ := hx l\n  exact ((hxy.trans_lt (hlA y hy)).trans hl).not_ge le_rfl\n",
+            "docstring": "A closed convex set is the intersection of the half-spaces containing it. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.Spaces.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 385398,
+            "name": "ClassicalMechanics.SlidingPendulum.ConfigurationSpace",
+            "module": "Physlib.ClassicalMechanics.Pendulum.SlidingPendulum",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/Pendulum/SlidingPendulum.lean#L70-L80",
+            "source_text": "/--\nThe configuration space of the sliding pendulum system.\n\nThe generalized coordinates are the horizontal position of the support mass and the angle\nthat the string makes with the vertical.\n-/\nstructure ConfigurationSpace where\n  /-- The horizontal position `x₁` of the support mass. -/\n  supportPosition : ℝ\n  /-- The angle `φ` that the string makes with the vertical. -/\n  angle : Real.Angle\n",
+            "docstring": "The configuration space of the sliding pendulum system.\n\nThe generalized coordinates are the horizontal position of the support mass and the angle\nthat the string makes with the vertical.\n"
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "M6.ActualCounts.cycle_pinned_sum"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.ActualCounts.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 239635,
+            "name": "Equiv.Perm.cycleType",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L52-L54",
+            "source_text": "/-- The cycle type of a permutation -/\ndef cycleType (σ : Perm α) : Multiset ℕ :=\n  σ.cycleFactorsFinset.1.map (Finset.card ∘ support)\n",
+            "docstring": "The cycle type of a permutation "
+          },
+          {
+            "id": 239652,
+            "name": "Equiv.Perm.sum_cycleType_le",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L154-L155",
+            "source_text": "theorem sum_cycleType_le (σ : Perm α) : σ.cycleType.sum ≤ Fintype.card α :=\n  σ.sum_cycleType ▸ Finset.card_le_univ σ.support\n",
+            "docstring": null
+          },
+          {
+            "id": 239651,
+            "name": "Equiv.Perm.sum_cycleType",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L148-L152",
+            "source_text": "theorem sum_cycleType (σ : Perm α) : σ.cycleType.sum = #σ.support := by\n  induction σ using cycle_induction_on with\n  | base_one => simp\n  | base_cycles σ hσ => rw [hσ.cycleType, Multiset.sum_singleton]\n  | induction_disjoint σ τ hd _ hσ hτ => rw [hd.cycleType_mul, sum_add, hσ, hτ, hd.card_support_mul]\n",
+            "docstring": null
+          },
+          {
+            "id": 207783,
+            "name": "Cycle.card_toMultiset",
+            "module": "Mathlib.Data.List.Cycle",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L625-L627",
+            "source_text": "@[simp]\ntheorem card_toMultiset (s : Cycle α) : Multiset.card s.toMultiset = s.length :=\n  Quotient.inductionOn' s (by simp)",
+            "docstring": null
+          },
+          {
+            "id": 320481,
+            "name": "Associates.eq_of_eq_counts",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L291-L293",
+            "source_text": "theorem eq_of_eq_counts {a b : Associates α} (ha : a ≠ 0) (hb : b ≠ 0)\n    (h : ∀ p : Associates α, Irreducible p → p.count a.factors = p.count b.factors) : a = b :=\n  eq_of_factors_eq_factors (eq_factors_of_eq_counts ha hb h)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.ActualCounts.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387287,
+            "name": "SMRHN.toSpecies_sum_invariant",
+            "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Permutations",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Permutations.lean#L67-L71",
+            "source_text": "lemma toSpecies_sum_invariant (m : ℕ) (f : PermGroup n) (S : (SMνCharges n).Charges) (j : Fin 6) :\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j (repCharges f S)) i =\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j S) i := by\n  rw [repCharges_toSpecies]\n  exact Equiv.sum_comp (f⁻¹ j) ((fun a => a ^ m) ∘ toSpecies j S)\n",
+            "docstring": null
+          },
+          {
+            "id": 388149,
+            "name": "MSSMCharges.sum_MSSMSpecies_numberCharges_eq_expand",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L32-L34",
+            "source_text": "lemma sum_MSSMSpecies_numberCharges_eq_expand [AddCommMonoid M]\n    (f : Fin MSSMSpecies.numberCharges → M) :\n    ∑ i, f i = f ⟨0, by simp⟩ + f ⟨1, by simp⟩ + f ⟨2, by simp⟩ := Fin.sum_univ_three f\n",
+            "docstring": null
+          },
+          {
+            "id": 394063,
+            "name": "FTheory.SU5.FluxesFive.sum_of_mem_elemsNoExotics",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L160-L163",
+            "source_text": "lemma sum_of_mem_elemsNoExotics (F : FluxesFive) (h : F ∈ elemsNoExotics) :\n    F.sum = ⟨3, 0⟩ := by\n  revert F h\n  decide\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "polynomial coefficient finite sum integer division"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial coefficient finite sum integer division",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101067,
+            "name": "Polynomial.sum",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L843-L845",
+            "source_text": "/-- Summing the values of a function applied to the coefficients of a polynomial -/\ndef sum {S : Type*} [AddCommMonoid S] (p : R[X]) (f : ℕ → R → S) : S :=\n  ∑ n ∈ p.support, f n (p.coeff n)\n",
+            "docstring": "Summing the values of a function applied to the coefficients of a polynomial "
+          },
+          {
+            "id": 100995,
+            "name": "Polynomial.coeff",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L562-L564",
+            "source_text": "/-- `coeff p n` (often denoted `p.coeff n`) is the coefficient of `X^n` in `p`. -/\ndef coeff : R[X] → ℕ → R\n  | ⟨p⟩ => p.coeff\n",
+            "docstring": "`coeff p n` (often denoted `p.coeff n`) is the coefficient of `X^n` in `p`. "
+          },
+          {
+            "id": 246117,
+            "name": "divisionRingOfFiniteDimensional",
+            "module": "Mathlib.LinearAlgebra.FiniteDimensional.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/FiniteDimensional/Basic.lean#L512-L527",
+            "source_text": "/-- A domain that is module-finite as an algebra over a field is a division ring. -/\n@[implicit_reducible]\nnoncomputable def divisionRingOfFiniteDimensional (F K : Type*) [Field F] [Ring K] [IsDomain K]\n    [Algebra F K] [FiniteDimensional F K] : DivisionRing K where\n  __ := ‹IsDomain K›\n  inv x :=\n    letI := Classical.decEq K\n    if H : x = 0 then 0 else Classical.choose <| FiniteDimensional.exists_mul_eq_one F H\n  mul_inv_cancel x hx := show x * dite _ (h := _) _ _ = _ by\n    rw [dif_neg hx]\n    exact (Classical.choose_spec (FiniteDimensional.exists_mul_eq_one F hx) :)\n  inv_zero := dif_pos rfl\n  nnqsmul := _\n  nnqsmul_def := fun _ _ => rfl\n  qsmul := _\n  qsmul_def := fun _ _ => rfl\n",
+            "docstring": "A domain that is module-finite as an algebra over a field is a division ring. "
+          },
+          {
+            "id": 312318,
+            "name": "Finite.divisionRing_to_field",
+            "module": "Mathlib.RingTheory.LittleWedderburn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/LittleWedderburn.lean#L169-L169",
+            "source_text": "alias Finite.divisionRing_to_field := littleWedderburn\n",
+            "docstring": "**Alias** of `littleWedderburn`.\n\n---\n\nA finite division ring is a field. See `Finite.isDomain_to_isField` and\n`Fintype.divisionRingOfIsDomain` for more general statements, but these create data, and therefore\nmay cause diamonds if used improperly. "
+          },
+          {
+            "id": 145500,
+            "name": "ordinaryHypergeometricCoefficient",
+            "module": "Mathlib.Analysis.SpecialFunctions.OrdinaryHypergeometric",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/OrdinaryHypergeometric.lean#L64-L66",
+            "source_text": "/-- The coefficients in the ordinary hypergeometric sum. -/\nnoncomputable abbrev ordinaryHypergeometricCoefficient (a b c : 𝕂) (n : ℕ) := ((n !⁻¹ : 𝕂) *\n    (ascPochhammer 𝕂 n).eval a * (ascPochhammer 𝕂 n).eval b * ((ascPochhammer 𝕂 n).eval c)⁻¹)\n",
+            "docstring": "The coefficients in the ordinary hypergeometric sum. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "polynomial coefficient finite sum integer division",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394136,
+            "name": "FTheory.SU5.FiveQuanta.anomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L909-L918",
+            "source_text": "/--\n  The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : FiveQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+            "docstring": "The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\nsee equation (23) of arXiv:1401.5084.\n"
+          },
+          {
+            "id": 394195,
+            "name": "FTheory.SU5.TenQuanta.anomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.TenQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/TenQuanta.lean#L1052-L1061",
+            "source_text": "/--\n  The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n    see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : TenQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, 3 * (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+            "docstring": "The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n"
+          },
+          {
+            "id": 394087,
+            "name": "FTheory.SU5.Quanta.HuAnomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L240-L244",
+            "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hu` particle. -/\ndef HuAnomalyCoefficient [CommRing 𝓩] (qHu : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHu with\n  | none => (0, 0)\n  | some qHu => (-qHu, -qHu ^ 2)\n",
+            "docstring": "The pair of anomaly cancellation coefficients associated with the `Hu` particle. "
+          },
+          {
+            "id": 394086,
+            "name": "FTheory.SU5.Quanta.HdAnomalyCoefficient_map",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L228-L232",
+            "source_text": "@[simp]\nlemma HdAnomalyCoefficient_map {𝓩 𝓩1 : Type} [CommRing 𝓩] [CommRing 𝓩1]\n    (f : 𝓩 →+* 𝓩1) (qHd : Option 𝓩) :\n    HdAnomalyCoefficient (qHd.map f) = (f.prodMap f) (HdAnomalyCoefficient qHd) := by\n  cases qHd <;> simp [HdAnomalyCoefficient]",
+            "docstring": null
+          },
+          {
+            "id": 394085,
+            "name": "FTheory.SU5.Quanta.HdAnomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L222-L226",
+            "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hd` particle. -/\ndef HdAnomalyCoefficient [CommRing 𝓩] (qHd : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHd with\n  | none => (0, 0)\n  | some qHd => (qHd, qHd ^ 2)\n",
+            "docstring": "The pair of anomaly cancellation coefficients associated with the `Hd` particle. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "boundary_normalized",
+    "receipts_sha256": "10ec9e5e96d72c7b92f687a29bfef23c67df59174424133346b18f7f9a5a5bcb"
+  },
+  {
+    "queries": [
+      "M6.ActualCounts.cycle_pinned_sum",
+      "M6.ActualTransfer.span"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.ActualCounts.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 239635,
+            "name": "Equiv.Perm.cycleType",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L52-L54",
+            "source_text": "/-- The cycle type of a permutation -/\ndef cycleType (σ : Perm α) : Multiset ℕ :=\n  σ.cycleFactorsFinset.1.map (Finset.card ∘ support)\n",
+            "docstring": "The cycle type of a permutation "
+          },
+          {
+            "id": 239652,
+            "name": "Equiv.Perm.sum_cycleType_le",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L154-L155",
+            "source_text": "theorem sum_cycleType_le (σ : Perm α) : σ.cycleType.sum ≤ Fintype.card α :=\n  σ.sum_cycleType ▸ Finset.card_le_univ σ.support\n",
+            "docstring": null
+          },
+          {
+            "id": 239651,
+            "name": "Equiv.Perm.sum_cycleType",
+            "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L148-L152",
+            "source_text": "theorem sum_cycleType (σ : Perm α) : σ.cycleType.sum = #σ.support := by\n  induction σ using cycle_induction_on with\n  | base_one => simp\n  | base_cycles σ hσ => rw [hσ.cycleType, Multiset.sum_singleton]\n  | induction_disjoint σ τ hd _ hσ hτ => rw [hd.cycleType_mul, sum_add, hσ, hτ, hd.card_support_mul]\n",
+            "docstring": null
+          },
+          {
+            "id": 207783,
+            "name": "Cycle.card_toMultiset",
+            "module": "Mathlib.Data.List.Cycle",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L625-L627",
+            "source_text": "@[simp]\ntheorem card_toMultiset (s : Cycle α) : Multiset.card s.toMultiset = s.length :=\n  Quotient.inductionOn' s (by simp)",
+            "docstring": null
+          },
+          {
+            "id": 320481,
+            "name": "Associates.eq_of_eq_counts",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L291-L293",
+            "source_text": "theorem eq_of_eq_counts {a b : Associates α} (ha : a ≠ 0) (hb : b ≠ 0)\n    (h : ∀ p : Associates α, Irreducible p → p.count a.factors = p.count b.factors) : a = b :=\n  eq_of_factors_eq_factors (eq_factors_of_eq_counts ha hb h)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.ActualCounts.cycle_pinned_sum",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387287,
+            "name": "SMRHN.toSpecies_sum_invariant",
+            "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Permutations",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Permutations.lean#L67-L71",
+            "source_text": "lemma toSpecies_sum_invariant (m : ℕ) (f : PermGroup n) (S : (SMνCharges n).Charges) (j : Fin 6) :\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j (repCharges f S)) i =\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j S) i := by\n  rw [repCharges_toSpecies]\n  exact Equiv.sum_comp (f⁻¹ j) ((fun a => a ^ m) ∘ toSpecies j S)\n",
+            "docstring": null
+          },
+          {
+            "id": 388149,
+            "name": "MSSMCharges.sum_MSSMSpecies_numberCharges_eq_expand",
+            "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L32-L34",
+            "source_text": "lemma sum_MSSMSpecies_numberCharges_eq_expand [AddCommMonoid M]\n    (f : Fin MSSMSpecies.numberCharges → M) :\n    ∑ i, f i = f ⟨0, by simp⟩ + f ⟨1, by simp⟩ + f ⟨2, by simp⟩ := Fin.sum_univ_three f\n",
+            "docstring": null
+          },
+          {
+            "id": 394063,
+            "name": "FTheory.SU5.FluxesFive.sum_of_mem_elemsNoExotics",
+            "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L160-L163",
+            "source_text": "lemma sum_of_mem_elemsNoExotics (F : FluxesFive) (h : F ∈ elemsNoExotics) :\n    F.sum = ⟨3, 0⟩ := by\n  revert F h\n  decide\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.ActualTransfer.span",
+        "status": "ok",
+        "results": [
+          {
+            "id": 253013,
+            "name": "Submodule.span",
+            "module": "Mathlib.LinearAlgebra.Span.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Defs.lean#L47-L49",
+            "source_text": "/-- The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. -/\ndef span (s : Set M) : Submodule R M :=\n  sInf { p | s ⊆ p }\n",
+            "docstring": "The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. "
+          },
+          {
+            "id": 214249,
+            "name": "ZNum.transfer",
+            "module": "Mathlib.Data.Num.ZNum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+            "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+            "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+          },
+          {
+            "id": 214098,
+            "name": "Num.transfer",
+            "module": "Mathlib.Data.Num.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+            "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+            "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+          },
+          {
+            "id": 241617,
+            "name": "Subgroup.transferSet",
+            "module": "Mathlib.GroupTheory.Transfer",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Transfer.lean#L102-L104",
+            "source_text": "/-- The transfer transversal as a set. Contains elements of the form `g ^ k • g₀` for fixed choices\nof representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`. -/\ndef transferSet : Set G := Set.range (transferFunction H g)\n",
+            "docstring": "The transfer transversal as a set. Contains elements of the form `g ^ k • g₀` for fixed choices\nof representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`. "
+          },
+          {
+            "id": 235118,
+            "name": "Subgroup.transferFocal",
+            "module": "Mathlib.GroupTheory.Focal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Focal.lean#L151-L154",
+            "source_text": "/-- The transfer homomorphism `V : G → H/H*` from `G` the abelian quotient `H/H*`. -/\n@[to_additive /-- The transfer homomorphism `V : G → H/H*` from `G` the abelian quotient `H/H*`. -/]\nnoncomputable def transferFocal [H.FiniteIndex] : G →* H ⧸ focalSubgroupOf H :=\n  MonoidHom.transfer (QuotientGroup.mk' (focalSubgroupOf H))\n",
+            "docstring": "The transfer homomorphism `V : G → H/H*` from `G` the abelian quotient `H/H*`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.ActualTransfer.span",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387190,
+            "name": "SMRHN.chargesMapOfSpeciesMap_toSpecies",
+            "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.FamilyMaps",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/FamilyMaps.lean#L38-L42",
+            "source_text": "lemma chargesMapOfSpeciesMap_toSpecies {n m : ℕ}\n    (f : (SMνSpecies n).Charges →ₗ[ℚ] (SMνSpecies m).Charges)\n    (S : (SMνCharges n).Charges) (j : Fin 6) :\n    toSpecies j (chargesMapOfSpeciesMap f S) = (LinearMap.comp f (toSpecies j)) S :=\n  toSMSpecies_toSpecies_inv _ _\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

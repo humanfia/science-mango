@@ -1,0 +1,26 @@
+theorem M6.ActualCounts.finite_image_weighted_sum : ∀ (α β : Type) [Fintype α] (L : α → β) (k : ℕ), (∀ a₀ : α, Nat.card {a : α // L a = L a₀} = k) → ∀ w : β → Polynomial ℤ, (∑ a, w (L a)) = Polynomial.C (k : ℤ) * ∑ b ∈ M6.ActualCounts.imageWords L, w b := by
+  classical
+  intro α β _ L k hk w
+  let L' : α → ↥(M6.ActualCounts.imageWords L) := fun a =>
+    ⟨L a, by simp [M6.ActualCounts.imageWords]⟩
+  have hu : M6.FiberSum.UniformFibers L' k := by
+    intro b
+    obtain ⟨a₀, ha₀⟩ : ∃ a₀ : α, L a₀ = b.val := by
+      simpa [M6.ActualCounts.imageWords] using b.property
+    have hb : (Finset.univ.filter (fun a : α => L a = b.val)).card = k := by
+      simpa [ha₀, Nat.card_eq_fintype_card, Fintype.card_subtype] using hk a₀
+    have hf : M6.FiberSum.fiber L' b =
+        Finset.univ.filter (fun a : α => L a = b.val) := by
+      ext a
+      simp only [M6.FiberSum.fiber, Finset.mem_filter, Finset.mem_univ, true_and]
+      change (L' a = b ↔ L a = b.val)
+      exact Subtype.ext_iff
+    change (M6.FiberSum.fiber L' b).card = k
+    rw [hf]
+    exact hb
+  have hs := M6.FiberSum.uniform_weighted_sum α
+    ↥(M6.ActualCounts.imageWords L) L' k hu (fun b => w b.val)
+  change (∑ a, w (L a)) = Polynomial.C (k : ℤ) *
+    (∑ b : ↥(M6.ActualCounts.imageWords L), w b.val) at hs
+  rw [Finset.sum_coe_sort] at hs
+  exact hs

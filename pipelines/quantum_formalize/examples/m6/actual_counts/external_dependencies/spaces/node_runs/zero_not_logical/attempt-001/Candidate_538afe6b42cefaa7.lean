@@ -1,0 +1,9 @@
+import FrozenTarget_538afe6b42cefaa7
+theorem M6.Spaces.zero_not_logical : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (0 : M6.Pinned.Vector (2*N)) ∉ M6.Spaces.logicalWords N a b
+  intro N inst a b
+  classical
+  have hz : (0 : M6.Pinned.Vector (2*N)) ∈ M6.Spaces.boundaryWords N a b := by
+    simpa [M6.Spaces.boundaryWords, M6.Character.subspaceWords] using
+      (M6.Spaces.B N a b).zero_mem
+  simpa [M6.Spaces.logicalWords, Finset.mem_sdiff, hz]

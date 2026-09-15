@@ -1,0 +1,7 @@
+{
+  "proof": "intro N _ v w\nclassical\nhave hJ (z t : M6.Physical.Word N) :\n    M6.Physical.pairing N (M6.Physical.J N z) (M6.Physical.J N t) =\n      M6.Physical.pairing N z t := by\n  unfold M6.Physical.pairing M6.Physical.J M6.Physical.rev\n  simp only [← Finset.sum_add_distrib]\n  apply Fintype.sum_equiv (Equiv.neg (ZMod N))\n  intro i\n  simp [add_comm]\nchange M6.Character.dot\n    (M6.Flatten.flatten N (M6.Physical.J N (M6.Flatten.unflatten N v)))\n    (M6.Flatten.flatten N (M6.Physical.J N (M6.Flatten.unflatten N w))) = _\nrw [M6.Flatten.flatten_dot, hJ]\n rw [← M6.Flatten.flatten_dot, M6.Flatten.flatten_right, M6.Flatten.flatten_right]",
+  "queries": [
+    "Fintype.sum_equiv",
+    "M6.Physical.pairing M6.Physical.J M6.Physical.rev definitions"
+  ]
+}

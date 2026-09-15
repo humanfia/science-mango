@@ -1,0 +1,87 @@
+{
+  "id": "multiplied_syndrome",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.RecipeIsometries.multiplied_syndrome",
+    "spec_sha256": "e5df88ea343e09df61c790c13a0c588154837e144ff79ce035c6c278a521ae11",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vg98yj7p/attempt-001/Candidate_e0fa59212d685f32.lean:4:3: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\nN : ℕ\ninst✝ : NeZero N\nu : (ZMod N)ˣ\na b : Block N\nz : Word N\n⊢ Physical.syndrome N (multiply N u a) (multiply N u b) (multiplyWord N u z) = multiply N u (Physical.syndrome N a b z)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vg98yj7p/attempt-002/Candidate_a7a6a73d0b40edef.lean:4:2: error: `simp` made no progress\n",
+        "attempt": 2
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vg98yj7p/attempt-003/Candidate_5d0f8b1ca2d0517f.lean:5:43: error: Tactic `rfl` failed: The left-hand side\n  Physical.syndrome N (multiply N u a) (multiply N u b) (multiply N u z.1, multiply N u z.2)\nis not definitionally equal to the right-hand side\n  multiply N u (Physical.syndrome N a b z)\n\nN : ℕ\ninst✝ : NeZero N\nu : (ZMod N)ˣ\na b : Block N\nz : Word N\n⊢ Physical.syndrome N (multiply N u a) (multiply N u b) (multiply N u z.1, multiply N u z.2) =\n    multiply N u (Physical.syndrome N a b z)\n/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vg98yj7p/attempt-003/Candidate_5d0f8b1ca2d0517f.lean:4:13: warning: This simp argument is unused:\n  M6.Physical.syndrome\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M6.RecipeIsometries.multiplyWord, M6.RecipeIsometries.conv_multiply]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vg98yj7p/attempt-003/Candidate_5d0f8b1ca2d0517f.lean:5:4: warning: This simp argument is unused:\n  M6.RecipeIsometries.conv_multiply\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M6.Physical.syndrome, M6.RecipeIsometries.multiplyWord]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 3
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vg98yj7p/attempt-004/Candidate_1b46079420b72e1e.lean",
+        "target_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vg98yj7p/attempt-004/FrozenTarget_1b46079420b72e1e.lean",
+        "feedback": "",
+        "target_sha256": "96430793852a35bfd5627f977a512ae676da330266df15d16083fac4811b2d80",
+        "target_olean_sha256": "a79cf6a1b84f3d724756ffa6a09319839219149a4e8390c461e0297e340282db",
+        "source_sha256": "2ce91ef246955c0be8af39404f5426131007f6d3838720d10343a45bf5708099",
+        "olean_sha256": "01d8b8c948915fd68e6d9d6ec16224a3d0f4725b38291c32a0d316c6b6a52230",
+        "attempt": 4
+      }
+    ],
+    "created_at": "2026-09-15T14:35:14.697857+00:00",
+    "work": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vg98yj7p",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "55a57ac8060477ab26fffb3466ce9c7eaf76565582acbdc4d51633c9e59ff2c8",
+    "phase": "finished",
+    "round": 4,
+    "proof": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-vg98yj7p/attempt-004/Candidate_1b46079420b72e1e.lean",
+    "environment_sha256": "105874d9b1f96950dd9cc0ff6ed7f9a0fb22f24362fab932ce70d1d0ca08f217",
+    "artifacts": {
+      "conv_multiply": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.conv_multiply : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a h : M6.RecipeIsometries.Block N), M6.Physical.conv N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u h) = M6.RecipeIsometries.multiply N u (M6.Physical.conv N a h) := by\n  intro N _ u a h\n  classical\n  funext i\n  change (∑ j : ZMod N, a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j))) =\n    ∑ k : ZMod N, a k * h ((↑(u⁻¹) : ZMod N) * i - k)\n  calc\n    _ = ∑ k : ZMod N, a ((↑(u⁻¹) : ZMod N) * ((↑u : ZMod N) * k)) *\n        h ((↑(u⁻¹) : ZMod N) * (i - (↑u : ZMod N) * k)) :=\n      (Equiv.sum_comp u.mulLeft (fun j : ZMod N =>\n        a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j)))).symm\n    _ = _ := by\n      apply Finset.sum_congr rfl\n      intro k hk\n      simp [mul_sub, ← mul_assoc]",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.conv_multiply",
+          "ancestors": [],
+          "spec_sha256": "5c82e8f121f8f88f3ced8231433f8ee6c6cd69c432f3b020bd5acc0b446e1c0a"
+        },
+        "sha256": "4270fa2c773aa4fb3a80f67f1bc2c3aaefce32f7b4fc24e7508f2e3ca4be0e43"
+      },
+      "multiplied_syndrome": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.multiplied_syndrome : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a b : M6.RecipeIsometries.Block N) (z : M6.RecipeIsometries.Word N), M6.Physical.syndrome N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) (M6.RecipeIsometries.multiplyWord N u z) = M6.RecipeIsometries.multiply N u (M6.Physical.syndrome N a b z) := by\n  intro N _ u a b z\n  unfold M6.Physical.syndrome M6.RecipeIsometries.multiplyWord\n  dsimp only\n  rw [M6.RecipeIsometries.conv_multiply, M6.RecipeIsometries.conv_multiply]\n  rfl",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.multiplied_syndrome",
+          "ancestors": [
+            "conv_multiply"
+          ],
+          "spec_sha256": "9e2d26314f34c460554873cfc5ae781d121334fa860a0454b761be6a7de74f65"
+        },
+        "sha256": "bab9e557a13b53e2131719f852febd78187875dd36dd40df4b02c1f128b80548"
+      }
+    }
+  }
+}

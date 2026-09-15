@@ -1,0 +1,355 @@
+{
+  "id": "preprocess_correct_cost",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Euclid.preprocess_correct_cost",
+    "spec_sha256": "b58fbc2434b69ab1e20f0d630effb4f54cc33295242c8499e4e6a15930d5607b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-qf1axwto/attempt-001/Candidate_86ca5ff0bec99d0f.lean:27:4: error: Type mismatch: After simplification, term\n  hv\n has type\n  (euclid (gcd a b) M).value = gcd (gcd a b) M\nbut is expected to have type\n  (euclid (euclid a b).value M).value = gcd (gcd a b) M\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-qf1axwto/attempt-002/Candidate_107b8cda69293686.lean",
+        "target_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-qf1axwto/attempt-002/FrozenTarget_107b8cda69293686.lean",
+        "feedback": "",
+        "target_sha256": "f5dcfda3b7b6852317a8f42b55ee5f05a9945fa64b2a5262afb2fcbbbcee1a2f",
+        "target_olean_sha256": "037d500a52c402bd9c3053602d61644b161cf7109dd77821e9653e5fe83c48b2",
+        "source_sha256": "ac910d8a324a39f1314491fb9f7fa567314fdd34668d1cca4d395fa91f9b5878",
+        "olean_sha256": "a363d9d058645f5ca4740d50b60bfbb640158d735d35849592a1c512248dd5bf",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T14:12:33.016265+00:00",
+    "work": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-qf1axwto",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "77f2f0a61a166350942b8cde04647e5997bd6f2d2f8fb5f4f56f3285fcd1287c",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-qf1axwto/attempt-002/Candidate_107b8cda69293686.lean",
+    "environment_sha256": "81b552595932f7843a5d84c9e1652636cf17eb00709558594967bfaeb7bd9da9",
+    "artifacts": {
+      "binary_normalization": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.binary_normalization : ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p := by\n  change ∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p\n  intro p\n  have hm : p ≠ 0 → p.Monic := by\n    intro hp\n    change p.leadingCoeff = 1\n    have binary : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide\n    rcases binary p.leadingCoeff with h | h\n    · exact False.elim (hp (Polynomial.leadingCoeff_eq_zero.mp h))\n    · exact h\n  refine ⟨hm, ?_⟩\n  by_cases hp : p = 0\n  · subst p\n    simp\n  · exact (hm hp).normalize_eq_self",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.binary_normalization",
+          "ancestors": [],
+          "spec_sha256": "853c6e86f5aac369680f9b1d7d0db3c08ac8387a45571fd3d820e77b9ffe800a"
+        },
+        "sha256": "1a1c44fc74b3cf324341ce4673895080644217f700f1d7581e3674f614411049"
+      },
+      "rank_order": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.rank_order : ∀ p q : M6.Euclid.BP, (M6.Euclid.rank p < M6.Euclid.rank q ↔ p.degree < q.degree) ∧ (M6.Euclid.rank p ≤ M6.Euclid.rank q ↔ p.degree ≤ q.degree) := by\n  change ∀ p q : M6.Euclid.BP, (M6.Euclid.rank p < M6.Euclid.rank q ↔ p.degree < q.degree) ∧ (M6.Euclid.rank p ≤ M6.Euclid.rank q ↔ p.degree ≤ q.degree)\n  intro p q\n  by_cases hp : p = 0 <;> by_cases hq : q = 0\n  · subst p\n    subst q\n    simp [M6.Euclid.rank]\n  · subst p\n    simp [M6.Euclid.rank, hq, Polynomial.degree_eq_natDegree hq]\n  · subst q\n    simp [M6.Euclid.rank, hp, Polynomial.degree_eq_natDegree hp]\n  · simp [M6.Euclid.rank, hp, hq, Polynomial.degree_eq_natDegree hp, Polynomial.degree_eq_natDegree hq]",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.rank_order",
+          "ancestors": [],
+          "spec_sha256": "31ef783ed61437a77d380fb5919d990399f5091a6d258bd35db4388c243a8c31"
+        },
+        "sha256": "3f38a5e3dbed0027798b2171191d6e553970afb813d46040bb30cdba24e73780"
+      },
+      "cancel_drop": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.cancel_drop : ∀ p q : M6.Euclid.BP, p ≠ 0 → q ≠ 0 → q.degree ≤ p.degree → M6.Euclid.rank (M6.Euclid.cancel p q) < M6.Euclid.rank p := by\n  change ∀ p q : M6.Euclid.BP, p ≠ 0 → q ≠ 0 → q.degree ≤ p.degree → M6.Euclid.rank (M6.Euclid.cancel p q) < M6.Euclid.rank p\n  intro p q hp hq hdeg\n  apply ((M6.Euclid.rank_order (M6.Euclid.cancel p q) p).1).mpr\n  have hmp := (M6.Euclid.binary_normalization p).1 hp\n  have hmq := (M6.Euclid.binary_normalization q).1 hq\n  simpa [M6.Euclid.cancel, hmp.leadingCoeff, mul_comm, mul_left_comm, mul_assoc] using\n    (Polynomial.div_wf_lemma (p := p) (q := q) ⟨hdeg, hp⟩ hmq)",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.cancel_drop",
+          "ancestors": [
+            "binary_normalization",
+            "rank_order"
+          ],
+          "spec_sha256": "f4982335f6d96cd6761895de26ff96c43e08df9808e53348ec0ecfcaa4b0ea42"
+        },
+        "sha256": "c0c4c6c387ab0aec7518f4e060ae857465599ea071cf849b4399a676e5997c22"
+      },
+      "cancel_mod": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.cancel_mod : ∀ p q : M6.Euclid.BP, M6.Euclid.cancel p q % q = p % q := by\n  change ∀ p q : M6.Euclid.BP, M6.Euclid.cancel p q % q = p % q\n  intro p q\n  apply Polynomial.mod_eq_of_dvd_sub\n  simp [M6.Euclid.cancel, sub_eq_add_neg, add_comm, add_left_comm, add_assoc]",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.cancel_mod",
+          "ancestors": [],
+          "spec_sha256": "b4363483cf0165f143e8c7e0ffd1860d76eb9c1d30174fef9418c6e3f9e2ab75"
+        },
+        "sha256": "a407d2cc28e5dc1d667fe644e843d581e9e536df19623fc0831cdca8fec1f21e"
+      },
+      "remainder_aux_correct": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.remainder_aux_correct : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ fuel → (M6.Euclid.remainderAux fuel p q).value = p % q ∧ (M6.Euclid.remainderAux fuel p q).cancellations + M6.Euclid.rank (M6.Euclid.remainderAux fuel p q).value ≤ M6.Euclid.rank p := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ fuel → (M6.Euclid.remainderAux fuel p q).value = p % q ∧ (M6.Euclid.remainderAux fuel p q).cancellations + M6.Euclid.rank (M6.Euclid.remainderAux fuel p q).value ≤ M6.Euclid.rank p\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q hf\n      have hp : p = 0 := by\n        by_contra hp\n        simp [M6.Euclid.rank, hp] at hf\n      subst p\n      simp [M6.Euclid.remainderAux, M6.Euclid.rank]\n  | succ fuel ih =>\n      intro p q hf\n      by_cases hp : p = 0\n      · subst p\n        simp [M6.Euclid.remainderAux, M6.Euclid.rank]\n      by_cases hq : q = 0\n      · subst q\n        simp [M6.Euclid.remainderAux]\n      by_cases hd : p.degree < q.degree\n      · have hm : p % q = p := (Polynomial.mod_eq_self_iff hq).2 hd\n        simp [M6.Euclid.remainderAux, hp, hq, hd, hm]\n      · have hle : q.degree ≤ p.degree := le_of_not_gt hd\n        have hdrop := M6.Euclid.cancel_drop p q hp hq hle\n        have hbudget : M6.Euclid.rank (M6.Euclid.cancel p q) ≤ fuel := by omega\n        obtain ⟨hvalue, hcost⟩ := ih (M6.Euclid.cancel p q) q hbudget\n        have hv : (M6.Euclid.remainderAux fuel (M6.Euclid.cancel p q) q).value = p % q :=\n          hvalue.trans (M6.Euclid.cancel_mod p q)\n        have hc : (M6.Euclid.remainderAux fuel (M6.Euclid.cancel p q) q).cancellations + 1 + M6.Euclid.rank (M6.Euclid.remainderAux fuel (M6.Euclid.cancel p q) q).value ≤ M6.Euclid.rank p := by\n          omega\n        simpa [M6.Euclid.remainderAux, hp, hq, hd, hle, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using And.intro hv hc",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.remainder_aux_correct",
+          "ancestors": [
+            "binary_normalization",
+            "cancel_drop",
+            "cancel_mod",
+            "rank_order"
+          ],
+          "spec_sha256": "142295214fbc97aca1d5be063bae0b5b77b7b13f608807ef292f43358a4edba6"
+        },
+        "sha256": "e47939de5585ed8a0e5c3b09f8a773d9ce2fe785676e5e8f4f31d9d5cb6b8cf9"
+      },
+      "remainder_correct": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.remainder_correct : ∀ p q : M6.Euclid.BP, (M6.Euclid.remainder p q).value = p % q ∧ (M6.Euclid.remainder p q).cancellations + M6.Euclid.rank (M6.Euclid.remainder p q).value ≤ M6.Euclid.rank p ∧ (q ≠ 0 → M6.Euclid.rank (M6.Euclid.remainder p q).value < M6.Euclid.rank q) := by\n  change ∀ p q : M6.Euclid.BP, (M6.Euclid.remainder p q).value = p % q ∧ (M6.Euclid.remainder p q).cancellations + M6.Euclid.rank (M6.Euclid.remainder p q).value ≤ M6.Euclid.rank p ∧ (q ≠ 0 → M6.Euclid.rank (M6.Euclid.remainder p q).value < M6.Euclid.rank q)\n  intro p q\n  have h : (M6.Euclid.remainder p q).value = p % q ∧ (M6.Euclid.remainder p q).cancellations + M6.Euclid.rank (M6.Euclid.remainder p q).value ≤ M6.Euclid.rank p := by\n    simpa [M6.Euclid.remainder] using\n      (M6.Euclid.remainder_aux_correct (M6.Euclid.rank p) p q (le_refl _))\n  refine ⟨h.1, h.2, ?_⟩\n  intro hq\n  rw [h.1]\n  apply ((M6.Euclid.rank_order (p % q) q).1).mpr\n  exact Polynomial.degree_mod_lt p hq",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.remainder_correct",
+          "ancestors": [
+            "binary_normalization",
+            "cancel_drop",
+            "cancel_mod",
+            "rank_order",
+            "remainder_aux_correct"
+          ],
+          "spec_sha256": "6ca23ef723abbbedb3832339165e8e1c8c3528ed4dc12ea931b7b1e8a85bdbec"
+        },
+        "sha256": "e31385a433dbdb36f404e3a87c0cba9eae44df76ce4c8fa57577d471a708a958"
+      },
+      "euclid_aux_correct": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.euclid_aux_correct : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank q < fuel → (M6.Euclid.euclidAux fuel p q).value = EuclideanDomain.gcd q p ∧ (M6.Euclid.euclidAux fuel p q).cancellations + M6.Euclid.rank (M6.Euclid.euclidAux fuel p q).value ≤ M6.Euclid.rank p + M6.Euclid.rank q ∧ (M6.Euclid.euclidAux fuel p q).rounds ≤ M6.Euclid.rank q := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank q < fuel → (M6.Euclid.euclidAux fuel p q).value = EuclideanDomain.gcd q p ∧ (M6.Euclid.euclidAux fuel p q).cancellations + M6.Euclid.rank (M6.Euclid.euclidAux fuel p q).value ≤ M6.Euclid.rank p + M6.Euclid.rank q ∧ (M6.Euclid.euclidAux fuel p q).rounds ≤ M6.Euclid.rank q\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q hf\n      omega\n  | succ fuel ih =>\n      intro p q hf\n      by_cases hq : q = 0\n      · subst q\n        simp [M6.Euclid.euclidAux, M6.Euclid.rank, EuclideanDomain.gcd_zero_left, (M6.Euclid.binary_normalization p).2]\n      · obtain ⟨hrvalue, hrcost, hrdrop⟩ := M6.Euclid.remainder_correct p q\n        have hdrop := hrdrop hq\n        have hbudget : M6.Euclid.rank (M6.Euclid.remainder p q).value < fuel := by omega\n        obtain ⟨hvalue, hcost, hrounds⟩ := ih q (M6.Euclid.remainder p q).value hbudget\n        have hv : (M6.Euclid.euclidAux fuel q (M6.Euclid.remainder p q).value).value = EuclideanDomain.gcd q p := by\n          calc\n            _ = EuclideanDomain.gcd (M6.Euclid.remainder p q).value q := hvalue\n            _ = EuclideanDomain.gcd (p % q) q := by rw [hrvalue]\n            _ = EuclideanDomain.gcd q p := (EuclideanDomain.gcd_val q p).symm\n        simp only [M6.Euclid.euclidAux, hq, ↓reduceIte]\n        refine ⟨hv, ?_, ?_⟩ <;> omega",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.euclid_aux_correct",
+          "ancestors": [
+            "binary_normalization",
+            "cancel_drop",
+            "cancel_mod",
+            "rank_order",
+            "remainder_aux_correct",
+            "remainder_correct"
+          ],
+          "spec_sha256": "429cf7ddb6883960bfb49cb23679c07f3bdf1c11eb9898aaa065177bb72f6883"
+        },
+        "sha256": "200ce30358c906a4c8aaded9fe2aed1b1f6a669c16605d61a5f449b0c307fba0"
+      },
+      "normalized_gcd": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.normalized_gcd : ∀ p q : M6.Euclid.BP, EuclideanDomain.gcd q p = GCDMonoid.gcd p q := by\n  change ∀ p q : M6.Euclid.BP, EuclideanDomain.gcd q p = GCDMonoid.gcd p q\n  intro p q\n  apply dvd_antisymm_of_normalize_eq\n    (M6.Euclid.binary_normalization (EuclideanDomain.gcd q p)).2\n    (M6.Euclid.binary_normalization (GCDMonoid.gcd p q)).2\n  · exact GCDMonoid.dvd_gcd\n      (EuclideanDomain.gcd_dvd_right q p)\n      (EuclideanDomain.gcd_dvd_left q p)\n  · exact EuclideanDomain.dvd_gcd\n      (GCDMonoid.gcd_dvd_right p q)\n      (GCDMonoid.gcd_dvd_left p q)",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.normalized_gcd",
+          "ancestors": [
+            "binary_normalization"
+          ],
+          "spec_sha256": "61e5c65409e5a9c49252fc5a7ef6121f7dc93f92d9faf28df9da78992c810f50"
+        },
+        "sha256": "a85fbd0ab5cbe26aa1a856bb7bdc20abed9dc36c6b110f4ea0f016e4441ceb68"
+      },
+      "euclid_correct": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.euclid_correct : ∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).value = GCDMonoid.gcd p q ∧ (M6.Euclid.euclid p q).cancellations ≤ M6.Euclid.rank p + M6.Euclid.rank q ∧ (M6.Euclid.euclid p q).rounds ≤ M6.Euclid.rank q := by\n  change ∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).value = GCDMonoid.gcd p q ∧ (M6.Euclid.euclid p q).cancellations ≤ M6.Euclid.rank p + M6.Euclid.rank q ∧ (M6.Euclid.euclid p q).rounds ≤ M6.Euclid.rank q\n  intro p q\n  obtain ⟨hv, hc, hr⟩ := M6.Euclid.euclid_aux_correct (M6.Euclid.rank q + 1) p q (by omega)\n  have hv' := hv.trans (M6.Euclid.normalized_gcd p q)\n  have hc' : (M6.Euclid.euclidAux (M6.Euclid.rank q + 1) p q).cancellations ≤ M6.Euclid.rank p + M6.Euclid.rank q := by\n    omega\n  simpa only [M6.Euclid.euclid] using And.intro hv' (And.intro hc' hr)",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.euclid_correct",
+          "ancestors": [
+            "binary_normalization",
+            "cancel_drop",
+            "cancel_mod",
+            "euclid_aux_correct",
+            "normalized_gcd",
+            "rank_order",
+            "remainder_aux_correct",
+            "remainder_correct"
+          ],
+          "spec_sha256": "840cb773e46cd8315726346899e981b06109f6b2838e73e3de35b82f139e0718"
+        },
+        "sha256": "8cb66a238d3c2b746e2ecda8605bc168f91d6aaf38a413482892c68439f4a98a"
+      },
+      "euclid_output_width": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.euclid_output_width : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank (M6.Euclid.euclidAux fuel p q).value ≤ max (M6.Euclid.rank p) (M6.Euclid.rank q) := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank (M6.Euclid.euclidAux fuel p q).value ≤ max (M6.Euclid.rank p) (M6.Euclid.rank q)\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q\n      simpa [M6.Euclid.euclidAux] using (le_max_left (M6.Euclid.rank p) (M6.Euclid.rank q))\n  | succ fuel ih =>\n      intro p q\n      by_cases hq : q = 0\n      · simpa [M6.Euclid.euclidAux, hq] using (le_max_left (M6.Euclid.rank p) (M6.Euclid.rank q))\n      · have hr := (M6.Euclid.remainder_correct p q).2.1\n        have hi := ih q (M6.Euclid.remainder p q).value\n        have hb : M6.Euclid.rank (M6.Euclid.euclidAux fuel q (M6.Euclid.remainder p q).value).value ≤ max (M6.Euclid.rank p) (M6.Euclid.rank q) := by\n          omega\n        simpa [M6.Euclid.euclidAux, hq] using hb",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.euclid_output_width",
+          "ancestors": [
+            "binary_normalization",
+            "cancel_drop",
+            "cancel_mod",
+            "rank_order",
+            "remainder_aux_correct",
+            "remainder_correct"
+          ],
+          "spec_sha256": "9743f2bc3d39df9ff2b252fbeb1682158731089ff6e1a4ac98f35348f9f2de8e"
+        },
+        "sha256": "dc3ab4e4a1b6fb9245e310f23a1efaeee23d6dcb6f2da4f163e3fdb82c79870a"
+      },
+      "remainder_passes": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.remainder_passes : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.remainderAux fuel p q).passes = 2 * (M6.Euclid.remainderAux fuel p q).cancellations + 1 := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.remainderAux fuel p q).passes = 2 * (M6.Euclid.remainderAux fuel p q).cancellations + 1\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q\n      rfl\n  | succ fuel ih =>\n      intro p q\n      classical\n      simp only [M6.Euclid.remainderAux]\n      split <;> simp [ih, Nat.mul_add, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.remainder_passes",
+          "ancestors": [],
+          "spec_sha256": "9297c82c4f57b14dbfca34103bb1390f6cbd1b116144973a39352e45866c99cf"
+        },
+        "sha256": "1cb3b7449026e677e4f8ee30de71cd8ca05cf2967675e2ed362b5f56aae31de0"
+      },
+      "euclid_aux_passes": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.euclid_aux_passes : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.euclidAux fuel p q).passes = 2 * (M6.Euclid.euclidAux fuel p q).cancellations + 3 * (M6.Euclid.euclidAux fuel p q).rounds + 1 := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.euclidAux fuel p q).passes = 2 * (M6.Euclid.euclidAux fuel p q).cancellations + 3 * (M6.Euclid.euclidAux fuel p q).rounds + 1\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q\n      rfl\n  | succ fuel ih =>\n      intro p q\n      classical\n      simp only [M6.Euclid.euclidAux]\n      split <;> simp [M6.Euclid.remainder, ih, M6.Euclid.remainder_passes, Nat.mul_add, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] <;> omega",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.euclid_aux_passes",
+          "ancestors": [
+            "remainder_passes"
+          ],
+          "spec_sha256": "52ebf882ffae475db8b747d47d7a160c24df8e4bb488ae9385f1157557ee1684"
+        },
+        "sha256": "480a92e8260c21e4e6dd93993fbb908426d71bd910cdfa2bbf79efb76e9a93d3"
+      },
+      "euclid_passes": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.euclid_passes : ∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).passes = 2 * (M6.Euclid.euclid p q).cancellations + 3 * (M6.Euclid.euclid p q).rounds + 2 := by\n  change ∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).passes = 2 * (M6.Euclid.euclid p q).cancellations + 3 * (M6.Euclid.euclid p q).rounds + 2\n  intro p q\n  simp [M6.Euclid.euclid, M6.Euclid.euclid_aux_passes] <;> omega",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.euclid_passes",
+          "ancestors": [
+            "euclid_aux_passes",
+            "remainder_passes"
+          ],
+          "spec_sha256": "03b9de0ea3aa3d1c0db4a72fcc61ff9a25e997cca256cf3fe02d471d1dfb416d"
+        },
+        "sha256": "f5d1bee1927b2915e4fbde2298983ede9b96a47aa3dcd14d87d80349497287fc"
+      },
+      "scan_cost": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.scan_cost : ∀ width : ℕ, M6.Euclid.scanCost width = width * (6 * width + 4) ∧ (0 < width → M6.Euclid.scanCost width ≤ 10 * width ^ 2) := by\n  change ∀ width : ℕ, M6.Euclid.scanCost width = width * (6 * width + 4) ∧ (0 < width → M6.Euclid.scanCost width ≤ 10 * width ^ 2)\n  intro width\n  have hloop (l : List ℕ) (a : ℕ) :\n      l.foldl (fun acc _ => acc + (6 * width + 4)) a =\n        a + l.length * (6 * width + 4) := by\n    induction l generalizing a with\n    | nil => simp\n    | cons i l ih =>\n        simp only [List.foldl_cons, List.length_cons]\n        rw [ih]\n        ring\n  have hcost : M6.Euclid.scanCost width = width * (6 * width + 4) := by\n    simpa [M6.Euclid.scanCost, Nat.add_assoc] using hloop (List.range width) 0\n  refine ⟨hcost, ?_⟩\n  intro hw\n  rw [hcost]\n  have hw1 : 1 ≤ width := hw\n  have hsq := Nat.mul_le_mul_left width hw1\n  nlinarith",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.scan_cost",
+          "ancestors": [],
+          "spec_sha256": "49fb3ff83f88d7de65847be2d6f7ad57e66b52cf0fa6281ae3f00789379722b2"
+        },
+        "sha256": "be358d376e530ccfde2e4e4cf825a901238eb9e8ccee5c7f64531bec66c207ba"
+      },
+      "remainder_safe": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.remainder_safe : ∀ (fuel : ℕ) (p q : M6.Euclid.BP) (width : ℕ), M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.remainderSafe fuel p q width := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP) (width : ℕ), M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.remainderSafe fuel p q width\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q width hp hq\n      simp [M6.Euclid.remainderSafe, hp, hq]\n  | succ fuel ih =>\n      intro p q width hp hq\n      by_cases hp0 : p = 0\n      · subst p\n        simp [M6.Euclid.remainderSafe, hp, hq]\n      by_cases hq0 : q = 0\n      · subst q\n        simp [M6.Euclid.remainderSafe, hp, hq]\n      by_cases hdeg : p.degree < q.degree\n      · simp [M6.Euclid.remainderSafe, hp0, hq0, hdeg, hp, hq]\n      · have hc : M6.Euclid.rank (M6.Euclid.cancel p q) ≤ width :=\n          le_trans (Nat.le_of_lt (M6.Euclid.cancel_drop p q hp0 hq0 (le_of_not_gt hdeg))) hp\n        have hs := ih (M6.Euclid.cancel p q) q width hc hq\n        simp [M6.Euclid.remainderSafe, hp0, hq0, hdeg, hp, hq, hs]",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.remainder_safe",
+          "ancestors": [
+            "binary_normalization",
+            "cancel_drop",
+            "rank_order"
+          ],
+          "spec_sha256": "d44770846c8df59814bd6498860e9b0a0534ab3320f1873123e83eaa0cce1d7c"
+        },
+        "sha256": "0ca679ec528ecdf57093b3563ba1d7124eddcb679133b1f66e39b292c7fa3251"
+      },
+      "euclid_safe": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.euclid_safe : ∀ (fuel : ℕ) (p q : M6.Euclid.BP) (width : ℕ), M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.euclidSafe fuel p q width := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP) (width : ℕ), M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.euclidSafe fuel p q width\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q width hp hq\n      simp [M6.Euclid.euclidSafe, hp, hq]\n  | succ fuel ih =>\n      intro p q width hp hq\n      by_cases hq0 : q = 0\n      · subst q\n        simp [M6.Euclid.euclidSafe, hp, hq]\n      · have hr : M6.Euclid.rank (M6.Euclid.remainder p q).value ≤ width := by\n          have hc := (M6.Euclid.remainder_correct p q).2.1\n          omega\n        have hs : ∀ n, M6.Euclid.remainderSafe n p q width :=\n          fun n => M6.Euclid.remainder_safe n p q width hp hq\n        have ht := ih q (M6.Euclid.remainder p q).value width hq hr\n        simp [M6.Euclid.euclidSafe, hq0, hp, hq, hs, ht]",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.euclid_safe",
+          "ancestors": [
+            "binary_normalization",
+            "cancel_drop",
+            "cancel_mod",
+            "rank_order",
+            "remainder_aux_correct",
+            "remainder_correct",
+            "remainder_safe"
+          ],
+          "spec_sha256": "b277ca844122f36434f925e7169b0d1434d8134e2e065ec74f1472f5bc70a1fa"
+        },
+        "sha256": "ee52392b37b66b69f16881f8e0e417cabb905c21af9ff1ed1fa472c3c5d5189f"
+      },
+      "bit_cost_bound": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.bit_cost_bound : ∀ (N : ℕ) (p q : M6.Euclid.BP), p.natDegree ≤ N → q.natDegree ≤ N → M6.Euclid.bitCost N p q ≤ 90 * (N + 1) ^ 3 ∧ M6.Euclid.euclidSafe (M6.Euclid.rank q + 1) p q (N + 1) := by\n  change ∀ (N : ℕ) (p q : M6.Euclid.BP), p.natDegree ≤ N → q.natDegree ≤ N → M6.Euclid.bitCost N p q ≤ 90 * (N + 1) ^ 3 ∧ M6.Euclid.euclidSafe (M6.Euclid.rank q + 1) p q (N + 1)\n  intro N p q hp hq\n  have hrp : M6.Euclid.rank p ≤ N + 1 := by\n    by_cases h : p = 0\n    · simp [M6.Euclid.rank, h]\n    · simp only [M6.Euclid.rank, h, ↓reduceIte]\n      omega\n  have hrq : M6.Euclid.rank q ≤ N + 1 := by\n    by_cases h : q = 0\n    · simp [M6.Euclid.rank, h]\n    · simp only [M6.Euclid.rank, h, ↓reduceIte]\n      omega\n  refine ⟨?_, M6.Euclid.euclid_safe _ p q (N + 1) hrp hrq⟩\n  obtain ⟨_, hc, he⟩ := M6.Euclid.euclid_correct p q\n  have hpasses := M6.Euclid.euclid_passes p q\n  have hb : (M6.Euclid.euclid p q).passes ≤ 9 * (N + 1) := by omega\n  have hs : M6.Euclid.scanCost (N + 1) ≤ 10 * (N + 1) ^ 2 :=\n    (M6.Euclid.scan_cost (N + 1)).2 (by omega)\n  have hmul := Nat.mul_le_mul hb hs\n  have hbound : (M6.Euclid.euclid p q).passes * M6.Euclid.scanCost (N + 1) ≤ 90 * (N + 1) ^ 3 := by\n    calc\n      _ ≤ (9 * (N + 1)) * (10 * (N + 1) ^ 2) := hmul\n      _ = 90 * (N + 1) ^ 3 := by ring\n  simpa only [M6.Euclid.bitCost, Nat.mul_comm] using hbound",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.bit_cost_bound",
+          "ancestors": [
+            "binary_normalization",
+            "cancel_drop",
+            "cancel_mod",
+            "euclid_aux_correct",
+            "euclid_aux_passes",
+            "euclid_correct",
+            "euclid_passes",
+            "euclid_safe",
+            "normalized_gcd",
+            "rank_order",
+            "remainder_aux_correct",
+            "remainder_correct",
+            "remainder_passes",
+            "remainder_safe",
+            "scan_cost"
+          ],
+          "spec_sha256": "11b9e705d87b378f8f43d9077a448351c6f424d19dd798f791e7f7fa225ad4a4"
+        },
+        "sha256": "c3ee4446555d5a8866bf988daaea44a09ebd998257a10305e09239211fb64f3d"
+      },
+      "preprocess_correct_cost": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.preprocess_correct_cost : ∀ (N : ℕ) (a b M : M6.Euclid.BP), a.natDegree ≤ N → b.natDegree ≤ N → M.natDegree ≤ N → (M6.Euclid.preprocess a b M).value = GCDMonoid.gcd (GCDMonoid.gcd a b) M ∧ M6.Euclid.preprocessBitCost N a b M ≤ 180 * (N + 1) ^ 3 := by\n  change ∀ (N : ℕ) (a b M : M6.Euclid.BP), a.natDegree ≤ N → b.natDegree ≤ N → M.natDegree ≤ N → (M6.Euclid.preprocess a b M).value = GCDMonoid.gcd (GCDMonoid.gcd a b) M ∧ M6.Euclid.preprocessBitCost N a b M ≤ 180 * (N + 1) ^ 3\n  intro N a b M ha hb hM\n  have hrank (p : M6.Euclid.BP) (hp : p.natDegree ≤ N) : M6.Euclid.rank p ≤ N + 1 := by\n    by_cases h : p = 0\n    · simp [M6.Euclid.rank, h]\n    · simp only [M6.Euclid.rank, h, ↓reduceIte]\n      omega\n  have hw : M6.Euclid.rank (M6.Euclid.euclid a b).value ≤ max (M6.Euclid.rank a) (M6.Euclid.rank b) := by\n    simpa only [M6.Euclid.euclid] using M6.Euclid.euclid_output_width (M6.Euclid.rank b + 1) a b\n  have hw' : M6.Euclid.rank (M6.Euclid.euclid a b).value ≤ N + 1 :=\n    hw.trans (max_le (hrank a ha) (hrank b hb))\n  have hd : (M6.Euclid.euclid a b).value.natDegree ≤ N := by\n    by_cases h : (M6.Euclid.euclid a b).value = 0\n    · simp [h]\n    · simp only [M6.Euclid.rank, h, ↓reduceIte] at hw'\n      omega\n  constructor\n  · change (M6.Euclid.euclid (M6.Euclid.euclid a b).value M).value = GCDMonoid.gcd (GCDMonoid.gcd a b) M\n    rw [(M6.Euclid.euclid_correct a b).1]\n    exact (M6.Euclid.euclid_correct (GCDMonoid.gcd a b) M).1\n  · have h₁ := (M6.Euclid.bit_cost_bound N a b ha hb).1\n    have h₂ := (M6.Euclid.bit_cost_bound N (M6.Euclid.euclid a b).value M hd hM).1\n    have heq : M6.Euclid.preprocessBitCost N a b M = M6.Euclid.bitCost N a b + M6.Euclid.bitCost N (M6.Euclid.euclid a b).value M := by\n      simp only [M6.Euclid.preprocessBitCost, M6.Euclid.preprocess, M6.Euclid.bitCost]\n      ring\n    rw [heq]\n    omega",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.preprocess_correct_cost",
+          "ancestors": [
+            "binary_normalization",
+            "bit_cost_bound",
+            "cancel_drop",
+            "cancel_mod",
+            "euclid_aux_correct",
+            "euclid_aux_passes",
+            "euclid_correct",
+            "euclid_output_width",
+            "euclid_passes",
+            "euclid_safe",
+            "normalized_gcd",
+            "rank_order",
+            "remainder_aux_correct",
+            "remainder_correct",
+            "remainder_passes",
+            "remainder_safe",
+            "scan_cost"
+          ],
+          "spec_sha256": "afdfa2de9b18332f66eae49fa729ed0e86a0848e6d7ccfeffa3c2c63c48ab440"
+        },
+        "sha256": "3c011ff45716cd551117c14ef888a0cd4553099ae66fe7f2008d51d0892720a5"
+      }
+    }
+  }
+}

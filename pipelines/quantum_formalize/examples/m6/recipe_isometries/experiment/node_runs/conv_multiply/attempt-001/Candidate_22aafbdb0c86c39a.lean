@@ -1,0 +1,16 @@
+import FrozenTarget_22aafbdb0c86c39a
+theorem M6.RecipeIsometries.conv_multiply : QuantumHarnessFrozenTarget := by
+  intro N _ u a h
+  classical
+  funext i
+  change (∑ j : ZMod N, a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j))) =
+    ∑ k : ZMod N, a k * h ((↑(u⁻¹) : ZMod N) * i - k)
+  calc
+    _ = ∑ k : ZMod N, a ((↑(u⁻¹) : ZMod N) * ((↑u : ZMod N) * k)) *
+        h ((↑(u⁻¹) : ZMod N) * (i - (↑u : ZMod N) * k)) :=
+      (Equiv.sum_comp u.mulLeft (fun j : ZMod N =>
+        a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j)))).symm
+    _ = _ := by
+      apply Finset.sum_congr rfl
+      intro k hk
+      simp [mul_sub, ← mul_assoc]

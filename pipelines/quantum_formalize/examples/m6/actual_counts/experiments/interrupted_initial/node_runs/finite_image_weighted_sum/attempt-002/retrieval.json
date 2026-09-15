@@ -1,0 +1,209 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Fintype.card_subtype",
+    "status": "ok",
+    "results": [
+      {
+        "id": 205919,
+        "name": "Fintype.card_subtype",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L400-L403",
+        "source_text": "theorem Fintype.card_subtype [Fintype α] (p : α → Prop) [Fintype {a // p a}] [DecidablePred p] :\n    Fintype.card { x // p x } = #{x | p x} := by\n  refine Fintype.card_of_subtype _ ?_\n  simp\n",
+        "docstring": null
+      },
+      {
+        "id": 205912,
+        "name": "Fintype.card_coe",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L370-L372",
+        "source_text": "@[simp]\ntheorem Fintype.card_coe (s : Finset α) [Fintype s] : Fintype.card s = #s :=\n  @Fintype.card_of_finset' _ _ _ (fun _ => Iff.rfl) (id _)",
+        "docstring": null
+      },
+      {
+        "id": 205838,
+        "name": "Fintype.card",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L39-L41",
+        "source_text": "/-- `card α` is the number of elements in `α`, defined when `α` is a fintype. -/\ndef card (α) [Fintype α] : ℕ :=\n  (@univ α _).card\n",
+        "docstring": "`card α` is the number of elements in `α`, defined when `α` is a fintype. "
+      },
+      {
+        "id": 205839,
+        "name": "Fintype.subtype_card",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L43-L45",
+        "source_text": "theorem subtype_card {p : α → Prop} (s : Finset α) (H : ∀ x : α, x ∈ s ↔ p x) :\n    @card { x // p x } (Fintype.subtype s H) = #s :=\n  Multiset.card_pmap _ _ _\n",
+        "docstring": null
+      },
+      {
+        "id": 218285,
+        "name": "Set.Finite.fintype",
+        "module": "Mathlib.Data.Set.Finite.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Basic.lean#L65-L72",
+        "source_text": "/-- A finite set coerced to a type is a `Fintype`.\nThis is the `Fintype` projection for a `Set.Finite`.\n\nNote that because `Finite` isn't a typeclass, this definition will not fire if it\nis made into an instance -/\n@[implicit_reducible]\nprotected noncomputable def Finite.fintype {s : Set α} (h : s.Finite) : Fintype s :=\n  h.nonempty_fintype.some\n",
+        "docstring": "A finite set coerced to a type is a `Fintype`.\nThis is the `Fintype` projection for a `Set.Finite`.\n\nNote that because `Finite` isn't a typeclass, this definition will not fire if it\nis made into an instance "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Fintype.card_subtype",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386376,
+        "name": "Physlib.Fin.instFintypeSubtypeForallFinAndInvolutiveForallNe_physlib",
+        "module": "Physlib.Mathematics.Fin.Involutions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L438-L442",
+        "source_text": "/-- The type of fixed-point free involutions of `Fin n` is finite. -/\ninstance {n : ℕ} : Fintype { f // Function.Involutive f ∧ ∀ (i : Fin n), f i ≠ i } := by\n  have : DecidablePred fun x ↦ Function.Involutive x :=\n    fun f ↦ Fintype.decidableForallFintype (α := Fin n)\n  exact Subtype.fintype ..\n",
+        "docstring": "The type of fixed-point free involutions of `Fin n` is finite. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.card_eq_fintype_card",
+    "status": "ok",
+    "results": [
+      {
+        "id": 323195,
+        "name": "Nat.card_eq_fintype_card",
+        "module": "Mathlib.SetTheory.Cardinal.Finite",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Finite.lean#L44-L46",
+        "source_text": "@[simp]\ntheorem card_eq_fintype_card [Fintype α] : Nat.card α = Fintype.card α :=\n  mk_toNat_eq_card",
+        "docstring": null
+      },
+      {
+        "id": 323196,
+        "name": "Fintype.card_eq_nat_card",
+        "module": "Mathlib.SetTheory.Cardinal.Finite",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Finite.lean#L48-L51",
+        "source_text": "/-- Because this theorem takes `Fintype α` as a non-instance argument, it can be used in particular\nwhen `Fintype.card` ends up with different instance than the one found by inference -/\ntheorem _root_.Fintype.card_eq_nat_card {_ : Fintype α} : Fintype.card α = Nat.card α :=\n  mk_toNat_eq_card.symm\n",
+        "docstring": "Because this theorem takes `Fintype α` as a non-instance argument, it can be used in particular\nwhen `Fintype.card` ends up with different instance than the one found by inference "
+      },
+      {
+        "id": 217843,
+        "name": "Set.coe_fintypeCard",
+        "module": "Mathlib.Data.Set.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L90-L91",
+        "source_text": "theorem coe_fintypeCard [Fintype s] : Fintype.card s = s.encard := by\n  simp [encard_eq_coe_toFinset_card]\n",
+        "docstring": null
+      },
+      {
+        "id": 205838,
+        "name": "Fintype.card",
+        "module": "Mathlib.Data.Fintype.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L39-L41",
+        "source_text": "/-- `card α` is the number of elements in `α`, defined when `α` is a fintype. -/\ndef card (α) [Fintype α] : ℕ :=\n  (@univ α _).card\n",
+        "docstring": "`card α` is the number of elements in `α`, defined when `α` is a fintype. "
+      },
+      {
+        "id": 217958,
+        "name": "Set.fintypeCard_eq_ncard",
+        "module": "Mathlib.Data.Set.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L641-L643",
+        "source_text": "@[simp]\ntheorem fintypeCard_eq_ncard [Fintype s] : Fintype.card s = s.ncard := by\n  rw [ncard_eq_toFinset_card', toFinset_card]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_bij",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58342,
+        "name": "Finset.sum_bij",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L452-L458",
+        "source_text": "@[to_additive /-- Reorder a sum.\n\nThe difference with `Finset.sum_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.sum_nbij` is that the bijection is allowed to use membership of the\ndomain of the sum, rather than being a non-dependent function. -/]\ntheorem prod_bij (i : ∀ a ∈ s, κ) (hi : ∀ a ha, i a ha ∈ t)\n    (i_inj : ∀ a₁ ha₁ a₂ ha₂, i a₁ ha₁ = i a₂ ha₂ → a₁ = a₂)\n    (i_surj : ∀ b ∈ t, ∃ a ha, i a ha = b) (h : ∀ a ha, f a = g (i a ha)) :\n    ∏ x ∈ s, f x = ∏ x ∈ t, g x :=",
+        "docstring": "Reorder a sum.\n\nThe difference with `Finset.sum_bij'` is that the bijection is specified as a surjective injection,\nrather than by an inverse function.\n\nThe difference with `Finset.sum_nbij` is that the bijection is allowed to use membership of the\ndomain of the sum, rather than being a non-dependent function. "
+      },
+      {
+        "id": 58344,
+        "name": "Finset.sum_bij'",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L472-L478",
+        "source_text": "@[to_additive /-- Reorder a sum.\n\nThe difference with `Finset.sum_bij` is that the bijection is specified with an inverse, rather than\nas a surjective injection.\n\nThe difference with `Finset.sum_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains of the sums, rather than being non-dependent functions. -/]\ntheorem prod_bij' (i : ∀ a ∈ s, κ) (j : ∀ a ∈ t, ι) (hi : ∀ a ha, i a ha ∈ t)\n    (hj : ∀ a ha, j a ha ∈ s) (left_inv : ∀ a ha, j (i a ha) (hi a ha) = a)\n    (right_inv : ∀ a ha, i (j a ha) (hj a ha) = a) (h : ∀ a ha, f a = g (i a ha)) :\n    ∏ x ∈ s, f x = ∏ x ∈ t, g x := by",
+        "docstring": "Reorder a sum.\n\nThe difference with `Finset.sum_bij` is that the bijection is specified with an inverse, rather than\nas a surjective injection.\n\nThe difference with `Finset.sum_nbij'` is that the bijection and its inverse are allowed to use\nmembership of the domains of the sums, rather than being non-dependent functions. "
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 202219,
+        "name": "Equiv.Finset.union",
+        "module": "Mathlib.Data.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L584-L587",
+        "source_text": "/-- The disjoint union of finsets is a sum -/\ndef Finset.union (s t : Finset α) (h : Disjoint s t) :\n    s ⊕ t ≃ (s ∪ t : Finset α) :=\n  Equiv.setCongr (coe_union _ _) |>.trans (Equiv.Set.union (disjoint_coe.mpr h)) |>.symm\n",
+        "docstring": "The disjoint union of finsets is a sum "
+      },
+      {
+        "id": 204404,
+        "name": "Finset.disjSum",
+        "module": "Mathlib.Data.Finset.Sum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Sum.lean#L33-L35",
+        "source_text": "/-- Disjoint sum of finsets. -/\ndef disjSum : Finset (α ⊕ β) :=\n  ⟨s.1.disjSum t.1, s.2.disjSum t.2⟩\n",
+        "docstring": "Disjoint sum of finsets. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

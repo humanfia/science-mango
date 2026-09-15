@@ -1,0 +1,122 @@
+{
+  "id": "encoded_dimension",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualCounts.encoded_dimension",
+    "spec_sha256": "d49908bdc6a347cf1b7c98301e9385e0fb03e9b759c2ec3189f0a121f3222314",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-cardinality-formalization/.humanize-formal-runs/run-gd5cey17/attempt-001/Candidate_c000654493280fa1.lean",
+        "target_path": "/home/jing/m6-lean-actual-cardinality-formalization/.humanize-formal-runs/run-gd5cey17/attempt-001/FrozenTarget_c000654493280fa1.lean",
+        "feedback": "",
+        "target_sha256": "d973f7baf48b9fc5562659734267d848c1f7a9fa688e1cb4492d2898bb40bd9f",
+        "target_olean_sha256": "11517fcb8e8777eb16cfadd242228c47197a2675341fbda80fa707b3487a17a5",
+        "source_sha256": "8838da4668b6a5e8ef95a8fe750b5adff688ea1747d4c89cbde4b9597a30b41b",
+        "olean_sha256": "d604527d4d8ff626dd74efc70a9d9269b5e7a8f766c16b4df7d09b7f714f8ce7",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:29:11.209798+00:00",
+    "work": "/home/jing/m6-lean-actual-cardinality-formalization/.humanize-formal-runs/run-gd5cey17",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "adc27ec93c015183eddb72f54d13a2f450e0eecbfcb30b9be7414323619f152f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-cardinality-formalization/.humanize-formal-runs/run-gd5cey17/attempt-001/Candidate_c000654493280fa1.lean",
+    "environment_sha256": "dca5bf90cc180c4612f8994c101a8523f0ceca0107466c298e2592e84caf900c",
+    "artifacts": {
+      "f_le_order": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.f_le_order : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), M6.ActualCounts.f N a b ≤ N := by\n  intro N inst a b\n  change (M6.Cyclic.signature a b (M6.Cyclic.modulus N)).natDegree ≤ N\n  have hm := M6.Coordinates.modulus_monic_degree N\n  have hd := (M6.Cyclic.signature_divides a b (M6.Cyclic.modulus N)).2.2\n  simpa only [hm.2] using Polynomial.natDegree_le_of_dvd hd hm.1.ne_zero",
+          "imports": [
+            "M6ActualCardinality",
+            "M6ActualCountsAccepted"
+          ],
+          "name": "M6.ActualCounts.f_le_order",
+          "ancestors": [],
+          "spec_sha256": "227934afa80181f3ae85860dccb804528bea9399ff54c71fea95c2c55774c83c"
+        },
+        "sha256": "b3fab17537fae656c25c8a468a3740ca1da964505ae4239be66cb587bb8131fc"
+      },
+      "boundary_card": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.boundary_card : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card = 2^(N-(M6.ActualCounts.f N a b)) := by\n  intro N inst a b ha hb\n  have h := M6.ActualCounts.input_normalization N a b ha hb\n  rw [M6.Spaces.dual_boundary_card] at h\n  have hf := M6.ActualCounts.f_le_order N a b\n  have hexp : M6.ActualCounts.f N a b + (N - M6.ActualCounts.f N a b) = N := by\n    omega\n  have hpow : (2 : ℕ)^N = 2^(M6.ActualCounts.f N a b) * 2^(N - M6.ActualCounts.f N a b) := by\n    rw [← pow_add, hexp]\n  apply Nat.eq_of_mul_eq_mul_left (show 0 < (2 : ℕ)^(M6.ActualCounts.f N a b) by positivity)\n  exact h.trans hpow",
+          "imports": [
+            "M6ActualCardinality",
+            "M6ActualCountsAccepted"
+          ],
+          "name": "M6.ActualCounts.boundary_card",
+          "ancestors": [
+            "f_le_order"
+          ],
+          "spec_sha256": "f7986651ec88b060933e958344ec54325695e54aa72da4991d9d4a278aef56a6"
+        },
+        "sha256": "cf5bcedc4ebc7f0a2323035b9656d624ff0e65700957763b6e7a37b297a0599a"
+      },
+      "boundary_finrank": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.boundary_finrank : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → Module.finrank (ZMod 2) (M6.Spaces.B N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = N - (M6.ActualCounts.f N a b) := by\n  intro N inst a b ha hb\n  classical\n  let S := M6.Spaces.B N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)\n  let e : S ≃ {v // v ∈ M6.Character.subspaceWords S} :=\n    { toFun := fun v => ⟨v.1, by simpa [M6.Character.subspaceWords] using v.2⟩\n      invFun := fun v => ⟨v.1, by simpa [M6.Character.subspaceWords] using v.2⟩\n      left_inv := fun _ => rfl\n      right_inv := fun _ => rfl }\n  have hc : Nat.card S = (M6.Character.subspaceWords S).card := by\n    rw [Nat.card_congr e]\n    simp [Nat.card_eq_fintype_card]\n  have hp : Nat.card S = Nat.card (ZMod 2) ^ Module.finrank (ZMod 2) S :=\n    Module.natCard_eq_pow_finrank (K := ZMod 2)\n  apply Nat.pow_right_injective (by decide : 2 ≤ (2 : ℕ))\n  change (2 : ℕ) ^ Module.finrank (ZMod 2) S = 2 ^ (N - M6.ActualCounts.f N a b)\n  calc\n    (2 : ℕ) ^ Module.finrank (ZMod 2) S = Nat.card S := by\n      simpa only [Nat.card_zmod] using hp.symm\n    _ = (M6.Character.subspaceWords S).card := hc\n    _ = 2 ^ (N - M6.ActualCounts.f N a b) := by\n      simpa only [S, M6.Spaces.boundaryWords] using\n        M6.ActualCounts.boundary_card N a b ha hb",
+          "imports": [
+            "M6ActualCardinality",
+            "M6ActualCountsAccepted"
+          ],
+          "name": "M6.ActualCounts.boundary_finrank",
+          "ancestors": [
+            "boundary_card",
+            "f_le_order"
+          ],
+          "spec_sha256": "0d23acdd2f216838469389ed4c574355afff16bca0e937ab8b8ceddf7f3c6899"
+        },
+        "sha256": "43de12e373f53ee3d93ed0d6a5fcc6273fc2a2e2209c0a7de4b23aeb711bc01c"
+      },
+      "dual_boundary_finrank": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.dual_boundary_finrank : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → Module.finrank (ZMod 2) (M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = N - (M6.ActualCounts.f N a b) := by\n  intro N inst a b ha hb\n  classical\n  let S := M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)\n  let e : S ≃ {v // v ∈ M6.Character.subspaceWords S} :=\n    { toFun := fun v => ⟨v.1, by simpa [M6.Character.subspaceWords] using v.2⟩\n      invFun := fun v => ⟨v.1, by simpa [M6.Character.subspaceWords] using v.2⟩\n      left_inv := fun _ => rfl\n      right_inv := fun _ => rfl }\n  have hc : Nat.card S = (M6.Character.subspaceWords S).card := by\n    rw [Nat.card_congr e]\n    simp [Nat.card_eq_fintype_card]\n  have hp : Nat.card S = Nat.card (ZMod 2) ^ Module.finrank (ZMod 2) S :=\n    Module.natCard_eq_pow_finrank (K := ZMod 2)\n  apply Nat.pow_right_injective (by decide : 2 ≤ (2 : ℕ))\n  change (2 : ℕ) ^ Module.finrank (ZMod 2) S = 2 ^ (N - M6.ActualCounts.f N a b)\n  calc\n    (2 : ℕ) ^ Module.finrank (ZMod 2) S = Nat.card S := by\n      simpa only [Nat.card_zmod] using hp.symm\n    _ = (M6.Character.subspaceWords S).card := hc\n    _ = (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card :=\n      M6.Spaces.dual_boundary_card N _ _\n    _ = 2 ^ (N - M6.ActualCounts.f N a b) :=\n      M6.ActualCounts.boundary_card N a b ha hb",
+          "imports": [
+            "M6ActualCardinality",
+            "M6ActualCountsAccepted"
+          ],
+          "name": "M6.ActualCounts.dual_boundary_finrank",
+          "ancestors": [
+            "boundary_card",
+            "boundary_finrank",
+            "f_le_order"
+          ],
+          "spec_sha256": "49f9db1a74a7eafcd7b7cb58a333bd64d207f12f3ffff895bdf0fb86528a4d48"
+        },
+        "sha256": "c48e20339eb2697447a864849eb31d86d2e370383eff58da75bc302d7ac8c5f9"
+      },
+      "encoded_dimension": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.encoded_dimension : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → 2 * N - Module.finrank (ZMod 2) (M6.Spaces.B N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) - Module.finrank (ZMod 2) (M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = 2 * (M6.ActualCounts.f N a b) := by\n  intro N inst a b ha hb\n  rw [M6.ActualCounts.boundary_finrank N a b ha hb,\n    M6.ActualCounts.dual_boundary_finrank N a b ha hb]\n  have hf := M6.ActualCounts.f_le_order N a b\n  omega",
+          "imports": [
+            "M6ActualCardinality",
+            "M6ActualCountsAccepted"
+          ],
+          "name": "M6.ActualCounts.encoded_dimension",
+          "ancestors": [
+            "boundary_card",
+            "boundary_finrank",
+            "dual_boundary_finrank",
+            "f_le_order"
+          ],
+          "spec_sha256": "e0dc478dd575723654db70e3d1e7b08fa362638ca16200c036ef04a224d32432"
+        },
+        "sha256": "6139a7af7ed47af60edbf6b1acd719e5f3467da171f7eb2397385548304b4188"
+      }
+    }
+  }
+}

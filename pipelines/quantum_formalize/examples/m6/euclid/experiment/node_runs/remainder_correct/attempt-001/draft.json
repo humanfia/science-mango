@@ -1,0 +1,6 @@
+{
+  "proof": "change ∀ p q : M6.Euclid.BP, (M6.Euclid.remainder p q).value = p % q ∧ (M6.Euclid.remainder p q).cancellations + M6.Euclid.rank (M6.Euclid.remainder p q).value ≤ M6.Euclid.rank p ∧ (q ≠ 0 → M6.Euclid.rank (M6.Euclid.remainder p q).value < M6.Euclid.rank q)\nintro p q\nhave h : (M6.Euclid.remainder p q).value = p % q ∧ (M6.Euclid.remainder p q).cancellations + M6.Euclid.rank (M6.Euclid.remainder p q).value ≤ M6.Euclid.rank p := by\n  simpa [M6.Euclid.remainder] using\n    (M6.Euclid.remainder_aux_correct (M6.Euclid.rank p) p q (le_refl _))\nrefine ⟨h.1, h.2, ?_⟩\nintro hq\nrw [h.1]\napply ((M6.Euclid.rank_order (p % q) q).1).mpr\nexact Polynomial.degree_mod_lt p hq",
+  "queries": [
+    "Polynomial.degree_mod_lt"
+  ]
+}

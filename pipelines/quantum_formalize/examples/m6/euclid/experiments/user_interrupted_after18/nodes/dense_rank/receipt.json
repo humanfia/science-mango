@@ -1,0 +1,61 @@
+{
+  "id": "dense_rank",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Euclid.dense_rank",
+    "spec_sha256": "2a927c050f5af55a9a2856ca15491c714e2f7c454f4b42fb31fac6069eeea50e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-8yblfk6b/attempt-001/Candidate_d9291e135cdcab1e.lean:31:16: error(lean.unknownIdentifier): Unknown constant `Polynomial.coeff_natDegree_ne_zero.mpr`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-8yblfk6b/attempt-002/Candidate_05cdeb08fd41fa30.lean",
+        "target_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-8yblfk6b/attempt-002/FrozenTarget_05cdeb08fd41fa30.lean",
+        "feedback": "",
+        "target_sha256": "c3782d446411dc5ff922d3e31782ea7a3d3dc42e7178116ff411bb2be89444de",
+        "target_olean_sha256": "f345a66b9dd880b0e4687bcc5e28d9c6a2a92e0b0e7a26050fbfafaf45d533fa",
+        "source_sha256": "8bbd062fa62baf0bb78728fb459ce891fb2ddb80d05f26cfb4508bf9dfa197ab",
+        "olean_sha256": "8809689b21c356ee957ef34aa23b9ff9838dc8964f9fa8bc0367955c0eb4d603",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T13:40:47.059333+00:00",
+    "work": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-8yblfk6b",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "77f2f0a61a166350942b8cde04647e5997bd6f2d2f8fb5f4f56f3285fcd1287c",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-8yblfk6b/attempt-002/Candidate_05cdeb08fd41fa30.lean",
+    "environment_sha256": "81b552595932f7843a5d84c9e1652636cf17eb00709558594967bfaeb7bd9da9",
+    "artifacts": {
+      "dense_rank": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.dense_rank : ∀ (width : ℕ) (p : M6.Euclid.BP), M6.Euclid.rank p ≤ width → M6.Euclid.scanRank width p = M6.Euclid.rank p := by\n  change ∀ (width : ℕ) (p : M6.Euclid.BP), M6.Euclid.rank p ≤ width → M6.Euclid.scanRank width p = M6.Euclid.rank p\n  classical\n  intro width\n  induction width with\n  | zero =>\n      intro p h\n      have hr : M6.Euclid.rank p = 0 := Nat.eq_zero_of_le_zero h\n      simpa [M6.Euclid.scanRank] using hr.symm\n  | succ width ih =>\n      intro p h\n      by_cases hlow : M6.Euclid.rank p ≤ width\n      · have hc : p.coeff width = 0 := by\n          by_cases hp : p = 0\n          · simp [hp]\n          · have hd : p.natDegree < width := by\n              simp [M6.Euclid.rank, hp] at hlow\n              omega\n            exact Polynomial.coeff_eq_zero_of_natDegree_lt hd\n        simpa [M6.Euclid.scanRank, List.range_succ, List.foldl_append, hc] using ih p hlow\n      · have hr : M6.Euclid.rank p = width + 1 := by omega\n        have hp : p ≠ 0 := by\n          intro hp\n          simp [M6.Euclid.rank, hp] at hlow\n        have hd : p.natDegree = width := by\n          simp [M6.Euclid.rank, hp] at hr\n          omega\n        have hc : p.coeff width ≠ 0 := by\n          rw [← hd, Polynomial.coeff_natDegree]\n          intro hz\n          exact hp (Polynomial.leadingCoeff_eq_zero.mp hz)\n        simpa [M6.Euclid.scanRank, List.range_succ, List.foldl_append, hc] using hr.symm",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.dense_rank",
+          "ancestors": [],
+          "spec_sha256": "2a927c050f5af55a9a2856ca15491c714e2f7c454f4b42fb31fac6069eeea50e"
+        },
+        "sha256": "216ce5368ea3aba8d896d176c94e4126269cb3eba68d22a78db23fab56d0a394"
+      }
+    }
+  }
+}

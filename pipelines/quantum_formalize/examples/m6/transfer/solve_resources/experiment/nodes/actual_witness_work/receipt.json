@@ -1,0 +1,55 @@
+{
+  "id": "actual_witness_work",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualTransfer.actual_witness_work",
+    "spec_sha256": "a5b8b9b5a8c0ac4ba12f47c7e77cd459b5ac5e75ce713935185b41b41661ef74",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-solve-resources-formalization/.humanize-formal-runs/run-ca0gtkgt/attempt-001/Candidate_e67e26c40325799e.lean",
+        "target_path": "/home/jing/m6-lean-solve-resources-formalization/.humanize-formal-runs/run-ca0gtkgt/attempt-001/FrozenTarget_e67e26c40325799e.lean",
+        "feedback": "",
+        "target_sha256": "5284eac85e0e1346e7ee799c062ac6fc74d2f810b549a956cb97eb2698c9bb16",
+        "target_olean_sha256": "1783e4677514a5de85d37cf6632e37e0037a21465797d9921e57297c12b00a55",
+        "source_sha256": "2fb6db9b67e3fcbd49058a772fb279728b2db439661f4339a4cf33d9d65c3c31",
+        "olean_sha256": "782185496b78813d5a32c68daf70a2f3e6a61ac897da76c397cb826be7164506",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:22:12.416838+00:00",
+    "work": "/home/jing/m6-lean-solve-resources-formalization/.humanize-formal-runs/run-ca0gtkgt",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5004c2bc8ef3e43efd93c99960d9424a41f05f46d19438b276c3903799eb639b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-solve-resources-formalization/.humanize-formal-runs/run-ca0gtkgt/attempt-001/Candidate_e67e26c40325799e.lean",
+    "environment_sha256": "8d6f0b4971f782240b77c9b203c045f0cd4483da24489dbebc2ef38d5d68dc45",
+    "artifacts": {
+      "actual_witness_work": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.actual_witness_work : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (d : ℕ) (v : M6.Pinned.Vector (2*N)) (k : ℕ), M6.ActualTransfer.span a b < N → M6.ActualTransfer.solve N a b = some (d,v,k) → M6.ActualTransfer.actualWitnessWork N a b k ≤ 200000*N^4*4^(M6.ActualTransfer.span a b) := by\n  intro N inst a b d v k hspan hsolve\n  have ha : a.natDegree ≤ N := by\n    have h : max a.natDegree b.natDegree < N := hspan\n    exact (le_max_left _ _).trans (Nat.le_of_lt h)\n  have hb : b.natDegree ≤ N := by\n    have h : max a.natDegree b.natDegree < N := hspan\n    exact (le_max_right _ _).trans (Nat.le_of_lt h)\n  have hM : (M6.Cyclic.modulus N).natDegree ≤ N := by\n    change (Polynomial.X ^ N + 1 : Polynomial (ZMod 2)).natDegree ≤ N\n    exact (Polynomial.natDegree_add_le _ _).trans (by simp)\n  have he := (M6.Euclid.preprocess_correct_cost N a b (M6.Cyclic.modulus N) ha hb hM).2\n  have hk := M6.ActualTransfer.actual_solve_queries N a b d v k hsolve\n  unfold M6.ActualTransfer.actualWitnessWork\n  exact M6.Transfer.witness_work_bound (M6.ActualTransfer.span a b) N _ k hspan he hk",
+          "imports": [
+            "M6SolveResourcesReady"
+          ],
+          "name": "M6.ActualTransfer.actual_witness_work",
+          "ancestors": [],
+          "spec_sha256": "a5b8b9b5a8c0ac4ba12f47c7e77cd459b5ac5e75ce713935185b41b41661ef74"
+        },
+        "sha256": "4dcb03f110b0199e522fd7d04fec29b9662207c2b2ee8de54511595dc61055c0"
+      }
+    }
+  }
+}

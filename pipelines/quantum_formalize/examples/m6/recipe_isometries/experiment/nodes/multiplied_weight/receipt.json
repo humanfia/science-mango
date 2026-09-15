@@ -1,0 +1,69 @@
+{
+  "id": "multiplied_weight",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.RecipeIsometries.multiplied_weight",
+    "spec_sha256": "1f786e17e26bf53b86d056c0b86d80383c92e3b3ab889c89d8d1e55f87ac72bb",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-qqucoa1s/attempt-001/Candidate_8752ba1dbddbe773.lean",
+        "target_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-qqucoa1s/attempt-001/FrozenTarget_8752ba1dbddbe773.lean",
+        "feedback": "",
+        "target_sha256": "6716c1972bc3cb9533cc44f644b9d691a3b5297d31c6fa9e50b8d163dbab82d8",
+        "target_olean_sha256": "15f49b74a5842064071bf7ec516a1621db6efe8b3b89a9e1ee1b40e84e501393",
+        "source_sha256": "f64d78cfd9f040fc1f8fe5ad01eced0b765461711af51296f66c912672c5da2e",
+        "olean_sha256": "7d29f67896c111f58f9e2533b12ffa54fe459f956f60360af1dc37a04bc94cf0",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:41:44.916306+00:00",
+    "work": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-qqucoa1s",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "55a57ac8060477ab26fffb3466ce9c7eaf76565582acbdc4d51633c9e59ff2c8",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-qqucoa1s/attempt-001/Candidate_8752ba1dbddbe773.lean",
+    "environment_sha256": "105874d9b1f96950dd9cc0ff6ed7f9a0fb22f24362fab932ce70d1d0ca08f217",
+    "artifacts": {
+      "permutation_weight": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.permutation_weight : ∀ (N : ℕ) [NeZero N] (e : Equiv.Perm (ZMod N)) (a : M6.RecipeIsometries.Block N), M6.Physical.weight N (fun i => a (e i)) = M6.Physical.weight N a := by\n  change ∀ (N : ℕ) [NeZero N] (e : Equiv.Perm (ZMod N)) (a : M6.RecipeIsometries.Block N), M6.Physical.weight N (fun i => a (e i)) = M6.Physical.weight N a\n  intro N _ e a\n  classical\n  unfold M6.Physical.weight\n  apply Finset.card_bij (fun i _ => e i)\n  · intro i hi\n    simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hi\n  · intro i hi j hj hij\n    exact e.injective hij\n  · intro j hj\n    refine ⟨e.symm j, ?_, e.apply_symm_apply j⟩\n    simpa using hj",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.permutation_weight",
+          "ancestors": [],
+          "spec_sha256": "69bc00a85175f7f692b209e4709d62294de755ae860445ff4b739595ccf7ae24"
+        },
+        "sha256": "1816d59644d4d70c8f6f7982ea1740a662985953b68589155b1cd533c1b0a5da"
+      },
+      "multiplied_weight": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.multiplied_weight : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (z : M6.RecipeIsometries.Word N), M6.Physical.wordWeight N (M6.RecipeIsometries.multiplyWord N u z) = M6.Physical.wordWeight N z := by\n  change ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (z : M6.RecipeIsometries.Word N), M6.Physical.wordWeight N (M6.RecipeIsometries.multiplyWord N u z) = M6.Physical.wordWeight N z\n  intro N _ u z\n  exact congrArg₂ Nat.add\n    (M6.RecipeIsometries.permutation_weight N (u⁻¹).mulLeft z.1)\n    (M6.RecipeIsometries.permutation_weight N (u⁻¹).mulLeft z.2)",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.multiplied_weight",
+          "ancestors": [
+            "permutation_weight"
+          ],
+          "spec_sha256": "ab982d286b3f937d3a5fd4200efb50236b7613376867b0204abc19fee6b91c07"
+        },
+        "sha256": "d55fa379bf01a9e2e22c474cb8a8660817ddd152c1a34c659837ab5ced759ca7"
+      }
+    }
+  }
+}

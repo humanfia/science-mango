@@ -1,0 +1,163 @@
+{
+  "title": "M6 actual normalized trace, logical counting and witness correctness",
+  "nodes": [
+    {
+      "id": "boundary_normalized",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualResult.boundary_normalized",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N \u2192 \u2200 P : M6.Pinned.Pins (2*N), M6.Normalize.divide ((2 : \u2124)^(M6.ActualCounts.f N a b)) (M6.ActualTransfer.boundaryTrace N a b P) = M6.Pinned.enumerator (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P",
+        "imports": [
+          "M6ActualResultReady"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Use boundary_trace_inputs, actual boundary_pinned_sum and divide_scaled. Convert each natDegree\u2264span<N to degree<N; actual input sums definitionally match. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "cycle_normalized",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualResult.cycle_normalized",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N \u2192 \u2200 P : M6.Pinned.Pins (2*N), M6.Normalize.divide ((2 : \u2124)^N) (M6.ActualTransfer.characterTrace N a b P) = M6.Pinned.enumerator (M6.Spaces.cycleWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P",
+        "imports": [
+          "M6ActualResultReady"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Use character_trace_inputs, actual cycle_pinned_sum and divide_scaled. No free oracle identity. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "Q_enumerator",
+      "dependencies": [
+        "boundary_normalized",
+        "cycle_normalized"
+      ],
+      "spec": {
+        "name": "M6.ActualResult.Q_enumerator",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N \u2192 \u2200 P : M6.Pinned.Pins (2*N), M6.ActualTransfer.Q N a b P = M6.Pinned.enumerator (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P",
+        "imports": [
+          "M6ActualResultReady"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Unfold Q, use normalized identities and enumerator_sdiff with actual boundaries_are_cycles. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "Q_coeff",
+      "dependencies": [
+        "Q_enumerator"
+      ],
+      "spec": {
+        "name": "M6.ActualResult.Q_coeff",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N \u2192 \u2200 (P : M6.Pinned.Pins (2*N)) (d : \u2115), (M6.ActualTransfer.Q N a b P).coeff d = M6.Pinned.count (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P d \u2227 0 \u2264 (M6.ActualTransfer.Q N a b P).coeff d",
+        "imports": [
+          "M6ActualResultReady"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Use actual Q_enumerator, accepted enumerator_coeff and count_nonnegative (check actual accepted name). Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "Q_zero",
+      "dependencies": [
+        "Q_enumerator"
+      ],
+      "spec": {
+        "name": "M6.ActualResult.Q_zero",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N \u2192 \u2200 P : M6.Pinned.Pins (2*N), (M6.ActualTransfer.Q N a b P).coeff 0 = 0",
+        "imports": [
+          "M6ActualResultReady"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Use enumerator_zero_coeff and Spaces.zero_not_logical. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "Q_total",
+      "dependencies": [
+        "Q_enumerator"
+      ],
+      "spec": {
+        "name": "M6.ActualResult.Q_total",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N \u2192 Polynomial.eval 1 (M6.ActualTransfer.Q N a b (M6.Pinned.free (2*N))) = ((M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card : \u2124)",
+        "imports": [
+          "M6ActualResultReady"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Use enumerator_total. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    },
+    {
+      "id": "solve_exact",
+      "dependencies": [
+        "Q_enumerator"
+      ],
+      "spec": {
+        "name": "M6.ActualResult.solve_exact",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N \u2192 (M6.ActualTransfer.solve N a b = none \u2194 (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = \u2205) \u2227 \u2200 (d : \u2115) (v : M6.Pinned.Vector (2*N)) (k : \u2115), M6.ActualTransfer.solve N a b = some (d,v,k) \u2192 v \u2208 (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) \u2227 M6.Pinned.weight v = d \u2227 (\u2200 u \u2208 (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)), d \u2264 M6.Pinned.weight u) \u2227 k \u2264 2*N",
+        "imports": [
+          "M6ActualResultReady"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial coefficient finite sum integer division"
+        ],
+        "guidance": "Instantiate Pinned.solve_exact with actual Q_enumerator. This must be actual sparse Q and actual physical logical set. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "weight preserving involution minimum distance"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "shift_laws",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.RecipeIsometries.shift_laws",
+    "spec_sha256": "660223d52bac9c3bb0e196810e0115e0e382cbe6eee43589ff248ceaa10bf6bd",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-18w8ts4w/attempt-001/Candidate_ceb6eabdea549013.lean",
+        "target_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-18w8ts4w/attempt-001/FrozenTarget_ceb6eabdea549013.lean",
+        "feedback": "",
+        "target_sha256": "7703e76def3c6c7c759a607ad31d49fb0961f0f023fb621b8dfad14bab5f71a6",
+        "target_olean_sha256": "6797c6c4af34b42338372124fa916e75fbe779fb946cf1bd0bc0ef586cfefa2d",
+        "source_sha256": "21344f1916ba906373f7c03d5f7076aab158bd3afc77805f119354ed90c7a682",
+        "olean_sha256": "35215f6d2a87a61c25b2f877c14d8b99112010b09b80c990b862d77c286a9ccd",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:40:33.795690+00:00",
+    "work": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-18w8ts4w",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "55a57ac8060477ab26fffb3466ce9c7eaf76565582acbdc4d51633c9e59ff2c8",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-18w8ts4w/attempt-001/Candidate_ceb6eabdea549013.lean",
+    "environment_sha256": "105874d9b1f96950dd9cc0ff6ed7f9a0fb22f24362fab932ce70d1d0ca08f217",
+    "artifacts": {
+      "shift_laws": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.shift_laws : ∀ (N : ℕ) [NeZero N] (r : ZMod N) (a : M6.RecipeIsometries.Block N), M6.RecipeIsometries.shift N 0 a = a ∧ M6.RecipeIsometries.shift N (-r) (M6.RecipeIsometries.shift N r a) = a ∧ (M6.RecipeIsometries.shift N r a = 0 ↔ a = 0) := by\n  intro N inst r a\n  have hinv (b : M6.RecipeIsometries.Block N) :\n      M6.RecipeIsometries.shift N (-r) (M6.RecipeIsometries.shift N r b) = b := by\n    funext i\n    simp [M6.RecipeIsometries.shift, sub_eq_add_neg, add_assoc]\n  refine ⟨?_, hinv a, ?_⟩\n  · funext i\n    simp [M6.RecipeIsometries.shift]\n  · constructor\n    · intro h\n      calc\n        a = M6.RecipeIsometries.shift N (-r) (M6.RecipeIsometries.shift N r a) := (hinv a).symm\n        _ = M6.RecipeIsometries.shift N (-r) 0 := congrArg (M6.RecipeIsometries.shift N (-r)) h\n        _ = 0 := rfl\n    · intro h\n      subst a\n      rfl",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.shift_laws",
+          "ancestors": [],
+          "spec_sha256": "660223d52bac9c3bb0e196810e0115e0e382cbe6eee43589ff248ceaa10bf6bd"
+        },
+        "sha256": "6cb7e00d646efdc87b2ab2e9236caa2859cdb2b0df19300ed2a4a6366ff619e1"
+      }
+    }
+  }
+}

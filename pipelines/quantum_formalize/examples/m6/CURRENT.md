@@ -2,7 +2,7 @@
 
 In progress; complete M6 has not yet been formally accepted.
 
-167 named targets in the completed batches below passed assembly and unchanged-environment checks. Counts are not completion percentages.
+266 named targets in the completed batches below passed assembly and unchanged-environment checks. Counts are not completion percentages.
 
 | Completed batch | Accepted targets |
 |---|---|
@@ -31,7 +31,21 @@ In progress; complete M6 has not yet been formally accepted.
 |transfer/indexed_array|1|
 |actual_transfer|6|
 |enumerator|3|
+|actual_counts|10|
+|actual_counts/cardinality|9|
+|actual_css|7|
+|actual_transfer/trace_counts|2|
+|actual_result|7|
+|zero_span|8|
+|euclid|21|
+|recipe_isometries|17|
+|transfer/weight_resources|2|
+|transfer/query_resources|6|
+|transfer/postprocessing|5|
+|transfer/post_safety|2|
+|transfer/solve_resources/query_count|1|
+|transfer/solve_resources|2|
 
-Active: actual transfer-to-physical input identities, actual fiber/character normalization, Euclidean preprocessing, and final indexed-array integration. The final root must still connect these to the concrete distance/witness evaluator, account for total resources, preserve recipe isometries and edge cases, and pass original-scope acceptance.
+The actual sparse Q enumerator, minimum witness recovery, actual CSS distance correspondence, k=2f, fixed-span improvement, recipe isometries and zero-span cases are accepted as components. Final original-scope core composition is running. Remaining resource work is the actual Euclidean slot-storage closure and its final solve-storage specialization. No complete-M6 root acceptance is asserted yet.
 
-Model: gpt-6-astra / medium; up to 16 proof workers per DAG, five attempts, Mathlib and Physlib retrieval, frozen exact targets and standard-axiom checks.
+Model: gpt-6-astra / medium; at most16 proof workers per DAG, five attempts, Mathlib and Physlib retrieval, frozen exact targets and standard-axiom checks. Interrupted runs and exact tactic/specification repairs are archived explicitly.

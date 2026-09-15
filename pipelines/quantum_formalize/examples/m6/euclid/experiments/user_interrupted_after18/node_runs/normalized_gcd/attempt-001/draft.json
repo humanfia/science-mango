@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ p q : M6.Euclid.BP, EuclideanDomain.gcd q p = GCDMonoid.gcd p q\nintro p q\nclassical\nhave hab : EuclideanDomain.gcd q p ∣ GCDMonoid.gcd p q := by\n  apply _root_.dvd_gcd\n  · exact EuclideanDomain.gcd_dvd_right q p\n  · exact EuclideanDomain.gcd_dvd_left q p\nhave hba : GCDMonoid.gcd p q ∣ EuclideanDomain.gcd q p := by\n  apply EuclideanDomain.dvd_gcd\n  · exact _root_.gcd_dvd_right p q\n  · exact _root_.gcd_dvd_left p q\napply dvd_antisymm_of_normalize_eq <;>\n  first\n  | exact (M6.Euclid.binary_normalization _).2\n  | exact normalize_gcd p q\n  | exact hab\n  | exact hba",
+  "queries": [
+    "dvd_antisymm_of_normalize_eq",
+    "EuclideanDomain.dvd_gcd"
+  ]
+}

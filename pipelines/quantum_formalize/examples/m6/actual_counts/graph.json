@@ -1,0 +1,268 @@
+{
+  "title": "M6 actual physical boundary fibers and exact input normalization",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Actual coefficient-defined physical boundary and dualBoundary maps; exact2^f fibers and2^N character normalization. Degree bounds only, repeated factors preserved. No assumed oracle or unspecified cardinality. Trace construction is separately owned.",
+  "pending_dependency": "coordinates11, boundary_fibers7, flatten9, spaces9 and character17 verified imports",
+  "nodes": [
+    {
+      "id": "encoded_boundary",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualCounts.encoded_boundary",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot \u2115) \u2192 b.degree < (N : WithBot \u2115) \u2192 \u2200 h : M6.Physical.Block N, (M6.Coordinates.encode N (M6.Physical.conv N (M6.Coordinates.coefficients N a) h), M6.Coordinates.encode N (M6.Physical.conv N (M6.Coordinates.coefficients N b) h)) = M6.BoundaryFibers.boundary a b (M6.Cyclic.modulus N) (M6.Coordinates.encode N h)",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Rewrite encode_conv then encode_polynomial for a,b using the degree bounds; unfold quotient boundary/image. Both polynomial multiplicities and even N remain present. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "boundary_eq_iff",
+      "dependencies": [
+        "encoded_boundary"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.boundary_eq_iff",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot \u2115) \u2192 b.degree < (N : WithBot \u2115) \u2192 \u2200 h h\u2080 : M6.Physical.Block N, M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h = M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h\u2080 \u2194 M6.BoundaryFibers.boundary a b (M6.Cyclic.modulus N) (M6.Coordinates.encode N h) = M6.BoundaryFibers.boundary a b (M6.Cyclic.modulus N) (M6.Coordinates.encode N h\u2080)",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Spaces.boundary_eval identifies flatten of physical boundary. Flatten is injective by flatten_left; encode is injective in each component. Rewrite both encoded_boundary identities to prove the equality equivalence. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "boundary_fiber_card",
+      "dependencies": [
+        "boundary_eq_iff"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.boundary_fiber_card",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot \u2115) \u2192 b.degree < (N : WithBot \u2115) \u2192 \u2200 h\u2080 : M6.Physical.Block N, Nat.card {h : M6.Physical.Block N // M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h = M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h\u2080} = 2^(M6.ActualCounts.f N a b)",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Build Equiv.ofBijective encode from accepted injectivity/surjectivity and restrict it to equal-boundary fibers using boundary_eq_iff. Nat.card_congr then the accepted BoundaryFibers.fiber_card gives the exact2^f. modulus nonzero follows from its monicity. Do not replace the fiber-cardinality target by an assumption. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "dual_boundary_fiber_card",
+      "dependencies": [
+        "boundary_fiber_card"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.dual_boundary_fiber_card",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot \u2115) \u2192 b.degree < (N : WithBot \u2115) \u2192 \u2200 h\u2080 : M6.Physical.Block N, Nat.card {h : M6.Physical.Block N // M6.Spaces.dualBoundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h = M6.Spaces.dualBoundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h\u2080} = 2^(M6.ActualCounts.f N a b)",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Actual dualBoundary is flatten\u2218J\u2218physicalBoundary. Both flatten and J are injective via their accepted left inverse/involution. Thus dual equality iff actual boundary equality and identity on h induces the fiber equivalence. Use boundary_fiber_card. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "finite_image_weighted_sum",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualCounts.finite_image_weighted_sum",
+        "statement": "\u2200 (\u03b1 \u03b2 : Type) [Fintype \u03b1] (L : \u03b1 \u2192 \u03b2) (k : \u2115), (\u2200 a\u2080 : \u03b1, Nat.card {a : \u03b1 // L a = L a\u2080} = k) \u2192 \u2200 w : \u03b2 \u2192 Polynomial \u2124, (\u2211 a, w (L a)) = Polynomial.C (k : \u2124) * \u2211 b \u2208 M6.ActualCounts.imageWords L, w b",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Restrict codomain to the actual finite imageWords L. Every image point has a preimage, so the hypothesis identifies every fiber.card with k. Apply accepted FiberSum.uniform_weighted_sum on the finite image subtype, then rewrite its subtype sum as the finite image sum. No positivity/surjectivity assumption on arbitrary \u03b2; image restriction supplies actual surjectivity. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "boundary_weighted_sum",
+      "dependencies": [
+        "boundary_fiber_card",
+        "finite_image_weighted_sum"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.boundary_weighted_sum",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot \u2115) \u2192 b.degree < (N : WithBot \u2115) \u2192 \u2200 w : M6.Pinned.Vector (2*N) \u2192 Polynomial \u2124, (\u2211 h : M6.Physical.Block N, w (M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h)) = Polynomial.C ((2 : \u2124)^(M6.ActualCounts.f N a b)) * \u2211 v \u2208 M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b), w v",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Instantiate finite_image_weighted_sum with the actual boundary and its proven fiber cardinality. Its imageWords is boundaryWords by range membership or accepted boundary_words_iff and boundary_eval. Normalize Nat power cast into integer power. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "dual_weighted_sum",
+      "dependencies": [
+        "dual_boundary_fiber_card",
+        "finite_image_weighted_sum"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.dual_weighted_sum",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot \u2115) \u2192 b.degree < (N : WithBot \u2115) \u2192 \u2200 w : M6.Pinned.Vector (2*N) \u2192 Polynomial \u2124, (\u2211 h : M6.Physical.Block N, w (M6.Spaces.dualBoundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h)) = Polynomial.C ((2 : \u2124)^(M6.ActualCounts.f N a b)) * \u2211 v \u2208 M6.Character.subspaceWords (M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)), w v",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Instantiate finite_image_weighted_sum with actual dualBoundary and proven fiber.card. subspaceWords of D=(dualBoundary).range equals finite image by membership. Normalize Nat power cast. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "input_normalization",
+      "dependencies": [
+        "dual_weighted_sum"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.input_normalization",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot \u2115) \u2192 b.degree < (N : WithBot \u2115) \u2192 2^(M6.ActualCounts.f N a b) * (M6.Character.subspaceWords (M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b))).card = 2^N",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Set weights1 in actual dual_weighted_sum, compare coefficient0 and exact_mod_cast. Spaces.input_card gives actual input cardinality2^N. Do not assume this normalization or leave a free cardinal parameter. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "boundary_pinned_sum",
+      "dependencies": [
+        "boundary_weighted_sum"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.boundary_pinned_sum",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot \u2115) \u2192 b.degree < (N : WithBot \u2115) \u2192 \u2200 P : M6.Pinned.Pins (2*N), M6.ActualCounts.boundaryInputSum N a b P = Polynomial.C ((2 : \u2124)^(M6.ActualCounts.f N a b)) * M6.Pinned.enumerator (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Specialize actual boundary_weighted_sum to pinnedMonomial. Its finite boundary sum is exactly shared Pinned.enumerator; unfold the actual input sum and the frozen definitions. No trace or algorithm statement is needed here. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "cycle_pinned_sum",
+      "dependencies": [
+        "dual_weighted_sum",
+        "input_normalization"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.cycle_pinned_sum",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot \u2115) \u2192 b.degree < (N : WithBot \u2115) \u2192 \u2200 P : M6.Pinned.Pins (2*N), M6.ActualCounts.signedInputSum N a b P = Polynomial.C ((2 : \u2124)^N) * M6.Pinned.enumerator (M6.Spaces.cycleWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P",
+        "imports": [
+          "M6ActualCounts",
+          "M6ActualCountsDependencies"
+        ],
+        "context": "",
+        "queries": [
+          "finite equivalence subtype fiber cardinality",
+          "finite image sum subtype sum polynomial"
+        ],
+        "guidance": "Specialize actual dual_weighted_sum to product of pinnedCharacterFactor. Its image sum is pinnedTransform(D). Accepted pinned_macwilliams rewrites this as C(|D|)*Pinned.enumerator(dualWordsD). CombineC(2^f)C(|D|) and proven input_normalization toC(2^N). cycleWords is exactly dualWordsD. All actual fiber and input factors have been proved; no free oracle/card assumption. Return tactic lines only, without leading by; preserve exact assumptions and target."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4/5 actual physical normalization",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

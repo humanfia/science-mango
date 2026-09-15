@@ -1,0 +1,55 @@
+{
+  "id": "character_loops",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ZeroSpan.character_loops",
+    "spec_sha256": "897521f5e95be86be66417ff5f6f5ccd247d581211d6a8f0028b426ad6c9e743",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-b1paqzft/attempt-001/Candidate_0be3455cce5b962b.lean",
+        "target_path": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-b1paqzft/attempt-001/FrozenTarget_0be3455cce5b962b.lean",
+        "feedback": "",
+        "target_sha256": "ba28d7ca43aeb502dc2cbf39c25aac0074f1c0880b2ccbcc9eb489415ed1836b",
+        "target_olean_sha256": "9c43ba0cf9349fa47da4bb149e49726121903c0195e8e8cd1018e4e00e6e6557",
+        "source_sha256": "bd997ce6586884a8273ae8e185271b2fc3b64efdd20857e7a42fe96095cb2e5b",
+        "olean_sha256": "fab8e8c12224db60499c2f87707c93abb7193d15e6b2c11535f495dee1e5b4f6",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:28:20.256533+00:00",
+    "work": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-b1paqzft",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "97a2bab5a4c0acc9dc78adff123fd4c30cb20174f235ee77b2d65c8d7ff9e420",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-b1paqzft/attempt-001/Candidate_0be3455cce5b962b.lean",
+    "environment_sha256": "e3a1ee3d1c1e0a750fa56d6a20e71bdd13b166ea223b3fa91dc892c68e61bcaa",
+    "artifacts": {
+      "character_loops": {
+        "payload": {
+          "declaration": "theorem M6.ZeroSpan.character_loops : ∀ (N : ℕ) [NeZero N] (i : ℕ) (m n : M6.Transfer.Memory 0), M6.Transfer.edgeMatrix (M6.ActualTransfer.characterWeight 0 N 1 1 (M6.Pinned.free (2*N)) i) m n = Polynomial.C 2 * ((1 : Polynomial ℤ) + Polynomial.X^2) := by\n  classical\n  intro N hN i m n\n  have heq : ∀ a b : M6.Transfer.Memory 0, a = b ↔ True := by\n    intro a b\n    exact iff_true_intro (Subsingleton.elim a b)\n  have hu : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by\n    decide\n  have hout : ∀ t : ZMod 2, M6.Transfer.output (M6.ActualTransfer.window 0 1) m t = t := by\n    intro t\n    simp [M6.Transfer.output, M6.ActualTransfer.window]\n  have hv : (1 : ZMod 2).val = 1 := rfl\n  simp [M6.Transfer.edgeMatrix, heq, hu, M6.ActualTransfer.characterWeight,\n    hout, M6.Character.free_character_factor, M6.Character.sign, hv]\n  <;> ring",
+          "imports": [
+            "M6ZeroSpan"
+          ],
+          "name": "M6.ZeroSpan.character_loops",
+          "ancestors": [],
+          "spec_sha256": "897521f5e95be86be66417ff5f6f5ccd247d581211d6a8f0028b426ad6c9e743"
+        },
+        "sha256": "766df37de8437b26fd80be3821cfe74d9283b286b147f65aed713eb579e89723"
+      }
+    }
+  }
+}

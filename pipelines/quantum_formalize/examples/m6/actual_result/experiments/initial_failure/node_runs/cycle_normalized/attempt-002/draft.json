@@ -1,0 +1,6 @@
+{
+  "proof": "intro N inst a b h P\nrw [M6.ActualTransfer.character_trace_inputs N a b h P]\nfirst\n| rw [M6.ActualCounts.cycle_pinned_sum]\n| rw [← M6.ActualCounts.cycle_pinned_sum]\nall_goals first\n| exact M6.Normalize.divide_scaled _ _ (pow_ne_zero _ (by norm_num))\n| exact h\n| exact lt_of_le_of_lt (show a.natDegree ≤ M6.ActualTransfer.span a b from Nat.le_max_left _ _) h\n| exact lt_of_le_of_lt (show b.natDegree ≤ M6.ActualTransfer.span a b from Nat.le_max_right _ _) h\n| exact Polynomial.degree_lt_of_natDegree_lt (lt_of_le_of_lt (show a.natDegree ≤ M6.ActualTransfer.span a b from Nat.le_max_left _ _) h)\n| exact Polynomial.degree_lt_of_natDegree_lt (lt_of_le_of_lt (show b.natDegree ≤ M6.ActualTransfer.span a b from Nat.le_max_right _ _) h)",
+  "queries": [
+    "M6.ActualCounts.cycle_pinned_sum"
+  ]
+}

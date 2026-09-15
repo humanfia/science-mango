@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst a b ha hb\nhave hs := M6.ActualCounts.dual_weighted_sum N a b ha hb\n  (fun _ => (1 : Polynomial ℤ))\nhave hc := congrArg (fun p : Polynomial ℤ => Polynomial.eval (0 : ℤ) p) hs\nsimp only [Polynomial.eval_sum, Polynomial.eval_mul, Polynomial.eval_C,\n  Polynomial.eval_one, Finset.sum_const, Finset.card_univ,\n  nsmul_eq_mul, mul_one] at hc\nhave hcard : Fintype.card (M6.Physical.Block N) = 2 ^ N := by\n  simpa only [Nat.card_eq_fintype_card] using M6.Spaces.input_card N\nrw [hcard] at hc\nexact_mod_cast hc.symm",
+  "queries": []
+}

@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryWork R N ≤ 40000 * N^3 * 4^R\nintro R N hRN\nhave hN : 1 ≤ N := by omega\nhave hR : R ≤ N := Nat.le_of_lt hRN\nhave h4 : 1 ≤ (4 : ℕ)^R := Nat.one_le_pow _ _ (by omega)\nhave hN2 : N ≤ N^2 := by nlinarith\nhave hN3 : N^2 ≤ N^3 := by nlinarith [Nat.mul_le_mul_left N hN2]\nhave hRN1 : R * N ≤ N^2 := by nlinarith [Nat.mul_le_mul_right N hR]\nhave hRN2 : R * N^2 ≤ N^3 := by nlinarith [Nat.mul_le_mul_right (N^2) hR]\nhave hscale : N^3 ≤ N^3 * 4^R := by simpa using Nat.mul_le_mul_left (N^3) h4\nhave hw := M6.Transfer.actual_trace_work_bound R N hRN\nhave hp : M6.Transfer.postWork R N ≤ 7232 * N^3 * 4^R := by\n  simp [M6.Transfer.postWork, M6.Transfer.PostEvent,\n    M6.Transfer.queryCoefficientBits, M6.Transfer.coefficientBits,\n    M6.Transfer.actualAddressBits, M6.Transfer.addressBits]\n  <;> nlinarith\nunfold M6.Transfer.pairedQueryWork\nnlinarith",
+  "queries": [
+    "M6.Transfer.postWork M6.Transfer.PostEvent definitions",
+    "M6.Transfer.queryCoefficientBits definition",
+    "M6.Transfer.pairedQueryWork definition"
+  ]
+}

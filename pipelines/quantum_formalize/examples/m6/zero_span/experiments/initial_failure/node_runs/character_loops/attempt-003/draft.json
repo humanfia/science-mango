@@ -1,0 +1,8 @@
+{
+  "proof": "intro N hN i m n\nclassical\nhave heq : ∀ a b : M6.Transfer.Memory 0, (a = b) ↔ True := by\n  intro a b\n  exact iff_true_intro (Subsingleton.elim a b)\nhave hu : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by\n  decide\nhave hout : ∀ t : ZMod 2,\n    M6.Transfer.localOutput (M6.ActualTransfer.window 0 1) m t = t := by\n  intro t\n  simp [M6.Transfer.localOutput, M6.ActualTransfer.window, Fin.sum_univ_succ]\n  <;> rfl\nsimp [M6.Transfer.edgeMatrix, heq, M6.ActualTransfer.characterWeight,\n  hout, M6.Character.free_character_factor, hu, M6.Character.sign]\n<;> ring",
+  "queries": [
+    "M6.Transfer.localOutput definition and zero memory evaluation",
+    "M6.Character.free_character_factor exact statement",
+    "M6.Transfer.edgeMatrix definition"
+  ]
+}

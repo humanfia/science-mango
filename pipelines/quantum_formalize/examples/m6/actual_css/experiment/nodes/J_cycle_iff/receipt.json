@@ -1,0 +1,85 @@
+{
+  "id": "J_cycle_iff",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualCSS.J_cycle_iff",
+    "spec_sha256": "f38e70b215f2d8422dd874ad2e52e684899042a34cc4309125d047847cc63929",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-hktyhtgq/attempt-001/Candidate_507998970acfc2b1.lean",
+        "target_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-hktyhtgq/attempt-001/FrozenTarget_507998970acfc2b1.lean",
+        "feedback": "",
+        "target_sha256": "fe8aa8cd05f010be540da0898925a0536a5652e30fc3385c19e8f1314b86c8b5",
+        "target_olean_sha256": "1e7c5b3dca2ce712455f93ca57ebfb9d0a51f11fec842ff56575120404434179",
+        "source_sha256": "75673d1ea009dfc29badeed7875bbb71906e1cc31beef1cb8141501a7f9a86ab",
+        "olean_sha256": "6b84362bd91646c8937dc5953494a2f6ccb62e40fe5176bbfcdbe946063f99c3",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:24:14.039053+00:00",
+    "work": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-hktyhtgq",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "90bd047fe8381377a625417803863e879a04e18e7c57e089cca2653842a8c229",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-hktyhtgq/attempt-001/Candidate_507998970acfc2b1.lean",
+    "environment_sha256": "6d8c6db986ed996087eb85669849f1f62077f0ae3a8aa5322cdb255235f9bfc4",
+    "artifacts": {
+      "J_dot": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.J_dot : ∀ (N : ℕ) [NeZero N] (v w : M6.Pinned.Vector (2*N)), M6.Character.dot (M6.Flatten.J N v) (M6.Flatten.J N w) = M6.Character.dot v w := by\n  change ∀ (N : ℕ) [NeZero N] (v w : M6.Pinned.Vector (2*N)), M6.Character.dot (M6.Flatten.J N v) (M6.Flatten.J N w) = M6.Character.dot v w\n  intro N _ v w\n  have hrev (a b : M6.Physical.Block N) :\n      M6.Physical.dot N (fun i => a (-i)) (fun i => b (-i)) =\n        M6.Physical.dot N a b := by\n    change (∑ i : ZMod N, a (-i) * b (-i)) = ∑ i : ZMod N, a i * b i\n    exact Fintype.sum_equiv (Equiv.neg (ZMod N)) _ _ (fun _ => rfl)\n  have hJ (z t : M6.Physical.Word N) :\n      M6.Physical.pairing N (M6.Physical.J N z) (M6.Physical.J N t) =\n        M6.Physical.pairing N z t := by\n    change M6.Physical.dot N (fun i => z.2 (-i)) (fun i => t.2 (-i)) +\n        M6.Physical.dot N (fun i => z.1 (-i)) (fun i => t.1 (-i)) =\n      M6.Physical.dot N z.1 t.1 + M6.Physical.dot N z.2 t.2\n    rw [hrev, hrev, add_comm]\n  unfold M6.Flatten.J\n  rw [M6.Flatten.flatten_dot, hJ]\n  exact (by simpa only [M6.Flatten.flatten_right] using\n    (M6.Flatten.flatten_dot N (M6.Flatten.unflatten N v)\n      (M6.Flatten.unflatten N w)).symm)",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.J_dot",
+          "ancestors": [],
+          "spec_sha256": "5e3791b43c3025f3a7e992c1cfbd04ba69a550fb819c47d47227442be4fa37a8"
+        },
+        "sha256": "9a357473abab1a8abf0e8718d039d418f93a7f924ca668ff66ea53229505a4fe"
+      },
+      "J_boundary_iff": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.J_boundary_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.Spaces.boundaryWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) := by\n  intro N inst a b v\n  classical\n  have hJ (h : M6.Physical.Block N) :\n      M6.Spaces.dualBoundary N a b h =\n        M6.Flatten.J N (M6.Flatten.flatten N (M6.Physical.boundary N a b h)) := by\n    rw [M6.Spaces.dual_boundary_eval]\n    simp only [M6.Flatten.J, M6.Flatten.flatten_left]\n  have hmem :\n      M6.Flatten.J N v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) ↔\n        ∃ h : M6.Physical.Block N,\n          M6.Spaces.dualBoundary N a b h = M6.Flatten.J N v := by\n    simp [M6.Character.subspaceWords, M6.Spaces.D, LinearMap.mem_range]\n  rw [M6.Spaces.boundary_words_iff, hmem]\n  constructor\n  · rintro ⟨h, hh⟩\n    exact ⟨h, (hJ h).trans (congrArg (M6.Flatten.J N) hh)⟩\n  · rintro ⟨h, hh⟩\n    refine ⟨h, ?_⟩\n    rw [hJ h] at hh\n    have he := congrArg (M6.Flatten.J N) hh\n    simpa only [M6.Flatten.J_involution] using he",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.J_boundary_iff",
+          "ancestors": [],
+          "spec_sha256": "e2619b2004d999afdf07d05ca9ef3c76ac7af8dbb9e6a28c2af2af9fe237ca6a"
+        },
+        "sha256": "a41aeb4012fbec498c8418cbc6c52016f304482292936497e6508dff8c865081"
+      },
+      "J_cycle_iff": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.J_cycle_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.dualWords (M6.Spaces.B N a b) := by\n  change ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.dualWords (M6.Spaces.B N a b)\n  intro N inst a b v\n  classical\n  have hmem :\n      M6.Flatten.J N v ∈ M6.Character.dualWords (M6.Spaces.B N a b) ↔\n        ∀ h : M6.Physical.Block N,\n          M6.Character.dot (M6.Spaces.boundary N a b h) (M6.Flatten.J N v) = 0 := by\n    unfold M6.Character.dualWords\n    rw [Finset.mem_filter]\n    simp only [Finset.mem_univ, true_and, M6.Character.Orthogonal, M6.Spaces.B, LinearMap.mem_range]\n    constructor\n    · intro hh h\n      exact hh _ ⟨h, rfl⟩\n    · intro hh q hq\n      rcases hq with ⟨h, rfl⟩\n      exact hh h\n  have hpair (h : M6.Physical.Block N) :\n      M6.Character.dot (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h))) v =\n        M6.Character.dot (M6.Spaces.boundary N a b h) (M6.Flatten.J N v) := by\n    have hJ :\n        M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N a b h)) =\n          M6.Flatten.J N (M6.Spaces.boundary N a b h) := by\n      rw [M6.Spaces.boundary_eval]\n      simp only [M6.Flatten.J, M6.Flatten.flatten_left]\n    rw [hJ]\n    simpa only [M6.Flatten.J_involution] using\n      (M6.ActualCSS.J_dot N (M6.Spaces.boundary N a b h) (M6.Flatten.J N v))\n  rw [M6.Spaces.cycle_words_iff, M6.Flatten.cycle_orthogonal, hmem]\n  simp only [hpair]",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.J_cycle_iff",
+          "ancestors": [
+            "J_boundary_iff",
+            "J_dot"
+          ],
+          "spec_sha256": "32a571dec7c7e7d9c0c8e6ddf6568b909301a9fea30c9f9e5284f9f6c9c1fa09"
+        },
+        "sha256": "f76154a801fd00e0e2732508b004b3087d64389fd4f867bca7ea268b2451d89e"
+      }
+    }
+  }
+}

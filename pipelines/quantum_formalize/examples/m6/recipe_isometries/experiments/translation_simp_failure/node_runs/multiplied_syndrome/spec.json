@@ -1,0 +1,12 @@
+{
+  "name": "M6.RecipeIsometries.multiplied_syndrome",
+  "statement": "∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a b : M6.RecipeIsometries.Block N) (z : M6.RecipeIsometries.Word N), M6.Physical.syndrome N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) (M6.RecipeIsometries.multiplyWord N u z) = M6.RecipeIsometries.multiply N u (M6.Physical.syndrome N a b z)",
+  "imports": [
+    "M6RecipeIsometries"
+  ],
+  "context": "theorem M6.RecipeIsometries.conv_multiply : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a h : M6.RecipeIsometries.Block N), M6.Physical.conv N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u h) = M6.RecipeIsometries.multiply N u (M6.Physical.conv N a h) := by\n  intro N _ u a h\n  classical\n  funext i\n  change (∑ j : ZMod N, a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j))) =\n    ∑ k : ZMod N, a k * h ((↑(u⁻¹) : ZMod N) * i - k)\n  calc\n    _ = ∑ k : ZMod N, a ((↑(u⁻¹) : ZMod N) * ((↑u : ZMod N) * k)) *\n        h ((↑(u⁻¹) : ZMod N) * (i - (↑u : ZMod N) * k)) :=\n      (Equiv.sum_comp u.mulLeft (fun j : ZMod N =>\n        a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j)))).symm\n    _ = _ := by\n      apply Finset.sum_congr rfl\n      intro k hk\n      simp [mul_sub, ← mul_assoc]",
+  "queries": [
+    "finite sum reindex equivalence translation"
+  ],
+  "guidance": "Apply conv_multiply to both syndrome convolutions, then function extensionality; multiply is a coordinate pullback and distributes over the pointwise sum. Return tactic proof lines without leading by, retaining the exact frozen statement and default limits."
+}

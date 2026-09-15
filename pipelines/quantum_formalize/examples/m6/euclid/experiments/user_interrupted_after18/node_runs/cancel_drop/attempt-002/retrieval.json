@@ -1,0 +1,104 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.div_wf_lemma",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101999,
+        "name": "Polynomial.div_wf_lemma",
+        "module": "Mathlib.Algebra.Polynomial.Div",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Div.lean#L106-L117",
+        "source_text": "theorem div_wf_lemma (h : degree q ≤ degree p ∧ p ≠ 0) (hq : Monic q) :\n    degree (p - q * (C (leadingCoeff p) * X ^ (natDegree p - natDegree q))) < degree p :=\n  have hp : leadingCoeff p ≠ 0 := mt leadingCoeff_eq_zero.1 h.2\n  have hq0 : q ≠ 0 := hq.ne_zero_of_polynomial_ne h.2\n  have hlt : natDegree q ≤ natDegree p :=\n    (Nat.cast_le (α := WithBot ℕ)).1\n      (by rw [← degree_eq_natDegree h.2, ← degree_eq_natDegree hq0]; exact h.1)\n  degree_sub_lt\n    (by\n      rw [hq.degree_mul_comm, hq.degree_mul, degree_C_mul_X_pow _ hp, degree_eq_natDegree h.2,\n        degree_eq_natDegree hq0, ← Nat.cast_add, tsub_add_cancel_of_le hlt])\n    h.2 (by rw [leadingCoeff_monic_mul hq, leadingCoeff_mul_X_pow, leadingCoeff_C])\n",
+        "docstring": null
+      },
+      {
+        "id": 326893,
+        "name": "Mathlib.Tactic.ComputeDegree.dispatchLemma",
+        "module": "Mathlib.Tactic.ComputeDegree",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ComputeDegree.lean#L306-L367",
+        "source_text": "/--\n`dispatchLemma twoH` takes its input `twoH` from the output of `twoHeadsArgs`.\n\nUsing the information contained in `twoH`, it decides which lemma is the most appropriate.\n\n`dispatchLemma` is essentially the main dictionary for `compute_degree`.\n-/\n--  Internally, `dispatchLemma` produces 3 names: these are the lemmas that are appropriate\n--  for goals of the form `natDegree f ≤ d`, `degree f ≤ d`, `coeff f d = a`, in this order.\ndef dispatchLemma\n    (twoH : Name × Name × (Name ⊕ Name) × List Bool) (debug : Bool := false) : Name :=\n  match twoH with\n    | (.anonymous, _, _) => ``id -- `twoH` gave default value, so we do nothing\n    | (_, .anonymous, _) => ``id -- `twoH` gave default value, so we do nothing\n    | (na1, na2, head, bools) =>\n      let msg := f!\"\\ndispatchLemma:\\n  {head}\"\n      -- if there is some non-metavariable on the way, we \"congr\" it away\n      if false ∈ bools then getCongrLemma (na1, na2, bools) debug\n      else\n      -- otherwise, we select either the first, second or third element of the triple in `nas` below\n      let π (natDegLE : Name) (degLE : Name) (coeff : Name) : Name := Id.run do\n        let lem := match na1, na2 with\n          | ``natDegree, ``LE.le => natDegLE\n          | ``degree, ``LE.le => degLE\n          | ``coeff, ``Eq => coeff\n          | _, ``LE.le => ``le_rfl\n          | _, _ => ``rfl\n        if debug then\n          dbg_trace f!\"{lem.lastComponentAsString}\\n{msg}\"\n        lem\n      match head with\n        | .inl `zero => π ``natDegree_zero_le ``degree_zero_le ``coeff_zero\n        | .inl `one  => π ``natDegree_one_le ``degree_one_le ``coeff_one\n        | .inl `many => π ``natDegree_natCast_le ``degree_natCast_le ``coeff_natCast_ite\n        | .inl .anonymous => π ``le_rfl ``le_rfl ``rfl\n        | .inr ``HAdd.hAdd =>\n          π ``natDegree_add_le_of_le ``degree_add_le_of_le ``coeff_add_of_eq\n        | .inr ``HSub.hSub =>\n          π ``natDegree_sub_le_of_le ``degree_sub_le_of_le ``coeff_sub_of_eq\n        | .inr ``HMul.hMul =>\n          π ``natDegree_mul_le_of_le ``degree_mul_le_of_le ``coeff_mul_add_of_le_natDegree_of_eq_ite\n        | .inr ``HPow.hPow =>\n          π ``natDegree_pow_le_of_le ``degree_pow_le_of_le ``coeff_pow_of_natDegree_le_of_eq_ite'\n        | .inr ``Neg.neg =>\n          π ``natDegree_neg_le_of_le ``degree_neg_le_of_le ``coeff_neg\n        | .inr ``Polynomial.X =>\n          π ``natDegree_X_le ``degree_X_le ``coeff_X\n        | .inr ``Nat.cast =>\n          π ``natDegree_natCast_le ``degree_natCast_le ``coeff_natCast_ite\n        | .inr ``NatCast.natCast =>\n          π ``natDegree_natCast_le ``degree_natCast_le ``coeff_natCast_ite\n        | .inr ``Int.cast =>\n          π ``natDegree_intCast_le ``degree_intCast_le ``coeff_intCast_ite\n        | .inr ``IntCast.intCast =>\n          π ``natDegree_intCast_le ``degree_intCast_le ``coeff_intCast_ite\n        | .inr ``Polynomial.monomial =>\n          π ``natDegree_monomial_le ``degree_monomial_le ``coeff_monomial\n        | .inr ``Polynomial.C =>\n          π ``natDegree_C_le ``degree_C_le ``coeff_C\n        | .inr ``HSMul.hSMul =>\n          π ``natDegree_smul_le_of_le ``degree_smul_le_of_le ``coeff_smul\n        | _ => π ``le_rfl ``le_rfl ``rfl\n",
+        "docstring": "`dispatchLemma twoH` takes its input `twoH` from the output of `twoHeadsArgs`.\n\nUsing the information contained in `twoH`, it decides which lemma is the most appropriate.\n\n`dispatchLemma` is essentially the main dictionary for `compute_degree`.\n"
+      },
+      {
+        "id": 102001,
+        "name": "Polynomial.divByMonic",
+        "module": "Mathlib.Algebra.Polynomial.Div",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Div.lean#L131-L134",
+        "source_text": "/-- `divByMonic`, denoted as `p /ₘ q`, gives the quotient of `p` by a monic polynomial `q`. -/\ndef divByMonic (p q : R[X]) : R[X] :=\n  letI := Classical.decEq R\n  if hq : Monic q then (divModByMonicAux p hq).1 else 0\n",
+        "docstring": "`divByMonic`, denoted as `p /ₘ q`, gives the quotient of `p` by a monic polynomial `q`. "
+      },
+      {
+        "id": 110590,
+        "name": "WeierstrassCurve.ΨSq",
+        "module": "Mathlib.AlgebraicGeometry.EllipticCurve.DivisionPolynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/AlgebraicGeometry/EllipticCurve/DivisionPolynomial/Basic.lean#L241-L243",
+        "source_text": "/-- The univariate polynomials `ΨSqₙ` congruent to `ψₙ²`. -/\nnoncomputable def ΨSq (n : ℤ) : R[X] :=\n  W.preΨ n ^ 2 * if Even n then W.Ψ₂Sq else 1\n",
+        "docstring": "The univariate polynomials `ΨSqₙ` congruent to `ψₙ²`. "
+      },
+      {
+        "id": 296256,
+        "name": "Set.IsWF",
+        "module": "Mathlib.Order.WellFoundedSet",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/WellFoundedSet.lean#L203-L205",
+        "source_text": "/-- `s.IsWF` indicates that `<` is well-founded when restricted to `s`. -/\ndef IsWF (s : Set α) : Prop :=\n  WellFoundedOn s (· < ·)\n",
+        "docstring": "`s.IsWF` indicates that `<` is well-founded when restricted to `s`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Polynomial.div_wf_lemma",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387075,
+        "name": "elabLemmaWanted",
+        "module": "Physlib.Meta.Informal.SemiFormal",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/SemiFormal.lean#L63-L94",
+        "source_text": "/-- The elaborator for semiformal results. -/\n@[command_elab «semiformal_result»]\nmeta def elabLemmaWanted : CommandElab := fun stx =>\n  match stx with\n  | `($doc:docComment semiformal_result $s $name $args* : $res) =>\n    let tag : String := s.getString\n    let pos := stx.getPos?\n    let docString : String := doc.getDocString\n    match pos with\n    | some pos => do\n      let env ← getEnv\n      let fileMap ← getFileMap\n      let filePos := fileMap.toPosition pos\n      let line := filePos.line\n      let modName := env.mainModule\n      let wantedInfo : WantedInfo := {\n        content := docString,\n        name := (Lean.Elab.expandDeclIdCore name).1,\n        fileName := modName,\n        line := line,\n        tag := tag }\n      let _ ← modifyEnv fun env => wantedExtension.addEntry env wantedInfo\n      let _ ← withoutModifyingEnv do\n      elabCommand <| ←\n        `(section\n        set_option linter.unusedVariables false\n        axiom helper {α : Sort _} : α\n        $doc:docComment noncomputable def $name $args* : $res := helper\n        end)\n      pure ()\n    | none => throwError \"Invalid syntax for `lemma_wanted` command\"\n  | _ => throwError \"Invalid syntax for `lemma_wanted` command\"\n",
+        "docstring": "The elaborator for semiformal results. "
+      },
+      {
+        "id": 387060,
+        "name": "InformalLemma",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L30-L36",
+        "source_text": "/-- The structure representing an informal lemma. -/\nstructure InformalLemma where\n  /-- The names of top-level commands we expect this lemma to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal lemma. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal lemma. "
+      },
+      {
+        "id": 387062,
+        "name": "Informal.informalLemmaDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L65-L67",
+        "source_text": "macro (name := informalLemmaDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_lemma \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalLemma $body:declVal)\n",
+        "docstring": "A placeholder for lemmas to be formalized in the future. Docstrings of informal lemmas\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387064,
+        "name": "Informal.isInformalLemma",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L28-L31",
+        "source_text": "/-- Is true if and only if a `ConstantInfo` corresponds to an `InformalLemma`. -/\ndef isInformalLemma : ConstantInfo → Bool\n  | .defnInfo c => c.type.isConstOf ``InformalLemma\n  | _ => false\n",
+        "docstring": "Is true if and only if a `ConstantInfo` corresponds to an `InformalLemma`. "
+      },
+      {
+        "id": 387066,
+        "name": "Informal.constantInfoToInformalLemma",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L38-L43",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalLemma` and returns\n  the corresponding `InformalLemma`. -/\nunsafe def constantInfoToInformalLemma (c : ConstantInfo) : CoreM InformalLemma := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalLemma ``InformalLemma c.name\n  | _ => panic! \"Passed constantInfoToInformalLemma a `ConstantInfo` that is not a `InformalLemma`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalLemma` and returns\nthe corresponding `InformalLemma`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,44 @@
+∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), M6.ActualCounts.f N a b ≤ N : Prop
+∀ (N : ℕ) [inst : NeZero N] (a b : M6.ActualCounts.BP),
+  Polynomial.degree a < ↑N →
+    Polynomial.degree b < ↑N →
+      (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card =
+        2 ^ (N - M6.ActualCounts.f N a b) : Prop
+∀ (N : ℕ) [inst : NeZero N] (a b : M6.ActualCounts.BP),
+  Polynomial.degree a < ↑N →
+    Polynomial.degree b < ↑N →
+      (M6.Spaces.cycleWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card =
+        2 ^ (N + M6.ActualCounts.f N a b) : Prop
+∀ (N : ℕ) [inst : NeZero N] (a b : M6.ActualCounts.BP),
+  Polynomial.degree a < ↑N →
+    Polynomial.degree b < ↑N →
+      ↑(M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card =
+        2 ^ (N + M6.ActualCounts.f N a b) - 2 ^ (N - M6.ActualCounts.f N a b) : Prop
+∀ (N : ℕ) [inst : NeZero N] (a b : M6.ActualCounts.BP),
+  Polynomial.degree a < ↑N →
+    Polynomial.degree b < ↑N →
+      M6.ActualCounts.f N a b = 0 →
+        M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) = ∅ : Prop
+∀ (N : ℕ) [inst : NeZero N] (a b : M6.ActualCounts.BP),
+  Polynomial.degree a < ↑N →
+    Polynomial.degree b < ↑N →
+      ((M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).Nonempty ↔
+        0 < M6.ActualCounts.f N a b) : Prop
+∀ (N : ℕ) [inst : NeZero N] (a b : M6.ActualCounts.BP),
+  Polynomial.degree a < ↑N →
+    Polynomial.degree b < ↑N →
+      Module.finrank (ZMod 2) ↥(M6.Spaces.B N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) =
+        N - M6.ActualCounts.f N a b : Prop
+∀ (N : ℕ) [inst : NeZero N] (a b : M6.ActualCounts.BP),
+  Polynomial.degree a < ↑N →
+    Polynomial.degree b < ↑N →
+      Module.finrank (ZMod 2) ↥(M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) =
+        N - M6.ActualCounts.f N a b : Prop
+∀ (N : ℕ) [inst : NeZero N] (a b : M6.ActualCounts.BP),
+  Polynomial.degree a < ↑N →
+    Polynomial.degree b < ↑N →
+      2 * N -
+            Module.finrank (ZMod 2)
+              ↥(M6.Spaces.B N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) -
+          Module.finrank (ZMod 2) ↥(M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) =
+        2 * M6.ActualCounts.f N a b : Prop

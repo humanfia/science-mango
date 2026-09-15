@@ -1,0 +1,111 @@
+[
+  {
+    "queries": [
+      "finite sum reindex equivalence translation"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum reindex equivalence translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 243669,
+            "name": "Module.Basis.sumCoords_reindex",
+            "module": "Mathlib.LinearAlgebra.Basis.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Basis/Defs.lean#L710-L714",
+            "source_text": "@[simp]\ntheorem sumCoords_reindex : (b.reindex e).sumCoords = b.sumCoords := by\n  ext x\n  simp only [coe_sumCoords, repr_reindex]\n  exact Finsupp.sum_mapDomain_index (fun _ => rfl) fun _ _ _ => rfl",
+            "docstring": null
+          },
+          {
+            "id": 189648,
+            "name": "Hindman.FS.finset_sum",
+            "module": "Mathlib.Combinatorics.Hindman",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Hindman.lean#L278-L278",
+            "source_text": "@[deprecated (since := \"2026-04-08\")] alias FS.finset_sum := FS.finsetSum",
+            "docstring": "**Alias** of `Hindman.FS.finsetSum`."
+          },
+          {
+            "id": 247962,
+            "name": "Matrix.reindex",
+            "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L500-L506",
+            "source_text": "/-- The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. -/\ndef reindex (eₘ : m ≃ l) (eₙ : n ≃ o) : Matrix m n α ≃ Matrix l o α where\n  toFun M := M.submatrix eₘ.symm eₙ.symm\n  invFun M := M.submatrix eₘ eₙ\n  left_inv M := by simp\n  right_inv M := by simp\n",
+            "docstring": "The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. "
+          },
+          {
+            "id": 332433,
+            "name": "Equiv.hasSum_iff",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Basic.lean#L181-L181",
+            "source_text": "@[to_additive]\ntheorem Equiv.hasProd_iff (e : γ ≃ β) : HasProd (f ∘ e) a ↔ HasProd f a :=",
+            "docstring": null
+          },
+          {
+            "id": 201970,
+            "name": "Finite.sum_right",
+            "module": "Mathlib.Data.Finite.Sum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Sum.lean#L28-L29",
+            "source_text": "theorem sum_right (α) [Finite (α ⊕ β)] : Finite β :=\n  of_injective (Sum.inr : β → α ⊕ β) Sum.inr_injective\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite sum reindex equivalence translation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391752,
+            "name": "Lorentz.complexContrBasis_reindex_apply_eq_fin4",
+            "module": "Physlib.Relativity.Tensors.ComplexTensor.Vector.Pre.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Vector/Pre/Basic.lean#L60-L62",
+            "source_text": "lemma complexContrBasis_reindex_apply_eq_fin4 (j : Fin 4) :\n    (complexContrBasis.reindex finSumFinEquiv) j = complexContrBasisFin4 j :=\n  rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 386335,
+            "name": "Physlib.Fin.finExtractOne_symm_inl_apply",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L141-L144",
+            "source_text": "@[simp]\nlemma finExtractOne_symm_inl_apply {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm (Sum.inl 0) = i := by\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 393012,
+            "name": "EuclideanGroup.TranslationGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L107-L118",
+            "source_text": "/-- Translation is the subgroup with Q = 1. -/\ndef TranslationGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val = 1\n    rw [Submonoid.coe_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val = 1\n    rw [OneMemClass.coe_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val = 1\n    rw [coe_inv, ha, inv_one]\n",
+            "docstring": "Translation is the subgroup with Q = 1. "
+          },
+          {
+            "id": 393013,
+            "name": "EuclideanGroup.TranslationGroup.incl",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L120-L122",
+            "source_text": "/-- The inclusion of the translation subgroup into the Euclidean group. -/\nnoncomputable def TranslationGroup.incl (n : ℕ) :\n    TranslationGroup n →* EuclideanGroup n := (TranslationGroup n).subtype\n",
+            "docstring": "The inclusion of the translation subgroup into the Euclidean group. "
+          },
+          {
+            "id": 393006,
+            "name": "EuclideanGroup.one_translation",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L68-L68",
+            "source_text": "@[simp] lemma one_translation : (1 : EuclideanGroup n).translation = 0 := rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

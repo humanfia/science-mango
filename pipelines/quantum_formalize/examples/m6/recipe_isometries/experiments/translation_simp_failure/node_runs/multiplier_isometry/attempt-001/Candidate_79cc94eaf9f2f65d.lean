@@ -1,0 +1,36 @@
+import FrozenTarget_79cc94eaf9f2f65d
+theorem M6.RecipeIsometries.multiplier_isometry : QuantumHarnessFrozenTarget := by
+  intro N inst a b u
+  have hInv (t : (ZMod N)ˣ) (z : M6.RecipeIsometries.Word N) :
+      M6.RecipeIsometries.multiplyWord N t⁻¹
+        (M6.RecipeIsometries.multiplyWord N t z) = z := by
+    apply Prod.ext
+    · exact (M6.RecipeIsometries.multiply_laws N t z.1).2.1
+    · exact (M6.RecipeIsometries.multiply_laws N t z.2).2.1
+  refine M6.RecipeIsometries.lift_transport N a b
+    (M6.RecipeIsometries.multiply N u a)
+    (M6.RecipeIsometries.multiply N u b)
+    (M6.RecipeIsometries.multiplyWord N u)
+    (M6.RecipeIsometries.multiply N u) ?_ ?_ ?_ ?_ ?_
+  · constructor
+    · intro x y h
+      calc
+        x = M6.RecipeIsometries.multiplyWord N u⁻¹
+            (M6.RecipeIsometries.multiplyWord N u x) := (hInv u x).symm
+        _ = M6.RecipeIsometries.multiplyWord N u⁻¹
+            (M6.RecipeIsometries.multiplyWord N u y) :=
+          congrArg (M6.RecipeIsometries.multiplyWord N u⁻¹) h
+        _ = y := hInv u y
+    · intro z
+      refine ⟨M6.RecipeIsometries.multiplyWord N u⁻¹ z, ?_⟩
+      simpa only [inv_inv] using hInv u⁻¹ z
+  · intro h
+    refine ⟨M6.RecipeIsometries.multiply N u⁻¹ h, ?_⟩
+    simpa only [inv_inv] using
+      (M6.RecipeIsometries.multiply_laws N u⁻¹ h).2.1
+  · exact M6.RecipeIsometries.multiplied_boundary N u a b
+  · intro z
+    rw [M6.RecipeIsometries.multiplied_syndrome]
+    exact (M6.RecipeIsometries.multiply_laws N u
+      (M6.Physical.syndrome N a b z)).2.2
+  · exact M6.RecipeIsometries.multiplied_weight N u

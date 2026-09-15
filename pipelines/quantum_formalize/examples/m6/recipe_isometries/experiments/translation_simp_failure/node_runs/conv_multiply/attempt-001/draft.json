@@ -1,0 +1,8 @@
+{
+  "proof": "intro N _ u a h\nclassical\nfunext i\nchange (∑ j : ZMod N, a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j))) =\n  ∑ k : ZMod N, a k * h ((↑(u⁻¹) : ZMod N) * i - k)\ncalc\n  _ = ∑ k : ZMod N, a ((↑(u⁻¹) : ZMod N) * ((↑u : ZMod N) * k)) *\n      h ((↑(u⁻¹) : ZMod N) * (i - (↑u : ZMod N) * k)) :=\n    (Equiv.sum_comp u.mulLeft (fun j : ZMod N =>\n      a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j)))).symm\n  _ = _ := by\n    apply Finset.sum_congr rfl\n    intro k hk\n    simp [mul_sub, ← mul_assoc]",
+  "queries": [
+    "Equiv.sum_comp",
+    "Units.mulLeft",
+    "Units.inv_mul"
+  ]
+}

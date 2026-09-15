@@ -1,0 +1,69 @@
+{
+  "id": "multiplied_syndrome",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.RecipeIsometries.multiplied_syndrome",
+    "spec_sha256": "e5df88ea343e09df61c790c13a0c588154837e144ff79ce035c6c278a521ae11",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-9a4xr6mj/attempt-001/Candidate_ef9816ad73b02dfa.lean",
+        "target_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-9a4xr6mj/attempt-001/FrozenTarget_ef9816ad73b02dfa.lean",
+        "feedback": "",
+        "target_sha256": "96430793852a35bfd5627f977a512ae676da330266df15d16083fac4811b2d80",
+        "target_olean_sha256": "bf84e7f8b6140d567c74f9b83d7441d52ee3c349b74411dab492568ece54930a",
+        "source_sha256": "90d741dfd4f7a2cce26921eab6e02e26c157c602fb0c639c4edda6365460a35a",
+        "olean_sha256": "ea6f0bfb263390724295d966b943d68b429472c0c6f992c91c2f53d72b18eee3",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:41:44.449748+00:00",
+    "work": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-9a4xr6mj",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "55a57ac8060477ab26fffb3466ce9c7eaf76565582acbdc4d51633c9e59ff2c8",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-9a4xr6mj/attempt-001/Candidate_ef9816ad73b02dfa.lean",
+    "environment_sha256": "105874d9b1f96950dd9cc0ff6ed7f9a0fb22f24362fab932ce70d1d0ca08f217",
+    "artifacts": {
+      "conv_multiply": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.conv_multiply : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a h : M6.RecipeIsometries.Block N), M6.Physical.conv N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u h) = M6.RecipeIsometries.multiply N u (M6.Physical.conv N a h) := by\n  intro N _ u a h\n  classical\n  funext i\n  change (∑ j : ZMod N, a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j))) =\n    ∑ k : ZMod N, a k * h ((↑(u⁻¹) : ZMod N) * i - k)\n  calc\n    _ = ∑ k : ZMod N, a ((↑(u⁻¹) : ZMod N) * ((↑u : ZMod N) * k)) *\n        h ((↑(u⁻¹) : ZMod N) * (i - (↑u : ZMod N) * k)) :=\n      (Equiv.sum_comp u.mulLeft (fun j : ZMod N =>\n        a ((↑(u⁻¹) : ZMod N) * j) * h ((↑(u⁻¹) : ZMod N) * (i - j)))).symm\n    _ = _ := by\n      apply Finset.sum_congr rfl\n      intro k hk\n      simp [mul_sub, ← mul_assoc]",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.conv_multiply",
+          "ancestors": [],
+          "spec_sha256": "5c82e8f121f8f88f3ced8231433f8ee6c6cd69c432f3b020bd5acc0b446e1c0a"
+        },
+        "sha256": "4270fa2c773aa4fb3a80f67f1bc2c3aaefce32f7b4fc24e7508f2e3ca4be0e43"
+      },
+      "multiplied_syndrome": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.multiplied_syndrome : ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (a b : M6.RecipeIsometries.Block N) (z : M6.RecipeIsometries.Word N), M6.Physical.syndrome N (M6.RecipeIsometries.multiply N u a) (M6.RecipeIsometries.multiply N u b) (M6.RecipeIsometries.multiplyWord N u z) = M6.RecipeIsometries.multiply N u (M6.Physical.syndrome N a b z) := by\n  intro N _ u a b z\n  unfold M6.Physical.syndrome M6.RecipeIsometries.multiplyWord\n  dsimp only\n  rw [M6.RecipeIsometries.conv_multiply, M6.RecipeIsometries.conv_multiply]\n  rfl",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.multiplied_syndrome",
+          "ancestors": [
+            "conv_multiply"
+          ],
+          "spec_sha256": "9e2d26314f34c460554873cfc5ae781d121334fa860a0454b761be6a7de74f65"
+        },
+        "sha256": "bab9e557a13b53e2131719f852febd78187875dd36dd40df4b02c1f128b80548"
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T14:18:01.426606+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "actual_solve_queries": {
+      "id": "actual_solve_queries",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.ActualTransfer.actual_solve_queries",
+        "spec_sha256": "b92183636566f1403047a2359e3c351e69098acf98e21d09cb83f44c90f5dc61",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-solve-resources-formalization/.humanize-formal-runs/run-9z8pubs_/attempt-001/Candidate_8f330c6d906dd671.lean",
+            "target_path": "/home/jing/m6-lean-solve-resources-formalization/.humanize-formal-runs/run-9z8pubs_/attempt-001/FrozenTarget_8f330c6d906dd671.lean",
+            "feedback": "",
+            "target_sha256": "0fb923baf1294e42ae2414df1e95eed47b913c64560696a744ed26a07496573b",
+            "target_olean_sha256": "0b4aa091f629b034db265227861fb0e98e6e406cb6254ea260e8b0ffed1137bc",
+            "source_sha256": "8ab06e042c5dc707853b01debd8ec22d662e454ac15c266a53ab6250e0f8ca09",
+            "olean_sha256": "36fe2a6d2223abe1ed7d903e7488d1b5589956808aa8b9d9996315795f83c801",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:16:30.633713+00:00",
+        "work": "/home/jing/m6-lean-solve-resources-formalization/.humanize-formal-runs/run-9z8pubs_",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "3d73fe493a6f4235cc24c0a60d2cd516f03d718f08fd582cb65727e96913703a",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-solve-resources-formalization/.humanize-formal-runs/run-9z8pubs_/attempt-001/Candidate_8f330c6d906dd671.lean",
+        "environment_sha256": "d1becc776b14a4f1d94ccf3a39c1cf234efbe36acc8b73d00498d12e4233c3cd",
+        "artifacts": {
+          "actual_solve_queries": {
+            "payload": {
+              "declaration": "theorem M6.ActualTransfer.actual_solve_queries : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (d : ℕ) (v : M6.Pinned.Vector (2*N)) (k : ℕ), M6.ActualTransfer.solve N a b = some (d,v,k) → k ≤ 2*N := by\n  intro N inst a b d v k h\n  have hbound : ∀ c : M6.Pinned.Pins (2*N) → ℤ,\n      (M6.Pinned.recover c (M6.Pinned.free (2*N)) (List.finRange (2*N))).2 ≤ 2*N := by\n    intro c\n    simpa using (M6.Pinned.recover_properties (2*N) c\n      (M6.Pinned.free (2*N)) (List.finRange (2*N))).2.2\n  unfold M6.ActualTransfer.solve M6.Pinned.solve at h\n  split at h\n  · simp at h\n  · simp only [Option.some.injEq, Prod.mk.injEq] at h\n    rcases h with ⟨hd, hv, hk⟩\n    rw [← hk]\n    exact hbound _",
+              "imports": [
+                "M6SolveResources"
+              ],
+              "name": "M6.ActualTransfer.actual_solve_queries",
+              "ancestors": [],
+              "spec_sha256": "b92183636566f1403047a2359e3c351e69098acf98e21d09cb83f44c90f5dc61"
+            },
+            "sha256": "188ad9d0beb43a68dc92d6a58346b976fea0b0d6e360f80eb3cc61bc260d8ba5"
+          }
+        }
+      }
+    }
+  }
+}

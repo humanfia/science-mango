@@ -1,0 +1,244 @@
+{
+  "title": "M6 actual boundary/cycle/logical cardinalities",
+  "scope": "Original2^(N−f),2^(N+f), total logical count and f=0/nonempty cases for the actual Spaces maps. No additional assumptions beyond original degree bounds.",
+  "nodes": [
+    {
+      "id": "f_le_order",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.ActualCounts.f_le_order",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), M6.ActualCounts.f N a b ≤ N",
+        "imports": [
+          "M6ActualCardinality",
+          "M6ActualCountsAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial divisor natDegree inequality",
+          "natural powers cancellation finite set cardinality"
+        ],
+        "guidance": "The actual signature divides the nonzero modulus by Cyclic.signature_divides; apply polynomial natDegree_le_of_dvd and Coordinates.modulus_monic_degree. No extra degree restriction needed for this helper. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4 exact total counts and no-logical case",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "boundary_card",
+      "dependencies": [
+        "f_le_order"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.boundary_card",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card = 2^(N-(M6.ActualCounts.f N a b))",
+        "imports": [
+          "M6ActualCardinality",
+          "M6ActualCountsAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial divisor natDegree inequality",
+          "natural powers cancellation finite set cardinality"
+        ],
+        "guidance": "Use actual input_normalization and Spaces.dual_boundary_card. Rewrite2^N as2^f*2^(N-f) by f_le_order and pow_add, cancel the positive factor2^f. Final hypotheses remain only the actual degree bounds. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4 exact total counts and no-logical case",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "cycle_card",
+      "dependencies": [
+        "boundary_card",
+        "f_le_order"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.cycle_card",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → (M6.Spaces.cycleWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card = 2^(N+(M6.ActualCounts.f N a b))",
+        "imports": [
+          "M6ActualCardinality",
+          "M6ActualCountsAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial divisor natDegree inequality",
+          "natural powers cancellation finite set cardinality"
+        ],
+        "guidance": "Use Character.dual_cardinality at actual Spaces.D, whose word cardinality equals boundaryWords.card. Substitute boundary_card, rewrite2^(2N)=2^(N-f)*2^(N+f), and cancel positive2^(N-f). Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4 exact total counts and no-logical case",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "logical_card",
+      "dependencies": [
+        "boundary_card",
+        "cycle_card"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.logical_card",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → ((M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card : ℤ) = (2 : ℤ)^(N+(M6.ActualCounts.f N a b)) - (2 : ℤ)^(N-(M6.ActualCounts.f N a b))",
+        "imports": [
+          "M6ActualCardinality",
+          "M6ActualCountsAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial divisor natDegree inequality",
+          "natural powers cancellation finite set cardinality"
+        ],
+        "guidance": "Spaces.boundaries_are_cycles gives actual finite-set containment. Use card_sdiff and its integer cast formula, substitute the two actual cardinalities. This is the original total logical count. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4 exact total counts and no-logical case",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "zero_signature_no_logicals",
+      "dependencies": [
+        "logical_card"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.zero_signature_no_logicals",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → M6.ActualCounts.f N a b = 0 → M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) = ∅",
+        "imports": [
+          "M6ActualCardinality",
+          "M6ActualCountsAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial divisor natDegree inequality",
+          "natural powers cancellation finite set cardinality"
+        ],
+        "guidance": "At f=0 the proved integer logical cardinality is0. Finset.card_eq_zero yields the actual empty set. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4 exact total counts and no-logical case",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "logicals_nonempty_iff",
+      "dependencies": [
+        "logical_card",
+        "f_le_order"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.logicals_nonempty_iff",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → ((M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).Nonempty ↔ 0 < M6.ActualCounts.f N a b)",
+        "imports": [
+          "M6ActualCardinality",
+          "M6ActualCountsAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial divisor natDegree inequality",
+          "natural powers cancellation finite set cardinality"
+        ],
+        "guidance": "Use the exact logical cardinality. For f>0, N+f>N-f and base2 powers are strictly increasing, so the integer difference is positive. Conversely f=0 gives zero cardinality. No presumed logical witness or distance oracle. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "M6 sections2/4 exact total counts and no-logical case",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "boundary_finrank",
+      "dependencies": [
+        "boundary_card"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.boundary_finrank",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → Module.finrank (ZMod 2) (M6.Spaces.B N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = N - (M6.ActualCounts.f N a b)",
+        "imports": [
+          "M6ActualCardinality",
+          "M6ActualCountsAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "Module natCard_eq_pow_finrank finite field",
+          "Nat pow right injective"
+        ],
+        "guidance": "Use Module.natCard_eq_pow_finrank for the actual range submodule B. Identify its Nat.card with subspaceWords B card by subtype equivalence, use boundary_card, and injectivity of powers of 2. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M6 k=2f, actual range dimensions",
+        "fallback_queries": [
+          "finite vector space cardinality"
+        ]
+      }
+    },
+    {
+      "id": "dual_boundary_finrank",
+      "dependencies": [
+        "boundary_finrank",
+        "boundary_card"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.dual_boundary_finrank",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → Module.finrank (ZMod 2) (M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = N - (M6.ActualCounts.f N a b)",
+        "imports": [
+          "M6ActualCardinality",
+          "M6ActualCountsAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "Module natCard_eq_pow_finrank finite field",
+          "Nat pow right injective"
+        ],
+        "guidance": "Use Spaces.dual_boundary_card and Module.natCard_eq_pow_finrank. The actual submodule D cardinality equals B; powers of 2 are injective. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M6 k=2f, actual range dimensions",
+        "fallback_queries": [
+          "finite vector space cardinality"
+        ]
+      }
+    },
+    {
+      "id": "encoded_dimension",
+      "dependencies": [
+        "f_le_order",
+        "boundary_finrank",
+        "dual_boundary_finrank"
+      ],
+      "spec": {
+        "name": "M6.ActualCounts.encoded_dimension",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → 2 * N - Module.finrank (ZMod 2) (M6.Spaces.B N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) - Module.finrank (ZMod 2) (M6.Spaces.D N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) = 2 * (M6.ActualCounts.f N a b)",
+        "imports": [
+          "M6ActualCardinality",
+          "M6ActualCountsAccepted"
+        ],
+        "context": "",
+        "queries": [
+          "Module natCard_eq_pow_finrank finite field",
+          "Nat pow right injective"
+        ],
+        "guidance": "Rewrite both verified actual finranks, use f_le_order, and omega. This is the genuine CSS dimension expression. Return tactic lines only without leading by."
+      },
+      "metadata": {
+        "source_section": "Original M6 k=2f, actual range dimensions",
+        "fallback_queries": [
+          "finite vector space cardinality"
+        ]
+      }
+    }
+  ]
+}

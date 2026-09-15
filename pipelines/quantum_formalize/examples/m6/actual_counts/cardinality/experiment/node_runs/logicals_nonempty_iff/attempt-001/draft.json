@@ -1,0 +1,7 @@
+{
+  "proof": "intro N inst a b ha hb\nclassical\nrw [← Finset.card_pos]\nhave hc := M6.ActualCounts.logical_card N a b ha hb\nconstructor\n· intro hpos\n  by_contra h\n  have hf0 : M6.ActualCounts.f N a b = 0 := by omega\n  simp only [hf0, Nat.add_zero, Nat.sub_zero, sub_self] at hc\n  have hpos' : (0 : ℤ) < (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card := by\n    exact_mod_cast hpos\n  omega\n· intro hf\n  have hexp : N - M6.ActualCounts.f N a b < N + M6.ActualCounts.f N a b := by omega\n  have hp : (2 : ℤ) ^ (N - M6.ActualCounts.f N a b) < (2 : ℤ) ^ (N + M6.ActualCounts.f N a b) :=\n    pow_lt_pow_right₀ (by norm_num) hexp\n  have hpos : (0 : ℤ) < (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card := by\n    rw [hc]\n    exact sub_pos.mpr hp\n  exact_mod_cast hpos",
+  "queries": [
+    "pow_lt_pow_right₀",
+    "Finset.card_pos"
+  ]
+}

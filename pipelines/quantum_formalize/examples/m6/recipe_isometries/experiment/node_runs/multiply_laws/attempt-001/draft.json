@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst u a\nhave hinv : M6.RecipeIsometries.multiply N (u⁻¹) (M6.RecipeIsometries.multiply N u a) = a := by\n  funext i\n  simp [M6.RecipeIsometries.multiply, ← mul_assoc]\nrefine ⟨?_, hinv, ?_⟩\n· funext i\n  simp [M6.RecipeIsometries.multiply]\n· constructor\n  · intro h\n    calc\n      a = M6.RecipeIsometries.multiply N (u⁻¹) (M6.RecipeIsometries.multiply N u a) := hinv.symm\n      _ = M6.RecipeIsometries.multiply N (u⁻¹) 0 := congrArg (M6.RecipeIsometries.multiply N (u⁻¹)) h\n      _ = 0 := rfl\n  · intro h\n    subst a\n    rfl",
+  "queries": []
+}

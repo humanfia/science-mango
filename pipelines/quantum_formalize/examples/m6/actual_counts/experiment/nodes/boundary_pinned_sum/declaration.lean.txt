@@ -1,0 +1,7 @@
+theorem M6.ActualCounts.boundary_pinned_sum : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → ∀ P : M6.Pinned.Pins (2*N), M6.ActualCounts.boundaryInputSum N a b P = Polynomial.C ((2 : ℤ)^(M6.ActualCounts.f N a b)) * M6.Pinned.enumerator (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P := by
+  classical
+  intro N inst a b ha hb P
+  simpa [M6.ActualCounts.boundaryInputSum, M6.Character.pinnedMonomial,
+    M6.Pinned.enumerator, Finset.sum_filter, M6.Spaces.boundary_eval] using
+    (M6.ActualCounts.boundary_weighted_sum N a b ha hb
+      (M6.Character.pinnedMonomial P))

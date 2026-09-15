@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst a b\nhave hinv : ∀ z : M6.RecipeIsometries.Word N,\n    M6.RecipeIsometries.exchange N (M6.RecipeIsometries.exchange N z) = z := by\n  intro z\n  cases z\n  rfl\nrefine M6.RecipeIsometries.lift_transport N a b b a\n  (M6.RecipeIsometries.exchange N) (fun h => h) ?_ ?_ ?_ ?_ ?_\n· constructor\n  · intro x y h\n    have he := congrArg (M6.RecipeIsometries.exchange N) h\n    simpa only [hinv] using he\n  · intro z\n    exact ⟨M6.RecipeIsometries.exchange N z, hinv z⟩\n· intro h\n  exact ⟨h, rfl⟩\n· intro h\n  exact (M6.RecipeIsometries.exchange_laws N a b h (0 : M6.RecipeIsometries.Word N)).1\n· intro z\n  rw [(M6.RecipeIsometries.exchange_laws N a b a z).2]\n· exact M6.RecipeIsometries.exchange_weight N",
+  "queries": []
+}

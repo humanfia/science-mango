@@ -1,0 +1,7 @@
+{
+  "proof": "intro N inst a b P\nclassical\nhave hsupport : ∀ d, 2 * N < d → (M6.ActualTransfer.Q N a b P).coeff d = 0 := by\n  intro d hd\n  simp [M6.ActualTransfer.Q, Polynomial.coeff_sub,\n    M6.Normalize.divide_coeff, M6.ActualTransfer.boundaryTrace,\n    M6.ActualTransfer.characterTrace,\n    M6.ActualTransfer.scalar_trace_support, hd]\napply Polynomial.ext\nintro d\nunfold M6.ActualTransfer.shiftedOutput\nrw [Polynomial.finset_sum_coeff]\nsimp only [Polynomial.coeff_monomial,\n  M6.ActualTransfer.shifted_coefficient_exact]\nby_cases hd : d < 2 * N + 1\n· simp [Fin.sum_univ_eq_sum_range, hd]\n· have hz : (M6.ActualTransfer.Q N a b P).coeff d = 0 :=\n    hsupport d (by omega)\n  simp [Fin.sum_univ_eq_sum_range, hd, hz]",
+  "queries": [
+    "Fin.sum_univ_eq_sum_range",
+    "Finset.sum_ite_eq'"
+  ]
+}

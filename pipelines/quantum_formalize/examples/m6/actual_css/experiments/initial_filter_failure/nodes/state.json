@@ -1,0 +1,260 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T14:22:45.546431+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "J_boundary_iff": {
+      "id": "J_boundary_iff",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.ActualCSS.J_boundary_iff",
+        "spec_sha256": "e2619b2004d999afdf07d05ca9ef3c76ac7af8dbb9e6a28c2af2af9fe237ca6a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-kq7ym80q/attempt-001/Candidate_4bd17ee7926831da.lean",
+            "target_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-kq7ym80q/attempt-001/FrozenTarget_4bd17ee7926831da.lean",
+            "feedback": "",
+            "target_sha256": "14af4f77ea91d1865ccacaf8dde3db8f17cbb0b6e5269f3f82e61b667888b1aa",
+            "target_olean_sha256": "43f7a2a2abe683c6b7884dc66bea6a0efd7d1c16b7f9f94b98a88c655b8b8454",
+            "source_sha256": "88f5d57b2b7eb95b518f371e5d93d5aeb568e7879ca1c06bac8a7d7a0de0698d",
+            "olean_sha256": "881ea5d379c5322f020ee6eae79bbca92c6fad17fa09c6b3d40d27a6ad4c0ead",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:15:47.142872+00:00",
+        "work": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-kq7ym80q",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "90bd047fe8381377a625417803863e879a04e18e7c57e089cca2653842a8c229",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-kq7ym80q/attempt-001/Candidate_4bd17ee7926831da.lean",
+        "environment_sha256": "6d8c6db986ed996087eb85669849f1f62077f0ae3a8aa5322cdb255235f9bfc4",
+        "artifacts": {
+          "J_boundary_iff": {
+            "payload": {
+              "declaration": "theorem M6.ActualCSS.J_boundary_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.Spaces.boundaryWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) := by\n  intro N inst a b v\n  classical\n  have hJ (h : M6.Physical.Block N) :\n      M6.Spaces.dualBoundary N a b h =\n        M6.Flatten.J N (M6.Flatten.flatten N (M6.Physical.boundary N a b h)) := by\n    rw [M6.Spaces.dual_boundary_eval]\n    simp only [M6.Flatten.J, M6.Flatten.flatten_left]\n  have hmem :\n      M6.Flatten.J N v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) ↔\n        ∃ h : M6.Physical.Block N,\n          M6.Spaces.dualBoundary N a b h = M6.Flatten.J N v := by\n    simp [M6.Character.subspaceWords, M6.Spaces.D, LinearMap.mem_range]\n  rw [M6.Spaces.boundary_words_iff, hmem]\n  constructor\n  · rintro ⟨h, hh⟩\n    exact ⟨h, (hJ h).trans (congrArg (M6.Flatten.J N) hh)⟩\n  · rintro ⟨h, hh⟩\n    refine ⟨h, ?_⟩\n    rw [hJ h] at hh\n    have he := congrArg (M6.Flatten.J N) hh\n    simpa only [M6.Flatten.J_involution] using he",
+              "imports": [
+                "M6ActualCSS",
+                "M6ActualCSSDependencies"
+              ],
+              "name": "M6.ActualCSS.J_boundary_iff",
+              "ancestors": [],
+              "spec_sha256": "e2619b2004d999afdf07d05ca9ef3c76ac7af8dbb9e6a28c2af2af9fe237ca6a"
+            },
+            "sha256": "a41aeb4012fbec498c8418cbc6c52016f304482292936497e6508dff8c865081"
+          }
+        }
+      }
+    },
+    "J_dot": {
+      "id": "J_dot",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.ActualCSS.J_dot",
+        "spec_sha256": "5e3791b43c3025f3a7e992c1cfbd04ba69a550fb819c47d47227442be4fa37a8",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-001/Candidate_1fa22788dac58243.lean:10:4: error: Tactic `apply` failed: could not unify the conclusion of `Fintype.sum_equiv (Equiv.neg (ZMod N))`\n  ∑ x, ?f x = ∑ x, ?g x\nwith the goal\n  ((Physical.dot N (fun i => z.2 (-i)) fun i => t.2 (-i)) + Physical.dot N (fun i => z.1 (-i)) fun i => t.1 (-i)) =\n    Physical.dot N z.1 t.1 + Physical.dot N z.2 t.2\n\nNote: The full type of `Fintype.sum_equiv (Equiv.neg (ZMod N))` is\n  ∀ (f g : ZMod N → ?m.24), (∀ (x : ZMod N), f x = g ((Equiv.neg (ZMod N)) x)) → ∑ x, f x = ∑ x, g x\n\nN : ℕ\ninst✝ : NeZero N\nv w : Pinned.Vector (2 * N)\nz t : Physical.Word N\n⊢ ((Physical.dot N (fun i => z.2 (-i)) fun i => t.2 (-i)) + Physical.dot N (fun i => z.1 (-i)) fun i => t.1 (-i)) =\n    Physical.dot N z.1 t.1 + Physical.dot N z.2 t.2\n/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-001/Candidate_1fa22788dac58243.lean:2:59: error: unsolved goals\nN : ℕ\ninst✝ : NeZero N\nv w : Pinned.Vector (2 * N)\nhJ : ∀ (z t : Physical.Word N), Physical.pairing N (Physical.J N z) (Physical.J N t) = Physical.pairing N z t\n⊢ Physical.pairing N (Flatten.unflatten N v) (Flatten.unflatten N w) = Character.dot v w\n/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-001/Candidate_1fa22788dac58243.lean:9:15: warning: This simp argument is unused:\n  ← Finset.sum_add_distrib\n\nHint: Omit it from the simp argument list.\n  [apply] simp only\n\nNote: Simp arguments with `←` have the additional effect of removing the other direction from the simp set, even if the simp argument itself is unused. If the hint above does not work, try replacing `←` with `-` to only get that effect and silence this warning.\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-001/Candidate_1fa22788dac58243.lean:17:3: error: unexpected identifier; expected command\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-002/Candidate_3070385fb2b6abce.lean",
+            "target_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-002/FrozenTarget_3070385fb2b6abce.lean",
+            "feedback": "",
+            "target_sha256": "125ef5d7bcd53dddbd86440e8df5da3708e3f0eaf67be49e1e4d94a34ad1cba6",
+            "target_olean_sha256": "d01ab84b1ab3c8776d56807348cfd83da0af12953ed5f2b0e5bd09a62f132682",
+            "source_sha256": "31ba2b721bfc34f9f16e2e495ac53c5d21747f5e9b8a2240a47a0425e2e3e690",
+            "olean_sha256": "fc48f9bcc3257f6b327109d87fb740572e6d632b594bc978522ea2f92403982d",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T14:15:47.207694+00:00",
+        "work": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "90bd047fe8381377a625417803863e879a04e18e7c57e089cca2653842a8c229",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-0s0dv88m/attempt-002/Candidate_3070385fb2b6abce.lean",
+        "environment_sha256": "6d8c6db986ed996087eb85669849f1f62077f0ae3a8aa5322cdb255235f9bfc4",
+        "artifacts": {
+          "J_dot": {
+            "payload": {
+              "declaration": "theorem M6.ActualCSS.J_dot : ∀ (N : ℕ) [NeZero N] (v w : M6.Pinned.Vector (2*N)), M6.Character.dot (M6.Flatten.J N v) (M6.Flatten.J N w) = M6.Character.dot v w := by\n  change ∀ (N : ℕ) [NeZero N] (v w : M6.Pinned.Vector (2*N)), M6.Character.dot (M6.Flatten.J N v) (M6.Flatten.J N w) = M6.Character.dot v w\n  intro N _ v w\n  have hrev (a b : M6.Physical.Block N) :\n      M6.Physical.dot N (fun i => a (-i)) (fun i => b (-i)) =\n        M6.Physical.dot N a b := by\n    change (∑ i : ZMod N, a (-i) * b (-i)) = ∑ i : ZMod N, a i * b i\n    exact Fintype.sum_equiv (Equiv.neg (ZMod N)) _ _ (fun _ => rfl)\n  have hJ (z t : M6.Physical.Word N) :\n      M6.Physical.pairing N (M6.Physical.J N z) (M6.Physical.J N t) =\n        M6.Physical.pairing N z t := by\n    change M6.Physical.dot N (fun i => z.2 (-i)) (fun i => t.2 (-i)) +\n        M6.Physical.dot N (fun i => z.1 (-i)) (fun i => t.1 (-i)) =\n      M6.Physical.dot N z.1 t.1 + M6.Physical.dot N z.2 t.2\n    rw [hrev, hrev, add_comm]\n  unfold M6.Flatten.J\n  rw [M6.Flatten.flatten_dot, hJ]\n  exact (by simpa only [M6.Flatten.flatten_right] using\n    (M6.Flatten.flatten_dot N (M6.Flatten.unflatten N v)\n      (M6.Flatten.unflatten N w)).symm)",
+              "imports": [
+                "M6ActualCSS",
+                "M6ActualCSSDependencies"
+              ],
+              "name": "M6.ActualCSS.J_dot",
+              "ancestors": [],
+              "spec_sha256": "5e3791b43c3025f3a7e992c1cfbd04ba69a550fb819c47d47227442be4fa37a8"
+            },
+            "sha256": "9a357473abab1a8abf0e8718d039d418f93a7f924ca668ff66ea53229505a4fe"
+          }
+        }
+      }
+    },
+    "J_cycle_iff": {
+      "id": "J_cycle_iff",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M6.ActualCSS.J_cycle_iff",
+        "spec_sha256": "f38e70b215f2d8422dd874ad2e52e684899042a34cc4309125d047847cc63929",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-c1kuvx_x/attempt-001/Candidate_3e5353b87f88edc8.lean:9:82: error: unsolved goals\nN : ℕ\ninst : NeZero N\na b : Physical.Block N\nv : Pinned.Vector (2 * N)\n⊢ Flatten.J N v ∈ Finset.filter (Character.Orthogonal (Spaces.boundary N a b).range) Finset.univ ↔\n    ∀ (h : Physical.Block N), Character.dot ((Spaces.boundary N a b) h) (Flatten.J N v) = 0\n/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-c1kuvx_x/attempt-001/Candidate_3e5353b87f88edc8.lean:10:47: warning: This simp argument is unused:\n  LinearMap.mem_range\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M6.Character.dualWords, M6.Spaces.B]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-c1kuvx_x/attempt-002/Candidate_40d372a022c7b4b0.lean:9:82: error: unsolved goals\nN : ℕ\ninst : NeZero N\na b : Physical.Block N\nv : Pinned.Vector (2 * N)\n⊢ Flatten.J N v ∈ Finset.filter (Character.Orthogonal (Spaces.boundary N a b).range) Finset.univ ↔\n    ∀ (h : Physical.Block N), Character.dot ((Spaces.boundary N a b) h) (Flatten.J N v) = 0\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-c1kuvx_x/attempt-003/Candidate_18a1b91fbd4e0cec.lean:9:82: error: unsolved goals\nN : ℕ\ninst : NeZero N\na b : Physical.Block N\nv : Pinned.Vector (2 * N)\n⊢ Flatten.J N v ∈ Finset.filter (Character.Orthogonal (Spaces.boundary N a b).range) Finset.univ ↔\n    ∀ (h : Physical.Block N), Character.dot ((Spaces.boundary N a b) h) (Flatten.J N v) = 0\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-c1kuvx_x/attempt-004/Candidate_5830f474d76200e3.lean:9:82: error: unsolved goals\nN : ℕ\ninst : NeZero N\na b : Physical.Block N\nv : Pinned.Vector (2 * N)\n⊢ Flatten.J N v ∈ Finset.filter (Character.Orthogonal (Spaces.boundary N a b).range) Finset.univ ↔\n    ∀ (h : Physical.Block N), Character.dot ((Spaces.boundary N a b) h) (Flatten.J N v) = 0\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-c1kuvx_x/attempt-005/Candidate_a4582f6108795293.lean:9:82: error: unsolved goals\nN : ℕ\ninst : NeZero N\na b : Physical.Block N\nv : Pinned.Vector (2 * N)\n⊢ Flatten.J N v ∈ Finset.filter (Character.Orthogonal (Spaces.boundary N a b).range) Finset.univ ↔\n    ∀ (h : Physical.Block N), Character.dot ((Spaces.boundary N a b) h) (Flatten.J N v) = 0\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T14:17:38.778476+00:00",
+        "work": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-c1kuvx_x",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "90bd047fe8381377a625417803863e879a04e18e7c57e089cca2653842a8c229",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "J_logical_iff": {
+      "id": "J_logical_iff",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "J_cycle_iff"
+      ]
+    },
+    "Z_boundaries_are_cycles": {
+      "id": "Z_boundaries_are_cycles",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "J_cycle_iff"
+      ]
+    },
+    "zero_boundaries": {
+      "id": "zero_boundaries",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M6.ActualCSS.zero_boundaries",
+        "spec_sha256": "531ac9595f78afef2da920566c88d323ce772de8c374d6e5507db4a99f015ad3",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-ozlss6_1/attempt-001/Candidate_cd032ea1185e50f2.lean",
+            "target_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-ozlss6_1/attempt-001/FrozenTarget_cd032ea1185e50f2.lean",
+            "feedback": "",
+            "target_sha256": "4ac7e60365f8eb268d40601d3dd11d8070caa959f6c9af9b358d2be54575baa8",
+            "target_olean_sha256": "5bfb9e262bf67bd0b0ad733fbe5137a70946945aab4424bfa49bc24a78bd5cc7",
+            "source_sha256": "425cf592a87f9bbba657a1a18045b5c97d8bb408dda6f2e3315d69d51f351d91",
+            "olean_sha256": "314f88a2f2a36a29032b0616233a9241f7df91b56560f82631a1ecd9bcbce57f",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T14:15:47.261976+00:00",
+        "work": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-ozlss6_1",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "90bd047fe8381377a625417803863e879a04e18e7c57e089cca2653842a8c229",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-ozlss6_1/attempt-001/Candidate_cd032ea1185e50f2.lean",
+        "environment_sha256": "6d8c6db986ed996087eb85669849f1f62077f0ae3a8aa5322cdb255235f9bfc4",
+        "artifacts": {
+          "zero_boundaries": {
+            "payload": {
+              "declaration": "theorem M6.ActualCSS.zero_boundaries : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (0 : M6.Pinned.Vector (2*N)) ∈ M6.Spaces.boundaryWords N a b ∧ (0 : M6.Pinned.Vector (2*N)) ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) := by\n  intro N _ a b\n  classical\n  constructor <;> simp [M6.Spaces.boundaryWords, M6.Character.subspaceWords]",
+              "imports": [
+                "M6ActualCSS",
+                "M6ActualCSSDependencies"
+              ],
+              "name": "M6.ActualCSS.zero_boundaries",
+              "ancestors": [],
+              "spec_sha256": "531ac9595f78afef2da920566c88d323ce772de8c374d6e5507db4a99f015ad3"
+            },
+            "sha256": "cb2af376b17b686f3941f9cb1bc29037b4fc116f5536bea927ec7c19d477e530"
+          }
+        }
+      }
+    },
+    "common_quantum_distance": {
+      "id": "common_quantum_distance",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "Z_boundaries_are_cycles",
+        "J_logical_iff"
+      ]
+    }
+  }
+}

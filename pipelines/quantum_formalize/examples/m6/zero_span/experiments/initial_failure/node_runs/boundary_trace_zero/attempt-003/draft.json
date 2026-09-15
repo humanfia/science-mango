@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], M6.ActualTransfer.boundaryTrace N 1 1 (M6.Pinned.free (2*N)) = ((1 : Polynomial ℤ) + Polynomial.X^2)^N\nintro N _\nclassical\nhave hs : M6.ActualTransfer.span 1 1 = 0 := by\n  simp [M6.ActualTransfer.span]\nunfold M6.ActualTransfer.boundaryTrace\nrw [hs]\ntrans M6.Transfer.arrayTrace (M6.ActualTransfer.boundaryWeight 0 N 1 1 (M6.Pinned.free (2*N))) N\n· apply M6.Transfer.scalar_trace_polynomial\n  intro i m t\n  unfold M6.ActualTransfer.boundaryWeight\n  exact (M6.Transfer.boundary_edge_bounds (2*N) (M6.Pinned.free (2*N)) _ _ _ _).2\n· exact M6.ZeroSpan.zero_memory_trace N _ _ (M6.ZeroSpan.boundary_loops N)",
+  "queries": []
+}

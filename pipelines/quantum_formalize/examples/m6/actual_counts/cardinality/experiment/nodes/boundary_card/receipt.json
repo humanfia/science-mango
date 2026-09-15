@@ -1,0 +1,71 @@
+{
+  "id": "boundary_card",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualCounts.boundary_card",
+    "spec_sha256": "b0272d7456c70e756a75c148543a12ae759ba39088612040921f2c8a0b4dfc0a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-cardinality-formalization/.humanize-formal-runs/run-z0enct8b/attempt-001/Candidate_dede94dc98fd51aa.lean",
+        "target_path": "/home/jing/m6-lean-actual-cardinality-formalization/.humanize-formal-runs/run-z0enct8b/attempt-001/FrozenTarget_dede94dc98fd51aa.lean",
+        "feedback": "",
+        "target_sha256": "77b510858399a34d0ce62b09fe72bf4fb1602987d29ea8bbe520f3318331746f",
+        "target_olean_sha256": "0d8136aa4e15fa6fb226c1de0fe4e85ee3e43e18084b4452fde6c6b4ea965e6e",
+        "source_sha256": "5d84b7c44166e99d5fbb1eda378142e0842f4f817a366062b1c87d793a1f1f5e",
+        "olean_sha256": "d4baec44ec58239f3d84760a397459783235dd633a754946add0b988ff4abd89",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:27:36.541287+00:00",
+    "work": "/home/jing/m6-lean-actual-cardinality-formalization/.humanize-formal-runs/run-z0enct8b",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "adc27ec93c015183eddb72f54d13a2f450e0eecbfcb30b9be7414323619f152f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-cardinality-formalization/.humanize-formal-runs/run-z0enct8b/attempt-001/Candidate_dede94dc98fd51aa.lean",
+    "environment_sha256": "dca5bf90cc180c4612f8994c101a8523f0ceca0107466c298e2592e84caf900c",
+    "artifacts": {
+      "f_le_order": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.f_le_order : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), M6.ActualCounts.f N a b ≤ N := by\n  intro N inst a b\n  change (M6.Cyclic.signature a b (M6.Cyclic.modulus N)).natDegree ≤ N\n  have hm := M6.Coordinates.modulus_monic_degree N\n  have hd := (M6.Cyclic.signature_divides a b (M6.Cyclic.modulus N)).2.2\n  simpa only [hm.2] using Polynomial.natDegree_le_of_dvd hd hm.1.ne_zero",
+          "imports": [
+            "M6ActualCardinality",
+            "M6ActualCountsAccepted"
+          ],
+          "name": "M6.ActualCounts.f_le_order",
+          "ancestors": [],
+          "spec_sha256": "227934afa80181f3ae85860dccb804528bea9399ff54c71fea95c2c55774c83c"
+        },
+        "sha256": "b3fab17537fae656c25c8a468a3740ca1da964505ae4239be66cb587bb8131fc"
+      },
+      "boundary_card": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.boundary_card : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)).card = 2^(N-(M6.ActualCounts.f N a b)) := by\n  intro N inst a b ha hb\n  have h := M6.ActualCounts.input_normalization N a b ha hb\n  rw [M6.Spaces.dual_boundary_card] at h\n  have hf := M6.ActualCounts.f_le_order N a b\n  have hexp : M6.ActualCounts.f N a b + (N - M6.ActualCounts.f N a b) = N := by\n    omega\n  have hpow : (2 : ℕ)^N = 2^(M6.ActualCounts.f N a b) * 2^(N - M6.ActualCounts.f N a b) := by\n    rw [← pow_add, hexp]\n  apply Nat.eq_of_mul_eq_mul_left (show 0 < (2 : ℕ)^(M6.ActualCounts.f N a b) by positivity)\n  exact h.trans hpow",
+          "imports": [
+            "M6ActualCardinality",
+            "M6ActualCountsAccepted"
+          ],
+          "name": "M6.ActualCounts.boundary_card",
+          "ancestors": [
+            "f_le_order"
+          ],
+          "spec_sha256": "f7986651ec88b060933e958344ec54325695e54aa72da4991d9d4a278aef56a6"
+        },
+        "sha256": "cf5bcedc4ebc7f0a2323035b9656d624ff0e65700957763b6e7a37b297a0599a"
+      }
+    }
+  }
+}

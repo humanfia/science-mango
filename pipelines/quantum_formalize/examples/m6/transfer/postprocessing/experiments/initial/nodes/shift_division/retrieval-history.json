@@ -1,0 +1,807 @@
+[
+  {
+    "queries": [
+      "Int.shiftRight_eq_div_pow",
+      "Polynomial coeff finite sum monomial"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Int.shiftRight_eq_div_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 206721,
+            "name": "Int.shiftLeft_eq_mul_pow",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L406-L408",
+            "source_text": "theorem shiftLeft_eq_mul_pow : ∀ (m : ℤ) (n : ℕ), m <<< (n : ℤ) = m * (2 ^ n : ℕ)\n  | (m : ℕ), _ => congr_arg ((↑) : ℕ → ℤ) (by simp [Nat.shiftLeft_eq])\n  | -[_+1], _ => @congr_arg ℕ ℤ _ _ (fun i => -i) (Nat.shiftLeft'_true_eq_mul_pow _ _)\n",
+            "docstring": null
+          },
+          {
+            "id": 206711,
+            "name": "Int.shiftRight_neg",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L339-L340",
+            "source_text": "@[simp]\ntheorem shiftRight_neg (m n : ℤ) : m >>> (-n) = m <<< n := by rw [← shiftLeft_neg, neg_neg]",
+            "docstring": null
+          },
+          {
+            "id": 206718,
+            "name": "Int.shiftRight_natCast_right",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L377-L380",
+            "source_text": "/-- Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. -/\nlemma shiftRight_natCast_right (m : ℤ) (n : ℕ) :\n    m >>> (n : ℤ) = m >>> n := by\n  cases m <;> simp\n",
+            "docstring": "Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. "
+          },
+          {
+            "id": 213993,
+            "name": "Num.shiftr_eq_shiftRight",
+            "module": "Mathlib.Data.Num.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Bitwise.lean#L196-L196",
+            "source_text": "@[simp] lemma shiftr_eq_shiftRight (p : Num) (n : Nat) : p.shiftr n = p >>> n := rfl",
+            "docstring": null
+          },
+          {
+            "id": 216332,
+            "name": "Rat.pow_eq_divInt",
+            "module": "Mathlib.Data.Rat.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Rat/Defs.lean#L114-L115",
+            "source_text": "lemma pow_eq_divInt (q : ℚ) (n : ℕ) : q ^ n = q.num ^ n /. q.den ^ n := by\n  rw [pow_def, mk_eq_divInt, Int.natCast_pow]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Int.shiftRight_eq_div_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393315,
+            "name": "Space.distDiv_inv_pow_eq_dim",
+            "module": "Physlib.SpaceAndTime.Space.Norm.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Norm/Basic.lean#L950-L1069",
+            "source_text": "/-- The distributional divergence of the radial field `x ↦ ‖x‖ ^ (-d) • x` (i.e. `x / ‖x‖ ^ d`)\nequals `d * volume (Metric.ball 0 1)` — the surface area of the unit sphere `S^{d-1}` — times the\nDirac delta at the origin. This is the Gauss-law identity underlying the fundamental solution of\nthe Laplacian: away from `0` the field is divergence-free, and all of its flux concentrates at the\norigin. -/\nlemma distDiv_inv_pow_eq_dim {d : ℕ} [NeZero d] :\n    ∇ᵈ ⬝ (distOfFunction (fun x : Space d => ‖x‖ ^ (- d : ℤ) • basis.repr x)\n      (IsDistBounded.zpow_smul_repr_self (- d : ℤ) (by omega))) =\n      (d * (volume (α := Space d)).real (Metric.ball 0 1)) • diracDelta ℝ 0 := by\n  ext η\n  calc _\n      _ = - ∫ x, ⟪‖x‖⁻¹ ^ d • basis.repr x, Space.grad η x⟫_ℝ := by\n          simp only [zpow_neg, zpow_natCast, distDiv_ofFunction, inv_pow]\n      _ = - ∫ x, ‖x‖⁻¹ ^ (d - 1) * ⟪‖x‖⁻¹ • basis.repr x, Space.grad η x⟫_ℝ := by\n          simp only [← pow_sub_one_mul (NeZero.ne d), inv_pow, inner_smul_left, conj_trivial,\n            map_inv₀, neg_inj]\n          ring_nf\n      _ = - ∫ x, ‖x‖⁻¹ ^ (d - 1) * (_root_.deriv (fun a => η (a • ‖x‖⁻¹ • x)) ‖x‖) := by\n          simp only [real_inner_comm,\n            ← grad_inner_space_unit_vector _ _ (SchwartzMap.differentiable η)]\n      _ = - ∫ r, ‖r.2.1‖⁻¹ ^ (d - 1) * (_root_.deriv (fun a => η (a • r.1)) ‖r.2.1‖)\n        ∂(volume (α := Space d).toSphere.prod\n        (Measure.volumeIoiPow (Module.finrank ℝ (Space d) - 1))) := by\n          rw [← MeasureTheory.MeasurePreserving.integral_comp (f := homeomorphUnitSphereProd _)\n            (MeasureTheory.Measure.measurePreserving_homeomorphUnitSphereProd\n            (volume (α := Space d)))\n            (Homeomorph.measurableEmbedding (homeomorphUnitSphereProd (Space d)))]\n          congr 1\n          simp only [inv_pow, homeomorphUnitSphereProd_apply_snd_coe, norm_norm,\n            homeomorphUnitSphereProd_apply_fst_coe]\n          let f (x : Space d) : ℝ :=\n            (‖↑x‖ ^ (d - 1))⁻¹ * _root_.deriv (fun a => η (a • ‖↑x‖⁻¹ • ↑x)) ‖↑x‖\n          conv_rhs =>\n            enter [2, x]\n            change f x.1\n          rw [MeasureTheory.integral_subtype_comap (by simp), ← setIntegral_univ]\n          change ∫ x in Set.univ, f x = ∫ (x : Space d) in _, f x\n          exact setIntegral_congr_set (MeasureTheory.ae_eq_univ.mpr (by simp)).symm\n      _ = - ∫ n, (∫ r, ‖r.1‖⁻¹ ^ (d - 1) *\n        (_root_.deriv (fun a => η (a • n)) ‖r.1‖)\n        ∂((Measure.volumeIoiPow (Module.finrank ℝ (Space d) - 1))))\n        ∂(volume (α := Space d).toSphere) := by\n          rw [MeasureTheory.integral_prod]\n          /- Integrable condition. -/\n          convert integrable_isDistBounded_inner_grad_schwartzMap_spherical\n            (IsDistBounded.inv_pow_smul_repr_self (d) (by omega)) η\n          rename_i r\n          simp only [Real.norm_eq_abs, inv_pow, Function.comp_apply,\n            homeomorphUnitSphereProd_symm_apply_coe, map_smul]\n          let x : Space d := r.2.1 • r.1.1\n          have hr : (0 : ℝ) < r.2.1 := r.2.2\n          rw [abs_of_nonneg (le_of_lt hr)]\n          trans (r.2.1 ^ (d - 1))⁻¹ * _root_.deriv (fun a => η (a • ‖↑x‖⁻¹ • ↑x)) ‖x‖\n          · simp [x, norm_smul]\n            left\n            congr\n            funext a\n            congr\n            simp [smul_smul]\n            rw [abs_of_nonneg (le_of_lt hr)]\n            field_simp\n            simp only [one_smul]\n            rw [abs_of_nonneg (le_of_lt hr)]\n          rw [← grad_inner_space_unit_vector, real_inner_comm, ← pow_sub_one_mul (NeZero.ne d)]\n          simp only [norm_smul, Real.norm_eq_abs, abs_of_nonneg (le_of_lt hr),\n            norm_eq_of_mem_sphere, mul_one, map_smul, inner_smul_left, map_inv₀, conj_trivial,\n            mul_inv_rev, x]\n          field_simp\n          exact SchwartzMap.differentiable η\n      _ = - ∫ n, (∫ (r : Set.Ioi (0 : ℝ)),\n        (_root_.deriv (fun a => η (a • n)) r.1) ∂(.comap Subtype.val volume))\n        ∂(volume (α := Space d).toSphere) := by\n          congr\n          funext n\n          simp [Measure.volumeIoiPow]\n          erw [integral_withDensity_eq_integral_smul]\n          congr\n          funext r\n          have hr : (0 : ℝ) < r.1 := r.2\n          rw [abs_of_nonneg hr.le, NNReal.smul_def, Real.coe_toNNReal _ (by positivity),\n            smul_eq_mul, ← mul_assoc, mul_inv_cancel₀ (pow_ne_zero (d - 1) hr.ne'), one_mul]\n          fun_prop\n      _ = - ∫ n, (-η 0) ∂(volume (α := Space d).toSphere) := by\n          congr\n          funext n\n          let η' (n : ↑(Metric.sphere 0 1)) : 𝓢(ℝ, ℝ) := compCLM (g := fun a => a • n.1) ℝ (by\n            apply And.intro\n            · fun_prop\n            · intro n'\n              match n' with\n              | 0 =>\n                use 1, 1\n                simp [norm_smul]\n              | 1 =>\n                use 0, 1\n                intro x\n                simp [fderiv_smul_const]\n              | n' + 1 + 1 =>\n                use 0, 0\n                intro x\n                simp only [Real.norm_eq_abs, pow_zero, mul_one, norm_le_zero_iff]\n                rw [iteratedFDeriv_succ_eq_comp_right]\n                conv_lhs =>\n                  enter [2, 3, y]\n                  simp [fderiv_smul_const]\n                rw [iteratedFDeriv_succ_const]\n                rfl) (by use 1, 1; simp [norm_smul]) η\n          rw [MeasureTheory.integral_subtype_comap (by simp),\n            MeasureTheory.integral_Ioi_of_hasDerivAt_of_tendsto (f := fun a => η (a • n)) (m := 0)]\n          · simp\n          · exact ContinuousAt.continuousWithinAt (by fun_prop)\n          · exact fun x _ => DifferentiableAt.hasDerivAt (by fun_prop)\n          · exact (integrable ((derivCLM ℝ ℝ) (η' n))).integrableOn\n          · exact Filter.Tendsto.mono_left (η' n).toZeroAtInfty.zero_at_infty' atTop_le_cocompact\n      _ = η 0 * (d * (volume (α := Space d)).real (Metric.ball 0 1)) := by\n          simp only [integral_const, Measure.toSphere_real_apply_univ, finrank_eq_dim, smul_eq_mul,\n            mul_neg, neg_neg]\n          ring\n  simp only [_root_.smul_apply, diracDelta_apply, smul_eq_mul]\n  ring\n",
+            "docstring": "The distributional divergence of the radial field `x ↦ ‖x‖ ^ (-d) • x` (i.e. `x / ‖x‖ ^ d`)\nequals `d * volume (Metric.ball 0 1)` — the surface area of the unit sphere `S^{d-1}` — times the\nDirac delta at the origin. This is the Gauss-law identity underlying the fundamental solution of\nthe Laplacian: away from `0` the field is divergence-free, and all of its flux concentrates at the\norigin. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial coeff finite sum monomial",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101001,
+            "name": "Polynomial.coeff_monomial",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L580-L581",
+            "source_text": "theorem coeff_monomial : coeff (monomial n a) m = if n = m then a else 0 := by\n  simp [coeff, Finsupp.single_apply]\n",
+            "docstring": null
+          },
+          {
+            "id": 101081,
+            "name": "Polynomial.sum_monomial_eq",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L914-L916",
+            "source_text": "@[simp]\ntheorem sum_monomial_eq : ∀ p : R[X], (p.sum fun n a ↦ monomial n a) = p\n  | ⟨_p⟩ => (ofFinsupp_sum _ _).symm.trans (congr_arg _ <| sum_coeff_single _)\n\ntheorem sum_C_mul_X_pow_eq (p : R[X]) : (p.sum fun n a ↦ C a * X ^ n) = p := by",
+            "docstring": null
+          },
+          {
+            "id": 90481,
+            "name": "MvPolynomial.sum_def",
+            "module": "Mathlib.Algebra.MvPolynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Basic.lean#L523-L525",
+            "source_text": "theorem sum_def {A} [AddCommMonoid A] {p : MvPolynomial σ R} {b : (σ →₀ ℕ) → R → A} :\n    (AddMonoidAlgebra.coeff p).sum b = ∑ m ∈ p.support, b m (p.coeff m) := by\n  simp [support, Finsupp.sum, coeff]\n",
+            "docstring": null
+          },
+          {
+            "id": 90564,
+            "name": "MvPolynomial.support_sum_monomial_coeff",
+            "module": "Mathlib.Algebra.MvPolynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Basic.lean#L963-L966",
+            "source_text": "@[simp]\ntheorem support_sum_monomial_coeff (p : MvPolynomial σ R) :\n    ∑ v ∈ p.support, monomial v (coeff v p) = p := by\n  apply AddMonoidAlgebra.ext; rw [AddMonoidAlgebra.coeff_sum]; exact Finsupp.sum_single _",
+            "docstring": null
+          },
+          {
+            "id": 100953,
+            "name": "Polynomial.monomial",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L379-L383",
+            "source_text": "/-- `monomial s a` is the monomial `a * X^s` -/\ndef monomial (n : ℕ) : R →ₗ[R] R[X] where\n  toFun t := ⟨.single n t⟩\n  map_add' x y := by simp [← ofFinsupp_add]\n  map_smul' r x := by simp [← ofFinsupp_smul]\n",
+            "docstring": "`monomial s a` is the monomial `a * X^s` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "scalar_trace_support",
+    "receipts_sha256": "fd7f6fb8f7a7ecadbf4950210790eff5f02080a8db0725658a18acdc275231b1"
+  },
+  {
+    "queries": [
+      "Int.shiftRight_eq_div_pow"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Int.shiftRight_eq_div_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 206721,
+            "name": "Int.shiftLeft_eq_mul_pow",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L406-L408",
+            "source_text": "theorem shiftLeft_eq_mul_pow : ∀ (m : ℤ) (n : ℕ), m <<< (n : ℤ) = m * (2 ^ n : ℕ)\n  | (m : ℕ), _ => congr_arg ((↑) : ℕ → ℤ) (by simp [Nat.shiftLeft_eq])\n  | -[_+1], _ => @congr_arg ℕ ℤ _ _ (fun i => -i) (Nat.shiftLeft'_true_eq_mul_pow _ _)\n",
+            "docstring": null
+          },
+          {
+            "id": 206711,
+            "name": "Int.shiftRight_neg",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L339-L340",
+            "source_text": "@[simp]\ntheorem shiftRight_neg (m n : ℤ) : m >>> (-n) = m <<< n := by rw [← shiftLeft_neg, neg_neg]",
+            "docstring": null
+          },
+          {
+            "id": 206718,
+            "name": "Int.shiftRight_natCast_right",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L377-L380",
+            "source_text": "/-- Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. -/\nlemma shiftRight_natCast_right (m : ℤ) (n : ℕ) :\n    m >>> (n : ℤ) = m >>> n := by\n  cases m <;> simp\n",
+            "docstring": "Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. "
+          },
+          {
+            "id": 213993,
+            "name": "Num.shiftr_eq_shiftRight",
+            "module": "Mathlib.Data.Num.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Bitwise.lean#L196-L196",
+            "source_text": "@[simp] lemma shiftr_eq_shiftRight (p : Num) (n : Nat) : p.shiftr n = p >>> n := rfl",
+            "docstring": null
+          },
+          {
+            "id": 216332,
+            "name": "Rat.pow_eq_divInt",
+            "module": "Mathlib.Data.Rat.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Rat/Defs.lean#L114-L115",
+            "source_text": "lemma pow_eq_divInt (q : ℚ) (n : ℕ) : q ^ n = q.num ^ n /. q.den ^ n := by\n  rw [pow_def, mk_eq_divInt, Int.natCast_pow]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Int.shiftRight_eq_div_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393315,
+            "name": "Space.distDiv_inv_pow_eq_dim",
+            "module": "Physlib.SpaceAndTime.Space.Norm.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Norm/Basic.lean#L950-L1069",
+            "source_text": "/-- The distributional divergence of the radial field `x ↦ ‖x‖ ^ (-d) • x` (i.e. `x / ‖x‖ ^ d`)\nequals `d * volume (Metric.ball 0 1)` — the surface area of the unit sphere `S^{d-1}` — times the\nDirac delta at the origin. This is the Gauss-law identity underlying the fundamental solution of\nthe Laplacian: away from `0` the field is divergence-free, and all of its flux concentrates at the\norigin. -/\nlemma distDiv_inv_pow_eq_dim {d : ℕ} [NeZero d] :\n    ∇ᵈ ⬝ (distOfFunction (fun x : Space d => ‖x‖ ^ (- d : ℤ) • basis.repr x)\n      (IsDistBounded.zpow_smul_repr_self (- d : ℤ) (by omega))) =\n      (d * (volume (α := Space d)).real (Metric.ball 0 1)) • diracDelta ℝ 0 := by\n  ext η\n  calc _\n      _ = - ∫ x, ⟪‖x‖⁻¹ ^ d • basis.repr x, Space.grad η x⟫_ℝ := by\n          simp only [zpow_neg, zpow_natCast, distDiv_ofFunction, inv_pow]\n      _ = - ∫ x, ‖x‖⁻¹ ^ (d - 1) * ⟪‖x‖⁻¹ • basis.repr x, Space.grad η x⟫_ℝ := by\n          simp only [← pow_sub_one_mul (NeZero.ne d), inv_pow, inner_smul_left, conj_trivial,\n            map_inv₀, neg_inj]\n          ring_nf\n      _ = - ∫ x, ‖x‖⁻¹ ^ (d - 1) * (_root_.deriv (fun a => η (a • ‖x‖⁻¹ • x)) ‖x‖) := by\n          simp only [real_inner_comm,\n            ← grad_inner_space_unit_vector _ _ (SchwartzMap.differentiable η)]\n      _ = - ∫ r, ‖r.2.1‖⁻¹ ^ (d - 1) * (_root_.deriv (fun a => η (a • r.1)) ‖r.2.1‖)\n        ∂(volume (α := Space d).toSphere.prod\n        (Measure.volumeIoiPow (Module.finrank ℝ (Space d) - 1))) := by\n          rw [← MeasureTheory.MeasurePreserving.integral_comp (f := homeomorphUnitSphereProd _)\n            (MeasureTheory.Measure.measurePreserving_homeomorphUnitSphereProd\n            (volume (α := Space d)))\n            (Homeomorph.measurableEmbedding (homeomorphUnitSphereProd (Space d)))]\n          congr 1\n          simp only [inv_pow, homeomorphUnitSphereProd_apply_snd_coe, norm_norm,\n            homeomorphUnitSphereProd_apply_fst_coe]\n          let f (x : Space d) : ℝ :=\n            (‖↑x‖ ^ (d - 1))⁻¹ * _root_.deriv (fun a => η (a • ‖↑x‖⁻¹ • ↑x)) ‖↑x‖\n          conv_rhs =>\n            enter [2, x]\n            change f x.1\n          rw [MeasureTheory.integral_subtype_comap (by simp), ← setIntegral_univ]\n          change ∫ x in Set.univ, f x = ∫ (x : Space d) in _, f x\n          exact setIntegral_congr_set (MeasureTheory.ae_eq_univ.mpr (by simp)).symm\n      _ = - ∫ n, (∫ r, ‖r.1‖⁻¹ ^ (d - 1) *\n        (_root_.deriv (fun a => η (a • n)) ‖r.1‖)\n        ∂((Measure.volumeIoiPow (Module.finrank ℝ (Space d) - 1))))\n        ∂(volume (α := Space d).toSphere) := by\n          rw [MeasureTheory.integral_prod]\n          /- Integrable condition. -/\n          convert integrable_isDistBounded_inner_grad_schwartzMap_spherical\n            (IsDistBounded.inv_pow_smul_repr_self (d) (by omega)) η\n          rename_i r\n          simp only [Real.norm_eq_abs, inv_pow, Function.comp_apply,\n            homeomorphUnitSphereProd_symm_apply_coe, map_smul]\n          let x : Space d := r.2.1 • r.1.1\n          have hr : (0 : ℝ) < r.2.1 := r.2.2\n          rw [abs_of_nonneg (le_of_lt hr)]\n          trans (r.2.1 ^ (d - 1))⁻¹ * _root_.deriv (fun a => η (a • ‖↑x‖⁻¹ • ↑x)) ‖x‖\n          · simp [x, norm_smul]\n            left\n            congr\n            funext a\n            congr\n            simp [smul_smul]\n            rw [abs_of_nonneg (le_of_lt hr)]\n            field_simp\n            simp only [one_smul]\n            rw [abs_of_nonneg (le_of_lt hr)]\n          rw [← grad_inner_space_unit_vector, real_inner_comm, ← pow_sub_one_mul (NeZero.ne d)]\n          simp only [norm_smul, Real.norm_eq_abs, abs_of_nonneg (le_of_lt hr),\n            norm_eq_of_mem_sphere, mul_one, map_smul, inner_smul_left, map_inv₀, conj_trivial,\n            mul_inv_rev, x]\n          field_simp\n          exact SchwartzMap.differentiable η\n      _ = - ∫ n, (∫ (r : Set.Ioi (0 : ℝ)),\n        (_root_.deriv (fun a => η (a • n)) r.1) ∂(.comap Subtype.val volume))\n        ∂(volume (α := Space d).toSphere) := by\n          congr\n          funext n\n          simp [Measure.volumeIoiPow]\n          erw [integral_withDensity_eq_integral_smul]\n          congr\n          funext r\n          have hr : (0 : ℝ) < r.1 := r.2\n          rw [abs_of_nonneg hr.le, NNReal.smul_def, Real.coe_toNNReal _ (by positivity),\n            smul_eq_mul, ← mul_assoc, mul_inv_cancel₀ (pow_ne_zero (d - 1) hr.ne'), one_mul]\n          fun_prop\n      _ = - ∫ n, (-η 0) ∂(volume (α := Space d).toSphere) := by\n          congr\n          funext n\n          let η' (n : ↑(Metric.sphere 0 1)) : 𝓢(ℝ, ℝ) := compCLM (g := fun a => a • n.1) ℝ (by\n            apply And.intro\n            · fun_prop\n            · intro n'\n              match n' with\n              | 0 =>\n                use 1, 1\n                simp [norm_smul]\n              | 1 =>\n                use 0, 1\n                intro x\n                simp [fderiv_smul_const]\n              | n' + 1 + 1 =>\n                use 0, 0\n                intro x\n                simp only [Real.norm_eq_abs, pow_zero, mul_one, norm_le_zero_iff]\n                rw [iteratedFDeriv_succ_eq_comp_right]\n                conv_lhs =>\n                  enter [2, 3, y]\n                  simp [fderiv_smul_const]\n                rw [iteratedFDeriv_succ_const]\n                rfl) (by use 1, 1; simp [norm_smul]) η\n          rw [MeasureTheory.integral_subtype_comap (by simp),\n            MeasureTheory.integral_Ioi_of_hasDerivAt_of_tendsto (f := fun a => η (a • n)) (m := 0)]\n          · simp\n          · exact ContinuousAt.continuousWithinAt (by fun_prop)\n          · exact fun x _ => DifferentiableAt.hasDerivAt (by fun_prop)\n          · exact (integrable ((derivCLM ℝ ℝ) (η' n))).integrableOn\n          · exact Filter.Tendsto.mono_left (η' n).toZeroAtInfty.zero_at_infty' atTop_le_cocompact\n      _ = η 0 * (d * (volume (α := Space d)).real (Metric.ball 0 1)) := by\n          simp only [integral_const, Measure.toSphere_real_apply_univ, finrank_eq_dim, smul_eq_mul,\n            mul_neg, neg_neg]\n          ring\n  simp only [_root_.smul_apply, diracDelta_apply, smul_eq_mul]\n  ring\n",
+            "docstring": "The distributional divergence of the radial field `x ↦ ‖x‖ ^ (-d) • x` (i.e. `x / ‖x‖ ^ d`)\nequals `d * volume (Metric.ball 0 1)` — the surface area of the unit sphere `S^{d-1}` — times the\nDirac delta at the origin. This is the Gauss-law identity underlying the fundamental solution of\nthe Laplacian: away from `0` the field is divergence-free, and all of its flux concentrates at the\norigin. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Int.shiftRight_eq_div_pow",
+      "Int.shiftRight_natCast_right"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Int.shiftRight_eq_div_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 206721,
+            "name": "Int.shiftLeft_eq_mul_pow",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L406-L408",
+            "source_text": "theorem shiftLeft_eq_mul_pow : ∀ (m : ℤ) (n : ℕ), m <<< (n : ℤ) = m * (2 ^ n : ℕ)\n  | (m : ℕ), _ => congr_arg ((↑) : ℕ → ℤ) (by simp [Nat.shiftLeft_eq])\n  | -[_+1], _ => @congr_arg ℕ ℤ _ _ (fun i => -i) (Nat.shiftLeft'_true_eq_mul_pow _ _)\n",
+            "docstring": null
+          },
+          {
+            "id": 206711,
+            "name": "Int.shiftRight_neg",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L339-L340",
+            "source_text": "@[simp]\ntheorem shiftRight_neg (m n : ℤ) : m >>> (-n) = m <<< n := by rw [← shiftLeft_neg, neg_neg]",
+            "docstring": null
+          },
+          {
+            "id": 206718,
+            "name": "Int.shiftRight_natCast_right",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L377-L380",
+            "source_text": "/-- Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. -/\nlemma shiftRight_natCast_right (m : ℤ) (n : ℕ) :\n    m >>> (n : ℤ) = m >>> n := by\n  cases m <;> simp\n",
+            "docstring": "Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. "
+          },
+          {
+            "id": 213993,
+            "name": "Num.shiftr_eq_shiftRight",
+            "module": "Mathlib.Data.Num.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Bitwise.lean#L196-L196",
+            "source_text": "@[simp] lemma shiftr_eq_shiftRight (p : Num) (n : Nat) : p.shiftr n = p >>> n := rfl",
+            "docstring": null
+          },
+          {
+            "id": 216332,
+            "name": "Rat.pow_eq_divInt",
+            "module": "Mathlib.Data.Rat.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Rat/Defs.lean#L114-L115",
+            "source_text": "lemma pow_eq_divInt (q : ℚ) (n : ℕ) : q ^ n = q.num ^ n /. q.den ^ n := by\n  rw [pow_def, mk_eq_divInt, Int.natCast_pow]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Int.shiftRight_eq_div_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393315,
+            "name": "Space.distDiv_inv_pow_eq_dim",
+            "module": "Physlib.SpaceAndTime.Space.Norm.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Norm/Basic.lean#L950-L1069",
+            "source_text": "/-- The distributional divergence of the radial field `x ↦ ‖x‖ ^ (-d) • x` (i.e. `x / ‖x‖ ^ d`)\nequals `d * volume (Metric.ball 0 1)` — the surface area of the unit sphere `S^{d-1}` — times the\nDirac delta at the origin. This is the Gauss-law identity underlying the fundamental solution of\nthe Laplacian: away from `0` the field is divergence-free, and all of its flux concentrates at the\norigin. -/\nlemma distDiv_inv_pow_eq_dim {d : ℕ} [NeZero d] :\n    ∇ᵈ ⬝ (distOfFunction (fun x : Space d => ‖x‖ ^ (- d : ℤ) • basis.repr x)\n      (IsDistBounded.zpow_smul_repr_self (- d : ℤ) (by omega))) =\n      (d * (volume (α := Space d)).real (Metric.ball 0 1)) • diracDelta ℝ 0 := by\n  ext η\n  calc _\n      _ = - ∫ x, ⟪‖x‖⁻¹ ^ d • basis.repr x, Space.grad η x⟫_ℝ := by\n          simp only [zpow_neg, zpow_natCast, distDiv_ofFunction, inv_pow]\n      _ = - ∫ x, ‖x‖⁻¹ ^ (d - 1) * ⟪‖x‖⁻¹ • basis.repr x, Space.grad η x⟫_ℝ := by\n          simp only [← pow_sub_one_mul (NeZero.ne d), inv_pow, inner_smul_left, conj_trivial,\n            map_inv₀, neg_inj]\n          ring_nf\n      _ = - ∫ x, ‖x‖⁻¹ ^ (d - 1) * (_root_.deriv (fun a => η (a • ‖x‖⁻¹ • x)) ‖x‖) := by\n          simp only [real_inner_comm,\n            ← grad_inner_space_unit_vector _ _ (SchwartzMap.differentiable η)]\n      _ = - ∫ r, ‖r.2.1‖⁻¹ ^ (d - 1) * (_root_.deriv (fun a => η (a • r.1)) ‖r.2.1‖)\n        ∂(volume (α := Space d).toSphere.prod\n        (Measure.volumeIoiPow (Module.finrank ℝ (Space d) - 1))) := by\n          rw [← MeasureTheory.MeasurePreserving.integral_comp (f := homeomorphUnitSphereProd _)\n            (MeasureTheory.Measure.measurePreserving_homeomorphUnitSphereProd\n            (volume (α := Space d)))\n            (Homeomorph.measurableEmbedding (homeomorphUnitSphereProd (Space d)))]\n          congr 1\n          simp only [inv_pow, homeomorphUnitSphereProd_apply_snd_coe, norm_norm,\n            homeomorphUnitSphereProd_apply_fst_coe]\n          let f (x : Space d) : ℝ :=\n            (‖↑x‖ ^ (d - 1))⁻¹ * _root_.deriv (fun a => η (a • ‖↑x‖⁻¹ • ↑x)) ‖↑x‖\n          conv_rhs =>\n            enter [2, x]\n            change f x.1\n          rw [MeasureTheory.integral_subtype_comap (by simp), ← setIntegral_univ]\n          change ∫ x in Set.univ, f x = ∫ (x : Space d) in _, f x\n          exact setIntegral_congr_set (MeasureTheory.ae_eq_univ.mpr (by simp)).symm\n      _ = - ∫ n, (∫ r, ‖r.1‖⁻¹ ^ (d - 1) *\n        (_root_.deriv (fun a => η (a • n)) ‖r.1‖)\n        ∂((Measure.volumeIoiPow (Module.finrank ℝ (Space d) - 1))))\n        ∂(volume (α := Space d).toSphere) := by\n          rw [MeasureTheory.integral_prod]\n          /- Integrable condition. -/\n          convert integrable_isDistBounded_inner_grad_schwartzMap_spherical\n            (IsDistBounded.inv_pow_smul_repr_self (d) (by omega)) η\n          rename_i r\n          simp only [Real.norm_eq_abs, inv_pow, Function.comp_apply,\n            homeomorphUnitSphereProd_symm_apply_coe, map_smul]\n          let x : Space d := r.2.1 • r.1.1\n          have hr : (0 : ℝ) < r.2.1 := r.2.2\n          rw [abs_of_nonneg (le_of_lt hr)]\n          trans (r.2.1 ^ (d - 1))⁻¹ * _root_.deriv (fun a => η (a • ‖↑x‖⁻¹ • ↑x)) ‖x‖\n          · simp [x, norm_smul]\n            left\n            congr\n            funext a\n            congr\n            simp [smul_smul]\n            rw [abs_of_nonneg (le_of_lt hr)]\n            field_simp\n            simp only [one_smul]\n            rw [abs_of_nonneg (le_of_lt hr)]\n          rw [← grad_inner_space_unit_vector, real_inner_comm, ← pow_sub_one_mul (NeZero.ne d)]\n          simp only [norm_smul, Real.norm_eq_abs, abs_of_nonneg (le_of_lt hr),\n            norm_eq_of_mem_sphere, mul_one, map_smul, inner_smul_left, map_inv₀, conj_trivial,\n            mul_inv_rev, x]\n          field_simp\n          exact SchwartzMap.differentiable η\n      _ = - ∫ n, (∫ (r : Set.Ioi (0 : ℝ)),\n        (_root_.deriv (fun a => η (a • n)) r.1) ∂(.comap Subtype.val volume))\n        ∂(volume (α := Space d).toSphere) := by\n          congr\n          funext n\n          simp [Measure.volumeIoiPow]\n          erw [integral_withDensity_eq_integral_smul]\n          congr\n          funext r\n          have hr : (0 : ℝ) < r.1 := r.2\n          rw [abs_of_nonneg hr.le, NNReal.smul_def, Real.coe_toNNReal _ (by positivity),\n            smul_eq_mul, ← mul_assoc, mul_inv_cancel₀ (pow_ne_zero (d - 1) hr.ne'), one_mul]\n          fun_prop\n      _ = - ∫ n, (-η 0) ∂(volume (α := Space d).toSphere) := by\n          congr\n          funext n\n          let η' (n : ↑(Metric.sphere 0 1)) : 𝓢(ℝ, ℝ) := compCLM (g := fun a => a • n.1) ℝ (by\n            apply And.intro\n            · fun_prop\n            · intro n'\n              match n' with\n              | 0 =>\n                use 1, 1\n                simp [norm_smul]\n              | 1 =>\n                use 0, 1\n                intro x\n                simp [fderiv_smul_const]\n              | n' + 1 + 1 =>\n                use 0, 0\n                intro x\n                simp only [Real.norm_eq_abs, pow_zero, mul_one, norm_le_zero_iff]\n                rw [iteratedFDeriv_succ_eq_comp_right]\n                conv_lhs =>\n                  enter [2, 3, y]\n                  simp [fderiv_smul_const]\n                rw [iteratedFDeriv_succ_const]\n                rfl) (by use 1, 1; simp [norm_smul]) η\n          rw [MeasureTheory.integral_subtype_comap (by simp),\n            MeasureTheory.integral_Ioi_of_hasDerivAt_of_tendsto (f := fun a => η (a • n)) (m := 0)]\n          · simp\n          · exact ContinuousAt.continuousWithinAt (by fun_prop)\n          · exact fun x _ => DifferentiableAt.hasDerivAt (by fun_prop)\n          · exact (integrable ((derivCLM ℝ ℝ) (η' n))).integrableOn\n          · exact Filter.Tendsto.mono_left (η' n).toZeroAtInfty.zero_at_infty' atTop_le_cocompact\n      _ = η 0 * (d * (volume (α := Space d)).real (Metric.ball 0 1)) := by\n          simp only [integral_const, Measure.toSphere_real_apply_univ, finrank_eq_dim, smul_eq_mul,\n            mul_neg, neg_neg]\n          ring\n  simp only [_root_.smul_apply, diracDelta_apply, smul_eq_mul]\n  ring\n",
+            "docstring": "The distributional divergence of the radial field `x ↦ ‖x‖ ^ (-d) • x` (i.e. `x / ‖x‖ ^ d`)\nequals `d * volume (Metric.ball 0 1)` — the surface area of the unit sphere `S^{d-1}` — times the\nDirac delta at the origin. This is the Gauss-law identity underlying the fundamental solution of\nthe Laplacian: away from `0` the field is divergence-free, and all of its flux concentrates at the\norigin. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Int.shiftRight_natCast_right",
+        "status": "ok",
+        "results": [
+          {
+            "id": 206718,
+            "name": "Int.shiftRight_natCast_right",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L377-L380",
+            "source_text": "/-- Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. -/\nlemma shiftRight_natCast_right (m : ℤ) (n : ℕ) :\n    m >>> (n : ℤ) = m >>> n := by\n  cases m <;> simp\n",
+            "docstring": "Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. "
+          },
+          {
+            "id": 206713,
+            "name": "Int.shiftRight_natCast",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L346-L347",
+            "source_text": "@[simp]\ntheorem shiftRight_natCast (m n : ℕ) : (m : ℤ) >>> (n : ℤ) = m >>> n := by cases n <;> rfl",
+            "docstring": null
+          },
+          {
+            "id": 206717,
+            "name": "Int.shiftLeft_natCast_right",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L367-L375",
+            "source_text": "/-- Connection of `HShiftLeft Int Int Int` and `HShiftLeft Int Nat Int`. -/\nlemma shiftLeft_natCast_right (m : ℤ) (n : ℕ) :\n    m <<< (n : ℤ) = m <<< n := by\n  rw [Int.shiftLeft_eq']\n  unfold_projs; cases m <;> simp only [Nat.shiftLeft'_false, natCast_shiftLeft, ofNat_eq_natCast,\n    Nat.pow_eq, Int.natCast_pow, Nat.cast_ofNat, mul_def]\n  · grind [Int.shiftLeft_eq']\n  · simp only [negSucc_eq, ← natCast_add_one, Nat.shiftLeft'_true_eq_mul_pow]\n    grind\n",
+            "docstring": "Connection of `HShiftLeft Int Int Int` and `HShiftLeft Int Nat Int`. "
+          },
+          {
+            "id": 211860,
+            "name": "Nat.shiftRight_eq",
+            "module": "Mathlib.Data.Nat.Bits",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bits.lean#L130-L130",
+            "source_text": "@[simp] lemma shiftRight_eq (m n : Nat) : shiftRight m n = m >>> n := rfl",
+            "docstring": null
+          },
+          {
+            "id": 214179,
+            "name": "Num.castNum_shiftRight",
+            "module": "Mathlib.Data.Num.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L823-L848",
+            "source_text": "@[simp, norm_cast]\ntheorem castNum_shiftRight (m : Num) (n : Nat) : ↑(m >>> n) = (m : ℕ) >>> (n : ℕ) := by\n  obtain - | m := m <;> dsimp only [← shiftr_eq_shiftRight, shiftr]\n  · symm\n    apply Nat.zero_shiftRight\n  induction n generalizing m with\n  | zero => cases m <;> rfl\n  | succ n IH => ?_\n  have hdiv2 : ∀ m, Nat.div2 (m + m) = m := by intro; rw [Nat.div2_val]; lia\n  obtain - | m | m := m <;> dsimp only [PosNum.shiftr, ← PosNum.shiftr_eq_shiftRight]\n  · rw [Nat.shiftRight_eq_div_pow]\n    symm\n    apply Nat.div_eq_of_lt\n    simp\n  · trans\n    · apply IH\n    change Nat.shiftRight m n = Nat.shiftRight (m + m + 1) (n + 1)\n    rw [add_comm n 1, @Nat.shiftRight_eq _ (1 + n), Nat.shiftRight_add]\n    apply congr_arg fun x => Nat.shiftRight x n\n    simp [-add_assoc, Nat.shiftRight_succ, Nat.shiftRight_zero, ← Nat.div2_val, hdiv2]\n  · trans\n    · apply IH\n    change Nat.shiftRight m n = Nat.shiftRight (m + m) (n + 1)\n    rw [add_comm n 1, @Nat.shiftRight_eq _ (1 + n), Nat.shiftRight_add]\n    apply congr_arg fun x => Nat.shiftRight x n\n    simp [-add_assoc, Nat.shiftRight_succ, Nat.shiftRight_zero, ← Nat.div2_val, hdiv2]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Int.shiftRight_natCast_right",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Int.shiftRight_eq_div_pow",
+      "Int.shiftRight_natCast_right"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Int.shiftRight_eq_div_pow",
+      "Polynomial coeff finite sum monomial"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Int.shiftRight_eq_div_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 206721,
+            "name": "Int.shiftLeft_eq_mul_pow",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L406-L408",
+            "source_text": "theorem shiftLeft_eq_mul_pow : ∀ (m : ℤ) (n : ℕ), m <<< (n : ℤ) = m * (2 ^ n : ℕ)\n  | (m : ℕ), _ => congr_arg ((↑) : ℕ → ℤ) (by simp [Nat.shiftLeft_eq])\n  | -[_+1], _ => @congr_arg ℕ ℤ _ _ (fun i => -i) (Nat.shiftLeft'_true_eq_mul_pow _ _)\n",
+            "docstring": null
+          },
+          {
+            "id": 206711,
+            "name": "Int.shiftRight_neg",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L339-L340",
+            "source_text": "@[simp]\ntheorem shiftRight_neg (m n : ℤ) : m >>> (-n) = m <<< n := by rw [← shiftLeft_neg, neg_neg]",
+            "docstring": null
+          },
+          {
+            "id": 206718,
+            "name": "Int.shiftRight_natCast_right",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L377-L380",
+            "source_text": "/-- Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. -/\nlemma shiftRight_natCast_right (m : ℤ) (n : ℕ) :\n    m >>> (n : ℤ) = m >>> n := by\n  cases m <;> simp\n",
+            "docstring": "Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. "
+          },
+          {
+            "id": 213993,
+            "name": "Num.shiftr_eq_shiftRight",
+            "module": "Mathlib.Data.Num.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Bitwise.lean#L196-L196",
+            "source_text": "@[simp] lemma shiftr_eq_shiftRight (p : Num) (n : Nat) : p.shiftr n = p >>> n := rfl",
+            "docstring": null
+          },
+          {
+            "id": 216332,
+            "name": "Rat.pow_eq_divInt",
+            "module": "Mathlib.Data.Rat.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Rat/Defs.lean#L114-L115",
+            "source_text": "lemma pow_eq_divInt (q : ℚ) (n : ℕ) : q ^ n = q.num ^ n /. q.den ^ n := by\n  rw [pow_def, mk_eq_divInt, Int.natCast_pow]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Int.shiftRight_eq_div_pow",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393315,
+            "name": "Space.distDiv_inv_pow_eq_dim",
+            "module": "Physlib.SpaceAndTime.Space.Norm.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Norm/Basic.lean#L950-L1069",
+            "source_text": "/-- The distributional divergence of the radial field `x ↦ ‖x‖ ^ (-d) • x` (i.e. `x / ‖x‖ ^ d`)\nequals `d * volume (Metric.ball 0 1)` — the surface area of the unit sphere `S^{d-1}` — times the\nDirac delta at the origin. This is the Gauss-law identity underlying the fundamental solution of\nthe Laplacian: away from `0` the field is divergence-free, and all of its flux concentrates at the\norigin. -/\nlemma distDiv_inv_pow_eq_dim {d : ℕ} [NeZero d] :\n    ∇ᵈ ⬝ (distOfFunction (fun x : Space d => ‖x‖ ^ (- d : ℤ) • basis.repr x)\n      (IsDistBounded.zpow_smul_repr_self (- d : ℤ) (by omega))) =\n      (d * (volume (α := Space d)).real (Metric.ball 0 1)) • diracDelta ℝ 0 := by\n  ext η\n  calc _\n      _ = - ∫ x, ⟪‖x‖⁻¹ ^ d • basis.repr x, Space.grad η x⟫_ℝ := by\n          simp only [zpow_neg, zpow_natCast, distDiv_ofFunction, inv_pow]\n      _ = - ∫ x, ‖x‖⁻¹ ^ (d - 1) * ⟪‖x‖⁻¹ • basis.repr x, Space.grad η x⟫_ℝ := by\n          simp only [← pow_sub_one_mul (NeZero.ne d), inv_pow, inner_smul_left, conj_trivial,\n            map_inv₀, neg_inj]\n          ring_nf\n      _ = - ∫ x, ‖x‖⁻¹ ^ (d - 1) * (_root_.deriv (fun a => η (a • ‖x‖⁻¹ • x)) ‖x‖) := by\n          simp only [real_inner_comm,\n            ← grad_inner_space_unit_vector _ _ (SchwartzMap.differentiable η)]\n      _ = - ∫ r, ‖r.2.1‖⁻¹ ^ (d - 1) * (_root_.deriv (fun a => η (a • r.1)) ‖r.2.1‖)\n        ∂(volume (α := Space d).toSphere.prod\n        (Measure.volumeIoiPow (Module.finrank ℝ (Space d) - 1))) := by\n          rw [← MeasureTheory.MeasurePreserving.integral_comp (f := homeomorphUnitSphereProd _)\n            (MeasureTheory.Measure.measurePreserving_homeomorphUnitSphereProd\n            (volume (α := Space d)))\n            (Homeomorph.measurableEmbedding (homeomorphUnitSphereProd (Space d)))]\n          congr 1\n          simp only [inv_pow, homeomorphUnitSphereProd_apply_snd_coe, norm_norm,\n            homeomorphUnitSphereProd_apply_fst_coe]\n          let f (x : Space d) : ℝ :=\n            (‖↑x‖ ^ (d - 1))⁻¹ * _root_.deriv (fun a => η (a • ‖↑x‖⁻¹ • ↑x)) ‖↑x‖\n          conv_rhs =>\n            enter [2, x]\n            change f x.1\n          rw [MeasureTheory.integral_subtype_comap (by simp), ← setIntegral_univ]\n          change ∫ x in Set.univ, f x = ∫ (x : Space d) in _, f x\n          exact setIntegral_congr_set (MeasureTheory.ae_eq_univ.mpr (by simp)).symm\n      _ = - ∫ n, (∫ r, ‖r.1‖⁻¹ ^ (d - 1) *\n        (_root_.deriv (fun a => η (a • n)) ‖r.1‖)\n        ∂((Measure.volumeIoiPow (Module.finrank ℝ (Space d) - 1))))\n        ∂(volume (α := Space d).toSphere) := by\n          rw [MeasureTheory.integral_prod]\n          /- Integrable condition. -/\n          convert integrable_isDistBounded_inner_grad_schwartzMap_spherical\n            (IsDistBounded.inv_pow_smul_repr_self (d) (by omega)) η\n          rename_i r\n          simp only [Real.norm_eq_abs, inv_pow, Function.comp_apply,\n            homeomorphUnitSphereProd_symm_apply_coe, map_smul]\n          let x : Space d := r.2.1 • r.1.1\n          have hr : (0 : ℝ) < r.2.1 := r.2.2\n          rw [abs_of_nonneg (le_of_lt hr)]\n          trans (r.2.1 ^ (d - 1))⁻¹ * _root_.deriv (fun a => η (a • ‖↑x‖⁻¹ • ↑x)) ‖x‖\n          · simp [x, norm_smul]\n            left\n            congr\n            funext a\n            congr\n            simp [smul_smul]\n            rw [abs_of_nonneg (le_of_lt hr)]\n            field_simp\n            simp only [one_smul]\n            rw [abs_of_nonneg (le_of_lt hr)]\n          rw [← grad_inner_space_unit_vector, real_inner_comm, ← pow_sub_one_mul (NeZero.ne d)]\n          simp only [norm_smul, Real.norm_eq_abs, abs_of_nonneg (le_of_lt hr),\n            norm_eq_of_mem_sphere, mul_one, map_smul, inner_smul_left, map_inv₀, conj_trivial,\n            mul_inv_rev, x]\n          field_simp\n          exact SchwartzMap.differentiable η\n      _ = - ∫ n, (∫ (r : Set.Ioi (0 : ℝ)),\n        (_root_.deriv (fun a => η (a • n)) r.1) ∂(.comap Subtype.val volume))\n        ∂(volume (α := Space d).toSphere) := by\n          congr\n          funext n\n          simp [Measure.volumeIoiPow]\n          erw [integral_withDensity_eq_integral_smul]\n          congr\n          funext r\n          have hr : (0 : ℝ) < r.1 := r.2\n          rw [abs_of_nonneg hr.le, NNReal.smul_def, Real.coe_toNNReal _ (by positivity),\n            smul_eq_mul, ← mul_assoc, mul_inv_cancel₀ (pow_ne_zero (d - 1) hr.ne'), one_mul]\n          fun_prop\n      _ = - ∫ n, (-η 0) ∂(volume (α := Space d).toSphere) := by\n          congr\n          funext n\n          let η' (n : ↑(Metric.sphere 0 1)) : 𝓢(ℝ, ℝ) := compCLM (g := fun a => a • n.1) ℝ (by\n            apply And.intro\n            · fun_prop\n            · intro n'\n              match n' with\n              | 0 =>\n                use 1, 1\n                simp [norm_smul]\n              | 1 =>\n                use 0, 1\n                intro x\n                simp [fderiv_smul_const]\n              | n' + 1 + 1 =>\n                use 0, 0\n                intro x\n                simp only [Real.norm_eq_abs, pow_zero, mul_one, norm_le_zero_iff]\n                rw [iteratedFDeriv_succ_eq_comp_right]\n                conv_lhs =>\n                  enter [2, 3, y]\n                  simp [fderiv_smul_const]\n                rw [iteratedFDeriv_succ_const]\n                rfl) (by use 1, 1; simp [norm_smul]) η\n          rw [MeasureTheory.integral_subtype_comap (by simp),\n            MeasureTheory.integral_Ioi_of_hasDerivAt_of_tendsto (f := fun a => η (a • n)) (m := 0)]\n          · simp\n          · exact ContinuousAt.continuousWithinAt (by fun_prop)\n          · exact fun x _ => DifferentiableAt.hasDerivAt (by fun_prop)\n          · exact (integrable ((derivCLM ℝ ℝ) (η' n))).integrableOn\n          · exact Filter.Tendsto.mono_left (η' n).toZeroAtInfty.zero_at_infty' atTop_le_cocompact\n      _ = η 0 * (d * (volume (α := Space d)).real (Metric.ball 0 1)) := by\n          simp only [integral_const, Measure.toSphere_real_apply_univ, finrank_eq_dim, smul_eq_mul,\n            mul_neg, neg_neg]\n          ring\n  simp only [_root_.smul_apply, diracDelta_apply, smul_eq_mul]\n  ring\n",
+            "docstring": "The distributional divergence of the radial field `x ↦ ‖x‖ ^ (-d) • x` (i.e. `x / ‖x‖ ^ d`)\nequals `d * volume (Metric.ball 0 1)` — the surface area of the unit sphere `S^{d-1}` — times the\nDirac delta at the origin. This is the Gauss-law identity underlying the fundamental solution of\nthe Laplacian: away from `0` the field is divergence-free, and all of its flux concentrates at the\norigin. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial coeff finite sum monomial",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101001,
+            "name": "Polynomial.coeff_monomial",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L580-L581",
+            "source_text": "theorem coeff_monomial : coeff (monomial n a) m = if n = m then a else 0 := by\n  simp [coeff, Finsupp.single_apply]\n",
+            "docstring": null
+          },
+          {
+            "id": 101081,
+            "name": "Polynomial.sum_monomial_eq",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L914-L916",
+            "source_text": "@[simp]\ntheorem sum_monomial_eq : ∀ p : R[X], (p.sum fun n a ↦ monomial n a) = p\n  | ⟨_p⟩ => (ofFinsupp_sum _ _).symm.trans (congr_arg _ <| sum_coeff_single _)\n\ntheorem sum_C_mul_X_pow_eq (p : R[X]) : (p.sum fun n a ↦ C a * X ^ n) = p := by",
+            "docstring": null
+          },
+          {
+            "id": 90481,
+            "name": "MvPolynomial.sum_def",
+            "module": "Mathlib.Algebra.MvPolynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Basic.lean#L523-L525",
+            "source_text": "theorem sum_def {A} [AddCommMonoid A] {p : MvPolynomial σ R} {b : (σ →₀ ℕ) → R → A} :\n    (AddMonoidAlgebra.coeff p).sum b = ∑ m ∈ p.support, b m (p.coeff m) := by\n  simp [support, Finsupp.sum, coeff]\n",
+            "docstring": null
+          },
+          {
+            "id": 90564,
+            "name": "MvPolynomial.support_sum_monomial_coeff",
+            "module": "Mathlib.Algebra.MvPolynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Basic.lean#L963-L966",
+            "source_text": "@[simp]\ntheorem support_sum_monomial_coeff (p : MvPolynomial σ R) :\n    ∑ v ∈ p.support, monomial v (coeff v p) = p := by\n  apply AddMonoidAlgebra.ext; rw [AddMonoidAlgebra.coeff_sum]; exact Finsupp.sum_single _",
+            "docstring": null
+          },
+          {
+            "id": 100953,
+            "name": "Polynomial.monomial",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L379-L383",
+            "source_text": "/-- `monomial s a` is the monomial `a * X^s` -/\ndef monomial (n : ℕ) : R →ₗ[R] R[X] where\n  toFun t := ⟨.single n t⟩\n  map_add' x y := by simp [← ofFinsupp_add]\n  map_smul' r x := by simp [← ofFinsupp_smul]\n",
+            "docstring": "`monomial s a` is the monomial `a * X^s` "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "scalar_trace_support",
+    "receipts_sha256": "fd7f6fb8f7a7ecadbf4950210790eff5f02080a8db0725658a18acdc275231b1"
+  },
+  {
+    "queries": [
+      "Int.shiftRight_natCast_right"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Int.shiftRight_natCast_right",
+        "status": "ok",
+        "results": [
+          {
+            "id": 206718,
+            "name": "Int.shiftRight_natCast_right",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L377-L380",
+            "source_text": "/-- Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. -/\nlemma shiftRight_natCast_right (m : ℤ) (n : ℕ) :\n    m >>> (n : ℤ) = m >>> n := by\n  cases m <;> simp\n",
+            "docstring": "Connection of `HShiftRight Int Int Int` and `HShiftRight Int Nat Int`. "
+          },
+          {
+            "id": 206713,
+            "name": "Int.shiftRight_natCast",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L346-L347",
+            "source_text": "@[simp]\ntheorem shiftRight_natCast (m n : ℕ) : (m : ℤ) >>> (n : ℤ) = m >>> n := by cases n <;> rfl",
+            "docstring": null
+          },
+          {
+            "id": 206717,
+            "name": "Int.shiftLeft_natCast_right",
+            "module": "Mathlib.Data.Int.Bitwise",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Bitwise.lean#L367-L375",
+            "source_text": "/-- Connection of `HShiftLeft Int Int Int` and `HShiftLeft Int Nat Int`. -/\nlemma shiftLeft_natCast_right (m : ℤ) (n : ℕ) :\n    m <<< (n : ℤ) = m <<< n := by\n  rw [Int.shiftLeft_eq']\n  unfold_projs; cases m <;> simp only [Nat.shiftLeft'_false, natCast_shiftLeft, ofNat_eq_natCast,\n    Nat.pow_eq, Int.natCast_pow, Nat.cast_ofNat, mul_def]\n  · grind [Int.shiftLeft_eq']\n  · simp only [negSucc_eq, ← natCast_add_one, Nat.shiftLeft'_true_eq_mul_pow]\n    grind\n",
+            "docstring": "Connection of `HShiftLeft Int Int Int` and `HShiftLeft Int Nat Int`. "
+          },
+          {
+            "id": 211860,
+            "name": "Nat.shiftRight_eq",
+            "module": "Mathlib.Data.Nat.Bits",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bits.lean#L130-L130",
+            "source_text": "@[simp] lemma shiftRight_eq (m n : Nat) : shiftRight m n = m >>> n := rfl",
+            "docstring": null
+          },
+          {
+            "id": 214179,
+            "name": "Num.castNum_shiftRight",
+            "module": "Mathlib.Data.Num.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L823-L848",
+            "source_text": "@[simp, norm_cast]\ntheorem castNum_shiftRight (m : Num) (n : Nat) : ↑(m >>> n) = (m : ℕ) >>> (n : ℕ) := by\n  obtain - | m := m <;> dsimp only [← shiftr_eq_shiftRight, shiftr]\n  · symm\n    apply Nat.zero_shiftRight\n  induction n generalizing m with\n  | zero => cases m <;> rfl\n  | succ n IH => ?_\n  have hdiv2 : ∀ m, Nat.div2 (m + m) = m := by intro; rw [Nat.div2_val]; lia\n  obtain - | m | m := m <;> dsimp only [PosNum.shiftr, ← PosNum.shiftr_eq_shiftRight]\n  · rw [Nat.shiftRight_eq_div_pow]\n    symm\n    apply Nat.div_eq_of_lt\n    simp\n  · trans\n    · apply IH\n    change Nat.shiftRight m n = Nat.shiftRight (m + m + 1) (n + 1)\n    rw [add_comm n 1, @Nat.shiftRight_eq _ (1 + n), Nat.shiftRight_add]\n    apply congr_arg fun x => Nat.shiftRight x n\n    simp [-add_assoc, Nat.shiftRight_succ, Nat.shiftRight_zero, ← Nat.div2_val, hdiv2]\n  · trans\n    · apply IH\n    change Nat.shiftRight m n = Nat.shiftRight (m + m) (n + 1)\n    rw [add_comm n 1, @Nat.shiftRight_eq _ (1 + n), Nat.shiftRight_add]\n    apply congr_arg fun x => Nat.shiftRight x n\n    simp [-add_assoc, Nat.shiftRight_succ, Nat.shiftRight_zero, ← Nat.div2_val, hdiv2]",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Int.shiftRight_natCast_right",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Int.shiftRight_natCast_right"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "id": "dense_injective",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Euclid.dense_injective",
+    "spec_sha256": "eecdc69d1dacf207d398308e63fcee21738a7588ed1d0cc525c0f5b9e278cbc4",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-b4t9wpbd/attempt-001/Candidate_182996f9f89c84df.lean",
+        "target_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-b4t9wpbd/attempt-001/FrozenTarget_182996f9f89c84df.lean",
+        "feedback": "",
+        "target_sha256": "366cedc15db376ffdb161a8475a96c800eb947f58db95c7d9c0048a0e642173f",
+        "target_olean_sha256": "f4c305da8b8a3e772af2ba381578b3f5437cd1fd478dc619433067b2421a5d29",
+        "source_sha256": "ea5b6a9c728149f9ad8bbaac3c48d99f63406246890b4fae178d467347e6824d",
+        "olean_sha256": "09d439b308eb8c833f7e3281afe23bc5d149a54b6025f7e442db26ed5fc58149",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:05:44.715039+00:00",
+    "work": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-b4t9wpbd",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "77f2f0a61a166350942b8cde04647e5997bd6f2d2f8fb5f4f56f3285fcd1287c",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-b4t9wpbd/attempt-001/Candidate_182996f9f89c84df.lean",
+    "environment_sha256": "81b552595932f7843a5d84c9e1652636cf17eb00709558594967bfaeb7bd9da9",
+    "artifacts": {
+      "dense_injective": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.dense_injective : ∀ (N : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ N + 1 → M6.Euclid.rank q ≤ N + 1 → M6.Euclid.dense N p = M6.Euclid.dense N q → p = q := by\n  change ∀ (N : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ N + 1 → M6.Euclid.rank q ≤ N + 1 → M6.Euclid.dense N p = M6.Euclid.dense N q → p = q\n  intro N p q hp hq hd\n  classical\n  apply Polynomial.ext\n  intro i\n  by_cases hi : i < N + 1\n  · change List.ofFn (fun j : Fin (N + 1) => p.coeff j) = List.ofFn (fun j : Fin (N + 1) => q.coeff j) at hd\n    have he : (List.ofFn (fun j : Fin (N + 1) => p.coeff j))[i]'(by simpa using hi) = (List.ofFn (fun j : Fin (N + 1) => q.coeff j))[i]'(by simpa using hi) := by\n      congr 1\n    simpa only [List.getElem_ofFn] using he\n  · have hpz : p.coeff i = 0 := by\n      by_cases hp0 : p = 0\n      · simp [hp0]\n      · apply Polynomial.coeff_eq_zero_of_natDegree_lt\n        simp [M6.Euclid.rank, hp0] at hp\n        omega\n    have hqz : q.coeff i = 0 := by\n      by_cases hq0 : q = 0\n      · simp [hq0]\n      · apply Polynomial.coeff_eq_zero_of_natDegree_lt\n        simp [M6.Euclid.rank, hq0] at hq\n        omega\n    exact hpz.trans hqz.symm",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.dense_injective",
+          "ancestors": [],
+          "spec_sha256": "eecdc69d1dacf207d398308e63fcee21738a7588ed1d0cc525c0f5b9e278cbc4"
+        },
+        "sha256": "48a529ee7113ec1c659e029b3c71c2f6fa86fa7aaac655afdfa1cbc5c74336fb"
+      }
+    }
+  }
+}

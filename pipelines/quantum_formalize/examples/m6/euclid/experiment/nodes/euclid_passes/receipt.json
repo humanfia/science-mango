@@ -1,0 +1,84 @@
+{
+  "id": "euclid_passes",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Euclid.euclid_passes",
+    "spec_sha256": "3ed3552c8f1cf35fd7157068df23780605227af66247062ebf2b266058b1687d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-g00n4maf/attempt-001/Candidate_76ac80c0f5262fe6.lean",
+        "target_path": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-g00n4maf/attempt-001/FrozenTarget_76ac80c0f5262fe6.lean",
+        "feedback": "",
+        "target_sha256": "fe60c2a04994d36fa978a8bdfe1225b46a2de68c86ce24485c567dbbb45dfd97",
+        "target_olean_sha256": "a95b957f824d686d0054cbe8a96795183503f5d4c643d0ea653b4b7bf998f772",
+        "source_sha256": "afb499abee1d963bd27b422a36ab0676516b90423cd661cd8e2281de6b4f5ab0",
+        "olean_sha256": "ab65d8b556b09e5759e49296175ab9584b559f1e5827ff32cdd78bf9353f5ace",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:07:53.168842+00:00",
+    "work": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-g00n4maf",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "77f2f0a61a166350942b8cde04647e5997bd6f2d2f8fb5f4f56f3285fcd1287c",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-euclid-formalization/.humanize-formal-runs/run-g00n4maf/attempt-001/Candidate_76ac80c0f5262fe6.lean",
+    "environment_sha256": "81b552595932f7843a5d84c9e1652636cf17eb00709558594967bfaeb7bd9da9",
+    "artifacts": {
+      "remainder_passes": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.remainder_passes : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.remainderAux fuel p q).passes = 2 * (M6.Euclid.remainderAux fuel p q).cancellations + 1 := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.remainderAux fuel p q).passes = 2 * (M6.Euclid.remainderAux fuel p q).cancellations + 1\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q\n      rfl\n  | succ fuel ih =>\n      intro p q\n      classical\n      simp only [M6.Euclid.remainderAux]\n      split <;> simp [ih, Nat.mul_add, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.remainder_passes",
+          "ancestors": [],
+          "spec_sha256": "9297c82c4f57b14dbfca34103bb1390f6cbd1b116144973a39352e45866c99cf"
+        },
+        "sha256": "1cb3b7449026e677e4f8ee30de71cd8ca05cf2967675e2ed362b5f56aae31de0"
+      },
+      "euclid_aux_passes": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.euclid_aux_passes : ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.euclidAux fuel p q).passes = 2 * (M6.Euclid.euclidAux fuel p q).cancellations + 3 * (M6.Euclid.euclidAux fuel p q).rounds + 1 := by\n  change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.euclidAux fuel p q).passes = 2 * (M6.Euclid.euclidAux fuel p q).cancellations + 3 * (M6.Euclid.euclidAux fuel p q).rounds + 1\n  intro fuel\n  induction fuel with\n  | zero =>\n      intro p q\n      rfl\n  | succ fuel ih =>\n      intro p q\n      classical\n      simp only [M6.Euclid.euclidAux]\n      split <;> simp [M6.Euclid.remainder, ih, M6.Euclid.remainder_passes, Nat.mul_add, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] <;> omega",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.euclid_aux_passes",
+          "ancestors": [
+            "remainder_passes"
+          ],
+          "spec_sha256": "52ebf882ffae475db8b747d47d7a160c24df8e4bb488ae9385f1157557ee1684"
+        },
+        "sha256": "480a92e8260c21e4e6dd93993fbb908426d71bd910cdfa2bbf79efb76e9a93d3"
+      },
+      "euclid_passes": {
+        "payload": {
+          "declaration": "theorem M6.Euclid.euclid_passes : ∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).passes = 2 * (M6.Euclid.euclid p q).cancellations + 3 * (M6.Euclid.euclid p q).rounds + 2 := by\n  change ∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).passes = 2 * (M6.Euclid.euclid p q).cancellations + 3 * (M6.Euclid.euclid p q).rounds + 2\n  intro p q\n  simp [M6.Euclid.euclid, M6.Euclid.euclid_aux_passes] <;> omega",
+          "imports": [
+            "M6Euclid"
+          ],
+          "name": "M6.Euclid.euclid_passes",
+          "ancestors": [
+            "euclid_aux_passes",
+            "remainder_passes"
+          ],
+          "spec_sha256": "03b9de0ea3aa3d1c0db4a72fcc61ff9a25e997cca256cf3fe02d471d1dfb416d"
+        },
+        "sha256": "f5d1bee1927b2915e4fbde2298983ede9b96a47aa3dcd14d87d80349497287fc"
+      }
+    }
+  }
+}

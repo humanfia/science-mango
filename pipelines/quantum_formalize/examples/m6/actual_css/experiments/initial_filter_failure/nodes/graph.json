@@ -1,0 +1,183 @@
+[
+  {
+    "id": "J_dot",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.ActualCSS.J_dot",
+      "statement": "∀ (N : ℕ) [NeZero N] (v w : M6.Pinned.Vector (2*N)), M6.Character.dot (M6.Flatten.J N v) (M6.Flatten.J N w) = M6.Character.dot v w",
+      "imports": [
+        "M6ActualCSS",
+        "M6ActualCSSDependencies"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence negation",
+        "submodule orthogonal complement membership"
+      ],
+      "guidance": "Use flatten_dot, flatten_left/right and explicit Physical.J index reversal; finite sum over ZMod N is invariant under negation. This proves the actual J isometry, not an assumption. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M6 actual CSS distance correspondence",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "J_boundary_iff",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.ActualCSS.J_boundary_iff",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.Spaces.boundaryWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b)",
+      "imports": [
+        "M6ActualCSS",
+        "M6ActualCSSDependencies"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence negation",
+        "submodule orthogonal complement membership"
+      ],
+      "guidance": "Expand range membership and subspaceWords; actual dualBoundary equals J composed boundary by Spaces eval and flatten_left. J involution gives converse. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M6 actual CSS distance correspondence",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "J_cycle_iff",
+    "dependencies": [
+      "J_dot",
+      "J_boundary_iff"
+    ],
+    "spec": {
+      "name": "M6.ActualCSS.J_cycle_iff",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.Spaces.cycleWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.dualWords (M6.Spaces.B N a b)",
+      "imports": [
+        "M6ActualCSS",
+        "M6ActualCSSDependencies"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence negation",
+        "submodule orthogonal complement membership"
+      ],
+      "guidance": "Unfold dualWords orthogonality. Use J_boundary_iff to identify D=JB, J_dot isometry and J_involution. No cardinality or dimension assumption. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M6 actual CSS distance correspondence",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "zero_boundaries",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.ActualCSS.zero_boundaries",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), (0 : M6.Pinned.Vector (2*N)) ∈ M6.Spaces.boundaryWords N a b ∧ (0 : M6.Pinned.Vector (2*N)) ∈ M6.Character.subspaceWords (M6.Spaces.D N a b)",
+      "imports": [
+        "M6ActualCSS",
+        "M6ActualCSSDependencies"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence negation",
+        "submodule orthogonal complement membership"
+      ],
+      "guidance": "Both B and D are submodules; zero_mem, Finset membership. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M6 actual CSS distance correspondence",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "Z_boundaries_are_cycles",
+    "dependencies": [
+      "J_boundary_iff",
+      "J_cycle_iff"
+    ],
+    "spec": {
+      "name": "M6.ActualCSS.Z_boundaries_are_cycles",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.Character.subspaceWords (M6.Spaces.D N a b) ⊆ M6.Character.dualWords (M6.Spaces.B N a b)",
+      "imports": [
+        "M6ActualCSS",
+        "M6ActualCSSDependencies"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence negation",
+        "submodule orthogonal complement membership"
+      ],
+      "guidance": "Use actual Spaces.boundaries_are_cycles transported through J and involution. No free CSS containment premise. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M6 actual CSS distance correspondence",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "J_logical_iff",
+    "dependencies": [
+      "J_boundary_iff",
+      "J_cycle_iff"
+    ],
+    "spec": {
+      "name": "M6.ActualCSS.J_logical_iff",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.CSS.logical (M6.Spaces.boundaryWords N a b) (M6.Spaces.cycleWords N a b) ↔ M6.Flatten.J N v ∈ M6.CSS.logical (M6.Character.subspaceWords (M6.Spaces.D N a b)) (M6.Character.dualWords (M6.Spaces.B N a b))",
+      "imports": [
+        "M6ActualCSS",
+        "M6ActualCSSDependencies"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence negation",
+        "submodule orthogonal complement membership"
+      ],
+      "guidance": "Both logical sets are finite differences; use exact boundary and cycle equivalences. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M6 actual CSS distance correspondence",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  },
+  {
+    "id": "common_quantum_distance",
+    "dependencies": [
+      "zero_boundaries",
+      "Z_boundaries_are_cycles",
+      "J_logical_iff"
+    ],
+    "spec": {
+      "name": "M6.ActualCSS.common_quantum_distance",
+      "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), M6.CSS.quantumDistance (M6.Spaces.boundaryWords N a b) (M6.Spaces.cycleWords N a b) (M6.Character.subspaceWords (M6.Spaces.D N a b)) (M6.Character.dualWords (M6.Spaces.B N a b)) = M6.Pinned.distance (M6.Spaces.logicalWords N a b)",
+      "imports": [
+        "M6ActualCSS",
+        "M6ActualCSSDependencies"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum reindex equivalence negation",
+        "submodule orthogonal complement membership"
+      ],
+      "guidance": "Instantiate accepted CSS.common_quantum_distance with actual Flatten.J, accepted involution and weight invariance, actual containment and zero lemmas. Final logicalWords definition is the same finite difference. Return tactic lines only without leading by."
+    },
+    "metadata": {
+      "source_section": "Original M6 actual CSS distance correspondence",
+      "fallback_queries": [
+        "Finset mem_sdiff"
+      ]
+    }
+  }
+]

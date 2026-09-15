@@ -1,0 +1,94 @@
+{
+  "id": "boundary_trace_zero",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ZeroSpan.boundary_trace_zero",
+    "spec_sha256": "ee0c91bb782fa0d51c468e58f57aae195f06c29d0adc65e4b3dbfcdd47c39461",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-ez8o8wi0/attempt-001/Candidate_2c65fbdab56fb84a.lean:8:2: error: `simp` made no progress\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-ez8o8wi0/attempt-002/Candidate_e5486a2ef2ce4ad6.lean:17:2: error: Type mismatch: After simplification, term\n  Eq.trans ht hz\n has type\n  Transfer.scalarTracePolynomial (ActualTransfer.boundaryWeight 0 N 1 1 (Pinned.free (2 * N))) N =\n    (1 + Polynomial.X ^ 2) ^ N\nbut is expected to have type\n  Transfer.scalarTracePolynomial (ActualTransfer.boundaryWeight (ActualTransfer.span 1 1) N 1 1 (Pinned.free (2 * N)))\n      N =\n    (1 + Polynomial.X ^ 2) ^ N\n",
+        "attempt": 2
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-ez8o8wi0/attempt-003/Candidate_d4c295e2670682c6.lean",
+        "target_path": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-ez8o8wi0/attempt-003/FrozenTarget_d4c295e2670682c6.lean",
+        "feedback": "",
+        "target_sha256": "a67025ba0e7413133df756a8b43a6bcbc9be324844b9221b7ccecbd06015b68c",
+        "target_olean_sha256": "2d0961a6fefa3d2ed61bcc802bd1e4d23bec6e56b77dd06b5e1ad2db9f2e381d",
+        "source_sha256": "610af5ec5d2849481d9bc72cfa54000e88298ea4c66c412e5becd417cd626206",
+        "olean_sha256": "d17a4164b0ce02f91571ec1deb6adcd867810a6cef3eace4da285d87500cbc4d",
+        "attempt": 3
+      }
+    ],
+    "created_at": "2026-09-15T14:22:33.049935+00:00",
+    "work": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-ez8o8wi0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "97a2bab5a4c0acc9dc78adff123fd4c30cb20174f235ee77b2d65c8d7ff9e420",
+    "phase": "finished",
+    "round": 3,
+    "proof": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-ez8o8wi0/attempt-003/Candidate_d4c295e2670682c6.lean",
+    "environment_sha256": "e3a1ee3d1c1e0a750fa56d6a20e71bdd13b166ea223b3fa91dc892c68e61bcaa",
+    "artifacts": {
+      "boundary_loops": {
+        "payload": {
+          "declaration": "theorem M6.ZeroSpan.boundary_loops : ∀ (N : ℕ) [NeZero N] (i : ℕ) (m n : M6.Transfer.Memory 0), M6.Transfer.edgeMatrix (M6.ActualTransfer.boundaryWeight 0 N 1 1 (M6.Pinned.free (2*N)) i) m n = (1 : Polynomial ℤ) + Polynomial.X^2 := by\n  classical\n  intro N _ i m n\n  have hs : ∀ t : M6.Transfer.Bit, M6.Transfer.shift m t = n := fun _ => Subsingleton.elim _ _\n  have hu : (Finset.univ : Finset M6.Transfer.Bit) = {0, 1} := by decide\n  simp only [M6.Transfer.edgeMatrix, hs, if_true, hu, Finset.sum_insert, Finset.sum_singleton, Finset.mem_singleton, zero_ne_one, not_false_eq_true]\n  simp [M6.ActualTransfer.boundaryWeight, M6.ActualTransfer.window, M6.Character.boundaryFactor, M6.Pinned.free]\n  first\n  | simp [M6.Transfer.localOutput, M6.ActualTransfer.window, pow_two]\n  | simp [M6.Transfer.output, M6.ActualTransfer.window, pow_two]\n  all_goals norm_num [ZMod.val_one, pow_two]",
+          "imports": [
+            "M6ZeroSpan"
+          ],
+          "name": "M6.ZeroSpan.boundary_loops",
+          "ancestors": [],
+          "spec_sha256": "71cdce69fbca736eaa4a6fc3a0446d3b64352fc17d3fde4df02d75713523f67d"
+        },
+        "sha256": "667f140f81cd3211b8e5e746bd3dc580ac83f35eb8d2b0693625736b985df3f1"
+      },
+      "zero_memory_trace": {
+        "payload": {
+          "declaration": "theorem M6.ZeroSpan.zero_memory_trace : ∀ (N : ℕ) (W : ℕ → M6.Transfer.Memory 0 → M6.Transfer.Bit → Polynomial ℤ) (p : Polynomial ℤ), (∀ i m n, M6.Transfer.edgeMatrix (W i) m n = p) → M6.Transfer.arrayTrace W N = p^N := by\n  change ∀ (N : ℕ) (W : ℕ → M6.Transfer.Memory 0 → M6.Transfer.Bit → Polynomial ℤ) (p : Polynomial ℤ), (∀ i m n, M6.Transfer.edgeMatrix (W i) m n = p) → M6.Transfer.arrayTrace W N = p ^ N\n  intro N W p h\n  classical\n  haveI : Subsingleton (M6.Transfer.Memory 0) := ⟨fun a b => funext fun i => Fin.elim0 i⟩\n  letI : Unique (M6.Transfer.Memory 0) :=\n    { default := fun i => Fin.elim0 i\n      uniq := fun m => Subsingleton.elim _ _ }\n  have hp : ∀ n (m k : M6.Transfer.Memory 0),\n      M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) n m k = p ^ n := by\n    intro n\n    induction n with\n    | zero =>\n        intro m k\n        simp [M6.Transfer.matrixProduct, Matrix.one_apply, Subsingleton.elim m k]\n    | succ n ih =>\n        intro m k\n        simp [M6.Transfer.matrixProduct, Matrix.mul_apply, ih, h, pow_succ, mul_comm]\n  rw [M6.Transfer.array_trace_matrix 0 (Polynomial ℤ) W N]\n  simp [Matrix.trace, Matrix.diag, hp]",
+          "imports": [
+            "M6ZeroSpan"
+          ],
+          "name": "M6.ZeroSpan.zero_memory_trace",
+          "ancestors": [],
+          "spec_sha256": "6a33a0dc3c2ad92764381b83ad33967bfde05815c967c99e0488077345fe0897"
+        },
+        "sha256": "844760f38543966c4c32b132613f9a442f460aa049e1384eb3520a7499ba94e9"
+      },
+      "boundary_trace_zero": {
+        "payload": {
+          "declaration": "theorem M6.ZeroSpan.boundary_trace_zero : ∀ (N : ℕ) [NeZero N], M6.ActualTransfer.boundaryTrace N 1 1 (M6.Pinned.free (2*N)) = ((1 : Polynomial ℤ) + Polynomial.X^2)^N := by\n  change ∀ (N : ℕ) [NeZero N], M6.ActualTransfer.boundaryTrace N 1 1 (M6.Pinned.free (2*N)) = ((1 : Polynomial ℤ) + Polynomial.X^2)^N\n  intro N _\n  classical\n  have hs : M6.ActualTransfer.span 1 1 = 0 := by\n    simp [M6.ActualTransfer.span]\n  unfold M6.ActualTransfer.boundaryTrace\n  rw [hs]\n  trans M6.Transfer.arrayTrace (M6.ActualTransfer.boundaryWeight 0 N 1 1 (M6.Pinned.free (2*N))) N\n  · apply M6.Transfer.scalar_trace_polynomial\n    intro i m t\n    unfold M6.ActualTransfer.boundaryWeight\n    exact (M6.Transfer.boundary_edge_bounds (2*N) (M6.Pinned.free (2*N)) _ _ _ _).2\n  · exact M6.ZeroSpan.zero_memory_trace N _ _ (M6.ZeroSpan.boundary_loops N)",
+          "imports": [
+            "M6ZeroSpan"
+          ],
+          "name": "M6.ZeroSpan.boundary_trace_zero",
+          "ancestors": [
+            "boundary_loops",
+            "zero_memory_trace"
+          ],
+          "spec_sha256": "5cdb4970a58cff3874f7aa4a5d025acf9d4d3abdb61ecd15edc8a7cf0447ef4a"
+        },
+        "sha256": "697e8af0cc9123866cbb4ce60c7361630e73326d13b2a7135a7e6a0035be9664"
+      }
+    }
+  }
+}

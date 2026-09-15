@@ -1,0 +1,7 @@
+{
+  "proof": "intro N inst a b ha hb\nclassical\nlet S := M6.Spaces.B N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)\nlet e : S ≃ {v // v ∈ M6.Character.subspaceWords S} :=\n  { toFun := fun v => ⟨v.1, by simpa [M6.Character.subspaceWords] using v.2⟩\n    invFun := fun v => ⟨v.1, by simpa [M6.Character.subspaceWords] using v.2⟩\n    left_inv := fun _ => rfl\n    right_inv := fun _ => rfl }\nhave hc : Nat.card S = (M6.Character.subspaceWords S).card := by\n  rw [Nat.card_congr e]\n  simp [Nat.card_eq_fintype_card]\nhave hp : Nat.card S = Nat.card (ZMod 2) ^ Module.finrank (ZMod 2) S :=\n  Module.natCard_eq_pow_finrank (K := ZMod 2)\napply Nat.pow_right_injective (by decide : 2 ≤ (2 : ℕ))\nchange (2 : ℕ) ^ Module.finrank (ZMod 2) S = 2 ^ (N - M6.ActualCounts.f N a b)\ncalc\n  (2 : ℕ) ^ Module.finrank (ZMod 2) S = Nat.card S := by\n    simpa only [Nat.card_zmod] using hp.symm\n  _ = (M6.Character.subspaceWords S).card := hc\n  _ = 2 ^ (N - M6.ActualCounts.f N a b) := by\n    simpa only [S, M6.Spaces.boundaryWords] using\n      M6.ActualCounts.boundary_card N a b ha hb",
+  "queries": [
+    "Module.natCard_eq_pow_finrank",
+    "Nat.card_eq_fintype_card Finset.card_coe"
+  ]
+}

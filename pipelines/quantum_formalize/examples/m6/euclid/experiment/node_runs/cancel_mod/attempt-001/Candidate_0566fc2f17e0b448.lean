@@ -1,0 +1,6 @@
+import FrozenTarget_0566fc2f17e0b448
+theorem M6.Euclid.cancel_mod : QuantumHarnessFrozenTarget := by
+  change ∀ p q : M6.Euclid.BP, M6.Euclid.cancel p q % q = p % q
+  intro p q
+  apply Polynomial.mod_eq_of_dvd_sub
+  simp [M6.Euclid.cancel, sub_eq_add_neg, add_comm, add_left_comm, add_assoc]

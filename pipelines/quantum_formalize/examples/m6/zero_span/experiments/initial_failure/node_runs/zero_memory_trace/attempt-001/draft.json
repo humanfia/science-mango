@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N W p h\nhaveI : Subsingleton (M6.Transfer.Memory 0) := ⟨by\n  intro a b\n  funext i\n  exact Fin.elim0 i⟩\nhave hu : (Finset.univ : Finset (M6.Transfer.Memory 0)) = {default} := by\n  ext m\n  simp [Subsingleton.elim m (default : M6.Transfer.Memory 0)]\nhave hp : ∀ n (a b : M6.Transfer.Memory 0),\n    M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) n a b = p ^ n := by\n  intro n\n  induction n with\n  | zero =>\n      intro a b\n      simp [M6.Transfer.matrixProduct, Matrix.one_apply, Subsingleton.elim a b]\n  | succ n ih =>\n      intro a b\n      simp [M6.Transfer.matrixProduct, Matrix.mul_apply, ih, h, hu, pow_succ, mul_comm]\nrw [M6.Transfer.array_trace_matrix 0 (Polynomial ℤ) W N]\nsimp [Matrix.trace, Matrix.diag, hp, hu]",
+  "queries": []
+}

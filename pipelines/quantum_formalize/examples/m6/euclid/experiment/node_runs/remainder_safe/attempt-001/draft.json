@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (fuel : ℕ) (p q : M6.Euclid.BP) (width : ℕ), M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.remainderSafe fuel p q width\nintro fuel\ninduction fuel with\n| zero =>\n    intro p q width hp hq\n    simp [M6.Euclid.remainderSafe, hp, hq]\n| succ fuel ih =>\n    intro p q width hp hq\n    by_cases hp0 : p = 0\n    · subst p\n      simp [M6.Euclid.remainderSafe, hp, hq]\n    by_cases hq0 : q = 0\n    · subst q\n      simp [M6.Euclid.remainderSafe, hp, hq]\n    by_cases hdeg : p.degree < q.degree\n    · simp [M6.Euclid.remainderSafe, hp0, hq0, hdeg, hp, hq]\n    · have hc : M6.Euclid.rank (M6.Euclid.cancel p q) ≤ width :=\n        le_trans (Nat.le_of_lt (M6.Euclid.cancel_drop p q hp0 hq0 (le_of_not_gt hdeg))) hp\n      have hs := ih (M6.Euclid.cancel p q) q width hc hq\n      simp [M6.Euclid.remainderSafe, hp0, hq0, hdeg, hp, hq, hs]",
+  "queries": []
+}

@@ -1,0 +1,87 @@
+{
+  "id": "boundary_fiber_card",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualCounts.boundary_fiber_card",
+    "spec_sha256": "81dcbca4613afc807c493a3ce99dd25b4eb5f50cd4bee93d7213365924e39a96",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-counts-formalization/.humanize-formal-runs/run-pciwr9n8/attempt-001/Candidate_a18c36d5e4d60271.lean",
+        "target_path": "/home/jing/m6-lean-actual-counts-formalization/.humanize-formal-runs/run-pciwr9n8/attempt-001/FrozenTarget_a18c36d5e4d60271.lean",
+        "feedback": "",
+        "target_sha256": "d85a6629a9803ac6ad96b0565dfdead4e36108e82b6f3d2207cc50d41b63cec5",
+        "target_olean_sha256": "f932eafb484d30768e7cc0d6c713041d7779e8b2866b619a14c709123c3d4f63",
+        "source_sha256": "b26fec4958e0de568115ab706f1109718a410b15c56bf69aa5effb35df9684ed",
+        "olean_sha256": "4d5bae634f2f4c5858530bc3eba813309d4a134d72dc104b5b9c3b696202024c",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:09:21.393123+00:00",
+    "work": "/home/jing/m6-lean-actual-counts-formalization/.humanize-formal-runs/run-pciwr9n8",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7c7521ee46958e5c3e26647f5bb5f05afa2b6f6711ad78db02f325134bab4db0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-counts-formalization/.humanize-formal-runs/run-pciwr9n8/attempt-001/Candidate_a18c36d5e4d60271.lean",
+    "environment_sha256": "9940d8823c03f035cc8e5fa3e97b20154c0665cdf994c5ead8b940c0faa2de0d",
+    "artifacts": {
+      "encoded_boundary": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.encoded_boundary : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → ∀ h : M6.Physical.Block N, (M6.Coordinates.encode N (M6.Physical.conv N (M6.Coordinates.coefficients N a) h), M6.Coordinates.encode N (M6.Physical.conv N (M6.Coordinates.coefficients N b) h)) = M6.BoundaryFibers.boundary a b (M6.Cyclic.modulus N) (M6.Coordinates.encode N h) := by\n  intro N inst a b ha hb h\n  rw [M6.Coordinates.encode_conv N (M6.Coordinates.coefficients N a) h,\n      M6.Coordinates.encode_conv N (M6.Coordinates.coefficients N b) h,\n      M6.Coordinates.encode_polynomial N a ha,\n      M6.Coordinates.encode_polynomial N b hb]\n  rfl",
+          "imports": [
+            "M6ActualCounts",
+            "M6ActualCountsDependencies"
+          ],
+          "name": "M6.ActualCounts.encoded_boundary",
+          "ancestors": [],
+          "spec_sha256": "7a2ffbc65f9cea93fd0e852afafdab7d9134a11067f4ae1bf488f3947c3800a5"
+        },
+        "sha256": "f0bf4f037f8cc6ae708ec6cbc56aa1cf843d940748e1a7702d046012c15b5888"
+      },
+      "boundary_eq_iff": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.boundary_eq_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → ∀ h h₀ : M6.Physical.Block N, M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h = M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h₀ ↔ M6.BoundaryFibers.boundary a b (M6.Cyclic.modulus N) (M6.Coordinates.encode N h) = M6.BoundaryFibers.boundary a b (M6.Cyclic.modulus N) (M6.Coordinates.encode N h₀) := by\n  intro N inst a b ha hb h h₀\n  have hf : Function.Injective (M6.Flatten.flatten N) := by\n    intro z w e\n    have e' := congrArg (M6.Flatten.unflatten N) e\n    simpa only [M6.Flatten.flatten_left] using e'\n  rw [← M6.ActualCounts.encoded_boundary N a b ha hb h,\n      ← M6.ActualCounts.encoded_boundary N a b ha hb h₀]\n  simp only [M6.Spaces.boundary_eval, hf.eq_iff,\n    M6.Physical.boundary, Prod.mk.injEq,\n    (M6.Coordinates.encode_injective N).eq_iff]",
+          "imports": [
+            "M6ActualCounts",
+            "M6ActualCountsDependencies"
+          ],
+          "name": "M6.ActualCounts.boundary_eq_iff",
+          "ancestors": [
+            "encoded_boundary"
+          ],
+          "spec_sha256": "950aea8a8a2512745ccc32c9bf78d9d56296f1bb2570226eebf6b817c5741b25"
+        },
+        "sha256": "b6baa7070e478701d4eaf9fe886b4945eb2763a82b70857b2d485ad3772afb04"
+      },
+      "boundary_fiber_card": {
+        "payload": {
+          "declaration": "theorem M6.ActualCounts.boundary_fiber_card : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → ∀ h₀ : M6.Physical.Block N, Nat.card {h : M6.Physical.Block N // M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h = M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h₀} = 2^(M6.ActualCounts.f N a b) := by\n  intro N inst a b ha hb h₀\n  classical\n  let S := {h : M6.Physical.Block N //\n    M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h =\n    M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h₀}\n  let T := {h : AdjoinRoot (M6.Cyclic.modulus N) //\n    M6.BoundaryFibers.boundary a b (M6.Cyclic.modulus N) h =\n    M6.BoundaryFibers.boundary a b (M6.Cyclic.modulus N) (M6.Coordinates.encode N h₀)}\n  let g : S → T := fun h =>\n    ⟨M6.Coordinates.encode N h.val,\n      (M6.ActualCounts.boundary_eq_iff N a b ha hb h.val h₀).mp h.property⟩\n  have hg : Function.Bijective g := by\n    constructor\n    · intro x y hxy\n      apply Subtype.ext\n      apply M6.Coordinates.encode_injective N\n      exact congrArg Subtype.val hxy\n    · intro y\n      obtain ⟨h, hh⟩ := M6.Coordinates.encode_surjective N y.val\n      have hp : M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h =\n          M6.Spaces.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h₀ := by\n        apply (M6.ActualCounts.boundary_eq_iff N a b ha hb h h₀).mpr\n        rw [hh]\n        exact y.property\n      refine ⟨⟨h, hp⟩, ?_⟩\n      apply Subtype.ext\n      exact hh\n  have hc : Nat.card S = Nat.card T :=\n    Nat.card_congr (Equiv.ofBijective g hg)\n  change Nat.card S = 2 ^ (M6.ActualCounts.f N a b)\n  refine hc.trans ?_\n  exact M6.BoundaryFibers.fiber_card a b (M6.Cyclic.modulus N)\n    (M6.Coordinates.modulus_monic_degree N).1.ne_zero\n    (M6.Coordinates.encode N h₀)",
+          "imports": [
+            "M6ActualCounts",
+            "M6ActualCountsDependencies"
+          ],
+          "name": "M6.ActualCounts.boundary_fiber_card",
+          "ancestors": [
+            "boundary_eq_iff",
+            "encoded_boundary"
+          ],
+          "spec_sha256": "9cbb2fa1a8684a072d638414394debd87205b5f36f3c442ec7b8d0f3d4130a41"
+        },
+        "sha256": "9c5ecdeab855f64f5dbe549fe9fa99b6bc8be59a7e5cd0a75c6875f81bba971f"
+      }
+    }
+  }
+}

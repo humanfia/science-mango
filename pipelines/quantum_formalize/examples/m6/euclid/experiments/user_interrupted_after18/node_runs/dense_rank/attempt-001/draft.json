@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (width : ℕ) (p : M6.Euclid.BP), M6.Euclid.rank p ≤ width → M6.Euclid.scanRank width p = M6.Euclid.rank p\nclassical\nintro width\ninduction width with\n| zero =>\n    intro p hp\n    have hr : M6.Euclid.rank p = 0 := Nat.eq_zero_of_le_zero hp\n    simp [M6.Euclid.scanRank, hr]\n| succ width ih =>\n    intro p hp\n    by_cases hsmall : M6.Euclid.rank p ≤ width\n    · have hc : p.coeff width = 0 := by\n        by_cases hz : p = 0\n        · simp [hz]\n        · have hd : p.natDegree < width := by\n            simp [M6.Euclid.rank, hz] at hsmall\n            omega\n          exact Polynomial.coeff_eq_zero_of_natDegree_lt hd\n      simpa [M6.Euclid.scanRank, List.range_succ, List.foldl_append, hc] using ih p hsmall\n    · have hr : M6.Euclid.rank p = width + 1 := by omega\n      have hz : p ≠ 0 := by\n        intro hz\n        simp [M6.Euclid.rank, hz] at hr\n      have hd : p.natDegree = width := by\n        simp [M6.Euclid.rank, hz] at hr\n        omega\n      have hc : p.coeff width ≠ 0 := by\n        rw [← hd]\n        exact Polynomial.coeff_natDegree_ne_zero.mpr hz\n      simp [M6.Euclid.scanRank, List.range_succ, List.foldl_append, hc, hr]",
+  "queries": [
+    "Polynomial.coeff_eq_zero_of_natDegree_lt",
+    "Polynomial.coeff_natDegree_ne_zero",
+    "List.foldl_append List.range_succ"
+  ]
+}

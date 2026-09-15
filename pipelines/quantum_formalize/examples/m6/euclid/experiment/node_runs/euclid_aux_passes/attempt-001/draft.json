@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.euclidAux fuel p q).passes = 2 * (M6.Euclid.euclidAux fuel p q).cancellations + 3 * (M6.Euclid.euclidAux fuel p q).rounds + 1\nintro fuel\ninduction fuel with\n| zero =>\n    intro p q\n    rfl\n| succ fuel ih =>\n    intro p q\n    classical\n    simp only [M6.Euclid.euclidAux]\n    split <;> simp [M6.Euclid.remainder, ih, M6.Euclid.remainder_passes, Nat.mul_add, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] <;> omega",
+  "queries": []
+}

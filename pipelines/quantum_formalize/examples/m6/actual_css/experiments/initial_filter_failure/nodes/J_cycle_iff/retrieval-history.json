@@ -1,0 +1,1070 @@
+[
+  {
+    "queries": [
+      "finite sum reindex equivalence negation",
+      "submodule orthogonal complement membership"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum reindex equivalence negation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 71104,
+            "name": "Finset.sum_neg_index",
+            "module": "Mathlib.Algebra.Group.Pointwise.Finset.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/BigOperators.lean#L51-L51",
+            "source_text": "@[to_additive (attr := simp)] lemma prod_inv_index [InvolutiveInv ι] (s : Finset ι) (f : ι → α) :\n    ∏ i ∈ s⁻¹, f i = ∏ i ∈ s, f i⁻¹ := prod_image inv_injective.injOn",
+            "docstring": null
+          },
+          {
+            "id": 243669,
+            "name": "Module.Basis.sumCoords_reindex",
+            "module": "Mathlib.LinearAlgebra.Basis.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Basis/Defs.lean#L710-L714",
+            "source_text": "@[simp]\ntheorem sumCoords_reindex : (b.reindex e).sumCoords = b.sumCoords := by\n  ext x\n  simp only [coe_sumCoords, repr_reindex]\n  exact Finsupp.sum_mapDomain_index (fun _ => rfl) fun _ _ _ => rfl",
+            "docstring": null
+          },
+          {
+            "id": 247962,
+            "name": "Matrix.reindex",
+            "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L500-L506",
+            "source_text": "/-- The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. -/\ndef reindex (eₘ : m ≃ l) (eₙ : n ≃ o) : Matrix m n α ≃ Matrix l o α where\n  toFun M := M.submatrix eₘ.symm eₙ.symm\n  invFun M := M.submatrix eₘ eₙ\n  left_inv M := by simp\n  right_inv M := by simp\n",
+            "docstring": "The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. "
+          },
+          {
+            "id": 201968,
+            "name": "Finite.instSum",
+            "module": "Mathlib.Data.Finite.Sum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Sum.lean#L20-L23",
+            "source_text": "instance [Finite α] [Finite β] : Finite (α ⊕ β) := by\n  haveI := Fintype.ofFinite α\n  haveI := Fintype.ofFinite β\n  infer_instance\n",
+            "docstring": null
+          },
+          {
+            "id": 332433,
+            "name": "Equiv.hasSum_iff",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Basic.lean#L181-L181",
+            "source_text": "@[to_additive]\ntheorem Equiv.hasProd_iff (e : γ ≃ β) : HasProd (f ∘ e) a ↔ HasProd f a :=",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite sum reindex equivalence negation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386530,
+            "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+            "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+            "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+          },
+          {
+            "id": 386827,
+            "name": "Equiv.finAddEquivSigmaCond_true",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L52-L53",
+            "source_text": "lemma finAddEquivSigmaCond_true (h : i < m) : finAddEquivSigmaCond i = ⟨true, i, h⟩ :=\n  congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_castAdd ⟨i, h⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 386828,
+            "name": "Equiv.finAddEquivSigmaCond_false",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L55-L61",
+            "source_text": "lemma finAddEquivSigmaCond_false (h : ¬ i < m) : finAddEquivSigmaCond i = ⟨false, i.subNat' h⟩ :=\n  let j : Fin n := i.subNat' h\n  calc finAddEquivSigmaCond i\n    _ = finAddEquivSigmaCond (Fin.natAdd m j) :=\n      suffices m + (i - m) = i from congrArg _ (Fin.ext this.symm)\n      Nat.add_sub_of_le (Nat.le_of_not_gt h)\n    _ = ⟨false, i.subNat' h⟩ := congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_natAdd j\n",
+            "docstring": null
+          },
+          {
+            "id": 386335,
+            "name": "Physlib.Fin.finExtractOne_symm_inl_apply",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L141-L144",
+            "source_text": "@[simp]\nlemma finExtractOne_symm_inl_apply {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm (Sum.inl 0) = i := by\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 386333,
+            "name": "Physlib.Fin.finExtractOne_symm_inr",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L92-L133",
+            "source_text": "lemma finExtractOne_symm_inr {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm ∘ Sum.inr = i.succAbove := by\n  ext x\n  simp only [Nat.succ_eq_add_one, finExtractOne, Function.comp_apply, Equiv.symm_trans_apply,\n    finCongr_symm, Equiv.symm_symm, Equiv.sumCongr_symm, Equiv.refl_symm, Equiv.sumCongr_apply,\n    Equiv.coe_refl, Sum.map_inr, finCongr_apply, Fin.val_cast]\n  change (finSumFinEquiv\n    (Sum.map (⇑(finSumFinEquiv.symm.trans (Equiv.sumComm (Fin ↑i) (Fin 1))).symm) id\n    ((Equiv.sumAssoc (Fin 1) (Fin ↑i) (Fin (n - i))).symm\n    (Sum.inr (finSumFinEquiv.symm (Fin.cast _ x)))))).val = _\n  by_cases hi : x.1 < i.1\n  · generalize_proofs hp\n    have h1 : (finSumFinEquiv.symm (Fin.cast hp x)) =\n        Sum.inl ⟨x, hi⟩ := by\n      rw [← finSumFinEquiv_symm_apply_castAdd]\n      rfl\n    rw [h1]\n    simp only [Nat.succ_eq_add_one, Equiv.sumAssoc_symm_apply_inr_inl, Sum.map_inl,\n      Equiv.symm_trans_apply, Equiv.symm_symm, Equiv.sumComm_symm, Equiv.sumComm_apply,\n      Sum.swap_inr, finSumFinEquiv_apply_left, Fin.castAdd_mk]\n    rw [Fin.succAbove]\n    split\n    · rfl\n    rename_i hn\n    simp_all only [Nat.succ_eq_add_one, not_lt, Fin.le_def, Fin.val_castSucc, Fin.val_succ,\n      left_eq_add, one_ne_zero]\n    omega\n  · generalize_proofs hp\n    have h1 : (finSumFinEquiv.symm (Fin.cast hp x)) =\n        Sum.inr ⟨x - i, by omega⟩ := by\n      rw [← finSumFinEquiv_symm_apply_natAdd]\n      apply congrArg\n      ext\n      simp only [Nat.succ_eq_add_one, Fin.val_cast, Fin.natAdd_mk]\n      omega\n    rw [h1, Fin.succAbove]\n    split\n    · rename_i hn\n      simp_all [Fin.lt_def]\n    simp only [Nat.succ_eq_add_one, Equiv.sumAssoc_symm_apply_inr_inr, Sum.map_inr, id_eq,\n      finSumFinEquiv_apply_right, Fin.natAdd_mk, Fin.val_succ]\n    omega\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "submodule orthogonal complement membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 252869,
+            "name": "Submodule.mem_orthogonalBilin_iff",
+            "module": "Mathlib.LinearAlgebra.SesquilinearForm.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/SesquilinearForm/Orthogonal.lean#L54-L55",
+            "source_text": "@[simp] theorem mem_orthogonalBilin_iff {m : M₂} :\n  m ∈ S.orthogonalBilin B ↔ ∀ n ∈ S, B n m = 0 := .rfl",
+            "docstring": null
+          },
+          {
+            "id": 133745,
+            "name": "Submodule.orthogonal",
+            "module": "Mathlib.Analysis.InnerProductSpace.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Orthogonal.lean#L42-L47",
+            "source_text": "/-- The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. -/\ndef orthogonal : Submodule 𝕜 E where\n  carrier := { v | ∀ u ∈ K, ⟪u, v⟫ = 0 }\n  zero_mem' _ _ := inner_zero_right _\n  add_mem' hx hy u hu := by rw [inner_add_right, hx u hu, hy u hu, add_zero]\n  smul_mem' c x hx u hu := by rw [inner_smul_right, hx u hu, mul_zero]\n",
+            "docstring": "The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. "
+          },
+          {
+            "id": 133818,
+            "name": "ClosedSubmodule.mem_orthogonal_iff",
+            "module": "Mathlib.Analysis.InnerProductSpace.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Orthogonal.lean#L422-L422",
+            "source_text": "@[deprecated (since := \"2026-01-18\")] alias mem_orthogonal_iff := mem_orthogonal_toSubmodule_iff",
+            "docstring": "**Alias** of `ClosedSubmodule.mem_orthogonal_toSubmodule_iff`."
+          },
+          {
+            "id": 134339,
+            "name": "Submodule.orthogonalComplement_eq_orthogonalComplement",
+            "module": "Mathlib.Analysis.InnerProductSpace.Projection.Submodule",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Projection/Submodule.lean#L100-L104",
+            "source_text": "@[simp]\ntheorem orthogonalComplement_eq_orthogonalComplement {L : Submodule 𝕜 E} [K.HasOrthogonalProjection]\n    [L.HasOrthogonalProjection] : Kᗮ = Lᗮ ↔ K = L :=\n  ⟨fun h ↦ by simpa using congr(Submodule.orthogonal $(h)),\n    fun h ↦ congr(Submodule.orthogonal $(h))⟩",
+            "docstring": null
+          },
+          {
+            "id": 134329,
+            "name": "Submodule.reflection_orthogonalComplement_singleton_eq_neg",
+            "module": "Mathlib.Analysis.InnerProductSpace.Projection.Reflection",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Projection/Reflection.lean#L147-L149",
+            "source_text": "/-- The reflection in `(𝕜 ∙ v)ᗮ` of `v` is `-v`. -/\ntheorem reflection_orthogonalComplement_singleton_eq_neg (v : E) : reflection (𝕜 ∙ v)ᗮ v = -v :=\n  reflection_mem_subspace_orthogonal_precomplement_eq_neg (Submodule.mem_span_singleton_self v)\n",
+            "docstring": "The reflection in `(𝕜 ∙ v)ᗮ` of `v` is `-v`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "submodule orthogonal complement membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386522,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_adjoint_adjoint_iff_mem_submoduleToLp_orthogonal_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L100-L119",
+            "source_text": "lemma mem_submodule_adjoint_adjoint_iff_mem_submoduleToLp_orthogonal_orthogonal :\n    f ∈ M.adjoint.adjoint ↔ WithLp.toLp 2 f ∈ (submoduleToLp M)ᗮᗮ := by\n  simp only [mem_adjoint_iff]\n  trans ∀ v, (∀ w ∈ submoduleToLp M, inner ℂ w v = 0) → inner ℂ v (WithLp.toLp 2 f) = 0\n  · constructor <;> intro h\n    · intro v hw\n      have h' := h (-v.snd) v.fst\n      rw [inner_neg_left, sub_neg_eq_add] at h'\n      apply h'\n      intro a b hab\n      rw [inner_neg_right, neg_sub_left, neg_eq_zero]\n      exact hw (WithLp.toLp 2 (a, b)) ((mem_submodule_iff_mem_submoduleToLp M (a, b)).mp hab)\n    · intro a b h'\n      rw [sub_eq_add_neg, ← inner_neg_left]\n      apply h (WithLp.toLp 2 (b, -a))\n      intro w hw\n      have hw' := h' w.fst w.snd hw\n      rw [sub_eq_zero] at hw'\n      simp [hw']\n  simp only [← mem_orthogonal]\n",
+            "docstring": null
+          },
+          {
+            "id": 386523,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_closure_adjoint_iff_mem_submoduleToLp_closure_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L121-L124",
+            "source_text": "lemma mem_submodule_closure_adjoint_iff_mem_submoduleToLp_closure_orthogonal :\n    g ∈ M.topologicalClosure.adjoint ↔\n    WithLp.toLp 2 (g.2, -g.1) ∈ (submoduleToLp M).topologicalClosureᗮ := by\n  rw [mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal, submoduleToLp_closure]\n",
+            "docstring": null
+          },
+          {
+            "id": 386521,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L81-L98",
+            "source_text": "lemma mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal :\n    g ∈ M.adjoint ↔ WithLp.toLp 2 (g.2, -g.1) ∈ (submoduleToLp M)ᗮ := by\n  constructor <;> intro h\n  · rw [mem_orthogonal]\n    intro u hu\n    rw [mem_adjoint_iff] at h\n    have h' : inner ℂ u.snd g.1 = inner ℂ u.fst g.2 := by\n      rw [← sub_eq_zero]\n      exact h u.fst u.snd hu\n    simp [h']\n  · rw [mem_adjoint_iff]\n    intro a b hab\n    rw [mem_orthogonal] at h\n    have hab' := (mem_submodule_iff_mem_submoduleToLp M (a, b)).mp hab\n    have h' : inner ℂ a g.2 = inner ℂ b g.1 := by\n      rw [← sub_eq_zero, sub_eq_add_neg, ← inner_neg_right]\n      exact h (WithLp.toLp 2 (a, b)) hab'\n    simp [h']\n",
+            "docstring": null
+          },
+          {
+            "id": 386518,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_iff_mem_submoduleToLp",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L43-L44",
+            "source_text": "lemma mem_submodule_iff_mem_submoduleToLp : f ∈ M ↔ (WithLp.toLp 2 f) ∈ submoduleToLp M :=\n  Eq.to_iff rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 390577,
+            "name": "Submodule.inf_ne_bot_of_rank_lt",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L360-L371",
+            "source_text": "lemma _root_.Submodule.inf_ne_bot_of_rank_lt\n    {E F : Submodule ℂ H} [E.HasOrthogonalProjection] (h_rank : Module.rank ℂ E < Module.rank ℂ F) :\n    Eᗮ ⊓ F ≠ ⊥ := by\n  let Φ : F →L[ℂ] E := E.orthogonalProjectionOnto ∘L F.subtypeL\n  have hΦ : ¬(⇑Φ).Injective := fun h' ↦ not_le_of_gt h_rank (Φ.rank_le_of_injective h')\n  obtain ⟨x₁, x₂, h, hx⟩ := Function.not_injective_iff.mp hΦ\n  let y : H := x₁ - x₂\n  have hy : y ≠ 0 := fun h' ↦ hx (SetLike.coe_eq_coe.mp <| sub_eq_zero.mp h')\n  have hF : y ∈ F := sub_mem (coe_mem x₁) (coe_mem x₂)\n  have hE : y ∈ Eᗮ := orthogonalProjectionOnto_eq_zero_iff.mp\n    (_root_.map_sub Φ _ _ ▸ sub_eq_zero.mpr h)\n  exact fun hEF ↦ hy ((mem_bot ℂ).mp <| hEF ▸ ⟨hE, hF⟩)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "J_boundary_iff",
+    "receipts_sha256": "bea84452df8d1449efb9a3a3070e9b8030a0a01646c67eefa2335d02406eb5a3"
+  },
+  {
+    "queries": [
+      "M6.Character.dualWords definition",
+      "M6.Spaces.B definition"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.Character.dualWords definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 86749,
+            "name": "CharacterModule.dual",
+            "module": "Mathlib.Algebra.Module.CharacterModule",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/CharacterModule.lean#L75-L82",
+            "source_text": "/--\nGiven an abelian group homomorphism `f : A → B`, `f⋆(L) := L ∘ f` defines a linear map\nfrom `B⋆` to `A⋆`.\n-/\n@[simps] def dual (f : A →ₗ[R] B) : CharacterModule B →ₗ[R] CharacterModule A where\n  toFun L := L.comp f.toAddMonoidHom\n  map_add' := by aesop\n  map_smul' r c := by ext x; exact congr(c $(f.map_smul r x)).symm\n",
+            "docstring": "Given an abelian group homomorphism `f : A → B`, `f⋆(L) := L ∘ f` defines a linear map\nfrom `B⋆` to `A⋆`.\n"
+          },
+          {
+            "id": 86751,
+            "name": "CharacterModule.dual_zero",
+            "module": "Mathlib.Algebra.Module.CharacterModule",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Module/CharacterModule.lean#L84-L87",
+            "source_text": "@[simp]\nlemma dual_zero : dual (0 : A →ₗ[R] B) = 0 := by\n  ext f\n  exact map_zero f",
+            "docstring": null
+          },
+          {
+            "id": 245498,
+            "name": "Module.Dual",
+            "module": "Mathlib.LinearAlgebra.Dual.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dual/Defs.lean#L60-L63",
+            "source_text": "/-- The left dual space of an R-module M is the R-module of linear maps `M → R`. -/\n@[wikidata Q752487]\nabbrev Dual (R M : Type*) [Semiring R] [AddCommMonoid M] [Module R M] :=\n  M →ₗ[R] R\n",
+            "docstring": "The left dual space of an R-module M is the R-module of linear maps `M → R`. "
+          },
+          {
+            "id": 245545,
+            "name": "Submodule.dualAnnihilator",
+            "module": "Mathlib.LinearAlgebra.Dual.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Dual/Defs.lean#L336-L340",
+            "source_text": "/-- The `dualAnnihilator` of a submodule `W` is the set of linear maps `φ` such\n  that `φ w = 0` for all `w ∈ W`. -/\ndef dualAnnihilator {R M : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M]\n    (W : Submodule R M) : Submodule R <| Module.Dual R M :=\n  LinearMap.ker W.dualRestrict\n",
+            "docstring": "The `dualAnnihilator` of a submodule `W` is the set of linear maps `φ` such\nthat `φ w = 0` for all `w ∈ W`. "
+          },
+          {
+            "id": 335194,
+            "name": "WeakDual.characterSpace",
+            "module": "Mathlib.Topology.Algebra.Module.Spaces.CharacterSpace",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/Module/Spaces/CharacterSpace.lean#L42-L46",
+            "source_text": "/-- The character space of a topological algebra is the subset of elements of the weak dual that\nare also algebra homomorphisms. -/\ndef characterSpace (𝕜 : Type*) (A : Type*) [CommSemiring 𝕜] [TopologicalSpace 𝕜] [ContinuousAdd 𝕜]\n    [ContinuousConstSMul 𝕜 𝕜] [NonUnitalNonAssocSemiring A] [TopologicalSpace A] [Module 𝕜 A] :=\n  {φ : WeakDual 𝕜 A | φ ≠ 0 ∧ ∀ x y : A, φ (x * y) = φ x * φ y}\n",
+            "docstring": "The character space of a topological algebra is the subset of elements of the weak dual that\nare also algebra homomorphisms. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.Character.dualWords definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 391323,
+            "name": "minkowskiMatrix.dual",
+            "module": "Physlib.Relativity.MinkowskiMatrix",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L235-L237",
+            "source_text": "/-- The dual of a matrix with respect to the Minkowski metric.\n  A suitable name for this construction is the Minkowski dual. -/\ndef dual : Matrix (Fin 1 ⊕ Fin d) (Fin 1 ⊕ Fin d) ℝ := η * Λᵀ * η\n",
+            "docstring": "The dual of a matrix with respect to the Minkowski metric.\nA suitable name for this construction is the Minkowski dual. "
+          },
+          {
+            "id": 391325,
+            "name": "minkowskiMatrix.dual_mul",
+            "module": "Physlib.Relativity.MinkowskiMatrix",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L260-L264",
+            "source_text": "/-- The Minkowski dual swaps multiplications (acts contravariantly). -/\n@[simp]\nlemma dual_mul : dual (Λ * Λ') = dual Λ' * dual Λ := by\n  simp only [dual, transpose_mul, ← mul_assoc]\n  noncomm_ring [minkowskiMatrix.sq]\n",
+            "docstring": "The Minkowski dual swaps multiplications (acts contravariantly). "
+          },
+          {
+            "id": 392457,
+            "name": "Lorentz.contrContrContractField.dual_mulVec_left",
+            "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Pre.Contraction",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Pre/Contraction.lean#L238-L239",
+            "source_text": "lemma dual_mulVec_left : ⟪dual Λ *ᵥ x, y⟫ₘ = ⟪x, Λ *ᵥ y⟫ₘ := by\n  rw [symm, dual_mulVec_right, symm]\n",
+            "docstring": null
+          },
+          {
+            "id": 391326,
+            "name": "minkowskiMatrix.dual_dual",
+            "module": "Physlib.Relativity.MinkowskiMatrix",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L273-L278",
+            "source_text": "/-- The Minkowski dual is involutive (i.e. `dual (dual Λ)) = Λ`). -/\n@[simp]\nlemma dual_dual : Function.Involutive (@dual d) := by\n  intro Λ\n  simp only [dual, transpose_mul, eq_transpose, transpose_transpose, ← mul_assoc]\n  noncomm_ring [minkowskiMatrix.sq]\n",
+            "docstring": "The Minkowski dual is involutive (i.e. `dual (dual Λ)) = Λ`). "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M6.Spaces.B definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 264347,
+            "name": "MeasurableSpace",
+            "module": "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/MeasurableSpace/Defs.lean#L48-L59",
+            "source_text": "/-- A measurable space is a space equipped with a σ-algebra. -/\n@[class] structure MeasurableSpace (α : Type*) where\n  /-- Predicate saying that a given set is measurable. Use `MeasurableSet` in the root namespace\n  instead. -/\n  MeasurableSet' : Set α → Prop\n  /-- The empty set is a measurable set. Use `MeasurableSet.empty` instead. -/\n  measurableSet_empty : MeasurableSet' ∅\n  /-- The complement of a measurable set is a measurable set. Use `MeasurableSet.compl` instead. -/\n  measurableSet_compl : ∀ s, MeasurableSet' s → MeasurableSet' sᶜ\n  /-- The union of a sequence of measurable sets is a measurable set. Use a more general\n  `MeasurableSet.iUnion` instead. -/\n  measurableSet_iUnion : ∀ f : ℕ → Set α, (∀ i, MeasurableSet' (f i)) → MeasurableSet' (⋃ i, f i)\n",
+            "docstring": "A measurable space is a space equipped with a σ-algebra. "
+          },
+          {
+            "id": 266661,
+            "name": "MeasureTheory.MeasureSpace",
+            "module": "Mathlib.MeasureTheory.Measure.MeasureSpaceDef",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/MeasureSpaceDef.lean#L353-L356",
+            "source_text": "/-- A measure space is a measurable space equipped with a\n  measure, referred to as `volume`. -/\nclass MeasureSpace (α : Type*) extends MeasurableSpace α where\n  volume : Measure α\n",
+            "docstring": "A measure space is a measurable space equipped with a\nmeasure, referred to as `volume`. "
+          },
+          {
+            "id": 264385,
+            "name": "MeasurableSpace.ext_iff",
+            "module": "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/MeasurableSpace/Defs.lean#L235-L235",
+            "source_text": "@[ext]\ntheorem MeasurableSpace.ext {m₁ m₂ : MeasurableSpace α}\n    (h : ∀ s : Set α, MeasurableSet[m₁] s ↔ MeasurableSet[m₂] s) : m₁ = m₂ :=",
+            "docstring": null
+          },
+          {
+            "id": 135209,
+            "name": "iInter_halfSpaces_eq",
+            "module": "Mathlib.Analysis.LocallyConvex.Separation",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/LocallyConvex/Separation.lean#L245-L253",
+            "source_text": "/-- A closed convex set is the intersection of the half-spaces containing it. -/\ntheorem iInter_halfSpaces_eq (hs₁ : Convex ℝ s) (hs₂ : IsClosed s) :\n    ⋂ l : StrongDual ℝ E, { x | ∃ y ∈ s, l x ≤ l y } = s := by\n  rw [Set.iInter_setOf]\n  refine Set.Subset.antisymm (fun x hx => ?_) fun x hx l => ⟨x, hx, le_rfl⟩\n  by_contra h\n  obtain ⟨l, s, hlA, hl⟩ := geometric_hahn_banach_closed_point hs₁ hs₂ h\n  obtain ⟨y, hy, hxy⟩ := hx l\n  exact ((hxy.trans_lt (hlA y hy)).trans hl).not_ge le_rfl\n",
+            "docstring": "A closed convex set is the intersection of the half-spaces containing it. "
+          },
+          {
+            "id": 264395,
+            "name": "MeasurableSpace.copy",
+            "module": "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/MeasurableSpace/Defs.lean#L290-L298",
+            "source_text": "/-- Copy of a `MeasurableSpace` with a new `MeasurableSet` equal to the old one. Useful to fix\ndefinitional equalities. -/\n@[implicit_reducible]\nprotected def copy (m : MeasurableSpace α) (p : Set α → Prop) (h : ∀ s, p s ↔ MeasurableSet[m] s) :\n    MeasurableSpace α where\n  MeasurableSet' := p\n  measurableSet_empty := by simpa only [h] using! m.measurableSet_empty\n  measurableSet_compl := by simpa only [h] using! m.measurableSet_compl\n  measurableSet_iUnion := by simpa only [h] using! m.measurableSet_iUnion\n",
+            "docstring": "Copy of a `MeasurableSpace` with a new `MeasurableSet` equal to the old one. Useful to fix\ndefinitional equalities. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.Spaces.B definition",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393188,
+            "name": "Space.instModuleReal",
+            "module": "Physlib.SpaceAndTime.Space.Module",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Module.lean#L131-L149",
+            "source_text": "instance {d} : Module ℝ (Space d) where\n  one_smul x := by\n    ext i\n    simp\n  mul_smul a b x := by\n    ext i\n    simp [mul_assoc]\n  smul_add a x y := by\n    ext i\n    simp [mul_add]\n  smul_zero a := by\n    ext i\n    simp\n  add_smul a b x := by\n    ext i\n    simp [add_mul]\n  zero_smul x := by\n    ext i\n    simp\n",
+            "docstring": null
+          },
+          {
+            "id": 393730,
+            "name": "Constants.kB",
+            "module": "Physlib.StatisticalMechanics.BoltzmannConstant",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/BoltzmannConstant.lean#L31-L33",
+            "source_text": "/-- The Boltzmann constant in a given but arbitrary set of units.\n  Boltzman's constant has dimension equivalent to `Energy/Temperature`. -/\nnoncomputable def kB : ℝ := kBAx.1\n",
+            "docstring": "The Boltzmann constant in a given but arbitrary set of units.\nBoltzman's constant has dimension equivalent to `Energy/Temperature`. "
+          },
+          {
+            "id": 387061,
+            "name": "Informal.informalDefinitionDecl",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+            "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+            "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+          },
+          {
+            "id": 387067,
+            "name": "Informal.constantInfoToInformalDefinition",
+            "module": "Physlib.Meta.Informal.Post",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+            "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+            "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+          },
+          {
+            "id": 387059,
+            "name": "InformalDefinition",
+            "module": "Physlib.Meta.Informal.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+            "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+            "docstring": "The structure representing an informal definition. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "finite sum reindex equivalence negation",
+      "submodule orthogonal complement membership"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum reindex equivalence negation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 71104,
+            "name": "Finset.sum_neg_index",
+            "module": "Mathlib.Algebra.Group.Pointwise.Finset.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/BigOperators.lean#L51-L51",
+            "source_text": "@[to_additive (attr := simp)] lemma prod_inv_index [InvolutiveInv ι] (s : Finset ι) (f : ι → α) :\n    ∏ i ∈ s⁻¹, f i = ∏ i ∈ s, f i⁻¹ := prod_image inv_injective.injOn",
+            "docstring": null
+          },
+          {
+            "id": 243669,
+            "name": "Module.Basis.sumCoords_reindex",
+            "module": "Mathlib.LinearAlgebra.Basis.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Basis/Defs.lean#L710-L714",
+            "source_text": "@[simp]\ntheorem sumCoords_reindex : (b.reindex e).sumCoords = b.sumCoords := by\n  ext x\n  simp only [coe_sumCoords, repr_reindex]\n  exact Finsupp.sum_mapDomain_index (fun _ => rfl) fun _ _ _ => rfl",
+            "docstring": null
+          },
+          {
+            "id": 247962,
+            "name": "Matrix.reindex",
+            "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L500-L506",
+            "source_text": "/-- The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. -/\ndef reindex (eₘ : m ≃ l) (eₙ : n ≃ o) : Matrix m n α ≃ Matrix l o α where\n  toFun M := M.submatrix eₘ.symm eₙ.symm\n  invFun M := M.submatrix eₘ eₙ\n  left_inv M := by simp\n  right_inv M := by simp\n",
+            "docstring": "The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. "
+          },
+          {
+            "id": 201968,
+            "name": "Finite.instSum",
+            "module": "Mathlib.Data.Finite.Sum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Sum.lean#L20-L23",
+            "source_text": "instance [Finite α] [Finite β] : Finite (α ⊕ β) := by\n  haveI := Fintype.ofFinite α\n  haveI := Fintype.ofFinite β\n  infer_instance\n",
+            "docstring": null
+          },
+          {
+            "id": 332433,
+            "name": "Equiv.hasSum_iff",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Basic.lean#L181-L181",
+            "source_text": "@[to_additive]\ntheorem Equiv.hasProd_iff (e : γ ≃ β) : HasProd (f ∘ e) a ↔ HasProd f a :=",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite sum reindex equivalence negation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386530,
+            "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+            "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+            "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+          },
+          {
+            "id": 386827,
+            "name": "Equiv.finAddEquivSigmaCond_true",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L52-L53",
+            "source_text": "lemma finAddEquivSigmaCond_true (h : i < m) : finAddEquivSigmaCond i = ⟨true, i, h⟩ :=\n  congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_castAdd ⟨i, h⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 386828,
+            "name": "Equiv.finAddEquivSigmaCond_false",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L55-L61",
+            "source_text": "lemma finAddEquivSigmaCond_false (h : ¬ i < m) : finAddEquivSigmaCond i = ⟨false, i.subNat' h⟩ :=\n  let j : Fin n := i.subNat' h\n  calc finAddEquivSigmaCond i\n    _ = finAddEquivSigmaCond (Fin.natAdd m j) :=\n      suffices m + (i - m) = i from congrArg _ (Fin.ext this.symm)\n      Nat.add_sub_of_le (Nat.le_of_not_gt h)\n    _ = ⟨false, i.subNat' h⟩ := congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_natAdd j\n",
+            "docstring": null
+          },
+          {
+            "id": 386335,
+            "name": "Physlib.Fin.finExtractOne_symm_inl_apply",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L141-L144",
+            "source_text": "@[simp]\nlemma finExtractOne_symm_inl_apply {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm (Sum.inl 0) = i := by\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 386333,
+            "name": "Physlib.Fin.finExtractOne_symm_inr",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L92-L133",
+            "source_text": "lemma finExtractOne_symm_inr {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm ∘ Sum.inr = i.succAbove := by\n  ext x\n  simp only [Nat.succ_eq_add_one, finExtractOne, Function.comp_apply, Equiv.symm_trans_apply,\n    finCongr_symm, Equiv.symm_symm, Equiv.sumCongr_symm, Equiv.refl_symm, Equiv.sumCongr_apply,\n    Equiv.coe_refl, Sum.map_inr, finCongr_apply, Fin.val_cast]\n  change (finSumFinEquiv\n    (Sum.map (⇑(finSumFinEquiv.symm.trans (Equiv.sumComm (Fin ↑i) (Fin 1))).symm) id\n    ((Equiv.sumAssoc (Fin 1) (Fin ↑i) (Fin (n - i))).symm\n    (Sum.inr (finSumFinEquiv.symm (Fin.cast _ x)))))).val = _\n  by_cases hi : x.1 < i.1\n  · generalize_proofs hp\n    have h1 : (finSumFinEquiv.symm (Fin.cast hp x)) =\n        Sum.inl ⟨x, hi⟩ := by\n      rw [← finSumFinEquiv_symm_apply_castAdd]\n      rfl\n    rw [h1]\n    simp only [Nat.succ_eq_add_one, Equiv.sumAssoc_symm_apply_inr_inl, Sum.map_inl,\n      Equiv.symm_trans_apply, Equiv.symm_symm, Equiv.sumComm_symm, Equiv.sumComm_apply,\n      Sum.swap_inr, finSumFinEquiv_apply_left, Fin.castAdd_mk]\n    rw [Fin.succAbove]\n    split\n    · rfl\n    rename_i hn\n    simp_all only [Nat.succ_eq_add_one, not_lt, Fin.le_def, Fin.val_castSucc, Fin.val_succ,\n      left_eq_add, one_ne_zero]\n    omega\n  · generalize_proofs hp\n    have h1 : (finSumFinEquiv.symm (Fin.cast hp x)) =\n        Sum.inr ⟨x - i, by omega⟩ := by\n      rw [← finSumFinEquiv_symm_apply_natAdd]\n      apply congrArg\n      ext\n      simp only [Nat.succ_eq_add_one, Fin.val_cast, Fin.natAdd_mk]\n      omega\n    rw [h1, Fin.succAbove]\n    split\n    · rename_i hn\n      simp_all [Fin.lt_def]\n    simp only [Nat.succ_eq_add_one, Equiv.sumAssoc_symm_apply_inr_inr, Sum.map_inr, id_eq,\n      finSumFinEquiv_apply_right, Fin.natAdd_mk, Fin.val_succ]\n    omega\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "submodule orthogonal complement membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 252869,
+            "name": "Submodule.mem_orthogonalBilin_iff",
+            "module": "Mathlib.LinearAlgebra.SesquilinearForm.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/SesquilinearForm/Orthogonal.lean#L54-L55",
+            "source_text": "@[simp] theorem mem_orthogonalBilin_iff {m : M₂} :\n  m ∈ S.orthogonalBilin B ↔ ∀ n ∈ S, B n m = 0 := .rfl",
+            "docstring": null
+          },
+          {
+            "id": 133745,
+            "name": "Submodule.orthogonal",
+            "module": "Mathlib.Analysis.InnerProductSpace.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Orthogonal.lean#L42-L47",
+            "source_text": "/-- The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. -/\ndef orthogonal : Submodule 𝕜 E where\n  carrier := { v | ∀ u ∈ K, ⟪u, v⟫ = 0 }\n  zero_mem' _ _ := inner_zero_right _\n  add_mem' hx hy u hu := by rw [inner_add_right, hx u hu, hy u hu, add_zero]\n  smul_mem' c x hx u hu := by rw [inner_smul_right, hx u hu, mul_zero]\n",
+            "docstring": "The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. "
+          },
+          {
+            "id": 133818,
+            "name": "ClosedSubmodule.mem_orthogonal_iff",
+            "module": "Mathlib.Analysis.InnerProductSpace.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Orthogonal.lean#L422-L422",
+            "source_text": "@[deprecated (since := \"2026-01-18\")] alias mem_orthogonal_iff := mem_orthogonal_toSubmodule_iff",
+            "docstring": "**Alias** of `ClosedSubmodule.mem_orthogonal_toSubmodule_iff`."
+          },
+          {
+            "id": 134339,
+            "name": "Submodule.orthogonalComplement_eq_orthogonalComplement",
+            "module": "Mathlib.Analysis.InnerProductSpace.Projection.Submodule",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Projection/Submodule.lean#L100-L104",
+            "source_text": "@[simp]\ntheorem orthogonalComplement_eq_orthogonalComplement {L : Submodule 𝕜 E} [K.HasOrthogonalProjection]\n    [L.HasOrthogonalProjection] : Kᗮ = Lᗮ ↔ K = L :=\n  ⟨fun h ↦ by simpa using congr(Submodule.orthogonal $(h)),\n    fun h ↦ congr(Submodule.orthogonal $(h))⟩",
+            "docstring": null
+          },
+          {
+            "id": 134329,
+            "name": "Submodule.reflection_orthogonalComplement_singleton_eq_neg",
+            "module": "Mathlib.Analysis.InnerProductSpace.Projection.Reflection",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Projection/Reflection.lean#L147-L149",
+            "source_text": "/-- The reflection in `(𝕜 ∙ v)ᗮ` of `v` is `-v`. -/\ntheorem reflection_orthogonalComplement_singleton_eq_neg (v : E) : reflection (𝕜 ∙ v)ᗮ v = -v :=\n  reflection_mem_subspace_orthogonal_precomplement_eq_neg (Submodule.mem_span_singleton_self v)\n",
+            "docstring": "The reflection in `(𝕜 ∙ v)ᗮ` of `v` is `-v`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "submodule orthogonal complement membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386522,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_adjoint_adjoint_iff_mem_submoduleToLp_orthogonal_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L100-L119",
+            "source_text": "lemma mem_submodule_adjoint_adjoint_iff_mem_submoduleToLp_orthogonal_orthogonal :\n    f ∈ M.adjoint.adjoint ↔ WithLp.toLp 2 f ∈ (submoduleToLp M)ᗮᗮ := by\n  simp only [mem_adjoint_iff]\n  trans ∀ v, (∀ w ∈ submoduleToLp M, inner ℂ w v = 0) → inner ℂ v (WithLp.toLp 2 f) = 0\n  · constructor <;> intro h\n    · intro v hw\n      have h' := h (-v.snd) v.fst\n      rw [inner_neg_left, sub_neg_eq_add] at h'\n      apply h'\n      intro a b hab\n      rw [inner_neg_right, neg_sub_left, neg_eq_zero]\n      exact hw (WithLp.toLp 2 (a, b)) ((mem_submodule_iff_mem_submoduleToLp M (a, b)).mp hab)\n    · intro a b h'\n      rw [sub_eq_add_neg, ← inner_neg_left]\n      apply h (WithLp.toLp 2 (b, -a))\n      intro w hw\n      have hw' := h' w.fst w.snd hw\n      rw [sub_eq_zero] at hw'\n      simp [hw']\n  simp only [← mem_orthogonal]\n",
+            "docstring": null
+          },
+          {
+            "id": 386523,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_closure_adjoint_iff_mem_submoduleToLp_closure_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L121-L124",
+            "source_text": "lemma mem_submodule_closure_adjoint_iff_mem_submoduleToLp_closure_orthogonal :\n    g ∈ M.topologicalClosure.adjoint ↔\n    WithLp.toLp 2 (g.2, -g.1) ∈ (submoduleToLp M).topologicalClosureᗮ := by\n  rw [mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal, submoduleToLp_closure]\n",
+            "docstring": null
+          },
+          {
+            "id": 386521,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L81-L98",
+            "source_text": "lemma mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal :\n    g ∈ M.adjoint ↔ WithLp.toLp 2 (g.2, -g.1) ∈ (submoduleToLp M)ᗮ := by\n  constructor <;> intro h\n  · rw [mem_orthogonal]\n    intro u hu\n    rw [mem_adjoint_iff] at h\n    have h' : inner ℂ u.snd g.1 = inner ℂ u.fst g.2 := by\n      rw [← sub_eq_zero]\n      exact h u.fst u.snd hu\n    simp [h']\n  · rw [mem_adjoint_iff]\n    intro a b hab\n    rw [mem_orthogonal] at h\n    have hab' := (mem_submodule_iff_mem_submoduleToLp M (a, b)).mp hab\n    have h' : inner ℂ a g.2 = inner ℂ b g.1 := by\n      rw [← sub_eq_zero, sub_eq_add_neg, ← inner_neg_right]\n      exact h (WithLp.toLp 2 (a, b)) hab'\n    simp [h']\n",
+            "docstring": null
+          },
+          {
+            "id": 386518,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_iff_mem_submoduleToLp",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L43-L44",
+            "source_text": "lemma mem_submodule_iff_mem_submoduleToLp : f ∈ M ↔ (WithLp.toLp 2 f) ∈ submoduleToLp M :=\n  Eq.to_iff rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 390577,
+            "name": "Submodule.inf_ne_bot_of_rank_lt",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L360-L371",
+            "source_text": "lemma _root_.Submodule.inf_ne_bot_of_rank_lt\n    {E F : Submodule ℂ H} [E.HasOrthogonalProjection] (h_rank : Module.rank ℂ E < Module.rank ℂ F) :\n    Eᗮ ⊓ F ≠ ⊥ := by\n  let Φ : F →L[ℂ] E := E.orthogonalProjectionOnto ∘L F.subtypeL\n  have hΦ : ¬(⇑Φ).Injective := fun h' ↦ not_le_of_gt h_rank (Φ.rank_le_of_injective h')\n  obtain ⟨x₁, x₂, h, hx⟩ := Function.not_injective_iff.mp hΦ\n  let y : H := x₁ - x₂\n  have hy : y ≠ 0 := fun h' ↦ hx (SetLike.coe_eq_coe.mp <| sub_eq_zero.mp h')\n  have hF : y ∈ F := sub_mem (coe_mem x₁) (coe_mem x₂)\n  have hE : y ∈ Eᗮ := orthogonalProjectionOnto_eq_zero_iff.mp\n    (_root_.map_sub Φ _ _ ▸ sub_eq_zero.mpr h)\n  exact fun hEF ↦ hy ((mem_bot ℂ).mp <| hEF ▸ ⟨hE, hF⟩)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "J_boundary_iff",
+    "receipts_sha256": "bea84452df8d1449efb9a3a3070e9b8030a0a01646c67eefa2335d02406eb5a3"
+  },
+  {
+    "queries": [
+      "finite sum reindex equivalence negation",
+      "submodule orthogonal complement membership"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum reindex equivalence negation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 71104,
+            "name": "Finset.sum_neg_index",
+            "module": "Mathlib.Algebra.Group.Pointwise.Finset.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/BigOperators.lean#L51-L51",
+            "source_text": "@[to_additive (attr := simp)] lemma prod_inv_index [InvolutiveInv ι] (s : Finset ι) (f : ι → α) :\n    ∏ i ∈ s⁻¹, f i = ∏ i ∈ s, f i⁻¹ := prod_image inv_injective.injOn",
+            "docstring": null
+          },
+          {
+            "id": 243669,
+            "name": "Module.Basis.sumCoords_reindex",
+            "module": "Mathlib.LinearAlgebra.Basis.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Basis/Defs.lean#L710-L714",
+            "source_text": "@[simp]\ntheorem sumCoords_reindex : (b.reindex e).sumCoords = b.sumCoords := by\n  ext x\n  simp only [coe_sumCoords, repr_reindex]\n  exact Finsupp.sum_mapDomain_index (fun _ => rfl) fun _ _ _ => rfl",
+            "docstring": null
+          },
+          {
+            "id": 247962,
+            "name": "Matrix.reindex",
+            "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L500-L506",
+            "source_text": "/-- The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. -/\ndef reindex (eₘ : m ≃ l) (eₙ : n ≃ o) : Matrix m n α ≃ Matrix l o α where\n  toFun M := M.submatrix eₘ.symm eₙ.symm\n  invFun M := M.submatrix eₘ eₙ\n  left_inv M := by simp\n  right_inv M := by simp\n",
+            "docstring": "The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. "
+          },
+          {
+            "id": 201968,
+            "name": "Finite.instSum",
+            "module": "Mathlib.Data.Finite.Sum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Sum.lean#L20-L23",
+            "source_text": "instance [Finite α] [Finite β] : Finite (α ⊕ β) := by\n  haveI := Fintype.ofFinite α\n  haveI := Fintype.ofFinite β\n  infer_instance\n",
+            "docstring": null
+          },
+          {
+            "id": 332433,
+            "name": "Equiv.hasSum_iff",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Basic.lean#L181-L181",
+            "source_text": "@[to_additive]\ntheorem Equiv.hasProd_iff (e : γ ≃ β) : HasProd (f ∘ e) a ↔ HasProd f a :=",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite sum reindex equivalence negation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386530,
+            "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+            "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+            "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+          },
+          {
+            "id": 386827,
+            "name": "Equiv.finAddEquivSigmaCond_true",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L52-L53",
+            "source_text": "lemma finAddEquivSigmaCond_true (h : i < m) : finAddEquivSigmaCond i = ⟨true, i, h⟩ :=\n  congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_castAdd ⟨i, h⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 386828,
+            "name": "Equiv.finAddEquivSigmaCond_false",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L55-L61",
+            "source_text": "lemma finAddEquivSigmaCond_false (h : ¬ i < m) : finAddEquivSigmaCond i = ⟨false, i.subNat' h⟩ :=\n  let j : Fin n := i.subNat' h\n  calc finAddEquivSigmaCond i\n    _ = finAddEquivSigmaCond (Fin.natAdd m j) :=\n      suffices m + (i - m) = i from congrArg _ (Fin.ext this.symm)\n      Nat.add_sub_of_le (Nat.le_of_not_gt h)\n    _ = ⟨false, i.subNat' h⟩ := congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_natAdd j\n",
+            "docstring": null
+          },
+          {
+            "id": 386335,
+            "name": "Physlib.Fin.finExtractOne_symm_inl_apply",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L141-L144",
+            "source_text": "@[simp]\nlemma finExtractOne_symm_inl_apply {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm (Sum.inl 0) = i := by\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 386333,
+            "name": "Physlib.Fin.finExtractOne_symm_inr",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L92-L133",
+            "source_text": "lemma finExtractOne_symm_inr {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm ∘ Sum.inr = i.succAbove := by\n  ext x\n  simp only [Nat.succ_eq_add_one, finExtractOne, Function.comp_apply, Equiv.symm_trans_apply,\n    finCongr_symm, Equiv.symm_symm, Equiv.sumCongr_symm, Equiv.refl_symm, Equiv.sumCongr_apply,\n    Equiv.coe_refl, Sum.map_inr, finCongr_apply, Fin.val_cast]\n  change (finSumFinEquiv\n    (Sum.map (⇑(finSumFinEquiv.symm.trans (Equiv.sumComm (Fin ↑i) (Fin 1))).symm) id\n    ((Equiv.sumAssoc (Fin 1) (Fin ↑i) (Fin (n - i))).symm\n    (Sum.inr (finSumFinEquiv.symm (Fin.cast _ x)))))).val = _\n  by_cases hi : x.1 < i.1\n  · generalize_proofs hp\n    have h1 : (finSumFinEquiv.symm (Fin.cast hp x)) =\n        Sum.inl ⟨x, hi⟩ := by\n      rw [← finSumFinEquiv_symm_apply_castAdd]\n      rfl\n    rw [h1]\n    simp only [Nat.succ_eq_add_one, Equiv.sumAssoc_symm_apply_inr_inl, Sum.map_inl,\n      Equiv.symm_trans_apply, Equiv.symm_symm, Equiv.sumComm_symm, Equiv.sumComm_apply,\n      Sum.swap_inr, finSumFinEquiv_apply_left, Fin.castAdd_mk]\n    rw [Fin.succAbove]\n    split\n    · rfl\n    rename_i hn\n    simp_all only [Nat.succ_eq_add_one, not_lt, Fin.le_def, Fin.val_castSucc, Fin.val_succ,\n      left_eq_add, one_ne_zero]\n    omega\n  · generalize_proofs hp\n    have h1 : (finSumFinEquiv.symm (Fin.cast hp x)) =\n        Sum.inr ⟨x - i, by omega⟩ := by\n      rw [← finSumFinEquiv_symm_apply_natAdd]\n      apply congrArg\n      ext\n      simp only [Nat.succ_eq_add_one, Fin.val_cast, Fin.natAdd_mk]\n      omega\n    rw [h1, Fin.succAbove]\n    split\n    · rename_i hn\n      simp_all [Fin.lt_def]\n    simp only [Nat.succ_eq_add_one, Equiv.sumAssoc_symm_apply_inr_inr, Sum.map_inr, id_eq,\n      finSumFinEquiv_apply_right, Fin.natAdd_mk, Fin.val_succ]\n    omega\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "submodule orthogonal complement membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 252869,
+            "name": "Submodule.mem_orthogonalBilin_iff",
+            "module": "Mathlib.LinearAlgebra.SesquilinearForm.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/SesquilinearForm/Orthogonal.lean#L54-L55",
+            "source_text": "@[simp] theorem mem_orthogonalBilin_iff {m : M₂} :\n  m ∈ S.orthogonalBilin B ↔ ∀ n ∈ S, B n m = 0 := .rfl",
+            "docstring": null
+          },
+          {
+            "id": 133745,
+            "name": "Submodule.orthogonal",
+            "module": "Mathlib.Analysis.InnerProductSpace.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Orthogonal.lean#L42-L47",
+            "source_text": "/-- The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. -/\ndef orthogonal : Submodule 𝕜 E where\n  carrier := { v | ∀ u ∈ K, ⟪u, v⟫ = 0 }\n  zero_mem' _ _ := inner_zero_right _\n  add_mem' hx hy u hu := by rw [inner_add_right, hx u hu, hy u hu, add_zero]\n  smul_mem' c x hx u hu := by rw [inner_smul_right, hx u hu, mul_zero]\n",
+            "docstring": "The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. "
+          },
+          {
+            "id": 133818,
+            "name": "ClosedSubmodule.mem_orthogonal_iff",
+            "module": "Mathlib.Analysis.InnerProductSpace.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Orthogonal.lean#L422-L422",
+            "source_text": "@[deprecated (since := \"2026-01-18\")] alias mem_orthogonal_iff := mem_orthogonal_toSubmodule_iff",
+            "docstring": "**Alias** of `ClosedSubmodule.mem_orthogonal_toSubmodule_iff`."
+          },
+          {
+            "id": 134339,
+            "name": "Submodule.orthogonalComplement_eq_orthogonalComplement",
+            "module": "Mathlib.Analysis.InnerProductSpace.Projection.Submodule",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Projection/Submodule.lean#L100-L104",
+            "source_text": "@[simp]\ntheorem orthogonalComplement_eq_orthogonalComplement {L : Submodule 𝕜 E} [K.HasOrthogonalProjection]\n    [L.HasOrthogonalProjection] : Kᗮ = Lᗮ ↔ K = L :=\n  ⟨fun h ↦ by simpa using congr(Submodule.orthogonal $(h)),\n    fun h ↦ congr(Submodule.orthogonal $(h))⟩",
+            "docstring": null
+          },
+          {
+            "id": 134329,
+            "name": "Submodule.reflection_orthogonalComplement_singleton_eq_neg",
+            "module": "Mathlib.Analysis.InnerProductSpace.Projection.Reflection",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Projection/Reflection.lean#L147-L149",
+            "source_text": "/-- The reflection in `(𝕜 ∙ v)ᗮ` of `v` is `-v`. -/\ntheorem reflection_orthogonalComplement_singleton_eq_neg (v : E) : reflection (𝕜 ∙ v)ᗮ v = -v :=\n  reflection_mem_subspace_orthogonal_precomplement_eq_neg (Submodule.mem_span_singleton_self v)\n",
+            "docstring": "The reflection in `(𝕜 ∙ v)ᗮ` of `v` is `-v`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "submodule orthogonal complement membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386522,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_adjoint_adjoint_iff_mem_submoduleToLp_orthogonal_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L100-L119",
+            "source_text": "lemma mem_submodule_adjoint_adjoint_iff_mem_submoduleToLp_orthogonal_orthogonal :\n    f ∈ M.adjoint.adjoint ↔ WithLp.toLp 2 f ∈ (submoduleToLp M)ᗮᗮ := by\n  simp only [mem_adjoint_iff]\n  trans ∀ v, (∀ w ∈ submoduleToLp M, inner ℂ w v = 0) → inner ℂ v (WithLp.toLp 2 f) = 0\n  · constructor <;> intro h\n    · intro v hw\n      have h' := h (-v.snd) v.fst\n      rw [inner_neg_left, sub_neg_eq_add] at h'\n      apply h'\n      intro a b hab\n      rw [inner_neg_right, neg_sub_left, neg_eq_zero]\n      exact hw (WithLp.toLp 2 (a, b)) ((mem_submodule_iff_mem_submoduleToLp M (a, b)).mp hab)\n    · intro a b h'\n      rw [sub_eq_add_neg, ← inner_neg_left]\n      apply h (WithLp.toLp 2 (b, -a))\n      intro w hw\n      have hw' := h' w.fst w.snd hw\n      rw [sub_eq_zero] at hw'\n      simp [hw']\n  simp only [← mem_orthogonal]\n",
+            "docstring": null
+          },
+          {
+            "id": 386523,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_closure_adjoint_iff_mem_submoduleToLp_closure_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L121-L124",
+            "source_text": "lemma mem_submodule_closure_adjoint_iff_mem_submoduleToLp_closure_orthogonal :\n    g ∈ M.topologicalClosure.adjoint ↔\n    WithLp.toLp 2 (g.2, -g.1) ∈ (submoduleToLp M).topologicalClosureᗮ := by\n  rw [mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal, submoduleToLp_closure]\n",
+            "docstring": null
+          },
+          {
+            "id": 386521,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L81-L98",
+            "source_text": "lemma mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal :\n    g ∈ M.adjoint ↔ WithLp.toLp 2 (g.2, -g.1) ∈ (submoduleToLp M)ᗮ := by\n  constructor <;> intro h\n  · rw [mem_orthogonal]\n    intro u hu\n    rw [mem_adjoint_iff] at h\n    have h' : inner ℂ u.snd g.1 = inner ℂ u.fst g.2 := by\n      rw [← sub_eq_zero]\n      exact h u.fst u.snd hu\n    simp [h']\n  · rw [mem_adjoint_iff]\n    intro a b hab\n    rw [mem_orthogonal] at h\n    have hab' := (mem_submodule_iff_mem_submoduleToLp M (a, b)).mp hab\n    have h' : inner ℂ a g.2 = inner ℂ b g.1 := by\n      rw [← sub_eq_zero, sub_eq_add_neg, ← inner_neg_right]\n      exact h (WithLp.toLp 2 (a, b)) hab'\n    simp [h']\n",
+            "docstring": null
+          },
+          {
+            "id": 386518,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_iff_mem_submoduleToLp",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L43-L44",
+            "source_text": "lemma mem_submodule_iff_mem_submoduleToLp : f ∈ M ↔ (WithLp.toLp 2 f) ∈ submoduleToLp M :=\n  Eq.to_iff rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 390577,
+            "name": "Submodule.inf_ne_bot_of_rank_lt",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L360-L371",
+            "source_text": "lemma _root_.Submodule.inf_ne_bot_of_rank_lt\n    {E F : Submodule ℂ H} [E.HasOrthogonalProjection] (h_rank : Module.rank ℂ E < Module.rank ℂ F) :\n    Eᗮ ⊓ F ≠ ⊥ := by\n  let Φ : F →L[ℂ] E := E.orthogonalProjectionOnto ∘L F.subtypeL\n  have hΦ : ¬(⇑Φ).Injective := fun h' ↦ not_le_of_gt h_rank (Φ.rank_le_of_injective h')\n  obtain ⟨x₁, x₂, h, hx⟩ := Function.not_injective_iff.mp hΦ\n  let y : H := x₁ - x₂\n  have hy : y ≠ 0 := fun h' ↦ hx (SetLike.coe_eq_coe.mp <| sub_eq_zero.mp h')\n  have hF : y ∈ F := sub_mem (coe_mem x₁) (coe_mem x₂)\n  have hE : y ∈ Eᗮ := orthogonalProjectionOnto_eq_zero_iff.mp\n    (_root_.map_sub Φ _ _ ▸ sub_eq_zero.mpr h)\n  exact fun hEF ↦ hy ((mem_bot ℂ).mp <| hEF ▸ ⟨hE, hF⟩)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "J_boundary_iff",
+    "receipts_sha256": "bea84452df8d1449efb9a3a3070e9b8030a0a01646c67eefa2335d02406eb5a3"
+  },
+  {
+    "queries": [
+      "finite sum reindex equivalence negation",
+      "submodule orthogonal complement membership"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum reindex equivalence negation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 71104,
+            "name": "Finset.sum_neg_index",
+            "module": "Mathlib.Algebra.Group.Pointwise.Finset.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Pointwise/Finset/BigOperators.lean#L51-L51",
+            "source_text": "@[to_additive (attr := simp)] lemma prod_inv_index [InvolutiveInv ι] (s : Finset ι) (f : ι → α) :\n    ∏ i ∈ s⁻¹, f i = ∏ i ∈ s, f i⁻¹ := prod_image inv_injective.injOn",
+            "docstring": null
+          },
+          {
+            "id": 243669,
+            "name": "Module.Basis.sumCoords_reindex",
+            "module": "Mathlib.LinearAlgebra.Basis.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Basis/Defs.lean#L710-L714",
+            "source_text": "@[simp]\ntheorem sumCoords_reindex : (b.reindex e).sumCoords = b.sumCoords := by\n  ext x\n  simp only [coe_sumCoords, repr_reindex]\n  exact Finsupp.sum_mapDomain_index (fun _ => rfl) fun _ _ _ => rfl",
+            "docstring": null
+          },
+          {
+            "id": 247962,
+            "name": "Matrix.reindex",
+            "module": "Mathlib.LinearAlgebra.Matrix.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Defs.lean#L500-L506",
+            "source_text": "/-- The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. -/\ndef reindex (eₘ : m ≃ l) (eₙ : n ≃ o) : Matrix m n α ≃ Matrix l o α where\n  toFun M := M.submatrix eₘ.symm eₙ.symm\n  invFun M := M.submatrix eₘ eₙ\n  left_inv M := by simp\n  right_inv M := by simp\n",
+            "docstring": "The natural map that reindexes a matrix's rows and columns with equivalent types is an\nequivalence. "
+          },
+          {
+            "id": 201968,
+            "name": "Finite.instSum",
+            "module": "Mathlib.Data.Finite.Sum",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Sum.lean#L20-L23",
+            "source_text": "instance [Finite α] [Finite β] : Finite (α ⊕ β) := by\n  haveI := Fintype.ofFinite α\n  haveI := Fintype.ofFinite β\n  infer_instance\n",
+            "docstring": null
+          },
+          {
+            "id": 332433,
+            "name": "Equiv.hasSum_iff",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Basic.lean#L181-L181",
+            "source_text": "@[to_additive]\ntheorem Equiv.hasProd_iff (e : γ ≃ β) : HasProd (f ∘ e) a ↔ HasProd f a :=",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite sum reindex equivalence negation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386530,
+            "name": "KroneckerDelta.kroneckerDelta_finSumFinEquiv",
+            "module": "Physlib.Mathematics.KroneckerDelta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/KroneckerDelta/Basic.lean#L73-L76",
+            "source_text": "/-- The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. -/\nlemma kroneckerDelta_finSumFinEquiv (a b : Fin 1 ⊕ Fin 3) :\n    kroneckerDelta (finSumFinEquiv a) (finSumFinEquiv b) = kroneckerDelta a b := by\n  simp only [kroneckerDelta, Equiv.apply_eq_iff_eq]\n",
+            "docstring": "The Kronecker delta is invariant under the component-index equivalence `finSumFinEquiv`. "
+          },
+          {
+            "id": 386827,
+            "name": "Equiv.finAddEquivSigmaCond_true",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L52-L53",
+            "source_text": "lemma finAddEquivSigmaCond_true (h : i < m) : finAddEquivSigmaCond i = ⟨true, i, h⟩ :=\n  congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_castAdd ⟨i, h⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 386828,
+            "name": "Equiv.finAddEquivSigmaCond_false",
+            "module": "Physlib.Mathematics.SchurTriangulation",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L55-L61",
+            "source_text": "lemma finAddEquivSigmaCond_false (h : ¬ i < m) : finAddEquivSigmaCond i = ⟨false, i.subNat' h⟩ :=\n  let j : Fin n := i.subNat' h\n  calc finAddEquivSigmaCond i\n    _ = finAddEquivSigmaCond (Fin.natAdd m j) :=\n      suffices m + (i - m) = i from congrArg _ (Fin.ext this.symm)\n      Nat.add_sub_of_le (Nat.le_of_not_gt h)\n    _ = ⟨false, i.subNat' h⟩ := congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_natAdd j\n",
+            "docstring": null
+          },
+          {
+            "id": 386335,
+            "name": "Physlib.Fin.finExtractOne_symm_inl_apply",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L141-L144",
+            "source_text": "@[simp]\nlemma finExtractOne_symm_inl_apply {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm (Sum.inl 0) = i := by\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 386333,
+            "name": "Physlib.Fin.finExtractOne_symm_inr",
+            "module": "Physlib.Mathematics.Fin",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L92-L133",
+            "source_text": "lemma finExtractOne_symm_inr {n : ℕ} (i : Fin n.succ) :\n    (finExtractOne i).symm ∘ Sum.inr = i.succAbove := by\n  ext x\n  simp only [Nat.succ_eq_add_one, finExtractOne, Function.comp_apply, Equiv.symm_trans_apply,\n    finCongr_symm, Equiv.symm_symm, Equiv.sumCongr_symm, Equiv.refl_symm, Equiv.sumCongr_apply,\n    Equiv.coe_refl, Sum.map_inr, finCongr_apply, Fin.val_cast]\n  change (finSumFinEquiv\n    (Sum.map (⇑(finSumFinEquiv.symm.trans (Equiv.sumComm (Fin ↑i) (Fin 1))).symm) id\n    ((Equiv.sumAssoc (Fin 1) (Fin ↑i) (Fin (n - i))).symm\n    (Sum.inr (finSumFinEquiv.symm (Fin.cast _ x)))))).val = _\n  by_cases hi : x.1 < i.1\n  · generalize_proofs hp\n    have h1 : (finSumFinEquiv.symm (Fin.cast hp x)) =\n        Sum.inl ⟨x, hi⟩ := by\n      rw [← finSumFinEquiv_symm_apply_castAdd]\n      rfl\n    rw [h1]\n    simp only [Nat.succ_eq_add_one, Equiv.sumAssoc_symm_apply_inr_inl, Sum.map_inl,\n      Equiv.symm_trans_apply, Equiv.symm_symm, Equiv.sumComm_symm, Equiv.sumComm_apply,\n      Sum.swap_inr, finSumFinEquiv_apply_left, Fin.castAdd_mk]\n    rw [Fin.succAbove]\n    split\n    · rfl\n    rename_i hn\n    simp_all only [Nat.succ_eq_add_one, not_lt, Fin.le_def, Fin.val_castSucc, Fin.val_succ,\n      left_eq_add, one_ne_zero]\n    omega\n  · generalize_proofs hp\n    have h1 : (finSumFinEquiv.symm (Fin.cast hp x)) =\n        Sum.inr ⟨x - i, by omega⟩ := by\n      rw [← finSumFinEquiv_symm_apply_natAdd]\n      apply congrArg\n      ext\n      simp only [Nat.succ_eq_add_one, Fin.val_cast, Fin.natAdd_mk]\n      omega\n    rw [h1, Fin.succAbove]\n    split\n    · rename_i hn\n      simp_all [Fin.lt_def]\n    simp only [Nat.succ_eq_add_one, Equiv.sumAssoc_symm_apply_inr_inr, Sum.map_inr, id_eq,\n      finSumFinEquiv_apply_right, Fin.natAdd_mk, Fin.val_succ]\n    omega\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "submodule orthogonal complement membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 252869,
+            "name": "Submodule.mem_orthogonalBilin_iff",
+            "module": "Mathlib.LinearAlgebra.SesquilinearForm.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/SesquilinearForm/Orthogonal.lean#L54-L55",
+            "source_text": "@[simp] theorem mem_orthogonalBilin_iff {m : M₂} :\n  m ∈ S.orthogonalBilin B ↔ ∀ n ∈ S, B n m = 0 := .rfl",
+            "docstring": null
+          },
+          {
+            "id": 133745,
+            "name": "Submodule.orthogonal",
+            "module": "Mathlib.Analysis.InnerProductSpace.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Orthogonal.lean#L42-L47",
+            "source_text": "/-- The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. -/\ndef orthogonal : Submodule 𝕜 E where\n  carrier := { v | ∀ u ∈ K, ⟪u, v⟫ = 0 }\n  zero_mem' _ _ := inner_zero_right _\n  add_mem' hx hy u hu := by rw [inner_add_right, hx u hu, hy u hu, add_zero]\n  smul_mem' c x hx u hu := by rw [inner_smul_right, hx u hu, mul_zero]\n",
+            "docstring": "The subspace of vectors orthogonal to a given subspace, denoted `Kᗮ`. "
+          },
+          {
+            "id": 133818,
+            "name": "ClosedSubmodule.mem_orthogonal_iff",
+            "module": "Mathlib.Analysis.InnerProductSpace.Orthogonal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Orthogonal.lean#L422-L422",
+            "source_text": "@[deprecated (since := \"2026-01-18\")] alias mem_orthogonal_iff := mem_orthogonal_toSubmodule_iff",
+            "docstring": "**Alias** of `ClosedSubmodule.mem_orthogonal_toSubmodule_iff`."
+          },
+          {
+            "id": 134339,
+            "name": "Submodule.orthogonalComplement_eq_orthogonalComplement",
+            "module": "Mathlib.Analysis.InnerProductSpace.Projection.Submodule",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Projection/Submodule.lean#L100-L104",
+            "source_text": "@[simp]\ntheorem orthogonalComplement_eq_orthogonalComplement {L : Submodule 𝕜 E} [K.HasOrthogonalProjection]\n    [L.HasOrthogonalProjection] : Kᗮ = Lᗮ ↔ K = L :=\n  ⟨fun h ↦ by simpa using congr(Submodule.orthogonal $(h)),\n    fun h ↦ congr(Submodule.orthogonal $(h))⟩",
+            "docstring": null
+          },
+          {
+            "id": 134329,
+            "name": "Submodule.reflection_orthogonalComplement_singleton_eq_neg",
+            "module": "Mathlib.Analysis.InnerProductSpace.Projection.Reflection",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/InnerProductSpace/Projection/Reflection.lean#L147-L149",
+            "source_text": "/-- The reflection in `(𝕜 ∙ v)ᗮ` of `v` is `-v`. -/\ntheorem reflection_orthogonalComplement_singleton_eq_neg (v : E) : reflection (𝕜 ∙ v)ᗮ v = -v :=\n  reflection_mem_subspace_orthogonal_precomplement_eq_neg (Submodule.mem_span_singleton_self v)\n",
+            "docstring": "The reflection in `(𝕜 ∙ v)ᗮ` of `v` is `-v`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "submodule orthogonal complement membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386522,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_adjoint_adjoint_iff_mem_submoduleToLp_orthogonal_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L100-L119",
+            "source_text": "lemma mem_submodule_adjoint_adjoint_iff_mem_submoduleToLp_orthogonal_orthogonal :\n    f ∈ M.adjoint.adjoint ↔ WithLp.toLp 2 f ∈ (submoduleToLp M)ᗮᗮ := by\n  simp only [mem_adjoint_iff]\n  trans ∀ v, (∀ w ∈ submoduleToLp M, inner ℂ w v = 0) → inner ℂ v (WithLp.toLp 2 f) = 0\n  · constructor <;> intro h\n    · intro v hw\n      have h' := h (-v.snd) v.fst\n      rw [inner_neg_left, sub_neg_eq_add] at h'\n      apply h'\n      intro a b hab\n      rw [inner_neg_right, neg_sub_left, neg_eq_zero]\n      exact hw (WithLp.toLp 2 (a, b)) ((mem_submodule_iff_mem_submoduleToLp M (a, b)).mp hab)\n    · intro a b h'\n      rw [sub_eq_add_neg, ← inner_neg_left]\n      apply h (WithLp.toLp 2 (b, -a))\n      intro w hw\n      have hw' := h' w.fst w.snd hw\n      rw [sub_eq_zero] at hw'\n      simp [hw']\n  simp only [← mem_orthogonal]\n",
+            "docstring": null
+          },
+          {
+            "id": 386523,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_closure_adjoint_iff_mem_submoduleToLp_closure_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L121-L124",
+            "source_text": "lemma mem_submodule_closure_adjoint_iff_mem_submoduleToLp_closure_orthogonal :\n    g ∈ M.topologicalClosure.adjoint ↔\n    WithLp.toLp 2 (g.2, -g.1) ∈ (submoduleToLp M).topologicalClosureᗮ := by\n  rw [mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal, submoduleToLp_closure]\n",
+            "docstring": null
+          },
+          {
+            "id": 386521,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L81-L98",
+            "source_text": "lemma mem_submodule_adjoint_iff_mem_submoduleToLp_orthogonal :\n    g ∈ M.adjoint ↔ WithLp.toLp 2 (g.2, -g.1) ∈ (submoduleToLp M)ᗮ := by\n  constructor <;> intro h\n  · rw [mem_orthogonal]\n    intro u hu\n    rw [mem_adjoint_iff] at h\n    have h' : inner ℂ u.snd g.1 = inner ℂ u.fst g.2 := by\n      rw [← sub_eq_zero]\n      exact h u.fst u.snd hu\n    simp [h']\n  · rw [mem_adjoint_iff]\n    intro a b hab\n    rw [mem_orthogonal] at h\n    have hab' := (mem_submodule_iff_mem_submoduleToLp M (a, b)).mp hab\n    have h' : inner ℂ a g.2 = inner ℂ b g.1 := by\n      rw [← sub_eq_zero, sub_eq_add_neg, ← inner_neg_right]\n      exact h (WithLp.toLp 2 (a, b)) hab'\n    simp [h']\n",
+            "docstring": null
+          },
+          {
+            "id": 386518,
+            "name": "InnerProductSpaceSubmodule.mem_submodule_iff_mem_submoduleToLp",
+            "module": "Physlib.Mathematics.InnerProductSpace.Submodule",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Submodule.lean#L43-L44",
+            "source_text": "lemma mem_submodule_iff_mem_submoduleToLp : f ∈ M ↔ (WithLp.toLp 2 f) ∈ submoduleToLp M :=\n  Eq.to_iff rfl\n",
+            "docstring": null
+          },
+          {
+            "id": 390577,
+            "name": "Submodule.inf_ne_bot_of_rank_lt",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L360-L371",
+            "source_text": "lemma _root_.Submodule.inf_ne_bot_of_rank_lt\n    {E F : Submodule ℂ H} [E.HasOrthogonalProjection] (h_rank : Module.rank ℂ E < Module.rank ℂ F) :\n    Eᗮ ⊓ F ≠ ⊥ := by\n  let Φ : F →L[ℂ] E := E.orthogonalProjectionOnto ∘L F.subtypeL\n  have hΦ : ¬(⇑Φ).Injective := fun h' ↦ not_le_of_gt h_rank (Φ.rank_le_of_injective h')\n  obtain ⟨x₁, x₂, h, hx⟩ := Function.not_injective_iff.mp hΦ\n  let y : H := x₁ - x₂\n  have hy : y ≠ 0 := fun h' ↦ hx (SetLike.coe_eq_coe.mp <| sub_eq_zero.mp h')\n  have hF : y ∈ F := sub_mem (coe_mem x₁) (coe_mem x₂)\n  have hE : y ∈ Eᗮ := orthogonalProjectionOnto_eq_zero_iff.mp\n    (_root_.map_sub Φ _ _ ▸ sub_eq_zero.mpr h)\n  exact fun hEF ↦ hy ((mem_bot ℂ).mp <| hEF ▸ ⟨hE, hF⟩)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "J_boundary_iff",
+    "receipts_sha256": "bea84452df8d1449efb9a3a3070e9b8030a0a01646c67eefa2335d02406eb5a3"
+  }
+]

@@ -1,0 +1,228 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualCounts.cycle_pinned_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 239635,
+        "name": "Equiv.Perm.cycleType",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L52-L54",
+        "source_text": "/-- The cycle type of a permutation -/\ndef cycleType (σ : Perm α) : Multiset ℕ :=\n  σ.cycleFactorsFinset.1.map (Finset.card ∘ support)\n",
+        "docstring": "The cycle type of a permutation "
+      },
+      {
+        "id": 239652,
+        "name": "Equiv.Perm.sum_cycleType_le",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L154-L155",
+        "source_text": "theorem sum_cycleType_le (σ : Perm α) : σ.cycleType.sum ≤ Fintype.card α :=\n  σ.sum_cycleType ▸ Finset.card_le_univ σ.support\n",
+        "docstring": null
+      },
+      {
+        "id": 239651,
+        "name": "Equiv.Perm.sum_cycleType",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L148-L152",
+        "source_text": "theorem sum_cycleType (σ : Perm α) : σ.cycleType.sum = #σ.support := by\n  induction σ using cycle_induction_on with\n  | base_one => simp\n  | base_cycles σ hσ => rw [hσ.cycleType, Multiset.sum_singleton]\n  | induction_disjoint σ τ hd _ hσ hτ => rw [hd.cycleType_mul, sum_add, hσ, hτ, hd.card_support_mul]\n",
+        "docstring": null
+      },
+      {
+        "id": 207783,
+        "name": "Cycle.card_toMultiset",
+        "module": "Mathlib.Data.List.Cycle",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L625-L627",
+        "source_text": "@[simp]\ntheorem card_toMultiset (s : Cycle α) : Multiset.card s.toMultiset = s.length :=\n  Quotient.inductionOn' s (by simp)",
+        "docstring": null
+      },
+      {
+        "id": 320481,
+        "name": "Associates.eq_of_eq_counts",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L291-L293",
+        "source_text": "theorem eq_of_eq_counts {a b : Associates α} (ha : a ≠ 0) (hb : b ≠ 0)\n    (h : ∀ p : Associates α, Irreducible p → p.count a.factors = p.count b.factors) : a = b :=\n  eq_of_factors_eq_factors (eq_factors_of_eq_counts ha hb h)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualCounts.cycle_pinned_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387287,
+        "name": "SMRHN.toSpecies_sum_invariant",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Permutations",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Permutations.lean#L67-L71",
+        "source_text": "lemma toSpecies_sum_invariant (m : ℕ) (f : PermGroup n) (S : (SMνCharges n).Charges) (j : Fin 6) :\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j (repCharges f S)) i =\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j S) i := by\n  rw [repCharges_toSpecies]\n  exact Equiv.sum_comp (f⁻¹ j) ((fun a => a ^ m) ∘ toSpecies j S)\n",
+        "docstring": null
+      },
+      {
+        "id": 388149,
+        "name": "MSSMCharges.sum_MSSMSpecies_numberCharges_eq_expand",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L32-L34",
+        "source_text": "lemma sum_MSSMSpecies_numberCharges_eq_expand [AddCommMonoid M]\n    (f : Fin MSSMSpecies.numberCharges → M) :\n    ∑ i, f i = f ⟨0, by simp⟩ + f ⟨1, by simp⟩ + f ⟨2, by simp⟩ := Fin.sum_univ_three f\n",
+        "docstring": null
+      },
+      {
+        "id": 394063,
+        "name": "FTheory.SU5.FluxesFive.sum_of_mem_elemsNoExotics",
+        "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L160-L163",
+        "source_text": "lemma sum_of_mem_elemsNoExotics (F : FluxesFive) (h : F ∈ elemsNoExotics) :\n    F.sum = ⟨3, 0⟩ := by\n  revert F h\n  decide\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualResult.cycle_pinned_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58604,
+        "name": "Finset.sum_comm_cycle",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L126-L126",
+        "source_text": "@[to_additive]\ntheorem prod_comm_cycle {s : Finset γ} {t : Finset α} {u : Finset κ} {f : γ → α → κ → β} :\n    (∏ x ∈ s, ∏ y ∈ t, ∏ z ∈ u, f x y z) = ∏ z ∈ u, ∏ x ∈ s, ∏ y ∈ t, f x y z := by",
+        "docstring": null
+      },
+      {
+        "id": 239652,
+        "name": "Equiv.Perm.sum_cycleType_le",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L154-L155",
+        "source_text": "theorem sum_cycleType_le (σ : Perm α) : σ.cycleType.sum ≤ Fintype.card α :=\n  σ.sum_cycleType ▸ Finset.card_le_univ σ.support\n",
+        "docstring": null
+      },
+      {
+        "id": 239651,
+        "name": "Equiv.Perm.sum_cycleType",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L148-L152",
+        "source_text": "theorem sum_cycleType (σ : Perm α) : σ.cycleType.sum = #σ.support := by\n  induction σ using cycle_induction_on with\n  | base_one => simp\n  | base_cycles σ hσ => rw [hσ.cycleType, Multiset.sum_singleton]\n  | induction_disjoint σ τ hd _ hσ hτ => rw [hd.cycleType_mul, sum_add, hσ, hτ, hd.card_support_mul]\n",
+        "docstring": null
+      },
+      {
+        "id": 239355,
+        "name": "Equiv.Perm.SameCycle",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Basic.lean#L52-L54",
+        "source_text": "/-- The equivalence relation indicating that two points are in the same cycle of a permutation. -/\ndef SameCycle (f : Perm α) (x y : α) : Prop :=\n  ∃ i : ℤ, (f ^ i) x = y\n",
+        "docstring": "The equivalence relation indicating that two points are in the same cycle of a permutation. "
+      },
+      {
+        "id": 239329,
+        "name": "Equiv.Perm.card_of_cycleType_eq_zero_iff",
+        "module": "Mathlib.GroupTheory.Perm.Centralizer",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Centralizer.lean#L669-L674",
+        "source_text": "theorem card_of_cycleType_eq_zero_iff {m : Multiset ℕ} :\n    #({g | g.cycleType = m} : Finset (Perm α)) = 0\n      ↔ ¬ ((m.sum ≤ Fintype.card α ∧ ∀ a ∈ m, 2 ≤ a)) := by\n  rw [Finset.card_eq_zero, Finset.filter_eq_empty_iff,\n    ← exists_with_cycleType_iff, not_exists]\n  simp\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualResult.cycle_pinned_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387074,
+        "name": "semiformal_result",
+        "module": "Physlib.Meta.Informal.SemiFormal",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/SemiFormal.lean#L50-L61",
+        "source_text": "/-- A semiformal result is either a\n- definition in which the type is given but not the definition.\n- proof in which the proposition is given but not the proof.\nSemiformal results cannot be used in further code. They are essentially\nforgot about after made.\n\nWith minor modification they act in a similar way to `proof_wanted`, however\nthey appear in Physlib's TODO list and must be tagged accordingly.\nThey must also always have a doc-string. -/\n@[command_parser]\nmeta def «semiformal_result» := leading_parser\n    docComment >> \"semiformal_result\" >> strLit >> declId >> ppIndent declSig\n",
+        "docstring": "A semiformal result is either a\n- definition in which the type is given but not the definition.\n- proof in which the proposition is given but not the proof.\nSemiformal results cannot be used in further code. They are essentially\nforgot about after made.\n\nWith minor modification they act in a similar way to `proof_wanted`, however\nthey appear in Physlib's TODO list and must be tagged accordingly.\nThey must also always have a doc-string. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Spaces.cycle_pinned_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58604,
+        "name": "Finset.sum_comm_cycle",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Sigma",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Sigma.lean#L126-L126",
+        "source_text": "@[to_additive]\ntheorem prod_comm_cycle {s : Finset γ} {t : Finset α} {u : Finset κ} {f : γ → α → κ → β} :\n    (∏ x ∈ s, ∏ y ∈ t, ∏ z ∈ u, f x y z) = ∏ z ∈ u, ∏ x ∈ s, ∏ y ∈ t, f x y z := by",
+        "docstring": null
+      },
+      {
+        "id": 82932,
+        "name": "CategoryTheory.ShortComplex.cyclesMap_add",
+        "module": "Mathlib.Algebra.Homology.ShortComplex.Preadditive",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Homology/ShortComplex/Preadditive.lean#L160-L162",
+        "source_text": "@[simp]\nlemma cyclesMap_add : cyclesMap (φ + φ') = cyclesMap φ + cyclesMap φ' :=\n  cyclesMap'_add _ _",
+        "docstring": null
+      },
+      {
+        "id": 239651,
+        "name": "Equiv.Perm.sum_cycleType",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L148-L152",
+        "source_text": "theorem sum_cycleType (σ : Perm α) : σ.cycleType.sum = #σ.support := by\n  induction σ using cycle_induction_on with\n  | base_one => simp\n  | base_cycles σ hσ => rw [hσ.cycleType, Multiset.sum_singleton]\n  | induction_disjoint σ τ hd _ hσ hτ => rw [hd.cycleType_mul, sum_add, hσ, hτ, hd.card_support_mul]\n",
+        "docstring": null
+      },
+      {
+        "id": 239355,
+        "name": "Equiv.Perm.SameCycle",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Basic.lean#L52-L54",
+        "source_text": "/-- The equivalence relation indicating that two points are in the same cycle of a permutation. -/\ndef SameCycle (f : Perm α) (x y : α) : Prop :=\n  ∃ i : ℤ, (f ^ i) x = y\n",
+        "docstring": "The equivalence relation indicating that two points are in the same cycle of a permutation. "
+      },
+      {
+        "id": 135209,
+        "name": "iInter_halfSpaces_eq",
+        "module": "Mathlib.Analysis.LocallyConvex.Separation",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/LocallyConvex/Separation.lean#L245-L253",
+        "source_text": "/-- A closed convex set is the intersection of the half-spaces containing it. -/\ntheorem iInter_halfSpaces_eq (hs₁ : Convex ℝ s) (hs₂ : IsClosed s) :\n    ⋂ l : StrongDual ℝ E, { x | ∃ y ∈ s, l x ≤ l y } = s := by\n  rw [Set.iInter_setOf]\n  refine Set.Subset.antisymm (fun x hx => ?_) fun x hx l => ⟨x, hx, le_rfl⟩\n  by_contra h\n  obtain ⟨l, s, hlA, hl⟩ := geometric_hahn_banach_closed_point hs₁ hs₂ h\n  obtain ⟨y, hy, hxy⟩ := hx l\n  exact ((hxy.trans_lt (hlA y hy)).trans hl).not_ge le_rfl\n",
+        "docstring": "A closed convex set is the intersection of the half-spaces containing it. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Spaces.cycle_pinned_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 385398,
+        "name": "ClassicalMechanics.SlidingPendulum.ConfigurationSpace",
+        "module": "Physlib.ClassicalMechanics.Pendulum.SlidingPendulum",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/Pendulum/SlidingPendulum.lean#L70-L80",
+        "source_text": "/--\nThe configuration space of the sliding pendulum system.\n\nThe generalized coordinates are the horizontal position of the support mass and the angle\nthat the string makes with the vertical.\n-/\nstructure ConfigurationSpace where\n  /-- The horizontal position `x₁` of the support mass. -/\n  supportPosition : ℝ\n  /-- The angle `φ` that the string makes with the vertical. -/\n  angle : Real.Angle\n",
+        "docstring": "The configuration space of the sliding pendulum system.\n\nThe generalized coordinates are the horizontal position of the support mass and the angle\nthat the string makes with the vertical.\n"
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

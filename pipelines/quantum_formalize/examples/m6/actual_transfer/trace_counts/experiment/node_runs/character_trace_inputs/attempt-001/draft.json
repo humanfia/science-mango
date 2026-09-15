@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst a b hspan P\nclassical\nhave hdeg : ∀ i m t,\n    (M6.ActualTransfer.characterWeight (M6.ActualTransfer.span a b) N a b P i m t).natDegree ≤ 2 := by\n  intro i m t\n  unfold M6.ActualTransfer.characterWeight\n  exact (M6.Transfer.character_edge_bounds (2*N) P _ _ _ _).2\nunfold M6.ActualTransfer.characterTrace\nrw [M6.Transfer.scalar_trace_polynomial _ _ _ hdeg,\n  M6.Transfer.array_trace_inputs]\napply Finset.sum_congr rfl\nintro h hh\nexact M6.ActualTransfer.character_input_product\n  (M6.ActualTransfer.span a b) N a b\n  (by unfold M6.ActualTransfer.span; exact le_max_left _ _)\n  (by unfold M6.ActualTransfer.span; exact le_max_right _ _)\n  hspan P h",
+  "queries": []
+}

@@ -1,0 +1,1 @@
+All exact targets accepted with combined assembly and unchanged environment. Canonical independent exact-target, proof payload, original compiled artifacts and allowed-axiom audit: experiment/AUDIT.json. Actual fixed Q, normalization and scan definitions are retained; there are no supplied oracle or coefficient-bound assumptions in the actual public conclusions.

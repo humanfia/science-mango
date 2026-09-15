@@ -1,0 +1,55 @@
+{
+  "id": "character_trace_inputs",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualTransfer.character_trace_inputs",
+    "spec_sha256": "fbd644fda3c7aed664fa31b0963055f40a8b6bf384fd1d9432e455b46e55a16c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-trace-counts-formalization/.humanize-formal-runs/run-uqitdmma/attempt-001/Candidate_c395dd2312011690.lean",
+        "target_path": "/home/jing/m6-lean-trace-counts-formalization/.humanize-formal-runs/run-uqitdmma/attempt-001/FrozenTarget_c395dd2312011690.lean",
+        "feedback": "",
+        "target_sha256": "6f5e6448272959df70f55117c38158217e813d79e2b2a910464d08eca2597056",
+        "target_olean_sha256": "fd061d021da7dc4b45372b9bd84193bacf7325e8764266811aecd0add0e93b8d",
+        "source_sha256": "3a7dcb8becd8f83903d705f63e01dc010d0d626f4af57cd306f00f6e35c7e12c",
+        "olean_sha256": "87adb4573ae9ee6073050336ead878e9277463c657e08ea162b1c7c52119a1aa",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:12:09.456065+00:00",
+    "work": "/home/jing/m6-lean-trace-counts-formalization/.humanize-formal-runs/run-uqitdmma",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "f22be5ef068ca05894094185d57862aa2f608178d911cc72c0f8fe4e9aab821b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-trace-counts-formalization/.humanize-formal-runs/run-uqitdmma/attempt-001/Candidate_c395dd2312011690.lean",
+    "environment_sha256": "dd6f3c7f16ee7442c27fc5f1769bebd13f19e1ae2605e706b5bb1a0fa5da9d07",
+    "artifacts": {
+      "character_trace_inputs": {
+        "payload": {
+          "declaration": "theorem M6.ActualTransfer.character_trace_inputs : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → ∀ P : M6.Pinned.Pins (2*N), M6.ActualTransfer.characterTrace N a b P = ∑ h : M6.Transfer.Input N, (∏ q : Fin (2*N), M6.Character.pinnedCharacterFactor P q (M6.Flatten.flatten N (M6.Physical.J N (M6.Physical.boundary N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h)) q)) := by\n  intro N inst a b hspan P\n  classical\n  have hdeg : ∀ i m t,\n      (M6.ActualTransfer.characterWeight (M6.ActualTransfer.span a b) N a b P i m t).natDegree ≤ 2 := by\n    intro i m t\n    unfold M6.ActualTransfer.characterWeight\n    exact (M6.Transfer.character_edge_bounds (2*N) P _ _ _ _).2\n  unfold M6.ActualTransfer.characterTrace\n  rw [M6.Transfer.scalar_trace_polynomial _ _ _ hdeg,\n    M6.Transfer.array_trace_inputs]\n  apply Finset.sum_congr rfl\n  intro h hh\n  exact M6.ActualTransfer.character_input_product\n    (M6.ActualTransfer.span a b) N a b\n    (by unfold M6.ActualTransfer.span; exact le_max_left _ _)\n    (by unfold M6.ActualTransfer.span; exact le_max_right _ _)\n    hspan P h",
+          "imports": [
+            "M6TraceCountsReady"
+          ],
+          "name": "M6.ActualTransfer.character_trace_inputs",
+          "ancestors": [],
+          "spec_sha256": "fbd644fda3c7aed664fa31b0963055f40a8b6bf384fd1d9432e455b46e55a16c"
+        },
+        "sha256": "e7cbcf79b7fa764e6f90a746e6b3904d778b30093fae276f82b50b51d3f73898"
+      }
+    }
+  }
+}

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "post_event_count",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Transfer.post_event_count",
+      "statement": "∀ N : ℕ, Fintype.card (M6.Transfer.PostEvent N) = 4*(2*N+1)",
+      "imports": [
+        "M6QueryResources"
+      ],
+      "context": "",
+      "queries": [
+        "natural number polynomial inequalities",
+        "finite product cardinality"
+      ],
+      "guidance": "Use actual_trace_work_bound/storage_bound and direct event cardinality. R<N gives N>=1, R<=N, 1<=2^R and 1<=4^R. Expand only the counter definitions, bound lower degree terms by N powers and then nlinarith or gcongr. Preserve arbitrary e,k,slots hypotheses in these component algebra targets; actual callers discharge them in final integration. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "supports_obligation": "M6_QUERY_SOLVE_RESOURCE_ACCOUNTING"
+    }
+  },
+  {
+    "id": "paired_work_bound",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Transfer.paired_work_bound",
+      "statement": "∀ R N : ℕ, R < N → M6.Transfer.pairedQueryWork R N ≤ 40000*N^3*4^R",
+      "imports": [
+        "M6QueryResources"
+      ],
+      "context": "",
+      "queries": [
+        "natural number polynomial inequalities",
+        "finite product cardinality"
+      ],
+      "guidance": "Use actual_trace_work_bound/storage_bound and direct event cardinality. R<N gives N>=1, R<=N, 1<=2^R and 1<=4^R. Expand only the counter definitions, bound lower degree terms by N powers and then nlinarith or gcongr. Preserve arbitrary e,k,slots hypotheses in these component algebra targets; actual callers discharge them in final integration. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "supports_obligation": "M6_QUERY_SOLVE_RESOURCE_ACCOUNTING"
+    }
+  },
+  {
+    "id": "paired_storage_bound",
+    "dependencies": [],
+    "spec": {
+      "name": "M6.Transfer.paired_storage_bound",
+      "statement": "∀ R N : ℕ, R < N → M6.Transfer.pairedQueryStorage R N ≤ 8192*N^2*2^R",
+      "imports": [
+        "M6QueryResources"
+      ],
+      "context": "",
+      "queries": [
+        "natural number polynomial inequalities",
+        "finite product cardinality"
+      ],
+      "guidance": "Use actual_trace_work_bound/storage_bound and direct event cardinality. R<N gives N>=1, R<=N, 1<=2^R and 1<=4^R. Expand only the counter definitions, bound lower degree terms by N powers and then nlinarith or gcongr. Preserve arbitrary e,k,slots hypotheses in these component algebra targets; actual callers discharge them in final integration. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "supports_obligation": "M6_QUERY_SOLVE_RESOURCE_ACCOUNTING"
+    }
+  },
+  {
+    "id": "distance_work_bound",
+    "dependencies": [
+      "paired_work_bound"
+    ],
+    "spec": {
+      "name": "M6.Transfer.distance_work_bound",
+      "statement": "∀ R N e : ℕ, R < N → e ≤ 180*(N+1)^3 → M6.Transfer.distanceWork R N e ≤ 50000*N^3*4^R",
+      "imports": [
+        "M6QueryResources"
+      ],
+      "context": "",
+      "queries": [
+        "natural number polynomial inequalities",
+        "finite product cardinality"
+      ],
+      "guidance": "Use actual_trace_work_bound/storage_bound and direct event cardinality. R<N gives N>=1, R<=N, 1<=2^R and 1<=4^R. Expand only the counter definitions, bound lower degree terms by N powers and then nlinarith or gcongr. Preserve arbitrary e,k,slots hypotheses in these component algebra targets; actual callers discharge them in final integration. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "supports_obligation": "M6_QUERY_SOLVE_RESOURCE_ACCOUNTING"
+    }
+  },
+  {
+    "id": "witness_work_bound",
+    "dependencies": [
+      "paired_work_bound"
+    ],
+    "spec": {
+      "name": "M6.Transfer.witness_work_bound",
+      "statement": "∀ R N e k : ℕ, R < N → e ≤ 180*(N+1)^3 → k ≤ 2*N → M6.Transfer.witnessWork R N e k ≤ 200000*N^4*4^R",
+      "imports": [
+        "M6QueryResources"
+      ],
+      "context": "",
+      "queries": [
+        "natural number polynomial inequalities",
+        "finite product cardinality"
+      ],
+      "guidance": "Use actual_trace_work_bound/storage_bound and direct event cardinality. R<N gives N>=1, R<=N, 1<=2^R and 1<=4^R. Expand only the counter definitions, bound lower degree terms by N powers and then nlinarith or gcongr. Preserve arbitrary e,k,slots hypotheses in these component algebra targets; actual callers discharge them in final integration. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "supports_obligation": "M6_QUERY_SOLVE_RESOURCE_ACCOUNTING"
+    }
+  },
+  {
+    "id": "solve_storage_bound",
+    "dependencies": [
+      "paired_storage_bound"
+    ],
+    "spec": {
+      "name": "M6.Transfer.solve_storage_bound",
+      "statement": "∀ R N slots : ℕ, R < N → slots ≤ 512*(N+1)^2 → M6.Transfer.solveStorage R N slots ≤ 16384*N^2*2^R",
+      "imports": [
+        "M6QueryResources"
+      ],
+      "context": "",
+      "queries": [
+        "natural number polynomial inequalities",
+        "finite product cardinality"
+      ],
+      "guidance": "Use actual_trace_work_bound/storage_bound and direct event cardinality. R<N gives N>=1, R<=N, 1<=2^R and 1<=4^R. Expand only the counter definitions, bound lower degree terms by N powers and then nlinarith or gcongr. Preserve arbitrary e,k,slots hypotheses in these component algebra targets; actual callers discharge them in final integration. Return tactic lines without leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "addition commutativity"
+      ],
+      "supports_obligation": "M6_QUERY_SOLVE_RESOURCE_ACCOUNTING"
+    }
+  }
+]

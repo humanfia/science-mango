@@ -1,0 +1,12 @@
+{
+  "name": "M6.Euclid.dense_rank",
+  "statement": "∀ (width : ℕ) (p : M6.Euclid.BP), M6.Euclid.rank p ≤ width → M6.Euclid.scanRank width p = M6.Euclid.rank p",
+  "imports": [
+    "M6Euclid"
+  ],
+  "context": "",
+  "queries": [
+    "EuclideanDomain gcd Bezout divisibility"
+  ],
+  "guidance": "Induct width using List.range_succ and List.foldl_append. Under rankp≤width+1, either rankp≤width and coefficient atwidth iszero, so induction persists; or rankp=width+1, so nonzero p has natDegreewidth and leading coefficient nonzero, and the final iteration setswidth+1. Basewidth0 forcesp0. This proves actual coefficient-array degree scanning, leaving no degree oracle. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+}

@@ -1,0 +1,69 @@
+{
+  "id": "translated_weight",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.RecipeIsometries.translated_weight",
+    "spec_sha256": "ff5ffb73f67b688df5acd17ce38a6640438e5d371687f3d0b4f3514310fbaae7",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-pnk098i5/attempt-001/Candidate_ecd7eec8fd9f63b7.lean",
+        "target_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-pnk098i5/attempt-001/FrozenTarget_ecd7eec8fd9f63b7.lean",
+        "feedback": "",
+        "target_sha256": "23f65a23f6319edfc986053b9aeaa62eb08f1c0c43d71f2e84209bef25eb82e3",
+        "target_olean_sha256": "4859914d7e8abddfdb017e5609ed5692d56587df2c132cea069054021d1a62e2",
+        "source_sha256": "170fc2df22226e12f32d662aca3094794e343dff7b6ee6c8518ba46cd46608d8",
+        "olean_sha256": "0ff716c42da6fbc2e4509fd4a71ab1f8713ec75b2edfb547387d08ef413f9f8b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:41:44.944905+00:00",
+    "work": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-pnk098i5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "55a57ac8060477ab26fffb3466ce9c7eaf76565582acbdc4d51633c9e59ff2c8",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-pnk098i5/attempt-001/Candidate_ecd7eec8fd9f63b7.lean",
+    "environment_sha256": "105874d9b1f96950dd9cc0ff6ed7f9a0fb22f24362fab932ce70d1d0ca08f217",
+    "artifacts": {
+      "permutation_weight": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.permutation_weight : ∀ (N : ℕ) [NeZero N] (e : Equiv.Perm (ZMod N)) (a : M6.RecipeIsometries.Block N), M6.Physical.weight N (fun i => a (e i)) = M6.Physical.weight N a := by\n  change ∀ (N : ℕ) [NeZero N] (e : Equiv.Perm (ZMod N)) (a : M6.RecipeIsometries.Block N), M6.Physical.weight N (fun i => a (e i)) = M6.Physical.weight N a\n  intro N _ e a\n  classical\n  unfold M6.Physical.weight\n  apply Finset.card_bij (fun i _ => e i)\n  · intro i hi\n    simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hi\n  · intro i hi j hj hij\n    exact e.injective hij\n  · intro j hj\n    refine ⟨e.symm j, ?_, e.apply_symm_apply j⟩\n    simpa using hj",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.permutation_weight",
+          "ancestors": [],
+          "spec_sha256": "69bc00a85175f7f692b209e4709d62294de755ae860445ff4b739595ccf7ae24"
+        },
+        "sha256": "1816d59644d4d70c8f6f7982ea1740a662985953b68589155b1cd533c1b0a5da"
+      },
+      "translated_weight": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.translated_weight : ∀ (N : ℕ) [NeZero N] (r s : ZMod N) (z : M6.RecipeIsometries.Word N), M6.Physical.wordWeight N (M6.RecipeIsometries.translateWord N r s z) = M6.Physical.wordWeight N z := by\n  intro N _ r s z\n  change M6.Physical.weight N (M6.RecipeIsometries.shift N r z.1) + M6.Physical.weight N (M6.RecipeIsometries.shift N s z.2) = M6.Physical.weight N z.1 + M6.Physical.weight N z.2\n  have h (t : ZMod N) (a : M6.RecipeIsometries.Block N) : M6.Physical.weight N (M6.RecipeIsometries.shift N t a) = M6.Physical.weight N a := by\n    have hf : M6.RecipeIsometries.shift N t a = fun i => a ((Equiv.addRight (-t)) i) := by\n      funext i\n      exact congrArg a (sub_eq_add_neg i t)\n    rw [hf]\n    exact M6.RecipeIsometries.permutation_weight N (Equiv.addRight (-t)) a\n  exact congrArg₂ (fun a b : ℕ => a + b) (h r z.1) (h s z.2)",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.translated_weight",
+          "ancestors": [
+            "permutation_weight"
+          ],
+          "spec_sha256": "0297c3711fba8700477213b8fee7cee362143e693dbd39982127b575b69584b7"
+        },
+        "sha256": "06940f2d89287fce61585ec5c8cae3a1b73e8013869868f97309d31d98878676"
+      }
+    }
+  }
+}

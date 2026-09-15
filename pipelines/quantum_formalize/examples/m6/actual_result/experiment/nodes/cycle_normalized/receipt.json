@@ -1,0 +1,55 @@
+{
+  "id": "cycle_normalized",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualResult.cycle_normalized",
+    "spec_sha256": "87699edd8b83bf7780dc3186f3018441bfe4c8633c01dafa4a25da3019546e47",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-result-formalization/.humanize-formal-runs/run-7yj896kn/attempt-001/Candidate_21a9ca8b1694bfce.lean",
+        "target_path": "/home/jing/m6-lean-actual-result-formalization/.humanize-formal-runs/run-7yj896kn/attempt-001/FrozenTarget_21a9ca8b1694bfce.lean",
+        "feedback": "",
+        "target_sha256": "0de36719b63878f9e7d4ef02c399467d94a784d4b22b18c786f71cbc9aa413a5",
+        "target_olean_sha256": "29507aff5855028d77d890ca262defb32a4fa885377ab7f1a8d3703e00945f04",
+        "source_sha256": "ff1fdc92c90b8d4c068af5e1803e10318eb5e4a41f93ebd42d016d5e0b3a2089",
+        "olean_sha256": "05983af04567084e6836601614d005eb1f3c5adf054e5c72b2edfbd4fd850816",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:28:34.123580+00:00",
+    "work": "/home/jing/m6-lean-actual-result-formalization/.humanize-formal-runs/run-7yj896kn",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "195ac3b96283952dff3e25391c20031f422c65fae4dca5a5e701ba015b056c7a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-result-formalization/.humanize-formal-runs/run-7yj896kn/attempt-001/Candidate_21a9ca8b1694bfce.lean",
+    "environment_sha256": "b3aa499b773c417e0e309ea1338d6529dc94c33aaebad010fd487aad1adaab77",
+    "artifacts": {
+      "cycle_normalized": {
+        "payload": {
+          "declaration": "theorem M6.ActualResult.cycle_normalized : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → ∀ P : M6.Pinned.Pins (2*N), M6.Normalize.divide ((2 : ℤ)^N) (M6.ActualTransfer.characterTrace N a b P) = M6.Pinned.enumerator (M6.Spaces.cycleWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → ∀ P : M6.Pinned.Pins (2*N), M6.Normalize.divide ((2 : ℤ)^N) (M6.ActualTransfer.characterTrace N a b P) = M6.Pinned.enumerator (M6.Spaces.cycleWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst a b h P\n  have ha : a.degree < (N : WithBot ℕ) := by\n    apply lt_of_le_of_lt Polynomial.degree_le_natDegree\n    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_left a.natDegree b.natDegree) h : a.natDegree < N)\n  have hb : b.degree < (N : WithBot ℕ) := by\n    apply lt_of_le_of_lt Polynomial.degree_le_natDegree\n    exact_mod_cast (lt_of_le_of_lt (Nat.le_max_right a.natDegree b.natDegree) h : b.natDegree < N)\n  rw [M6.ActualTransfer.character_trace_inputs N a b h P]\n  change M6.Normalize.divide ((2 : ℤ)^N) (M6.ActualCounts.signedInputSum N a b P) = _\n  rw [M6.ActualCounts.cycle_pinned_sum N a b ha hb P]\n  exact M6.Normalize.divide_scaled _ _ (pow_ne_zero N (by norm_num))",
+          "imports": [
+            "M6ActualResultReady"
+          ],
+          "name": "M6.ActualResult.cycle_normalized",
+          "ancestors": [],
+          "spec_sha256": "87699edd8b83bf7780dc3186f3018441bfe4c8633c01dafa4a25da3019546e47"
+        },
+        "sha256": "2211ccf4f659c36c1f02c6c445679efcb9b19e97f26b46d0a3cbc360ab7f81d3"
+      }
+    }
+  }
+}

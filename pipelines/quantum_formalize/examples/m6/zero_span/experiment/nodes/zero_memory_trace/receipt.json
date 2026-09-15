@@ -1,0 +1,55 @@
+{
+  "id": "zero_memory_trace",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ZeroSpan.zero_memory_trace",
+    "spec_sha256": "6a33a0dc3c2ad92764381b83ad33967bfde05815c967c99e0488077345fe0897",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-a16dy_mq/attempt-001/Candidate_c9309781918ba406.lean",
+        "target_path": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-a16dy_mq/attempt-001/FrozenTarget_c9309781918ba406.lean",
+        "feedback": "",
+        "target_sha256": "e98501a5ff382fbafecb75648c765357f9acb7ed86480356493a29643d966618",
+        "target_olean_sha256": "cfb017c1059f668be4a3855bbc7c84fbc15a05d488f4c90fde05aa66bf6202a7",
+        "source_sha256": "a501f1cf1b2289bb70af740be8c65d85c5c7cc3e8e954b920b40083c5e772aea",
+        "olean_sha256": "7653039496731768e356730bb19df2b6b1d606184fea33d9d0a223794c4d7217",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:29:06.291970+00:00",
+    "work": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-a16dy_mq",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "97a2bab5a4c0acc9dc78adff123fd4c30cb20174f235ee77b2d65c8d7ff9e420",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-zero-span-formalization/.humanize-formal-runs/run-a16dy_mq/attempt-001/Candidate_c9309781918ba406.lean",
+    "environment_sha256": "e3a1ee3d1c1e0a750fa56d6a20e71bdd13b166ea223b3fa91dc892c68e61bcaa",
+    "artifacts": {
+      "zero_memory_trace": {
+        "payload": {
+          "declaration": "theorem M6.ZeroSpan.zero_memory_trace : ∀ (N : ℕ) (W : ℕ → M6.Transfer.Memory 0 → M6.Transfer.Bit → Polynomial ℤ) (p : Polynomial ℤ), (∀ i m n, M6.Transfer.edgeMatrix (W i) m n = p) → M6.Transfer.arrayTrace W N = p^N := by\n  change ∀ (N : ℕ) (W : ℕ → M6.Transfer.Memory 0 → M6.Transfer.Bit → Polynomial ℤ) (p : Polynomial ℤ), (∀ i m n, M6.Transfer.edgeMatrix (W i) m n = p) → M6.Transfer.arrayTrace W N = p ^ N\n  intro N W p h\n  classical\n  haveI : Subsingleton (M6.Transfer.Memory 0) := ⟨fun a b => funext fun i => Fin.elim0 i⟩\n  letI : Unique (M6.Transfer.Memory 0) :=\n    { default := fun i => Fin.elim0 i\n      uniq := fun m => Subsingleton.elim _ _ }\n  have hp : ∀ n (m k : M6.Transfer.Memory 0),\n      M6.Transfer.matrixProduct (fun i => M6.Transfer.edgeMatrix (W i)) n m k = p ^ n := by\n    intro n\n    induction n with\n    | zero =>\n        intro m k\n        simp [M6.Transfer.matrixProduct, Matrix.one_apply, Subsingleton.elim m k]\n    | succ n ih =>\n        intro m k\n        simp [M6.Transfer.matrixProduct, Matrix.mul_apply, ih, h, pow_succ, mul_comm]\n  rw [M6.Transfer.array_trace_matrix 0 (Polynomial ℤ) W N]\n  simp [Matrix.trace, Matrix.diag, hp]",
+          "imports": [
+            "M6ZeroSpan"
+          ],
+          "name": "M6.ZeroSpan.zero_memory_trace",
+          "ancestors": [],
+          "spec_sha256": "6a33a0dc3c2ad92764381b83ad33967bfde05815c967c99e0488077345fe0897"
+        },
+        "sha256": "844760f38543966c4c32b132613f9a442f460aa049e1384eb3520a7499ba94e9"
+      }
+    }
+  }
+}

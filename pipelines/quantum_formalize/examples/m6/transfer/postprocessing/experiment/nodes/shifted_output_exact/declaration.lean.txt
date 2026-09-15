@@ -1,0 +1,33 @@
+theorem M6.ActualTransfer.shifted_output_exact : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (P : M6.Pinned.Pins (2*N)), M6.ActualTransfer.shiftedOutput N a b P = M6.ActualTransfer.Q N a b P := by
+  intro N inst a b P
+  classical
+  have hsupport : ∀ d, 2 * N < d → (M6.ActualTransfer.Q N a b P).coeff d = 0 := by
+    intro d hd
+    simp only [M6.ActualTransfer.Q, Polynomial.coeff_sub,
+      M6.Normalize.divide_coeff, M6.ActualTransfer.boundaryTrace,
+      M6.ActualTransfer.characterTrace]
+    rw [M6.ActualTransfer.scalar_trace_support _ N _ d hd,
+      M6.ActualTransfer.scalar_trace_support _ N _ d hd]
+    simp
+  apply Polynomial.ext
+  intro d
+  unfold M6.ActualTransfer.shiftedOutput
+  simp only [Polynomial.finset_sum_coeff, Polynomial.coeff_monomial,
+    M6.ActualTransfer.shifted_coefficient_exact]
+  by_cases hd : d < 2 * N + 1
+  · rw [Finset.sum_eq_single (⟨d, hd⟩ : Fin (2 * N + 1))]
+    · simp
+    · intro i hi hne
+      have hval : (i : ℕ) ≠ d := by
+        intro h
+        apply hne
+        exact Fin.ext h
+      simp [hval]
+    · simp
+  · rw [hsupport d (by omega)]
+    apply Finset.sum_eq_zero
+    intro i hi
+    have hval : (i : ℕ) ≠ d := by
+      have hi_lt := i.isLt
+      omega
+    simp [hval]

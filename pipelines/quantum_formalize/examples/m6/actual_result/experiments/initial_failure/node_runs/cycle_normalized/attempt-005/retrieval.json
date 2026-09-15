@@ -1,0 +1,158 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualCounts.cycle_pinned_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 239635,
+        "name": "Equiv.Perm.cycleType",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L52-L54",
+        "source_text": "/-- The cycle type of a permutation -/\ndef cycleType (σ : Perm α) : Multiset ℕ :=\n  σ.cycleFactorsFinset.1.map (Finset.card ∘ support)\n",
+        "docstring": "The cycle type of a permutation "
+      },
+      {
+        "id": 239652,
+        "name": "Equiv.Perm.sum_cycleType_le",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L154-L155",
+        "source_text": "theorem sum_cycleType_le (σ : Perm α) : σ.cycleType.sum ≤ Fintype.card α :=\n  σ.sum_cycleType ▸ Finset.card_le_univ σ.support\n",
+        "docstring": null
+      },
+      {
+        "id": 239651,
+        "name": "Equiv.Perm.sum_cycleType",
+        "module": "Mathlib.GroupTheory.Perm.Cycle.Type",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Perm/Cycle/Type.lean#L148-L152",
+        "source_text": "theorem sum_cycleType (σ : Perm α) : σ.cycleType.sum = #σ.support := by\n  induction σ using cycle_induction_on with\n  | base_one => simp\n  | base_cycles σ hσ => rw [hσ.cycleType, Multiset.sum_singleton]\n  | induction_disjoint σ τ hd _ hσ hτ => rw [hd.cycleType_mul, sum_add, hσ, hτ, hd.card_support_mul]\n",
+        "docstring": null
+      },
+      {
+        "id": 207783,
+        "name": "Cycle.card_toMultiset",
+        "module": "Mathlib.Data.List.Cycle",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Cycle.lean#L625-L627",
+        "source_text": "@[simp]\ntheorem card_toMultiset (s : Cycle α) : Multiset.card s.toMultiset = s.length :=\n  Quotient.inductionOn' s (by simp)",
+        "docstring": null
+      },
+      {
+        "id": 320481,
+        "name": "Associates.eq_of_eq_counts",
+        "module": "Mathlib.RingTheory.UniqueFactorizationDomain.FactorSet",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/FactorSet.lean#L291-L293",
+        "source_text": "theorem eq_of_eq_counts {a b : Associates α} (ha : a ≠ 0) (hb : b ≠ 0)\n    (h : ∀ p : Associates α, Irreducible p → p.count a.factors = p.count b.factors) : a = b :=\n  eq_of_factors_eq_factors (eq_factors_of_eq_counts ha hb h)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualCounts.cycle_pinned_sum",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387287,
+        "name": "SMRHN.toSpecies_sum_invariant",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.Permutations",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/Permutations.lean#L67-L71",
+        "source_text": "lemma toSpecies_sum_invariant (m : ℕ) (f : PermGroup n) (S : (SMνCharges n).Charges) (j : Fin 6) :\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j (repCharges f S)) i =\n    ∑ i, ((fun a => a ^ m) ∘ toSpecies j S) i := by\n  rw [repCharges_toSpecies]\n  exact Equiv.sum_comp (f⁻¹ j) ((fun a => a ^ m) ∘ toSpecies j S)\n",
+        "docstring": null
+      },
+      {
+        "id": 388149,
+        "name": "MSSMCharges.sum_MSSMSpecies_numberCharges_eq_expand",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/Basic.lean#L32-L34",
+        "source_text": "lemma sum_MSSMSpecies_numberCharges_eq_expand [AddCommMonoid M]\n    (f : Fin MSSMSpecies.numberCharges → M) :\n    ∑ i, f i = f ⟨0, by simp⟩ + f ⟨1, by simp⟩ + f ⟨2, by simp⟩ := Fin.sum_univ_three f\n",
+        "docstring": null
+      },
+      {
+        "id": 394063,
+        "name": "FTheory.SU5.FluxesFive.sum_of_mem_elemsNoExotics",
+        "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Elems",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Elems.lean#L160-L163",
+        "source_text": "lemma sum_of_mem_elemsNoExotics (F : FluxesFive) (h : F ∈ elemsNoExotics) :\n    F.sum = ⟨3, 0⟩ := by\n  revert F h\n  decide\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.ActualTransfer.span",
+    "status": "ok",
+    "results": [
+      {
+        "id": 253013,
+        "name": "Submodule.span",
+        "module": "Mathlib.LinearAlgebra.Span.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Span/Defs.lean#L47-L49",
+        "source_text": "/-- The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. -/\ndef span (s : Set M) : Submodule R M :=\n  sInf { p | s ⊆ p }\n",
+        "docstring": "The span of a set `s ⊆ M` is the smallest submodule of M that contains `s`. "
+      },
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      },
+      {
+        "id": 241617,
+        "name": "Subgroup.transferSet",
+        "module": "Mathlib.GroupTheory.Transfer",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Transfer.lean#L102-L104",
+        "source_text": "/-- The transfer transversal as a set. Contains elements of the form `g ^ k • g₀` for fixed choices\nof representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`. -/\ndef transferSet : Set G := Set.range (transferFunction H g)\n",
+        "docstring": "The transfer transversal as a set. Contains elements of the form `g ^ k • g₀` for fixed choices\nof representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`. "
+      },
+      {
+        "id": 235118,
+        "name": "Subgroup.transferFocal",
+        "module": "Mathlib.GroupTheory.Focal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Focal.lean#L151-L154",
+        "source_text": "/-- The transfer homomorphism `V : G → H/H*` from `G` the abelian quotient `H/H*`. -/\n@[to_additive /-- The transfer homomorphism `V : G → H/H*` from `G` the abelian quotient `H/H*`. -/]\nnoncomputable def transferFocal [H.FiniteIndex] : G →* H ⧸ focalSubgroupOf H :=\n  MonoidHom.transfer (QuotientGroup.mk' (focalSubgroupOf H))\n",
+        "docstring": "The transfer homomorphism `V : G → H/H*` from `G` the abelian quotient `H/H*`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.ActualTransfer.span",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387190,
+        "name": "SMRHN.chargesMapOfSpeciesMap_toSpecies",
+        "module": "Physlib.Particles.BeyondTheStandardModel.RHN.AnomalyCancellation.FamilyMaps",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/BeyondTheStandardModel/RHN/AnomalyCancellation/FamilyMaps.lean#L38-L42",
+        "source_text": "lemma chargesMapOfSpeciesMap_toSpecies {n m : ℕ}\n    (f : (SMνSpecies n).Charges →ₗ[ℚ] (SMνSpecies m).Charges)\n    (S : (SMνCharges n).Charges) (j : Fin 6) :\n    toSpecies j (chargesMapOfSpeciesMap f S) = (LinearMap.comp f (toSpecies j)) S :=\n  toSMSpecies_toSpecies_inv _ _\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

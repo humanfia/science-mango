@@ -1,0 +1,9 @@
+theorem M6.ActualResult.Q_coeff : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → ∀ (P : M6.Pinned.Pins (2*N)) (d : ℕ), (M6.ActualTransfer.Q N a b P).coeff d = M6.Pinned.count (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P d ∧ 0 ≤ (M6.ActualTransfer.Q N a b P).coeff d := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → ∀ (P : M6.Pinned.Pins (2*N)) (d : ℕ), (M6.ActualTransfer.Q N a b P).coeff d = M6.Pinned.count (M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P d ∧ 0 ≤ (M6.ActualTransfer.Q N a b P).coeff d
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N inst a b h P d
+  rw [M6.ActualResult.Q_enumerator N a b h P, M6.Pinned.enumerator_coeff (2*N)]
+  exact ⟨rfl, (M6.Pinned.count_nonnegative_positive (2*N) _ P d).1⟩

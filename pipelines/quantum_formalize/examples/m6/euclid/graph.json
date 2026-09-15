@@ -1,0 +1,509 @@
+{
+  "title": "M6 binary leading-XOR Euclid and actual cubic preprocessing cost",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "source_sha256": "e1c883e5386caa88613ffc0a4db92629c164ca34594053ff16695a2fa1fa122d",
+  "scope": "Actual fuel-based binary leading-term remainder and Euclidean recursion; exact normalized gcd, telescoping cancellation/round bounds, faithful fixed-width dense XOR updates and conservative original indexed-array bit cost including degree preparation.",
+  "nodes": [
+    {
+      "id": "binary_normalization",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Euclid.binary_normalization",
+        "statement": "∀ p : M6.Euclid.BP, (p ≠ 0 → p.Monic) ∧ normalize p = p",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Every binary leading coefficient is0 or1, by ordinary decide over ZMod2. Nonzero p has nonzero leadingCoeff, hence1. Use Polynomial.Monic.normalize_eq_self; handle zero separately. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "rank_order",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Euclid.rank_order",
+        "statement": "∀ p q : M6.Euclid.BP, (M6.Euclid.rank p < M6.Euclid.rank q ↔ p.degree < q.degree) ∧ (M6.Euclid.rank p ≤ M6.Euclid.rank q ↔ p.degree ≤ q.degree)",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Split p=0 and q=0; unfold rank and use Polynomial.degree_eq_natDegree for nonzero polynomials. The zero polynomial has rank0 and degree bottom. Preserve constants. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "cancel_drop",
+      "dependencies": [
+        "binary_normalization",
+        "rank_order"
+      ],
+      "spec": {
+        "name": "M6.Euclid.cancel_drop",
+        "statement": "∀ p q : M6.Euclid.BP, p ≠ 0 → q ≠ 0 → q.degree ≤ p.degree → M6.Euclid.rank (M6.Euclid.cancel p q) < M6.Euclid.rank p",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Apply Polynomial.div_wf_lemma to the actual cancellation definition and binary_normalization for monicity of q; transport degree strictness through rank_order. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "cancel_mod",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Euclid.cancel_mod",
+        "statement": "∀ p q : M6.Euclid.BP, M6.Euclid.cancel p q % q = p % q",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Use Polynomial.mod_eq_of_dvd_sub: cancel p q - p is a multiple ofq, directly by ring. Or ordinary Euclidean remainder add/sub/mul congruence. No nonzero assumptions required. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "remainder_aux_correct",
+      "dependencies": [
+        "cancel_drop",
+        "cancel_mod",
+        "rank_order"
+      ],
+      "spec": {
+        "name": "M6.Euclid.remainder_aux_correct",
+        "statement": "∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ fuel → (M6.Euclid.remainderAux fuel p q).value = p % q ∧ (M6.Euclid.remainderAux fuel p q).cancellations + M6.Euclid.rank (M6.Euclid.remainderAux fuel p q).value ≤ M6.Euclid.rank p",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel generalizing p. At fuel0 rankp=0 forcesp=0. At stopping guard use mod_zero, zero_mod or Polynomial.mod_eq_self_iff q_nonzero. Otherwise cancel_drop gives enough remaining fuel; apply induction to cancel, cancel_mod and integer/natural arithmetic. The cancellation potential includes final remainder rank. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "remainder_correct",
+      "dependencies": [
+        "remainder_aux_correct",
+        "rank_order"
+      ],
+      "spec": {
+        "name": "M6.Euclid.remainder_correct",
+        "statement": "∀ p q : M6.Euclid.BP, (M6.Euclid.remainder p q).value = p % q ∧ (M6.Euclid.remainder p q).cancellations + M6.Euclid.rank (M6.Euclid.remainder p q).value ≤ M6.Euclid.rank p ∧ (q ≠ 0 → M6.Euclid.rank (M6.Euclid.remainder p q).value < M6.Euclid.rank q)",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Instantiate remainder_aux_correct at rankp; the extra degree-preparation pass does not change value/cancellations. For the final strict remainder bound use Polynomial.degree_mod_lt and rank_order. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "euclid_aux_correct",
+      "dependencies": [
+        "remainder_correct"
+      ],
+      "spec": {
+        "name": "M6.Euclid.euclid_aux_correct",
+        "statement": "∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank q < fuel → (M6.Euclid.euclidAux fuel p q).value = EuclideanDomain.gcd q p ∧ (M6.Euclid.euclidAux fuel p q).cancellations + M6.Euclid.rank (M6.Euclid.euclidAux fuel p q).value ≤ M6.Euclid.rank p + M6.Euclid.rank q ∧ (M6.Euclid.euclidAux fuel p q).rounds ≤ M6.Euclid.rank q",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel generalizing p q. Base impossible. q0 stops with EuclideanDomain.gcd_zero_left. Otherwise remainder_correct gives rankr<rankq, sufficient recursive fuel, and c_rem+rankr≤rankp. EuclideanDomain.gcd_val q p rewrites gcd q p to gcd (p%q) q, matching recursion. Add induction potential inequality and remainder inequality; cancellation counts telescope even if degp<degq initially. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "normalized_gcd",
+      "dependencies": [
+        "binary_normalization"
+      ],
+      "spec": {
+        "name": "M6.Euclid.normalized_gcd",
+        "statement": "∀ p q : M6.Euclid.BP, EuclideanDomain.gcd q p = GCDMonoid.gcd p q",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Use dvd_antisymm_of_normalize_eq: all binary polynomials normalize to themselves, and normalize_gcd holds for the normalized GCDMonoid gcd. EuclideanDomain.gcd_dvd_left/right/dvd_gcd and root gcd_dvd_left/right/dvd_gcd show mutual divisibility. Keep the EuclideanDomain versus GCDMonoid namespaces explicit. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "euclid_correct",
+      "dependencies": [
+        "euclid_aux_correct",
+        "normalized_gcd"
+      ],
+      "spec": {
+        "name": "M6.Euclid.euclid_correct",
+        "statement": "∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).value = GCDMonoid.gcd p q ∧ (M6.Euclid.euclid p q).cancellations ≤ M6.Euclid.rank p + M6.Euclid.rank q ∧ (M6.Euclid.euclid p q).rounds ≤ M6.Euclid.rank q",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Use euclid_aux_correct with fuel rankq+1 and normalized_gcd. The top-level initial degree scan only changes passes. Drop the nonnegative final-rank term from the cancellation bound. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "remainder_passes",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Euclid.remainder_passes",
+        "statement": "∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.remainderAux fuel p q).passes = 2 * (M6.Euclid.remainderAux fuel p q).cancellations + 1",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Direct structural induction fuel generalizing p q. Stopping states charge one scan; each executed cancellation adds two passes. This is an actual recursive counter identity, not a declared polynomial bound. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "euclid_aux_passes",
+      "dependencies": [
+        "remainder_passes"
+      ],
+      "spec": {
+        "name": "M6.Euclid.euclid_aux_passes",
+        "statement": "∀ (fuel : ℕ) (p q : M6.Euclid.BP), (M6.Euclid.euclidAux fuel p q).passes = 2 * (M6.Euclid.euclidAux fuel p q).cancellations + 3 * (M6.Euclid.euclidAux fuel p q).rounds + 1",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel. Unfold remainder and apply remainder_passes: each remainder call costs2c+2, including its initial degree/fuel scan; each Euclid call charges its own zero/degree scan. Combine with recursive identity by arithmetic. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "euclid_passes",
+      "dependencies": [
+        "euclid_aux_passes"
+      ],
+      "spec": {
+        "name": "M6.Euclid.euclid_passes",
+        "statement": "∀ p q : M6.Euclid.BP, (M6.Euclid.euclid p q).passes = 2 * (M6.Euclid.euclid p q).cancellations + 3 * (M6.Euclid.euclid p q).rounds + 2",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Unfold euclid; its initial rankq fuel scan adds one to the proven auxiliary pass counter. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "scan_cost",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Euclid.scan_cost",
+        "statement": "∀ width : ℕ, M6.Euclid.scanCost width = width * (6 * width + 4) ∧ (0 < width → M6.Euclid.scanCost width ≤ 10 * width ^ 2)",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Prove a generalized foldl accumulator formula for the explicit List.range loop, or use List.foldl_assoc with addition. Every loop iteration adds6width+4. The quadratic bound follows for positive width by arithmetic; cost is derived from the loop, not defined as width squared. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "dense_cancel",
+      "dependencies": [
+        "binary_normalization"
+      ],
+      "spec": {
+        "name": "M6.Euclid.dense_cancel",
+        "statement": "∀ (N : ℕ) (p q : M6.Euclid.BP), p ≠ 0 → M6.Euclid.dense N (M6.Euclid.cancel p q) = M6.Euclid.denseXor N p q (p.natDegree - q.natDegree)",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Nonzero binary p has leadingCoeff1. Expand cancel and dense/List.ofFn; coefficient of q*X^shift is q.coeff(i-shift) when shift≤i, else0. Binary subtraction is addition/XOR (CharTwo). Prove list equality via ofFn congruence or ext entries. This connects the actual polynomial update to the dense indexed-array update. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "dense_rank",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Euclid.dense_rank",
+        "statement": "∀ (width : ℕ) (p : M6.Euclid.BP), M6.Euclid.rank p ≤ width → M6.Euclid.scanRank width p = M6.Euclid.rank p",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct width using List.range_succ and List.foldl_append. Under rankp≤width+1, either rankp≤width and coefficient atwidth iszero, so induction persists; or rankp=width+1, so nonzero p has natDegreewidth and leading coefficient nonzero, and the final iteration setswidth+1. Basewidth0 forcesp0. This proves actual coefficient-array degree scanning, leaving no degree oracle. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "dense_injective",
+      "dependencies": [],
+      "spec": {
+        "name": "M6.Euclid.dense_injective",
+        "statement": "∀ (N : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ N + 1 → M6.Euclid.rank q ≤ N + 1 → M6.Euclid.dense N p = M6.Euclid.dense N q → p = q",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Polynomial.ext on coefficient indexi. Ifi<N+1, extract the matching List.ofFn entry. Otherwise both coefficients vanish by degree bounds, splitting zero polynomial when converting rank to natDegree. Thus truncated arrays are faithful when the invariant holds. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "remainder_safe",
+      "dependencies": [
+        "cancel_drop"
+      ],
+      "spec": {
+        "name": "M6.Euclid.remainder_safe",
+        "statement": "∀ (fuel : ℕ) (p q : M6.Euclid.BP) (width : ℕ), M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.remainderSafe fuel p q width",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel generalizing p. The stopping predicate needs no recursion. Otherwise cancel_drop bounds the next operand strictly below p, preserving both fixed-width bounds. This ghost safety predicate checks every actual recursive intermediate operand. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "euclid_safe",
+      "dependencies": [
+        "remainder_safe",
+        "remainder_correct"
+      ],
+      "spec": {
+        "name": "M6.Euclid.euclid_safe",
+        "statement": "∀ (fuel : ℕ) (p q : M6.Euclid.BP) (width : ℕ), M6.Euclid.rank p ≤ width → M6.Euclid.rank q ≤ width → M6.Euclid.euclidSafe fuel p q width",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel generalizing p q. For nonzeroq, remainder_safe proves its entire inner loop fits width; remainder_correct bounds rank of its value by rankp (or strictly by rankq), then apply induction to the next Euclid pair. No fuel sufficiency premise needed for width safety. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "euclid_output_width",
+      "dependencies": [
+        "remainder_correct"
+      ],
+      "spec": {
+        "name": "M6.Euclid.euclid_output_width",
+        "statement": "∀ (fuel : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank (M6.Euclid.euclidAux fuel p q).value ≤ max (M6.Euclid.rank p) (M6.Euclid.rank q)",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Induct fuel generalizing p q. Stopping output is p. Otherwise remainder_correct bounds rankr≤rankp, and induction gives output≤max(rankq,rankr)≤max(rankp,rankq). This supplies the width bound when composing two gcd calls. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "bit_cost_bound",
+      "dependencies": [
+        "euclid_correct",
+        "euclid_passes",
+        "scan_cost",
+        "euclid_safe"
+      ],
+      "spec": {
+        "name": "M6.Euclid.bit_cost_bound",
+        "statement": "∀ (N : ℕ) (p q : M6.Euclid.BP), p.natDegree ≤ N → q.natDegree ≤ N → M6.Euclid.bitCost N p q ≤ 90 * (N + 1) ^ 3 ∧ M6.Euclid.euclidSafe (M6.Euclid.rank q + 1) p q (N + 1)",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Rankp,rankq≤N+1 by definition, including zero. euclid_correct gives c≤2width and e≤width; euclid_passes yields passes≤7width+2≤9width forwidth=N+1≥1. scan_cost≤10width², hence≤90width³ by multiplication arithmetic. euclid_safe proves every actual operand fits these arrays. No arbitrary oracle/cost premise. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    },
+    {
+      "id": "preprocess_correct_cost",
+      "dependencies": [
+        "euclid_correct",
+        "euclid_output_width",
+        "bit_cost_bound"
+      ],
+      "spec": {
+        "name": "M6.Euclid.preprocess_correct_cost",
+        "statement": "∀ (N : ℕ) (a b M : M6.Euclid.BP), a.natDegree ≤ N → b.natDegree ≤ N → M.natDegree ≤ N → (M6.Euclid.preprocess a b M).value = GCDMonoid.gcd (GCDMonoid.gcd a b) M ∧ M6.Euclid.preprocessBitCost N a b M ≤ 180 * (N + 1) ^ 3",
+        "imports": [
+          "M6Euclid"
+        ],
+        "context": "",
+        "queries": [
+          "EuclideanDomain gcd Bezout divisibility"
+        ],
+        "guidance": "Unfold the actual shared two-call preprocessing. euclid_correct identifies first and final outputs. euclid_output_width bounds the first result rank bymax initial ranks≤N+1, hence natDegree≤N (split zero if needed). Apply bit_cost_bound to both calls and distribute pass count times scanCost. This is source gcd(a,b,M) preprocessing with its conservative cubic bit bound. Return tactic proof lines without leading by; preserve the exact frozen statement and default compiler/axiom limits."
+      },
+      "metadata": {
+        "source_section": "M6 original §1 gcd preprocessing and §5 indexed-array bit model",
+        "fallback_queries": [
+          "polynomial divisibility multiplication cancellation"
+        ]
+      }
+    }
+  ]
+}

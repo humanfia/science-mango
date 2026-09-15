@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst a b hspan\nhave ha : a.natDegree ≤ N := by\n  have h := (max_le_iff.mp (Nat.le_of_lt hspan : M6.ActualTransfer.span a b ≤ N)).1\n  exact h\nhave hb : b.natDegree ≤ N := by\n  have h := (max_le_iff.mp (Nat.le_of_lt hspan : M6.ActualTransfer.span a b ≤ N)).2\n  exact h\nhave hM : (M6.Cyclic.modulus N).natDegree ≤ N := by\n  change (Polynomial.X ^ N + (1 : Polynomial (ZMod 2))).natDegree ≤ N\n  exact (Polynomial.natDegree_add_le _ _).trans (by simp)\nhave hcost := (M6.Euclid.preprocess_correct_cost N a b (M6.Cyclic.modulus N) ha hb hM).2\nunfold M6.ActualTransfer.actualDistanceWork\nexact M6.Transfer.distance_work_bound (M6.ActualTransfer.span a b) N _ hspan hcost",
+  "queries": []
+}

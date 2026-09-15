@@ -1,0 +1,55 @@
+{
+  "id": "lift_transport",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.RecipeIsometries.lift_transport",
+    "spec_sha256": "9c5f7d5f85a4db294d5bf6959635d848d90752af7ed7254faf0710255563a6f5",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-ucrb6o26/attempt-001/Candidate_31b9669fde25313d.lean",
+        "target_path": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-ucrb6o26/attempt-001/FrozenTarget_31b9669fde25313d.lean",
+        "feedback": "",
+        "target_sha256": "973db2096fbdff11daf5b84283876e23331ad1eec302bb0f63e2b6a6f3285dab",
+        "target_olean_sha256": "882b2e4d0347c5c9b2ec2dd97d17514441ab2ca3001ad51793b38ef6c7c11fb0",
+        "source_sha256": "6cdc7c17f8622688de362832b2c860763b169d92ee848ea0dce9b10d89c427c5",
+        "olean_sha256": "94b28285e6ca3f8eed4463ec001350c9112e04a7e3dc1a04e9d060ffdaaf53ca",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:34:14.416507+00:00",
+    "work": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-ucrb6o26",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "55a57ac8060477ab26fffb3466ce9c7eaf76565582acbdc4d51633c9e59ff2c8",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-recipe-isometries-formalization/.humanize-formal-runs/run-ucrb6o26/attempt-001/Candidate_31b9669fde25313d.lean",
+    "environment_sha256": "105874d9b1f96950dd9cc0ff6ed7f9a0fb22f24362fab932ce70d1d0ca08f217",
+    "artifacts": {
+      "lift_transport": {
+        "payload": {
+          "declaration": "theorem M6.RecipeIsometries.lift_transport : ∀ (N : ℕ) [NeZero N] (a b a1 b1 : M6.RecipeIsometries.Block N) (P : M6.RecipeIsometries.Word N → M6.RecipeIsometries.Word N) (H : M6.RecipeIsometries.Block N → M6.RecipeIsometries.Block N), Function.Bijective P → Function.Surjective H → (∀ h, M6.Physical.boundary N a1 b1 (H h) = P (M6.Physical.boundary N a b h)) → (∀ z, M6.Physical.syndrome N a1 b1 (P z) = 0 ↔ M6.Physical.syndrome N a b z = 0) → (∀ z, M6.Physical.wordWeight N (P z) = M6.Physical.wordWeight N z) → Function.Bijective (M6.RecipeIsometries.lift N P) ∧ ∀ v : M6.Pinned.Vector (2*N), ((M6.RecipeIsometries.lift N P) v ∈ M6.Spaces.boundaryWords N (a1) (b1) ↔ v ∈ M6.Spaces.boundaryWords N a b) ∧ ((M6.RecipeIsometries.lift N P) v ∈ M6.Spaces.cycleWords N (a1) (b1) ↔ v ∈ M6.Spaces.cycleWords N a b) ∧ M6.Pinned.weight ((M6.RecipeIsometries.lift N P) v) = M6.Pinned.weight v := by\n  intro N inst a b a1 b1 P H hP hH hB hC hW\n  have hf : Function.Injective (M6.Flatten.flatten N) := by\n    intro x y h\n    have h' := congrArg (M6.Flatten.unflatten N) h\n    simpa only [M6.Flatten.flatten_left] using h'\n  have hu : Function.Injective (M6.Flatten.unflatten N) := by\n    intro x y h\n    have h' := congrArg (M6.Flatten.flatten N) h\n    simpa only [M6.Flatten.flatten_right] using h'\n  constructor\n  · constructor\n    · intro x y h\n      apply hu\n      apply hP.1\n      apply hf\n      exact h\n    · intro v\n      obtain ⟨z, hz⟩ := hP.2 (M6.Flatten.unflatten N v)\n      refine ⟨M6.Flatten.flatten N z, ?_⟩\n      simp only [M6.RecipeIsometries.lift, M6.Flatten.flatten_left, hz,\n        M6.Flatten.flatten_right]\n  · intro v\n    constructor\n    · rw [M6.Spaces.boundary_words_iff, M6.Spaces.boundary_words_iff]\n      constructor\n      · rintro ⟨k, hk⟩\n        obtain ⟨h, rfl⟩ := hH k\n        rw [hB h] at hk\n        change M6.Flatten.flatten N (P (M6.Physical.boundary N a b h)) =\n          M6.Flatten.flatten N (P (M6.Flatten.unflatten N v)) at hk\n        have he := hP.1 (hf hk)\n        refine ⟨h, ?_⟩\n        exact (congrArg (M6.Flatten.flatten N) he).trans\n          (M6.Flatten.flatten_right N v)\n      · rintro ⟨h, hh⟩\n        have he : M6.Physical.boundary N a b h = M6.Flatten.unflatten N v := by\n          have he' := congrArg (M6.Flatten.unflatten N) hh\n          simpa only [M6.Flatten.flatten_left] using he'\n        refine ⟨H h, ?_⟩\n        rw [hB h, he]\n        rfl\n    · constructor\n      · simp only [M6.Spaces.cycle_words_iff, M6.RecipeIsometries.lift,\n          M6.Flatten.flatten_left]\n        exact hC (M6.Flatten.unflatten N v)\n      · change M6.Pinned.weight\n          (M6.Flatten.flatten N (P (M6.Flatten.unflatten N v))) =\n          M6.Pinned.weight v\n        rw [M6.Flatten.flatten_weight, hW]\n        calc\n          M6.Physical.wordWeight N (M6.Flatten.unflatten N v) =\n              M6.Pinned.weight (M6.Flatten.flatten N (M6.Flatten.unflatten N v)) :=\n            (M6.Flatten.flatten_weight N (M6.Flatten.unflatten N v)).symm\n          _ = M6.Pinned.weight v := by rw [M6.Flatten.flatten_right]",
+          "imports": [
+            "M6RecipeIsometries"
+          ],
+          "name": "M6.RecipeIsometries.lift_transport",
+          "ancestors": [],
+          "spec_sha256": "9c5f7d5f85a4db294d5bf6959635d848d90752af7ed7254faf0710255563a6f5"
+        },
+        "sha256": "e0d2e8b20eff63d1e239fddcd1a8dcabdeab6b31c1cb5dc5cd125702c071b44d"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+import M6Postprocessing
+
+theorem M6.ActualTransfer.scalar_trace_support : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : ℕ), 2*N < d → (M6.Transfer.scalarTracePolynomial W N).coeff d = 0 := by
+  intro R N W d hd
+  classical
+  unfold M6.Transfer.scalarTracePolynomial
+  rw [Polynomial.finset_sum_coeff]
+  apply Finset.sum_eq_zero
+  intro i hi
+  have hne : (i : ℕ) ≠ d := by
+    have hi_lt := i.isLt
+    omega
+  simp [Polynomial.coeff_monomial, hne]
+#print axioms M6.ActualTransfer.scalar_trace_support

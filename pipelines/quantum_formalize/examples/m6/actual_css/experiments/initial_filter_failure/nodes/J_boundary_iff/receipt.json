@@ -1,0 +1,56 @@
+{
+  "id": "J_boundary_iff",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualCSS.J_boundary_iff",
+    "spec_sha256": "e2619b2004d999afdf07d05ca9ef3c76ac7af8dbb9e6a28c2af2af9fe237ca6a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-kq7ym80q/attempt-001/Candidate_4bd17ee7926831da.lean",
+        "target_path": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-kq7ym80q/attempt-001/FrozenTarget_4bd17ee7926831da.lean",
+        "feedback": "",
+        "target_sha256": "14af4f77ea91d1865ccacaf8dde3db8f17cbb0b6e5269f3f82e61b667888b1aa",
+        "target_olean_sha256": "43f7a2a2abe683c6b7884dc66bea6a0efd7d1c16b7f9f94b98a88c655b8b8454",
+        "source_sha256": "88f5d57b2b7eb95b518f371e5d93d5aeb568e7879ca1c06bac8a7d7a0de0698d",
+        "olean_sha256": "881ea5d379c5322f020ee6eae79bbca92c6fad17fa09c6b3d40d27a6ad4c0ead",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:15:47.142872+00:00",
+    "work": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-kq7ym80q",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "90bd047fe8381377a625417803863e879a04e18e7c57e089cca2653842a8c229",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-css-formalization/.humanize-formal-runs/run-kq7ym80q/attempt-001/Candidate_4bd17ee7926831da.lean",
+    "environment_sha256": "6d8c6db986ed996087eb85669849f1f62077f0ae3a8aa5322cdb255235f9bfc4",
+    "artifacts": {
+      "J_boundary_iff": {
+        "payload": {
+          "declaration": "theorem M6.ActualCSS.J_boundary_iff : ∀ (N : ℕ) [NeZero N] (a b : M6.Physical.Block N), ∀ v : M6.Pinned.Vector (2*N), v ∈ M6.Spaces.boundaryWords N a b ↔ M6.Flatten.J N v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) := by\n  intro N inst a b v\n  classical\n  have hJ (h : M6.Physical.Block N) :\n      M6.Spaces.dualBoundary N a b h =\n        M6.Flatten.J N (M6.Flatten.flatten N (M6.Physical.boundary N a b h)) := by\n    rw [M6.Spaces.dual_boundary_eval]\n    simp only [M6.Flatten.J, M6.Flatten.flatten_left]\n  have hmem :\n      M6.Flatten.J N v ∈ M6.Character.subspaceWords (M6.Spaces.D N a b) ↔\n        ∃ h : M6.Physical.Block N,\n          M6.Spaces.dualBoundary N a b h = M6.Flatten.J N v := by\n    simp [M6.Character.subspaceWords, M6.Spaces.D, LinearMap.mem_range]\n  rw [M6.Spaces.boundary_words_iff, hmem]\n  constructor\n  · rintro ⟨h, hh⟩\n    exact ⟨h, (hJ h).trans (congrArg (M6.Flatten.J N) hh)⟩\n  · rintro ⟨h, hh⟩\n    refine ⟨h, ?_⟩\n    rw [hJ h] at hh\n    have he := congrArg (M6.Flatten.J N) hh\n    simpa only [M6.Flatten.J_involution] using he",
+          "imports": [
+            "M6ActualCSS",
+            "M6ActualCSSDependencies"
+          ],
+          "name": "M6.ActualCSS.J_boundary_iff",
+          "ancestors": [],
+          "spec_sha256": "e2619b2004d999afdf07d05ca9ef3c76ac7af8dbb9e6a28c2af2af9fe237ca6a"
+        },
+        "sha256": "a41aeb4012fbec498c8418cbc6c52016f304482292936497e6508dff8c865081"
+      }
+    }
+  }
+}

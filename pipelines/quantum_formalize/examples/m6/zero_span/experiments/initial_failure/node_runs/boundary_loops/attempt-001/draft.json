@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst i m n\nclassical\nhave hs (t : M6.Transfer.Bit) : M6.Transfer.shift m t = n := Subsingleton.elim _ _\nsimp only [M6.Transfer.edgeMatrix, hs, if_true]\nchange (∑ t : Fin 2, M6.ActualTransfer.boundaryWeight 0 N 1 1 (M6.Pinned.free (2 * N)) i m t) = _\nrw [Fin.sum_univ_two]\nfirst\n| simpa [M6.ActualTransfer.boundaryWeight, M6.ActualTransfer.window,\n    M6.Character.boundaryFactor, M6.Pinned.free, M6.Transfer.output,\n    Fin.sum_univ_succ, pow_two]\n| simpa [M6.ActualTransfer.boundaryWeight, M6.ActualTransfer.window,\n    M6.Character.boundaryFactor, M6.Pinned.free, M6.Transfer.localOutput,\n    Fin.sum_univ_succ, pow_two]",
+  "queries": [
+    "M6.Transfer.output M6.Transfer.localOutput definition",
+    "M6.ActualTransfer.boundaryWeight definition",
+    "M6.Transfer.shift M6.Transfer.edgeMatrix definition"
+  ]
+}

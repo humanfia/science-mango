@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro α β inst L k h w\nlet γ := {b : β // b ∈ M6.ActualCounts.imageWords L}\nlet L' : α → γ := fun a => ⟨L a, by simp [M6.ActualCounts.imageWords]⟩\nhave hu : M6.FiberSum.UniformFibers L' k := by\n  intro b\n  obtain ⟨a₀, ha₀⟩ : ∃ a₀ : α, L a₀ = b.val := by\n    simpa [M6.ActualCounts.imageWords] using b.property\n  have heq : ∀ a : α, L' a = b ↔ L a = L a₀ := by\n    intro a\n    constructor\n    · intro hab\n      have hv := congrArg Subtype.val hab\n      change L a = b.val at hv\n      exact hv.trans ha₀.symm\n    · intro hab\n      apply Subtype.ext\n      change L a = b.val\n      exact hab.trans ha₀\n  simpa [M6.FiberSum.fiber, Nat.card_eq_fintype_card,\n    Fintype.card_subtype, heq] using h a₀\nhave hs : (∑ b : γ, w b.val) = ∑ b ∈ M6.ActualCounts.imageWords L, w b := by\n  apply Finset.sum_bij (fun b _ => b.val)\n  · intro b hb\n    exact b.property\n  · intro b₁ hb₁ b₂ hb₂ he\n    exact Subtype.ext he\n  · intro b hb\n    exact ⟨⟨b, hb⟩, Finset.mem_univ _, rfl⟩\n  · intro b hb\n    rfl\nhave ht := M6.FiberSum.uniform_weighted_sum α γ L' k hu (fun b => w b.val)\nchange (∑ a, w (L a)) = Polynomial.C (k : ℤ) * (∑ b : γ, w b.val) at ht\nrw [hs] at ht\nexact ht",
+  "queries": [
+    "Fintype.card_subtype",
+    "Nat.card_eq_fintype_card",
+    "Finset.sum_bij"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "distance_work_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.distance_work_bound",
+    "spec_sha256": "575e7126ce8b06ff42b0fb76a90db2fc2faedcbe5843a08929817d0c60e99b0d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-query-resources-formalization/.humanize-formal-runs/run-aui6pncf/attempt-001/Candidate_66abc386c0bbac92.lean",
+        "target_path": "/home/jing/m6-lean-query-resources-formalization/.humanize-formal-runs/run-aui6pncf/attempt-001/FrozenTarget_66abc386c0bbac92.lean",
+        "feedback": "",
+        "target_sha256": "3e404fdb5e1cd7dd04e6ea38507f1e3249595a46fe2cc85b7ae5fc8643d7f5df",
+        "target_olean_sha256": "cedc2dab09fff4abcbabd9c7a436158c6c8d52287807717ec7497d0dde0758b9",
+        "source_sha256": "fe7f93ce500fe7c23831509c3ad027e66a1d92802999e13015d49deba03e5a3c",
+        "olean_sha256": "f780eb87740715b719c3b75542fa998799250d127bba843b810207c10b80da84",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:11:41.827678+00:00",
+    "work": "/home/jing/m6-lean-query-resources-formalization/.humanize-formal-runs/run-aui6pncf",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "85827381a6ee14728a62831ef7c2b37ccc4526411209e6cdac3f9dbaf8bb1418",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-query-resources-formalization/.humanize-formal-runs/run-aui6pncf/attempt-001/Candidate_66abc386c0bbac92.lean",
+    "environment_sha256": "0f7eabd3fc2a1194f219f96a69b42216fa04411a57fc62dca21c6eeb68a83291",
+    "artifacts": {
+      "paired_work_bound": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.paired_work_bound : ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryWork R N ≤ 40000*N^3*4^R := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryWork R N ≤ 40000 * N^3 * 4^R\n  intro R N hRN\n  have hN : 1 ≤ N := by omega\n  have hR : R ≤ N := Nat.le_of_lt hRN\n  have h4 : 1 ≤ (4 : ℕ)^R := Nat.one_le_pow _ _ (by omega)\n  have hN2 : N ≤ N^2 := by nlinarith\n  have hN3 : N^2 ≤ N^3 := by nlinarith [Nat.mul_le_mul_left N hN2]\n  have hRN1 : R * N ≤ N^2 := by nlinarith [Nat.mul_le_mul_right N hR]\n  have hRN2 : R * N^2 ≤ N^3 := by nlinarith [Nat.mul_le_mul_right (N^2) hR]\n  have hscale : N^3 ≤ N^3 * 4^R := by simpa using Nat.mul_le_mul_left (N^3) h4\n  have hw := M6.Transfer.actual_trace_work_bound R N hRN\n  have hp : M6.Transfer.postWork R N ≤ 7232 * N^3 * 4^R := by\n    simp [M6.Transfer.postWork, M6.Transfer.PostEvent,\n      M6.Transfer.queryCoefficientBits, M6.Transfer.coefficientBits,\n      M6.Transfer.actualAddressBits, M6.Transfer.addressBits]\n    <;> nlinarith\n  unfold M6.Transfer.pairedQueryWork\n  nlinarith",
+          "imports": [
+            "M6QueryResources"
+          ],
+          "name": "M6.Transfer.paired_work_bound",
+          "ancestors": [],
+          "spec_sha256": "8faa63ec96003a436364b69ba4db996daab6a71c2d95435ee54dd313413d0a79"
+        },
+        "sha256": "d85198f0352957d8e63ccd2500f10bd31897f2c05bc51d0d9f0942ac3983ff33"
+      },
+      "distance_work_bound": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.distance_work_bound : ∀ R N e : ℕ, R < N → e ≤ 180*(N+1)^3 → M6.Transfer.distanceWork R N e ≤ 50000*N^3*4^R := by\n  change ∀ R N e : ℕ, R < N → e ≤ 180 * (N + 1)^3 → M6.Transfer.distanceWork R N e ≤ 50000 * N^3 * 4^R\n  intro R N e hRN he\n  have hN : 1 ≤ N := by omega\n  have hR : R ≤ N := Nat.le_of_lt hRN\n  have h4 : 1 ≤ (4 : ℕ)^R := Nat.one_le_pow _ _ (by omega)\n  have hN2 : N ≤ N^2 := by nlinarith\n  have hN3 : N^2 ≤ N^3 := by nlinarith [Nat.mul_le_mul_left N hN2]\n  have hRN1 : R * N ≤ N^2 := by nlinarith [Nat.mul_le_mul_right N hR]\n  have hRN2 : R * N^2 ≤ N^3 := by nlinarith [Nat.mul_le_mul_right (N^2) hR]\n  have hcube : (N + 1)^3 ≤ 8 * N^3 := by nlinarith\n  have he' : e ≤ 1440 * N^3 := by omega\n  have hscale : N^3 ≤ N^3 * 4^R := by simpa using Nat.mul_le_mul_left (N^3) h4\n  have hp := M6.Transfer.paired_work_bound R N hRN\n  simp [M6.Transfer.distanceWork, M6.Transfer.pinMaintenanceWork,\n    M6.Transfer.PostEvent, M6.Transfer.queryCoefficientBits,\n    M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits,\n    M6.Transfer.addressBits]\n  <;> nlinarith",
+          "imports": [
+            "M6QueryResources"
+          ],
+          "name": "M6.Transfer.distance_work_bound",
+          "ancestors": [
+            "paired_work_bound"
+          ],
+          "spec_sha256": "cd082ab503c6a5c3d1e1a8598ab19d47abe1cb7a3e35fa05ff99fe5e114365ae"
+        },
+        "sha256": "9082d6589de3de1941bf9cf05b976abf350a4048ab18740d016824555b2b846c"
+      }
+    }
+  }
+}

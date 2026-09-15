@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst a b ha hb w\nhave himage :\n    M6.ActualCounts.imageWords\n      (fun h : M6.Physical.Block N => M6.Spaces.dualBoundary N\n        (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h) =\n    M6.Character.subspaceWords (M6.Spaces.D N\n      (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) := by\n  ext v\n  simp [M6.ActualCounts.imageWords, M6.Character.subspaceWords,\n    M6.Spaces.D, LinearMap.mem_range]\nhave hs := M6.ActualCounts.finite_image_weighted_sum\n  (M6.Physical.Block N) (M6.Pinned.Vector (2*N))\n  (fun h => M6.Spaces.dualBoundary N\n    (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) h)\n  (2 ^ M6.ActualCounts.f N a b)\n  (M6.ActualCounts.dual_boundary_fiber_card N a b ha hb) w\nrw [himage] at hs\nsimpa only [Nat.cast_pow, Nat.cast_ofNat] using hs",
+  "queries": []
+}

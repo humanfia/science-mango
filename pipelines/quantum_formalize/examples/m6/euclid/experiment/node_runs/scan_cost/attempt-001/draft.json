@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ width : ℕ, M6.Euclid.scanCost width = width * (6 * width + 4) ∧ (0 < width → M6.Euclid.scanCost width ≤ 10 * width ^ 2)\nintro width\nhave hloop (l : List ℕ) (a : ℕ) :\n    l.foldl (fun acc _ => acc + (6 * width + 4)) a =\n      a + l.length * (6 * width + 4) := by\n  induction l generalizing a with\n  | nil => simp\n  | cons i l ih =>\n      simp only [List.foldl_cons, List.length_cons]\n      rw [ih]\n      ring\nhave hcost : M6.Euclid.scanCost width = width * (6 * width + 4) := by\n  simpa [M6.Euclid.scanCost, Nat.add_assoc] using hloop (List.range width) 0\nrefine ⟨hcost, ?_⟩\nintro hw\nrw [hcost]\nhave hw1 : 1 ≤ width := hw\nhave hsq := Nat.mul_le_mul_left width hw1\nnlinarith",
+  "queries": [
+    "List.foldl_cons List.length_range",
+    "M6.Euclid.scanCost definition"
+  ]
+}

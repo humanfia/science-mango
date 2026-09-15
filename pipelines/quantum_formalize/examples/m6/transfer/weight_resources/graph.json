@@ -1,0 +1,64 @@
+{
+  "title": "M6 actual boundary and character indexed-array resource instances",
+  "source": "research/quantum_m6/research_checkpoints/m6_original_gate_closed_20260915/PROOF.md",
+  "nodes": [
+    {
+      "id": "indexed_array_import",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "status": "pending_actual_accepted_closure"
+      }
+    },
+    {
+      "id": "boundary_indexed_resources",
+      "dependencies": [
+        "indexed_array_import"
+      ],
+      "spec": {
+        "name": "M6.ActualTransfer.boundary_indexed_resources",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (P : M6.Pinned.Pins (2*N)), M6.ActualTransfer.span a b < N → M6.Transfer.IndexedArrayGuarantee (M6.ActualTransfer.span a b) N (M6.ActualTransfer.boundaryWeight (M6.ActualTransfer.span a b) N a b P)",
+        "imports": [
+          "M6WeightResources"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial degree multiplication bound",
+          "finite transfer matrix"
+        ],
+        "guidance": "Apply the accepted indexed_array_correct_resources. Discharge the actual weight mass and degree assumptions by unfolding the fixed boundaryWeight and using boundary_edge_bounds. No root physical-enumerator correctness theorem is needed for this exact indexed resource instance. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "supports_obligation": "M6_ACTUAL_INDEXED_RESOURCES"
+      }
+    },
+    {
+      "id": "character_indexed_resources",
+      "dependencies": [
+        "indexed_array_import"
+      ],
+      "spec": {
+        "name": "M6.ActualTransfer.character_indexed_resources",
+        "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP) (P : M6.Pinned.Pins (2*N)), M6.ActualTransfer.span a b < N → M6.Transfer.IndexedArrayGuarantee (M6.ActualTransfer.span a b) N (M6.ActualTransfer.characterWeight (M6.ActualTransfer.span a b) N a b P)",
+        "imports": [
+          "M6WeightResources"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial degree multiplication bound",
+          "finite transfer matrix"
+        ],
+        "guidance": "Apply the accepted indexed_array_correct_resources. Discharge the actual weight mass and degree assumptions by unfolding the fixed characterWeight and using character_edge_bounds. No root physical-enumerator correctness theorem is needed for this exact indexed resource instance. Return tactic lines without leading by."
+      },
+      "metadata": {
+        "fallback_queries": [
+          "addition commutativity"
+        ],
+        "supports_obligation": "M6_ACTUAL_INDEXED_RESOURCES"
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+import FrozenTarget_8a69c5bc7b3044fc
+theorem M6.Euclid.scan_cost : QuantumHarnessFrozenTarget := by
+  change ∀ width : ℕ, M6.Euclid.scanCost width = width * (6 * width + 4) ∧ (0 < width → M6.Euclid.scanCost width ≤ 10 * width ^ 2)
+  intro width
+  have hloop (l : List ℕ) (a : ℕ) :
+      l.foldl (fun acc _ => acc + (6 * width + 4)) a =
+        a + l.length * (6 * width + 4) := by
+    induction l generalizing a with
+    | nil => simp
+    | cons i l ih =>
+        simp only [List.foldl_cons, List.length_cons]
+        rw [ih]
+        ring
+  have hcost : M6.Euclid.scanCost width = width * (6 * width + 4) := by
+    simpa [M6.Euclid.scanCost, Nat.add_assoc] using hloop (List.range width) 0
+  refine ⟨hcost, ?_⟩
+  intro hw
+  rw [hcost]
+  have hw1 : 1 ≤ width := hw
+  have hsq := Nat.mul_le_mul_left width hw1
+  nlinarith

@@ -1,0 +1,435 @@
+[
+  {
+    "queries": [
+      "EuclideanDomain gcd Bezout divisibility"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "EuclideanDomain gcd Bezout divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64722,
+            "name": "EuclideanDomain.gcd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+            "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+            "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+          },
+          {
+            "id": 317921,
+            "name": "IsBezout.gcd",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L179-L182",
+            "source_text": "/-- A choice of gcd of two elements in a Bézout domain.\n\nNote that the choice is usually not unique. -/\nnoncomputable def gcd : R := Submodule.IsPrincipal.generator (Ideal.span {x, y})\n",
+            "docstring": "A choice of gcd of two elements in a Bézout domain.\n\nNote that the choice is usually not unique. "
+          },
+          {
+            "id": 317929,
+            "name": "IsBezout.toGCDDomain",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L218-L222",
+            "source_text": "/-- Any Bézout domain is a GCD domain. This is not an instance since `GCDMonoid` contains data,\nand this might not be how we would like to construct it. -/\n@[implicit_reducible]\nnoncomputable def toGCDDomain [IsBezout R] [IsCancelMulZero R] [DecidableEq R] : GCDMonoid R :=\n  gcdMonoidOfGCD (gcd · ·) (gcd_dvd_left · ·) (gcd_dvd_right · ·) dvd_gcd\n",
+            "docstring": "Any Bézout domain is a GCD domain. This is not an instance since `GCDMonoid` contains data,\nand this might not be how we would like to construct it. "
+          },
+          {
+            "id": 317923,
+            "name": "IsBezout.gcd_dvd_left",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L191-L192",
+            "source_text": "theorem gcd_dvd_left : gcd x y ∣ x :=\n  (Submodule.IsPrincipal.mem_iff_generator_dvd _).mp (Ideal.subset_span (by simp))\n",
+            "docstring": null
+          },
+          {
+            "id": 306779,
+            "name": "EuclideanDomain.span_gcd",
+            "module": "Mathlib.RingTheory.EuclideanDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/EuclideanDomain.lean#L85-L88",
+            "source_text": "theorem span_gcd [DecidableEq α] (x y : α) :\n    span ({gcd x y} : Set α) = span ({x, y} : Set α) :=\n  letI := EuclideanDomain.gcdMonoid α\n  _root_.span_gcd x y\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "EuclideanDomain gcd Bezout divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393002,
+            "name": "EuclideanGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L22-L30",
+            "source_text": "/-- An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n-/\n@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n",
+            "docstring": "An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n"
+          },
+          {
+            "id": 393005,
+            "name": "EuclideanGroup.instGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L34-L61",
+            "source_text": "/-- Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by\nthe inherited matrix-vector action on `EuclideanSpace ℝ (Fin n)`, transported through `WithLp`\nfrom the coordinate action `Q.val *ᵥ v.ofLp`. -/\nnoncomputable instance : Group (EuclideanGroup n) where\n  mul A B := ⟨A.translation + A.linear • B.translation, A.linear * B.linear⟩\n  mul_assoc A B C := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.translation + A.linear • B.translation + (A.linear * B.linear) • C.translation\n        = A.translation + A.linear • (B.translation + B.linear • C.translation)\n      rw [mul_smul, smul_add, add_assoc]\n    · exact mul_assoc A.linear B.linear C.linear\n  one := ⟨0, 1⟩\n  one_mul A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show 0 + (1 : Matrix.orthogonalGroup (Fin n) ℝ) • A.translation = A.translation\n      rw [zero_add, one_smul]\n    · exact one_mul A.linear\n  mul_one A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.translation + A.linear • 0 = A.translation\n      rw [smul_zero, add_zero]\n    · exact mul_one A.linear\n  inv A := ⟨A.linear⁻¹ • (-A.translation), A.linear⁻¹⟩\n  inv_mul_cancel A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.linear⁻¹ • (-A.translation) + A.linear⁻¹ • A.translation = 0\n      rw [← smul_add, neg_add_cancel, smul_zero]\n    · exact inv_mul_cancel A.linear\n",
+            "docstring": "Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by\nthe inherited matrix-vector action on `EuclideanSpace ℝ (Fin n)`, transported through `WithLp`\nfrom the coordinate action `Q.val *ᵥ v.ofLp`. "
+          },
+          {
+            "id": 393012,
+            "name": "EuclideanGroup.TranslationGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L107-L118",
+            "source_text": "/-- Translation is the subgroup with Q = 1. -/\ndef TranslationGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val = 1\n    rw [Submonoid.coe_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val = 1\n    rw [OneMemClass.coe_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val = 1\n    rw [coe_inv, ha, inv_one]\n",
+            "docstring": "Translation is the subgroup with Q = 1. "
+          },
+          {
+            "id": 393003,
+            "name": "EuclideanGroup.ext",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L25-L25",
+            "source_text": "@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n\nnamespace EuclideanGroup\n\n/-- Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by",
+            "docstring": null
+          },
+          {
+            "id": 393010,
+            "name": "EuclideanGroup.SpecialEuclideanGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L90-L101",
+            "source_text": "/-- Special Euclidean Group is the subgroup with det(Q) = 1 where Q ∈ O(n) -/\ndef SpecialEuclideanGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val.det = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val.det = 1\n    rw [Submonoid.coe_mul, Matrix.det_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val.det = 1\n    rw [OneMemClass.coe_one, Matrix.det_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val.det = 1\n    rw [det_coe_inv, ha, inv_one]\n",
+            "docstring": "Special Euclidean Group is the subgroup with det(Q) = 1 where Q ∈ O(n) "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "binary_normalization",
+    "receipts_sha256": "eca46a84a4a556c730fd27d3bc6176a609a3d6085c9beef1637e55fffdd4dbb9"
+  },
+  {
+    "queries": [
+      "Polynomial.coeff_eq_zero_of_natDegree_lt",
+      "Polynomial.coeff_natDegree_ne_zero",
+      "List.foldl_append List.range_succ"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial.coeff_eq_zero_of_natDegree_lt",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101603,
+            "name": "Polynomial.coeff_eq_zero_of_natDegree_lt",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L85-L91",
+            "source_text": "theorem coeff_eq_zero_of_natDegree_lt {p : R[X]} {n : ℕ} (h : p.natDegree < n) :\n    p.coeff n = 0 := by\n  apply coeff_eq_zero_of_degree_lt\n  by_cases hp : p = 0\n  · subst hp\n    exact WithBot.bot_lt_coe n\n  · rwa [degree_eq_natDegree hp, Nat.cast_lt]\n",
+            "docstring": null
+          },
+          {
+            "id": 101610,
+            "name": "Polynomial.coeff_natDegree_eq_zero_of_degree_lt",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L135-L137",
+            "source_text": "theorem coeff_natDegree_eq_zero_of_degree_lt (h : degree p < degree q) :\n    coeff p (natDegree q) = 0 :=\n  coeff_eq_zero_of_degree_lt (lt_of_lt_of_le h degree_le_natDegree)\n",
+            "docstring": null
+          },
+          {
+            "id": 101466,
+            "name": "Polynomial.degree_le_iff_coeff_zero",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L492-L495",
+            "source_text": "theorem degree_le_iff_coeff_zero (f : R[X]) (n : WithBot ℕ) :\n    degree f ≤ n ↔ ∀ m : ℕ, n < m → coeff f m = 0 := by\n  simp only [degree, Finset.max, Finset.sup_le_iff, mem_support_iff, Ne, ← not_le,\n    not_imp_comm, Nat.cast_withBot]\n",
+            "docstring": null
+          },
+          {
+            "id": 101360,
+            "name": "Polynomial.natDegree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+            "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+            "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+          },
+          {
+            "id": 101529,
+            "name": "Polynomial.eq_natDegree_of_le_mem_support",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L101-L103",
+            "source_text": "theorem eq_natDegree_of_le_mem_support (pn : p.natDegree ≤ n) (ns : n ∈ p.support) :\n    p.natDegree = n :=\n  le_antisymm pn (le_natDegree_of_mem_supp _ ns)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.coeff_eq_zero_of_natDegree_lt",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389914,
+            "name": "PureU1.VectorLikeEvenPlane.P_zero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L371-L372",
+            "source_text": "lemma P_zero (f : Fin n.succ → ℚ) (h : P f = 0) : ∀ i, f i = 0 := by\n  exact fun i => (P_evenFst f i).symm.trans (congr_fun h (evenFst i))\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial.coeff_natDegree_ne_zero",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101792,
+            "name": "Polynomial.coeff_natTrailingDegree_ne_zero",
+            "module": "Mathlib.Algebra.Polynomial.Degree.TrailingDegree",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/TrailingDegree.lean#L134-L135",
+            "source_text": "lemma coeff_natTrailingDegree_ne_zero : coeff p p.natTrailingDegree ≠ 0 ↔ p ≠ 0 :=\n  coeff_natTrailingDegree_eq_zero.not\n",
+            "docstring": null
+          },
+          {
+            "id": 101599,
+            "name": "Polynomial.natDegree_eq_of_le_of_coeff_ne_zero",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L69-L71",
+            "source_text": "theorem natDegree_eq_of_le_of_coeff_ne_zero (pn : p.natDegree ≤ n) (p1 : p.coeff n ≠ 0) :\n    p.natDegree = n :=\n  pn.antisymm (le_natDegree_of_ne_zero p1)\n",
+            "docstring": null
+          },
+          {
+            "id": 101369,
+            "name": "Polynomial.coeff_natDegree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L84-L86",
+            "source_text": "@[simp]\ntheorem coeff_natDegree : coeff p (natDegree p) = leadingCoeff p :=\n  rfl",
+            "docstring": null
+          },
+          {
+            "id": 101769,
+            "name": "Polynomial.natDegree_mem_support_of_nonzero",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L124-L126",
+            "source_text": "theorem natDegree_mem_support_of_nonzero (H : p ≠ 0) : p.natDegree ∈ p.support := by\n  rw [mem_support_iff]\n  exact (not_congr leadingCoeff_eq_zero).mpr H\n",
+            "docstring": null
+          },
+          {
+            "id": 101360,
+            "name": "Polynomial.natDegree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+            "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+            "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.coeff_natDegree_ne_zero",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389914,
+            "name": "PureU1.VectorLikeEvenPlane.P_zero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L371-L372",
+            "source_text": "lemma P_zero (f : Fin n.succ → ℚ) (h : P f = 0) : ∀ i, f i = 0 := by\n  exact fun i => (P_evenFst f i).symm.trans (congr_fun h (evenFst i))\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List.foldl_append List.range_succ",
+        "status": "ok",
+        "results": [
+          {
+            "id": 207529,
+            "name": "List.foldl_concat",
+            "module": "Mathlib.Data.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L796-L799",
+            "source_text": "theorem foldl_concat\n    (f : β → α → β) (b : β) (x : α) (xs : List α) :\n    List.foldl f b (xs ++ [x]) = f (List.foldl f b xs) x := by\n  simp only [List.foldl_append, List.foldl]\n",
+            "docstring": null
+          },
+          {
+            "id": 328408,
+            "name": "Mathlib.Meta.List.range_succ_eq_map'",
+            "module": "Mathlib.Tactic.NormNum.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/BigOperators.lean#L104-L106",
+            "source_text": "lemma List.range_succ_eq_map' {n nn n' : ℕ} (pn : NormNum.IsNat n nn) (pn' : nn = Nat.succ n') :\n    List.range n = 0 :: List.map Nat.succ (List.range n') := by\n  rw [pn.out, Nat.cast_id, pn', List.range_succ_eq_map]\n",
+            "docstring": null
+          },
+          {
+            "id": 58643,
+            "name": "List.sum_range_succ'",
+            "module": "Mathlib.Algebra.BigOperators.Group.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/List/Basic.lean#L154-L155",
+            "source_text": "@[to_additive /-- A variant of `sum_range_succ` which pulls off the first term in the sum rather\nthan the last. -/]\nlemma prod_range_succ' (f : ℕ → M) (n : ℕ) :\n    ((range n.succ).map f).prod = f 0 * ((range n).map fun i ↦ f i.succ).prod := by",
+            "docstring": "A variant of `sum_range_succ` which pulls off the first term in the sum rather\nthan the last. "
+          },
+          {
+            "id": 208305,
+            "name": "List.foldl_range_subset_of_range_subset",
+            "module": "Mathlib.Data.List.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Lemmas.lean#L56-L63",
+            "source_text": "theorem foldl_range_subset_of_range_subset {f : α → β → α} {g : α → γ → α}\n    (hfg : (Set.range fun a c => f c a) ⊆ Set.range fun b c => g c b) (a : α) :\n    Set.range (foldl f a) ⊆ Set.range (foldl g a) := by\n  change (Set.range fun l => _) ⊆ Set.range fun l => _\n  -- Porting note: have to write `(foldr_reverse)` instead of `foldr_reverse`.\n  simp_rw [← (foldr_reverse), Set.range_comp' _ reverse,\n    reverse_involutive.bijective.surjective.range_eq, Set.image_univ]\n  exact foldr_range_subset_of_range_subset hfg a\n",
+            "docstring": null
+          },
+          {
+            "id": 208307,
+            "name": "List.foldl_range_eq_of_range_eq",
+            "module": "Mathlib.Data.List.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Lemmas.lean#L70-L74",
+            "source_text": "theorem foldl_range_eq_of_range_eq {f : α → β → α} {g : α → γ → α}\n    (hfg : (Set.range fun a c => f c a) = Set.range fun b c => g c b) (a : α) :\n    Set.range (foldl f a) = Set.range (foldl g a) :=\n  (foldl_range_subset_of_range_subset hfg.le a).antisymm\n    (foldl_range_subset_of_range_subset hfg.ge a)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List.foldl_append List.range_succ",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "polynomial divisibility multiplication cancellation"
+    ],
+    "fallback_for": [
+      "Polynomial.coeff_eq_zero_of_natDegree_lt",
+      "Polynomial.coeff_natDegree_ne_zero",
+      "List.foldl_append List.range_succ"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial divisibility multiplication cancellation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 86307,
+            "name": "LieModule.weight_vector_multiplication",
+            "module": "Mathlib.Algebra.Lie.Weights.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Lie/Weights/Basic.lean#L75-L141",
+            "source_text": "/-- See also `bourbaki1975b` Chapter VII §1.1, Proposition 2 (ii). -/\nprotected theorem weight_vector_multiplication (M₁ M₂ M₃ : Type*)\n    [AddCommGroup M₁] [Module R M₁] [LieRingModule L M₁] [LieModule R L M₁] [AddCommGroup M₂]\n    [Module R M₂] [LieRingModule L M₂] [LieModule R L M₂] [AddCommGroup M₃] [Module R M₃]\n    [LieRingModule L M₃] [LieModule R L M₃] (g : M₁ ⊗[R] M₂ →ₗ⁅R,L⁆ M₃) (χ₁ χ₂ : R) (x : L) :\n    LinearMap.range ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (mapIncl 𝕎(M₁, χ₁, x) 𝕎(M₂, χ₂, x))) ≤\n      𝕎(M₃, χ₁ + χ₂, x) := by\n  -- Unpack the statement of the goal.\n  intro m₃\n  simp only [TensorProduct.mapIncl, LinearMap.mem_range, LinearMap.coe_comp,\n    LieModuleHom.coe_toLinearMap, Function.comp_apply, exists_imp, Module.End.mem_maxGenEigenspace]\n  rintro t rfl\n  -- Set up some notation.\n  let F : Module.End R M₃ := toEnd R L M₃ x - (χ₁ + χ₂) • ↑1\n  -- The goal is linear in `t` so use induction to reduce to the case that `t` is a pure tensor.\n  refine t.induction_on ?_ ?_ ?_\n  · use 0; simp only [map_zero]\n  swap\n  · rintro t₁ t₂ ⟨k₁, hk₁⟩ ⟨k₂, hk₂⟩; use max k₁ k₂\n    simp only [map_add, Module.End.pow_map_zero_of_le (le_max_left k₁ k₂) hk₁,\n      Module.End.pow_map_zero_of_le (le_max_right k₁ k₂) hk₂, add_zero]\n  -- Now the main argument: pure tensors.\n  rintro ⟨m₁, hm₁⟩ ⟨m₂, hm₂⟩\n  change ∃ k, (F ^ k) ((g : M₁ ⊗[R] M₂ →ₗ[R] M₃) (m₁ ⊗ₜ m₂)) = (0 : M₃)\n  -- Eliminate `g` from the picture.\n  let f₁ : Module.End R (M₁ ⊗[R] M₂) := (toEnd R L M₁ x - χ₁ • ↑1).rTensor M₂\n  let f₂ : Module.End R (M₁ ⊗[R] M₂) := (toEnd R L M₂ x - χ₂ • ↑1).lTensor M₁\n  have h_comm_square : F ∘ₗ ↑g = (g : M₁ ⊗[R] M₂ →ₗ[R] M₃).comp (f₁ + f₂) := by\n    ext m₁ m₂\n    simp only [f₁, f₂, F, ← g.map_lie x (m₁ ⊗ₜ m₂), add_smul, sub_tmul, tmul_sub, smul_tmul,\n      lie_tmul_right, tmul_smul, toEnd_apply_apply, map_smul, Module.End.one_apply,\n      LieModuleHom.coe_toLinearMap, LinearMap.smul_apply, Function.comp_apply, LinearMap.coe_comp,\n      LinearMap.rTensor_tmul, map_add, LinearMap.add_apply, map_sub, LinearMap.sub_apply,\n      LinearMap.lTensor_tmul, AlgebraTensorModule.curry_apply, TensorProduct.curry_apply,\n      LinearMap.coe_restrictScalars]\n    abel\n  rsuffices ⟨k, hk⟩ : ∃ k : ℕ, ((f₁ + f₂) ^ k) (m₁ ⊗ₜ m₂) = 0\n  · use k\n    rw [← LinearMap.comp_apply, Module.End.commute_pow_left_of_commute h_comm_square,\n      LinearMap.comp_apply, hk, map_zero]\n  -- Unpack the information we have about `m₁`, `m₂`.\n  simp only [Module.End.mem_maxGenEigenspace] at hm₁ hm₂\n  obtain ⟨k₁, hk₁⟩ := hm₁\n  obtain ⟨k₂, hk₂⟩ := hm₂\n  have hf₁ : (f₁ ^ k₁) (m₁ ⊗ₜ m₂) = 0 := by\n    simp only [f₁, hk₁, zero_tmul, LinearMap.rTensor_tmul, LinearMap.rTensor_pow]\n  have hf₂ : (f₂ ^ k₂) (m₁ ⊗ₜ m₂) = 0 := by\n    simp only [f₂, hk₂, tmul_zero, LinearMap.lTensor_tmul, LinearMap.lTensor_pow]\n  -- It's now just an application of the binomial theorem.\n  use k₁ + k₂ - 1\n  have hf_comm : Commute f₁ f₂ := by\n    ext m₁ m₂\n    simp only [f₁, f₂, Module.End.mul_apply, LinearMap.rTensor_tmul, LinearMap.lTensor_tmul,\n      AlgebraTensorModule.curry_apply, LinearMap.lTensor_tmul, TensorProduct.curry_apply,\n      LinearMap.coe_restrictScalars]\n  rw [hf_comm.add_pow']\n  simp only [Finset.sum_apply, LinearMap.coe_sum, LinearMap.smul_apply]\n  -- The required sum is zero because each individual term is zero.\n  apply Finset.sum_eq_zero\n  rintro ⟨i, j⟩ hij\n  -- Eliminate the binomial coefficients from the picture.\n  suffices (f₁ ^ i * f₂ ^ j) (m₁ ⊗ₜ m₂) = 0 by rw [this]; apply smul_zero\n  -- Finish off with appropriate case analysis.\n  rcases Nat.le_or_le_of_add_eq_add_pred (Finset.mem_antidiagonal.mp hij) with hi | hj\n  · rw [(hf_comm.pow_pow i j).eq, Module.End.mul_apply, Module.End.pow_map_zero_of_le hi hf₁,\n      map_zero]\n  · rw [Module.End.mul_apply, Module.End.pow_map_zero_of_le hj hf₂, map_zero]\n",
+            "docstring": "See also `bourbaki1975b` Chapter VII §1.1, Proposition 2 (ii). "
+          },
+          {
+            "id": 100884,
+            "name": "Polynomial",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L68-L76",
+            "source_text": "/-- `Polynomial R` is the type of univariate polynomials over `R`,\ndenoted as `R[X]` within the `Polynomial` namespace.\n\nPolynomials should be seen as (semi-)rings with the additional constructor `X`.\nThe embedding from `R` is called `C`. -/\n@[wikidata Q43260]\nstructure Polynomial (R : Type*) [Semiring R] where ofFinsupp ::\n  /-- The coefficients `ℕ →₀ R` of a polynomial in `R[X]`. -/\n  toFinsupp : AddMonoidAlgebra R ℕ\n",
+            "docstring": "`Polynomial R` is the type of univariate polynomials over `R`,\ndenoted as `R[X]` within the `Polynomial` namespace.\n\nPolynomials should be seen as (semi-)rings with the additional constructor `X`.\nThe embedding from `R` is called `C`. "
+          },
+          {
+            "id": 90788,
+            "name": "MvPolynomial.dvd_monomial_mul_iff_exists",
+            "module": "Mathlib.Algebra.MvPolynomial.Division",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Division.lean#L336-L377",
+            "source_text": "theorem dvd_monomial_mul_iff_exists [IsCancelMulZero R] {n : σ →₀ ℕ} :\n    p ∣ monomial n 1 * q ↔ ∃ m r, m ≤ n ∧ r ∣ q ∧ p = monomial m 1 * r := by\n  rcases subsingleton_or_nontrivial R with hR | hR\n  · simp only [Subsingleton.elim _ p, dvd_refl, and_self, and_true, exists_const, true_iff]\n    refine ⟨n, le_refl n⟩\n  suffices ∀ (d) (n : σ →₀ ℕ) (hd : n.degree = d) (p q : MvPolynomial σ R),\n    p ∣ monomial n 1 * q ↔ ∃ m r, m ≤ n ∧ r ∣ q ∧ p = monomial m 1 * r from this n.degree n rfl p q\n  classical\n  intro d\n  induction d with\n  | zero =>\n    intro n hn p\n    rw [Finsupp.degree_eq_zero_iff] at hn\n    simp only [hn, monomial_zero', C_1, one_mul, nonpos_iff_eq_zero, exists_and_left,\n      exists_eq_left, exists_eq_right', implies_true]\n  | succ d hd =>\n    intro n hn p q\n    refine ⟨fun hp ↦ ?_, fun ⟨m, r, hmn, hrq, hp⟩ ↦ ?_⟩\n    · obtain ⟨i, hi⟩ : n.support.Nonempty := by\n        rw [Finsupp.support_nonempty_iff]\n        intro hn'\n        simp [hn'] at hn\n      let n' := n - Finsupp.single i 1\n      have hn' : n' + Finsupp.single i 1 = n := by\n        apply Finsupp.sub_add_single_one_cancel\n        rwa [← Finsupp.mem_support_iff]\n      have hnn' : n' ≤ n := by simp [← hn']\n      have hd' : n'.degree = d := by\n        rw [← add_left_inj, ← hn, ← hn']\n        simp\n      rw [← hn', monomial_add_single, pow_one, mul_comm _ (X i), mul_assoc, dvd_X_mul_iff] at hp\n      rcases hp with hp | hp\n      · obtain ⟨m, r, hm, hr, hp⟩ := (hd n' hd' p q).mp hp\n        exact ⟨m, r, le_trans hm hnn', hr, hp⟩\n      · obtain ⟨p', rfl⟩ := hp.1\n        obtain ⟨m, r, hm, hr, hp⟩ := (hd n' hd' _ _).mp hp.2\n        use m + Finsupp.single i 1, r, ?_, hr\n        · simp [monomial_add_single, pow_one, mul_comm _ (X i), mul_assoc, ← hp]\n        · simpa [← hn'] using hm\n    · rw [hp, ← add_tsub_cancel_of_le hmn, ← mul_one 1, ← monomial_mul, mul_one, mul_assoc]\n      apply mul_dvd_mul dvd_rfl\n      apply dvd_mul_of_dvd_right hrq\n",
+            "docstring": null
+          },
+          {
+            "id": 90787,
+            "name": "MvPolynomial.dvd_X_mul_iff",
+            "module": "Mathlib.Algebra.MvPolynomial.Division",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Division.lean#L312-L334",
+            "source_text": "theorem dvd_X_mul_iff [IsCancelMulZero R] :\n    p ∣ X i * q ↔ p ∣ q ∨ (X i ∣ p ∧ p.divMonomial (Finsupp.single i 1) ∣ q) := by\n  constructor\n  · rintro ⟨r, hp⟩\n    have : X i ∣ p ∨ X i ∣ r := by simp [← X_dvd_mul_iff, ← hp]\n    apply this.symm.imp\n    · rintro ⟨r, rfl⟩\n      obtain rfl : q = p * r := by rw [← X_mul_cancel_left_iff (i := i), hp, mul_left_comm]\n      exact dvd_mul_right p r\n    · intro hip\n      refine ⟨hip, ?_⟩\n      rw [X_dvd_iff_modMonomial_eq_zero] at hip\n      rw [← p.modMonomial_add_divMonomial_single i, hip,\n        zero_add, mul_assoc, X_mul_cancel_left_iff] at hp\n      use r\n  · rintro (hp | ⟨hi, hq⟩)\n    · exact dvd_mul_of_dvd_right hp (X i)\n    · suffices p = X i * p.divMonomial (Finsupp.single i 1) by\n        rw [this]\n        exact mul_dvd_mul_left (X i) hq\n      conv_lhs => rw [← p.modMonomial_add_divMonomial (Finsupp.single i 1)]\n      simpa only [← C_mul_X_eq_monomial, C_1, one_mul, add_eq_right,\n        ← X_dvd_iff_modMonomial_eq_zero]\n",
+            "docstring": null
+          },
+          {
+            "id": 101267,
+            "name": "Polynomial.dvd_cancelLeads_of_dvd_of_dvd",
+            "module": "Mathlib.Algebra.Polynomial.CancelLeads",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/CancelLeads.lean#L78-L79",
+            "source_text": "theorem dvd_cancelLeads_of_dvd_of_dvd {r : R[X]} (pq : p ∣ q) (pr : p ∣ r) : p ∣ q.cancelLeads r :=\n  dvd_sub (pr.trans (Dvd.intro_left _ rfl)) (pq.trans (Dvd.intro_left _ rfl))\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "polynomial divisibility multiplication cancellation",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394092,
+            "name": "FTheory.SU5.Quanta.instDecidableQuarticAnomalyCancellationOfDecidableEq",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L284-L286",
+            "source_text": "instance [CommRing 𝓩] [DecidableEq 𝓩] (Q : Quanta 𝓩) : Decidable Q.QuarticAnomalyCancellation :=\n    inferInstanceAs (Decidable ((HdAnomalyCoefficient Q.qHd).2 +\n    (HuAnomalyCoefficient Q.qHu).2 + Q.F.anomalyCoefficient.2 + Q.T.anomalyCoefficient.2 = 0))\n",
+            "docstring": null
+          },
+          {
+            "id": 394091,
+            "name": "FTheory.SU5.Quanta.instDecidableLinearAnomalyCancellationOfDecidableEq",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L280-L282",
+            "source_text": "instance [CommRing 𝓩] [DecidableEq 𝓩] (Q : Quanta 𝓩) : Decidable Q.LinearAnomalyCancellation :=\n    inferInstanceAs (Decidable ((HdAnomalyCoefficient Q.qHd).1 +\n    (HuAnomalyCoefficient Q.qHu).1 + Q.F.anomalyCoefficient.1 + Q.T.anomalyCoefficient.1 = 0))\n",
+            "docstring": null
+          },
+          {
+            "id": 394089,
+            "name": "FTheory.SU5.Quanta.LinearAnomalyCancellation",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L258-L263",
+            "source_text": "/-- The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. -/\ndef LinearAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) : Prop :=\n  (HdAnomalyCoefficient Q.qHd).1 + (HuAnomalyCoefficient Q.qHu).1 + Q.F.anomalyCoefficient.1 +\n  Q.T.anomalyCoefficient.1 = 0\n",
+            "docstring": "The linear anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ Nᵢ + ∑ₐ qₐ Nₐ = 0` where the first sum is over all 5-bar representations and the second\n  is over all 10d representations. "
+          },
+          {
+            "id": 394090,
+            "name": "FTheory.SU5.Quanta.QuarticAnomalyCancellation",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L265-L272",
+            "source_text": "/-- The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n-/\ndef QuarticAnomalyCancellation [CommRing 𝓩] (Q : Quanta 𝓩) :\n    Prop :=\n  (HdAnomalyCoefficient Q.qHd).2 + (HuAnomalyCoefficient Q.qHu).2 + Q.F.anomalyCoefficient.2 +\n    Q.T.anomalyCoefficient.2 = 0\n",
+            "docstring": "The quartic anomaly cancellation condition, corresponding to\n`∑ᵢ qᵢ² Nᵢ + 3 * ∑ₐ qₐ² Nₐ = 0` where the first sum is over all 5-bar representations and the\n  second is over all 10d representations.\n"
+          },
+          {
+            "id": 394148,
+            "name": "FTheory.SU5.Quanta.quarticAnomalyCancellation_iff_mem_of_isViable",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.IsViable",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/IsViable.lean#L287-L297",
+            "source_text": "lemma quarticAnomalyCancellation_iff_mem_of_isViable (x : Quanta) (h : IsViable x) :\n    x.QuarticAnomalyCancellation ↔ x ∈\n    ({⟨some 2, some (-2), {(-1, ⟨1, 2⟩), (1, ⟨2, -2⟩)}, {(-1, ⟨3, 0⟩)}⟩,\n    ⟨some 2, some (-2), {(-1, ⟨0, 2⟩), (1, ⟨3, -2⟩)}, {(-1, ⟨3, 0⟩)}⟩,\n    ⟨some (-2), some 2, {(-1, ⟨2, -2⟩), (1, ⟨1, 2⟩)}, {(1, ⟨3, 0⟩)}⟩,\n    ⟨some (-2), some 2, {(-1, ⟨3, -2⟩), (1, ⟨0, 2⟩)}, {(1, ⟨3, 0⟩)}⟩,\n    ⟨some 6, some (-14), {(-9, ⟨1, 2⟩), (1, ⟨2, -2⟩)}, {(-7, ⟨3, 0⟩)}⟩,\n    ⟨some 6, some (-14), {(-9, ⟨0, 2⟩), (1, ⟨3, -2⟩)}, {(-7, ⟨3, 0⟩)}⟩} : Finset Quanta) := by\n  rw [isViable_iff_mem_viableElems] at h\n  revert x\n  decide\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

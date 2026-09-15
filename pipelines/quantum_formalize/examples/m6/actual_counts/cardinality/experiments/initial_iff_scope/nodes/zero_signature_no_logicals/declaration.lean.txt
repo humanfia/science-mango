@@ -1,0 +1,6 @@
+theorem M6.ActualCounts.zero_signature_no_logicals : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualCounts.BP), a.degree < (N : WithBot ℕ) → b.degree < (N : WithBot ℕ) → M6.ActualCounts.f N a b = 0 → M6.Spaces.logicalWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b) = ∅ := by
+  intro N inst a b ha hb hf
+  apply Finset.card_eq_zero.mp
+  have h := M6.ActualCounts.logical_card N a b ha hb
+  simp only [hf, Nat.add_zero, Nat.sub_zero, sub_self] at h
+  exact_mod_cast h

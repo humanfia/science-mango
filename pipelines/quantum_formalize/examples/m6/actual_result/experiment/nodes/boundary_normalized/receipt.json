@@ -1,0 +1,55 @@
+{
+  "id": "boundary_normalized",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.ActualResult.boundary_normalized",
+    "spec_sha256": "44ef45e7d7e6c023d034b0d2cbf494c360fd864b0df48a9f8ade5eb7129edfc3",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-actual-result-formalization/.humanize-formal-runs/run-hnucz4hl/attempt-001/Candidate_5707e6bfbadba10b.lean",
+        "target_path": "/home/jing/m6-lean-actual-result-formalization/.humanize-formal-runs/run-hnucz4hl/attempt-001/FrozenTarget_5707e6bfbadba10b.lean",
+        "feedback": "",
+        "target_sha256": "b2ac791f77ba7f4f2804122e7314a90ea3bec72aaa1ff905d67ddacaa3998041",
+        "target_olean_sha256": "30fe8e2bab5261a25a3cde28795c0557b1678b3bb7f6311c296651bdc0d9e354",
+        "source_sha256": "a84ca89db9e4e20e0c4926923263108802670b23ab8d1e96df4a39466aa60119",
+        "olean_sha256": "1ff3e295302cc05ad213ad872d6308697c2c34b1d86bc8469118e0213b3f497a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:28:33.986286+00:00",
+    "work": "/home/jing/m6-lean-actual-result-formalization/.humanize-formal-runs/run-hnucz4hl",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "195ac3b96283952dff3e25391c20031f422c65fae4dca5a5e701ba015b056c7a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-actual-result-formalization/.humanize-formal-runs/run-hnucz4hl/attempt-001/Candidate_5707e6bfbadba10b.lean",
+    "environment_sha256": "b3aa499b773c417e0e309ea1338d6529dc94c33aaebad010fd487aad1adaab77",
+    "artifacts": {
+      "boundary_normalized": {
+        "payload": {
+          "declaration": "theorem M6.ActualResult.boundary_normalized : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → ∀ P : M6.Pinned.Pins (2*N), M6.Normalize.divide ((2 : ℤ)^(M6.ActualCounts.f N a b)) (M6.ActualTransfer.boundaryTrace N a b P) = M6.Pinned.enumerator (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b < N → ∀ P : M6.Pinned.Pins (2*N), M6.Normalize.divide ((2 : ℤ)^(M6.ActualCounts.f N a b)) (M6.ActualTransfer.boundaryTrace N a b P) = M6.Pinned.enumerator (M6.Spaces.boundaryWords N (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N inst a b h P\n  have ha : a.natDegree < N :=\n    lt_of_le_of_lt (le_max_left a.natDegree b.natDegree) h\n  have hb : b.natDegree < N :=\n    lt_of_le_of_lt (le_max_right a.natDegree b.natDegree) h\n  have ha' : a.degree < (N : WithBot ℕ) :=\n    lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast ha)\n  have hb' : b.degree < (N : WithBot ℕ) :=\n    lt_of_le_of_lt Polynomial.degree_le_natDegree (by exact_mod_cast hb)\n  rw [M6.ActualTransfer.boundary_trace_inputs N a b h P]\n  have hs := M6.ActualCounts.boundary_pinned_sum N a b ha' hb' P\n  calc\n    _ = M6.Normalize.divide ((2 : ℤ) ^ M6.ActualCounts.f N a b)\n        (Polynomial.C ((2 : ℤ) ^ M6.ActualCounts.f N a b) *\n          M6.Pinned.enumerator (M6.Spaces.boundaryWords N\n            (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P) :=\n      congrArg (M6.Normalize.divide ((2 : ℤ) ^ M6.ActualCounts.f N a b)) hs\n    _ = _ := M6.Normalize.divide_scaled _ _ (pow_ne_zero _ (by norm_num))",
+          "imports": [
+            "M6ActualResultReady"
+          ],
+          "name": "M6.ActualResult.boundary_normalized",
+          "ancestors": [],
+          "spec_sha256": "44ef45e7d7e6c023d034b0d2cbf494c360fd864b0df48a9f8ade5eb7129edfc3"
+        },
+        "sha256": "70d05f4b70cc65ef8886fc67ea0cae7e16c09c478c8b703004dcaffa0111a5c1"
+      }
+    }
+  }
+}

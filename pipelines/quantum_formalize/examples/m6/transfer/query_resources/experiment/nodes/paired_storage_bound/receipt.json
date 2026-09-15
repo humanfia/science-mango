@@ -1,0 +1,55 @@
+{
+  "id": "paired_storage_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M6.Transfer.paired_storage_bound",
+    "spec_sha256": "f2e3e96a000d1606f14f52dda98d626b75c7795d46fd6a094bc3170c9b97f6b1",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m6-lean-query-resources-formalization/.humanize-formal-runs/run-6re1_yk3/attempt-001/Candidate_074cd44ea44b3962.lean",
+        "target_path": "/home/jing/m6-lean-query-resources-formalization/.humanize-formal-runs/run-6re1_yk3/attempt-001/FrozenTarget_074cd44ea44b3962.lean",
+        "feedback": "",
+        "target_sha256": "57920cc6b0400107c7b4b971c507d1233b9cfd37b88fed334b6217aece2a719f",
+        "target_olean_sha256": "20087bf81fdd1730615ebea9e904fa2e65f5cc732992696d48c6e3e37f2a84f8",
+        "source_sha256": "2210eb710c7388a54c7fed3e88fbef0ddb6f8b587ec4f8701b4896d5375694fb",
+        "olean_sha256": "a45d8d5495f900d39307a33d6f222d7f5097b5117ba1f95354059d22fd9f2958",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T14:10:07.041908+00:00",
+    "work": "/home/jing/m6-lean-query-resources-formalization/.humanize-formal-runs/run-6re1_yk3",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "85827381a6ee14728a62831ef7c2b37ccc4526411209e6cdac3f9dbaf8bb1418",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m6-lean-query-resources-formalization/.humanize-formal-runs/run-6re1_yk3/attempt-001/Candidate_074cd44ea44b3962.lean",
+    "environment_sha256": "0f7eabd3fc2a1194f219f96a69b42216fa04411a57fc62dca21c6eeb68a83291",
+    "artifacts": {
+      "paired_storage_bound": {
+        "payload": {
+          "declaration": "theorem M6.Transfer.paired_storage_bound : ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryStorage R N ≤ 8192*N^2*2^R := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryStorage R N ≤ 8192 * N^2 * 2^R\n  intro R N hRN\n  have hN : 1 ≤ N := by omega\n  have hR : R ≤ N := by omega\n  have hp : 1 ≤ 2^R := Nat.one_le_pow R 2 (by omega)\n  have hNN : N ≤ N^2 := by nlinarith\n  have hRP : R * 2^R ≤ N * 2^R := Nat.mul_le_mul_right _ hR\n  have hNP : N * 2^R ≤ N^2 * 2^R := Nat.mul_le_mul_right _ hNN\n  have hP : 2^R ≤ N * 2^R := by nlinarith\n  have hN2P : N^2 ≤ N^2 * 2^R := by nlinarith\n  have hRNP : R * N * 2^R ≤ N^2 * 2^R := by\n    calc\n      R * N * 2^R ≤ N * N * 2^R := by gcongr\n      _ = N^2 * 2^R := by ring\n  have hs := M6.Transfer.actual_trace_storage_bound R N hRN\n  simp only [M6.Transfer.pairedQueryStorage, M6.Transfer.queryCoefficientBits,\n    M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits,\n    M6.Transfer.PostEvent, Fintype.card_prod, Fintype.card_fin]\n  first\n  | nlinarith\n  | simp only [M6.Transfer.actualTraceStorage, M6.Transfer.traceStorageModel,\n      M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits,\n      M6.Transfer.addressBits, M6.Transfer.CoefficientAddress,\n      Fintype.card_prod, Fintype.card_fin, M6.Transfer.state_count]\n    nlinarith",
+          "imports": [
+            "M6QueryResources"
+          ],
+          "name": "M6.Transfer.paired_storage_bound",
+          "ancestors": [],
+          "spec_sha256": "f2e3e96a000d1606f14f52dda98d626b75c7795d46fd6a094bc3170c9b97f6b1"
+        },
+        "sha256": "0d7b6611b8fecb658d761cc2df81cdb536e54cd1d96af941540d4402494f7073"
+      }
+    }
+  }
+}

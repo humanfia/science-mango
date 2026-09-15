@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N hN i m n\nhave heq : \u2200 a b : M6.Transfer.Memory 0, a = b \u2194 True := by\n  intro a b\n  exact iff_true_intro (Subsingleton.elim a b)\nhave hu : (Finset.univ : Finset (ZMod 2)) = {0, 1} := by\n  decide\nhave hout : \u2200 t : ZMod 2, M6.Transfer.output (M6.ActualTransfer.window 0 1) m t = t := by\n  intro t\n  simp [M6.Transfer.output, M6.ActualTransfer.window]\nhave hv : (1 : ZMod 2).val = 1 := rfl\nsimp [M6.Transfer.edgeMatrix, heq, hu, M6.ActualTransfer.characterWeight,\n  hout, M6.Character.free_character_factor, M6.Character.sign, hv]\n<;> ring",
+  "queries": []
+}

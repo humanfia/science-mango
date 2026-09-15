@@ -1,0 +1,18 @@
+import FrozenTarget_3be29238ff9f4842
+theorem M6.ActualCounts.cycle_pinned_sum : QuantumHarnessFrozenTarget := by
+  classical
+  intro N inst a b ha hb P
+  have hs := M6.ActualCounts.dual_weighted_sum N a b ha hb
+    (fun v => ∏ i, M6.Character.pinnedCharacterFactor P i (v i))
+  change M6.ActualCounts.signedInputSum N a b P =
+    Polynomial.C ((2 : ℤ) ^ M6.ActualCounts.f N a b) *
+      M6.Character.pinnedTransform (M6.Spaces.D N
+        (M6.Coordinates.coefficients N a) (M6.Coordinates.coefficients N b)) P at hs
+  have hc : (2 : ℤ) ^ M6.ActualCounts.f N a b *
+      ((M6.Character.subspaceWords (M6.Spaces.D N
+        (M6.Coordinates.coefficients N a)
+        (M6.Coordinates.coefficients N b))).card : ℤ) = (2 : ℤ) ^ N := by
+    exact_mod_cast M6.ActualCounts.input_normalization N a b ha hb
+  rw [← M6.Character.pinned_macwilliams, ← mul_assoc,
+    ← Polynomial.C_mul, hc] at hs
+  simpa only [M6.Spaces.cycleWords] using hs

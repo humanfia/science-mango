@@ -1,0 +1,6 @@
+{
+  "proof": "change ∀ (N : ℕ) (p q : M6.Euclid.BP), M6.Euclid.rank p ≤ N + 1 → M6.Euclid.rank q ≤ N + 1 → M6.Euclid.dense N p = M6.Euclid.dense N q → p = q\nintro N p q hp hq hd\nclassical\napply Polynomial.ext\nintro i\nby_cases hi : i < N + 1\n· change List.ofFn (fun j : Fin (N + 1) => p.coeff j) = List.ofFn (fun j : Fin (N + 1) => q.coeff j) at hd\n  have he : (List.ofFn (fun j : Fin (N + 1) => p.coeff j))[i]'(by simpa using hi) = (List.ofFn (fun j : Fin (N + 1) => q.coeff j))[i]'(by simpa using hi) := by\n    congr 1\n  simpa only [List.getElem_ofFn] using he\n· have hpz : p.coeff i = 0 := by\n    by_cases hp0 : p = 0\n    · simp [hp0]\n    · apply Polynomial.coeff_eq_zero_of_natDegree_lt\n      simp [M6.Euclid.rank, hp0] at hp\n      omega\n  have hqz : q.coeff i = 0 := by\n    by_cases hq0 : q = 0\n    · simp [hq0]\n    · apply Polynomial.coeff_eq_zero_of_natDegree_lt\n      simp [M6.Euclid.rank, hq0] at hq\n      omega\n  exact hpz.trans hqz.symm",
+  "queries": [
+    "List.getElem_ofFn"
+  ]
+}

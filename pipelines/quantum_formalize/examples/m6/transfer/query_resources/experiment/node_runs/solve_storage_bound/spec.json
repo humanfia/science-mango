@@ -1,0 +1,13 @@
+{
+  "name": "M6.Transfer.solve_storage_bound",
+  "statement": "∀ R N slots : ℕ, R < N → slots ≤ 512*(N+1)^2 → M6.Transfer.solveStorage R N slots ≤ 16384*N^2*2^R",
+  "imports": [
+    "M6QueryResources"
+  ],
+  "context": "theorem M6.Transfer.paired_storage_bound : ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryStorage R N ≤ 8192*N^2*2^R := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryStorage R N ≤ 8192 * N^2 * 2^R\n  intro R N hRN\n  have hN : 1 ≤ N := by omega\n  have hR : R ≤ N := by omega\n  have hp : 1 ≤ 2^R := Nat.one_le_pow R 2 (by omega)\n  have hNN : N ≤ N^2 := by nlinarith\n  have hRP : R * 2^R ≤ N * 2^R := Nat.mul_le_mul_right _ hR\n  have hNP : N * 2^R ≤ N^2 * 2^R := Nat.mul_le_mul_right _ hNN\n  have hP : 2^R ≤ N * 2^R := by nlinarith\n  have hN2P : N^2 ≤ N^2 * 2^R := by nlinarith\n  have hRNP : R * N * 2^R ≤ N^2 * 2^R := by\n    calc\n      R * N * 2^R ≤ N * N * 2^R := by gcongr\n      _ = N^2 * 2^R := by ring\n  have hs := M6.Transfer.actual_trace_storage_bound R N hRN\n  simp only [M6.Transfer.pairedQueryStorage, M6.Transfer.queryCoefficientBits,\n    M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits,\n    M6.Transfer.PostEvent, Fintype.card_prod, Fintype.card_fin]\n  first\n  | nlinarith\n  | simp only [M6.Transfer.actualTraceStorage, M6.Transfer.traceStorageModel,\n      M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits,\n      M6.Transfer.addressBits, M6.Transfer.CoefficientAddress,\n      Fintype.card_prod, Fintype.card_fin, M6.Transfer.state_count]\n    nlinarith",
+  "queries": [
+    "natural number polynomial inequalities",
+    "finite product cardinality"
+  ],
+  "guidance": "Use actual_trace_work_bound/storage_bound and direct event cardinality. R<N gives N>=1, R<=N, 1<=2^R and 1<=4^R. Expand only the counter definitions, bound lower degree terms by N powers and then nlinarith or gcongr. Preserve arbitrary e,k,slots hypotheses in these component algebra targets; actual callers discharge them in final integration. Return tactic lines without leading by."
+}

@@ -1,0 +1,13 @@
+{
+  "name": "M6.Transfer.distance_work_bound",
+  "statement": "∀ R N e : ℕ, R < N → e ≤ 180*(N+1)^3 → M6.Transfer.distanceWork R N e ≤ 50000*N^3*4^R",
+  "imports": [
+    "M6QueryResources"
+  ],
+  "context": "theorem M6.Transfer.paired_work_bound : ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryWork R N ≤ 40000*N^3*4^R := by\n  change ∀ R N : ℕ, R < N → M6.Transfer.pairedQueryWork R N ≤ 40000 * N^3 * 4^R\n  intro R N hRN\n  have hN : 1 ≤ N := by omega\n  have hR : R ≤ N := Nat.le_of_lt hRN\n  have h4 : 1 ≤ (4 : ℕ)^R := Nat.one_le_pow _ _ (by omega)\n  have hN2 : N ≤ N^2 := by nlinarith\n  have hN3 : N^2 ≤ N^3 := by nlinarith [Nat.mul_le_mul_left N hN2]\n  have hRN1 : R * N ≤ N^2 := by nlinarith [Nat.mul_le_mul_right N hR]\n  have hRN2 : R * N^2 ≤ N^3 := by nlinarith [Nat.mul_le_mul_right (N^2) hR]\n  have hscale : N^3 ≤ N^3 * 4^R := by simpa using Nat.mul_le_mul_left (N^3) h4\n  have hw := M6.Transfer.actual_trace_work_bound R N hRN\n  have hp : M6.Transfer.postWork R N ≤ 7232 * N^3 * 4^R := by\n    simp [M6.Transfer.postWork, M6.Transfer.PostEvent,\n      M6.Transfer.queryCoefficientBits, M6.Transfer.coefficientBits,\n      M6.Transfer.actualAddressBits, M6.Transfer.addressBits]\n    <;> nlinarith\n  unfold M6.Transfer.pairedQueryWork\n  nlinarith",
+  "queries": [
+    "natural number polynomial inequalities",
+    "finite product cardinality"
+  ],
+  "guidance": "Use actual_trace_work_bound/storage_bound and direct event cardinality. R<N gives N>=1, R<=N, 1<=2^R and 1<=4^R. Expand only the counter definitions, bound lower degree terms by N powers and then nlinarith or gcongr. Preserve arbitrary e,k,slots hypotheses in these component algebra targets; actual callers discharge them in final integration. Return tactic lines without leading by."
+}

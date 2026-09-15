@@ -1,0 +1,13 @@
+{
+  "name": "M6.ActualTransfer.scalar_trace_support",
+  "statement": "∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ) (d : ℕ), 2*N < d → (M6.Transfer.scalarTracePolynomial W N).coeff d = 0",
+  "imports": [
+    "M6Postprocessing"
+  ],
+  "context": "",
+  "queries": [
+    "Int.shiftRight_eq_div_pow",
+    "Polynomial coeff finite sum monomial"
+  ],
+  "guidance": "Use Int.shiftRight_eq_div_pow and accepted Normalize.divide_coeff. scalarTracePolynomial is literally a finite monomial sum over Fin(2*N+1), so coefficients above2N vanish regardless of weights. Q coefficients subtract the two divided trace coefficients. Extensionality proves exact finite reconstruction, and unfolding firstPositive proves the same range find scan. Preserve actual fixed definitions and no extra arithmetic assumptions. Return tactic lines without leading by."
+}

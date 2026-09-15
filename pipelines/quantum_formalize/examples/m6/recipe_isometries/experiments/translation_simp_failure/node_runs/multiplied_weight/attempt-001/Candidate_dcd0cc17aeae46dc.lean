@@ -1,0 +1,7 @@
+import FrozenTarget_dcd0cc17aeae46dc
+theorem M6.RecipeIsometries.multiplied_weight : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (u : (ZMod N)ˣ) (z : M6.RecipeIsometries.Word N), M6.Physical.wordWeight N (M6.RecipeIsometries.multiplyWord N u z) = M6.Physical.wordWeight N z
+  intro N _ u z
+  exact congrArg₂ Nat.add
+    (M6.RecipeIsometries.permutation_weight N (u⁻¹).mulLeft z.1)
+    (M6.RecipeIsometries.permutation_weight N (u⁻¹).mulLeft z.2)

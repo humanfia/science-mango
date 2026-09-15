@@ -1,0 +1,269 @@
+[
+  {
+    "queries": [
+      "EuclideanDomain gcd Bezout divisibility"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "EuclideanDomain gcd Bezout divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64722,
+            "name": "EuclideanDomain.gcd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+            "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+            "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+          },
+          {
+            "id": 317921,
+            "name": "IsBezout.gcd",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L179-L182",
+            "source_text": "/-- A choice of gcd of two elements in a Bézout domain.\n\nNote that the choice is usually not unique. -/\nnoncomputable def gcd : R := Submodule.IsPrincipal.generator (Ideal.span {x, y})\n",
+            "docstring": "A choice of gcd of two elements in a Bézout domain.\n\nNote that the choice is usually not unique. "
+          },
+          {
+            "id": 317929,
+            "name": "IsBezout.toGCDDomain",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L218-L222",
+            "source_text": "/-- Any Bézout domain is a GCD domain. This is not an instance since `GCDMonoid` contains data,\nand this might not be how we would like to construct it. -/\n@[implicit_reducible]\nnoncomputable def toGCDDomain [IsBezout R] [IsCancelMulZero R] [DecidableEq R] : GCDMonoid R :=\n  gcdMonoidOfGCD (gcd · ·) (gcd_dvd_left · ·) (gcd_dvd_right · ·) dvd_gcd\n",
+            "docstring": "Any Bézout domain is a GCD domain. This is not an instance since `GCDMonoid` contains data,\nand this might not be how we would like to construct it. "
+          },
+          {
+            "id": 317923,
+            "name": "IsBezout.gcd_dvd_left",
+            "module": "Mathlib.RingTheory.PrincipalIdealDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PrincipalIdealDomain.lean#L191-L192",
+            "source_text": "theorem gcd_dvd_left : gcd x y ∣ x :=\n  (Submodule.IsPrincipal.mem_iff_generator_dvd _).mp (Ideal.subset_span (by simp))\n",
+            "docstring": null
+          },
+          {
+            "id": 306779,
+            "name": "EuclideanDomain.span_gcd",
+            "module": "Mathlib.RingTheory.EuclideanDomain",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/EuclideanDomain.lean#L85-L88",
+            "source_text": "theorem span_gcd [DecidableEq α] (x y : α) :\n    span ({gcd x y} : Set α) = span ({x, y} : Set α) :=\n  letI := EuclideanDomain.gcdMonoid α\n  _root_.span_gcd x y\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "EuclideanDomain gcd Bezout divisibility",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393002,
+            "name": "EuclideanGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L22-L30",
+            "source_text": "/-- An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n-/\n@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n",
+            "docstring": "An n-dimensional `Euclidean group` is a group of\nrotations, reflections, and translations.\n"
+          },
+          {
+            "id": 393005,
+            "name": "EuclideanGroup.instGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L34-L61",
+            "source_text": "/-- Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by\nthe inherited matrix-vector action on `EuclideanSpace ℝ (Fin n)`, transported through `WithLp`\nfrom the coordinate action `Q.val *ᵥ v.ofLp`. -/\nnoncomputable instance : Group (EuclideanGroup n) where\n  mul A B := ⟨A.translation + A.linear • B.translation, A.linear * B.linear⟩\n  mul_assoc A B C := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.translation + A.linear • B.translation + (A.linear * B.linear) • C.translation\n        = A.translation + A.linear • (B.translation + B.linear • C.translation)\n      rw [mul_smul, smul_add, add_assoc]\n    · exact mul_assoc A.linear B.linear C.linear\n  one := ⟨0, 1⟩\n  one_mul A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show 0 + (1 : Matrix.orthogonalGroup (Fin n) ℝ) • A.translation = A.translation\n      rw [zero_add, one_smul]\n    · exact one_mul A.linear\n  mul_one A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.translation + A.linear • 0 = A.translation\n      rw [smul_zero, add_zero]\n    · exact mul_one A.linear\n  inv A := ⟨A.linear⁻¹ • (-A.translation), A.linear⁻¹⟩\n  inv_mul_cancel A := by\n    refine EuclideanGroup.ext ?_ ?_\n    · show A.linear⁻¹ • (-A.translation) + A.linear⁻¹ • A.translation = 0\n      rw [← smul_add, neg_add_cancel, smul_zero]\n    · exact inv_mul_cancel A.linear\n",
+            "docstring": "Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by\nthe inherited matrix-vector action on `EuclideanSpace ℝ (Fin n)`, transported through `WithLp`\nfrom the coordinate action `Q.val *ᵥ v.ofLp`. "
+          },
+          {
+            "id": 393012,
+            "name": "EuclideanGroup.TranslationGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L107-L118",
+            "source_text": "/-- Translation is the subgroup with Q = 1. -/\ndef TranslationGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val = 1\n    rw [Submonoid.coe_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val = 1\n    rw [OneMemClass.coe_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val = 1\n    rw [coe_inv, ha, inv_one]\n",
+            "docstring": "Translation is the subgroup with Q = 1. "
+          },
+          {
+            "id": 393003,
+            "name": "EuclideanGroup.ext",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L25-L25",
+            "source_text": "@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n\nnamespace EuclideanGroup\n\n/-- Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by",
+            "docstring": null
+          },
+          {
+            "id": 393010,
+            "name": "EuclideanGroup.SpecialEuclideanGroup",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L90-L101",
+            "source_text": "/-- Special Euclidean Group is the subgroup with det(Q) = 1 where Q ∈ O(n) -/\ndef SpecialEuclideanGroup (n : ℕ) : Subgroup (EuclideanGroup n) where\n  carrier := {g | g.linear.val.det = 1}\n  mul_mem' {a b} ha hb := by\n    show (a.linear * b.linear).val.det = 1\n    rw [Submonoid.coe_mul, Matrix.det_mul, ha, hb, one_mul]\n  one_mem' := by\n    show (1 : ↥(Matrix.orthogonalGroup (Fin n) ℝ)).val.det = 1\n    rw [OneMemClass.coe_one, Matrix.det_one]\n  inv_mem' {a} ha := by\n    show (a.linear⁻¹).val.det = 1\n    rw [det_coe_inv, ha, inv_one]\n",
+            "docstring": "Special Euclidean Group is the subgroup with det(Q) = 1 where Q ∈ O(n) "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "binary_normalization",
+    "receipts_sha256": "eca46a84a4a556c730fd27d3bc6176a609a3d6085c9beef1637e55fffdd4dbb9"
+  },
+  {
+    "queries": [
+      "List.getElem?_ofFn",
+      "Polynomial.coeff_eq_zero_of_natDegree_lt"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "List.getElem?_ofFn",
+        "status": "ok",
+        "results": [
+          {
+            "id": 208568,
+            "name": "List.get_ofFn",
+            "module": "Mathlib.Data.List.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L37-L38",
+            "source_text": "theorem get_ofFn {n} (f : Fin n → α) (i) : get (ofFn f) i = f (Fin.cast (by simp) i) := by\n  simp; congr\n",
+            "docstring": null
+          },
+          {
+            "id": 208760,
+            "name": "List.Pi.head",
+            "module": "Mathlib.Data.List.Pi",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Pi.lean#L31-L33",
+            "source_text": "/-- Given `f` a function whose domain is `i :: l`, get its value at `i`. -/\ndef head (f : ∀ j ∈ i :: l, α j) : α i :=\n  f i mem_cons_self\n",
+            "docstring": "Given `f` a function whose domain is `i :: l`, get its value at `i`. "
+          },
+          {
+            "id": 208576,
+            "name": "List.ofFn_getElem_eq_map",
+            "module": "Mathlib.Data.List.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L95-L98",
+            "source_text": "@[simp]\ntheorem ofFn_getElem_eq_map {β : Type*} (l : List α) (f : α → β) :\n    ofFn (fun i : Fin l.length => f <| l[(i : Nat)]) = l.map f := by\n  rw [← Function.comp_def, ← map_ofFn, ofFn_getElem]",
+            "docstring": null
+          },
+          {
+            "id": 208584,
+            "name": "List.find?_ofFn_eq_some",
+            "module": "Mathlib.Data.List.OfFn",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OfFn.lean#L133-L141",
+            "source_text": "lemma find?_ofFn_eq_some {n} {f : Fin n → α} {p : α → Bool} {b : α} :\n    (ofFn f).find? p = some b ↔ p b = true ∧ ∃ i, f i = b ∧ ∀ j < i, ¬(p (f j) = true) := by\n  rw [find?_eq_some_iff_getElem]\n  exact ⟨fun ⟨hpb, i, hi, hfb, h⟩ ↦\n      ⟨hpb, ⟨⟨i, length_ofFn (f := f) ▸ hi⟩, by simpa\n        using! hfb, fun j hj ↦ by simpa using! h j hj⟩⟩,\n    fun ⟨hpb, i, hfb, h⟩ ↦\n      ⟨hpb, ⟨i, (length_ofFn (f := f)).symm ▸ i.isLt, by simpa using! hfb,\n        fun j hj ↦ by simpa using! h ⟨j, by lia⟩ (by simpa using! hj)⟩⟩⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 217506,
+            "name": "Stream'.Seq.ofList_get?",
+            "module": "Mathlib.Data.Seq.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Seq/Defs.lean#L577-L579",
+            "source_text": "@[simp]\ntheorem ofList_get? (l : List α) (n : ℕ) : (ofList l).get? n = l[n]? :=\n  rfl",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "List.getElem?_ofFn",
+        "status": "ok",
+        "results": [
+          {
+            "id": 386701,
+            "name": "Physlib.List.eraseIdx_get",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L606-L622",
+            "source_text": "lemma eraseIdx_get {I : Type} (l : List I) (i : Fin l.length) :\n    (List.eraseIdx l i).get = l.get ∘ (Fin.cast (eraseIdx_length l i)) ∘\n    (Fin.cast (eraseIdx_length l i).symm i).succAbove := by\n  ext x\n  simp only [Function.comp_apply, List.get_eq_getElem, List.getElem_eraseIdx]\n  simp only [Fin.succAbove, Fin.val_cast]\n  by_cases hi: x.castSucc < Fin.cast (Eq.symm (eraseIdx_length l i)) i\n  · simp only [hi, ↓reduceIte, Fin.val_castSucc, dite_eq_left_iff, not_lt]\n    intro h\n    rw [Fin.lt_def] at hi\n    simp_all only [Fin.val_castSucc, Fin.val_cast]\n    omega\n  · simp only [hi, ↓reduceIte, Fin.val_succ]\n    rw [Fin.lt_def] at hi\n    simp only [Fin.val_castSucc, Fin.val_cast, not_lt] at hi\n    have hn : ¬ x.val < i.val := by omega\n    simp [hn]\n",
+            "docstring": null
+          },
+          {
+            "id": 386696,
+            "name": "Physlib.List.optionErase",
+            "module": "Physlib.Mathematics.List",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List.lean#L583-L588",
+            "source_text": "/-- Optional erase of an element in a list. For `none` returns the list, for `some i` returns\n  the list with the `i`'th element erased. -/\n@[expose] def optionErase {I : Type} (l : List I) (i : Option (Fin l.length)) : List I :=\n  match i with\n  | none => l\n  | some i => List.eraseIdx l i\n",
+            "docstring": "Optional erase of an element in a list. For `none` returns the list, for `some i` returns\nthe list with the `i`'th element erased. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Polynomial.coeff_eq_zero_of_natDegree_lt",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101603,
+            "name": "Polynomial.coeff_eq_zero_of_natDegree_lt",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L85-L91",
+            "source_text": "theorem coeff_eq_zero_of_natDegree_lt {p : R[X]} {n : ℕ} (h : p.natDegree < n) :\n    p.coeff n = 0 := by\n  apply coeff_eq_zero_of_degree_lt\n  by_cases hp : p = 0\n  · subst hp\n    exact WithBot.bot_lt_coe n\n  · rwa [degree_eq_natDegree hp, Nat.cast_lt]\n",
+            "docstring": null
+          },
+          {
+            "id": 101610,
+            "name": "Polynomial.coeff_natDegree_eq_zero_of_degree_lt",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L135-L137",
+            "source_text": "theorem coeff_natDegree_eq_zero_of_degree_lt (h : degree p < degree q) :\n    coeff p (natDegree q) = 0 :=\n  coeff_eq_zero_of_degree_lt (lt_of_lt_of_le h degree_le_natDegree)\n",
+            "docstring": null
+          },
+          {
+            "id": 101466,
+            "name": "Polynomial.degree_le_iff_coeff_zero",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L492-L495",
+            "source_text": "theorem degree_le_iff_coeff_zero (f : R[X]) (n : WithBot ℕ) :\n    degree f ≤ n ↔ ∀ m : ℕ, n < m → coeff f m = 0 := by\n  simp only [degree, Finset.max, Finset.sup_le_iff, mem_support_iff, Ne, ← not_le,\n    not_imp_comm, Nat.cast_withBot]\n",
+            "docstring": null
+          },
+          {
+            "id": 101360,
+            "name": "Polynomial.natDegree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+            "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+            "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+          },
+          {
+            "id": 101529,
+            "name": "Polynomial.eq_natDegree_of_le_mem_support",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L101-L103",
+            "source_text": "theorem eq_natDegree_of_le_mem_support (pn : p.natDegree ≤ n) (ns : n ∈ p.support) :\n    p.natDegree = n :=\n  le_antisymm pn (le_natDegree_of_mem_supp _ ns)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.coeff_eq_zero_of_natDegree_lt",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389914,
+            "name": "PureU1.VectorLikeEvenPlane.P_zero",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L371-L372",
+            "source_text": "lemma P_zero (f : Fin n.succ → ℚ) (h : P f = 0) : ∀ i, f i = 0 := by\n  exact fun i => (P_evenFst f i).symm.trans (congr_fun h (evenFst i))\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

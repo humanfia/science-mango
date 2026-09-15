@@ -1,0 +1,29 @@
+import FrozenTarget_107b8cda69293686
+theorem M6.Euclid.preprocess_correct_cost : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) (a b M : M6.Euclid.BP), a.natDegree ≤ N → b.natDegree ≤ N → M.natDegree ≤ N → (M6.Euclid.preprocess a b M).value = GCDMonoid.gcd (GCDMonoid.gcd a b) M ∧ M6.Euclid.preprocessBitCost N a b M ≤ 180 * (N + 1) ^ 3
+  intro N a b M ha hb hM
+  have hrank (p : M6.Euclid.BP) (hp : p.natDegree ≤ N) : M6.Euclid.rank p ≤ N + 1 := by
+    by_cases h : p = 0
+    · simp [M6.Euclid.rank, h]
+    · simp only [M6.Euclid.rank, h, ↓reduceIte]
+      omega
+  have hw : M6.Euclid.rank (M6.Euclid.euclid a b).value ≤ max (M6.Euclid.rank a) (M6.Euclid.rank b) := by
+    simpa only [M6.Euclid.euclid] using M6.Euclid.euclid_output_width (M6.Euclid.rank b + 1) a b
+  have hw' : M6.Euclid.rank (M6.Euclid.euclid a b).value ≤ N + 1 :=
+    hw.trans (max_le (hrank a ha) (hrank b hb))
+  have hd : (M6.Euclid.euclid a b).value.natDegree ≤ N := by
+    by_cases h : (M6.Euclid.euclid a b).value = 0
+    · simp [h]
+    · simp only [M6.Euclid.rank, h, ↓reduceIte] at hw'
+      omega
+  constructor
+  · change (M6.Euclid.euclid (M6.Euclid.euclid a b).value M).value = GCDMonoid.gcd (GCDMonoid.gcd a b) M
+    rw [(M6.Euclid.euclid_correct a b).1]
+    exact (M6.Euclid.euclid_correct (GCDMonoid.gcd a b) M).1
+  · have h₁ := (M6.Euclid.bit_cost_bound N a b ha hb).1
+    have h₂ := (M6.Euclid.bit_cost_bound N (M6.Euclid.euclid a b).value M hd hM).1
+    have heq : M6.Euclid.preprocessBitCost N a b M = M6.Euclid.bitCost N a b + M6.Euclid.bitCost N (M6.Euclid.euclid a b).value M := by
+      simp only [M6.Euclid.preprocessBitCost, M6.Euclid.preprocess, M6.Euclid.bitCost]
+      ring
+    rw [heq]
+    omega

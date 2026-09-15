@@ -1,0 +1,158 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Int.natAbs_ediv_le_natAbs",
+    "status": "ok",
+    "results": [
+      {
+        "id": 95534,
+        "name": "Int.abs_ediv_le_abs",
+        "module": "Mathlib.Algebra.Order.Group.Unbundled.Int",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Unbundled/Int.lean#L110-L121",
+        "source_text": "theorem abs_ediv_le_abs : ∀ a b : ℤ, |a / b| ≤ |a| :=\n  suffices ∀ (a : ℤ) (n : ℕ), |a / n| ≤ |a| from fun a b =>\n    match b, Int.eq_nat_or_neg b with\n    | _, ⟨n, Or.inl rfl⟩ => this _ _\n    | _, ⟨n, Or.inr rfl⟩ => by rw [Int.ediv_neg, abs_neg]; apply this\n  fun a n => by\n  rw [abs_eq_natAbs, abs_eq_natAbs];\n  exact ofNat_le_ofNat_of_le\n    (match a, n with\n      | (m : ℕ), n => Nat.div_le_self _ _\n      | -[m+1], 0 => Nat.zero_le _\n      | -[m+1], n + 1 => Nat.succ_le_succ (Nat.div_le_self _ _))\n",
+        "docstring": null
+      },
+      {
+        "id": 95516,
+        "name": "Int.natAbs_abs",
+        "module": "Mathlib.Algebra.Order.Group.Unbundled.Int",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Unbundled/Int.lean#L46-L46",
+        "source_text": "theorem natAbs_abs (a : ℤ) : natAbs |a| = natAbs a := by grind\n",
+        "docstring": null
+      },
+      {
+        "id": 206656,
+        "name": "Int.natCast_dvd",
+        "module": "Mathlib.Data.Int.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Basic.lean#L72-L73",
+        "source_text": "lemma natCast_dvd {m : ℕ} : (m : ℤ) ∣ n ↔ m ∣ n.natAbs := by\n  obtain hn | hn := natAbs_eq n <;> rw [hn] <;> simp [← natCast_dvd_natCast, Int.dvd_neg]\n",
+        "docstring": null
+      },
+      {
+        "id": 272062,
+        "name": "Int.mem_divisors_iff_natAbs_mem_divisors_natAbs",
+        "module": "Mathlib.NumberTheory.Divisors",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Divisors.lean#L624-L629",
+        "source_text": "theorem mem_divisors_iff_natAbs_mem_divisors_natAbs :\n    x ∈ z.divisors ↔ x.natAbs ∈ z.natAbs.divisors := calc\n  _ ↔ ∃ y ∈ z.natAbs.divisors, ↑y = x ∨ -↑y = x := by\n    simp [← exists_or, ← and_or_left, divisors]\n  _ ↔ ∃ y ∈ z.natAbs.divisors, y = x.natAbs := congr(∃ y ∈ _, $(by grind))\n  _ ↔ x.natAbs ∈ z.natAbs.divisors := exists_eq_right\n",
+        "docstring": null
+      },
+      {
+        "id": 328342,
+        "name": "Mathlib.Meta.NormNum.evalIntNatAbs",
+        "module": "Mathlib.Tactic.NormNum.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Basic.lean#L121-L131",
+        "source_text": "/-- The `norm_num` extension which identifies the expression `Int.natAbs n` such that\n`norm_num` successfully recognizes `n`. -/\n@[norm_num Int.natAbs (_ : ℤ)] def evalIntNatAbs : NormNumExt where eval {u α} e := do\n  let .app (.const ``Int.natAbs _) (x : Q(ℤ)) ← whnfR e | failure\n  haveI' : u =QL 0 := ⟨⟩; haveI' : $α =Q ℕ := ⟨⟩\n  haveI' : $e =Q Int.natAbs $x := ⟨⟩\n  let sℕ : Q(AddMonoidWithOne ℕ) := q(Nat.instAddMonoidWithOne)\n  match ← derive (u := .zero) x with\n  | .isNat    _ a p => assumeInstancesCommute; return .isNat sℕ a q(isNat_natAbs_pos $p)\n  | .isNegNat _ a p => assumeInstancesCommute; return .isNat sℕ a q(isNat_natAbs_neg $p)\n  | _ => failure\n",
+        "docstring": "The `norm_num` extension which identifies the expression `Int.natAbs n` such that\n`norm_num` successfully recognizes `n`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Int natAbs subtraction bound",
+    "status": "ok",
+    "results": [
+      {
+        "id": 95514,
+        "name": "Int.abs_eq_natAbs",
+        "module": "Mathlib.Algebra.Order.Group.Unbundled.Int",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Unbundled/Int.lean#L40-L42",
+        "source_text": "theorem abs_eq_natAbs : ∀ a : ℤ, |a| = natAbs a\n  | (n : ℕ) => abs_of_nonneg <| natCast_nonneg _\n  | -[_+1] => abs_of_nonpos <| le_of_lt <| negSucc_lt_zero _\n",
+        "docstring": null
+      },
+      {
+        "id": 207188,
+        "name": "Int.natAbs_natCast_sub_natCast_of_ge",
+        "module": "Mathlib.Data.Int.NatAbs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/NatAbs.lean#L35-L36",
+        "source_text": "lemma natAbs_natCast_sub_natCast_of_ge {a b : ℕ} (h : b ≤ a) : Int.natAbs (↑a - ↑b) = a - b := by\n  lia\n",
+        "docstring": null
+      },
+      {
+        "id": 207041,
+        "name": "Int.natAbs_coe_sub_coe_le_of_le",
+        "module": "Mathlib.Data.Int.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Int/Lemmas.lean#L67-L73",
+        "source_text": "/-- A specialization of `abs_sub_le_of_nonneg_of_le` for working with the signed subtraction\n  of natural numbers. -/\ntheorem natAbs_coe_sub_coe_le_of_le {a b n : ℕ} (a_le_n : a ≤ n) (b_le_n : b ≤ n) :\n    natAbs (a - b : ℤ) ≤ n := by\n  rw [← Nat.cast_le (α := ℤ), natCast_natAbs]\n  exact abs_sub_le_of_nonneg_of_le (natCast_nonneg a) (ofNat_le.mpr a_le_n)\n    (natCast_nonneg b) (ofNat_le.mpr b_le_n)\n",
+        "docstring": "A specialization of `abs_sub_le_of_nonneg_of_le` for working with the signed subtraction\nof natural numbers. "
+      },
+      {
+        "id": 95516,
+        "name": "Int.natAbs_abs",
+        "module": "Mathlib.Algebra.Order.Group.Unbundled.Int",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Unbundled/Int.lean#L46-L46",
+        "source_text": "theorem natAbs_abs (a : ℤ) : natAbs |a| = natAbs a := by grind\n",
+        "docstring": null
+      },
+      {
+        "id": 328390,
+        "name": "Mathlib.Meta.NormNum.evalNatSub",
+        "module": "Mathlib.Tactic.NormNum.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Basic.lean#L658-L671",
+        "source_text": "/-- The `norm_num` extension which identifies expressions of the form `Nat.sub a b`,\nsuch that `norm_num` successfully recognises both `a` and `b`. -/\n@[norm_num (_ : ℕ) - _] def evalNatSub :\n    NormNumExt where eval {u α} e := do\n  let .app (.app f (a : Q(ℕ))) (b : Q(ℕ)) ← whnfR e | failure\n  -- We assert that the default instance for `HSub` is `Nat.sub` when the first parameter is `ℕ`.\n  guard <|← withNewMCtxDepth <| isDefEq f q(HSub.hSub (α := ℕ))\n  haveI' : u =QL 0 := ⟨⟩; haveI' : $α =Q ℕ := ⟨⟩\n  haveI' : $e =Q $a - $b := ⟨⟩\n  let sℕ : Q(AddMonoidWithOne ℕ) := q(Nat.instAddMonoidWithOne)\n  let ⟨na, pa⟩ ← deriveNat a sℕ; let ⟨nb, pb⟩ ← deriveNat b sℕ\n  have nc : Q(ℕ) := mkRawNatLit (na.natLit! - nb.natLit!)\n  haveI' : Nat.sub $na $nb =Q $nc := ⟨⟩\n  return .isNat sℕ nc q(isNat_natSub $pa $pb (.refl $nc))\n",
+        "docstring": "The `norm_num` extension which identifies expressions of the form `Nat.sub a b`,\nsuch that `norm_num` successfully recognises both `a` and `b`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Int natAbs subtraction bound",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386824,
+        "name": "Fin.subNat'",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L32-L34",
+        "source_text": "/-- `subNat' i h` subtracts `m` from `i`. This is an alternative form of `Fin.subNat`. -/\n@[inline] def Fin.subNat' (i : Fin (m + n)) (h : ¬ i < m) : Fin n :=\n  subNat m (Fin.cast (m.add_comm n) i) (Nat.ge_of_not_lt h)\n",
+        "docstring": "`subNat' i h` subtracts `m` from `i`. This is an alternative form of `Fin.subNat`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]
