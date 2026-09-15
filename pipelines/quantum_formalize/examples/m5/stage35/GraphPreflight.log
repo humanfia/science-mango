@@ -1,0 +1,42 @@
+∀ (A : Finset ℕ) (w : ℕ),
+  0 < w →
+    A.card = w →
+      0 ∈ A → ∃ u, Function.Injective u ∧ Finset.image u Finset.univ = A ∧ ∀ (i : Fin w), ↑i = 0 → u i = 0 : Prop
+∀ (w T : ℕ) (hT : 0 < T) (u : Fin w → ℕ),
+  Function.Injective u →
+    (AdjoinRoot.mk (M5.cyclicModulus T)) (M5.SupportPolynomial.ofSupport (Finset.image u Finset.univ)) =
+      (AdjoinRoot.mk (M5.cyclicModulus T))
+        (M5.SupportPolynomial.ofResidueTuple (M5.ResidueNecessity.reduceTuple T hT u)) : Prop
+∀ (w N T : ℕ) (hT : 0 < T) (u v : Fin w → ℕ),
+  T ∣ N →
+    M5.Connectivity.supportGcd N (Finset.image u Finset.univ) (Finset.image v Finset.univ) = 1 →
+      M5.BoundedConstruction.tupleSupportGcd (M5.ResidueNecessity.reduceTuple T hT u)
+          (M5.ResidueNecessity.reduceTuple T hT v) =
+        1 : Prop
+∀ (a b F : M5.BinaryPolynomial) (N T : ℕ),
+  T ∣ N → F ∣ M5.cyclicModulus T → M5.completeSignature a b N = F → M5.completeSignature a b T = F : Prop
+∀ (N w T : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ),
+  0 < w →
+    0 < T →
+      T ∣ N →
+        F ∣ M5.cyclicModulus T →
+          M5.PhysicalOrder.realizes N w F A B →
+            ∃ r s,
+              M5.BoundedConstruction.anchoredTuple r ∧
+                M5.BoundedConstruction.anchoredTuple s ∧
+                  M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧
+                    M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s)
+                        T =
+                      F : Prop
+∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ),
+  0 < w →
+    Polynomial.Monic F →
+      Polynomial.coeff F 0 = 1 →
+        M5.PhysicalOrder.realizes N w F A B →
+          ∃ r s,
+            M5.BoundedConstruction.anchoredTuple r ∧
+              M5.BoundedConstruction.anchoredTuple s ∧
+                M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧
+                  M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s)
+                      (M5.signaturePeriod F) =
+                    F : Prop

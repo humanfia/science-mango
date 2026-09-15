@@ -1,0 +1,81 @@
+{
+  "id": "recover_valid",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.BinaryRecovery.recover_valid",
+    "spec_sha256": "e5db57b367e4308babf97cab25088e954ca4332eb9319d6c3a7c4753c2e501d6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-binary-recovery-formalization/.humanize-formal-runs/run-33bte4bl/attempt-001/Candidate_b205aaec7955c266.lean",
+        "target_path": "/home/jing/m5-lean-binary-recovery-formalization/.humanize-formal-runs/run-33bte4bl/attempt-001/FrozenTarget_b205aaec7955c266.lean",
+        "feedback": "",
+        "target_sha256": "7c288cc41d8e7231929c05f8706fffab9d224d72cab5337b71a3607d3b3f0f63",
+        "target_olean_sha256": "efeba457e3c3102bbdbb95e9d7bda298fcc88a0b5e524afd366f85395aca2c40",
+        "source_sha256": "e561fc9e07c6399227196aa637ff8994a0b0cae8535baa7802c89ac95c7df09f",
+        "olean_sha256": "ad6a2c7e2a736530dc653135a2ac0adacd91c074c0a3f679f55028a26c45f62c",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:42:54.941124+00:00",
+    "work": "/home/jing/m5-lean-binary-recovery-formalization/.humanize-formal-runs/run-33bte4bl",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9ff8a1998348ebf43a57737a129107b15e7382b55231dca174fa3b51aebcb21f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-binary-recovery-formalization/.humanize-formal-runs/run-33bte4bl/attempt-001/Candidate_b205aaec7955c266.lean",
+    "environment_sha256": "21c57eae9738b26b612decbd0a2bb9a50c8c65ed07e4bb66c8bb8f524c942ae5",
+    "artifacts": {
+      "recover_length": {
+        "payload": {
+          "declaration": "theorem M5.BinaryRecovery.recover_length : ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M5.BinaryRecovery.recover c p n).length = p.length + n := by\n  change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M5.BinaryRecovery.recover c p n).length = p.length + n\n  intro c p n\n  induction n generalizing p with\n  | zero => simp [M5.BinaryRecovery.recover]\n  | succ n ih =>\n      simp only [M5.BinaryRecovery.recover]\n      split <;> simp [ih, List.length_append, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]",
+          "imports": [
+            "M5BinaryRecovery"
+          ],
+          "name": "M5.BinaryRecovery.recover_length",
+          "ancestors": [],
+          "spec_sha256": "7e8c84085d077e5d558bdfeb79a421e62cb4c2e37bf4daeae122ab8d0cc017c0"
+        },
+        "sha256": "727d6d64d2b658646c8bcde529ae9ecd530af2fbb0af671fac74ab6c89b97141"
+      },
+      "recover_positive": {
+        "payload": {
+          "declaration": "theorem M5.BinaryRecovery.recover_positive : ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (∀ q : List Bool, q.length < p.length + n → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M5.BinaryRecovery.recover c p n) := by\n  change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (∀ q : List Bool, q.length < p.length + n → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M5.BinaryRecovery.recover c p n)\n  intro c p n\n  induction n generalizing p with\n  | zero =>\n      intro hs hp\n      simpa [M5.BinaryRecovery.recover] using hp\n  | succ n ih =>\n      intro hs hp\n      have hsplit := hs p (by omega)\n      have hchild (b : Bool) : ∀ q : List Bool, q.length < (p ++ [b]).length + n → c q = c (q ++ [false]) + c (q ++ [true]) := by\n        intro q hq\n        apply hs q\n        simp only [List.length_append, List.length_cons, List.length_nil] at hq\n        omega\n      by_cases hf : 0 < c (p ++ [false])\n      · simpa [M5.BinaryRecovery.recover, hf] using ih (p ++ [false]) (hchild false) hf\n      · have ht : 0 < c (p ++ [true]) := by omega\n        simpa [M5.BinaryRecovery.recover, hf] using ih (p ++ [true]) (hchild true) ht",
+          "imports": [
+            "M5BinaryRecovery"
+          ],
+          "name": "M5.BinaryRecovery.recover_positive",
+          "ancestors": [],
+          "spec_sha256": "9a2a3c70eeb93a6d8d54837f387faea4acaa8086153f2c4a187af5dcba4c34db"
+        },
+        "sha256": "ae5933d40d4620a8542ced4caca7da02c4c108c55d140aa7c84529921d49762f"
+      },
+      "recover_valid": {
+        "payload": {
+          "declaration": "theorem M5.BinaryRecovery.recover_valid : ∀ (c : List Bool → ℤ) (Valid : List Bool → Prop) (m : ℕ), (∀ q : List Bool, q.length < m → c q = c (q ++ [false]) + c (q ++ [true])) → (∀ q : List Bool, q.length = m → 0 < c q → Valid q) → 0 < c [] → (M5.BinaryRecovery.recover c [] m).length = m ∧ Valid (M5.BinaryRecovery.recover c [] m) := by\n  change ∀ (c : List Bool → ℤ) (Valid : List Bool → Prop) (m : ℕ), (∀ q : List Bool, q.length < m → c q = c (q ++ [false]) + c (q ++ [true])) → (∀ q : List Bool, q.length = m → 0 < c q → Valid q) → 0 < c [] → (M5.BinaryRecovery.recover c [] m).length = m ∧ Valid (M5.BinaryRecovery.recover c [] m)\n  intro c Valid m hs hv hp\n  have hlen : (M5.BinaryRecovery.recover c [] m).length = m := by\n    simpa only [List.length_nil, Nat.zero_add] using M5.BinaryRecovery.recover_length c [] m\n  refine ⟨hlen, hv _ hlen ?_⟩\n  apply M5.BinaryRecovery.recover_positive c [] m\n  · simpa only [List.length_nil, Nat.zero_add] using hs\n  · exact hp",
+          "imports": [
+            "M5BinaryRecovery"
+          ],
+          "name": "M5.BinaryRecovery.recover_valid",
+          "ancestors": [
+            "recover_length",
+            "recover_positive"
+          ],
+          "spec_sha256": "a6d52165069ec3dba9e78723592f2a995263c7d23a628a29806706f5f856b6ed"
+        },
+        "sha256": "86f50adb9ad3b56d93abd2efc07bf958fe56ab01b75209517cdcc656ac211b97"
+      }
+    }
+  }
+}

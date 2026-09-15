@@ -1,0 +1,29 @@
+theorem M5.ResidueNecessity.period_necessity : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F A B → ∃ r s : Fin w → Fin (M5.signaturePeriod F), M5.BoundedConstruction.anchoredTuple r ∧ M5.BoundedConstruction.anchoredTuple s ∧ M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) (M5.signaturePeriod F) = F := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F A B → ∃ r s : Fin w → Fin (M5.signaturePeriod F), M5.BoundedConstruction.anchoredTuple r ∧ M5.BoundedConstruction.anchoredTuple s ∧ M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) (M5.signaturePeriod F) = F
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N w F A B hw hmonic hzero hphys
+  obtain ⟨hT, hlaw⟩ := M5.Period.period_law F hmonic hzero
+  have hsig : M5.completeSignature (M5.SupportPolynomial.ofSupport A)
+      (M5.SupportPolynomial.ofSupport B) N = F := by
+    unfold M5.PhysicalOrder.realizes at hphys
+    tauto
+  have hgcd (d x y : M5.BinaryPolynomial) :
+      d ∣ EuclideanDomain.gcd x y ↔ d ∣ x ∧ d ∣ y := by
+    constructor
+    · intro h
+      exact ⟨dvd_trans h (EuclideanDomain.gcd_dvd_left x y),
+        dvd_trans h (EuclideanDomain.gcd_dvd_right x y)⟩
+    · rintro ⟨hx, hy⟩
+      exact EuclideanDomain.dvd_gcd hx hy
+  have hFN : F ∣ M5.cyclicModulus N := by
+    have h : F ∣ M5.completeSignature (M5.SupportPolynomial.ofSupport A)
+        (M5.SupportPolynomial.ofSupport B) N := by
+      rw [hsig]
+    simp only [M5.completeSignature, hgcd] at h
+    tauto
+  exact M5.ResidueNecessity.physical_to_residue N w (M5.signaturePeriod F)
+    F A B hw hT ((hlaw N).mp hFN)
+    ((hlaw (M5.signaturePeriod F)).mpr (dvd_refl _)) hphys

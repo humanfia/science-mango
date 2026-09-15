@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), M5.PhysicalOrder.realizes N 1 F A B ↔ N = 1 ∧ F = 1 ∧ A = {0} ∧ B = {0}\nintro N F A B\nclassical\nconstructor\n· intro h\n  unfold M5.PhysicalOrder.realizes at h\n  have hAc : A.card = 1 := by tauto\n  have hBc : B.card = 1 := by tauto\n  have hAz : 0 ∈ A := by tauto\n  have hBz : 0 ∈ B := by tauto\n  obtain ⟨a, rfl⟩ := Finset.card_eq_one.mp hAc\n  obtain ⟨b, rfl⟩ := Finset.card_eq_one.mp hBc\n  have ha : a = 0 := by simpa using hAz.symm\n  have hb : b = 0 := by simpa using hBz.symm\n  subst a\n  subst b\n  simp_all [M5.Connectivity.supportGcd, M5.SupportPolynomial.ofSupport,\n    M5.completeSignature, EuclideanDomain.gcd]\n· rintro ⟨rfl, rfl, rfl, rfl⟩\n  simp [M5.PhysicalOrder.realizes, M5.Connectivity.supportGcd,\n    M5.SupportPolynomial.ofSupport, M5.completeSignature, EuclideanDomain.gcd]",
+  "queries": [
+    "EuclideanDomain gcd definition gcd one polynomial",
+    "M5.PhysicalOrder.realizes definition",
+    "M5.completeSignature definition"
+  ]
+}

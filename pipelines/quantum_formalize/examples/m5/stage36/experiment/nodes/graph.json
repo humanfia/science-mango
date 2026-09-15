@@ -1,0 +1,74 @@
+[
+  {
+    "id": "recover_length",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.BinaryRecovery.recover_length",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M5.BinaryRecovery.recover c p n).length = p.length + n",
+      "imports": [
+        "M5BinaryRecovery"
+      ],
+      "context": "",
+      "queries": [
+        "list append length induction",
+        "integer additive positivity"
+      ],
+      "guidance": "Induct n generalizing p; unfold recover and split the if. List.length_append gives one additional decision each step. This algorithm evaluates the false branch count once and recurses with one fewer undecided position. Return only tactic lines without leading by; preserve exact statement."
+    },
+    "metadata": {
+      "source_section": "3 recovery",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "recover_positive",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.BinaryRecovery.recover_positive",
+      "statement": "∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (∀ q : List Bool, q.length < p.length + n → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M5.BinaryRecovery.recover c p n)",
+      "imports": [
+        "M5BinaryRecovery"
+      ],
+      "context": "",
+      "queries": [
+        "list append length induction",
+        "integer additive positivity"
+      ],
+      "guidance": "Induct n generalizing p. At successor, the split law applies atp. If false-child count>0 use it; otherwise parent positivity and count split force true-child count>0 by omega. For the recursive split hypothesis, the length bound (p++[bit]).length+n equals p.length+(n+1). No global nonnegative assumption is needed. Return only tactic lines without leading by; preserve exact statement."
+    },
+    "metadata": {
+      "source_section": "3 recovery",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "recover_valid",
+    "dependencies": [
+      "recover_length",
+      "recover_positive"
+    ],
+    "spec": {
+      "name": "M5.BinaryRecovery.recover_valid",
+      "statement": "∀ (c : List Bool → ℤ) (Valid : List Bool → Prop) (m : ℕ), (∀ q : List Bool, q.length < m → c q = c (q ++ [false]) + c (q ++ [true])) → (∀ q : List Bool, q.length = m → 0 < c q → Valid q) → 0 < c [] → (M5.BinaryRecovery.recover c [] m).length = m ∧ Valid (M5.BinaryRecovery.recover c [] m)",
+      "imports": [
+        "M5BinaryRecovery"
+      ],
+      "context": "",
+      "queries": [
+        "list append length induction",
+        "integer additive positivity"
+      ],
+      "guidance": "Apply recover_length atempty prefix and recover_positive. The terminal correctness premise then gives Valid. This is a generic algorithm theorem; later instantiate c by the proven arithmetic completion count and Valid by physical recipe validity. Do not replace c with enumeration. Return only tactic lines without leading by; preserve exact statement."
+    },
+    "metadata": {
+      "source_section": "3 recovery",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  }
+]

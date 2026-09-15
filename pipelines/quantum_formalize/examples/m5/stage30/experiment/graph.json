@@ -1,0 +1,79 @@
+{
+  "title": "M5 stage30: necessary lower orders and positive-weight boundary",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Original period/weight/degree lower bounds and exact w=1 anchored realization, no optional weight-three sharpening.",
+  "nodes": [
+    {
+      "id": "range_card",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.OrderBoundary.range_card",
+        "statement": "∀ (S : Finset ℕ) (N : ℕ), (∀ e ∈ S, e < N) → S.card ≤ N",
+        "imports": [
+          "M5OrderBoundary"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial natDegree divisibility",
+          "finset cardinality one singleton"
+        ],
+        "guidance": "Prove S subset Finset.range N, apply Finset.card_le_card and Finset.card_range. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "1,6",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "signature_lower_bounds",
+      "dependencies": [
+        "range_card"
+      ],
+      "spec": {
+        "name": "M5.OrderBoundary.signature_lower_bounds",
+        "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F A B → M5.signaturePeriod F ∣ N ∧ w ≤ N ∧ F.natDegree < N",
+        "imports": [
+          "M5OrderBoundary"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial natDegree divisibility",
+          "finset cardinality one singleton"
+        ],
+        "guidance": "Unfold realizes. Complete signature divides cyclicModulus N and ofSupport A via EuclideanDomain.gcd_dvd_left/right; rewrite its equality to F. M5.Period.period_law gives period divisibility. range_card gives weight bound. support_degree_bound at N gives deg a<N, and a nonzero from coeff0=1 using support_coeff_zero. Polynomial.natDegree_le_of_dvd bounds deg F by deg a. Use explicit gcd arguments. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "1,6",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "weight_one_iff",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.OrderBoundary.weight_one_iff",
+        "statement": "∀ (N : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), M5.PhysicalOrder.realizes N 1 F A B ↔ N = 1 ∧ F = 1 ∧ A = {0} ∧ B = {0}",
+        "imports": [
+          "M5OrderBoundary"
+        ],
+        "context": "",
+        "queries": [
+          "polynomial natDegree divisibility",
+          "finset cardinality one singleton"
+        ],
+        "guidance": "Unfold realizes. Cardinality1 and zero membership force both supports={0} using Finset.card_eq_one or eq_singleton_iff_unique_mem. Each polynomial=1. Their integer gcd is0 so supportGcd N {0} {0}=N; connectivity forces N=1. EuclideanDomain gcd of1 gives complete signature1. Reverse substitute N=F=1 and A=B={0}, unfold and simplify. No assumption w>=2; this is the source weight-one boundary. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "1,6",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

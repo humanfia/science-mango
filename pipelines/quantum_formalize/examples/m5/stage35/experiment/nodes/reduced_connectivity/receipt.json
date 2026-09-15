@@ -1,0 +1,55 @@
+{
+  "id": "reduced_connectivity",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ResidueNecessity.reduced_connectivity",
+    "spec_sha256": "1ba995b0ab9d1755a6057c6eaa6abb7985b02044cb69d6940b90e6082cb1dec1",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-t3ylsead/attempt-001/Candidate_95ea7d29f7d2be02.lean",
+        "target_path": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-t3ylsead/attempt-001/FrozenTarget_95ea7d29f7d2be02.lean",
+        "feedback": "",
+        "target_sha256": "df635c932937e936552c5991b82e7d7a3907d626552cf830b3d228bb684901f7",
+        "target_olean_sha256": "12f69b05232a9baa1e8d9c61ecf9d9d1fb49fb1513ad6df5135cd827a4299534",
+        "source_sha256": "df634f05bee2870f535eb0403c64957e228b995e4085e9a2ecf1ed3bbfdd1f0d",
+        "olean_sha256": "a41d918dd6c8016de9b7f89d1bae77cce041c1cfc993d97819cdf3bb998303fb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:39:32.169498+00:00",
+    "work": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-t3ylsead",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8f9dedf7d5a721f31d535d9ca63da9002b2a5c969beed328b164c77e337297a7",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-t3ylsead/attempt-001/Candidate_95ea7d29f7d2be02.lean",
+    "environment_sha256": "2ce7c6ee94b07f84d02d5ce009f72d9a61e2dd0f6f2e5ef45f09f991bdebc4dd",
+    "artifacts": {
+      "reduced_connectivity": {
+        "payload": {
+          "declaration": "theorem M5.ResidueNecessity.reduced_connectivity : ∀ (w N T : ℕ) (hT : 0 < T) (u v : Fin w → ℕ), T ∣ N → M5.Connectivity.supportGcd N (Finset.univ.image u) (Finset.univ.image v) = 1 → M5.BoundedConstruction.tupleSupportGcd (M5.ResidueNecessity.reduceTuple T hT u) (M5.ResidueNecessity.reduceTuple T hT v) = 1 := by\n  intro w N T hT u v hTN hconn\n  classical\n  change Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => u i % T)) (Finset.univ.gcd (fun i : Fin w => v i % T))) = 1\n  let d := Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => u i % T)) (Finset.univ.gcd (fun i : Fin w => v i % T)))\n  change d = 1\n  have hd : d ∣ T ∧ (∀ i : Fin w, d ∣ u i % T) ∧ (∀ i : Fin w, d ∣ v i % T) := by\n    have hh : d ∣ Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => u i % T)) (Finset.univ.gcd (fun i : Fin w => v i % T))) := dvd_refl d\n    simpa only [Nat.dvd_gcd_iff, Finset.dvd_gcd_iff, Finset.mem_univ, forall_const] using hh\n  have lift_dvd : ∀ a : ℕ, d ∣ a % T → d ∣ a := by\n    intro a ha\n    have hh : d ∣ a % T + T * (a / T) := dvd_add ha (dvd_mul_of_dvd_left hd.1 (a / T))\n    simpa only [Nat.mod_add_div] using hh\n  apply Nat.eq_one_of_dvd_one\n  rw [← hconn]\n  apply (M5.Connectivity.support_gcd_dvd N d (Finset.univ.image u) (Finset.univ.image v)).2\n  refine ⟨dvd_trans hd.1 hTN, ?_, ?_⟩\n  · intro a ha\n    obtain ⟨i, _, rfl⟩ := Finset.mem_image.mp ha\n    exact lift_dvd (u i) (hd.2.1 i)\n  · intro b hb\n    obtain ⟨i, _, rfl⟩ := Finset.mem_image.mp hb\n    exact lift_dvd (v i) (hd.2.2 i)",
+          "imports": [
+            "M5ResidueNecessity"
+          ],
+          "name": "M5.ResidueNecessity.reduced_connectivity",
+          "ancestors": [],
+          "spec_sha256": "1ba995b0ab9d1755a6057c6eaa6abb7985b02044cb69d6940b90e6082cb1dec1"
+        },
+        "sha256": "dfe3e83ee59aa577049725db0961c533c2573bf1d84c8f91c533f2b5faa332c3"
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+theorem M5.ResidueNecessity.signature_restriction : ∀ (a b F : M5.BinaryPolynomial) (N T : ℕ), T ∣ N → F ∣ M5.cyclicModulus T → M5.completeSignature a b N = F → M5.completeSignature a b T = F := by
+  change ∀ (a b F : M5.BinaryPolynomial) (N T : ℕ), T ∣ N → F ∣ M5.cyclicModulus T → M5.completeSignature a b N = F → M5.completeSignature a b T = F
+  intro a b F N T hTN hFT hN
+  have hgcd (d x y : M5.BinaryPolynomial) :
+      d ∣ EuclideanDomain.gcd x y ↔ d ∣ x ∧ d ∣ y := by
+    constructor
+    · intro h
+      exact ⟨dvd_trans h (EuclideanDomain.gcd_dvd_left x y),
+        dvd_trans h (EuclideanDomain.gcd_dvd_right x y)⟩
+    · rintro ⟨hx, hy⟩
+      exact EuclideanDomain.dvd_gcd hx hy
+  have hs (d : M5.BinaryPolynomial) (K : ℕ) :
+      d ∣ M5.completeSignature a b K ↔
+        d ∣ a ∧ d ∣ b ∧ d ∣ M5.cyclicModulus K := by
+    simp only [M5.completeSignature, hgcd]
+    tauto
+  have hsmall := (hs (M5.completeSignature a b T) T).mp (dvd_refl _)
+  have hlarge : F ∣ M5.completeSignature a b N := by
+    rw [hN]
+  have hFab := (hs F N).mp hlarge
+  apply M5.Signature.binary_dvd_antisymm
+  · rw [← hN]
+    exact (hs _ N).mpr ⟨hsmall.1, hsmall.2.1,
+      dvd_trans hsmall.2.2 (M5.Lift.modulus_multiple T N hTN)⟩
+  · exact (hs F T).mpr ⟨hFab.1, hFab.2.1, hFT⟩

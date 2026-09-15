@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (A W : Finset ℕ) (k : ℕ), Disjoint A W → M5.ArithmeticSubset.n P hP W k (AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A)) = (M5.CompletionBlock.count P A W k : ℤ)\nintro P hP A W k hAW\nrw [M5.ArithmeticSubset.n_exact]\nunfold M5.CompletionBlock.count\napply congrArg (fun S : Finset (Finset ℕ) => (S.card : ℤ))\napply Finset.filter_congr\nintro U hU\nhave hUW : U ⊆ W := (Finset.mem_powersetCard.mp hU).1\nhave hAU : Disjoint A U := hAW.mono_right hUW\nexact (M5.CompletionBlock.union_divisibility P A U hAU).symm",
+  "queries": []
+}

@@ -1,0 +1,84 @@
+{
+  "id": "completion_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.CompletionBlock.completion_count",
+    "spec_sha256": "2a560b6d06a729210d0740dc9ff82c89c62c64d15ace660f25fb6e50f93702f4",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-completion-block-formalization/.humanize-formal-runs/run-dj13tycj/attempt-001/Candidate_7e13358c84664a48.lean",
+        "target_path": "/home/jing/m5-lean-completion-block-formalization/.humanize-formal-runs/run-dj13tycj/attempt-001/FrozenTarget_7e13358c84664a48.lean",
+        "feedback": "",
+        "target_sha256": "010343c209c02eac119d97287575d62f11f04669b7c38e22e8e587b91e030dfd",
+        "target_olean_sha256": "bc51c9a5153ac8530999b2684d54fe7ab89c30788c60291f47d1a36bcf1c533e",
+        "source_sha256": "79b3b80523088d44edf4a1b907344b33f2a140377eeb3456ac52cf2d60878eb1",
+        "olean_sha256": "552010103acf68c2a064386aecbe314db653be7e792494ed568c9def6241c64e",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:40:07.254028+00:00",
+    "work": "/home/jing/m5-lean-completion-block-formalization/.humanize-formal-runs/run-dj13tycj",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "ee2571bbf7452e2ec6ddee12bfede55a4c6ee6059edf60ce3e407a166609ed48",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-completion-block-formalization/.humanize-formal-runs/run-dj13tycj/attempt-001/Candidate_7e13358c84664a48.lean",
+    "environment_sha256": "f9c35ba0cb00d94a24396e49d151d9be378c287bfbca849bd8e5387c46715850",
+    "artifacts": {
+      "support_union": {
+        "payload": {
+          "declaration": "theorem M5.CompletionBlock.support_union : ∀ A U : Finset ℕ, Disjoint A U → M5.SupportPolynomial.ofSupport (A ∪ U) = M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport U := by\n  change ∀ A U : Finset ℕ, Disjoint A U → M5.SupportPolynomial.ofSupport (A ∪ U) = M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport U\n  intro A U h\n  unfold M5.SupportPolynomial.ofSupport\n  exact Finset.sum_union h",
+          "imports": [
+            "M5CompletionBlock"
+          ],
+          "name": "M5.CompletionBlock.support_union",
+          "ancestors": [],
+          "spec_sha256": "ed61d8ce9dba8f963dddd960738592c9016521cf1d65de4be67cbf5149781dca"
+        },
+        "sha256": "951fb24a6a147d7ba443d3cd539df6acbf4eb5645c13cfe8dd024b207c70db7c"
+      },
+      "union_divisibility": {
+        "payload": {
+          "declaration": "theorem M5.CompletionBlock.union_divisibility : ∀ (P : M5.BinaryPolynomial) (A U : Finset ℕ), Disjoint A U → (P ∣ M5.SupportPolynomial.ofSupport (A ∪ U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A)) := by\n  change ∀ (P : M5.BinaryPolynomial) (A U : Finset ℕ), Disjoint A U → (P ∣ M5.SupportPolynomial.ofSupport (A ∪ U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A))\n  intro P A U hAU\n  have hdouble : M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport A = 0 := by\n    ext n\n    simp only [Polynomial.coeff_add, Polynomial.coeff_zero]\n    have htwo : (2 : ZMod 2) = 0 := by decide\n    rw [← two_mul, htwo, zero_mul]\n  have hdouble' := congrArg (AdjoinRoot.mk P) hdouble\n  rw [map_add, map_zero] at hdouble'\n  rw [M5.CompletionBlock.support_union A U hAU, ← AdjoinRoot.mk_eq_zero, map_add]\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans hdouble'.symm)\n  · intro h\n    rw [h]\n    exact hdouble'",
+          "imports": [
+            "M5CompletionBlock"
+          ],
+          "name": "M5.CompletionBlock.union_divisibility",
+          "ancestors": [
+            "support_union"
+          ],
+          "spec_sha256": "6d9c5739818598128ad6ab441503a25069877b8fd615845aee059a06bffcc81e"
+        },
+        "sha256": "5d26ada0c3d5cc0084e3bcf8945e97febaf040d72cb08988a761735dc97644d2"
+      },
+      "completion_count": {
+        "payload": {
+          "declaration": "theorem M5.CompletionBlock.completion_count : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (A W : Finset ℕ) (k : ℕ), Disjoint A W → M5.ArithmeticSubset.n P hP W k (AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A)) = (M5.CompletionBlock.count P A W k : ℤ) := by\n  classical\n  change ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (A W : Finset ℕ) (k : ℕ), Disjoint A W → M5.ArithmeticSubset.n P hP W k (AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A)) = (M5.CompletionBlock.count P A W k : ℤ)\n  intro P hP A W k hAW\n  rw [M5.ArithmeticSubset.n_exact]\n  unfold M5.CompletionBlock.count\n  apply congrArg (fun S : Finset (Finset ℕ) => (S.card : ℤ))\n  apply Finset.filter_congr\n  intro U hU\n  have hUW : U ⊆ W := (Finset.mem_powersetCard.mp hU).1\n  have hAU : Disjoint A U := hAW.mono_right hUW\n  exact (M5.CompletionBlock.union_divisibility P A U hAU).symm",
+          "imports": [
+            "M5CompletionBlock"
+          ],
+          "name": "M5.CompletionBlock.completion_count",
+          "ancestors": [
+            "support_union",
+            "union_divisibility"
+          ],
+          "spec_sha256": "29ad635c393d51d3a8c4676e16b11f07531c6aba2d87c38ac0859863279710d8"
+        },
+        "sha256": "e40f327adb9f66bd9c9f8567db498ea86d525a8c2ed16854f2190abe9f9194ad"
+      }
+    }
+  }
+}

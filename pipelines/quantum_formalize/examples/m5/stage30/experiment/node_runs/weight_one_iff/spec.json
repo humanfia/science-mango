@@ -1,0 +1,13 @@
+{
+  "name": "M5.OrderBoundary.weight_one_iff",
+  "statement": "∀ (N : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), M5.PhysicalOrder.realizes N 1 F A B ↔ N = 1 ∧ F = 1 ∧ A = {0} ∧ B = {0}",
+  "imports": [
+    "M5OrderBoundary"
+  ],
+  "context": "",
+  "queries": [
+    "polynomial natDegree divisibility",
+    "finset cardinality one singleton"
+  ],
+  "guidance": "Unfold realizes. Cardinality1 and zero membership force both supports={0} using Finset.card_eq_one or eq_singleton_iff_unique_mem. Each polynomial=1. Their integer gcd is0 so supportGcd N {0} {0}=N; connectivity forces N=1. EuclideanDomain gcd of1 gives complete signature1. Reverse substitute N=F=1 and A=B={0}, unfold and simplify. No assumption w>=2; this is the source weight-one boundary. Return only tactic lines without leading by; preserve exact target."
+}

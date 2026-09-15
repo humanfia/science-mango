@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (∀ q : List Bool, q.length < p.length + n → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M5.BinaryRecovery.recover c p n)\nintro c p n\ninduction n generalizing p with\n| zero =>\n    intro hs hp\n    simpa [M5.BinaryRecovery.recover] using hp\n| succ n ih =>\n    intro hs hp\n    have hsplit := hs p (by omega)\n    have hchild (b : Bool) : ∀ q : List Bool, q.length < (p ++ [b]).length + n → c q = c (q ++ [false]) + c (q ++ [true]) := by\n      intro q hq\n      apply hs q\n      simp only [List.length_append, List.length_cons, List.length_nil] at hq\n      omega\n    by_cases hf : 0 < c (p ++ [false])\n    · simpa [M5.BinaryRecovery.recover, hf] using ih (p ++ [false]) (hchild false) hf\n    · have ht : 0 < c (p ++ [true]) := by omega\n      simpa [M5.BinaryRecovery.recover, hf] using ih (p ++ [true]) (hchild true) ht",
+  "queries": []
+}

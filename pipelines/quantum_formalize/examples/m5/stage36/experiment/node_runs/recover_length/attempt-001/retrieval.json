@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "list append length induction",
+    "status": "ok",
+    "results": [
+      {
+        "id": 207976,
+        "name": "List.rdrop_append_length_add",
+        "module": "Mathlib.Data.List.DropRight",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/DropRight.lean#L214-L217",
+        "source_text": "@[simp]\nlemma rdrop_append_length_add {l₁ l₂ : List α} (k : ℕ) :\n    List.rdrop (l₁ ++ l₂) (length l₂ + k) = List.rdrop l₁ k := by\n  rw [← rdrop_add, rdrop_append_length]",
+        "docstring": null
+      },
+      {
+        "id": 207974,
+        "name": "List.rdrop_append_length",
+        "module": "Mathlib.Data.List.DropRight",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/DropRight.lean#L201-L205",
+        "source_text": "@[simp]\nlemma rdrop_append_length {l₁ l₂ : List α} :\n    List.rdrop (l₁ ++ l₂) (List.length l₂) = l₁ := by\n  rw [rdrop_eq_reverse_drop_reverse, ← length_reverse,\n      reverse_append, drop_left, reverse_reverse]",
+        "docstring": null
+      },
+      {
+        "id": 201500,
+        "name": "Fin.snocInduction",
+        "module": "Mathlib.Data.Fin.Tuple.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L724-L732",
+        "source_text": "/-- Recurse on a tuple by splitting into `Fin.elim0` and `Fin.snoc`. -/\n@[elab_as_elim]\ndef snocInduction {α : Sort*}\n    {motive : ∀ {n : ℕ}, (Fin n → α) → Sort*}\n    (elim0 : motive Fin.elim0)\n    (snoc : ∀ {n} (x : Fin n → α) (x₀), motive x → motive (Fin.snoc x x₀)) :\n    ∀ {n : ℕ} (x : Fin n → α), motive x\n  | 0, x => by convert! elim0\n  | _ + 1, x => snocCases (fun _ _ ↦ snoc _ _ <| snocInduction elim0 snoc _) x\n",
+        "docstring": "Recurse on a tuple by splitting into `Fin.elim0` and `Fin.snoc`. "
+      },
+      {
+        "id": 208833,
+        "name": "List.rotate_append_length_eq",
+        "module": "Mathlib.Data.List.Rotate",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Rotate.lean#L137-L142",
+        "source_text": "@[simp]\ntheorem rotate_append_length_eq (l l' : List α) : (l ++ l').rotate l.length = l' ++ l := by\n  rw [rotate_eq_rotate']\n  induction l generalizing l'\n  · simp\n  · simp_all [rotate']",
+        "docstring": null
+      },
+      {
+        "id": 208127,
+        "name": "List.reverseRecOn_concat",
+        "module": "Mathlib.Data.List.Induction",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Induction.lean#L53-L56",
+        "source_text": "theorem reverseRecOn_concat {motive : List α → Sort*} (x : α) (xs : List α) (nil : motive [])\n    (append_singleton : ∀ (l : List α) (a : α), motive l → motive (l ++ [a])) :\n    (xs ++ [x]).reverseRecOn nil append_singleton =\n      append_singleton xs x (reverseRecOn xs nil append_singleton) := by simp\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "list append length induction",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386738,
+        "name": "Physlib.List.orderedInsert_length",
+        "module": "Physlib.Mathematics.List.InsertionSort",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L146-L150",
+        "source_text": "@[simp]\nlemma orderedInsert_length {α : Type} (r : α → α → Prop) [DecidableRel r] (a : α) (l : List α) :\n    (List.orderedInsert r a l).length = (a :: l).length := by\n  apply List.Perm.length_eq\n  exact List.perm_orderedInsert r a l",
+        "docstring": null
+      },
+      {
+        "id": 386720,
+        "name": "Physlib.List.insertIdx_length_fst_append",
+        "module": "Physlib.Mathematics.List.InsertIdx",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L127-L133",
+        "source_text": "lemma insertIdx_length_fst_append {I : Type} (φ : I) : (φs φs' : List I) →\n    List.insertIdx (φs ++ φs') φs.length φ = (φs ++ φ :: φs')\n  | [], φs' => by simp\n  | φ' :: φs, φs' => by\n    simp only [List.length_cons, List.cons_append, List.insertIdx_succ_cons, List.cons.injEq,\n      true_and]\n    exact insertIdx_length_fst_append φ φs φs'\n",
+        "docstring": null
+      },
+      {
+        "id": 392609,
+        "name": "TensorSpecies.Tensor.IsReindexing.append_assoc_right",
+        "module": "Physlib.Relativity.Tensors.Reindexing",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Reindexing.lean#L223-L226",
+        "source_text": "lemma append_assoc_right   {n1 n2 n3 : ℕ} {c : Fin n1 → C} {c2 : Fin n2 → C} {c3 : Fin n3 → C} :\n    IsReindexing (Fin.append c (Fin.append c2 c3)) (Fin.append (Fin.append c c2) c3)\n      (Fin.cast (by grind)) :=\n  ⟨(finCongr (by grind)).bijective, fun i => (congrFun (Fin.append_assoc c c2 c3) i).symm⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 392610,
+        "name": "TensorSpecies.Tensor.IsReindexing.append_assoc_left",
+        "module": "Physlib.Relativity.Tensors.Reindexing",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Reindexing.lean#L228-L231",
+        "source_text": "lemma append_assoc_left {n1 n2 n3 : ℕ} {c : Fin n1 → C} {c2 : Fin n2 → C} {c3 : Fin n3 → C} :\n    IsReindexing (Fin.append (Fin.append c c2) c3) (Fin.append c (Fin.append c2 c3))\n      (Fin.cast (by grind)) :=\n  ⟨(finCongr (by grind)).bijective, fun i => congrFun (Fin.append_assoc c c2 c3) _⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 386740,
+        "name": "Physlib.List.takeWhile_orderedInsert'",
+        "module": "Physlib.Mathematics.List.InsertionSort",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L170-L186",
+        "source_text": "lemma takeWhile_orderedInsert' {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [Std.Total r] [IsTrans α r]\n    (a b : α) (hr : ¬ r a b) : (l : List α) →\n    (List.takeWhile (fun c => !decide (r b c)) (List.orderedInsert r a l)).length =\n    (List.takeWhile (fun c => !decide (r b c)) l).length\n  | [] => by\n    simp [List.orderedInsert, (Std.Total.total a b).resolve_left hr]\n  | c :: l => by\n    have hrba : r b a := (Std.Total.total a b).resolve_left hr\n    simp only [List.orderedInsert]\n    by_cases h : r b c\n    · by_cases hac : r a c <;> simp [h, hac, hrba]\n    · by_cases hac : r a c\n      · exact absurd (IsTrans.trans _ _ _ hrba hac) h\n      · simp only [hac, ↓reduceIte, h, decide_false, Bool.not_false, List.takeWhile_cons_of_pos,\n        List.length_cons, add_left_inj]\n        exact takeWhile_orderedInsert' r a b hr l\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "integer additive positivity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 99364,
+        "name": "Int.cast_pos",
+        "module": "Mathlib.Algebra.Order.Ring.Cast",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Ring/Cast.lean#L66-L66",
+        "source_text": "@[simp] lemma cast_pos : (0 : R) < n ↔ 0 < n := by rw [← cast_zero, cast_lt]",
+        "docstring": null
+      },
+      {
+        "id": 75781,
+        "name": "Additive",
+        "module": "Mathlib.Algebra.Group.TypeTags.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/TypeTags/Basic.lean#L40-L42",
+        "source_text": "/-- If `α` carries some multiplicative structure, then `Additive α` carries the corresponding\nadditive structure. -/\ndef Additive (α : Type*) := α\n",
+        "docstring": "If `α` carries some multiplicative structure, then `Additive α` carries the corresponding\nadditive structure. "
+      },
+      {
+        "id": 238695,
+        "name": "IsOfFinAddOrder.addOrderOf_pos",
+        "module": "Mathlib.GroupTheory.OrderOfElement",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/OrderOfElement.lean#L195-L195",
+        "source_text": "@[to_additive]\nprotected lemma IsOfFinOrder.orderOf_pos (h : IsOfFinOrder x) : 0 < orderOf x :=",
+        "docstring": null
+      },
+      {
+        "id": 328992,
+        "name": "positivity",
+        "module": "Mathlib.Tactic.Positivity.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Positivity/Core.lean#L28-L51",
+        "source_text": "/-- A definition of type `PositivityExt` tagged `@[positivity t]` extends the `positivity` tactic.\nThe term (with underscores) `t` indicates which expressions this extension accepts.\nAn extension will be given an expression `e : α`, together with hypotheses\n`[Zero α] [PartialOrder α]` and attempts to prove `e > 0`, `e ≥ 0`, or `e ≠ 0`.\n\nWhen `Positivity.core` calls this extension on an expression `e`, it does not guarantee that `e`\nmatches `t` perfectly: validate the form of the expression (using e.g.\n`match_expr (← withReducible (whnf e))`) before building a proof. See also the\n`let .app ... ← withReducible (whnf e) | throwError ...` lines in the example below.\n\nAn extension can call `Mathlib.Meta.Positivity.core` to recursively solve subgoals.\n\nExample:\n```lean\n@[positivity ite _ _ _] def evalIte : PositivityExt where eval {u α} zα pα e := do\n  let .app (.app (.app (.app f (p : Q(Prop))) (_ : Q(Decidable $p))) (a : Q($α))) (b : Q($α))\n    ← withReducible (whnf e) | throwError \"not ite\"\n  haveI' : $e =Q ite $p $a $b := ⟨⟩\n  guard <| ← withDefault <| withNewMCtxDepth <| isDefEq f q(ite (α := $α))\n  let ra ← core zα pα a; let rb ← core zα pα b\n  ...\n```\n-/\nsyntax (name := positivity) \"positivity \" term,+ : attr\n",
+        "docstring": "A definition of type `PositivityExt` tagged `@[positivity t]` extends the `positivity` tactic.\nThe term (with underscores) `t` indicates which expressions this extension accepts.\nAn extension will be given an expression `e : α`, together with hypotheses\n`[Zero α] [PartialOrder α]` and attempts to prove `e > 0`, `e ≥ 0`, or `e ≠ 0`.\n\nWhen `Positivity.core` calls this extension on an expression `e`, it does not guarantee that `e`\nmatches `t` perfectly: validate the form of the expression (using e.g.\n`match_expr (← withReducible (whnf e))`) before building a proof. See also the\n`let .app ... ← withReducible (whnf e) | throwError ...` lines in the example below.\n\nAn extension can call `Mathlib.Meta.Positivity.core` to recursively solve subgoals.\n\nExample:\n```lean\n@[positivity ite _ _ _] def evalIte : PositivityExt where eval {u α} zα pα e := do\n  let .app (.app (.app (.app f (p : Q(Prop))) (_ : Q(Decidable $p))) (a : Q($α))) (b : Q($α))\n    ← withReducible (whnf e) | throwError \"not ite\"\n  haveI' : $e =Q ite $p $a $b := ⟨⟩\n  guard <| ← withDefault <| withNewMCtxDepth <| isDefEq f q(ite (α := $α))\n  let ra ← core zα pα a; let rb ← core zα pα b\n  ...\n```\n"
+      },
+      {
+        "id": 321046,
+        "name": "Valuation.integer",
+        "module": "Mathlib.RingTheory.Valuation.Integers",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Valuation/Integers.lean#L31-L38",
+        "source_text": "/-- The ring of integers under a given valuation is the subring of elements with valuation ≤ 1. -/\ndef integer : Subring R where\n  carrier := { x | v x ≤ 1 }\n  one_mem' := le_of_eq v.map_one\n  mul_mem' {x y} hx hy := by simp only [Set.mem_setOf_eq, map_mul, mul_le_one' hx hy]\n  zero_mem' := by simp\n  add_mem' {x y} hx hy := le_trans (v.map_add x y) (max_le hx hy)\n  neg_mem' {x} hx := by simp only [Set.mem_setOf_eq] at hx; simpa only [Set.mem_setOf_eq, map_neg]\n",
+        "docstring": "The ring of integers under a given valuation is the subring of elements with valuation ≤ 1. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

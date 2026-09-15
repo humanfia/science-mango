@@ -1,0 +1,13 @@
+{
+  "name": "M5.BinaryRecovery.recover_valid",
+  "statement": "∀ (c : List Bool → ℤ) (Valid : List Bool → Prop) (m : ℕ), (∀ q : List Bool, q.length < m → c q = c (q ++ [false]) + c (q ++ [true])) → (∀ q : List Bool, q.length = m → 0 < c q → Valid q) → 0 < c [] → (M5.BinaryRecovery.recover c [] m).length = m ∧ Valid (M5.BinaryRecovery.recover c [] m)",
+  "imports": [
+    "M5BinaryRecovery"
+  ],
+  "context": "theorem M5.BinaryRecovery.recover_length : ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M5.BinaryRecovery.recover c p n).length = p.length + n := by\n  change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M5.BinaryRecovery.recover c p n).length = p.length + n\n  intro c p n\n  induction n generalizing p with\n  | zero => simp [M5.BinaryRecovery.recover]\n  | succ n ih =>\n      simp only [M5.BinaryRecovery.recover]\n      split <;> simp [ih, List.length_append, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]\n\ntheorem M5.BinaryRecovery.recover_positive : ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (∀ q : List Bool, q.length < p.length + n → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M5.BinaryRecovery.recover c p n) := by\n  change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (∀ q : List Bool, q.length < p.length + n → c q = c (q ++ [false]) + c (q ++ [true])) → 0 < c p → 0 < c (M5.BinaryRecovery.recover c p n)\n  intro c p n\n  induction n generalizing p with\n  | zero =>\n      intro hs hp\n      simpa [M5.BinaryRecovery.recover] using hp\n  | succ n ih =>\n      intro hs hp\n      have hsplit := hs p (by omega)\n      have hchild (b : Bool) : ∀ q : List Bool, q.length < (p ++ [b]).length + n → c q = c (q ++ [false]) + c (q ++ [true]) := by\n        intro q hq\n        apply hs q\n        simp only [List.length_append, List.length_cons, List.length_nil] at hq\n        omega\n      by_cases hf : 0 < c (p ++ [false])\n      · simpa [M5.BinaryRecovery.recover, hf] using ih (p ++ [false]) (hchild false) hf\n      · have ht : 0 < c (p ++ [true]) := by omega\n        simpa [M5.BinaryRecovery.recover, hf] using ih (p ++ [true]) (hchild true) ht",
+  "queries": [
+    "list append length induction",
+    "integer additive positivity"
+  ],
+  "guidance": "Apply recover_length atempty prefix and recover_positive. The terminal correctness premise then gives Valid. This is a generic algorithm theorem; later instantiate c by the proven arithmetic completion count and Valid by physical recipe validity. Do not replace c with enumeration. Return only tactic lines without leading by; preserve exact statement."
+}

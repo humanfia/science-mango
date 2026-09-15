@@ -1,0 +1,61 @@
+{
+  "id": "weight_one_iff",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.OrderBoundary.weight_one_iff",
+    "spec_sha256": "a9933f46b8ee55dee2f1f3d834b40e4a8666d68218033fe39950eba047f9ea2e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-order-boundary-formalization/.humanize-formal-runs/run-ilejt1l5/attempt-001/Candidate_8edbe34d82544756.lean:15:42: error(lean.invalidField): Invalid field `symm`: The environment does not contain `List.Mem.symm`, so it is not possible to project the field `symm` from an expression\n  hAz\nof type `List.Mem 0 [a]`\n/home/jing/m5-lean-order-boundary-formalization/.humanize-formal-runs/run-ilejt1l5/attempt-001/Candidate_8edbe34d82544756.lean:16:42: error(lean.invalidField): Invalid field `symm`: The environment does not contain `List.Mem.symm`, so it is not possible to project the field `symm` from an expression\n  hBz\nof type `List.Mem 0 [b]`\n/home/jing/m5-lean-order-boundary-formalization/.humanize-formal-runs/run-ilejt1l5/attempt-001/Candidate_8edbe34d82544756.lean:20:28: warning: This simp argument is unused:\n  EuclideanDomain.gcd\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [M5.Connectivity.supportGcd, M5.SupportPolynomial.ofSupport, M5.completeSignature]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m5-lean-order-boundary-formalization/.humanize-formal-runs/run-ilejt1l5/attempt-001/Candidate_8edbe34d82544756.lean:23:60: warning: This simp argument is unused:\n  EuclideanDomain.gcd\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.PhysicalOrder.realizes, M5.Connectivity.supportGcd, M5.SupportPolynomial.ofSupport,\n    M5.completeSignature]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-order-boundary-formalization/.humanize-formal-runs/run-ilejt1l5/attempt-002/Candidate_6f2dafbd9d7d2b8d.lean",
+        "target_path": "/home/jing/m5-lean-order-boundary-formalization/.humanize-formal-runs/run-ilejt1l5/attempt-002/FrozenTarget_6f2dafbd9d7d2b8d.lean",
+        "feedback": "",
+        "target_sha256": "539c942dc5059884f43b8b9fea1524b0947d64cc31abd9ca2e2a6ce2614b5345",
+        "target_olean_sha256": "b752820c0868037171a288534859c03410d6bccb85012b9b1292145d3b652981",
+        "source_sha256": "a3f78c6a0f2d0ce1ad89c966d0fc5f90e054be682f77d7e3ed80fb6421d6e54a",
+        "olean_sha256": "6e9faf05e1cc5501a6ab50e03c70a5b1f1fae98841b7a9fccd74e76149d2838b",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T08:32:44.043705+00:00",
+    "work": "/home/jing/m5-lean-order-boundary-formalization/.humanize-formal-runs/run-ilejt1l5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5fc819da057696496376d636f84da5876003fd6690380bf69f192dba0beac069",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-order-boundary-formalization/.humanize-formal-runs/run-ilejt1l5/attempt-002/Candidate_6f2dafbd9d7d2b8d.lean",
+    "environment_sha256": "2a86765485f53d587727410f2b6de6a8ed33921eb2efb45546a9300bfd2dd4b3",
+    "artifacts": {
+      "weight_one_iff": {
+        "payload": {
+          "declaration": "theorem M5.OrderBoundary.weight_one_iff : ∀ (N : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), M5.PhysicalOrder.realizes N 1 F A B ↔ N = 1 ∧ F = 1 ∧ A = {0} ∧ B = {0} := by\n  change ∀ (N : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), M5.PhysicalOrder.realizes N 1 F A B ↔ N = 1 ∧ F = 1 ∧ A = {0} ∧ B = {0}\n  intro N F A B\n  constructor\n  · intro h\n    unfold M5.PhysicalOrder.realizes at h\n    have hAc : A.card = 1 := by tauto\n    have hBc : B.card = 1 := by tauto\n    have hAz : 0 ∈ A := by tauto\n    have hBz : 0 ∈ B := by tauto\n    have hA : A = {0} := by\n      obtain ⟨a, ha⟩ := Finset.card_eq_one.mp hAc\n      rw [ha] at hAz\n      have hz : 0 = a := Finset.mem_singleton.mp hAz\n      simpa only [← hz] using ha\n    have hB : B = {0} := by\n      obtain ⟨b, hb⟩ := Finset.card_eq_one.mp hBc\n      rw [hb] at hBz\n      have hz : 0 = b := Finset.mem_singleton.mp hBz\n      simpa only [← hz] using hb\n    subst A\n    subst B\n    simp_all [M5.Connectivity.supportGcd, M5.SupportPolynomial.ofSupport, M5.completeSignature]\n  · rintro ⟨rfl, rfl, rfl, rfl⟩\n    simp [M5.PhysicalOrder.realizes, M5.Connectivity.supportGcd, M5.SupportPolynomial.ofSupport, M5.completeSignature]",
+          "imports": [
+            "M5OrderBoundary"
+          ],
+          "name": "M5.OrderBoundary.weight_one_iff",
+          "ancestors": [],
+          "spec_sha256": "a9933f46b8ee55dee2f1f3d834b40e4a8666d68218033fe39950eba047f9ea2e"
+        },
+        "sha256": "c26bcab6f90e291a12b134f18aa40e292f2e7f6a5794493ddf9550dd9a9b100f"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (P : M5.BinaryPolynomial) (A U : Finset ℕ), Disjoint A U → (P ∣ M5.SupportPolynomial.ofSupport (A ∪ U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A))\nintro P A U hAU\nhave hdouble : M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport A = 0 := by\n  ext n\n  simp only [Polynomial.coeff_add, Polynomial.coeff_zero]\n  have htwo : (2 : ZMod 2) = 0 := by decide\n  rw [← two_mul, htwo, zero_mul]\nhave hdouble' := congrArg (AdjoinRoot.mk P) hdouble\nrw [map_add, map_zero] at hdouble'\nrw [M5.CompletionBlock.support_union A U hAU, ← AdjoinRoot.mk_eq_zero, map_add]\nconstructor\n· intro h\n  exact add_left_cancel (h.trans hdouble'.symm)\n· intro h\n  rw [h]\n  exact hdouble'",
+  "queries": []
+}

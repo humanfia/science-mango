@@ -1,0 +1,55 @@
+{
+  "id": "gcd_cons",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ResidueTailBridge.gcd_cons",
+    "spec_sha256": "8b41b5ac0fe15b72d6ede58548531e0368d6861b224370a846aa95f3fc8de8a0",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-residue-tail-bridge-formalization/.humanize-formal-runs/run-z00oa2hv/attempt-001/Candidate_e23211bee9cc6630.lean",
+        "target_path": "/home/jing/m5-lean-residue-tail-bridge-formalization/.humanize-formal-runs/run-z00oa2hv/attempt-001/FrozenTarget_e23211bee9cc6630.lean",
+        "feedback": "",
+        "target_sha256": "a612efe3287bb72b1eedadc79fcb6076e419d388da3e771eb775a0684b7dc39f",
+        "target_olean_sha256": "6f9c480901928f380b3bf01c86fe30ff6e067dbd314c8ec17dc0ac678d53f7b6",
+        "source_sha256": "b590e000122703e05c85d6cb28ba85740b073d1b99a404b8b1b4dd63ff5b6e8f",
+        "olean_sha256": "2b7fe0cb45f30e80a71ed0d83b3401f7a8aa3044be3bdbb40453e9470b3f45f2",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:36:09.249398+00:00",
+    "work": "/home/jing/m5-lean-residue-tail-bridge-formalization/.humanize-formal-runs/run-z00oa2hv",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "be198599cc1bda041cf3d2205e6aa8797ff8c8c14bc22eb89e09f330b3447fa1",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-residue-tail-bridge-formalization/.humanize-formal-runs/run-z00oa2hv/attempt-001/Candidate_e23211bee9cc6630.lean",
+    "environment_sha256": "acce4853de6ec6a09456daf51c05111f9de150b8f88ebfaee16f812e14391d56",
+    "artifacts": {
+      "gcd_cons": {
+        "payload": {
+          "declaration": "theorem M5.ResidueTailBridge.gcd_cons : ∀ (T k : ℕ) (hT : 0 < T) (r : Fin k → Fin T), Finset.univ.gcd (fun i : Fin (k + 1) => (M5.ResidueTailBridge.anchored hT r i).val) = Finset.univ.gcd (fun i : Fin k => (r i).val) := by\n  intro T k hT r\n  apply Nat.dvd_antisymm\n  · apply Finset.dvd_gcd_iff.mpr\n    intro i hi\n    simpa [M5.ResidueTailBridge.anchored] using\n      (Finset.gcd_dvd (s := Finset.univ)\n        (f := fun j : Fin (k + 1) => (M5.ResidueTailBridge.anchored hT r j).val)\n        (Finset.mem_univ i.succ))\n  · apply Finset.dvd_gcd_iff.mpr\n    intro i hi\n    refine Fin.cases ?_ (fun j => ?_) i\n    · simp [M5.ResidueTailBridge.anchored]\n    · simpa [M5.ResidueTailBridge.anchored] using\n        (Finset.gcd_dvd (s := Finset.univ)\n          (f := fun j : Fin k => (r j).val)\n          (Finset.mem_univ j))",
+          "imports": [
+            "M5ResidueTailBridge"
+          ],
+          "name": "M5.ResidueTailBridge.gcd_cons",
+          "ancestors": [],
+          "spec_sha256": "8b41b5ac0fe15b72d6ede58548531e0368d6861b224370a846aa95f3fc8de8a0"
+        },
+        "sha256": "fae194c91dd6cbd4de043fd4ad81db3af72749041e14282c07f2d8ae89f915ec"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "M5.ResidueNecessity.signature_restriction",
+  "statement": "∀ (a b F : M5.BinaryPolynomial) (N T : ℕ), T ∣ N → F ∣ M5.cyclicModulus T → M5.completeSignature a b N = F → M5.completeSignature a b T = F",
+  "imports": [
+    "M5ResidueNecessity"
+  ],
+  "context": "",
+  "queries": [
+    "Finset orderEmbOfFin zero image enumeration",
+    "polynomial gcd divisibility quotient monomial"
+  ],
+  "guidance": "Use modulus_multiple T N. The gcd at T divides the gcd at N=F. Conversely F divides a,b and M_T. Apply binary_dvd_antisymm and EuclideanDomain gcd divisibility. No irreducibility or squarefree assumption; all multiplicities retained.\nReturn tactic lines without leading by. Preserve exact target.\nExact imported local API (use explicit argument order):\nM5.SupportPolynomial.quotient_monomial_period : ∀ T a j : ℕ, AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ (a + j * T)) = AdjoinRoot.mk (M5.cyclicModulus T) ((Polynomial.X : M5.BinaryPolynomial) ^ a)\nM5.Connectivity.support_gcd_dvd : ∀ (N d : ℕ) (A B : Finset ℕ), d ∣ M5.Connectivity.supportGcd N A B ↔ d ∣ N ∧ (∀ a ∈ A, d ∣ a) ∧ (∀ b ∈ B, d ∣ b)\nM5.Lift.modulus_multiple : ∀ E N : ℕ, E ∣ N → M5.cyclicModulus E ∣ M5.cyclicModulus N\nM5.Signature.binary_dvd_antisymm : ∀ P Q : M5.BinaryPolynomial, P ∣ Q → Q ∣ P → P = Q\nM5.SignatureCongruence.complete_signature_congruence : ∀ (a b a' b' : M5.BinaryPolynomial) (T : ℕ), AdjoinRoot.mk (M5.cyclicModulus T) a = AdjoinRoot.mk (M5.cyclicModulus T) a' → AdjoinRoot.mk (M5.cyclicModulus T) b = AdjoinRoot.mk (M5.cyclicModulus T) b' → M5.completeSignature a b T = M5.completeSignature a' b' T\nM5.Period.period_law : ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N"
+}

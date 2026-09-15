@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro w T hT u hu\nchange AdjoinRoot.mk (M5.cyclicModulus T)\n    (∑ a ∈ Finset.univ.image u, (Polynomial.X : M5.BinaryPolynomial) ^ a) =\n  AdjoinRoot.mk (M5.cyclicModulus T)\n    (∑ i : Fin w, (Polynomial.X : M5.BinaryPolynomial) ^ (u i % T))\nrw [Finset.sum_image (fun i _ j _ hij => hu hij)]\nsimp only [map_sum]\napply Finset.sum_congr rfl\nintro i hi\nhave he : u i % T + (u i / T) * T = u i := by\n  rw [Nat.mul_comm (u i / T) T]\n  exact Nat.mod_add_div (u i) T\nhave hp := M5.SupportPolynomial.quotient_monomial_period T (u i % T) (u i / T)\nrw [he] at hp\nexact hp",
+  "queries": []
+}

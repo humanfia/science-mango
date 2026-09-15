@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (A : Finset ℕ) (w : ℕ), 0 < w → A.card = w → 0 ∈ A → ∃ u : Fin w → ℕ, Function.Injective u ∧ Finset.univ.image u = A ∧ ∀ i : Fin w, i.val = 0 → u i = 0\nintro A w hw hcard hzero\nrefine ⟨A.orderEmbOfFin hcard, (A.orderEmbOfFin hcard).injective, Finset.image_orderEmbOfFin_univ A hcard, ?_⟩\nintro i hi\nhave hi' : i = ⟨0, hw⟩ := Fin.ext hi\nrw [hi', Finset.orderEmbOfFin_zero hcard hw]\nexact le_antisymm (Finset.min'_le A 0 hzero) (Nat.zero_le _)",
+  "queries": []
+}

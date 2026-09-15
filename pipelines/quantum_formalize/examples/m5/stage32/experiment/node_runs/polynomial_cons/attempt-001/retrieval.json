@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Fin cons finite sum successor",
+    "status": "ok",
+    "results": [
+      {
+        "id": 57409,
+        "name": "Fin.sum_univ_succ",
+        "module": "Mathlib.Algebra.BigOperators.Fin",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L74-L75",
+        "source_text": "@[to_additive /-- A sum of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)` is the sum of\n`f 0` plus the remaining sum -/]\ntheorem prod_univ_succ (f : Fin (n + 1) → M) :\n    ∏ i, f i = f 0 * ∏ i : Fin n, f i.succ :=",
+        "docstring": "A sum of a function `f : Fin (n + 1) → M` over all `Fin (n + 1)` is the sum of\n`f 0` plus the remaining sum "
+      },
+      {
+        "id": 201073,
+        "name": "Fin.val_add_one_of_lt'",
+        "module": "Mathlib.Data.Fin.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Basic.lean#L541-L544",
+        "source_text": "theorem val_add_one_of_lt' {n : ℕ} {i : Fin n} (h : i + 1 < n) :\n    haveI := i.neZero\n    (i + 1).val = i.val + 1 := by\n  simpa [add_def] using Nat.mod_eq_of_lt (by lia)\n",
+        "docstring": null
+      },
+      {
+        "id": 201401,
+        "name": "Fin.cons",
+        "module": "Mathlib.Data.Fin.Tuple.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L112-L113",
+        "source_text": "/-- Adding an element at the beginning of an `n`-tuple, to get an `n+1`-tuple. -/\ndef cons (x : α 0) (p : ∀ i : Fin n, α i.succ) : ∀ i, α i := fun j ↦ Fin.cases x p j\n",
+        "docstring": "Adding an element at the beginning of an `n`-tuple, to get an `n+1`-tuple. "
+      },
+      {
+        "id": 57417,
+        "name": "Fin.sum_cons",
+        "module": "Mathlib.Algebra.BigOperators.Fin",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Fin.lean#L97-L97",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem prod_cons (x : M) (f : Fin n → M) :",
+        "docstring": null
+      },
+      {
+        "id": 201432,
+        "name": "Fin.cons_le",
+        "module": "Mathlib.Data.Fin.Tuple.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Basic.lean#L273-L275",
+        "source_text": "theorem cons_le [∀ i, Preorder (α i)] {x : α 0} {q : ∀ i, α i} {p : ∀ i : Fin n, α i.succ} :\n    cons x p ≤ q ↔ x ≤ q 0 ∧ p ≤ tail q :=\n  @le_cons _ (fun i ↦ (α i)ᵒᵈ) _ x q p\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Fin cons finite sum successor",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386359,
+        "name": "Physlib.Fin.equivCons_succ",
+        "module": "Physlib.Mathematics.Fin",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L281-L283",
+        "source_text": "@[simp]\nlemma equivCons_succ {n m : ℕ} (e : Fin n ≃ Fin m) (i : ℕ) (hi : i + 1 < n.succ) :\n    (Fin.equivCons e) ⟨i + 1, hi⟩ = (e ⟨i, Nat.succ_lt_succ_iff.mp hi⟩).succ := rfl",
+        "docstring": null
+      },
+      {
+        "id": 386354,
+        "name": "Physlib.Fin.equivCons",
+        "module": "Physlib.Mathematics.Fin",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L253-L259",
+        "source_text": "/-- Given an equivalence between `Fin n` and `Fin m`, the induced equivalence between\n  `Fin n.succ` and `Fin m.succ` derived by `Fin.cons`. -/\ndef equivCons {n m : ℕ} (e : Fin n ≃ Fin m) : Fin n.succ ≃ Fin m.succ where\n  toFun := Fin.cons 0 (Fin.succ ∘ e.toFun)\n  invFun := Fin.cons 0 (Fin.succ ∘ e.invFun)\n  left_inv i := by induction i using Fin.cases <;> simp\n  right_inv i := by induction i using Fin.cases <;> simp\n",
+        "docstring": "Given an equivalence between `Fin n` and `Fin m`, the induced equivalence between\n`Fin n.succ` and `Fin m.succ` derived by `Fin.cons`. "
+      },
+      {
+        "id": 386356,
+        "name": "Physlib.Fin.equivCons_trans",
+        "module": "Physlib.Mathematics.Fin",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L265-L269",
+        "source_text": "@[simp]\nlemma equivCons_trans {n m k : ℕ} (e : Fin n ≃ Fin m) (f : Fin m ≃ Fin k) :\n    Fin.equivCons (e.trans f) = (Fin.equivCons e).trans (Fin.equivCons f) := by\n  ext x\n  induction x using Fin.cases <;> rfl",
+        "docstring": null
+      },
+      {
+        "id": 386355,
+        "name": "Physlib.Fin.equivCons_zero",
+        "module": "Physlib.Mathematics.Fin",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin.lean#L261-L263",
+        "source_text": "@[simp]\nlemma equivCons_zero {n m : ℕ} (e : Fin n ≃ Fin m) :\n    equivCons e 0 = 0 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 386360,
+        "name": "Physlib.Fin.involutionCons",
+        "module": "Physlib.Mathematics.Fin.Involutions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/Fin/Involutions.lean#L26-L144",
+        "source_text": "/-- There is an equivalence between involutions of `Fin n.succ` and involutions of\n  `Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n    in `Fin n.succ` will be sent). -/\ndef involutionCons (n : ℕ) : {f : Fin n.succ → Fin n.succ // Function.Involutive f } ≃\n    (f : {f : Fin n → Fin n // Function.Involutive f}) × {i : Option (Fin n) //\n      ∀ (h : i.isSome), f.1 (Option.get i h) = (Option.get i h)} where\n  toFun f := ⟨⟨\n    fun i =>\n    if h : f.1 i.succ = 0 then i\n    else Fin.pred (f.1 i.succ) h, by\n    intro i\n    by_cases h : f.1 i.succ = 0\n    · simp [h]\n    · simp only [succ_eq_add_one, h, ↓reduceDIte, Fin.succ_pred, f.2 i.succ, Fin.pred_succ,\n        dite_eq_ite, ite_eq_right_iff]\n      exact fun h => False.elim (Fin.succ_ne_zero i h)⟩,\n    ⟨if h : f.1 0 = 0 then none else Fin.pred (f.1 0) h, by\n    by_cases h0 : f.1 0 = 0\n    · simp [h0]\n    · simp only [succ_eq_add_one, h0, ↓reduceDIte, Option.isSome_some, Option.get_some,\n      Fin.succ_pred, dite_eq_left_iff, Fin.pred_inj, forall_const]\n      refine fun h => False.elim (h (f.2 0))⟩⟩\n  invFun f := ⟨\n      if h : (f.2.1).isSome then\n        Fin.cons (f.2.1.get h).succ (Function.update (Fin.succ ∘ f.1.1) (f.2.1.get h) 0)\n      else\n        Fin.cons 0 (Fin.succ ∘ f.1.1), by\n    by_cases hs : (f.2.1).isSome\n    · simp only [Nat.succ_eq_add_one, hs, ↓reduceDIte]\n      let a := f.2.1.get hs\n      change Function.Involutive (Fin.cons a.succ (Function.update (Fin.succ ∘ ↑f.fst) a 0))\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        rw [Fin.cons_zero, Fin.cons_succ]\n        simp\n      · subst hj\n        rw [Fin.cons_succ]\n        by_cases hja : j = a\n        · subst hja\n          simp\n        · rw [Function.update_apply, if_neg hja]\n          simp only [Function.comp_apply, Fin.cons_succ]\n          have hf2 := f.2.2 hs\n          change f.1.1 a = a at hf2\n          have hjf1 : f.1.1 j ≠ a := fun hn => hja (by rw [← f.1.2 j, hn, hf2])\n          rw [Function.update_apply, if_neg hjf1]\n          simp only [Function.comp_apply, Fin.succ_inj]\n          rw [f.1.2]\n    · simp only [succ_eq_add_one, hs, Bool.false_eq_true, ↓reduceDIte]\n      intro i\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.succ_inj]\n        rw [f.1.2]⟩\n  left_inv f := by\n    match f with\n    | ⟨f, hf⟩ =>\n    have hpred (j : Fin n) (hj : f j.succ ≠ 0) :\n        (↑(if h : f j.succ = 0 then j else (f j.succ).pred h) + 1 : ℕ) = ↑(f j.succ) := by\n      rw [dif_neg hj, Fin.val_pred]\n      have hv : (f j.succ).val ≠ 0 := fun h => hj (Fin.ext (by simpa using h))\n      omega\n    simp only [succ_eq_add_one, Option.isSome_dite', Option.get_dite', Fin.succ_pred,\n      Fin.cons_update, dite_eq_ite, ite_not, Subtype.mk.injEq]\n    ext i\n    by_cases h0 : f 0 = 0\n    · simp only [h0, ↓reduceIte]\n      rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n      · subst hi\n        simp [h0]\n      · subst hj\n        simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n        refine hpred j fun hj => Fin.succ_ne_zero j (hf.injective (hj.trans h0.symm))\n    · rw [if_neg h0]\n      by_cases hf' : i = f 0\n      · subst hf'\n        simp only [Function.update_self, Fin.val_zero]\n        rw [hf]\n        simp\n      · rw [Function.update_apply, if_neg hf']\n        rcases Fin.eq_zero_or_eq_succ i with hi | ⟨j, hj⟩\n        · subst hi\n          simp\n        · subst hj\n          simp only [Fin.cons_succ, Function.comp_apply, Fin.val_succ]\n          refine hpred j fun hj => hf' ?_\n          rw [← hj, hf]\n  right_inv f := by\n    match f with\n    | ⟨⟨f, hf⟩, ⟨f0, hf0⟩⟩ =>\n    ext i\n    · simp only [succ_eq_add_one, Fin.cons_update]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        by_cases hi : i = f0.get hs\n        · simp only [Function.update_apply, hi, ↓reduceIte, ↓reduceDIte]\n          exact Eq.symm (Fin.val_eq_of_eq (hf0 hs))\n        · simp only [ne_eq, Fin.succ_inj, hi, not_false_eq_true, Function.update_of_ne,\n          Fin.cons_succ, Function.comp_apply, Fin.pred_succ, dite_eq_ite]\n          rw [if_neg (Fin.succ_ne_zero (f i))]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_succ, Function.comp_apply,\n        Fin.pred_succ, dite_eq_ite]\n        rw [if_neg (Fin.succ_ne_zero (f i))]\n    · simp only [Nat.succ_eq_add_one, Option.dite_none_left_eq_some, Option.some.injEq]\n      by_cases hs : f0.isSome\n      · simp only [hs, ↓reduceDIte]\n        simp only [Fin.cons_zero, Fin.pred_succ, exists_prop]\n        have hx : ¬ (f0.get hs).succ = 0 := (Fin.succ_ne_zero (f0.get hs))\n        simp only [hx, not_false_eq_true, true_and]\n        rw [Option.eq_some_iff_get_eq]\n        simp [hs]\n      · simp only [hs, Bool.false_eq_true, ↓reduceDIte, Fin.cons_zero, not_true_eq_false,\n        IsEmpty.exists_iff, false_iff]\n        simp only [Bool.not_eq_true, Option.isSome_eq_false_iff, Option.isNone_iff_eq_none] at hs\n        subst hs\n        exact ne_of_beq_false rfl\n",
+        "docstring": "There is an equivalence between involutions of `Fin n.succ` and involutions of\n`Fin n` and an optional valid choice of an element in `Fin n` (which is where `0`\n  in `Fin n.succ` will be sent). "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset gcd divisibility",
+    "status": "ok",
+    "results": [
+      {
+        "id": 66034,
+        "name": "Finset.gcd_dvd",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L141-L142",
+        "source_text": "theorem gcd_dvd {b : β} (hb : b ∈ s) : s.gcd f ∣ f b :=\n  dvd_gcd_iff.1 dvd_rfl _ hb\n",
+        "docstring": null
+      },
+      {
+        "id": 66030,
+        "name": "Finset.gcd",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L123-L125",
+        "source_text": "/-- Greatest common divisor of a finite set -/\ndef gcd (s : Finset β) (f : β → α) : α :=\n  s.fold GCDMonoid.gcd 0 f\n",
+        "docstring": "Greatest common divisor of a finite set "
+      },
+      {
+        "id": 66043,
+        "name": "Finset.gcd_mono",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L178-L179",
+        "source_text": "theorem gcd_mono (h : s₁ ⊆ s₂) : s₂.gcd f ∣ s₁.gcd f :=\n  dvd_gcd fun _ hb ↦ gcd_dvd (h hb)\n",
+        "docstring": null
+      },
+      {
+        "id": 66033,
+        "name": "Finset.dvd_gcd_iff",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L136-L139",
+        "source_text": "theorem dvd_gcd_iff {a : α} : a ∣ s.gcd f ↔ ∀ b ∈ s, a ∣ f b := by\n  apply Iff.trans Multiset.dvd_gcd\n  simp only [Multiset.mem_map, and_imp, exists_imp]\n  exact ⟨fun k b hb ↦ k _ _ hb rfl, fun k a' b hb h ↦ h ▸ k _ hb⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 66035,
+        "name": "Finset.dvd_gcd",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L144-L145",
+        "source_text": "theorem dvd_gcd {a : α} : (∀ b ∈ s, a ∣ f b) → a ∣ s.gcd f :=\n  dvd_gcd_iff.2\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

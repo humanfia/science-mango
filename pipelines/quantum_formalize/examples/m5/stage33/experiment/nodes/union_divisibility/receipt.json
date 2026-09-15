@@ -1,0 +1,69 @@
+{
+  "id": "union_divisibility",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.CompletionBlock.union_divisibility",
+    "spec_sha256": "d96c9d4ff138649b69aa6150ebcaa69247fa71fc4e8a69dfadaa9a822849953c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-completion-block-formalization/.humanize-formal-runs/run-zputes1b/attempt-001/Candidate_41d451f8f56e689b.lean",
+        "target_path": "/home/jing/m5-lean-completion-block-formalization/.humanize-formal-runs/run-zputes1b/attempt-001/FrozenTarget_41d451f8f56e689b.lean",
+        "feedback": "",
+        "target_sha256": "83612b28781aa1e40ed81a091ffd94dbeb92f9992a40af72e5a2aee09d0f26d8",
+        "target_olean_sha256": "70e714446d151852ee6d7c47c4421ea6d1eff168bda2f442e6d4ff540eb8ef1b",
+        "source_sha256": "59826b9b64e6c9bb5f35a0bb92e635840ede6959017c50c1cb7905cfd4861869",
+        "olean_sha256": "2b6c98d57791ac97a1040a016a572c9f1c0d1658e76c00302cd90ebc8ddc0e28",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:38:41.324834+00:00",
+    "work": "/home/jing/m5-lean-completion-block-formalization/.humanize-formal-runs/run-zputes1b",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "ee2571bbf7452e2ec6ddee12bfede55a4c6ee6059edf60ce3e407a166609ed48",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-completion-block-formalization/.humanize-formal-runs/run-zputes1b/attempt-001/Candidate_41d451f8f56e689b.lean",
+    "environment_sha256": "f9c35ba0cb00d94a24396e49d151d9be378c287bfbca849bd8e5387c46715850",
+    "artifacts": {
+      "support_union": {
+        "payload": {
+          "declaration": "theorem M5.CompletionBlock.support_union : ∀ A U : Finset ℕ, Disjoint A U → M5.SupportPolynomial.ofSupport (A ∪ U) = M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport U := by\n  change ∀ A U : Finset ℕ, Disjoint A U → M5.SupportPolynomial.ofSupport (A ∪ U) = M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport U\n  intro A U h\n  unfold M5.SupportPolynomial.ofSupport\n  exact Finset.sum_union h",
+          "imports": [
+            "M5CompletionBlock"
+          ],
+          "name": "M5.CompletionBlock.support_union",
+          "ancestors": [],
+          "spec_sha256": "ed61d8ce9dba8f963dddd960738592c9016521cf1d65de4be67cbf5149781dca"
+        },
+        "sha256": "951fb24a6a147d7ba443d3cd539df6acbf4eb5645c13cfe8dd024b207c70db7c"
+      },
+      "union_divisibility": {
+        "payload": {
+          "declaration": "theorem M5.CompletionBlock.union_divisibility : ∀ (P : M5.BinaryPolynomial) (A U : Finset ℕ), Disjoint A U → (P ∣ M5.SupportPolynomial.ofSupport (A ∪ U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A)) := by\n  change ∀ (P : M5.BinaryPolynomial) (A U : Finset ℕ), Disjoint A U → (P ∣ M5.SupportPolynomial.ofSupport (A ∪ U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A))\n  intro P A U hAU\n  have hdouble : M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport A = 0 := by\n    ext n\n    simp only [Polynomial.coeff_add, Polynomial.coeff_zero]\n    have htwo : (2 : ZMod 2) = 0 := by decide\n    rw [← two_mul, htwo, zero_mul]\n  have hdouble' := congrArg (AdjoinRoot.mk P) hdouble\n  rw [map_add, map_zero] at hdouble'\n  rw [M5.CompletionBlock.support_union A U hAU, ← AdjoinRoot.mk_eq_zero, map_add]\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans hdouble'.symm)\n  · intro h\n    rw [h]\n    exact hdouble'",
+          "imports": [
+            "M5CompletionBlock"
+          ],
+          "name": "M5.CompletionBlock.union_divisibility",
+          "ancestors": [
+            "support_union"
+          ],
+          "spec_sha256": "6d9c5739818598128ad6ab441503a25069877b8fd615845aee059a06bffcc81e"
+        },
+        "sha256": "5d26ada0c3d5cc0084e3bcf8945e97febaf040d72cb08988a761735dc97644d2"
+      }
+    }
+  }
+}

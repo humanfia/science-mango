@@ -1,0 +1,55 @@
+{
+  "id": "reduced_polynomial",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ResidueNecessity.reduced_polynomial",
+    "spec_sha256": "54cd217aa78e754239af3ba8505289bd5d2c173e9c3b1a37e2cb81ceff2c1e26",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-wdvawun1/attempt-001/Candidate_c0e9eb56b70ee465.lean",
+        "target_path": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-wdvawun1/attempt-001/FrozenTarget_c0e9eb56b70ee465.lean",
+        "feedback": "",
+        "target_sha256": "171d95732b669cf49419b5e061c379036200f702e602875a8d15e28d8348b307",
+        "target_olean_sha256": "847bfa401e80565f5f865667e1cbb2cfe3fdc8faf32b6997c9b1465c7246576d",
+        "source_sha256": "4e49e2999bb72f0763ca0c7ae9fe71db355a076eb81e55b37964a11aa18b8e47",
+        "olean_sha256": "c0ca4a6a014c7b74c52702d5d4bdc83b1750ae9f60dd44c34c4ad9f49e0e7451",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:39:32.229584+00:00",
+    "work": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-wdvawun1",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8f9dedf7d5a721f31d535d9ca63da9002b2a5c969beed328b164c77e337297a7",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-wdvawun1/attempt-001/Candidate_c0e9eb56b70ee465.lean",
+    "environment_sha256": "2ce7c6ee94b07f84d02d5ce009f72d9a61e2dd0f6f2e5ef45f09f991bdebc4dd",
+    "artifacts": {
+      "reduced_polynomial": {
+        "payload": {
+          "declaration": "theorem M5.ResidueNecessity.reduced_polynomial : ∀ (w T : ℕ) (hT : 0 < T) (u : Fin w → ℕ), Function.Injective u → AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofSupport (Finset.univ.image u)) = AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofResidueTuple (M5.ResidueNecessity.reduceTuple T hT u)) := by\n  classical\n  intro w T hT u hu\n  change AdjoinRoot.mk (M5.cyclicModulus T)\n      (∑ a ∈ Finset.univ.image u, (Polynomial.X : M5.BinaryPolynomial) ^ a) =\n    AdjoinRoot.mk (M5.cyclicModulus T)\n      (∑ i : Fin w, (Polynomial.X : M5.BinaryPolynomial) ^ (u i % T))\n  rw [Finset.sum_image (fun i _ j _ hij => hu hij)]\n  simp only [map_sum]\n  apply Finset.sum_congr rfl\n  intro i hi\n  have he : u i % T + (u i / T) * T = u i := by\n    rw [Nat.mul_comm (u i / T) T]\n    exact Nat.mod_add_div (u i) T\n  have hp := M5.SupportPolynomial.quotient_monomial_period T (u i % T) (u i / T)\n  rw [he] at hp\n  exact hp",
+          "imports": [
+            "M5ResidueNecessity"
+          ],
+          "name": "M5.ResidueNecessity.reduced_polynomial",
+          "ancestors": [],
+          "spec_sha256": "54cd217aa78e754239af3ba8505289bd5d2c173e9c3b1a37e2cb81ceff2c1e26"
+        },
+        "sha256": "06af77ed993e6ad751ffd704969fc5f7135bd092351c5b102b984c2fb79dff17"
+      }
+    }
+  }
+}

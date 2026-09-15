@@ -1,0 +1,8 @@
+theorem M5.BinaryRecovery.recover_length : ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M5.BinaryRecovery.recover c p n).length = p.length + n := by
+  change ∀ (c : List Bool → ℤ) (p : List Bool) (n : ℕ), (M5.BinaryRecovery.recover c p n).length = p.length + n
+  intro c p n
+  induction n generalizing p with
+  | zero => simp [M5.BinaryRecovery.recover]
+  | succ n ih =>
+      simp only [M5.BinaryRecovery.recover]
+      split <;> simp [ih, List.length_append, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]

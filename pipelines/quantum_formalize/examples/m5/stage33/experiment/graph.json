@@ -1,0 +1,81 @@
+{
+  "title": "M5 stage33: arithmetic single-block completion count",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Original selected/available-set completion count: general selected residue z in n. The two-block conditional formula and branch recovery remain separate.",
+  "nodes": [
+    {
+      "id": "support_union",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.CompletionBlock.support_union",
+        "statement": "∀ A U : Finset ℕ, Disjoint A U → M5.SupportPolynomial.ofSupport (A ∪ U) = M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport U",
+        "imports": [
+          "M5CompletionBlock"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk eq zero",
+          "finset disjoint union sum"
+        ],
+        "guidance": "Unfold ofSupport and use Finset.sum_union with disjointness. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "3 conditional recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "union_divisibility",
+      "dependencies": [
+        "support_union"
+      ],
+      "spec": {
+        "name": "M5.CompletionBlock.union_divisibility",
+        "statement": "∀ (P : M5.BinaryPolynomial) (A U : Finset ℕ), Disjoint A U → (P ∣ M5.SupportPolynomial.ofSupport (A ∪ U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A))",
+        "imports": [
+          "M5CompletionBlock"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk eq zero",
+          "finset disjoint union sum"
+        ],
+        "guidance": "Use support_union, AdjoinRoot.mk_eq_zero and map_add. In characteristic2, x+y=0 iff y=x. No nonzero or irreducibility premise; empty selected/extension sets allowed. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "3 conditional recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "completion_count",
+      "dependencies": [
+        "union_divisibility"
+      ],
+      "spec": {
+        "name": "M5.CompletionBlock.completion_count",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (A W : Finset ℕ) (k : ℕ), Disjoint A W → M5.ArithmeticSubset.n P hP W k (AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A)) = (M5.CompletionBlock.count P A W k : ℤ)",
+        "imports": [
+          "M5CompletionBlock"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk eq zero",
+          "finset disjoint union sum"
+        ],
+        "guidance": "Rewrite M5.ArithmeticSubset.n_exact. Each U∈W.powersetCard k is subset W, hence Disjoint A U. Unfold count and equate filters using union_divisibility. Classical decidability is allowed; do not replace n definition by cardinality or enumerate support pairs. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "3 conditional recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

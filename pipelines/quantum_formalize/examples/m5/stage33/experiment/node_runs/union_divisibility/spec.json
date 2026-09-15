@@ -1,0 +1,13 @@
+{
+  "name": "M5.CompletionBlock.union_divisibility",
+  "statement": "∀ (P : M5.BinaryPolynomial) (A U : Finset ℕ), Disjoint A U → (P ∣ M5.SupportPolynomial.ofSupport (A ∪ U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport A))",
+  "imports": [
+    "M5CompletionBlock"
+  ],
+  "context": "theorem M5.CompletionBlock.support_union : ∀ A U : Finset ℕ, Disjoint A U → M5.SupportPolynomial.ofSupport (A ∪ U) = M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport U := by\n  change ∀ A U : Finset ℕ, Disjoint A U → M5.SupportPolynomial.ofSupport (A ∪ U) = M5.SupportPolynomial.ofSupport A + M5.SupportPolynomial.ofSupport U\n  intro A U h\n  unfold M5.SupportPolynomial.ofSupport\n  exact Finset.sum_union h",
+  "queries": [
+    "AdjoinRoot mk eq zero",
+    "finset disjoint union sum"
+  ],
+  "guidance": "Use support_union, AdjoinRoot.mk_eq_zero and map_add. In characteristic2, x+y=0 iff y=x. No nonzero or irreducibility premise; empty selected/extension sets allowed. Return only tactic lines without leading by; preserve exact target."
+}

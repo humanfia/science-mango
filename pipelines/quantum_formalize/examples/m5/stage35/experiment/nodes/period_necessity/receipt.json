@@ -1,0 +1,126 @@
+{
+  "id": "period_necessity",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ResidueNecessity.period_necessity",
+    "spec_sha256": "8705c544d8ca16da199e6bcb742895bd14162760939099f2401e8f2a7a589581",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-2k994iy2/attempt-001/Candidate_d1ceaf767359c536.lean",
+        "target_path": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-2k994iy2/attempt-001/FrozenTarget_d1ceaf767359c536.lean",
+        "feedback": "",
+        "target_sha256": "6ab3d9ae824899c0b72bcacfa8377221ac217baf088127f8ef8254317753352b",
+        "target_olean_sha256": "f197211131a11a56f3d54434b21771f35203eed8e9591dc738fb204d0454659b",
+        "source_sha256": "f1caeac336e46109dd7f69cd7b0266a962d402f3e5cacdf260f9096a1d594d18",
+        "olean_sha256": "8f8d075051d8bef7097b000ddde16b3639579b4097dff59a23753e9144e54588",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:43:23.702853+00:00",
+    "work": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-2k994iy2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8f9dedf7d5a721f31d535d9ca63da9002b2a5c969beed328b164c77e337297a7",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-residue-necessity-formalization/.humanize-formal-runs/run-2k994iy2/attempt-001/Candidate_d1ceaf767359c536.lean",
+    "environment_sha256": "2ce7c6ee94b07f84d02d5ce009f72d9a61e2dd0f6f2e5ef45f09f991bdebc4dd",
+    "artifacts": {
+      "anchored_enumeration": {
+        "payload": {
+          "declaration": "theorem M5.ResidueNecessity.anchored_enumeration : ∀ (A : Finset ℕ) (w : ℕ), 0 < w → A.card = w → 0 ∈ A → ∃ u : Fin w → ℕ, Function.Injective u ∧ Finset.univ.image u = A ∧ ∀ i : Fin w, i.val = 0 → u i = 0 := by\n  change ∀ (A : Finset ℕ) (w : ℕ), 0 < w → A.card = w → 0 ∈ A → ∃ u : Fin w → ℕ, Function.Injective u ∧ Finset.univ.image u = A ∧ ∀ i : Fin w, i.val = 0 → u i = 0\n  intro A w hw hcard hzero\n  refine ⟨A.orderEmbOfFin hcard, (A.orderEmbOfFin hcard).injective, Finset.image_orderEmbOfFin_univ A hcard, ?_⟩\n  intro i hi\n  have hi' : i = ⟨0, hw⟩ := Fin.ext hi\n  rw [hi', Finset.orderEmbOfFin_zero hcard hw]\n  exact le_antisymm (Finset.min'_le A 0 hzero) (Nat.zero_le _)",
+          "imports": [
+            "M5ResidueNecessity"
+          ],
+          "name": "M5.ResidueNecessity.anchored_enumeration",
+          "ancestors": [],
+          "spec_sha256": "9875a59e45d6fdfeae66e97698eacf5eb74879a2c7af026d560b6ecf9c3e572a"
+        },
+        "sha256": "0eac8adb66d12628cfc9fff3cf28e637ff335299d3ad59ccb6295c015f348f24"
+      },
+      "reduced_polynomial": {
+        "payload": {
+          "declaration": "theorem M5.ResidueNecessity.reduced_polynomial : ∀ (w T : ℕ) (hT : 0 < T) (u : Fin w → ℕ), Function.Injective u → AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofSupport (Finset.univ.image u)) = AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofResidueTuple (M5.ResidueNecessity.reduceTuple T hT u)) := by\n  classical\n  intro w T hT u hu\n  change AdjoinRoot.mk (M5.cyclicModulus T)\n      (∑ a ∈ Finset.univ.image u, (Polynomial.X : M5.BinaryPolynomial) ^ a) =\n    AdjoinRoot.mk (M5.cyclicModulus T)\n      (∑ i : Fin w, (Polynomial.X : M5.BinaryPolynomial) ^ (u i % T))\n  rw [Finset.sum_image (fun i _ j _ hij => hu hij)]\n  simp only [map_sum]\n  apply Finset.sum_congr rfl\n  intro i hi\n  have he : u i % T + (u i / T) * T = u i := by\n    rw [Nat.mul_comm (u i / T) T]\n    exact Nat.mod_add_div (u i) T\n  have hp := M5.SupportPolynomial.quotient_monomial_period T (u i % T) (u i / T)\n  rw [he] at hp\n  exact hp",
+          "imports": [
+            "M5ResidueNecessity"
+          ],
+          "name": "M5.ResidueNecessity.reduced_polynomial",
+          "ancestors": [],
+          "spec_sha256": "54cd217aa78e754239af3ba8505289bd5d2c173e9c3b1a37e2cb81ceff2c1e26"
+        },
+        "sha256": "06af77ed993e6ad751ffd704969fc5f7135bd092351c5b102b984c2fb79dff17"
+      },
+      "reduced_connectivity": {
+        "payload": {
+          "declaration": "theorem M5.ResidueNecessity.reduced_connectivity : ∀ (w N T : ℕ) (hT : 0 < T) (u v : Fin w → ℕ), T ∣ N → M5.Connectivity.supportGcd N (Finset.univ.image u) (Finset.univ.image v) = 1 → M5.BoundedConstruction.tupleSupportGcd (M5.ResidueNecessity.reduceTuple T hT u) (M5.ResidueNecessity.reduceTuple T hT v) = 1 := by\n  intro w N T hT u v hTN hconn\n  classical\n  change Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => u i % T)) (Finset.univ.gcd (fun i : Fin w => v i % T))) = 1\n  let d := Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => u i % T)) (Finset.univ.gcd (fun i : Fin w => v i % T)))\n  change d = 1\n  have hd : d ∣ T ∧ (∀ i : Fin w, d ∣ u i % T) ∧ (∀ i : Fin w, d ∣ v i % T) := by\n    have hh : d ∣ Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => u i % T)) (Finset.univ.gcd (fun i : Fin w => v i % T))) := dvd_refl d\n    simpa only [Nat.dvd_gcd_iff, Finset.dvd_gcd_iff, Finset.mem_univ, forall_const] using hh\n  have lift_dvd : ∀ a : ℕ, d ∣ a % T → d ∣ a := by\n    intro a ha\n    have hh : d ∣ a % T + T * (a / T) := dvd_add ha (dvd_mul_of_dvd_left hd.1 (a / T))\n    simpa only [Nat.mod_add_div] using hh\n  apply Nat.eq_one_of_dvd_one\n  rw [← hconn]\n  apply (M5.Connectivity.support_gcd_dvd N d (Finset.univ.image u) (Finset.univ.image v)).2\n  refine ⟨dvd_trans hd.1 hTN, ?_, ?_⟩\n  · intro a ha\n    obtain ⟨i, _, rfl⟩ := Finset.mem_image.mp ha\n    exact lift_dvd (u i) (hd.2.1 i)\n  · intro b hb\n    obtain ⟨i, _, rfl⟩ := Finset.mem_image.mp hb\n    exact lift_dvd (v i) (hd.2.2 i)",
+          "imports": [
+            "M5ResidueNecessity"
+          ],
+          "name": "M5.ResidueNecessity.reduced_connectivity",
+          "ancestors": [],
+          "spec_sha256": "1ba995b0ab9d1755a6057c6eaa6abb7985b02044cb69d6940b90e6082cb1dec1"
+        },
+        "sha256": "dfe3e83ee59aa577049725db0961c533c2573bf1d84c8f91c533f2b5faa332c3"
+      },
+      "signature_restriction": {
+        "payload": {
+          "declaration": "theorem M5.ResidueNecessity.signature_restriction : ∀ (a b F : M5.BinaryPolynomial) (N T : ℕ), T ∣ N → F ∣ M5.cyclicModulus T → M5.completeSignature a b N = F → M5.completeSignature a b T = F := by\n  change ∀ (a b F : M5.BinaryPolynomial) (N T : ℕ), T ∣ N → F ∣ M5.cyclicModulus T → M5.completeSignature a b N = F → M5.completeSignature a b T = F\n  intro a b F N T hTN hFT hN\n  have hgcd (d x y : M5.BinaryPolynomial) :\n      d ∣ EuclideanDomain.gcd x y ↔ d ∣ x ∧ d ∣ y := by\n    constructor\n    · intro h\n      exact ⟨dvd_trans h (EuclideanDomain.gcd_dvd_left x y),\n        dvd_trans h (EuclideanDomain.gcd_dvd_right x y)⟩\n    · rintro ⟨hx, hy⟩\n      exact EuclideanDomain.dvd_gcd hx hy\n  have hs (d : M5.BinaryPolynomial) (K : ℕ) :\n      d ∣ M5.completeSignature a b K ↔\n        d ∣ a ∧ d ∣ b ∧ d ∣ M5.cyclicModulus K := by\n    simp only [M5.completeSignature, hgcd]\n    tauto\n  have hsmall := (hs (M5.completeSignature a b T) T).mp (dvd_refl _)\n  have hlarge : F ∣ M5.completeSignature a b N := by\n    rw [hN]\n  have hFab := (hs F N).mp hlarge\n  apply M5.Signature.binary_dvd_antisymm\n  · rw [← hN]\n    exact (hs _ N).mpr ⟨hsmall.1, hsmall.2.1,\n      dvd_trans hsmall.2.2 (M5.Lift.modulus_multiple T N hTN)⟩\n  · exact (hs F T).mpr ⟨hFab.1, hFab.2.1, hFT⟩",
+          "imports": [
+            "M5ResidueNecessity"
+          ],
+          "name": "M5.ResidueNecessity.signature_restriction",
+          "ancestors": [],
+          "spec_sha256": "47cbf032056e661e0b3d088d3a8aa1cebac0d9509375928b31966371af7e9d70"
+        },
+        "sha256": "c466eb4dc08a7c70b36908363646753d3a323c52737fa7c0a7be0f5bf3e69d0f"
+      },
+      "physical_to_residue": {
+        "payload": {
+          "declaration": "theorem M5.ResidueNecessity.physical_to_residue : ∀ (N w T : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), 0 < w → 0 < T → T ∣ N → F ∣ M5.cyclicModulus T → M5.PhysicalOrder.realizes N w F A B → ∃ r s : Fin w → Fin T, M5.BoundedConstruction.anchoredTuple r ∧ M5.BoundedConstruction.anchoredTuple s ∧ M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F := by\n  classical\n  change ∀ (N w T : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), 0 < w → 0 < T → T ∣ N → F ∣ M5.cyclicModulus T → M5.PhysicalOrder.realizes N w F A B → ∃ r s : Fin w → Fin T, M5.BoundedConstruction.anchoredTuple r ∧ M5.BoundedConstruction.anchoredTuple s ∧ M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F\n  intro N w T F A B hw hT hTN hFT hphys\n  unfold M5.PhysicalOrder.realizes at hphys\n  have hAc : A.card = w := by tauto\n  have hBc : B.card = w := by tauto\n  have hAz : 0 ∈ A := by tauto\n  have hBz : 0 ∈ B := by tauto\n  have hconn : M5.Connectivity.supportGcd N A B = 1 := by tauto\n  have hsig : M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) N = F := by tauto\n  obtain ⟨u, hu, huA, hu0⟩ := M5.ResidueNecessity.anchored_enumeration A w hw hAc hAz\n  obtain ⟨v, hv, hvB, hv0⟩ := M5.ResidueNecessity.anchored_enumeration B w hw hBc hBz\n  refine ⟨M5.ResidueNecessity.reduceTuple T hT u, M5.ResidueNecessity.reduceTuple T hT v, ?_, ?_, ?_, ?_⟩\n  · change ∀ i : Fin w, i.val = 0 → u i % T = 0\n    intro i hi\n    rw [hu0 i hi, Nat.zero_mod]\n  · change ∀ i : Fin w, i.val = 0 → v i % T = 0\n    intro i hi\n    rw [hv0 i hi, Nat.zero_mod]\n  · apply M5.ResidueNecessity.reduced_connectivity w N T hT u v hTN\n    simpa only [huA, hvB] using hconn\n  · have hpu := M5.ResidueNecessity.reduced_polynomial w T hT u hu\n    have hpv := M5.ResidueNecessity.reduced_polynomial w T hT v hv\n    rw [huA] at hpu\n    rw [hvB] at hpv\n    have hc := M5.SignatureCongruence.complete_signature_congruence\n      (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B)\n      (M5.SupportPolynomial.ofResidueTuple (M5.ResidueNecessity.reduceTuple T hT u))\n      (M5.SupportPolynomial.ofResidueTuple (M5.ResidueNecessity.reduceTuple T hT v))\n      T hpu hpv\n    exact hc.symm.trans (M5.ResidueNecessity.signature_restriction\n      (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B)\n      F N T hTN hFT hsig)",
+          "imports": [
+            "M5ResidueNecessity"
+          ],
+          "name": "M5.ResidueNecessity.physical_to_residue",
+          "ancestors": [
+            "anchored_enumeration",
+            "reduced_connectivity",
+            "reduced_polynomial",
+            "signature_restriction"
+          ],
+          "spec_sha256": "c515c71ed71b5023b984bd89efa0a29f57089109d56aa853c388a8fac46442c9"
+        },
+        "sha256": "1057dbba40a12133471dcc3f449de480172b0e838c25c9aebc23d7b5563f76b5"
+      },
+      "period_necessity": {
+        "payload": {
+          "declaration": "theorem M5.ResidueNecessity.period_necessity : ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F A B → ∃ r s : Fin w → Fin (M5.signaturePeriod F), M5.BoundedConstruction.anchoredTuple r ∧ M5.BoundedConstruction.anchoredTuple s ∧ M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) (M5.signaturePeriod F) = F := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) (F : M5.BinaryPolynomial) (A B : Finset ℕ), 0 < w → F.Monic → F.coeff 0 = 1 → M5.PhysicalOrder.realizes N w F A B → ∃ r s : Fin w → Fin (M5.signaturePeriod F), M5.BoundedConstruction.anchoredTuple r ∧ M5.BoundedConstruction.anchoredTuple s ∧ M5.BoundedConstruction.tupleSupportGcd r s = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) (M5.signaturePeriod F) = F\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N w F A B hw hmonic hzero hphys\n  obtain ⟨hT, hlaw⟩ := M5.Period.period_law F hmonic hzero\n  have hsig : M5.completeSignature (M5.SupportPolynomial.ofSupport A)\n      (M5.SupportPolynomial.ofSupport B) N = F := by\n    unfold M5.PhysicalOrder.realizes at hphys\n    tauto\n  have hgcd (d x y : M5.BinaryPolynomial) :\n      d ∣ EuclideanDomain.gcd x y ↔ d ∣ x ∧ d ∣ y := by\n    constructor\n    · intro h\n      exact ⟨dvd_trans h (EuclideanDomain.gcd_dvd_left x y),\n        dvd_trans h (EuclideanDomain.gcd_dvd_right x y)⟩\n    · rintro ⟨hx, hy⟩\n      exact EuclideanDomain.dvd_gcd hx hy\n  have hFN : F ∣ M5.cyclicModulus N := by\n    have h : F ∣ M5.completeSignature (M5.SupportPolynomial.ofSupport A)\n        (M5.SupportPolynomial.ofSupport B) N := by\n      rw [hsig]\n    simp only [M5.completeSignature, hgcd] at h\n    tauto\n  exact M5.ResidueNecessity.physical_to_residue N w (M5.signaturePeriod F)\n    F A B hw hT ((hlaw N).mp hFN)\n    ((hlaw (M5.signaturePeriod F)).mpr (dvd_refl _)) hphys",
+          "imports": [
+            "M5ResidueNecessity"
+          ],
+          "name": "M5.ResidueNecessity.period_necessity",
+          "ancestors": [
+            "anchored_enumeration",
+            "physical_to_residue",
+            "reduced_connectivity",
+            "reduced_polynomial",
+            "signature_restriction"
+          ],
+          "spec_sha256": "d417708d735417a1b754c7183216e90f49f6056d6692b9a2407603ca03afae96"
+        },
+        "sha256": "49c3be615ca185f4fcad4a807b074713f922dde6088667b42c896faf5ac77f9f"
+      }
+    }
+  }
+}

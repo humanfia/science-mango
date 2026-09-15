@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (c : List Bool → ℤ) (Valid : List Bool → Prop) (m : ℕ), (∀ q : List Bool, q.length < m → c q = c (q ++ [false]) + c (q ++ [true])) → (∀ q : List Bool, q.length = m → 0 < c q → Valid q) → 0 < c [] → (M5.BinaryRecovery.recover c [] m).length = m ∧ Valid (M5.BinaryRecovery.recover c [] m)\nintro c Valid m hs hv hp\nhave hlen : (M5.BinaryRecovery.recover c [] m).length = m := by\n  simpa only [List.length_nil, Nat.zero_add] using M5.BinaryRecovery.recover_length c [] m\nrefine ⟨hlen, hv _ hlen ?_⟩\napply M5.BinaryRecovery.recover_positive c [] m\n· simpa only [List.length_nil, Nat.zero_add] using hs\n· exact hp",
+  "queries": []
+}
