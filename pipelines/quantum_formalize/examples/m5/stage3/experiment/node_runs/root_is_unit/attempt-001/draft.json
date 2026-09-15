@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (F : M5.BinaryPolynomial), F.coeff 0 = 1 → IsUnit (AdjoinRoot.root F)\nintro F hF\nhave h : AdjoinRoot.root F * AdjoinRoot.mk F F.divX + 1 = 0 := by\n  simpa only [map_add, map_mul, hF, Polynomial.C_1, map_one,\n    AdjoinRoot.mk_self, AdjoinRoot.root] using\n    congrArg (AdjoinRoot.mk F) (Polynomial.X_mul_divX_add F)\nhave hinv : AdjoinRoot.root F * (-AdjoinRoot.mk F F.divX) = 1 := by\n  rw [mul_neg, eq_neg_of_add_eq_zero_left h, neg_neg]\nexact ⟨⟨AdjoinRoot.root F, -AdjoinRoot.mk F F.divX,\n  hinv, by rw [mul_comm]; exact hinv⟩, rfl⟩",
+  "queries": []
+}

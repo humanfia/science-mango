@@ -1,0 +1,74 @@
+{
+  "id": "period_cardinality_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Period.period_cardinality_bound",
+    "spec_sha256": "0965643e7f3ba4a71afa3c152e930432eb98ff5fc39bdd790e831c8afa904cd3",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-ftgaarbb/attempt-001/Candidate_08e627dc71059c5a.lean:5:2: warning: Try this: \n  letI̵\n\nThe goal is a proposition, so `let` is preferred over `letI`.\nThe difference between `let` and `letI` is that `letI` inlines the value.\nBut this is not relevant for proofs because of proof irrelevance.\n\nNote: This linter can be disabled with `set_option linter.style.haveILetI false`\n/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-ftgaarbb/attempt-001/Candidate_08e627dc71059c5a.lean:8:61: error: Function expected at\n  orderOf_le_card\nbut this term has type\n  orderOf ?m.43 ≤ Nat.card ?m.41\n\nNote: Expected a function because this term is being applied to the argument\n  _\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-ftgaarbb/attempt-002/Candidate_52f7eeeee44018f1.lean",
+        "target_path": "/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-ftgaarbb/attempt-002/FrozenTarget_52f7eeeee44018f1.lean",
+        "feedback": "",
+        "target_sha256": "a9ce6af4e76b6354525c374e8d0e5d0918dfbedf3b377b471350d5e866be9630",
+        "target_olean_sha256": "fbb15a266ce8287908519e5c18c9da5b224d4db71074683858cdada231a1730e",
+        "source_sha256": "a998c5285b031abe544db10678a0e2e7d176d29f503b1f41c04c40d7616b4bd0",
+        "olean_sha256": "7054e8f5b9f32cb7bcff16670dd51400e7fc80f1c44ac50d438660819122b7d8",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T06:39:39.900581+00:00",
+    "work": "/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-ftgaarbb",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-ftgaarbb/attempt-002/Candidate_52f7eeeee44018f1.lean",
+    "environment_sha256": "dedad03d32f180a1a2e52735f4e72613a075e3f3c9b8a1db795b77cf362ecc6f",
+    "artifacts": {
+      "quotient_cardinality": {
+        "payload": {
+          "declaration": "theorem M5.Period.quotient_cardinality : ∀ F : M5.BinaryPolynomial, F.Monic → Nat.card (AdjoinRoot F) = 2 ^ F.natDegree := by\n  change ∀ F : M5.BinaryPolynomial, F.Monic → Nat.card (AdjoinRoot F) = 2 ^ F.natDegree\n  intro F hF\n  classical\n  calc\n    Nat.card (AdjoinRoot F) = Nat.card (Fin F.natDegree → ZMod 2) :=\n      Nat.card_congr ((AdjoinRoot.powerBasisAux' hF).equivFun.toEquiv)\n    _ = 2 ^ F.natDegree := by\n      simp only [Nat.card_eq_fintype_card, Fintype.card_fun, Fintype.card_fin, ZMod.card]",
+          "imports": [
+            "M5Cardinality"
+          ],
+          "name": "M5.Period.quotient_cardinality",
+          "ancestors": [],
+          "spec_sha256": "5d97e295a53bcd33f9ba7abd797b0a67556940e953becc5b7b95c3e3abd9b15c"
+        },
+        "sha256": "15a4a6d8d7b5364479ab52270ed51be85b78fd0e101e403b40b57ad3978bba32"
+      },
+      "period_cardinality_bound": {
+        "payload": {
+          "declaration": "theorem M5.Period.period_cardinality_bound : ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.signaturePeriod F ≤ 2 ^ F.natDegree := by\n  change ∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.signaturePeriod F ≤ 2 ^ F.natDegree\n  intro F hF h0\n  letI : Finite (AdjoinRoot F) := M5.Period.quotient_finite F hF\n  unfold M5.signaturePeriod\n  calc\n    orderOf (AdjoinRoot.root F) ≤ Nat.card (AdjoinRoot F) := orderOf_le_card\n    _ = 2 ^ F.natDegree := M5.Period.quotient_cardinality F hF",
+          "imports": [
+            "M5Cardinality"
+          ],
+          "name": "M5.Period.period_cardinality_bound",
+          "ancestors": [
+            "quotient_cardinality"
+          ],
+          "spec_sha256": "7b7ab1da4ff1a1474d57f7de50c56873aa610fac66432109d858e41fc39809ce"
+        },
+        "sha256": "37569b66138e8649dae81392b031debe2aad9ba6a697c8b38b7765a0e1e35824"
+      }
+    }
+  }
+}

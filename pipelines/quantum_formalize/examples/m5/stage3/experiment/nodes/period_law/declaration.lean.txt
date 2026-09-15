@@ -1,0 +1,9 @@
+theorem M5.Period.period_law : ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N := by
+  change ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N
+  intro F hmonic hcoeff
+  letI : Finite (AdjoinRoot F) := M5.Period.quotient_finite F hmonic
+  change 0 < orderOf (AdjoinRoot.root F) ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ orderOf (AdjoinRoot.root F) ∣ N
+  constructor
+  · exact orderOf_pos_iff.mpr (M5.Period.root_is_unit F hcoeff).isOfFinOrder
+  · intro N
+    rw [M5.Period.cyclic_dvd_iff_root_pow, orderOf_dvd_iff_pow_eq_one]

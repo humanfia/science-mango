@@ -1,0 +1,13 @@
+{
+  "name": "M5.Period.period_law",
+  "statement": "∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N",
+  "imports": [
+    "M5Period"
+  ],
+  "context": "theorem M5.Period.cyclic_dvd_iff_root_pow : ∀ (F : M5.BinaryPolynomial) (N : ℕ), F ∣ M5.cyclicModulus N ↔ (AdjoinRoot.root F) ^ N = 1 := by\n  change ∀ (F : M5.BinaryPolynomial) (N : ℕ), F ∣ M5.cyclicModulus N ↔ (AdjoinRoot.root F) ^ N = 1\n  intro F N\n  have hpoly : -(1 : M5.BinaryPolynomial) = 1 := CharTwo.neg_eq _\n  have hroot : -(1 : AdjoinRoot F) = 1 := by\n    simpa only [map_neg, map_one] using congrArg (AdjoinRoot.mk F) hpoly\n  rw [← AdjoinRoot.mk_eq_zero]\n  simp [M5.cyclicModulus, map_add, map_pow, AdjoinRoot.mk_X,\n    add_eq_zero_iff_eq_neg, hroot]\n\ntheorem M5.Period.quotient_finite : ∀ (F : M5.BinaryPolynomial), F.Monic → Finite (AdjoinRoot F) := by\n  change ∀ (F : M5.BinaryPolynomial), F.Monic → Finite (AdjoinRoot F)\n  intro F hF\n  letI : Module.Finite (ZMod 2) (AdjoinRoot F) := hF.finite_adjoinRoot\n  apply Module.finite_of_finite (ZMod 2)\n\ntheorem M5.Period.root_is_unit : ∀ (F : M5.BinaryPolynomial), F.coeff 0 = 1 → IsUnit (AdjoinRoot.root F) := by\n  change ∀ (F : M5.BinaryPolynomial), F.coeff 0 = 1 → IsUnit (AdjoinRoot.root F)\n  intro F hF\n  have h : AdjoinRoot.root F * AdjoinRoot.mk F F.divX + 1 = 0 := by\n    simpa only [map_add, map_mul, hF, Polynomial.C_1, map_one,\n      AdjoinRoot.mk_self, AdjoinRoot.root] using\n      congrArg (AdjoinRoot.mk F) (Polynomial.X_mul_divX_add F)\n  have hinv : AdjoinRoot.root F * (-AdjoinRoot.mk F F.divX) = 1 := by\n    rw [mul_neg, eq_neg_of_add_eq_zero_left h, neg_neg]\n  exact ⟨⟨AdjoinRoot.root F, -AdjoinRoot.mk F F.divX,\n    hinv, by rw [mul_comm]; exact hinv⟩, rfl⟩",
+  "queries": [
+    "AdjoinRoot polynomial quotient",
+    "orderOf finite monoid"
+  ],
+  "guidance": "Install a local Finite (AdjoinRoot F) instance using quotient_finite. root_is_unit and IsUnit.isOfFinOrder give positive order. The equivalence follows from cyclic_dvd_iff_root_pow and orderOf_dvd_iff_pow_eq_one. This proves period existence and the exact all-order divisibility law for repeated factors too. Return only tactic lines without a leading by. Preserve the exact target."
+}

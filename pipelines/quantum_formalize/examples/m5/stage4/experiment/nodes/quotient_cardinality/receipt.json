@@ -1,0 +1,54 @@
+{
+  "id": "quotient_cardinality",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Period.quotient_cardinality",
+    "spec_sha256": "5d97e295a53bcd33f9ba7abd797b0a67556940e953becc5b7b95c3e3abd9b15c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-obry9b4e/attempt-001/Candidate_64a1efa1bd5431b9.lean",
+        "target_path": "/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-obry9b4e/attempt-001/FrozenTarget_64a1efa1bd5431b9.lean",
+        "feedback": "",
+        "target_sha256": "727740fd156b915d723f7ae3fed1509b708ac45af84b297a015dbafd4d8926e8",
+        "target_olean_sha256": "0075d28fcc9c1c0c18cd3a63ddc299afe651076b91a097b4cf009ac5cb4f3de6",
+        "source_sha256": "0386ce951d64c86747cb29a74d3cfd49a0202b1ac79f4b5fd1390c7806292acd",
+        "olean_sha256": "c5354e0c85e0e97c338a377e4f0fe169009a63008dc9cf3e6c8255a94163e4ac",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:38:41.203921+00:00",
+    "work": "/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-obry9b4e",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-cardinality-formalization/.humanize-formal-runs/run-obry9b4e/attempt-001/Candidate_64a1efa1bd5431b9.lean",
+    "environment_sha256": "dedad03d32f180a1a2e52735f4e72613a075e3f3c9b8a1db795b77cf362ecc6f",
+    "artifacts": {
+      "quotient_cardinality": {
+        "payload": {
+          "declaration": "theorem M5.Period.quotient_cardinality : ∀ F : M5.BinaryPolynomial, F.Monic → Nat.card (AdjoinRoot F) = 2 ^ F.natDegree := by\n  change ∀ F : M5.BinaryPolynomial, F.Monic → Nat.card (AdjoinRoot F) = 2 ^ F.natDegree\n  intro F hF\n  classical\n  calc\n    Nat.card (AdjoinRoot F) = Nat.card (Fin F.natDegree → ZMod 2) :=\n      Nat.card_congr ((AdjoinRoot.powerBasisAux' hF).equivFun.toEquiv)\n    _ = 2 ^ F.natDegree := by\n      simp only [Nat.card_eq_fintype_card, Fintype.card_fun, Fintype.card_fin, ZMod.card]",
+          "imports": [
+            "M5Cardinality"
+          ],
+          "name": "M5.Period.quotient_cardinality",
+          "ancestors": [],
+          "spec_sha256": "5d97e295a53bcd33f9ba7abd797b0a67556940e953becc5b7b95c3e3abd9b15c"
+        },
+        "sha256": "15a4a6d8d7b5364479ab52270ed51be85b78fd0e101e403b40b57ad3978bba32"
+      }
+    }
+  }
+}

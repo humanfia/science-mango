@@ -1,0 +1,69 @@
+{
+  "title": "M5 stage 4 draft: exact quotient cardinality and period bound",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Two typed draft targets; stage3 accepted dependency must be imported or DAG-merged before execution",
+  "nodes": [
+    {
+      "id": "quotient_cardinality",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Period.quotient_cardinality",
+        "statement": "∀ F : M5.BinaryPolynomial, F.Monic → Nat.card (AdjoinRoot F) = 2 ^ F.natDegree",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "finite vector space cardinality",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Use Nat.card_congr ((AdjoinRoot.powerBasisAux' hF).equivFun.toEquiv), whose target is functions Fin F.natDegree → ZMod 2. Simplify the function-space Nat.card via Nat.card_eq_fintype_card, Fintype.card_fun, Fintype.card_fin and ZMod.card. The degree-zero case is already covered by the empty-index basis; do not add F ≠ 1 or irreducibility. Return only tactic lines without a leading by."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PERIOD_BOUND",
+        "scope": "finite_ring_cardinality_and_period_bound",
+        "upstream_dependencies": [],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "period_cardinality_bound",
+      "dependencies": [
+        "quotient_cardinality"
+      ],
+      "spec": {
+        "name": "M5.Period.period_cardinality_bound",
+        "statement": "∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.signaturePeriod F ≤ 2 ^ F.natDegree",
+        "imports": [
+          "M5Period"
+        ],
+        "context": "",
+        "queries": [
+          "finite vector space cardinality",
+          "orderOf finite monoid"
+        ],
+        "guidance": "Install the local Finite (AdjoinRoot F) instance from accepted M5.Period.quotient_finite. Unfold M5.signaturePeriod and apply orderOf_le_card to AdjoinRoot.root F. Rewrite Nat.card with the accepted quotient_cardinality theorem. The coeff-zero assumption matches the original M5 signature domain; the estimate itself need not use it. Preserve ≤ 2^degree, including F=1. Do not add a strict inequality or a nonconstant restriction. Return only tactic lines without a leading by."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PERIOD_BOUND",
+        "scope": "finite_ring_cardinality_and_period_bound",
+        "upstream_dependencies": [
+          "M5.Period.quotient_finite"
+        ],
+        "dependency_declarations": [
+          "M5.Period.quotient_cardinality",
+          "M5.Period.quotient_finite"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

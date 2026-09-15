@@ -1,0 +1,54 @@
+{
+  "id": "root_is_unit",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Period.root_is_unit",
+    "spec_sha256": "b6a5d897cc5dd128721e88f9ea727819f15bb6734dfb001674cda7f82250b902",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-period-formalization/.humanize-formal-runs/run-gt12kavr/attempt-001/Candidate_41ea37a6af3c4fec.lean",
+        "target_path": "/home/jing/m5-lean-period-formalization/.humanize-formal-runs/run-gt12kavr/attempt-001/FrozenTarget_41ea37a6af3c4fec.lean",
+        "feedback": "",
+        "target_sha256": "ebaf60a1d687cab17bf6e2625703a8a40312efde1703805dc14f3c22cc44824c",
+        "target_olean_sha256": "d5fae02958702892ac69d6267597e00331266a6d399101ef5a0652f7e2f2a20f",
+        "source_sha256": "a8eeb508fb726090b1be60ce0d101c0a1288b1e16e3226d2d812fe9836ff7cfa",
+        "olean_sha256": "45db6366dc0c685ca960b9eeaddf7c3fc83af69f82713acea4ccd1c0c5f09b2a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:30:09.228135+00:00",
+    "work": "/home/jing/m5-lean-period-formalization/.humanize-formal-runs/run-gt12kavr",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-period-formalization/.humanize-formal-runs/run-gt12kavr/attempt-001/Candidate_41ea37a6af3c4fec.lean",
+    "environment_sha256": "4935eaa3b956091ce6f8d7f0b66247c5355b2c455ad8088f9badb12c45049c3d",
+    "artifacts": {
+      "root_is_unit": {
+        "payload": {
+          "declaration": "theorem M5.Period.root_is_unit : ∀ (F : M5.BinaryPolynomial), F.coeff 0 = 1 → IsUnit (AdjoinRoot.root F) := by\n  change ∀ (F : M5.BinaryPolynomial), F.coeff 0 = 1 → IsUnit (AdjoinRoot.root F)\n  intro F hF\n  have h : AdjoinRoot.root F * AdjoinRoot.mk F F.divX + 1 = 0 := by\n    simpa only [map_add, map_mul, hF, Polynomial.C_1, map_one,\n      AdjoinRoot.mk_self, AdjoinRoot.root] using\n      congrArg (AdjoinRoot.mk F) (Polynomial.X_mul_divX_add F)\n  have hinv : AdjoinRoot.root F * (-AdjoinRoot.mk F F.divX) = 1 := by\n    rw [mul_neg, eq_neg_of_add_eq_zero_left h, neg_neg]\n  exact ⟨⟨AdjoinRoot.root F, -AdjoinRoot.mk F F.divX,\n    hinv, by rw [mul_comm]; exact hinv⟩, rfl⟩",
+          "imports": [
+            "M5Period"
+          ],
+          "name": "M5.Period.root_is_unit",
+          "ancestors": [],
+          "spec_sha256": "b6a5d897cc5dd128721e88f9ea727819f15bb6734dfb001674cda7f82250b902"
+        },
+        "sha256": "542175cf3be0fe439e62aadce495a0410c7b46f2cd197a0cd5bd1e95d25b3508"
+      }
+    }
+  }
+}

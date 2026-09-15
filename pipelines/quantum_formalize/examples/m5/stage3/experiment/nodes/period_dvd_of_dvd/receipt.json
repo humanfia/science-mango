@@ -1,0 +1,111 @@
+{
+  "id": "period_dvd_of_dvd",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Period.period_dvd_of_dvd",
+    "spec_sha256": "4049b0df37f0ef74b90c75cf9ba330c03a5a6b1ed5a3192b68e077d0079c5d88",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-period-formalization/.humanize-formal-runs/run-rhgx8ruh/attempt-001/Candidate_586622a2c826bc12.lean",
+        "target_path": "/home/jing/m5-lean-period-formalization/.humanize-formal-runs/run-rhgx8ruh/attempt-001/FrozenTarget_586622a2c826bc12.lean",
+        "feedback": "",
+        "target_sha256": "95abf9d5f5b05c9d2cb7efd1008ab0decc382b0a47e5570cf51086d3bd816a1e",
+        "target_olean_sha256": "506f80f9c5fa8c8f5cc8409298961a3c0c22114ddee2188bfb839a4686da0f12",
+        "source_sha256": "e00046e2820085de5c55678627193301a7532f9db17d58204c6029403311d347",
+        "olean_sha256": "f72c26f2bc69cd560afa0bd59c8968b806b49e2dd5bcb00bcea93d2c1cd4361d",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:34:04.701122+00:00",
+    "work": "/home/jing/m5-lean-period-formalization/.humanize-formal-runs/run-rhgx8ruh",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-period-formalization/.humanize-formal-runs/run-rhgx8ruh/attempt-001/Candidate_586622a2c826bc12.lean",
+    "environment_sha256": "4935eaa3b956091ce6f8d7f0b66247c5355b2c455ad8088f9badb12c45049c3d",
+    "artifacts": {
+      "quotient_finite": {
+        "payload": {
+          "declaration": "theorem M5.Period.quotient_finite : ∀ (F : M5.BinaryPolynomial), F.Monic → Finite (AdjoinRoot F) := by\n  change ∀ (F : M5.BinaryPolynomial), F.Monic → Finite (AdjoinRoot F)\n  intro F hF\n  letI : Module.Finite (ZMod 2) (AdjoinRoot F) := hF.finite_adjoinRoot\n  apply Module.finite_of_finite (ZMod 2)",
+          "imports": [
+            "M5Period"
+          ],
+          "name": "M5.Period.quotient_finite",
+          "ancestors": [],
+          "spec_sha256": "be0c05edba1c4e06e15e18d4526e57e8d69103b26ae9645187f3f67bbe47fffb"
+        },
+        "sha256": "8c24b74a1cc6b440a7ebf6eb4778e7d084d5b2865445807b35de14474d97cc5d"
+      },
+      "root_is_unit": {
+        "payload": {
+          "declaration": "theorem M5.Period.root_is_unit : ∀ (F : M5.BinaryPolynomial), F.coeff 0 = 1 → IsUnit (AdjoinRoot.root F) := by\n  change ∀ (F : M5.BinaryPolynomial), F.coeff 0 = 1 → IsUnit (AdjoinRoot.root F)\n  intro F hF\n  have h : AdjoinRoot.root F * AdjoinRoot.mk F F.divX + 1 = 0 := by\n    simpa only [map_add, map_mul, hF, Polynomial.C_1, map_one,\n      AdjoinRoot.mk_self, AdjoinRoot.root] using\n      congrArg (AdjoinRoot.mk F) (Polynomial.X_mul_divX_add F)\n  have hinv : AdjoinRoot.root F * (-AdjoinRoot.mk F F.divX) = 1 := by\n    rw [mul_neg, eq_neg_of_add_eq_zero_left h, neg_neg]\n  exact ⟨⟨AdjoinRoot.root F, -AdjoinRoot.mk F F.divX,\n    hinv, by rw [mul_comm]; exact hinv⟩, rfl⟩",
+          "imports": [
+            "M5Period"
+          ],
+          "name": "M5.Period.root_is_unit",
+          "ancestors": [],
+          "spec_sha256": "b6a5d897cc5dd128721e88f9ea727819f15bb6734dfb001674cda7f82250b902"
+        },
+        "sha256": "542175cf3be0fe439e62aadce495a0410c7b46f2cd197a0cd5bd1e95d25b3508"
+      },
+      "cyclic_dvd_iff_root_pow": {
+        "payload": {
+          "declaration": "theorem M5.Period.cyclic_dvd_iff_root_pow : ∀ (F : M5.BinaryPolynomial) (N : ℕ), F ∣ M5.cyclicModulus N ↔ (AdjoinRoot.root F) ^ N = 1 := by\n  change ∀ (F : M5.BinaryPolynomial) (N : ℕ), F ∣ M5.cyclicModulus N ↔ (AdjoinRoot.root F) ^ N = 1\n  intro F N\n  have hpoly : -(1 : M5.BinaryPolynomial) = 1 := CharTwo.neg_eq _\n  have hroot : -(1 : AdjoinRoot F) = 1 := by\n    simpa only [map_neg, map_one] using congrArg (AdjoinRoot.mk F) hpoly\n  rw [← AdjoinRoot.mk_eq_zero]\n  simp [M5.cyclicModulus, map_add, map_pow, AdjoinRoot.mk_X,\n    add_eq_zero_iff_eq_neg, hroot]",
+          "imports": [
+            "M5Period"
+          ],
+          "name": "M5.Period.cyclic_dvd_iff_root_pow",
+          "ancestors": [],
+          "spec_sha256": "9daff6440aee76d31b4120be1e682f83e86ec642acbd51d61361fd78eb7aedc8"
+        },
+        "sha256": "8ba915d907f5f274388b1b3eb1d5f7e7b9eeb24e0aec0ef25475f2b7bf37519e"
+      },
+      "period_law": {
+        "payload": {
+          "declaration": "theorem M5.Period.period_law : ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N := by\n  change ∀ (F : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → 0 < M5.signaturePeriod F ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ M5.signaturePeriod F ∣ N\n  intro F hmonic hcoeff\n  letI : Finite (AdjoinRoot F) := M5.Period.quotient_finite F hmonic\n  change 0 < orderOf (AdjoinRoot.root F) ∧ ∀ N : ℕ, F ∣ M5.cyclicModulus N ↔ orderOf (AdjoinRoot.root F) ∣ N\n  constructor\n  · exact orderOf_pos_iff.mpr (M5.Period.root_is_unit F hcoeff).isOfFinOrder\n  · intro N\n    rw [M5.Period.cyclic_dvd_iff_root_pow, orderOf_dvd_iff_pow_eq_one]",
+          "imports": [
+            "M5Period"
+          ],
+          "name": "M5.Period.period_law",
+          "ancestors": [
+            "cyclic_dvd_iff_root_pow",
+            "quotient_finite",
+            "root_is_unit"
+          ],
+          "spec_sha256": "b8b5ea4eed776ec7ba38af927cafce1ce1e871b8eba0150997554c277869e5e1"
+        },
+        "sha256": "22ca5bd0c927b3aa2ec3a0e1930a11f9142dcb9788035c7698130c9f69c35a36"
+      },
+      "period_dvd_of_dvd": {
+        "payload": {
+          "declaration": "theorem M5.Period.period_dvd_of_dvd : ∀ (F G : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → G.Monic → G.coeff 0 = 1 → F ∣ G → M5.signaturePeriod F ∣ M5.signaturePeriod G := by\n  change ∀ (F G : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → G.Monic → G.coeff 0 = 1 → F ∣ G → M5.signaturePeriod F ∣ M5.signaturePeriod G\n  intro F G hFm hFc hGm hGc hFG\n  apply ((M5.Period.period_law F hFm hFc).2 (M5.signaturePeriod G)).mp\n  apply dvd_trans hFG\n  exact ((M5.Period.period_law G hGm hGc).2 (M5.signaturePeriod G)).mpr (dvd_refl _)",
+          "imports": [
+            "M5Period"
+          ],
+          "name": "M5.Period.period_dvd_of_dvd",
+          "ancestors": [
+            "cyclic_dvd_iff_root_pow",
+            "period_law",
+            "quotient_finite",
+            "root_is_unit"
+          ],
+          "spec_sha256": "82715b1da4f1c5d36779420ad5e31997292a3a1a0de44683f470bcb2764c80bd"
+        },
+        "sha256": "2ef2bc4a1db228c365d1cea81e08fef3fde988c7d435560c85dfb5353604694b"
+      }
+    }
+  }
+}

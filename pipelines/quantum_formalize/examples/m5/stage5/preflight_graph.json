@@ -1,0 +1,150 @@
+{
+  "title": "M5 stage 5: bounded CRT connectivity repair",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Five targets proving the original section5 repair bound; no full-M5 completion claim",
+  "nodes": [
+    {
+      "id": "safe_prime_residue",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.CRT.safe_prime_residue",
+        "statement": "∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T",
+        "imports": [
+          "M5CRT"
+        ],
+        "context": "",
+        "queries": [
+          "Chinese remainder theorem natural numbers",
+          "natural number coprime"
+        ],
+        "guidance": "Split on p | e. If false the residue is zero. If true residue is one; p | T would force p | gcd(gcd T δ)e = 1, contradicting primality. Exclude p | e+T by subtracting the known divisible summand. Includes p=2. Return tactic lines only, without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT",
+        "scope": "bounded_connectivity_repair",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "prime_crt_representative",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.CRT.prime_crt_representative",
+        "statement": "∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p)",
+        "imports": [
+          "M5CRT"
+        ],
+        "context": "",
+        "queries": [
+          "Chinese remainder theorem natural numbers",
+          "natural number coprime"
+        ],
+        "guidance": "Use Nat.chineseRemainderOfFinset with t=δ.primeFactors, modulus identity, residues M5.CRT.repairResidue e. Nat.prime_of_mem_primeFactors supplies nonzero moduli; Nat.coprime_primes supplies pairwise coprimality for distinct indices. The subtype property gives congruences and Nat.chineseRemainderOfFinset_lt_prod gives strict product bound. Empty set δ=1 is allowed. Unfold primeProduct and use open scoped BigOperators if needed. Return tactic lines only, without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT",
+        "scope": "bounded_connectivity_repair",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "interval_representative",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.CRT.interval_representative",
+        "statement": "∀ R r w : ℕ, 0 < R → ∃ k : ℕ, w ≤ k ∧ k < w + R ∧ Nat.ModEq R k r",
+        "imports": [
+          "M5CRT"
+        ],
+        "context": "",
+        "queries": [
+          "Chinese remainder theorem natural numbers",
+          "natural number coprime"
+        ],
+        "guidance": "Witness k=w+(r+(R-1)*w)%R. Nat.mod_lt bounds remainder. For congruence use w+(R-1)*w=R*w from R>0, rearrange additions, and Nat.add_mod. An alternate standard modular representative proof is fine; avoid requiring r<R or w>0. Return tactic lines only, without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT",
+        "scope": "bounded_connectivity_repair",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "residues_force_coprime",
+      "dependencies": [
+        "safe_prime_residue"
+      ],
+      "spec": {
+        "name": "M5.CRT.residues_force_coprime",
+        "statement": "∀ δ T e k : ℕ, 0 < δ → Nat.gcd (Nat.gcd T δ) e = 1 → (∀ p ∈ δ.primeFactors, Nat.ModEq p k (M5.CRT.repairResidue e p)) → Nat.gcd δ (e + k * T) = 1",
+        "imports": [
+          "M5CRT"
+        ],
+        "context": "",
+        "queries": [
+          "Chinese remainder theorem natural numbers",
+          "natural number coprime"
+        ],
+        "guidance": "Apply Nat.coprime_of_dvd, whose conclusion unfolds to gcd=1. Every prime divisor of positive δ lies in primeFactors by Nat.Prime.mem_primeFactors. Transport supplied congruence through mul_right T and add_left e. Nat.ModEq.dvd_iff with dvd_refl p transports divisibility to the expression excluded by accepted safe_prime_residue. Return tactic lines only, without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT",
+        "scope": "bounded_connectivity_repair",
+        "dependency_declarations": [
+          "M5.CRT.safe_prime_residue"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "bounded_connectivity_repair",
+      "dependencies": [
+        "prime_crt_representative",
+        "interval_representative",
+        "residues_force_coprime"
+      ],
+      "spec": {
+        "name": "M5.CRT.bounded_connectivity_repair",
+        "statement": "∀ δ T e w : ℕ, 0 < δ → 0 < T → Nat.gcd (Nat.gcd T δ) e = 1 → ∃ k : ℕ, w ≤ k ∧ k < w + δ ∧ Nat.gcd δ (e + k * T) = 1",
+        "imports": [
+          "M5CRT"
+        ],
+        "context": "",
+        "queries": [
+          "Chinese remainder theorem natural numbers",
+          "natural number coprime"
+        ],
+        "guidance": "Let R=primeProduct δ. Finset.prod_pos and positivity of prime factors give R>0; Nat.prod_primeFactors_dvd δ and Nat.le_of_dvd give R≤δ. Obtain r via prime_crt_representative and k via interval_representative. For p in primeFactors, Finset.dvd_prod_of_mem gives p|R; Nat.ModEq.of_dvd descends the k≡r congruence then transitivity gives the local residue condition. Apply residues_force_coprime; weaken k<w+R to k<w+δ. Preserve original assumptions and final bound; δ=1 and p=2 are included. Return tactic lines only, without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT",
+        "scope": "bounded_connectivity_repair",
+        "dependency_declarations": [
+          "M5.CRT.prime_crt_representative",
+          "M5.CRT.interval_representative",
+          "M5.CRT.residues_force_coprime"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

@@ -1,11 +1,13 @@
 # Current M5 formalization progress
 
-Stage 1: 9 auxiliary lemmas accepted.
-Stage 2: 8 section-5 lemmas accepted, including all-common-divisor lift and bounded progression.
-Stage 3: running 6 exact period-law targets in a separate pinned Lean project.
+Stages 1–4: 25 individual lemmas accepted, with combined Lean compilation in each batch.
+- Stage 1: 9 auxiliary lemmas.
+- Stage 2: 8 lift and bounded-progression lemmas.
+- Stage 3: 6 exact mathematical period-law lemmas.
+- Stage 4: 2 quotient-cardinality and period-bound lemmas.
 
-Active launcher: /home/jing/m5-lean-period-formalization/.humanize-formal-runs/dag-launcher-i2148a2m
-Active state: experiment/nodes/state.json under that launcher.
+Stage 5: running 5 bounded CRT connectivity-repair targets; the initial three are independent.
+Active launcher: /home/jing/m5-lean-crt-formalization/.humanize-formal-runs/dag-launcher-hlm62ehy
 Settings: gpt-6-astra / medium, concurrency ceiling 16, five attempts per node.
 
-Full M5 is not yet formally verified. A mathematical orderOf-based period law does not by itself implement the executable period algorithm. Main obligations remain distinct from accepted auxiliary lemmas.
+The mathematical period law and its degree bound have passed. Full M5 is not yet formally verified: counting, support reconstruction and executable arithmetic refinements still require work. Accepted component proofs remain distinct from main roadmap obligations.

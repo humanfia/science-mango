@@ -1,0 +1,13 @@
+{
+  "name": "M5.Period.period_cardinality_bound",
+  "statement": "∀ F : M5.BinaryPolynomial, F.Monic → F.coeff 0 = 1 → M5.signaturePeriod F ≤ 2 ^ F.natDegree",
+  "imports": [
+    "M5Cardinality"
+  ],
+  "context": "theorem M5.Period.quotient_cardinality : ∀ F : M5.BinaryPolynomial, F.Monic → Nat.card (AdjoinRoot F) = 2 ^ F.natDegree := by\n  change ∀ F : M5.BinaryPolynomial, F.Monic → Nat.card (AdjoinRoot F) = 2 ^ F.natDegree\n  intro F hF\n  classical\n  calc\n    Nat.card (AdjoinRoot F) = Nat.card (Fin F.natDegree → ZMod 2) :=\n      Nat.card_congr ((AdjoinRoot.powerBasisAux' hF).equivFun.toEquiv)\n    _ = 2 ^ F.natDegree := by\n      simp only [Nat.card_eq_fintype_card, Fintype.card_fun, Fintype.card_fin, ZMod.card]",
+  "queries": [
+    "finite vector space cardinality",
+    "orderOf finite monoid"
+  ],
+  "guidance": "Install the local Finite (AdjoinRoot F) instance from accepted M5.Period.quotient_finite. Unfold M5.signaturePeriod and apply orderOf_le_card to AdjoinRoot.root F. Rewrite Nat.card with the accepted quotient_cardinality theorem. The coeff-zero assumption matches the original M5 signature domain; the estimate itself need not use it. Preserve ≤ 2^degree, including F=1. Do not add a strict inequality or a nonconstant restriction. Return only tactic lines without a leading by."
+}

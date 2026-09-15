@@ -1,0 +1,7 @@
+import FrozenTarget_586622a2c826bc12
+theorem M5.Period.period_dvd_of_dvd : QuantumHarnessFrozenTarget := by
+  change ∀ (F G : M5.BinaryPolynomial), F.Monic → F.coeff 0 = 1 → G.Monic → G.coeff 0 = 1 → F ∣ G → M5.signaturePeriod F ∣ M5.signaturePeriod G
+  intro F G hFm hFc hGm hGc hFG
+  apply ((M5.Period.period_law F hFm hFc).2 (M5.signaturePeriod G)).mp
+  apply dvd_trans hFG
+  exact ((M5.Period.period_law G hGm hGc).2 (M5.signaturePeriod G)).mpr (dvd_refl _)

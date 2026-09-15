@@ -1,0 +1,88 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "orderOf_le_card",
+    "status": "ok",
+    "results": [
+      {
+        "id": 238970,
+        "name": "Subgroup.orderOf_le_card",
+        "module": "Mathlib.GroupTheory.OrderOfElement",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/OrderOfElement.lean#L1174-L1178",
+        "source_text": "@[to_additive]\nlemma Subgroup.orderOf_le_card {G : Type*} [Group G] (s : Subgroup G) (hs : (s : Set G).Finite)\n    {x} (hx : x ∈ s) : orderOf x ≤ Nat.card s :=\n  le_of_dvd (Nat.card_pos_iff.2 <| ⟨(OneMemClass.coe_nonempty s).to_subtype, hs.to_subtype⟩) <|\n    s.orderOf_dvd_natCard hx",
+        "docstring": null
+      },
+      {
+        "id": 238911,
+        "name": "orderOf_le_card",
+        "module": "Mathlib.GroupTheory.OrderOfElement",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/OrderOfElement.lean#L950-L953",
+        "source_text": "@[to_additive]\ntheorem orderOf_le_card [Finite G] : orderOf x ≤ Nat.card G := by\n  obtain ⟨⟩ := nonempty_fintype G\n  simpa using orderOf_le_card_univ",
+        "docstring": null
+      },
+      {
+        "id": 323446,
+        "name": "Cardinal.instSuccOrder",
+        "module": "Mathlib.SetTheory.Cardinal.Order",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Cardinal/Order.lean#L385-L386",
+        "source_text": "/-- Note that the successor of `c` is not the same as `c + 1` except in the case of finite `c`. -/\n@[no_expose] instance : SuccOrder Cardinal := .ofLinearWellFoundedLT _\n",
+        "docstring": "Note that the successor of `c` is not the same as `c + 1` except in the case of finite `c`. "
+      },
+      {
+        "id": 324133,
+        "name": "Ordinal.card",
+        "module": "Mathlib.SetTheory.Ordinal.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Ordinal/Basic.lean#L611-L614",
+        "source_text": "/-- The cardinal of an ordinal is the cardinality of any type on which a relation with that order\ntype is defined. -/\ndef card : Ordinal → Cardinal :=\n  Quotient.map WellOrder.α fun _ _ ⟨e⟩ => ⟨e.toEquiv⟩\n",
+        "docstring": "The cardinal of an ordinal is the cardinality of any type on which a relation with that order\ntype is defined. "
+      },
+      {
+        "id": 324220,
+        "name": "Cardinal.ord",
+        "module": "Mathlib.SetTheory.Ordinal.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Ordinal/Basic.lean#L1055-L1063",
+        "source_text": "/-- The ordinal corresponding to a cardinal `c` is the least ordinal whose cardinal is `c`. -/\n@[no_expose]\ndef ord (c : Cardinal) : Ordinal :=\n  Quot.liftOn c (fun α : Type u => ⨅ r : { r // IsWellOrder α r }, @type α r.1 r.2) <| by\n  rintro α β ⟨f⟩\n  refine congr_arg sInf <| ext fun o ↦ ⟨?_, ?_⟩ <;>\n    rintro ⟨⟨r, hr⟩, rfl⟩ <;>\n    refine ⟨⟨_, RelIso.IsWellOrder.preimage r ?_⟩, type_preimage _ _⟩\n  exacts [f.symm, f]\n",
+        "docstring": "The ordinal corresponding to a cardinal `c` is the least ordinal whose cardinal is `c`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]
