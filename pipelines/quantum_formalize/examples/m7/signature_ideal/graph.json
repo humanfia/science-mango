@@ -1,0 +1,91 @@
+{
+  "title": "M7 full literal polynomial signature via actual cyclic quotient ideals",
+  "nodes": [
+    {
+      "id": "modulus_zero",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.SignatureIdeal.modulus_zero",
+        "statement": "\u2200 (N : \u2115) [NeZero N], M6.Cyclic.image N (M6.Cyclic.modulus N) = 0",
+        "imports": [
+          "M7SignatureIdeal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Use accepted M6.Cyclic.signature_bezout and signature_divides. Ideal.span_le and singleton membership/divisibility prove full_signature_ideal. For quotient_membership, a scalar witness in AdjoinRoot lifts to mk q by mk_surjective; mk equality implies modulus divides p-F*q, then F divides p. Conversely map a divisibility witness. monic_injective follows mutual divisibility and monicity. No squarefree/odd-N/irreducible quotient assumption; retain full polynomial multiplicities. This is ideal equality, not root-set equality. Return tactic lines only.\nimport M6CyclicAccepted\n\nnamespace M7.SignatureIdeal\nnoncomputable def principal (N : \u2115) (F : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N F} : Set (M6.Cyclic.CycleRing N))\nnoncomputable def pairIdeal (N : \u2115) (a b : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N a, M6.Cyclic.image N b} : Set (M6.Cyclic.CycleRing N))\nend M7.SignatureIdeal\n"
+      }
+    },
+    {
+      "id": "full_signature_ideal",
+      "dependencies": [
+        "modulus_zero"
+      ],
+      "spec": {
+        "name": "M7.SignatureIdeal.full_signature_ideal",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 a b : M6.Cyclic.BinaryPolynomial, M7.SignatureIdeal.pairIdeal N a b = M7.SignatureIdeal.principal N (M6.Cyclic.signature a b (M6.Cyclic.modulus N))",
+        "imports": [
+          "M7SignatureIdeal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Use accepted M6.Cyclic.signature_bezout and signature_divides. Ideal.span_le and singleton membership/divisibility prove full_signature_ideal. For quotient_membership, a scalar witness in AdjoinRoot lifts to mk q by mk_surjective; mk equality implies modulus divides p-F*q, then F divides p. Conversely map a divisibility witness. monic_injective follows mutual divisibility and monicity. No squarefree/odd-N/irreducible quotient assumption; retain full polynomial multiplicities. This is ideal equality, not root-set equality. Return tactic lines only.\nimport M6CyclicAccepted\n\nnamespace M7.SignatureIdeal\nnoncomputable def principal (N : \u2115) (F : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N F} : Set (M6.Cyclic.CycleRing N))\nnoncomputable def pairIdeal (N : \u2115) (a b : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N a, M6.Cyclic.image N b} : Set (M6.Cyclic.CycleRing N))\nend M7.SignatureIdeal\n"
+      }
+    },
+    {
+      "id": "quotient_membership",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.SignatureIdeal.quotient_membership",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 F p : M6.Cyclic.BinaryPolynomial, F \u2223 M6.Cyclic.modulus N \u2192 (M6.Cyclic.image N p \u2208 M7.SignatureIdeal.principal N F \u2194 F \u2223 p)",
+        "imports": [
+          "M7SignatureIdeal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Use accepted M6.Cyclic.signature_bezout and signature_divides. Ideal.span_le and singleton membership/divisibility prove full_signature_ideal. For quotient_membership, a scalar witness in AdjoinRoot lifts to mk q by mk_surjective; mk equality implies modulus divides p-F*q, then F divides p. Conversely map a divisibility witness. monic_injective follows mutual divisibility and monicity. No squarefree/odd-N/irreducible quotient assumption; retain full polynomial multiplicities. This is ideal equality, not root-set equality. Return tactic lines only.\nimport M6CyclicAccepted\n\nnamespace M7.SignatureIdeal\nnoncomputable def principal (N : \u2115) (F : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N F} : Set (M6.Cyclic.CycleRing N))\nnoncomputable def pairIdeal (N : \u2115) (a b : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N a, M6.Cyclic.image N b} : Set (M6.Cyclic.CycleRing N))\nend M7.SignatureIdeal\n"
+      }
+    },
+    {
+      "id": "monic_injective",
+      "dependencies": [
+        "quotient_membership"
+      ],
+      "spec": {
+        "name": "M7.SignatureIdeal.monic_injective",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 F E : M6.Cyclic.BinaryPolynomial, F.Monic \u2192 E.Monic \u2192 F \u2223 M6.Cyclic.modulus N \u2192 E \u2223 M6.Cyclic.modulus N \u2192 (M7.SignatureIdeal.principal N F = M7.SignatureIdeal.principal N E \u2194 F = E)",
+        "imports": [
+          "M7SignatureIdeal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Use accepted M6.Cyclic.signature_bezout and signature_divides. Ideal.span_le and singleton membership/divisibility prove full_signature_ideal. For quotient_membership, a scalar witness in AdjoinRoot lifts to mk q by mk_surjective; mk equality implies modulus divides p-F*q, then F divides p. Conversely map a divisibility witness. monic_injective follows mutual divisibility and monicity. No squarefree/odd-N/irreducible quotient assumption; retain full polynomial multiplicities. This is ideal equality, not root-set equality. Return tactic lines only.\nimport M6CyclicAccepted\n\nnamespace M7.SignatureIdeal\nnoncomputable def principal (N : \u2115) (F : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N F} : Set (M6.Cyclic.CycleRing N))\nnoncomputable def pairIdeal (N : \u2115) (a b : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N a, M6.Cyclic.image N b} : Set (M6.Cyclic.CycleRing N))\nend M7.SignatureIdeal\n"
+      }
+    },
+    {
+      "id": "principal_gcd",
+      "dependencies": [
+        "full_signature_ideal"
+      ],
+      "spec": {
+        "name": "M7.SignatureIdeal.principal_gcd",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 F : M6.Cyclic.BinaryPolynomial, M7.SignatureIdeal.principal N F = M7.SignatureIdeal.principal N (EuclideanDomain.gcd F (M6.Cyclic.modulus N))",
+        "imports": [
+          "M7SignatureIdeal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Use accepted M6.Cyclic.signature_bezout and signature_divides. Ideal.span_le and singleton membership/divisibility prove full_signature_ideal. For quotient_membership, a scalar witness in AdjoinRoot lifts to mk q by mk_surjective; mk equality implies modulus divides p-F*q, then F divides p. Conversely map a divisibility witness. monic_injective follows mutual divisibility and monicity. No squarefree/odd-N/irreducible quotient assumption; retain full polynomial multiplicities. This is ideal equality, not root-set equality. Return tactic lines only.\nimport M6CyclicAccepted\n\nnamespace M7.SignatureIdeal\nnoncomputable def principal (N : \u2115) (F : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N F} : Set (M6.Cyclic.CycleRing N))\nnoncomputable def pairIdeal (N : \u2115) (a b : M6.Cyclic.BinaryPolynomial) : Ideal (M6.Cyclic.CycleRing N) :=\n  Ideal.span ({M6.Cyclic.image N a, M6.Cyclic.image N b} : Set (M6.Cyclic.CycleRing N))\nend M7.SignatureIdeal\n"
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+import M7CyclicSubstitution
+
+
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (h : M7.CyclicSubstitution.RootCondition u), M7.CyclicSubstitution.hom u h (M7.CyclicSubstitution.rho N) = M7.CyclicSubstitution.point u

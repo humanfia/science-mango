@@ -1,0 +1,6 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1\nintro N inst\nhave hroot := AdjoinRoot.eval₂_root (M6.Cyclic.modulus N)\nhave h : M7.CyclicSubstitution.rho N ^ N + 1 = 0 := by\n  simpa [M6.Cyclic.modulus, M7.CyclicSubstitution.rho] using hroot\nhave htwo : (1 : M6.Cyclic.CycleRing N) + 1 = 0 := by\n  have hz : (1 : ZMod 2) + 1 = 0 := by decide\n  have hm := congrArg (AdjoinRoot.of (M6.Cyclic.modulus N)) hz\n  simpa using hm\nexact add_right_cancel (h.trans htwo.symm)",
+  "queries": [
+    "AdjoinRoot.eval₂_root"
+  ]
+}

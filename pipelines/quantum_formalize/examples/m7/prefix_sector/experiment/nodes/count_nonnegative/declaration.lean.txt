@@ -1,0 +1,8 @@
+theorem M7.PrefixSector.count_nonnegative : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M5.ConditionalCount.PrefixOK N w A B WA WB → 0 ≤ M7.PrefixSector.count N w E A B WA WB := by
+  intro N w E A B WA WB hN hE hPrefix
+  classical
+  unfold M7.PrefixSector.count
+  apply Finset.sum_nonneg
+  intro F hF
+  exact (M5.ConditionalCount.completion_nonnegative_and_exists
+    N w F A B WA WB hN (hE F hF).1 (hE F hF).2 hPrefix).1

@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1\nintro N _\nhave hroot : M7.CyclicSubstitution.rho N ^ N + 1 = 0 := by\n  simpa only [M7.CyclicSubstitution.rho, M6.Cyclic.modulus,\n    Polynomial.eval₂_add, Polynomial.eval₂_pow, Polynomial.eval₂_X,\n    Polynomial.eval₂_one, map_one] using\n    (AdjoinRoot.eval₂_root (M6.Cyclic.modulus N))\nhave htwo : (1 : M6.Cyclic.CycleRing N) + 1 = 0 := by\n  have h := congrArg (AdjoinRoot.of (M6.Cyclic.modulus N))\n    (show (1 : ZMod 2) + 1 = 0 by decide)\n  simpa only [map_add, map_one, map_zero] using h\nexact add_right_cancel (hroot.trans htwo.symm)",
+  "queries": [
+    "Polynomial.eval₂_pow",
+    "Polynomial.eval₂_one",
+    "AdjoinRoot.eval₂_root"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro N w E A B hN hE hPrefix\nrw [M7.PrefixSector.exact_sector_count N w E A B ∅ ∅ hN hE hPrefix]\nhave hleaf : M7.PrefixSector.completions N w E A B ∅ ∅ =\n    ({(∅, ∅)} : Finset (Finset ℕ × Finset ℕ)).filter (fun _ =>\n      A.card = w ∧ B.card = w ∧\n      M5.Connectivity.supportGcd N A B = 1 ∧\n      M5.completeSignature (M5.SupportPolynomial.ofSupport A)\n        (M5.SupportPolynomial.ofSupport B) N ∈ E) := by\n  have hp := hPrefix\n  unfold M5.ConditionalCount.PrefixOK at hp\n  ext ⟨U, V⟩\n  simp [M7.PrefixSector.completions, M5.ConditionalCount.validCompletions,\n    Finset.mem_powersetCard, Finset.mem_product, and_assoc]\n  <;> aesop (config := { terminal := false })\n  <;> omega\nrw [hleaf]\nby_cases h : A.card = w ∧ B.card = w ∧\n    M5.Connectivity.supportGcd N A B = 1 ∧\n    M5.completeSignature (M5.SupportPolynomial.ofSupport A)\n      (M5.SupportPolynomial.ofSupport B) N ∈ E\n<;> simp [h]",
+  "queries": [
+    "Finset.mem_powersetCard",
+    "Finset.filter_singleton"
+  ]
+}

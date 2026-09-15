@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → M7.CanonicalBlock.bestAnchor A ∈ A\nintro N _ A hA\nclassical\nhave hc : (M7.CanonicalBlock.candidates A).Nonempty := by\n  obtain ⟨q, hq⟩ := hA\n  unfold M7.CanonicalBlock.candidates\n  exact ⟨_, Finset.mem_image.mpr ⟨q, hq, rfl⟩⟩\nhave hk : M7.CanonicalBlock.bestKey A ∈ M7.CanonicalBlock.candidates A := by\n  rw [M7.CanonicalBlock.bestKey, dif_pos hc]\n  exact Finset.min'_mem _ _\nunfold M7.CanonicalBlock.candidates at hk\nobtain ⟨q, hq, heq⟩ := Finset.mem_image.mp hk\nunfold M7.CanonicalBlock.bestAnchor\nrw [← heq]\nsimpa using hq",
+  "queries": []
+}

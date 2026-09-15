@@ -1,0 +1,7 @@
+theorem M7.PrefixSector.disjoint_signatures : ∀ (N w : ℕ) (F G : M5.BinaryPolynomial) (A B WA WB : Finset ℕ), F ≠ G → Disjoint (M5.ConditionalCount.validCompletions N w F A B WA WB) (M5.ConditionalCount.validCompletions N w G A B WA WB) := by
+  classical
+  intro N w F G A B WA WB hFG
+  apply Finset.disjoint_left.mpr
+  intro p hpF hpG
+  simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter] at hpF hpG
+  aesop

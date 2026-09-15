@@ -1,0 +1,69 @@
+{
+  "id": "normalize_anchor",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalBlock.normalize_anchor",
+    "spec_sha256": "f716fc7ee96abf31aa129dfbc3a09722c7b311a5e93b93de63e8ad2d5d70ecb9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-qp149zva/attempt-001/Candidate_22f0d81de555522a.lean",
+        "target_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-qp149zva/attempt-001/FrozenTarget_22f0d81de555522a.lean",
+        "feedback": "",
+        "target_sha256": "08f2791be3a62f7323241e1968de27765fe280c6bf9c8cda20b0c89d453fe587",
+        "target_olean_sha256": "0dc1853c69541943345ce24c4de3caa03641f777da667b334ee0a34cba89995c",
+        "source_sha256": "84d7e6ae3972920da4ab51a2bd0eec993c688ff6ff16f7dce139b0f8f012a851",
+        "olean_sha256": "46cfd0edf86bd149debb1dc26c89efb2c8579addbca1b583e3634da1ba2845e3",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:48:19.953142+00:00",
+    "work": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-qp149zva",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b4f2aaadb2e87b82f34d5a14b5097529c8d8621030fe4daf3b4d1824d8d17bae",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-qp149zva/attempt-001/Candidate_22f0d81de555522a.lean",
+    "environment_sha256": "77cdf2eb212edeb43c5708f80c22e1959ff3cb68a437dfe12ab06097d2496fca",
+    "artifacts": {
+      "best_anchor_member": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.best_anchor_member : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → M7.CanonicalBlock.bestAnchor A ∈ A := by\n  change ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → M7.CanonicalBlock.bestAnchor A ∈ A\n  intro N _ A hA\n  classical\n  have hc : (M7.CanonicalBlock.candidates A).Nonempty := by\n    obtain ⟨q, hq⟩ := hA\n    unfold M7.CanonicalBlock.candidates\n    exact ⟨_, Finset.mem_image.mpr ⟨q, hq, rfl⟩⟩\n  have hk : M7.CanonicalBlock.bestKey A ∈ M7.CanonicalBlock.candidates A := by\n    rw [M7.CanonicalBlock.bestKey, dif_pos hc]\n    exact Finset.min'_mem _ _\n  unfold M7.CanonicalBlock.candidates at hk\n  obtain ⟨q, hq, heq⟩ := Finset.mem_image.mp hk\n  unfold M7.CanonicalBlock.bestAnchor\n  rw [← heq]\n  simpa using hq",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.best_anchor_member",
+          "ancestors": [],
+          "spec_sha256": "4fb8a7a6f263f9dd29d81ce44bf88b0252a328333c72b6d983d70f626c007a84"
+        },
+        "sha256": "a2eb0193af485956a22f8db47a3b4d9f574b5b4119fdcded46c40eb04c20a97b"
+      },
+      "normalize_anchor": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.normalize_anchor : ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → 0 ∈ M7.CanonicalBlock.normalize A := by\n  change ∀ (N : ℕ) [NeZero N], ∀ A : M7.CanonicalBlock.Support N, A.Nonempty → 0 ∈ M7.CanonicalBlock.normalize A\n  intro N _ A hA\n  classical\n  unfold M7.CanonicalBlock.normalize M7.CanonicalBlock.shift\n  apply Finset.mem_image.mpr\n  exact ⟨M7.CanonicalBlock.bestAnchor A, M7.CanonicalBlock.best_anchor_member N A hA, by simp⟩",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.normalize_anchor",
+          "ancestors": [
+            "best_anchor_member"
+          ],
+          "spec_sha256": "3250780b6cdc95e1f441c1ff41b59b49ba50a6da9f24b0563bec47c7f2913218"
+        },
+        "sha256": "b24c2fa934b3d640ff9c379935f0ab548f9735a31b8098061b9d6c4c6df8a4c2"
+      }
+    }
+  }
+}

@@ -1,0 +1,252 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.eval₂_pow",
+    "status": "ok",
+    "results": [
+      {
+        "id": 102214,
+        "name": "Polynomial.eval₂_pow",
+        "module": "Mathlib.Algebra.Polynomial.Eval.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Eval/Defs.lean#L227-L228",
+        "source_text": "theorem eval₂_pow (n : ℕ) : (p ^ n).eval₂ f x = p.eval₂ f x ^ n :=\n  (eval₂RingHom _ _).map_pow _ _\n",
+        "docstring": null
+      },
+      {
+        "id": 90943,
+        "name": "MvPolynomial.eval₂_pow",
+        "module": "Mathlib.Algebra.MvPolynomial.Eval",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Eval.lean#L150-L155",
+        "source_text": "@[simp]\ntheorem eval₂_pow {p : MvPolynomial σ R} : ∀ {n : ℕ}, (p ^ n).eval₂ f g = p.eval₂ f g ^ n\n  | 0 => by\n    rw [pow_zero, pow_zero]\n    exact eval₂_one _ _\n  | n + 1 => by rw [pow_add, pow_one, pow_add, pow_one, eval₂_mul, eval₂_pow]\n\n/-- `MvPolynomial.eval₂` as a `RingHom`. -/\ndef eval₂Hom (f : R →+* S₁) (g : σ → S₁) : MvPolynomial σ R →+* S₁ where\n  toFun := eval₂ f g",
+        "docstring": null
+      },
+      {
+        "id": 102146,
+        "name": "Polynomial.eval₂_pow'",
+        "module": "Mathlib.Algebra.Polynomial.Eval.Algebra",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Eval/Algebra.lean#L46-L51",
+        "source_text": "@[simp]\ntheorem eval₂_pow' (n : ℕ) :\n    (p ^ n).eval₂ (algebraMap R S) x = (p.eval₂ (algebraMap R S) x) ^ n := by\n  induction n with\n  | zero => simp only [pow_zero, eval₂_one]\n  | succ n ih => rw [pow_succ, pow_succ, eval₂_mul', ih]",
+        "docstring": null
+      },
+      {
+        "id": 101212,
+        "name": "Polynomial.evalEval_pow",
+        "module": "Mathlib.Algebra.Polynomial.Bivariate",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Bivariate.lean#L141-L143",
+        "source_text": "@[simp]\nlemma evalEval_pow (x y : R) (p : R[X][Y]) (n : ℕ) : (p ^ n).evalEval x y = p.evalEval x y ^ n := by\n  simp only [evalEval, eval_pow]",
+        "docstring": null
+      },
+      {
+        "id": 102181,
+        "name": "Polynomial.eval₂",
+        "module": "Mathlib.Algebra.Polynomial.Eval.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Eval/Defs.lean#L55-L58",
+        "source_text": "/-- Evaluate a polynomial `p` given a ring hom `f` from the scalar ring\n  to the target and a value `x` for the variable in the target -/\nirreducible_def eval₂ (p : R[X]) : S :=\n  p.sum fun e a => f a * x ^ e\n",
+        "docstring": "Evaluate a polynomial `p` given a ring hom `f` from the scalar ring\nto the target and a value `x` for the variable in the target "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Polynomial.eval₂_pow",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386861,
+        "name": "Physlib.physHermite_pow",
+        "module": "Physlib.Mathematics.SpecialFunctions.PhysHermite",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SpecialFunctions/PhysHermite.lean#L145-L146",
+        "source_text": "lemma physHermite_pow (n m : ℕ) (x : ℝ) : physHermite n x ^ m = aeval x (physHermite n ^ m) := by\n  simp\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.eval₂_one",
+    "status": "ok",
+    "results": [
+      {
+        "id": 102190,
+        "name": "Polynomial.eval₂_one",
+        "module": "Mathlib.Algebra.Polynomial.Eval.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Eval/Defs.lean#L91-L92",
+        "source_text": "@[simp]\ntheorem eval₂_one : (1 : R[X]).eval₂ f x = 1 := by rw [← C_1, eval₂_C, f.map_one]",
+        "docstring": null
+      },
+      {
+        "id": 102181,
+        "name": "Polynomial.eval₂",
+        "module": "Mathlib.Algebra.Polynomial.Eval.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Eval/Defs.lean#L55-L58",
+        "source_text": "/-- Evaluate a polynomial `p` given a ring hom `f` from the scalar ring\n  to the target and a value `x` for the variable in the target -/\nirreducible_def eval₂ (p : R[X]) : S :=\n  p.sum fun e a => f a * x ^ e\n",
+        "docstring": "Evaluate a polynomial `p` given a ring hom `f` from the scalar ring\nto the target and a value `x` for the variable in the target "
+      },
+      {
+        "id": 102222,
+        "name": "Polynomial.eval₂_at_one",
+        "module": "Mathlib.Algebra.Polynomial.Eval.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Eval/Defs.lean#L266-L269",
+        "source_text": "@[simp]\ntheorem eval₂_at_one {S : Type*} [Semiring S] (f : R →+* S) : p.eval₂ f 1 = f (p.eval 1) := by\n  convert! eval₂_at_apply (p := p) f 1\n  simp",
+        "docstring": null
+      },
+      {
+        "id": 101190,
+        "name": "Polynomial.evalEval",
+        "module": "Mathlib.Algebra.Polynomial.Bivariate",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Bivariate.lean#L43-L44",
+        "source_text": "/-- `evalEval x y p` is the evaluation `p(x,y)` of a two-variable polynomial `p : R[X][Y]`. -/\nabbrev evalEval (x y : R) (p : R[X][Y]) : R := eval x (eval (C y) p)\n",
+        "docstring": "`evalEval x y p` is the evaluation `p(x,y)` of a two-variable polynomial `p : R[X][Y]`. "
+      },
+      {
+        "id": 101192,
+        "name": "Polynomial.evalEval_C",
+        "module": "Mathlib.Algebra.Polynomial.Bivariate",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Bivariate.lean#L49-L50",
+        "source_text": "lemma evalEval_C (x y : R) (p : R[X]) : (C p).evalEval x y = p.eval x := by\n  rw [evalEval, eval_C]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Polynomial.eval₂_one",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.eval₂_one",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "AdjoinRoot.eval₂_root",
+    "status": "ok",
+    "results": [
+      {
+        "id": 303573,
+        "name": "AdjoinRoot.eval₂_root",
+        "module": "Mathlib.RingTheory.AdjoinRoot",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L255-L257",
+        "source_text": "@[simp]\ntheorem eval₂_root (f : R[X]) : f.eval₂ (of f) (root f) = 0 := by\n  rw [← algebraMap_eq, ← aeval_def, aeval_eq, mk_self]",
+        "docstring": null
+      },
+      {
+        "id": 303552,
+        "name": "AdjoinRoot.root",
+        "module": "Mathlib.RingTheory.AdjoinRoot",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L163-L165",
+        "source_text": "/-- The adjoined root. -/\ndef root : AdjoinRoot f :=\n  mk f X\n",
+        "docstring": "The adjoined root. "
+      },
+      {
+        "id": 303574,
+        "name": "AdjoinRoot.isRoot_root",
+        "module": "Mathlib.RingTheory.AdjoinRoot",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L259-L260",
+        "source_text": "theorem isRoot_root (f : R[X]) : IsRoot (f.map (of f)) (root f) := by\n  rw [IsRoot, eval_map, eval₂_root]\n",
+        "docstring": null
+      },
+      {
+        "id": 303529,
+        "name": "AdjoinRoot",
+        "module": "Mathlib.RingTheory.AdjoinRoot",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L60-L63",
+        "source_text": "/-- Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. -/\ndef AdjoinRoot [CommRing R] (f : R[X]) : Type _ :=\n  Polynomial R ⧸ (span {f} : Ideal R[X])\n",
+        "docstring": "Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. "
+      },
+      {
+        "id": 311445,
+        "name": "IsAdjoinRoot.aeval_root_eq_map",
+        "module": "Mathlib.RingTheory.IsAdjoinRoot",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/IsAdjoinRoot.lean#L125-L126",
+        "source_text": "@[simp]\ntheorem aeval_root_eq_map : aeval h.root = h.map := by ext; simp",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "AdjoinRoot.eval₂_root",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "AdjoinRoot.eval₂_root",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

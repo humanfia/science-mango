@@ -2,7 +2,7 @@
 
 In progress; complete M7 Lean acceptance is pending. All 56 frozen natural-language source files were hash-checked; `SOURCE.json` records their identities.
 
-Seven completed batches contain **62 accepted targets**, each with combined compilation, unchanged environment and exact target/axiom checks:
+Eight completed batches contain **71 accepted targets**, each with combined compilation, unchanged environment and exact target/axiom checks:
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -13,8 +13,9 @@ Seven completed batches contain **62 accepted targets**, each with combined comp
 | [domain](domain/experiment/result.json) | 6 | Support-to-M6 polynomial, anchored admissibility and shift interfaces |
 | [orbit_fibers](orbit_fibers/experiment/result.json) | 7 | Full-stabilizer fibers, multiplication/division count identities and partitions |
 | [presentation](presentation/experiment/result.json) | 12 | Factored least-preimage computation and unique winning physical outputs |
+| [prefix_sector](prefix_sector/experiment/result.json) | 9 | Actual M5 arithmetic sector counts, positivity and leaf rules |
 
-Active batches: `transport` prepares actual M6 distance and witness transport (7 targets); `group` specializes the accepted fiber laws to the actual action records (6 targets); the presentation adapter connects those accepted results to actual ordered action records and default queries; `canonical_block` runs 13 exact targets after compiled definitions/types and empty-context DAG validation. `prefix_sector` runs 9 actual M5 arithmetic count targets after build/type preflight, with 37 inherited source modules checked against M5's canonical manifest. `cyclic_substitution` runs 8 full-modulus quotient substitution foundation targets, with the initial retrieval failure preserved and unchanged drafts replayed. See `PREFIX_BRIDGE_PLAN.md` for the remaining actual prefix and residual connections.
+Active batches: `transport` prepares actual M6 distance and witness transport (7 targets); `group` specializes the accepted fiber laws to the actual action records (6 targets); the presentation adapter connects those accepted results to actual ordered action records and default queries; `canonical_block` runs 13 exact targets after compiled definitions/types and empty-context DAG validation. `prefix_sector` has completed all 9 targets, with 37 inherited source modules checked against M5's canonical manifest; literal completion images and child partitions remain downstream. `cyclic_substitution` runs 8 full-modulus quotient substitution foundation targets, with the initial retrieval failure preserved and unchanged drafts replayed. See `PREFIX_BRIDGE_PLAN.md` for the remaining actual prefix and residual connections.
 
 Shared-host load caused compilation/startup timeouts in otherwise preserved proof attempts. Replays retain the frozen targets and drafts and adjust execution resources only. A timeout is not an accepted proof or a mathematical counterexample; canonical receipts remain authoritative.
 

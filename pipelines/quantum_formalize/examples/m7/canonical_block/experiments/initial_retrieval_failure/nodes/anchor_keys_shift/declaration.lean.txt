@@ -1,0 +1,12 @@
+theorem M7.CanonicalBlock.anchor_keys_shift : ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), (M7.CanonicalBlock.candidates (M7.CanonicalBlock.shift s A)).image (fun v => (ofLex v).1) = (M7.CanonicalBlock.candidates A).image (fun v => (ofLex v).1) := by
+  intro N inst s A
+  classical
+  simp only [M7.CanonicalBlock.candidates, Finset.image_image]
+  change (A.image (fun q => q + s)).image (fun q => M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) (M7.CanonicalBlock.shift s A))) = A.image (fun q => M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A))
+  rw [Finset.image_image]
+  apply Finset.image_congr
+  intro q hq
+  change M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-(q + s)) (M7.CanonicalBlock.shift s A)) = M7.CanonicalBlock.key (M7.CanonicalBlock.shift (-q) A)
+  rw [M7.CanonicalBlock.shift_add]
+  have h : -(q + s) + s = -q := by abel
+  rw [h]

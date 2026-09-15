@@ -1,0 +1,84 @@
+{
+  "id": "positive_iff",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.PrefixSector.positive_iff",
+    "spec_sha256": "c0334545909431a5ca152484d29ba1f6c80b3d9f33fb28d3c3d268d5b53b2f2f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-prefix-sector-formalization/.humanize-formal-runs/run-mkvrccan/attempt-001/Candidate_d7f5bdf73772a20a.lean",
+        "target_path": "/home/jing/m7-lean-prefix-sector-formalization/.humanize-formal-runs/run-mkvrccan/attempt-001/FrozenTarget_d7f5bdf73772a20a.lean",
+        "feedback": "",
+        "target_sha256": "598eebc44749163f3af1760253582ecabb8569ec296dda49c005d4853afdf766",
+        "target_olean_sha256": "da31ab949effd46db2cda52ac282ab500ee7af7dc23ebbcd013214a70a0d275f",
+        "source_sha256": "67f8f1c732d29f35650ebc5ece80265becd00e3d7dac812c2aa17097cce971fb",
+        "olean_sha256": "4b8aa81d7167d7c6574cafd3d7e5b89ffa25e1038e391a03c5ed2e8be4e6bbfc",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:01:24.682872+00:00",
+    "work": "/home/jing/m7-lean-prefix-sector-formalization/.humanize-formal-runs/run-mkvrccan",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "fe138d5d9062227df43ed0d9e923c64cc58b32e2eb107ace48fc7bc39db1ba84",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-prefix-sector-formalization/.humanize-formal-runs/run-mkvrccan/attempt-001/Candidate_d7f5bdf73772a20a.lean",
+    "environment_sha256": "467d22fd2a46eba47bf7d5dc72910de017de7a0f462b953058d36b30d4152627",
+    "artifacts": {
+      "disjoint_signatures": {
+        "payload": {
+          "declaration": "theorem M7.PrefixSector.disjoint_signatures : ∀ (N w : ℕ) (F G : M5.BinaryPolynomial) (A B WA WB : Finset ℕ), F ≠ G → Disjoint (M5.ConditionalCount.validCompletions N w F A B WA WB) (M5.ConditionalCount.validCompletions N w G A B WA WB) := by\n  classical\n  intro N w F G A B WA WB hFG\n  apply Finset.disjoint_left.mpr\n  intro p hpF hpG\n  simp only [M5.ConditionalCount.validCompletions, Finset.mem_filter] at hpF hpG\n  aesop",
+          "imports": [
+            "M7PrefixSector"
+          ],
+          "name": "M7.PrefixSector.disjoint_signatures",
+          "ancestors": [],
+          "spec_sha256": "e12a02e19f2946e88a4dc1596d91af5764af43f8a4142e54c2fa3bf3ca71d23e"
+        },
+        "sha256": "96178b2f9045e06e0a38cc060869658a49ba2bc75746676e5c22f730d86146d9"
+      },
+      "exact_sector_count": {
+        "payload": {
+          "declaration": "theorem M7.PrefixSector.exact_sector_count : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M5.ConditionalCount.PrefixOK N w A B WA WB → M7.PrefixSector.count N w E A B WA WB = (M7.PrefixSector.completions N w E A B WA WB).card := by\n  classical\n  intro N w E A B WA WB hN hE hPrefix\n  unfold M7.PrefixSector.count M7.PrefixSector.completions\n  rw [Finset.card_biUnion]\n  · rw [Nat.cast_sum]\n    apply Finset.sum_congr rfl\n    intro F hF\n    exact M5.ConditionalCount.exact_completion_C N w F A B WA WB\n      hN (hE F hF).1 (hE F hF).2 hPrefix\n  · intro F hF G hG hFG\n    exact M7.PrefixSector.disjoint_signatures N w F G A B WA WB hFG",
+          "imports": [
+            "M7PrefixSector"
+          ],
+          "name": "M7.PrefixSector.exact_sector_count",
+          "ancestors": [
+            "disjoint_signatures"
+          ],
+          "spec_sha256": "517289042a48e491936383afbcb8f9c0e818d2788e9f6e9f461c5273c680db23"
+        },
+        "sha256": "dd2380d2669f19530a58324f23faf3895d8047d6ed271e31a7a1320e80c3547d"
+      },
+      "positive_iff": {
+        "payload": {
+          "declaration": "theorem M7.PrefixSector.positive_iff : ∀ (N w : ℕ) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset ℕ), 0 < N → M7.PrefixSector.ValidSector N E → M5.ConditionalCount.PrefixOK N w A B WA WB → (0 < M7.PrefixSector.count N w E A B WA WB ↔ (M7.PrefixSector.completions N w E A B WA WB).Nonempty) := by\n  intro N w E A B WA WB hN hE hPrefix\n  rw [M7.PrefixSector.exact_sector_count N w E A B WA WB hN hE hPrefix]\n  exact_mod_cast (Finset.card_pos : 0 < (M7.PrefixSector.completions N w E A B WA WB).card ↔ (M7.PrefixSector.completions N w E A B WA WB).Nonempty)",
+          "imports": [
+            "M7PrefixSector"
+          ],
+          "name": "M7.PrefixSector.positive_iff",
+          "ancestors": [
+            "disjoint_signatures",
+            "exact_sector_count"
+          ],
+          "spec_sha256": "58fe319d3f9eb990d16130a25f9bcec69bb99752af86be9170f0608eed123979"
+        },
+        "sha256": "e0396a0b4c8130de907db189b3249e6992414427acb13a81d3729b6394fac27c"
+      }
+    }
+  }
+}

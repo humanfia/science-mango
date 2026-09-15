@@ -1,0 +1,12 @@
+{
+  "name": "M7.PrefixSector.disjoint_signatures",
+  "statement": "∀ (N w : ℕ) (F G : M5.BinaryPolynomial) (A B WA WB : Finset ℕ), F ≠ G → Disjoint (M5.ConditionalCount.validCompletions N w F A B WA WB) (M5.ConditionalCount.validCompletions N w G A B WA WB)",
+  "imports": [
+    "M7PrefixSector"
+  ],
+  "context": "",
+  "queries": [
+    "addition commutativity"
+  ],
+  "guidance": "Use accepted M5.ConditionalCount.exact_completion_C and completion_nonnegative_and_exists, not assumed count identities. Definitions and actual finite arithmetic are frozen. Distinct signatures make validCompletions disjoint. For leaf, WA=WB=empty means only possible residual pair is (empty,empty); no raw pair enumeration is introduced in count. Return tactic lines only.\nimport M5ConditionalCountAccepted\n\nnamespace M7.PrefixSector\nnoncomputable def count (N w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) : ℤ :=\n  ∑ F ∈ E, M5.ConditionalCount.completionC N w F A B WA WB\nnoncomputable def completions (N w : ℕ) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset ℕ) : Finset (Finset ℕ × Finset ℕ) := by\n  classical\n  exact E.biUnion (fun F => M5.ConditionalCount.validCompletions N w F A B WA WB)\ndef ValidSector (N : ℕ) (E : Finset M5.BinaryPolynomial) : Prop :=\n  ∀ F ∈ E, F.Monic ∧ F ∣ M5.cyclicModulus N\nend M7.PrefixSector\n"
+}

@@ -1,0 +1,218 @@
+{
+  "title": "M7 actual arithmetic prefix counts on literal completed supports and binary child partitions",
+  "nodes": [
+    {
+      "id": "union_injective",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixCompleted.union_injective",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), Disjoint A WA \u2192 Disjoint B WB \u2192 Set.InjOn (fun x : Finset \u2115 \u00d7 Finset \u2115 => (A \u222a x.1, B \u222a x.2)) (M7.PrefixSector.completions N w E A B WA WB : Set (Finset \u2115 \u00d7 Finset \u2115))",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "completed_membership",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixCompleted.completed_membership",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), Disjoint A WA \u2192 Disjoint B WB \u2192 \u2200 x, x \u2208 M7.PrefixCompleted.completed N w E A B WA WB \u2194 M7.PrefixCompleted.Within A B WA WB x \u2227 M7.PrefixCompleted.Valid N w E x",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "overfull_empty",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixCompleted.overfull_empty",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), (w < A.card \u2228 w < B.card) \u2192 M7.PrefixCompleted.completed N w E A B WA WB = \u2205",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "count_completed",
+      "dependencies": [
+        "union_injective",
+        "overfull_empty"
+      ],
+      "spec": {
+        "name": "M7.PrefixCompleted.count_completed",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), 0 < N \u2192 M7.PrefixSector.ValidSector N E \u2192 M7.PrefixCompleted.Base N A B WA WB \u2192 M7.PrefixSector.count N w E A B WA WB = (M7.PrefixCompleted.completed N w E A B WA WB).card",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "left_children",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixCompleted.left_children",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), \u2200 i \u2208 WA, M7.PrefixCompleted.Base N A B WA WB \u2192 M7.PrefixCompleted.Base N A B (WA.erase i) WB \u2227 M7.PrefixCompleted.Base N (insert i A) B (WA.erase i) WB",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "right_children",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixCompleted.right_children",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), \u2200 i \u2208 WB, M7.PrefixCompleted.Base N A B WA WB \u2192 M7.PrefixCompleted.Base N A B WA (WB.erase i) \u2227 M7.PrefixCompleted.Base N A (insert i B) WA (WB.erase i)",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "left_sets",
+      "dependencies": [
+        "completed_membership"
+      ],
+      "spec": {
+        "name": "M7.PrefixCompleted.left_sets",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), Disjoint A WA \u2192 Disjoint B WB \u2192 \u2200 i \u2208 WA, M7.PrefixCompleted.completed N w E A B WA WB = M7.PrefixCompleted.completed N w E A B (WA.erase i) WB \u222a M7.PrefixCompleted.completed N w E (insert i A) B (WA.erase i) WB",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "right_sets",
+      "dependencies": [
+        "completed_membership"
+      ],
+      "spec": {
+        "name": "M7.PrefixCompleted.right_sets",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), Disjoint A WA \u2192 Disjoint B WB \u2192 \u2200 i \u2208 WB, M7.PrefixCompleted.completed N w E A B WA WB = M7.PrefixCompleted.completed N w E A B WA (WB.erase i) \u222a M7.PrefixCompleted.completed N w E A (insert i B) WA (WB.erase i)",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "left_disjoint",
+      "dependencies": [
+        "completed_membership"
+      ],
+      "spec": {
+        "name": "M7.PrefixCompleted.left_disjoint",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), Disjoint A WA \u2192 Disjoint B WB \u2192 \u2200 i \u2208 WA, Disjoint (M7.PrefixCompleted.completed N w E A B (WA.erase i) WB) (M7.PrefixCompleted.completed N w E (insert i A) B (WA.erase i) WB)",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "right_disjoint",
+      "dependencies": [
+        "completed_membership"
+      ],
+      "spec": {
+        "name": "M7.PrefixCompleted.right_disjoint",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), Disjoint A WA \u2192 Disjoint B WB \u2192 \u2200 i \u2208 WB, Disjoint (M7.PrefixCompleted.completed N w E A B WA (WB.erase i)) (M7.PrefixCompleted.completed N w E A (insert i B) WA (WB.erase i))",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "left_count_split",
+      "dependencies": [
+        "count_completed",
+        "left_children",
+        "left_sets",
+        "left_disjoint"
+      ],
+      "spec": {
+        "name": "M7.PrefixCompleted.left_count_split",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), 0 < N \u2192 M7.PrefixSector.ValidSector N E \u2192 M7.PrefixCompleted.Base N A B WA WB \u2192 \u2200 i \u2208 WA, M7.PrefixSector.count N w E A B WA WB = M7.PrefixSector.count N w E A B (WA.erase i) WB + M7.PrefixSector.count N w E (insert i A) B (WA.erase i) WB",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    },
+    {
+      "id": "right_count_split",
+      "dependencies": [
+        "count_completed",
+        "right_children",
+        "right_sets",
+        "right_disjoint"
+      ],
+      "spec": {
+        "name": "M7.PrefixCompleted.right_count_split",
+        "statement": "\u2200 (N w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), 0 < N \u2192 M7.PrefixSector.ValidSector N E \u2192 M7.PrefixCompleted.Base N A B WA WB \u2192 \u2200 i \u2208 WB, M7.PrefixSector.count N w E A B WA WB = M7.PrefixSector.count N w E A B WA (WB.erase i) + M7.PrefixSector.count N w E A (insert i B) WA (WB.erase i)",
+        "imports": [
+          "M7PrefixCompleted"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Preserve actual arithmetic count definition. completed is proof-only image of residual completions, not generation implementation. Use accepted PrefixSector count identity and overfull_zero. Disjoint selected/undecided supports make union injective; inverse residual is x.1 \\ A and x.2 \\ B. For membership use Finset powersetCard/subset/card_sdiff and actual validCompletions filter. Base deliberately has no card<=w: count_completed handles overfull branches by zero. Child sets split by membership of i, and selected/undecided disjointness yields disjoint physical outputs. Return tactic lines only.\nimport M7PrefixSectorAccepted\n\nnamespace M7.PrefixCompleted\ndef Base (N : \u2115) (A B WA WB : Finset \u2115) : Prop :=\n  0 \u2208 A \u2227 0 \u2208 B \u2227 A \u2286 Finset.range N \u2227 B \u2286 Finset.range N \u2227\n  WA \u2286 Finset.range N \u2227 WB \u2286 Finset.range N \u2227 Disjoint A WA \u2227 Disjoint B WB\ndef Within (A B WA WB : Finset \u2115) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  A \u2286 x.1 \u2227 x.1 \u2286 A \u222a WA \u2227 B \u2286 x.2 \u2227 x.2 \u2286 B \u222a WB\ndef Valid (N w : \u2115) (E : Finset M5.BinaryPolynomial) (x : Finset \u2115 \u00d7 Finset \u2115) : Prop :=\n  x.1.card = w \u2227 x.2.card = w \u2227 M5.Connectivity.supportGcd N x.1 x.2 = 1 \u2227\n  M5.completeSignature (M5.SupportPolynomial.ofSupport x.1) (M5.SupportPolynomial.ofSupport x.2) N \u2208 E\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial)\n    (A B WA WB : Finset \u2115) : Finset (Finset \u2115 \u00d7 Finset \u2115) := by\n  classical\n  exact (M7.PrefixSector.completions N w E A B WA WB).image (fun x => (A \u222a x.1, B \u222a x.2))\nend M7.PrefixCompleted\n"
+      }
+    }
+  ]
+}

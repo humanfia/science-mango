@@ -1,0 +1,8 @@
+import M7CanonicalBlock
+
+theorem M7.CanonicalBlock.shift_add : ∀ (N : ℕ) [NeZero N], ∀ (s t : ZMod N) (A : M7.CanonicalBlock.Support N), M7.CanonicalBlock.shift s (M7.CanonicalBlock.shift t A) = M7.CanonicalBlock.shift (s+t) A := by
+  intro N inst s t A
+  classical
+  simp only [M7.CanonicalBlock.shift, Finset.image_image, Function.comp_def, add_assoc, add_comm t s]
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N : ℕ) [NeZero N], ∀ (s : ZMod N) (A : M7.CanonicalBlock.Support N), (M7.CanonicalBlock.candidates (M7.CanonicalBlock.shift s A)).image (fun v => (ofLex v).1) = (M7.CanonicalBlock.candidates A).image (fun v => (ofLex v).1)

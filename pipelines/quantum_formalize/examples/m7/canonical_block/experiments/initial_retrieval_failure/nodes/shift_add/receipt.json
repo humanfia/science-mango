@@ -1,0 +1,67 @@
+{
+  "id": "shift_add",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalBlock.shift_add",
+    "spec_sha256": "ffda1e70b93e771c7f65423939a469dcce5f6ff7dcd027d61ed2ed4c460eb467",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732/attempt-001/Candidate_62325c789d48e795.lean:2:68: error: unsolved goals\nN : ℕ\ninst : NeZero N\ns t : ZMod N\nA : Support N\n⊢ (Finset.preimage A (fun b => b + -t) ⋯).preimage (fun b => b + -s) ⋯ = Finset.image (fun i => s + (t + i)) A\n/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732/attempt-001/Candidate_62325c789d48e795.lean:5:33: warning: This simp argument is unused:\n  Finset.image_image\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.CanonicalBlock.shift, add_assoc, add_comm, add_left_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732/attempt-001/Candidate_62325c789d48e795.lean:5:53: warning: This simp argument is unused:\n  add_assoc\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.CanonicalBlock.shift, Finset.image_image, add_comm, add_left_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732/attempt-002/Candidate_8ea14b81f490ecd6.lean:2:68: error: unsolved goals\nN : ℕ\ninst : NeZero N\ns t : ZMod N\nA : Support N\n⊢ Finset.image ((fun i => i + s) ∘ fun i => i + t) A = Finset.image (fun i => i + (s + t)) A\n/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732/attempt-002/Candidate_8ea14b81f490ecd6.lean:4:58: warning: This simp argument is unused:\n  add_assoc\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.CanonicalBlock.shift, Finset.image_image, add_comm t s]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732/attempt-002/Candidate_8ea14b81f490ecd6.lean:4:69: warning: This simp argument is unused:\n  add_comm t s\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [M7.CanonicalBlock.shift, Finset.image_image, add_assoc]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 2
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732/attempt-003/Candidate_6e98ae8588d65eec.lean",
+        "target_path": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732/attempt-003/FrozenTarget_6e98ae8588d65eec.lean",
+        "feedback": "",
+        "target_sha256": "17f5905a7dbca77d9169368a64f26a869ff68395be4a2a8eb1cb4f3847479382",
+        "target_olean_sha256": "4e41bdea70429e3a40760d6c5a1a2534cc4c4ade79756c55137500831b233293",
+        "source_sha256": "4e8ca352b82e81a9e2135fac0d07bc6ec4513e83c97a5fde038d860c0eaefa49",
+        "olean_sha256": "00d7f83be8b4683b2e3d5691e3566cb2b1a8bf429dc32dff9b3baeceec015391",
+        "attempt": 3
+      }
+    ],
+    "created_at": "2026-09-15T16:53:38.208866+00:00",
+    "work": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "b4f2aaadb2e87b82f34d5a14b5097529c8d8621030fe4daf3b4d1824d8d17bae",
+    "phase": "finished",
+    "round": 3,
+    "proof": "/home/jing/m7-lean-canonical-block-formalization/.humanize-formal-runs/run-rr8fm732/attempt-003/Candidate_6e98ae8588d65eec.lean",
+    "environment_sha256": "77cdf2eb212edeb43c5708f80c22e1959ff3cb68a437dfe12ab06097d2496fca",
+    "artifacts": {
+      "shift_add": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalBlock.shift_add : ∀ (N : ℕ) [NeZero N], ∀ (s t : ZMod N) (A : M7.CanonicalBlock.Support N), M7.CanonicalBlock.shift s (M7.CanonicalBlock.shift t A) = M7.CanonicalBlock.shift (s+t) A := by\n  intro N inst s t A\n  classical\n  simp only [M7.CanonicalBlock.shift, Finset.image_image, Function.comp_def, add_assoc, add_comm t s]",
+          "imports": [
+            "M7CanonicalBlock"
+          ],
+          "name": "M7.CanonicalBlock.shift_add",
+          "ancestors": [],
+          "spec_sha256": "ffda1e70b93e771c7f65423939a469dcce5f6ff7dcd027d61ed2ed4c460eb467"
+        },
+        "sha256": "b437294b0e0fa32f5208b97299aad34d56f8ba359020aeb4173ab5bb86a14274"
+      }
+    }
+  }
+}
