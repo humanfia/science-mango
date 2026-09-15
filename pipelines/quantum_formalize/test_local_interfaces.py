@@ -16,6 +16,18 @@ class LocalInterfaceTests(unittest.TestCase):
         self.assertEqual(result['entries'][0]['header'], 'theorem helper : True')
         self.assertNotIn('trivial', str(result['entries']))
 
+    def test_m7_headers_retain_m6_import_provenance_and_omit_bodies(self):
+        result = self.collect({
+            'M5Main.lean': 'import M7Selection\n',
+            'M7Selection.lean': 'import M6Cyclic\nnamespace M7.Selection\ndef winner : Prop := True\nend M7.Selection\n',
+            'M6Cyclic.lean': 'theorem legacy : True := by trivial\n',
+        })
+        self.assertEqual([f['module'] for f in result['files']],
+                         ['M5Main', 'M7Selection', 'M6Cyclic'])
+        self.assertEqual(result['entries'][0]['namespace_context'], ['M7.Selection'])
+        self.assertEqual(result['entries'][0]['header'], 'def winner : Prop')
+        self.assertNotIn('trivial', str(result['entries']))
+
     def collect(self, sources, **kwargs):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp); hashes={}

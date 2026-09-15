@@ -1,7 +1,5 @@
 # A rigorous roadmap for discovering laws of sparse cyclic quantum codes
 
-> Current update (2026-09-15): M5 is adopted at arithmetic-workflow strength. [M6 is complete at scoped symbolic exact-reduction strength](../quantum_m6/README.md), with final dual reviews and executable verification. [M7 has a complete symbolic constructive-selector proof](../quantum_m7/README.md); its Lean formalization has started and remains pending. M8 was added at the user's request to study arbitrary-span distance complexity; it is open and was not part of the original M1–M7 acceptance gates. The historical frontier discussion below is retained for context.
-
 > **Goal.** Replace raw exhaustive search in a declared family of cyclic
 > two-block CSS codes with an exact mathematical workflow that canonicalizes
 > every construction, predicts which parameter sectors can occur, constructs
@@ -236,60 +234,9 @@ arithmetic where practical and must include corruption controls.
 | M2 search-size law | Exact Burnside count and raw-enumeration controls | Complete |
 | M3 varied catalogues | Full partitions across multiple quotient orders | Complete for four weight-three fibres |
 | M4 exact target distances | Matching upper/lower evidence for every class in scope | Complete for `109` frozen classes |
-| M5 birth/lift law | Every admissible sector generated or proved exceptional | Complete at arithmetic-workflow strength |
-| M6 distance law | Proved domain or frozen held-out predictive success | Complete at scoped symbolic exact-reduction strength; see current update |
-| M7 universal selector | All certified optima for requested parameters without raw scan | Symbolic constructive-selector proof complete; Lean formalization started |
-| M8 arbitrary-span distance complexity | Uniform polynomial-time exact distance and witnesses, or a family-preserving hardness theorem with explicit tractable regimes; see §12.1 | Open; added 2026-09-15 |
-
-### 12.1 M8: arbitrary-span exact distance complexity
-
-**Goal.** Determine whether the declared sparse cyclic two-block CSS family
-admits uniformly efficient exact distance computation when presentation span
-`R` is unrestricted within `0<=R<N`. The current M6 algorithm is exact for
-every allowed order, but its `O(N^3 4^R)` distance bound is polynomial in `N`
-only at fixed span. M8 asks whether that exponential span dependence can be
-removed, or whether a precise complexity obstruction prevents such a guarantee.
-
-M8 is a new research target. It neither reopens completed M6 nor adds a new
-prerequisite to the original M7. Resolve it through one of these two outcomes:
-
-1. **Uniform algorithm.** Prove an exact algorithm for every admissible input,
-   including even orders and complete gcd multiplicities. For `k>0`, return
-   the distance and a minimum logical witness; for `k=0`, report no logical
-   distance. State the input encoding and bit-cost model and prove worst-case
-   time and storage polynomial in physical block length `N`, uniformly over
-   spans and allowed support weights. Here `N` is the explicit physical-size
-   parameter; polynomial in `log N` is not required. Bounds with exponential
-   dependence on an unrestricted `R` or `w` do not close this outcome.
-2. **Complexity obstruction and tractable regimes.** Prove hardness for exact
-   distance, or its stated threshold decision problem, within this precise
-   family (a qualifying subfamily suffices). Give a reduction preserving the
-   required cyclic two-block structure, connectivity and equal support
-   weights, and explicitly state any restriction on weights, signatures or
-   orders. State the complexity assumption under which a uniform polynomial
-   algorithm is excluded. Connect the obstruction to proved tractable
-   regimes, including the existing fixed-span algorithm, and distinguish any
-   new structural parameter from mere re-expression of `R`. Hardness for
-   general stabilizer codes alone is insufficient. This outcome resolves
-   complexity; it does not claim that arbitrary-span efficient computation
-   has been achieved.
-
-**Evidence and acceptance.** Supply a complete symbolic argument, a frozen
-artifact with independent full-scope reviews, and reproducible checks and
-corruption controls for any implementation used. Improvements on selected
-instances, heuristic upper bounds, average-case behavior or faster constants
-are useful progress but do not establish either worst-case outcome. Partial
-subfamily algorithms remain scoped progress unless they resolve the stated
-alternative. Preserve the exact recipe group and physical Hamming metric;
-an algebraic change of variables is not automatically a weight isometry.
-
-**Initial work.** Investigate whether a suitable recipe presentation or a
-smaller structural parameter reduces transfer-state size, while proving the
-cost of finding that representation. In parallel as mathematical research
-directions, test whether an exact family-preserving hardness reduction is
-possible. Neither direction is assumed to succeed. Keep M8 open until an
-outcome above is established; M7, practical solver superiority and Lean
-formalization remain separate claims.
+| M5 birth/lift law | Every admissible sector generated or proved exceptional | Open |
+| M6 distance law | Proved domain or frozen held-out predictive success | Open |
+| M7 universal selector | All certified optima for requested parameters without raw scan | Conditional on M5/M6 |
 
 ## 13. Reproducible workflow
 
