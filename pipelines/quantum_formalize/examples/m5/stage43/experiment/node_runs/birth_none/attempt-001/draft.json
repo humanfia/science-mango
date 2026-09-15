@@ -1,0 +1,4 @@
+{
+  "proof": "intro w F hw hF hF0\nclassical\nhave hG := M5.GlobalCriterion.global_occurrence_criterion w F hw hF hF0\nconstructor\n· intro hb\n  by_contra hA\n  have hpos : 0 < M5.ResidueCount.A w F := by omega\n  obtain ⟨b, hb', _⟩ := M5.ArithmeticWorkflow.birth_exact w F hw hF hF0 hpos\n  rw [hb] at hb'\n  cases hb'\n· intro hA\n  unfold M5.ArithmeticWorkflow.birth\n  rw [M5.BirthSearch.birth_none_iff]\n  intro N hbound hlower hd\n  have hN : 0 < N := by omega\n  apply le_of_not_gt\n  intro hC\n  obtain ⟨S, U, hR⟩ :=\n    (M5.ArithmeticWorkflow.order_count_iff N w F hN (by omega) hF hF0).mp hC\n  exact (hG.2.2.mp hA) ⟨N, S, U, hR⟩",
+  "queries": []
+}

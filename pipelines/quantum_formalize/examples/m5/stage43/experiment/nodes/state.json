@@ -1,0 +1,473 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T09:35:40.255597+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "order_count_iff": {
+      "id": "order_count_iff",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.ArithmeticWorkflow.order_count_iff",
+        "spec_sha256": "9f0b2b28c7b7d5683c533022a035d0931d223483da96a94172d76a64ca57bd4e",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-66oa72w4/attempt-001/Candidate_2e3c608e7dfb69b8.lean",
+            "target_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-66oa72w4/attempt-001/FrozenTarget_2e3c608e7dfb69b8.lean",
+            "feedback": "",
+            "target_sha256": "ac875bcfed772a366ee9534778b2968f42d3b2617757dcaffb38f66a625d4bda",
+            "target_olean_sha256": "654956fcd22dbbec34718a6d85976098ce5f653261136128cc0a073c58f8dc83",
+            "source_sha256": "e95238faf027ed44b66a3cf2167c7242bdc9f12b7d7de2c542ad617bbe8d5463",
+            "olean_sha256": "b9aaff4cb3f1375c3ea4700c331429acf4c7e5cbb524165ad6242fa64dc93b3d",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:30:30.248067+00:00",
+        "work": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-66oa72w4",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "724ea686254e0b11661c5e4e9e15ac1b2eb671a0a1560f8f784731bdfd803ad6",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-66oa72w4/attempt-001/Candidate_2e3c608e7dfb69b8.lean",
+        "environment_sha256": "5214bd743f720b3091d6b3fb205b0b1cbd4e6539b9c36ea88d5757d852f0f1da",
+        "artifacts": {
+          "order_count_iff": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_count_iff : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (0 < M5.OrderCount.C N w F ↔ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hd : F ∣ M5.cyclicModulus N\n  · rw [M5.OrderCount.C_positive_iff_realization N w F hN hw hF hd]\n    constructor\n    · rintro ⟨A, B, hA, hB, hAz, hBz, hAc, hBc, hg, hs⟩\n      exact ⟨A, B, hN, hAc, hBc, hAz, hBz,\n        (fun e he => Finset.mem_range.mp (hA he)),\n        (fun e he => Finset.mem_range.mp (hB he)), hg, hs⟩\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, hAc, hBc, hAz, hBz, hA, hB, hg, hs⟩\n      exact ⟨A, B, (fun e he => Finset.mem_range.mpr (hA e he)),\n        (fun e he => Finset.mem_range.mpr (hB e he)), hAz, hBz, hAc, hBc, hg, hs⟩\n  · have hC : M5.OrderCount.C N w F = 0 := by\n      simp only [M5.OrderCount.C, hd, false_and, ite_false]\n    rw [hC]\n    constructor\n    · exact fun h => (lt_irrefl 0 h).elim\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, _, _, _, _, _, _, _, hs⟩\n      have hf : F ∣ M5.cyclicModulus N := by\n        rw [← hs]\n        exact EuclideanDomain.gcd_dvd_right\n          (EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B))\n          (M5.cyclicModulus N)\n      exact (hd hf).elim",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_count_iff",
+              "ancestors": [],
+              "spec_sha256": "9f0b2b28c7b7d5683c533022a035d0931d223483da96a94172d76a64ca57bd4e"
+            },
+            "sha256": "d808a04111f49187e10ff88d306e6a428a570799365893844c566a129c8c6bc8"
+          }
+        }
+      }
+    },
+    "birth_exact": {
+      "id": "birth_exact",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.ArithmeticWorkflow.birth_exact",
+        "spec_sha256": "8757cedf24fccbb08106329dc5fb075dd1bb8c14fa72c537b8d5cf89ec863b2f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-1zjnzugh/attempt-001/Candidate_d345cc1dc548053f.lean",
+            "target_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-1zjnzugh/attempt-001/FrozenTarget_d345cc1dc548053f.lean",
+            "feedback": "",
+            "target_sha256": "1841fc16359c7942cc8ec24bb17ac69c5998d2bde8c1282915c26535b2507138",
+            "target_olean_sha256": "74be01141a52ec68ad3f6d2d12650bee8c620d08bdc0bac4e1d1efe068b4ae3a",
+            "source_sha256": "0092967ea51a6386f37c35c2515ac8bbe2948d5a56e078c869d154926cacf37e",
+            "olean_sha256": "2cdb675f01e1985a7a47fd7e09eaaa28dc858efb31addbbf58424fe8148a6d03",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:31:31.450810+00:00",
+        "work": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-1zjnzugh",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "724ea686254e0b11661c5e4e9e15ac1b2eb671a0a1560f8f784731bdfd803ad6",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-1zjnzugh/attempt-001/Candidate_d345cc1dc548053f.lean",
+        "environment_sha256": "5214bd743f720b3091d6b3fb205b0b1cbd4e6539b9c36ea88d5757d852f0f1da",
+        "artifacts": {
+          "order_count_iff": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_count_iff : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (0 < M5.OrderCount.C N w F ↔ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hd : F ∣ M5.cyclicModulus N\n  · rw [M5.OrderCount.C_positive_iff_realization N w F hN hw hF hd]\n    constructor\n    · rintro ⟨A, B, hA, hB, hAz, hBz, hAc, hBc, hg, hs⟩\n      exact ⟨A, B, hN, hAc, hBc, hAz, hBz,\n        (fun e he => Finset.mem_range.mp (hA he)),\n        (fun e he => Finset.mem_range.mp (hB he)), hg, hs⟩\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, hAc, hBc, hAz, hBz, hA, hB, hg, hs⟩\n      exact ⟨A, B, (fun e he => Finset.mem_range.mpr (hA e he)),\n        (fun e he => Finset.mem_range.mpr (hB e he)), hAz, hBz, hAc, hBc, hg, hs⟩\n  · have hC : M5.OrderCount.C N w F = 0 := by\n      simp only [M5.OrderCount.C, hd, false_and, ite_false]\n    rw [hC]\n    constructor\n    · exact fun h => (lt_irrefl 0 h).elim\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, _, _, _, _, _, _, _, hs⟩\n      have hf : F ∣ M5.cyclicModulus N := by\n        rw [← hs]\n        exact EuclideanDomain.gcd_dvd_right\n          (EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B))\n          (M5.cyclicModulus N)\n      exact (hd hf).elim",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_count_iff",
+              "ancestors": [],
+              "spec_sha256": "9f0b2b28c7b7d5683c533022a035d0931d223483da96a94172d76a64ca57bd4e"
+            },
+            "sha256": "d808a04111f49187e10ff88d306e6a428a570799365893844c566a129c8c6bc8"
+          },
+          "birth_exact": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.birth_exact : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 < M5.ResidueCount.A w F → ∃ b : ℕ, M5.ArithmeticWorkflow.birth w F = some b ∧ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes b w F S U) ∧ ∀ N : ℕ, (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U) → b ≤ N := by\n  intro w F hw hF hF0 hA\n  classical\n  unfold M5.ArithmeticWorkflow.birth\n  apply M5.BirthSearch.birth_exact _ _ _ _\n    (fun N => ∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)\n  · intro N hN\n    rcases hN with ⟨S, U, hR⟩\n    rcases M5.OrderBoundary.signature_lower_bounds N w F S U hF hF0 hR with ⟨hd, hwN, hdeg⟩\n    exact ⟨max_le hwN (by omega), hd⟩\n  · intro N hlower hd\n    have hN : 0 < N := by omega\n    exact M5.ArithmeticWorkflow.order_count_iff N w F hN (by omega) hF hF0\n  · obtain ⟨S, U, N, E, hE, hbound, hR⟩ :=\n      M5.GlobalCriterion.positive_bounded_progression w F hw hF hF0 hA\n    refine ⟨N, Nat.le_of_lt hbound, S, U, ?_⟩\n    simpa using hR 0",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.birth_exact",
+              "ancestors": [
+                "order_count_iff"
+              ],
+              "spec_sha256": "01e54eb6b7f503695307a9a5f8c3ecb4be859087b5b2e5cd1474965211a751b1"
+            },
+            "sha256": "c3cdcf2ed05bdb0964d91254832eb5807878aa21dd69e24c0267c692671759e5"
+          }
+        }
+      }
+    },
+    "birth_none": {
+      "id": "birth_none",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.ArithmeticWorkflow.birth_none",
+        "spec_sha256": "9239823fb0f47cd59737eb90fda4cc5b3a4a1d0fc7b45644c473d346a2a62e9c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-rib6k9rt/attempt-001/Candidate_cec7825692844890.lean",
+            "target_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-rib6k9rt/attempt-001/FrozenTarget_cec7825692844890.lean",
+            "feedback": "",
+            "target_sha256": "c1abf2185d38940344cea06f79c8d82b9e8116f19e4ad5b9594ed1de189efc4f",
+            "target_olean_sha256": "e30a87cda78c8b887d80b71b5398c9f7b27c5e2106faff1e2649b52f830c89c2",
+            "source_sha256": "911c5f3789c9a0071886b74a9707b8bcad2c73435403e1ce78455647a5de278f",
+            "olean_sha256": "aad06e61fe46aa85838613d57ae115b4342775a056212e20365c6bd096888774",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:33:02.437068+00:00",
+        "work": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-rib6k9rt",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "724ea686254e0b11661c5e4e9e15ac1b2eb671a0a1560f8f784731bdfd803ad6",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-rib6k9rt/attempt-001/Candidate_cec7825692844890.lean",
+        "environment_sha256": "5214bd743f720b3091d6b3fb205b0b1cbd4e6539b9c36ea88d5757d852f0f1da",
+        "artifacts": {
+          "order_count_iff": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_count_iff : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (0 < M5.OrderCount.C N w F ↔ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hd : F ∣ M5.cyclicModulus N\n  · rw [M5.OrderCount.C_positive_iff_realization N w F hN hw hF hd]\n    constructor\n    · rintro ⟨A, B, hA, hB, hAz, hBz, hAc, hBc, hg, hs⟩\n      exact ⟨A, B, hN, hAc, hBc, hAz, hBz,\n        (fun e he => Finset.mem_range.mp (hA he)),\n        (fun e he => Finset.mem_range.mp (hB he)), hg, hs⟩\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, hAc, hBc, hAz, hBz, hA, hB, hg, hs⟩\n      exact ⟨A, B, (fun e he => Finset.mem_range.mpr (hA e he)),\n        (fun e he => Finset.mem_range.mpr (hB e he)), hAz, hBz, hAc, hBc, hg, hs⟩\n  · have hC : M5.OrderCount.C N w F = 0 := by\n      simp only [M5.OrderCount.C, hd, false_and, ite_false]\n    rw [hC]\n    constructor\n    · exact fun h => (lt_irrefl 0 h).elim\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, _, _, _, _, _, _, _, hs⟩\n      have hf : F ∣ M5.cyclicModulus N := by\n        rw [← hs]\n        exact EuclideanDomain.gcd_dvd_right\n          (EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B))\n          (M5.cyclicModulus N)\n      exact (hd hf).elim",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_count_iff",
+              "ancestors": [],
+              "spec_sha256": "9f0b2b28c7b7d5683c533022a035d0931d223483da96a94172d76a64ca57bd4e"
+            },
+            "sha256": "d808a04111f49187e10ff88d306e6a428a570799365893844c566a129c8c6bc8"
+          },
+          "birth_exact": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.birth_exact : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 < M5.ResidueCount.A w F → ∃ b : ℕ, M5.ArithmeticWorkflow.birth w F = some b ∧ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes b w F S U) ∧ ∀ N : ℕ, (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U) → b ≤ N := by\n  intro w F hw hF hF0 hA\n  classical\n  unfold M5.ArithmeticWorkflow.birth\n  apply M5.BirthSearch.birth_exact _ _ _ _\n    (fun N => ∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)\n  · intro N hN\n    rcases hN with ⟨S, U, hR⟩\n    rcases M5.OrderBoundary.signature_lower_bounds N w F S U hF hF0 hR with ⟨hd, hwN, hdeg⟩\n    exact ⟨max_le hwN (by omega), hd⟩\n  · intro N hlower hd\n    have hN : 0 < N := by omega\n    exact M5.ArithmeticWorkflow.order_count_iff N w F hN (by omega) hF hF0\n  · obtain ⟨S, U, N, E, hE, hbound, hR⟩ :=\n      M5.GlobalCriterion.positive_bounded_progression w F hw hF hF0 hA\n    refine ⟨N, Nat.le_of_lt hbound, S, U, ?_⟩\n    simpa using hR 0",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.birth_exact",
+              "ancestors": [
+                "order_count_iff"
+              ],
+              "spec_sha256": "01e54eb6b7f503695307a9a5f8c3ecb4be859087b5b2e5cd1474965211a751b1"
+            },
+            "sha256": "c3cdcf2ed05bdb0964d91254832eb5807878aa21dd69e24c0267c692671759e5"
+          },
+          "birth_none": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.birth_none : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → (M5.ArithmeticWorkflow.birth w F = none ↔ M5.ResidueCount.A w F = 0) := by\n  intro w F hw hF hF0\n  classical\n  have hG := M5.GlobalCriterion.global_occurrence_criterion w F hw hF hF0\n  constructor\n  · intro hb\n    by_contra hA\n    have hpos : 0 < M5.ResidueCount.A w F := by omega\n    obtain ⟨b, hb', _⟩ := M5.ArithmeticWorkflow.birth_exact w F hw hF hF0 hpos\n    rw [hb] at hb'\n    cases hb'\n  · intro hA\n    unfold M5.ArithmeticWorkflow.birth\n    rw [M5.BirthSearch.birth_none_iff]\n    intro N hbound hlower hd\n    have hN : 0 < N := by omega\n    apply le_of_not_gt\n    intro hC\n    obtain ⟨S, U, hR⟩ :=\n      (M5.ArithmeticWorkflow.order_count_iff N w F hN (by omega) hF hF0).mp hC\n    exact (hG.2.2.mp hA) ⟨N, S, U, hR⟩",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.birth_none",
+              "ancestors": [
+                "birth_exact",
+                "order_count_iff"
+              ],
+              "spec_sha256": "0980886db42a5b7000ebc3cb60a32d13c9affc36f4173a48d0c32141de1fe8f0"
+            },
+            "sha256": "fd0cb9ad110f30976d38d3ae823e1b2ca9d7e4d43d1d66d72c1fe07857ec390d"
+          }
+        }
+      }
+    },
+    "order_count_nonnegative": {
+      "id": "order_count_nonnegative",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.ArithmeticWorkflow.order_count_nonnegative",
+        "spec_sha256": "05def3462244e83453da8723549f2545e64e4776de655c4a39d2bced5f833545",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-17rxbi3h/attempt-001/Candidate_6c73fe1d28e061a9.lean",
+            "target_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-17rxbi3h/attempt-001/FrozenTarget_6c73fe1d28e061a9.lean",
+            "feedback": "",
+            "target_sha256": "e17867d2e83976d9160beaa5e50a048ca01f3f51442d8b88e9e457ed81bb1790",
+            "target_olean_sha256": "945b49a21ae56d0447a440e0609954c397e6b3307e8af5f95b6ae6068b8aedcb",
+            "source_sha256": "33e104d9b1e7d5cb85a2919096e0053ea7017f1818c87e1bad1c56654ce6887e",
+            "olean_sha256": "a07bd221154bdd5547c54914bcb952aa217cfc897f6c7cc491e25d433fa4b629",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:30:30.390972+00:00",
+        "work": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-17rxbi3h",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "724ea686254e0b11661c5e4e9e15ac1b2eb671a0a1560f8f784731bdfd803ad6",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-17rxbi3h/attempt-001/Candidate_6c73fe1d28e061a9.lean",
+        "environment_sha256": "5214bd743f720b3091d6b3fb205b0b1cbd4e6539b9c36ea88d5757d852f0f1da",
+        "artifacts": {
+          "order_count_nonnegative": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_count_nonnegative : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.OrderCount.C N w F := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.OrderCount.C N w F\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hdiv : F ∣ M5.cyclicModulus N\n  · exact M5.OrderCount.C_nonnegative N w F hN hw hF hdiv\n  · simp [M5.OrderCount.C, hdiv]",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_count_nonnegative",
+              "ancestors": [],
+              "spec_sha256": "05def3462244e83453da8723549f2545e64e4776de655c4a39d2bced5f833545"
+            },
+            "sha256": "160db3b41f3dca41dcdc27dc99aeb00c6ca703315ea541a63660e6e2bb4a3bf5"
+          }
+        }
+      }
+    },
+    "order_exception": {
+      "id": "order_exception",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.ArithmeticWorkflow.order_exception",
+        "spec_sha256": "a1ce3b52aac50ee575aad2538b00b1fd710d911de4cd53c5c03bb37bda528ea3",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-cn20waqo/attempt-001/Candidate_39cd4f90da5a6e2a.lean",
+            "target_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-cn20waqo/attempt-001/FrozenTarget_39cd4f90da5a6e2a.lean",
+            "feedback": "",
+            "target_sha256": "22c66c892c1cef5986cc9d128b00c0de151143dc26fa700ccb0f9ea74333795e",
+            "target_olean_sha256": "3b7c7ee57817479740d376ec4c9dc8e8e4d6822bd2a8d46e7da07ef0fdf646b1",
+            "source_sha256": "32d21c89e53af774f79dadf4cfa9a8835a661dc37c0e638d444fa615e1a4543f",
+            "olean_sha256": "82f0111004ff2d812f3e562d1867eaa114304d68ae0adb807fd8b71a7dcd4a04",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:31:31.550498+00:00",
+        "work": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-cn20waqo",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "724ea686254e0b11661c5e4e9e15ac1b2eb671a0a1560f8f784731bdfd803ad6",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-cn20waqo/attempt-001/Candidate_39cd4f90da5a6e2a.lean",
+        "environment_sha256": "5214bd743f720b3091d6b3fb205b0b1cbd4e6539b9c36ea88d5757d852f0f1da",
+        "artifacts": {
+          "order_count_iff": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_count_iff : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (0 < M5.OrderCount.C N w F ↔ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hd : F ∣ M5.cyclicModulus N\n  · rw [M5.OrderCount.C_positive_iff_realization N w F hN hw hF hd]\n    constructor\n    · rintro ⟨A, B, hA, hB, hAz, hBz, hAc, hBc, hg, hs⟩\n      exact ⟨A, B, hN, hAc, hBc, hAz, hBz,\n        (fun e he => Finset.mem_range.mp (hA he)),\n        (fun e he => Finset.mem_range.mp (hB he)), hg, hs⟩\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, hAc, hBc, hAz, hBz, hA, hB, hg, hs⟩\n      exact ⟨A, B, (fun e he => Finset.mem_range.mpr (hA e he)),\n        (fun e he => Finset.mem_range.mpr (hB e he)), hAz, hBz, hAc, hBc, hg, hs⟩\n  · have hC : M5.OrderCount.C N w F = 0 := by\n      simp only [M5.OrderCount.C, hd, false_and, ite_false]\n    rw [hC]\n    constructor\n    · exact fun h => (lt_irrefl 0 h).elim\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, _, _, _, _, _, _, _, hs⟩\n      have hf : F ∣ M5.cyclicModulus N := by\n        rw [← hs]\n        exact EuclideanDomain.gcd_dvd_right\n          (EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B))\n          (M5.cyclicModulus N)\n      exact (hd hf).elim",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_count_iff",
+              "ancestors": [],
+              "spec_sha256": "9f0b2b28c7b7d5683c533022a035d0931d223483da96a94172d76a64ca57bd4e"
+            },
+            "sha256": "d808a04111f49187e10ff88d306e6a428a570799365893844c566a129c8c6bc8"
+          },
+          "order_count_nonnegative": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_count_nonnegative : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.OrderCount.C N w F := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.OrderCount.C N w F\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hdiv : F ∣ M5.cyclicModulus N\n  · exact M5.OrderCount.C_nonnegative N w F hN hw hF hdiv\n  · simp [M5.OrderCount.C, hdiv]",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_count_nonnegative",
+              "ancestors": [],
+              "spec_sha256": "05def3462244e83453da8723549f2545e64e4776de655c4a39d2bced5f833545"
+            },
+            "sha256": "160db3b41f3dca41dcdc27dc99aeb00c6ca703315ea541a63660e6e2bb4a3bf5"
+          },
+          "order_exception": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_exception : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (M5.OrderCount.C N w F = 0 ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (M5.OrderCount.C N w F = 0 ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U))\n  intro N w F hN hw hF hF0\n  have hn := M5.ArithmeticWorkflow.order_count_nonnegative N w F hN hw hF hF0\n  have hp := M5.ArithmeticWorkflow.order_count_iff N w F hN hw hF hF0\n  rw [← hp]\n  constructor\n  · intro hz hpos\n    rw [hz] at hpos\n    exact (lt_irrefl 0) hpos\n  · intro h\n    exact le_antisymm (le_of_not_gt h) hn",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_exception",
+              "ancestors": [
+                "order_count_iff",
+                "order_count_nonnegative"
+              ],
+              "spec_sha256": "538863402f8d09205a74bc6dfd779bf71b51a2c0e22227b696f6cc70439f8e39"
+            },
+            "sha256": "1fe97908a563c4d311b2d8c8ba7d8258bc62db0d717233f0821ef572b28dec59"
+          }
+        }
+      }
+    },
+    "later_exception": {
+      "id": "later_exception",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.ArithmeticWorkflow.later_exception",
+        "spec_sha256": "5ccaf8fcc90edfee23969b6f98545389a0e70eec76ec543d1dcb856526f38ff6",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-7nr1n15m/attempt-001/Candidate_4fa70e03e81e7d94.lean:14:43: error: unsolved goals\nw : ℕ\nF : BinaryPolynomial\nhw : 2 ≤ w\nhF : Polynomial.Monic F\nhF0 : Polynomial.coeff F 0 = 1\nb N : ℕ\nhb : birth w F = some b\nhbN : b ≤ N\nhN : ¬0 < N\n⊢ F ∣ cyclicModulus N → w ≤ N → OrderCount.rawC N w F = 0\n/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-7nr1n15m/attempt-001/Candidate_4fa70e03e81e7d94.lean:15:29: warning: This simp argument is unused:\n  hN\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.OrderCount.C]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-7nr1n15m/attempt-002/Candidate_374048bffb5116df.lean",
+            "target_path": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-7nr1n15m/attempt-002/FrozenTarget_374048bffb5116df.lean",
+            "feedback": "",
+            "target_sha256": "b49fbe666e3a551b29de8c711bff2d8a691b21318bf31cf780fd5561f791d569",
+            "target_olean_sha256": "4c0799732bbcbd53f73c2513f17e160d5efb3b7d98a27a1a85235a219ad27f90",
+            "source_sha256": "4c7a95fed9388c62eceba49649b31592c1695a58fc56d29a87d931292cf1585b",
+            "olean_sha256": "4447dde5ad6c6ab8316a0f81d877ed9eba47714c21e9631f7aa149cd5fadde78",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T09:33:02.533683+00:00",
+        "work": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-7nr1n15m",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "724ea686254e0b11661c5e4e9e15ac1b2eb671a0a1560f8f784731bdfd803ad6",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-arithmetic-workflow-formalization/.humanize-formal-runs/run-7nr1n15m/attempt-002/Candidate_374048bffb5116df.lean",
+        "environment_sha256": "5214bd743f720b3091d6b3fb205b0b1cbd4e6539b9c36ea88d5757d852f0f1da",
+        "artifacts": {
+          "order_count_iff": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_count_iff : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (0 < M5.OrderCount.C N w F ↔ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hd : F ∣ M5.cyclicModulus N\n  · rw [M5.OrderCount.C_positive_iff_realization N w F hN hw hF hd]\n    constructor\n    · rintro ⟨A, B, hA, hB, hAz, hBz, hAc, hBc, hg, hs⟩\n      exact ⟨A, B, hN, hAc, hBc, hAz, hBz,\n        (fun e he => Finset.mem_range.mp (hA he)),\n        (fun e he => Finset.mem_range.mp (hB he)), hg, hs⟩\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, hAc, hBc, hAz, hBz, hA, hB, hg, hs⟩\n      exact ⟨A, B, (fun e he => Finset.mem_range.mpr (hA e he)),\n        (fun e he => Finset.mem_range.mpr (hB e he)), hAz, hBz, hAc, hBc, hg, hs⟩\n  · have hC : M5.OrderCount.C N w F = 0 := by\n      simp only [M5.OrderCount.C, hd, false_and, ite_false]\n    rw [hC]\n    constructor\n    · exact fun h => (lt_irrefl 0 h).elim\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, _, _, _, _, _, _, _, hs⟩\n      have hf : F ∣ M5.cyclicModulus N := by\n        rw [← hs]\n        exact EuclideanDomain.gcd_dvd_right\n          (EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B))\n          (M5.cyclicModulus N)\n      exact (hd hf).elim",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_count_iff",
+              "ancestors": [],
+              "spec_sha256": "9f0b2b28c7b7d5683c533022a035d0931d223483da96a94172d76a64ca57bd4e"
+            },
+            "sha256": "d808a04111f49187e10ff88d306e6a428a570799365893844c566a129c8c6bc8"
+          },
+          "birth_exact": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.birth_exact : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → 0 < M5.ResidueCount.A w F → ∃ b : ℕ, M5.ArithmeticWorkflow.birth w F = some b ∧ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes b w F S U) ∧ ∀ N : ℕ, (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U) → b ≤ N := by\n  intro w F hw hF hF0 hA\n  classical\n  unfold M5.ArithmeticWorkflow.birth\n  apply M5.BirthSearch.birth_exact _ _ _ _\n    (fun N => ∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)\n  · intro N hN\n    rcases hN with ⟨S, U, hR⟩\n    rcases M5.OrderBoundary.signature_lower_bounds N w F S U hF hF0 hR with ⟨hd, hwN, hdeg⟩\n    exact ⟨max_le hwN (by omega), hd⟩\n  · intro N hlower hd\n    have hN : 0 < N := by omega\n    exact M5.ArithmeticWorkflow.order_count_iff N w F hN (by omega) hF hF0\n  · obtain ⟨S, U, N, E, hE, hbound, hR⟩ :=\n      M5.GlobalCriterion.positive_bounded_progression w F hw hF hF0 hA\n    refine ⟨N, Nat.le_of_lt hbound, S, U, ?_⟩\n    simpa using hR 0",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.birth_exact",
+              "ancestors": [
+                "order_count_iff"
+              ],
+              "spec_sha256": "01e54eb6b7f503695307a9a5f8c3ecb4be859087b5b2e5cd1474965211a751b1"
+            },
+            "sha256": "c3cdcf2ed05bdb0964d91254832eb5807878aa21dd69e24c0267c692671759e5"
+          },
+          "order_count_nonnegative": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_count_nonnegative : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.OrderCount.C N w F := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.OrderCount.C N w F\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hdiv : F ∣ M5.cyclicModulus N\n  · exact M5.OrderCount.C_nonnegative N w F hN hw hF hdiv\n  · simp [M5.OrderCount.C, hdiv]",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_count_nonnegative",
+              "ancestors": [],
+              "spec_sha256": "05def3462244e83453da8723549f2545e64e4776de655c4a39d2bced5f833545"
+            },
+            "sha256": "160db3b41f3dca41dcdc27dc99aeb00c6ca703315ea541a63660e6e2bb4a3bf5"
+          },
+          "order_exception": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.order_exception : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (M5.OrderCount.C N w F = 0 ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (M5.OrderCount.C N w F = 0 ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U))\n  intro N w F hN hw hF hF0\n  have hn := M5.ArithmeticWorkflow.order_count_nonnegative N w F hN hw hF hF0\n  have hp := M5.ArithmeticWorkflow.order_count_iff N w F hN hw hF hF0\n  rw [← hp]\n  constructor\n  · intro hz hpos\n    rw [hz] at hpos\n    exact (lt_irrefl 0) hpos\n  · intro h\n    exact le_antisymm (le_of_not_gt h) hn",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.order_exception",
+              "ancestors": [
+                "order_count_iff",
+                "order_count_nonnegative"
+              ],
+              "spec_sha256": "538863402f8d09205a74bc6dfd779bf71b51a2c0e22227b696f6cc70439f8e39"
+            },
+            "sha256": "1fe97908a563c4d311b2d8c8ba7d8258bc62db0d717233f0821ef572b28dec59"
+          },
+          "later_exception": {
+            "payload": {
+              "declaration": "theorem M5.ArithmeticWorkflow.later_exception : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → ∀ b N : ℕ, M5.ArithmeticWorkflow.birth w F = some b → b ≤ N → ((¬ M5.signaturePeriod F ∣ N ∨ M5.OrderCount.C N w F = 0) ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by\n  change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → ∀ b N : ℕ, M5.ArithmeticWorkflow.birth w F = some b → b ≤ N → ((¬ M5.signaturePeriod F ∣ N ∨ M5.OrderCount.C N w F = 0) ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U))\n  intro w F hw hF hF0 b N hb hbN\n  classical\n  by_cases hN : 0 < N\n  · have he := M5.ArithmeticWorkflow.order_exception N w F hN (by omega) hF hF0\n    constructor\n    · rintro (hd | hz) ⟨S, U, hR⟩\n      · exact hd (M5.OrderBoundary.signature_lower_bounds N w F S U hF hF0 hR).1\n      · exact he.mp hz ⟨S, U, hR⟩\n    · intro h\n      exact Or.inr (he.mpr h)\n  · have hnw : ¬ w ≤ N := by omega\n    have hz : M5.OrderCount.C N w F = 0 := by\n      simp [M5.OrderCount.C, hnw]\n    constructor\n    · intro _ h\n      rcases h with ⟨S, U, hR⟩\n      exact hN hR.1\n    · intro _\n      exact Or.inr hz",
+              "imports": [
+                "M5ArithmeticWorkflowReady"
+              ],
+              "name": "M5.ArithmeticWorkflow.later_exception",
+              "ancestors": [
+                "birth_exact",
+                "order_count_iff",
+                "order_count_nonnegative",
+                "order_exception"
+              ],
+              "spec_sha256": "8cc7610f73b5a0a77f72c8aba99289932ccf3e006ca42003ceec7cb89e55845a"
+            },
+            "sha256": "c9ebf99bfcd9d0850943bb38115eb0adf3437bc54ee5327faf9b6d3267b4e3f7"
+          }
+        }
+      }
+    }
+  }
+}

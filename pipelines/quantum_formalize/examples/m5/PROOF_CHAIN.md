@@ -15,7 +15,7 @@ This is a status map of the original reviewed proof, not a strengthened theorem 
 | §5 packing and signature preservation | Accepted components | [stage6](stage6/RESULTS.md), [stage8](stage8/RESULTS.md), [stage21](stage21/RESULTS.md) |
 | §5 actual bounded connected support construction | Accepted | stage19 + stage21 → stage22 |
 | §5 literal-support progression and bounded physical order | Accepted | stage12 + earlier bounded progression → stage25; combine with stage22 |
-| §6 bounded exact birth and all later-order decisions | Generic search accepted; actual formula integration open | C/A and recovery, bounded construction, necessary lower bounds |
+| §6 bounded exact birth and all later-order decisions | Actual first birth and arbitrary later-order classification accepted; recipe recovery connection open | [stage43](stage43/RESULTS.md); actual recovery stage46 remains |
 | §1 weight-one boundary and final arithmetic procedure | Weight-one accepted; final procedure integration open | Boundary theorem and full correctness/termination integration |
 
 ```mermaid

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (M5.OrderCount.C N w F = 0 ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U))\nintro N w F hN hw hF hF0\nhave hn := M5.ArithmeticWorkflow.order_count_nonnegative N w F hN hw hF hF0\nhave hp := M5.ArithmeticWorkflow.order_count_iff N w F hN hw hF hF0\nrw [← hp]\nconstructor\n· intro hz hpos\n  rw [hz] at hpos\n  exact (lt_irrefl 0) hpos\n· intro h\n  exact le_antisymm (le_of_not_gt h) hn",
+  "queries": []
+}

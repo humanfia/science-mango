@@ -1,0 +1,8 @@
+import FrozenTarget_6c73fe1d28e061a9
+theorem M5.ArithmeticWorkflow.order_count_nonnegative : QuantumHarnessFrozenTarget := by
+  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.OrderCount.C N w F
+  intro N w F hN hw hF hF0
+  classical
+  by_cases hdiv : F ∣ M5.cyclicModulus N
+  · exact M5.OrderCount.C_nonnegative N w F hN hw hF hdiv
+  · simp [M5.OrderCount.C, hdiv]

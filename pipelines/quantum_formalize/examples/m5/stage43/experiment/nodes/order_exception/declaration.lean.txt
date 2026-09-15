@@ -1,0 +1,12 @@
+theorem M5.ArithmeticWorkflow.order_exception : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (M5.OrderCount.C N w F = 0 ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by
+  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (M5.OrderCount.C N w F = 0 ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U))
+  intro N w F hN hw hF hF0
+  have hn := M5.ArithmeticWorkflow.order_count_nonnegative N w F hN hw hF hF0
+  have hp := M5.ArithmeticWorkflow.order_count_iff N w F hN hw hF hF0
+  rw [← hp]
+  constructor
+  · intro hz hpos
+    rw [hz] at hpos
+    exact (lt_irrefl 0) hpos
+  · intro h
+    exact le_antisymm (le_of_not_gt h) hn

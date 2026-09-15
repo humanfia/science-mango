@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → ∀ b N : ℕ, M5.ArithmeticWorkflow.birth w F = some b → b ≤ N → ((¬ M5.signaturePeriod F ∣ N ∨ M5.OrderCount.C N w F = 0) ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U))\nintro w F hw hF hF0 b N hb hbN\nclassical\nby_cases hN : 0 < N\n· have he := M5.ArithmeticWorkflow.order_exception N w F hN (by omega) hF hF0\n  constructor\n  · rintro (hd | hz) ⟨S, U, hR⟩\n    · exact hd (M5.OrderBoundary.signature_lower_bounds N w F S U hF hF0 hR).1\n    · exact he.mp hz ⟨S, U, hR⟩\n  · intro h\n    exact Or.inr (he.mpr h)\n· have hz : M5.OrderCount.C N w F = 0 := by\n    simp [M5.OrderCount.C, hN]\n  constructor\n  · intro _ h\n    rcases h with ⟨S, U, hR⟩\n    exact hN hR.1\n  · intro _\n    exact Or.inr hz",
+  "queries": []
+}

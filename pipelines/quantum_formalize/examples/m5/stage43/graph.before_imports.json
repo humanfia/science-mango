@@ -1,0 +1,203 @@
+{
+  "title": "M5 stage43: actual arithmetic birth and all-order exceptions",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Actual C/A integration; no supplied oracle correctness or physical witness premises. Recovery remains a separate original obligation.",
+  "nodes": [
+    {
+      "id": "imports27",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "source_stage": 27,
+        "status": "pending_verified_import"
+      }
+    },
+    {
+      "id": "imports39",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "source_stage": 39,
+        "status": "pending_verified_import"
+      }
+    },
+    {
+      "id": "imports30",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "source_stage": 30,
+        "status": "pending_verified_import"
+      }
+    },
+    {
+      "id": "imports38",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "source_stage": 38,
+        "status": "pending_verified_import"
+      }
+    },
+    {
+      "id": "order_count_iff",
+      "dependencies": [
+        "imports27"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticWorkflow.order_count_iff",
+        "statement": "\u2200 (N w : \u2115) (F : M5.BinaryPolynomial), 0 < N \u2192 0 < w \u2192 F.Monic \u2192 F.coeff 0 = 1 \u2192 (0 < M5.OrderCount.C N w F \u2194 (\u2203 S U : Finset \u2115, M5.PhysicalOrder.realizes N w F S U))",
+        "imports": [
+          "M5ArithmeticWorkflowReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite minimum member lower bound",
+          "integer nonnegative positive zero iff"
+        ],
+        "guidance": "Split on F dividing cyclicModulus N. In the dividing case use27 C_positive_iff_realization and convert range subsets to element bounds in realizes. In the other case C=0; a physical realization would force F dividing cyclicModulus via gcd_dvd_right. Do not assume period divisibility in the target. Return tactic lines only, without leading by. Keep exact target unchanged."
+      },
+      "metadata": {
+        "source_section": "6",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "order_count_nonnegative",
+      "dependencies": [
+        "imports27"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticWorkflow.order_count_nonnegative",
+        "statement": "\u2200 (N w : \u2115) (F : M5.BinaryPolynomial), 0 < N \u2192 0 < w \u2192 F.Monic \u2192 F.coeff 0 = 1 \u2192 0 \u2264 M5.OrderCount.C N w F",
+        "imports": [
+          "M5ArithmeticWorkflowReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite minimum member lower bound",
+          "integer nonnegative positive zero iff"
+        ],
+        "guidance": "Split on divisibility and use27 C_nonnegative or the cutoff C=0. Return tactic lines only, without leading by. Keep exact target unchanged."
+      },
+      "metadata": {
+        "source_section": "6",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "order_exception",
+      "dependencies": [
+        "order_count_iff",
+        "order_count_nonnegative"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticWorkflow.order_exception",
+        "statement": "\u2200 (N w : \u2115) (F : M5.BinaryPolynomial), 0 < N \u2192 0 < w \u2192 F.Monic \u2192 F.coeff 0 = 1 \u2192 (M5.OrderCount.C N w F = 0 \u2194 \u00ac (\u2203 S U : Finset \u2115, M5.PhysicalOrder.realizes N w F S U))",
+        "imports": [
+          "M5ArithmeticWorkflowReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite minimum member lower bound",
+          "integer nonnegative positive zero iff"
+        ],
+        "guidance": "Use integer nonnegativity and the positive iff theorem. Return tactic lines only, without leading by. Keep exact target unchanged."
+      },
+      "metadata": {
+        "source_section": "6",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "birth_exact",
+      "dependencies": [
+        "order_count_iff",
+        "imports39",
+        "imports30",
+        "imports38"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticWorkflow.birth_exact",
+        "statement": "\u2200 (w : \u2115) (F : M5.BinaryPolynomial), 2 \u2264 w \u2192 F.Monic \u2192 F.coeff 0 = 1 \u2192 0 < M5.ResidueCount.A w F \u2192 \u2203 b : \u2115, M5.ArithmeticWorkflow.birth w F = some b \u2227 (\u2203 S U : Finset \u2115, M5.PhysicalOrder.realizes b w F S U) \u2227 \u2200 N : \u2115, (\u2203 S U : Finset \u2115, M5.PhysicalOrder.realizes N w F S U) \u2192 b \u2264 N",
+        "imports": [
+          "M5ArithmeticWorkflowReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite minimum member lower bound",
+          "integer nonnegative positive zero iff"
+        ],
+        "guidance": "Apply38 birth_exact. Necessary bounds30 give max(w,degF+1)\u2264N and period divides N. This lower bound implies N>0. Use actual order_count_iff, and obtain bounded physical witness at j=0 from39 positive_bounded_progression. No witness/exactcount oracle is an input premise. Return tactic lines only, without leading by. Keep exact target unchanged."
+      },
+      "metadata": {
+        "source_section": "6",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "birth_none",
+      "dependencies": [
+        "birth_exact",
+        "order_count_iff",
+        "imports39",
+        "imports38"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticWorkflow.birth_none",
+        "statement": "\u2200 (w : \u2115) (F : M5.BinaryPolynomial), 2 \u2264 w \u2192 F.Monic \u2192 F.coeff 0 = 1 \u2192 (M5.ArithmeticWorkflow.birth w F = none \u2194 M5.ResidueCount.A w F = 0)",
+        "imports": [
+          "M5ArithmeticWorkflowReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite minimum member lower bound",
+          "integer nonnegative positive zero iff"
+        ],
+        "guidance": "Forward: A is nonnegative by39, if positive birth_exact contradicts none. Reverse:39 rules out every physical order; use38 birth_none_iff and order_count_iff on candidate orders, which are positive by the weight lower bound. Return tactic lines only, without leading by. Keep exact target unchanged."
+      },
+      "metadata": {
+        "source_section": "6",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "later_exception",
+      "dependencies": [
+        "birth_exact",
+        "order_exception",
+        "imports30"
+      ],
+      "spec": {
+        "name": "M5.ArithmeticWorkflow.later_exception",
+        "statement": "\u2200 (w : \u2115) (F : M5.BinaryPolynomial), 2 \u2264 w \u2192 F.Monic \u2192 F.coeff 0 = 1 \u2192 \u2200 b N : \u2115, M5.ArithmeticWorkflow.birth w F = some b \u2192 b \u2264 N \u2192 ((\u00ac M5.signaturePeriod F \u2223 N \u2228 M5.OrderCount.C N w F = 0) \u2194 \u00ac (\u2203 S U : Finset \u2115, M5.PhysicalOrder.realizes N w F S U))",
+        "imports": [
+          "M5ArithmeticWorkflowReady"
+        ],
+        "context": "",
+        "queries": [
+          "finite minimum member lower bound",
+          "integer nonnegative positive zero iff"
+        ],
+        "guidance": "From some birth get candidate membership and b\u2265w using birth definition. Thus N>0. Use order_exception; necessity30 excludes orders not divisible by the period. This classifies arbitrary later orders, not merely the constructed progression. Return tactic lines only, without leading by. Keep exact target unchanged."
+      },
+      "metadata": {
+        "source_section": "6",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

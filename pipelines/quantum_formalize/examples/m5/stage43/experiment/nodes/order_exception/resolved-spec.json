@@ -1,0 +1,13 @@
+{
+  "name": "M5.ArithmeticWorkflow.order_exception",
+  "statement": "∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (M5.OrderCount.C N w F = 0 ↔ ¬ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U))",
+  "imports": [
+    "M5ArithmeticWorkflowReady"
+  ],
+  "context": "theorem M5.ArithmeticWorkflow.order_count_iff : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (0 < M5.OrderCount.C N w F ↔ (∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)) := by\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hd : F ∣ M5.cyclicModulus N\n  · rw [M5.OrderCount.C_positive_iff_realization N w F hN hw hF hd]\n    constructor\n    · rintro ⟨A, B, hA, hB, hAz, hBz, hAc, hBc, hg, hs⟩\n      exact ⟨A, B, hN, hAc, hBc, hAz, hBz,\n        (fun e he => Finset.mem_range.mp (hA he)),\n        (fun e he => Finset.mem_range.mp (hB he)), hg, hs⟩\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, hAc, hBc, hAz, hBz, hA, hB, hg, hs⟩\n      exact ⟨A, B, (fun e he => Finset.mem_range.mpr (hA e he)),\n        (fun e he => Finset.mem_range.mpr (hB e he)), hAz, hBz, hAc, hBc, hg, hs⟩\n  · have hC : M5.OrderCount.C N w F = 0 := by\n      simp only [M5.OrderCount.C, hd, false_and, ite_false]\n    rw [hC]\n    constructor\n    · exact fun h => (lt_irrefl 0 h).elim\n    · rintro ⟨A, B, hR⟩\n      rcases hR with ⟨_, _, _, _, _, _, _, _, hs⟩\n      have hf : F ∣ M5.cyclicModulus N := by\n        rw [← hs]\n        exact EuclideanDomain.gcd_dvd_right\n          (EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B))\n          (M5.cyclicModulus N)\n      exact (hd hf).elim\n\ntheorem M5.ArithmeticWorkflow.order_count_nonnegative : ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.OrderCount.C N w F := by\n  change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → 0 ≤ M5.OrderCount.C N w F\n  intro N w F hN hw hF hF0\n  classical\n  by_cases hdiv : F ∣ M5.cyclicModulus N\n  · exact M5.OrderCount.C_nonnegative N w F hN hw hF hdiv\n  · simp [M5.OrderCount.C, hdiv]",
+  "queries": [
+    "finite minimum member lower bound",
+    "integer nonnegative positive zero iff"
+  ],
+  "guidance": "Use integer nonnegativity and the positive iff theorem. Return tactic lines only, without leading by. Keep exact target unchanged."
+}

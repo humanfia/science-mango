@@ -1,0 +1,4 @@
+{
+  "proof": "set_option maxHeartbeats 2000000 in\n  classical\n  intro N w F hN hw hmonic hcoeff\n  by_cases hdiv : F ∣ M5.cyclicModulus N\n  · rw [M5.OrderCount.C_positive_iff_realization N w F hN hw hmonic hdiv]\n    simp only [M5.PhysicalOrder.realizes, Finset.subset_iff, Finset.mem_range]\n    aesop\n  · have hzero : M5.OrderCount.C N w F = 0 := by\n      simp [M5.OrderCount.C, hdiv]\n    rw [hzero]\n    constructor\n    · intro h\n      exact (lt_irrefl 0 h).elim\n    · rintro ⟨S, U, hreal⟩\n      have hsig : M5.completeSignature (M5.SupportPolynomial.ofSupport S)\n          (M5.SupportPolynomial.ofSupport U) N = F := by\n        unfold M5.PhysicalOrder.realizes at hreal\n        aesop\n      exfalso\n      apply hdiv\n      rw [← hsig]\n      unfold M5.completeSignature\n      exact gcd_dvd_right _ _",
+  "queries": []
+}

@@ -1,0 +1,3 @@
+import Candidate_577d641c9756c241
+example : QuantumHarnessFrozenTarget := M5.ArithmeticWorkflow.order_count_nonnegative
+#print axioms M5.ArithmeticWorkflow.order_count_nonnegative

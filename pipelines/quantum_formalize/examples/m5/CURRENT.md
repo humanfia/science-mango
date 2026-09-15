@@ -1,6 +1,6 @@
 # Current M5 formalization progress
 
-Stages 1–41 and 44–45 are complete: 199 named component lemmas accepted by Lean, with combined compilation per batch. Stage22 includes one retained accepted theorem plus three accepted retry targets. A union of90 components (stages1–15,17,18) also passed single-project compilation and independent exact-type/axiom audit in integrated90. Counts are not completion percentages.
+Stages 1–41 and 43–45 are complete: 205 named component lemmas accepted by Lean, with combined compilation per batch. Stage22 includes one retained accepted theorem plus three accepted retry targets. A union of90 components (stages1–15,17,18) also passed single-project compilation and independent exact-type/axiom audit in integrated90. Counts are not completion percentages.
 
 The original §5 construction chain is now accepted: feasible anchored residue tuples yield a physical realization strictly below birthBound and the same supports realize an infinite arithmetic progression. No physical realizing witness is assumed at input. Explicit n/R identities, polynomial and integer exclusion indicators, and the anchored single-block / restricted tuple count bridges are also accepted.
 
@@ -19,11 +19,11 @@ Active:
 - Stage40 complete: arbitrary selected-polynomial R completion identity.
 - Stage41 complete: translation/anchoring input correspondence using within-block differences.
 - Stage42: actual conditional A running after exact selected-R product repair.
-- Stage43: actual birth and arbitrary later-order integration running with verified27/39 imports.
+- Stage43 complete: actual C classification at every positive order, exact global first birth, no birth iff A=0, and original later-order exception formula.
 - Stage44 complete: empty, branch-partition and terminal semantic prefix counts; actual oracle identification remains in46/47.
 - Stage45 complete: finite search through1..2^degree F returns exactly the mathematical period, including F=1.
 - Stages46/47: actual binary/residue recovery connections in preparation.
 
 Settings: gpt-6-astra / medium, proof concurrency ceiling16, five attempts per node. Prompts now include bounded hash-recorded local M5 declaration interfaces as untrusted references alongside Mathlib/Physlib retrieval. Exact target/source/axiom gates are unchanged.
 
-Full M5 is not yet formally verified. Actual C/A recovery, exact bounded birth/later-order integration, and remaining arithmetic procedure connections remain. Finite factor-subset indexing is a valid arithmetic representation; literal squarefree-H reindexing is optional correspondence, not an added completion gate. No distance, inherited-intersection or anchored-sorting requirement has been added.
+Full M5 is not yet formally verified. Actual C/A recovery connections and the final combined original-scope root remain. Finite factor-subset indexing is a valid arithmetic representation; literal squarefree-H reindexing is optional correspondence, not an added completion gate. No distance, inherited-intersection or anchored-sorting requirement has been added.

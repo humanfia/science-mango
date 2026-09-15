@@ -1,0 +1,200 @@
+[
+  {
+    "queries": [
+      "finite minimum member lower bound",
+      "integer nonnegative positive zero iff"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite minimum member lower bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 203576,
+            "name": "Finset.min_le",
+            "module": "Mathlib.Data.Finset.Max",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Max.lean#L148-L149",
+            "source_text": "theorem min_le {a : α} {s : Finset α} (as : a ∈ s) : s.min ≤ a :=\n  inf_le as\n",
+            "docstring": null
+          },
+          {
+            "id": 203578,
+            "name": "Finset.min_le_of_eq",
+            "module": "Mathlib.Data.Finset.Max",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Max.lean#L154-L155",
+            "source_text": "theorem min_le_of_eq {s : Finset α} {a b : α} (h₁ : b ∈ s) (h₂ : s.min = a) : a ≤ b :=\n  WithTop.coe_le_coe.mp <| h₂.ge.trans (min_le h₁)\n",
+            "docstring": null
+          },
+          {
+            "id": 208405,
+            "name": "List.minimum",
+            "module": "Mathlib.Data.List.MinMax",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/MinMax.lean#L238-L241",
+            "source_text": "/-- `minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` -/\ndef minimum (l : List α) : WithTop α :=\n  argmin id l\n",
+            "docstring": "`minimum l` returns a `WithTop α`, the smallest element of `l` for nonempty lists, and `⊤` for\n`[]` "
+          },
+          {
+            "id": 191717,
+            "name": "IsLowerSet.memberSubfamily",
+            "module": "Mathlib.Combinatorics.SetFamily.HarrisKleitman",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SetFamily/HarrisKleitman.lean#L43-L47",
+            "source_text": "theorem IsLowerSet.memberSubfamily (h : IsLowerSet (𝒜 : Set (Finset α))) :\n    IsLowerSet (𝒜.memberSubfamily a : Set (Finset α)) := by\n  rintro s t hts\n  simp_rw [mem_coe, mem_memberSubfamily]\n  exact And.imp (h <| insert_subset_insert _ hts) (mt <| @hts _)\n",
+            "docstring": null
+          },
+          {
+            "id": 191716,
+            "name": "IsLowerSet.nonMemberSubfamily",
+            "module": "Mathlib.Combinatorics.SetFamily.HarrisKleitman",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SetFamily/HarrisKleitman.lean#L38-L41",
+            "source_text": "theorem IsLowerSet.nonMemberSubfamily (h : IsLowerSet (𝒜 : Set (Finset α))) :\n    IsLowerSet (𝒜.nonMemberSubfamily a : Set (Finset α)) := fun s t hts => by\n  simp_rw [mem_coe, mem_nonMemberSubfamily]\n  exact And.imp (h hts) (mt <| @hts _)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite minimum member lower bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390554,
+            "name": "LinearPMap.IsLowerBound",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L116-L117",
+            "source_text": "/-- `IsLowerBound T z c` is the property that `c * ‖x‖ ≤ ‖T x - z • x‖` for all `x : T.domain`. -/\ndef IsLowerBound (T : H →ₗ.[ℂ] H) (z : ℂ) (c : ℝ) : Prop := ∀ x : T.domain, c * ‖x‖ ≤ ‖T x - z • x‖\n",
+            "docstring": "`IsLowerBound T z c` is the property that `c * ‖x‖ ≤ ‖T x - z • x‖` for all `x : T.domain`. "
+          },
+          {
+            "id": 390556,
+            "name": "LinearPMap.isLowerBound_of_right_le",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L123-L126",
+            "source_text": "lemma isLowerBound_of_right_le\n    {T : H →ₗ.[ℂ] H} {z : ℂ} {c₁ c₂ : ℝ} (hle : c₁ ≤ c₂) (h : IsLowerBound T z c₂) :\n    IsLowerBound T z c₁ :=\n  fun x ↦ (mul_le_mul_of_nonneg_right hle (norm_nonneg x)).trans (h x)\n",
+            "docstring": null
+          },
+          {
+            "id": 390557,
+            "name": "LinearPMap.isLowerBound_of_left_le",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L128-L131",
+            "source_text": "lemma isLowerBound_of_left_le\n    {T₁ T₂ : H →ₗ.[ℂ] H} (hle : T₁ ≤ T₂) {z : ℂ} {c : ℝ} (h : IsLowerBound T₂ z c) :\n    IsLowerBound T₁ z c :=\n  fun x ↦ @hle.2 x ⟨x, hle.1 x.2⟩ rfl ▸ h ⟨x, hle.1 x.2⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 390558,
+            "name": "LinearPMap.isLowerBound_closure",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L133-L144",
+            "source_text": "lemma isLowerBound_closure\n    {T : H →ₗ.[ℂ] H} {z : ℂ} {c : ℝ} (h : IsLowerBound T z c) : IsLowerBound T.closure z c := by\n  by_cases hT : T.IsClosable\n  · intro x\n    obtain ⟨b, hb, hb'⟩ := mem_closure_iff_seq_limit.mp <|\n      hT.graph_closure_eq_closure_graph ▸ T.closure.mem_graph x\n    rw [nhds_prod_eq] at hb'\n    refine le_of_tendsto_of_tendsto' (hb'.fst.norm.const_mul c)\n      ((hb'.snd.sub <| hb'.fst.const_smul z).norm) fun n ↦ ?_\n    obtain ⟨y, hy₁, hy₂⟩ := (mem_graph_iff _).mp (hb n)\n    exact hy₁ ▸ hy₂ ▸ h y\n  · rwa [closure_def' hT]\n",
+            "docstring": null
+          },
+          {
+            "id": 390555,
+            "name": "LinearPMap.isLowerBound_neg",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L119-L121",
+            "source_text": "lemma isLowerBound_neg {T : H →ₗ.[ℂ] H} {z : ℂ} {c : ℝ} (h : IsLowerBound T z c) :\n    IsLowerBound (-T) (-z) c :=\n  fun x ↦ by simpa [neg_apply, norm_neg_add] using h x\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "integer nonnegative positive zero iff",
+        "status": "ok",
+        "results": [
+          {
+            "id": 313422,
+            "name": "IsLocalization.integerNormalization_eq_zero_iff",
+            "module": "Mathlib.RingTheory.Localization.Integral",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Localization/Integral.lean#L86-L95",
+            "source_text": "theorem integerNormalization_eq_zero_iff [IsDomain R] (hM : M ≤ nonZeroDivisors R) (p : S[X]) :\n    integerNormalization M p = 0 ↔ p = 0 := by\n  obtain ⟨_, hb₁, hb₂⟩ := integerNormalization_spec M p\n  letI := isDomain_of_le_nonZeroDivisors S hM\n  letI := (faithfulSMul_iff_algebraMap_injective R S).mpr <| IsLocalization.injective S hM\n  letI : Function.Injective <| mapRingHom (algebraMap R S) := by\n    rw [coe_mapRingHom, map_injective_iff]\n    exact IsLocalization.injective S hM\n  rw [← _root_.map_eq_zero_iff (mapRingHom (algebraMap R S)) this, coe_mapRingHom, hb₂]\n  exact smul_eq_zero_iff_right <| nonZeroDivisors.ne_zero (hM hb₁)\n",
+            "docstring": null
+          },
+          {
+            "id": 328996,
+            "name": "Mathlib.Meta.Positivity.Strictness.nonnegative",
+            "module": "Mathlib.Tactic.Positivity.Core",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Positivity/Core.lean#L62-L62",
+            "source_text": "  | nonnegative {pα : Q(PartialOrder $α)} (pf : Q(0 ≤ $e)) : Strictness e pα\n",
+            "docstring": null
+          },
+          {
+            "id": 56474,
+            "name": "IsStrictlyPositive",
+            "module": "Mathlib.Algebra.Algebra.StrictPositivity",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Algebra/StrictPositivity.lean#L34-L39",
+            "source_text": "/-- An element of an ordered algebra is *strictly positive* if it is nonnegative and invertible.\n\nNOTE: This definition will be generalized to the non-unital case in the future; do not unfold\nthe definition and use the API provided instead to avoid breakage when the refactor happens. -/\ndef IsStrictlyPositive {A : Type*} [LE A] [Monoid A] [Zero A] (a : A) : Prop :=\n  0 ≤ a ∧ IsUnit a\n",
+            "docstring": "An element of an ordered algebra is *strictly positive* if it is nonnegative and invertible.\n\nNOTE: This definition will be generalized to the non-unital case in the future; do not unfold\nthe definition and use the API provided instead to avoid breakage when the refactor happens. "
+          },
+          {
+            "id": 313399,
+            "name": "IsLocalization.isInteger_zero",
+            "module": "Mathlib.RingTheory.Localization.Integer",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Localization/Integer.lean#L50-L51",
+            "source_text": "theorem isInteger_zero : IsInteger R (0 : S) :=\n  Subsemiring.zero_mem _\n",
+            "docstring": null
+          },
+          {
+            "id": 321047,
+            "name": "Valuation.mem_integer_iff",
+            "module": "Mathlib.RingTheory.Valuation.Integers",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Valuation/Integers.lean#L40-L40",
+            "source_text": "lemma mem_integer_iff (r : R) : r ∈ v.integer ↔ v r ≤ 1 := by rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "order_count_iff",
+    "receipts_sha256": "e606909a7d945c57e9aa3867e3459cde5fad9bfe82a505a40bde24f1e1dc303a"
+  }
+]

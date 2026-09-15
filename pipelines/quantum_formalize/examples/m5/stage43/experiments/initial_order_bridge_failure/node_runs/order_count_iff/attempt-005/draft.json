@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N w : ℕ) (F : M5.BinaryPolynomial), 0 < N → 0 < w → F.Monic → F.coeff 0 = 1 → (0 < M5.OrderCount.C N w F ↔ ∃ S U : Finset ℕ, M5.PhysicalOrder.realizes N w F S U)\nintro N w F hN hw hF hF0\nclassical\nby_cases hd : F ∣ M5.cyclicModulus N\n· simpa [M5.PhysicalOrder.realizes, Finset.subset_iff, Finset.mem_range,\n    hN, hw, and_assoc, and_left_comm, and_comm] using\n    (M5.OrderCount.C_positive_iff_realization N w F hN hw hF hd)\n· have hzero : M5.OrderCount.C N w F = 0 := by\n    simp [M5.OrderCount.C, hd]\n  rw [hzero]\n  constructor\n  · intro h\n    exact False.elim ((lt_irrefl 0) h)\n  · rintro ⟨S, U, h⟩\n    have hsig : M5.completeSignature (M5.SupportPolynomial.ofSupport S)\n        (M5.SupportPolynomial.ofSupport U) N = F := by\n      unfold M5.PhysicalOrder.realizes at h\n      tauto\n    exfalso\n    apply hd\n    rw [← hsig]\n    unfold M5.completeSignature\n    first\n    | exact gcd_dvd_right _ _\n    | exact Polynomial.gcd_dvd_right _ _\n    | exact dvd_trans (gcd_dvd_right _ _) (gcd_dvd_right _ _)",
+  "queries": [
+    "M5.PhysicalOrder.realizes definition",
+    "M5.completeSignature definition",
+    "M5.OrderCount.C definition"
+  ]
+}
