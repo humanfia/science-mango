@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (κ σ τ : Type) (K : Finset κ) (S : Finset σ) (T : Finset τ) (a : M7.Presentation.Record κ σ τ), a ∈ M7.Presentation.domain K S T ↔ M7.Presentation.outer a ∈ K ∧ M7.Presentation.left a ∈ S ∧ M7.Presentation.right a ∈ T\nintro κ σ τ K S T a\nclassical\nunfold M7.Presentation.domain\nconstructor\n· intro h\n  rcases Finset.mem_biUnion.mp h with ⟨k, hk, h⟩\n  rcases Finset.mem_image.mp h with ⟨p, hp, ha⟩\n  rw [← ha]\n  change k ∈ K ∧ p.1 ∈ S ∧ p.2 ∈ T\n  exact ⟨hk, Finset.mem_product.mp hp⟩\n· rintro ⟨hk, hs, ht⟩\n  apply Finset.mem_biUnion.mpr\n  refine ⟨M7.Presentation.outer a, hk, ?_⟩\n  apply Finset.mem_image.mpr\n  refine ⟨(M7.Presentation.left a, M7.Presentation.right a), Finset.mem_product.mpr ⟨hs, ht⟩, ?_⟩\n  exact M7.Presentation.record_eta κ σ τ a",
+  "queries": []
+}

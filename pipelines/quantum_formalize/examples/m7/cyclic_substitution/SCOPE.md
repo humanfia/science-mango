@@ -1,0 +1,3 @@
+# Cyclic quotient substitution foundation
+
+Eight exact targets establish the actual root period and unit-power identities, prove each unit power is a root of the full modulus, and expose the quotient lift on the root and arbitrary polynomials. `hom` takes its well-definedness proof as a dependent argument only at this intermediate stage; `point_root` proves that obligation universally. The next adapter must supply this accepted proof, and prove inverse/composition before claiming a ring equivalence. Literal full-gcd signature transport and degree preservation remain downstream. No full M7 acceptance is claimed.

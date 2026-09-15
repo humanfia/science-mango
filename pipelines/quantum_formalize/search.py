@@ -49,3 +49,35 @@ async def search_both(queries, *, limit=5, timeout=30, request=_request):
                     'status': 'unavailable', 'error': str(error), 'results': []}
     return await asyncio.gather(*(one(q, name, pkg) for q in queries
                                   for name, pkg in PACKAGES.items()))
+
+
+async def search_with_fallback(queries, *, fallback_queries, limit=5, timeout=30,
+                               request=_request):
+    """Explicit broader-query recovery; retain failures and actual query identities.
+
+    A fallback is reference retrieval, never evidence that the original query
+    succeeded. Both libraries must still have confirmed, successful responses.
+    Persistent service errors remain unavailable and stop the proof controller.
+    """
+    receipts = await search_both(queries, limit=limit, timeout=timeout, request=request)
+    if all(r['status'] == 'ok' for r in receipts):
+        return receipts
+    for query in dict.fromkeys(fallback_queries):
+        fallback = await search_both([query], limit=limit, timeout=timeout, request=request)
+        by_library = {r['library']: r for r in fallback}
+        updated = []
+        for original in receipts:
+            if original['status'] == 'ok':
+                updated.append(original)
+                continue
+            replacement = by_library[original['library']]
+            history = [*original.get('unavailable_requests', []),
+                       {k: v for k, v in original.items() if k != 'unavailable_requests'}]
+            updated.append({**replacement,
+                            'requested_query': original.get('requested_query', original['query']),
+                            'unavailable_requests': history,
+                            'retrieval_mode': 'explicit_broader_query_fallback'})
+        receipts = updated
+        if all(r['status'] == 'ok' for r in receipts):
+            break
+    return receipts

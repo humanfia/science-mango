@@ -1,0 +1,13 @@
+{
+  "name": "M7.Presentation.candidate_dominates",
+  "statement": "∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), M7.Presentation.valid K L R a → ∃ b ∈ M7.Presentation.candidates K L R, b ≤ a",
+  "imports": [
+    "M7Presentation",
+    "M7SelectionAccepted"
+  ],
+  "context": "theorem M7.Presentation.record_eta : ∀ (κ σ τ : Type) (a : M7.Presentation.Record κ σ τ), M7.Presentation.mk (M7.Presentation.outer a) (M7.Presentation.left a) (M7.Presentation.right a) = a := by\n  change ∀ (κ σ τ : Type) (a : M7.Presentation.Record κ σ τ), M7.Presentation.mk (M7.Presentation.outer a) (M7.Presentation.left a) (M7.Presentation.right a) = a\n  intro κ σ τ a\n  rcases a with ⟨k, s, t⟩\n  rfl\n\ntheorem M7.Presentation.record_mono : ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (k : κ) (s s1 : σ) (t t1 : τ), s ≤ s1 → t ≤ t1 → M7.Presentation.mk k s t ≤ M7.Presentation.mk k s1 t1 := by\n  intro κ σ τ _ _ _ k s s1 t t1 hs ht\n  rcases lt_or_eq_of_le hs with h | h\n  · simp [M7.Presentation.mk, Prod.Lex.toLex_le_toLex, h, le_of_lt h, not_le_of_gt h, ht]\n  · subst s1\n    simp [M7.Presentation.mk, Prod.Lex.toLex_le_toLex, ht]",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Use the outer coordinate of a, witnessing both fibers nonempty by its coordinates. Choose the candidate of their separate min' values; membership in candidates is direct. min'_le and record_mono give b≤mk(outer a)(left a)(right a), then record_eta. Return tactic proof lines without leading by; preserve exact target and default limits."
+}

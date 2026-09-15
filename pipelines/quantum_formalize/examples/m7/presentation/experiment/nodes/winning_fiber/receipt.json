@@ -1,0 +1,56 @@
+{
+  "id": "winning_fiber",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Presentation.winning_fiber",
+    "spec_sha256": "576698c8f3b73395758d23064a5ee78d396027d7a7abefe88388972da289e722",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-presentation-formalization/.humanize-formal-runs/run-29fcurdr/attempt-001/Candidate_a26c19f17a2bf710.lean",
+        "target_path": "/home/jing/m7-lean-presentation-formalization/.humanize-formal-runs/run-29fcurdr/attempt-001/FrozenTarget_a26c19f17a2bf710.lean",
+        "feedback": "",
+        "target_sha256": "279abd75a49b9113f4f4481914e4b754ebe9ae25682999d5b9c46bec3e127051",
+        "target_olean_sha256": "2c81985fba2a5587522a0e11c9a0672f7cf240b66dd3b1a1b1e30c5a3ac4942f",
+        "source_sha256": "076224aebbe54b851585825b7220d8f51539a6791ba18618030caa3c50e78b0b",
+        "olean_sha256": "9450aa2917a6c2546ec2cdd7d5f7c18578dfab6b8159065e20513ddc2f51c8dd",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:44:57.427513+00:00",
+    "work": "/home/jing/m7-lean-presentation-formalization/.humanize-formal-runs/run-29fcurdr",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "df563d442255ca1d7e90b1c4f999d97cc6e66270ed19fb82f55a39dc557943b6",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-presentation-formalization/.humanize-formal-runs/run-29fcurdr/attempt-001/Candidate_a26c19f17a2bf710.lean",
+    "environment_sha256": "a0b405e87ab13735594c982cd0d6ece249ce67538fb43244d50a0aab62d02f9f",
+    "artifacts": {
+      "winning_fiber": {
+        "payload": {
+          "declaration": "theorem M7.Presentation.winning_fiber : ∀ (κ σ τ X Y : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (S : Finset σ) (T : Finset τ) (l : κ → σ → X) (r : κ → τ → Y) (m : ℕ) (feasible : X × Y → Prop) (objective : X × Y → Fin m → ℤ) (mode : M7.Selection.Mode) (a b : M7.Presentation.Record κ σ τ), a ∈ M7.Presentation.domain K S T → b ∈ M7.Presentation.domain K S T → M7.Presentation.realize l r a = M7.Presentation.realize l r b → (a ∈ M7.Presentation.selected K S T l r feasible objective mode ↔ b ∈ M7.Presentation.selected K S T l r feasible objective mode) := by\n  intro κ σ τ X Y _ _ _ K S T l r m feasible objective mode a b ha hb hab\n  classical\n  change a ∈ M7.Selection.select (M7.Presentation.domain K S T)\n      (fun x => feasible (M7.Presentation.realize l r x))\n      (fun x => objective (M7.Presentation.realize l r x)) mode ↔\n    b ∈ M7.Selection.select (M7.Presentation.domain K S T)\n      (fun x => feasible (M7.Presentation.realize l r x))\n      (fun x => objective (M7.Presentation.realize l r x)) mode\n  have hex := (M7.Selection.selector_exact (M7.Presentation.Record κ σ τ) m\n    (M7.Presentation.domain K S T)\n    (fun x => feasible (M7.Presentation.realize l r x))\n    (fun x => objective (M7.Presentation.realize l r x)) mode).1\n  rw [hex a, hex b]\n  simp only [ha, hb, hab]",
+          "imports": [
+            "M7Presentation",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.Presentation.winning_fiber",
+          "ancestors": [],
+          "spec_sha256": "576698c8f3b73395758d23064a5ee78d396027d7a7abefe88388972da289e722"
+        },
+        "sha256": "ca0f8590d925c2305ed241c066fe5af96d5030481782a2352ec77ef475a2a456"
+      }
+    }
+  }
+}

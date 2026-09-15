@@ -1,0 +1,35 @@
+import FrozenTarget_faf4ec50af75ddec
+theorem M7.Presentation.targetLeast_spec : QuantumHarnessFrozenTarget := by
+  classical
+  intro κ σ τ X Y _ _ _ K S T l r q
+  let L : κ → Finset σ := fun k => S.filter (fun s => l k s = q.1)
+  let R : κ → Finset τ := fun k => T.filter (fun t => r k t = q.2)
+  have hv : ∀ a : M7.Presentation.Record κ σ τ,
+      M7.Presentation.valid K L R a ↔
+        a ∈ M7.Presentation.domain K S T ∧ M7.Presentation.realize l r a = q := by
+    intro a
+    rw [M7.Presentation.domain_membership κ σ τ K S T a]
+    simp only [M7.Presentation.valid, L, R, Finset.mem_filter]
+    constructor
+    · rintro ⟨hk, ⟨hs, hl⟩, ⟨ht, hr⟩⟩
+      refine ⟨⟨hk, hs, ht⟩, ?_⟩
+      apply Prod.ext
+      · exact hl
+      · exact hr
+    · rintro ⟨⟨hk, hs, ht⟩, he⟩
+      exact ⟨hk, ⟨hs, congrArg Prod.fst he⟩, ⟨ht, congrArg Prod.snd he⟩⟩
+  constructor
+  · intro a
+    change M7.Presentation.factorLeast K L R = some a ↔ _
+    rw [M7.Presentation.factorLeast_spec κ σ τ K L R a]
+    constructor
+    · rintro ⟨ha, hmin⟩
+      obtain ⟨hd, he⟩ := (hv a).mp ha
+      exact ⟨hd, he, fun b hb hq => hmin b ((hv b).mpr ⟨hb, hq⟩)⟩
+    · rintro ⟨hd, he, hmin⟩
+      refine ⟨(hv a).mpr ⟨hd, he⟩, ?_⟩
+      intro b hb
+      obtain ⟨hbd, hbe⟩ := (hv b).mp hb
+      exact hmin b hbd hbe
+  · change M7.Presentation.factorLeast K L R = none ↔ _
+    simpa only [hv] using (M7.Presentation.factorLeast_none κ σ τ K L R)

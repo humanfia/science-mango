@@ -1,0 +1,18 @@
+theorem M7.Presentation.domain_membership : ∀ (κ σ τ : Type) (K : Finset κ) (S : Finset σ) (T : Finset τ) (a : M7.Presentation.Record κ σ τ), a ∈ M7.Presentation.domain K S T ↔ M7.Presentation.outer a ∈ K ∧ M7.Presentation.left a ∈ S ∧ M7.Presentation.right a ∈ T := by
+  change ∀ (κ σ τ : Type) (K : Finset κ) (S : Finset σ) (T : Finset τ) (a : M7.Presentation.Record κ σ τ), a ∈ M7.Presentation.domain K S T ↔ M7.Presentation.outer a ∈ K ∧ M7.Presentation.left a ∈ S ∧ M7.Presentation.right a ∈ T
+  intro κ σ τ K S T a
+  classical
+  unfold M7.Presentation.domain
+  constructor
+  · intro h
+    rcases Finset.mem_biUnion.mp h with ⟨k, hk, h⟩
+    rcases Finset.mem_image.mp h with ⟨p, hp, ha⟩
+    rw [← ha]
+    change k ∈ K ∧ p.1 ∈ S ∧ p.2 ∈ T
+    exact ⟨hk, Finset.mem_product.mp hp⟩
+  · rintro ⟨hk, hs, ht⟩
+    apply Finset.mem_biUnion.mpr
+    refine ⟨M7.Presentation.outer a, hk, ?_⟩
+    apply Finset.mem_image.mpr
+    refine ⟨(M7.Presentation.left a, M7.Presentation.right a), Finset.mem_product.mpr ⟨hs, ht⟩, ?_⟩
+    exact M7.Presentation.record_eta κ σ τ a

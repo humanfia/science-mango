@@ -1,0 +1,144 @@
+{
+  "title": "M7 actual cyclic quotient substitution foundation, including even N and N=1",
+  "nodes": [
+    {
+      "id": "root_power",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CyclicSubstitution.root_power",
+        "statement": "\u2200 (N : \u2115) [NeZero N], M7.CyclicSubstitution.rho N ^ N = 1",
+        "imports": [
+          "M7CyclicSubstitution"
+        ],
+        "context": "",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Use actual AdjoinRoot(X^N+1) over ZMod2. root_power follows eval\u2082_root and characteristic2; pow_mod follows k=k%N+N*(k/N); point_mul uses ZMod.val_mul and commutativity. Includes N=1: unit.val can be0, but rho=1. AdjoinRoot.lift_root/lift_mk prove hom interfaces. No odd-N, squarefree or field quotient assumption. Return tactic lines only.\nimport M6Cyclic\n\nnamespace M7.CyclicSubstitution\nnoncomputable def rho (N : \u2115) : M6.Cyclic.CycleRing N :=\n  AdjoinRoot.root (M6.Cyclic.modulus N)\nnoncomputable def point {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : M6.Cyclic.CycleRing N :=\n  rho N ^ (u : ZMod N).val\ndef RootCondition {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : Prop :=\n  (M6.Cyclic.modulus N).eval\u2082 (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) = 0\nnoncomputable def hom {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) (h : RootCondition u) :\n    M6.Cyclic.CycleRing N \u2192+* M6.Cyclic.CycleRing N :=\n  AdjoinRoot.lift (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) h\nend M7.CyclicSubstitution\n"
+      }
+    },
+    {
+      "id": "power_mod",
+      "dependencies": [
+        "root_power"
+      ],
+      "spec": {
+        "name": "M7.CyclicSubstitution.power_mod",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 k : \u2115, M7.CyclicSubstitution.rho N ^ k = M7.CyclicSubstitution.rho N ^ (k % N)",
+        "imports": [
+          "M7CyclicSubstitution"
+        ],
+        "context": "",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Use actual AdjoinRoot(X^N+1) over ZMod2. root_power follows eval\u2082_root and characteristic2; pow_mod follows k=k%N+N*(k/N); point_mul uses ZMod.val_mul and commutativity. Includes N=1: unit.val can be0, but rho=1. AdjoinRoot.lift_root/lift_mk prove hom interfaces. No odd-N, squarefree or field quotient assumption. Return tactic lines only.\nimport M6Cyclic\n\nnamespace M7.CyclicSubstitution\nnoncomputable def rho (N : \u2115) : M6.Cyclic.CycleRing N :=\n  AdjoinRoot.root (M6.Cyclic.modulus N)\nnoncomputable def point {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : M6.Cyclic.CycleRing N :=\n  rho N ^ (u : ZMod N).val\ndef RootCondition {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : Prop :=\n  (M6.Cyclic.modulus N).eval\u2082 (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) = 0\nnoncomputable def hom {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) (h : RootCondition u) :\n    M6.Cyclic.CycleRing N \u2192+* M6.Cyclic.CycleRing N :=\n  AdjoinRoot.lift (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) h\nend M7.CyclicSubstitution\n"
+      }
+    },
+    {
+      "id": "point_root",
+      "dependencies": [
+        "root_power"
+      ],
+      "spec": {
+        "name": "M7.CyclicSubstitution.point_root",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 u : (ZMod N)\u02e3, M7.CyclicSubstitution.RootCondition u",
+        "imports": [
+          "M7CyclicSubstitution"
+        ],
+        "context": "",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Use actual AdjoinRoot(X^N+1) over ZMod2. root_power follows eval\u2082_root and characteristic2; pow_mod follows k=k%N+N*(k/N); point_mul uses ZMod.val_mul and commutativity. Includes N=1: unit.val can be0, but rho=1. AdjoinRoot.lift_root/lift_mk prove hom interfaces. No odd-N, squarefree or field quotient assumption. Return tactic lines only.\nimport M6Cyclic\n\nnamespace M7.CyclicSubstitution\nnoncomputable def rho (N : \u2115) : M6.Cyclic.CycleRing N :=\n  AdjoinRoot.root (M6.Cyclic.modulus N)\nnoncomputable def point {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : M6.Cyclic.CycleRing N :=\n  rho N ^ (u : ZMod N).val\ndef RootCondition {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : Prop :=\n  (M6.Cyclic.modulus N).eval\u2082 (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) = 0\nnoncomputable def hom {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) (h : RootCondition u) :\n    M6.Cyclic.CycleRing N \u2192+* M6.Cyclic.CycleRing N :=\n  AdjoinRoot.lift (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) h\nend M7.CyclicSubstitution\n"
+      }
+    },
+    {
+      "id": "point_one",
+      "dependencies": [
+        "power_mod"
+      ],
+      "spec": {
+        "name": "M7.CyclicSubstitution.point_one",
+        "statement": "\u2200 (N : \u2115) [NeZero N], M7.CyclicSubstitution.point (1 : (ZMod N)\u02e3) = M7.CyclicSubstitution.rho N",
+        "imports": [
+          "M7CyclicSubstitution"
+        ],
+        "context": "",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Use actual AdjoinRoot(X^N+1) over ZMod2. root_power follows eval\u2082_root and characteristic2; pow_mod follows k=k%N+N*(k/N); point_mul uses ZMod.val_mul and commutativity. Includes N=1: unit.val can be0, but rho=1. AdjoinRoot.lift_root/lift_mk prove hom interfaces. No odd-N, squarefree or field quotient assumption. Return tactic lines only.\nimport M6Cyclic\n\nnamespace M7.CyclicSubstitution\nnoncomputable def rho (N : \u2115) : M6.Cyclic.CycleRing N :=\n  AdjoinRoot.root (M6.Cyclic.modulus N)\nnoncomputable def point {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : M6.Cyclic.CycleRing N :=\n  rho N ^ (u : ZMod N).val\ndef RootCondition {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : Prop :=\n  (M6.Cyclic.modulus N).eval\u2082 (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) = 0\nnoncomputable def hom {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) (h : RootCondition u) :\n    M6.Cyclic.CycleRing N \u2192+* M6.Cyclic.CycleRing N :=\n  AdjoinRoot.lift (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) h\nend M7.CyclicSubstitution\n"
+      }
+    },
+    {
+      "id": "point_mul",
+      "dependencies": [
+        "power_mod"
+      ],
+      "spec": {
+        "name": "M7.CyclicSubstitution.point_mul",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 u v : (ZMod N)\u02e3, M7.CyclicSubstitution.point u ^ (v : ZMod N).val = M7.CyclicSubstitution.point (v*u)",
+        "imports": [
+          "M7CyclicSubstitution"
+        ],
+        "context": "",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Use actual AdjoinRoot(X^N+1) over ZMod2. root_power follows eval\u2082_root and characteristic2; pow_mod follows k=k%N+N*(k/N); point_mul uses ZMod.val_mul and commutativity. Includes N=1: unit.val can be0, but rho=1. AdjoinRoot.lift_root/lift_mk prove hom interfaces. No odd-N, squarefree or field quotient assumption. Return tactic lines only.\nimport M6Cyclic\n\nnamespace M7.CyclicSubstitution\nnoncomputable def rho (N : \u2115) : M6.Cyclic.CycleRing N :=\n  AdjoinRoot.root (M6.Cyclic.modulus N)\nnoncomputable def point {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : M6.Cyclic.CycleRing N :=\n  rho N ^ (u : ZMod N).val\ndef RootCondition {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : Prop :=\n  (M6.Cyclic.modulus N).eval\u2082 (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) = 0\nnoncomputable def hom {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) (h : RootCondition u) :\n    M6.Cyclic.CycleRing N \u2192+* M6.Cyclic.CycleRing N :=\n  AdjoinRoot.lift (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) h\nend M7.CyclicSubstitution\n"
+      }
+    },
+    {
+      "id": "point_inverse",
+      "dependencies": [
+        "point_mul",
+        "point_one"
+      ],
+      "spec": {
+        "name": "M7.CyclicSubstitution.point_inverse",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 u : (ZMod N)\u02e3, M7.CyclicSubstitution.point u ^ ((u\u207b\u00b9 : (ZMod N)\u02e3) : ZMod N).val = M7.CyclicSubstitution.rho N",
+        "imports": [
+          "M7CyclicSubstitution"
+        ],
+        "context": "",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Use actual AdjoinRoot(X^N+1) over ZMod2. root_power follows eval\u2082_root and characteristic2; pow_mod follows k=k%N+N*(k/N); point_mul uses ZMod.val_mul and commutativity. Includes N=1: unit.val can be0, but rho=1. AdjoinRoot.lift_root/lift_mk prove hom interfaces. No odd-N, squarefree or field quotient assumption. Return tactic lines only.\nimport M6Cyclic\n\nnamespace M7.CyclicSubstitution\nnoncomputable def rho (N : \u2115) : M6.Cyclic.CycleRing N :=\n  AdjoinRoot.root (M6.Cyclic.modulus N)\nnoncomputable def point {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : M6.Cyclic.CycleRing N :=\n  rho N ^ (u : ZMod N).val\ndef RootCondition {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : Prop :=\n  (M6.Cyclic.modulus N).eval\u2082 (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) = 0\nnoncomputable def hom {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) (h : RootCondition u) :\n    M6.Cyclic.CycleRing N \u2192+* M6.Cyclic.CycleRing N :=\n  AdjoinRoot.lift (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) h\nend M7.CyclicSubstitution\n"
+      }
+    },
+    {
+      "id": "hom_root",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CyclicSubstitution.hom_root",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (u : (ZMod N)\u02e3) (h : M7.CyclicSubstitution.RootCondition u), M7.CyclicSubstitution.hom u h (M7.CyclicSubstitution.rho N) = M7.CyclicSubstitution.point u",
+        "imports": [
+          "M7CyclicSubstitution"
+        ],
+        "context": "",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Use actual AdjoinRoot(X^N+1) over ZMod2. root_power follows eval\u2082_root and characteristic2; pow_mod follows k=k%N+N*(k/N); point_mul uses ZMod.val_mul and commutativity. Includes N=1: unit.val can be0, but rho=1. AdjoinRoot.lift_root/lift_mk prove hom interfaces. No odd-N, squarefree or field quotient assumption. Return tactic lines only.\nimport M6Cyclic\n\nnamespace M7.CyclicSubstitution\nnoncomputable def rho (N : \u2115) : M6.Cyclic.CycleRing N :=\n  AdjoinRoot.root (M6.Cyclic.modulus N)\nnoncomputable def point {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : M6.Cyclic.CycleRing N :=\n  rho N ^ (u : ZMod N).val\ndef RootCondition {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : Prop :=\n  (M6.Cyclic.modulus N).eval\u2082 (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) = 0\nnoncomputable def hom {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) (h : RootCondition u) :\n    M6.Cyclic.CycleRing N \u2192+* M6.Cyclic.CycleRing N :=\n  AdjoinRoot.lift (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) h\nend M7.CyclicSubstitution\n"
+      }
+    },
+    {
+      "id": "hom_polynomial",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.CyclicSubstitution.hom_polynomial",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (u : (ZMod N)\u02e3) (h : M7.CyclicSubstitution.RootCondition u) (p : M6.Cyclic.BinaryPolynomial), M7.CyclicSubstitution.hom u h (M6.Cyclic.image N p) = p.eval\u2082 (AdjoinRoot.of (M6.Cyclic.modulus N)) (M7.CyclicSubstitution.point u)",
+        "imports": [
+          "M7CyclicSubstitution"
+        ],
+        "context": "",
+        "queries": [
+          "addition commutativity"
+        ],
+        "guidance": "Use actual AdjoinRoot(X^N+1) over ZMod2. root_power follows eval\u2082_root and characteristic2; pow_mod follows k=k%N+N*(k/N); point_mul uses ZMod.val_mul and commutativity. Includes N=1: unit.val can be0, but rho=1. AdjoinRoot.lift_root/lift_mk prove hom interfaces. No odd-N, squarefree or field quotient assumption. Return tactic lines only.\nimport M6Cyclic\n\nnamespace M7.CyclicSubstitution\nnoncomputable def rho (N : \u2115) : M6.Cyclic.CycleRing N :=\n  AdjoinRoot.root (M6.Cyclic.modulus N)\nnoncomputable def point {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : M6.Cyclic.CycleRing N :=\n  rho N ^ (u : ZMod N).val\ndef RootCondition {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) : Prop :=\n  (M6.Cyclic.modulus N).eval\u2082 (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) = 0\nnoncomputable def hom {N : \u2115} [NeZero N] (u : (ZMod N)\u02e3) (h : RootCondition u) :\n    M6.Cyclic.CycleRing N \u2192+* M6.Cyclic.CycleRing N :=\n  AdjoinRoot.lift (AdjoinRoot.of (M6.Cyclic.modulus N)) (point u) h\nend M7.CyclicSubstitution\n"
+      }
+    }
+  ]
+}

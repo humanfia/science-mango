@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 from .engine import Draft, Spec, check_axiom_output, fingerprint, render, run, verify
-from .search import SearchUnavailable, _request, search_both
+from .search import SearchUnavailable, _request, search_both, search_with_fallback
 
 
 def spec(**kwargs):
@@ -25,6 +25,32 @@ async def found(queries):
 
 
 class RetrievalTests(unittest.IsolatedAsyncioTestCase):
+    async def test_fallback_preserves_failed_query_and_actual_successful_query(self):
+        def request(q, package, limit, timeout):
+            if package == 'Physlib' and q != 'algebra':
+                raise SearchUnavailable('HTTP 500')
+            return {'results': [], 'packages_applied': [package]}
+        receipts = await search_with_fallback(['AdjoinRoot.eval₂_root'],
+                                             fallback_queries=['algebra'], request=request)
+        self.assertEqual([r['status'] for r in receipts], ['ok', 'ok'])
+        self.assertEqual(receipts[0]['query'], 'AdjoinRoot.eval₂_root')
+        recovered = receipts[1]
+        self.assertEqual(recovered['query'], 'algebra')
+        self.assertEqual(recovered['requested_query'], 'AdjoinRoot.eval₂_root')
+        self.assertEqual(recovered['packages_applied'], ['Physlib'])
+        self.assertEqual(recovered['unavailable_requests'][0]['status'], 'unavailable')
+
+    async def test_fallback_does_not_hide_persistent_failure(self):
+        def request(q, package, limit, timeout):
+            if package == 'Physlib':
+                raise SearchUnavailable('HTTP 500')
+            return {'results': [], 'packages_applied': [package]}
+        receipts = await search_with_fallback(['root'],
+                                             fallback_queries=['algebra'], request=request)
+        self.assertEqual(receipts[1]['status'], 'unavailable')
+        self.assertEqual(receipts[1]['requested_query'], 'root')
+        self.assertTrue(receipts[1]['unavailable_requests'])
+
     async def test_both_libraries_receive_each_query(self):
         calls = []
         def request(q, package, limit, timeout):

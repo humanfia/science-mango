@@ -1,0 +1,13 @@
+{
+  "name": "M7.Presentation.domain_membership",
+  "statement": "∀ (κ σ τ : Type) (K : Finset κ) (S : Finset σ) (T : Finset τ) (a : M7.Presentation.Record κ σ τ), a ∈ M7.Presentation.domain K S T ↔ M7.Presentation.outer a ∈ K ∧ M7.Presentation.left a ∈ S ∧ M7.Presentation.right a ∈ T",
+  "imports": [
+    "M7Presentation",
+    "M7SelectionAccepted"
+  ],
+  "context": "theorem M7.Presentation.record_eta : ∀ (κ σ τ : Type) (a : M7.Presentation.Record κ σ τ), M7.Presentation.mk (M7.Presentation.outer a) (M7.Presentation.left a) (M7.Presentation.right a) = a := by\n  change ∀ (κ σ τ : Type) (a : M7.Presentation.Record κ σ τ), M7.Presentation.mk (M7.Presentation.outer a) (M7.Presentation.left a) (M7.Presentation.right a) = a\n  intro κ σ τ a\n  rcases a with ⟨k, s, t⟩\n  rfl",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Unfold domain and use biUnion/image/product membership. In the reverse direction choose the actual two coordinates and record_eta. This domain enumerates action records for selection, permitted by the original source; factorLeast never calls it. Return tactic proof lines without leading by; preserve exact target and default limits."
+}

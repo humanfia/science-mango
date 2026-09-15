@@ -1,0 +1,13 @@
+{
+  "name": "M7.Presentation.leastOf_spec",
+  "statement": "∀ (α : Type) [LinearOrder α] (T : Finset α), (∀ x, M7.Presentation.leastOf T = some x ↔ x ∈ T ∧ ∀ y ∈ T, x ≤ y) ∧ (M7.Presentation.leastOf T = none ↔ T = ∅)",
+  "imports": [
+    "M7Presentation",
+    "M7SelectionAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Split T.Nonempty in leastOf; Finset.min'_mem/min'_le give soundness. Conversely uniqueness of the minimum follows by le_antisymm. Empty case uses Finset.not_nonempty_iff_eq_empty. Handle proof-irrelevance of nonempty witnesses normally. Return tactic proof lines without leading by; preserve exact target and default limits."
+}

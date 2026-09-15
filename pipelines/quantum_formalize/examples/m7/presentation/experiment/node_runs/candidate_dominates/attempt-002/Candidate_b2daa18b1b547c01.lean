@@ -1,0 +1,18 @@
+import FrozenTarget_b2daa18b1b547c01
+theorem M7.Presentation.candidate_dominates : QuantumHarnessFrozenTarget := by
+  change ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), M7.Presentation.valid K L R a → ∃ b ∈ M7.Presentation.candidates K L R, b ≤ a
+  intro κ σ τ _ _ _ K L R a ha
+  classical
+  rcases ha with ⟨hk, hs, ht⟩
+  have hL : (L (M7.Presentation.outer a)).Nonempty := ⟨_, hs⟩
+  have hR : (R (M7.Presentation.outer a)).Nonempty := ⟨_, ht⟩
+  refine ⟨M7.Presentation.mk (M7.Presentation.outer a) ((L (M7.Presentation.outer a)).min' hL) ((R (M7.Presentation.outer a)).min' hR), ?_, ?_⟩
+  · unfold M7.Presentation.candidates
+    apply Finset.mem_biUnion.mpr
+    refine ⟨M7.Presentation.outer a, hk, ?_⟩
+    simp [hL, hR]
+  · simpa only [M7.Presentation.record_eta] using
+      (M7.Presentation.record_mono κ σ τ (M7.Presentation.outer a)
+        ((L (M7.Presentation.outer a)).min' hL) (M7.Presentation.left a)
+        ((R (M7.Presentation.outer a)).min' hR) (M7.Presentation.right a)
+        (Finset.min'_le _ _ hs) (Finset.min'_le _ _ ht))

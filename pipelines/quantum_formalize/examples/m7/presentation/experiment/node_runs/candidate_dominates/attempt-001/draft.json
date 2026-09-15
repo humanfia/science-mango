@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), M7.Presentation.valid K L R a → ∃ b ∈ M7.Presentation.candidates K L R, b ≤ a\nintro κ σ τ _ _ _ K L R a ha\nclassical\nrcases ha with ⟨hk, hs, ht⟩\nhave hL : (L (M7.Presentation.outer a)).Nonempty := ⟨M7.Presentation.left a, hs⟩\nhave hR : (R (M7.Presentation.outer a)).Nonempty := ⟨M7.Presentation.right a, ht⟩\nrefine ⟨M7.Presentation.mk (M7.Presentation.outer a) ((L _).min' hL) ((R _).min' hR), ?_, ?_⟩\n· unfold M7.Presentation.candidates\n  first\n  | solve\n      apply Finset.mem_biUnion.mpr\n      refine ⟨M7.Presentation.outer a, hk, ?_⟩\n      simp [hL, hR]\n  | solve\n      apply Finset.mem_biUnion.mpr\n      refine ⟨⟨M7.Presentation.outer a, hk⟩, Finset.mem_attach _ _, ?_⟩\n      simp [hL, hR]\n  | solve\n      simp only [Finset.mem_image, Finset.mem_filter, Finset.mem_attach]\n      aesop\n· rw [← M7.Presentation.record_eta κ σ τ a]\n  exact M7.Presentation.record_mono κ σ τ _ _ _ _ _\n    (Finset.min'_le _ _ hs) (Finset.min'_le _ _ ht)",
+  "queries": [
+    "M7.Presentation.candidates definition",
+    "Finset.min'_le",
+    "Finset.mem_biUnion"
+  ]
+}

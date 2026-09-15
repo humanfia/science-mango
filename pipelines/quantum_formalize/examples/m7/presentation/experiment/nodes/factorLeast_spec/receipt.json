@@ -1,0 +1,130 @@
+{
+  "id": "factorLeast_spec",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.Presentation.factorLeast_spec",
+    "spec_sha256": "1c148efdfc27770d33498a749d81f793db0247897647e344954e004ef4ccc7e6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-presentation-formalization/.humanize-formal-runs/run-mr4zq6u3/attempt-001/Candidate_2da3743402578c9c.lean",
+        "target_path": "/home/jing/m7-lean-presentation-formalization/.humanize-formal-runs/run-mr4zq6u3/attempt-001/FrozenTarget_2da3743402578c9c.lean",
+        "feedback": "",
+        "target_sha256": "ab66bf8d90e000ee5e1b35bf2f5b2547893badd2676eec880cce53bc4b34bb2f",
+        "target_olean_sha256": "c9cd5a01890eda550a98309fcfa9a6d86c200c6927065fb49a79bd43506dc8c0",
+        "source_sha256": "ddf70fe6a3ea3352ad89d5cf86a7e85c0aef265b80c92ac79d38d4f9608ef537",
+        "olean_sha256": "d9aeb52ab0badf2c98d2a04617217e6f6742e5e6df861454c9d343b94ec490b8",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T16:47:27.498767+00:00",
+    "work": "/home/jing/m7-lean-presentation-formalization/.humanize-formal-runs/run-mr4zq6u3",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "df563d442255ca1d7e90b1c4f999d97cc6e66270ed19fb82f55a39dc557943b6",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-presentation-formalization/.humanize-formal-runs/run-mr4zq6u3/attempt-001/Candidate_2da3743402578c9c.lean",
+    "environment_sha256": "a0b405e87ab13735594c982cd0d6ece249ce67538fb43244d50a0aab62d02f9f",
+    "artifacts": {
+      "leastOf_spec": {
+        "payload": {
+          "declaration": "theorem M7.Presentation.leastOf_spec : ∀ (α : Type) [LinearOrder α] (T : Finset α), (∀ x, M7.Presentation.leastOf T = some x ↔ x ∈ T ∧ ∀ y ∈ T, x ≤ y) ∧ (M7.Presentation.leastOf T = none ↔ T = ∅) := by\n  classical\n  intro α inst T\n  by_cases h : T.Nonempty\n  · constructor\n    · intro x\n      simp only [M7.Presentation.leastOf, dif_pos h, Option.some.injEq]\n      constructor\n      · intro hx\n        rw [← hx]\n        exact ⟨Finset.min'_mem T h, fun y hy => Finset.min'_le T y hy⟩\n      · rintro ⟨hx, hmin⟩\n        exact le_antisymm (Finset.min'_le T x hx) (hmin _ (Finset.min'_mem T h))\n    · simp [M7.Presentation.leastOf, h, h.ne_empty]\n  · have hT : T = ∅ := Finset.not_nonempty_iff_eq_empty.mp h\n    subst T\n    simp [M7.Presentation.leastOf]",
+          "imports": [
+            "M7Presentation",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.Presentation.leastOf_spec",
+          "ancestors": [],
+          "spec_sha256": "6b5887ecc9e40929eba0d60acf52f06001f2fc081ebd7d71055daafd1081ad58"
+        },
+        "sha256": "16b10354335e510a75d082ebb2057eb5408139e22ce24082500546c5f6f85cdf"
+      },
+      "candidates_sound": {
+        "payload": {
+          "declaration": "theorem M7.Presentation.candidates_sound : ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), a ∈ M7.Presentation.candidates K L R → M7.Presentation.valid K L R a := by\n  classical\n  intro κ σ τ _ _ _ K L R a ha\n  unfold M7.Presentation.candidates at ha\n  rcases Finset.mem_biUnion.mp ha with ⟨k, hk, ha⟩\n  split at ha\n  · have heq := Finset.mem_singleton.mp ha\n    subst a\n    simp [M7.Presentation.valid, M7.Presentation.outer,\n      M7.Presentation.left, M7.Presentation.right,\n      M7.Presentation.mk, hk, Finset.min'_mem]\n  · simp at ha",
+          "imports": [
+            "M7Presentation",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.Presentation.candidates_sound",
+          "ancestors": [],
+          "spec_sha256": "9248048e75e33a55fdf4394f937d2da36896dcfa810cb9d9d1748e20b99ff808"
+        },
+        "sha256": "1fab0e834e1c3b2e0007fe86f0662412c49a650de835e7553c948f369d064722"
+      },
+      "record_eta": {
+        "payload": {
+          "declaration": "theorem M7.Presentation.record_eta : ∀ (κ σ τ : Type) (a : M7.Presentation.Record κ σ τ), M7.Presentation.mk (M7.Presentation.outer a) (M7.Presentation.left a) (M7.Presentation.right a) = a := by\n  change ∀ (κ σ τ : Type) (a : M7.Presentation.Record κ σ τ), M7.Presentation.mk (M7.Presentation.outer a) (M7.Presentation.left a) (M7.Presentation.right a) = a\n  intro κ σ τ a\n  rcases a with ⟨k, s, t⟩\n  rfl",
+          "imports": [
+            "M7Presentation",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.Presentation.record_eta",
+          "ancestors": [],
+          "spec_sha256": "9b294b7d077a559513a874974ba9ffb22f9acdfc2598b1c2375452c11c6d750d"
+        },
+        "sha256": "88f6ffa515c7fd218816ad5aa1a0657bc927c07d371644f2b5dfd8a1a42087de"
+      },
+      "record_mono": {
+        "payload": {
+          "declaration": "theorem M7.Presentation.record_mono : ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (k : κ) (s s1 : σ) (t t1 : τ), s ≤ s1 → t ≤ t1 → M7.Presentation.mk k s t ≤ M7.Presentation.mk k s1 t1 := by\n  intro κ σ τ _ _ _ k s s1 t t1 hs ht\n  rcases lt_or_eq_of_le hs with h | h\n  · simp [M7.Presentation.mk, Prod.Lex.toLex_le_toLex, h, le_of_lt h, not_le_of_gt h, ht]\n  · subst s1\n    simp [M7.Presentation.mk, Prod.Lex.toLex_le_toLex, ht]",
+          "imports": [
+            "M7Presentation",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.Presentation.record_mono",
+          "ancestors": [],
+          "spec_sha256": "1aa654385eba2792f44e0924e7a9b799e143a47bef8292d7eb2b8ee9bce4d89a"
+        },
+        "sha256": "001d9b6388466ad6449c2dcf95483f0f9c2f8f09f93605f07106cf04f892cc03"
+      },
+      "candidate_dominates": {
+        "payload": {
+          "declaration": "theorem M7.Presentation.candidate_dominates : ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), M7.Presentation.valid K L R a → ∃ b ∈ M7.Presentation.candidates K L R, b ≤ a := by\n  change ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), M7.Presentation.valid K L R a → ∃ b ∈ M7.Presentation.candidates K L R, b ≤ a\n  intro κ σ τ _ _ _ K L R a ha\n  classical\n  rcases ha with ⟨hk, hs, ht⟩\n  have hL : (L (M7.Presentation.outer a)).Nonempty := ⟨_, hs⟩\n  have hR : (R (M7.Presentation.outer a)).Nonempty := ⟨_, ht⟩\n  refine ⟨M7.Presentation.mk (M7.Presentation.outer a) ((L (M7.Presentation.outer a)).min' hL) ((R (M7.Presentation.outer a)).min' hR), ?_, ?_⟩\n  · unfold M7.Presentation.candidates\n    apply Finset.mem_biUnion.mpr\n    refine ⟨M7.Presentation.outer a, hk, ?_⟩\n    simp [hL, hR]\n  · simpa only [M7.Presentation.record_eta] using\n      (M7.Presentation.record_mono κ σ τ (M7.Presentation.outer a)\n        ((L (M7.Presentation.outer a)).min' hL) (M7.Presentation.left a)\n        ((R (M7.Presentation.outer a)).min' hR) (M7.Presentation.right a)\n        (Finset.min'_le _ _ hs) (Finset.min'_le _ _ ht))",
+          "imports": [
+            "M7Presentation",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.Presentation.candidate_dominates",
+          "ancestors": [
+            "record_eta",
+            "record_mono"
+          ],
+          "spec_sha256": "479cc2f5db21a6f106153ef4408603f2a229b40f153c2e9b63f29c34f0c6af6b"
+        },
+        "sha256": "28b4260238f05c9e0ebbf37fd7c8894c8b53b8fa87d81381ba403cd72f68ec8b"
+      },
+      "factorLeast_spec": {
+        "payload": {
+          "declaration": "theorem M7.Presentation.factorLeast_spec : ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), M7.Presentation.factorLeast K L R = some a ↔ M7.Presentation.valid K L R a ∧ ∀ b, M7.Presentation.valid K L R b → a ≤ b := by\n  change ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), M7.Presentation.factorLeast K L R = some a ↔ M7.Presentation.valid K L R a ∧ ∀ b, M7.Presentation.valid K L R b → a ≤ b\n  intro κ σ τ _ _ _ K L R a\n  classical\n  change M7.Presentation.leastOf (M7.Presentation.candidates K L R) = some a ↔ _\n  rw [(M7.Presentation.leastOf_spec (M7.Presentation.Record κ σ τ) (M7.Presentation.candidates K L R)).1 a]\n  constructor\n  · rintro ⟨ha, hmin⟩\n    refine ⟨M7.Presentation.candidates_sound κ σ τ K L R a ha, ?_⟩\n    intro b hb\n    obtain ⟨c, hc, hcb⟩ := M7.Presentation.candidate_dominates κ σ τ K L R b hb\n    exact le_trans (hmin c hc) hcb\n  · rintro ⟨ha, hmin⟩\n    obtain ⟨c, hc, hca⟩ := M7.Presentation.candidate_dominates κ σ τ K L R a ha\n    have heq : c = a := le_antisymm hca (hmin c (M7.Presentation.candidates_sound κ σ τ K L R c hc))\n    refine ⟨heq ▸ hc, ?_⟩\n    intro b hb\n    exact hmin b (M7.Presentation.candidates_sound κ σ τ K L R b hb)",
+          "imports": [
+            "M7Presentation",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.Presentation.factorLeast_spec",
+          "ancestors": [
+            "candidate_dominates",
+            "candidates_sound",
+            "leastOf_spec",
+            "record_eta",
+            "record_mono"
+          ],
+          "spec_sha256": "1fdca0c50fab70e458aa4fc2b741d8f506522d8889e2fd773c52e09ac270cbab"
+        },
+        "sha256": "cd091152a39cd7f0ee417e144e99abf2617c7c0c80401ae60900e6c74ff05177"
+      }
+    }
+  }
+}

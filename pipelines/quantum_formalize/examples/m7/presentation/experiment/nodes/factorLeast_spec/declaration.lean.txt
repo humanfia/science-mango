@@ -1,0 +1,18 @@
+theorem M7.Presentation.factorLeast_spec : ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), M7.Presentation.factorLeast K L R = some a ↔ M7.Presentation.valid K L R a ∧ ∀ b, M7.Presentation.valid K L R b → a ≤ b := by
+  change ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), M7.Presentation.factorLeast K L R = some a ↔ M7.Presentation.valid K L R a ∧ ∀ b, M7.Presentation.valid K L R b → a ≤ b
+  intro κ σ τ _ _ _ K L R a
+  classical
+  change M7.Presentation.leastOf (M7.Presentation.candidates K L R) = some a ↔ _
+  rw [(M7.Presentation.leastOf_spec (M7.Presentation.Record κ σ τ) (M7.Presentation.candidates K L R)).1 a]
+  constructor
+  · rintro ⟨ha, hmin⟩
+    refine ⟨M7.Presentation.candidates_sound κ σ τ K L R a ha, ?_⟩
+    intro b hb
+    obtain ⟨c, hc, hcb⟩ := M7.Presentation.candidate_dominates κ σ τ K L R b hb
+    exact le_trans (hmin c hc) hcb
+  · rintro ⟨ha, hmin⟩
+    obtain ⟨c, hc, hca⟩ := M7.Presentation.candidate_dominates κ σ τ K L R a ha
+    have heq : c = a := le_antisymm hca (hmin c (M7.Presentation.candidates_sound κ σ τ K L R c hc))
+    refine ⟨heq ▸ hc, ?_⟩
+    intro b hb
+    exact hmin b (M7.Presentation.candidates_sound κ σ τ K L R b hb)

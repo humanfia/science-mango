@@ -1,0 +1,12 @@
+theorem M7.Presentation.candidates_sound : ∀ (κ σ τ : Type) [LinearOrder κ] [LinearOrder σ] [LinearOrder τ] (K : Finset κ) (L : κ → Finset σ) (R : κ → Finset τ) (a : M7.Presentation.Record κ σ τ), a ∈ M7.Presentation.candidates K L R → M7.Presentation.valid K L R a := by
+  classical
+  intro κ σ τ _ _ _ K L R a ha
+  unfold M7.Presentation.candidates at ha
+  rcases Finset.mem_biUnion.mp ha with ⟨k, hk, ha⟩
+  split at ha
+  · have heq := Finset.mem_singleton.mp ha
+    subst a
+    simp [M7.Presentation.valid, M7.Presentation.outer,
+      M7.Presentation.left, M7.Presentation.right,
+      M7.Presentation.mk, hk, Finset.min'_mem]
+  · simp at ha

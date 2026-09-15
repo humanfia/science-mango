@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro α inst T\nby_cases h : T.Nonempty\n· constructor\n  · intro x\n    simp only [M7.Presentation.leastOf, dif_pos h, Option.some.injEq]\n    constructor\n    · intro hx\n      rw [← hx]\n      exact ⟨Finset.min'_mem T h, fun y hy => Finset.min'_le T y hy⟩\n    · rintro ⟨hx, hmin⟩\n      exact le_antisymm (Finset.min'_le T x hx) (hmin _ (Finset.min'_mem T h))\n  · simp [M7.Presentation.leastOf, h, h.ne_empty]\n· have hT : T = ∅ := Finset.not_nonempty_iff_eq_empty.mp h\n  subst T\n  simp [M7.Presentation.leastOf]",
+  "queries": [
+    "Finset.min'_mem Finset.min'_le",
+    "Finset.not_nonempty_iff_eq_empty"
+  ]
+}
