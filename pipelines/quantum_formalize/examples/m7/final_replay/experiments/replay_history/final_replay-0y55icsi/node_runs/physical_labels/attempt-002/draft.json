@@ -1,0 +1,7 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nclassical\nintro N w inst q hw hwN c hc i\nhave hp := (M7.FinalReplay.parts N w q c).mp hc\nhave hE : M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q) := by\n  apply M7.QuerySectors.effective_valid\n  exact hp.1\nhave hg := (M7.GeneratedFamily.family_good N w (M7.QuerySectors.effective N q) hw hwN hE i).1\nhave ha := M7.GeneratedFamily.family_anchored N w (M7.QuerySectors.effective N q) hw hwN hE i\nhave hl := hp.2.2.2.2.1 i\napply M7.LabelReplay.checked_physical_answer N w (M7.FinalSelector.family N w q i) (c.labels i)\nall_goals\n  simp only [M7.FinalSelector.family, M7.PrefixOrbit.ClassValid] at *\n  aesop",
+  "queries": [
+    "M7.PrefixOrbit.ClassValid",
+    "M7.QuerySectors.effective_valid"
+  ]
+}

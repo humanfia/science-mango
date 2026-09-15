@@ -1,0 +1,600 @@
+{
+  "ActionSignature": [
+    {
+      "batch": "action",
+      "target": "M7.Action.record_card",
+      "receipt": "pipelines/quantum_formalize/examples/m7/action/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], Fintype.card (M7.Action.Record N) = Nat.totient N * 2 * N * N"
+    },
+    {
+      "batch": "action",
+      "target": "M7.Action.order_one_records",
+      "receipt": "pipelines/quantum_formalize/examples/m7/action/experiment/result.json",
+      "statement": "Fintype.card (M7.Action.Record 1) = 2"
+    },
+    {
+      "batch": "actual_signature",
+      "target": "M7.RecipeSignature.signature_properties",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_signature/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, (M7.RecipeSignature.signature c).Monic \u2227 M7.RecipeSignature.signature c \u2223 (M6.Cyclic.modulus N)"
+    },
+    {
+      "batch": "actual_signature",
+      "target": "M7.RecipeSignature.action_signature",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_signature/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, \u2200 g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g c) = M7.SignatureTau.sourceTau g.unit (M7.RecipeSignature.signature c)"
+    },
+    {
+      "batch": "actual_signature",
+      "target": "M7.RecipeSignature.tau_degree",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_signature/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (u : (ZMod N)\u02e3) (F : M6.Cyclic.BinaryPolynomial), F.Monic \u2192 F \u2223 (M6.Cyclic.modulus N) \u2192 (M7.SignatureTau.tau u F).natDegree = F.natDegree"
+    },
+    {
+      "batch": "actual_signature",
+      "target": "M7.RecipeSignature.source_orbit_quotient",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_signature/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, \u2200 (E : M6.Cyclic.BinaryPolynomial \u2192 Prop) (L R : Finset (ZMod N) \u2192 Prop), M7.RecipeSignature.sourceCount c E L R = M7.ActualOrbit.distinctCount c (fun y => E (M7.RecipeSignature.signature y) \u2227 L y.1 \u2227 R y.2) \u2227 M7.ActualFactorized.stabilizerNumerator c \u2223 M7.RecipeSignature.sourceNumerator c E L R"
+    },
+    {
+      "batch": "actual_factorized",
+      "target": "M7.ActualFactorized.stabilizer_numerator",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_factorized/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, M7.ActualFactorized.stabilizerNumerator c = M7.ActualOrbit.stabilizerCount c"
+    },
+    {
+      "batch": "actual_factorized",
+      "target": "M7.ActualFactorized.positive_denominator",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_factorized/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, 0 < M7.ActualFactorized.stabilizerNumerator c"
+    },
+    {
+      "batch": "actual_factorized",
+      "target": "M7.ActualFactorized.exact_orbit_quotient",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_factorized/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, \u2200 (E : M7.Action.Recipe N \u2192 Prop) (L R : Finset (ZMod N) \u2192 Prop), M7.ActualFactorized.TranslationInvariant E \u2192 (M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R / M7.ActualFactorized.stabilizerNumerator c = M7.ActualOrbit.distinctCount c (fun y => E y \u2227 L y.1 \u2227 R y.2) \u2227 M7.ActualFactorized.stabilizerNumerator c \u2223 M7.ActualFactorized.numerator c (fun u => E (M7.ActualFactorized.outerImage c u)) L R)"
+    },
+    {
+      "batch": "prefix_orbit",
+      "target": "M7.PrefixOrbit.residual_card",
+      "receipt": "pipelines/quantum_formalize/examples/m7/prefix_orbit/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), M7.PrefixSector.ValidSector N E \u2192 M7.PrefixCompleted.Base N A B WA WB \u2192 \u2200 bases : Finset (M7.Action.Recipe N), (\u2200 c \u2208 bases, M7.PrefixOrbit.ClassValid w c) \u2192 M7.CanonicalClasses.Normalized bases \u2192 M7.PrefixOrbit.residual w E A B WA WB bases = (M7.OrbitResidual.remaining (M7.ResiduePrefix.completed N w E A B WA WB) bases).card"
+    },
+    {
+      "batch": "prefix_orbit",
+      "target": "M7.PrefixOrbit.residual_positive",
+      "receipt": "pipelines/quantum_formalize/examples/m7/prefix_orbit/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (w : \u2115) (E : Finset M5.BinaryPolynomial) (A B WA WB : Finset \u2115), M7.PrefixSector.ValidSector N E \u2192 M7.PrefixCompleted.Base N A B WA WB \u2192 \u2200 bases : Finset (M7.Action.Recipe N), (\u2200 c \u2208 bases, M7.PrefixOrbit.ClassValid w c) \u2192 M7.CanonicalClasses.Normalized bases \u2192 0 \u2264 M7.PrefixOrbit.residual w E A B WA WB bases \u2227 (0 < M7.PrefixOrbit.residual w E A B WA WB bases \u2194 \u2203 y \u2208 M7.ResiduePrefix.completed N w E A B WA WB, y \u2209 M7.OrbitResidual.covered bases)"
+    }
+  ],
+  "Canonical": [
+    {
+      "batch": "canonical_outer",
+      "target": "M7.CanonicalOuter.canonical_minimal",
+      "receipt": "pipelines/quantum_formalize/examples/m7/canonical_outer/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (c : M7.Action.Recipe N) k, k \u2208 M7.CanonicalOuter.keyset c \u2192 M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c) \u2264 k"
+    },
+    {
+      "batch": "canonical_outer",
+      "target": "M7.CanonicalOuter.realizer_correct",
+      "receipt": "pipelines/quantum_formalize/examples/m7/canonical_outer/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, M7.Action.act (M7.CanonicalOuter.realizer c) c = M7.CanonicalOuter.canonical c"
+    },
+    {
+      "batch": "canonical_outer",
+      "target": "M7.CanonicalOuter.realizer_inverse",
+      "receipt": "pipelines/quantum_formalize/examples/m7/canonical_outer/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, M7.Action.act (M7.Action.inverse (M7.CanonicalOuter.realizer c)) (M7.CanonicalOuter.canonical c) = c"
+    },
+    {
+      "batch": "canonical_outer",
+      "target": "M7.CanonicalOuter.canonical_invariant",
+      "receipt": "pipelines/quantum_formalize/examples/m7/canonical_outer/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.CanonicalOuter.canonical (M7.Action.act g c) = M7.CanonicalOuter.canonical c"
+    },
+    {
+      "batch": "canonical_outer",
+      "target": "M7.CanonicalOuter.orbit_complete",
+      "receipt": "pipelines/quantum_formalize/examples/m7/canonical_outer/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c d : M7.Action.Recipe N, (\u2203 g : M7.Action.Record N, M7.Action.act g c = d) \u2194 M7.CanonicalOuter.canonical c = M7.CanonicalOuter.canonical d"
+    },
+    {
+      "batch": "canonical_classes",
+      "target": "M7.CanonicalClasses.idempotent",
+      "receipt": "pipelines/quantum_formalize/examples/m7/canonical_classes/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, M7.CanonicalOuter.canonical (M7.CanonicalOuter.canonical c) = M7.CanonicalOuter.canonical c"
+    }
+  ],
+  "Generation": [
+    {
+      "batch": "compact_correctness",
+      "target": "M7.CompactCorrectness.run_records",
+      "receipt": "pipelines/quantum_formalize/examples/m7/compact_correctness/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (E : Finset M5.BinaryPolynomial), \u2200 (bases : Finset (M7.Action.Recipe N)) (fuel : \u2115) (root : \u2124), \u2200 e \u2208 (M7.CompactGeneration.run w E fuel bases root).emitted, M7.Action.act e.action e.leaf = e.representative \u2227 M7.Action.act (M7.Action.inverse e.action) e.representative = e.leaf \u2227 e.leafSignature = M7.RecipeSignature.signature e.leaf \u2227 e.representativeSignature = M7.RecipeSignature.signature e.representative \u2227 e.stabilizer = M7.ActualFactorized.stabilizerNumerator e.representative \u2227 0 < e.stabilizer"
+    },
+    {
+      "batch": "compact_correctness",
+      "target": "M7.CompactCorrectness.generate_exact",
+      "receipt": "pipelines/quantum_formalize/examples/m7/compact_correctness/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E \u2192 M7.RecoveryInstance.GoodBases w (M7.CompactGeneration.generate (N := N) w E).finalBases \u2227 (M7.CompactGeneration.generate (N := N) w E).finalResidual = 0 \u2227 (M7.CompactGeneration.generate (N := N) w E).fuelExhausted = false \u2227 ((M7.CompactGeneration.generate (N := N) w E).emitted.map (fun e => e.representative)).Nodup"
+    },
+    {
+      "batch": "compact_correctness",
+      "target": "M7.CompactCorrectness.generate_card",
+      "receipt": "pipelines/quantum_formalize/examples/m7/compact_correctness/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E \u2192 (M7.CompactGeneration.generate (N := N) w E).finalBases.card = (M7.CompactGeneration.generate (N := N) w E).emitted.length"
+    },
+    {
+      "batch": "compact_correctness",
+      "target": "M7.CompactCorrectness.generate_coverage",
+      "receipt": "pipelines/quantum_formalize/examples/m7/compact_correctness/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E \u2192 \u2200 y \u2208 M7.RecoveryPrefix.completed N w E [], y \u2208 M7.OrbitResidual.covered (M7.CompactGeneration.generate (N := N) w E).finalBases"
+    },
+    {
+      "batch": "generated_family",
+      "target": "M7.GeneratedFamily.family_range",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_family/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 b : M7.Action.Recipe N, b \u2208 (M7.CompactGeneration.generate (N := N) w E).finalBases \u2194 \u2203 i : Fin (M7.GeneratedFamily.size N w E), M7.GeneratedFamily.family N w E i = b"
+    },
+    {
+      "batch": "generated_family",
+      "target": "M7.GeneratedFamily.family_good",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_family/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 i : Fin (M7.GeneratedFamily.size N w E), M7.PrefixOrbit.ClassValid w (M7.GeneratedFamily.family N w E i) \u2227 M7.CanonicalOuter.canonical (M7.GeneratedFamily.family N w E i) = M7.GeneratedFamily.family N w E i"
+    },
+    {
+      "batch": "generated_family",
+      "target": "M7.GeneratedFamily.family_anchored",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_family/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 i : Fin (M7.GeneratedFamily.size N w E), (0 : ZMod N) \u2208 (M7.GeneratedFamily.family N w E i).1 \u2227 (0 : ZMod N) \u2208 (M7.GeneratedFamily.family N w E i).2"
+    },
+    {
+      "batch": "generated_family",
+      "target": "M7.GeneratedFamily.family_injective",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_family/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 Function.Injective (M7.GeneratedFamily.family N w E)"
+    },
+    {
+      "batch": "generated_family",
+      "target": "M7.GeneratedFamily.family_separated",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_family/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 M7.GlobalQuery.separated (M7.GeneratedFamily.family N w E)"
+    },
+    {
+      "batch": "generated_family",
+      "target": "M7.GeneratedFamily.family_meets",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_family/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 i : Fin (M7.GeneratedFamily.size N w E), \u2203 g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g (M7.GeneratedFamily.family N w E i)) \u2208 E"
+    },
+    {
+      "batch": "generated_family",
+      "target": "M7.GeneratedFamily.family_complete",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_family/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 c : M7.Action.Recipe N, (\u2203 (i : Fin (M7.GeneratedFamily.size N w E)) (g : M7.Action.Record N), M7.Action.act g (M7.GeneratedFamily.family N w E i) = c) \u2194 M7.PrefixOrbit.ClassValid w c \u2227 \u2203 g : M7.Action.Record N, M7.RecipeSignature.signature (M7.Action.act g c) \u2208 E"
+    },
+    {
+      "batch": "overfull_boundary",
+      "target": "M7.OverfullBoundary.class_impossible",
+      "receipt": "pipelines/quantum_formalize/examples/m7/overfull_boundary/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N], N < w \u2192 \u2200 c : M7.Action.Recipe N, \u00ac M7.PrefixOrbit.ClassValid w c"
+    },
+    {
+      "batch": "overfull_boundary",
+      "target": "M7.OverfullBoundary.overfull_generate",
+      "receipt": "pipelines/quantum_formalize/examples/m7/overfull_boundary/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N], \u2200 E : Finset M5.BinaryPolynomial, M7.PrefixSector.ValidSector N E \u2192 N < w \u2192 (M7.CompactGeneration.generate (N := N) w E).finalBases = \u2205 \u2227 (M7.CompactGeneration.generate (N := N) w E).emitted = [] \u2227 (M7.CompactGeneration.generate (N := N) w E).finalResidual = 0 \u2227 (M7.CompactGeneration.generate (N := N) w E).fuelExhausted = false"
+    },
+    {
+      "batch": "overfull_boundary",
+      "target": "M7.OverfullBoundary.empty_root",
+      "receipt": "pipelines/quantum_formalize/examples/m7/overfull_boundary/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N], 0 < w \u2192 M7.CompactGeneration.residual (N := N) w \u2205 \u2205 [] = 0"
+    },
+    {
+      "batch": "overfull_boundary",
+      "target": "M7.OverfullBoundary.empty_generate",
+      "receipt": "pipelines/quantum_formalize/examples/m7/overfull_boundary/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N], 0 < w \u2192 (M7.CompactGeneration.generate (N := N) w \u2205).finalBases = \u2205 \u2227 (M7.CompactGeneration.generate (N := N) w \u2205).emitted = [] \u2227 (M7.CompactGeneration.generate (N := N) w \u2205).finalResidual = 0 \u2227 (M7.CompactGeneration.generate (N := N) w \u2205).fuelExhausted = false"
+    },
+    {
+      "batch": "query_sectors",
+      "target": "M7.QuerySectors.all_sound",
+      "receipt": "pipelines/quantum_formalize/examples/m7/query_sectors/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (F : M6.Cyclic.BinaryPolynomial), F \u2208 M7.QuerySectors.allSectors N \u2192 F.Monic \u2227 F \u2223 M6.Cyclic.modulus N"
+    },
+    {
+      "batch": "query_sectors",
+      "target": "M7.QuerySectors.all_complete",
+      "receipt": "pipelines/quantum_formalize/examples/m7/query_sectors/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (F : M6.Cyclic.BinaryPolynomial), F.Monic \u2192 F \u2223 M6.Cyclic.modulus N \u2192 F \u2208 M7.QuerySectors.allSectors N"
+    },
+    {
+      "batch": "query_sectors",
+      "target": "M7.QuerySectors.all_membership",
+      "receipt": "pipelines/quantum_formalize/examples/m7/query_sectors/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (F : M6.Cyclic.BinaryPolynomial), F \u2208 M7.QuerySectors.allSectors N \u2194 F.Monic \u2227 F \u2223 M6.Cyclic.modulus N"
+    },
+    {
+      "batch": "query_sectors",
+      "target": "M7.QuerySectors.effective_valid",
+      "receipt": "pipelines/quantum_formalize/examples/m7/query_sectors/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 q : M7.DefaultQuery.Query, M7.DefaultQuery.valid N q \u2192 M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q)"
+    },
+    {
+      "batch": "query_sectors",
+      "target": "M7.QuerySectors.signature_allowed",
+      "receipt": "pipelines/quantum_formalize/examples/m7/query_sectors/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (q : M7.DefaultQuery.Query) (c : M7.Action.Recipe N), M7.DefaultQuery.signature c \u2208 M7.QuerySectors.effective N q \u2194 M7.DefaultQuery.allows q (M7.DefaultQuery.signature c)"
+    }
+  ],
+  "Selector": [
+    {
+      "batch": "global_query",
+      "target": "M7.GlobalQuery.winning_classes",
+      "receipt": "pipelines/quantum_formalize/examples/m7/global_query/experiment/result.json",
+      "statement": "\u2200 (H N : \u2115) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (i : Fin H), i \u2208 M7.GlobalQuery.winningClasses q bases \u2194 \u2203 g : M7.Action.Record N, (i,g) \u2208 M7.GlobalQuery.winners q bases"
+    },
+    {
+      "batch": "final_selector",
+      "target": "M7.FinalSelector.raw_realizable",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_selector/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 M7.DefaultQuery.valid N q \u2192 \u2200 c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c \u2192 \u2203 x : M7.FinalSelector.Index N w q, M7.FinalSelector.realize q x = c"
+    },
+    {
+      "batch": "final_selector",
+      "target": "M7.FinalSelector.index_feasible",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_selector/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 M7.DefaultQuery.valid N q \u2192 \u2200 x : M7.FinalSelector.Index N w q, M7.GlobalQuery.feasible q (M7.FinalSelector.family N w q) x \u2194 M7.FinalSelector.RawFeasible w q (M7.FinalSelector.realize q x)"
+    },
+    {
+      "batch": "final_selector",
+      "target": "M7.FinalSelector.winner_exact",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_selector/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 M7.DefaultQuery.valid N q \u2192 \u2200 x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = true \u2194 M7.FinalSelector.RawWinner w q (M7.FinalSelector.realize q x)"
+    },
+    {
+      "batch": "final_selector",
+      "target": "M7.FinalSelector.raw_output",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_selector/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 M7.DefaultQuery.valid N q \u2192 \u2200 c : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q c \u2194 \u2203 x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = true \u2227 M7.FinalSelector.realize q x = c"
+    },
+    {
+      "batch": "final_selector",
+      "target": "M7.FinalSelector.presentation_exact",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_selector/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 M7.DefaultQuery.valid N q \u2192 \u2200 c : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q c \u2194 \u2203! x : M7.FinalSelector.Index N w q, M7.FinalSelector.present q x = true \u2227 M7.FinalSelector.realize q x = c"
+    },
+    {
+      "batch": "final_selector",
+      "target": "M7.FinalSelector.empty_exact",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_selector/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 M7.DefaultQuery.valid N q \u2192 ((\u2200 x : M7.FinalSelector.Index N w q, M7.FinalSelector.win q x = false) \u2194 \u00ac \u2203 c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c)"
+    },
+    {
+      "batch": "final_selector",
+      "target": "M7.FinalSelector.strict_dominator",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_selector/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 M7.DefaultQuery.valid N q \u2192 \u2200 c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c \u2192 \u00ac M7.FinalSelector.RawWinner w q c \u2192 \u2203 d : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q d \u2227 M7.Selection.better q.order (M7.DefaultQuery.objective q d) (M7.DefaultQuery.objective q c)"
+    },
+    {
+      "batch": "final_selector",
+      "target": "M7.FinalSelector.invalid_rejection",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_selector/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), (\u00ac M7.DefaultQuery.valid N q) \u2192 (\u2200 x : M7.FinalSelector.Index N w q, M7.FinalSelector.answer q x = Except.error M7.DefaultQuery.QueryError.invalidSignature) \u2227 (\u00ac \u2203 c : M7.Action.Recipe N, M7.FinalSelector.RawFeasible w q c)"
+    },
+    {
+      "batch": "default_query",
+      "target": "M7.DefaultQuery.sector_modes",
+      "receipt": "pipelines/quantum_formalize/examples/m7/default_query/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N), (q.sectorMode = M7.DefaultQuery.SectorMode.classSector \u2192 (M7.DefaultQuery.sectorTest q base placed \u2194 \u2203 g : M7.Action.Record N, M7.DefaultQuery.allows q (M7.DefaultQuery.signature (M7.Action.act g base)))) \u2227 (q.sectorMode = M7.DefaultQuery.SectorMode.placementSector \u2192 (M7.DefaultQuery.sectorTest q base placed \u2194 M7.DefaultQuery.allows q (M7.DefaultQuery.signature placed)))"
+    },
+    {
+      "batch": "default_query",
+      "target": "M7.DefaultQuery.noLogical_policy",
+      "receipt": "pipelines/quantum_formalize/examples/m7/default_query/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (q : M7.DefaultQuery.Query) (base placed : M7.Action.Recipe N), (M7.DefaultQuery.needsDistance q \u2192 M7.DefaultQuery.distance placed = none \u2192 \u00ac M7.DefaultQuery.feasible q base placed) \u2227 (q.distanceFloor = none \u2192 M7.DefaultQuery.Coordinate.negativeDistance \u2209 q.objectives \u2192 (M7.DefaultQuery.feasible q base placed \u2194 M7.DefaultQuery.valid N q \u2227 M7.DefaultQuery.dimension placed \u2208 q.dimensions \u2227 M7.DefaultQuery.sectorTest q base placed \u2227 (match q.localityCap with | none => True | some cap => M7.DefaultQuery.locality placed \u2264 cap) \u2227 (match q.radiusCap with | none => True | some cap => M7.DefaultQuery.radius placed \u2264 cap)))"
+    },
+    {
+      "batch": "default_query",
+      "target": "M7.DefaultQuery.empty_objectives",
+      "receipt": "pipelines/quantum_formalize/examples/m7/default_query/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (q : M7.DefaultQuery.Query) (base : M7.Action.Recipe N), q.objectives = [] \u2192 M7.DefaultQuery.winners q base = M7.Selection.feasibleSet Finset.univ (fun g : M7.Action.Record N => M7.DefaultQuery.feasible q base (M7.Action.act g base))"
+    },
+    {
+      "batch": "actual_presentation",
+      "target": "M7.ActualPresentation.four_field_order",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_presentation/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (g h : M7.Action.Record N), (M7.ActualPresentation.encode g \u2264 M7.ActualPresentation.encode h \u2194 (g.unit : ZMod N).val < (h.unit : ZMod N).val \u2228 (g.unit : ZMod N).val = (h.unit : ZMod N).val \u2227 (g.exchange < h.exchange \u2228 g.exchange = h.exchange \u2227 (g.leftShift.val < h.leftShift.val \u2228 g.leftShift.val = h.leftShift.val \u2227 g.rightShift.val \u2264 h.rightShift.val)))"
+    },
+    {
+      "batch": "actual_presentation",
+      "target": "M7.ActualPresentation.leastAction_spec",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_presentation/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c q : M7.Action.Recipe N), (\u2200 g : M7.Action.Record N, M7.ActualPresentation.leastAction c q = some g \u2194 M7.Action.act g c = q \u2227 \u2200 h : M7.Action.Record N, M7.Action.act h c = q \u2192 M7.ActualPresentation.encode g \u2264 M7.ActualPresentation.encode h) \u2227 (M7.ActualPresentation.leastAction c q = none \u2194 \u00ac \u2203 g : M7.Action.Record N, M7.Action.act g c = q)"
+    },
+    {
+      "batch": "actual_presentation",
+      "target": "M7.ActualPresentation.presentation_exact",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_presentation/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N) (m : \u2115) (feasible : M7.Action.Recipe N \u2192 Prop) (objective : M7.Action.Recipe N \u2192 Fin m \u2192 \u2124) (mode : M7.Selection.Mode) (g : M7.Action.Record N), g \u2208 M7.ActualPresentation.selected c feasible objective mode \u2192 \u2203! h : M7.Action.Record N, M7.ActualPresentation.present c feasible objective mode h \u2227 M7.Action.act h c = M7.Action.act g c"
+    }
+  ],
+  "PhysicalLabels": [
+    {
+      "batch": "generated_labels",
+      "target": "M7.GeneratedLabels.pointwise",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_labels/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 i : Fin (M7.GeneratedFamily.size N w E), M6.Final.PointwiseCorrect N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2)"
+    },
+    {
+      "batch": "generated_labels",
+      "target": "M7.GeneratedLabels.cache",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_labels/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 (i : Fin (M7.GeneratedFamily.size N w E)) (g : M7.Action.Record N), (M7.DefaultQuery.dimension (M7.Action.act g (M7.GeneratedFamily.family N w E i)), M7.DefaultQuery.distance (M7.Action.act g (M7.GeneratedFamily.family N w E i))) = M7.QualityTable.cache (M7.GeneratedFamily.family N w E i)"
+    },
+    {
+      "batch": "generated_labels",
+      "target": "M7.GeneratedLabels.arrays",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_labels/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 (i : Fin (M7.GeneratedFamily.size N w E)) (g : M7.Action.Record N), (M7.QualityTable.leftTable (M7.GeneratedFamily.family N w E i) (g.unit,g.exchange)).size = N \u2227 (M7.QualityTable.rightTable (M7.GeneratedFamily.family N w E i) (g.unit,g.exchange)).size = N \u2227 M7.QualityTable.placedScores (M7.GeneratedFamily.family N w E i) g = (M7.DefaultQuery.locality (M7.Action.act g (M7.GeneratedFamily.family N w E i)), M7.DefaultQuery.radius (M7.Action.act g (M7.GeneratedFamily.family N w E i)))"
+    },
+    {
+      "batch": "generated_labels",
+      "target": "M7.GeneratedLabels.witness",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generated_labels/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 (i : Fin (M7.GeneratedFamily.size N w E)) (g : M7.Action.Record N) (d k : \u2115) (v : M6.Pinned.Vector (2*N)), M6.ActualTransfer.solve N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) = some (d,v,k) \u2192 M7.Transport.distance (M7.Action.act g (M7.GeneratedFamily.family N w E i)) = some d \u2227 M7.Transport.Xmap g v \u2208 M7.Transport.LX (M7.Action.act g (M7.GeneratedFamily.family N w E i)) \u2227 M6.Pinned.weight (M7.Transport.Xmap g v) = d \u2227 M6.Flatten.J N (M7.Transport.Xmap g v) \u2208 M7.Transport.LZ (M7.Action.act g (M7.GeneratedFamily.family N w E i)) \u2227 M6.Pinned.weight (M6.Flatten.J N (M7.Transport.Xmap g v)) = d \u2227 k \u2264 2*N"
+    }
+  ],
+  "Replay": [
+    {
+      "batch": "final_replay",
+      "target": "M7.FinalReplay.parts",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_replay/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), \u2200 c : M7.FinalReplay.Certificate N w q, (M7.FinalReplay.check q c = Except.ok true \u2194 M7.DefaultQuery.valid N q \u2227 M7.GenerationReplay.check w (M7.QuerySectors.effective N q) c.generation = true \u2227 M7.FactorReplay.check (M6.Cyclic.modulus N) c.factors = true \u2227 c.generation.finalBases = (M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)).finalBases \u2227 (\u2200 i, M7.LabelReplay.check (M7.FinalSelector.family N w q i) (c.labels i) = true) \u2227 M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query = Except.ok true)"
+    },
+    {
+      "batch": "final_replay",
+      "target": "M7.FinalReplay.exists_certificate",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_replay/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 M7.DefaultQuery.valid N q \u2192 \u2203 c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true"
+    },
+    {
+      "batch": "final_replay",
+      "target": "M7.FinalReplay.checked_sets",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_replay/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 \u2200 c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true \u2192 c.query.winners = M7.GlobalQuery.winners q (M7.FinalSelector.family N w q) \u2227 c.query.presentations = M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q)"
+    },
+    {
+      "batch": "final_replay",
+      "target": "M7.FinalReplay.raw_winners",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_replay/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 \u2200 c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true \u2192 \u2200 y : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q y \u2194 \u2203 x \u2208 c.query.winners, M7.FinalSelector.realize q x = y"
+    },
+    {
+      "batch": "final_replay",
+      "target": "M7.FinalReplay.raw_presentations",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_replay/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 \u2200 c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true \u2192 \u2200 y : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q y \u2194 \u2203! x : M7.FinalSelector.Index N w q, x \u2208 c.query.presentations \u2227 M7.FinalSelector.realize q x = y"
+    },
+    {
+      "batch": "final_replay",
+      "target": "M7.FinalReplay.physical_labels",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_replay/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w \u2192 w \u2264 N \u2192 \u2200 c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true \u2192 \u2200 i : Fin (M7.GeneratedFamily.size N w (M7.QuerySectors.effective N q)), ((c.labels i).answer = none \u2194 (M7.RecipeSignature.signature (M7.FinalSelector.family N w q i)).natDegree = 0) \u2227 (\u2200 (d k : \u2115) (v : M6.Pinned.Vector (2*N)), (c.labels i).answer = some (d,v,k) \u2192 M7.DefaultQuery.distance (M7.FinalSelector.family N w q i) = some d \u2227 v \u2208 M7.Transport.LX (M7.FinalSelector.family N w q i) \u2227 M6.Pinned.weight v = d \u2227 M6.Flatten.J N v \u2208 M7.Transport.LZ (M7.FinalSelector.family N w q i) \u2227 M6.Pinned.weight (M6.Flatten.J N v) = d \u2227 k \u2264 2*N)"
+    },
+    {
+      "batch": "final_replay",
+      "target": "M7.FinalReplay.invalid_rejection",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_replay/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (q : M7.DefaultQuery.Query), \u00ac M7.DefaultQuery.valid N q \u2192 \u2200 c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.error M7.DefaultQuery.QueryError.invalidSignature"
+    },
+    {
+      "batch": "generation_replay",
+      "target": "M7.GenerationReplay.generate_checked",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generation_replay/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E \u2192 M7.GenerationReplay.check w E (M7.CompactGeneration.generate (N := N) w E) = true"
+    },
+    {
+      "batch": "generation_replay",
+      "target": "M7.GenerationReplay.checked_coverage",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generation_replay/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (E : Finset M5.BinaryPolynomial), M7.PrefixSector.ValidSector N E \u2192 0 < w \u2192 \u2200 o : M7.CompactGeneration.Output N, M7.GenerationReplay.check w E o = true \u2192 M7.RecoveryInstance.GoodBases w o.finalBases \u2227 M7.GenerationReplay.FreshFrom w E \u2205 o.emitted \u2227 (o.emitted.map (fun e => e.representative)).Nodup \u2227 (\u2200 y \u2208 M7.RecoveryPrefix.completed N w E [], y \u2208 M7.OrbitResidual.covered o.finalBases) \u2227 (\u2200 c : M7.Action.Recipe N, M7.RawCoverage.Queried w E c \u2192 M7.CanonicalOuter.canonical c \u2208 o.finalBases \u2227 \u2203 b \u2208 o.finalBases, \u2203 g : M7.Action.Record N, M7.Action.act g b = c)"
+    },
+    {
+      "batch": "label_replay",
+      "target": "M7.LabelReplay.trace_recover",
+      "receipt": "pipelines/quantum_formalize/examples/m7/label_replay/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N) (d : \u2115) (P : M6.Pinned.Pins (2*N)) (xs : List (Fin (2*N))), (M7.LabelReplay.endpoint P (M7.LabelReplay.trace c d P xs), M7.LabelReplay.queryCount (M7.LabelReplay.trace c d P xs)) = M6.Pinned.recover (fun P => (M7.LabelReplay.Q c P).coeff d) P xs"
+    },
+    {
+      "batch": "label_replay",
+      "target": "M7.LabelReplay.check_sound",
+      "receipt": "pipelines/quantum_formalize/examples/m7/label_replay/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N) (r : M7.LabelReplay.Certificate N), M7.LabelReplay.check c r = true \u2192 r.signature = M7.RecipeSignature.signature c \u2227 (\u2200 i : Fin (2*N+1), r.coefficients i = (M7.LabelReplay.Q c (M6.Pinned.free (2*N))).coeff i.val) \u2227 r.answer = M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) \u2227 r.pins = M7.LabelReplay.pinData c"
+    },
+    {
+      "batch": "label_replay",
+      "target": "M7.LabelReplay.self_check",
+      "receipt": "pipelines/quantum_formalize/examples/m7/label_replay/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), M7.LabelReplay.check c (M7.LabelReplay.expected c) = true"
+    },
+    {
+      "batch": "label_replay",
+      "target": "M7.LabelReplay.checked_physical_answer",
+      "receipt": "pipelines/quantum_formalize/examples/m7/label_replay/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (c : M7.Action.Recipe N) (r : M7.LabelReplay.Certificate N), c.1.card = w \u2192 c.2.card = w \u2192 (0 : ZMod N) \u2208 c.1 \u2192 (0 : ZMod N) \u2208 c.2 \u2192 M7.Connectivity.connected c \u2192 M7.LabelReplay.check c r = true \u2192 (r.answer = none \u2194 (M7.RecipeSignature.signature c).natDegree = 0) \u2227 (\u2200 (d k : \u2115) (v : M6.Pinned.Vector (2*N)), r.answer = some (d,v,k) \u2192 M7.DefaultQuery.distance c = some d \u2227 v \u2208 M7.Transport.LX c \u2227 M6.Pinned.weight v = d \u2227 M6.Flatten.J N v \u2208 M7.Transport.LZ c \u2227 M6.Pinned.weight (M6.Flatten.J N v) = d \u2227 k \u2264 2*N)"
+    },
+    {
+      "batch": "factor_replay",
+      "target": "M7.FactorReplay.pool_complete",
+      "receipt": "pipelines/quantum_formalize/examples/m7/factor_replay/experiment/result.json",
+      "statement": "\u2200 (n : \u2115) (p : M7.FactorReplay.BP), p \u2208 M7.FactorReplay.pool n \u2194 p.natDegree \u2264 n"
+    },
+    {
+      "batch": "factor_replay",
+      "target": "M7.FactorReplay.irreducible_check_exact",
+      "receipt": "pipelines/quantum_formalize/examples/m7/factor_replay/experiment/result.json",
+      "statement": "\u2200 p : M7.FactorReplay.BP, M7.FactorReplay.irreducibleCheck p = true \u2194 p.Monic \u2227 Irreducible p"
+    },
+    {
+      "batch": "factor_replay",
+      "target": "M7.FactorReplay.factor_check_exact",
+      "receipt": "pipelines/quantum_formalize/examples/m7/factor_replay/experiment/result.json",
+      "statement": "\u2200 (F : M7.FactorReplay.BP) (factors : List (M7.FactorReplay.BP \u00d7 \u2115)), M7.FactorReplay.check F factors = true \u2194 (factors.map Prod.fst).Nodup \u2227 (\u2200 t \u2208 factors, t.1.Monic \u2227 Irreducible t.1 \u2227 0 < t.2) \u2227 M7.FactorReplay.product factors = F"
+    },
+    {
+      "batch": "factor_replay",
+      "target": "M7.FactorReplay.self_check",
+      "receipt": "pipelines/quantum_formalize/examples/m7/factor_replay/experiment/result.json",
+      "statement": "\u2200 F : M7.FactorReplay.BP, F.Monic \u2192 M7.FactorReplay.check F (M7.FactorReplay.expected F) = true"
+    }
+  ],
+  "Resources": [
+    {
+      "batch": "final_resources",
+      "target": "M7.FinalResources.generation",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_resources/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 (M7.CompactGeneration.generate (N := N) w E).finalBases.card = M7.GeneratedFamily.size N w E \u2227 (M7.GenerationCalls.generateMeasured (N := N) w E).2.root + (M7.GenerationCalls.generateMeasured (N := N) w E).2.children = (1 + M7.GeneratedFamily.size N w E * (2*M7.PrefixBits.depth N+1)) \u2227 (M7.GenerationCalls.generateMeasured (N := N) w E).2.orbitCounts \u2264 M7.GeneratedFamily.size N w E*(1 + M7.GeneratedFamily.size N w E * (2*M7.PrefixBits.depth N+1))"
+    },
+    {
+      "batch": "final_resources",
+      "target": "M7.FinalResources.storage",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_resources/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 M7.CompactStorage.storedCoreBits N (M7.GeneratedFamily.size N w E) \u2264 16*(M7.GeneratedFamily.size N w E)*N \u2227 M7.CompactStorage.storedWithTablesBits N (M7.GeneratedFamily.size N w E) \u2264 16*(M7.GeneratedFamily.size N w E)*N + 2*(M7.GeneratedFamily.size N w E)*Nat.totient N*N"
+    },
+    {
+      "batch": "final_resources",
+      "target": "M7.FinalResources.label_work",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_resources/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 M7.FinalResources.distanceWork N w E \u2264 50000*N^3 * (\u2211 i : Fin (M7.GeneratedFamily.size N w E), 4^(M6.ActualTransfer.span (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2))) \u2227 \u2200 i : Fin (M7.GeneratedFamily.size N w E), M6.ActualTransfer.actualSolveStorage N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) \u2264 16384*N^2*2^(M6.ActualTransfer.span (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2))"
+    },
+    {
+      "batch": "final_resources",
+      "target": "M7.FinalResources.witness_work",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_resources/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 (d k : Fin (M7.GeneratedFamily.size N w E) \u2192 \u2115) (v : Fin (M7.GeneratedFamily.size N w E) \u2192 M6.Pinned.Vector (2*N)), (\u2200 i, M6.ActualTransfer.solve N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) = some (d i,v i,k i)) \u2192 (\u2211 i : Fin (M7.GeneratedFamily.size N w E), M6.ActualTransfer.actualWitnessWork N (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2) (k i)) \u2264 200000*N^4 * (\u2211 i : Fin (M7.GeneratedFamily.size N w E), 4^(M6.ActualTransfer.span (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).1) (M7.Supports.polynomial (M7.GeneratedFamily.family N w E i).2)))"
+    },
+    {
+      "batch": "final_resources",
+      "target": "M7.FinalResources.word_width",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_resources/experiment/result.json",
+      "statement": "\u2200 (H N : \u2115) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), \u2200 (x : M7.GlobalQuery.Index H N) (j : Fin q.objectives.length), 1 + (M7.GlobalQuery.objective q bases x j).natAbs.size \u2264 M7.FinalResources.objectiveBits q bases"
+    },
+    {
+      "batch": "final_resources",
+      "target": "M7.FinalResources.comparison",
+      "receipt": "pipelines/quantum_formalize/examples/m7/final_resources/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (E : Finset M5.BinaryPolynomial), 0 < w \u2192 w \u2264 N \u2192 M7.PrefixSector.ValidSector N E \u2192 \u2200 q : M7.DefaultQuery.Query, M7.FinalResources.comparisonCharge q (M7.GeneratedFamily.family N w E) \u2264 2 * ((M7.GeneratedFamily.size N w E) * (2*Nat.totient N*N^2))^2 * (q.objectives.length+1) * M7.FinalResources.objectiveBits q (M7.GeneratedFamily.family N w E)"
+    },
+    {
+      "batch": "scalar_work",
+      "target": "M7.ScalarWork.prefix_bound",
+      "receipt": "pipelines/quantum_formalize/examples/m7/scalar_work/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) (A B WA WB : Finset \u2115), 0 < N \u2192 w \u2264 N \u2192 M7.PrefixCompleted.Base N A B WA WB \u2192 \u2200 F : M5.BinaryPolynomial, F.Monic \u2192 F \u2223 M5.cyclicModulus N \u2192 M7.ScalarWork.prefixWork N w F A B WA WB \u2264 1024 * N^4 * M7.ArithmeticLoops.divisorCount N * 2^(M7.ArithmeticLoops.factorCount N + N)"
+    },
+    {
+      "batch": "scalar_work",
+      "target": "M7.ScalarWork.sector_bound",
+      "receipt": "pipelines/quantum_formalize/examples/m7/scalar_work/experiment/result.json",
+      "statement": "\u2200 (N w : \u2115) (A B WA WB : Finset \u2115), 0 < N \u2192 w \u2264 N \u2192 M7.PrefixCompleted.Base N A B WA WB \u2192 \u2200 E : Finset M5.BinaryPolynomial, M7.PrefixSector.ValidSector N E \u2192 M7.ScalarWork.sector N w E A B WA WB \u2264 1024 * N^4 * E.card * M7.ArithmeticLoops.divisorCount N * 2^(M7.ArithmeticLoops.factorCount N + N)"
+    },
+    {
+      "batch": "scalar_work",
+      "target": "M7.ScalarWork.mask_positions",
+      "receipt": "pipelines/quantum_formalize/examples/m7/scalar_work/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], M7.ScalarWork.maskPositions N = 4 * Fintype.card ((ZMod N)\u02e3) * N^2"
+    },
+    {
+      "batch": "compact_storage",
+      "target": "M7.CompactStorage.emission_valid",
+      "receipt": "pipelines/quantum_formalize/examples/m7/compact_storage/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (E : Finset M5.BinaryPolynomial) (bases : Finset (M7.Action.Recipe N)), M7.CompactStorage.Valid (M7.CompactGeneration.emission w E bases)"
+    },
+    {
+      "batch": "compact_storage",
+      "target": "M7.CompactStorage.encode_core",
+      "receipt": "pipelines/quantum_formalize/examples/m7/compact_storage/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (e f : M7.CompactGeneration.Emission N), M7.CompactStorage.Valid e \u2192 M7.CompactStorage.Valid f \u2192 M7.CompactStorage.encode e = M7.CompactStorage.encode f \u2192 M7.CompactStorage.coreView e = M7.CompactStorage.coreView f"
+    },
+    {
+      "batch": "compact_storage",
+      "target": "M7.CompactStorage.unit_table_recovery",
+      "receipt": "pipelines/quantum_formalize/examples/m7/compact_storage/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (e : M7.CompactGeneration.Emission N) (u : (ZMod N)\u02e3) (F : M5.BinaryPolynomial), F.natDegree \u2264 N \u2192 (M7.CompactStorage.unitTable e u = M7.CompactStorage.polynomialBits N F \u2194 M7.RecipeSignature.signature (M7.Action.act (\u27e8u,false,0,0\u27e9 : M7.Action.Record N) e.representative) = F)"
+    },
+    {
+      "batch": "compact_storage",
+      "target": "M7.CompactStorage.storage_bounds",
+      "receipt": "pipelines/quantum_formalize/examples/m7/compact_storage/experiment/result.json",
+      "statement": "\u2200 (N H : \u2115) [NeZero N], M7.CompactStorage.coreBits N = 12*N+4 \u2227 M7.CompactStorage.coreBits N \u2264 16*N \u2227 M7.CompactStorage.tableBits N = Nat.totient N*(N+1) \u2227 M7.CompactStorage.storedCoreBits N H \u2264 16*H*N \u2227 M7.CompactStorage.storedWithTablesBits N H \u2264 16*H*N + 2*H*Nat.totient N*N"
+    },
+    {
+      "batch": "generation_calls",
+      "target": "M7.GenerationCalls.generate_count",
+      "receipt": "pipelines/quantum_formalize/examples/m7/generation_calls/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (E : Finset M5.BinaryPolynomial), (M7.GenerationCalls.generateMeasured (N := N) w E).1 = (M7.CompactGeneration.generate (N := N) w E) \u2227 (M7.GenerationCalls.generateMeasured (N := N) w E).2.root + (M7.GenerationCalls.generateMeasured (N := N) w E).2.children = (1 + (M7.CompactGeneration.generate (N := N) w E).emitted.length * (2 * M7.PrefixBits.depth N + 1)) \u2227 (M7.GenerationCalls.generateMeasured (N := N) w E).2.orbitCounts \u2264 (M7.CompactGeneration.generate (N := N) w E).finalBases.card * (1 + (M7.CompactGeneration.generate (N := N) w E).emitted.length * (2 * M7.PrefixBits.depth N + 1))"
+    },
+    {
+      "batch": "streaming_cost",
+      "target": "M7.StreamingCost.stream_projection_bound",
+      "receipt": "pipelines/quantum_formalize/examples/m7/streaming_cost/experiment/result.json",
+      "statement": "\u2200 (H N : \u2115) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), \u2200 x : M7.GlobalQuery.Index H N, (M7.StreamingCost.streamWin q bases x).result = M7.StreamingIndices.streamWin q bases x \u2227 (M7.StreamingCost.streamWin q bases x).outer = 0 \u2227 (M7.StreamingCost.streamWin q bases x).inner \u2264 (H * M7.StreamingCost.recordCount N)"
+    },
+    {
+      "batch": "streaming_cost",
+      "target": "M7.StreamingCost.scan_bound",
+      "receipt": "pipelines/quantum_formalize/examples/m7/streaming_cost/experiment/result.json",
+      "statement": "\u2200 (H N : \u2115) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), (M7.StreamingCost.scanWins q bases).outer \u2264 (H * M7.StreamingCost.recordCount N) \u2227 (M7.StreamingCost.scanWins q bases).inner \u2264 (H * M7.StreamingCost.recordCount N)^2"
+    },
+    {
+      "batch": "streaming_cost",
+      "target": "M7.StreamingCost.record_cardinality",
+      "receipt": "pipelines/quantum_formalize/examples/m7/streaming_cost/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N], M7.StreamingCost.recordCount N = Fintype.card (M7.Action.Record N) \u2227 M7.StreamingCost.recordCount N = 2 * Nat.totient N * N^2"
+    },
+    {
+      "batch": "objective_comparison",
+      "target": "M7.ObjectiveComparison.compare_exact",
+      "receipt": "pipelines/quantum_formalize/examples/m7/objective_comparison/experiment/result.json",
+      "statement": "\u2200 (m : \u2115) (mode : M7.Selection.Mode) (a b : Fin m \u2192 \u2124), (M7.ObjectiveComparison.compare mode a b).1 = true \u2194 M7.Selection.better mode a b"
+    },
+    {
+      "batch": "objective_comparison",
+      "target": "M7.ObjectiveComparison.compare_bound",
+      "receipt": "pipelines/quantum_formalize/examples/m7/objective_comparison/experiment/result.json",
+      "statement": "\u2200 (m : \u2115) (mode : M7.Selection.Mode) (a b : Fin m \u2192 \u2124), (M7.ObjectiveComparison.compare mode a b).2 \u2264 2*m \u2227 (M7.ObjectiveComparison.compare mode a b).2 \u2264 2*(m+1)"
+    }
+  ],
+  "PresentationExtensions": [
+    {
+      "batch": "selection",
+      "target": "M7.Selection.selector_exact",
+      "receipt": "pipelines/quantum_formalize/examples/m7/selection/experiment/result.json",
+      "statement": "\u2200 (\u03b1 : Type) (m : \u2115) (T : Finset \u03b1) (feasible : \u03b1 \u2192 Prop) (objective : \u03b1 \u2192 Fin m \u2192 \u2124) (mode : M7.Selection.Mode), (\u2200 x, x \u2208 M7.Selection.select T feasible objective mode \u2194 x \u2208 T \u2227 feasible x \u2227 \u2200 y \u2208 T, feasible y \u2192 \u00ac M7.Selection.better mode (objective y) (objective x)) \u2227 (M7.Selection.select T feasible objective mode = \u2205 \u2194 M7.Selection.feasibleSet T feasible = \u2205)"
+    },
+    {
+      "batch": "selection",
+      "target": "M7.Selection.selector_strict_dominator",
+      "receipt": "pipelines/quantum_formalize/examples/m7/selection/experiment/result.json",
+      "statement": "\u2200 (\u03b1 : Type) (m : \u2115) (T : Finset \u03b1) (feasible : \u03b1 \u2192 Prop) (objective : \u03b1 \u2192 Fin m \u2192 \u2124) (mode : M7.Selection.Mode), \u2200 x \u2208 T, feasible x \u2192 x \u2209 M7.Selection.select T feasible objective mode \u2192 \u2203 y \u2208 M7.Selection.select T feasible objective mode, M7.Selection.better mode (objective y) (objective x)"
+    },
+    {
+      "batch": "selection",
+      "target": "M7.Selection.empty_objectives",
+      "receipt": "pipelines/quantum_formalize/examples/m7/selection/experiment/result.json",
+      "statement": "\u2200 (\u03b1 : Type) (T : Finset \u03b1) (feasible : \u03b1 \u2192 Prop) (objective : \u03b1 \u2192 Fin 0 \u2192 \u2124) (mode : M7.Selection.Mode), M7.Selection.select T feasible objective mode = M7.Selection.feasibleSet T feasible"
+    },
+    {
+      "batch": "actual_presentation",
+      "target": "M7.ActualPresentation.winning_fiber",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_presentation/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N) (m : \u2115) (feasible : M7.Action.Recipe N \u2192 Prop) (objective : M7.Action.Recipe N \u2192 Fin m \u2192 \u2124) (mode : M7.Selection.Mode) (g h : M7.Action.Record N), M7.Action.act g c = M7.Action.act h c \u2192 (g \u2208 M7.ActualPresentation.selected c feasible objective mode \u2194 h \u2208 M7.ActualPresentation.selected c feasible objective mode)"
+    },
+    {
+      "batch": "actual_presentation",
+      "target": "M7.ActualPresentation.presentation_sound",
+      "receipt": "pipelines/quantum_formalize/examples/m7/actual_presentation/experiment/result.json",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N) (m : \u2115) (feasible : M7.Action.Recipe N \u2192 Prop) (objective : M7.Action.Recipe N \u2192 Fin m \u2192 \u2124) (mode : M7.Selection.Mode) (g : M7.Action.Record N), M7.ActualPresentation.present c feasible objective mode g \u2192 g \u2208 M7.ActualPresentation.selected c feasible objective mode \u2227 \u2200 h : M7.Action.Record N, M7.Action.act h c = M7.Action.act g c \u2192 M7.ActualPresentation.encode g \u2264 M7.ActualPresentation.encode h"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "physical_labels",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalReplay.physical_labels",
+    "spec_sha256": "e884b76cdc466b48826f5e49eafedd6c49f8ce7366b6f41976e9642806da51e1",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-cqo8rnxa/attempt-001/Candidate_f7861da3e143bc23.lean:8:46: error: Tactic `assumption` failed\n\nN w : ℕ\ninst : NeZero N\nq : DefaultQuery.Query\nhw : 0 < w\nhwN : w ≤ N\nc : Certificate N w q\nhc : check q c = Except.ok true\ni : Fin (GeneratedFamily.size N w (QuerySectors.effective N q))\nhp :\n  DefaultQuery.valid N q ∧\n    GenerationReplay.check w (QuerySectors.effective N q) c.generation = true ∧\n      FactorReplay.check (M6.Cyclic.modulus N) c.factors = true ∧\n        c.generation.finalBases = (CompactGeneration.generate w (QuerySectors.effective N q)).finalBases ∧\n          (∀ (i : Fin (GeneratedFamily.size N w (QuerySectors.effective N q))),\n              LabelReplay.check (FinalSelector.family N w q i) (c.labels i) = true) ∧\n            QueryCertificate.check q (FinalSelector.family N w q) c.query = Except.ok true\n⊢ DefaultQuery.valid N q\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-cqo8rnxa/attempt-002/Candidate_d82acf6e879f54f1.lean",
+        "target_path": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-cqo8rnxa/attempt-002/FrozenTarget_d82acf6e879f54f1.lean",
+        "feedback": "",
+        "target_sha256": "6d17119f14480f88c4de1eeeca87d7681bd6307c0ae83c85d02e99bc5a946f79",
+        "target_olean_sha256": "585e8382905a3b1deaf3fcb35354679c14f665c9e8f1fafc7c1615ae6eba0e39",
+        "source_sha256": "1aa0ff2d27deda7527f7d462c3797d3a1f5c26108ebe4ca461e464ab51806ff2",
+        "olean_sha256": "6c732644a4685fe8e4207cd410c64cc138620e0ecc14f349dcfc8084fb1dd0ec",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T21:38:09.978309+00:00",
+    "work": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-cqo8rnxa",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1477238912dde75937ea15de32273ff3dfecf0d25eed93a6c58d3ee8e7bf4e01",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-cqo8rnxa/attempt-002/Candidate_d82acf6e879f54f1.lean",
+    "environment_sha256": "a2966b7d0be0ecfe2dbc282d6466494732c374e3f3bf4f3e40de46dc7b8bfc51",
+    "artifacts": {
+      "parts": {
+        "payload": {
+          "declaration": "theorem M7.FinalReplay.parts : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), ∀ c : M7.FinalReplay.Certificate N w q, (M7.FinalReplay.check q c = Except.ok true ↔ M7.DefaultQuery.valid N q ∧ M7.GenerationReplay.check w (M7.QuerySectors.effective N q) c.generation = true ∧ M7.FactorReplay.check (M6.Cyclic.modulus N) c.factors = true ∧ c.generation.finalBases = (M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)).finalBases ∧ (∀ i, M7.LabelReplay.check (M7.FinalSelector.family N w q i) (c.labels i) = true) ∧ M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query = Except.ok true) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), ∀ c : M7.FinalReplay.Certificate N w q, (M7.FinalReplay.check q c = Except.ok true ↔ M7.DefaultQuery.valid N q ∧ M7.GenerationReplay.check w (M7.QuerySectors.effective N q) c.generation = true ∧ M7.FactorReplay.check (M6.Cyclic.modulus N) c.factors = true ∧ c.generation.finalBases = (M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)).finalBases ∧ (∀ i, M7.LabelReplay.check (M7.FinalSelector.family N w q i) (c.labels i) = true) ∧ M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query = Except.ok true)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  classical\n  intro N w inst q c\n  by_cases hv : M7.DefaultQuery.valid N q\n  · cases hq : M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query with\n    | error e =>\n        simp [M7.FinalReplay.check, hv, hq]\n    | ok b =>\n        cases b <;>\n          simp [M7.FinalReplay.check, hv, hq, M7.QueryCertificate.allOn, Bool.and_eq_true, and_assoc]\n  · simp [M7.FinalReplay.check, hv]",
+          "imports": [
+            "M7FinalReplay"
+          ],
+          "name": "M7.FinalReplay.parts",
+          "ancestors": [],
+          "spec_sha256": "d739f050ed0c36857b7324549974947717c27c8ee1e415d653767ca33c2e9bbf"
+        },
+        "sha256": "f3f5e003a2339ea89e8706a7d6f73a278fb2b2a47abd34502256db9f7bdd9d7b"
+      },
+      "physical_labels": {
+        "payload": {
+          "declaration": "theorem M7.FinalReplay.physical_labels : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → ∀ i : Fin (M7.GeneratedFamily.size N w (M7.QuerySectors.effective N q)), ((c.labels i).answer = none ↔ (M7.RecipeSignature.signature (M7.FinalSelector.family N w q i)).natDegree = 0) ∧ (∀ (d k : ℕ) (v : M6.Pinned.Vector (2*N)), (c.labels i).answer = some (d,v,k) → M7.DefaultQuery.distance (M7.FinalSelector.family N w q i) = some d ∧ v ∈ M7.Transport.LX (M7.FinalSelector.family N w q i) ∧ M6.Pinned.weight v = d ∧ M6.Flatten.J N v ∈ M7.Transport.LZ (M7.FinalSelector.family N w q i) ∧ M6.Pinned.weight (M6.Flatten.J N v) = d ∧ k ≤ 2*N) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → ∀ i : Fin (M7.GeneratedFamily.size N w (M7.QuerySectors.effective N q)), ((c.labels i).answer = none ↔ (M7.RecipeSignature.signature (M7.FinalSelector.family N w q i)).natDegree = 0) ∧ (∀ (d k : ℕ) (v : M6.Pinned.Vector (2*N)), (c.labels i).answer = some (d,v,k) → M7.DefaultQuery.distance (M7.FinalSelector.family N w q i) = some d ∧ v ∈ M7.Transport.LX (M7.FinalSelector.family N w q i) ∧ M6.Pinned.weight v = d ∧ M6.Flatten.J N v ∈ M7.Transport.LZ (M7.FinalSelector.family N w q i) ∧ M6.Pinned.weight (M6.Flatten.J N v) = d ∧ k ≤ 2*N)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  classical\n  intro N w inst q hw hwN c hc i\n  have hp := (M7.FinalReplay.parts N w q c).mp hc\n  have hE : M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q) := by\n    apply M7.QuerySectors.effective_valid\n    exact hp.1\n  have hg := (M7.GeneratedFamily.family_good N w (M7.QuerySectors.effective N q) hw hwN hE i).1\n  have ha := M7.GeneratedFamily.family_anchored N w (M7.QuerySectors.effective N q) hw hwN hE i\n  have hl := hp.2.2.2.2.1 i\n  apply M7.LabelReplay.checked_physical_answer N w (M7.FinalSelector.family N w q i) (c.labels i)\n  all_goals\n    simp only [M7.FinalSelector.family, M7.PrefixOrbit.ClassValid] at *\n    aesop",
+          "imports": [
+            "M7FinalReplay"
+          ],
+          "name": "M7.FinalReplay.physical_labels",
+          "ancestors": [
+            "parts"
+          ],
+          "spec_sha256": "01889b0c62853a63e6eb8587d48d1cb412a5d8b5c386a894939fbe4f90581982"
+        },
+        "sha256": "842542598f4f67996232625e4ea22c8f4a6250147969cee68a5240911416d620"
+      }
+    }
+  }
+}

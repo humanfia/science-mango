@@ -1,0 +1,93 @@
+{
+  "id": "exists_certificate",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalReplay.exists_certificate",
+    "spec_sha256": "5d6d96efaca41dabee770b6beaf91bf35f30a03ddaedf74d759a59312e0a9b4b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-p0ii9ajg/attempt-001/Candidate_9cebc92bb9a52d08.lean:24:6: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-p0ii9ajg/attempt-001/Candidate_9cebc92bb9a52d08.lean:2:0: error: (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+        "attempt": 1
+      },
+      {
+        "accepted": false,
+        "stage": "proof_body",
+        "feedback": "proof body contains an unfinished proof or unsupported metaprogramming/command escape",
+        "attempt": 2
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-p0ii9ajg/attempt-003/Candidate_fe913b5b85838625.lean:9:4: error: Type mismatch: After simplification, term\n  Polynomial.monic_X_pow_sub_C 1 (NeZero.ne N)\n has type\n  (Polynomial.X ^ N - 1).Monic\nbut is expected to have type\n  Polynomial.Monic (Polynomial.X ^ N + 1)\n",
+        "attempt": 3
+      },
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-p0ii9ajg/attempt-004/Candidate_4430464ec59b3a37.lean:10:4: error: Type mismatch: After simplification, term\n  Polynomial.monic_X_pow_sub_C 1 (NeZero.ne N)\n has type\n  (Polynomial.X ^ N + -1).Monic\nbut is expected to have type\n  Polynomial.Monic (Polynomial.X ^ N + 1)\n",
+        "attempt": 4
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-p0ii9ajg/attempt-005/Candidate_5046238dd5ac045e.lean",
+        "target_path": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-p0ii9ajg/attempt-005/FrozenTarget_5046238dd5ac045e.lean",
+        "feedback": "",
+        "target_sha256": "65c047e7473c67f302268c28cf9b61db616a30189f058b6664052924e0f1d7c7",
+        "target_olean_sha256": "a9f9aa847ac90715cb5bef94ce2b5392bd143363114d3918b22ff3de7fccfe2a",
+        "source_sha256": "00220a4c91a98fce11d18002882c79b262683041fe704a9e24c0880f3d7fb215",
+        "olean_sha256": "38305e633979641e7492df6838852e318a182b3ed3c1f949935dcfae84d6b1fa",
+        "attempt": 5
+      }
+    ],
+    "created_at": "2026-09-15T21:37:02.581505+00:00",
+    "work": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-p0ii9ajg",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1477238912dde75937ea15de32273ff3dfecf0d25eed93a6c58d3ee8e7bf4e01",
+    "phase": "finished",
+    "round": 5,
+    "proof": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-p0ii9ajg/attempt-005/Candidate_5046238dd5ac045e.lean",
+    "environment_sha256": "a2966b7d0be0ecfe2dbc282d6466494732c374e3f3bf4f3e40de46dc7b8bfc51",
+    "artifacts": {
+      "parts": {
+        "payload": {
+          "declaration": "theorem M7.FinalReplay.parts : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), ∀ c : M7.FinalReplay.Certificate N w q, (M7.FinalReplay.check q c = Except.ok true ↔ M7.DefaultQuery.valid N q ∧ M7.GenerationReplay.check w (M7.QuerySectors.effective N q) c.generation = true ∧ M7.FactorReplay.check (M6.Cyclic.modulus N) c.factors = true ∧ c.generation.finalBases = (M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)).finalBases ∧ (∀ i, M7.LabelReplay.check (M7.FinalSelector.family N w q i) (c.labels i) = true) ∧ M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query = Except.ok true) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), ∀ c : M7.FinalReplay.Certificate N w q, (M7.FinalReplay.check q c = Except.ok true ↔ M7.DefaultQuery.valid N q ∧ M7.GenerationReplay.check w (M7.QuerySectors.effective N q) c.generation = true ∧ M7.FactorReplay.check (M6.Cyclic.modulus N) c.factors = true ∧ c.generation.finalBases = (M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)).finalBases ∧ (∀ i, M7.LabelReplay.check (M7.FinalSelector.family N w q i) (c.labels i) = true) ∧ M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query = Except.ok true)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  classical\n  intro N w inst q c\n  by_cases hv : M7.DefaultQuery.valid N q\n  · cases hq : M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query with\n    | error e =>\n        simp [M7.FinalReplay.check, hv, hq]\n    | ok b =>\n        cases b <;>\n          simp [M7.FinalReplay.check, hv, hq, M7.QueryCertificate.allOn, Bool.and_eq_true, and_assoc]\n  · simp [M7.FinalReplay.check, hv]",
+          "imports": [
+            "M7FinalReplay"
+          ],
+          "name": "M7.FinalReplay.parts",
+          "ancestors": [],
+          "spec_sha256": "d739f050ed0c36857b7324549974947717c27c8ee1e415d653767ca33c2e9bbf"
+        },
+        "sha256": "f3f5e003a2339ea89e8706a7d6f73a278fb2b2a47abd34502256db9f7bdd9d7b"
+      },
+      "exists_certificate": {
+        "payload": {
+          "declaration": "theorem M7.FinalReplay.exists_certificate : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∃ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → M7.DefaultQuery.valid N q → ∃ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  classical\n  intro N w inst q hw hwN hv\n  have hE : M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q) := by\n    apply M7.QuerySectors.effective_valid\n    assumption\n  have hm : (M6.Cyclic.modulus N).Monic := by\n    first\n    | simpa [M6.Cyclic.modulus] using (Polynomial.monic_X_pow_add_C (1 : ZMod 2) (NeZero.ne N))\n    | have hn : -(1 : M5.BinaryPolynomial) = 1 := by\n        have h : -(1 : ZMod 2) = 1 := by decide\n        simpa only [map_neg, map_one] using congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) h\n      simpa [M6.Cyclic.modulus, sub_eq_add_neg, hn] using (Polynomial.monic_X_pow_sub_C (1 : ZMod 2) (NeZero.ne N))\n  obtain ⟨d, hd⟩ := (M7.QueryCertificate.check_exact _ N q\n    (M7.FinalSelector.family N w q)\n    (M7.GlobalQuery.winners q (M7.FinalSelector.family N w q))\n    (M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q))).mpr ⟨hv, rfl, rfl⟩\n  let c : M7.FinalReplay.Certificate N w q :=\n    { generation := M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)\n      factors := M7.FactorReplay.expected (M6.Cyclic.modulus N)\n      labels := fun i => M7.LabelReplay.expected (M7.FinalSelector.family N w q i)\n      query := ⟨M7.GlobalQuery.winners q (M7.FinalSelector.family N w q),\n        M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q), d⟩ }\n  refine ⟨c, (M7.FinalReplay.parts N w q c).mpr ?_⟩\n  refine ⟨hv, ?_, ?_, rfl, ?_, hd⟩\n  · exact M7.GenerationReplay.generate_checked N w (M7.QuerySectors.effective N q) hE\n  · exact M7.FactorReplay.self_check (M6.Cyclic.modulus N) hm\n  · intro i\n    exact M7.LabelReplay.self_check N (M7.FinalSelector.family N w q i)",
+          "imports": [
+            "M7FinalReplay"
+          ],
+          "name": "M7.FinalReplay.exists_certificate",
+          "ancestors": [
+            "parts"
+          ],
+          "spec_sha256": "adc51ea1b27bd388f356e2a40c06669ef62f7c032bcb5b5281e571e83e2dc74b"
+        },
+        "sha256": "5d9c00a385521f40d0dbc667cf6b0981d4f890f3a5d3b112b6c342c8f4f06f9c"
+      }
+    }
+  }
+}

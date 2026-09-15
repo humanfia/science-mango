@@ -1,0 +1,61 @@
+{
+  "id": "parts",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalReplay.parts",
+    "spec_sha256": "d739f050ed0c36857b7324549974947717c27c8ee1e415d653767ca33c2e9bbf",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-zhujsfz7/attempt-001/Candidate_b6715a5663a447ba.lean:11:46: error(lean.unknownIdentifier): Unknown identifier `M7.QueryCertificate.allOn_spec`\n/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-zhujsfz7/attempt-001/Candidate_b6715a5663a447ba.lean:11:46: error(lean.unknownIdentifier): Unknown identifier `M7.QueryCertificate.allOn_spec`\n/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-zhujsfz7/attempt-001/Candidate_b6715a5663a447ba.lean:9:11: error: unsolved goals\ncase pos.ok.true\nN w : ℕ\ninst : NeZero N\nq : DefaultQuery.Query\nc : Certificate N w q\nhv : DefaultQuery.valid N q\nhq : QueryCertificate.check q (FinalSelector.family N w q) c.query = Except.ok true\n⊢ GenerationReplay.check w (QuerySectors.effective N q) c.generation = true →\n    FactorReplay.check (M6.Cyclic.modulus N) c.factors = true →\n      c.generation.finalBases = (CompactGeneration.generate w (QuerySectors.effective N q)).finalBases →\n        ((QueryCertificate.allOn Finset.univ fun i => LabelReplay.check (FinalSelector.family N w q i) (c.labels i)) =\n            true ↔\n          ∀ (i : Fin (GeneratedFamily.size N w (QuerySectors.effective N q))),\n            LabelReplay.check (FinalSelector.family N w q i) (c.labels i) = true)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-zhujsfz7/attempt-002/Candidate_215eae2d15d228af.lean",
+        "target_path": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-zhujsfz7/attempt-002/FrozenTarget_215eae2d15d228af.lean",
+        "feedback": "",
+        "target_sha256": "efd6417e2eccaf08d08047fde1f4d0d757e3fef6e8d88c22da5e34cda565dca9",
+        "target_olean_sha256": "1eb1b52777d83937ce314ed5a1640e967a1084a680b6b2aa88e49d90a5ebe8c9",
+        "source_sha256": "5c164b8538944bf5c6424d9e5abc714929e418df497d9ed0f15d1d0c1024bbf6",
+        "olean_sha256": "17628adaa3ff410f7fc5578431903089e2ddf0510aee452b65d7f7214e3e8068",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T21:35:02.853380+00:00",
+    "work": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-zhujsfz7",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1477238912dde75937ea15de32273ff3dfecf0d25eed93a6c58d3ee8e7bf4e01",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-zhujsfz7/attempt-002/Candidate_215eae2d15d228af.lean",
+    "environment_sha256": "a2966b7d0be0ecfe2dbc282d6466494732c374e3f3bf4f3e40de46dc7b8bfc51",
+    "artifacts": {
+      "parts": {
+        "payload": {
+          "declaration": "theorem M7.FinalReplay.parts : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), ∀ c : M7.FinalReplay.Certificate N w q, (M7.FinalReplay.check q c = Except.ok true ↔ M7.DefaultQuery.valid N q ∧ M7.GenerationReplay.check w (M7.QuerySectors.effective N q) c.generation = true ∧ M7.FactorReplay.check (M6.Cyclic.modulus N) c.factors = true ∧ c.generation.finalBases = (M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)).finalBases ∧ (∀ i, M7.LabelReplay.check (M7.FinalSelector.family N w q i) (c.labels i) = true) ∧ M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query = Except.ok true) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), ∀ c : M7.FinalReplay.Certificate N w q, (M7.FinalReplay.check q c = Except.ok true ↔ M7.DefaultQuery.valid N q ∧ M7.GenerationReplay.check w (M7.QuerySectors.effective N q) c.generation = true ∧ M7.FactorReplay.check (M6.Cyclic.modulus N) c.factors = true ∧ c.generation.finalBases = (M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)).finalBases ∧ (∀ i, M7.LabelReplay.check (M7.FinalSelector.family N w q i) (c.labels i) = true) ∧ M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query = Except.ok true)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  classical\n  intro N w inst q c\n  by_cases hv : M7.DefaultQuery.valid N q\n  · cases hq : M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query with\n    | error e =>\n        simp [M7.FinalReplay.check, hv, hq]\n    | ok b =>\n        cases b <;>\n          simp [M7.FinalReplay.check, hv, hq, M7.QueryCertificate.allOn, Bool.and_eq_true, and_assoc]\n  · simp [M7.FinalReplay.check, hv]",
+          "imports": [
+            "M7FinalReplay"
+          ],
+          "name": "M7.FinalReplay.parts",
+          "ancestors": [],
+          "spec_sha256": "d739f050ed0c36857b7324549974947717c27c8ee1e415d653767ca33c2e9bbf"
+        },
+        "sha256": "f3f5e003a2339ea89e8706a7d6f73a278fb2b2a47abd34502256db9f7bdd9d7b"
+      }
+    }
+  }
+}

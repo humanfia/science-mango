@@ -1,0 +1,4 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nclassical\nintro N w inst q hw hwN c hc y\nhave hv := ((M7.FinalReplay.parts N w q c).mp hc).1\nhave hsets := (M7.FinalReplay.checked_sets N w q hw hwN c hc).2\nrw [hsets]\nhave h := M7.FinalSelector.presentation_exact N w q hw hwN hv y\nhave hp : ∀ x : M7.FinalSelector.Index N w q,\n    M7.FinalSelector.present q x = true ↔\n      M7.GlobalQuery.present q (M7.FinalSelector.family N w q) x := by\n  intro x\n  unfold M7.FinalSelector.present\n  rw [Bool.and_eq_true, decide_eq_true_eq]\n  rw [M7.FinalSelector.win, M7.StreamingIndices.stream_winners]\n  rfl\nsimpa only [hp, M7.QueryCertificate.allPresentations,\n  Finset.mem_filter, Finset.mem_univ, true_and] using h",
+  "queries": []
+}

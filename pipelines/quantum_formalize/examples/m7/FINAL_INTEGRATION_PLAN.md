@@ -26,10 +26,10 @@ flowchart TD
   GF --> GL[Generated physical labels: accepted]
   RC[Generation calls, scalar work, storage, cursor and comparator: accepted] --> FR[Final resource composition: accepted]
   GL --> FR
-  RP[Generation, label, factor and query replay: accepted] --> JR[Joint replay: build and preflight]
+  RP[Generation, label, factor and query replay: accepted] --> JR[Joint replay: accepted]
   FS --> JR
   GL --> JR
-  FR --> ROOT[Closed OriginalM7 root: gated]
+  FR --> ROOT[Closed OriginalM7 root: build and preflight]
   JR --> ROOT
   OB[Overfull and empty-sector boundaries: accepted] --> ROOT
 ```

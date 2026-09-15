@@ -1,0 +1,8 @@
+{
+  "proof": "set_option maxHeartbeats 0 in\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro N w inst q hw hwN hv\n  obtain ⟨dominator, hquery⟩ :=\n    (M7.QueryCertificate.check_exact _ N q (M7.FinalSelector.family N w q)\n      (M7.GlobalQuery.winners q (M7.FinalSelector.family N w q))\n      (M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q))).2\n      ⟨hv, rfl, rfl⟩\n  refine ⟨{\n    generation := M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)\n    factors := M7.FactorReplay.expected (M6.Cyclic.modulus N)\n    labels := fun i => M7.LabelReplay.expected (M7.FinalSelector.family N w q i)\n    query := ⟨M7.GlobalQuery.winners q (M7.FinalSelector.family N w q),\n      M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q), dominator⟩\n  }, ?_⟩\n  apply (M7.FinalReplay.parts N w q _).2\n  refine ⟨hv, ?_, ?_, rfl, ?_, hquery⟩\n  · apply M7.GenerationReplay.generate_checked\n    apply M7.QuerySectors.effective_valid <;> assumption\n  · apply M7.FactorReplay.self_check\n    first\n    | exact M6.Cyclic.modulus_monic N\n    | exact M6.Cyclic.monic_modulus N\n    | unfold M6.Cyclic.modulus\n      simpa using (Polynomial.monic_X_pow_sub_C (1 : ZMod 2) (NeZero.ne N))\n  · intro i\n    exact M7.LabelReplay.self_check N (M7.FinalSelector.family N w q i)",
+  "queries": [
+    "M7.QuerySectors.effective_valid",
+    "M6.Cyclic.modulus_monic",
+    "Polynomial.monic_X_pow_sub_C"
+  ]
+}

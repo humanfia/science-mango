@@ -1,0 +1,3 @@
+theorem M7.FinalReplay.invalid_rejection : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), ¬ M7.DefaultQuery.valid N q → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.error M7.DefaultQuery.QueryError.invalidSignature := by
+  intro N w inst q hq c
+  simp only [M7.FinalReplay.check, if_neg hq]

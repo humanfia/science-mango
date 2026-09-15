@@ -1,0 +1,22 @@
+theorem M7.FinalReplay.raw_presentations : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → ∀ y : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q y ↔ ∃! x : M7.FinalSelector.Index N w q, x ∈ c.query.presentations ∧ M7.FinalSelector.realize q x = y := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → ∀ y : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q y ↔ ∃! x : M7.FinalSelector.Index N w q, x ∈ c.query.presentations ∧ M7.FinalSelector.realize q x = y
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  classical
+  intro N w inst q hw hwN c hc y
+  have hv := ((M7.FinalReplay.parts N w q c).mp hc).1
+  have hsets := (M7.FinalReplay.checked_sets N w q hw hwN c hc).2
+  rw [hsets]
+  have h := M7.FinalSelector.presentation_exact N w q hw hwN hv y
+  have hp : ∀ x : M7.FinalSelector.Index N w q,
+      M7.FinalSelector.present q x = true ↔
+        M7.GlobalQuery.present q (M7.FinalSelector.family N w q) x := by
+    intro x
+    unfold M7.FinalSelector.present
+    rw [Bool.and_eq_true, decide_eq_true_eq]
+    rw [M7.FinalSelector.win, M7.StreamingIndices.stream_winners]
+    rfl
+  simpa only [hp, M7.QueryCertificate.allPresentations,
+    Finset.mem_filter, Finset.mem_univ, true_and] using h

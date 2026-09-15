@@ -1,0 +1,6 @@
+import M7GeneratedFamilyAccepted
+import M7ClosedSolveAccepted
+import M7QualityTableAccepted
+
+namespace M7.GeneratedLabels
+end M7.GeneratedLabels

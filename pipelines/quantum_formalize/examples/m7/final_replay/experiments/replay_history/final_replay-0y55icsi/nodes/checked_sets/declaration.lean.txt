@@ -1,0 +1,9 @@
+theorem M7.FinalReplay.checked_sets : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → c.query.winners = M7.GlobalQuery.winners q (M7.FinalSelector.family N w q) ∧ c.query.presentations = M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q) := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → c.query.winners = M7.GlobalQuery.winners q (M7.FinalSelector.family N w q) ∧ c.query.presentations = M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q)
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro N w inst q hw hwN c hc
+  rcases (M7.FinalReplay.parts N w q c).mp hc with ⟨hv, hg, hf, hb, hl, hq⟩
+  exact (M7.QueryCertificate.check_sound _ N q (M7.FinalSelector.family N w q) c.query hq).2

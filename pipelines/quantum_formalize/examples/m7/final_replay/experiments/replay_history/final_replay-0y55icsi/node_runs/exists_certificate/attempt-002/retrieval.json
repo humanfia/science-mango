@@ -1,0 +1,248 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.QuerySectors.effective_valid",
+    "status": "ok",
+    "results": [
+      {
+        "id": 319879,
+        "name": "Algebra.IsEffective",
+        "module": "Mathlib.RingTheory.TensorProduct.IncludeLeftSubRight",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/TensorProduct/IncludeLeftSubRight.lean#L85-L90",
+        "source_text": "/-- For an `R`-algebra `S`, this asserts that the maps `algebraMap : R → S` and\n`includeLeftSubRight R S : S → S ⊗[R] S` form an exact pair.\nWhen `R` and `S` are commutative rings, this is true if and only if the inclusion\n`im (algebraMap : R → S) → S` is an effective monomorphism in the category of commutative rings. -/\ndef IsEffective : Prop :=\n  Function.Exact (Algebra.linearMap R S) (TensorProduct.includeLeftSubRight R S)\n",
+        "docstring": "For an `R`-algebra `S`, this asserts that the maps `algebraMap : R → S` and\n`includeLeftSubRight R S : S → S ⊗[R] S` form an exact pair.\nWhen `R` and `S` are commutative rings, this is true if and only if the inclusion\n`im (algebraMap : R → S) → S` is an effective monomorphism in the category of commutative rings. "
+      },
+      {
+        "id": 214648,
+        "name": "Ordnode.Valid'",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L48-L54",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. -/\nstructure Valid' (lo : WithBot α) (t : Ordnode α) (hi : WithTop α) : Prop where\n  ord : t.Bounded lo hi\n  sz : t.Sized\n  bal : t.Balanced\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. This version of `Valid` also puts all elements in the tree in the interval `(lo, hi)`. "
+      },
+      {
+        "id": 214649,
+        "name": "Ordnode.Valid",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L56-L60",
+        "source_text": "/-- The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. -/\ndef Valid (t : Ordnode α) : Prop :=\n  Valid' ⊥ t ⊤\n",
+        "docstring": "The validity predicate for an `Ordnode` subtree. This asserts that the `size` fields are\ncorrect, the tree is balanced, and the elements of the tree are organized according to the\nordering. "
+      },
+      {
+        "id": 214656,
+        "name": "Ordnode.Valid'.valid",
+        "module": "Mathlib.Data.Ordmap.Ordset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Ordmap/Ordset.lean#L86-L87",
+        "source_text": "theorem Valid'.valid {t o₁ o₂} (h : @Valid' α _ o₁ t o₂) : Valid t :=\n  ⟨h.1.weak, h.2, h.3⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 299484,
+        "name": "ProbabilityTheory.Kernel.measurable_kernel_prodMk_left'",
+        "module": "Mathlib.Probability.Kernel.MeasurableLIntegral",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/Kernel/MeasurableLIntegral.lean#L88-L93",
+        "source_text": "theorem measurable_kernel_prodMk_left' [IsSFiniteKernel η] {s : Set (β × γ)} (hs : MeasurableSet s)\n    (a : α) : Measurable fun b => η (a, b) (Prod.mk b ⁻¹' s) := by\n  have (b : _) : Prod.mk b ⁻¹' s = {c | ((a, b), c) ∈ {p : (α × β) × γ | (p.1.2, p.2) ∈ s}} := rfl\n  simp_rw [this]\n  refine (measurable_kernel_prodMk_left ?_).comp measurable_prodMk_left\n  exact (measurable_fst.snd.prodMk measurable_snd) hs\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.QuerySectors.effective_valid",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388080,
+        "name": "StandardModel.HiggsField.EffectivePotential",
+        "module": "Physlib.Particles.StandardModel.HiggsBoson.EffectivePotential",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/StandardModel/HiggsBoson/EffectivePotential.lean#L33-L34",
+        "source_text": "/-- A general potential of the Higgs field. -/\nabbrev EffectivePotential : Type := HiggsVec → ℝ\n",
+        "docstring": "A general potential of the Higgs field. "
+      },
+      {
+        "id": 394142,
+        "name": "FTheory.SU5.Quanta.isViable_iff_charges_mem_viableCharges_mem_liftCharges",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.IsViable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/IsViable.lean#L157-L165",
+        "source_text": "lemma isViable_iff_charges_mem_viableCharges_mem_liftCharges (x : Quanta) :\n    IsViable x ↔ (∃ I, x.toCharges ∈ viableCharges I) ∧\n      x ∈ Quanta.liftCharge x.toCharges ∧\n      x.LinearAnomalyCancellation := by\n  simp [Quanta.mem_liftCharge_iff, toCharges_qHd, toCharges_qHu]\n  rw [FiveQuanta.mem_liftCharge_iff, TenQuanta.mem_liftCharge_iff,\n    isViable_iff_charges_mem_viableCharges, ← FluxesFive.noExotics_iff_mem_elemsNoExotics,\n    ← FluxesTen.noExotics_iff_mem_elemsNoExotics]\n  aesop\n",
+        "docstring": null
+      },
+      {
+        "id": 388277,
+        "name": "MSSMACC.AnomalyFreePerp.InQuad",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L170-L172",
+        "source_text": "/-- Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the conditions\n`lineEqProp` and `inQuadProp`. -/\ndef InQuad : Type := {R : InLineEq // InQuadProp R.val}\n",
+        "docstring": "Those charge assignments perpendicular to `Y₃` and `B₃` which satisfy the conditions\n`lineEqProp` and `inQuadProp`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Cyclic.modulus monic",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101362,
+        "name": "Polynomial.Monic",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L59-L61",
+        "source_text": "/-- a polynomial is `Monic` if its leading coefficient is 1 -/\ndef Monic (p : R[X]) :=\n  leadingCoeff p = (1 : R)\n",
+        "docstring": "a polynomial is `Monic` if its leading coefficient is 1 "
+      },
+      {
+        "id": 316357,
+        "name": "Polynomial.cyclotomic'.monic",
+        "module": "Mathlib.RingTheory.Polynomial.Cyclotomic.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Polynomial/Cyclotomic/Basic.lean#L87-L90",
+        "source_text": "/-- `cyclotomic' n R` is monic. -/\ntheorem cyclotomic'.monic (n : ℕ) (R : Type*) [CommRing R] [IsDomain R] :\n    (cyclotomic' n R).Monic :=\n  monic_prod_of_monic _ _ fun _ _ => monic_X_sub_C _\n",
+        "docstring": "`cyclotomic' n R` is monic. "
+      },
+      {
+        "id": 342378,
+        "name": "ContinuousMap.modulus_pos",
+        "module": "Mathlib.Topology.ContinuousMap.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/ContinuousMap/Compact.lean#L434-L435",
+        "source_text": "theorem modulus_pos (f : C(α, β)) {ε : ℝ} {h : 0 < ε} : 0 < f.modulus ε h :=\n  (Classical.choose_spec (uniform_continuity f ε h)).1\n",
+        "docstring": null
+      },
+      {
+        "id": 102072,
+        "name": "Polynomial.mul_modByMonic",
+        "module": "Mathlib.Algebra.Polynomial.Div",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Div.lean#L697-L706",
+        "source_text": "lemma mul_modByMonic (p₁ p₂ q : R[X]) : (p₁ * p₂) %ₘ q = (p₁ %ₘ q) * (p₂ %ₘ q) %ₘ q := by\n  by_cases! h : ¬ q.Monic\n  · simp [Polynomial.modByMonic_eq_of_not_monic _ h]\n  apply Polynomial.modByMonic_eq_of_dvd_sub h\n  have : p₁ * p₂ - p₁ %ₘ q * (p₂ %ₘ q) = (p₁ %ₘ q) * (p₂ - p₂ %ₘ q) + p₂ * (p₁ - p₁ %ₘ q) := by ring\n  rw [this]\n  apply dvd_add\n  all_goals\n  · apply dvd_mul_of_dvd_right\n    simp [Polynomial.modByMonic_eq_sub_mul_div]\n",
+        "docstring": null
+      },
+      {
+        "id": 342377,
+        "name": "ContinuousMap.modulus",
+        "module": "Mathlib.Topology.ContinuousMap.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/ContinuousMap/Compact.lean#L430-L432",
+        "source_text": "/-- An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. -/\ndef modulus (f : C(α, β)) (ε : ℝ) (h : 0 < ε) : ℝ :=\n  Classical.choose (uniform_continuity f ε h)\n",
+        "docstring": "An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "M6.Cyclic.modulus monic",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.Cyclic.modulus monic",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.GenerationReplay.generate_checked",
+    "status": "ok",
+    "results": [
+      {
+        "id": 264406,
+        "name": "MeasurableSpace.generateFrom",
+        "module": "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/MeasurableSpace/Defs.lean#L328-L334",
+        "source_text": "/-- Construct the smallest measure space containing a collection of basic sets -/\n@[implicit_reducible]\ndef generateFrom (s : Set (Set α)) : MeasurableSpace α where\n  MeasurableSet' := GenerateMeasurable s\n  measurableSet_empty := .empty\n  measurableSet_compl := .compl\n  measurableSet_iUnion := .iUnion\n",
+        "docstring": "Construct the smallest measure space containing a collection of basic sets "
+      },
+      {
+        "id": 198208,
+        "name": "Rand.next",
+        "module": "Mathlib.Control.Random",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Control/Random.lean#L66-L71",
+        "source_text": "/-- Generate a random `Nat`. -/\ndef next [RandomGen g] [Monad m] : RandGT g m Nat := do\n  let rng := (← get).down\n  let (res, new) := RandomGen.next rng\n  set (ULift.up new)\n  pure res\n",
+        "docstring": "Generate a random `Nat`. "
+      },
+      {
+        "id": 329875,
+        "name": "Mathlib.Tactic.Translate.insertTranslationChecked",
+        "module": "Mathlib.Tactic.Translate.Core",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Translate/Core.lean#L1013-L1025",
+        "source_text": "/-- A version of `insertTranslation` that checks whether the translation is valid, and only\ninserts the translation if it is valid. -/\ndef insertTranslationChecked (t : TranslateData) (src tgt : Name) (cfg : Config) : CoreM Unit := do\n  let (reorder, relevantArg) ←\n    try\n      checkExistingType t src tgt cfg (lint := false) |>.run'\n    catch ex =>\n      Linter.logLintIf linter.translate.warnInvalid cfg.ref m!\"\\\n        @[{t.attrName}] failed to add a translation from `{.ofConstName src}` to \\\n        `{.ofConstName tgt}`.\\nPlease silence this warning and add a translation manually. \\\n        Error:\\n\\n{ex.toMessageData}\"\n      return\n  insertTranslation t src tgt reorder relevantArg cfg.ref\n",
+        "docstring": "A version of `insertTranslation` that checks whether the translation is valid, and only\ninserts the translation if it is valid. "
+      },
+      {
+        "id": 283947,
+        "name": "Filter.generate",
+        "module": "Mathlib.Order.Filter.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Basic.lean#L164-L169",
+        "source_text": "/-- `generate g` is the largest filter containing the sets `g`. -/\ndef generate (g : Set (Set α)) : Filter α where\n  sets := {s | GenerateSets g s}\n  univ_sets := GenerateSets.univ\n  sets_of_superset := GenerateSets.superset\n  inter_sets := GenerateSets.inter\n",
+        "docstring": "`generate g` is the largest filter containing the sets `g`. "
+      },
+      {
+        "id": 329733,
+        "name": "tryAtEachStepGrindSuggestions",
+        "module": "Mathlib.Tactic.TacticAnalysis.Declarations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/TacticAnalysis/Declarations.lean#L527-L529",
+        "source_text": "@[tacticAnalysis linter.tacticAnalysis.tryAtEachStepGrindSuggestions,\n   inherit_doc linter.tacticAnalysis.tryAtEachStepGrindSuggestions]\ndef tryAtEachStepGrindSuggestions := tryAtEachStep fun _ _ => `(tactic| grind +suggestions)",
+        "docstring": "Run `grind +suggestions` at every step in proofs, reporting where it succeeds. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.GenerationReplay.generate_checked",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387116,
+        "name": "Physlib.RemarkInfo.getRemarkInfo",
+        "module": "Physlib.Meta.Remark.Properties",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Remark/Properties.lean#L38-L43",
+        "source_text": "/-- Gets the remarkInfo from a name corresponding to a remark.. -/\nmeta def RemarkInfo.getRemarkInfo (n : Name) : m RemarkInfo := do\n  let allRemarks ← allRemarkInfo\n  match allRemarks.find? fun r => r.toFullName == n with\n  | some r => return r\n  | none => throwError s!\"No remark named {n}\"\n",
+        "docstring": "Gets the remarkInfo from a name corresponding to a remark.. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

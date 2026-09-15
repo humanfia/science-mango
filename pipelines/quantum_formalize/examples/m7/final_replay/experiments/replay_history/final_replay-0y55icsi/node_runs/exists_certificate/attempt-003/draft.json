@@ -1,0 +1,8 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nclassical\nintro N w inst q hw hwN hv\nhave hE : M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q) := by\n  apply M7.QuerySectors.effective_valid <;> assumption\nhave hm : (M6.Cyclic.modulus N).Monic := by\n  simpa [M6.Cyclic.modulus] using\n    (Polynomial.monic_X_pow_sub_C (1 : ZMod 2) (NeZero.ne N))\nobtain ⟨dominator, hd⟩ :=\n  (M7.QueryCertificate.check_exact\n    (M7.GeneratedFamily.size N w (M7.QuerySectors.effective N q)) N q\n    (M7.FinalSelector.family N w q)\n    (M7.GlobalQuery.winners q (M7.FinalSelector.family N w q))\n    (M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q))).2\n    ⟨hv, rfl, rfl⟩\nrefine ⟨{\n  generation := M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)\n  factors := M7.FactorReplay.expected (M6.Cyclic.modulus N)\n  labels := fun i => M7.LabelReplay.expected (M7.FinalSelector.family N w q i)\n  query := ⟨M7.GlobalQuery.winners q (M7.FinalSelector.family N w q),\n    M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q), dominator⟩\n}, ?_⟩\napply (M7.FinalReplay.parts N w q _).2\nrefine ⟨hv, ?_, ?_, rfl, ?_, hd⟩\n· apply M7.GenerationReplay.generate_checked <;> assumption\n· exact M7.FactorReplay.self_check (M6.Cyclic.modulus N) hm\n· intro i\n  exact M7.LabelReplay.self_check N (M7.FinalSelector.family N w q i)",
+  "queries": [
+    "M7.QuerySectors.effective_valid",
+    "M6.Cyclic.modulus",
+    "M7.GenerationReplay.generate_checked"
+  ]
+}

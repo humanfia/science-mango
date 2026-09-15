@@ -1,0 +1,84 @@
+{
+  "id": "raw_winners",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.FinalReplay.raw_winners",
+    "spec_sha256": "6fccc1f5b1aeffa07c861005870e3657ed296cde25682cc1b5c893f5351a28b7",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-m6xeemc9/attempt-001/Candidate_db1ec6f0ef07731f.lean",
+        "target_path": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-m6xeemc9/attempt-001/FrozenTarget_db1ec6f0ef07731f.lean",
+        "feedback": "",
+        "target_sha256": "c2a2fab885dace513a38ae1b2c90dca0f325316816a26c8b52ca999cc8505294",
+        "target_olean_sha256": "049a1868cc3cf72f5be46eb3ba3131f92b255a892f132ddb01a3da922359b957",
+        "source_sha256": "2f763763e469b1ef5f6811efe1737ff97f1de9da3a96ae239f185d00d3b7bc36",
+        "olean_sha256": "e3a5f2e8b5926b41ac0355987cee0d0855499cc315630e7a4338661981b5f4ca",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T21:43:54.314818+00:00",
+    "work": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-m6xeemc9",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1477238912dde75937ea15de32273ff3dfecf0d25eed93a6c58d3ee8e7bf4e01",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-final-replay-formalization/.humanize-formal-runs/run-m6xeemc9/attempt-001/Candidate_db1ec6f0ef07731f.lean",
+    "environment_sha256": "a2966b7d0be0ecfe2dbc282d6466494732c374e3f3bf4f3e40de46dc7b8bfc51",
+    "artifacts": {
+      "parts": {
+        "payload": {
+          "declaration": "theorem M7.FinalReplay.parts : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), ∀ c : M7.FinalReplay.Certificate N w q, (M7.FinalReplay.check q c = Except.ok true ↔ M7.DefaultQuery.valid N q ∧ M7.GenerationReplay.check w (M7.QuerySectors.effective N q) c.generation = true ∧ M7.FactorReplay.check (M6.Cyclic.modulus N) c.factors = true ∧ c.generation.finalBases = (M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)).finalBases ∧ (∀ i, M7.LabelReplay.check (M7.FinalSelector.family N w q i) (c.labels i) = true) ∧ M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query = Except.ok true) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), ∀ c : M7.FinalReplay.Certificate N w q, (M7.FinalReplay.check q c = Except.ok true ↔ M7.DefaultQuery.valid N q ∧ M7.GenerationReplay.check w (M7.QuerySectors.effective N q) c.generation = true ∧ M7.FactorReplay.check (M6.Cyclic.modulus N) c.factors = true ∧ c.generation.finalBases = (M7.CompactGeneration.generate (N := N) w (M7.QuerySectors.effective N q)).finalBases ∧ (∀ i, M7.LabelReplay.check (M7.FinalSelector.family N w q i) (c.labels i) = true) ∧ M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query = Except.ok true)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  classical\n  intro N w inst q c\n  by_cases hv : M7.DefaultQuery.valid N q\n  · cases hq : M7.QueryCertificate.check q (M7.FinalSelector.family N w q) c.query with\n    | error e =>\n        simp [M7.FinalReplay.check, hv, hq]\n    | ok b =>\n        cases b <;>\n          simp [M7.FinalReplay.check, hv, hq, M7.QueryCertificate.allOn, Bool.and_eq_true, and_assoc]\n  · simp [M7.FinalReplay.check, hv]",
+          "imports": [
+            "M7FinalReplay"
+          ],
+          "name": "M7.FinalReplay.parts",
+          "ancestors": [],
+          "spec_sha256": "d739f050ed0c36857b7324549974947717c27c8ee1e415d653767ca33c2e9bbf"
+        },
+        "sha256": "f3f5e003a2339ea89e8706a7d6f73a278fb2b2a47abd34502256db9f7bdd9d7b"
+      },
+      "checked_sets": {
+        "payload": {
+          "declaration": "theorem M7.FinalReplay.checked_sets : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → c.query.winners = M7.GlobalQuery.winners q (M7.FinalSelector.family N w q) ∧ c.query.presentations = M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → c.query.winners = M7.GlobalQuery.winners q (M7.FinalSelector.family N w q) ∧ c.query.presentations = M7.QueryCertificate.allPresentations q (M7.FinalSelector.family N w q)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N w inst q hw hwN c hc\n  rcases (M7.FinalReplay.parts N w q c).mp hc with ⟨hv, hg, hf, hb, hl, hq⟩\n  exact (M7.QueryCertificate.check_sound _ N q (M7.FinalSelector.family N w q) c.query hq).2",
+          "imports": [
+            "M7FinalReplay"
+          ],
+          "name": "M7.FinalReplay.checked_sets",
+          "ancestors": [
+            "parts"
+          ],
+          "spec_sha256": "19af642748a4165365d3fc19117e334e582b6ca65638c86f8e8074d39ee8bcbe"
+        },
+        "sha256": "f1beb961f5cb9d153712a3632203e73e71200102b9cc07c9999798c52298e9c4"
+      },
+      "raw_winners": {
+        "payload": {
+          "declaration": "theorem M7.FinalReplay.raw_winners : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → ∀ y : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q y ↔ ∃ x ∈ c.query.winners, M7.FinalSelector.realize q x = y := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → ∀ y : M7.Action.Recipe N, M7.FinalSelector.RawWinner w q y ↔ ∃ x ∈ c.query.winners, M7.FinalSelector.realize q x = y\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro N w inst q hw hwN c hc y\n  have hv := ((M7.FinalReplay.parts N w q c).mp hc).1\n  have hW := (M7.FinalReplay.checked_sets N w q hw hwN c hc).1\n  rw [hW]\n  simpa [M7.FinalSelector.win, M7.StreamingIndices.stream_winners] using\n    (M7.FinalSelector.raw_output N w q hw hwN hv y)",
+          "imports": [
+            "M7FinalReplay"
+          ],
+          "name": "M7.FinalReplay.raw_winners",
+          "ancestors": [
+            "checked_sets",
+            "parts"
+          ],
+          "spec_sha256": "4bd26b946c6667e4932acfb755ea2cef3a7ed1bfdd7e00bd9985384c8578e34b"
+        },
+        "sha256": "a474304df4fdacfb279ecb1070303fafb6899c43f562226af6dbfe4e311c6746"
+      }
+    }
+  }
+}

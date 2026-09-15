@@ -2,7 +2,7 @@
 
 In progress; the original complete M7 Lean root remains pending. All 56 frozen natural-language source files were hash-checked; SOURCE.json records their identities.
 
-**431 targets in 56 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
+**438 targets in 57 completed component batches** passed combined compilation, exact-target/source/payload/axiom checks and unchanged-environment checks.
 
 | Batch | Accepted | Scope |
 | --- | ---: | --- |
@@ -62,11 +62,11 @@ In progress; the original complete M7 Lean root remains pending. All 56 frozen n
 | [generated_labels](generated_labels/experiment/result.json) | 4 | M7 actual generated-class distance, witness and locality integration |
 | [final_selector](final_selector/experiment/result.json) | 8 | M7 actual generated streaming selector versus full raw optimum |
 | [final_resources](final_resources/experiment/result.json) | 6 | M7 original resource composition for actual generated classes |
+| [final_replay](final_replay/experiment/result.json) | 7 | M7 complete concrete certificate replay and raw-output soundness |
 
 Active work:
 
-- `final_replay`: all parent evidence is canonical; full closure compilation and seven exact-target type checks are running.
-- `final`: eight closed original-scope sections and the complete root are prepared, gated on final replay/resources and original boundaries. No full-M7 acceptance yet.
+- `final`: all predecessor batches are canonical. The 97 exact original-scope clauses are assembled into eight closed sections and the complete root; full closure build and nine exact-target type checks are running. No full-M7 acceptance yet.
 
 Original remaining integration gates are final generated-family default-query/global-optimum integration, joint replay/resource composition and the closed acceptance root. Full signature transport and the component degree invariance are already accepted. A component theorem does not establish the final root; no supplied complete transversal, count identity or distance oracle may remain there.
 

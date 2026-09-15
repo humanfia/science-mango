@@ -1,0 +1,19 @@
+theorem M7.FinalReplay.physical_labels : ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → ∀ i : Fin (M7.GeneratedFamily.size N w (M7.QuerySectors.effective N q)), ((c.labels i).answer = none ↔ (M7.RecipeSignature.signature (M7.FinalSelector.family N w q i)).natDegree = 0) ∧ (∀ (d k : ℕ) (v : M6.Pinned.Vector (2*N)), (c.labels i).answer = some (d,v,k) → M7.DefaultQuery.distance (M7.FinalSelector.family N w q i) = some d ∧ v ∈ M7.Transport.LX (M7.FinalSelector.family N w q i) ∧ M6.Pinned.weight v = d ∧ M6.Flatten.J N v ∈ M7.Transport.LZ (M7.FinalSelector.family N w q i) ∧ M6.Pinned.weight (M6.Flatten.J N v) = d ∧ k ≤ 2*N) := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (N w : ℕ) [NeZero N] (q : M7.DefaultQuery.Query), 0 < w → w ≤ N → ∀ c : M7.FinalReplay.Certificate N w q, M7.FinalReplay.check q c = Except.ok true → ∀ i : Fin (M7.GeneratedFamily.size N w (M7.QuerySectors.effective N q)), ((c.labels i).answer = none ↔ (M7.RecipeSignature.signature (M7.FinalSelector.family N w q i)).natDegree = 0) ∧ (∀ (d k : ℕ) (v : M6.Pinned.Vector (2*N)), (c.labels i).answer = some (d,v,k) → M7.DefaultQuery.distance (M7.FinalSelector.family N w q i) = some d ∧ v ∈ M7.Transport.LX (M7.FinalSelector.family N w q i) ∧ M6.Pinned.weight v = d ∧ M6.Flatten.J N v ∈ M7.Transport.LZ (M7.FinalSelector.family N w q i) ∧ M6.Pinned.weight (M6.Flatten.J N v) = d ∧ k ≤ 2*N)
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  classical
+  intro N w inst q hw hwN c hc i
+  have hp := (M7.FinalReplay.parts N w q c).mp hc
+  have hE : M7.PrefixSector.ValidSector N (M7.QuerySectors.effective N q) := by
+    apply M7.QuerySectors.effective_valid
+    exact hp.1
+  have hg := (M7.GeneratedFamily.family_good N w (M7.QuerySectors.effective N q) hw hwN hE i).1
+  have ha := M7.GeneratedFamily.family_anchored N w (M7.QuerySectors.effective N q) hw hwN hE i
+  have hl := hp.2.2.2.2.1 i
+  apply M7.LabelReplay.checked_physical_answer N w (M7.FinalSelector.family N w q i) (c.labels i)
+  all_goals
+    simp only [M7.FinalSelector.family, M7.PrefixOrbit.ClassValid] at *
+    aesop
