@@ -1,0 +1,623 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T06:55:13.175127+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "M5_DEFS": {
+      "id": "M5_DEFS",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_CHAR_ORTHO": {
+      "id": "M5_CHAR_ORTHO",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_INT_IE": {
+      "id": "M5_INT_IE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PERIOD": {
+      "id": "M5_PERIOD",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LOWER_ORDERS": {
+      "id": "M5_LOWER_ORDERS",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_POLY_IE": {
+      "id": "M5_POLY_IE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_SUBSET_COUNT": {
+      "id": "M5_SUBSET_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BINOM_EVAL": {
+      "id": "M5_BINOM_EVAL",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_COUNT": {
+      "id": "M5_ORDER_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_CONDITIONAL": {
+      "id": "M5_ORDER_CONDITIONAL",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_RECOVER": {
+      "id": "M5_ORDER_RECOVER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LATER": {
+      "id": "M5_LATER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_TRANSLATE": {
+      "id": "M5_TRANSLATE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_TUPLE_COUNT": {
+      "id": "M5_TUPLE_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_COUNT": {
+      "id": "M5_RESIDUE_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_NECESSITY": {
+      "id": "M5_RESIDUE_NECESSITY",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_RECOVER": {
+      "id": "M5_RESIDUE_RECOVER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_WEIGHT_ONE": {
+      "id": "M5_WEIGHT_ONE",
+      "status": "planned",
+      "accepted": false
+    },
+    "equal_residue_tag_strict": {
+      "id": "equal_residue_tag_strict",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Packing.equal_residue_tag_strict",
+        "spec_sha256": "848d8eec00f3fbf3dfe29472e405df441fb7af951427feda6d1f52b6a1b5465c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-oxhyyeap/attempt-001/Candidate_9f1b6ae076475aa7.lean",
+            "target_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-oxhyyeap/attempt-001/FrozenTarget_9f1b6ae076475aa7.lean",
+            "feedback": "",
+            "target_sha256": "be172d739bed18716b13c3ea59b6e0d85cd249156b2aee5e78f5e7592bf00074",
+            "target_olean_sha256": "9e2c5b0afe9c6c5459e09a3e1a3f909430e194bb5f078c31896262e661da7903",
+            "source_sha256": "2f15d71880d75b628c4144166d40eb12be1879abf0668b045202c95e49fb5321",
+            "olean_sha256": "70c942913635fa5596b28c03a71d192a8ee1f3538c1e7c147fb57ee3036005de",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:51:31.103317+00:00",
+        "work": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-oxhyyeap",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-oxhyyeap/attempt-001/Candidate_9f1b6ae076475aa7.lean",
+        "environment_sha256": "d6846f4d5ddcd4c8735cb1eb03e6c6c62f78bf7b47447cd5e90eafda2f3a2179",
+        "artifacts": {
+          "equal_residue_tag_strict": {
+            "payload": {
+              "declaration": "theorem M5.Packing.equal_residue_tag_strict : ∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j\n  intro w T r i j hij hr\n  classical\n  change (M5.Packing.priorOccurrences r i).card < (M5.Packing.priorOccurrences r j).card\n  apply Finset.card_lt_card\n  apply Finset.ssubset_iff_subset_ne.mpr\n  constructor\n  · intro k hk\n    simp only [M5.Packing.priorOccurrences, Finset.mem_filter, Finset.mem_univ, true_and] at hk ⊢\n    exact ⟨lt_trans hk.1 hij, hk.2.trans hr⟩\n  · intro heq\n    have hi : i ∈ M5.Packing.priorOccurrences r j := by\n      simpa [M5.Packing.priorOccurrences] using And.intro hij hr\n    rw [← heq] at hi\n    simpa [M5.Packing.priorOccurrences] using hi",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.equal_residue_tag_strict",
+              "ancestors": [],
+              "spec_sha256": "848d8eec00f3fbf3dfe29472e405df441fb7af951427feda6d1f52b6a1b5465c"
+            },
+            "sha256": "b889471b40d7fdfb6c318760ae683c17528d67948ff119d2514c22865de553bd"
+          }
+        }
+      }
+    },
+    "packed_support_anchor": {
+      "id": "packed_support_anchor",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Packing.packed_support_anchor",
+        "spec_sha256": "7ecedec45f15d5f35270de0bd72b779d2f2cc1f5dc10723201cc25b4c9478aa2",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-jo8ooarn/attempt-001/Candidate_eafee8cfdd44ada6.lean:2:73: error: unsolved goals\nw T : ℕ\nr : Fin w → Fin T\nhw : 0 < w\nh : ↑(r ⟨0, hw⟩) = 0\n⊢ (∀ ⦃x : Fin w⦄, x < ⟨0, hw⟩ → ¬r x = r ⟨0, hw⟩) ∨ T = 0\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-jo8ooarn/attempt-002/Candidate_969d55bcfda84abe.lean",
+            "target_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-jo8ooarn/attempt-002/FrozenTarget_969d55bcfda84abe.lean",
+            "feedback": "",
+            "target_sha256": "96e83051101be49fa7b846f34de805ea3e7dbfbf7f4ffe06f9cf5b0d281a4eb3",
+            "target_olean_sha256": "915f2a5d4e7db61d051a3bd37016b13ba70884ed085faaa6992032b7d45c9dd0",
+            "source_sha256": "5e5f9a92cf0f9e17216510b55f3be481583a8bd805bf317d0a91b9fff0f1193d",
+            "olean_sha256": "1c07097509b4f9e8687b278d880d6ab4f1b52de1a56362b8869a7931b019f19c",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T06:51:31.107756+00:00",
+        "work": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-jo8ooarn",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-jo8ooarn/attempt-002/Candidate_969d55bcfda84abe.lean",
+        "environment_sha256": "d6846f4d5ddcd4c8735cb1eb03e6c6c62f78bf7b47447cd5e90eafda2f3a2179",
+        "artifacts": {
+          "packed_support_anchor": {
+            "payload": {
+              "declaration": "theorem M5.Packing.packed_support_anchor : ∀ (w T : ℕ) (r : Fin w → Fin T) (hw : 0 < w), (r ⟨0, hw⟩).val = 0 → 0 ∈ M5.Packing.packedSupport r := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (hw : 0 < w), (r ⟨0, hw⟩).val = 0 → 0 ∈ M5.Packing.packedSupport r\n  intro w T r hw h\n  unfold M5.Packing.packedSupport\n  apply Finset.mem_image.mpr\n  refine ⟨⟨0, hw⟩, Finset.mem_univ _, ?_⟩\n  simp [M5.Packing.packedValue, M5.Packing.occurrenceTag, M5.Packing.priorOccurrences, Fin.lt_def, h]",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.packed_support_anchor",
+              "ancestors": [],
+              "spec_sha256": "7ecedec45f15d5f35270de0bd72b779d2f2cc1f5dc10723201cc25b4c9478aa2"
+            },
+            "sha256": "cd228f418abebb8f578101565e5a2be5dc53b8a3ffa0c997b5b995492a18dc03"
+          }
+        }
+      }
+    },
+    "packed_value_mod": {
+      "id": "packed_value_mod",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Packing.packed_value_mod",
+        "spec_sha256": "888b2e912c24bebe07f40db5cd55267bc0852d9498786af75d2631cb5d576252",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-mbqoamxh/attempt-001/Candidate_05e52296b168886f.lean",
+            "target_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-mbqoamxh/attempt-001/FrozenTarget_05e52296b168886f.lean",
+            "feedback": "",
+            "target_sha256": "6249dee7f5e3eb547b04a145a9110f12d231a8f0cac9e0e8e15d8c00446473d9",
+            "target_olean_sha256": "2336fd588a2e711c36649eb5f155c020f349ed7cc87454fcf8da7b29dfe93327",
+            "source_sha256": "1bfc14bef46457782abddbadc5cc632e9c5e720e95952349cea281f527a64f54",
+            "olean_sha256": "324162d37d1be7dd89037a962c454cee0406956a38628e6c2dff5380ecaa5a5c",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:51:31.112365+00:00",
+        "work": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-mbqoamxh",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-mbqoamxh/attempt-001/Candidate_05e52296b168886f.lean",
+        "environment_sha256": "d6846f4d5ddcd4c8735cb1eb03e6c6c62f78bf7b47447cd5e90eafda2f3a2179",
+        "artifacts": {
+          "packed_value_mod": {
+            "payload": {
+              "declaration": "theorem M5.Packing.packed_value_mod : ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.packedValue r i % T = (r i).val := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.packedValue r i % T = (r i).val\n  intro w T r i\n  simp [M5.Packing.packedValue, Nat.add_mod, Nat.mul_mod, Nat.mod_eq_of_lt (r i).isLt]",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.packed_value_mod",
+              "ancestors": [],
+              "spec_sha256": "888b2e912c24bebe07f40db5cd55267bc0852d9498786af75d2631cb5d576252"
+            },
+            "sha256": "21f3fb28fef3ce816643d5477018a48d231503d133f899069d6f40f650963333"
+          }
+        }
+      }
+    },
+    "packed_value_injective": {
+      "id": "packed_value_injective",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Packing.packed_value_injective",
+        "spec_sha256": "e85d7922ca852f2e2aa993bd7ee743b4daf34b1393d01bcaa3bd59bd3455ecb8",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-vmaa0e4s/attempt-001/Candidate_024155abab2eab0b.lean",
+            "target_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-vmaa0e4s/attempt-001/FrozenTarget_024155abab2eab0b.lean",
+            "feedback": "",
+            "target_sha256": "f32ba466c6a2a735dfe0c4dab46c18ebcfdb9069875adf17a2b1b4fb6facc6a7",
+            "target_olean_sha256": "9bcad9f2bcc9346d71357026a02bbe2014ee81fd306d179217a64795c635cbf0",
+            "source_sha256": "8628f8e7ff7191bb960352164ff39fd25fa55c5d76f8a31109b5ca40ebc22110",
+            "olean_sha256": "c8bc79afba30de17d0695188557b99c1bc297cdc14886891e09ee75fafb444c7",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:52:42.059031+00:00",
+        "work": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-vmaa0e4s",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-vmaa0e4s/attempt-001/Candidate_024155abab2eab0b.lean",
+        "environment_sha256": "d6846f4d5ddcd4c8735cb1eb03e6c6c62f78bf7b47447cd5e90eafda2f3a2179",
+        "artifacts": {
+          "equal_residue_tag_strict": {
+            "payload": {
+              "declaration": "theorem M5.Packing.equal_residue_tag_strict : ∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j\n  intro w T r i j hij hr\n  classical\n  change (M5.Packing.priorOccurrences r i).card < (M5.Packing.priorOccurrences r j).card\n  apply Finset.card_lt_card\n  apply Finset.ssubset_iff_subset_ne.mpr\n  constructor\n  · intro k hk\n    simp only [M5.Packing.priorOccurrences, Finset.mem_filter, Finset.mem_univ, true_and] at hk ⊢\n    exact ⟨lt_trans hk.1 hij, hk.2.trans hr⟩\n  · intro heq\n    have hi : i ∈ M5.Packing.priorOccurrences r j := by\n      simpa [M5.Packing.priorOccurrences] using And.intro hij hr\n    rw [← heq] at hi\n    simpa [M5.Packing.priorOccurrences] using hi",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.equal_residue_tag_strict",
+              "ancestors": [],
+              "spec_sha256": "848d8eec00f3fbf3dfe29472e405df441fb7af951427feda6d1f52b6a1b5465c"
+            },
+            "sha256": "b889471b40d7fdfb6c318760ae683c17528d67948ff119d2514c22865de553bd"
+          },
+          "packed_value_mod": {
+            "payload": {
+              "declaration": "theorem M5.Packing.packed_value_mod : ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.packedValue r i % T = (r i).val := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.packedValue r i % T = (r i).val\n  intro w T r i\n  simp [M5.Packing.packedValue, Nat.add_mod, Nat.mul_mod, Nat.mod_eq_of_lt (r i).isLt]",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.packed_value_mod",
+              "ancestors": [],
+              "spec_sha256": "888b2e912c24bebe07f40db5cd55267bc0852d9498786af75d2631cb5d576252"
+            },
+            "sha256": "21f3fb28fef3ce816643d5477018a48d231503d133f899069d6f40f650963333"
+          },
+          "packed_value_injective": {
+            "payload": {
+              "declaration": "theorem M5.Packing.packed_value_injective : ∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r) := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r)\n  intro w T r i j h\n  have hrval : (r i).val = (r j).val := by\n    have hm := congrArg (fun n : ℕ => n % T) h\n    simpa only [M5.Packing.packed_value_mod] using hm\n  have hr : r i = r j := Fin.ext hrval\n  have hT : 0 < T := lt_of_le_of_lt (Nat.zero_le _) (r i).isLt\n  have hmul : T * M5.Packing.occurrenceTag r i = T * M5.Packing.occurrenceTag r j := by\n    unfold M5.Packing.packedValue at h\n    nlinarith [hrval]\n  have htag : M5.Packing.occurrenceTag r i = M5.Packing.occurrenceTag r j :=\n    Nat.eq_of_mul_eq_mul_left hT hmul\n  rcases lt_trichotomy i j with hij | hij | hji\n  · have hs := M5.Packing.equal_residue_tag_strict w T r i j hij hr\n    omega\n  · exact hij\n  · have hs := M5.Packing.equal_residue_tag_strict w T r j i hji hr.symm\n    omega",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.packed_value_injective",
+              "ancestors": [
+                "equal_residue_tag_strict",
+                "packed_value_mod"
+              ],
+              "spec_sha256": "06c9132c9a76729374b31e8aba369f863e8450c48a0988f5a1afe9de8638ca0b"
+            },
+            "sha256": "e3e81ce7b4ce9e4bf468f1f381e318e3f863641ba97627a51eea683dc7ca670f"
+          }
+        }
+      }
+    },
+    "packed_support_card": {
+      "id": "packed_support_card",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Packing.packed_support_card",
+        "spec_sha256": "b284f891182e7e8659af812e25e56e8767a6a505b0ed9a565ccf73fe32d359ca",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-669wmw30/attempt-001/Candidate_b91d0ce094999abf.lean",
+            "target_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-669wmw30/attempt-001/FrozenTarget_b91d0ce094999abf.lean",
+            "feedback": "",
+            "target_sha256": "1ab2e036c8f25d2a4481c66f68ce67ec0676d2216721a34a2c4d5e9407b468f8",
+            "target_olean_sha256": "0085658bb14ef6666b265e4bd1f6762f4d80df268dfc097bc4e73098941b1db1",
+            "source_sha256": "b71246af6e206778835cce2994cd9fb7d6e796140e36bcd97a994803ddd26475",
+            "olean_sha256": "ff60839e0cc0580ccdb958a40fe8e2e2b9e73d16c83731d455383ff69be7588b",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:54:03.113962+00:00",
+        "work": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-669wmw30",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-669wmw30/attempt-001/Candidate_b91d0ce094999abf.lean",
+        "environment_sha256": "d6846f4d5ddcd4c8735cb1eb03e6c6c62f78bf7b47447cd5e90eafda2f3a2179",
+        "artifacts": {
+          "equal_residue_tag_strict": {
+            "payload": {
+              "declaration": "theorem M5.Packing.equal_residue_tag_strict : ∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j\n  intro w T r i j hij hr\n  classical\n  change (M5.Packing.priorOccurrences r i).card < (M5.Packing.priorOccurrences r j).card\n  apply Finset.card_lt_card\n  apply Finset.ssubset_iff_subset_ne.mpr\n  constructor\n  · intro k hk\n    simp only [M5.Packing.priorOccurrences, Finset.mem_filter, Finset.mem_univ, true_and] at hk ⊢\n    exact ⟨lt_trans hk.1 hij, hk.2.trans hr⟩\n  · intro heq\n    have hi : i ∈ M5.Packing.priorOccurrences r j := by\n      simpa [M5.Packing.priorOccurrences] using And.intro hij hr\n    rw [← heq] at hi\n    simpa [M5.Packing.priorOccurrences] using hi",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.equal_residue_tag_strict",
+              "ancestors": [],
+              "spec_sha256": "848d8eec00f3fbf3dfe29472e405df441fb7af951427feda6d1f52b6a1b5465c"
+            },
+            "sha256": "b889471b40d7fdfb6c318760ae683c17528d67948ff119d2514c22865de553bd"
+          },
+          "packed_value_mod": {
+            "payload": {
+              "declaration": "theorem M5.Packing.packed_value_mod : ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.packedValue r i % T = (r i).val := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.packedValue r i % T = (r i).val\n  intro w T r i\n  simp [M5.Packing.packedValue, Nat.add_mod, Nat.mul_mod, Nat.mod_eq_of_lt (r i).isLt]",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.packed_value_mod",
+              "ancestors": [],
+              "spec_sha256": "888b2e912c24bebe07f40db5cd55267bc0852d9498786af75d2631cb5d576252"
+            },
+            "sha256": "21f3fb28fef3ce816643d5477018a48d231503d133f899069d6f40f650963333"
+          },
+          "packed_value_injective": {
+            "payload": {
+              "declaration": "theorem M5.Packing.packed_value_injective : ∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r) := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r)\n  intro w T r i j h\n  have hrval : (r i).val = (r j).val := by\n    have hm := congrArg (fun n : ℕ => n % T) h\n    simpa only [M5.Packing.packed_value_mod] using hm\n  have hr : r i = r j := Fin.ext hrval\n  have hT : 0 < T := lt_of_le_of_lt (Nat.zero_le _) (r i).isLt\n  have hmul : T * M5.Packing.occurrenceTag r i = T * M5.Packing.occurrenceTag r j := by\n    unfold M5.Packing.packedValue at h\n    nlinarith [hrval]\n  have htag : M5.Packing.occurrenceTag r i = M5.Packing.occurrenceTag r j :=\n    Nat.eq_of_mul_eq_mul_left hT hmul\n  rcases lt_trichotomy i j with hij | hij | hji\n  · have hs := M5.Packing.equal_residue_tag_strict w T r i j hij hr\n    omega\n  · exact hij\n  · have hs := M5.Packing.equal_residue_tag_strict w T r j i hji hr.symm\n    omega",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.packed_value_injective",
+              "ancestors": [
+                "equal_residue_tag_strict",
+                "packed_value_mod"
+              ],
+              "spec_sha256": "06c9132c9a76729374b31e8aba369f863e8450c48a0988f5a1afe9de8638ca0b"
+            },
+            "sha256": "e3e81ce7b4ce9e4bf468f1f381e318e3f863641ba97627a51eea683dc7ca670f"
+          },
+          "packed_support_card": {
+            "payload": {
+              "declaration": "theorem M5.Packing.packed_support_card : ∀ (w T : ℕ) (r : Fin w → Fin T), (M5.Packing.packedSupport r).card = w := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T), (M5.Packing.packedSupport r).card = w\n  intro w T r\n  classical\n  unfold M5.Packing.packedSupport\n  rw [Finset.card_image_of_injective _ (M5.Packing.packed_value_injective w T r)]\n  simp",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.packed_support_card",
+              "ancestors": [
+                "equal_residue_tag_strict",
+                "packed_value_injective",
+                "packed_value_mod"
+              ],
+              "spec_sha256": "7d047bffa9217e04096d4941da59587e6167714a6134fb267cf571354dc8226d"
+            },
+            "sha256": "8926fcd2c2650196cb8340e05abf7a3cc5c3d271dde4e124c0ee7da78df91eaf"
+          }
+        }
+      }
+    },
+    "tag_lt_weight": {
+      "id": "tag_lt_weight",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Packing.tag_lt_weight",
+        "spec_sha256": "5ecd4c9c642e144b06fe9137f136459001089918b0b3524b99bc095aa5b57abe",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-r59vfgju/attempt-001/Candidate_e83473e24d5ffd90.lean:8:6: error: Tactic `rewrite` failed: motive is not type correct:\n  fun _a => (priorOccurrences r i).card < _a\nError: Application type mismatch: The argument\n  r\nhas type\n  Fin w → Fin T\nbut is expected to have type\n  Fin _a → Fin T\nin the application\n  priorOccurrences r\n\nExplanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.\n\nPossible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).\n\nw T : ℕ\nr : Fin w → Fin T\ni : Fin w\nhw : Finset.univ.card = w\n⊢ (priorOccurrences r i).card < w\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-r59vfgju/attempt-002/Candidate_e0e6ed50187626dc.lean",
+            "target_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-r59vfgju/attempt-002/FrozenTarget_e0e6ed50187626dc.lean",
+            "feedback": "",
+            "target_sha256": "bf786aa5d06d732321c3af1a4a5edec0d1f2f55a9025f30da47765ce4d3d724e",
+            "target_olean_sha256": "aaed10f63351074a540445f9339ec0f01aeb0de167d1e01994272f9c3323c9e6",
+            "source_sha256": "f101c99ae98010b659839c9b74e942fe63d2e22bf7449a16987a2c0833ef45a2",
+            "olean_sha256": "44f3b04813e4d193b63f15bbdbe61a9ebb151bd4418618ff9796645fc8f274c0",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T06:51:31.117028+00:00",
+        "work": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-r59vfgju",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-r59vfgju/attempt-002/Candidate_e0e6ed50187626dc.lean",
+        "environment_sha256": "d6846f4d5ddcd4c8735cb1eb03e6c6c62f78bf7b47447cd5e90eafda2f3a2179",
+        "artifacts": {
+          "tag_lt_weight": {
+            "payload": {
+              "declaration": "theorem M5.Packing.tag_lt_weight : ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w\n  intro w T r i\n  classical\n  unfold M5.Packing.occurrenceTag\n  have hs : M5.Packing.priorOccurrences r i ⊂ (Finset.univ : Finset (Fin w)) := by\n    apply Finset.ssubset_iff_subset_ne.mpr\n    refine ⟨Finset.subset_univ _, ?_⟩\n    intro h\n    have hi : i ∈ M5.Packing.priorOccurrences r i := by\n      rw [h]\n      exact Finset.mem_univ i\n    simpa [M5.Packing.priorOccurrences] using hi\n  simpa only [Finset.card_univ, Fintype.card_fin] using Finset.card_lt_card hs",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.tag_lt_weight",
+              "ancestors": [],
+              "spec_sha256": "5ecd4c9c642e144b06fe9137f136459001089918b0b3524b99bc095aa5b57abe"
+            },
+            "sha256": "30fca21a3a7d4d3fcc0364f1a1711618aa11252bae2addd778a07a6f7029a5c0"
+          }
+        }
+      }
+    },
+    "packed_support_range": {
+      "id": "packed_support_range",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Packing.packed_support_range",
+        "spec_sha256": "f17ca334c696f394e4699f0ab3d026703b942c65d94bbb6f1dbb1a63e842a717",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-prijm3qk/attempt-001/Candidate_76841020f8a8c595.lean",
+            "target_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-prijm3qk/attempt-001/FrozenTarget_76841020f8a8c595.lean",
+            "feedback": "",
+            "target_sha256": "b1ffbeafa9e6103343057c25fd624dd62f826210028250b227bab05e5d230d83",
+            "target_olean_sha256": "00f00f5b50dee19b86f9c51edcfe724a83ef3014275ccfab97df82d18bf8a0ab",
+            "source_sha256": "991efdbed727c8a98b872a27a6dd2d09fae2747298ebe0bdcc113a1c15cd1e07",
+            "olean_sha256": "2dca8a56a44a76919f6acb941feda45989f299070211eb082e7611e39dd56789",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:54:02.277285+00:00",
+        "work": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-prijm3qk",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-prijm3qk/attempt-001/Candidate_76841020f8a8c595.lean",
+        "environment_sha256": "d6846f4d5ddcd4c8735cb1eb03e6c6c62f78bf7b47447cd5e90eafda2f3a2179",
+        "artifacts": {
+          "tag_lt_weight": {
+            "payload": {
+              "declaration": "theorem M5.Packing.tag_lt_weight : ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w\n  intro w T r i\n  classical\n  unfold M5.Packing.occurrenceTag\n  have hs : M5.Packing.priorOccurrences r i ⊂ (Finset.univ : Finset (Fin w)) := by\n    apply Finset.ssubset_iff_subset_ne.mpr\n    refine ⟨Finset.subset_univ _, ?_⟩\n    intro h\n    have hi : i ∈ M5.Packing.priorOccurrences r i := by\n      rw [h]\n      exact Finset.mem_univ i\n    simpa [M5.Packing.priorOccurrences] using hi\n  simpa only [Finset.card_univ, Fintype.card_fin] using Finset.card_lt_card hs",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.tag_lt_weight",
+              "ancestors": [],
+              "spec_sha256": "5ecd4c9c642e144b06fe9137f136459001089918b0b3524b99bc095aa5b57abe"
+            },
+            "sha256": "30fca21a3a7d4d3fcc0364f1a1711618aa11252bae2addd778a07a6f7029a5c0"
+          },
+          "packed_support_range": {
+            "payload": {
+              "declaration": "theorem M5.Packing.packed_support_range : ∀ (w T : ℕ) (r : Fin w → Fin T) (e : ℕ), e ∈ M5.Packing.packedSupport r → e < w * T := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (e : ℕ), e ∈ M5.Packing.packedSupport r → e < w * T\n  intro w T r e he\n  classical\n  unfold M5.Packing.packedSupport at he\n  rcases Finset.mem_image.mp he with ⟨i, _, rfl⟩\n  change (r i).val + M5.Packing.occurrenceTag r i * T < w * T\n  have hr := (r i).isLt\n  have ht := M5.Packing.tag_lt_weight w T r i\n  have hm := Nat.mul_le_mul_right T (Nat.succ_le_of_lt ht)\n  nlinarith",
+              "imports": [
+                "M5Packing"
+              ],
+              "name": "M5.Packing.packed_support_range",
+              "ancestors": [
+                "tag_lt_weight"
+              ],
+              "spec_sha256": "d39cf4a17eed8cee4555111662f0601047f33efe73173a398f394af0c66279a0"
+            },
+            "sha256": "d2b953551f66fa2daba0d4371e95c1ac7e94ed8ad5c640446b6e997c9a313b6b"
+          }
+        }
+      }
+    },
+    "M5_PACK": {
+      "id": "M5_PACK",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_CRT_REPAIR": {
+      "id": "M5_CRT_REPAIR",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_GCD_DEGREE": {
+      "id": "M5_GCD_DEGREE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PERIOD_BOUND": {
+      "id": "M5_PERIOD_BOUND",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LIFT": {
+      "id": "M5_LIFT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BOUNDED_SOURCE": {
+      "id": "M5_BOUNDED_SOURCE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BIRTH": {
+      "id": "M5_BIRTH",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ARITHMETIC": {
+      "id": "M5_ARITHMETIC",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_GLOBAL_IFF": {
+      "id": "M5_GLOBAL_IFF",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_COMPLETE": {
+      "id": "M5_COMPLETE",
+      "status": "planned",
+      "accepted": false
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "M5.Packing.equal_residue_tag_strict",
+  "statement": "∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j",
+  "imports": [
+    "M5Packing"
+  ],
+  "context": "",
+  "queries": [
+    "Finset card image injective",
+    "finite set filter cardinality"
+  ],
+  "guidance": "Show priorOccurrences r i is a strict subset of priorOccurrences r j. Earlier matching indices remain earlier and matching by equality of residues, while i belongs only to the latter set. Apply Finset.card_lt_card. This is the key to separating repeated residues. Return only tactic lines without a leading by. Preserve the exact target."
+}

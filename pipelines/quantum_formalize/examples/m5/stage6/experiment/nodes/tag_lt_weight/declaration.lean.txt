@@ -1,0 +1,14 @@
+theorem M5.Packing.tag_lt_weight : ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w := by
+  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w
+  intro w T r i
+  classical
+  unfold M5.Packing.occurrenceTag
+  have hs : M5.Packing.priorOccurrences r i ⊂ (Finset.univ : Finset (Fin w)) := by
+    apply Finset.ssubset_iff_subset_ne.mpr
+    refine ⟨Finset.subset_univ _, ?_⟩
+    intro h
+    have hi : i ∈ M5.Packing.priorOccurrences r i := by
+      rw [h]
+      exact Finset.mem_univ i
+    simpa [M5.Packing.priorOccurrences] using hi
+  simpa only [Finset.card_univ, Fintype.card_fin] using Finset.card_lt_card hs

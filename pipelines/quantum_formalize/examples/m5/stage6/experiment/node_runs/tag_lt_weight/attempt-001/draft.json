@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w\nintro w T r i\nclassical\nunfold M5.Packing.occurrenceTag\nhave hw : (Finset.univ : Finset (Fin w)).card = w := by simp\nrw [← hw]\napply Finset.card_lt_card\nrefine Finset.ssubset_iff_subset_ne.mpr ⟨Finset.filter_subset _ _, ?_⟩\nintro h\nhave hi := Finset.mem_univ i\nrw [← h] at hi\nsimpa using hi",
+  "queries": [
+    "Finset.ssubset_iff_subset_ne",
+    "Finset.card_lt_card"
+  ]
+}

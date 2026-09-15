@@ -1,0 +1,204 @@
+{
+  "title": "M5 stage 6: occurrence-tag packing with repeated residues",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Seven packing helpers; polynomial congruence, connectivity repair integration and full M5 remain separate",
+  "nodes": [
+    {
+      "id": "tag_lt_weight",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Packing.tag_lt_weight",
+        "statement": "∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w",
+        "imports": [
+          "M5Packing"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card image injective",
+          "finite set filter cardinality"
+        ],
+        "guidance": "The filtered prior-occurrence set is a strict subset of Finset.univ: i itself is absent because i<i is false. Finset.card_lt_card and Fintype.card_fin yield the bound. No distinctness assumption on residues. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "literal_occurrence_tag_packing",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "equal_residue_tag_strict",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Packing.equal_residue_tag_strict",
+        "statement": "∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j",
+        "imports": [
+          "M5Packing"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card image injective",
+          "finite set filter cardinality"
+        ],
+        "guidance": "Show priorOccurrences r i is a strict subset of priorOccurrences r j. Earlier matching indices remain earlier and matching by equality of residues, while i belongs only to the latter set. Apply Finset.card_lt_card. This is the key to separating repeated residues. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "literal_occurrence_tag_packing",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "packed_value_mod",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Packing.packed_value_mod",
+        "statement": "∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.packedValue r i % T = (r i).val",
+        "imports": [
+          "M5Packing"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card image injective",
+          "finite set filter cardinality"
+        ],
+        "guidance": "Unfold packedValue. The tag multiple vanishes modulo T and Nat.mod_eq_of_lt applies to (r i).isLt. This is residue preservation as integers, not yet the binary polynomial congruence theorem. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "literal_occurrence_tag_packing",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "packed_value_injective",
+      "dependencies": [
+        "equal_residue_tag_strict",
+        "packed_value_mod"
+      ],
+      "spec": {
+        "name": "M5.Packing.packed_value_injective",
+        "statement": "∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r)",
+        "imports": [
+          "M5Packing"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card image injective",
+          "finite set filter cardinality"
+        ],
+        "guidance": "Given equal values at i,j, packed_value_mod gives equal residue values, hence Fin.ext gives r i=r j. Cancel the residue term and the positive factor T (positivity follows from (r i).isLt). Equal tags rule out either i<j or j<i by equal_residue_tag_strict; conclude i=j. Do not assume r is injective. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "literal_occurrence_tag_packing",
+        "dependency_declarations": [
+          "M5.Packing.equal_residue_tag_strict",
+          "M5.Packing.packed_value_mod"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "packed_support_card",
+      "dependencies": [
+        "packed_value_injective"
+      ],
+      "spec": {
+        "name": "M5.Packing.packed_support_card",
+        "statement": "∀ (w T : ℕ) (r : Fin w → Fin T), (M5.Packing.packedSupport r).card = w",
+        "imports": [
+          "M5Packing"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card image injective",
+          "finite set filter cardinality"
+        ],
+        "guidance": "Unfold packedSupport. Use Finset.card_image_of_injective and accepted packed_value_injective, then Finset.card_univ and Fintype.card_fin. Repeated input residues are retained as distinct occurrence exponents. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "literal_occurrence_tag_packing",
+        "dependency_declarations": [
+          "M5.Packing.packed_value_injective"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "packed_support_range",
+      "dependencies": [
+        "tag_lt_weight"
+      ],
+      "spec": {
+        "name": "M5.Packing.packed_support_range",
+        "statement": "∀ (w T : ℕ) (r : Fin w → Fin T) (e : ℕ), e ∈ M5.Packing.packedSupport r → e < w * T",
+        "imports": [
+          "M5Packing"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card image injective",
+          "finite set filter cardinality"
+        ],
+        "guidance": "Unfold packedSupport and extract image witness i. Use (r i).isLt and tag_lt_weight. Bound r_i+tag_i*T < (tag_i+1)*T ≤ w*T, or use natural arithmetic. This is the original exponent upper bound w*T-1 expressed without truncated subtraction. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "literal_occurrence_tag_packing",
+        "dependency_declarations": [
+          "M5.Packing.tag_lt_weight"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "packed_support_anchor",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.Packing.packed_support_anchor",
+        "statement": "∀ (w T : ℕ) (r : Fin w → Fin T) (hw : 0 < w), (r ⟨0, hw⟩).val = 0 → 0 ∈ M5.Packing.packedSupport r",
+        "imports": [
+          "M5Packing"
+        ],
+        "context": "",
+        "queries": [
+          "Finset card image injective",
+          "finite set filter cardinality"
+        ],
+        "guidance": "Use image witness i=⟨0,hw⟩. priorOccurrences at this index is empty since no Fin index is below zero, so occurrenceTag is zero and packedValue is zero by the supplied anchor assumption. All later zero residues get their own larger occurrence tags; do not discard repeats. Return only tactic lines without a leading by. Preserve the exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_PACK",
+        "scope": "literal_occurrence_tag_packing",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

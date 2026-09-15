@@ -1,0 +1,11 @@
+theorem M5.Packing.packed_support_range : ∀ (w T : ℕ) (r : Fin w → Fin T) (e : ℕ), e ∈ M5.Packing.packedSupport r → e < w * T := by
+  change ∀ (w T : ℕ) (r : Fin w → Fin T) (e : ℕ), e ∈ M5.Packing.packedSupport r → e < w * T
+  intro w T r e he
+  classical
+  unfold M5.Packing.packedSupport at he
+  rcases Finset.mem_image.mp he with ⟨i, _, rfl⟩
+  change (r i).val + M5.Packing.occurrenceTag r i * T < w * T
+  have hr := (r i).isLt
+  have ht := M5.Packing.tag_lt_weight w T r i
+  have hm := Nat.mul_le_mul_right T (Nat.succ_le_of_lt ht)
+  nlinarith

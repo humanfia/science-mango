@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ δ T e k : ℕ, 0 < δ → Nat.gcd (Nat.gcd T δ) e = 1 → (∀ p ∈ δ.primeFactors, Nat.ModEq p k (M5.CRT.repairResidue e p)) → Nat.gcd δ (e + k * T) = 1\nintro δ T e k hδ hg hk\napply Nat.coprime_of_dvd\nintro p hp hpδ hpe\nhave hmem : p ∈ δ.primeFactors := by\n  exact Nat.mem_primeFactors.mpr ⟨hp, hpδ, Nat.ne_of_gt hδ⟩\nhave hmod := ((hk p hmem).mul_right T).add_left e\nexact M5.CRT.safe_prime_residue p δ T e hp hpδ hg\n  ((hmod.dvd_iff (dvd_refl p)).mp hpe)",
+  "queries": [
+    "Nat.mem_primeFactors",
+    "Nat.ModEq.dvd_iff",
+    "Nat.coprime_of_dvd"
+  ]
+}

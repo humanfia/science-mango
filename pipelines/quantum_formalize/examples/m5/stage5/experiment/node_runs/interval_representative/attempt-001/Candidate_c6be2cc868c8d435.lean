@@ -1,0 +1,17 @@
+import FrozenTarget_c6be2cc868c8d435
+theorem M5.CRT.interval_representative : QuantumHarnessFrozenTarget := by
+  change ∀ R r w : ℕ, 0 < R → ∃ k : ℕ, w ≤ k ∧ k < w + R ∧ Nat.ModEq R k r
+  intro R r w hR
+  cases R with
+  | zero => omega
+  | succ n =>
+    refine ⟨w + (r + n * w) % (n + 1), by omega, ?_, ?_⟩
+    · exact Nat.add_lt_add_left (Nat.mod_lt _ (by omega)) w
+    · change (w + (r + n * w) % (n + 1)) % (n + 1) = r % (n + 1)
+      calc
+        (w + (r + n * w) % (n + 1)) % (n + 1) =
+            (w + (r + n * w)) % (n + 1) := by
+              simp only [Nat.add_mod, Nat.mod_mod]
+        _ = (r + (n + 1) * w) % (n + 1) := by
+              congr 1 <;> ring
+        _ = r % (n + 1) := by simp [Nat.add_mod]

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T\nintro p δ T e hp hδ hg\nby_cases he : p ∣ e\n· intro h\n  have hsum : p ∣ e + T := by\n    simpa [M5.CRT.repairResidue, he] using h\n  have hT : p ∣ T := (Nat.dvd_add_right he).mp hsum\n  have hd : p ∣ Nat.gcd (Nat.gcd T δ) e :=\n    Nat.dvd_gcd (Nat.dvd_gcd hT hδ) he\n  rw [hg] at hd\n  exact hp.not_dvd_one hd\n· simpa [M5.CRT.repairResidue, he] using he",
+  "queries": []
+}

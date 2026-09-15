@@ -1,0 +1,448 @@
+[
+  {
+    "queries": [
+      "Finset card image injective",
+      "finite set filter cardinality"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset card image injective",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202949,
+            "name": "Finset.image_injective",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L429-L430",
+            "source_text": "lemma image_injective (hf : Injective f) : Injective (image f) := by\n  simpa only [funext (map_eq_image _)] using! map_injective ⟨f, hf⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 202358,
+            "name": "Finset.card_image_of_injective",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L249-L251",
+            "source_text": "theorem card_image_of_injective [DecidableEq β] (s : Finset α) (H : Injective f) :\n    #(s.image f) = #s :=\n  card_image_of_injOn fun _ _ _ _ h => H h\n",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 218003,
+            "name": "Set.injOn_of_ncard_image_eq",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L821-L824",
+            "source_text": "theorem injOn_of_ncard_image_eq (h : (f '' s).ncard = s.ncard) (hs : s.Finite := by toFinite_tac) :\n    Set.InjOn f s := by\n  rw [← Nat.cast_inj (R := ℕ∞), hs.cast_ncard_eq, (hs.image _).cast_ncard_eq] at h\n  exact hs.injOn_of_encard_image_eq h\n",
+            "docstring": null
+          },
+          {
+            "id": 218004,
+            "name": "Set.ncard_image_iff",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L826-L828",
+            "source_text": "theorem ncard_image_iff (hs : s.Finite := by toFinite_tac) :\n    (f '' s).ncard = s.ncard ↔ Set.InjOn f s :=\n  ⟨fun h ↦ injOn_of_ncard_image_eq h hs, InjOn.ncard_image⟩\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset card image injective",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite set filter cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 218437,
+            "name": "Set.Finite.card_toFinset",
+            "module": "Mathlib.Data.Set.Finite.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Basic.lean#L813-L815",
+            "source_text": "theorem Finite.card_toFinset {s : Set α} [Fintype s] (h : s.Finite) :\n    h.toFinset.card = Fintype.card s :=\n  Eq.symm <| Fintype.card_of_finset' _ fun _ ↦ h.mem_toFinset\n",
+            "docstring": null
+          },
+          {
+            "id": 283576,
+            "name": "Filter.map_card_atTop",
+            "module": "Mathlib.Order.Filter.AtTopBot.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/AtTopBot/Finset.lean#L103-L111",
+            "source_text": "/-- The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. -/\nlemma map_card_atTop [Infinite α] :\n    map (Finset.card (α := α)) atTop = atTop := by\n  rw [map_atTop_eq, atTop]\n  refine Function.Surjective.iInf_congr Finset.card Finset.exists_card_eq fun s ↦ congr(𝓟 $(?_))\n  ext\n  refine ⟨Infinite.exists_superset_card_eq _ _, ?_⟩\n  aesop (add safe apply Finset.card_le_card)\n",
+            "docstring": "The pushforward of `atTop` on `Finset α` along `Finset.card` is `atTop` on `ℕ`, when `α` is\ninfinite. "
+          },
+          {
+            "id": 284287,
+            "name": "Finset.eventually_cocardinal_notMem",
+            "module": "Mathlib.Order.Filter.Cocardinal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Cocardinal.lean#L95-L97",
+            "source_text": "theorem _root_.Finset.eventually_cocardinal_notMem (s : Finset α) :\n    ∀ᶠ x in cocardinal α hreg, x ∉ s :=\n  eventually_cocardinal_notMem_of_card_lt <| (finset_card_lt_aleph0 s).trans_le (hreg.aleph0_le)\n",
+            "docstring": null
+          },
+          {
+            "id": 201912,
+            "name": "Set.Finite",
+            "module": "Mathlib.Data.Finite.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Defs.lean#L183-L185",
+            "source_text": "/-- A set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`. -/\nprotected def Finite (s : Set α) : Prop := Finite s\n",
+            "docstring": "A set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`. "
+          },
+          {
+            "id": 284285,
+            "name": "Set.Finite.compl_mem_cocardinal",
+            "module": "Mathlib.Order.Filter.Cocardinal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Cocardinal.lean#L87-L89",
+            "source_text": "theorem _root_.Set.Finite.compl_mem_cocardinal {s : Set α} (hs : s.Finite) :\n    sᶜ ∈ cocardinal α hreg :=\n  compl_mem_cocardinal_of_card_lt <| lt_of_lt_of_le (Finite.lt_aleph0 hs) (hreg.aleph0_le)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite set filter cardinality",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset card image injective",
+      "finite set filter cardinality"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Finset.ssubset_iff_subset_ne",
+      "Finset.card_lt_card"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.ssubset_iff_subset_ne",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202553,
+            "name": "Finset.ssubset_iff_subset_ne",
+            "module": "Mathlib.Data.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Defs.lean#L269-L271",
+            "source_text": "@[grind =]\ntheorem ssubset_iff_subset_ne {s t : Finset α} : s ⊂ t ↔ s ⊆ t ∧ s ≠ t :=\n  @lt_iff_le_and_ne _ _ s t",
+            "docstring": null
+          },
+          {
+            "id": 293673,
+            "name": "ssubset_iff_subset_ne",
+            "module": "Mathlib.Order.RelClasses",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/RelClasses.lean#L558-L558",
+            "source_text": "alias ssubset_iff_subset_ne := ssubset_iff_subset_and_ne\n",
+            "docstring": "**Alias** of `ssubset_iff_subset_and_ne`.\n\n---\n\nSet notation form of `lt_iff_le_and_ne`"
+          },
+          {
+            "id": 202540,
+            "name": "Finset.subset_iff",
+            "module": "Mathlib.Data.Finset.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Defs.lean#L223-L225",
+            "source_text": "@[grind =]\ntheorem subset_iff {s₁ s₂ : Finset α} : s₁ ⊆ s₂ ↔ ∀ ⦃x⦄, x ∈ s₁ → x ∈ s₂ :=\n  Iff.rfl",
+            "docstring": null
+          },
+          {
+            "id": 206303,
+            "name": "Set.toFinset_ssubset_toFinset",
+            "module": "Mathlib.Data.Fintype.Sets",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Sets.lean#L99-L101",
+            "source_text": "@[gcongr, mono]\ntheorem toFinset_ssubset_toFinset [Fintype s] [Fintype t] : s.toFinset ⊂ t.toFinset ↔ s ⊂ t := by\n  simp only [Finset.ssubset_def, toFinset_subset_toFinset, ssubset_def]",
+            "docstring": null
+          },
+          {
+            "id": 202988,
+            "name": "Finset.subtype",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L631-L636",
+            "source_text": "/-- Given a finset `s` and a predicate `p`, `s.subtype p` is the finset of `Subtype p` whose\nelements belong to `s`. -/\nprotected def subtype {α} (p : α → Prop) [DecidablePred p] (s : Finset α) : Finset (Subtype p) :=\n  (s.filter p).attach.map\n    ⟨fun x => ⟨x.1, by simpa using (Finset.mem_filter.1 x.2).2⟩,\n     fun _ _ H => Subtype.ext <| Subtype.mk.inj H⟩\n",
+            "docstring": "Given a finset `s` and a predicate `p`, `s.subtype p` is the finset of `Subtype p` whose\nelements belong to `s`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.ssubset_iff_subset_ne",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.card_lt_card",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202373,
+            "name": "Finset.card_lt_card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L306-L307",
+            "source_text": "@[gcongr]\nnonrec lemma card_lt_card (h : s ⊂ t) : #s < #t := card_lt_card <| val_lt_iff.2 h",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 202435,
+            "name": "Finset.one_lt_card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L733-L734",
+            "source_text": "theorem one_lt_card : 1 < #s ↔ ∃ a ∈ s, ∃ b ∈ s, a ≠ b := by\n  contrapose!; exact card_le_one\n",
+            "docstring": null
+          },
+          {
+            "id": 283579,
+            "name": "Filter.tendsto_card_atTop_pure_of_fintype",
+            "module": "Mathlib.Order.Filter.AtTopBot.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/AtTopBot/Finset.lean#L124-L127",
+            "source_text": "/-- `Finset.card` tends to `pure (Fintype.card α)`, when `α` is finite. -/\nlemma tendsto_card_atTop_pure_of_fintype [Fintype α] :\n    Tendsto (Finset.card : Finset α → ℕ) atTop (pure (Fintype.card α)) := by\n  rw [Tendsto, map_card_atTop_of_fintype]\n",
+            "docstring": "`Finset.card` tends to `pure (Fintype.card α)`, when `α` is finite. "
+          },
+          {
+            "id": 218060,
+            "name": "Set.ncard_le_ncard_iff_ncard_diff_le_ncard_diff",
+            "module": "Mathlib.Data.Set.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Card.lean#L1137-L1138",
+            "source_text": "@[deprecated (since := \"2026-06-03\")]\nalias ncard_le_ncard_iff_ncard_diff_le_ncard_diff := ncard_le_ncard_iff_ncard_sdiff_le_ncard_sdiff",
+            "docstring": "**Alias** of `Set.ncard_le_ncard_iff_ncard_sdiff_le_ncard_sdiff`."
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.card_lt_card",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset.ssubset_iff_subset_ne",
+      "Finset.card_lt_card"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

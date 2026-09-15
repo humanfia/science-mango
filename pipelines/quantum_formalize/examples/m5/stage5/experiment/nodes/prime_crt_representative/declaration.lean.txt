@@ -1,0 +1,12 @@
+theorem M5.CRT.prime_crt_representative : ∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p) := by
+  change ∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p)
+  intro δ e hδ
+  have hn : ∀ p ∈ δ.primeFactors, (fun p : ℕ => p) p ≠ 0 := by
+    intro p hp
+    exact (Nat.prime_of_mem_primeFactors hp).ne_zero
+  have hc : Set.Pairwise (↑δ.primeFactors : Set ℕ) (fun p q => Nat.Coprime p q) := by
+    intro p hp q hq hpq
+    exact (Nat.coprime_primes (Nat.prime_of_mem_primeFactors hp) (Nat.prime_of_mem_primeFactors hq)).2 hpq
+  refine ⟨(Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).val, ?_, ?_⟩
+  · simpa [M5.CRT.primeProduct] using Nat.chineseRemainderOfFinset_lt_prod (M5.CRT.repairResidue e) (fun p : ℕ => p) hn hc
+  · exact (Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).property

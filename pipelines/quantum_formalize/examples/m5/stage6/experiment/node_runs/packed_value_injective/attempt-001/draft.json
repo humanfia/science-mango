@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r)\nintro w T r i j h\nhave hrval : (r i).val = (r j).val := by\n  have hm := congrArg (fun n : ℕ => n % T) h\n  simpa only [M5.Packing.packed_value_mod] using hm\nhave hr : r i = r j := Fin.ext hrval\nhave hT : 0 < T := lt_of_le_of_lt (Nat.zero_le _) (r i).isLt\nhave hmul : T * M5.Packing.occurrenceTag r i = T * M5.Packing.occurrenceTag r j := by\n  unfold M5.Packing.packedValue at h\n  nlinarith [hrval]\nhave htag : M5.Packing.occurrenceTag r i = M5.Packing.occurrenceTag r j :=\n  Nat.eq_of_mul_eq_mul_left hT hmul\nrcases lt_trichotomy i j with hij | hij | hji\n· have hs := M5.Packing.equal_residue_tag_strict w T r i j hij hr\n  omega\n· exact hij\n· have hs := M5.Packing.equal_residue_tag_strict w T r j i hji hr.symm\n  omega",
+  "queries": []
+}

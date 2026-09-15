@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (w T : ℕ) (r : Fin w → Fin T) (e : ℕ), e ∈ M5.Packing.packedSupport r → e < w * T\nintro w T r e he\nclassical\nunfold M5.Packing.packedSupport at he\nrcases Finset.mem_image.mp he with ⟨i, _, rfl⟩\nchange (r i).val + M5.Packing.occurrenceTag r i * T < w * T\nhave hr := (r i).isLt\nhave ht := M5.Packing.tag_lt_weight w T r i\nhave hm := Nat.mul_le_mul_right T (Nat.succ_le_of_lt ht)\nnlinarith",
+  "queries": []
+}

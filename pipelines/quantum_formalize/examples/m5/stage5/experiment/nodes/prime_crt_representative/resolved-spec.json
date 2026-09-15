@@ -1,0 +1,13 @@
+{
+  "name": "M5.CRT.prime_crt_representative",
+  "statement": "∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p)",
+  "imports": [
+    "M5CRT"
+  ],
+  "context": "",
+  "queries": [
+    "Chinese remainder theorem natural numbers",
+    "natural number coprime"
+  ],
+  "guidance": "Use Nat.chineseRemainderOfFinset with t=δ.primeFactors, modulus identity, residues M5.CRT.repairResidue e. Nat.prime_of_mem_primeFactors supplies nonzero moduli; Nat.coprime_primes supplies pairwise coprimality for distinct indices. The subtype property gives congruences and Nat.chineseRemainderOfFinset_lt_prod gives strict product bound. Empty set δ=1 is allowed. Unfold primeProduct and use open scoped BigOperators if needed. Return tactic lines only, without a leading by. Preserve the exact target."
+}

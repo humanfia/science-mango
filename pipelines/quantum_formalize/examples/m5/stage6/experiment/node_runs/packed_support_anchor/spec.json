@@ -1,0 +1,13 @@
+{
+  "name": "M5.Packing.packed_support_anchor",
+  "statement": "∀ (w T : ℕ) (r : Fin w → Fin T) (hw : 0 < w), (r ⟨0, hw⟩).val = 0 → 0 ∈ M5.Packing.packedSupport r",
+  "imports": [
+    "M5Packing"
+  ],
+  "context": "",
+  "queries": [
+    "Finset card image injective",
+    "finite set filter cardinality"
+  ],
+  "guidance": "Use image witness i=⟨0,hw⟩. priorOccurrences at this index is empty since no Fin index is below zero, so occurrenceTag is zero and packedValue is zero by the supplied anchor assumption. All later zero residues get their own larger occurrence tags; do not discard repeats. Return only tactic lines without a leading by. Preserve the exact target."
+}

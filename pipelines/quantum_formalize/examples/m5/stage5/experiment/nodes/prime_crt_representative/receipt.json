@@ -1,0 +1,54 @@
+{
+  "id": "prime_crt_representative",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.CRT.prime_crt_representative",
+    "spec_sha256": "036b987522a4a28ede4d8957520e0c7baa638b1af2560d07f4ac388871b4155d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-mdutmlju/attempt-001/Candidate_e9837c27a0c9a162.lean",
+        "target_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-mdutmlju/attempt-001/FrozenTarget_e9837c27a0c9a162.lean",
+        "feedback": "",
+        "target_sha256": "cef8744f163a3328d41dbb81a270b83b45c70c06170b9bb950adb948e7554598",
+        "target_olean_sha256": "c367884334fe4616253a4dccf64050c87fa7fb1954b91dee94383d1594770d54",
+        "source_sha256": "5cba581d1cc55417bd73e7ecf13e010aa7905f144b1ccb18d1b82cda4ec2ebb0",
+        "olean_sha256": "0ce63eef300aa089b743c1a69e046091d20a85945a42d7777f5bc5734433c62a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:47:44.899377+00:00",
+    "work": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-mdutmlju",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-mdutmlju/attempt-001/Candidate_e9837c27a0c9a162.lean",
+    "environment_sha256": "a8fae86407a77c9c46ccc0dbf406d12bc14e4754e1aa112fad3970ae4969ac5f",
+    "artifacts": {
+      "prime_crt_representative": {
+        "payload": {
+          "declaration": "theorem M5.CRT.prime_crt_representative : ∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p) := by\n  change ∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p)\n  intro δ e hδ\n  have hn : ∀ p ∈ δ.primeFactors, (fun p : ℕ => p) p ≠ 0 := by\n    intro p hp\n    exact (Nat.prime_of_mem_primeFactors hp).ne_zero\n  have hc : Set.Pairwise (↑δ.primeFactors : Set ℕ) (fun p q => Nat.Coprime p q) := by\n    intro p hp q hq hpq\n    exact (Nat.coprime_primes (Nat.prime_of_mem_primeFactors hp) (Nat.prime_of_mem_primeFactors hq)).2 hpq\n  refine ⟨(Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).val, ?_, ?_⟩\n  · simpa [M5.CRT.primeProduct] using Nat.chineseRemainderOfFinset_lt_prod (M5.CRT.repairResidue e) (fun p : ℕ => p) hn hc\n  · exact (Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).property",
+          "imports": [
+            "M5CRT"
+          ],
+          "name": "M5.CRT.prime_crt_representative",
+          "ancestors": [],
+          "spec_sha256": "036b987522a4a28ede4d8957520e0c7baa638b1af2560d07f4ac388871b4155d"
+        },
+        "sha256": "dbec31e335d305f942cb30a4ced49ea50b61caaf462f509f717b0cab1a5d914b"
+      }
+    }
+  }
+}

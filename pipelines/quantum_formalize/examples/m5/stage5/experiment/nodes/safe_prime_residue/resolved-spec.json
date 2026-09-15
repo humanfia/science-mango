@@ -1,0 +1,13 @@
+{
+  "name": "M5.CRT.safe_prime_residue",
+  "statement": "∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T",
+  "imports": [
+    "M5CRT"
+  ],
+  "context": "",
+  "queries": [
+    "Chinese remainder theorem natural numbers",
+    "natural number coprime"
+  ],
+  "guidance": "Split on p | e. If false the residue is zero. If true residue is one; p | T would force p | gcd(gcd T δ)e = 1, contradicting primality. Exclude p | e+T by subtracting the known divisible summand. Includes p=2. Return tactic lines only, without a leading by. Preserve the exact target."
+}

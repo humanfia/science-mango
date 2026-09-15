@@ -1,0 +1,487 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T06:51:14.792211+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "M5_DEFS": {
+      "id": "M5_DEFS",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_CHAR_ORTHO": {
+      "id": "M5_CHAR_ORTHO",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_INT_IE": {
+      "id": "M5_INT_IE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PACK": {
+      "id": "M5_PACK",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PERIOD": {
+      "id": "M5_PERIOD",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LOWER_ORDERS": {
+      "id": "M5_LOWER_ORDERS",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_POLY_IE": {
+      "id": "M5_POLY_IE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_SUBSET_COUNT": {
+      "id": "M5_SUBSET_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BINOM_EVAL": {
+      "id": "M5_BINOM_EVAL",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_COUNT": {
+      "id": "M5_ORDER_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_CONDITIONAL": {
+      "id": "M5_ORDER_CONDITIONAL",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_RECOVER": {
+      "id": "M5_ORDER_RECOVER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LATER": {
+      "id": "M5_LATER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_TRANSLATE": {
+      "id": "M5_TRANSLATE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_TUPLE_COUNT": {
+      "id": "M5_TUPLE_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_COUNT": {
+      "id": "M5_RESIDUE_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_NECESSITY": {
+      "id": "M5_RESIDUE_NECESSITY",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_RECOVER": {
+      "id": "M5_RESIDUE_RECOVER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_WEIGHT_ONE": {
+      "id": "M5_WEIGHT_ONE",
+      "status": "planned",
+      "accepted": false
+    },
+    "interval_representative": {
+      "id": "interval_representative",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.CRT.interval_representative",
+        "spec_sha256": "f361ee2b99efd5f50295cfce987ade2ac95c117acf2f16728de5b08588b57374",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-7gx9ytrx/attempt-001/Candidate_c6be2cc868c8d435.lean",
+            "target_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-7gx9ytrx/attempt-001/FrozenTarget_c6be2cc868c8d435.lean",
+            "feedback": "",
+            "target_sha256": "90c7619a1cf6a036c6d5af17b3facc1e19ac9210d18ee38fd0c81d4e656b83d2",
+            "target_olean_sha256": "390d4158309c09482137b61614009f5d5ddd8a8e81af794d30560b17f64731fe",
+            "source_sha256": "a56cf69a4df99e70baa608a418c704ebd75e4176eec920ae8583cdc70be55c3c",
+            "olean_sha256": "4ca780715a684a7809a59f9a9c15c0b4d547a90e5ec9b0becab8e0c200a91bea",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:47:44.893457+00:00",
+        "work": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-7gx9ytrx",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-7gx9ytrx/attempt-001/Candidate_c6be2cc868c8d435.lean",
+        "environment_sha256": "a8fae86407a77c9c46ccc0dbf406d12bc14e4754e1aa112fad3970ae4969ac5f",
+        "artifacts": {
+          "interval_representative": {
+            "payload": {
+              "declaration": "theorem M5.CRT.interval_representative : ∀ R r w : ℕ, 0 < R → ∃ k : ℕ, w ≤ k ∧ k < w + R ∧ Nat.ModEq R k r := by\n  change ∀ R r w : ℕ, 0 < R → ∃ k : ℕ, w ≤ k ∧ k < w + R ∧ Nat.ModEq R k r\n  intro R r w hR\n  cases R with\n  | zero => omega\n  | succ n =>\n    refine ⟨w + (r + n * w) % (n + 1), by omega, ?_, ?_⟩\n    · exact Nat.add_lt_add_left (Nat.mod_lt _ (by omega)) w\n    · change (w + (r + n * w) % (n + 1)) % (n + 1) = r % (n + 1)\n      calc\n        (w + (r + n * w) % (n + 1)) % (n + 1) =\n            (w + (r + n * w)) % (n + 1) := by\n              simp only [Nat.add_mod, Nat.mod_mod]\n        _ = (r + (n + 1) * w) % (n + 1) := by\n              congr 1 <;> ring\n        _ = r % (n + 1) := by simp [Nat.add_mod]",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.interval_representative",
+              "ancestors": [],
+              "spec_sha256": "f361ee2b99efd5f50295cfce987ade2ac95c117acf2f16728de5b08588b57374"
+            },
+            "sha256": "0ead4867b40ac0b749b396acc546fa5d461432b0a9e4b559d7af1736cc7d8eee"
+          }
+        }
+      }
+    },
+    "prime_crt_representative": {
+      "id": "prime_crt_representative",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.CRT.prime_crt_representative",
+        "spec_sha256": "036b987522a4a28ede4d8957520e0c7baa638b1af2560d07f4ac388871b4155d",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-mdutmlju/attempt-001/Candidate_e9837c27a0c9a162.lean",
+            "target_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-mdutmlju/attempt-001/FrozenTarget_e9837c27a0c9a162.lean",
+            "feedback": "",
+            "target_sha256": "cef8744f163a3328d41dbb81a270b83b45c70c06170b9bb950adb948e7554598",
+            "target_olean_sha256": "c367884334fe4616253a4dccf64050c87fa7fb1954b91dee94383d1594770d54",
+            "source_sha256": "5cba581d1cc55417bd73e7ecf13e010aa7905f144b1ccb18d1b82cda4ec2ebb0",
+            "olean_sha256": "0ce63eef300aa089b743c1a69e046091d20a85945a42d7777f5bc5734433c62a",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:47:44.899377+00:00",
+        "work": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-mdutmlju",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-mdutmlju/attempt-001/Candidate_e9837c27a0c9a162.lean",
+        "environment_sha256": "a8fae86407a77c9c46ccc0dbf406d12bc14e4754e1aa112fad3970ae4969ac5f",
+        "artifacts": {
+          "prime_crt_representative": {
+            "payload": {
+              "declaration": "theorem M5.CRT.prime_crt_representative : ∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p) := by\n  change ∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p)\n  intro δ e hδ\n  have hn : ∀ p ∈ δ.primeFactors, (fun p : ℕ => p) p ≠ 0 := by\n    intro p hp\n    exact (Nat.prime_of_mem_primeFactors hp).ne_zero\n  have hc : Set.Pairwise (↑δ.primeFactors : Set ℕ) (fun p q => Nat.Coprime p q) := by\n    intro p hp q hq hpq\n    exact (Nat.coprime_primes (Nat.prime_of_mem_primeFactors hp) (Nat.prime_of_mem_primeFactors hq)).2 hpq\n  refine ⟨(Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).val, ?_, ?_⟩\n  · simpa [M5.CRT.primeProduct] using Nat.chineseRemainderOfFinset_lt_prod (M5.CRT.repairResidue e) (fun p : ℕ => p) hn hc\n  · exact (Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).property",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.prime_crt_representative",
+              "ancestors": [],
+              "spec_sha256": "036b987522a4a28ede4d8957520e0c7baa638b1af2560d07f4ac388871b4155d"
+            },
+            "sha256": "dbec31e335d305f942cb30a4ced49ea50b61caaf462f509f717b0cab1a5d914b"
+          }
+        }
+      }
+    },
+    "safe_prime_residue": {
+      "id": "safe_prime_residue",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.CRT.safe_prime_residue",
+        "spec_sha256": "088f4250d9d5c493922c7b30236ebc55aa77e8af055bee968a686110f4860a1c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-elncox_c/attempt-001/Candidate_b861112abec4959c.lean",
+            "target_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-elncox_c/attempt-001/FrozenTarget_b861112abec4959c.lean",
+            "feedback": "",
+            "target_sha256": "d4056cfc589364e6ebf4e57ff7950e7ad8b82c0e0266edfe9f6096c40087f556",
+            "target_olean_sha256": "a3a7b662e27389064a16317a320109b26f97a3182b8654cbb8ea3f3f8d9d313e",
+            "source_sha256": "5cbf146f2014d6aa53f3a20e144692f39564469e3eef99348c48afabc6e0f3db",
+            "olean_sha256": "ab90543a74cb19a5d23628ca09083421e3ae98ace0aad72f7db0d8fc9855d5d9",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:47:44.907141+00:00",
+        "work": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-elncox_c",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-elncox_c/attempt-001/Candidate_b861112abec4959c.lean",
+        "environment_sha256": "a8fae86407a77c9c46ccc0dbf406d12bc14e4754e1aa112fad3970ae4969ac5f",
+        "artifacts": {
+          "safe_prime_residue": {
+            "payload": {
+              "declaration": "theorem M5.CRT.safe_prime_residue : ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T := by\n  change ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T\n  intro p δ T e hp hδ hg\n  by_cases he : p ∣ e\n  · intro h\n    have hsum : p ∣ e + T := by\n      simpa [M5.CRT.repairResidue, he] using h\n    have hT : p ∣ T := (Nat.dvd_add_right he).mp hsum\n    have hd : p ∣ Nat.gcd (Nat.gcd T δ) e :=\n      Nat.dvd_gcd (Nat.dvd_gcd hT hδ) he\n    rw [hg] at hd\n    exact hp.not_dvd_one hd\n  · simpa [M5.CRT.repairResidue, he] using he",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.safe_prime_residue",
+              "ancestors": [],
+              "spec_sha256": "088f4250d9d5c493922c7b30236ebc55aa77e8af055bee968a686110f4860a1c"
+            },
+            "sha256": "13bc1e2c1f57ff56b614f24364e9a766337edb0010eba8f1c44a88c1d140f6f5"
+          }
+        }
+      }
+    },
+    "residues_force_coprime": {
+      "id": "residues_force_coprime",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.CRT.residues_force_coprime",
+        "spec_sha256": "d0ffceb605274bf6b8c07cfb7018a28ce421131c0059a539428fa750d571f786",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-6o4dnuen/attempt-001/Candidate_0266a6a075f1236d.lean",
+            "target_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-6o4dnuen/attempt-001/FrozenTarget_0266a6a075f1236d.lean",
+            "feedback": "",
+            "target_sha256": "8aecfd6765a1841a8d88dc96490b5af5b1a710f658765ae4b325e7b1dd3ba04f",
+            "target_olean_sha256": "4c1e0953550e14a9ccf48d2f5f570d310b4eed0c5ab003cbf9a776045f6ab8cc",
+            "source_sha256": "6daca01351dd199bc76c25c0e47e62c8bbe183ab445910c4f6834f3bae7c7158",
+            "olean_sha256": "3898b2612f005a41efd751f80aa3d08ffca0a3c4ea62c1d2fc6818e66e7feb7e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:49:12.540696+00:00",
+        "work": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-6o4dnuen",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-6o4dnuen/attempt-001/Candidate_0266a6a075f1236d.lean",
+        "environment_sha256": "a8fae86407a77c9c46ccc0dbf406d12bc14e4754e1aa112fad3970ae4969ac5f",
+        "artifacts": {
+          "safe_prime_residue": {
+            "payload": {
+              "declaration": "theorem M5.CRT.safe_prime_residue : ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T := by\n  change ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T\n  intro p δ T e hp hδ hg\n  by_cases he : p ∣ e\n  · intro h\n    have hsum : p ∣ e + T := by\n      simpa [M5.CRT.repairResidue, he] using h\n    have hT : p ∣ T := (Nat.dvd_add_right he).mp hsum\n    have hd : p ∣ Nat.gcd (Nat.gcd T δ) e :=\n      Nat.dvd_gcd (Nat.dvd_gcd hT hδ) he\n    rw [hg] at hd\n    exact hp.not_dvd_one hd\n  · simpa [M5.CRT.repairResidue, he] using he",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.safe_prime_residue",
+              "ancestors": [],
+              "spec_sha256": "088f4250d9d5c493922c7b30236ebc55aa77e8af055bee968a686110f4860a1c"
+            },
+            "sha256": "13bc1e2c1f57ff56b614f24364e9a766337edb0010eba8f1c44a88c1d140f6f5"
+          },
+          "residues_force_coprime": {
+            "payload": {
+              "declaration": "theorem M5.CRT.residues_force_coprime : ∀ δ T e k : ℕ, 0 < δ → Nat.gcd (Nat.gcd T δ) e = 1 → (∀ p ∈ δ.primeFactors, Nat.ModEq p k (M5.CRT.repairResidue e p)) → Nat.gcd δ (e + k * T) = 1 := by\n  change ∀ δ T e k : ℕ, 0 < δ → Nat.gcd (Nat.gcd T δ) e = 1 → (∀ p ∈ δ.primeFactors, Nat.ModEq p k (M5.CRT.repairResidue e p)) → Nat.gcd δ (e + k * T) = 1\n  intro δ T e k hδ hg hk\n  apply Nat.coprime_of_dvd\n  intro p hp hpδ hpe\n  have hmem : p ∈ δ.primeFactors := by\n    exact Nat.mem_primeFactors.mpr ⟨hp, hpδ, Nat.ne_of_gt hδ⟩\n  have hmod := ((hk p hmem).mul_right T).add_left e\n  exact M5.CRT.safe_prime_residue p δ T e hp hpδ hg\n    ((hmod.dvd_iff (dvd_refl p)).mp hpe)",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.residues_force_coprime",
+              "ancestors": [
+                "safe_prime_residue"
+              ],
+              "spec_sha256": "cfa8f19aaed403380fd546213c396481b5b2ed4895a885cbd4b76e710dabacf8"
+            },
+            "sha256": "a7cfb164270b7df91eb4151bcbadcf12c00d0c7e5458877874f26a258b6d2d9e"
+          }
+        }
+      }
+    },
+    "bounded_connectivity_repair": {
+      "id": "bounded_connectivity_repair",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.CRT.bounded_connectivity_repair",
+        "spec_sha256": "691e0871e2557f7dbd0327af62dd90dd6b1621d89cad26529d3518378e659e12",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-1t0kzeew/attempt-001/Candidate_f3a3f882a6dad142.lean",
+            "target_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-1t0kzeew/attempt-001/FrozenTarget_f3a3f882a6dad142.lean",
+            "feedback": "",
+            "target_sha256": "8f0e223979b6ecbe357db914f7fd699e2370eff373e4e41983130f9a4fc45127",
+            "target_olean_sha256": "d8b66688eb63136a35f08564ce9cae21d0793acb743a93850fbaae166d4a43b1",
+            "source_sha256": "bc4d8386234ffa5430262d4c768568dd1e11220c02fd65cb8c4d41d8a357ba96",
+            "olean_sha256": "570eed72a07b34ca810a0304a67723c8dd3f0a0721af8163c0f6750d24b2849b",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T06:50:19.803554+00:00",
+        "work": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-1t0kzeew",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-1t0kzeew/attempt-001/Candidate_f3a3f882a6dad142.lean",
+        "environment_sha256": "a8fae86407a77c9c46ccc0dbf406d12bc14e4754e1aa112fad3970ae4969ac5f",
+        "artifacts": {
+          "prime_crt_representative": {
+            "payload": {
+              "declaration": "theorem M5.CRT.prime_crt_representative : ∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p) := by\n  change ∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p)\n  intro δ e hδ\n  have hn : ∀ p ∈ δ.primeFactors, (fun p : ℕ => p) p ≠ 0 := by\n    intro p hp\n    exact (Nat.prime_of_mem_primeFactors hp).ne_zero\n  have hc : Set.Pairwise (↑δ.primeFactors : Set ℕ) (fun p q => Nat.Coprime p q) := by\n    intro p hp q hq hpq\n    exact (Nat.coprime_primes (Nat.prime_of_mem_primeFactors hp) (Nat.prime_of_mem_primeFactors hq)).2 hpq\n  refine ⟨(Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).val, ?_, ?_⟩\n  · simpa [M5.CRT.primeProduct] using Nat.chineseRemainderOfFinset_lt_prod (M5.CRT.repairResidue e) (fun p : ℕ => p) hn hc\n  · exact (Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).property",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.prime_crt_representative",
+              "ancestors": [],
+              "spec_sha256": "036b987522a4a28ede4d8957520e0c7baa638b1af2560d07f4ac388871b4155d"
+            },
+            "sha256": "dbec31e335d305f942cb30a4ced49ea50b61caaf462f509f717b0cab1a5d914b"
+          },
+          "interval_representative": {
+            "payload": {
+              "declaration": "theorem M5.CRT.interval_representative : ∀ R r w : ℕ, 0 < R → ∃ k : ℕ, w ≤ k ∧ k < w + R ∧ Nat.ModEq R k r := by\n  change ∀ R r w : ℕ, 0 < R → ∃ k : ℕ, w ≤ k ∧ k < w + R ∧ Nat.ModEq R k r\n  intro R r w hR\n  cases R with\n  | zero => omega\n  | succ n =>\n    refine ⟨w + (r + n * w) % (n + 1), by omega, ?_, ?_⟩\n    · exact Nat.add_lt_add_left (Nat.mod_lt _ (by omega)) w\n    · change (w + (r + n * w) % (n + 1)) % (n + 1) = r % (n + 1)\n      calc\n        (w + (r + n * w) % (n + 1)) % (n + 1) =\n            (w + (r + n * w)) % (n + 1) := by\n              simp only [Nat.add_mod, Nat.mod_mod]\n        _ = (r + (n + 1) * w) % (n + 1) := by\n              congr 1 <;> ring\n        _ = r % (n + 1) := by simp [Nat.add_mod]",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.interval_representative",
+              "ancestors": [],
+              "spec_sha256": "f361ee2b99efd5f50295cfce987ade2ac95c117acf2f16728de5b08588b57374"
+            },
+            "sha256": "0ead4867b40ac0b749b396acc546fa5d461432b0a9e4b559d7af1736cc7d8eee"
+          },
+          "safe_prime_residue": {
+            "payload": {
+              "declaration": "theorem M5.CRT.safe_prime_residue : ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T := by\n  change ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T\n  intro p δ T e hp hδ hg\n  by_cases he : p ∣ e\n  · intro h\n    have hsum : p ∣ e + T := by\n      simpa [M5.CRT.repairResidue, he] using h\n    have hT : p ∣ T := (Nat.dvd_add_right he).mp hsum\n    have hd : p ∣ Nat.gcd (Nat.gcd T δ) e :=\n      Nat.dvd_gcd (Nat.dvd_gcd hT hδ) he\n    rw [hg] at hd\n    exact hp.not_dvd_one hd\n  · simpa [M5.CRT.repairResidue, he] using he",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.safe_prime_residue",
+              "ancestors": [],
+              "spec_sha256": "088f4250d9d5c493922c7b30236ebc55aa77e8af055bee968a686110f4860a1c"
+            },
+            "sha256": "13bc1e2c1f57ff56b614f24364e9a766337edb0010eba8f1c44a88c1d140f6f5"
+          },
+          "residues_force_coprime": {
+            "payload": {
+              "declaration": "theorem M5.CRT.residues_force_coprime : ∀ δ T e k : ℕ, 0 < δ → Nat.gcd (Nat.gcd T δ) e = 1 → (∀ p ∈ δ.primeFactors, Nat.ModEq p k (M5.CRT.repairResidue e p)) → Nat.gcd δ (e + k * T) = 1 := by\n  change ∀ δ T e k : ℕ, 0 < δ → Nat.gcd (Nat.gcd T δ) e = 1 → (∀ p ∈ δ.primeFactors, Nat.ModEq p k (M5.CRT.repairResidue e p)) → Nat.gcd δ (e + k * T) = 1\n  intro δ T e k hδ hg hk\n  apply Nat.coprime_of_dvd\n  intro p hp hpδ hpe\n  have hmem : p ∈ δ.primeFactors := by\n    exact Nat.mem_primeFactors.mpr ⟨hp, hpδ, Nat.ne_of_gt hδ⟩\n  have hmod := ((hk p hmem).mul_right T).add_left e\n  exact M5.CRT.safe_prime_residue p δ T e hp hpδ hg\n    ((hmod.dvd_iff (dvd_refl p)).mp hpe)",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.residues_force_coprime",
+              "ancestors": [
+                "safe_prime_residue"
+              ],
+              "spec_sha256": "cfa8f19aaed403380fd546213c396481b5b2ed4895a885cbd4b76e710dabacf8"
+            },
+            "sha256": "a7cfb164270b7df91eb4151bcbadcf12c00d0c7e5458877874f26a258b6d2d9e"
+          },
+          "bounded_connectivity_repair": {
+            "payload": {
+              "declaration": "theorem M5.CRT.bounded_connectivity_repair : ∀ δ T e w : ℕ, 0 < δ → 0 < T → Nat.gcd (Nat.gcd T δ) e = 1 → ∃ k : ℕ, w ≤ k ∧ k < w + δ ∧ Nat.gcd δ (e + k * T) = 1 := by\n  change ∀ δ T e w : ℕ, 0 < δ → 0 < T → Nat.gcd (Nat.gcd T δ) e = 1 → ∃ k : ℕ, w ≤ k ∧ k < w + δ ∧ Nat.gcd δ (e + k * T) = 1\n  intro δ T e w hδ hT hg\n  obtain ⟨r, hrlt, hr⟩ := M5.CRT.prime_crt_representative δ e hδ\n  obtain ⟨k, hwk, hklt, hkr⟩ := M5.CRT.interval_representative δ r w hδ\n  refine ⟨k, hwk, hklt, ?_⟩\n  apply M5.CRT.residues_force_coprime δ T e k hδ hg\n  intro p hp\n  have hpδ : p ∣ δ := (Nat.mem_primeFactors.mp hp).2.1\n  have hkp : Nat.ModEq p k r := by\n    first\n    | exact Nat.ModEq.of_dvd hpδ hkr\n    | exact hkr.of_dvd hpδ\n  exact hkp.trans (hr p hp)",
+              "imports": [
+                "M5CRT"
+              ],
+              "name": "M5.CRT.bounded_connectivity_repair",
+              "ancestors": [
+                "interval_representative",
+                "prime_crt_representative",
+                "residues_force_coprime",
+                "safe_prime_residue"
+              ],
+              "spec_sha256": "d04882c7cc992f62b78dd95f1d1cac835f91cd24b84c7681bd2dd4a45a1cd2b3"
+            },
+            "sha256": "dee9344ff056622177a13a81fcf99cedfecbeb4f06f41a0163a4a2a5022335e7"
+          }
+        }
+      }
+    },
+    "M5_CRT_REPAIR": {
+      "id": "M5_CRT_REPAIR",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_GCD_DEGREE": {
+      "id": "M5_GCD_DEGREE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PERIOD_BOUND": {
+      "id": "M5_PERIOD_BOUND",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LIFT": {
+      "id": "M5_LIFT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BOUNDED_SOURCE": {
+      "id": "M5_BOUNDED_SOURCE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BIRTH": {
+      "id": "M5_BIRTH",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ARITHMETIC": {
+      "id": "M5_ARITHMETIC",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_GLOBAL_IFF": {
+      "id": "M5_GLOBAL_IFF",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_COMPLETE": {
+      "id": "M5_COMPLETE",
+      "status": "planned",
+      "accepted": false
+    }
+  }
+}

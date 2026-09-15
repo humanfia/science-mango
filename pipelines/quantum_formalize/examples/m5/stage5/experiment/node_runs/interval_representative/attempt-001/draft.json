@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ R r w : ℕ, 0 < R → ∃ k : ℕ, w ≤ k ∧ k < w + R ∧ Nat.ModEq R k r\nintro R r w hR\ncases R with\n| zero => omega\n| succ n =>\n  refine ⟨w + (r + n * w) % (n + 1), by omega, ?_, ?_⟩\n  · exact Nat.add_lt_add_left (Nat.mod_lt _ (by omega)) w\n  · change (w + (r + n * w) % (n + 1)) % (n + 1) = r % (n + 1)\n    calc\n      (w + (r + n * w) % (n + 1)) % (n + 1) =\n          (w + (r + n * w)) % (n + 1) := by\n            simp only [Nat.add_mod, Nat.mod_mod]\n      _ = (r + (n + 1) * w) % (n + 1) := by\n            congr 1 <;> ring\n      _ = r % (n + 1) := by simp [Nat.add_mod]",
+  "queries": []
+}

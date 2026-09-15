@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j\nintro w T r i j hij hr\nclassical\nchange (M5.Packing.priorOccurrences r i).card < (M5.Packing.priorOccurrences r j).card\napply Finset.card_lt_card\napply Finset.ssubset_iff_subset_ne.mpr\nconstructor\n· intro k hk\n  simp only [M5.Packing.priorOccurrences, Finset.mem_filter, Finset.mem_univ, true_and] at hk ⊢\n  exact ⟨lt_trans hk.1 hij, hk.2.trans hr⟩\n· intro heq\n  have hi : i ∈ M5.Packing.priorOccurrences r j := by\n    simpa [M5.Packing.priorOccurrences] using And.intro hij hr\n  rw [← heq] at hi\n  simpa [M5.Packing.priorOccurrences] using hi",
+  "queries": [
+    "M5.Packing.priorOccurrences M5.Packing.occurrenceTag",
+    "Finset.ssubset_iff_subset_ne",
+    "Finset.card_lt_card"
+  ]
+}

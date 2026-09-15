@@ -1,0 +1,13 @@
+{
+  "name": "M5.Packing.packed_support_range",
+  "statement": "∀ (w T : ℕ) (r : Fin w → Fin T) (e : ℕ), e ∈ M5.Packing.packedSupport r → e < w * T",
+  "imports": [
+    "M5Packing"
+  ],
+  "context": "theorem M5.Packing.tag_lt_weight : ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w\n  intro w T r i\n  classical\n  unfold M5.Packing.occurrenceTag\n  have hs : M5.Packing.priorOccurrences r i ⊂ (Finset.univ : Finset (Fin w)) := by\n    apply Finset.ssubset_iff_subset_ne.mpr\n    refine ⟨Finset.subset_univ _, ?_⟩\n    intro h\n    have hi : i ∈ M5.Packing.priorOccurrences r i := by\n      rw [h]\n      exact Finset.mem_univ i\n    simpa [M5.Packing.priorOccurrences] using hi\n  simpa only [Finset.card_univ, Fintype.card_fin] using Finset.card_lt_card hs",
+  "queries": [
+    "Finset card image injective",
+    "finite set filter cardinality"
+  ],
+  "guidance": "Unfold packedSupport and extract image witness i. Use (r i).isLt and tag_lt_weight. Bound r_i+tag_i*T < (tag_i+1)*T ≤ w*T, or use natural arithmetic. This is the original exponent upper bound w*T-1 expressed without truncated subtraction. Return only tactic lines without a leading by. Preserve the exact target."
+}

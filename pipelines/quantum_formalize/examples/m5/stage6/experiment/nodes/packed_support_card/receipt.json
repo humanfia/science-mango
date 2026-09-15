@@ -1,0 +1,97 @@
+{
+  "id": "packed_support_card",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Packing.packed_support_card",
+    "spec_sha256": "b284f891182e7e8659af812e25e56e8767a6a505b0ed9a565ccf73fe32d359ca",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-669wmw30/attempt-001/Candidate_b91d0ce094999abf.lean",
+        "target_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-669wmw30/attempt-001/FrozenTarget_b91d0ce094999abf.lean",
+        "feedback": "",
+        "target_sha256": "1ab2e036c8f25d2a4481c66f68ce67ec0676d2216721a34a2c4d5e9407b468f8",
+        "target_olean_sha256": "0085658bb14ef6666b265e4bd1f6762f4d80df268dfc097bc4e73098941b1db1",
+        "source_sha256": "b71246af6e206778835cce2994cd9fb7d6e796140e36bcd97a994803ddd26475",
+        "olean_sha256": "ff60839e0cc0580ccdb958a40fe8e2e2b9e73d16c83731d455383ff69be7588b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:54:03.113962+00:00",
+    "work": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-669wmw30",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-669wmw30/attempt-001/Candidate_b91d0ce094999abf.lean",
+    "environment_sha256": "d6846f4d5ddcd4c8735cb1eb03e6c6c62f78bf7b47447cd5e90eafda2f3a2179",
+    "artifacts": {
+      "equal_residue_tag_strict": {
+        "payload": {
+          "declaration": "theorem M5.Packing.equal_residue_tag_strict : ∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i j : Fin w), i < j → r i = r j → M5.Packing.occurrenceTag r i < M5.Packing.occurrenceTag r j\n  intro w T r i j hij hr\n  classical\n  change (M5.Packing.priorOccurrences r i).card < (M5.Packing.priorOccurrences r j).card\n  apply Finset.card_lt_card\n  apply Finset.ssubset_iff_subset_ne.mpr\n  constructor\n  · intro k hk\n    simp only [M5.Packing.priorOccurrences, Finset.mem_filter, Finset.mem_univ, true_and] at hk ⊢\n    exact ⟨lt_trans hk.1 hij, hk.2.trans hr⟩\n  · intro heq\n    have hi : i ∈ M5.Packing.priorOccurrences r j := by\n      simpa [M5.Packing.priorOccurrences] using And.intro hij hr\n    rw [← heq] at hi\n    simpa [M5.Packing.priorOccurrences] using hi",
+          "imports": [
+            "M5Packing"
+          ],
+          "name": "M5.Packing.equal_residue_tag_strict",
+          "ancestors": [],
+          "spec_sha256": "848d8eec00f3fbf3dfe29472e405df441fb7af951427feda6d1f52b6a1b5465c"
+        },
+        "sha256": "b889471b40d7fdfb6c318760ae683c17528d67948ff119d2514c22865de553bd"
+      },
+      "packed_value_mod": {
+        "payload": {
+          "declaration": "theorem M5.Packing.packed_value_mod : ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.packedValue r i % T = (r i).val := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.packedValue r i % T = (r i).val\n  intro w T r i\n  simp [M5.Packing.packedValue, Nat.add_mod, Nat.mul_mod, Nat.mod_eq_of_lt (r i).isLt]",
+          "imports": [
+            "M5Packing"
+          ],
+          "name": "M5.Packing.packed_value_mod",
+          "ancestors": [],
+          "spec_sha256": "888b2e912c24bebe07f40db5cd55267bc0852d9498786af75d2631cb5d576252"
+        },
+        "sha256": "21f3fb28fef3ce816643d5477018a48d231503d133f899069d6f40f650963333"
+      },
+      "packed_value_injective": {
+        "payload": {
+          "declaration": "theorem M5.Packing.packed_value_injective : ∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r) := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T), Function.Injective (M5.Packing.packedValue r)\n  intro w T r i j h\n  have hrval : (r i).val = (r j).val := by\n    have hm := congrArg (fun n : ℕ => n % T) h\n    simpa only [M5.Packing.packed_value_mod] using hm\n  have hr : r i = r j := Fin.ext hrval\n  have hT : 0 < T := lt_of_le_of_lt (Nat.zero_le _) (r i).isLt\n  have hmul : T * M5.Packing.occurrenceTag r i = T * M5.Packing.occurrenceTag r j := by\n    unfold M5.Packing.packedValue at h\n    nlinarith [hrval]\n  have htag : M5.Packing.occurrenceTag r i = M5.Packing.occurrenceTag r j :=\n    Nat.eq_of_mul_eq_mul_left hT hmul\n  rcases lt_trichotomy i j with hij | hij | hji\n  · have hs := M5.Packing.equal_residue_tag_strict w T r i j hij hr\n    omega\n  · exact hij\n  · have hs := M5.Packing.equal_residue_tag_strict w T r j i hji hr.symm\n    omega",
+          "imports": [
+            "M5Packing"
+          ],
+          "name": "M5.Packing.packed_value_injective",
+          "ancestors": [
+            "equal_residue_tag_strict",
+            "packed_value_mod"
+          ],
+          "spec_sha256": "06c9132c9a76729374b31e8aba369f863e8450c48a0988f5a1afe9de8638ca0b"
+        },
+        "sha256": "e3e81ce7b4ce9e4bf468f1f381e318e3f863641ba97627a51eea683dc7ca670f"
+      },
+      "packed_support_card": {
+        "payload": {
+          "declaration": "theorem M5.Packing.packed_support_card : ∀ (w T : ℕ) (r : Fin w → Fin T), (M5.Packing.packedSupport r).card = w := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T), (M5.Packing.packedSupport r).card = w\n  intro w T r\n  classical\n  unfold M5.Packing.packedSupport\n  rw [Finset.card_image_of_injective _ (M5.Packing.packed_value_injective w T r)]\n  simp",
+          "imports": [
+            "M5Packing"
+          ],
+          "name": "M5.Packing.packed_support_card",
+          "ancestors": [
+            "equal_residue_tag_strict",
+            "packed_value_injective",
+            "packed_value_mod"
+          ],
+          "spec_sha256": "7d047bffa9217e04096d4941da59587e6167714a6134fb267cf571354dc8226d"
+        },
+        "sha256": "8926fcd2c2650196cb8340e05abf7a3cc5c3d271dde4e124c0ee7da78df91eaf"
+      }
+    }
+  }
+}

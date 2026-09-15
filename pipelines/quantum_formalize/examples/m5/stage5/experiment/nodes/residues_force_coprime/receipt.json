@@ -1,0 +1,68 @@
+{
+  "id": "residues_force_coprime",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.CRT.residues_force_coprime",
+    "spec_sha256": "d0ffceb605274bf6b8c07cfb7018a28ce421131c0059a539428fa750d571f786",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-6o4dnuen/attempt-001/Candidate_0266a6a075f1236d.lean",
+        "target_path": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-6o4dnuen/attempt-001/FrozenTarget_0266a6a075f1236d.lean",
+        "feedback": "",
+        "target_sha256": "8aecfd6765a1841a8d88dc96490b5af5b1a710f658765ae4b325e7b1dd3ba04f",
+        "target_olean_sha256": "4c1e0953550e14a9ccf48d2f5f570d310b4eed0c5ab003cbf9a776045f6ab8cc",
+        "source_sha256": "6daca01351dd199bc76c25c0e47e62c8bbe183ab445910c4f6834f3bae7c7158",
+        "olean_sha256": "3898b2612f005a41efd751f80aa3d08ffca0a3c4ea62c1d2fc6818e66e7feb7e",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:49:12.540696+00:00",
+    "work": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-6o4dnuen",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-crt-formalization/.humanize-formal-runs/run-6o4dnuen/attempt-001/Candidate_0266a6a075f1236d.lean",
+    "environment_sha256": "a8fae86407a77c9c46ccc0dbf406d12bc14e4754e1aa112fad3970ae4969ac5f",
+    "artifacts": {
+      "safe_prime_residue": {
+        "payload": {
+          "declaration": "theorem M5.CRT.safe_prime_residue : ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T := by\n  change ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T\n  intro p δ T e hp hδ hg\n  by_cases he : p ∣ e\n  · intro h\n    have hsum : p ∣ e + T := by\n      simpa [M5.CRT.repairResidue, he] using h\n    have hT : p ∣ T := (Nat.dvd_add_right he).mp hsum\n    have hd : p ∣ Nat.gcd (Nat.gcd T δ) e :=\n      Nat.dvd_gcd (Nat.dvd_gcd hT hδ) he\n    rw [hg] at hd\n    exact hp.not_dvd_one hd\n  · simpa [M5.CRT.repairResidue, he] using he",
+          "imports": [
+            "M5CRT"
+          ],
+          "name": "M5.CRT.safe_prime_residue",
+          "ancestors": [],
+          "spec_sha256": "088f4250d9d5c493922c7b30236ebc55aa77e8af055bee968a686110f4860a1c"
+        },
+        "sha256": "13bc1e2c1f57ff56b614f24364e9a766337edb0010eba8f1c44a88c1d140f6f5"
+      },
+      "residues_force_coprime": {
+        "payload": {
+          "declaration": "theorem M5.CRT.residues_force_coprime : ∀ δ T e k : ℕ, 0 < δ → Nat.gcd (Nat.gcd T δ) e = 1 → (∀ p ∈ δ.primeFactors, Nat.ModEq p k (M5.CRT.repairResidue e p)) → Nat.gcd δ (e + k * T) = 1 := by\n  change ∀ δ T e k : ℕ, 0 < δ → Nat.gcd (Nat.gcd T δ) e = 1 → (∀ p ∈ δ.primeFactors, Nat.ModEq p k (M5.CRT.repairResidue e p)) → Nat.gcd δ (e + k * T) = 1\n  intro δ T e k hδ hg hk\n  apply Nat.coprime_of_dvd\n  intro p hp hpδ hpe\n  have hmem : p ∈ δ.primeFactors := by\n    exact Nat.mem_primeFactors.mpr ⟨hp, hpδ, Nat.ne_of_gt hδ⟩\n  have hmod := ((hk p hmem).mul_right T).add_left e\n  exact M5.CRT.safe_prime_residue p δ T e hp hpδ hg\n    ((hmod.dvd_iff (dvd_refl p)).mp hpe)",
+          "imports": [
+            "M5CRT"
+          ],
+          "name": "M5.CRT.residues_force_coprime",
+          "ancestors": [
+            "safe_prime_residue"
+          ],
+          "spec_sha256": "cfa8f19aaed403380fd546213c396481b5b2ed4895a885cbd4b76e710dabacf8"
+        },
+        "sha256": "a7cfb164270b7df91eb4151bcbadcf12c00d0c7e5458877874f26a258b6d2d9e"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ δ e : ℕ, 0 < δ → ∃ r : ℕ, r < M5.CRT.primeProduct δ ∧ ∀ p ∈ δ.primeFactors, Nat.ModEq p r (M5.CRT.repairResidue e p)\nintro δ e hδ\nhave hn : ∀ p ∈ δ.primeFactors, (fun p : ℕ => p) p ≠ 0 := by\n  intro p hp\n  exact (Nat.prime_of_mem_primeFactors hp).ne_zero\nhave hc : Set.Pairwise (↑δ.primeFactors : Set ℕ) (fun p q => Nat.Coprime p q) := by\n  intro p hp q hq hpq\n  exact (Nat.coprime_primes (Nat.prime_of_mem_primeFactors hp) (Nat.prime_of_mem_primeFactors hq)).2 hpq\nrefine ⟨(Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).val, ?_, ?_⟩\n· simpa [M5.CRT.primeProduct] using Nat.chineseRemainderOfFinset_lt_prod (M5.CRT.repairResidue e) (fun p : ℕ => p) hn hc\n· exact (Nat.chineseRemainderOfFinset (M5.CRT.repairResidue e) (fun p : ℕ => p) δ.primeFactors hn hc).property",
+  "queries": [
+    "Nat.chineseRemainderOfFinset",
+    "Nat.chineseRemainderOfFinset_lt_prod",
+    "Nat.coprime_primes"
+  ]
+}

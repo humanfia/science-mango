@@ -1,0 +1,252 @@
+[
+  {
+    "queries": [
+      "Chinese remainder theorem natural numbers",
+      "natural number coprime"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Chinese remainder theorem natural numbers",
+        "status": "ok",
+        "results": [
+          {
+            "id": 213300,
+            "name": "Nat.chineseRemainder",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L463-L465",
+            "source_text": "/-- The natural number less than `n*m` congruent to `a` mod `n` and `b` mod `m` -/\ndef chineseRemainder (co : n.Coprime m) (a b : ℕ) : { k // k ≡ a [MOD n] ∧ k ≡ b [MOD m] } :=\n  chineseRemainder' (by convert! @modEq_one a b)\n",
+            "docstring": "The natural number less than `n*m` congruent to `a` mod `n` and `b` mod `m` "
+          },
+          {
+            "id": 223127,
+            "name": "ZMod.chineseRemainder",
+            "module": "Mathlib.Data.ZMod.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L877-L924",
+            "source_text": "/-- The **Chinese remainder theorem**. For a pair of coprime natural numbers, `m` and `n`,\n  the rings `ZMod (m * n)` and `ZMod m × ZMod n` are isomorphic.\n\nSee `Ideal.quotientInfRingEquivPiQuotient` for the Chinese remainder theorem for ideals in any\nring.\n-/\ndef chineseRemainder {m n : ℕ} (h : m.Coprime n) : ZMod (m * n) ≃+* ZMod m × ZMod n :=\n  let to_fun : ZMod (m * n) → ZMod m × ZMod n :=\n    ZMod.castHom (show m.lcm n ∣ m * n by simp [Nat.lcm_dvd_iff]) (ZMod m × ZMod n)\n  let inv_fun : ZMod m × ZMod n → ZMod (m * n) := fun x =>\n    if m * n = 0 then\n      if m = 1 then cast (RingHom.snd _ (ZMod n) x) else cast (RingHom.fst (ZMod m) _ x)\n    else Nat.chineseRemainder h x.1.val x.2.val\n  have inv : Function.LeftInverse inv_fun to_fun ∧ Function.RightInverse inv_fun to_fun :=\n    if hmn0 : m * n = 0 then by\n      rcases h.eq_of_mul_eq_zero hmn0 with (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩)\n      · constructor\n        · intro x; rfl\n        · rintro ⟨x, y⟩\n          fin_cases y\n          simp [to_fun, inv_fun, castHom, Prod.ext_iff, eq_iff_true_of_subsingleton]\n      · constructor\n        · intro x; rfl\n        · rintro ⟨x, y⟩\n          fin_cases x\n          simp [to_fun, inv_fun, castHom, Prod.ext_iff, eq_iff_true_of_subsingleton]\n    else by\n      haveI : NeZero (m * n) := ⟨hmn0⟩\n      haveI : NeZero m := ⟨left_ne_zero_of_mul hmn0⟩\n      haveI : NeZero n := ⟨right_ne_zero_of_mul hmn0⟩\n      have left_inv : Function.LeftInverse inv_fun to_fun := by\n        intro x\n        dsimp only [to_fun, inv_fun, ZMod.castHom_apply]\n        conv_rhs => rw [← ZMod.natCast_zmod_val x]\n        rw [if_neg hmn0, ZMod.natCast_eq_natCast_iff, ← Nat.modEq_and_modEq_iff_modEq_mul h,\n          Prod.fst_zmod_cast, Prod.snd_zmod_cast]\n        refine\n          ⟨(Nat.chineseRemainder h (cast x : ZMod m).val (cast x : ZMod n).val).2.left.trans ?_,\n            (Nat.chineseRemainder h (cast x : ZMod m).val (cast x : ZMod n).val).2.right.trans ?_⟩\n        · rw [← ZMod.natCast_eq_natCast_iff, ZMod.natCast_zmod_val, ZMod.natCast_val]\n        · rw [← ZMod.natCast_eq_natCast_iff, ZMod.natCast_zmod_val, ZMod.natCast_val]\n      exact ⟨left_inv, left_inv.rightInverse_of_card_le (by simp)⟩\n  { toFun := to_fun,\n    invFun := inv_fun,\n    map_mul' := map_mul _\n    map_add' := map_add _\n    left_inv := inv.1\n    right_inv := inv.2 }\n",
+            "docstring": "The **Chinese remainder theorem**. For a pair of coprime natural numbers, `m` and `n`,\n  the rings `ZMod (m * n)` and `ZMod m × ZMod n` are isomorphic.\n\nSee `Ideal.quotientInfRingEquivPiQuotient` for the Chinese remainder theorem for ideals in any\nring.\n"
+          },
+          {
+            "id": 213302,
+            "name": "Nat.chineseRemainder_lt_mul",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L474-L476",
+            "source_text": "theorem chineseRemainder_lt_mul (co : n.Coprime m) (a b : ℕ) (hn : n ≠ 0) (hm : m ≠ 0) :\n    ↑(chineseRemainder co a b) < n * m :=\n  lt_of_lt_of_le (chineseRemainder'_lt_lcm _ hn hm) (le_of_eq co.lcm_eq_mul)\n",
+            "docstring": null
+          },
+          {
+            "id": 213299,
+            "name": "Nat.chineseRemainder'",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L421-L461",
+            "source_text": "/-- The natural number less than `lcm n m` congruent to `a` mod `n` and `b` mod `m` -/\ndef chineseRemainder' (h : a ≡ b [MOD gcd n m]) : { k // k ≡ a [MOD n] ∧ k ≡ b [MOD m] } :=\n  if hn : n = 0 then ⟨a, by\n    rw [hn, gcd_zero_left] at h; constructor\n    · rfl\n    · exact h⟩\n  else\n    if hm : m = 0 then ⟨b, by\n      rw [hm, gcd_zero_right] at h; constructor\n      · exact h.symm\n      · rfl⟩\n    else\n      ⟨let (c, d) := xgcd n m; Int.toNat ((n * c * b + m * d * a) / gcd n m % lcm n m), by\n        rw [xgcd_val]\n        dsimp\n        rw [modEq_iff_dvd, modEq_iff_dvd,\n          Int.toNat_of_nonneg (Int.emod_nonneg _ (Int.natCast_ne_zero.2 (lcm_ne_zero hn hm)))]\n        have hnonzero : (gcd n m : ℤ) ≠ 0 := by\n          norm_cast\n          rw [Nat.gcd_eq_zero_iff, not_and]\n          exact fun _ => hm\n        have hcoedvd : ∀ t, (gcd n m : ℤ) ∣ t * (b - a) := fun t => h.dvd.mul_left _\n        have := gcd_eq_gcd_ab n m\n        constructor <;> rw [Int.emod_def, ← sub_add] <;>\n            refine Int.dvd_add ?_ (dvd_mul_of_dvd_left ?_ _) <;>\n          try norm_cast\n        · rw [← sub_eq_iff_eq_add'] at this\n          rw [← this, Int.sub_mul, ← add_sub_assoc, add_comm, add_sub_assoc, ← Int.mul_sub,\n            Int.add_ediv_of_dvd_left, Int.mul_ediv_cancel_left _ hnonzero,\n            Int.mul_ediv_assoc _ h.dvd, ← sub_sub, sub_self, zero_sub, Int.dvd_neg, mul_assoc]\n          · exact dvd_mul_right _ _\n          norm_cast\n          exact dvd_mul_right _ _\n        · exact dvd_lcm_left n m\n        · rw [← sub_eq_iff_eq_add] at this\n          rw [← this, Int.sub_mul, sub_add, ← Int.mul_sub, Int.sub_ediv_of_dvd,\n            Int.mul_ediv_cancel_left _ hnonzero, Int.mul_ediv_assoc _ h.dvd, ← sub_add, sub_self,\n            zero_add, mul_assoc]\n          · exact dvd_mul_right _ _\n          · exact hcoedvd _\n        · exact dvd_lcm_right n m⟩\n",
+            "docstring": "The natural number less than `lcm n m` congruent to `a` mod `n` and `b` mod `m` "
+          },
+          {
+            "id": 213210,
+            "name": "Nat.ModEq",
+            "module": "Mathlib.Data.Nat.ModEq",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/ModEq.lean#L35-L37",
+            "source_text": "/-- Modular equality. `n.ModEq a b`, or `a ≡ b [MOD n]`, means that `a % n = b % n`. -/\ndef Nat.ModEq (n a b : ℕ) :=\n  a % n = b % n\n",
+            "docstring": "Modular equality. `n.ModEq a b`, or `a ≡ b [MOD n]`, means that `a % n = b % n`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Chinese remainder theorem natural numbers",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389410,
+            "name": "FieldSpecification.wicks_theorem",
+            "module": "Physlib.QFT.PerturbationTheory.WickAlgebra.WicksTheorem",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickAlgebra/WicksTheorem.lean#L46-L100",
+            "source_text": "/--\nFor a list `φs` of `𝓕.FieldOp`, Wick's theorem states that\n\n`𝓣(φs) = ∑ φsΛ, φsΛ.wickTerm`\n\nwhere the sum is over all Wick contraction `φsΛ`.\n\nThe proof is via induction on `φs`.\n- The base case `φs = []` is handled by `wickTerm_empty_nil`.\n\nThe inductive step works as follows:\n\nFor the LHS:\n1. `timeOrder_eq_maxTimeField_mul_finset` is used to write\n  `𝓣(φ₀…φₙ)` as `𝓢(φᵢ,φ₀…φᵢ₋₁) • φᵢ * 𝓣(φ₀…φᵢ₋₁φᵢ₊₁φₙ)` where `φᵢ` is\n  the maximal time field in `φ₀…φₙ`\n2. The induction hypothesis is then used on `𝓣(φ₀…φᵢ₋₁φᵢ₊₁φₙ)` to expand it as a sum over\n  Wick contractions of `φ₀…φᵢ₋₁φᵢ₊₁φₙ`.\n3. This gives terms of the form `φᵢ * φsΛ.wickTerm` on which\n  `mul_wickTerm_eq_sum` is used where `φsΛ` is a Wick contraction of `φ₀…φᵢ₋₁φᵢ₊₁φ`,\n  to rewrite terms as a sum over optional uncontracted elements of `φsΛ`\n\nOn the LHS we now have a sum over Wick contractions `φsΛ` of `φ₀…φᵢ₋₁φᵢ₊₁φ` (from 2) and optional\nuncontracted elements of `φsΛ` (from 3)\n\nFor the RHS:\n1. The sum over Wick contractions of `φ₀…φₙ` on the RHS\n  is split via `insertLift_sum` into a sum over Wick contractions `φsΛ` of `φ₀…φᵢ₋₁φᵢ₊₁φ` and\n  sum over optional uncontracted elements of `φsΛ`.\n\nBoth sides are now sums over the same thing and their terms equate by the nature of the\nlemmas used.\n-/\ntheorem wicks_theorem : (φs : List 𝓕.FieldOp) → 𝓣(ofFieldOpList φs) =\n    ∑ (φsΛ : WickContraction φs.length), φsΛ.wickTerm\n  | [] => by\n    simp only [timeOrder_ofFieldOpList_nil, List.length_nil, sum_WickContraction_nil,\n      wickTerm_empty_nil]\n  | φ :: φs => by\n    have ih := wicks_theorem (eraseMaxTimeField φ φs)\n    conv_lhs => rw [timeOrder_eq_maxTimeField_mul_finset, ih, Finset.mul_sum]\n    have h1 : φ :: φs =\n        (eraseMaxTimeField φ φs).insertIdx (maxTimeFieldPosFin φ φs) (maxTimeField φ φs) := by\n      simp only [eraseMaxTimeField, insertionSortDropMinPos, List.length_cons, Nat.succ_eq_add_one,\n        maxTimeField, insertionSortMin, List.get_eq_getElem]\n      erw [insertIdx_eraseIdx_fin]\n    conv_rhs => rw [wicks_theorem_congr h1, insertLift_sum]\n    refine Finset.sum_congr rfl fun c _ => ?_\n    rw [Algebra.smul_mul_assoc, mul_wickTerm_eq_sum\n      (maxTimeField φ φs) (eraseMaxTimeField φ φs) (maxTimeFieldPosFin φ φs) c, smul_smul]\n    simp only [exchangeSign_mul_self, Nat.succ_eq_add_one, Fintype.sum_option,\n      Finset.univ_eq_attach, smul_add, one_smul]\n    · exact fun k => timeOrder_maxTimeField _ _ k\n    · exact fun k => lt_maxTimeFieldPosFin_not_timeOrder _ _ k\ntermination_by φs => φs.length\n",
+            "docstring": "For a list `φs` of `𝓕.FieldOp`, Wick's theorem states that\n\n`𝓣(φs) = ∑ φsΛ, φsΛ.wickTerm`\n\nwhere the sum is over all Wick contraction `φsΛ`.\n\nThe proof is via induction on `φs`.\n- The base case `φs = []` is handled by `wickTerm_empty_nil`.\n\nThe inductive step works as follows:\n\nFor the LHS:\n1. `timeOrder_eq_maxTimeField_mul_finset` is used to write\n  `𝓣(φ₀…φₙ)` as `𝓢(φᵢ,φ₀…φᵢ₋₁) • φᵢ * 𝓣(φ₀…φᵢ₋₁φᵢ₊₁φₙ)` where `φᵢ` is\n  the maximal time field in `φ₀…φₙ`\n2. The induction hypothesis is then used on `𝓣(φ₀…φᵢ₋₁φᵢ₊₁φₙ)` to expand it as a sum over\n  Wick contractions of `φ₀…φᵢ₋₁φᵢ₊₁φₙ`.\n3. This gives terms of the form `φᵢ * φsΛ.wickTerm` on which\n  `mul_wickTerm_eq_sum` is used where `φsΛ` is a Wick contraction of `φ₀…φᵢ₋₁φᵢ₊₁φ`,\n  to rewrite terms as a sum over optional uncontracted elements of `φsΛ`\n\nOn the LHS we now have a sum over Wick contractions `φsΛ` of `φ₀…φᵢ₋₁φᵢ₊₁φ` (from 2) and optional\nuncontracted elements of `φsΛ` (from 3)\n\nFor the RHS:\n1. The sum over Wick contractions of `φ₀…φₙ` on the RHS\n  is split via `insertLift_sum` into a sum over Wick contractions `φsΛ` of `φ₀…φᵢ₋₁φᵢ₊₁φ` and\n  sum over optional uncontracted elements of `φsΛ`.\n\nBoth sides are now sums over the same thing and their terms equate by the nature of the\nlemmas used.\n"
+          },
+          {
+            "id": 386901,
+            "name": "fundamental_theorem_of_variational_calculus",
+            "module": "Physlib.Mathematics.VariationalCalculus.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/Basic.lean#L231-L249",
+            "source_text": "lemma fundamental_theorem_of_variational_calculus {f : X → V}\n    (μ : Measure X) [IsFiniteMeasureOnCompacts μ] [μ.IsOpenPosMeasure]\n    [OpensMeasurableSpace X]\n    (hf : IsTestFunction f) (hg : ∀ g, IsTestFunction g → ∫ x, ⟪f x, g x⟫_ℝ ∂μ = 0) :\n    f = 0 := by\n  have hf' := hg f hf\n  rw [MeasureTheory.integral_eq_zero_iff_of_nonneg] at hf'\n  · rw [Continuous.ae_eq_iff_eq] at hf'\n    · funext x\n      have hf'' := congrFun hf' x\n      simpa using hf''\n    · have hf : Continuous f := hf.smooth.continuous\n      fun_prop\n    · fun_prop\n  · intro x\n    simp only [Pi.zero_apply]\n    apply real_inner_self_nonneg'\n  · apply IsTestFunction.integrable\n    exact IsTestFunction.inner hf hf\n",
+            "docstring": null
+          },
+          {
+            "id": 385431,
+            "name": "RigidBody.parallel_axis_theorem",
+            "module": "Physlib.ClassicalMechanics.RigidBody.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/RigidBody/Basic.lean#L160-L164",
+            "source_text": "/-- If I_O is the inertia tensor about a point O, then the inertia tensor about a parallel point O'\n    displaced by a is I_{O'} = I_O + M(|a|² 1 − a ⊗ a). This is the parallel-axis theorem. -/\ninformal_lemma parallel_axis_theorem where\n  tag := \"LL32-PA\"\n  deps := [``RigidBody]\n",
+            "docstring": "If I_O is the inertia tensor about a point O, then the inertia tensor about a parallel point O'\ndisplaced by a is I_{O'} = I_O + M(|a|² 1 − a ⊗ a). This is the parallel-axis theorem. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural number coprime",
+        "status": "ok",
+        "results": [
+          {
+            "id": 213595,
+            "name": "Nat.Prime.coprime_iff_not_dvd",
+            "module": "Mathlib.Data.Nat.Prime.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Prime/Defs.lean#L418-L420",
+            "source_text": "theorem Prime.coprime_iff_not_dvd {p n : ℕ} (pp : Prime p) : Coprime p n ↔ ¬p ∣ n :=\n  ⟨fun co d => pp.not_dvd_one <| co.dvd_of_dvd_mul_left (by simp [d]), fun nd =>\n    coprime_of_dvd fun _ m2 mp => ((prime_dvd_prime_iff_eq m2 pp).1 mp).symm ▸ nd⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 215387,
+            "name": "PNat.coprime_coe",
+            "module": "Mathlib.Data.PNat.Prime",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Prime.lean#L161-L165",
+            "source_text": "@[simp, norm_cast]\ntheorem coprime_coe {m n : ℕ+} : Nat.Coprime ↑m ↑n ↔ m.Coprime n := by\n  unfold Nat.Coprime Coprime\n  rw [← coe_inj]\n  simp",
+            "docstring": null
+          },
+          {
+            "id": 215386,
+            "name": "PNat.Coprime",
+            "module": "Mathlib.Data.PNat.Prime",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Prime.lean#L157-L159",
+            "source_text": "/-- Two pnats are coprime if their gcd is 1. -/\ndef Coprime (m n : ℕ+) : Prop :=\n  m.gcd n = 1\n",
+            "docstring": "Two pnats are coprime if their gcd is 1. "
+          },
+          {
+            "id": 272349,
+            "name": "Nat.coprime_fermatNumber_fermatNumber",
+            "module": "Mathlib.NumberTheory.Fermat",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Fermat.lean#L97-L111",
+            "source_text": "/--\n**Goldbach's theorem** : no two distinct Fermat numbers share a common factor greater than one.\n\nFrom a letter to Euler, see page 37 in [juskevic2022].\n-/\ntheorem coprime_fermatNumber_fermatNumber {m n : ℕ} (hmn : m ≠ n) :\n    Coprime (fermatNumber m) (fermatNumber n) := by\n  wlog hmn' : m < n\n  · simpa only [coprime_comm] using this hmn.symm (by lia)\n  let d := (fermatNumber m).gcd (fermatNumber n)\n  have h_n : d ∣ fermatNumber n := gcd_dvd_right ..\n  have h_m : d ∣ 2 := (Nat.dvd_add_right <| (gcd_dvd_left _ _).trans <| dvd_prod_of_mem _\n    <| mem_range.mpr hmn').mp <| fermatNumber_eq_prod_add_two _ ▸ h_n\n  refine ((dvd_prime prime_two).mp h_m).resolve_right fun h_two ↦ ?_\n  exact (odd_fermatNumber _).not_two_dvd_nat (h_two ▸ h_n)\n",
+            "docstring": "**Goldbach's theorem** : no two distinct Fermat numbers share a common factor greater than one.\n\nFrom a letter to Euler, see page 37 in [juskevic2022].\n"
+          },
+          {
+            "id": 272350,
+            "name": "Nat.pairwise_coprime_fermatNumber",
+            "module": "Mathlib.NumberTheory.Fermat",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Fermat.lean#L113-L115",
+            "source_text": "lemma pairwise_coprime_fermatNumber :\n    Pairwise fun m n ↦ Coprime (fermatNumber m) (fermatNumber n) :=\n  fun _m _n ↦ coprime_fermatNumber_fermatNumber\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "natural number coprime",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Chinese remainder theorem natural numbers",
+      "natural number coprime"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

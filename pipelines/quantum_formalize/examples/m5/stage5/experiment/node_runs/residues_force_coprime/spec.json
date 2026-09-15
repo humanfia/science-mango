@@ -1,0 +1,13 @@
+{
+  "name": "M5.CRT.residues_force_coprime",
+  "statement": "∀ δ T e k : ℕ, 0 < δ → Nat.gcd (Nat.gcd T δ) e = 1 → (∀ p ∈ δ.primeFactors, Nat.ModEq p k (M5.CRT.repairResidue e p)) → Nat.gcd δ (e + k * T) = 1",
+  "imports": [
+    "M5CRT"
+  ],
+  "context": "theorem M5.CRT.safe_prime_residue : ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T := by\n  change ∀ p δ T e : ℕ, p.Prime → p ∣ δ → Nat.gcd (Nat.gcd T δ) e = 1 → ¬ p ∣ e + M5.CRT.repairResidue e p * T\n  intro p δ T e hp hδ hg\n  by_cases he : p ∣ e\n  · intro h\n    have hsum : p ∣ e + T := by\n      simpa [M5.CRT.repairResidue, he] using h\n    have hT : p ∣ T := (Nat.dvd_add_right he).mp hsum\n    have hd : p ∣ Nat.gcd (Nat.gcd T δ) e :=\n      Nat.dvd_gcd (Nat.dvd_gcd hT hδ) he\n    rw [hg] at hd\n    exact hp.not_dvd_one hd\n  · simpa [M5.CRT.repairResidue, he] using he",
+  "queries": [
+    "Chinese remainder theorem natural numbers",
+    "natural number coprime"
+  ],
+  "guidance": "Apply Nat.coprime_of_dvd, whose conclusion unfolds to gcd=1. Every prime divisor of positive δ lies in primeFactors by Nat.Prime.mem_primeFactors. Transport supplied congruence through mul_right T and add_left e. Nat.ModEq.dvd_iff with dvd_refl p transports divisibility to the expression excluded by accepted safe_prime_residue. Return tactic lines only, without a leading by. Preserve the exact target."
+}

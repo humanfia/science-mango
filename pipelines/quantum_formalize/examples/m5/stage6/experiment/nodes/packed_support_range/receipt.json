@@ -1,0 +1,68 @@
+{
+  "id": "packed_support_range",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Packing.packed_support_range",
+    "spec_sha256": "f17ca334c696f394e4699f0ab3d026703b942c65d94bbb6f1dbb1a63e842a717",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-prijm3qk/attempt-001/Candidate_76841020f8a8c595.lean",
+        "target_path": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-prijm3qk/attempt-001/FrozenTarget_76841020f8a8c595.lean",
+        "feedback": "",
+        "target_sha256": "b1ffbeafa9e6103343057c25fd624dd62f826210028250b227bab05e5d230d83",
+        "target_olean_sha256": "00f00f5b50dee19b86f9c51edcfe724a83ef3014275ccfab97df82d18bf8a0ab",
+        "source_sha256": "991efdbed727c8a98b872a27a6dd2d09fae2747298ebe0bdcc113a1c15cd1e07",
+        "olean_sha256": "2dca8a56a44a76919f6acb941feda45989f299070211eb082e7611e39dd56789",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T06:54:02.277285+00:00",
+    "work": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-prijm3qk",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-packing-formalization/.humanize-formal-runs/run-prijm3qk/attempt-001/Candidate_76841020f8a8c595.lean",
+    "environment_sha256": "d6846f4d5ddcd4c8735cb1eb03e6c6c62f78bf7b47447cd5e90eafda2f3a2179",
+    "artifacts": {
+      "tag_lt_weight": {
+        "payload": {
+          "declaration": "theorem M5.Packing.tag_lt_weight : ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (i : Fin w), M5.Packing.occurrenceTag r i < w\n  intro w T r i\n  classical\n  unfold M5.Packing.occurrenceTag\n  have hs : M5.Packing.priorOccurrences r i ⊂ (Finset.univ : Finset (Fin w)) := by\n    apply Finset.ssubset_iff_subset_ne.mpr\n    refine ⟨Finset.subset_univ _, ?_⟩\n    intro h\n    have hi : i ∈ M5.Packing.priorOccurrences r i := by\n      rw [h]\n      exact Finset.mem_univ i\n    simpa [M5.Packing.priorOccurrences] using hi\n  simpa only [Finset.card_univ, Fintype.card_fin] using Finset.card_lt_card hs",
+          "imports": [
+            "M5Packing"
+          ],
+          "name": "M5.Packing.tag_lt_weight",
+          "ancestors": [],
+          "spec_sha256": "5ecd4c9c642e144b06fe9137f136459001089918b0b3524b99bc095aa5b57abe"
+        },
+        "sha256": "30fca21a3a7d4d3fcc0364f1a1711618aa11252bae2addd778a07a6f7029a5c0"
+      },
+      "packed_support_range": {
+        "payload": {
+          "declaration": "theorem M5.Packing.packed_support_range : ∀ (w T : ℕ) (r : Fin w → Fin T) (e : ℕ), e ∈ M5.Packing.packedSupport r → e < w * T := by\n  change ∀ (w T : ℕ) (r : Fin w → Fin T) (e : ℕ), e ∈ M5.Packing.packedSupport r → e < w * T\n  intro w T r e he\n  classical\n  unfold M5.Packing.packedSupport at he\n  rcases Finset.mem_image.mp he with ⟨i, _, rfl⟩\n  change (r i).val + M5.Packing.occurrenceTag r i * T < w * T\n  have hr := (r i).isLt\n  have ht := M5.Packing.tag_lt_weight w T r i\n  have hm := Nat.mul_le_mul_right T (Nat.succ_le_of_lt ht)\n  nlinarith",
+          "imports": [
+            "M5Packing"
+          ],
+          "name": "M5.Packing.packed_support_range",
+          "ancestors": [
+            "tag_lt_weight"
+          ],
+          "spec_sha256": "d39cf4a17eed8cee4555111662f0601047f33efe73173a398f394af0c66279a0"
+        },
+        "sha256": "d2b953551f66fa2daba0d4371e95c1ac7e94ed8ad5c640446b6e997c9a313b6b"
+      }
+    }
+  }
+}
