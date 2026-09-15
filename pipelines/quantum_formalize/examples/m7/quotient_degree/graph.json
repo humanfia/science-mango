@@ -1,0 +1,92 @@
+{
+  "title": "M7 full polynomial quotient cardinality and induced degree invariance",
+  "nodes": [
+    {
+      "id": "span_containment",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QuotientDegree.span_containment",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 F : M6.Cyclic.BinaryPolynomial, F \u2223 M6.Cyclic.modulus N \u2192 Ideal.span ({M6.Cyclic.modulus N} : Set M6.Cyclic.BinaryPolynomial) \u2264 Ideal.span ({F} : Set M6.Cyclic.BinaryPolynomial)",
+        "imports": [
+          "M7QuotientDegree"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is the actual cyclic quotient by the full monic polynomial, with no irreducibility, odd-N or squarefree assumption. Accepted M7.SignatureIdeal.quotient_membership says image p belongs to principal F iff F divides p when F divides modulus. For quotient_equiv define Ideal.Quotient.factor (span_containment N F hF), whose codomain is AdjoinRoot F; factor_surjective and factor_mk are current APIs. Show its kernel equals principal F by mk_surjective on the cyclic quotient, AdjoinRoot.mk_eq_zero and quotient_membership. Then RingHom.quotientKerEquivOfSurjective gives the equivalence. AdjoinRoot is the quotient by span singleton. adjoin_card: (AdjoinRoot.powerBasis' hF).basis.equivFun identifies AdjoinRoot F with Fin F.natDegree \u2192 ZMod 2, preserving the degree zero case F=1. Use Nat.card_congr and finite function cardinality. Ideal.quotientEquiv I J e h expects h : J = I.map e.toRingHom, reverse the displayed hypothesis. Apply quotient_card on both sides and injectivity of 2^n on naturals. This generic intermediate automorphism lemma will later be instantiated with the proved actual unit substitution, not assumed in the M7 root. Return tactic lines only."
+      }
+    },
+    {
+      "id": "quotient_equiv",
+      "dependencies": [
+        "span_containment"
+      ],
+      "spec": {
+        "name": "M7.QuotientDegree.quotient_equiv",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 F : M6.Cyclic.BinaryPolynomial, F \u2223 M6.Cyclic.modulus N \u2192 Nonempty ((M6.Cyclic.CycleRing N \u29f8 M7.SignatureIdeal.principal N F) \u2243+* AdjoinRoot F)",
+        "imports": [
+          "M7QuotientDegree"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is the actual cyclic quotient by the full monic polynomial, with no irreducibility, odd-N or squarefree assumption. Accepted M7.SignatureIdeal.quotient_membership says image p belongs to principal F iff F divides p when F divides modulus. For quotient_equiv define Ideal.Quotient.factor (span_containment N F hF), whose codomain is AdjoinRoot F; factor_surjective and factor_mk are current APIs. Show its kernel equals principal F by mk_surjective on the cyclic quotient, AdjoinRoot.mk_eq_zero and quotient_membership. Then RingHom.quotientKerEquivOfSurjective gives the equivalence. AdjoinRoot is the quotient by span singleton. adjoin_card: (AdjoinRoot.powerBasis' hF).basis.equivFun identifies AdjoinRoot F with Fin F.natDegree \u2192 ZMod 2, preserving the degree zero case F=1. Use Nat.card_congr and finite function cardinality. Ideal.quotientEquiv I J e h expects h : J = I.map e.toRingHom, reverse the displayed hypothesis. Apply quotient_card on both sides and injectivity of 2^n on naturals. This generic intermediate automorphism lemma will later be instantiated with the proved actual unit substitution, not assumed in the M7 root. Return tactic lines only."
+      }
+    },
+    {
+      "id": "adjoin_card",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.QuotientDegree.adjoin_card",
+        "statement": "\u2200 F : M6.Cyclic.BinaryPolynomial, F.Monic \u2192 Nat.card (AdjoinRoot F) = 2 ^ F.natDegree",
+        "imports": [
+          "M7QuotientDegree"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is the actual cyclic quotient by the full monic polynomial, with no irreducibility, odd-N or squarefree assumption. Accepted M7.SignatureIdeal.quotient_membership says image p belongs to principal F iff F divides p when F divides modulus. For quotient_equiv define Ideal.Quotient.factor (span_containment N F hF), whose codomain is AdjoinRoot F; factor_surjective and factor_mk are current APIs. Show its kernel equals principal F by mk_surjective on the cyclic quotient, AdjoinRoot.mk_eq_zero and quotient_membership. Then RingHom.quotientKerEquivOfSurjective gives the equivalence. AdjoinRoot is the quotient by span singleton. adjoin_card: (AdjoinRoot.powerBasis' hF).basis.equivFun identifies AdjoinRoot F with Fin F.natDegree \u2192 ZMod 2, preserving the degree zero case F=1. Use Nat.card_congr and finite function cardinality. Ideal.quotientEquiv I J e h expects h : J = I.map e.toRingHom, reverse the displayed hypothesis. Apply quotient_card on both sides and injectivity of 2^n on naturals. This generic intermediate automorphism lemma will later be instantiated with the proved actual unit substitution, not assumed in the M7 root. Return tactic lines only."
+      }
+    },
+    {
+      "id": "quotient_card",
+      "dependencies": [
+        "quotient_equiv",
+        "adjoin_card"
+      ],
+      "spec": {
+        "name": "M7.QuotientDegree.quotient_card",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 F : M6.Cyclic.BinaryPolynomial, F.Monic \u2192 F \u2223 M6.Cyclic.modulus N \u2192 Nat.card (M6.Cyclic.CycleRing N \u29f8 M7.SignatureIdeal.principal N F) = 2 ^ F.natDegree",
+        "imports": [
+          "M7QuotientDegree"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is the actual cyclic quotient by the full monic polynomial, with no irreducibility, odd-N or squarefree assumption. Accepted M7.SignatureIdeal.quotient_membership says image p belongs to principal F iff F divides p when F divides modulus. For quotient_equiv define Ideal.Quotient.factor (span_containment N F hF), whose codomain is AdjoinRoot F; factor_surjective and factor_mk are current APIs. Show its kernel equals principal F by mk_surjective on the cyclic quotient, AdjoinRoot.mk_eq_zero and quotient_membership. Then RingHom.quotientKerEquivOfSurjective gives the equivalence. AdjoinRoot is the quotient by span singleton. adjoin_card: (AdjoinRoot.powerBasis' hF).basis.equivFun identifies AdjoinRoot F with Fin F.natDegree \u2192 ZMod 2, preserving the degree zero case F=1. Use Nat.card_congr and finite function cardinality. Ideal.quotientEquiv I J e h expects h : J = I.map e.toRingHom, reverse the displayed hypothesis. Apply quotient_card on both sides and injectivity of 2^n on naturals. This generic intermediate automorphism lemma will later be instantiated with the proved actual unit substitution, not assumed in the M7 root. Return tactic lines only."
+      }
+    },
+    {
+      "id": "degree_invariant",
+      "dependencies": [
+        "quotient_card"
+      ],
+      "spec": {
+        "name": "M7.QuotientDegree.degree_invariant",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 F E : M6.Cyclic.BinaryPolynomial, F.Monic \u2192 E.Monic \u2192 F \u2223 M6.Cyclic.modulus N \u2192 E \u2223 M6.Cyclic.modulus N \u2192 \u2200 e : M6.Cyclic.CycleRing N \u2243+* M6.Cyclic.CycleRing N, Ideal.map e.toRingHom (M7.SignatureIdeal.principal N F) = M7.SignatureIdeal.principal N E \u2192 F.natDegree = E.natDegree",
+        "imports": [
+          "M7QuotientDegree"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "This is the actual cyclic quotient by the full monic polynomial, with no irreducibility, odd-N or squarefree assumption. Accepted M7.SignatureIdeal.quotient_membership says image p belongs to principal F iff F divides p when F divides modulus. For quotient_equiv define Ideal.Quotient.factor (span_containment N F hF), whose codomain is AdjoinRoot F; factor_surjective and factor_mk are current APIs. Show its kernel equals principal F by mk_surjective on the cyclic quotient, AdjoinRoot.mk_eq_zero and quotient_membership. Then RingHom.quotientKerEquivOfSurjective gives the equivalence. AdjoinRoot is the quotient by span singleton. adjoin_card: (AdjoinRoot.powerBasis' hF).basis.equivFun identifies AdjoinRoot F with Fin F.natDegree \u2192 ZMod 2, preserving the degree zero case F=1. Use Nat.card_congr and finite function cardinality. Ideal.quotientEquiv I J e h expects h : J = I.map e.toRingHom, reverse the displayed hypothesis. Apply quotient_card on both sides and injectivity of 2^n on naturals. This generic intermediate automorphism lemma will later be instantiated with the proved actual unit substitution, not assumed in the M7 root. Return tactic lines only."
+      }
+    }
+  ]
+}

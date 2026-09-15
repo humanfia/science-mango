@@ -1,0 +1,8 @@
+{
+  "proof": "intro N _ F hF\nlet h := M7.QuotientDegree.span_containment N F hF\nlet f : M6.Cyclic.CycleRing N →+* AdjoinRoot F := Ideal.Quotient.factor h\nhave hk : RingHom.ker f = M7.SignatureIdeal.principal N F := by\n  ext x\n  have hs : Function.Surjective (Ideal.Quotient.mk (Ideal.span ({M6.Cyclic.modulus N} : Set M6.Cyclic.BinaryPolynomial))) := Ideal.Quotient.mk_surjective\n  obtain ⟨p, rfl⟩ := hs x\n  change Ideal.Quotient.factor h (Ideal.Quotient.mk _ p) = 0 ↔ _\n  rw [Ideal.Quotient.factor_mk]\n  change AdjoinRoot.mk F p = 0 ↔ M6.Cyclic.image N p ∈ M7.SignatureIdeal.principal N F\n  rw [AdjoinRoot.mk_eq_zero, M7.SignatureIdeal.quotient_membership N F p hF]\nhave hs : Function.Surjective f := Ideal.Quotient.factor_surjective h\nrw [← hk]\nexact ⟨RingHom.quotientKerEquivOfSurjective f hs⟩",
+  "queries": [
+    "Ideal.Quotient.factor_surjective Ideal.Quotient.factor_mk",
+    "AdjoinRoot.mk_eq_zero",
+    "RingHom.quotientKerEquivOfSurjective"
+  ]
+}

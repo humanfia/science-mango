@@ -1,0 +1,226 @@
+[
+  {
+    "id": "winners_exact",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.GlobalQuery.winners_exact",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), (∀ x : M7.GlobalQuery.Index H N, x ∈ M7.GlobalQuery.winners q bases ↔ M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.Selection.better q.order (M7.GlobalQuery.objective q bases y) (M7.GlobalQuery.objective q bases x)) ∧ (M7.GlobalQuery.winners q bases = ∅ ↔ ¬ ∃ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x)",
+      "imports": [
+        "M7GlobalQuery",
+        "M7SelectionAccepted",
+        "M7ActualPresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Instantiate Selection.selector_exact over the whole Fin H × actual Record domain. Competitors range over every class and action, never only the current base orbit. Simplify univ membership and feasibleSet emptiness. Return tactic lines without leading by; preserve frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §8/9 global classes/actions and distinct physical ties",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "strict_dominator",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.GlobalQuery.strict_dominator",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.feasible q bases x → x ∉ M7.GlobalQuery.winners q bases → ∃ y ∈ M7.GlobalQuery.winners q bases, M7.Selection.better q.order (M7.GlobalQuery.objective q bases y) (M7.GlobalQuery.objective q bases x)",
+      "imports": [
+        "M7GlobalQuery",
+        "M7SelectionAccepted",
+        "M7ActualPresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Instantiate Selection.selector_strict_dominator for the full finite product domain and literal DefaultQuery predicates. Pareto/lex order laws are already accepted. Return tactic lines without leading by; preserve frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §8/9 global classes/actions and distinct physical ties",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "winning_classes",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.GlobalQuery.winning_classes",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (i : Fin H), i ∈ M7.GlobalQuery.winningClasses q bases ↔ ∃ g : M7.Action.Record N, (i,g) ∈ M7.GlobalQuery.winners q bases",
+      "imports": [
+        "M7GlobalQuery",
+        "M7SelectionAccepted",
+        "M7ActualPresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Unfold winningClasses and use Finset.mem_image; product extensionality converts the first component equality. Keep every tied class. Return tactic lines without leading by; preserve frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §8/9 global classes/actions and distinct physical ties",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "winning_fiber",
+    "dependencies": [
+      "winners_exact"
+    ],
+    "spec": {
+      "name": "M7.GlobalQuery.winning_fiber",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x y : M7.GlobalQuery.Index H N), x.1 = y.1 → M7.GlobalQuery.realize bases x = M7.GlobalQuery.realize bases y → (x ∈ M7.GlobalQuery.winners q bases ↔ y ∈ M7.GlobalQuery.winners q bases)",
+      "imports": [
+        "M7GlobalQuery",
+        "M7SelectionAccepted",
+        "M7ActualPresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Use winners_exact. Same class index and actual image make concrete feasible and objective equal; global competitors are identical. Do not assume class-label invariance for different images. Return tactic lines without leading by; preserve frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §8/9 global classes/actions and distinct physical ties",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "presentation_sound",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.GlobalQuery.presentation_sound",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.present q bases x → x ∈ M7.GlobalQuery.winners q bases ∧ ∀ g : M7.Action.Record N, M7.Action.act g (bases x.1) = M7.GlobalQuery.realize bases x → M7.ActualPresentation.encode x.2 ≤ M7.ActualPresentation.encode g",
+      "imports": [
+        "M7GlobalQuery",
+        "M7SelectionAccepted",
+        "M7ActualPresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Unfold present and apply the some direction of verified ActualPresentation.leastAction_spec. The winner is global; the least-preimage search is within its one structural class. Return tactic lines without leading by; preserve frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §8/9 global classes/actions and distinct physical ties",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "same_class_presentation",
+    "dependencies": [
+      "winning_fiber"
+    ],
+    "spec": {
+      "name": "M7.GlobalQuery.same_class_presentation",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x : M7.GlobalQuery.Index H N), x ∈ M7.GlobalQuery.winners q bases → ∃! g : M7.Action.Record N, M7.GlobalQuery.present q bases (x.1,g) ∧ M7.Action.act g (bases x.1) = M7.GlobalQuery.realize bases x",
+      "imports": [
+        "M7GlobalQuery",
+        "M7SelectionAccepted",
+        "M7ActualPresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Apply verified leastAction_spec to target realize bases x. Its none alternative is impossible because x.2 is a preimage. The some candidate is globally winning by winning_fiber. Any other presented preimage has the same leastAction value, hence identical action. Do not substitute per-class optima. Return tactic lines without leading by; preserve frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §8/9 global classes/actions and distinct physical ties",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "physical_presentation",
+    "dependencies": [
+      "same_class_presentation"
+    ],
+    "spec": {
+      "name": "M7.GlobalQuery.physical_presentation",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), M7.GlobalQuery.separated bases → ∀ x ∈ M7.GlobalQuery.winners q bases, ∃! y : M7.GlobalQuery.Index H N, M7.GlobalQuery.present q bases y ∧ M7.GlobalQuery.realize bases y = M7.GlobalQuery.realize bases x",
+      "imports": [
+        "M7GlobalQuery",
+        "M7SelectionAccepted",
+        "M7ActualPresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Use same_class_presentation. The explicit intermediate separated property forces any competing same-image record to have x.1 as its class index. Then uniqueness of the action supplies product equality. This hypothesis will be discharged by actual canonical-generation closure at the final root, not assumed there. Return tactic lines without leading by; preserve frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §8/9 global classes/actions and distinct physical ties",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "empty_objectives",
+    "dependencies": [],
+    "spec": {
+      "name": "M7.GlobalQuery.empty_objectives",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), q.objectives = [] → M7.GlobalQuery.winners q bases = M7.Selection.feasibleSet Finset.univ (M7.GlobalQuery.feasible q bases)",
+      "imports": [
+        "M7GlobalQuery",
+        "M7SelectionAccepted",
+        "M7ActualPresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Instantiate accepted Selection.empty_objectives after destructuring/replacing Query.objectives so its dependent Fin length is zero. Keep all global feasible indices. Return tactic lines without leading by; preserve frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §8/9 global classes/actions and distinct physical ties",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  },
+  {
+    "id": "invalid_rejection",
+    "dependencies": [
+      "winners_exact"
+    ],
+    "spec": {
+      "name": "M7.GlobalQuery.invalid_rejection",
+      "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), (¬ M7.DefaultQuery.valid N q → M7.GlobalQuery.answer q bases = Except.error M7.DefaultQuery.QueryError.invalidSignature ∧ M7.GlobalQuery.winners q bases = ∅) ∧ (M7.DefaultQuery.valid N q → M7.GlobalQuery.answer q bases = Except.ok (M7.GlobalQuery.winners q bases))",
+      "imports": [
+        "M7GlobalQuery",
+        "M7SelectionAccepted",
+        "M7ActualPresentationAccepted"
+      ],
+      "context": "",
+      "queries": [
+        "finite set minimum lexicographic order"
+      ],
+      "guidance": "Unfold answer for the error/ok branch. For empty winners use winners_exact and the valid conjunct of actual DefaultQuery.feasible. Invalid signatures are rejected, distinct from a legal empty global answer. Return tactic lines without leading by; preserve frozen target and default limits."
+    },
+    "metadata": {
+      "source_section": "M7 original §8/9 global classes/actions and distinct physical ties",
+      "fallback_queries": [
+        "algebra"
+      ]
+    }
+  }
+]

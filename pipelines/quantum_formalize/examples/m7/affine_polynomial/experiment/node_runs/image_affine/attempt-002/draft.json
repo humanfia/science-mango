@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst u s A\nclassical\nrw [M7.AffinePolynomial.support_sum N,\n  M7.AffinePolynomial.substitution_support_sum N]\nunfold M7.AffinePolynomial.shifted\nrw [Finset.sum_image]\n· rw [Finset.mul_sum]\n  apply Finset.sum_congr rfl\n  intro i hi\n  have h : M7.Action.affine u s i = s + (u : ZMod N) * i := by\n    simp [M7.Action.affine, add_comm, mul_comm]\n  rw [h, M7.AffinePolynomial.rho_add_val N,\n    M7.AffinePolynomial.rho_mul_val N]\n· intro a ha b hb hab\n  exact (M7.Action.affine_bijective N u s).injective hab",
+  "queries": []
+}

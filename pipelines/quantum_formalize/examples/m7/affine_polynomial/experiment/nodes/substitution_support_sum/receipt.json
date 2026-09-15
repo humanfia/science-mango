@@ -1,0 +1,69 @@
+{
+  "id": "substitution_support_sum",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.AffinePolynomial.substitution_support_sum",
+    "spec_sha256": "f12f900215c2c2dc9936b986efe6fe25758dbd57e6abe8b33eb7af291feafb66",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-8zyxcwia/attempt-001/Candidate_75afd56f31dc086a.lean",
+        "target_path": "/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-8zyxcwia/attempt-001/FrozenTarget_75afd56f31dc086a.lean",
+        "feedback": "",
+        "target_sha256": "a474baecc6e395b27d8a3eaebda0cb94adec85655455ede556d6bf97ccc26d21",
+        "target_olean_sha256": "ecb438548bf823b02a5cbe66065e60b4e3515ed0b627e6a2d1cd537e3c08ea2a",
+        "source_sha256": "25795af9cb228103582881e0cdc6f59ea666628b4f2fccf3948fe31f591269ec",
+        "olean_sha256": "0e4c6959d0e6e4561c95c54091dffb7637705d1a9c7560d619da74d67277e3d2",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:52:31.414573+00:00",
+    "work": "/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-8zyxcwia",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "6be62268107e5e9802ef2dd613f6f20ab8654b6efb2f7ce5c3f208bc9f03c55a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-8zyxcwia/attempt-001/Candidate_75afd56f31dc086a.lean",
+    "environment_sha256": "725d5f998b4071aef21687c6a6102b65c2e30c27ad2a0f47e2687fde06f55fc1",
+    "artifacts": {
+      "support_sum": {
+        "payload": {
+          "declaration": "theorem M7.AffinePolynomial.support_sum : ∀ (N : ℕ) [NeZero N], ∀ A : M7.Supports.Support N, M7.AffinePolynomial.image A = ∑ i ∈ A, M7.CyclicSubstitution.rho N ^ i.val := by\n  intro N inst A\n  classical\n  simp [M7.AffinePolynomial.image, M7.Supports.polynomial,\n    M6.Cyclic.image, M7.CyclicSubstitution.rho, map_sum,\n    map_pow, AdjoinRoot.mk_X]",
+          "imports": [
+            "M7AffinePolynomial"
+          ],
+          "name": "M7.AffinePolynomial.support_sum",
+          "ancestors": [],
+          "spec_sha256": "11b6761f1dacb0b850ddc4c04f388a61e4296fc083ccf1b86a02fa1756ac5093"
+        },
+        "sha256": "85eae32970ae835f73ebe8c52f6cd178a0ff231636b04d625984b03c5e805911"
+      },
+      "substitution_support_sum": {
+        "payload": {
+          "declaration": "theorem M7.AffinePolynomial.substitution_support_sum : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (A : M7.Supports.Support N), M7.QuotientAuto.substitution u (M7.AffinePolynomial.image A) = ∑ i ∈ A, M7.CyclicSubstitution.point u ^ i.val := by\n  intro N inst u A\n  classical\n  rw [M7.AffinePolynomial.support_sum N A]\n  simp only [M7.QuotientAuto.substitution, map_sum, map_pow,\n    M7.CyclicSubstitution.hom_root]",
+          "imports": [
+            "M7AffinePolynomial"
+          ],
+          "name": "M7.AffinePolynomial.substitution_support_sum",
+          "ancestors": [
+            "support_sum"
+          ],
+          "spec_sha256": "34a0708e7a0647a66afed063ded1093ada667576153f5ffd8f4101e13e1cc922"
+        },
+        "sha256": "8bb76def006f3b064b0058f2719f5c4ffbfe65ec6a95c187f82403dc5ec5b01b"
+      }
+    }
+  }
+}

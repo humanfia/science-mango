@@ -1,0 +1,116 @@
+{
+  "id": "image_affine",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.AffinePolynomial.image_affine",
+    "spec_sha256": "16a8813bec5037998ed60d08e5e42316af9d83279308eb6703079af5889533c7",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-n9oz6ckt/attempt-001/Candidate_ef9fbe9edb98317e.lean:9:2: error: unsolved goals\nN : ℕ\ninst : NeZero N\nu : (ZMod N)ˣ\ns : ZMod N\nA : Supports.Support N\ni : ZMod N\nhi : i ∈ A\n⊢ CyclicSubstitution.rho N ^ s.val * CyclicSubstitution.rho N ^ (i * ↑u).val =\n    CyclicSubstitution.point u ^ i.val * CyclicSubstitution.rho N ^ s.val\n/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-n9oz6ckt/attempt-001/Candidate_ef9fbe9edb98317e.lean:13:6: warning: This simp argument is unused:\n  M7.AffinePolynomial.rho_mul_val\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Action.affine, M7.AffinePolynomial.rho_add_val, mul_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-n9oz6ckt/attempt-002/Candidate_48d19ade1947b1df.lean",
+        "target_path": "/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-n9oz6ckt/attempt-002/FrozenTarget_48d19ade1947b1df.lean",
+        "feedback": "",
+        "target_sha256": "d59ad78e9d5ee34547b370d2a0b582884e7657218f5d31461847bcd2d9ec78d2",
+        "target_olean_sha256": "2880f19c60aa8873e595578a84fbcb8d83395acb27a66a7db7ccb1e31814ce1b",
+        "source_sha256": "7651624e651d687742b047115061620bb234b9821a630d0c5b80ff357cc1936a",
+        "olean_sha256": "56f803f0700c510bf0c6576d57b5afdb9bab4eebd9edc83ea85d05db1b4906a5",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T17:54:48.663542+00:00",
+    "work": "/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-n9oz6ckt",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "6be62268107e5e9802ef2dd613f6f20ab8654b6efb2f7ce5c3f208bc9f03c55a",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-affine-polynomial-formalization/.humanize-formal-runs/run-n9oz6ckt/attempt-002/Candidate_48d19ade1947b1df.lean",
+    "environment_sha256": "725d5f998b4071aef21687c6a6102b65c2e30c27ad2a0f47e2687fde06f55fc1",
+    "artifacts": {
+      "support_sum": {
+        "payload": {
+          "declaration": "theorem M7.AffinePolynomial.support_sum : ∀ (N : ℕ) [NeZero N], ∀ A : M7.Supports.Support N, M7.AffinePolynomial.image A = ∑ i ∈ A, M7.CyclicSubstitution.rho N ^ i.val := by\n  intro N inst A\n  classical\n  simp [M7.AffinePolynomial.image, M7.Supports.polynomial,\n    M6.Cyclic.image, M7.CyclicSubstitution.rho, map_sum,\n    map_pow, AdjoinRoot.mk_X]",
+          "imports": [
+            "M7AffinePolynomial"
+          ],
+          "name": "M7.AffinePolynomial.support_sum",
+          "ancestors": [],
+          "spec_sha256": "11b6761f1dacb0b850ddc4c04f388a61e4296fc083ccf1b86a02fa1756ac5093"
+        },
+        "sha256": "85eae32970ae835f73ebe8c52f6cd178a0ff231636b04d625984b03c5e805911"
+      },
+      "substitution_support_sum": {
+        "payload": {
+          "declaration": "theorem M7.AffinePolynomial.substitution_support_sum : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (A : M7.Supports.Support N), M7.QuotientAuto.substitution u (M7.AffinePolynomial.image A) = ∑ i ∈ A, M7.CyclicSubstitution.point u ^ i.val := by\n  intro N inst u A\n  classical\n  rw [M7.AffinePolynomial.support_sum N A]\n  simp only [M7.QuotientAuto.substitution, map_sum, map_pow,\n    M7.CyclicSubstitution.hom_root]",
+          "imports": [
+            "M7AffinePolynomial"
+          ],
+          "name": "M7.AffinePolynomial.substitution_support_sum",
+          "ancestors": [
+            "support_sum"
+          ],
+          "spec_sha256": "34a0708e7a0647a66afed063ded1093ada667576153f5ffd8f4101e13e1cc922"
+        },
+        "sha256": "8bb76def006f3b064b0058f2719f5c4ffbfe65ec6a95c187f82403dc5ec5b01b"
+      },
+      "rho_add_val": {
+        "payload": {
+          "declaration": "theorem M7.AffinePolynomial.rho_add_val : ∀ (N : ℕ) [NeZero N], ∀ x y : ZMod N, M7.CyclicSubstitution.rho N ^ (x+y).val = M7.CyclicSubstitution.rho N ^ x.val * M7.CyclicSubstitution.rho N ^ y.val := by\n  intro N inst x y\n  rw [ZMod.val_add, ← M7.CyclicSubstitution.power_mod N (x.val + y.val), pow_add]",
+          "imports": [
+            "M7AffinePolynomial"
+          ],
+          "name": "M7.AffinePolynomial.rho_add_val",
+          "ancestors": [],
+          "spec_sha256": "2fead078d7d17424b74669601a86afe475310da13b31e5e13464db8c9be478b8"
+        },
+        "sha256": "dd89b9b3d4ce9045f6e9c2d0c54fffe4474ee419753cfb0ecbe8ed5b03ee177a"
+      },
+      "rho_mul_val": {
+        "payload": {
+          "declaration": "theorem M7.AffinePolynomial.rho_mul_val : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (x : ZMod N), M7.CyclicSubstitution.rho N ^ ((u : ZMod N)*x).val = M7.CyclicSubstitution.point u ^ x.val := by\n  intro N inst u x\n  change M7.CyclicSubstitution.rho N ^ ((u : ZMod N) * x).val =\n    (M7.CyclicSubstitution.rho N ^ (u : ZMod N).val) ^ x.val\n  rw [← pow_mul, ZMod.val_mul]\n  exact (M7.CyclicSubstitution.power_mod N ((u : ZMod N).val * x.val)).symm",
+          "imports": [
+            "M7AffinePolynomial"
+          ],
+          "name": "M7.AffinePolynomial.rho_mul_val",
+          "ancestors": [],
+          "spec_sha256": "9031a613adad8c6e61cb9a6a67bc9c91262aebe323d464e7df10e33136967d3c"
+        },
+        "sha256": "fb4cf9afb7788b34e55322c3c832acbc4ec43309d839b698306b1d9129419da1"
+      },
+      "image_affine": {
+        "payload": {
+          "declaration": "theorem M7.AffinePolynomial.image_affine : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (s : ZMod N) (A : M7.Supports.Support N), M7.AffinePolynomial.image (M7.AffinePolynomial.shifted u s A) = M7.CyclicSubstitution.rho N ^ s.val * M7.QuotientAuto.substitution u (M7.AffinePolynomial.image A) := by\n  intro N inst u s A\n  classical\n  rw [M7.AffinePolynomial.support_sum N,\n    M7.AffinePolynomial.substitution_support_sum N]\n  unfold M7.AffinePolynomial.shifted\n  rw [Finset.sum_image]\n  · rw [Finset.mul_sum]\n    apply Finset.sum_congr rfl\n    intro i hi\n    have h : M7.Action.affine u s i = s + (u : ZMod N) * i := by\n      simp [M7.Action.affine, add_comm, mul_comm]\n    rw [h, M7.AffinePolynomial.rho_add_val N,\n      M7.AffinePolynomial.rho_mul_val N]\n  · intro a ha b hb hab\n    exact (M7.Action.affine_bijective N u s).injective hab",
+          "imports": [
+            "M7AffinePolynomial"
+          ],
+          "name": "M7.AffinePolynomial.image_affine",
+          "ancestors": [
+            "rho_add_val",
+            "rho_mul_val",
+            "substitution_support_sum",
+            "support_sum"
+          ],
+          "spec_sha256": "20507dd4cd6cdcff0fd0a7b96451364275f890c17efc65574fb03d1fb244d507"
+        },
+        "sha256": "c42979c955a1f8da7c7dccb8d6084d34a8ac22ff28d4bd4550a339f0b4687e0b"
+      }
+    }
+  }
+}

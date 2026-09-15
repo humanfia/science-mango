@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ s : ZMod N, IsUnit (M7.CyclicSubstitution.rho N ^ s.val)\nintro N inst s\nhave hN : 1 ≤ N := Nat.pos_of_ne_zero (NeZero.ne N)\nhave hu : IsUnit (M7.CyclicSubstitution.rho N) := by\n  refine ⟨{ val := M7.CyclicSubstitution.rho N\n            inv := M7.CyclicSubstitution.rho N ^ (N - 1)\n            val_inv := ?_\n            inv_val := ?_ }, rfl⟩\n  · rw [← pow_succ', Nat.sub_add_cancel hN, M7.CyclicSubstitution.root_power N]\n  · rw [← pow_succ, Nat.sub_add_cancel hN, M7.CyclicSubstitution.root_power N]\nexact hu.pow s.val",
+  "queries": []
+}

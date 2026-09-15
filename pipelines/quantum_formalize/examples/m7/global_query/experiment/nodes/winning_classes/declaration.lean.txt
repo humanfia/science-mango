@@ -1,0 +1,17 @@
+theorem M7.GlobalQuery.winning_classes : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (i : Fin H), i ∈ M7.GlobalQuery.winningClasses q bases ↔ ∃ g : M7.Action.Record N, (i,g) ∈ M7.GlobalQuery.winners q bases := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (i : Fin H), i ∈ M7.GlobalQuery.winningClasses q bases ↔ ∃ g : M7.Action.Record N, (i,g) ∈ M7.GlobalQuery.winners q bases
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro H N inst q bases i
+  classical
+  unfold M7.GlobalQuery.winningClasses
+  rw [Finset.mem_image]
+  constructor
+  · rintro ⟨⟨j, g⟩, h, hj⟩
+    change j = i at hj
+    subst j
+    exact ⟨g, h⟩
+  · rintro ⟨g, hg⟩
+    exact ⟨(i, g), hg, rfl⟩

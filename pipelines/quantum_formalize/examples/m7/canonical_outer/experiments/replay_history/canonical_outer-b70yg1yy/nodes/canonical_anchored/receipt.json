@@ -1,0 +1,55 @@
+{
+  "id": "canonical_anchored",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalOuter.canonical_anchored",
+    "spec_sha256": "615ec6ffda73a24cfe455df715435161536c237d6daaa13c11a7868138498a0b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-st8fz5ad/attempt-001/Candidate_ce0dd7c79eb55483.lean",
+        "target_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-st8fz5ad/attempt-001/FrozenTarget_ce0dd7c79eb55483.lean",
+        "feedback": "",
+        "target_sha256": "9683a5f81fd95e5e037063904f66fc955744bdc2c441196403acc25d76dabe1d",
+        "target_olean_sha256": "2c233a78d6780dac8e17d431e90a493b25c38f39d1da369a79093048a16083eb",
+        "source_sha256": "f6836c7f20ce06448ac96371d6739dfbd9c8f8d902422c27f5938c90118c7c74",
+        "olean_sha256": "f59b2ab5a82bccbb313755afe1a1c1089679a36fa564450aa248d0a2a9129c55",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:35:28.519140+00:00",
+    "work": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-st8fz5ad",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "e2b9937f2c88530885415cbb397848104a579dc4f9802a749cd68de66091a34d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-st8fz5ad/attempt-001/Candidate_ce0dd7c79eb55483.lean",
+    "environment_sha256": "c4afe76bd2bc2b078f4a0aaca674d3192b7fbdf34aa57c5d93f4d00e250c88ba",
+    "artifacts": {
+      "canonical_anchored": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.canonical_anchored : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, c.1.Nonempty → c.2.Nonempty → 0 ∈ (M7.CanonicalOuter.canonical c).1 ∧ 0 ∈ (M7.CanonicalOuter.canonical c).2 := by\n  intro N inst c h₁ h₂\n  classical\n  let g := M7.CanonicalOuter.outerRecord (M7.CanonicalOuter.chosenOuter c)\n  change 0 ∈ M7.CanonicalBlock.normalize (M7.Action.act g c).1 ∧\n    0 ∈ M7.CanonicalBlock.normalize (M7.Action.act g c).2\n  have hleft : 0 < c.1.card := Finset.card_pos.mpr h₁\n  have hright : 0 < c.2.card := Finset.card_pos.mpr h₂\n  have hc := M7.Action.support_cards N g c\n  constructor\n  · apply M7.CanonicalBlock.normalize_anchor N\n    apply Finset.card_pos.mp\n    rw [hc.1]\n    split <;> assumption\n  · apply M7.CanonicalBlock.normalize_anchor N\n    apply Finset.card_pos.mp\n    rw [hc.2]\n    split <;> assumption",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.canonical_anchored",
+          "ancestors": [],
+          "spec_sha256": "615ec6ffda73a24cfe455df715435161536c237d6daaa13c11a7868138498a0b"
+        },
+        "sha256": "df70927f3c73f6b74af7c2b635c8f8a1c5698704f3b4963044c936bbbc9c3867"
+      }
+    }
+  }
+}

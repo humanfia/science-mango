@@ -1,0 +1,24 @@
+import M7CanonicalOuter
+
+theorem M7.CanonicalOuter.unit_index : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (e : Bool), ∃ i ∈ M7.CanonicalOuter.indices N, M7.CanonicalOuter.outerRecord i = (⟨u,e,0,0⟩ : M7.Action.Record N) := by
+   classical
+   intro N inst u e
+   let i : M7.CanonicalOuter.OuterIndex N :=
+     toLex (⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩, e)
+   have hv : (((ofLex i).1.val : ℕ) : ZMod N) = (u : ZMod N) := by
+     simp [i]
+   have hi : IsUnit (((ofLex i).1.val : ℕ) : ZMod N) := by
+     rw [hv]
+     exact u.isUnit
+   refine ⟨i, ?_, ?_⟩
+   · exact Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩
+   · have hu : M7.CanonicalOuter.outerUnit i = u := by
+       unfold M7.CanonicalOuter.outerUnit
+       rw [dif_pos hi]
+       apply Units.ext
+       exact hi.unit_spec.trans hv
+     change (⟨M7.CanonicalOuter.outerUnit i, (ofLex i).2, 0, 0⟩ : M7.Action.Record N) = ⟨u, e, 0, 0⟩
+     rw [hu]
+     rfl
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N : ℕ) [NeZero N], (M7.CanonicalOuter.indices N).Nonempty

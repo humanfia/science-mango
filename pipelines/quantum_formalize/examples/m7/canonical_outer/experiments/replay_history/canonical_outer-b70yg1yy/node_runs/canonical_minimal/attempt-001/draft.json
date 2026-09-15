@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nchange ∀ (N : ℕ) [NeZero N], ∀ (c : M7.Action.Recipe N) k, k ∈ M7.CanonicalOuter.keyset c → M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c) ≤ k\nintro N inst c k hk\nunfold M7.CanonicalOuter.keyset at hk\nobtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp hk\nhave hc : toLex (M7.CanonicalOuter.pairKey (M7.CanonicalOuter.candidate c i), i) ∈ M7.CanonicalOuter.choices c := by\n  exact Finset.mem_image.mpr ⟨i, hi, rfl⟩\nhave hm : M7.CanonicalOuter.best c ≤ toLex (M7.CanonicalOuter.pairKey (M7.CanonicalOuter.candidate c i), i) := by\n  unfold M7.CanonicalOuter.best\n  rw [dif_pos (M7.CanonicalOuter.choices_nonempty N c)]\n  exact Finset.min'_le _ _ hc\nrw [← M7.CanonicalOuter.canonical_key_agrees N c]\nexact Prod.Lex.monotone_fst hm",
+  "queries": [
+    "Prod.Lex.monotone_fst",
+    "Finset.min'_le"
+  ]
+}

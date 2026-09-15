@@ -1,0 +1,11 @@
+theorem M7.GlobalQuery.presentation_sound : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.present q bases x → x ∈ M7.GlobalQuery.winners q bases ∧ ∀ g : M7.Action.Record N, M7.Action.act g (bases x.1) = M7.GlobalQuery.realize bases x → M7.ActualPresentation.encode x.2 ≤ M7.ActualPresentation.encode g := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x : M7.GlobalQuery.Index H N), M7.GlobalQuery.present q bases x → x ∈ M7.GlobalQuery.winners q bases ∧ ∀ g : M7.Action.Record N, M7.Action.act g (bases x.1) = M7.GlobalQuery.realize bases x → M7.ActualPresentation.encode x.2 ≤ M7.ActualPresentation.encode g
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro H N inst q bases x hx
+  unfold M7.GlobalQuery.present at hx
+  refine ⟨hx.1, ?_⟩
+  exact (((M7.ActualPresentation.leastAction_spec N (bases x.1)
+    (M7.GlobalQuery.realize bases x)).1 x.2).mp hx.2).2

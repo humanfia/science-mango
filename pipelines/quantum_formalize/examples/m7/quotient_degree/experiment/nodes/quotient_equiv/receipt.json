@@ -1,0 +1,75 @@
+{
+  "id": "quotient_equiv",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.QuotientDegree.quotient_equiv",
+    "spec_sha256": "df8cc40f1ce72c2761c9c7bfe33bb4ff2cc8c8a98cd87584dbb0bb00c65b86e5",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m7-lean-quotient-degree-formalization/.humanize-formal-runs/run-i9e2nbr6/attempt-001/Candidate_291b399c03dbecc6.lean:16:46: error: Application type mismatch: The argument\n  f\nhas type\n  M6.Cyclic.CycleRing N →+* AdjoinRoot F\nof sort `Type` but is expected to have type\n  Function.Surjective ⇑?m.138\nof sort `Prop` in the application\n  RingHom.quotientKerEquivOfSurjective f\n/home/jing/m7-lean-quotient-degree-formalization/.humanize-formal-runs/run-i9e2nbr6/attempt-001/Candidate_291b399c03dbecc6.lean:16:9: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  Semiring (M6.Cyclic.CycleRing N ⧸ RingHom.ker f ≃+* AdjoinRoot F)\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-quotient-degree-formalization/.humanize-formal-runs/run-i9e2nbr6/attempt-002/Candidate_5a9f3094c1046395.lean",
+        "target_path": "/home/jing/m7-lean-quotient-degree-formalization/.humanize-formal-runs/run-i9e2nbr6/attempt-002/FrozenTarget_5a9f3094c1046395.lean",
+        "feedback": "",
+        "target_sha256": "93e040c5259ad27bd79070110094cd001d30a419eec4b83097b3d0e3230b1aad",
+        "target_olean_sha256": "1b165878121c9c62af648670780de476e2f9c2a12f209303866a2d60526e3807",
+        "source_sha256": "b03a2c06a506931a350ea8a7266aee1ee00016d91ea50cbe9a3b79249cbdc29c",
+        "olean_sha256": "478bc8fc4ac79f5a8ebc5fff56cfb2198d50b0aa436eead87f7f7d6eead3d72d",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T17:58:08.502292+00:00",
+    "work": "/home/jing/m7-lean-quotient-degree-formalization/.humanize-formal-runs/run-i9e2nbr6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "3980bd15b5f94628742c05cf42e33e3ce9863bdaf39f1b94f88269b6f39f607c",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m7-lean-quotient-degree-formalization/.humanize-formal-runs/run-i9e2nbr6/attempt-002/Candidate_5a9f3094c1046395.lean",
+    "environment_sha256": "5a20457567633080070516dad7d8d32a3de03bd60479a5c6f38a7bcfad69884f",
+    "artifacts": {
+      "span_containment": {
+        "payload": {
+          "declaration": "theorem M7.QuotientDegree.span_containment : ∀ (N : ℕ) [NeZero N], ∀ F : M6.Cyclic.BinaryPolynomial, F ∣ M6.Cyclic.modulus N → Ideal.span ({M6.Cyclic.modulus N} : Set M6.Cyclic.BinaryPolynomial) ≤ Ideal.span ({F} : Set M6.Cyclic.BinaryPolynomial) := by\n  intro N _ F hF\n  apply Ideal.span_le.mpr\n  intro p hp\n  rcases Set.mem_singleton_iff.mp hp with rfl\n  exact Ideal.mem_span_singleton.mpr hF",
+          "imports": [
+            "M7QuotientDegree"
+          ],
+          "name": "M7.QuotientDegree.span_containment",
+          "ancestors": [],
+          "spec_sha256": "c4aa19ea79ae16f9cb3853101c97d44926a551116bbdcaf1947a690c20835f42"
+        },
+        "sha256": "88f537c48281f065ab3ea64fa5cefc761519dd359926747e52a197de73ef2491"
+      },
+      "quotient_equiv": {
+        "payload": {
+          "declaration": "theorem M7.QuotientDegree.quotient_equiv : ∀ (N : ℕ) [NeZero N], ∀ F : M6.Cyclic.BinaryPolynomial, F ∣ M6.Cyclic.modulus N → Nonempty ((M6.Cyclic.CycleRing N ⧸ M7.SignatureIdeal.principal N F) ≃+* AdjoinRoot F) := by\n  intro N _ F hF\n  let f : M6.Cyclic.CycleRing N →+* AdjoinRoot F :=\n    Ideal.Quotient.factor (M7.QuotientDegree.span_containment N F hF)\n  have hk : RingHom.ker f = M7.SignatureIdeal.principal N F := by\n    ext x\n    obtain ⟨p, rfl⟩ := Ideal.Quotient.mk_surjective x\n    change AdjoinRoot.mk F p = 0 ↔ M6.Cyclic.image N p ∈ M7.SignatureIdeal.principal N F\n    rw [AdjoinRoot.mk_eq_zero]\n    exact (M7.SignatureIdeal.quotient_membership N F p hF).symm\n  rw [← hk]\n  exact ⟨RingHom.quotientKerEquivOfSurjective (f := f)\n    (Ideal.Quotient.factor_surjective (M7.QuotientDegree.span_containment N F hF))⟩",
+          "imports": [
+            "M7QuotientDegree"
+          ],
+          "name": "M7.QuotientDegree.quotient_equiv",
+          "ancestors": [
+            "span_containment"
+          ],
+          "spec_sha256": "b67a2b62e4fd4ecef6b7ef8f7ee15a2688643cf5b5656e6decd57928292381a3"
+        },
+        "sha256": "20cd5ceb375778341b80c80a0e6efac343c486be55c936a1c617b79095613369"
+      }
+    }
+  }
+}

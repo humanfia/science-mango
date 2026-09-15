@@ -1,0 +1,12 @@
+theorem M7.CanonicalOuter.pair_key_injective : ∀ (N : ℕ) [NeZero N], Function.Injective (M7.CanonicalOuter.pairKey (N := N)) := by
+  change ∀ (N : ℕ) [NeZero N], Function.Injective (M7.CanonicalOuter.pairKey (N := N))
+  intro N inst a b h
+  apply Prod.ext
+  · have hk : M7.CanonicalBlock.key a.1 = M7.CanonicalBlock.key b.1 :=
+      congrArg (fun k : M7.CanonicalOuter.PairKey => (ofLex k).1) h
+    have hd := congrArg (M7.CanonicalBlock.decode N) hk
+    simpa only [M7.CanonicalBlock.decode_key] using hd
+  · have hk : M7.CanonicalBlock.key a.2 = M7.CanonicalBlock.key b.2 :=
+      congrArg (fun k : M7.CanonicalOuter.PairKey => (ofLex k).2) h
+    have hd := congrArg (M7.CanonicalBlock.decode N) hk
+    simpa only [M7.CanonicalBlock.decode_key] using hd

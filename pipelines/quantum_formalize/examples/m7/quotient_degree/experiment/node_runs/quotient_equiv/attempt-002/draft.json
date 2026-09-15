@@ -1,0 +1,4 @@
+{
+  "proof": "intro N _ F hF\nlet f : M6.Cyclic.CycleRing N →+* AdjoinRoot F :=\n  Ideal.Quotient.factor (M7.QuotientDegree.span_containment N F hF)\nhave hk : RingHom.ker f = M7.SignatureIdeal.principal N F := by\n  ext x\n  obtain ⟨p, rfl⟩ := Ideal.Quotient.mk_surjective x\n  change AdjoinRoot.mk F p = 0 ↔ M6.Cyclic.image N p ∈ M7.SignatureIdeal.principal N F\n  rw [AdjoinRoot.mk_eq_zero]\n  exact (M7.SignatureIdeal.quotient_membership N F p hF).symm\nrw [← hk]\nexact ⟨RingHom.quotientKerEquivOfSurjective (f := f)\n  (Ideal.Quotient.factor_surjective (M7.QuotientDegree.span_containment N F hF))⟩",
+  "queries": []
+}

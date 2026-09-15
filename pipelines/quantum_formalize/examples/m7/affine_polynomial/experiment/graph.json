@@ -1,0 +1,126 @@
+{
+  "title": "M7 literal affine support action as unit multiplication and actual quotient substitution",
+  "nodes": [
+    {
+      "id": "support_sum",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.AffinePolynomial.support_sum",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ A : M7.Supports.Support N, M7.AffinePolynomial.image A = ∑ i ∈ A, M7.CyclicSubstitution.rho N ^ i.val",
+        "imports": [
+          "M7AffinePolynomial"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "All imported proof obligations are accepted. Only the frozen substitution definition is imported from quotient_auto, not its pending laws: unfold it and use accepted CyclicSubstitution.hom_root with point_root. support_sum follows map_sum and AdjoinRoot.mk_X. Use accepted power_mod with ZMod.val_add/val_mul for powers of residue values. affine_bijective justifies Finset.sum_image, so no cancellations/duplicate supports are assumed. rho is a unit since rho^N=1 and N>0, hence all shift powers are units. Covers even N and N=1. Return tactic lines only.\nimport M7ActionAccepted\nimport M7Supports\nimport M7QuotientAuto\n\nnamespace M7.AffinePolynomial\nnoncomputable def image {N : ℕ} (A : M7.Supports.Support N) : M6.Cyclic.CycleRing N :=\n  M6.Cyclic.image N (M7.Supports.polynomial A)\nnoncomputable def shifted {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s : ZMod N)\n    (A : M7.Supports.Support N) : M7.Supports.Support N := A.image (M7.Action.affine u s)\nend M7.AffinePolynomial\n"
+      }
+    },
+    {
+      "id": "substitution_support_sum",
+      "dependencies": [
+        "support_sum"
+      ],
+      "spec": {
+        "name": "M7.AffinePolynomial.substitution_support_sum",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (A : M7.Supports.Support N), M7.QuotientAuto.substitution u (M7.AffinePolynomial.image A) = ∑ i ∈ A, M7.CyclicSubstitution.point u ^ i.val",
+        "imports": [
+          "M7AffinePolynomial"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "All imported proof obligations are accepted. Only the frozen substitution definition is imported from quotient_auto, not its pending laws: unfold it and use accepted CyclicSubstitution.hom_root with point_root. support_sum follows map_sum and AdjoinRoot.mk_X. Use accepted power_mod with ZMod.val_add/val_mul for powers of residue values. affine_bijective justifies Finset.sum_image, so no cancellations/duplicate supports are assumed. rho is a unit since rho^N=1 and N>0, hence all shift powers are units. Covers even N and N=1. Return tactic lines only.\nimport M7ActionAccepted\nimport M7Supports\nimport M7QuotientAuto\n\nnamespace M7.AffinePolynomial\nnoncomputable def image {N : ℕ} (A : M7.Supports.Support N) : M6.Cyclic.CycleRing N :=\n  M6.Cyclic.image N (M7.Supports.polynomial A)\nnoncomputable def shifted {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s : ZMod N)\n    (A : M7.Supports.Support N) : M7.Supports.Support N := A.image (M7.Action.affine u s)\nend M7.AffinePolynomial\n"
+      }
+    },
+    {
+      "id": "rho_add_val",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.AffinePolynomial.rho_add_val",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ x y : ZMod N, M7.CyclicSubstitution.rho N ^ (x+y).val = M7.CyclicSubstitution.rho N ^ x.val * M7.CyclicSubstitution.rho N ^ y.val",
+        "imports": [
+          "M7AffinePolynomial"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "All imported proof obligations are accepted. Only the frozen substitution definition is imported from quotient_auto, not its pending laws: unfold it and use accepted CyclicSubstitution.hom_root with point_root. support_sum follows map_sum and AdjoinRoot.mk_X. Use accepted power_mod with ZMod.val_add/val_mul for powers of residue values. affine_bijective justifies Finset.sum_image, so no cancellations/duplicate supports are assumed. rho is a unit since rho^N=1 and N>0, hence all shift powers are units. Covers even N and N=1. Return tactic lines only.\nimport M7ActionAccepted\nimport M7Supports\nimport M7QuotientAuto\n\nnamespace M7.AffinePolynomial\nnoncomputable def image {N : ℕ} (A : M7.Supports.Support N) : M6.Cyclic.CycleRing N :=\n  M6.Cyclic.image N (M7.Supports.polynomial A)\nnoncomputable def shifted {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s : ZMod N)\n    (A : M7.Supports.Support N) : M7.Supports.Support N := A.image (M7.Action.affine u s)\nend M7.AffinePolynomial\n"
+      }
+    },
+    {
+      "id": "rho_mul_val",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.AffinePolynomial.rho_mul_val",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (x : ZMod N), M7.CyclicSubstitution.rho N ^ ((u : ZMod N)*x).val = M7.CyclicSubstitution.point u ^ x.val",
+        "imports": [
+          "M7AffinePolynomial"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "All imported proof obligations are accepted. Only the frozen substitution definition is imported from quotient_auto, not its pending laws: unfold it and use accepted CyclicSubstitution.hom_root with point_root. support_sum follows map_sum and AdjoinRoot.mk_X. Use accepted power_mod with ZMod.val_add/val_mul for powers of residue values. affine_bijective justifies Finset.sum_image, so no cancellations/duplicate supports are assumed. rho is a unit since rho^N=1 and N>0, hence all shift powers are units. Covers even N and N=1. Return tactic lines only.\nimport M7ActionAccepted\nimport M7Supports\nimport M7QuotientAuto\n\nnamespace M7.AffinePolynomial\nnoncomputable def image {N : ℕ} (A : M7.Supports.Support N) : M6.Cyclic.CycleRing N :=\n  M6.Cyclic.image N (M7.Supports.polynomial A)\nnoncomputable def shifted {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s : ZMod N)\n    (A : M7.Supports.Support N) : M7.Supports.Support N := A.image (M7.Action.affine u s)\nend M7.AffinePolynomial\n"
+      }
+    },
+    {
+      "id": "image_affine",
+      "dependencies": [
+        "support_sum",
+        "substitution_support_sum",
+        "rho_add_val",
+        "rho_mul_val"
+      ],
+      "spec": {
+        "name": "M7.AffinePolynomial.image_affine",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (s : ZMod N) (A : M7.Supports.Support N), M7.AffinePolynomial.image (M7.AffinePolynomial.shifted u s A) = M7.CyclicSubstitution.rho N ^ s.val * M7.QuotientAuto.substitution u (M7.AffinePolynomial.image A)",
+        "imports": [
+          "M7AffinePolynomial"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "All imported proof obligations are accepted. Only the frozen substitution definition is imported from quotient_auto, not its pending laws: unfold it and use accepted CyclicSubstitution.hom_root with point_root. support_sum follows map_sum and AdjoinRoot.mk_X. Use accepted power_mod with ZMod.val_add/val_mul for powers of residue values. affine_bijective justifies Finset.sum_image, so no cancellations/duplicate supports are assumed. rho is a unit since rho^N=1 and N>0, hence all shift powers are units. Covers even N and N=1. Return tactic lines only.\nimport M7ActionAccepted\nimport M7Supports\nimport M7QuotientAuto\n\nnamespace M7.AffinePolynomial\nnoncomputable def image {N : ℕ} (A : M7.Supports.Support N) : M6.Cyclic.CycleRing N :=\n  M6.Cyclic.image N (M7.Supports.polynomial A)\nnoncomputable def shifted {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s : ZMod N)\n    (A : M7.Supports.Support N) : M7.Supports.Support N := A.image (M7.Action.affine u s)\nend M7.AffinePolynomial\n"
+      }
+    },
+    {
+      "id": "rho_power_unit",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.AffinePolynomial.rho_power_unit",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ s : ZMod N, IsUnit (M7.CyclicSubstitution.rho N ^ s.val)",
+        "imports": [
+          "M7AffinePolynomial"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "All imported proof obligations are accepted. Only the frozen substitution definition is imported from quotient_auto, not its pending laws: unfold it and use accepted CyclicSubstitution.hom_root with point_root. support_sum follows map_sum and AdjoinRoot.mk_X. Use accepted power_mod with ZMod.val_add/val_mul for powers of residue values. affine_bijective justifies Finset.sum_image, so no cancellations/duplicate supports are assumed. rho is a unit since rho^N=1 and N>0, hence all shift powers are units. Covers even N and N=1. Return tactic lines only.\nimport M7ActionAccepted\nimport M7Supports\nimport M7QuotientAuto\n\nnamespace M7.AffinePolynomial\nnoncomputable def image {N : ℕ} (A : M7.Supports.Support N) : M6.Cyclic.CycleRing N :=\n  M6.Cyclic.image N (M7.Supports.polynomial A)\nnoncomputable def shifted {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s : ZMod N)\n    (A : M7.Supports.Support N) : M7.Supports.Support N := A.image (M7.Action.affine u s)\nend M7.AffinePolynomial\n"
+      }
+    },
+    {
+      "id": "action_images",
+      "dependencies": [
+        "image_affine"
+      ],
+      "spec": {
+        "name": "M7.AffinePolynomial.action_images",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M7.AffinePolynomial.image (M7.Action.act g c).1 = M7.CyclicSubstitution.rho N ^ g.leftShift.val * M7.QuotientAuto.substitution g.unit (M7.AffinePolynomial.image (if g.exchange then c.2 else c.1)) ∧ M7.AffinePolynomial.image (M7.Action.act g c).2 = M7.CyclicSubstitution.rho N ^ g.rightShift.val * M7.QuotientAuto.substitution g.unit (M7.AffinePolynomial.image (if g.exchange then c.1 else c.2))",
+        "imports": [
+          "M7AffinePolynomial"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "All imported proof obligations are accepted. Only the frozen substitution definition is imported from quotient_auto, not its pending laws: unfold it and use accepted CyclicSubstitution.hom_root with point_root. support_sum follows map_sum and AdjoinRoot.mk_X. Use accepted power_mod with ZMod.val_add/val_mul for powers of residue values. affine_bijective justifies Finset.sum_image, so no cancellations/duplicate supports are assumed. rho is a unit since rho^N=1 and N>0, hence all shift powers are units. Covers even N and N=1. Return tactic lines only.\nimport M7ActionAccepted\nimport M7Supports\nimport M7QuotientAuto\n\nnamespace M7.AffinePolynomial\nnoncomputable def image {N : ℕ} (A : M7.Supports.Support N) : M6.Cyclic.CycleRing N :=\n  M6.Cyclic.image N (M7.Supports.polynomial A)\nnoncomputable def shifted {N : ℕ} [NeZero N] (u : (ZMod N)ˣ) (s : ZMod N)\n    (A : M7.Supports.Support N) : M7.Supports.Support N := A.image (M7.Action.affine u s)\nend M7.AffinePolynomial\n"
+      }
+    }
+  ]
+}

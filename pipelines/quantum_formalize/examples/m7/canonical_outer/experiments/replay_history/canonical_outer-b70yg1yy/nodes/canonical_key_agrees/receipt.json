@@ -1,0 +1,100 @@
+{
+  "id": "canonical_key_agrees",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalOuter.canonical_key_agrees",
+    "spec_sha256": "cf223f109f6ae7016eefd20902b13819c7ec07e7f378a83856070f6c1b76857d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-x1wxs1gf/attempt-001/Candidate_343560984a01ce98.lean",
+        "target_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-x1wxs1gf/attempt-001/FrozenTarget_343560984a01ce98.lean",
+        "feedback": "",
+        "target_sha256": "070095a754c7bc972cb4c738bc0f04a46f0e7a62a7fe322d2b8aada637a1b22e",
+        "target_olean_sha256": "74dd0182745c65006b4848e9354e6492aac737ec1b0741ce3201a1e8347c3543",
+        "source_sha256": "15b27dc5e2eddd40ad42ca0749beb71a812d0714cced94cb6398c919b36a5269",
+        "olean_sha256": "3e7712dfe4b9aa50b186847b010dbdcc559574747b096b38ec79afdc7ec291c5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:54:20.392121+00:00",
+    "work": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-x1wxs1gf",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "e2b9937f2c88530885415cbb397848104a579dc4f9802a749cd68de66091a34d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-x1wxs1gf/attempt-001/Candidate_343560984a01ce98.lean",
+    "environment_sha256": "c4afe76bd2bc2b078f4a0aaca674d3192b7fbdf34aa57c5d93f4d00e250c88ba",
+    "artifacts": {
+      "unit_index": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.unit_index : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (e : Bool), ∃ i ∈ M7.CanonicalOuter.indices N, M7.CanonicalOuter.outerRecord i = (⟨u,e,0,0⟩ : M7.Action.Record N) := by\n   classical\n   intro N inst u e\n   let i : M7.CanonicalOuter.OuterIndex N :=\n     toLex (⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩, e)\n   have hv : (((ofLex i).1.val : ℕ) : ZMod N) = (u : ZMod N) := by\n     simp [i]\n   have hi : IsUnit (((ofLex i).1.val : ℕ) : ZMod N) := by\n     rw [hv]\n     exact u.isUnit\n   refine ⟨i, ?_, ?_⟩\n   · exact Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n   · have hu : M7.CanonicalOuter.outerUnit i = u := by\n       unfold M7.CanonicalOuter.outerUnit\n       rw [dif_pos hi]\n       apply Units.ext\n       exact hi.unit_spec.trans hv\n     change (⟨M7.CanonicalOuter.outerUnit i, (ofLex i).2, 0, 0⟩ : M7.Action.Record N) = ⟨u, e, 0, 0⟩\n     rw [hu]\n     rfl",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.unit_index",
+          "ancestors": [],
+          "spec_sha256": "69ea588dd20622d263997b98ff19589e903884f12aff48cce57448df257597ac"
+        },
+        "sha256": "76408eda35ca3618f02babbb45c5e7ec843b283c4b9a72e261e2e57b9ccba9c8"
+      },
+      "indices_nonempty": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.indices_nonempty : ∀ (N : ℕ) [NeZero N], (M7.CanonicalOuter.indices N).Nonempty := by\n  change ∀ (N : ℕ) [NeZero N], (M7.CanonicalOuter.indices N).Nonempty\n  intro N inst\n  obtain ⟨i, hi, _⟩ := M7.CanonicalOuter.unit_index N (1 : (ZMod N)ˣ) false\n  exact ⟨i, hi⟩",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.indices_nonempty",
+          "ancestors": [
+            "unit_index"
+          ],
+          "spec_sha256": "b6cf2c0f28c9695305aeb42edd5a654096682402fd52a0270e4049078043c561"
+        },
+        "sha256": "df321781c7407329d7660f7b03d34ddaaa37608f5ae3c68ee24c37d02038842e"
+      },
+      "choices_nonempty": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.choices_nonempty : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.CanonicalOuter.choices c).Nonempty := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.CanonicalOuter.choices c).Nonempty\n  intro N inst c\n  obtain ⟨i, hi⟩ := M7.CanonicalOuter.indices_nonempty N\n  unfold M7.CanonicalOuter.choices\n  exact ⟨_, Finset.mem_image.mpr ⟨i, hi, rfl⟩⟩",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.choices_nonempty",
+          "ancestors": [
+            "indices_nonempty",
+            "unit_index"
+          ],
+          "spec_sha256": "e928b1d43eb6a2cf0fac7fc2b42aa52218342abe75602017c0e0b0ac7eb6d28b"
+        },
+        "sha256": "9c867028fe77ec2e27d121434b9e35049f13bca51e68bc322c85374c88be9b82"
+      },
+      "canonical_key_agrees": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.canonical_key_agrees : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (ofLex (M7.CanonicalOuter.best c)).1 = M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c) := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (ofLex (M7.CanonicalOuter.best c)).1 = M7.CanonicalOuter.pairKey (M7.CanonicalOuter.canonical c)\n  intro N inst c\n  have h := M7.CanonicalOuter.choices_nonempty N c\n  have hb : M7.CanonicalOuter.best c ∈ M7.CanonicalOuter.choices c := by\n    unfold M7.CanonicalOuter.best\n    rw [dif_pos h]\n    exact Finset.min'_mem _ _\n  unfold M7.CanonicalOuter.choices at hb\n  obtain ⟨i, hi, he⟩ := Finset.mem_image.mp hb\n  change (ofLex (M7.CanonicalOuter.best c)).1 = M7.CanonicalOuter.pairKey (M7.CanonicalOuter.candidate c (ofLex (M7.CanonicalOuter.best c)).2)\n  rw [← he]\n  rfl",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.canonical_key_agrees",
+          "ancestors": [
+            "choices_nonempty",
+            "indices_nonempty",
+            "unit_index"
+          ],
+          "spec_sha256": "fd23843ecebe513f09a75437a95b7af7b82378812f24b8106185b787bbbe5457"
+        },
+        "sha256": "e6774e942d701e16654fd481ee970236062d26d151133eee4e09e10df6179f11"
+      }
+    }
+  }
+}

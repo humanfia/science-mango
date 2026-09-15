@@ -1,0 +1,14 @@
+{
+  "name": "M7.GlobalQuery.winners_exact",
+  "statement": "∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), (∀ x : M7.GlobalQuery.Index H N, x ∈ M7.GlobalQuery.winners q bases ↔ M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.Selection.better q.order (M7.GlobalQuery.objective q bases y) (M7.GlobalQuery.objective q bases x)) ∧ (M7.GlobalQuery.winners q bases = ∅ ↔ ¬ ∃ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x)",
+  "imports": [
+    "M7ActualPresentationAccepted",
+    "M7GlobalQuery",
+    "M7SelectionAccepted"
+  ],
+  "context": "",
+  "queries": [
+    "finite set minimum lexicographic order"
+  ],
+  "guidance": "Instantiate Selection.selector_exact over the whole Fin H × actual Record domain. Competitors range over every class and action, never only the current base orbit. Simplify univ membership and feasibleSet emptiness. Return tactic lines without leading by; preserve frozen target and default limits."
+}

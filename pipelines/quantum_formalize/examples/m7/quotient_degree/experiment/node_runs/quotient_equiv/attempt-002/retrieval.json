@@ -1,0 +1,272 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Ideal.Quotient.factor_surjective Ideal.Quotient.factor_mk",
+    "status": "ok",
+    "results": [
+      {
+        "id": 310666,
+        "name": "Ideal.Quotient.factor_surjective",
+        "module": "Mathlib.RingTheory.Ideal.Quotient.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Ideal/Quotient/Defs.lean#L201-L202",
+        "source_text": "lemma factor_surjective (H : S ≤ T) : Function.Surjective (factor H) :=\n  Ideal.Quotient.lift_surjective_of_surjective _ _ Ideal.Quotient.mk_surjective\n",
+        "docstring": null
+      },
+      {
+        "id": 305932,
+        "name": "IsDedekindDomain.idealFactorsFunOfQuotHom",
+        "module": "Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/DedekindDomain/Ideal/Lemmas.lean#L625-L646",
+        "source_text": "/-- The map from ideals of `R` dividing `I` to the ideals of `A` dividing `J` induced by\n  a homomorphism `f : R/I →+* A/J` -/\n@[simps]\ndef idealFactorsFunOfQuotHom {f : R ⧸ I →+* A ⧸ J} (hf : Function.Surjective f) :\n    {p : Ideal R // p ∣ I} →o {p : Ideal A // p ∣ J} where\n  toFun X := ⟨comap (Ideal.Quotient.mk J) (map f (map (Ideal.Quotient.mk I) X)), by\n    have : RingHom.ker (Ideal.Quotient.mk J) ≤\n        comap (Ideal.Quotient.mk J) (map f (map (Ideal.Quotient.mk I) X)) :=\n      ker_le_comap (Ideal.Quotient.mk J)\n    rw [mk_ker] at this\n    exact dvd_iff_le.mpr this⟩\n  monotone' := by\n    rintro ⟨X, hX⟩ ⟨Y, hY⟩ h\n    rw [← Subtype.coe_le_coe, Subtype.coe_mk, Subtype.coe_mk] at h ⊢\n    rw [Subtype.coe_mk, comap_le_comap_iff_of_surjective (Ideal.Quotient.mk J)\n      Ideal.Quotient.mk_surjective, map_le_iff_le_comap, Subtype.coe_mk,\n      comap_map_of_surjective _ hf (map (Ideal.Quotient.mk I) Y)]\n    suffices map (Ideal.Quotient.mk I) X ≤ map (Ideal.Quotient.mk I) Y by\n      exact le_sup_of_le_left this\n    rwa [map_le_iff_le_comap, comap_map_of_surjective (Ideal.Quotient.mk I)\n      Ideal.Quotient.mk_surjective, ← RingHom.ker_eq_comap_bot, mk_ker,\n      sup_eq_left.mpr <| le_of_dvd hY]\n",
+        "docstring": "The map from ideals of `R` dividing `I` to the ideals of `A` dividing `J` induced by\na homomorphism `f : R/I →+* A/J` "
+      },
+      {
+        "id": 305933,
+        "name": "IsDedekindDomain.idealFactorsFunOfQuotHom_coe_coe",
+        "module": "Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/DedekindDomain/Ideal/Lemmas.lean#L627-L627",
+        "source_text": "@[simps]\ndef idealFactorsFunOfQuotHom {f : R ⧸ I →+* A ⧸ J} (hf : Function.Surjective f) :\n    {p : Ideal R // p ∣ I} →o {p : Ideal A // p ∣ J} where\n  toFun X := ⟨comap (Ideal.Quotient.mk J) (map f (map (Ideal.Quotient.mk I) X)), by",
+        "docstring": null
+      },
+      {
+        "id": 310660,
+        "name": "Ideal.Quotient.factor",
+        "module": "Mathlib.RingTheory.Ideal.Quotient.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Ideal/Quotient/Defs.lean#L166-L173",
+        "source_text": "/-- The ring homomorphism from the quotient by a smaller ideal to the quotient by a larger ideal.\n\nThis is the `Ideal.Quotient` version of `Quot.Factor`\n\nWhen the two ideals are of the form `I^m` and `I^n` and `n ≤ m`,\nplease refer to the dedicated version `Ideal.Quotient.factorPow`. -/\ndef factor (H : S ≤ T) : R ⧸ S →+* R ⧸ T :=\n  Ideal.Quotient.lift S (mk T) fun _ hx => eq_zero_iff_mem.2 (H hx)\n",
+        "docstring": "The ring homomorphism from the quotient by a smaller ideal to the quotient by a larger ideal.\n\nThis is the `Ideal.Quotient` version of `Quot.Factor`\n\nWhen the two ideals are of the form `I^m` and `I^n` and `n ≤ m`,\nplease refer to the dedicated version `Ideal.Quotient.factorPow`. "
+      },
+      {
+        "id": 310661,
+        "name": "Ideal.Quotient.factor_mk",
+        "module": "Mathlib.RingTheory.Ideal.Quotient.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Ideal/Quotient/Defs.lean#L175-L177",
+        "source_text": "@[simp]\ntheorem factor_mk (H : S ≤ T) (x : R) : factor H (mk S x) = mk T x :=\n  rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Ideal.Quotient.factor_surjective Ideal.Quotient.factor_mk",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Ideal.Quotient.factor_surjective Ideal.Quotient.factor_mk",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "AdjoinRoot.mk_eq_zero",
+    "status": "ok",
+    "results": [
+      {
+        "id": 303564,
+        "name": "AdjoinRoot.mk_eq_zero",
+        "module": "Mathlib.RingTheory.AdjoinRoot",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L212-L214",
+        "source_text": "@[simp]\ntheorem mk_eq_zero {g : R[X]} : mk f g = 0 ↔ f ∣ g :=\n  mk_eq_mk.trans <| by rw [sub_zero]",
+        "docstring": null
+      },
+      {
+        "id": 303563,
+        "name": "AdjoinRoot.mk_eq_mk",
+        "module": "Mathlib.RingTheory.AdjoinRoot",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L208-L210",
+        "source_text": "@[simp]\ntheorem mk_eq_mk {g h : R[X]} : mk f g = mk f h ↔ f ∣ g - h :=\n  Ideal.Quotient.eq.trans Ideal.mem_span_singleton",
+        "docstring": null
+      },
+      {
+        "id": 303529,
+        "name": "AdjoinRoot",
+        "module": "Mathlib.RingTheory.AdjoinRoot",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L60-L63",
+        "source_text": "/-- Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. -/\ndef AdjoinRoot [CommRing R] (f : R[X]) : Type _ :=\n  Polynomial R ⧸ (span {f} : Ideal R[X])\n",
+        "docstring": "Adjoin a root of a polynomial `f` to a commutative ring `R`. We define the new ring\nas the quotient of `R[X]` by the principal ideal generated by `f`. "
+      },
+      {
+        "id": 303552,
+        "name": "AdjoinRoot.root",
+        "module": "Mathlib.RingTheory.AdjoinRoot",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L163-L165",
+        "source_text": "/-- The adjoined root. -/\ndef root : AdjoinRoot f :=\n  mk f X\n",
+        "docstring": "The adjoined root. "
+      },
+      {
+        "id": 76659,
+        "name": "AddEquiv.withZeroCongr",
+        "module": "Mathlib.Algebra.Group.WithOne.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/WithOne/Basic.lean#L132-L132",
+        "source_text": "@[to_additive (attr := simps apply) /-- A version of `Equiv.optionCongr` for `WithZero`. -/]\ndef _root_.MulEquiv.withOneCongr (e : α ≃* β) : WithOne α ≃* WithOne β :=",
+        "docstring": "A version of `Equiv.optionCongr` for `WithZero`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "AdjoinRoot.mk_eq_zero",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "AdjoinRoot.mk_eq_zero",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "RingHom.quotientKerEquivOfSurjective",
+    "status": "ok",
+    "results": [
+      {
+        "id": 305244,
+        "name": "RingCon.quotientKerEquivOfSurjective",
+        "module": "Mathlib.RingTheory.Congruence.Hom",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Congruence/Hom.lean#L310-L316",
+        "source_text": "/-- The first isomorphism theorem for rings in the case of a surjective homomorphism.\n\nFor a `computable` version, see `RingCon.quotientKerEquivOfRightInverse`.\n-/\nnoncomputable def quotientKerEquivOfSurjective (f : M →+* P) (hf : Surjective f) :\n    (ker f).Quotient ≃+* P :=\n  quotientKerEquivOfRightInverse _ _ hf.hasRightInverse.choose_spec\n",
+        "docstring": "The first isomorphism theorem for rings in the case of a surjective homomorphism.\n\nFor a `computable` version, see `RingCon.quotientKerEquivOfRightInverse`.\n"
+      },
+      {
+        "id": 310707,
+        "name": "RingHom.quotientKerEquivOfSurjective",
+        "module": "Mathlib.RingTheory.Ideal.Quotient.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Ideal/Quotient/Operations.lean#L88-L90",
+        "source_text": "/-- The **first isomorphism theorem** for commutative rings, surjective case. -/\nnoncomputable def quotientKerEquivOfSurjective (hf : Function.Surjective f) : R ⧸ (ker f) ≃+* S :=\n  quotientKerEquivOfRightInverse (Classical.choose_spec hf.hasRightInverse)\n",
+        "docstring": "The **first isomorphism theorem** for commutative rings, surjective case. "
+      },
+      {
+        "id": 305245,
+        "name": "RingCon.quotientKerEquivOfSurjective_mk",
+        "module": "Mathlib.RingTheory.Congruence.Hom",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Congruence/Hom.lean#L318-L319",
+        "source_text": "@[simp] theorem quotientKerEquivOfSurjective_mk (f : M →+* P) (hf : Surjective f) (x : M) :\n    quotientKerEquivOfSurjective f hf x = f x := rfl",
+        "docstring": null
+      },
+      {
+        "id": 305228,
+        "name": "RingCon.lift_surjective_of_surjective",
+        "module": "Mathlib.RingTheory.Congruence.Hom",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Congruence/Hom.lean#L207-L211",
+        "source_text": "/-- Surjective ring homomorphisms constant on the equivalence classes\nof a ring congruence relation induce a surjective homomorphism on the quotient. -/\ntheorem lift_surjective_of_surjective (h : c ≤ ker f) (hf : Surjective f) :\n    Surjective (c.lift f h) :=\n  lift_surjective_iff.mpr hf\n",
+        "docstring": "Surjective ring homomorphisms constant on the equivalence classes\nof a ring congruence relation induce a surjective homomorphism on the quotient. "
+      },
+      {
+        "id": 309956,
+        "name": "RingHom.ker",
+        "module": "Mathlib.RingTheory.Ideal.Maps",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Ideal/Maps.lean#L739-L741",
+        "source_text": "/-- Kernel of a ring homomorphism as an ideal of the domain. -/\ndef ker : Ideal R :=\n  Ideal.comap f ⊥\n",
+        "docstring": "Kernel of a ring homomorphism as an ideal of the domain. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "RingHom.quotientKerEquivOfSurjective",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "RingHom.quotientKerEquivOfSurjective",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

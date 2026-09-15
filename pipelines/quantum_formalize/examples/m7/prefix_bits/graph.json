@@ -1,0 +1,161 @@
+{
+  "title": "M7 concrete binary prefix states and actual arithmetic descent partitions",
+  "nodes": [
+    {
+      "id": "base",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixBits.base",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 p : List Bool, M7.PrefixCompleted.Base N (M7.PrefixBits.A N p) (M7.PrefixBits.B N p) (M7.PrefixBits.WA N p) (M7.PrefixBits.WB N p)",
+        "imports": [
+          "M7PrefixBits"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual fixed binary prefix order: left positions1..N-1 then right positions1..N-1, with anchored zero always selected. These definitions are the original compact descent state, no raw pair enumeration. selected has true decided bits, undecided all remaining positions; permit overfull selected weight because accepted PrefixCompleted.Base has no weight bound. Prove step equations using Finset.ext, mem_image, list.getD on appended singleton; split index before/equal/after p.length. Use omega for offset arithmetic and N=1 depth0. Base via membership bounds and true decided vs undecided exclusion. Once left_step/right_step hold, accepted PrefixCompleted.left_sets/right_sets and left_disjoint/right_disjoint give completed_partition; count_card uses actual accepted count_completed; card_union gives count_partition. At full depth WA/WB empty, accepted completed_membership forces both supports exactly selected, proving singleton subset (not claiming the leaf is always valid). All exact original branches retained. Return tactic lines only.\nimport M7PrefixCompletedAccepted\n\nnamespace M7.PrefixBits\n/-- Positions 1,...,N-1; the first block precedes the second block. -/\ndef selected (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  {0} \u222a ((Finset.range (N-1)).filter (fun j => offset+j < p.length \u2227 p.getD (offset+j) false = true)).image (fun j => j+1)\ndef undecided (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  ((Finset.range (N-1)).filter (fun j => p.length \u2264 offset+j)).image (fun j => j+1)\ndef A (N : \u2115) (p : List Bool) := selected N 0 p\ndef B (N : \u2115) (p : List Bool) := selected N (N-1) p\ndef WA (N : \u2115) (p : List Bool) := undecided N 0 p\ndef WB (N : \u2115) (p : List Bool) := undecided N (N-1) p\ndef depth (N : \u2115) := 2*(N-1)\nnoncomputable def count (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) : \u2124 :=\n  M7.PrefixSector.count N w E (A N p) (B N p) (WA N p) (WB N p)\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) :=\n  M7.PrefixCompleted.completed N w E (A N p) (B N p) (WA N p) (WB N p)\nend M7.PrefixBits\n"
+      }
+    },
+    {
+      "id": "root",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixBits.root",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 M7.PrefixBits.A N [] = {0} \u2227 M7.PrefixBits.B N [] = {0} \u2227 M7.PrefixBits.WA N [] = Finset.range N \\ {0} \u2227 M7.PrefixBits.WB N [] = Finset.range N \\ {0}",
+        "imports": [
+          "M7PrefixBits"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual fixed binary prefix order: left positions1..N-1 then right positions1..N-1, with anchored zero always selected. These definitions are the original compact descent state, no raw pair enumeration. selected has true decided bits, undecided all remaining positions; permit overfull selected weight because accepted PrefixCompleted.Base has no weight bound. Prove step equations using Finset.ext, mem_image, list.getD on appended singleton; split index before/equal/after p.length. Use omega for offset arithmetic and N=1 depth0. Base via membership bounds and true decided vs undecided exclusion. Once left_step/right_step hold, accepted PrefixCompleted.left_sets/right_sets and left_disjoint/right_disjoint give completed_partition; count_card uses actual accepted count_completed; card_union gives count_partition. At full depth WA/WB empty, accepted completed_membership forces both supports exactly selected, proving singleton subset (not claiming the leaf is always valid). All exact original branches retained. Return tactic lines only.\nimport M7PrefixCompletedAccepted\n\nnamespace M7.PrefixBits\n/-- Positions 1,...,N-1; the first block precedes the second block. -/\ndef selected (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  {0} \u222a ((Finset.range (N-1)).filter (fun j => offset+j < p.length \u2227 p.getD (offset+j) false = true)).image (fun j => j+1)\ndef undecided (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  ((Finset.range (N-1)).filter (fun j => p.length \u2264 offset+j)).image (fun j => j+1)\ndef A (N : \u2115) (p : List Bool) := selected N 0 p\ndef B (N : \u2115) (p : List Bool) := selected N (N-1) p\ndef WA (N : \u2115) (p : List Bool) := undecided N 0 p\ndef WB (N : \u2115) (p : List Bool) := undecided N (N-1) p\ndef depth (N : \u2115) := 2*(N-1)\nnoncomputable def count (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) : \u2124 :=\n  M7.PrefixSector.count N w E (A N p) (B N p) (WA N p) (WB N p)\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) :=\n  M7.PrefixCompleted.completed N w E (A N p) (B N p) (WA N p) (WB N p)\nend M7.PrefixBits\n"
+      }
+    },
+    {
+      "id": "left_step",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixBits.left_step",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 (p : List Bool) (bit : Bool), p.length < N-1 \u2192 let j := p.length+1; j \u2208 M7.PrefixBits.WA N p \u2227 M7.PrefixBits.A N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.A N p) else M7.PrefixBits.A N p) \u2227 M7.PrefixBits.B N (p ++ [bit]) = M7.PrefixBits.B N p \u2227 M7.PrefixBits.WA N (p ++ [bit]) = (M7.PrefixBits.WA N p).erase j \u2227 M7.PrefixBits.WB N (p ++ [bit]) = M7.PrefixBits.WB N p",
+        "imports": [
+          "M7PrefixBits"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual fixed binary prefix order: left positions1..N-1 then right positions1..N-1, with anchored zero always selected. These definitions are the original compact descent state, no raw pair enumeration. selected has true decided bits, undecided all remaining positions; permit overfull selected weight because accepted PrefixCompleted.Base has no weight bound. Prove step equations using Finset.ext, mem_image, list.getD on appended singleton; split index before/equal/after p.length. Use omega for offset arithmetic and N=1 depth0. Base via membership bounds and true decided vs undecided exclusion. Once left_step/right_step hold, accepted PrefixCompleted.left_sets/right_sets and left_disjoint/right_disjoint give completed_partition; count_card uses actual accepted count_completed; card_union gives count_partition. At full depth WA/WB empty, accepted completed_membership forces both supports exactly selected, proving singleton subset (not claiming the leaf is always valid). All exact original branches retained. Return tactic lines only.\nimport M7PrefixCompletedAccepted\n\nnamespace M7.PrefixBits\n/-- Positions 1,...,N-1; the first block precedes the second block. -/\ndef selected (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  {0} \u222a ((Finset.range (N-1)).filter (fun j => offset+j < p.length \u2227 p.getD (offset+j) false = true)).image (fun j => j+1)\ndef undecided (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  ((Finset.range (N-1)).filter (fun j => p.length \u2264 offset+j)).image (fun j => j+1)\ndef A (N : \u2115) (p : List Bool) := selected N 0 p\ndef B (N : \u2115) (p : List Bool) := selected N (N-1) p\ndef WA (N : \u2115) (p : List Bool) := undecided N 0 p\ndef WB (N : \u2115) (p : List Bool) := undecided N (N-1) p\ndef depth (N : \u2115) := 2*(N-1)\nnoncomputable def count (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) : \u2124 :=\n  M7.PrefixSector.count N w E (A N p) (B N p) (WA N p) (WB N p)\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) :=\n  M7.PrefixCompleted.completed N w E (A N p) (B N p) (WA N p) (WB N p)\nend M7.PrefixBits\n"
+      }
+    },
+    {
+      "id": "right_step",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixBits.right_step",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 (p : List Bool) (bit : Bool), N-1 \u2264 p.length \u2192 p.length < M7.PrefixBits.depth N \u2192 let j := p.length-(N-1)+1; j \u2208 M7.PrefixBits.WB N p \u2227 M7.PrefixBits.A N (p ++ [bit]) = M7.PrefixBits.A N p \u2227 M7.PrefixBits.B N (p ++ [bit]) = (if bit then insert j (M7.PrefixBits.B N p) else M7.PrefixBits.B N p) \u2227 M7.PrefixBits.WA N (p ++ [bit]) = M7.PrefixBits.WA N p \u2227 M7.PrefixBits.WB N (p ++ [bit]) = (M7.PrefixBits.WB N p).erase j",
+        "imports": [
+          "M7PrefixBits"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual fixed binary prefix order: left positions1..N-1 then right positions1..N-1, with anchored zero always selected. These definitions are the original compact descent state, no raw pair enumeration. selected has true decided bits, undecided all remaining positions; permit overfull selected weight because accepted PrefixCompleted.Base has no weight bound. Prove step equations using Finset.ext, mem_image, list.getD on appended singleton; split index before/equal/after p.length. Use omega for offset arithmetic and N=1 depth0. Base via membership bounds and true decided vs undecided exclusion. Once left_step/right_step hold, accepted PrefixCompleted.left_sets/right_sets and left_disjoint/right_disjoint give completed_partition; count_card uses actual accepted count_completed; card_union gives count_partition. At full depth WA/WB empty, accepted completed_membership forces both supports exactly selected, proving singleton subset (not claiming the leaf is always valid). All exact original branches retained. Return tactic lines only.\nimport M7PrefixCompletedAccepted\n\nnamespace M7.PrefixBits\n/-- Positions 1,...,N-1; the first block precedes the second block. -/\ndef selected (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  {0} \u222a ((Finset.range (N-1)).filter (fun j => offset+j < p.length \u2227 p.getD (offset+j) false = true)).image (fun j => j+1)\ndef undecided (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  ((Finset.range (N-1)).filter (fun j => p.length \u2264 offset+j)).image (fun j => j+1)\ndef A (N : \u2115) (p : List Bool) := selected N 0 p\ndef B (N : \u2115) (p : List Bool) := selected N (N-1) p\ndef WA (N : \u2115) (p : List Bool) := undecided N 0 p\ndef WB (N : \u2115) (p : List Bool) := undecided N (N-1) p\ndef depth (N : \u2115) := 2*(N-1)\nnoncomputable def count (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) : \u2124 :=\n  M7.PrefixSector.count N w E (A N p) (B N p) (WA N p) (WB N p)\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) :=\n  M7.PrefixCompleted.completed N w E (A N p) (B N p) (WA N p) (WB N p)\nend M7.PrefixBits\n"
+      }
+    },
+    {
+      "id": "leaf_undecided",
+      "dependencies": [],
+      "spec": {
+        "name": "M7.PrefixBits.leaf_undecided",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 p : List Bool, p.length = M7.PrefixBits.depth N \u2192 M7.PrefixBits.WA N p = \u2205 \u2227 M7.PrefixBits.WB N p = \u2205",
+        "imports": [
+          "M7PrefixBits"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual fixed binary prefix order: left positions1..N-1 then right positions1..N-1, with anchored zero always selected. These definitions are the original compact descent state, no raw pair enumeration. selected has true decided bits, undecided all remaining positions; permit overfull selected weight because accepted PrefixCompleted.Base has no weight bound. Prove step equations using Finset.ext, mem_image, list.getD on appended singleton; split index before/equal/after p.length. Use omega for offset arithmetic and N=1 depth0. Base via membership bounds and true decided vs undecided exclusion. Once left_step/right_step hold, accepted PrefixCompleted.left_sets/right_sets and left_disjoint/right_disjoint give completed_partition; count_card uses actual accepted count_completed; card_union gives count_partition. At full depth WA/WB empty, accepted completed_membership forces both supports exactly selected, proving singleton subset (not claiming the leaf is always valid). All exact original branches retained. Return tactic lines only.\nimport M7PrefixCompletedAccepted\n\nnamespace M7.PrefixBits\n/-- Positions 1,...,N-1; the first block precedes the second block. -/\ndef selected (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  {0} \u222a ((Finset.range (N-1)).filter (fun j => offset+j < p.length \u2227 p.getD (offset+j) false = true)).image (fun j => j+1)\ndef undecided (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  ((Finset.range (N-1)).filter (fun j => p.length \u2264 offset+j)).image (fun j => j+1)\ndef A (N : \u2115) (p : List Bool) := selected N 0 p\ndef B (N : \u2115) (p : List Bool) := selected N (N-1) p\ndef WA (N : \u2115) (p : List Bool) := undecided N 0 p\ndef WB (N : \u2115) (p : List Bool) := undecided N (N-1) p\ndef depth (N : \u2115) := 2*(N-1)\nnoncomputable def count (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) : \u2124 :=\n  M7.PrefixSector.count N w E (A N p) (B N p) (WA N p) (WB N p)\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) :=\n  M7.PrefixCompleted.completed N w E (A N p) (B N p) (WA N p) (WB N p)\nend M7.PrefixBits\n"
+      }
+    },
+    {
+      "id": "count_card",
+      "dependencies": [
+        "base"
+      ],
+      "spec": {
+        "name": "M7.PrefixBits.count_card",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 (w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E \u2192 M7.PrefixBits.count N w E p = (M7.PrefixBits.completed N w E p).card",
+        "imports": [
+          "M7PrefixBits"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual fixed binary prefix order: left positions1..N-1 then right positions1..N-1, with anchored zero always selected. These definitions are the original compact descent state, no raw pair enumeration. selected has true decided bits, undecided all remaining positions; permit overfull selected weight because accepted PrefixCompleted.Base has no weight bound. Prove step equations using Finset.ext, mem_image, list.getD on appended singleton; split index before/equal/after p.length. Use omega for offset arithmetic and N=1 depth0. Base via membership bounds and true decided vs undecided exclusion. Once left_step/right_step hold, accepted PrefixCompleted.left_sets/right_sets and left_disjoint/right_disjoint give completed_partition; count_card uses actual accepted count_completed; card_union gives count_partition. At full depth WA/WB empty, accepted completed_membership forces both supports exactly selected, proving singleton subset (not claiming the leaf is always valid). All exact original branches retained. Return tactic lines only.\nimport M7PrefixCompletedAccepted\n\nnamespace M7.PrefixBits\n/-- Positions 1,...,N-1; the first block precedes the second block. -/\ndef selected (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  {0} \u222a ((Finset.range (N-1)).filter (fun j => offset+j < p.length \u2227 p.getD (offset+j) false = true)).image (fun j => j+1)\ndef undecided (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  ((Finset.range (N-1)).filter (fun j => p.length \u2264 offset+j)).image (fun j => j+1)\ndef A (N : \u2115) (p : List Bool) := selected N 0 p\ndef B (N : \u2115) (p : List Bool) := selected N (N-1) p\ndef WA (N : \u2115) (p : List Bool) := undecided N 0 p\ndef WB (N : \u2115) (p : List Bool) := undecided N (N-1) p\ndef depth (N : \u2115) := 2*(N-1)\nnoncomputable def count (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) : \u2124 :=\n  M7.PrefixSector.count N w E (A N p) (B N p) (WA N p) (WB N p)\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) :=\n  M7.PrefixCompleted.completed N w E (A N p) (B N p) (WA N p) (WB N p)\nend M7.PrefixBits\n"
+      }
+    },
+    {
+      "id": "completed_partition",
+      "dependencies": [
+        "base",
+        "left_step",
+        "right_step"
+      ],
+      "spec": {
+        "name": "M7.PrefixBits.completed_partition",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 (w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length < M7.PrefixBits.depth N \u2192 M7.PrefixBits.completed N w E p = M7.PrefixBits.completed N w E (p ++ [false]) \u222a M7.PrefixBits.completed N w E (p ++ [true]) \u2227 Disjoint (M7.PrefixBits.completed N w E (p ++ [false])) (M7.PrefixBits.completed N w E (p ++ [true]))",
+        "imports": [
+          "M7PrefixBits"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual fixed binary prefix order: left positions1..N-1 then right positions1..N-1, with anchored zero always selected. These definitions are the original compact descent state, no raw pair enumeration. selected has true decided bits, undecided all remaining positions; permit overfull selected weight because accepted PrefixCompleted.Base has no weight bound. Prove step equations using Finset.ext, mem_image, list.getD on appended singleton; split index before/equal/after p.length. Use omega for offset arithmetic and N=1 depth0. Base via membership bounds and true decided vs undecided exclusion. Once left_step/right_step hold, accepted PrefixCompleted.left_sets/right_sets and left_disjoint/right_disjoint give completed_partition; count_card uses actual accepted count_completed; card_union gives count_partition. At full depth WA/WB empty, accepted completed_membership forces both supports exactly selected, proving singleton subset (not claiming the leaf is always valid). All exact original branches retained. Return tactic lines only.\nimport M7PrefixCompletedAccepted\n\nnamespace M7.PrefixBits\n/-- Positions 1,...,N-1; the first block precedes the second block. -/\ndef selected (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  {0} \u222a ((Finset.range (N-1)).filter (fun j => offset+j < p.length \u2227 p.getD (offset+j) false = true)).image (fun j => j+1)\ndef undecided (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  ((Finset.range (N-1)).filter (fun j => p.length \u2264 offset+j)).image (fun j => j+1)\ndef A (N : \u2115) (p : List Bool) := selected N 0 p\ndef B (N : \u2115) (p : List Bool) := selected N (N-1) p\ndef WA (N : \u2115) (p : List Bool) := undecided N 0 p\ndef WB (N : \u2115) (p : List Bool) := undecided N (N-1) p\ndef depth (N : \u2115) := 2*(N-1)\nnoncomputable def count (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) : \u2124 :=\n  M7.PrefixSector.count N w E (A N p) (B N p) (WA N p) (WB N p)\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) :=\n  M7.PrefixCompleted.completed N w E (A N p) (B N p) (WA N p) (WB N p)\nend M7.PrefixBits\n"
+      }
+    },
+    {
+      "id": "count_partition",
+      "dependencies": [
+        "count_card",
+        "completed_partition"
+      ],
+      "spec": {
+        "name": "M7.PrefixBits.count_partition",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 (w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool), M7.PrefixSector.ValidSector N E \u2192 p.length < M7.PrefixBits.depth N \u2192 M7.PrefixBits.count N w E p = M7.PrefixBits.count N w E (p ++ [false]) + M7.PrefixBits.count N w E (p ++ [true])",
+        "imports": [
+          "M7PrefixBits"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual fixed binary prefix order: left positions1..N-1 then right positions1..N-1, with anchored zero always selected. These definitions are the original compact descent state, no raw pair enumeration. selected has true decided bits, undecided all remaining positions; permit overfull selected weight because accepted PrefixCompleted.Base has no weight bound. Prove step equations using Finset.ext, mem_image, list.getD on appended singleton; split index before/equal/after p.length. Use omega for offset arithmetic and N=1 depth0. Base via membership bounds and true decided vs undecided exclusion. Once left_step/right_step hold, accepted PrefixCompleted.left_sets/right_sets and left_disjoint/right_disjoint give completed_partition; count_card uses actual accepted count_completed; card_union gives count_partition. At full depth WA/WB empty, accepted completed_membership forces both supports exactly selected, proving singleton subset (not claiming the leaf is always valid). All exact original branches retained. Return tactic lines only.\nimport M7PrefixCompletedAccepted\n\nnamespace M7.PrefixBits\n/-- Positions 1,...,N-1; the first block precedes the second block. -/\ndef selected (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  {0} \u222a ((Finset.range (N-1)).filter (fun j => offset+j < p.length \u2227 p.getD (offset+j) false = true)).image (fun j => j+1)\ndef undecided (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  ((Finset.range (N-1)).filter (fun j => p.length \u2264 offset+j)).image (fun j => j+1)\ndef A (N : \u2115) (p : List Bool) := selected N 0 p\ndef B (N : \u2115) (p : List Bool) := selected N (N-1) p\ndef WA (N : \u2115) (p : List Bool) := undecided N 0 p\ndef WB (N : \u2115) (p : List Bool) := undecided N (N-1) p\ndef depth (N : \u2115) := 2*(N-1)\nnoncomputable def count (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) : \u2124 :=\n  M7.PrefixSector.count N w E (A N p) (B N p) (WA N p) (WB N p)\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) :=\n  M7.PrefixCompleted.completed N w E (A N p) (B N p) (WA N p) (WB N p)\nend M7.PrefixBits\n"
+      }
+    },
+    {
+      "id": "leaf_singleton",
+      "dependencies": [
+        "base",
+        "leaf_undecided"
+      ],
+      "spec": {
+        "name": "M7.PrefixBits.leaf_singleton",
+        "statement": "\u2200 (N : \u2115), 0 < N \u2192 \u2200 (w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool), p.length = M7.PrefixBits.depth N \u2192 M7.PrefixBits.completed N w E p \u2286 {(M7.PrefixBits.A N p, M7.PrefixBits.B N p)}",
+        "imports": [
+          "M7PrefixBits"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Actual fixed binary prefix order: left positions1..N-1 then right positions1..N-1, with anchored zero always selected. These definitions are the original compact descent state, no raw pair enumeration. selected has true decided bits, undecided all remaining positions; permit overfull selected weight because accepted PrefixCompleted.Base has no weight bound. Prove step equations using Finset.ext, mem_image, list.getD on appended singleton; split index before/equal/after p.length. Use omega for offset arithmetic and N=1 depth0. Base via membership bounds and true decided vs undecided exclusion. Once left_step/right_step hold, accepted PrefixCompleted.left_sets/right_sets and left_disjoint/right_disjoint give completed_partition; count_card uses actual accepted count_completed; card_union gives count_partition. At full depth WA/WB empty, accepted completed_membership forces both supports exactly selected, proving singleton subset (not claiming the leaf is always valid). All exact original branches retained. Return tactic lines only.\nimport M7PrefixCompletedAccepted\n\nnamespace M7.PrefixBits\n/-- Positions 1,...,N-1; the first block precedes the second block. -/\ndef selected (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  {0} \u222a ((Finset.range (N-1)).filter (fun j => offset+j < p.length \u2227 p.getD (offset+j) false = true)).image (fun j => j+1)\ndef undecided (N offset : \u2115) (p : List Bool) : Finset \u2115 :=\n  ((Finset.range (N-1)).filter (fun j => p.length \u2264 offset+j)).image (fun j => j+1)\ndef A (N : \u2115) (p : List Bool) := selected N 0 p\ndef B (N : \u2115) (p : List Bool) := selected N (N-1) p\ndef WA (N : \u2115) (p : List Bool) := undecided N 0 p\ndef WB (N : \u2115) (p : List Bool) := undecided N (N-1) p\ndef depth (N : \u2115) := 2*(N-1)\nnoncomputable def count (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) : \u2124 :=\n  M7.PrefixSector.count N w E (A N p) (B N p) (WA N p) (WB N p)\nnoncomputable def completed (N w : \u2115) (E : Finset M5.BinaryPolynomial) (p : List Bool) :=\n  M7.PrefixCompleted.completed N w E (A N p) (B N p) (WA N p) (WB N p)\nend M7.PrefixBits\n"
+      }
+    }
+  ]
+}

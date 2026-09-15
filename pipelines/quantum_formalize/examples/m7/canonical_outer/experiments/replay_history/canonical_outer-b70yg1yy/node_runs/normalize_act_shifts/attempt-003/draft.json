@@ -1,0 +1,4 @@
+{
+  "proof": "by\n  intro N inst g c\n  classical\n  have h (u : (ZMod N)ˣ) (s : ZMod N)\n      (A : M7.CanonicalBlock.Support N) :\n      M7.CanonicalBlock.normalize (A.image (M7.Action.affine u s)) =\n        M7.CanonicalBlock.normalize (A.image (fun x => (u : ZMod N) * x)) := by\n    have he : A.image (M7.Action.affine u s) =\n        M7.CanonicalBlock.shift s (A.image (fun x => (u : ZMod N) * x)) := by\n      simp [M7.CanonicalBlock.shift, Finset.image_image,\n        M7.Action.affine, Function.comp_def, add_comm]\n    rw [he, M7.CanonicalBlock.normalize_shift N]\n  rcases g with ⟨u, e, s, t⟩\n  cases e <;> simp [M7.CanonicalOuter.normalizePair, M7.Action.act, h]",
+  "queries": []
+}

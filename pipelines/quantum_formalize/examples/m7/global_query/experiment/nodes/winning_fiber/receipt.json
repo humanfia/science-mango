@@ -1,0 +1,73 @@
+{
+  "id": "winning_fiber",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.GlobalQuery.winning_fiber",
+    "spec_sha256": "09b160232ea20cb63cb729d2ef301d824321ec830b1597885e4c175372ff99c8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-global-query-formalization/.humanize-formal-runs/run-vbks2x6x/attempt-001/Candidate_d76522b43a3de998.lean",
+        "target_path": "/home/jing/m7-lean-global-query-formalization/.humanize-formal-runs/run-vbks2x6x/attempt-001/FrozenTarget_d76522b43a3de998.lean",
+        "feedback": "",
+        "target_sha256": "937712ec2aa98470b5423b64e205bd31f1b9a47fe9d459e319de92b8f341248a",
+        "target_olean_sha256": "97c70df212f93041b930b822d5d24efedd83ceb45996d4c8447fb38af645c03f",
+        "source_sha256": "498c7070a951d3a22ebe92bb0571fcd1dfce5147ce18d1ea2c6749865bc91454",
+        "olean_sha256": "3b4e32aa7048fdfe66e4c7612b7bb81464ed11cf86cc8b973d5832dddaaf4eaf",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T18:00:55.913681+00:00",
+    "work": "/home/jing/m7-lean-global-query-formalization/.humanize-formal-runs/run-vbks2x6x",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "173b8e358a739c21302ca62c4af4615afbcf5514f55cad28c3daaaa749a6c170",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-global-query-formalization/.humanize-formal-runs/run-vbks2x6x/attempt-001/Candidate_d76522b43a3de998.lean",
+    "environment_sha256": "c2194f986dfe0e99252c6eac2b26f28eece6caf4200df0379ed71359616b4b7c",
+    "artifacts": {
+      "winners_exact": {
+        "payload": {
+          "declaration": "theorem M7.GlobalQuery.winners_exact : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), (∀ x : M7.GlobalQuery.Index H N, x ∈ M7.GlobalQuery.winners q bases ↔ M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.Selection.better q.order (M7.GlobalQuery.objective q bases y) (M7.GlobalQuery.objective q bases x)) ∧ (M7.GlobalQuery.winners q bases = ∅ ↔ ¬ ∃ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), (∀ x : M7.GlobalQuery.Index H N, x ∈ M7.GlobalQuery.winners q bases ↔ M7.GlobalQuery.feasible q bases x ∧ ∀ y : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases y → ¬ M7.Selection.better q.order (M7.GlobalQuery.objective q bases y) (M7.GlobalQuery.objective q bases x)) ∧ (M7.GlobalQuery.winners q bases = ∅ ↔ ¬ ∃ x : M7.GlobalQuery.Index H N, M7.GlobalQuery.feasible q bases x)\n  )\n  change QuantumHarnessFrozenTarget\n  classical\n  unfold QuantumHarnessFrozenTarget\n  intro H N inst q bases\n  simpa [M7.GlobalQuery.winners, M7.Selection.feasibleSet,\n    Finset.filter_eq_empty_iff, not_exists] using\n    (M7.Selection.selector_exact (M7.GlobalQuery.Index H N)\n      q.objectives.length Finset.univ (M7.GlobalQuery.feasible q bases)\n      (M7.GlobalQuery.objective q bases) q.order)",
+          "imports": [
+            "M7ActualPresentationAccepted",
+            "M7GlobalQuery",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.GlobalQuery.winners_exact",
+          "ancestors": [],
+          "spec_sha256": "94916d59b74864b361960d05aac2a558b69adf4b53eb062fd0fd4e5bc87c3d90"
+        },
+        "sha256": "53101b30f1913cb6c0721e4f6c2e4170ab4523ba280dc44b898c6a9344c520bb"
+      },
+      "winning_fiber": {
+        "payload": {
+          "declaration": "theorem M7.GlobalQuery.winning_fiber : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x y : M7.GlobalQuery.Index H N), x.1 = y.1 → M7.GlobalQuery.realize bases x = M7.GlobalQuery.realize bases y → (x ∈ M7.GlobalQuery.winners q bases ↔ y ∈ M7.GlobalQuery.winners q bases) := by\n  let QuantumHarnessFrozenTarget : Prop := (\n    ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N) (x y : M7.GlobalQuery.Index H N), x.1 = y.1 → M7.GlobalQuery.realize bases x = M7.GlobalQuery.realize bases y → (x ∈ M7.GlobalQuery.winners q bases ↔ y ∈ M7.GlobalQuery.winners q bases)\n  )\n  change QuantumHarnessFrozenTarget\n  unfold QuantumHarnessFrozenTarget\n  intro H N inst q bases x y hclass himage\n  classical\n  have hf : M7.GlobalQuery.feasible q bases x = M7.GlobalQuery.feasible q bases y := by\n    simp only [M7.GlobalQuery.feasible, hclass, himage]\n  have ho : M7.GlobalQuery.objective q bases x = M7.GlobalQuery.objective q bases y := by\n    simp only [M7.GlobalQuery.objective, himage]\n  rw [(M7.GlobalQuery.winners_exact H N q bases).1 x,\n    (M7.GlobalQuery.winners_exact H N q bases).1 y, hf, ho]",
+          "imports": [
+            "M7ActualPresentationAccepted",
+            "M7GlobalQuery",
+            "M7SelectionAccepted"
+          ],
+          "name": "M7.GlobalQuery.winning_fiber",
+          "ancestors": [
+            "winners_exact"
+          ],
+          "spec_sha256": "6c9ebe06852a53c90593997290aadf5065b7c378276b26231a45baef34936e69"
+        },
+        "sha256": "325746ddca3b0acb1cc0ff096acfb5b880f99f3b3dc2fceafd3c23ec54909573"
+      }
+    }
+  }
+}

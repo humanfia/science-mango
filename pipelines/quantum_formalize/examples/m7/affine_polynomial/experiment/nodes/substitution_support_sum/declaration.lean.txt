@@ -1,0 +1,6 @@
+theorem M7.AffinePolynomial.substitution_support_sum : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (A : M7.Supports.Support N), M7.QuotientAuto.substitution u (M7.AffinePolynomial.image A) = ∑ i ∈ A, M7.CyclicSubstitution.point u ^ i.val := by
+  intro N inst u A
+  classical
+  rw [M7.AffinePolynomial.support_sum N A]
+  simp only [M7.QuotientAuto.substitution, map_sum, map_pow,
+    M7.CyclicSubstitution.hom_root]

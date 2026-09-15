@@ -1,0 +1,7 @@
+theorem M7.CanonicalOuter.canonical_cards : ∀ (N : ℕ) [NeZero N], ∀ (c : M7.Action.Recipe N) (w : ℕ), c.1.card = w → c.2.card = w → (M7.CanonicalOuter.canonical c).1.card = w ∧ (M7.CanonicalOuter.canonical c).2.card = w := by
+  intro N inst c w h₁ h₂
+  simpa only [M7.CanonicalOuter.canonical, M7.CanonicalOuter.candidate,
+    M7.CanonicalOuter.normalizePair, M7.CanonicalBlock.normalize_card,
+    h₁, h₂, ite_self] using
+    (M7.Action.support_cards N
+      (M7.CanonicalOuter.outerRecord (M7.CanonicalOuter.chosenOuter c)) c)

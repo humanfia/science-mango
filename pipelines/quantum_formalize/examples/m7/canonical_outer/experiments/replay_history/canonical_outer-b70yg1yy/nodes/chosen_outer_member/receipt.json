@@ -1,0 +1,100 @@
+{
+  "id": "chosen_outer_member",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M7.CanonicalOuter.chosen_outer_member",
+    "spec_sha256": "6da1a97d82adc8f5418c2fd829940b1332e3c73a681efbab6711f21293e25e4d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-ue990gn3/attempt-001/Candidate_58c61973e683231c.lean",
+        "target_path": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-ue990gn3/attempt-001/FrozenTarget_58c61973e683231c.lean",
+        "feedback": "",
+        "target_sha256": "206b5629ecb06e174f6b92161270d3f9b163f4221076bcea50429e665a94d923",
+        "target_olean_sha256": "1798aeb68291d196d5ade77b30864d2654fab082fd8b954208590656e8ebe49f",
+        "source_sha256": "d41f23315e37d890214be02cec67993a26986a28462e2f14966b60852f80ed06",
+        "olean_sha256": "2410a3abbe52141b71d4d3de6907cb9fc10e40e58d4aa737cbdd17adcbc3b79e",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T17:54:20.409499+00:00",
+    "work": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-ue990gn3",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "e2b9937f2c88530885415cbb397848104a579dc4f9802a749cd68de66091a34d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m7-lean-canonical-outer-formalization/.humanize-formal-runs/run-ue990gn3/attempt-001/Candidate_58c61973e683231c.lean",
+    "environment_sha256": "c4afe76bd2bc2b078f4a0aaca674d3192b7fbdf34aa57c5d93f4d00e250c88ba",
+    "artifacts": {
+      "unit_index": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.unit_index : ∀ (N : ℕ) [NeZero N], ∀ (u : (ZMod N)ˣ) (e : Bool), ∃ i ∈ M7.CanonicalOuter.indices N, M7.CanonicalOuter.outerRecord i = (⟨u,e,0,0⟩ : M7.Action.Record N) := by\n   classical\n   intro N inst u e\n   let i : M7.CanonicalOuter.OuterIndex N :=\n     toLex (⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩, e)\n   have hv : (((ofLex i).1.val : ℕ) : ZMod N) = (u : ZMod N) := by\n     simp [i]\n   have hi : IsUnit (((ofLex i).1.val : ℕ) : ZMod N) := by\n     rw [hv]\n     exact u.isUnit\n   refine ⟨i, ?_, ?_⟩\n   · exact Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n   · have hu : M7.CanonicalOuter.outerUnit i = u := by\n       unfold M7.CanonicalOuter.outerUnit\n       rw [dif_pos hi]\n       apply Units.ext\n       exact hi.unit_spec.trans hv\n     change (⟨M7.CanonicalOuter.outerUnit i, (ofLex i).2, 0, 0⟩ : M7.Action.Record N) = ⟨u, e, 0, 0⟩\n     rw [hu]\n     rfl",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.unit_index",
+          "ancestors": [],
+          "spec_sha256": "69ea588dd20622d263997b98ff19589e903884f12aff48cce57448df257597ac"
+        },
+        "sha256": "76408eda35ca3618f02babbb45c5e7ec843b283c4b9a72e261e2e57b9ccba9c8"
+      },
+      "indices_nonempty": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.indices_nonempty : ∀ (N : ℕ) [NeZero N], (M7.CanonicalOuter.indices N).Nonempty := by\n  change ∀ (N : ℕ) [NeZero N], (M7.CanonicalOuter.indices N).Nonempty\n  intro N inst\n  obtain ⟨i, hi, _⟩ := M7.CanonicalOuter.unit_index N (1 : (ZMod N)ˣ) false\n  exact ⟨i, hi⟩",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.indices_nonempty",
+          "ancestors": [
+            "unit_index"
+          ],
+          "spec_sha256": "b6cf2c0f28c9695305aeb42edd5a654096682402fd52a0270e4049078043c561"
+        },
+        "sha256": "df321781c7407329d7660f7b03d34ddaaa37608f5ae3c68ee24c37d02038842e"
+      },
+      "choices_nonempty": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.choices_nonempty : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.CanonicalOuter.choices c).Nonempty := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M7.CanonicalOuter.choices c).Nonempty\n  intro N inst c\n  obtain ⟨i, hi⟩ := M7.CanonicalOuter.indices_nonempty N\n  unfold M7.CanonicalOuter.choices\n  exact ⟨_, Finset.mem_image.mpr ⟨i, hi, rfl⟩⟩",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.choices_nonempty",
+          "ancestors": [
+            "indices_nonempty",
+            "unit_index"
+          ],
+          "spec_sha256": "e928b1d43eb6a2cf0fac7fc2b42aa52218342abe75602017c0e0b0ac7eb6d28b"
+        },
+        "sha256": "9c867028fe77ec2e27d121434b9e35049f13bca51e68bc322c85374c88be9b82"
+      },
+      "chosen_outer_member": {
+        "payload": {
+          "declaration": "theorem M7.CanonicalOuter.chosen_outer_member : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.chosenOuter c ∈ M7.CanonicalOuter.indices N := by\n  classical\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M7.CanonicalOuter.chosenOuter c ∈ M7.CanonicalOuter.indices N\n  intro N inst c\n  have h := M7.CanonicalOuter.choices_nonempty N c\n  have hb : M7.CanonicalOuter.best c ∈ M7.CanonicalOuter.choices c := by\n    simpa only [M7.CanonicalOuter.best, dif_pos h] using (M7.CanonicalOuter.choices c).min'_mem h\n  unfold M7.CanonicalOuter.choices at hb\n  obtain ⟨i, hi, he⟩ := Finset.mem_image.mp hb\n  unfold M7.CanonicalOuter.chosenOuter\n  rw [← he]\n  exact hi",
+          "imports": [
+            "M7CanonicalOuter"
+          ],
+          "name": "M7.CanonicalOuter.chosen_outer_member",
+          "ancestors": [
+            "choices_nonempty",
+            "indices_nonempty",
+            "unit_index"
+          ],
+          "spec_sha256": "91ed503e8adcfab15f1625636b992644dfefc01c06b72de79dd8cd67f7b387dd"
+        },
+        "sha256": "cf35fd886696a94d6d48e60b040bb77a77da9eac2701cbb9220de001baa1c5e3"
+      }
+    }
+  }
+}

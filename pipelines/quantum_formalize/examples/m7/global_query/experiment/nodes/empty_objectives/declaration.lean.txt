@@ -1,0 +1,7 @@
+theorem M7.GlobalQuery.empty_objectives : ∀ (H N : ℕ) [NeZero N] (q : M7.DefaultQuery.Query) (bases : M7.GlobalQuery.Family H N), q.objectives = [] → M7.GlobalQuery.winners q bases = M7.Selection.feasibleSet Finset.univ (M7.GlobalQuery.feasible q bases) := by
+  intro H N inst q bases h
+  cases q
+  dsimp only at h
+  subst_vars
+  unfold M7.GlobalQuery.winners
+  exact M7.Selection.empty_objectives _ _ _ _ _
