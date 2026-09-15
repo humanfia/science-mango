@@ -1,0 +1,356 @@
+[
+  {
+    "queries": [
+      "normalizedFactors irreducible membership",
+      "finite powerset inclusion exclusion"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "normalizedFactors irreducible membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 320574,
+            "name": "UniqueFactorizationMonoid.irreducible_of_normalized_factor",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L72-L74",
+            "source_text": "theorem irreducible_of_normalized_factor {a : α} :\n    ∀ x : α, x ∈ normalizedFactors a → Irreducible x := fun x h =>\n  (prime_of_normalized_factor x h).irreducible\n",
+            "docstring": null
+          },
+          {
+            "id": 320569,
+            "name": "UniqueFactorizationMonoid.normalizedFactors",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L34-L36",
+            "source_text": "/-- Noncomputably determines the multiset of prime factors. -/\nnoncomputable def normalizedFactors (a : α) : Multiset α :=\n  Multiset.map normalize <| factors a\n",
+            "docstring": "Noncomputably determines the multiset of prime factors. "
+          },
+          {
+            "id": 320576,
+            "name": "UniqueFactorizationMonoid.normalizedFactors_irreducible",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L84-L92",
+            "source_text": "theorem normalizedFactors_irreducible {a : α} (ha : Irreducible a) :\n    normalizedFactors a = {normalize a} := by\n  obtain ⟨p, a_assoc, hp⟩ :=\n    prime_factors_irreducible ha ⟨prime_of_normalized_factor, prod_normalizedFactors ha.ne_zero⟩\n  have p_mem : p ∈ normalizedFactors a := by\n    rw [hp]\n    exact Multiset.mem_singleton_self _\n  convert! hp\n  rwa [← normalize_normalized_factor p p_mem, normalize_eq_normalize_iff, dvd_dvd_iff_associated]\n",
+            "docstring": null
+          },
+          {
+            "id": 320589,
+            "name": "UniqueFactorizationMonoid.normalizedFactors_of_irreducible_pow",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L215-L217",
+            "source_text": "theorem normalizedFactors_of_irreducible_pow {p : α} (hp : Irreducible p) (k : ℕ) :\n    normalizedFactors (p ^ k) = Multiset.replicate k (normalize p) := by\n  rw [normalizedFactors_pow, normalizedFactors_irreducible hp, Multiset.nsmul_singleton]\n",
+            "docstring": null
+          },
+          {
+            "id": 320584,
+            "name": "Irreducible.normalizedFactors_pow",
+            "module": "Mathlib.RingTheory.UniqueFactorizationDomain.NormalizedFactors",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/UniqueFactorizationDomain/NormalizedFactors.lean#L174-L177",
+            "source_text": "theorem _root_.Irreducible.normalizedFactors_pow {p : α} (hp : Irreducible p) (k : ℕ) :\n    normalizedFactors (p ^ k) = Multiset.replicate k (normalize p) := by\n  rw [UniqueFactorizationMonoid.normalizedFactors_pow, normalizedFactors_irreducible hp,\n    Multiset.nsmul_singleton]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "normalizedFactors irreducible membership",
+        "status": "ok",
+        "results": [
+          {
+            "id": 387662,
+            "name": "CKMMatrix.tRow_normalized",
+            "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L65-L71",
+            "source_text": "/-- The top-quark row of the CKM matrix is normalized to `1`. -/\nlemma tRow_normalized (V : CKMMatrix) : conj [V]t ⬝ᵥ [V]t = 1 := by\n  show ∑ k, conj (V.1 2 k) * V.1 2 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 2) 2\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+            "docstring": "The top-quark row of the CKM matrix is normalized to `1`. "
+          },
+          {
+            "id": 387660,
+            "name": "CKMMatrix.uRow_normalized",
+            "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L49-L55",
+            "source_text": "/-- The up-quark row of the CKM matrix is normalized to `1`. -/\nlemma uRow_normalized (V : CKMMatrix) : conj [V]u ⬝ᵥ [V]u = 1 := by\n  show ∑ k, conj (V.1 0 k) * V.1 0 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 0) 0\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+            "docstring": "The up-quark row of the CKM matrix is normalized to `1`. "
+          },
+          {
+            "id": 387661,
+            "name": "CKMMatrix.cRow_normalized",
+            "module": "Physlib.Particles.FlavorPhysics.CKMMatrix.Rows",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/FlavorPhysics/CKMMatrix/Rows.lean#L57-L63",
+            "source_text": "/-- The charm-quark row of the CKM matrix is normalized to `1`. -/\nlemma cRow_normalized (V : CKMMatrix) : conj [V]c ⬝ᵥ [V]c = 1 := by\n  show ∑ k, conj (V.1 1 k) * V.1 1 k = 1\n  have ht := congrFun (congrFun (mem_unitaryGroup_iff.mp V.prop) 1) 1\n  simp only [mul_apply, star_apply, RCLike.star_def, Fin.sum_univ_three, one_apply_eq] at ht\n  rw [Fin.sum_univ_three]\n  linear_combination ht\n",
+            "docstring": "The charm-quark row of the CKM matrix is normalized to `1`. "
+          },
+          {
+            "id": 386235,
+            "name": "Physlib.FourTree.instMembershipProd",
+            "module": "Physlib.Mathematics.DataStructures.FourTree.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/DataStructures/FourTree/Basic.lean#L229-L230",
+            "source_text": "instance : Membership (α1 × α2 × α3 × α4) (FourTree α1 α2 α3 α4) where\n  mem := mem\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite powerset inclusion exclusion",
+        "status": "ok",
+        "results": [
+          {
+            "id": 189151,
+            "name": "Finset.inclusion_exclusion_sum_biUnion",
+            "module": "Mathlib.Combinatorics.Enumerative.InclusionExclusion",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/InclusionExclusion.lean#L111-L147",
+            "source_text": "/-- **Inclusion-exclusion principle** for the sum of a function over a union.\n\nThe sum of a function `f` over the union of the `S i` over `i ∈ s` is the alternating sum of the\nsums of `f` over the intersections of the `S i`. -/\ntheorem inclusion_exclusion_sum_biUnion (s : Finset ι) (S : ι → Finset α) (f : α → G) :\n    ∑ a ∈ s.biUnion S, f a = ∑ t : s.powerset.filter (·.Nonempty),\n      (-1) ^ (#t.1 + 1) • ∑ a ∈ t.1.inf' (mem_filter.1 t.2).2 S, f a := by\n  classical\n  rw [← sub_eq_zero]\n  calc\n    ∑ a ∈ s.biUnion S, f a - ∑ t : s.powerset.filter (·.Nonempty),\n      (-1) ^ (#t.1 + 1) • ∑ a ∈ t.1.inf' (mem_filter.1 t.2).2 S, f a\n      = ∑ t : s.powerset.filter (·.Nonempty),\n          (-1) ^ #t.1 • ∑ a ∈ t.1.inf' (mem_filter.1 t.2).2 S, f a +\n          ∑ t ∈ s.powerset.filter (¬ ·.Nonempty), (-1) ^ #t • ∑ a ∈ s.biUnion S, f a := by\n      simp [sub_eq_neg_add, ← sum_neg_distrib, filter_eq', pow_succ]\n    _ = ∑ t ∈ s.powerset, (-1) ^ #t •\n          if ht : t.Nonempty then ∑ a ∈ t.inf' ht S, f a else ∑ a ∈ s.biUnion S, f a := by\n      rw [← sum_attach (filter ..)]; simp [sum_dite]\n    _ = ∑ a ∈ s.biUnion S, (∏ i ∈ s, (1 - Set.indicator (S i) 1 a : ℤ)) • f a := by\n      simp only [Int.reduceNeg, prod_sub, sum_comm (s := s.biUnion S), sum_smul, mul_assoc]\n      congr! with t\n      split_ifs with ht\n      · obtain ⟨i, hi⟩ := ht\n        simp only [prod_const_one, prod_indicator_apply]\n        simp only [smul_sum, Set.indicator, Set.mem_iInter, mem_coe, Pi.one_apply, mul_ite, mul_one,\n          mul_zero, ite_smul, zero_smul, sum_ite, not_forall, sum_const_zero, add_zero]\n        congr\n        aesop\n      · obtain rfl := not_nonempty_iff_eq_empty.1 ht\n        simp\n    _ = ∑ a ∈ s.biUnion S, (∏ i ∈ s,\n          (Set.indicator (s.biUnion S) 1 a - Set.indicator (S i) 1 a) : ℤ) • f a := by\n      congr! with t; rw [Set.indicator_of_mem ‹_›, Pi.one_apply]\n    _ = 0 := by\n      obtain rfl | hs := s.eq_empty_or_nonempty <;>\n        simp [-coe_biUnion, prod_indicator_biUnion_finset_sub_indicator, *]\n",
+            "docstring": "**Inclusion-exclusion principle** for the sum of a function over a union.\n\nThe sum of a function `f` over the union of the `S i` over `i ∈ s` is the alternating sum of the\nsums of `f` over the intersections of the `S i`. "
+          },
+          {
+            "id": 189153,
+            "name": "Finset.inclusion_exclusion_sum_inf_compl",
+            "module": "Mathlib.Combinatorics.Enumerative.InclusionExclusion",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/InclusionExclusion.lean#L160-L175",
+            "source_text": "/-- **Inclusion-exclusion principle** for the sum of a function over an intersection of complements.\n\nThe sum of a function `f` over the intersection of the complements of the `S i` over `i ∈ s` is the\nalternating sum of the sums of `f` over the intersections of the `S i`. -/\ntheorem inclusion_exclusion_sum_inf_compl (s : Finset ι) (S : ι → Finset α) (f : α → G) :\n    ∑ a ∈ s.inf fun i ↦ (S i)ᶜ, f a = ∑ t ∈ s.powerset, (-1) ^ #t • ∑ a ∈ t.inf S, f a := by\n  classical\n  calc\n    ∑ a ∈ s.inf fun i ↦ (S i)ᶜ, f a\n      = ∑ a, f a - ∑ a ∈ s.biUnion S, f a := by\n      rw [← Finset.compl_sup, sup_eq_biUnion, eq_sub_iff_add_eq, sum_compl_add_sum]\n    _ = ∑ t ∈ s.powerset.filter (¬ ·.Nonempty), (-1) ^ #t • ∑ a ∈ t.inf S, f a\n          + ∑ t ∈ s.powerset.filter (·.Nonempty), (-1) ^ #t • ∑ a ∈ t.inf S, f a := by\n      simp [← sum_attach (filter ..), inclusion_exclusion_sum_biUnion, inf'_eq_inf, filter_eq',\n        sub_eq_add_neg, pow_succ]\n    _ = ∑ t ∈ s.powerset, (-1) ^ #t • ∑ a ∈ t.inf S, f a := sum_filter_not_add_sum_filter ..\n",
+            "docstring": "**Inclusion-exclusion principle** for the sum of a function over an intersection of complements.\n\nThe sum of a function `f` over the intersection of the complements of the `S i` over `i ∈ s` is the\nalternating sum of the sums of `f` over the intersections of the `S i`. "
+          },
+          {
+            "id": 204018,
+            "name": "Finset.powerset",
+            "module": "Mathlib.Data.Finset.Powerset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Powerset.lean#L31-L34",
+            "source_text": "/-- When `s` is a finset, `s.powerset` is the finset of all subsets of `s` (seen as finsets). -/\ndef powerset (s : Finset α) : Finset (Finset α) :=\n  ⟨(s.1.powerset.pmap Finset.mk) fun _t h => nodup_of_le (mem_powerset.1 h) s.nodup,\n    s.nodup.powerset.pmap fun _a _ha _b _hb => congr_arg Finset.val⟩\n",
+            "docstring": "When `s` is a finset, `s.powerset` is the finset of all subsets of `s` (seen as finsets). "
+          },
+          {
+            "id": 189154,
+            "name": "Finset.inclusion_exclusion_card_inf_compl",
+            "module": "Mathlib.Combinatorics.Enumerative.InclusionExclusion",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/InclusionExclusion.lean#L177-L183",
+            "source_text": "/-- **Inclusion-exclusion principle** for the cardinality of an intersection of complements.\n\nThe cardinality of the intersection of the complements of the `S i` over `i ∈ s` is the\nalternating sum of the cardinalities of the intersections of the `S i`. -/\ntheorem inclusion_exclusion_card_inf_compl (s : Finset ι) (S : ι → Finset α) :\n    #(s.inf fun i ↦ (S i)ᶜ) = ∑ t ∈ s.powerset, (-1 : ℤ) ^ #t * #(t.inf S) := by\n  simpa using inclusion_exclusion_sum_inf_compl (G := ℤ) s S (f := 1)\n",
+            "docstring": "**Inclusion-exclusion principle** for the cardinality of an intersection of complements.\n\nThe cardinality of the intersection of the complements of the `S i` over `i ∈ s` is the\nalternating sum of the cardinalities of the intersections of the `S i`. "
+          },
+          {
+            "id": 57743,
+            "name": "finprod_mem_union_inter",
+            "module": "Mathlib.Algebra.BigOperators.Finprod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Finprod.lean#L794-L806",
+            "source_text": "/-- Given finite sets `s` and `t`, the product of `f i` over `i ∈ s ∪ t` times the product of\n`f i` over `i ∈ s ∩ t` equals the product of `f i` over `i ∈ s` times the product of `f i`\nover `i ∈ t`. -/\n@[to_additive\n      /-- Given finite sets `s` and `t`, the sum of `f i` over `i ∈ s ∪ t` plus the sum of\n      `f i` over `i ∈ s ∩ t` equals the sum of `f i` over `i ∈ s` plus the sum of `f i`\n      over `i ∈ t`. -/]\ntheorem finprod_mem_union_inter (hs : s.Finite) (ht : t.Finite) :\n    ((∏ᶠ i ∈ s ∪ t, f i) * ∏ᶠ i ∈ s ∩ t, f i) = (∏ᶠ i ∈ s, f i) * ∏ᶠ i ∈ t, f i := by\n  lift s to Finset α using hs; lift t to Finset α using ht\n  classical\n    rw [← Finset.coe_union, ← Finset.coe_inter]\n    simp only [finprod_mem_coe_finset, Finset.prod_union_inter]\n",
+            "docstring": "Given finite sets `s` and `t`, the product of `f i` over `i ∈ s ∪ t` times the product of\n`f i` over `i ∈ s ∩ t` equals the product of `f i` over `i ∈ s` times the product of `f i`\nover `i ∈ t`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "finite powerset inclusion exclusion",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388420,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.powerset_mono",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L323-L329",
+            "source_text": "lemma powerset_mono {x y : ChargeSpectrum 𝓩} :\n    powerset x ⊆ powerset y ↔ x ⊆ y := by\n  constructor\n  · intro h\n    exact mem_powerset_iff_subset.mp (h (self_mem_powerset x))\n  · intro h z hz\n    exact mem_powerset_iff_subset.mpr (subset_trans (mem_powerset_iff_subset.mp hz) h)\n",
+            "docstring": null
+          },
+          {
+            "id": 388412,
+            "name": "Option.powerset",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L280-L285",
+            "source_text": "/-- The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\n  and `{none, some y}` is `x` is `some y`. -/\ndef _root_.Option.powerset (x : Option 𝓩) : Finset (Option 𝓩) :=\n  match x with\n  | none => {none}\n  | some x => {none, some x}\n",
+            "docstring": "The powerset of `x : Option 𝓩` defined as `{none}` if `x` is `none`\nand `{none, some y}` is `x` is `some y`. "
+          },
+          {
+            "id": 388413,
+            "name": "Option.mem_powerset_iff",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L287-L290",
+            "source_text": "@[simp]\nlemma _root_.Option.mem_powerset_iff {x : Option 𝓩} (y : Option 𝓩) :\n    y ∈ x.powerset ↔ y.toFinset ⊆ x.toFinset := by\n  cases x <;> cases y <;> simp [Option.powerset]",
+            "docstring": null
+          },
+          {
+            "id": 388472,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.self_subset_mem_minimalSuperSet",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.MinimalSuperSet",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/MinimalSuperSet.lean#L85-L116",
+            "source_text": "lemma self_subset_mem_minimalSuperSet (S5 S10 : Finset 𝓩) (x y : ChargeSpectrum 𝓩)\n    (hy : y ∈ minimalSuperSet S5 S10 x) : x ⊆ y := by\n  simp [minimalSuperSet] at hy\n  rcases hy with ⟨hy1, hr | hr | hr | hr⟩\n  · match x with\n    | ⟨none, _, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      rw [Subset]\n      simp [hasSubset]\n    | ⟨some x1, _, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, none, _, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      rw [Subset]\n      simp [hasSubset]\n    | ⟨_, some x2, _, _⟩ =>\n      simp at hr\n  · match x with\n    | ⟨_, _, Q5, _⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      rw [Subset]\n      simp [hasSubset]\n  · match x with\n    | ⟨_, _, _, Q10⟩ =>\n      simp at hr\n      obtain ⟨a, ha, rfl⟩ := hr\n      rw [Subset]\n      simp [hasSubset]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "residual_factors_regular",
+    "receipts_sha256": "ad761979d10ef9ec40e8526da97d82db4113d5b03f83e2eb39958e9870acedda"
+  },
+  {
+    "queries": [
+      "EuclideanDomain.dvd_gcd_iff",
+      "dvd_mul_right"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "EuclideanDomain.dvd_gcd_iff",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64722,
+            "name": "EuclideanDomain.gcd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Defs.lean#L181-L188",
+            "source_text": "/-- `gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\n  any element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` -/\ndef gcd (a b : R) : R :=\n  if a0 : a = 0 then b\n  else\n    have _ := mod_lt b a0\n    gcd (b % a) a\ntermination_by a\n",
+            "docstring": "`gcd a b` is a (non-unique) element such that `gcd a b ∣ a` `gcd a b ∣ b`, and for\nany element `c` such that `c ∣ a` and `c ∣ b`, then `c ∣ gcd a b` "
+          },
+          {
+            "id": 64672,
+            "name": "EuclideanDomain.gcd_eq_left",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L161-L164",
+            "source_text": "theorem gcd_eq_left {a b : R} : gcd a b = a ↔ a ∣ b :=\n  ⟨fun h => by\n    rw [← h]\n    apply gcd_dvd_right, fun h => by rw [gcd_val, mod_eq_zero.2 h, gcd_zero_left]⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 64671,
+            "name": "EuclideanDomain.dvd_gcd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L156-L159",
+            "source_text": "theorem dvd_gcd {a b c : R} : c ∣ a → c ∣ b → c ∣ gcd a b :=\n  GCD.induction a b (fun _ _ H => by simpa only [gcd_zero_left] using H) fun a b _ IH ca cb => by\n    rw [gcd_val]\n    exact IH ((dvd_mod_iff ca).2 cb) ca\n",
+            "docstring": null
+          },
+          {
+            "id": 64667,
+            "name": "EuclideanDomain.gcd_dvd",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L136-L143",
+            "source_text": "theorem gcd_dvd (a b : R) : gcd a b ∣ a ∧ gcd a b ∣ b :=\n  GCD.induction a b\n    (fun b => by\n      rw [gcd_zero_left]\n      exact ⟨dvd_zero _, dvd_rfl⟩)\n    fun a b _ ⟨IH₁, IH₂⟩ => by\n    rw [gcd_val]\n    exact ⟨IH₂, (dvd_mod_iff IH₂).1 IH₁⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 64668,
+            "name": "EuclideanDomain.gcd_dvd_left",
+            "module": "Mathlib.Algebra.EuclideanDomain.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/EuclideanDomain/Basic.lean#L145-L146",
+            "source_text": "theorem gcd_dvd_left (a b : R) : gcd a b ∣ a :=\n  (gcd_dvd a b).left\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "EuclideanDomain.dvd_gcd_iff",
+        "status": "ok",
+        "results": [
+          {
+            "id": 393004,
+            "name": "EuclideanGroup.ext_iff",
+            "module": "Physlib.SpaceAndTime.Space.EuclideanGroup.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/EuclideanGroup/Basic.lean#L25-L25",
+            "source_text": "@[ext]\nstructure EuclideanGroup (n : ℕ) where\n  /-- The translation part of a Euclidean transformation. -/\n  translation : EuclideanSpace ℝ (Fin n)\n  /-- The orthogonal linear part of a Euclidean transformation. -/\n  linear : Matrix.orthogonalGroup (Fin n) ℝ\n\nnamespace EuclideanGroup\n\n/-- Group structure on `E(n) = ℝ^n ⋊ O(n)`. The orthogonal component acts on translations by",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "dvd_mul_right",
+        "status": "ok",
+        "results": [
+          {
+            "id": 64506,
+            "name": "dvd_mul_right",
+            "module": "Mathlib.Algebra.Divisibility.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Basic.lean#L78-L80",
+            "source_text": "@[simp]\ntheorem dvd_mul_right (a b : α) : a ∣ a * b :=\n  Dvd.intro b rfl",
+            "docstring": null
+          },
+          {
+            "id": 64508,
+            "name": "Dvd.dvd.mul_right",
+            "module": "Mathlib.Algebra.Divisibility.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Divisibility/Basic.lean#L85-L85",
+            "source_text": "alias Dvd.dvd.mul_right := dvd_mul_of_dvd_left\n",
+            "docstring": "**Alias** of `dvd_mul_of_dvd_left`."
+          },
+          {
+            "id": 261541,
+            "name": "MeasureTheory.isMulRightInvariant_smul",
+            "module": "Mathlib.MeasureTheory.Group.Measure",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Group/Measure.lean#L60-L63",
+            "source_text": "@[to_additive MeasureTheory.isAddRightInvariant_smul]\ninstance isMulRightInvariant_smul [IsMulRightInvariant μ] (c : ℝ≥0∞) :\n    IsMulRightInvariant (c • μ) :=\n  ⟨fun g => by rw [Measure.map_smul, map_mul_right_eq_self]⟩",
+            "docstring": null
+          },
+          {
+            "id": 210083,
+            "name": "Matrix.mul_diagonal",
+            "module": "Mathlib.Data.Matrix.Mul",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Matrix/Mul.lean#L374-L378",
+            "source_text": "@[simp]\ntheorem mul_diagonal [Fintype n] [DecidableEq n] (d : n → α) (M : Matrix m n α) (i j) :\n    (M * diagonal d) i j = M i j * d j := by\n  rw [← diagonal_transpose]\n  apply dotProduct_diagonal",
+            "docstring": null
+          },
+          {
+            "id": 104434,
+            "name": "IsRightRegular",
+            "module": "Mathlib.Algebra.Regular.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Regular/Defs.lean#L31-L37",
+            "source_text": "/-- A right-regular element is an element `c` such that multiplication on the right by `c`\nis injective. -/\n@[to_additive (attr := instance_reducible)\n  /-- An add-right-regular element is an element `c` such that addition\n    on the right by `c` is injective. -/]\ndef IsRightRegular (c : R) :=\n  (· * c).Injective\n",
+            "docstring": "A right-regular element is an element `c` such that multiplication on the right by `c`\nis injective. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "dvd_mul_right",
+        "status": "ok",
+        "results": [
+          {
+            "id": 392497,
+            "name": "Lorentz.«term_*ᵥ_»",
+            "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Pre.Modules",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Pre/Modules.lean#L139-L140",
+            "source_text": "/-- Multiplication of a matrix with a vector in `ContrMod`. -/\nscoped[Lorentz] infixr:73 \" *ᵥ \" => ContrMod.mulVec\n",
+            "docstring": "Multiplication of a matrix with a vector in `ContrMod`. "
+          },
+          {
+            "id": 391071,
+            "name": "Fermion.contr_rightDualRightUnit",
+            "module": "Physlib.Relativity.Fermions.Weyl.Unit",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Fermions/Weyl/Unit.lean#L252-L262",
+            "source_text": "/-- Contraction on the right with `rightDualRightUnit` does nothing. -/\nlemma contr_rightDualRightUnit (x : DualRightHandedWeyl) :\n    (TensorProduct.lid ℂ _ <|\n    dualRightContraction.toLinearMap.rTensor _ <|\n    (TensorProduct.assoc ℂ _ _ _).symm <|\n    x ⊗ₜ[ℂ] (rightDualRightUnit (1 : ℂ))) = x := by\n  obtain ⟨c, hc⟩ := (Submodule.mem_span_range_iff_exists_fun ℂ).mp\n    (Basis.mem_span DualRightHandedWeyl.basis x)\n  subst hc\n  simp [- Fintype.sum_sum_type, smul_tmul, dualRightContraction_basis,\n    rightDualRightUnit_apply_one, rightDualRightUnitVal_expand_tmul, add_tmul, tmul_add]\n",
+            "docstring": "Contraction on the right with `rightDualRightUnit` does nothing. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

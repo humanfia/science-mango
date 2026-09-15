@@ -1,0 +1,13 @@
+{
+  "name": "M5.AnchoredCount.anchor_divisibility",
+  "statement": "∀ (P : M5.BinaryPolynomial) (U : Finset ℕ), 0 ∉ U → (P ∣ M5.SupportPolynomial.ofSupport (insert 0 U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = 1)",
+  "imports": [
+    "M5AnchoredCount"
+  ],
+  "context": "theorem M5.AnchoredCount.anchor_polynomial : ∀ U : Finset ℕ, 0 ∉ U → M5.SupportPolynomial.ofSupport (insert 0 U) = 1 + M5.SupportPolynomial.ofSupport U := by\n  change ∀ U : Finset ℕ, 0 ∉ U → M5.SupportPolynomial.ofSupport (insert 0 U) = 1 + M5.SupportPolynomial.ofSupport U\n  intro U hU\n  simp [M5.SupportPolynomial.ofSupport, Finset.sum_insert, hU]",
+  "queries": [
+    "AdjoinRoot mk eq zero",
+    "characteristic two add self"
+  ],
+  "guidance": "Use anchor_polynomial. AdjoinRoot.mk_eq_zero identifies divisibility. Ring hom preserves 1+sum and the quotient has characteristic two, so 1+x=0 iff x=1. Do not add monicity or irreducibility; quotient identity holds for all P. Return only tactic lines without leading by. Keep the exact target."
+}

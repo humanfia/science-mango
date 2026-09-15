@@ -1,22 +1,19 @@
 # Current M5 formalization progress
 
-Stages 1–22 and 24–25 are complete: 123 named component lemmas accepted by Lean, with combined compilation per batch. A union of 90 components (stages 1–15, 17, 18) also passed single-project compilation and independent exact-type/axiom audit (integrated90).
+Stages 1–26 and 28–29 are complete: 135 named component lemmas accepted by Lean, with combined compilation per batch. Stage22 includes one retained accepted theorem plus three accepted retry targets. A union of90 components (stages1–15,17,18) also passed single-project compilation and independent exact-type/axiom audit in integrated90. Counts are not completion percentages.
 
-New accepted components include exact subset and repeated-tuple character counts, finite Boolean inclusion-exclusion, distinct irreducible factor products with the residual cyclic cap, and the gcd/cutoff ingredients for the actual support repair. Original failure histories and successful repair provenance are retained.
+The original §5 construction chain is now accepted: feasible anchored residue tuples yield a physical realization strictly below birthBound and the same supports realize an infinite arithmetic progression. No physical realizing witness is assumed at input. Explicit n/R identities, polynomial and integer exclusion indicators, and the anchored single-block / restricted tuple count bridges are also accepted.
 
 Active:
-- Stage16 complete: multiplicity-sensitive exact signature criterion and finite residual-factor reduction.
-- Stage20 complete: exact arithmetic n(P,W,k,z), including denominator cancellation and nonnegativity.
-- Stage21 complete: quotient congruence, packing and replacement preserve complete signature.
-- Stage22 complete: actual bounded connected support construction from feasible anchored residue tuples.
-- Stage23: exact polynomial signature indicator experiment running with verified stage16 imports.
-- Stage24 complete: exact arithmetic repeated-residue count R and nonnegativity.
-- Stage25 complete: literal-support progression and actual physical order below birthBound.
-- Stage26: anchored single-block arithmetic count experiment running.
-- Stage27: exact finite-order arithmetic C and semantic count DAG in preparation.
-- Stage28: combining feasible residue patterns with bounded physical realization/progression; accepted dependency import in progress.
-- Stage29: anchored/divisor-restricted R count is in preflight.
+- Stage27: exact finite-order arithmetic C, nonnegativity and positive iff realization.
+- Stage30: necessary period/weight/degree lower bounds and exact weight-one boundary.
+- Stage31: exact arithmetic A as feasible-tail count; final accepted dependency import, then experiment.
+- Stage32: tail-to-full-anchored-tuple polynomial/gcd correspondence.
+- Stage33: selected/available single-block completion count preflight.
+- Stage34: exact conditional two-block completion formula route preparation.
+- Stage35: necessity, reducing any physical realization to a feasible period pattern.
+- Stage36: structurally recursive binary recovery algorithm correctness preflight.
 
-Settings: gpt-6-astra / medium, proof concurrency ceiling 16, five attempts per node. Successful identical retrievals are cached with provenance within a run; retrieval requests are serialized to reduce rate-limit failures.
+Settings: gpt-6-astra / medium, proof concurrency ceiling16, five attempts per node. Prompts now include bounded hash-recorded local M5 declaration interfaces as untrusted references alongside Mathlib/Physlib retrieval. Exact target/source/axiom gates are unchanged.
 
-Full M5 is not yet formally verified. The complete polynomial inclusion-exclusion and counting/reconstruction chain, final bounded construction and birth/later-order integration, and executable arithmetic refinements remain. The component count is not a percentage of the full theorem; no stronger mathematical goal has been substituted.
+Full M5 is not yet formally verified. C/A exact counts and recovery, the global criterion, exact bounded birth/later-order integration, and arithmetic procedure correctness remain. Finite factor-subset indexing is a valid arithmetic representation; literal squarefree-H reindexing is optional correspondence, not an added completion gate. No distance, inherited-intersection or anchored-sorting requirement has been added.

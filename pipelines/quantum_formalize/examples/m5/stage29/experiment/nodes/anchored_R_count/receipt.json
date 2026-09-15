@@ -1,0 +1,69 @@
+{
+  "id": "anchored_R_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.AnchoredTupleCount.anchored_R_count",
+    "spec_sha256": "211c29ef6149f9b3e94b554eb9149e3a0a7728f0541f1cdf65ab130deef6291f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-3qf2qgk0/attempt-001/Candidate_2878a1dccf1a21f7.lean",
+        "target_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-3qf2qgk0/attempt-001/FrozenTarget_2878a1dccf1a21f7.lean",
+        "feedback": "",
+        "target_sha256": "1ca253ae5d76e6b8209541f39ada15cd41a5c0a1263d1528c89961b8088fa8fe",
+        "target_olean_sha256": "e8554f7645723dc31f98ef73d31a4c8ec948baa06d4a30641c982c2a449630aa",
+        "source_sha256": "8f260cfae7aa5653a720b961b4b05d36eb9919ee7102148e7442dab54d85ee6c",
+        "olean_sha256": "dfef13cad1fcaac27f0731ea273c986c19f02189ae7d231050d7ab9486bfc6d4",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:30:25.109864+00:00",
+    "work": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-3qf2qgk0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "668f918a33112590a5b93b0a45551965cedf9c758248fccd84920140b8cbd6be",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-3qf2qgk0/attempt-001/Candidate_2878a1dccf1a21f7.lean",
+    "environment_sha256": "08828116bc933179c0894dc75cfa3611931821bfd4df40a69383013801701463",
+    "artifacts": {
+      "anchored_tuple_divisibility": {
+        "payload": {
+          "declaration": "theorem M5.AnchoredTupleCount.anchored_tuple_divisibility : ∀ (P : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ 1 + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = 1) := by\n  intro P T d k t\n  have hb : (1 : ZMod 2) + 1 = 0 := by decide\n  have hp : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using\n      congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) hb\n  have htwo : (1 : AdjoinRoot P) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.mk P) hp\n  rw [← AdjoinRoot.mk_eq_zero, map_add, map_one]\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans htwo.symm)\n  · intro h\n    rw [h]\n    exact htwo",
+          "imports": [
+            "M5AnchoredTupleCount"
+          ],
+          "name": "M5.AnchoredTupleCount.anchored_tuple_divisibility",
+          "ancestors": [],
+          "spec_sha256": "8456b6e882ff1f520d3bed9e343cbeaa00ecb0f7788db5a4c78512be4b7fe2c7"
+        },
+        "sha256": "c2a78a745f8f9f8d6a5f4ea9d2422192b78252b74ea4f9698b1ce1bfe2581f66"
+      },
+      "anchored_R_count": {
+        "payload": {
+          "declaration": "theorem M5.AnchoredTupleCount.anchored_R_count : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ), M5.ArithmeticTuple.R P hP T d k 1 = (M5.AnchoredTupleCount.count P T d k : ℤ) := by\n  intro P hP T d k\n  classical\n  rw [M5.ArithmeticTuple.R_exact]\n  simp only [M5.AnchoredTupleCount.count,\n    M5.AnchoredTupleCount.anchored_tuple_divisibility]",
+          "imports": [
+            "M5AnchoredTupleCount"
+          ],
+          "name": "M5.AnchoredTupleCount.anchored_R_count",
+          "ancestors": [
+            "anchored_tuple_divisibility"
+          ],
+          "spec_sha256": "2cbfd05116910bc72fc8344218cc3d7fc8aa33c34f85d4f727bd3bd2518ab913"
+        },
+        "sha256": "edfe410871e5558c7d998372cf1deb3ea54b2d69fef89a604d04808b2d561761"
+      }
+    }
+  }
+}

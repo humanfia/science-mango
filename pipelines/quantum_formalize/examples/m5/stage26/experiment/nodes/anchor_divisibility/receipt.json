@@ -1,0 +1,69 @@
+{
+  "id": "anchor_divisibility",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.AnchoredCount.anchor_divisibility",
+    "spec_sha256": "0072aa89b22d72f3e8affd127c4b7c9feb740e8c3b0b21ca0912d67b7522258b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-anchored-count-formalization/.humanize-formal-runs/run-npwwhdc7/attempt-001/Candidate_37833a6e662cd77b.lean",
+        "target_path": "/home/jing/m5-lean-anchored-count-formalization/.humanize-formal-runs/run-npwwhdc7/attempt-001/FrozenTarget_37833a6e662cd77b.lean",
+        "feedback": "",
+        "target_sha256": "4378e055f8dc182be3a1a5e0e28001e65eb2d363044403d01cc0d15f37ef2be3",
+        "target_olean_sha256": "2e79ca56f0aa8638e5f1e7a7f0381aed21efc15f2cc55aeca52c88190e7e2fce",
+        "source_sha256": "cb595ab2f681e14939c2d9d5c8f6460b33f44874bc0f59caba8937500896fd39",
+        "olean_sha256": "6fb6d68ae03faedddbbfe3d32e8628ae110b630c0abb8345aba319131dfe5a63",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:19:53.931572+00:00",
+    "work": "/home/jing/m5-lean-anchored-count-formalization/.humanize-formal-runs/run-npwwhdc7",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "cab562321cc731b6fcbdc794217b02ba74101c43f5c3e19e2a0f18ce3d16088b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-anchored-count-formalization/.humanize-formal-runs/run-npwwhdc7/attempt-001/Candidate_37833a6e662cd77b.lean",
+    "environment_sha256": "1dadf0409a33b5d206abb8609ad7bcf9fce4250633dc46d3321b1c89272626e4",
+    "artifacts": {
+      "anchor_polynomial": {
+        "payload": {
+          "declaration": "theorem M5.AnchoredCount.anchor_polynomial : ∀ U : Finset ℕ, 0 ∉ U → M5.SupportPolynomial.ofSupport (insert 0 U) = 1 + M5.SupportPolynomial.ofSupport U := by\n  change ∀ U : Finset ℕ, 0 ∉ U → M5.SupportPolynomial.ofSupport (insert 0 U) = 1 + M5.SupportPolynomial.ofSupport U\n  intro U hU\n  simp [M5.SupportPolynomial.ofSupport, Finset.sum_insert, hU]",
+          "imports": [
+            "M5AnchoredCount"
+          ],
+          "name": "M5.AnchoredCount.anchor_polynomial",
+          "ancestors": [],
+          "spec_sha256": "c5a84332de06057d7d3b343fd97806622353d97a193365cb2a5fb0ae001e146b"
+        },
+        "sha256": "721e68c75edbb07c8f1b91a2a38de153ed81516dc4691effec749cbdbf62c0a5"
+      },
+      "anchor_divisibility": {
+        "payload": {
+          "declaration": "theorem M5.AnchoredCount.anchor_divisibility : ∀ (P : M5.BinaryPolynomial) (U : Finset ℕ), 0 ∉ U → (P ∣ M5.SupportPolynomial.ofSupport (insert 0 U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = 1) := by\n  change ∀ (P : M5.BinaryPolynomial) (U : Finset ℕ), 0 ∉ U → (P ∣ M5.SupportPolynomial.ofSupport (insert 0 U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = 1)\n  intro P U hU\n  have htwo : (1 : AdjoinRoot P) + 1 = 0 := by\n    have h := congrArg (AdjoinRoot.mk P) (CharTwo.add_self_eq_zero (1 : M5.BinaryPolynomial))\n    simpa only [map_add, map_one, map_zero] using h\n  rw [M5.AnchoredCount.anchor_polynomial U hU, ← AdjoinRoot.mk_eq_zero, map_add, map_one]\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans htwo.symm)\n  · intro h\n    rw [h]\n    exact htwo",
+          "imports": [
+            "M5AnchoredCount"
+          ],
+          "name": "M5.AnchoredCount.anchor_divisibility",
+          "ancestors": [
+            "anchor_polynomial"
+          ],
+          "spec_sha256": "a69d1b7970a5ce475e7e97a40a93466cd54e4c11dea12646a97bb2c72c673c40"
+        },
+        "sha256": "f7d3c819e1ecc3bfa06619ba70df07d335d65f269576d09ee0917d5d86b2bf14"
+      }
+    }
+  }
+}

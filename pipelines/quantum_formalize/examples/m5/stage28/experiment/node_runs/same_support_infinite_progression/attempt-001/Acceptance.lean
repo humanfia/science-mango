@@ -1,0 +1,3 @@
+import Candidate_5f4b2b313cb5fd77
+example : QuantumHarnessFrozenTarget := M5.FeasibleSource.same_support_infinite_progression
+#print axioms M5.FeasibleSource.same_support_infinite_progression

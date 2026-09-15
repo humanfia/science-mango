@@ -1,0 +1,296 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T08:35:30.887565+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "anchored_tuple_divisibility": {
+      "id": "anchored_tuple_divisibility",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.AnchoredTupleCount.anchored_tuple_divisibility",
+        "spec_sha256": "8456b6e882ff1f520d3bed9e343cbeaa00ecb0f7788db5a4c78512be4b7fe2c7",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-09_i5xmi/attempt-001/Candidate_100444e37183eb3e.lean:4:51: error: unsolved goals\ncase pos\nP : BinaryPolynomial\nT d k : ℕ\nt : Fin k → Fin (T / d)\nn : ℕ\nh : n = 0\n⊢ 2 = 0\n\ncase neg\nP : BinaryPolynomial\nT d k : ℕ\nt : Fin k → Fin (T / d)\nn : ℕ\nh : ¬n = 0\n⊢ Polynomial.coeff 2 n = 0\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-09_i5xmi/attempt-002/Candidate_37c1ba040d30e8ad.lean",
+            "target_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-09_i5xmi/attempt-002/FrozenTarget_37c1ba040d30e8ad.lean",
+            "feedback": "",
+            "target_sha256": "44b239084ec5ec29ef5bac2f835e2157703d829ec9000633a6855dc7b83f0ac6",
+            "target_olean_sha256": "fd3ffdb90886e722154f195f8b87400545ffc3550c4fac1d45e3358434924502",
+            "source_sha256": "63727ba3f60bd4e75d38723a578705e8bd21e5036ada45eb41d8c5925ef7890e",
+            "olean_sha256": "79f4e56f90537faa667a2bf27a403f9c22594dd47409903a11058bdd906c4137",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T08:28:00.793878+00:00",
+        "work": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-09_i5xmi",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "668f918a33112590a5b93b0a45551965cedf9c758248fccd84920140b8cbd6be",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-09_i5xmi/attempt-002/Candidate_37c1ba040d30e8ad.lean",
+        "environment_sha256": "08828116bc933179c0894dc75cfa3611931821bfd4df40a69383013801701463",
+        "artifacts": {
+          "anchored_tuple_divisibility": {
+            "payload": {
+              "declaration": "theorem M5.AnchoredTupleCount.anchored_tuple_divisibility : ∀ (P : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ 1 + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = 1) := by\n  intro P T d k t\n  have hb : (1 : ZMod 2) + 1 = 0 := by decide\n  have hp : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using\n      congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) hb\n  have htwo : (1 : AdjoinRoot P) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.mk P) hp\n  rw [← AdjoinRoot.mk_eq_zero, map_add, map_one]\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans htwo.symm)\n  · intro h\n    rw [h]\n    exact htwo",
+              "imports": [
+                "M5AnchoredTupleCount"
+              ],
+              "name": "M5.AnchoredTupleCount.anchored_tuple_divisibility",
+              "ancestors": [],
+              "spec_sha256": "8456b6e882ff1f520d3bed9e343cbeaa00ecb0f7788db5a4c78512be4b7fe2c7"
+            },
+            "sha256": "c2a78a745f8f9f8d6a5f4ea9d2422192b78252b74ea4f9698b1ce1bfe2581f66"
+          }
+        }
+      }
+    },
+    "anchored_R_count": {
+      "id": "anchored_R_count",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.AnchoredTupleCount.anchored_R_count",
+        "spec_sha256": "211c29ef6149f9b3e94b554eb9149e3a0a7728f0541f1cdf65ab130deef6291f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-3qf2qgk0/attempt-001/Candidate_2878a1dccf1a21f7.lean",
+            "target_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-3qf2qgk0/attempt-001/FrozenTarget_2878a1dccf1a21f7.lean",
+            "feedback": "",
+            "target_sha256": "1ca253ae5d76e6b8209541f39ada15cd41a5c0a1263d1528c89961b8088fa8fe",
+            "target_olean_sha256": "e8554f7645723dc31f98ef73d31a4c8ec948baa06d4a30641c982c2a449630aa",
+            "source_sha256": "8f260cfae7aa5653a720b961b4b05d36eb9919ee7102148e7442dab54d85ee6c",
+            "olean_sha256": "dfef13cad1fcaac27f0731ea273c986c19f02189ae7d231050d7ab9486bfc6d4",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T08:30:25.109864+00:00",
+        "work": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-3qf2qgk0",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "668f918a33112590a5b93b0a45551965cedf9c758248fccd84920140b8cbd6be",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-3qf2qgk0/attempt-001/Candidate_2878a1dccf1a21f7.lean",
+        "environment_sha256": "08828116bc933179c0894dc75cfa3611931821bfd4df40a69383013801701463",
+        "artifacts": {
+          "anchored_tuple_divisibility": {
+            "payload": {
+              "declaration": "theorem M5.AnchoredTupleCount.anchored_tuple_divisibility : ∀ (P : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ 1 + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = 1) := by\n  intro P T d k t\n  have hb : (1 : ZMod 2) + 1 = 0 := by decide\n  have hp : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using\n      congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) hb\n  have htwo : (1 : AdjoinRoot P) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.mk P) hp\n  rw [← AdjoinRoot.mk_eq_zero, map_add, map_one]\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans htwo.symm)\n  · intro h\n    rw [h]\n    exact htwo",
+              "imports": [
+                "M5AnchoredTupleCount"
+              ],
+              "name": "M5.AnchoredTupleCount.anchored_tuple_divisibility",
+              "ancestors": [],
+              "spec_sha256": "8456b6e882ff1f520d3bed9e343cbeaa00ecb0f7788db5a4c78512be4b7fe2c7"
+            },
+            "sha256": "c2a78a745f8f9f8d6a5f4ea9d2422192b78252b74ea4f9698b1ce1bfe2581f66"
+          },
+          "anchored_R_count": {
+            "payload": {
+              "declaration": "theorem M5.AnchoredTupleCount.anchored_R_count : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ), M5.ArithmeticTuple.R P hP T d k 1 = (M5.AnchoredTupleCount.count P T d k : ℤ) := by\n  intro P hP T d k\n  classical\n  rw [M5.ArithmeticTuple.R_exact]\n  simp only [M5.AnchoredTupleCount.count,\n    M5.AnchoredTupleCount.anchored_tuple_divisibility]",
+              "imports": [
+                "M5AnchoredTupleCount"
+              ],
+              "name": "M5.AnchoredTupleCount.anchored_R_count",
+              "ancestors": [
+                "anchored_tuple_divisibility"
+              ],
+              "spec_sha256": "2cbfd05116910bc72fc8344218cc3d7fc8aa33c34f85d4f727bd3bd2518ab913"
+            },
+            "sha256": "edfe410871e5558c7d998372cf1deb3ea54b2d69fef89a604d04808b2d561761"
+          }
+        }
+      }
+    },
+    "multiples_equivalence": {
+      "id": "multiples_equivalence",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.AnchoredTupleCount.multiples_equivalence",
+        "spec_sha256": "ec8160dcafb5b6bedc39350e003a5062c6d79026b65f1ed941cc7788a11b394a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-td79t97k/attempt-001/Candidate_27b899493332869f.lean",
+            "target_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-td79t97k/attempt-001/FrozenTarget_27b899493332869f.lean",
+            "feedback": "",
+            "target_sha256": "e74eaca5f2d7d9376a36d071f52325ffd3798dbd2467862a22974f30915a4eee",
+            "target_olean_sha256": "baed758c00409b00b8757074e5f93168106511751e274f092e50c0bfee79aecf",
+            "source_sha256": "e2cdd42f2fe4d303ffe7c2398cf10b4d626d538060f7df5bdad383d4ab97a960",
+            "olean_sha256": "110466516b4b5cdd3a8ad1574c61012f7fff4bf76617f8694addeed1520e1fab",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T08:28:00.841913+00:00",
+        "work": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-td79t97k",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "668f918a33112590a5b93b0a45551965cedf9c758248fccd84920140b8cbd6be",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-td79t97k/attempt-001/Candidate_27b899493332869f.lean",
+        "environment_sha256": "08828116bc933179c0894dc75cfa3611931821bfd4df40a69383013801701463",
+        "artifacts": {
+          "multiples_equivalence": {
+            "payload": {
+              "declaration": "theorem M5.AnchoredTupleCount.multiples_equivalence : ∀ T d : ℕ, 0 < T → d ∣ T → ∃ e : Fin (T / d) ≃ {r : Fin T // d ∣ r.val}, ∀ j : Fin (T / d), (e j).val.val = d * j.val := by\n  change ∀ T d : ℕ, 0 < T → d ∣ T → ∃ e : Fin (T / d) ≃ {r : Fin T // d ∣ r.val}, ∀ j : Fin (T / d), (e j).val.val = d * j.val\n  intro T d hT hdT\n  have hd : 0 < d := by\n    by_contra h\n    have hz : d = 0 := by omega\n    subst d\n    have hzT : T = 0 := by simpa using hdT\n    omega\n  have hrecover : ∀ n : ℕ, d ∣ n → d * (n / d) = n := by\n    intro n hn\n    simpa [Nat.mul_comm] using Nat.div_mul_cancel hn\n  have htotal : d * (T / d) = T := hrecover T hdT\n  have hforward : ∀ j : Fin (T / d), d * j.val < T := by\n    intro j\n    have h := Nat.mul_lt_mul_of_pos_left j.isLt hd\n    omega\n  have hback : ∀ r : {r : Fin T // d ∣ r.val}, r.val.val / d < T / d := by\n    intro r\n    by_contra h\n    have hle : T / d ≤ r.val.val / d := by omega\n    have hm := Nat.mul_le_mul_left d hle\n    have hr := hrecover r.val.val r.property\n    have hb := r.val.isLt\n    omega\n  refine ⟨{\n    toFun := fun j => ⟨⟨d * j.val, hforward j⟩, ⟨j.val, rfl⟩⟩\n    invFun := fun r => ⟨r.val.val / d, hback r⟩\n    left_inv := ?_\n    right_inv := ?_\n  }, ?_⟩\n  · intro j\n    apply Fin.ext\n    change d * j.val / d = j.val\n    exact Nat.mul_div_cancel_left j.val hd\n  · intro r\n    apply Subtype.ext\n    apply Fin.ext\n    change d * (r.val.val / d) = r.val.val\n    exact hrecover r.val.val r.property\n  · intro j\n    rfl",
+              "imports": [
+                "M5AnchoredTupleCount"
+              ],
+              "name": "M5.AnchoredTupleCount.multiples_equivalence",
+              "ancestors": [],
+              "spec_sha256": "ec8160dcafb5b6bedc39350e003a5062c6d79026b65f1ed941cc7788a11b394a"
+            },
+            "sha256": "171f10b003bfe9e76abedaeff17237aca4f75cd21abc69a2c6a74b6c2ae36a53"
+          }
+        }
+      }
+    },
+    "restricted_R_count": {
+      "id": "restricted_R_count",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.AnchoredTupleCount.restricted_R_count",
+        "spec_sha256": "926dacfc4386975b0d0e0f5e98930bf5dd09cf6d0011cf5d2c64876a44c0c264",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-1ubfy21s/attempt-001/Candidate_3534a6e52d4a1647.lean:22:4: error: `simp` made no progress\n/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-1ubfy21s/attempt-001/Candidate_3534a6e52d4a1647.lean:31:6: warning: This simp argument is unused:\n  M5.SupportPolynomial.ofResidueTuple\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hr\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-1ubfy21s/attempt-002/Candidate_c693b9021d9b7f6e.lean",
+            "target_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-1ubfy21s/attempt-002/FrozenTarget_c693b9021d9b7f6e.lean",
+            "feedback": "",
+            "target_sha256": "a6eb3a46603eef97e54d695e81b01e3d6d61de59017bf1a44fcdf71c62597115",
+            "target_olean_sha256": "57666b023df580fda6348e6ac56b20ef12cb1a94dbe08e3a2d9746a8a124986d",
+            "source_sha256": "ed3b8d00afd1ef281d1da70290b0b7c8f4e449cbf9b3e038104fea2b0b34b66e",
+            "olean_sha256": "e65a8e569efebb8a85dedf9b30bd8a88643605ed4105e47a860836391e75447d",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T08:31:32.273106+00:00",
+        "work": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-1ubfy21s",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "668f918a33112590a5b93b0a45551965cedf9c758248fccd84920140b8cbd6be",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-1ubfy21s/attempt-002/Candidate_c693b9021d9b7f6e.lean",
+        "environment_sha256": "08828116bc933179c0894dc75cfa3611931821bfd4df40a69383013801701463",
+        "artifacts": {
+          "anchored_tuple_divisibility": {
+            "payload": {
+              "declaration": "theorem M5.AnchoredTupleCount.anchored_tuple_divisibility : ∀ (P : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ 1 + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = 1) := by\n  intro P T d k t\n  have hb : (1 : ZMod 2) + 1 = 0 := by decide\n  have hp : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using\n      congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) hb\n  have htwo : (1 : AdjoinRoot P) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.mk P) hp\n  rw [← AdjoinRoot.mk_eq_zero, map_add, map_one]\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans htwo.symm)\n  · intro h\n    rw [h]\n    exact htwo",
+              "imports": [
+                "M5AnchoredTupleCount"
+              ],
+              "name": "M5.AnchoredTupleCount.anchored_tuple_divisibility",
+              "ancestors": [],
+              "spec_sha256": "8456b6e882ff1f520d3bed9e343cbeaa00ecb0f7788db5a4c78512be4b7fe2c7"
+            },
+            "sha256": "c2a78a745f8f9f8d6a5f4ea9d2422192b78252b74ea4f9698b1ce1bfe2581f66"
+          },
+          "anchored_R_count": {
+            "payload": {
+              "declaration": "theorem M5.AnchoredTupleCount.anchored_R_count : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ), M5.ArithmeticTuple.R P hP T d k 1 = (M5.AnchoredTupleCount.count P T d k : ℤ) := by\n  intro P hP T d k\n  classical\n  rw [M5.ArithmeticTuple.R_exact]\n  simp only [M5.AnchoredTupleCount.count,\n    M5.AnchoredTupleCount.anchored_tuple_divisibility]",
+              "imports": [
+                "M5AnchoredTupleCount"
+              ],
+              "name": "M5.AnchoredTupleCount.anchored_R_count",
+              "ancestors": [
+                "anchored_tuple_divisibility"
+              ],
+              "spec_sha256": "2cbfd05116910bc72fc8344218cc3d7fc8aa33c34f85d4f727bd3bd2518ab913"
+            },
+            "sha256": "edfe410871e5558c7d998372cf1deb3ea54b2d69fef89a604d04808b2d561761"
+          },
+          "multiples_equivalence": {
+            "payload": {
+              "declaration": "theorem M5.AnchoredTupleCount.multiples_equivalence : ∀ T d : ℕ, 0 < T → d ∣ T → ∃ e : Fin (T / d) ≃ {r : Fin T // d ∣ r.val}, ∀ j : Fin (T / d), (e j).val.val = d * j.val := by\n  change ∀ T d : ℕ, 0 < T → d ∣ T → ∃ e : Fin (T / d) ≃ {r : Fin T // d ∣ r.val}, ∀ j : Fin (T / d), (e j).val.val = d * j.val\n  intro T d hT hdT\n  have hd : 0 < d := by\n    by_contra h\n    have hz : d = 0 := by omega\n    subst d\n    have hzT : T = 0 := by simpa using hdT\n    omega\n  have hrecover : ∀ n : ℕ, d ∣ n → d * (n / d) = n := by\n    intro n hn\n    simpa [Nat.mul_comm] using Nat.div_mul_cancel hn\n  have htotal : d * (T / d) = T := hrecover T hdT\n  have hforward : ∀ j : Fin (T / d), d * j.val < T := by\n    intro j\n    have h := Nat.mul_lt_mul_of_pos_left j.isLt hd\n    omega\n  have hback : ∀ r : {r : Fin T // d ∣ r.val}, r.val.val / d < T / d := by\n    intro r\n    by_contra h\n    have hle : T / d ≤ r.val.val / d := by omega\n    have hm := Nat.mul_le_mul_left d hle\n    have hr := hrecover r.val.val r.property\n    have hb := r.val.isLt\n    omega\n  refine ⟨{\n    toFun := fun j => ⟨⟨d * j.val, hforward j⟩, ⟨j.val, rfl⟩⟩\n    invFun := fun r => ⟨r.val.val / d, hback r⟩\n    left_inv := ?_\n    right_inv := ?_\n  }, ?_⟩\n  · intro j\n    apply Fin.ext\n    change d * j.val / d = j.val\n    exact Nat.mul_div_cancel_left j.val hd\n  · intro r\n    apply Subtype.ext\n    apply Fin.ext\n    change d * (r.val.val / d) = r.val.val\n    exact hrecover r.val.val r.property\n  · intro j\n    rfl",
+              "imports": [
+                "M5AnchoredTupleCount"
+              ],
+              "name": "M5.AnchoredTupleCount.multiples_equivalence",
+              "ancestors": [],
+              "spec_sha256": "ec8160dcafb5b6bedc39350e003a5062c6d79026b65f1ed941cc7788a11b394a"
+            },
+            "sha256": "171f10b003bfe9e76abedaeff17237aca4f75cd21abc69a2c6a74b6c2ae36a53"
+          },
+          "restricted_R_count": {
+            "payload": {
+              "declaration": "theorem M5.AnchoredTupleCount.restricted_R_count : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ), 0 < T → d ∣ T → M5.ArithmeticTuple.R P hP T d k 1 = (M5.AnchoredTupleCount.restrictedCount P T d k : ℤ) := by\n  change ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ), 0 < T → d ∣ T → M5.ArithmeticTuple.R P hP T d k 1 = (M5.AnchoredTupleCount.restrictedCount P T d k : ℤ)\n  intro P hP T d k hT hdT\n  classical\n  rw [M5.AnchoredTupleCount.anchored_R_count]\n  apply congrArg (fun n : ℕ => (n : ℤ))\n  obtain ⟨e, he⟩ := M5.AnchoredTupleCount.multiples_equivalence T d hT hdT\n  let f : (Fin k → Fin (T / d)) → (Fin k → Fin T) := fun t i => (e (t i)).val\n  have hp : ∀ t, (∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (f t i).val) = M5.ArithmeticTuple.tuplePolynomial T d k t := by\n    intro t\n    unfold M5.ArithmeticTuple.tuplePolynomial\n    apply Finset.sum_congr rfl\n    intro i hi\n    congr 1\n    exact he (t i)\n  unfold M5.AnchoredTupleCount.count M5.AnchoredTupleCount.restrictedCount\n  apply Finset.card_bij (fun t _ => f t)\n  · intro t ht\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and,\n      M5.SupportPolynomial.ofResidueTuple] at ht ⊢\n    have hdiv : ∀ i : Fin k, d ∣ (f t i).val := fun i => (e (t i)).property\n    have hg : P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (f t i).val := by\n      rw [hp]\n      exact ht\n    aesop\n  · intro t ht u hu h\n    funext i\n    apply e.injective\n    apply Subtype.ext\n    exact congrFun h i\n  · intro r hr\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and,\n      M5.SupportPolynomial.ofResidueTuple] at hr\n    have hdiv : ∀ i : Fin k, d ∣ (r i).val := by aesop\n    have hg : P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (r i).val := by aesop\n    let t : Fin k → Fin (T / d) := fun i => e.symm ⟨r i, hdiv i⟩\n    have hf : f t = r := by\n      funext i\n      change (e (e.symm ⟨r i, hdiv i⟩)).val = r i\n      exact congrArg Subtype.val (e.apply_symm_apply ⟨r i, hdiv i⟩)\n    refine ⟨t, ?_, hf⟩\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and]\n    change P ∣ 1 + M5.ArithmeticTuple.tuplePolynomial T d k t\n    rw [← hp t, hf]\n    exact hg",
+              "imports": [
+                "M5AnchoredTupleCount"
+              ],
+              "name": "M5.AnchoredTupleCount.restricted_R_count",
+              "ancestors": [
+                "anchored_R_count",
+                "anchored_tuple_divisibility",
+                "multiples_equivalence"
+              ],
+              "spec_sha256": "e051cc97bad74f378a1e8000ef96354d7e632df783b209e28dfcec20bc6efb80"
+            },
+            "sha256": "31c5f0e2e999dd23334bd99164a5a3cce3621ac2ca08d9d7462e49f641e2ef6e"
+          }
+        }
+      }
+    }
+  }
+}

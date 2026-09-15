@@ -1,0 +1,71 @@
+{
+  "id": "conditional_indicator",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PolynomialIndicator.conditional_indicator",
+    "spec_sha256": "354bfefe73cf717bcdb35b241279e7990b451bd6ba614ffbe1faf890da199fdb",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-polynomial-indicator-formalization/.humanize-formal-runs/run-ackkbd6u/attempt-001/Candidate_59c48fcecff787b9.lean",
+        "target_path": "/home/jing/m5-lean-polynomial-indicator-formalization/.humanize-formal-runs/run-ackkbd6u/attempt-001/FrozenTarget_59c48fcecff787b9.lean",
+        "feedback": "",
+        "target_sha256": "384ea1d4fd0c8008493e7bc42913d25482c65240743f3f7fbb7c4f4494aba68f",
+        "target_olean_sha256": "90e25e1e7a2e34ef65aeb8ea27d25a94558c9717882a7cafc7a2dcc85f028879",
+        "source_sha256": "5e17b98e63554c216c30f3a117bed0e3671edfb64f2e96bf9bf35f1cb9bce8a5",
+        "olean_sha256": "043a4ba2ca7a561436ee3966cf9bdb8a9c28f7a130a285983dd288b9fae0edd5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:17:57.221627+00:00",
+    "work": "/home/jing/m5-lean-polynomial-indicator-formalization/.humanize-formal-runs/run-ackkbd6u",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "85dcc444d7facafeb45e82ea1e3b087b52754d162990c67dd97ac99156e8b21a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-polynomial-indicator-formalization/.humanize-formal-runs/run-ackkbd6u/attempt-001/Candidate_59c48fcecff787b9.lean",
+    "environment_sha256": "aebc0bd79086de202d8d08806e3e1ffdccbd705d89669303925ecfe42153b2de",
+    "artifacts": {
+      "residual_factors_regular": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialIndicator.residual_factors_regular : ∀ (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → ∀ p ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F, p.Monic ∧ Irreducible p := by\n  classical\n  intro F N hN hF hdiv p hp\n  have hq : M5.cyclicModulus N / F ≠ 0 :=\n    M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hF hdiv\n  have hmem : p ∈ UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F) := by\n    simpa [M5.PolynomialExclusion.residualFactors, hq] using hp\n  have hirr : Irreducible p :=\n    UniqueFactorizationMonoid.irreducible_of_normalized_factor p hmem\n  exact ⟨M5.Signature.binary_monic p hirr.ne_zero, hirr⟩",
+          "imports": [
+            "M5PolynomialExclusionAccepted",
+            "M5PolynomialIndicator"
+          ],
+          "name": "M5.PolynomialIndicator.residual_factors_regular",
+          "ancestors": [],
+          "spec_sha256": "9284557bd720b2609213597d4d64c368735cc0923c1926a66241a2154589bb97"
+        },
+        "sha256": "39cbf15ceb851df960fb7b6985be03c596cfa771bd4649fa031cdfaec893ec75"
+      },
+      "conditional_indicator": {
+        "payload": {
+          "declaration": "theorem M5.PolynomialIndicator.conditional_indicator : ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → M5.PolynomialIndicator.factorExclusionSum a b F N = (if M5.completeSignature a b N = F then 1 else 0) := by\n  classical\n  intro a b F N hN hF hdiv ha hb\n  have hcrit := M5.PolynomialExclusion.finite_factor_criterion a b F N hN hF hdiv ha hb\n  have hbad :\n      (∀ p ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F,\n        decide (F * p ∣ a ∧ F * p ∣ b) = false) ↔\n        M5.completeSignature a b N = F := by\n    simpa using hcrit.symm\n  calc\n    M5.PolynomialIndicator.factorExclusionSum a b F N =\n        M5.FiniteExclusion.exclusionSum\n          (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F)\n          (fun p => decide (F * p ∣ a ∧ F * p ∣ b)) := by\n      unfold M5.PolynomialIndicator.factorExclusionSum M5.FiniteExclusion.exclusionSum\n      apply Finset.sum_congr rfl\n      intro H hH\n      have hreg : ∀ p ∈ H, p.Monic ∧ Irreducible p := by\n        intro p hp\n        exact M5.PolynomialIndicator.residual_factors_regular F N hN hF hdiv p\n          ((Finset.mem_powerset.mp hH) hp)\n      have hpa := M5.FactorProduct.product_event_iff H F a hF.ne_zero ha hreg\n      have hpb := M5.FactorProduct.product_event_iff H F b hF.ne_zero hb hreg\n      simp [hpa, hpb, forall_and]\n    _ = (if M5.completeSignature a b N = F then 1 else 0) := by\n      simpa only [hbad] using\n        M5.FiniteExclusion.exclusion_indicator\n          (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F)\n          (fun p => decide (F * p ∣ a ∧ F * p ∣ b))",
+          "imports": [
+            "M5PolynomialExclusionAccepted",
+            "M5PolynomialIndicator"
+          ],
+          "name": "M5.PolynomialIndicator.conditional_indicator",
+          "ancestors": [
+            "residual_factors_regular"
+          ],
+          "spec_sha256": "7a2215e5497396c5e853ce532eb1d8f5288490d524501bd83a3030931c48b1ba"
+        },
+        "sha256": "60984ade4506d9212643b6c9673516787ce6fbee3f8ff837e6b67c3f6c148a8f"
+      }
+    }
+  }
+}

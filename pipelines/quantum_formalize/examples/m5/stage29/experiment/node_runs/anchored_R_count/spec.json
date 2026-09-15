@@ -1,0 +1,13 @@
+{
+  "name": "M5.AnchoredTupleCount.anchored_R_count",
+  "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ), M5.ArithmeticTuple.R P hP T d k 1 = (M5.AnchoredTupleCount.count P T d k : ℤ)",
+  "imports": [
+    "M5AnchoredTupleCount"
+  ],
+  "context": "theorem M5.AnchoredTupleCount.anchored_tuple_divisibility : ∀ (P : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ 1 + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = 1) := by\n  intro P T d k t\n  have hb : (1 : ZMod 2) + 1 = 0 := by decide\n  have hp : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using\n      congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) hb\n  have htwo : (1 : AdjoinRoot P) + 1 = 0 := by\n    simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.mk P) hp\n  rw [← AdjoinRoot.mk_eq_zero, map_add, map_one]\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans htwo.symm)\n  · intro h\n    rw [h]\n    exact htwo",
+  "queries": [
+    "AdjoinRoot mk eq zero",
+    "finite set cardinality bijection natural division"
+  ],
+  "guidance": "Rewrite M5.ArithmeticTuple.R_exact. Unfold count and equate filters using anchored_tuple_divisibility, including k=0 and empty choice domains. Return only tactic lines without leading by. Preserve the exact statement."
+}

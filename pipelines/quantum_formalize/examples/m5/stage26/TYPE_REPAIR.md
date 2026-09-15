@@ -1,0 +1,1 @@
+The first target-type preflight could not infer decidability for the polynomial divisibility filter. The identical semantic filter/cardinality is now named by noncomputable AnchoredCount.count with an explicit local classical instance. The arithmetic n definition, predicate, count and mathematical premises are unchanged. No proof experiment had started before this type repair.

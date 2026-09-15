@@ -1,0 +1,225 @@
+[
+  {
+    "queries": [
+      "natural arithmetic progression bound",
+      "polynomial gcd signature periodicity"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural arithmetic progression bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 207589,
+            "name": "List.left_le_of_mem_range'",
+            "module": "Mathlib.Data.List.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Basic.lean#L1161-L1163",
+            "source_text": "lemma left_le_of_mem_range' {a b s x : ℕ} (hx : x ∈ List.range' a b s) : a ≤ x := by\n  obtain ⟨i, _, rfl⟩ := List.mem_range'.mp hx\n  exact le_add_right a (s * i)\n",
+            "docstring": null
+          },
+          {
+            "id": 283559,
+            "name": "Filter.Eventually.atTop_of_arithmetic",
+            "module": "Mathlib.Order.Filter.AtTopBot.Finite",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/AtTopBot/Finite.lean#L100-L109",
+            "source_text": "theorem Eventually.atTop_of_arithmetic {p : ℕ → Prop} {n : ℕ} (hn : n ≠ 0)\n    (hp : ∀ k < n, ∀ᶠ a in atTop, p (n * a + k)) : ∀ᶠ a in atTop, p a := by\n  simp only [eventually_atTop] at hp ⊢\n  choose! N hN using hp\n  refine ⟨(Finset.range n).sup (n * N ·), fun b hb => ?_⟩\n  rw [← Nat.div_add_mod b n]\n  have hlt := Nat.mod_lt b hn.bot_lt\n  refine hN _ hlt _ ?_\n  rw [Nat.le_div_iff_mul_le hn.bot_lt, mul_comm]\n  exact (Finset.le_sup (f := (n * N ·)) (Finset.mem_range.2 hlt)).trans hb\n",
+            "docstring": null
+          },
+          {
+            "id": 271130,
+            "name": "ArithmeticFunction",
+            "module": "Mathlib.NumberTheory.ArithmeticFunction.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ArithmeticFunction/Defs.lean#L46-L50",
+            "source_text": "/-- An arithmetic function is a function from `ℕ` that maps 0 to 0. In the literature, they are\n  often instead defined as functions from `ℕ+`. Multiplication on `ArithmeticFunctions` is by\n  Dirichlet convolution. -/\ndef ArithmeticFunction [Zero R] :=\n  ZeroHom ℕ R\n",
+            "docstring": "An arithmetic function is a function from `ℕ` that maps 0 to 0. In the literature, they are\noften instead defined as functions from `ℕ+`. Multiplication on `ArithmeticFunctions` is by\nDirichlet convolution. "
+          },
+          {
+            "id": 129648,
+            "name": "naturalParameterization",
+            "module": "Mathlib.Analysis.ConstantSpeed",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/ConstantSpeed.lean#L224-L230",
+            "source_text": "/-- The natural parameterization of `f` on `s`, which, if `f` has locally bounded variation on `s`,\n* has unit speed on `s` (by `has_unit_speed_naturalParameterization`).\n* composed with `variationOnFromTo f s a`, is at distance zero from `f`\n  (by `edist_naturalParameterization_eq_zero`).\n-/\nnoncomputable def naturalParameterization (f : α → E) (s : Set α) (a : α) : ℝ → E :=\n  f ∘ @Function.invFunOn _ _ ⟨a⟩ (variationOnFromTo f s a) s\n",
+            "docstring": "The natural parameterization of `f` on `s`, which, if `f` has locally bounded variation on `s`,\n* has unit speed on `s` (by `has_unit_speed_naturalParameterization`).\n* composed with `variationOnFromTo f s a`, is at distance zero from `f`\n  (by `edist_naturalParameterization_eq_zero`).\n"
+          },
+          {
+            "id": 273211,
+            "name": "ArithmeticFunction.vonMangoldt.LSeries_residueClass_lower_bound",
+            "module": "Mathlib.NumberTheory.LSeries.PrimesInAP",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/PrimesInAP.lean#L390-L418",
+            "source_text": "/-- As `x` approaches `1` from the right along the real axis, the L-series of\n`ArithmeticFunction.vonMangoldt.residueClass` is bounded below by `(q.totient)⁻¹/(x-1) - C`. -/\nlemma LSeries_residueClass_lower_bound (ha : IsUnit a) :\n    ∃ C : ℝ, ∀ {x : ℝ} (_ : x ∈ Set.Ioc 1 2),\n      (q.totient : ℝ)⁻¹ / (x - 1) - C ≤ ∑' n, residueClass a n / (n : ℝ) ^ x := by\n  have H {x : ℝ} (hx : 1 < x) :\n      ∑' n, residueClass a n / (n : ℝ) ^ x =\n        (LFunctionResidueClassAux a x).re + (q.totient : ℝ)⁻¹ / (x - 1) := by\n    refine ofReal_injective ?_\n    simp only [ofReal_tsum, ofReal_div, ofReal_cpow (Nat.cast_nonneg _), ofReal_natCast,\n      ofReal_add, ofReal_inv, ofReal_sub, ofReal_one]\n    simp_rw [← LFunctionResidueClassAux_real ha hx,\n      eqOn_LFunctionResidueClassAux ha <| Set.mem_setOf.mpr (ofReal_re x ▸ hx), sub_add_cancel,\n      LSeries, term]\n    refine tsum_congr fun n ↦ ?_\n    split_ifs with hn\n    · simp only [hn, residueClass_apply_zero, ofReal_zero, zero_div]\n    · rfl\n  have : ContinuousOn (fun x : ℝ ↦ (LFunctionResidueClassAux a x).re) (Set.Icc 1 2) :=\n    continuous_re.continuousOn.comp (t := Set.univ) (continuousOn_LFunctionResidueClassAux a)\n      (fun ⦃x⦄ a ↦ trivial) |>.comp continuous_ofReal.continuousOn fun x hx ↦ by\n        simpa only [Set.mem_setOf_eq, ofReal_re] using hx.1\n  obtain ⟨C, hC⟩ := bddBelow_def.mp <| IsCompact.bddBelow_image isCompact_Icc this\n  replace hC {x : ℝ} (hx : x ∈ Set.Icc 1 2) : C ≤ (LFunctionResidueClassAux a x).re :=\n    hC (LFunctionResidueClassAux a x).re <|\n      Set.mem_image_of_mem (fun x : ℝ ↦ (LFunctionResidueClassAux a x).re) hx\n  refine ⟨-C, fun {x} hx ↦ ?_⟩\n  rw [H hx.1, add_comm, sub_neg_eq_add, add_le_add_iff_left]\n  exact hC <| Set.mem_Icc_of_Ioc hx\n",
+            "docstring": "As `x` approaches `1` from the right along the real axis, the L-series of\n`ArithmeticFunction.vonMangoldt.residueClass` is bounded below by `(q.totient)⁻¹/(x-1) - C`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "natural arithmetic progression bound",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial gcd signature periodicity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 213477,
+            "name": "Nat.periodic_gcd",
+            "module": "Mathlib.Data.Nat.Periodic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Periodic.lean#L26-L27",
+            "source_text": "theorem periodic_gcd (a : ℕ) : Periodic (gcd a) a :=\n  a.gcd_add_self_right\n",
+            "docstring": null
+          },
+          {
+            "id": 102483,
+            "name": "Polynomial.gcd_map",
+            "module": "Mathlib.Algebra.Polynomial.FieldDivision",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/FieldDivision.lean#L458-L461",
+            "source_text": "theorem gcd_map [Field k] [DecidableEq R] [DecidableEq k] (f : R →+* k) :\n    gcd (p.map f) (q.map f) = (gcd p q).map f :=\n  GCD.induction p q (fun x => by simp_rw [Polynomial.map_zero, EuclideanDomain.gcd_zero_left])\n    fun x y _ ih => by rw [gcd_val, ← map_mod, ih, ← gcd_val]\n",
+            "docstring": null
+          },
+          {
+            "id": 226769,
+            "name": "Polynomial.separable_gcd_right",
+            "module": "Mathlib.FieldTheory.Separable",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/FieldTheory/Separable.lean#L101-L104",
+            "source_text": "theorem separable_gcd_right {F : Type*} [Field F] [DecidableEq F[X]]\n    {g : F[X]} (f : F[X]) (hg : g.Separable) :\n    (EuclideanDomain.gcd f g).Separable :=\n  Separable.of_dvd hg (EuclideanDomain.gcd_dvd_right f g)\n",
+            "docstring": null
+          },
+          {
+            "id": 226768,
+            "name": "Polynomial.separable_gcd_left",
+            "module": "Mathlib.FieldTheory.Separable",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/FieldTheory/Separable.lean#L96-L99",
+            "source_text": "theorem separable_gcd_left {F : Type*} [Field F] [DecidableEq F[X]]\n    {f : F[X]} (hf : f.Separable) (g : F[X]) :\n    (EuclideanDomain.gcd f g).Separable :=\n  Separable.of_dvd hf (EuclideanDomain.gcd_dvd_left f g)\n",
+            "docstring": null
+          },
+          {
+            "id": 273334,
+            "name": "legendreSym.mod",
+            "module": "Mathlib.NumberTheory.LegendreSymbol.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LegendreSymbol/Basic.lean#L175-L177",
+            "source_text": "/-- The Legendre symbol depends only on `a` mod `p`. -/\nprotected theorem mod (a : ℤ) : legendreSym p a = legendreSym p (a % p) := by\n  simp only [legendreSym, intCast_mod]\n",
+            "docstring": "The Legendre symbol depends only on `a` mod `p`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "polynomial gcd signature periodicity",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "natural arithmetic progression bound",
+      "polynomial gcd signature periodicity"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

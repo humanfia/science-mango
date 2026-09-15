@@ -1,0 +1,22 @@
+import FrozenTarget_1ad7a6fbf8db9fd4
+theorem M5.PolynomialIndicator.exact_signature_indicator : QuantumHarnessFrozenTarget := by
+  classical
+  intro a b F N hN hF hdiv
+  by_cases hab : F ∣ a ∧ F ∣ b
+  · exact M5.PolynomialIndicator.conditional_indicator a b F N hN hF hdiv hab.1 hab.2
+  · have hne : M5.completeSignature a b N ≠ F := by
+      intro he
+      have hd : F ∣ EuclideanDomain.gcd a b := by
+        rw [← he]
+        exact EuclideanDomain.gcd_dvd_left _ _
+      exact hab ⟨hd.trans (EuclideanDomain.gcd_dvd_left a b),
+        hd.trans (EuclideanDomain.gcd_dvd_right a b)⟩
+    rw [if_neg hne]
+    unfold M5.PolynomialIndicator.factorExclusionSum
+    apply Finset.sum_eq_zero
+    intro H hH
+    have hbad : ¬ (F * (∏ p ∈ H, p) ∣ a ∧ F * (∏ p ∈ H, p) ∣ b) := by
+      intro h
+      exact hab ⟨(dvd_mul_right F _).trans h.1,
+        (dvd_mul_right F _).trans h.2⟩
+    simp [hbad]

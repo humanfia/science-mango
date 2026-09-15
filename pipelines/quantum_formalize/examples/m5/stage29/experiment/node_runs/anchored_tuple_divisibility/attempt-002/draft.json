@@ -1,0 +1,4 @@
+{
+  "proof": "intro P T d k t\nhave hb : (1 : ZMod 2) + 1 = 0 := by decide\nhave hp : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n  simpa only [map_add, map_one, map_zero] using\n    congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) hb\nhave htwo : (1 : AdjoinRoot P) + 1 = 0 := by\n  simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.mk P) hp\nrw [← AdjoinRoot.mk_eq_zero, map_add, map_one]\nconstructor\n· intro h\n  exact add_left_cancel (h.trans htwo.symm)\n· intro h\n  rw [h]\n  exact htwo",
+  "queries": []
+}

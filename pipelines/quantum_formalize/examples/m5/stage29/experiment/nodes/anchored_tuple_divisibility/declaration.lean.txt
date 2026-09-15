@@ -1,0 +1,15 @@
+theorem M5.AnchoredTupleCount.anchored_tuple_divisibility : ∀ (P : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ 1 + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = 1) := by
+  intro P T d k t
+  have hb : (1 : ZMod 2) + 1 = 0 := by decide
+  have hp : (1 : M5.BinaryPolynomial) + 1 = 0 := by
+    simpa only [map_add, map_one, map_zero] using
+      congrArg (Polynomial.C : ZMod 2 → M5.BinaryPolynomial) hb
+  have htwo : (1 : AdjoinRoot P) + 1 = 0 := by
+    simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.mk P) hp
+  rw [← AdjoinRoot.mk_eq_zero, map_add, map_one]
+  constructor
+  · intro h
+    exact add_left_cancel (h.trans htwo.symm)
+  · intro h
+    rw [h]
+    exact htwo

@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro a b F N hN hF hdiv\nby_cases hab : F ∣ a ∧ F ∣ b\n· exact M5.PolynomialIndicator.conditional_indicator a b F N hN hF hdiv hab.1 hab.2\n· have hne : M5.completeSignature a b N ≠ F := by\n    intro he\n    have hd : F ∣ EuclideanDomain.gcd a b := by\n      rw [← he]\n      exact EuclideanDomain.gcd_dvd_left _ _\n    exact hab ⟨hd.trans (EuclideanDomain.gcd_dvd_left a b),\n      hd.trans (EuclideanDomain.gcd_dvd_right a b)⟩\n  rw [if_neg hne]\n  unfold M5.PolynomialIndicator.factorExclusionSum\n  apply Finset.sum_eq_zero\n  intro H hH\n  have hbad : ¬ (F * (∏ p ∈ H, p) ∣ a ∧ F * (∏ p ∈ H, p) ∣ b) := by\n    intro h\n    exact hab ⟨(dvd_mul_right F _).trans h.1,\n      (dvd_mul_right F _).trans h.2⟩\n  simp [hbad]",
+  "queries": []
+}

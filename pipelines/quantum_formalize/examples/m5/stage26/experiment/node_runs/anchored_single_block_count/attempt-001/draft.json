@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ), 0 ∉ W → M5.ArithmeticSubset.n P hP W k 1 = (M5.AnchoredCount.count P W k : ℤ)\nintro P hP W k hW\nrw [M5.ArithmeticSubset.n_exact]\nunfold M5.AnchoredCount.count\napply congrArg (fun S : Finset (Finset ℕ) => (S.card : ℤ))\napply Finset.filter_congr\nintro U hU\nhave hU0 : 0 ∉ U := by\n  intro h0\n  exact hW ((Finset.mem_powersetCard.mp hU).1 h0)\nexact (M5.AnchoredCount.anchor_divisibility P U hU0).symm",
+  "queries": []
+}

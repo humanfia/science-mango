@@ -1,0 +1,54 @@
+{
+  "id": "multiples_equivalence",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.AnchoredTupleCount.multiples_equivalence",
+    "spec_sha256": "ec8160dcafb5b6bedc39350e003a5062c6d79026b65f1ed941cc7788a11b394a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-td79t97k/attempt-001/Candidate_27b899493332869f.lean",
+        "target_path": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-td79t97k/attempt-001/FrozenTarget_27b899493332869f.lean",
+        "feedback": "",
+        "target_sha256": "e74eaca5f2d7d9376a36d071f52325ffd3798dbd2467862a22974f30915a4eee",
+        "target_olean_sha256": "baed758c00409b00b8757074e5f93168106511751e274f092e50c0bfee79aecf",
+        "source_sha256": "e2cdd42f2fe4d303ffe7c2398cf10b4d626d538060f7df5bdad383d4ab97a960",
+        "olean_sha256": "110466516b4b5cdd3a8ad1574c61012f7fff4bf76617f8694addeed1520e1fab",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:28:00.841913+00:00",
+    "work": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-td79t97k",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "668f918a33112590a5b93b0a45551965cedf9c758248fccd84920140b8cbd6be",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-anchored-tuple-formalization/.humanize-formal-runs/run-td79t97k/attempt-001/Candidate_27b899493332869f.lean",
+    "environment_sha256": "08828116bc933179c0894dc75cfa3611931821bfd4df40a69383013801701463",
+    "artifacts": {
+      "multiples_equivalence": {
+        "payload": {
+          "declaration": "theorem M5.AnchoredTupleCount.multiples_equivalence : ∀ T d : ℕ, 0 < T → d ∣ T → ∃ e : Fin (T / d) ≃ {r : Fin T // d ∣ r.val}, ∀ j : Fin (T / d), (e j).val.val = d * j.val := by\n  change ∀ T d : ℕ, 0 < T → d ∣ T → ∃ e : Fin (T / d) ≃ {r : Fin T // d ∣ r.val}, ∀ j : Fin (T / d), (e j).val.val = d * j.val\n  intro T d hT hdT\n  have hd : 0 < d := by\n    by_contra h\n    have hz : d = 0 := by omega\n    subst d\n    have hzT : T = 0 := by simpa using hdT\n    omega\n  have hrecover : ∀ n : ℕ, d ∣ n → d * (n / d) = n := by\n    intro n hn\n    simpa [Nat.mul_comm] using Nat.div_mul_cancel hn\n  have htotal : d * (T / d) = T := hrecover T hdT\n  have hforward : ∀ j : Fin (T / d), d * j.val < T := by\n    intro j\n    have h := Nat.mul_lt_mul_of_pos_left j.isLt hd\n    omega\n  have hback : ∀ r : {r : Fin T // d ∣ r.val}, r.val.val / d < T / d := by\n    intro r\n    by_contra h\n    have hle : T / d ≤ r.val.val / d := by omega\n    have hm := Nat.mul_le_mul_left d hle\n    have hr := hrecover r.val.val r.property\n    have hb := r.val.isLt\n    omega\n  refine ⟨{\n    toFun := fun j => ⟨⟨d * j.val, hforward j⟩, ⟨j.val, rfl⟩⟩\n    invFun := fun r => ⟨r.val.val / d, hback r⟩\n    left_inv := ?_\n    right_inv := ?_\n  }, ?_⟩\n  · intro j\n    apply Fin.ext\n    change d * j.val / d = j.val\n    exact Nat.mul_div_cancel_left j.val hd\n  · intro r\n    apply Subtype.ext\n    apply Fin.ext\n    change d * (r.val.val / d) = r.val.val\n    exact hrecover r.val.val r.property\n  · intro j\n    rfl",
+          "imports": [
+            "M5AnchoredTupleCount"
+          ],
+          "name": "M5.AnchoredTupleCount.multiples_equivalence",
+          "ancestors": [],
+          "spec_sha256": "ec8160dcafb5b6bedc39350e003a5062c6d79026b65f1ed941cc7788a11b394a"
+        },
+        "sha256": "171f10b003bfe9e76abedaeff17237aca4f75cd21abc69a2c6a74b6c2ae36a53"
+      }
+    }
+  }
+}

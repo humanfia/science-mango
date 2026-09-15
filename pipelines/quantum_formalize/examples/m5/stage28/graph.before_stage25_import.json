@@ -1,0 +1,69 @@
+{
+  "title": "M5 stage28: feasible residues yield a bounded physical source and same-support progression",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Original section5 bounded physical realization and progression from residue feasibility, with no supplied physical witness. Arithmetic counting equivalence remains separate.",
+  "nodes": [
+    {
+      "id": "stage25_imports",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "status": "pending_verified_import",
+        "source_stage": 25
+      }
+    },
+    {
+      "id": "bounded_source",
+      "dependencies": [
+        "stage25_imports"
+      ],
+      "spec": {
+        "name": "M5.FeasibleSource.bounded_source",
+        "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ (A : Finset ℕ) (N : ℕ), N < M5.birthBound w T ∧ M5.PhysicalOrder.realizes N w F A (M5.Packing.packedSupport s)",
+        "imports": [
+          "M5FeasibleSource"
+        ],
+        "context": "",
+        "queries": [
+          "natural arithmetic progression bound",
+          "polynomial gcd signature periodicity"
+        ],
+        "guidance": "Apply accepted stage22 bounded_connected_construction, substitute tuple signature F, then accepted stage25 bounded_order. The input is a feasible anchored residue pattern, never an already physical witness. Return tactic lines without leading by; preserve exact target.\nExact local API signatures (stage25 signatures become available only after verified import gate resolution):\nM5.BoundedConstruction.bounded_connected_construction : ∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → ∃ A : Finset ℕ, A.card = w ∧ (M5.Packing.packedSupport s).card = w ∧ 0 ∈ A ∧ 0 ∈ (M5.Packing.packedSupport s) ∧ (∀ a ∈ A, a < M5.packingCutoff w T) ∧ (∀ b ∈ (M5.Packing.packedSupport s), b < w * T) ∧ M5.RepairSupport.combinedGcd A (M5.Packing.packedSupport s) = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport s)) T = M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T\nM5.Lift.bounded_source_order : ∀ w T E : ℕ, 2 ≤ w → 0 < T → 0 < E → E ≤ 2 ^ (w * T) → ∃ j : ℕ, M5.packingCutoff w T ≤ T + j * E ∧ T + j * E < M5.birthBound w T\nM5.PhysicalOrder.period_control : ∀ (A B : Finset ℕ) (w T : ℕ), 2 ≤ w → 0 < T → 0 ∈ A → 0 ∈ B → (∀ b ∈ B, b < w * T) → 0 < M5.PhysicalOrder.supportPeriod A B ∧ M5.PhysicalOrder.supportPeriod A B ≤ 2 ^ (w * T) ∧ EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) ∣ M5.cyclicModulus (M5.PhysicalOrder.supportPeriod A B)\nM5.PhysicalOrder.literal_progression : ∀ (A B : Finset ℕ) (w T : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → A.card = w → B.card = w → 0 ∈ A → 0 ∈ B → (∀ a ∈ A, a < M5.packingCutoff w T) → (∀ b ∈ B, b < w * T) → M5.RepairSupport.combinedGcd A B = 1 → M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T = F → ∀ j : ℕ, M5.packingCutoff w T ≤ T + j * M5.PhysicalOrder.supportPeriod A B → M5.PhysicalOrder.realizes (T + j * M5.PhysicalOrder.supportPeriod A B) w F A B\nM5.PhysicalOrder.bounded_order : ∀ (A B : Finset ℕ) (w T : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → A.card = w → B.card = w → 0 ∈ A → 0 ∈ B → (∀ a ∈ A, a < M5.packingCutoff w T) → (∀ b ∈ B, b < w * T) → M5.RepairSupport.combinedGcd A B = 1 → M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T = F → ∃ N : ℕ, N < M5.birthBound w T ∧ M5.PhysicalOrder.realizes N w F A B\nApply these exact names and explicit argument order. Lean Explore does not index local M5 declarations."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_BOUNDED_SOURCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "same_support_infinite_progression",
+      "dependencies": [
+        "stage25_imports"
+      ],
+      "spec": {
+        "name": "M5.FeasibleSource.same_support_infinite_progression",
+        "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ (A : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w T ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F A (M5.Packing.packedSupport s)",
+        "imports": [
+          "M5FeasibleSource"
+        ],
+        "context": "",
+        "queries": [
+          "natural arithmetic progression bound",
+          "polynomial gcd signature periodicity"
+        ],
+        "guidance": "Apply stage22 construction. Set E=supportPeriod A B; use stage25 period_control for positivity/bound. Use M5.Lift.bounded_source_order to get j0 with cutoff≤T+j0*E<birthBound. Set N=T+j0*E. For each j apply stage25 literal_progression with j0+j and rewrite arithmetic. Same literal A,B for every j; E>0 makes the orders infinite. Preserve the original bound and all multiplicities. Return tactic lines without leading by; preserve exact target.\nExact local API signatures (stage25 signatures become available only after verified import gate resolution):\nM5.BoundedConstruction.bounded_connected_construction : ∀ (w T : ℕ) (r s : Fin w → Fin T), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → ∃ A : Finset ℕ, A.card = w ∧ (M5.Packing.packedSupport s).card = w ∧ 0 ∈ A ∧ 0 ∈ (M5.Packing.packedSupport s) ∧ (∀ a ∈ A, a < M5.packingCutoff w T) ∧ (∀ b ∈ (M5.Packing.packedSupport s), b < w * T) ∧ M5.RepairSupport.combinedGcd A (M5.Packing.packedSupport s) = 1 ∧ M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport (M5.Packing.packedSupport s)) T = M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T\nM5.Lift.bounded_source_order : ∀ w T E : ℕ, 2 ≤ w → 0 < T → 0 < E → E ≤ 2 ^ (w * T) → ∃ j : ℕ, M5.packingCutoff w T ≤ T + j * E ∧ T + j * E < M5.birthBound w T\nM5.PhysicalOrder.period_control : ∀ (A B : Finset ℕ) (w T : ℕ), 2 ≤ w → 0 < T → 0 ∈ A → 0 ∈ B → (∀ b ∈ B, b < w * T) → 0 < M5.PhysicalOrder.supportPeriod A B ∧ M5.PhysicalOrder.supportPeriod A B ≤ 2 ^ (w * T) ∧ EuclideanDomain.gcd (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) ∣ M5.cyclicModulus (M5.PhysicalOrder.supportPeriod A B)\nM5.PhysicalOrder.literal_progression : ∀ (A B : Finset ℕ) (w T : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → A.card = w → B.card = w → 0 ∈ A → 0 ∈ B → (∀ a ∈ A, a < M5.packingCutoff w T) → (∀ b ∈ B, b < w * T) → M5.RepairSupport.combinedGcd A B = 1 → M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T = F → ∀ j : ℕ, M5.packingCutoff w T ≤ T + j * M5.PhysicalOrder.supportPeriod A B → M5.PhysicalOrder.realizes (T + j * M5.PhysicalOrder.supportPeriod A B) w F A B\nM5.PhysicalOrder.bounded_order : ∀ (A B : Finset ℕ) (w T : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → A.card = w → B.card = w → 0 ∈ A → 0 ∈ B → (∀ a ∈ A, a < M5.packingCutoff w T) → (∀ b ∈ B, b < w * T) → M5.RepairSupport.combinedGcd A B = 1 → M5.completeSignature (M5.SupportPolynomial.ofSupport A) (M5.SupportPolynomial.ofSupport B) T = F → ∃ N : ℕ, N < M5.birthBound w T ∧ M5.PhysicalOrder.realizes N w F A B\nApply these exact names and explicit argument order. Lean Explore does not index local M5 declarations."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_BOUNDED_SOURCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

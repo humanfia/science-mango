@@ -8,8 +8,8 @@ This is a status map of the original reviewed proof, not a strengthened theorem 
 | §2 explicit subset n formula | Exact identity, integer division and nonnegativity accepted | [stage20](stage20/RESULTS.md) |
 | §2 explicit repeated-tuple R formula | Exact identity, integer division and nonnegativity accepted | [stage24](stage24/RESULTS.md) |
 | §3 integer connectivity indicator | Accepted | [stage9](stage9/RESULTS.md) |
-| §3 polynomial exact-signature exclusion | Finite Boolean exclusion and factor products accepted; criterion accepted; final sum indicator under construction | [stage17](stage17/RESULTS.md), [stage18](stage18/RESULTS.md), [stage16](stage16/RESULTS.md) → stage23 |
-| §3 anchored C and conditional recovery | Open; anchoring n to divisibility is running | stage20 → stage26, then polynomial/integer indicator assembly |
+| §3 polynomial exact-signature exclusion | Finite Boolean exclusion and factor products accepted; Exact finite factor-subset signature indicator accepted | [stage17](stage17/RESULTS.md), [stage18](stage18/RESULTS.md), [stage16](stage16/RESULTS.md) → stage23 |
+| §3 anchored C and conditional recovery | Open; anchoring n to divisibility accepted; C experiment running | stage20 → stage26, then polynomial/integer indicator assembly |
 | §4 feasible-pattern A, necessity and recovery | Open; R identity available | stage24 plus polynomial/integer indicators, tuple recovery and reduction |
 | §5 packing and signature preservation | Accepted components | [stage6](stage6/RESULTS.md), [stage8](stage8/RESULTS.md), [stage21](stage21/RESULTS.md) |
 | §5 actual bounded connected support construction | Accepted | stage19 + stage21 → stage22 |
@@ -19,10 +19,10 @@ This is a status map of the original reviewed proof, not a strengthened theorem 
 
 ```mermaid
 flowchart TD
-  n[stage20: exact n — accepted] --> anchor[stage26: anchored block count — running]
+  n[stage20: exact n — accepted] --> anchor[stage26: anchored block count — accepted]
   R[stage24: exact R — accepted] --> A[A and conditional tuple recovery — open]
   int[stage9: integer indicator — accepted] --> C[C and conditional support recovery — open]
-  crit[stage16: polynomial criterion — accepted] --> pie[stage23: exact polynomial indicator — running]
+  crit[stage16: polynomial criterion — accepted] --> pie[stage23: exact polynomial indicator — accepted]
   finite[stage17 + 18: finite exclusion / products — accepted] --> pie
   pie --> C
   pie --> A
@@ -30,7 +30,7 @@ flowchart TD
   anchor --> C
   pack[stage19 + 21: packing repair ingredients — accepted] --> construct[stage22: connected support construction — accepted]
   period[stage3 + 12: period and lift — accepted] --> orders[stage25: actual progression and bounded order — accepted]
-  construct --> bounded[Feasible pattern to bounded physical source — integration pending]
+  construct --> bounded[stage28: feasible pattern to bounded physical source — accepted]
   orders --> bounded
   A --> global[Global realizability criterion — open]
   bounded --> global

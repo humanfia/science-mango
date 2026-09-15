@@ -1,0 +1,3 @@
+import Candidate_87d23c5ed6258b66
+example : QuantumHarnessFrozenTarget := M5.PolynomialIndicator.residual_factors_regular
+#print axioms M5.PolynomialIndicator.residual_factors_regular

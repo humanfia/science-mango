@@ -1,0 +1,13 @@
+{
+  "name": "M5.AnchoredCount.anchored_single_block_count",
+  "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ), 0 ∉ W → M5.ArithmeticSubset.n P hP W k 1 = (M5.AnchoredCount.count P W k : ℤ)",
+  "imports": [
+    "M5AnchoredCount"
+  ],
+  "context": "theorem M5.AnchoredCount.anchor_polynomial : ∀ U : Finset ℕ, 0 ∉ U → M5.SupportPolynomial.ofSupport (insert 0 U) = 1 + M5.SupportPolynomial.ofSupport U := by\n  change ∀ U : Finset ℕ, 0 ∉ U → M5.SupportPolynomial.ofSupport (insert 0 U) = 1 + M5.SupportPolynomial.ofSupport U\n  intro U hU\n  simp [M5.SupportPolynomial.ofSupport, Finset.sum_insert, hU]\n\ntheorem M5.AnchoredCount.anchor_divisibility : ∀ (P : M5.BinaryPolynomial) (U : Finset ℕ), 0 ∉ U → (P ∣ M5.SupportPolynomial.ofSupport (insert 0 U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = 1) := by\n  change ∀ (P : M5.BinaryPolynomial) (U : Finset ℕ), 0 ∉ U → (P ∣ M5.SupportPolynomial.ofSupport (insert 0 U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = 1)\n  intro P U hU\n  have htwo : (1 : AdjoinRoot P) + 1 = 0 := by\n    have h := congrArg (AdjoinRoot.mk P) (CharTwo.add_self_eq_zero (1 : M5.BinaryPolynomial))\n    simpa only [map_add, map_one, map_zero] using h\n  rw [M5.AnchoredCount.anchor_polynomial U hU, ← AdjoinRoot.mk_eq_zero, map_add, map_one]\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans htwo.symm)\n  · intro h\n    rw [h]\n    exact htwo",
+  "queries": [
+    "AdjoinRoot mk eq zero",
+    "characteristic two add self"
+  ],
+  "guidance": "Rewrite M5.ArithmeticSubset.n_exact. Every U in W.powersetCard k is a subset of W, hence avoids zero. Apply anchor_divisibility to equate the filters. No premise k<=W.card is needed; impossible sizes count zero. Return only tactic lines without leading by. Keep the exact target. Unfold M5.AnchoredCount.count with classical decidability."
+}

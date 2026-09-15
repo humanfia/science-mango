@@ -1,0 +1,4 @@
+{
+  "proof": "intro P T d k t\nhave htwo : (1 : M5.BinaryPolynomial) + 1 = 0 := by\n  ext n\n  by_cases h : n = 0 <;> norm_num [Polynomial.coeff_add, Polynomial.coeff_one, h]\nhave hquot : (1 : AdjoinRoot P) + 1 = 0 := by\n  simpa only [map_add, map_one, map_zero] using congrArg (AdjoinRoot.mk P) htwo\nrw [← AdjoinRoot.mk_eq_zero, map_add, map_one]\nconstructor\n· intro h\n  apply add_left_cancel (a := (1 : AdjoinRoot P))\n  exact h.trans hquot.symm\n· intro h\n  simpa only [h] using hquot",
+  "queries": []
+}

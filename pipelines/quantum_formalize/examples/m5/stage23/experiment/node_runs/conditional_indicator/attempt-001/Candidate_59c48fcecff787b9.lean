@@ -1,0 +1,30 @@
+import FrozenTarget_59c48fcecff787b9
+theorem M5.PolynomialIndicator.conditional_indicator : QuantumHarnessFrozenTarget := by
+  classical
+  intro a b F N hN hF hdiv ha hb
+  have hcrit := M5.PolynomialExclusion.finite_factor_criterion a b F N hN hF hdiv ha hb
+  have hbad :
+      (∀ p ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F,
+        decide (F * p ∣ a ∧ F * p ∣ b) = false) ↔
+        M5.completeSignature a b N = F := by
+    simpa using hcrit.symm
+  calc
+    M5.PolynomialIndicator.factorExclusionSum a b F N =
+        M5.FiniteExclusion.exclusionSum
+          (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F)
+          (fun p => decide (F * p ∣ a ∧ F * p ∣ b)) := by
+      unfold M5.PolynomialIndicator.factorExclusionSum M5.FiniteExclusion.exclusionSum
+      apply Finset.sum_congr rfl
+      intro H hH
+      have hreg : ∀ p ∈ H, p.Monic ∧ Irreducible p := by
+        intro p hp
+        exact M5.PolynomialIndicator.residual_factors_regular F N hN hF hdiv p
+          ((Finset.mem_powerset.mp hH) hp)
+      have hpa := M5.FactorProduct.product_event_iff H F a hF.ne_zero ha hreg
+      have hpb := M5.FactorProduct.product_event_iff H F b hF.ne_zero hb hreg
+      simp [hpa, hpb, forall_and]
+    _ = (if M5.completeSignature a b N = F then 1 else 0) := by
+      simpa only [hbad] using
+        M5.FiniteExclusion.exclusion_indicator
+          (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F)
+          (fun p => decide (F * p ∣ a ∧ F * p ∣ b))

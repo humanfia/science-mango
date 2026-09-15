@@ -1,0 +1,99 @@
+[
+  {
+    "id": "anchored_tuple_divisibility",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.AnchoredTupleCount.anchored_tuple_divisibility",
+      "statement": "∀ (P : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ 1 + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = 1)",
+      "imports": [
+        "M5AnchoredTupleCount"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk eq zero",
+        "finite set cardinality bijection natural division"
+      ],
+      "guidance": "Use AdjoinRoot.mk_eq_zero for divisibility. Ring hom preserves addition and1, and the quotient is of characteristic2. No monicity/irreducibility needed. Return only tactic lines without leading by. Preserve the exact statement."
+    },
+    "metadata": {
+      "source_section": "4",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "anchored_R_count",
+    "dependencies": [
+      "anchored_tuple_divisibility"
+    ],
+    "spec": {
+      "name": "M5.AnchoredTupleCount.anchored_R_count",
+      "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ), M5.ArithmeticTuple.R P hP T d k 1 = (M5.AnchoredTupleCount.count P T d k : ℤ)",
+      "imports": [
+        "M5AnchoredTupleCount"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk eq zero",
+        "finite set cardinality bijection natural division"
+      ],
+      "guidance": "Rewrite M5.ArithmeticTuple.R_exact. Unfold count and equate filters using anchored_tuple_divisibility, including k=0 and empty choice domains. Return only tactic lines without leading by. Preserve the exact statement."
+    },
+    "metadata": {
+      "source_section": "4",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "multiples_equivalence",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.AnchoredTupleCount.multiples_equivalence",
+      "statement": "∀ T d : ℕ, 0 < T → d ∣ T → ∃ e : Fin (T / d) ≃ {r : Fin T // d ∣ r.val}, ∀ j : Fin (T / d), (e j).val.val = d * j.val",
+      "imports": [
+        "M5AnchoredTupleCount"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk eq zero",
+        "finite set cardinality bijection natural division"
+      ],
+      "guidance": "Build the equivalence j -> d*j, inverse r -> r/d. From positive T and d|T derive d>0 and d*(T/d)=T. Use Nat.mul_lt_mul and Nat.div_lt_div_right or division lemmas; all bound proofs explicit. This is a finite residue-domain equivalence, no enumeration of tuple pairs. Return only tactic lines without leading by. Preserve the exact statement."
+    },
+    "metadata": {
+      "source_section": "4",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "restricted_R_count",
+    "dependencies": [
+      "anchored_R_count",
+      "multiples_equivalence"
+    ],
+    "spec": {
+      "name": "M5.AnchoredTupleCount.restricted_R_count",
+      "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (T d k : ℕ), 0 < T → d ∣ T → M5.ArithmeticTuple.R P hP T d k 1 = (M5.AnchoredTupleCount.restrictedCount P T d k : ℤ)",
+      "imports": [
+        "M5AnchoredTupleCount"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk eq zero",
+        "finite set cardinality bijection natural division"
+      ],
+      "guidance": "Use anchored_R_count and multiples_equivalence, lift the equivalence pointwise to functions Fin k. A tuple in the right filtered finset has every coordinate divisible by d; its inverse coordinate tuple is unique. The monomial exponents match by the equivalence property. Prove filtered finite cardinalities equal via a bijection (Finset.card_bij) or Fintype.card_congr. Preserve k=0, d=1, T=1, P=1 cases. Return only tactic lines without leading by. Preserve the exact statement."
+    },
+    "metadata": {
+      "source_section": "4",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  }
+]

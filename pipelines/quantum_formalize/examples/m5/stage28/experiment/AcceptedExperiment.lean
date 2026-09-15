@@ -1,0 +1,38 @@
+import M5FeasibleSource
+
+theorem M5.FeasibleSource.bounded_source : ∀ (w T : ℕ) (r s : Fin w → Fin T) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ (A : Finset ℕ) (N : ℕ), N < M5.birthBound w T ∧ M5.PhysicalOrder.realizes N w F A (M5.Packing.packedSupport s) := by
+  let QuantumHarnessFrozenTarget : Prop := (
+    ∀ (w T : ℕ) (r s : Fin w → Fin T) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ (A : Finset ℕ) (N : ℕ), N < M5.birthBound w T ∧ M5.PhysicalOrder.realizes N w F A (M5.Packing.packedSupport s)
+  )
+  change QuantumHarnessFrozenTarget
+  unfold QuantumHarnessFrozenTarget
+  intro w T r s F hw hT hr hs hg hF
+  obtain ⟨A, hAc, hBc, hA0, hB0, hAr, hBr, hG, hSig⟩ :=
+    M5.BoundedConstruction.bounded_connected_construction w T r s hw hT hr hs hg
+  refine ⟨A, ?_⟩
+  exact M5.PhysicalOrder.bounded_order A (M5.Packing.packedSupport s) w T F
+    hw hT hAc hBc hA0 hB0 hAr hBr hG (hSig.trans hF)
+
+theorem M5.FeasibleSource.same_support_infinite_progression : ∀ (w T : ℕ) (r s : Fin w → Fin T) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ (A : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w T ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F A (M5.Packing.packedSupport s) := by
+  intro w T r s F hw hT hr hs hg hF
+  obtain ⟨A, hAc, hBc, hA0, hB0, hAr, hBr, hG, hSig⟩ :=
+    M5.BoundedConstruction.bounded_connected_construction w T r s hw hT hr hs hg
+  obtain ⟨hEpos, hEbound, hEdiv⟩ :=
+    M5.PhysicalOrder.period_control A (M5.Packing.packedSupport s) w T hw hT hA0 hB0 hBr
+  obtain ⟨j0, hcut, hbirth⟩ :=
+    M5.Lift.bounded_source_order w T
+      (M5.PhysicalOrder.supportPeriod A (M5.Packing.packedSupport s))
+      hw hT hEpos hEbound
+  refine ⟨A, T + j0 * M5.PhysicalOrder.supportPeriod A (M5.Packing.packedSupport s),
+    M5.PhysicalOrder.supportPeriod A (M5.Packing.packedSupport s), hEpos, hbirth, ?_⟩
+  intro j
+  have hcut' : M5.packingCutoff w T ≤
+      T + (j0 + j) * M5.PhysicalOrder.supportPeriod A (M5.Packing.packedSupport s) := by
+    rw [Nat.add_mul, ← Nat.add_assoc]
+    exact le_trans hcut (Nat.le_add_right _ _)
+  have hreal := M5.PhysicalOrder.literal_progression
+    A (M5.Packing.packedSupport s) w T F hw hT hAc hBc hA0 hB0 hAr hBr hG
+    (hSig.trans hF) (j0 + j) hcut'
+  simpa only [Nat.add_mul, Nat.add_assoc] using hreal
+#print axioms M5.FeasibleSource.bounded_source
+#print axioms M5.FeasibleSource.same_support_infinite_progression

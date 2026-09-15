@@ -1,0 +1,3 @@
+import Candidate_37c1ba040d30e8ad
+example : QuantumHarnessFrozenTarget := M5.AnchoredTupleCount.anchored_tuple_divisibility
+#print axioms M5.AnchoredTupleCount.anchored_tuple_divisibility

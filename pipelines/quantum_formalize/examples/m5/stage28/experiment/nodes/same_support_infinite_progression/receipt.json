@@ -1,0 +1,55 @@
+{
+  "id": "same_support_infinite_progression",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.FeasibleSource.same_support_infinite_progression",
+    "spec_sha256": "a35667b37e026710b214ef6c016d22e9ba9524c88918a592513c1cc2eb04222b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-feasible-source-formalization/.humanize-formal-runs/run-jd1uvgym/attempt-001/Candidate_5f4b2b313cb5fd77.lean",
+        "target_path": "/home/jing/m5-lean-feasible-source-formalization/.humanize-formal-runs/run-jd1uvgym/attempt-001/FrozenTarget_5f4b2b313cb5fd77.lean",
+        "feedback": "",
+        "target_sha256": "860b80da676d7d92f367b93a1b9e7ca0c4e7b89a1f63ade623a2a8d26a31cdd1",
+        "target_olean_sha256": "1a990136d232f0358e7d57f098f5be4e6672d2b2b2c242c628690eee0474a30e",
+        "source_sha256": "24420c303e2d8fe8a5f48b84b1196c4f903972e17d564c6671f62325112c7d15",
+        "olean_sha256": "20e2a9ec3110b22b14d231b99121d6581a084bdd0261c14fa81e94e5d3961d18",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:28:45.373552+00:00",
+    "work": "/home/jing/m5-lean-feasible-source-formalization/.humanize-formal-runs/run-jd1uvgym",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4e35acd74cb526e1f444299a3d40f5d3874d11442d73b5fa3a84472dd5f8379f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-feasible-source-formalization/.humanize-formal-runs/run-jd1uvgym/attempt-001/Candidate_5f4b2b313cb5fd77.lean",
+    "environment_sha256": "def958569963d3f87591758ae23e7141ee2fdaf857cdcddc33159de08eb96aa2",
+    "artifacts": {
+      "same_support_infinite_progression": {
+        "payload": {
+          "declaration": "theorem M5.FeasibleSource.same_support_infinite_progression : ∀ (w T : ℕ) (r s : Fin w → Fin T) (F : M5.BinaryPolynomial), 2 ≤ w → 0 < T → M5.BoundedConstruction.anchoredTuple r → M5.BoundedConstruction.anchoredTuple s → M5.BoundedConstruction.tupleSupportGcd r s = 1 → M5.completeSignature (M5.SupportPolynomial.ofResidueTuple r) (M5.SupportPolynomial.ofResidueTuple s) T = F → ∃ (A : Finset ℕ) (N E : ℕ), 0 < E ∧ N < M5.birthBound w T ∧ ∀ j : ℕ, M5.PhysicalOrder.realizes (N + j * E) w F A (M5.Packing.packedSupport s) := by\n  intro w T r s F hw hT hr hs hg hF\n  obtain ⟨A, hAc, hBc, hA0, hB0, hAr, hBr, hG, hSig⟩ :=\n    M5.BoundedConstruction.bounded_connected_construction w T r s hw hT hr hs hg\n  obtain ⟨hEpos, hEbound, hEdiv⟩ :=\n    M5.PhysicalOrder.period_control A (M5.Packing.packedSupport s) w T hw hT hA0 hB0 hBr\n  obtain ⟨j0, hcut, hbirth⟩ :=\n    M5.Lift.bounded_source_order w T\n      (M5.PhysicalOrder.supportPeriod A (M5.Packing.packedSupport s))\n      hw hT hEpos hEbound\n  refine ⟨A, T + j0 * M5.PhysicalOrder.supportPeriod A (M5.Packing.packedSupport s),\n    M5.PhysicalOrder.supportPeriod A (M5.Packing.packedSupport s), hEpos, hbirth, ?_⟩\n  intro j\n  have hcut' : M5.packingCutoff w T ≤\n      T + (j0 + j) * M5.PhysicalOrder.supportPeriod A (M5.Packing.packedSupport s) := by\n    rw [Nat.add_mul, ← Nat.add_assoc]\n    exact le_trans hcut (Nat.le_add_right _ _)\n  have hreal := M5.PhysicalOrder.literal_progression\n    A (M5.Packing.packedSupport s) w T F hw hT hAc hBc hA0 hB0 hAr hBr hG\n    (hSig.trans hF) (j0 + j) hcut'\n  simpa only [Nat.add_mul, Nat.add_assoc] using hreal",
+          "imports": [
+            "M5FeasibleSource"
+          ],
+          "name": "M5.FeasibleSource.same_support_infinite_progression",
+          "ancestors": [],
+          "spec_sha256": "a35667b37e026710b214ef6c016d22e9ba9524c88918a592513c1cc2eb04222b"
+        },
+        "sha256": "335010a9e6fff03acfed6c26f811eb19f41dc5468439d904f1002f6b1b9f79e8"
+      }
+    }
+  }
+}

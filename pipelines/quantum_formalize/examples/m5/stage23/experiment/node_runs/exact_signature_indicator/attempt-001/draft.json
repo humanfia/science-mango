@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nchange ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → M5.PolynomialIndicator.factorExclusionSum a b F N = (if M5.completeSignature a b N = F then 1 else 0)\nintro a b F N hN hF hdiv\nby_cases hab : F ∣ a ∧ F ∣ b\n· exact M5.PolynomialIndicator.conditional_indicator a b F N hN hF hdiv hab.1 hab.2\n· have hne : M5.completeSignature a b N ≠ F := by\n    intro he\n    have hd : F ∣ M5.completeSignature a b N := by\n      rw [he]\n    simp only [M5.completeSignature, EuclideanDomain.dvd_gcd_iff] at hd\n    tauto\n  have hbad : ∀ P : M5.BinaryPolynomial, ¬ (F * P ∣ a ∧ F * P ∣ b) := by\n    intro P hP\n    exact hab ⟨dvd_trans (dvd_mul_right F P) hP.1,\n      dvd_trans (dvd_mul_right F P) hP.2⟩\n  rw [if_neg hne]\n  unfold M5.PolynomialIndicator.factorExclusionSum\n  apply Finset.sum_eq_zero\n  intro H hH\n  simp [hbad]",
+  "queries": [
+    "EuclideanDomain.dvd_gcd_iff",
+    "dvd_mul_right"
+  ]
+}

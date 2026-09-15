@@ -1,0 +1,3 @@
+import Candidate_1ad7a6fbf8db9fd4
+example : QuantumHarnessFrozenTarget := M5.PolynomialIndicator.exact_signature_indicator
+#print axioms M5.PolynomialIndicator.exact_signature_indicator

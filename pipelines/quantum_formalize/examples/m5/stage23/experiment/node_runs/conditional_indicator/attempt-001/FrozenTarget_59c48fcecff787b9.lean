@@ -1,0 +1,15 @@
+import M5PolynomialExclusionAccepted
+import M5PolynomialIndicator
+
+theorem M5.PolynomialIndicator.residual_factors_regular : ∀ (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → ∀ p ∈ M5.PolynomialExclusion.residualFactors (M5.cyclicModulus N) F, p.Monic ∧ Irreducible p := by
+  classical
+  intro F N hN hF hdiv p hp
+  have hq : M5.cyclicModulus N / F ≠ 0 :=
+    M5.PolynomialExclusion.cyclic_quotient_nonzero F N hN hF hdiv
+  have hmem : p ∈ UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F) := by
+    simpa [M5.PolynomialExclusion.residualFactors, hq] using hp
+  have hirr : Irreducible p :=
+    UniqueFactorizationMonoid.irreducible_of_normalized_factor p hmem
+  exact ⟨M5.Signature.binary_monic p hirr.ne_zero, hirr⟩
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (a b F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → F ∣ a → F ∣ b → M5.PolynomialIndicator.factorExclusionSum a b F N = (if M5.completeSignature a b N = F then 1 else 0)

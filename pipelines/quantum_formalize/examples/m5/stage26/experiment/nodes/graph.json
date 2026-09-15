@@ -1,0 +1,75 @@
+[
+  {
+    "id": "anchor_polynomial",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.AnchoredCount.anchor_polynomial",
+      "statement": "∀ U : Finset ℕ, 0 ∉ U → M5.SupportPolynomial.ofSupport (insert 0 U) = 1 + M5.SupportPolynomial.ofSupport U",
+      "imports": [
+        "M5AnchoredCount"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk eq zero",
+        "characteristic two add self"
+      ],
+      "guidance": "Unfold ofSupport and use Finset.sum_insert with 0 not in U; X^0=1. Return only tactic lines without leading by. Keep the exact target."
+    },
+    "metadata": {
+      "source_section": "3",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "anchor_divisibility",
+    "dependencies": [
+      "anchor_polynomial"
+    ],
+    "spec": {
+      "name": "M5.AnchoredCount.anchor_divisibility",
+      "statement": "∀ (P : M5.BinaryPolynomial) (U : Finset ℕ), 0 ∉ U → (P ∣ M5.SupportPolynomial.ofSupport (insert 0 U) ↔ AdjoinRoot.mk P (M5.SupportPolynomial.ofSupport U) = 1)",
+      "imports": [
+        "M5AnchoredCount"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk eq zero",
+        "characteristic two add self"
+      ],
+      "guidance": "Use anchor_polynomial. AdjoinRoot.mk_eq_zero identifies divisibility. Ring hom preserves 1+sum and the quotient has characteristic two, so 1+x=0 iff x=1. Do not add monicity or irreducibility; quotient identity holds for all P. Return only tactic lines without leading by. Keep the exact target."
+    },
+    "metadata": {
+      "source_section": "3",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "anchored_single_block_count",
+    "dependencies": [
+      "anchor_divisibility"
+    ],
+    "spec": {
+      "name": "M5.AnchoredCount.anchored_single_block_count",
+      "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (W : Finset ℕ) (k : ℕ), 0 ∉ W → M5.ArithmeticSubset.n P hP W k 1 = (M5.AnchoredCount.count P W k : ℤ)",
+      "imports": [
+        "M5AnchoredCount"
+      ],
+      "context": "",
+      "queries": [
+        "AdjoinRoot mk eq zero",
+        "characteristic two add self"
+      ],
+      "guidance": "Rewrite M5.ArithmeticSubset.n_exact. Every U in W.powersetCard k is a subset of W, hence avoids zero. Apply anchor_divisibility to equate the filters. No premise k<=W.card is needed; impossible sizes count zero. Return only tactic lines without leading by. Keep the exact target. Unfold M5.AnchoredCount.count with classical decidability."
+    },
+    "metadata": {
+      "source_section": "3",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  }
+]

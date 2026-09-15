@@ -1,0 +1,13 @@
+{
+  "name": "M5.AnchoredTupleCount.multiples_equivalence",
+  "statement": "∀ T d : ℕ, 0 < T → d ∣ T → ∃ e : Fin (T / d) ≃ {r : Fin T // d ∣ r.val}, ∀ j : Fin (T / d), (e j).val.val = d * j.val",
+  "imports": [
+    "M5AnchoredTupleCount"
+  ],
+  "context": "",
+  "queries": [
+    "AdjoinRoot mk eq zero",
+    "finite set cardinality bijection natural division"
+  ],
+  "guidance": "Build the equivalence j -> d*j, inverse r -> r/d. From positive T and d|T derive d>0 and d*(T/d)=T. Use Nat.mul_lt_mul and Nat.div_lt_div_right or division lemmas; all bound proofs explicit. This is a finite residue-domain equivalence, no enumeration of tuple pairs. Return only tactic lines without leading by. Preserve the exact statement."
+}
