@@ -1,0 +1,89 @@
+{
+  "id": "exact_signature_lift",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Signature.exact_signature_lift",
+    "spec_sha256": "7c4dcbd936812dbece75221cc899beac4fad3fa07091bd93c8266112f6557093",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-6invyfm0/attempt-001/Candidate_7550c66627579e61.lean:6:45: error: Invalid argument name `a` for function `Lift.common_divisors_lift`\n\nHint: Perhaps you meant one of the following parameter names:\n  • `G`: a̵G̲\n  • `D`: a̵D̲\n/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-6invyfm0/attempt-001/Candidate_7550c66627579e61.lean:2:74: error: unsolved goals\na b : BinaryPolynomial\nT E j : ℕ\nhE : EuclideanDomain.gcd a b ∣ cyclicModulus E\n⊢ EuclideanDomain.gcd (EuclideanDomain.gcd a b) (cyclicModulus (T + j * E)) =\n    EuclideanDomain.gcd (EuclideanDomain.gcd a b) (cyclicModulus T)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-6invyfm0/attempt-002/Candidate_276bec54011cff78.lean",
+        "target_path": "/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-6invyfm0/attempt-002/FrozenTarget_276bec54011cff78.lean",
+        "feedback": "",
+        "target_sha256": "973d62df36e473b7667b264fcafa293c2a6efc00e9dd9b939d56a4b7357cbaca",
+        "target_olean_sha256": "ad805bb1e134a3c0642cfe35b878c4048c267999de84d2cde422e026102c8b43",
+        "source_sha256": "ba7929acfab5d32cb2f40985b54af0e9579c8cceb68729056a5296973342892c",
+        "olean_sha256": "d80ccd953a7b13e67143df6cf44a4b727acf4a38e491253f43fa0a76e0521755",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T07:25:41.687196+00:00",
+    "work": "/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-6invyfm0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-6invyfm0/attempt-002/Candidate_276bec54011cff78.lean",
+    "environment_sha256": "7743551517e8c37c46d66707318bbebffa15bc8ce26beafea7fa77a3ee4c4be2",
+    "artifacts": {
+      "binary_monic": {
+        "payload": {
+          "declaration": "theorem M5.Signature.binary_monic : ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic := by\n  change ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic\n  intro P hP\n  have h : ∀ c : ZMod 2, c ≠ 0 → c = 1 := by decide\n  change P.leadingCoeff = 1\n  exact h P.leadingCoeff (Polynomial.leadingCoeff_ne_zero.mpr hP)",
+          "imports": [
+            "M5Signature"
+          ],
+          "name": "M5.Signature.binary_monic",
+          "ancestors": [],
+          "spec_sha256": "b0742ccc2d3a9f0b77c3c3eba55e35dccb54d3cb410e387a82c3f5ddc2df1441"
+        },
+        "sha256": "2637e57265592ebf19a18d1b9a479eacd2707fa801029eb11851edd337ce46d1"
+      },
+      "binary_dvd_antisymm": {
+        "payload": {
+          "declaration": "theorem M5.Signature.binary_dvd_antisymm : ∀ P Q : M5.BinaryPolynomial, P ∣ Q → Q ∣ P → P = Q := by\n  change ∀ P Q : M5.BinaryPolynomial, P ∣ Q → Q ∣ P → P = Q\n  intro P Q hPQ hQP\n  by_cases hP : P = 0\n  · subst P\n    exact (zero_dvd_iff.mp hPQ).symm\n  by_cases hQ : Q = 0\n  · subst Q\n    exact zero_dvd_iff.mp hQP\n  exact Polynomial.eq_of_monic_of_associated\n    (M5.Signature.binary_monic P hP)\n    (M5.Signature.binary_monic Q hQ)\n    (associated_of_dvd_dvd hPQ hQP)",
+          "imports": [
+            "M5Signature"
+          ],
+          "name": "M5.Signature.binary_dvd_antisymm",
+          "ancestors": [
+            "binary_monic"
+          ],
+          "spec_sha256": "68d1570a16a542f37402e9caffad157027fa4e0d5ab8e17545cf1806d377e472"
+        },
+        "sha256": "3eba588f04a5c3fc43da9a39b9d2634b77396f6e0745583ba5122dededed58e1"
+      },
+      "exact_signature_lift": {
+        "payload": {
+          "declaration": "theorem M5.Signature.exact_signature_lift : ∀ (a b : M5.BinaryPolynomial) (T E j : ℕ), EuclideanDomain.gcd a b ∣ M5.cyclicModulus E → M5.completeSignature a b (T+j*E) = M5.completeSignature a b T := by\n  change ∀ (a b : M5.BinaryPolynomial) (T E j : ℕ), EuclideanDomain.gcd a b ∣ M5.cyclicModulus E → M5.completeSignature a b (T+j*E) = M5.completeSignature a b T\n  intro a b T E j hE\n  unfold M5.completeSignature\n  have lift (D : M5.BinaryPolynomial) (hD : D ∣ EuclideanDomain.gcd a b) :\n      D ∣ M5.cyclicModulus (T + j * E) ↔ D ∣ M5.cyclicModulus T := by\n    first\n    | apply M5.Lift.common_divisors_lift <;> assumption\n    | symm; apply M5.Lift.common_divisors_lift <;> assumption\n  apply M5.Signature.binary_dvd_antisymm\n  · apply EuclideanDomain.dvd_gcd\n    · exact EuclideanDomain.gcd_dvd_left _ _\n    · exact (lift _ (EuclideanDomain.gcd_dvd_left _ _)).mp (EuclideanDomain.gcd_dvd_right _ _)\n  · apply EuclideanDomain.dvd_gcd\n    · exact EuclideanDomain.gcd_dvd_left _ _\n    · exact (lift _ (EuclideanDomain.gcd_dvd_left _ _)).mpr (EuclideanDomain.gcd_dvd_right _ _)",
+          "imports": [
+            "M5Signature"
+          ],
+          "name": "M5.Signature.exact_signature_lift",
+          "ancestors": [
+            "binary_dvd_antisymm",
+            "binary_monic"
+          ],
+          "spec_sha256": "4cf3e0066505d19138718e22b506fd232c3eba4c58adb9e60636909410866cdf"
+        },
+        "sha256": "e73302e58db338f08b5c2c20f94fd0cfc3de20fef318c14dba8f92cae62da149"
+      }
+    }
+  }
+}

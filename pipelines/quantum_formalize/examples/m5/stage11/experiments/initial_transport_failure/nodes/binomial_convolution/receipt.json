@@ -1,0 +1,74 @@
+{
+  "id": "binomial_convolution",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Binomial.binomial_convolution",
+    "spec_sha256": "6d5c1d7a9e83ba564ba18cb4f584032090643a6d7bac2868de7f8ed9eff3275b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-140ckz69/attempt-001/Candidate_145b819681ca560b.lean:5:28: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  ∑ ij ∈ Finset.antidiagonal ?n, ?f ij.1 ij.2\nin the target expression\n  ∑ x ∈ Finset.antidiagonal k, ((1 - Polynomial.X) ^ m).coeff x.1 * ((1 + Polynomial.X) ^ n).coeff x.2 =\n    ∑ j ∈ Finset.range (k + 1), (-1) ^ j * ↑(m.choose j) * ↑(n.choose (k - j))\n\nm n k : ℕ\n⊢ ∑ x ∈ Finset.antidiagonal k, ((1 - Polynomial.X) ^ m).coeff x.1 * ((1 + Polynomial.X) ^ n).coeff x.2 =\n    ∑ j ∈ Finset.range (k + 1), (-1) ^ j * ↑(m.choose j) * ↑(n.choose (k - j))\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-140ckz69/attempt-002/Candidate_1db4610b4ec2e597.lean",
+        "target_path": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-140ckz69/attempt-002/FrozenTarget_1db4610b4ec2e597.lean",
+        "feedback": "",
+        "target_sha256": "05d46ca9b70f05fdc3c48e52b4a59a1d865633b30311ab51d7d5e95803eba825",
+        "target_olean_sha256": "2fe92612b0e590841c64a46d9474b6053ca0a0122c6cac1c3d0476f023d3675b",
+        "source_sha256": "f4e4fb5b31146e66249bcca3f3fa501cfa801fb00ba9a7dce7b8e119043aaf68",
+        "olean_sha256": "06cc665708b804109d4aba86e975e9e639cc4aac5a0bd78523c126a7ee962e78",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T07:10:24.562815+00:00",
+    "work": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-140ckz69",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-140ckz69/attempt-002/Candidate_1db4610b4ec2e597.lean",
+    "environment_sha256": "69b8ae9f357f957b3c6c5eae67cfec5d4a9e291deaf16511d511f4b8f0bdcb09",
+    "artifacts": {
+      "negative_coeff": {
+        "payload": {
+          "declaration": "theorem M5.Binomial.negative_coeff : ∀ m j : ℕ, (((1 : Polynomial ℤ) - Polynomial.X) ^ m).coeff j = (-1 : ℤ) ^ j * (m.choose j : ℤ) := by\n  change ∀ m j : ℕ, (((1 : Polynomial ℤ) - Polynomial.X) ^ m).coeff j = (-1 : ℤ) ^ j * (m.choose j : ℤ)\n  intro m j\n  have h : (1 : Polynomial ℤ) - Polynomial.X =\n      Polynomial.X * Polynomial.C (-1 : ℤ) + 1 := by\n    simp\n    <;> ring\n  rw [h, add_pow, ← Polynomial.lcoeff_apply, map_sum]\n  simp only [Polynomial.lcoeff_apply, one_pow, mul_one, mul_pow,\n    ← Polynomial.C_pow, ← Polynomial.C_eq_natCast, Polynomial.coeff_mul_C]\n  rw [Finset.sum_eq_single j]\n  · simp\n  · intro i hi hij\n    simp [Polynomial.coeff_X_pow, hij, hij.symm]\n  · intro hj\n    have hmj : m < j := by\n      simp only [Finset.mem_range] at hj\n      omega\n    simp [Nat.choose_eq_zero_of_lt hmj]",
+          "imports": [
+            "M5Binomial"
+          ],
+          "name": "M5.Binomial.negative_coeff",
+          "ancestors": [],
+          "spec_sha256": "a39a6d14d9621961c8379b43204d584e681ff1b7214e86b9bc30900ba4907cfb"
+        },
+        "sha256": "afad91d9aa7d5e8ec2f97b810bfc82ef260496eacfe1bb49f59813f296b4c1b0"
+      },
+      "binomial_convolution": {
+        "payload": {
+          "declaration": "theorem M5.Binomial.binomial_convolution : ∀ m n k : ℕ, (((1 - Polynomial.X : Polynomial ℤ) ^ m) * (1 + Polynomial.X) ^ n).coeff k = ∑ j ∈ Finset.range (k + 1), (-1 : ℤ) ^ j * (m.choose j : ℤ) * (n.choose (k-j) : ℤ) := by\n  change ∀ m n k : ℕ, (((1 - Polynomial.X : Polynomial ℤ) ^ m) * (1 + Polynomial.X) ^ n).coeff k = ∑ j ∈ Finset.range (k + 1), (-1 : ℤ) ^ j * (m.choose j : ℤ) * (n.choose (k - j) : ℤ)\n  intro m n k\n  rw [Polynomial.coeff_mul, Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]\n  simp only [M5.Binomial.negative_coeff, Polynomial.coeff_one_add_X_pow]",
+          "imports": [
+            "M5Binomial"
+          ],
+          "name": "M5.Binomial.binomial_convolution",
+          "ancestors": [
+            "negative_coeff"
+          ],
+          "spec_sha256": "82c2ef26d6c6f2c400355ba8b9913497f851255ad61546b9ba784a08b8965c0a"
+        },
+        "sha256": "3927b1f0e6ab792ca1acce1d875bc7460f4c0fdf5692601d02f2cf08fe74b67f"
+      }
+    }
+  }
+}

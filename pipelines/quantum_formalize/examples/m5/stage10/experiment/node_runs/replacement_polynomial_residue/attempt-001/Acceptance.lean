@@ -1,0 +1,3 @@
+import Candidate_81b7ee1ffd663e06
+example : QuantumHarnessFrozenTarget := M5.RepairSupport.replacement_polynomial_residue
+#print axioms M5.RepairSupport.replacement_polynomial_residue

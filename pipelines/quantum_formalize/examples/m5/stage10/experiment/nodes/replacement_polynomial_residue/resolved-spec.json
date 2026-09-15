@@ -1,0 +1,14 @@
+{
+  "name": "M5.RepairSupport.replacement_polynomial_residue",
+  "statement": "∀ (A : Finset ℕ) (e k T : ℕ), e ∈ A → e + k * T ∉ A → AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofSupport (M5.RepairSupport.repaired A e (e + k * T))) = AdjoinRoot.mk (M5.cyclicModulus T) (M5.SupportPolynomial.ofSupport A)",
+  "imports": [
+    "M5QuotientMonomialPeriod",
+    "M5RepairSupport"
+  ],
+  "context": "",
+  "queries": [
+    "Finset erase insert cardinality",
+    "polynomial quotient"
+  ],
+  "guidance": "Expand the new support sum using Finset.sum_insert (freshness implies the inserted exponent is absent from A.erase e). Expand the old sum by sum_erase_add or insert_erase using e∈A. Map both finite sums and use the verified accepted stage8 quotient_monomial_period at a=e,j=k for equality of replaced monomial residues. The freshness hypothesis is essential: inserting an already present different exponent would collapse a term. Do not assume squarefreeness or exclude binary cancellation. Return only tactic lines without a leading by. Preserve the exact target."
+}

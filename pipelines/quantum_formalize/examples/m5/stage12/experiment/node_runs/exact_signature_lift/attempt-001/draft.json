@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (a b : M5.BinaryPolynomial) (T E j : ℕ), EuclideanDomain.gcd a b ∣ M5.cyclicModulus E → M5.completeSignature a b (T+j*E) = M5.completeSignature a b T\nintro a b T E j hE\nunfold M5.completeSignature\nhave hLift := M5.Lift.common_divisors_lift (a := a) (b := b) (T := T) (E := E) (j := j)\napply M5.Signature.binary_dvd_antisymm\nall_goals\n  apply EuclideanDomain.dvd_gcd\n  · exact EuclideanDomain.gcd_dvd_left _ _\n  · have hleft := EuclideanDomain.gcd_dvd_left (EuclideanDomain.gcd a b) (M5.cyclicModulus (T + j * E))\n    have hright := EuclideanDomain.gcd_dvd_right (EuclideanDomain.gcd a b) (M5.cyclicModulus (T + j * E))\n    have hleft' := EuclideanDomain.gcd_dvd_left (EuclideanDomain.gcd a b) (M5.cyclicModulus T)\n    have hright' := EuclideanDomain.gcd_dvd_right (EuclideanDomain.gcd a b) (M5.cyclicModulus T)\n    aesop",
+  "queries": [
+    "M5.Lift.common_divisors_lift",
+    "M5.completeSignature"
+  ]
+}

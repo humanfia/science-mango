@@ -1,0 +1,13 @@
+{
+  "name": "M5.Signature.ordinary_gcd_period_bound",
+  "statement": "∀ a b : M5.BinaryPolynomial, a.coeff 0 = 1 → b.coeff 0 = 1 → 0 < M5.signaturePeriod (EuclideanDomain.gcd a b) ∧ M5.signaturePeriod (EuclideanDomain.gcd a b) ≤ 2 ^ b.natDegree",
+  "imports": [
+    "M5Signature"
+  ],
+  "context": "theorem M5.Signature.binary_monic : ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic := by\n  change ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic\n  intro P hP\n  have h : ∀ c : ZMod 2, c ≠ 0 → c = 1 := by decide\n  change P.leadingCoeff = 1\n  exact h P.leadingCoeff (Polynomial.leadingCoeff_ne_zero.mpr hP)\n\ntheorem M5.Signature.divisor_constant_one : ∀ P a : M5.BinaryPolynomial, P ∣ a → a.coeff 0 = 1 → P.coeff 0 = 1 := by\n  change ∀ P a : M5.BinaryPolynomial, P ∣ a → a.coeff 0 = 1 → P.coeff 0 = 1\n  intro P a hdiv ha\n  obtain ⟨q, rfl⟩ := hdiv\n  rw [Polynomial.mul_coeff_zero] at ha\n  have h : ∀ c d : ZMod 2, c * d = 1 → c = 1 := by decide\n  exact h (P.coeff 0) (q.coeff 0) ha\n\ntheorem M5.Signature.ordinary_gcd_properties : ∀ a b : M5.BinaryPolynomial, a.coeff 0 = 1 → b.coeff 0 = 1 → (EuclideanDomain.gcd a b).Monic ∧ (EuclideanDomain.gcd a b).coeff 0 = 1 ∧ (EuclideanDomain.gcd a b).natDegree ≤ b.natDegree := by\n  change ∀ a b : M5.BinaryPolynomial, a.coeff 0 = 1 → b.coeff 0 = 1 → (EuclideanDomain.gcd a b).Monic ∧ (EuclideanDomain.gcd a b).coeff 0 = 1 ∧ (EuclideanDomain.gcd a b).natDegree ≤ b.natDegree\n  intro a b ha hb\n  have hc : (EuclideanDomain.gcd a b).coeff 0 = 1 :=\n    M5.Signature.divisor_constant_one _ a (EuclideanDomain.gcd_dvd_left a b) ha\n  have hg : EuclideanDomain.gcd a b ≠ 0 := by\n    intro h\n    simp [h] at hc\n  have hb0 : b ≠ 0 := by\n    intro h\n    simp [h] at hb\n  exact ⟨M5.Signature.binary_monic _ hg, hc,\n    Polynomial.natDegree_le_of_dvd (EuclideanDomain.gcd_dvd_right a b) hb0⟩",
+  "queries": [
+    "monic polynomial associated equality",
+    "polynomial gcd degree bound"
+  ],
+  "guidance": "Use ordinary_gcd_properties for monic/constant1/degree bound. M5.Period.period_law gives positivity; M5.Period.period_cardinality_bound gives ≤2^degreeG. Monotonicity of powers in the exponent gives the stated second-block bound. These imported period theorems are in M5Accepted. Return only tactic lines without a leading by; preserve exact target."
+}

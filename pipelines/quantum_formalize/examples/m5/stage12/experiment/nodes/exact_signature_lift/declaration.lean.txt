@@ -1,0 +1,16 @@
+theorem M5.Signature.exact_signature_lift : ∀ (a b : M5.BinaryPolynomial) (T E j : ℕ), EuclideanDomain.gcd a b ∣ M5.cyclicModulus E → M5.completeSignature a b (T+j*E) = M5.completeSignature a b T := by
+  change ∀ (a b : M5.BinaryPolynomial) (T E j : ℕ), EuclideanDomain.gcd a b ∣ M5.cyclicModulus E → M5.completeSignature a b (T+j*E) = M5.completeSignature a b T
+  intro a b T E j hE
+  unfold M5.completeSignature
+  have lift (D : M5.BinaryPolynomial) (hD : D ∣ EuclideanDomain.gcd a b) :
+      D ∣ M5.cyclicModulus (T + j * E) ↔ D ∣ M5.cyclicModulus T := by
+    first
+    | apply M5.Lift.common_divisors_lift <;> assumption
+    | symm; apply M5.Lift.common_divisors_lift <;> assumption
+  apply M5.Signature.binary_dvd_antisymm
+  · apply EuclideanDomain.dvd_gcd
+    · exact EuclideanDomain.gcd_dvd_left _ _
+    · exact (lift _ (EuclideanDomain.gcd_dvd_left _ _)).mp (EuclideanDomain.gcd_dvd_right _ _)
+  · apply EuclideanDomain.dvd_gcd
+    · exact EuclideanDomain.gcd_dvd_left _ _
+    · exact (lift _ (EuclideanDomain.gcd_dvd_left _ _)).mpr (EuclideanDomain.gcd_dvd_right _ _)

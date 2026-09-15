@@ -1,0 +1,526 @@
+[
+  {
+    "queries": [
+      "Finset erase insert cardinality",
+      "polynomial quotient"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset erase insert cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 202113,
+            "name": "Finset.erase_insert",
+            "module": "Mathlib.Data.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L134-L134",
+            "source_text": "theorem erase_insert {a : α} {s : Finset α} (h : a ∉ s) : (insert a s).erase a = s := by grind\n",
+            "docstring": null
+          },
+          {
+            "id": 203903,
+            "name": "Finset.card_insertNone",
+            "module": "Mathlib.Data.Finset.Option",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Option.lean#L81-L82",
+            "source_text": "@[simp]\ntheorem card_insertNone (s : Finset α) : s.insertNone.card = s.card + 1 := by simp [insertNone]",
+            "docstring": null
+          },
+          {
+            "id": 202332,
+            "name": "Finset.card_insert_eq_ite",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L131-L133",
+            "source_text": "/-- If `a ∈ s` is known, see also `Finset.card_insert_of_mem` and `Finset.card_insert_of_notMem`.\n-/\ntheorem card_insert_eq_ite : #(insert a s) = if a ∈ s then #s else #s + 1 := by grind\n",
+            "docstring": "If `a ∈ s` is known, see also `Finset.card_insert_of_mem` and `Finset.card_insert_of_notMem`.\n"
+          },
+          {
+            "id": 202698,
+            "name": "Finset.erase",
+            "module": "Mathlib.Data.Finset.Erase",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Erase.lean#L47-L50",
+            "source_text": "/-- `erase s a` is the set `s - {a}`, that is, the elements of `s` which are\n  not equal to `a`. -/\ndef erase (s : Finset α) (a : α) : Finset α :=\n  ⟨_, s.2.erase a⟩\n",
+            "docstring": "`erase s a` is the set `s - {a}`, that is, the elements of `s` which are\nnot equal to `a`. "
+          },
+          {
+            "id": 202116,
+            "name": "Finset.insert_erase",
+            "module": "Mathlib.Data.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Basic.lean#L142-L142",
+            "source_text": "@[simp] theorem insert_erase (h : a ∈ s) : insert a (s.erase a) = s := by grind",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset erase insert cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389551,
+            "name": "WickContraction.erase_insert",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.InsertAndContractNat",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/InsertAndContractNat.lean#L367-L412",
+            "source_text": "@[simp]\nlemma erase_insert (c : WickContraction n.succ) (i : Fin n.succ) :\n    insertAndContractNat (erase c i) i (getDualErase c i) = c := by\n  match n with\n  | 0 =>\n    apply Subtype.ext\n    simp only [Nat.succ_eq_add_one, Nat.reduceAdd, insertAndContractNat, getDualErase,\n      Finset.le_eq_subset]\n    ext a\n    simp only [Finset.mem_map, RelEmbedding.coe_toEmbedding]\n    constructor\n    · rintro ⟨a', ha', rfl⟩\n      exact (Finset.mem_filter.mp ha').2\n    · intro ha\n      obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isNone (a := a) i (by simp) ha\n      exact ⟨a', ha', rfl⟩\n  | Nat.succ n =>\n  apply Subtype.ext\n  by_cases hi : (c.getDual? i).isSome\n  · rw [insertAndContractNat_of_isSome]\n    simp only [Nat.succ_eq_add_one, getDualErase, hi, ↓reduceDIte, Option.get_some,\n      Finset.le_eq_subset]\n    rw [succsAbove_predAboveI]\n    · ext a\n      simp only [Finset.mem_insert, Finset.mem_map, RelEmbedding.coe_toEmbedding]\n      constructor\n      · rintro (rfl | ⟨a', ha', rfl⟩)\n        · simp\n        · exact (Finset.mem_filter.mp ha').2\n      · intro ha\n        by_cases hia : a = {i, (c.getDual? i).get hi}\n        · exact Or.inl hia\n        · obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isSome (a := a) i hi ha hia\n          exact Or.inr ⟨a', ha', rfl⟩\n    · simp\n    · exact (getDualErase_isSome_iff_getDual?_isSome c i).mpr hi\n  · simp only [Nat.succ_eq_add_one, insertAndContractNat, getDualErase, hi, Bool.false_eq_true,\n    ↓reduceDIte, Finset.le_eq_subset]\n    ext a\n    simp only [Finset.mem_map, RelEmbedding.coe_toEmbedding]\n    constructor\n    · rintro ⟨a', ha', rfl⟩\n      exact (Finset.mem_filter.mp ha').2\n    · intro ha\n      obtain ⟨a', ha', rfl⟩ := c.mem_not_eq_erase_of_isNone (a := a) i (by simpa using hi) ha\n      exact ⟨a', ha', rfl⟩",
+            "docstring": null
+          },
+          {
+            "id": 389108,
+            "name": "FieldStatistic.ofFinset_erase",
+            "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L74-L83",
+            "source_text": "lemma ofFinset_erase (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a : Finset (Fin φs.length))\n    (i : Fin φs.length) (h : i ∈ a) :\n    ofFinset q φs.get (a.erase i) = (q φs[i]) * ofFinset q φs.get a := by\n  have ha : a = Insert.insert i (a.erase i) := by\n    exact Eq.symm (Finset.insert_erase h)\n  conv_rhs => rw [ha]\n  rw [ofFinset_insert]\n  rw [← mul_assoc]\n  simp only [Fin.getElem_fin, mul_self, one_mul]\n  simp\n",
+            "docstring": null
+          },
+          {
+            "id": 389118,
+            "name": "Wick.koszulSignInsert_erase_boson",
+            "module": "Physlib.QFT.PerturbationTheory.Koszul.KoszulSign",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/Koszul/KoszulSign.lean#L53-L68",
+            "source_text": "lemma koszulSignInsert_erase_boson {𝓕 : Type} (q : 𝓕 → FieldStatistic)\n    (le : 𝓕 → 𝓕 → Prop) [DecidableRel le] (φ : 𝓕) :\n    (φs : List 𝓕) → (n : Fin φs.length) → (heq : q (φs.get n) = bosonic) →\n    koszulSignInsert q le φ (φs.eraseIdx n) = koszulSignInsert q le φ φs\n  | [], _, _ => by\n    simp\n  | r1 :: r, ⟨0, h⟩, hr => by\n    simp only [List.eraseIdx_zero, List.tail_cons]\n    simp only [List.length_cons, Fin.zero_eta, List.get_eq_getElem, Fin.val_zero,\n      List.getElem_cons_zero] at hr\n    rw [koszulSignInsert]\n    simp [hr]\n  | r1 :: r, ⟨n + 1, h⟩, hr => by\n    simp only [List.eraseIdx_cons_succ]\n    rw [koszulSignInsert, koszulSignInsert]\n    rw [koszulSignInsert_erase_boson q le φ r ⟨n, Nat.succ_lt_succ_iff.mp h⟩ hr]\n",
+            "docstring": null
+          },
+          {
+            "id": 386719,
+            "name": "Physlib.List.insertIdx_eraseIdx_fin",
+            "module": "Physlib.Mathematics.List.InsertIdx",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertIdx.lean#L117-L125",
+            "source_text": "lemma insertIdx_eraseIdx_fin {I : Type} :\n    (r : List I) → (k : Fin r.length) →\n    (List.eraseIdx r k).insertIdx k r[k] = r\n  | [], k => by exact Fin.elim0 k\n  | a :: as, ⟨0, h⟩ => by simp\n  | a :: as, ⟨n + 1, h⟩ => by\n    simp only [List.length_cons, Fin.getElem_fin, List.getElem_cons_succ, List.eraseIdx_cons_succ,\n      List.insertIdx_succ_cons, List.cons.injEq, true_and]\n    exact insertIdx_eraseIdx_fin as ⟨n, Nat.lt_of_succ_lt_succ h⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 389121,
+            "name": "Wick.insertIdx_eraseIdx",
+            "module": "Physlib.QFT.PerturbationTheory.Koszul.KoszulSign",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/Koszul/KoszulSign.lean#L197-L206",
+            "source_text": "lemma insertIdx_eraseIdx {I : Type} : (n : ℕ) → (r : List I) → (hn : n < r.length) →\n    List.insertIdx (r.eraseIdx n) n (r.get ⟨n, hn⟩) = r\n  | n, [], hn => by\n    simp at hn\n  | 0, r0 :: r, hn => by\n    simp\n  | n + 1, r0 :: r, hn => by\n    simp only [List.length_cons, List.get_eq_getElem, List.getElem_cons_succ,\n      List.eraseIdx_cons_succ, List.insertIdx_succ_cons, List.cons.injEq, true_and]\n    exact insertIdx_eraseIdx n r _\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial quotient",
+        "status": "ok",
+        "results": [
+          {
+            "id": 312716,
+            "name": "Polynomial.fiberEquivQuotient",
+            "module": "Mathlib.RingTheory.LocalRing.ResidueField.Polynomial",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/LocalRing/ResidueField/Polynomial.lean#L98-L119",
+            "source_text": "/-- `κ(p) ⊗[R] (R[X] ⧸ I) = κ(p)[X] / I` -/\nnoncomputable\ndef fiberEquivQuotient (f : R[X] →ₐ[R] S) (hf : Function.Surjective f) (p : Ideal R) [p.IsPrime] :\n    p.Fiber S ≃ₐ[p.ResidueField] p.ResidueField[X] ⧸\n      ((RingHom.ker (f : R[X] →+* S)).map (mapRingHom (algebraMap R p.ResidueField))) := by\n  refine .ofAlgHom (Algebra.TensorProduct.lift (Algebra.ofId _ _) (AlgHom.liftOfSurjective _ hf\n    ((Ideal.Quotient.mkₐ _ _).comp (mapAlgHom (Algebra.ofId _ _))) ?_) fun _ _ ↦ .all _ _)\n    (Ideal.Quotient.liftₐ _ (aeval (1 ⊗ₜ f .X)) ?_) ?_ ?_\n  · simp [AlgHom.comp_toRingHom, ← RingHom.comap_ker, ← Ideal.map_le_iff_le_comap]\n  · change Ideal.map _ _ ≤ RingHom.ker (aeval _).toRingHom\n    rw [Ideal.map_le_iff_le_comap, RingHom.comap_ker]\n    have : ((aeval (1 ⊗ₜ[R] f X : p.Fiber S)).restrictScalars R).comp\n        (mapAlgHom (Algebra.ofId R p.ResidueField)) =\n        Algebra.TensorProduct.includeRight.comp f := by ext; simp\n    exact .trans_eq (by intro; aesop) congr(RingHom.ker $this).symm\n  · apply Ideal.Quotient.algHom_ext\n    ext\n    simp\n  · ext x\n    obtain ⟨x, rfl⟩ := hf x\n    simpa using aeval_algHom_apply\n      ((Algebra.TensorProduct.includeRight : S →ₐ[_] p.Fiber S).comp f) X x\n",
+            "docstring": "`κ(p) ⊗[R] (R[X] ⧸ I) = κ(p)[X] / I` "
+          },
+          {
+            "id": 303641,
+            "name": "Polynomial.Monic.finite_quotient",
+            "module": "Mathlib.RingTheory.AdjoinRoot",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/AdjoinRoot.lean#L656-L659",
+            "source_text": "/-- An unwrapped version of `AdjoinRoot.finite_of_monic` for better discoverability. -/\nlemma _root_.Polynomial.Monic.finite_quotient (hg : g.Monic) :\n    Module.Finite R (R[X] ⧸ Ideal.span {g}) :=\n  hg.finite_adjoinRoot\n",
+            "docstring": "An unwrapped version of `AdjoinRoot.finite_of_monic` for better discoverability. "
+          },
+          {
+            "id": 102458,
+            "name": "Polynomial.div",
+            "module": "Mathlib.Algebra.Polynomial.FieldDivision",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/FieldDivision.lean#L310-L312",
+            "source_text": "/-- Division of polynomials. See `Polynomial.divByMonic` for more details. -/\ndef div (p q : R[X]) :=\n  C (leadingCoeff q)⁻¹ * (p /ₘ (q * C (leadingCoeff q)⁻¹))\n",
+            "docstring": "Division of polynomials. See `Polynomial.divByMonic` for more details. "
+          },
+          {
+            "id": 100884,
+            "name": "Polynomial",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L68-L76",
+            "source_text": "/-- `Polynomial R` is the type of univariate polynomials over `R`,\ndenoted as `R[X]` within the `Polynomial` namespace.\n\nPolynomials should be seen as (semi-)rings with the additional constructor `X`.\nThe embedding from `R` is called `C`. -/\n@[wikidata Q43260]\nstructure Polynomial (R : Type*) [Semiring R] where ofFinsupp ::\n  /-- The coefficients `ℕ →₀ R` of a polynomial in `R[X]`. -/\n  toFinsupp : AddMonoidAlgebra R ℕ\n",
+            "docstring": "`Polynomial R` is the type of univariate polynomials over `R`,\ndenoted as `R[X]` within the `Polynomial` namespace.\n\nPolynomials should be seen as (semi-)rings with the additional constructor `X`.\nThe embedding from `R` is called `C`. "
+          },
+          {
+            "id": 102001,
+            "name": "Polynomial.divByMonic",
+            "module": "Mathlib.Algebra.Polynomial.Div",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Div.lean#L131-L134",
+            "source_text": "/-- `divByMonic`, denoted as `p /ₘ q`, gives the quotient of `p` by a monic polynomial `q`. -/\ndef divByMonic (p q : R[X]) : R[X] :=\n  letI := Classical.decEq R\n  if hq : Monic q then (divModByMonicAux p hq).1 else 0\n",
+            "docstring": "`divByMonic`, denoted as `p /ₘ q`, gives the quotient of `p` by a monic polynomial `q`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "polynomial quotient",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset erase insert cardinality",
+      "polynomial quotient"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "Finset.gcd_insert",
+      "Nat.gcd_assoc"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.gcd_insert",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66037,
+            "name": "Finset.gcd_insert",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L151-L157",
+            "source_text": "@[simp]\ntheorem gcd_insert [DecidableEq β] {b : β} :\n    (insert b s : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) := by\n  by_cases h : b ∈ s\n  · rw [insert_eq_of_mem h,\n      (gcd_eq_right_iff (f b) (s.gcd f) (Multiset.normalize_gcd (s.1.map f))).2 (gcd_dvd h)]\n  apply fold_insert h",
+            "docstring": null
+          },
+          {
+            "id": 66030,
+            "name": "Finset.gcd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L123-L125",
+            "source_text": "/-- Greatest common divisor of a finite set -/\ndef gcd (s : Finset β) (f : β → α) : α :=\n  s.fold GCDMonoid.gcd 0 f\n",
+            "docstring": "Greatest common divisor of a finite set "
+          },
+          {
+            "id": 66036,
+            "name": "Finset.gcd_cons",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L147-L149",
+            "source_text": "theorem gcd_cons {b : β} (h : b ∉ s) :\n    (cons b s h : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) :=\n  fold_cons h\n",
+            "docstring": null
+          },
+          {
+            "id": 272377,
+            "name": "Nat.setGcd_insert_of_dvd",
+            "module": "Mathlib.NumberTheory.FrobeniusNumber",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/FrobeniusNumber.lean#L110-L112",
+            "source_text": "lemma setGcd_insert_of_dvd (h : setGcd s ∣ n) : setGcd (insert n s) = setGcd s :=\n  (setGcd_mono <| Set.subset_insert ..).antisymm <| dvd_setGcd_iff.mpr\n    fun m ↦ by rintro (rfl | hm); exacts [h, setGcd_dvd_of_mem hm]\n",
+            "docstring": null
+          },
+          {
+            "id": 66035,
+            "name": "Finset.dvd_gcd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L144-L145",
+            "source_text": "theorem dvd_gcd {a : α} : (∀ b ∈ s, a ∣ f b) → a ∣ s.gcd f :=\n  dvd_gcd_iff.2\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.gcd_insert",
+        "status": "ok",
+        "results": [
+          {
+            "id": 389767,
+            "name": "WickContraction.orderedInsert_of_fin_list_sorted",
+            "module": "Physlib.QFT.PerturbationTheory.WickContraction.UncontractedList",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/UncontractedList.lean#L119-L144",
+            "source_text": "lemma orderedInsert_of_fin_list_sorted :\n    (l : List (Fin n)) → (hl : l.Pairwise (· ≤ ·)) → (i : Fin n) →\n    List.orderedInsert (· ≤ ·) i l = l.filter (fun x => x.1 < i.1) ++\n    i :: l.filter (fun x => i.1 ≤ x.1)\n  | [], _, _ => by simp\n  | a :: l, hl, i => by\n    simp only [List.pairwise_cons] at hl\n    by_cases ha : i ≤ a\n    · simp only [List.orderedInsert_cons, ha, ↓reduceIte, Fin.val_fin_lt, decide_eq_true_eq,\n      not_lt, List.filter_cons_of_neg, Fin.val_fin_le, decide_true, List.filter_cons_of_pos]\n      have h1 : List.filter (fun x => decide (↑x < ↑i)) l = [] := by\n        simp only [List.filter_eq_nil_iff, decide_eq_true_eq, not_lt]\n        intro a ha\n        have ha' := hl.1 a ha\n        omega\n      have hl : l = List.filter (fun x => decide (i ≤ x)) l := by\n        conv_lhs => rw [fin_list_sorted_split l hl.2 i]\n        simp [h1]\n      simp [← hl, h1]\n    · simp only [List.orderedInsert_cons, ha, ↓reduceIte, Fin.val_fin_lt, Fin.val_fin_le,\n      decide_false, Bool.false_eq_true, not_false_eq_true, List.filter_cons_of_neg]\n      rw [List.filter_cons_of_pos]\n      rw [orderedInsert_of_fin_list_sorted l hl.2 i]\n      simp only [Fin.val_fin_lt, Fin.val_fin_le, List.cons_append]\n      simp only [decide_eq_true_eq]\n      omega\n",
+            "docstring": null
+          },
+          {
+            "id": 389107,
+            "name": "FieldStatistic.ofFinset_insert",
+            "module": "Physlib.QFT.PerturbationTheory.FieldStatistics.OfFinset",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldStatistics/OfFinset.lean#L56-L72",
+            "source_text": "lemma ofFinset_insert (q : 𝓕 → FieldStatistic) (φs : List 𝓕) (a : Finset (Fin φs.length))\n    (i : Fin φs.length) (h : i ∉ a) :\n    ofFinset q φs.get (Insert.insert i a) = (q φs[i]) * ofFinset q φs.get a := by\n  simp only [ofFinset, Fin.getElem_fin]\n  rw [← ofList_cons_eq_mul]\n  have h1 : (φs[↑i] :: List.map φs.get (a.sort (fun x1 x2 => x1 ≤ x2)))\n      = List.map φs.get (i :: a.sort (fun x1 x2 => x1 ≤ x2)) := by\n      simp\n  erw [h1]\n  apply ofList_perm\n  refine List.Perm.map φs.get ?_\n  refine (List.perm_ext_iff_of_nodup ?_ ?_).mpr ?_\n  · exact (Insert.insert i a).sort_nodup (fun x1 x2 => x1 ≤ x2)\n  · simp only [List.nodup_cons, Finset.mem_sort, Finset.sort_nodup, and_true]\n    exact h\n  intro a\n  simp\n",
+            "docstring": null
+          },
+          {
+            "id": 390021,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftShiftFst",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L182-L185",
+            "source_text": "/-- The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\n  to `Fin (2 * n.succ + 1)`. -/\ndef oddShiftShiftFst (j : Fin n) : Fin (2 * n.succ + 1) :=\n  Fin.cast (odd_shift_shift_eq n) (Fin.castAdd n.succ (Fin.castAdd 1 (Fin.natAdd 1 j)))\n",
+            "docstring": "The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\nto `Fin (2 * n.succ + 1)`. "
+          },
+          {
+            "id": 390015,
+            "name": "PureU1.VectorLikeOddPlane.oddShiftFst",
+            "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L144-L147",
+            "source_text": "/-- The inclusion of `Fin n` into `Fin (1 + n + n)` via the first `n`.\n  This is then casted to `Fin (2 * n + 1)`. -/\ndef oddShiftFst (j : Fin n) : Fin (2 * n + 1) :=\n  Fin.cast (odd_shift_eq n) (Fin.castAdd n (Fin.natAdd 1 j))\n",
+            "docstring": "The inclusion of `Fin n` into `Fin (1 + n + n)` via the first `n`.\nThis is then casted to `Fin (2 * n + 1)`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Nat.gcd_assoc",
+        "status": "ok",
+        "results": [
+          {
+            "id": 65878,
+            "name": "gcd_assoc",
+            "module": "Mathlib.Algebra.GCDMonoid.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L399-L405",
+            "source_text": "theorem gcd_assoc [NormalizedGCDMonoid α] (m n k : α) : gcd (gcd m n) k = gcd m (gcd n k) :=\n  dvd_antisymm_of_normalize_eq (normalize_gcd _ _) (normalize_gcd _ _)\n    (dvd_gcd ((gcd_dvd_left (gcd m n) k).trans (gcd_dvd_left m n))\n      (dvd_gcd ((gcd_dvd_left (gcd m n) k).trans (gcd_dvd_right m n)) (gcd_dvd_right (gcd m n) k)))\n    (dvd_gcd\n      (dvd_gcd (gcd_dvd_left m (gcd n k)) ((gcd_dvd_right m (gcd n k)).trans (gcd_dvd_left n k)))\n      ((gcd_dvd_right m (gcd n k)).trans (gcd_dvd_right n k)))\n",
+            "docstring": null
+          },
+          {
+            "id": 65879,
+            "name": "gcd_assoc'",
+            "module": "Mathlib.Algebra.GCDMonoid.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L407-L413",
+            "source_text": "theorem gcd_assoc' [GCDMonoid α] (m n k : α) : Associated (gcd (gcd m n) k) (gcd m (gcd n k)) :=\n  associated_of_dvd_dvd\n    (dvd_gcd ((gcd_dvd_left (gcd m n) k).trans (gcd_dvd_left m n))\n      (dvd_gcd ((gcd_dvd_left (gcd m n) k).trans (gcd_dvd_right m n)) (gcd_dvd_right (gcd m n) k)))\n    (dvd_gcd\n      (dvd_gcd (gcd_dvd_left m (gcd n k)) ((gcd_dvd_right m (gcd n k)).trans (gcd_dvd_left n k)))\n      ((gcd_dvd_right m (gcd n k)).trans (gcd_dvd_right n k)))\n",
+            "docstring": null
+          },
+          {
+            "id": 65897,
+            "name": "Associated.gcd",
+            "module": "Mathlib.Algebra.GCDMonoid.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L481-L484",
+            "source_text": "protected theorem Associated.gcd [GCDMonoid α]\n    {a₁ a₂ b₁ b₂ : α} (ha : Associated a₁ a₂) (hb : Associated b₁ b₂) :\n    Associated (gcd a₁ b₁) (gcd a₂ b₂) :=\n  associated_of_dvd_dvd (gcd_dvd_gcd ha.dvd hb.dvd) (gcd_dvd_gcd ha.dvd' hb.dvd')\n",
+            "docstring": null
+          },
+          {
+            "id": 65910,
+            "name": "Associated.gcd_eq_right",
+            "module": "Mathlib.Algebra.GCDMonoid.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L551-L554",
+            "source_text": "theorem Associated.gcd_eq_right [NormalizedGCDMonoid α] {m n : α} (h : Associated m n) (k : α) :\n    gcd k m = gcd k n :=\n  dvd_antisymm_of_normalize_eq (normalize_gcd _ _) (normalize_gcd _ _) (gcd_dvd_gcd dvd_rfl h.dvd)\n    (gcd_dvd_gcd dvd_rfl h.symm.dvd)\n",
+            "docstring": null
+          },
+          {
+            "id": 65909,
+            "name": "Associated.gcd_eq_left",
+            "module": "Mathlib.Algebra.GCDMonoid.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Basic.lean#L546-L549",
+            "source_text": "theorem Associated.gcd_eq_left [NormalizedGCDMonoid α] {m n : α} (h : Associated m n) (k : α) :\n    gcd m k = gcd n k :=\n  dvd_antisymm_of_normalize_eq (normalize_gcd _ _) (normalize_gcd _ _) (gcd_dvd_gcd h.dvd dvd_rfl)\n    (gcd_dvd_gcd h.symm.dvd dvd_rfl)\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Nat.gcd_assoc",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Finset.gcd_insert",
+      "Nat.gcd_assoc"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

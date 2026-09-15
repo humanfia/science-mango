@@ -1,0 +1,60 @@
+{
+  "id": "signed_product_split",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Binomial.signed_product_split",
+    "spec_sha256": "6f05dc85f419a1732e4e60391d03e7f04981af0d25e966302dbb175b06601a65",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-53e2k10k/attempt-001/Candidate_a41dce5eba8b27c9.lean:8:9: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  HSub ℕ (Polynomial ?m.31) (Polynomial ?m.44)\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\n/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-53e2k10k/attempt-001/Candidate_a41dce5eba8b27c9.lean:15:8: error: unsolved goals\nS : Finset ℕ\nf : ℕ → ℤ\nhf : ∀ s ∈ S, f s = 1 ∨ f s = -1\n⊢ (1 - Polynomial.X) ^ {s ∈ S | f s = -1}.card = (1 - Polynomial.X) ^ {s ∈ S | f s = -1}.card\n/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-53e2k10k/attempt-001/Candidate_a41dce5eba8b27c9.lean:23:20: error(lean.unknownIdentifier): Unknown constant `Finset.card_filter_not`\n/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-53e2k10k/attempt-001/Candidate_a41dce5eba8b27c9.lean:23:13: error: unsolved goals\nS : Finset ℕ\nf : ℕ → ℤ\nhf : ∀ s ∈ S, f s = 1 ∨ f s = -1\n⊢ (1 - Polynomial.X) ^ {s ∈ S | f s = -1}.card * (1 + Polynomial.X) ^ {s ∈ S | ¬f s = -1}.card =\n    (1 - Polynomial.X) ^ {s ∈ S | f s = -1}.card * (1 + Polynomial.X) ^ (S.card - {s ∈ S | f s = -1}.card)\n/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-53e2k10k/attempt-001/Candidate_a41dce5eba8b27c9.lean:2:73: error: unsolved goals\nS : Finset ℕ\nf : ℕ → ℤ\nhf : ∀ s ∈ S, f s = 1 ∨ f s = -1\n⊢ (∏ x ∈ S with f x = -1, (1 + Polynomial.C (f x) * Polynomial.X)) *\n      ∏ x ∈ S with ¬f x = -1, (1 + Polynomial.C (f x) * Polynomial.X) =\n    (1 - Polynomial.X) ^ {s ∈ S | f s = -1}.card * (1 + Polynomial.X) ^ (S.card - {s ∈ S | f s = -1}.card)\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-53e2k10k/attempt-002/Candidate_e603f505d963074e.lean",
+        "target_path": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-53e2k10k/attempt-002/FrozenTarget_e603f505d963074e.lean",
+        "feedback": "",
+        "target_sha256": "96437d252d84991180fb8f43d1113111fbd103f6e4b72976fc8bd634ccbeec47",
+        "target_olean_sha256": "5bd6772b7d4bd2d1cd6864192026e952a38dfce3ad07247b98f21a73a7bcdd76",
+        "source_sha256": "8981e6d8a4003208eecc4de1368a6a2181958326ff57888f16d76d94e0cbc38e",
+        "olean_sha256": "63e2b4a46ffc88a84cae779046a88033c3d586c1731f03a66a5cc7301278911e",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T07:08:50.267807+00:00",
+    "work": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-53e2k10k",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-binomial-formalization/.humanize-formal-runs/run-53e2k10k/attempt-002/Candidate_e603f505d963074e.lean",
+    "environment_sha256": "69b8ae9f357f957b3c6c5eae67cfec5d4a9e291deaf16511d511f4b8f0bdcb09",
+    "artifacts": {
+      "signed_product_split": {
+        "payload": {
+          "declaration": "theorem M5.Binomial.signed_product_split : ∀ (S : Finset ℕ) (f : ℕ → ℤ), (∀ s ∈ S, f s = 1 ∨ f s = -1) → M5.Binomial.signedProduct S f = (1 - Polynomial.X) ^ M5.Binomial.negativeCount S f * (1 + Polynomial.X) ^ (S.card - M5.Binomial.negativeCount S f) := by\n  classical\n  intro S f hf\n  unfold M5.Binomial.signedProduct M5.Binomial.negativeCount\n  rw [← Finset.prod_filter_mul_prod_filter_not S (fun s => f s = -1)]\n  have hn : (S.filter (fun s => f s = -1)).prod\n      (fun s => (1 + Polynomial.C (f s) * Polynomial.X : Polynomial ℤ)) =\n      (1 - Polynomial.X : Polynomial ℤ) ^ (S.filter (fun s => f s = -1)).card := by\n    calc\n      _ = (S.filter (fun s => f s = -1)).prod\n          (fun _ => (1 - Polynomial.X : Polynomial ℤ)) := by\n        apply Finset.prod_congr rfl\n        intro s hs\n        have h := (Finset.mem_filter.mp hs).2\n        simp [h, sub_eq_add_neg]\n      _ = _ := by simp\n  have hp : (S.filter (fun s => ¬ f s = -1)).prod\n      (fun s => (1 + Polynomial.C (f s) * Polynomial.X : Polynomial ℤ)) =\n      (1 + Polynomial.X : Polynomial ℤ) ^ (S.filter (fun s => ¬ f s = -1)).card := by\n    calc\n      _ = (S.filter (fun s => ¬ f s = -1)).prod\n          (fun _ => (1 + Polynomial.X : Polynomial ℤ)) := by\n        apply Finset.prod_congr rfl\n        intro s hs\n        obtain ⟨hs, hneg⟩ := Finset.mem_filter.mp hs\n        have hpos : f s = 1 := (hf s hs).resolve_right hneg\n        simp [hpos]\n      _ = _ := by simp\n  rw [hn, hp]\n  have hcard := Finset.card_filter_add_card_filter_not (s := S) (fun s => f s = -1)\n  have hc : (S.filter (fun s => ¬ f s = -1)).card =\n      S.card - (S.filter (fun s => f s = -1)).card := by omega\n  rw [hc]",
+          "imports": [
+            "M5Binomial"
+          ],
+          "name": "M5.Binomial.signed_product_split",
+          "ancestors": [],
+          "spec_sha256": "6f05dc85f419a1732e4e60391d03e7f04981af0d25e966302dbb175b06601a65"
+        },
+        "sha256": "b2c8d5aa6a2721bd9abead95cc5f0124e66f413273d31c48970c4dff9f74f0a2"
+      }
+    }
+  }
+}

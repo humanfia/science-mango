@@ -1,0 +1,81 @@
+{
+  "id": "ordinary_gcd_properties",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.Signature.ordinary_gcd_properties",
+    "spec_sha256": "d6fb937c0737b6ac34c45388732f748f3f6328a5d8d44f0f2a7e06eb53407184",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-kmmk30i0/attempt-001/Candidate_f90e2f25508fdcad.lean",
+        "target_path": "/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-kmmk30i0/attempt-001/FrozenTarget_f90e2f25508fdcad.lean",
+        "feedback": "",
+        "target_sha256": "411c1647fa48d142a090ce45eea0bf16f143ad555c57bec1f5124e018872a50f",
+        "target_olean_sha256": "9d99fc709f9394e94e9c28e8c7b5ec01a20fa4f8a09846a524bf58d029a960c1",
+        "source_sha256": "ef554b546edb6937a040a93d63d4db2325eb888f04bebd7622a05a31562c5eb5",
+        "olean_sha256": "e91f856f4b8cc8fe895020bdd3c01ab4e16b4e0ab6b4f9239dabe95d2dc29e3e",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:24:45.825070+00:00",
+    "work": "/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-kmmk30i0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-signature-formalization/.humanize-formal-runs/run-kmmk30i0/attempt-001/Candidate_f90e2f25508fdcad.lean",
+    "environment_sha256": "7743551517e8c37c46d66707318bbebffa15bc8ce26beafea7fa77a3ee4c4be2",
+    "artifacts": {
+      "binary_monic": {
+        "payload": {
+          "declaration": "theorem M5.Signature.binary_monic : ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic := by\n  change ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic\n  intro P hP\n  have h : ∀ c : ZMod 2, c ≠ 0 → c = 1 := by decide\n  change P.leadingCoeff = 1\n  exact h P.leadingCoeff (Polynomial.leadingCoeff_ne_zero.mpr hP)",
+          "imports": [
+            "M5Signature"
+          ],
+          "name": "M5.Signature.binary_monic",
+          "ancestors": [],
+          "spec_sha256": "b0742ccc2d3a9f0b77c3c3eba55e35dccb54d3cb410e387a82c3f5ddc2df1441"
+        },
+        "sha256": "2637e57265592ebf19a18d1b9a479eacd2707fa801029eb11851edd337ce46d1"
+      },
+      "divisor_constant_one": {
+        "payload": {
+          "declaration": "theorem M5.Signature.divisor_constant_one : ∀ P a : M5.BinaryPolynomial, P ∣ a → a.coeff 0 = 1 → P.coeff 0 = 1 := by\n  change ∀ P a : M5.BinaryPolynomial, P ∣ a → a.coeff 0 = 1 → P.coeff 0 = 1\n  intro P a hdiv ha\n  obtain ⟨q, rfl⟩ := hdiv\n  rw [Polynomial.mul_coeff_zero] at ha\n  have h : ∀ c d : ZMod 2, c * d = 1 → c = 1 := by decide\n  exact h (P.coeff 0) (q.coeff 0) ha",
+          "imports": [
+            "M5Signature"
+          ],
+          "name": "M5.Signature.divisor_constant_one",
+          "ancestors": [],
+          "spec_sha256": "5787e48714a3b089fb7667be0be7d6e1ce022ea4442ea5e54f47268cc708ac53"
+        },
+        "sha256": "31ac4bebf4de3a3f02fd57a7eb97fc688729063ec090cb66244a45a05463c217"
+      },
+      "ordinary_gcd_properties": {
+        "payload": {
+          "declaration": "theorem M5.Signature.ordinary_gcd_properties : ∀ a b : M5.BinaryPolynomial, a.coeff 0 = 1 → b.coeff 0 = 1 → (EuclideanDomain.gcd a b).Monic ∧ (EuclideanDomain.gcd a b).coeff 0 = 1 ∧ (EuclideanDomain.gcd a b).natDegree ≤ b.natDegree := by\n  change ∀ a b : M5.BinaryPolynomial, a.coeff 0 = 1 → b.coeff 0 = 1 → (EuclideanDomain.gcd a b).Monic ∧ (EuclideanDomain.gcd a b).coeff 0 = 1 ∧ (EuclideanDomain.gcd a b).natDegree ≤ b.natDegree\n  intro a b ha hb\n  have hc : (EuclideanDomain.gcd a b).coeff 0 = 1 :=\n    M5.Signature.divisor_constant_one _ a (EuclideanDomain.gcd_dvd_left a b) ha\n  have hg : EuclideanDomain.gcd a b ≠ 0 := by\n    intro h\n    simp [h] at hc\n  have hb0 : b ≠ 0 := by\n    intro h\n    simp [h] at hb\n  exact ⟨M5.Signature.binary_monic _ hg, hc,\n    Polynomial.natDegree_le_of_dvd (EuclideanDomain.gcd_dvd_right a b) hb0⟩",
+          "imports": [
+            "M5Signature"
+          ],
+          "name": "M5.Signature.ordinary_gcd_properties",
+          "ancestors": [
+            "binary_monic",
+            "divisor_constant_one"
+          ],
+          "spec_sha256": "36b5548b09848372f84c96c367b1712a31304b08da19e87e041fd59750775278"
+        },
+        "sha256": "e65744f9e6739bd87e30c8851e7792fcea771efded9000b793093363fbaff2f7"
+      }
+    }
+  }
+}

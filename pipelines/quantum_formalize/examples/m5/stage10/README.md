@@ -1,0 +1,11 @@
+# Stage 10: replace one physical support exponent
+
+Reviewed M5 section 5 changes one positive exponent e of the first block to q=e+k*T, beyond the previous packing bound. The literal finite support operation here is insert q (A.erase e). No distinctness condition on a source residue tuple is introduced.
+
+Six targets establish preservation of cardinality under e∈A and q∉A, preservation of zero when e≠0, the support range, the exact combined gcd identity, the gcd-one consequence, and preservation of the binary polynomial residue. The combined gcd is Nat.gcd (A.gcd id) (B.gcd id); after replacement its value is gcd q δ for δ=gcd ((A.erase e).gcd id) (B.gcd id). Thus the previous CRT result gcd δ q=1 can discharge the final integer gcd condition. Deriving δ>0 and its bound from a packed second block remains an integration obligation, not an assumption silently proved here.
+
+The last polynomial target needs e∈A and q∉A. Freshness is mathematically necessary for the finite-sum argument: inserting a different already-present exponent would collapse a term. The natural source guarantees freshness through its range estimates, which will be connected subsequently. Equality is stated in the full quotient by X^T+1, retaining multiplicities and characteristic-two cancellation.
+
+The polynomial node now imports the accepted stage8 M5.SupportPolynomial.quotient_monomial_period through M5QuotientMonomialPeriod. Its acceptance receipt, payload digest, candidate and frozen-target source hashes, both compiled hashes, axiom list, proof body and target identity were verified; it has no theorem ancestors. DEPENDENCY_IMPORT.json and quotient_monomial_period.receipt.json record provenance. The actual declaration is unchanged, rebuilt against the byte-identical shared definitions documented in DEFINITION_PROVENANCE.json. Original graph/preflight are preserved with before_dependency_import suffixes, and all six target statements are unchanged.
+
+The independent project is /home/jing/m5-lean-repair-support-formalization. All contexts are empty. GraphPreflight.lean is generated directly from decoded graph imports and statement strings, with no auxiliary scope commands. Typechecking is not proof acceptance. Full M5 completion is not claimed.

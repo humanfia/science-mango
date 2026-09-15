@@ -1,0 +1,11 @@
+∀ (P : M5.BinaryPolynomial) (hP : Polynomial.Monic P) (z : AdjoinRoot P),
+  (M5.QuotientCharacter.coordinates P hP) z = 0 ↔ z = 0 : Prop
+∀ (P : M5.BinaryPolynomial) (hP : Polynomial.Monic P) (lam : M5.Character.BinaryVector (Polynomial.natDegree P))
+  (z u : AdjoinRoot P),
+  M5.QuotientCharacter.value P hP lam (z + u) =
+    M5.QuotientCharacter.value P hP lam z * M5.QuotientCharacter.value P hP lam u : Prop
+∀ (P : M5.BinaryPolynomial) (hP : Polynomial.Monic P) (z : AdjoinRoot P),
+  ∑ lam, M5.QuotientCharacter.value P hP lam z = if z = 0 then 2 ^ Polynomial.natDegree P else 0 : Prop
+∀ (P : M5.BinaryPolynomial) (hP : Polynomial.Monic P) (n : ℕ) (f : Fin n → AdjoinRoot P) (z : AdjoinRoot P),
+  ∑ lam, M5.QuotientCharacter.value P hP lam z * ∑ u, M5.QuotientCharacter.value P hP lam (f u) =
+    2 ^ Polynomial.natDegree P * ↑{u | f u = z}.card : Prop

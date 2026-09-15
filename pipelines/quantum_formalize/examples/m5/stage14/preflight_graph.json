@@ -1,0 +1,164 @@
+{
+  "title": "M5 stage14: subset generating polynomial character count",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Five symbolic subset counting targets; quotient transport and closed binomial evaluation remain separate",
+  "nodes": [
+    {
+      "id": "value_zero",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.SubsetCharacter.value_zero",
+        "statement": "∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1",
+        "imports": [
+          "M5SubsetCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Finset prod_one_add",
+          "polynomial coefficient sum"
+        ],
+        "guidance": "Unfold value and bitSign; every product factor is one. This auxiliary is local to this independent experiment and does not depend on stage15. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "fixed_cardinality_subset_character_count",
+        "imported_dependencies": [],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "character_subset_sum",
+      "dependencies": [
+        "value_zero"
+      ],
+      "spec": {
+        "name": "M5.SubsetCharacter.character_subset_sum",
+        "statement": "∀ (D : ℕ) (U : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.SubsetCharacter.vectorSum U f) = ∏ s ∈ U, M5.Character.value lam (f s)",
+        "imports": [
+          "M5SubsetCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Finset prod_one_add",
+          "polynomial coefficient sum"
+        ],
+        "guidance": "Induct on finite set U. Empty sum uses value_zero; insertion uses Finset.sum_insert, Finset.prod_insert and accepted character_add. This keeps arbitrary vector coincidences and binary cancellations. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "fixed_cardinality_subset_character_count",
+        "imported_dependencies": [
+          "M5.Character.character_add"
+        ],
+        "dependency_declarations": [
+          "M5.SubsetCharacter.value_zero"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "signed_product_expansion",
+      "dependencies": [
+        "character_subset_sum"
+      ],
+      "spec": {
+        "name": "M5.SubsetCharacter.signed_product_expansion",
+        "statement": "∀ (D : ℕ) (S : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s)) = ∑ U ∈ S.powerset, Polynomial.C (M5.Character.value lam (M5.SubsetCharacter.vectorSum U f)) * (Polynomial.X : Polynomial ℤ) ^ U.card",
+        "imports": [
+          "M5SubsetCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Finset prod_one_add",
+          "polynomial coefficient sum"
+        ],
+        "guidance": "Unfold signedProduct and apply Finset.prod_one_add to factors C(value lam(f s))*X. For each subset U, distribute the product, use Polynomial.C as a multiplicative map, and the product of constant X factors is X^U.card. Rewrite the product of character values using character_subset_sum. Polynomial identity over integers, including empty S. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "fixed_cardinality_subset_character_count",
+        "imported_dependencies": [],
+        "dependency_declarations": [
+          "M5.SubsetCharacter.character_subset_sum"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "signed_product_coefficient",
+      "dependencies": [
+        "signed_product_expansion"
+      ],
+      "spec": {
+        "name": "M5.SubsetCharacter.signed_product_coefficient",
+        "statement": "∀ (D : ℕ) (S : Finset ℕ) (k : ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), (M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s))).coeff k = ∑ U ∈ S.powersetCard k, M5.Character.value lam (M5.SubsetCharacter.vectorSum U f)",
+        "imports": [
+          "M5SubsetCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Finset prod_one_add",
+          "polynomial coefficient sum"
+        ],
+        "guidance": "Take coeff k of signed_product_expansion. Polynomial.coeff_C_mul_X_pow gives an indicator of U.card=k. Finset.powersetCard_eq_filter and Finset.sum_filter identify the resulting sum. No assumption k≤S.card: the right side is empty and both sides zero when k is too large. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "fixed_cardinality_subset_character_count",
+        "imported_dependencies": [],
+        "dependency_declarations": [
+          "M5.SubsetCharacter.signed_product_expansion"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "subset_character_count",
+      "dependencies": [
+        "signed_product_coefficient"
+      ],
+      "spec": {
+        "name": "M5.SubsetCharacter.subset_character_count",
+        "statement": "∀ (D : ℕ) (S : Finset ℕ) (k : ℕ) (f : ℕ → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * (M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s))).coeff k) = (2 : ℤ) ^ D * (M5.SubsetCharacter.count S k f z : ℤ)",
+        "imports": [
+          "M5SubsetCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Finset prod_one_add",
+          "polynomial coefficient sum"
+        ],
+        "guidance": "Rewrite signed_product_coefficient, distribute multiplication and swap finite sums. Combine characters using accepted character_add, then apply character_orthogonality. Pointwise characteristic two proves z+vectorSum U f=0 iff vectorSum U f=z. Filter indicators turn the remaining sum into count. Preserve the 2^D-scaled integer identity and all empty cases; no rational division or binomial evaluation needed here. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "fixed_cardinality_subset_character_count",
+        "imported_dependencies": [
+          "M5.Character.character_add",
+          "M5.Character.character_orthogonality"
+        ],
+        "dependency_declarations": [
+          "M5.SubsetCharacter.signed_product_coefficient"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

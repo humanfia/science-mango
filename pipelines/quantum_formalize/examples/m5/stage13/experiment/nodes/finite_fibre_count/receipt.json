@@ -1,0 +1,54 @@
+{
+  "id": "finite_fibre_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.QuotientCharacter.finite_fibre_count",
+    "spec_sha256": "27befe889df1c8e28171ba6a162a5ea8d919d927ecb2b1ca3c48ccaf7835b97e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-quotient-character-formalization/.humanize-formal-runs/run-2xctczq1/attempt-001/Candidate_ccc5134a7b4d49c9.lean",
+        "target_path": "/home/jing/m5-lean-quotient-character-formalization/.humanize-formal-runs/run-2xctczq1/attempt-001/FrozenTarget_ccc5134a7b4d49c9.lean",
+        "feedback": "",
+        "target_sha256": "38f8df9f0d65acca1140220e8057b644b6529f0149092c3a5525c0ea644b7f29",
+        "target_olean_sha256": "0de4fb47dcbcb99e5db6746cb68000d1538d6ab359201057432b086da36070e7",
+        "source_sha256": "b13897b6acd16b6fb45e8bed1111ad22b6b4d0275cbc7d1473b6aeb73fe1db1e",
+        "olean_sha256": "3a4c71f677682a4bd578459342159e0f3073bcdf48e1ccc7ef75cb72c58ef251",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:24:40.943709+00:00",
+    "work": "/home/jing/m5-lean-quotient-character-formalization/.humanize-formal-runs/run-2xctczq1",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-quotient-character-formalization/.humanize-formal-runs/run-2xctczq1/attempt-001/Candidate_ccc5134a7b4d49c9.lean",
+    "environment_sha256": "6b19bafd6fe1ef665613d8dae8ca15f8823081abb599163e7959f4b75b48ae42",
+    "artifacts": {
+      "finite_fibre_count": {
+        "payload": {
+          "declaration": "theorem M5.QuotientCharacter.finite_fibre_count : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (n : ℕ) (f : Fin n → AdjoinRoot P) (z : AdjoinRoot P), (∑ lam : M5.Character.BinaryVector P.natDegree, M5.QuotientCharacter.value P hP lam z * ∑ u : Fin n, M5.QuotientCharacter.value P hP lam (f u)) = (2 : ℤ) ^ P.natDegree * ((Finset.univ.filter (fun u : Fin n => f u = z)).card : ℤ) := by\n  classical\n  intro P hP n f z\n  have hfilter :\n      (Finset.univ.filter (fun u : Fin n =>\n        M5.QuotientCharacter.coordinates P hP (f u) =\n          M5.QuotientCharacter.coordinates P hP z)) =\n      (Finset.univ.filter (fun u : Fin n => f u = z)) := by\n    apply Finset.filter_congr\n    intro u hu\n    exact (M5.QuotientCharacter.coordinates P hP).injective.eq_iff\n  rw [← hfilter]\n  unfold M5.QuotientCharacter.value\n  apply M5.Character.finite_fibre_count",
+          "imports": [
+            "M5QuotientCharacter"
+          ],
+          "name": "M5.QuotientCharacter.finite_fibre_count",
+          "ancestors": [],
+          "spec_sha256": "27befe889df1c8e28171ba6a162a5ea8d919d927ecb2b1ca3c48ccaf7835b97e"
+        },
+        "sha256": "705706c860cff14c5a4cf8a8f3e8364c3278c9b39ee5c989a32a375844578226"
+      }
+    }
+  }
+}

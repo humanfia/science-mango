@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro P hP n f z\nhave hfilter :\n    (Finset.univ.filter (fun u : Fin n =>\n      M5.QuotientCharacter.coordinates P hP (f u) =\n        M5.QuotientCharacter.coordinates P hP z)) =\n    (Finset.univ.filter (fun u : Fin n => f u = z)) := by\n  apply Finset.filter_congr\n  intro u hu\n  exact (M5.QuotientCharacter.coordinates P hP).injective.eq_iff\nrw [← hfilter]\nunfold M5.QuotientCharacter.value\napply M5.Character.finite_fibre_count",
+  "queries": [
+    "M5.QuotientCharacter.coordinates",
+    "M5.QuotientCharacter.value",
+    "M5.Character.finite_fibre_count"
+  ]
+}

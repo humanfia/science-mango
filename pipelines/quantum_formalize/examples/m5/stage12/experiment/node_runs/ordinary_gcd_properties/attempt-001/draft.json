@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ a b : M5.BinaryPolynomial, a.coeff 0 = 1 → b.coeff 0 = 1 → (EuclideanDomain.gcd a b).Monic ∧ (EuclideanDomain.gcd a b).coeff 0 = 1 ∧ (EuclideanDomain.gcd a b).natDegree ≤ b.natDegree\nintro a b ha hb\nhave hc : (EuclideanDomain.gcd a b).coeff 0 = 1 :=\n  M5.Signature.divisor_constant_one _ a (EuclideanDomain.gcd_dvd_left a b) ha\nhave hg : EuclideanDomain.gcd a b ≠ 0 := by\n  intro h\n  simp [h] at hc\nhave hb0 : b ≠ 0 := by\n  intro h\n  simp [h] at hb\nexact ⟨M5.Signature.binary_monic _ hg, hc,\n  Polynomial.natDegree_le_of_dvd (EuclideanDomain.gcd_dvd_right a b) hb0⟩",
+  "queries": []
+}

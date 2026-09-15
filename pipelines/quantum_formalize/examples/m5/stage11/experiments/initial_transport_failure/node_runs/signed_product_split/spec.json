@@ -1,0 +1,13 @@
+{
+  "name": "M5.Binomial.signed_product_split",
+  "statement": "∀ (S : Finset ℕ) (f : ℕ → ℤ), (∀ s ∈ S, f s = 1 ∨ f s = -1) → M5.Binomial.signedProduct S f = (1 - Polynomial.X) ^ M5.Binomial.negativeCount S f * (1 + Polynomial.X) ^ (S.card - M5.Binomial.negativeCount S f)",
+  "imports": [
+    "M5Binomial"
+  ],
+  "context": "",
+  "queries": [
+    "polynomial binomial coefficient power",
+    "finite product filter"
+  ],
+  "guidance": "Split product with Finset.prod_filter_mul_prod_filter_not at predicate f s=-1. On negative filter each factor is 1-X; on complement supplied sign hypothesis makes each factor 1+X. Products of constants are powers, and Finset.card_filter_not gives complement count as S.card-negativeCount. Empty S is included. Return only tactic lines without a leading by. Preserve exact target."
+}

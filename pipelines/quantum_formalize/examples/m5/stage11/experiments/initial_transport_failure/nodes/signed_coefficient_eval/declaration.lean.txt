@@ -1,0 +1,5 @@
+theorem M5.Binomial.signed_coefficient_eval : ∀ (S : Finset ℕ) (f : ℕ → ℤ) (k : ℕ), (∀ s ∈ S, f s = 1 ∨ f s = -1) → (M5.Binomial.signedProduct S f).coeff k = ∑ j ∈ Finset.range (k + 1), (-1 : ℤ) ^ j * ((M5.Binomial.negativeCount S f).choose j : ℤ) * ((S.card - M5.Binomial.negativeCount S f).choose (k-j) : ℤ) := by
+  unfold QuantumHarnessFrozenTarget
+  intro S f k hf
+  rw [M5.Binomial.signed_product_split S f hf]
+  exact M5.Binomial.binomial_convolution (M5.Binomial.negativeCount S f) (S.card - M5.Binomial.negativeCount S f) k

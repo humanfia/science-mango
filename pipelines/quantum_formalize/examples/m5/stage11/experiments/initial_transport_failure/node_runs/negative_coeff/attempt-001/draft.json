@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ m j : ℕ, (((1 : Polynomial ℤ) - Polynomial.X) ^ m).coeff j = (-1 : ℤ) ^ j * (m.choose j : ℤ)\nintro m j\nhave h : (1 : Polynomial ℤ) - Polynomial.X =\n    Polynomial.X * Polynomial.C (-1 : ℤ) + 1 := by\n  simp\n  <;> ring\nrw [h, add_pow, ← Polynomial.lcoeff_apply, map_sum]\nsimp only [Polynomial.lcoeff_apply, one_pow, mul_one, mul_pow,\n  ← Polynomial.C_pow, ← Polynomial.C_eq_natCast, Polynomial.coeff_mul_C]\nrw [Finset.sum_eq_single j]\n· simp\n· intro i hi hij\n  simp [Polynomial.coeff_X_pow, hij, hij.symm]\n· intro hj\n  have hmj : m < j := by\n    simp only [Finset.mem_range] at hj\n    omega\n  simp [Nat.choose_eq_zero_of_lt hmj]",
+  "queries": [
+    "Polynomial.lcoeff_apply Polynomial.coeff_mul_C",
+    "add_pow Finset.sum_eq_single"
+  ]
+}

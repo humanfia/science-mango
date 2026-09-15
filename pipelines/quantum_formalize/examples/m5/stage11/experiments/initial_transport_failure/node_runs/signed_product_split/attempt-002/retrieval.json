@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Binomial.signedProduct M5.Binomial.negativeCount",
+    "status": "ok",
+    "results": [
+      {
+        "id": 300348,
+        "name": "PMF.binomial",
+        "module": "Mathlib.Probability.ProbabilityMassFunction.Binomial",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/ProbabilityMassFunction/Binomial.lean#L28-L41",
+        "source_text": "/-- The binomial `PMF`: the probability of observing exactly `i` “heads” in a sequence of `n`\nindependent coin tosses, each having probability `p` of coming up “heads”. -/\n@[deprecated ProbabilityTheory.binomial (since := \"2026-04-07\")]\ndef binomial (p : ℝ≥0) (h : p ≤ 1) (n : ℕ) : PMF (Fin (n + 1)) :=\n  .ofFintype (fun i =>\n      ↑(p ^ (i : ℕ) * (1 - p) ^ ((Fin.last n - i) : ℕ) * (n.choose i : ℕ))) (by\n    norm_cast\n    convert! (add_pow p (1 - p) n).symm\n    · rw [Finset.sum_fin_eq_sum_range]\n      apply Finset.sum_congr rfl\n      intro i hi\n      rw [Finset.mem_range] at hi\n      rw [dif_pos hi]\n    · rw [add_tsub_cancel_of_le (mod_cast h), one_pow])\n",
+        "docstring": "The binomial `PMF`: the probability of observing exactly `i` “heads” in a sequence of `n`\nindependent coin tosses, each having probability `p` of coming up “heads”. "
+      },
+      {
+        "id": 304584,
+        "name": "Ring.choose_neg'",
+        "module": "Mathlib.RingTheory.Binomial",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Binomial.lean#L442-L444",
+        "source_text": "theorem choose_neg' [NatPowAssoc R] (r : R) (n : ℕ) :\n    choose (-r) n = Int.negOnePow n • multichoose r n := by\n  rw [choose_neg, multichoose_eq]\n",
+        "docstring": null
+      },
+      {
+        "id": 304583,
+        "name": "Ring.choose_neg",
+        "module": "Mathlib.RingTheory.Binomial",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Binomial.lean#L435-L440",
+        "source_text": "theorem choose_neg [NatPowAssoc R] (r : R) (n : ℕ) :\n    choose (-r) n = Int.negOnePow n • choose (r + n - 1) n := by\n  apply (nsmul_right_inj (Nat.factorial_ne_zero n)).mp\n  rw [← descPochhammer_eq_factorial_smul_choose, smul_comm,\n    ← descPochhammer_eq_factorial_smul_choose, descPochhammer_smeval_eq_ascPochhammer,\n    show (-r - n + 1) = -(r + n - 1) by abel, ascPochhammer_smeval_neg_eq_descPochhammer]\n",
+        "docstring": null
+      },
+      {
+        "id": 304538,
+        "name": "BinomialRing",
+        "module": "Mathlib.RingTheory.Binomial",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Binomial.lean#L72-L84",
+        "source_text": "/-- A binomial ring is a ring for which ascending Pochhammer evaluations are uniquely divisible by\nsuitable factorials. We define this notion as a mixin for additive commutative monoids with natural\nnumber powers, but retain the ring name. We introduce `Ring.multichoose` as the uniquely defined\nquotient. -/\nclass BinomialRing (R : Type*) [AddCommMonoid R] [Pow R ℕ] where\n  -- This base class has been demoted to a field, to avoid creating\n  -- an expensive global instance.\n  [toIsAddTorsionFree : IsAddTorsionFree R]\n  /-- A multichoose function, giving the quotient of Pochhammer evaluations by factorials. -/\n  multichoose : R → ℕ → R\n  /-- The `n`th ascending Pochhammer polynomial evaluated at any element is divisible by `n!` -/\n  factorial_nsmul_multichoose (r : R) (n : ℕ) :\n    n.factorial • multichoose r n = (ascPochhammer ℕ n).smeval r\n",
+        "docstring": "A binomial ring is a ring for which ascending Pochhammer evaluations are uniquely divisible by\nsuitable factorials. We define this notion as a mixin for additive commutative monoids with natural\nnumber powers, but retain the ring name. We introduce `Ring.multichoose` as the uniquely defined\nquotient. "
+      },
+      {
+        "id": 228740,
+        "name": "signedDist",
+        "module": "Mathlib.Geometry.Euclidean.SignedDist",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Geometry/Euclidean/SignedDist.lean#L42-L58",
+        "source_text": "/--\nThe signed distance between two points `p` and `q`, in the direction of a reference vector `v`.\nIt is the size of `q - p` in the direction of `v`.\nIn the degenerate case `v = 0`, it returns `0`.\n\nTODO: once we have a topology on `P →ᴬ[ℝ] ℝ`, the type should be `P →ᴬ[ℝ] P →ᴬ[ℝ] ℝ`.\n-/\nnoncomputable def signedDist (v : V) : P →ᵃ[ℝ] P →ᴬ[ℝ] ℝ where\n  toFun p := (innerSL ℝ (normalize v)).toContinuousAffineMap.comp\n    (ContinuousAffineMap.id ℝ P -ᵥ .const ℝ P p)\n  linear := {\n    toFun w := .const ℝ P ⟪-normalize v, w⟫\n    map_add' x y := by ext; simp [inner_add_right]\n    map_smul' r x := by ext; simp [inner_smul_right] }\n  map_vadd' p v' := by\n    ext q\n    simp [vsub_vadd_eq_vsub_sub, inner_sub_right, ← sub_eq_neg_add]\n",
+        "docstring": "The signed distance between two points `p` and `q`, in the direction of a reference vector `v`.\nIt is the size of `q - p` in the direction of `v`.\nIn the degenerate case `v = 0`, it returns `0`.\n\nTODO: once we have a topology on `P →ᴬ[ℝ] ℝ`, the type should be `P →ᴬ[ℝ] P →ᴬ[ℝ] ℝ`.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.prod_filter_mul_prod_filter_not",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58051,
+        "name": "Finset.prod_filter_mul_prod_filter_not",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L143-L148",
+        "source_text": "@[to_additive]\ntheorem prod_filter_mul_prod_filter_not\n    (s : Finset ι) (p : ι → Prop) [DecidablePred p] [∀ x, Decidable (¬p x)] (f : ι → M) :\n    (∏ x ∈ s with p x, f x) * ∏ x ∈ s with ¬p x, f x = ∏ x ∈ s, f x := by\n  have := Classical.decEq ι\n  rw [← prod_union (disjoint_filter_filter_not s s p), filter_union_filter_not_eq]",
+        "docstring": null
+      },
+      {
+        "id": 202717,
+        "name": "Finset.filter",
+        "module": "Mathlib.Data.Finset.Filter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L48-L53",
+        "source_text": "/-- `Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). -/\ndef filter (s : Finset α) : Finset α :=\n  ⟨_, s.2.filter p⟩\n",
+        "docstring": "`Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). "
+      },
+      {
+        "id": 58053,
+        "name": "Finset.prod_filter_not_mul_prod_filter",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L150-L154",
+        "source_text": "@[to_additive]\nlemma prod_filter_not_mul_prod_filter (s : Finset ι) (p : ι → Prop) [DecidablePred p]\n    [∀ x, Decidable (¬p x)] (f : ι → M) :\n    (∏ x ∈ s with ¬p x, f x) * ∏ x ∈ s with p x, f x = ∏ x ∈ s, f x := by\n  rw [mul_comm, prod_filter_mul_prod_filter_not]",
+        "docstring": null
+      },
+      {
+        "id": 58103,
+        "name": "Finset.prod_filter",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L324-L333",
+        "source_text": "@[to_additive]\ntheorem prod_filter (p : ι → Prop) [DecidablePred p] (f : ι → M) :\n    ∏ a ∈ s with p a, f a = ∏ a ∈ s, if p a then f a else 1 :=\n  calc\n    ∏ a ∈ s with p a, f a = ∏ a ∈ s with p a, if p a then f a else 1 :=\n      prod_congr rfl fun a h => by rw [if_pos]; simpa using (mem_filter.1 h).2\n    _ = ∏ a ∈ s, if p a then f a else 1 := by\n      { refine prod_subset (filter_subset _ s) fun x hs h => ?_\n        rw [mem_filter, not_and] at h\n        exact if_neg (by simpa using h hs) }",
+        "docstring": null
+      },
+      {
+        "id": 202725,
+        "name": "Finset.filter_filter",
+        "module": "Mathlib.Data.Finset.Filter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L137-L138",
+        "source_text": "theorem filter_filter (s : Finset α) : (s.filter p).filter q = s.filter fun a => p a ∧ q a := by\n  grind\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.card_filter_not",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58548,
+        "name": "Finset.card_filter",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Piecewise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Piecewise.lean#L277-L278",
+        "source_text": "lemma card_filter (p) [DecidablePred p] (s : Finset ι) :\n    #{i ∈ s | p i} = ∑ i ∈ s, ite (p i) 1 0 := by simp [sum_ite]\n",
+        "docstring": null
+      },
+      {
+        "id": 202419,
+        "name": "Finset.card_filter_add_card_filter_not",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L643-L647",
+        "source_text": "theorem card_filter_add_card_filter_not\n    (p : α → Prop) [DecidablePred p] [∀ x, Decidable (¬p x)] :\n    #(s.filter p) + #(s.filter fun a ↦ ¬ p a) = #s := by\n  classical\n  rw [← card_union_of_disjoint (disjoint_filter_filter_not _ _ _), filter_union_filter_not_eq]\n",
+        "docstring": null
+      },
+      {
+        "id": 202306,
+        "name": "Finset.card",
+        "module": "Mathlib.Data.Finset.Card",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+        "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+        "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+      },
+      {
+        "id": 205958,
+        "name": "Mathlib.Meta.delabFinsetFilter",
+        "module": "Mathlib.Data.Fintype.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Defs.lean#L170-L196",
+        "source_text": "/-- Delaborator for `Finset.filter`. The `pp.funBinderTypes` option controls whether\nto show the domain type when the filter is over `Finset.univ`. -/\n@[app_delab Finset.filter] meta def delabFinsetFilter : Delab :=\n  whenPPOption getPPNotation do\n  let #[_, p, _, t] := (← getExpr).getAppArgs | failure\n  guard p.isLambda\n  let i ← withNaryArg 1 <| withBindingBodyUnusedName (pure ⟨·⟩)\n  let p ← withNaryArg 1 <| withBindingBody i.getId delab\n  if t.isAppOfArity ``Finset.univ 2 then\n    if ← getPPOption getPPFunBinderTypes then\n      let ty ← withNaryArg 0 delab\n      `({$i:ident : $ty | $p})\n    else\n      `({$i:ident | $p})\n  -- check if `t` is of the form `s₀ᶜ`, in which case we display `x ∉ s₀` instead\n  else if t.isAppOfArity ``Compl.compl 3 then\n    let #[_, _, s₀] := t.getAppArgs | failure\n    -- if `s₀` is a singleton, we can even use the notation `x ≠ a`\n    if s₀.isAppOfArity ``Singleton.singleton 4 then\n      let t ← withNaryArg 3 <| withNaryArg 2 <| withNaryArg 3 delab\n      `({$i:ident ≠ $t | $p})\n    else\n      let t ← withNaryArg 3 <| withNaryArg 2 delab\n      `({$i:ident ∉ $t | $p})\n  else\n    let t ← withNaryArg 3 delab\n    `({$i:ident ∈ $t | $p})\n",
+        "docstring": "Delaborator for `Finset.filter`. The `pp.funBinderTypes` option controls whether\nto show the domain type when the filter is over `Finset.univ`. "
+      },
+      {
+        "id": 284287,
+        "name": "Finset.eventually_cocardinal_notMem",
+        "module": "Mathlib.Order.Filter.Cocardinal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Cocardinal.lean#L95-L97",
+        "source_text": "theorem _root_.Finset.eventually_cocardinal_notMem (s : Finset α) :\n    ∀ᶠ x in cocardinal α hreg, x ∉ s :=\n  eventually_cocardinal_notMem_of_card_lt <| (finset_card_lt_aleph0 s).trans_le (hreg.aleph0_le)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

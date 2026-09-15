@@ -1,0 +1,14 @@
+{
+  "name": "M5.RepairSupport.replacement_combined_gcd",
+  "statement": "∀ (A B : Finset ℕ) (e q : ℕ), M5.RepairSupport.combinedGcd (M5.RepairSupport.repaired A e q) B = Nat.gcd q (Nat.gcd ((A.erase e).gcd id) (B.gcd id))",
+  "imports": [
+    "M5QuotientMonomialPeriod",
+    "M5RepairSupport"
+  ],
+  "context": "",
+  "queries": [
+    "Finset erase insert cardinality",
+    "polynomial quotient"
+  ],
+  "guidance": "Unfold combinedGcd and repaired. Finset.gcd_insert gives gcd of q and the erased support gcd, with id q=q. Reassociate using Nat.gcd_assoc. Gcd insertion is idempotent, so this identity requires neither membership nor freshness. Return only tactic lines without a leading by. Preserve the exact target."
+}

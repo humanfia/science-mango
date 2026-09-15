@@ -1,0 +1,61 @@
+{
+  "id": "replacement_combined_gcd",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.RepairSupport.replacement_combined_gcd",
+    "spec_sha256": "0903aa36f1f2e0237ccf8c4f52be0c26254c6b3e1359266e17bf1f2de09e3de2",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-hl6jten5/attempt-001/Candidate_d4f6eab3a47dae97.lean:2:82: error: unsolved goals\nA B : Finset ℕ\ne q : ℕ\n⊢ (gcd q ((A.erase e).gcd id)).gcd (B.gcd id) = q.gcd (((A.erase e).gcd id).gcd (B.gcd id))\n/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-hl6jten5/attempt-001/Candidate_d4f6eab3a47dae97.lean:4:84: warning: This simp argument is unused:\n  Nat.gcd_assoc\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.RepairSupport.combinedGcd, M5.RepairSupport.repaired, Finset.gcd_insert]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-hl6jten5/attempt-002/Candidate_165878b43635e40d.lean",
+        "target_path": "/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-hl6jten5/attempt-002/FrozenTarget_165878b43635e40d.lean",
+        "feedback": "",
+        "target_sha256": "26f756bba5ef2058452ce9647f70a9e4cf26bcee1e575dfd74ac302df322b18c",
+        "target_olean_sha256": "115d9e6f298559ace5844559995bca45949afbaf2cdec76b0d0100ca350439dc",
+        "source_sha256": "fd92379188b184cbe58fe8170f33230d01aa1974ebbcb67e4932e01a5d111bc6",
+        "olean_sha256": "1f826c40654813ae76a94e626f3f0f54f4aec61ebb8e0449c9f3f38ba09b1d3a",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T07:11:44.585548+00:00",
+    "work": "/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-hl6jten5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-hl6jten5/attempt-002/Candidate_165878b43635e40d.lean",
+    "environment_sha256": "226c28232781e7c20592d4adda0792547b6bb0c11cef9b17f4bdbb933702cdb6",
+    "artifacts": {
+      "replacement_combined_gcd": {
+        "payload": {
+          "declaration": "theorem M5.RepairSupport.replacement_combined_gcd : ∀ (A B : Finset ℕ) (e q : ℕ), M5.RepairSupport.combinedGcd (M5.RepairSupport.repaired A e q) B = Nat.gcd q (Nat.gcd ((A.erase e).gcd id) (B.gcd id)) := by\n  intro A B e q\n  unfold M5.RepairSupport.combinedGcd M5.RepairSupport.repaired\n  rw [Finset.gcd_insert]\n  change Nat.gcd (Nat.gcd q ((A.erase e).gcd id)) (B.gcd id) = Nat.gcd q (Nat.gcd ((A.erase e).gcd id) (B.gcd id))\n  exact Nat.gcd_assoc q ((A.erase e).gcd id) (B.gcd id)",
+          "imports": [
+            "M5QuotientMonomialPeriod",
+            "M5RepairSupport"
+          ],
+          "name": "M5.RepairSupport.replacement_combined_gcd",
+          "ancestors": [],
+          "spec_sha256": "2858ceea6d9bb15f27be83e417590e98e7c09bd3b2677ddbd07956ef8ba9b153"
+        },
+        "sha256": "36c2262b3b527843a74bfb2c5c3bb3c90f434f630ab9925f3f5d937494b0089e"
+      }
+    }
+  }
+}

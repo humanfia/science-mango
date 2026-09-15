@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro S f hf\nunfold M5.Binomial.signedProduct M5.Binomial.negativeCount\nrw [← Finset.prod_filter_mul_prod_filter_not (p := fun s => f s = -1)]\ncalc\n  _ = (1 - Polynomial.X) ^ (S.filter (fun s => f s = -1)).card *\n      (1 + Polynomial.X) ^ (S.filter (fun s => ¬ f s = -1)).card := by\n    congr 1\n    · trans ∏ s ∈ S.filter (fun s => f s = -1), (1 - Polynomial.X : Polynomial ℤ)\n      · apply Finset.prod_congr rfl\n        intro s hs\n        simp [(Finset.mem_filter.mp hs).2, sub_eq_add_neg]\n      · simp\n    · trans ∏ s ∈ S.filter (fun s => ¬ f s = -1), (1 + Polynomial.X : Polynomial ℤ)\n      · apply Finset.prod_congr rfl\n        intro s hs\n        obtain ⟨hsS, hsneg⟩ := Finset.mem_filter.mp hs\n        have hspos : f s = 1 := (hf s hsS).resolve_right hsneg\n        simp [hspos]\n      · simp\n  _ = _ := by rw [Finset.card_filter_not]",
+  "queries": [
+    "M5.Binomial.signedProduct M5.Binomial.negativeCount",
+    "Finset.prod_filter_mul_prod_filter_not",
+    "Finset.card_filter_not"
+  ]
+}

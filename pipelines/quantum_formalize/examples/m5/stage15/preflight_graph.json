@@ -1,0 +1,164 @@
+{
+  "title": "M5 stage15: ordered tuple character-power counting",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Five tuple character identities, including empty cases; specialization to polynomial residues remains separate",
+  "nodes": [
+    {
+      "id": "value_zero",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.TupleCharacter.value_zero",
+        "statement": "∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1",
+        "imports": [
+          "M5TupleCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Fintype sum_pow",
+          "finite character orthogonality"
+        ],
+        "guidance": "Unfold value and bitSign; each product factor is (-1)^0=1. The empty product at D=0 is one. No positivity hypothesis. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "ordered_tuple_count_with_repetition",
+        "imported_dependencies": [
+          "M5.Character.value"
+        ],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "character_tuple_sum",
+      "dependencies": [
+        "value_zero"
+      ],
+      "spec": {
+        "name": "M5.TupleCharacter.character_tuple_sum",
+        "statement": "∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (t : Fin k → Fin n) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.TupleCharacter.vectorSum f t) = ∏ i : Fin k, M5.Character.value lam (f (t i))",
+        "imports": [
+          "M5TupleCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Fintype sum_pow",
+          "finite character orthogonality"
+        ],
+        "guidance": "Prove a general Finset finite-sum-to-product helper locally by induction using accepted character_add and value_zero, then specialize to Finset.univ. Alternatively use induction on k and Fin.sum_univ_succ/Fin.prod_univ_succ. Tuple functions permit repeated values. Empty tuple must yield one. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "ordered_tuple_count_with_repetition",
+        "imported_dependencies": [
+          "M5.Character.character_add"
+        ],
+        "dependency_declarations": [
+          "M5.TupleCharacter.value_zero"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "tuple_character_power",
+      "dependencies": [
+        "character_tuple_sum"
+      ],
+      "spec": {
+        "name": "M5.TupleCharacter.tuple_character_power",
+        "statement": "∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), (∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (∑ a : Fin n, M5.Character.value lam (f a)) ^ k",
+        "imports": [
+          "M5TupleCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Fintype sum_pow",
+          "finite character orthogonality"
+        ],
+        "guidance": "Rewrite each tuple character with character_tuple_sum. Fintype.sum_pow (fun a : Fin n => M5.Character.value lam (f a)) k gives the result in reverse orientation. Source Mathlib.Algebra.BigOperators.Ring.Finset has this theorem, including empty alphabet and k=0. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "ordered_tuple_count_with_repetition",
+        "imported_dependencies": [],
+        "dependency_declarations": [
+          "M5.TupleCharacter.character_tuple_sum"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "tuple_character_count",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.TupleCharacter.tuple_character_count",
+        "statement": "∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * ∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (2 : ℤ) ^ D * (M5.TupleCharacter.count k f z : ℤ)",
+        "imports": [
+          "M5TupleCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Fintype sum_pow",
+          "finite character orthogonality"
+        ],
+        "guidance": "Distribute multiplication over the tuple sum and swap finite sums. Combine the two characters via character_add, then apply accepted character_orthogonality. Over BinaryVector D, z+u=0 iff u=z (pointwise characteristic two, including D=0). The remaining indicator sum is the filter cardinality defining count. This is the same finite-fibre orthogonality argument as the accepted finite_fibre_count, with function tuples as the finite domain, not a support-set enumeration or distinctness constraint. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "ordered_tuple_count_with_repetition",
+        "imported_dependencies": [
+          "M5.Character.character_add",
+          "M5.Character.character_orthogonality"
+        ],
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "ordered_tuple_power_count",
+      "dependencies": [
+        "tuple_character_power",
+        "tuple_character_count"
+      ],
+      "spec": {
+        "name": "M5.TupleCharacter.ordered_tuple_power_count",
+        "statement": "∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * (∑ a : Fin n, M5.Character.value lam (f a)) ^ k) = (2 : ℤ) ^ D * (M5.TupleCharacter.count k f z : ℤ)",
+        "imports": [
+          "M5TupleCharacter"
+        ],
+        "context": "",
+        "queries": [
+          "Fintype sum_pow",
+          "finite character orthogonality"
+        ],
+        "guidance": "Rewrite powers as tuple sums using tuple_character_power, then apply tuple_character_count. Preserve this integer identity multiplied by 2^D; do not introduce rational division or assume nonempty alphabet, positive k or positive D. Return only tactic lines without a leading by. Preserve exact statements."
+      },
+      "metadata": {
+        "source_section": 2,
+        "supports_obligation": "M5_CHAR_COUNT",
+        "scope": "ordered_tuple_count_with_repetition",
+        "imported_dependencies": [],
+        "dependency_declarations": [
+          "M5.TupleCharacter.tuple_character_power",
+          "M5.TupleCharacter.tuple_character_count"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

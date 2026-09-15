@@ -1,0 +1,10 @@
+import M5Signature
+
+theorem M5.Signature.binary_monic : ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic := by
+  change ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic
+  intro P hP
+  have h : ∀ c : ZMod 2, c ≠ 0 → c = 1 := by decide
+  change P.leadingCoeff = 1
+  exact h P.leadingCoeff (Polynomial.leadingCoeff_ne_zero.mpr hP)
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ P Q : M5.BinaryPolynomial, P ∣ Q → Q ∣ P → P = Q

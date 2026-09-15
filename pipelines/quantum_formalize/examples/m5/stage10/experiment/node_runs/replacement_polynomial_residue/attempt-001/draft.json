@@ -1,0 +1,8 @@
+{
+  "proof": "intro A e k T he hf\nclassical\nhave hf' : e + k * T ∉ A.erase e := by\n  intro h\n  exact hf (Finset.mem_of_mem_erase h)\nunfold M5.RepairSupport.repaired M5.SupportPolynomial.ofSupport\nrw [Finset.sum_insert hf']\nconv_rhs =>\n  rw [← Finset.insert_erase he, Finset.sum_insert (Finset.notMem_erase e A)]\nrw [map_add, map_add]\ncongr 1\nfirst\n| apply M5.quotient_monomial_period\n| apply M5.SupportPolynomial.quotient_monomial_period\n| simpa only [Polynomial.monomial_one] using\n    (M5.quotient_monomial_period (T := T) (a := e) (j := k))",
+  "queries": [
+    "M5.quotient_monomial_period",
+    "M5.SupportPolynomial.ofSupport",
+    "M5.RepairSupport.repaired"
+  ]
+}

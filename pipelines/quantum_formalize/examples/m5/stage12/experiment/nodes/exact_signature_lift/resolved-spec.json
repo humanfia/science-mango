@@ -1,0 +1,13 @@
+{
+  "name": "M5.Signature.exact_signature_lift",
+  "statement": "∀ (a b : M5.BinaryPolynomial) (T E j : ℕ), EuclideanDomain.gcd a b ∣ M5.cyclicModulus E → M5.completeSignature a b (T+j*E) = M5.completeSignature a b T",
+  "imports": [
+    "M5Signature"
+  ],
+  "context": "theorem M5.Signature.binary_monic : ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic := by\n  change ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic\n  intro P hP\n  have h : ∀ c : ZMod 2, c ≠ 0 → c = 1 := by decide\n  change P.leadingCoeff = 1\n  exact h P.leadingCoeff (Polynomial.leadingCoeff_ne_zero.mpr hP)\n\ntheorem M5.Signature.binary_dvd_antisymm : ∀ P Q : M5.BinaryPolynomial, P ∣ Q → Q ∣ P → P = Q := by\n  change ∀ P Q : M5.BinaryPolynomial, P ∣ Q → Q ∣ P → P = Q\n  intro P Q hPQ hQP\n  by_cases hP : P = 0\n  · subst P\n    exact (zero_dvd_iff.mp hPQ).symm\n  by_cases hQ : Q = 0\n  · subst Q\n    exact zero_dvd_iff.mp hQP\n  exact Polynomial.eq_of_monic_of_associated\n    (M5.Signature.binary_monic P hP)\n    (M5.Signature.binary_monic Q hQ)\n    (associated_of_dvd_dvd hPQ hQP)",
+  "queries": [
+    "monic polynomial associated equality",
+    "polynomial gcd degree bound"
+  ],
+  "guidance": "Unfold completeSignature and use binary_dvd_antisymm. In each direction EuclideanDomain.dvd_gcd combines the automatic gcd-divides-G fact with M5.Lift.common_divisors_lift (already imported accepted theorem) applied to the candidate gcd divisor. This gives actual gcd equality, preserving repeated factors, from the earlier conditional common-divisor lift. Return only tactic lines without a leading by; preserve exact target."
+}

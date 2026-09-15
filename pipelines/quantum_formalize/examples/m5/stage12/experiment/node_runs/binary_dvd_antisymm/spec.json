@@ -1,0 +1,13 @@
+{
+  "name": "M5.Signature.binary_dvd_antisymm",
+  "statement": "∀ P Q : M5.BinaryPolynomial, P ∣ Q → Q ∣ P → P = Q",
+  "imports": [
+    "M5Signature"
+  ],
+  "context": "theorem M5.Signature.binary_monic : ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic := by\n  change ∀ P : M5.BinaryPolynomial, P ≠ 0 → P.Monic\n  intro P hP\n  have h : ∀ c : ZMod 2, c ≠ 0 → c = 1 := by decide\n  change P.leadingCoeff = 1\n  exact h P.leadingCoeff (Polynomial.leadingCoeff_ne_zero.mpr hP)",
+  "queries": [
+    "monic polynomial associated equality",
+    "polynomial gcd degree bound"
+  ],
+  "guidance": "If either polynomial is zero, divisibility gives both zero. Otherwise binary_monic gives monicity of both; use Polynomial.eq_of_monic_of_associated and associated_of_dvd_dvd. Return only tactic lines without a leading by; preserve exact target."
+}

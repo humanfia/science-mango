@@ -1,0 +1,190 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "polynomial binomial coefficient power",
+    "status": "ok",
+    "results": [
+      {
+        "id": 100995,
+        "name": "Polynomial.coeff",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L562-L564",
+        "source_text": "/-- `coeff p n` (often denoted `p.coeff n`) is the coefficient of `X^n` in `p`. -/\ndef coeff : R[X] → ℕ → R\n  | ⟨p⟩ => p.coeff\n",
+        "docstring": "`coeff p n` (often denoted `p.coeff n`) is the coefficient of `X^n` in `p`. "
+      },
+      {
+        "id": 101323,
+        "name": "Polynomial.coeff_X_add_C_pow",
+        "module": "Mathlib.Algebra.Polynomial.Coeff",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Coeff.lean#L290-L299",
+        "source_text": "theorem coeff_X_add_C_pow (r : R) (n k : ℕ) :\n    ((X + C r) ^ n).coeff k = r ^ (n - k) * (n.choose k : R) := by\n  rw [(commute_X (C r : R[X])).add_pow, ← lcoeff_apply, map_sum]\n  simp only [lcoeff_apply, ← C_eq_natCast, ← C_pow, coeff_mul_C]\n  rw [Finset.sum_eq_single k, coeff_X_pow_self, one_mul]\n  · intro _ _ h\n    simp [coeff_X_pow, h.symm]\n  · simp only [coeff_X_pow_self, one_mul, not_lt, Finset.mem_range]\n    intro h\n    rw [Nat.choose_eq_zero_of_lt h, Nat.cast_zero, mul_zero]\n",
+        "docstring": null
+      },
+      {
+        "id": 317359,
+        "name": "PowerSeries.binomialSeries",
+        "module": "Mathlib.RingTheory.PowerSeries.Binomial",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/PowerSeries/Binomial.lean#L46-L48",
+        "source_text": "/-- The power series for `(1 + X) ^ r`. -/\ndef binomialSeries (A) [One A] [SMul R A] (r : R) : PowerSeries A :=\n  mk fun n => Ring.choose r n • 1\n",
+        "docstring": "The power series for `(1 + X) ^ r`. "
+      },
+      {
+        "id": 101055,
+        "name": "Polynomial.support_binomial'",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L790-L790",
+        "source_text": "@[deprecated (since := \"2026-06-09\")] alias support_binomial' := support_binomial_subset",
+        "docstring": "**Alias** of `Polynomial.support_binomial_subset`."
+      },
+      {
+        "id": 101065,
+        "name": "Polynomial.binomial_eq_binomial",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L835-L838",
+        "source_text": "theorem binomial_eq_binomial {k l m n : ℕ} {u v : R} (hu : u ≠ 0) (hv : v ≠ 0) :\n    C u * X ^ k + C v * X ^ l = C u * X ^ m + C v * X ^ n ↔\n      k = m ∧ l = n ∨ u = v ∧ k = n ∧ l = m ∨ u + v = 0 ∧ k = l ∧ m = n := by\n  simp [C_mul_X_pow_eq_monomial, ← toFinsupp_inj, single_add_single_inj, *]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "polynomial binomial coefficient power",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394195,
+        "name": "FTheory.SU5.TenQuanta.anomalyCoefficient",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.TenQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/TenQuanta.lean#L1052-L1061",
+        "source_text": "/--\n  The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n    see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : TenQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, 3 * (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+        "docstring": "The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n"
+      },
+      {
+        "id": 394087,
+        "name": "FTheory.SU5.Quanta.HuAnomalyCoefficient",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L240-L244",
+        "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hu` particle. -/\ndef HuAnomalyCoefficient [CommRing 𝓩] (qHu : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHu with\n  | none => (0, 0)\n  | some qHu => (-qHu, -qHu ^ 2)\n",
+        "docstring": "The pair of anomaly cancellation coefficients associated with the `Hu` particle. "
+      },
+      {
+        "id": 394086,
+        "name": "FTheory.SU5.Quanta.HdAnomalyCoefficient_map",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L228-L232",
+        "source_text": "@[simp]\nlemma HdAnomalyCoefficient_map {𝓩 𝓩1 : Type} [CommRing 𝓩] [CommRing 𝓩1]\n    (f : 𝓩 →+* 𝓩1) (qHd : Option 𝓩) :\n    HdAnomalyCoefficient (qHd.map f) = (f.prodMap f) (HdAnomalyCoefficient qHd) := by\n  cases qHd <;> simp [HdAnomalyCoefficient]",
+        "docstring": null
+      },
+      {
+        "id": 394085,
+        "name": "FTheory.SU5.Quanta.HdAnomalyCoefficient",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L222-L226",
+        "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hd` particle. -/\ndef HdAnomalyCoefficient [CommRing 𝓩] (qHd : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHd with\n  | none => (0, 0)\n  | some qHd => (qHd, qHd ^ 2)\n",
+        "docstring": "The pair of anomaly cancellation coefficients associated with the `Hd` particle. "
+      },
+      {
+        "id": 394136,
+        "name": "FTheory.SU5.FiveQuanta.anomalyCoefficient",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L909-L918",
+        "source_text": "/--\n  The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : FiveQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+        "docstring": "The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\nsee equation (23) of arXiv:1401.5084.\n"
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "finite product filter",
+    "status": "ok",
+    "results": [
+      {
+        "id": 267025,
+        "name": "MeasureTheory.Measure.FiniteAtFilter.prod",
+        "module": "Mathlib.MeasureTheory.Measure.Prod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/Prod.lean#L288-L296",
+        "source_text": "protected theorem FiniteAtFilter.prod {X Y : Type*} {m : MeasurableSpace X} {μ : Measure X}\n    {m' : MeasurableSpace Y} {ν : Measure Y} {l : Filter X} {l' : Filter Y}\n    (hμ : μ.FiniteAtFilter l) (hν : ν.FiniteAtFilter l') :\n    (μ.prod ν).FiniteAtFilter (l ×ˢ l') := by\n  rcases hμ with ⟨s, hs, hμs⟩\n  rcases hν with ⟨t, ht, hνt⟩\n  use s ×ˢ t, Filter.prod_mem_prod hs ht\n  grw [prod_prod_le]\n  exact ENNReal.mul_lt_top hμs hνt\n",
+        "docstring": null
+      },
+      {
+        "id": 332512,
+        "name": "tprod_fintype",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Basic.lean#L480-L482",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem tprod_fintype [L.LeAtTop] [Fintype β] (f : β → α) : ∏'[L] b, f b = ∏ b, f b := by\n  apply tprod_eq_prod; simp",
+        "docstring": null
+      },
+      {
+        "id": 284820,
+        "name": "Filter.Product",
+        "module": "Mathlib.Order.Filter.Germ.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Germ/Basic.lean#L91-L94",
+        "source_text": "/-- The filter product `(a : α) → ε a` at a filter `l`. This is a dependent version of\n  `Filter.Germ`. -/\ndef Product (l : Filter α) (ε : α → Type*) : Type _ :=\n  Quotient (productSetoid l ε)\n",
+        "docstring": "The filter product `(a : α) → ε a` at a filter `l`. This is a dependent version of\n`Filter.Germ`. "
+      },
+      {
+        "id": 284819,
+        "name": "Filter.productSetoid",
+        "module": "Mathlib.Order.Filter.Germ.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Filter/Germ/Basic.lean#L82-L89",
+        "source_text": "/-- Setoid used to define the filter product. This is a dependent version of\n  `Filter.germSetoid`. -/\n@[implicit_reducible]\ndef productSetoid (l : Filter α) (ε : α → Type*) : Setoid ((a : _) → ε a) where\n  r f g := ∀ᶠ a in l, f a = g a\n  iseqv :=\n    ⟨fun _ => Eventually.of_forall fun _ => rfl, fun h => h.mono fun _ => Eq.symm,\n      fun h1 h2 => h1.congr (h2.mono fun _ hx => hx ▸ Iff.rfl)⟩\n",
+        "docstring": "Setoid used to define the filter product. This is a dependent version of\n`Filter.germSetoid`. "
+      },
+      {
+        "id": 253563,
+        "name": "TensorProduct",
+        "module": "Mathlib.LinearAlgebra.TensorProduct.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/TensorProduct/Defs.lean#L79-L83",
+        "source_text": "/-- The tensor product of two modules `M` and `N` over the same commutative semiring `R`.\nThe localized notations are `M ⊗ N` and `M ⊗[R] N`, accessed by `open scoped TensorProduct`. -/\ndef TensorProduct : Type _ :=\n  (addConGen (TensorProduct.Eqv R M N)).Quotient\nderiving Zero, Add, AddZeroClass, AddSemigroup\n",
+        "docstring": "The tensor product of two modules `M` and `N` over the same commutative semiring `R`.\nThe localized notations are `M ⊗ N` and `M ⊗[R] N`, accessed by `open scoped TensorProduct`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "finite product filter",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386467,
+        "name": "InnerProductSpace'",
+        "module": "Physlib.Mathematics.InnerProductSpace.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/InnerProductSpace/Basic.lean#L48-L81",
+        "source_text": "/-- Effectively as `InnerProductSpace 𝕜 E` but it does not requires that `‖x‖^2 = ⟪x,x⟫`. It is\nonly required that they are equivalent `∃ (c > 0) (d > 0), c • ‖x‖^2 ≤ ⟪x,x⟫ ≤ d • ‖x‖^2`. The main\npurpose of this class is to provide inner product space structure on product types `ExF` and\npi types `ι → E` without using `WithLp` gadget.\n\nIf you want to access L₂ norm use `‖x‖₂ := √⟪x,x⟫`.\n\nThis class induces `InnerProductSpace 𝕜 (WithLp 2 E)` which equips `‖·‖` on `X` with L₂ norm.\nThis is very useful when translating results from `InnerProductSpace` to `InnerProductSpace'`\ntogether with `toL2 : E →L[𝕜] (WithLp 2 E)` and `fromL2 : (WithL2 2 E) →L[𝕜] E`.\n\nIn short we have these implications:\n```\n  InnerProductSpace 𝕜 E → InnerProductSpace' 𝕜 E\n  InnerProductSpace' 𝕜 E → InnerProductSpace 𝕜 (WithLp 2 E)\n```\n\nThe reason behind this type class is that with current mathlib design the requirement\n`‖x‖^2 = ⟪x,x⟫` prevents us to give inner product space structure on product type `E×F` and pi\ntype `ι → E` as they are equipped with max norm. One has to work with `WithLp 2 (E×F)` and\n`WithLp 2 (ι → E)`. This places quite a bit inconvenience on users in certain scenarios.\nIn particular, the main motivation behind this class is to make computations of `adjFDeriv` and\n`gradient` easy.\n-/\nclass InnerProductSpace' (𝕜 : Type*) (E : Type*) [RCLike 𝕜] [NormedAddCommGroup E] [NormedSpace 𝕜 E]\n    extends Norm₂ E where\n  /-- Core inner product properties. -/\n  core : InnerProductSpace.Core 𝕜 E\n  /-- The inner product induces the L₂ norm. -/\n  norm₂_sq_eq_re_inner : ∀ x : E, ‖x‖₂ ^ 2 = re (core.inner x x)\n  /-- Norm induced by inner product is topologically equivalent to the given norm on E. -/\n  inner_top_equiv_norm : ∃ c d : ℝ,\n    0 < c ∧ 0 < d ∧\n    ∀ x : E, (c • ‖x‖^2 ≤ re (core.inner x x)) ∧ (re (core.inner x x) ≤ d • ‖x‖^2)\n",
+        "docstring": "Effectively as `InnerProductSpace 𝕜 E` but it does not requires that `‖x‖^2 = ⟪x,x⟫`. It is\nonly required that they are equivalent `∃ (c > 0) (d > 0), c • ‖x‖^2 ≤ ⟪x,x⟫ ≤ d • ‖x‖^2`. The main\npurpose of this class is to provide inner product space structure on product types `ExF` and\npi types `ι → E` without using `WithLp` gadget.\n\nIf you want to access L₂ norm use `‖x‖₂ := √⟪x,x⟫`.\n\nThis class induces `InnerProductSpace 𝕜 (WithLp 2 E)` which equips `‖·‖` on `X` with L₂ norm.\nThis is very useful when translating results from `InnerProductSpace` to `InnerProductSpace'`\ntogether with `toL2 : E →L[𝕜] (WithLp 2 E)` and `fromL2 : (WithL2 2 E) →L[𝕜] E`.\n\nIn short we have these implications:\n```\n  InnerProductSpace 𝕜 E → InnerProductSpace' 𝕜 E\n  InnerProductSpace' 𝕜 E → InnerProductSpace 𝕜 (WithLp 2 E)\n```\n\nThe reason behind this type class is that with current mathlib design the requirement\n`‖x‖^2 = ⟪x,x⟫` prevents us to give inner product space structure on product type `E×F` and pi\ntype `ι → E` as they are equipped with max norm. One has to work with `WithLp 2 (E×F)` and\n`WithLp 2 (ι → E)`. This places quite a bit inconvenience on users in certain scenarios.\nIn particular, the main motivation behind this class is to make computations of `adjFDeriv` and\n`gradient` easy.\n"
+      },
+      {
+        "id": 386195,
+        "name": "Matrix.crossProductMatrix",
+        "module": "Physlib.Mathematics.CrossProductMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/CrossProductMatrix.lean#L26-L29",
+        "source_text": "/-- The hat map `[ω]ₓ`: the skew-symmetric `3 × 3` matrix acting as the cross product with `ω`,\ni.e. `[ω]ₓ *ᵥ v = ω ⨯₃ v`. -/\ndef crossProductMatrix (ω : Fin 3 → ℝ) : Matrix (Fin 3) (Fin 3) ℝ :=\n  !![0, -ω 2, ω 1; ω 2, 0, -ω 0; -ω 1, ω 0, 0]\n",
+        "docstring": "The hat map `[ω]ₓ`: the skew-symmetric `3 × 3` matrix acting as the cross product with `ω`,\ni.e. `[ω]ₓ *ᵥ v = ω ⨯₃ v`. "
+      },
+      {
+        "id": 390254,
+        "name": "QuantumMechanics.FiniteHilbertSpace.instInnerProductSpaceComplex",
+        "module": "Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/HilbertSpaces/FiniteTarget/Basic.lean#L126-L127",
+        "source_text": "noncomputable instance : InnerProductSpace ℂ (FiniteHilbertSpace d) :=\n  InnerProductSpace.induced linearEquivEuclidean.toLinearMap\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "id": "replacement_card",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.RepairSupport.replacement_card",
+    "spec_sha256": "a4cb9e722be20db64f29d68f54868fc5089feab3a8f20d56a45fe08d3c520368",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-4st96iib/attempt-001/Candidate_1b7ea08478bbcfbf.lean",
+        "target_path": "/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-4st96iib/attempt-001/FrozenTarget_1b7ea08478bbcfbf.lean",
+        "feedback": "",
+        "target_sha256": "b43b1e8edc04f8bede522adf6c5b1e6c71f4ca8c4376b3c88b29f62cb6000d52",
+        "target_olean_sha256": "83cee3b357c57fb5cb36e3312196e43e51269cd577559b49815f50a4acc01703",
+        "source_sha256": "7d88e772e24fa654ad11130a7d8f82cdedbaa15fce83f4a5dfbbb9f3ca83294e",
+        "olean_sha256": "ad7f5c3db045b88442ca83a9be176ba799533b0b10360623a810681c9c170c76",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:23:15.151267+00:00",
+    "work": "/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-4st96iib",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-repair-support-formalization/.humanize-formal-runs/run-4st96iib/attempt-001/Candidate_1b7ea08478bbcfbf.lean",
+    "environment_sha256": "226c28232781e7c20592d4adda0792547b6bb0c11cef9b17f4bdbb933702cdb6",
+    "artifacts": {
+      "replacement_card": {
+        "payload": {
+          "declaration": "theorem M5.RepairSupport.replacement_card : ∀ (A : Finset ℕ) (e q : ℕ), e ∈ A → q ∉ A → (M5.RepairSupport.repaired A e q).card = A.card := by\n  change ∀ (A : Finset ℕ) (e q : ℕ), e ∈ A → q ∉ A → (M5.RepairSupport.repaired A e q).card = A.card\n  intro A e q he hq\n  change (insert q (A.erase e)).card = A.card\n  have hq' : q ∉ A.erase e := fun h => hq (Finset.mem_erase.mp h).2\n  rw [Finset.card_insert_of_notMem hq', Finset.card_erase_of_mem he]\n  have hpos : 0 < A.card := Finset.card_pos.mpr ⟨e, he⟩\n  omega",
+          "imports": [
+            "M5QuotientMonomialPeriod",
+            "M5RepairSupport"
+          ],
+          "name": "M5.RepairSupport.replacement_card",
+          "ancestors": [],
+          "spec_sha256": "8cb1658cabe44f93ef898476df17a356b51101008de14f2fc94b050df820e328"
+        },
+        "sha256": "14f507fcd2a89030b781aee64e01803a9780c77170bd56474cf83e78fab0f8b4"
+      }
+    }
+  }
+}

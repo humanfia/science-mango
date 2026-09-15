@@ -1,0 +1,9 @@
+import FrozenTarget_b0bb34646cbf50f1
+theorem M5.Signature.ordinary_gcd_period_bound : QuantumHarnessFrozenTarget := by
+  change ∀ a b : M5.BinaryPolynomial, a.coeff 0 = 1 → b.coeff 0 = 1 → 0 < M5.signaturePeriod (EuclideanDomain.gcd a b) ∧ M5.signaturePeriod (EuclideanDomain.gcd a b) ≤ 2 ^ b.natDegree
+  intro a b ha hb
+  obtain ⟨hm, hc, hd⟩ := M5.Signature.ordinary_gcd_properties a b ha hb
+  have hl := M5.Period.period_law (EuclideanDomain.gcd a b) hm hc
+  have hbound := M5.Period.period_cardinality_bound (EuclideanDomain.gcd a b) hm hc
+  refine ⟨hl.1, hbound.trans ?_⟩
+  exact pow_le_pow_right₀ (by decide : (1 : ℕ) ≤ 2) hd

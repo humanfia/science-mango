@@ -1,0 +1,14 @@
+{
+  "name": "M5.RepairSupport.replacement_card",
+  "statement": "∀ (A : Finset ℕ) (e q : ℕ), e ∈ A → q ∉ A → (M5.RepairSupport.repaired A e q).card = A.card",
+  "imports": [
+    "M5QuotientMonomialPeriod",
+    "M5RepairSupport"
+  ],
+  "context": "",
+  "queries": [
+    "Finset erase insert cardinality",
+    "polynomial quotient"
+  ],
+  "guidance": "Unfold repaired. q is absent from A.erase e because q∉A; use Finset.card_insert_of_notMem and card_erase_of_mem. The original support A is a Finset, without any assumption on a source residue tuple. Return only tactic lines without a leading by. Preserve the exact target."
+}

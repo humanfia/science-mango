@@ -1,0 +1,337 @@
+[
+  {
+    "queries": [
+      "monic polynomial associated equality",
+      "polynomial gcd degree bound"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "monic polynomial associated equality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 102925,
+            "name": "Polynomial.eq_of_monic_of_associated",
+            "module": "Mathlib.Algebra.Polynomial.Monic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L219-L221",
+            "source_text": "theorem eq_of_monic_of_associated (hp : p.Monic) (hq : q.Monic) (hpq : Associated p q) : p = q := by\n  obtain ⟨u, rfl⟩ := hpq\n  rw [(hp.of_mul_monic_left hq).eq_one_of_isUnit u.isUnit, mul_one]\n",
+            "docstring": null
+          },
+          {
+            "id": 102288,
+            "name": "Polynomial.associated_map_map",
+            "module": "Mathlib.Algebra.Polynomial.Eval.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Eval/Defs.lean#L559-L560",
+            "source_text": "lemma associated_map_map (f : R →+* S) {x y : R[X]} :\n    Associated x y → Associated (x.map f) (y.map f) := .map (mapRingHom f)\n",
+            "docstring": null
+          },
+          {
+            "id": 101362,
+            "name": "Polynomial.Monic",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L59-L61",
+            "source_text": "/-- a polynomial is `Monic` if its leading coefficient is 1 -/\ndef Monic (p : R[X]) :=\n  leadingCoeff p = (1 : R)\n",
+            "docstring": "a polynomial is `Monic` if its leading coefficient is 1 "
+          },
+          {
+            "id": 102896,
+            "name": "Polynomial.Monic.map",
+            "module": "Mathlib.Algebra.Polynomial.Monic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L56-L58",
+            "source_text": "theorem Monic.map [Semiring S] (f : R →+* S) (hp : Monic p) : Monic (p.map f) :=\n  subsingleton_or_nontrivial S |>.elim (·.elim ..) fun _ ↦\n    f.map_one ▸ hp ▸ leadingCoeff_map_eq_of_isUnit_leadingCoeff _ <| isUnit_one\n",
+            "docstring": null
+          },
+          {
+            "id": 90485,
+            "name": "MvPolynomial.ext_iff",
+            "module": "Mathlib.Algebra.MvPolynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Basic.lean#L536-L536",
+            "source_text": "@[ext]\ntheorem ext (p q : MvPolynomial σ R) : (∀ m, coeff m p = coeff m q) → p = q :=",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial gcd degree bound",
+        "status": "ok",
+        "results": [
+          {
+            "id": 101359,
+            "name": "Polynomial.degree",
+            "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L45-L49",
+            "source_text": "/-- `degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`. -/\ndef degree (p : R[X]) : WithBot ℕ :=\n  p.support.max\n",
+            "docstring": "`degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`. "
+          },
+          {
+            "id": 316297,
+            "name": "Polynomial.content_eq_gcd_range_succ",
+            "module": "Mathlib.RingTheory.Polynomial.Content",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Polynomial/Content.lean#L187-L189",
+            "source_text": "theorem content_eq_gcd_range_succ (p : R[X]) :\n    p.content = (Finset.range p.natDegree.succ).gcd p.coeff :=\n  content_eq_gcd_range_of_lt _ _ (Nat.lt_succ_self _)\n",
+            "docstring": null
+          },
+          {
+            "id": 316326,
+            "name": "Polynomial.degree_gcd_le_left",
+            "module": "Mathlib.RingTheory.Polynomial.Content",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Polynomial/Content.lean#L479-L481",
+            "source_text": "theorem degree_gcd_le_left {p : R[X]} (hp : p ≠ 0) (q) : (gcd p q).degree ≤ p.degree := by\n  have := natDegree_le_iff_degree_le.mp (natDegree_le_of_dvd (gcd_dvd_left p q) hp)\n  rwa [degree_eq_natDegree hp]\n",
+            "docstring": null
+          },
+          {
+            "id": 316327,
+            "name": "Polynomial.degree_gcd_le_right",
+            "module": "Mathlib.RingTheory.Polynomial.Content",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Polynomial/Content.lean#L483-L485",
+            "source_text": "theorem degree_gcd_le_right (p) {q : R[X]} (hq : q ≠ 0) : (gcd p q).degree ≤ q.degree := by\n  rw [gcd_comm]\n  exact degree_gcd_le_left hq p\n",
+            "docstring": null
+          },
+          {
+            "id": 142221,
+            "name": "Polynomial.cauchyBound",
+            "module": "Mathlib.Analysis.Polynomial.CauchyBound",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Polynomial/CauchyBound.lean#L29-L34",
+            "source_text": "/--\nCauchy's bound on the roots of a given polynomial.\nSee `IsRoot.norm_lt_cauchyBound` for the proof that the roots satisfy this bound.\n-/\nnoncomputable def cauchyBound (p : K[X]) : ℝ≥0 :=\n  sup (range p.natDegree) (‖p.coeff ·‖₊) / ‖p.leadingCoeff‖₊ + 1\n",
+            "docstring": "Cauchy's bound on the roots of a given polynomial.\nSee `IsRoot.norm_lt_cauchyBound` for the proof that the roots satisfy this bound.\n"
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "binary_monic",
+    "receipts_sha256": "c4dd8345663d81f799359394f98ab59f14e79f09d5361fb209ac0e85ccf42f80"
+  },
+  {
+    "queries": [
+      "M5.Lift.common_divisors_lift",
+      "M5.completeSignature"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.Lift.common_divisors_lift",
+        "status": "ok",
+        "results": [
+          {
+            "id": 215369,
+            "name": "PNat.lcm_dvd",
+            "module": "Mathlib.Data.PNat.Prime",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Prime.lean#L83-L84",
+            "source_text": "theorem lcm_dvd {m n k : ℕ+} (hm : m ∣ k) (hn : n ∣ k) : lcm m n ∣ k :=\n  dvd_iff.2 (@Nat.lcm_dvd (m : ℕ) (n : ℕ) (k : ℕ) (dvd_iff.1 hm) (dvd_iff.1 hn))\n",
+            "docstring": null
+          },
+          {
+            "id": 324141,
+            "name": "Ordinal.lift",
+            "module": "Mathlib.SetTheory.Ordinal.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Ordinal/Basic.lean#L648-L655",
+            "source_text": "/-- The universe lift operation for ordinals, which embeds `Ordinal.{u}` as\n  a proper initial segment of `Ordinal.{v}` for `v > u`. For the initial segment version,\n  see `liftInitialSeg`. -/\n@[pp_with_univ]\ndef lift (o : Ordinal.{v}) : Ordinal.{max v u} :=\n  Quotient.liftOn o (fun w => type <| ULift.down ⁻¹'o w.r) fun ⟨_, r, _⟩ ⟨_, s, _⟩ ⟨f⟩ =>\n    Quot.sound\n      ⟨(RelIso.preimage Equiv.ulift r).trans <| f.trans (RelIso.preimage Equiv.ulift s).symm⟩\n",
+            "docstring": "The universe lift operation for ordinals, which embeds `Ordinal.{u}` as\na proper initial segment of `Ordinal.{v}` for `v > u`. For the initial segment version,\nsee `liftInitialSeg`. "
+          },
+          {
+            "id": 324163,
+            "name": "Ordinal.lift_lift",
+            "module": "Mathlib.SetTheory.Ordinal.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/SetTheory/Ordinal/Basic.lean#L771-L773",
+            "source_text": "@[simp]\ntheorem lift_lift (a : Ordinal.{u}) : lift.{w} (lift.{v} a) = lift.{max v w} a :=\n  (liftInitialSeg.trans liftInitialSeg).eq liftInitialSeg a",
+            "docstring": null
+          },
+          {
+            "id": 257067,
+            "name": "small_lift",
+            "module": "Mathlib.Logic.Small.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Logic/Small/Defs.lean#L84-L86",
+            "source_text": "theorem small_lift (α : Type u) [hα : Small.{v} α] : Small.{max v w} α :=\n  let ⟨⟨_, ⟨f⟩⟩⟩ := hα\n  Small.mk' <| f.trans (Equiv.ulift.{w}).symm\n",
+            "docstring": null
+          },
+          {
+            "id": 251037,
+            "name": "Projectivization.lift",
+            "module": "Mathlib.LinearAlgebra.Projectivization.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Projectivization/Basic.lean#L76-L81",
+            "source_text": "/-- A function on non-zero vectors which is independent of scale, descends to a function on the\nprojectivization. -/\nprotected def lift {α : Type*} (f : { v : V // v ≠ 0 } → α)\n    (hf : ∀ (a b : { v : V // v ≠ 0 }) (t : K), a = t • (b : V) → f a = f b)\n    (x : ℙ K V) : α :=\n  Quotient.lift f (by rintro ⟨-, hv⟩ ⟨w, hw⟩ ⟨⟨t, -⟩, rfl⟩; exact hf ⟨_, hv⟩ ⟨w, hw⟩ t rfl) x\n",
+            "docstring": "A function on non-zero vectors which is independent of scale, descends to a function on the\nprojectivization. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.Lift.common_divisors_lift",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394127,
+            "name": "FTheory.SU5.FiveQuanta.toCharges_nodup_of_mem_liftCharge",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L719-L723",
+            "source_text": "lemma toCharges_nodup_of_mem_liftCharge (c : Finset 𝓩) {x : FiveQuanta 𝓩}\n    (h : x ∈ liftCharge c) : x.toCharges.Nodup := by\n  rw [liftCharge, Multiset.mem_map] at h\n  obtain ⟨x, h, rfl⟩ := h\n  simp [reduce_toCharges]\n",
+            "docstring": null
+          },
+          {
+            "id": 394130,
+            "name": "FTheory.SU5.FiveQuanta.mem_liftCharge_iff_exists",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L798-L803",
+            "source_text": "lemma mem_liftCharge_iff_exists (c : Finset 𝓩) {x : FiveQuanta 𝓩} :\n    x ∈ liftCharge c ↔ ∃ a : FiveQuanta 𝓩, a.reduce = x ∧\n      a.toCharges.toFinset = c ∧ a.toFluxesFive =\n      {⟨1, -1⟩, ⟨1, -1⟩, ⟨1, -1⟩, ⟨0, 1⟩, ⟨0, 1⟩, ⟨0, 1⟩} :=\n  ⟨exists_toCharges_toFluxesFive_of_mem_liftCharge c,\n    mem_liftCharge_of_exists_toCharges_toFluxesFive c⟩\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "M5.completeSignature",
+        "status": "ok",
+        "results": [
+          {
+            "id": 327256,
+            "name": "Mathlib.Tactic.ExtractGoal.goalSignature",
+            "module": "Mathlib.Tactic.ExtractGoal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ExtractGoal.lean#L140-L193",
+            "source_text": "/-- Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n-/\ndef goalSignature (name : Name) (g : MVarId) : TermElabM (MessageData × Expr × Array Name × Bool) :=\n  withoutModifyingEnv <| withoutModifyingState do\n    let (g, _) ← g.renameInaccessibleFVars\n    -- Check if the original goal has foralls before reverting\n    -- We only consider it to have \"original foralls\" if it has a named forall,\n    -- not just implications (which have anonymous or internal hygienic names)\n    let originalTy ← instantiateMVars (← g.getType)\n    let hasOriginalForalls :=\n      originalTy.isForall &&\n      !originalTy.bindingName!.isAnonymous &&\n      !originalTy.bindingName!.isInternal\n    let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds\n    let ty ← instantiateMVars (← g.getType)\n    if ty.hasExprMVar then\n      -- TODO: turn metavariables into new hypotheses?\n      throwError \"Extracted goal has metavariables: {ty}\"\n    let ty ← Term.levelMVarToParam ty\n    let seenLevels := collectLevelParams {} ty\n    let levels := (← Term.getLevelNames).filter\n      fun u => seenLevels.visitedLevel.contains (.param u)\n    addAndCompile <| Declaration.axiomDecl\n      { name := name\n        levelParams := levels\n        isUnsafe := false\n        type := ty }\n    let sig ← addMessageContext <| MessageData.signature name\n    let context ← liftM (m := CoreM) <| read\n    let state ← get\n    let env ← getEnv\n    let (ts, _) ← ((Mathlib.Command.MinImports.getVisited name).run\n        { context with snap? := none }).run\n        { state with env, maxRecDepth := context.maxRecDepth }\n    let mut hm : Std.HashMap Nat Name := {}\n    for imp in env.header.moduleNames do\n      hm := hm.insert ((env.getModuleIdx? imp).getD default) imp\n    let mut fins : NameSet := {}\n    for t in ts do\n      let new := match env.getModuleIdxFor? t with\n        | some t => (hm.get? t).get!\n        | none   => .anonymous -- instead of `getMainModule`, we omit the current module\n      if !fins.contains new then fins := fins.insert new\n    let tot := Mathlib.Command.MinImports.getIrredundantImports (← getEnv) (fins.erase .anonymous)\n    let fileNames := tot.toArray.qsort Name.lt\n    return (sig, ty, fileNames, hasOriginalForalls)\n",
+            "docstring": "Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n"
+          },
+          {
+            "id": 355792,
+            "name": "CompleteSpace",
+            "module": "Mathlib.Topology.UniformSpace.Cauchy",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/Cauchy.lean#L367-L372",
+            "source_text": "/-- A complete space is defined here using uniformities. A uniform space\n  is complete if every Cauchy filter converges. -/\n@[wikidata Q848569]\nclass CompleteSpace (α : Type u) [UniformSpace α] : Prop where\n  /-- In a complete uniform space, every Cauchy filter converges. -/\n  complete : ∀ {f : Filter α}, Cauchy f → ∃ x, f ≤ 𝓝 x\n",
+            "docstring": "A complete space is defined here using uniformities. A uniform space\nis complete if every Cauchy filter converges. "
+          },
+          {
+            "id": 355736,
+            "name": "IsComplete",
+            "module": "Mathlib.Topology.UniformSpace.Cauchy",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/UniformSpace/Cauchy.lean#L34-L37",
+            "source_text": "/-- A set `s` is called *complete*, if any Cauchy filter `f` such that `s ∈ f`\nhas a limit in `s` (formally, it satisfies `f ≤ 𝓝 x` for some `x ∈ s`). -/\ndef IsComplete (s : Set α) :=\n  ∀ f, Cauchy f → f ≤ 𝓟 s → ∃ x ∈ s, f ≤ 𝓝 x\n",
+            "docstring": "A set `s` is called *complete*, if any Cauchy filter `f` such that `s ∈ f`\nhas a limit in `s` (formally, it satisfies `f ≤ 𝓝 x` for some `x ∈ s`). "
+          },
+          {
+            "id": 281412,
+            "name": "CompleteLattice",
+            "module": "Mathlib.Order.CompleteLattice.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/CompleteLattice/Defs.lean#L136-L138",
+            "source_text": "/-- A complete lattice is a bounded lattice which has suprema and infima for every subset. -/\nclass CompleteLattice (α : Type*) extends Lattice α, CompleteSemilatticeSup α,\n    CompleteSemilatticeInf α, BoundedOrder α\n",
+            "docstring": "A complete lattice is a bounded lattice which has suprema and infima for every subset. "
+          },
+          {
+            "id": 327372,
+            "name": "Mathlib.Tactic.FieldSimp.Sign.expr",
+            "module": "Mathlib.Tactic.FieldSimp.Lemmas",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/FieldSimp/Lemmas.lean#L391-L395",
+            "source_text": "/-- Given an expression `e : Q($M)`, construct an expression which is morally \"± `e`\", with the\nchoice between + and - determined by an object `g : Sign M`. -/\ndef Sign.expr : Sign M → Q($M) → Q($M)\n  | plus, a => a\n  | minus _, a => q(-$a)\n",
+            "docstring": "Given an expression `e : Q($M)`, construct an expression which is morally \"± `e`\", with the\nchoice between + and - determined by an object `g : Sign M`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M5.completeSignature",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388431,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.instDecidableIsCompleteOfDecidableEq",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L78-L79",
+            "source_text": "instance [DecidableEq 𝓩] (x : ChargeSpectrum 𝓩) : Decidable (IsComplete x) :=\n  inferInstanceAs (Decidable (x.qHd.isSome ∧ x.qHu.isSome ∧ x.Q5 ≠ ∅ ∧ x.Q10 ≠ ∅))\n",
+            "docstring": null
+          },
+          {
+            "id": 388434,
+            "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+            "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+            "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+            "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+          },
+          {
+            "id": 393958,
+            "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_disjiont_viableChargesAdditional",
+            "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L382-L386",
+            "source_text": "lemma viableCompletions_disjiont_viableChargesAdditional (I : CodimensionOneConfig) :\n    Disjoint (viableCompletions I) (viableChargesAdditional I) := by\n  refine Multiset.inter_eq_zero_iff_disjoint.mp ?_\n  cases I\n  <;> decide +kernel\n",
+            "docstring": null
+          },
+          {
+            "id": 393953,
+            "name": "FTheory.SU5.ChargeSpectrum.containsPhenoCompletionsOfMinimallyAllows_viableCompletions",
+            "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L278-L282",
+            "source_text": "lemma containsPhenoCompletionsOfMinimallyAllows_viableCompletions :\n    (I : CodimensionOneConfig) →\n    ContainsPhenoCompletionsOfMinimallyAllows I.allowedBarFiveCharges\n      I.allowedTenCharges (viableCompletions I) := by\n  decide +kernel\n",
+            "docstring": null
+          },
+          {
+            "id": 391310,
+            "name": "minkowskiMatrix.termη",
+            "module": "Physlib.Relativity.MinkowskiMatrix",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L103-L104",
+            "source_text": "/-- Notation for `minkowskiMatrix`. -/\nscoped[minkowskiMatrix] notation \"η\" => minkowskiMatrix\n",
+            "docstring": "Notation for `minkowskiMatrix`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

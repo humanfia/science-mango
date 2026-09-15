@@ -1,0 +1,14 @@
+{
+  "name": "M5.RepairSupport.replacement_connected",
+  "statement": "∀ (A B : Finset ℕ) (e q : ℕ), Nat.gcd (Nat.gcd ((A.erase e).gcd id) (B.gcd id)) q = 1 → M5.RepairSupport.combinedGcd (M5.RepairSupport.repaired A e q) B = 1",
+  "imports": [
+    "M5QuotientMonomialPeriod",
+    "M5RepairSupport"
+  ],
+  "context": "theorem M5.RepairSupport.replacement_combined_gcd : ∀ (A B : Finset ℕ) (e q : ℕ), M5.RepairSupport.combinedGcd (M5.RepairSupport.repaired A e q) B = Nat.gcd q (Nat.gcd ((A.erase e).gcd id) (B.gcd id)) := by\n  intro A B e q\n  unfold M5.RepairSupport.combinedGcd M5.RepairSupport.repaired\n  rw [Finset.gcd_insert]\n  change Nat.gcd (Nat.gcd q ((A.erase e).gcd id)) (B.gcd id) = Nat.gcd q (Nat.gcd ((A.erase e).gcd id) (B.gcd id))\n  exact Nat.gcd_assoc q ((A.erase e).gcd id) (B.gcd id)",
+  "queries": [
+    "Finset erase insert cardinality",
+    "polynomial quotient"
+  ],
+  "guidance": "Rewrite replacement_combined_gcd and use Nat.gcd_comm to match the given gcd δ q=1. This is integer support gcd1, not yet connectivity at a chosen cyclic order N. Return only tactic lines without a leading by. Preserve the exact target."
+}
