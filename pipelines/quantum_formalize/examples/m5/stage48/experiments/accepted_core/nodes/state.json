@@ -1,0 +1,269 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T09:54:49.090393+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "global_birth_later": {
+      "id": "global_birth_later",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Final.global_birth_later",
+        "spec_sha256": "0218de6ed814a90931669d350f6485d3b58d76772db3a3f9c85458f3b4a385c3",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-liixiws1/attempt-001/Candidate_cc89aee3a0518437.lean",
+            "target_path": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-liixiws1/attempt-001/FrozenTarget_cc89aee3a0518437.lean",
+            "feedback": "",
+            "target_sha256": "c704f915339fd75a56ed14bebc6f8f6b0dff540ef41cdb5f143add48ecbd74a3",
+            "target_olean_sha256": "78b769d05380f67af8e9c709012b87af87f7b1ef005dc7fdb564004eb77b9e7b",
+            "source_sha256": "04d0d0a397ad8c310b31c88eacf495ca48214c3f1051a3bdea97611c4abcf144",
+            "olean_sha256": "3f8b14d7c414a22211a8305828340a065514b6ca379e19ac834073e489876c17",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:51:49.085127+00:00",
+        "work": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-liixiws1",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "6e48edf21075eaf8585a7612b83a691794e4ad5ebb0815b0ef18f5fd8053ab08",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-liixiws1/attempt-001/Candidate_cc89aee3a0518437.lean",
+        "environment_sha256": "9ed3fba982e729da57bca302162ffd637f792940c9446424e37b28cee7e156db",
+        "artifacts": {
+          "global_birth_later": {
+            "payload": {
+              "declaration": "theorem M5.Final.global_birth_later : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → M5.Final.GlobalClause w F ∧ M5.Final.ProgressionClause w F ∧ M5.Final.BirthClause w F ∧ M5.Final.LaterClause w F := by\n  change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → M5.Final.GlobalClause w F ∧ M5.Final.ProgressionClause w F ∧ M5.Final.BirthClause w F ∧ M5.Final.LaterClause w F\n  intro w F hw hmon hconst\n  refine ⟨M5.GlobalCriterion.global_occurrence_criterion w F hw hmon hconst,\n    M5.GlobalCriterion.positive_bounded_progression w F hw hmon hconst, ?_,\n    M5.ArithmeticWorkflow.later_exception w F hw hmon hconst⟩\n  unfold M5.Final.BirthClause\n  refine ⟨?_, M5.ArithmeticWorkflow.birth_none w F hw hmon hconst⟩\n  intro hA\n  obtain ⟨b, hbirth, hreal, hminimal⟩ :=\n    M5.ArithmeticWorkflow.birth_exact w F hw hmon hconst hA\n  obtain ⟨S, U, hSU⟩ := hreal\n  have hreal : ∃ S U : Finset ℕ, M5.PhysicalOrder.realizes b w F S U := ⟨S, U, hSU⟩\n  obtain ⟨hperiod, hwb, hdegree⟩ :=\n    M5.OrderBoundary.signature_lower_bounds b w F S U hmon hconst hSU\n  obtain ⟨S₀, U₀, N, E, hE, hN, hprogression⟩ :=\n    M5.GlobalCriterion.positive_bounded_progression w F hw hmon hconst hA\n  have hsource : M5.PhysicalOrder.realizes N w F S₀ U₀ := by\n    simpa only [zero_mul, add_zero] using hprogression 0\n  have hbN : b ≤ N := hminimal N ⟨S₀, U₀, hsource⟩\n  have hwpos : 0 < w := lt_of_lt_of_le (by decide : 0 < (2 : ℕ)) hw\n  have hbpos : 0 < b := lt_of_lt_of_le hwpos hwb\n  refine ⟨b, hbirth, le_trans hbN (Nat.le_of_lt hN),\n    max_le hwb (Nat.succ_le_of_lt hdegree), hperiod, ?_, hreal, hminimal⟩\n  exact (M5.ArithmeticWorkflow.order_count_iff b w F hbpos hwpos hmon hconst).2 hreal",
+              "imports": [
+                "M5OriginalSpec"
+              ],
+              "name": "M5.Final.global_birth_later",
+              "ancestors": [],
+              "spec_sha256": "0218de6ed814a90931669d350f6485d3b58d76772db3a3f9c85458f3b4a385c3"
+            },
+            "sha256": "10a8326c23b1f20986d80e2804a2f8072df03ed9826636d5fc0cfa20dbd48d50"
+          }
+        }
+      }
+    },
+    "normalization": {
+      "id": "normalization",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Final.normalization",
+        "spec_sha256": "6c687de80a75107109cdc7b2719dcac9a0a8779041fbb3ac3ffdae8a30381a4e",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-fyjst544/attempt-001/Candidate_18aca1b073fc2a0f.lean",
+            "target_path": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-fyjst544/attempt-001/FrozenTarget_18aca1b073fc2a0f.lean",
+            "feedback": "",
+            "target_sha256": "1e895bba2db1b82ae1f97ef25bb1c1e7bab876b736e2ae213038e9e82e15e9c2",
+            "target_olean_sha256": "099fe590749a48f0440e21934bfa40b55de58f00c300fdcc4b54b9a6d57886de",
+            "source_sha256": "984e485755d3cbc07b2f23e2c5744152ea1e93ef60aee36d2bbb209efd2110ad",
+            "olean_sha256": "e226a7b573272390c4bda28ba4b742db0383a3aa7c91da922213be287e76d43e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:51:49.205116+00:00",
+        "work": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-fyjst544",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "6e48edf21075eaf8585a7612b83a691794e4ad5ebb0815b0ef18f5fd8053ab08",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-fyjst544/attempt-001/Candidate_18aca1b073fc2a0f.lean",
+        "environment_sha256": "9ed3fba982e729da57bca302162ffd637f792940c9446424e37b28cee7e156db",
+        "artifacts": {
+          "normalization": {
+            "payload": {
+              "declaration": "theorem M5.Final.normalization : M5.Final.NormalizationClause := by\n  change M5.Final.NormalizationClause\n  unfold M5.Final.NormalizationClause\n  exact M5.Translation.anchored_normalization",
+              "imports": [
+                "M5OriginalSpec"
+              ],
+              "name": "M5.Final.normalization",
+              "ancestors": [],
+              "spec_sha256": "6c687de80a75107109cdc7b2719dcac9a0a8779041fbb3ac3ffdae8a30381a4e"
+            },
+            "sha256": "2457a57928274d20bf3fce92a774aeb3a1f16598fcd6146673bb07fc3c34f8e4"
+          }
+        }
+      }
+    },
+    "period_and_order": {
+      "id": "period_and_order",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Final.period_and_order",
+        "spec_sha256": "457f98a27cf7107f161de9e88283f8baa77232d32349391ec0ec0c660c5cc79d",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-7jlmyrju/attempt-001/Candidate_3a34da9fbc971adc.lean",
+            "target_path": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-7jlmyrju/attempt-001/FrozenTarget_3a34da9fbc971adc.lean",
+            "feedback": "",
+            "target_sha256": "57739867ced78d626dfcf2a86c4ce714d9dcc3d0608c7c4490e1246326daa650",
+            "target_olean_sha256": "4440003a8756d558098f915dfb807355f4e5ef2a1915f4e551dcfbc9f71b77bf",
+            "source_sha256": "a7eddfeb306b14001858477c4bc52b0c6ff8e9a68636c458ebd4b855d24212f6",
+            "olean_sha256": "091ebec764266b417929afb3a45034a9b066d23ad5c5419e3c0227c286119831",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:51:49.311132+00:00",
+        "work": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-7jlmyrju",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "6e48edf21075eaf8585a7612b83a691794e4ad5ebb0815b0ef18f5fd8053ab08",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-7jlmyrju/attempt-001/Candidate_3a34da9fbc971adc.lean",
+        "environment_sha256": "9ed3fba982e729da57bca302162ffd637f792940c9446424e37b28cee7e156db",
+        "artifacts": {
+          "period_and_order": {
+            "payload": {
+              "declaration": "theorem M5.Final.period_and_order : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.Final.PeriodClause F ∧ M5.Final.OrderClause w F ∧ M5.Final.LowerClause w F ∧ M5.Final.WeightOneClause F := by\n  change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.Final.PeriodClause F ∧ M5.Final.OrderClause w F ∧ M5.Final.LowerClause w F ∧ M5.Final.WeightOneClause F\n  intro w F hw hF h0\n  refine ⟨?_, ?_, ?_, ?_⟩\n  · unfold M5.Final.PeriodClause\n    obtain ⟨hp, hlaw⟩ := M5.Period.period_law F hF h0\n    exact ⟨hp, M5.PeriodSearch.finite_search_eq_period F hF h0, hlaw, M5.PeriodSearch.finite_search_one⟩\n  · unfold M5.Final.OrderClause\n    intro N hN\n    exact ⟨M5.ArithmeticWorkflow.order_count_nonnegative N w F hN hw hF h0,\n      M5.ArithmeticWorkflow.order_count_iff N w F hN hw hF h0,\n      M5.ArithmeticWorkflow.order_exception N w F hN hw hF h0,\n      M5.OrderCount.exact_C N w F hN hw hF⟩\n  · unfold M5.Final.LowerClause\n    intro N S U hreal\n    obtain ⟨hp, hwN, hdN⟩ := M5.OrderBoundary.signature_lower_bounds N w F S U hF h0 hreal\n    exact ⟨hp, max_le hwN (Nat.succ_le_of_lt hdN)⟩\n  · unfold M5.Final.WeightOneClause\n    intro N S U\n    exact M5.OrderBoundary.weight_one_iff N F S U",
+              "imports": [
+                "M5OriginalSpec"
+              ],
+              "name": "M5.Final.period_and_order",
+              "ancestors": [],
+              "spec_sha256": "457f98a27cf7107f161de9e88283f8baa77232d32349391ec0ec0c660c5cc79d"
+            },
+            "sha256": "64dd6de9548e07e588b20819ff31908517d3e1075f5ad97145d2725b7ccee951"
+          }
+        }
+      }
+    },
+    "core": {
+      "id": "core",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.Final.core",
+        "spec_sha256": "05423b129a9a8f64d6a7665466ae23962570132064787f86ebbbe3ca8a8527aa",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-0_6ru0rc/attempt-001/Candidate_b5912703ac8aef0a.lean",
+            "target_path": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-0_6ru0rc/attempt-001/FrozenTarget_b5912703ac8aef0a.lean",
+            "feedback": "",
+            "target_sha256": "463f5a4e337be703754d6029f0c2ef466341511fe02e3892017ca102bfedfe54",
+            "target_olean_sha256": "db39ae6d27dd0621335c57a6e68d2ac1237d584d98be227f2c1dc4c96d7b5999",
+            "source_sha256": "3407ab80bb58ab5667f7fd9be27f175bdfcba3d4dd9abf186dd37e24a2dc1eca",
+            "olean_sha256": "db66969078d0b1448c834f69f301fabca37deae7fc50204bc97029aea34d76b6",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T09:53:27.376135+00:00",
+        "work": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-0_6ru0rc",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "6e48edf21075eaf8585a7612b83a691794e4ad5ebb0815b0ef18f5fd8053ab08",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-original-root-formalization/.humanize-formal-runs/run-0_6ru0rc/attempt-001/Candidate_b5912703ac8aef0a.lean",
+        "environment_sha256": "9ed3fba982e729da57bca302162ffd637f792940c9446424e37b28cee7e156db",
+        "artifacts": {
+          "period_and_order": {
+            "payload": {
+              "declaration": "theorem M5.Final.period_and_order : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.Final.PeriodClause F ∧ M5.Final.OrderClause w F ∧ M5.Final.LowerClause w F ∧ M5.Final.WeightOneClause F := by\n  change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.Final.PeriodClause F ∧ M5.Final.OrderClause w F ∧ M5.Final.LowerClause w F ∧ M5.Final.WeightOneClause F\n  intro w F hw hF h0\n  refine ⟨?_, ?_, ?_, ?_⟩\n  · unfold M5.Final.PeriodClause\n    obtain ⟨hp, hlaw⟩ := M5.Period.period_law F hF h0\n    exact ⟨hp, M5.PeriodSearch.finite_search_eq_period F hF h0, hlaw, M5.PeriodSearch.finite_search_one⟩\n  · unfold M5.Final.OrderClause\n    intro N hN\n    exact ⟨M5.ArithmeticWorkflow.order_count_nonnegative N w F hN hw hF h0,\n      M5.ArithmeticWorkflow.order_count_iff N w F hN hw hF h0,\n      M5.ArithmeticWorkflow.order_exception N w F hN hw hF h0,\n      M5.OrderCount.exact_C N w F hN hw hF⟩\n  · unfold M5.Final.LowerClause\n    intro N S U hreal\n    obtain ⟨hp, hwN, hdN⟩ := M5.OrderBoundary.signature_lower_bounds N w F S U hF h0 hreal\n    exact ⟨hp, max_le hwN (Nat.succ_le_of_lt hdN)⟩\n  · unfold M5.Final.WeightOneClause\n    intro N S U\n    exact M5.OrderBoundary.weight_one_iff N F S U",
+              "imports": [
+                "M5OriginalSpec"
+              ],
+              "name": "M5.Final.period_and_order",
+              "ancestors": [],
+              "spec_sha256": "457f98a27cf7107f161de9e88283f8baa77232d32349391ec0ec0c660c5cc79d"
+            },
+            "sha256": "64dd6de9548e07e588b20819ff31908517d3e1075f5ad97145d2725b7ccee951"
+          },
+          "normalization": {
+            "payload": {
+              "declaration": "theorem M5.Final.normalization : M5.Final.NormalizationClause := by\n  change M5.Final.NormalizationClause\n  unfold M5.Final.NormalizationClause\n  exact M5.Translation.anchored_normalization",
+              "imports": [
+                "M5OriginalSpec"
+              ],
+              "name": "M5.Final.normalization",
+              "ancestors": [],
+              "spec_sha256": "6c687de80a75107109cdc7b2719dcac9a0a8779041fbb3ac3ffdae8a30381a4e"
+            },
+            "sha256": "2457a57928274d20bf3fce92a774aeb3a1f16598fcd6146673bb07fc3c34f8e4"
+          },
+          "global_birth_later": {
+            "payload": {
+              "declaration": "theorem M5.Final.global_birth_later : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → M5.Final.GlobalClause w F ∧ M5.Final.ProgressionClause w F ∧ M5.Final.BirthClause w F ∧ M5.Final.LaterClause w F := by\n  change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 2 ≤ w → F.Monic → F.coeff 0 = 1 → M5.Final.GlobalClause w F ∧ M5.Final.ProgressionClause w F ∧ M5.Final.BirthClause w F ∧ M5.Final.LaterClause w F\n  intro w F hw hmon hconst\n  refine ⟨M5.GlobalCriterion.global_occurrence_criterion w F hw hmon hconst,\n    M5.GlobalCriterion.positive_bounded_progression w F hw hmon hconst, ?_,\n    M5.ArithmeticWorkflow.later_exception w F hw hmon hconst⟩\n  unfold M5.Final.BirthClause\n  refine ⟨?_, M5.ArithmeticWorkflow.birth_none w F hw hmon hconst⟩\n  intro hA\n  obtain ⟨b, hbirth, hreal, hminimal⟩ :=\n    M5.ArithmeticWorkflow.birth_exact w F hw hmon hconst hA\n  obtain ⟨S, U, hSU⟩ := hreal\n  have hreal : ∃ S U : Finset ℕ, M5.PhysicalOrder.realizes b w F S U := ⟨S, U, hSU⟩\n  obtain ⟨hperiod, hwb, hdegree⟩ :=\n    M5.OrderBoundary.signature_lower_bounds b w F S U hmon hconst hSU\n  obtain ⟨S₀, U₀, N, E, hE, hN, hprogression⟩ :=\n    M5.GlobalCriterion.positive_bounded_progression w F hw hmon hconst hA\n  have hsource : M5.PhysicalOrder.realizes N w F S₀ U₀ := by\n    simpa only [zero_mul, add_zero] using hprogression 0\n  have hbN : b ≤ N := hminimal N ⟨S₀, U₀, hsource⟩\n  have hwpos : 0 < w := lt_of_lt_of_le (by decide : 0 < (2 : ℕ)) hw\n  have hbpos : 0 < b := lt_of_lt_of_le hwpos hwb\n  refine ⟨b, hbirth, le_trans hbN (Nat.le_of_lt hN),\n    max_le hwb (Nat.succ_le_of_lt hdegree), hperiod, ?_, hreal, hminimal⟩\n  exact (M5.ArithmeticWorkflow.order_count_iff b w F hbpos hwpos hmon hconst).2 hreal",
+              "imports": [
+                "M5OriginalSpec"
+              ],
+              "name": "M5.Final.global_birth_later",
+              "ancestors": [],
+              "spec_sha256": "0218de6ed814a90931669d350f6485d3b58d76772db3a3f9c85458f3b4a385c3"
+            },
+            "sha256": "10a8326c23b1f20986d80e2804a2f8072df03ed9826636d5fc0cfa20dbd48d50"
+          },
+          "core": {
+            "payload": {
+              "declaration": "theorem M5.Final.core : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.Final.OriginalM5Core w F := by\n  change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.Final.OriginalM5Core w F\n  intro w F hw hmon hconst\n  obtain ⟨hperiod, horder, hlower, hone⟩ :=\n    M5.Final.period_and_order w F hw hmon hconst\n  unfold M5.Final.OriginalM5Core\n  refine ⟨hperiod, horder, hlower, hone, M5.Final.normalization, ?_⟩\n  intro hw₂\n  exact M5.Final.global_birth_later w F hw₂ hmon hconst",
+              "imports": [
+                "M5OriginalSpec"
+              ],
+              "name": "M5.Final.core",
+              "ancestors": [
+                "global_birth_later",
+                "normalization",
+                "period_and_order"
+              ],
+              "spec_sha256": "68bf6107797d8bf6b06f09dba658622de1722e9dbd8e98b4e906ded399d6c783"
+            },
+            "sha256": "285cadb4347520ef183d2bb51d2b3970b120da832398f05e70021152ca4c08df"
+          }
+        }
+      }
+    }
+  }
+}

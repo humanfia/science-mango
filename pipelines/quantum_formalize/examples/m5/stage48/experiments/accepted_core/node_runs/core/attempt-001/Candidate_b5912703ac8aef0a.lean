@@ -1,0 +1,10 @@
+import FrozenTarget_b5912703ac8aef0a
+theorem M5.Final.core : QuantumHarnessFrozenTarget := by
+  change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.Final.OriginalM5Core w F
+  intro w F hw hmon hconst
+  obtain ⟨hperiod, horder, hlower, hone⟩ :=
+    M5.Final.period_and_order w F hw hmon hconst
+  unfold M5.Final.OriginalM5Core
+  refine ⟨hperiod, horder, hlower, hone, M5.Final.normalization, ?_⟩
+  intro hw₂
+  exact M5.Final.global_birth_later w F hw₂ hmon hconst

@@ -23,7 +23,7 @@ Active:
 - Stage44 complete: empty, branch-partition and terminal semantic prefix counts; actual oracle identification remains in46/47.
 - Stage45 complete: finite search through1..2^degree F returns exactly the mathematical period, including F=1.
 - Stages46/47: actual binary/residue recovery experiments running.
-- Stage48: final original-scope root and independent Core experiment prepared; actual recovery proof gates remain.
+- Stage48: four Core targets and combined assembly accepted; final root still awaits actual46/47 recovery proofs and the final three connections.
 
 Settings: gpt-6-astra / medium, proof concurrency ceiling16, five attempts per node. Prompts now include bounded hash-recorded local M5 declaration interfaces as untrusted references alongside Mathlib/Physlib retrieval. Exact target/source/axiom gates are unchanged.
 

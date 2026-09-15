@@ -1,0 +1,200 @@
+[
+  {
+    "queries": [
+      "natural order lower bound conjunction",
+      "finite arithmetic recovery correctness"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "natural order lower bound conjunction",
+        "status": "ok",
+        "results": [
+          {
+            "id": 279649,
+            "name": "lowerBounds",
+            "module": "Mathlib.Order.Bounds.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L33-L33",
+            "source_text": "@[to_dual /-- The set of lower bounds of a set. -/]\ndef upperBounds (s : Set α) : Set α :=",
+            "docstring": "The set of lower bounds of a set. "
+          },
+          {
+            "id": 290845,
+            "name": "WithBot.Iio_coe",
+            "module": "Mathlib.Order.Interval.Set.WithBotTop",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Interval/Set/WithBotTop.lean#L117-L117",
+            "source_text": "@[to_dual]\ntheorem Ioi_coe : Ioi (a : WithTop α) = (↑) '' (Ioi a) ∪ {⊤} := by",
+            "docstring": null
+          },
+          {
+            "id": 291735,
+            "name": "Filter.gt_mem_sets_of_limsInf_gt",
+            "module": "Mathlib.Order.LiminfLimsup",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/LiminfLimsup.lean#L969-L970",
+            "source_text": "theorem gt_mem_sets_of_limsInf_gt : f.IsBounded (· ≥ ·) → b < f.limsInf → ∀ᶠ a in f, b < a :=\n  @lt_mem_sets_of_limsSup_lt αᵒᵈ _ _ _\n",
+            "docstring": null
+          },
+          {
+            "id": 188030,
+            "name": "Behrend.roth_lower_bound",
+            "module": "Mathlib.Combinatorics.Additive.AP.Three.Behrend",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Additive/AP/Three/Behrend.lean#L481-L487",
+            "source_text": "theorem roth_lower_bound : (N : ℝ) * exp (-4 * √(log N)) ≤ rothNumberNat N := by\n  obtain rfl | hN := Nat.eq_zero_or_pos N\n  · simp\n  obtain h₁ | h₁ := le_or_gt 4096 N\n  · exact (roth_lower_bound_explicit h₁).le\n  · apply (lower_bound_le_one hN h₁.le).trans\n    simpa using! rothNumberNat.monotone hN\n",
+            "docstring": null
+          },
+          {
+            "id": 291676,
+            "name": "Filter.bliminf_sup_le_and_aux_right",
+            "module": "Mathlib.Order.LiminfLimsup",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/LiminfLimsup.lean#L587-L589",
+            "source_text": "@[simp]\ntheorem bliminf_sup_le_and_aux_right : bliminf u f q ≤ bliminf u f fun x => p x ∧ q x :=\n  le_sup_right.trans bliminf_sup_le_and",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "natural order lower bound conjunction",
+        "status": "ok",
+        "results": [
+          {
+            "id": 390554,
+            "name": "LinearPMap.IsLowerBound",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L116-L117",
+            "source_text": "/-- `IsLowerBound T z c` is the property that `c * ‖x‖ ≤ ‖T x - z • x‖` for all `x : T.domain`. -/\ndef IsLowerBound (T : H →ₗ.[ℂ] H) (z : ℂ) (c : ℝ) : Prop := ∀ x : T.domain, c * ‖x‖ ≤ ‖T x - z • x‖\n",
+            "docstring": "`IsLowerBound T z c` is the property that `c * ‖x‖ ≤ ‖T x - z • x‖` for all `x : T.domain`. "
+          },
+          {
+            "id": 390556,
+            "name": "LinearPMap.isLowerBound_of_right_le",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L123-L126",
+            "source_text": "lemma isLowerBound_of_right_le\n    {T : H →ₗ.[ℂ] H} {z : ℂ} {c₁ c₂ : ℝ} (hle : c₁ ≤ c₂) (h : IsLowerBound T z c₂) :\n    IsLowerBound T z c₁ :=\n  fun x ↦ (mul_le_mul_of_nonneg_right hle (norm_nonneg x)).trans (h x)\n",
+            "docstring": null
+          },
+          {
+            "id": 390557,
+            "name": "LinearPMap.isLowerBound_of_left_le",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L128-L131",
+            "source_text": "lemma isLowerBound_of_left_le\n    {T₁ T₂ : H →ₗ.[ℂ] H} (hle : T₁ ≤ T₂) {z : ℂ} {c : ℝ} (h : IsLowerBound T₂ z c) :\n    IsLowerBound T₁ z c :=\n  fun x ↦ @hle.2 x ⟨x, hle.1 x.2⟩ rfl ▸ h ⟨x, hle.1 x.2⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 390558,
+            "name": "LinearPMap.isLowerBound_closure",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L133-L144",
+            "source_text": "lemma isLowerBound_closure\n    {T : H →ₗ.[ℂ] H} {z : ℂ} {c : ℝ} (h : IsLowerBound T z c) : IsLowerBound T.closure z c := by\n  by_cases hT : T.IsClosable\n  · intro x\n    obtain ⟨b, hb, hb'⟩ := mem_closure_iff_seq_limit.mp <|\n      hT.graph_closure_eq_closure_graph ▸ T.closure.mem_graph x\n    rw [nhds_prod_eq] at hb'\n    refine le_of_tendsto_of_tendsto' (hb'.fst.norm.const_mul c)\n      ((hb'.snd.sub <| hb'.fst.const_smul z).norm) fun n ↦ ?_\n    obtain ⟨y, hy₁, hy₂⟩ := (mem_graph_iff _).mp (hb n)\n    exact hy₁ ▸ hy₂ ▸ h y\n  · rwa [closure_def' hT]\n",
+            "docstring": null
+          },
+          {
+            "id": 390555,
+            "name": "LinearPMap.isLowerBound_neg",
+            "module": "Physlib.QuantumMechanics.Operators.SpectralTheory.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/SpectralTheory/Basic.lean#L119-L121",
+            "source_text": "lemma isLowerBound_neg {T : H →ₗ.[ℂ] H} {z : ℂ} {c : ℝ} (h : IsLowerBound T z c) :\n    IsLowerBound (-T) (-z) c :=\n  fun x ↦ by simpa [neg_apply, norm_neg_add] using h x\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite arithmetic recovery correctness",
+        "status": "ok",
+        "results": [
+          {
+            "id": 63917,
+            "name": "GenContFract.of_correctness_of_terminates",
+            "module": "Mathlib.Algebra.ContinuedFractions.Computation.CorrectnessTerminating",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/ContinuedFractions/Computation/CorrectnessTerminating.lean#L222-L228",
+            "source_text": "/-- If `GenContFract.of v` terminates, then there is `n : ℕ` such that the `n`th convergent is\nexactly `v`.\n-/\ntheorem of_correctness_of_terminates (terminates : (of v).Terminates) :\n    ∃ n : ℕ, v = (of v).convs n :=\n  Exists.elim terminates fun n terminatedAt_n =>\n    Exists.intro n (of_correctness_of_terminatedAt terminatedAt_n)\n",
+            "docstring": "If `GenContFract.of v` terminates, then there is `n : ℕ` such that the `n`th convergent is\nexactly `v`.\n"
+          },
+          {
+            "id": 273700,
+            "name": "Subgroup.IsArithmetic.finiteIndex_comap",
+            "module": "Mathlib.NumberTheory.ModularForms.ArithmeticSubgroups",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ModularForms/ArithmeticSubgroups.lean#L103-L106",
+            "source_text": "/-- If `Γ` is arithmetic, its preimage in `SL(2, ℤ)` has finite index. -/\ninstance IsArithmetic.finiteIndex_comap (𝒢 : Subgroup (GL (Fin 2) ℝ)) [IsArithmetic 𝒢] :\n    (𝒢.comap (mapGL (R := ℤ) ℝ)).FiniteIndex :=\n  ⟨𝒢.index_comap (mapGL (R := ℤ) ℝ) ▸ IsArithmetic.is_commensurable.1⟩\n",
+            "docstring": "If `Γ` is arithmetic, its preimage in `SL(2, ℤ)` has finite index. "
+          },
+          {
+            "id": 273698,
+            "name": "Subgroup.isArithmetic_iff_finiteIndex",
+            "module": "Mathlib.NumberTheory.ModularForms.ArithmeticSubgroups",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ModularForms/ArithmeticSubgroups.lean#L93-L97",
+            "source_text": "lemma isArithmetic_iff_finiteIndex {Γ : Subgroup SL(2, ℤ)} : IsArithmetic Γ ↔ Γ.FiniteIndex := by\n  constructor <;>\n  · refine fun ⟨h⟩ ↦ ⟨?_⟩\n    simpa [Commensurable, MonoidHom.range_eq_map, ← relIndex_comap,\n      comap_map_eq_self_of_injective mapGL_injective] using h\n",
+            "docstring": null
+          },
+          {
+            "id": 271130,
+            "name": "ArithmeticFunction",
+            "module": "Mathlib.NumberTheory.ArithmeticFunction.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/ArithmeticFunction/Defs.lean#L46-L50",
+            "source_text": "/-- An arithmetic function is a function from `ℕ` that maps 0 to 0. In the literature, they are\n  often instead defined as functions from `ℕ+`. Multiplication on `ArithmeticFunctions` is by\n  Dirichlet convolution. -/\ndef ArithmeticFunction [Zero R] :=\n  ZeroHom ℕ R\n",
+            "docstring": "An arithmetic function is a function from `ℕ` that maps 0 to 0. In the literature, they are\noften instead defined as functions from `ℕ+`. Multiplication on `ArithmeticFunctions` is by\nDirichlet convolution. "
+          },
+          {
+            "id": 200952,
+            "name": "FP.instDecidableValidFinite",
+            "module": "Mathlib.Data.FP.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/FP/Basic.lean#L59-L59",
+            "source_text": "deriving Decidable\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "global_birth_later",
+    "receipts_sha256": "03e60506ddc58926df6998a076389112e50d32f24f448d819c7986e181fb3947"
+  }
+]

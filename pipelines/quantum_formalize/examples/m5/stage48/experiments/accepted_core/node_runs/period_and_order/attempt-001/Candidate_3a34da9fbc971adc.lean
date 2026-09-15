@@ -1,0 +1,21 @@
+import FrozenTarget_3a34da9fbc971adc
+theorem M5.Final.period_and_order : QuantumHarnessFrozenTarget := by
+  change ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.Final.PeriodClause F ∧ M5.Final.OrderClause w F ∧ M5.Final.LowerClause w F ∧ M5.Final.WeightOneClause F
+  intro w F hw hF h0
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · unfold M5.Final.PeriodClause
+    obtain ⟨hp, hlaw⟩ := M5.Period.period_law F hF h0
+    exact ⟨hp, M5.PeriodSearch.finite_search_eq_period F hF h0, hlaw, M5.PeriodSearch.finite_search_one⟩
+  · unfold M5.Final.OrderClause
+    intro N hN
+    exact ⟨M5.ArithmeticWorkflow.order_count_nonnegative N w F hN hw hF h0,
+      M5.ArithmeticWorkflow.order_count_iff N w F hN hw hF h0,
+      M5.ArithmeticWorkflow.order_exception N w F hN hw hF h0,
+      M5.OrderCount.exact_C N w F hN hw hF⟩
+  · unfold M5.Final.LowerClause
+    intro N S U hreal
+    obtain ⟨hp, hwN, hdN⟩ := M5.OrderBoundary.signature_lower_bounds N w F S U hF h0 hreal
+    exact ⟨hp, max_le hwN (Nat.succ_le_of_lt hdN)⟩
+  · unfold M5.Final.WeightOneClause
+    intro N S U
+    exact M5.OrderBoundary.weight_one_iff N F S U

@@ -1,0 +1,20 @@
+import M5PhysicalRecovery
+#print axioms M5.OrderCount.divisor_subset_domain
+#print axioms M5.OrderCount.two_block_divisibility_count
+#print axioms M5.OrderCount.arithmetic_indicator_expansion
+#print axioms M5.OrderCount.exact_C
+#print axioms M5.OrderCount.C_nonnegative
+#print axioms M5.OrderCount.C_positive_iff_realization
+#print axioms M5.ConditionalCount.restricted_subset_domain
+#print axioms M5.ConditionalCount.selected_divisor_indicator
+#print axioms M5.ConditionalCount.two_block_completion_count
+#print axioms M5.ConditionalCount.conditional_arithmetic_expansion
+#print axioms M5.ConditionalCount.exact_completion_C
+#print axioms M5.ConditionalCount.completion_nonnegative_and_exists
+#print axioms M5.BinaryRecovery.recover_length
+#print axioms M5.BinaryRecovery.recover_positive
+#print axioms M5.BinaryRecovery.recover_valid
+#print axioms M5.PrefixPartition.count_empty
+#print axioms M5.PrefixPartition.count_terminal
+#print axioms M5.PrefixPartition.prefix_next
+#print axioms M5.PrefixPartition.count_partition
