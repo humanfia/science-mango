@@ -1,0 +1,119 @@
+{
+  "id": "exact_conditionalA",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ConditionalResidueCount.exact_conditionalA",
+    "spec_sha256": "8fd48cc7edd75a3bd4549871d5a300a039b03e3cf311e0ce69288c63ed1d56c6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-5xoyy1my/attempt-001/Candidate_c66c070862111ac2.lean:7:58: warning: `if_pos` has been deprecated: Use `ite_eq_left` instead\n/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-5xoyy1my/attempt-001/Candidate_c66c070862111ac2.lean:12:6: warning: Possibly looping simp theorem: `Finset.card_eq_sum_ones`\n\nNote: Possibly caused by: `Finset.sum_const`\n\nHint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.\n/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-5xoyy1my/attempt-001/Candidate_c66c070862111ac2.lean:10:4: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-5xoyy1my/attempt-002/Candidate_cd68c7260aef088b.lean",
+        "target_path": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-5xoyy1my/attempt-002/FrozenTarget_cd68c7260aef088b.lean",
+        "feedback": "",
+        "target_sha256": "43b5bedff50198f534d937f82780177f4390b5d4b42ed0a44df07d7dd4715632",
+        "target_olean_sha256": "402f6c5f7b0a792bf0a4ed231fee97b1c1714203bb80ef4a0d2d213addc46ede",
+        "source_sha256": "544dfa61a29275169b15b1eb83f0d760231ed0e9eb936f589ef9b937b7951088",
+        "olean_sha256": "e20512067a27930cd59d8e942d4c4d12874daf1c29e62b99e4829bef66bfedb0",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T09:42:37.215375+00:00",
+    "work": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-5xoyy1my",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "764ebfecfe28c3d0e78823f8ba37012f66ce7fd2d729aa764cc1727d2332a77c",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-5xoyy1my/attempt-002/Candidate_cd68c7260aef088b.lean",
+    "environment_sha256": "68b75574f97a251a83febfe6ba6eb088bd33a87c30831f4f97e38bc6deb4ec28",
+    "artifacts": {
+      "prefix_gcd_divisibility": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalResidueCount.prefix_gcd_divisibility : ∀ (T d : ℕ) (p q : List (Fin T)), (d ∣ M5.ConditionalResidueCount.selectedGcd T p q ↔ d ∣ T ∧ (∀ r ∈ p, d ∣ r.val) ∧ (∀ r ∈ q, d ∣ r.val)) := by\n  change ∀ (T d : ℕ) (p q : List (Fin T)), _\n  intro T d p q\n  have hl {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n      d ∣ l.foldl (fun g r => Nat.gcd g (f r)) s ↔\n        d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n    induction l generalizing s with\n    | nil => simp\n    | cons a l ih =>\n        simp [List.foldl_cons, ih, Nat.dvd_gcd_iff, and_assoc]\n  have hr {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n      d ∣ l.foldr (fun r g => Nat.gcd (f r) g) s ↔\n        d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n    induction l with\n    | nil => simp\n    | cons a l ih =>\n        simp [List.foldr_cons, ih, Nat.dvd_gcd_iff, and_assoc,\n          and_left_comm, and_comm]\n  simp [M5.ConditionalResidueCount.selectedGcd,\n    M5.ConditionalResidueCount.prefixGcd, hl, hr,\n    Nat.dvd_gcd_iff, and_assoc]",
+          "imports": [
+            "M5ConditionalResidueCount"
+          ],
+          "name": "M5.ConditionalResidueCount.prefix_gcd_divisibility",
+          "ancestors": [],
+          "spec_sha256": "52f2d618ae76f0a2ca0c7aa9532f2e640e1329ab7f872c8b321b74f0b6a3cc77"
+        },
+        "sha256": "2f37f6b8de75b664f6c584f70c8a69417330eb118a57924468f950ba31a088a3"
+      },
+      "pair_indicator_exact": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalResidueCount.pair_indicator_exact : ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), ∀ (a : Fin (M5.ConditionalResidueCount.remaining w p) → Fin T) (b : Fin (M5.ConditionalResidueCount.remaining w q) → Fin T), 0 < T → F.Monic → F ∣ M5.cyclicModulus T → M5.ConditionalResidueCount.pairIndicator w F p q a b = M5.ConditionalResidueCount.feasibleIndicator w F p q a b := by\n  classical\n  change ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), _\n  intro T w F p q a b hT hF hFT\n  have hg : 0 < M5.ConditionalResidueCount.selectedGcd T p q :=\n    Nat.pos_of_dvd_of_pos\n      ((M5.ConditionalResidueCount.prefix_gcd_divisibility T\n        (M5.ConditionalResidueCount.selectedGcd T p q) p q).mp (dvd_refl _)).1 hT\n  have hc := M5.Connectivity.connected_indicator\n    (M5.ConditionalResidueCount.selectedGcd T p q)\n    (insert 0 (Finset.univ.image (fun i => (a i).val)))\n    (insert 0 (Finset.univ.image (fun i => (b i).val))) hg\n  simp [M5.Connectivity.supportGcd, Finset.gcd_image] at hc\n  have hp := M5.PolynomialIndicator.exact_signature_indicator\n    (M5.ConditionalResidueCount.completedPolynomial\n      (M5.ConditionalResidueCount.selectedPolynomial p) a)\n    (M5.ConditionalResidueCount.completedPolynomial\n      (M5.ConditionalResidueCount.selectedPolynomial q) b)\n    F T hT hF hFT\n  simp only [M5.ConditionalResidueCount.pairIndicator,\n    M5.ConditionalResidueCount.feasibleIndicator,\n    M5.ConditionalResidueCount.feasible]\n  try dsimp only\n  simp_all [M5.Connectivity.supportGcd, Finset.gcd_image,\n    mul_ite, ite_mul]\n  all_goals split_ifs <;> simp_all",
+          "imports": [
+            "M5ConditionalResidueCount"
+          ],
+          "name": "M5.ConditionalResidueCount.pair_indicator_exact",
+          "ancestors": [
+            "prefix_gcd_divisibility"
+          ],
+          "spec_sha256": "bf01fe1a09fc1ae71cec4752ba586c66dea2250947953b09cf455ec1dd6c149d"
+        },
+        "sha256": "f5347ceb2e8f8f79654909bcb2d5574b4550911ac9c28e38e3d8cfb115367fe7"
+      },
+      "selected_R_pair_count": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalResidueCount.selected_R_pair_count : ∀ (P ZA ZB : M5.BinaryPolynomial) (T d k l : ℕ), P.Monic → 0 < T → d ∣ T → M5.ConditionalResidueCount.RSelected P ZA T d k * M5.ConditionalResidueCount.RSelected P ZB T d l = ∑ a : Fin k → Fin T, ∑ b : Fin l → Fin T, M5.ConditionalResidueCount.divisibilityIndicator P ZA ZB d a b := by\n  classical\n  intro P ZA ZB T d k l hP hT hd\n  simp only [M5.ConditionalResidueCount.RSelected, dif_pos hP]\n  rw [M5.TupleCompletion.restricted_completion_R P hP ZA T d k hT hd,\n    M5.TupleCompletion.restricted_completion_R P hP ZB T d l hT hd]\n  unfold M5.TupleCompletion.restrictedCount M5.ConditionalResidueCount.divisibilityIndicator M5.ConditionalResidueCount.completedPolynomial\n  simp only [Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one, Finset.sum_filter]\n  rw [Finset.sum_mul]\n  simp_rw [Finset.mul_sum]\n  apply Finset.sum_congr rfl\n  intro a ha\n  apply Finset.sum_congr rfl\n  intro b hb\n  by_cases hqa : (∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ ZA + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (a i).val\n  <;> by_cases hqb : (∀ i : Fin l, d ∣ (b i).val) ∧ P ∣ ZB + ∑ i : Fin l, (Polynomial.X : M5.BinaryPolynomial) ^ (b i).val\n  <;> simp [hqa, hqb]",
+          "imports": [
+            "M5ConditionalResidueCount"
+          ],
+          "name": "M5.ConditionalResidueCount.selected_R_pair_count",
+          "ancestors": [],
+          "spec_sha256": "092d82ce8b59162af3c97ad02f48284cff231409340af25e6726ec74e1fc85d9"
+        },
+        "sha256": "474157bc9b2c1f15342dbc0b7ffe2f5ab54fe9640c75100194a586391a1f9329"
+      },
+      "arithmetic_indicator_expansion": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalResidueCount.arithmetic_indicator_expansion : ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ConditionalResidueCount.rawConditionalA T w F p q = ∑ a : Fin (M5.ConditionalResidueCount.remaining w p) → Fin T, ∑ b : Fin (M5.ConditionalResidueCount.remaining w q) → Fin T, M5.ConditionalResidueCount.pairIndicator w F p q a b := by\n  classical\n  change ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), _\n  intro T w F p q hT hw hF hFT\n  have hcount (d : ℕ)\n      (hd : d ∈ (M5.ConditionalResidueCount.selectedGcd T p q).divisors)\n      (S : Finset M5.BinaryPolynomial)\n      (hS : S ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus T) F).powerset) :\n      M5.ConditionalResidueCount.RSelected (F * ∏ r ∈ S, r)\n        (M5.ConditionalResidueCount.selectedPolynomial p) T d\n        (M5.ConditionalResidueCount.remaining w p) *\n      M5.ConditionalResidueCount.RSelected (F * ∏ r ∈ S, r)\n        (M5.ConditionalResidueCount.selectedPolynomial q) T d\n        (M5.ConditionalResidueCount.remaining w q) =\n      ∑ a : Fin (M5.ConditionalResidueCount.remaining w p) → Fin T,\n        ∑ b : Fin (M5.ConditionalResidueCount.remaining w q) → Fin T,\n          M5.ConditionalResidueCount.divisibilityIndicator (F * ∏ r ∈ S, r)\n            (M5.ConditionalResidueCount.selectedPolynomial p)\n            (M5.ConditionalResidueCount.selectedPolynomial q) d a b := by\n    apply M5.ConditionalResidueCount.selected_R_pair_count\n    · apply hF.mul\n      apply Polynomial.monic_prod_of_monic\n      intro r hr\n      exact (M5.PolynomialIndicator.residual_factors_regular F T hT hF hFT r\n        ((Finset.mem_powerset.mp hS) hr)).1\n    · exact hT\n    · exact ((M5.ConditionalResidueCount.prefix_gcd_divisibility T d p q).mp\n        (Nat.mem_divisors.mp hd).1).1\n  have shuffle {α β γ δ : Type}\n      (s : Finset α) (t : Finset β) (u : Finset γ) (v : Finset δ)\n      (f : α → β → γ → δ → ℤ) :\n      (∑ i ∈ s, ∑ j ∈ t, ∑ k ∈ u, ∑ l ∈ v, f i j k l) =\n        ∑ k ∈ u, ∑ l ∈ v, ∑ i ∈ s, ∑ j ∈ t, f i j k l := by\n    conv_lhs =>\n      arg 2\n      ext i\n      rw [Finset.sum_comm]\n      arg 2\n      ext k\n      rw [Finset.sum_comm]\n    rw [Finset.sum_comm]\n    apply Finset.sum_congr rfl\n    intro k hk\n    rw [Finset.sum_comm]\n  unfold M5.ConditionalResidueCount.rawConditionalA\n    M5.ConditionalResidueCount.pairIndicator\n    M5.PolynomialIndicator.factorExclusionSum\n  simp (disch := assumption) only [hcount]\n  unfold M5.ConditionalResidueCount.divisibilityIndicator\n  simp only [Finset.mul_sum, Finset.sum_mul]\n  conv_lhs => rw [shuffle]\n  apply Finset.sum_congr rfl\n  intro a ha\n  apply Finset.sum_congr rfl\n  intro b hb\n  conv_rhs => rw [Finset.sum_comm]\n  apply Finset.sum_congr rfl\n  intro d hd\n  apply Finset.sum_congr rfl\n  intro S hS\n  by_cases ha' : ∀ i, d ∣ (a i).val\n  <;> by_cases hb' : ∀ i, d ∣ (b i).val\n  <;> by_cases hA : (F * ∏ r ∈ S, r) ∣\n      M5.ConditionalResidueCount.completedPolynomial\n        (M5.ConditionalResidueCount.selectedPolynomial p) a\n  <;> by_cases hB : (F * ∏ r ∈ S, r) ∣\n      M5.ConditionalResidueCount.completedPolynomial\n        (M5.ConditionalResidueCount.selectedPolynomial q) b\n  <;> simp [ha', hb', hA, hB, mul_assoc]",
+          "imports": [
+            "M5ConditionalResidueCount"
+          ],
+          "name": "M5.ConditionalResidueCount.arithmetic_indicator_expansion",
+          "ancestors": [
+            "prefix_gcd_divisibility",
+            "selected_R_pair_count"
+          ],
+          "spec_sha256": "ada9d8ddbbe0ff106219935569f22ca8f209955e27155ff4207d3d5b1cf11667"
+        },
+        "sha256": "182cc98e0569c2fa49a3fe8bc28637b6da2acb2aa0cc0c45df2589da6038bb77"
+      },
+      "exact_conditionalA": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalResidueCount.exact_conditionalA : ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ConditionalResidueCount.conditionalAAt T w F p q = (M5.ConditionalResidueCount.validCompletions T w F p q).card := by\n  classical\n  change ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), _\n  intro T w F p q hT hw hF hFT\n  by_cases hf : M5.ConditionalResidueCount.fits w p q\n  · simp only [M5.ConditionalResidueCount.conditionalAAt, if_pos hf]\n    rw [M5.ConditionalResidueCount.arithmetic_indicator_expansion T w F p q hT hw hF hFT]\n    simp_rw [M5.ConditionalResidueCount.pair_indicator_exact T w F p q _ _ hT hF hFT]\n    simp only [M5.ConditionalResidueCount.validCompletions, if_pos hf]\n    simp only [Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one,\n      Finset.sum_filter, Fintype.sum_prod_type, Finset.sum_product]\n    simp [M5.ConditionalResidueCount.feasibleIndicator, hf]\n  · simp [M5.ConditionalResidueCount.conditionalAAt,\n      M5.ConditionalResidueCount.validCompletions, hf]",
+          "imports": [
+            "M5ConditionalResidueCount"
+          ],
+          "name": "M5.ConditionalResidueCount.exact_conditionalA",
+          "ancestors": [
+            "arithmetic_indicator_expansion",
+            "pair_indicator_exact",
+            "prefix_gcd_divisibility",
+            "selected_R_pair_count"
+          ],
+          "spec_sha256": "742e05b652933738f65d14342e64d6137ef9bacf85088835b512dbe02babcb5a"
+        },
+        "sha256": "f2935d0bd909696c7d96da8c16dadbf66bf0146cbd1120948f420689591ade0f"
+      }
+    }
+  }
+}

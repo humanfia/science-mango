@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin (M5.signaturePeriod F))), _\nintro w F p q hw hF hF0\nhave hperiod := M5.Period.period_law F hF hF0\nhave hdiv : F ∣ M5.cyclicModulus (M5.signaturePeriod F) :=\n  (hperiod.2 (M5.signaturePeriod F)).2 (dvd_refl _)\nhave he : M5.ConditionalResidueCount.conditionalA w F p q =\n    (M5.ConditionalResidueCount.validCompletions (M5.signaturePeriod F) w F p q).card := by\n  simpa only [M5.ConditionalResidueCount.conditionalA] using\n    M5.ConditionalResidueCount.exact_conditionalA\n      (M5.signaturePeriod F) w F p q hperiod.1 hw hF hdiv\nrefine ⟨he, ?_, ?_⟩\n· rw [he]\n  exact Int.natCast_nonneg _\n· rw [he, Int.natCast_pos, Finset.card_pos]\n  by_cases hf : M5.ConditionalResidueCount.fits w p q\n  <;> simp [M5.ConditionalResidueCount.validCompletions, hf,\n    Finset.Nonempty, Prod.exists]",
+  "queries": []
+}

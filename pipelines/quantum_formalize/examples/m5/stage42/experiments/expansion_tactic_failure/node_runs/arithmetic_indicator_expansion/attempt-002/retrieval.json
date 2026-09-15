@@ -1,0 +1,260 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.monic_prod_of_monic",
+    "status": "ok",
+    "results": [
+      {
+        "id": 102935,
+        "name": "Polynomial.monic_prod_of_monic",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L283-L285",
+        "source_text": "theorem monic_prod_of_monic (s : Finset ι) (f : ι → R[X]) (hs : ∀ i ∈ s, Monic (f i)) :\n    Monic (∏ i ∈ s, f i) :=\n  monic_multiset_prod_of_monic s.1 f hs\n",
+        "docstring": null
+      },
+      {
+        "id": 102934,
+        "name": "Polynomial.monic_multiset_prod_of_monic",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L275-L281",
+        "source_text": "theorem monic_multiset_prod_of_monic (t : Multiset ι) (f : ι → R[X]) (ht : ∀ i ∈ t, Monic (f i)) :\n    Monic (t.map f).prod := by\n  revert ht\n  refine t.induction_on ?_ ?_; · simp\n  intro a t ih ht\n  rw [Multiset.map_cons, Multiset.prod_cons]\n  exact (ht _ (Multiset.mem_cons_self _ _)).mul (ih fun _ hi => ht _ (Multiset.mem_cons_of_mem hi))\n",
+        "docstring": null
+      },
+      {
+        "id": 101362,
+        "name": "Polynomial.Monic",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L59-L61",
+        "source_text": "/-- a polynomial is `Monic` if its leading coefficient is 1 -/\ndef Monic (p : R[X]) :=\n  leadingCoeff p = (1 : R)\n",
+        "docstring": "a polynomial is `Monic` if its leading coefficient is 1 "
+      },
+      {
+        "id": 102902,
+        "name": "Polynomial.Monic.mul",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L85-L93",
+        "source_text": "theorem Monic.mul (hp : Monic p) (hq : Monic q) : Monic (p * q) :=\n  letI := Classical.decEq R\n  if h0 : (0 : R) = 1 then\n    haveI := subsingleton_of_zero_eq_one h0\n    Subsingleton.elim _ _\n  else by\n    have : p.leadingCoeff * q.leadingCoeff ≠ 0 := by\n      simp [Monic.def.1 hp, Monic.def.1 hq, Ne.symm h0]\n    rw [Monic.def, leadingCoeff_mul' this, Monic.def.1 hp, Monic.def.1 hq, one_mul]\n",
+        "docstring": null
+      },
+      {
+        "id": 314036,
+        "name": "MonomialOrder.Monic.mul",
+        "module": "Mathlib.RingTheory.MvPolynomial.MonomialOrder",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/MonomialOrder.lean#L508-L516",
+        "source_text": "theorem Monic.mul {f g : MvPolynomial σ R} (hf : m.Monic f) (hg : m.Monic g) :\n    m.Monic (f * g) := by\n  nontriviality R\n  suffices m.leadingCoeff f * m.leadingCoeff g = 1 by\n    rw [Monic, MonomialOrder.leadingCoeff,\n      degree_mul_of_mul_leadingCoeff_ne_zero, coeff_mul_of_degree_add, this]\n    rw [this]\n    exact one_ne_zero\n  rw [hf.leadingCoeff_eq_one, hg.leadingCoeff_eq_one, one_mul]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalResidueCount.pairIndicator rawConditionalA definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 91427,
+        "name": "Set.indicator",
+        "module": "Mathlib.Algebra.Notation.Indicator",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L51-L51",
+        "source_text": "@[to_additive /-- `Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. -/]\nnoncomputable def mulIndicator (s : Set α) (f : α → M) (x : α) : M :=",
+        "docstring": "`Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. "
+      },
+      {
+        "id": 298006,
+        "name": "ProbabilityTheory.iCondIndepSet.iCondIndepFun_indicator",
+        "module": "Mathlib.Probability.Independence.Conditional",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Probability/Independence/Conditional.lean#L1018-L1021",
+        "source_text": "theorem iCondIndepSet.iCondIndepFun_indicator [Zero β] [One β] {m : MeasurableSpace β}\n    {s : ι → Set Ω} (hs : iCondIndepSet m' hm' s μ) :\n    iCondIndepFun m' hm' (fun n => (s n).indicator fun _ω => (1 : β)) μ :=\n  Kernel.iIndepSet.iIndepFun_indicator hs\n",
+        "docstring": null
+      },
+      {
+        "id": 333341,
+        "name": "SummationFilter.conditional",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L214-L217",
+        "source_text": "/-- **Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. -/\n@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)\n",
+        "docstring": "**Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. "
+      },
+      {
+        "id": 333342,
+        "name": "SummationFilter.conditional_filter",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L216-L216",
+        "source_text": "@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)",
+        "docstring": null
+      },
+      {
+        "id": 333348,
+        "name": "SummationFilter.conditional_filter_eq_map_range",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L244-L254",
+        "source_text": "/-- Conditional summation over `ℕ` is given by limits of sums over `Finset.range n` as `n → ∞`. -/\n@[simp high + 1] -- want this to be prioritized over `conditional_filter_eq_map_Ici`\nlemma conditional_filter_eq_map_range : (conditional ℕ).filter = atTop.map Finset.range := by\n  have (n : ℕ) : Finset.Iic n = Finset.range (n + 1) := by ext x; simp [Nat.lt_succ_iff]\n  simp only [conditional_filter_eq_map_Iic, funext this]\n  apply le_antisymm <;>\n      rw [← Tendsto] <;>\n      simp only [tendsto_atTop', mem_map, mem_atTop_sets, mem_preimage] <;>\n      rintro s ⟨a, ha⟩\n  · exact ⟨a + 1, fun b hb ↦ ha (b + 1) (by lia)⟩\n  · exact ⟨a + 1, fun b hb ↦ by convert! ha (b - 1) (by lia); lia⟩\n",
+        "docstring": "Conditional summation over `ℕ` is given by limits of sums over `Finset.range n` as `n → ∞`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.ConditionalResidueCount.pairIndicator rawConditionalA definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393926,
+        "name": "MicroHamiltonian.helmholtzA",
+        "module": "Physlib.StatisticalMechanics.MicroCanonicalEnsemble.ThermoQuantities",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/MicroCanonicalEnsemble/ThermoQuantities.lean#L83-L86",
+        "source_text": "/-- The Helmholtz Free Energy, -T * ln Z. Also denoted F. Parameterized here with temperature T, not\n  β. -/\ndef helmholtzA (T : ℝ) : ℝ :=\n  -T * (partitionZT H d T).log\n",
+        "docstring": "The Helmholtz Free Energy, -T * ln Z. Also denoted F. Parameterized here with temperature T, not\nβ. "
+      },
+      {
+        "id": 386828,
+        "name": "Equiv.finAddEquivSigmaCond_false",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L55-L61",
+        "source_text": "lemma finAddEquivSigmaCond_false (h : ¬ i < m) : finAddEquivSigmaCond i = ⟨false, i.subNat' h⟩ :=\n  let j : Fin n := i.subNat' h\n  calc finAddEquivSigmaCond i\n    _ = finAddEquivSigmaCond (Fin.natAdd m j) :=\n      suffices m + (i - m) = i from congrArg _ (Fin.ext this.symm)\n      Nat.add_sub_of_le (Nat.le_of_not_gt h)\n    _ = ⟨false, i.subNat' h⟩ := congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_natAdd j\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.PolynomialIndicator.factorExclusionSum definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 91427,
+        "name": "Set.indicator",
+        "module": "Mathlib.Algebra.Notation.Indicator",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L51-L51",
+        "source_text": "@[to_additive /-- `Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. -/]\nnoncomputable def mulIndicator (s : Set α) (f : α → M) (x : α) : M :=",
+        "docstring": "`Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. "
+      },
+      {
+        "id": 189149,
+        "name": "Finset.indicator_biUnion_eq_sum_powerset",
+        "module": "Mathlib.Combinatorics.Enumerative.InclusionExclusion",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/InclusionExclusion.lean#L64-L102",
+        "source_text": "/-- **Inclusion-exclusion principle**, indicator version over a finite union of sets. -/\nlemma indicator_biUnion_eq_sum_powerset (s : Finset ι) (S : ι → Set α) (f : α → G) (a : α) :\n    Set.indicator (⋃ i ∈ s, S i) f a = ∑ t ∈ s.powerset with t.Nonempty,\n      (-1) ^ (#t + 1) • Set.indicator (⋂ i ∈ t, S i) f a := by\n  classical\n  by_cases ha : a ∈ ⋃ i ∈ s, S i; swap\n  · simp only [ha, not_false_eq_true, Set.indicator_of_notMem, Int.reduceNeg, pow_succ, mul_neg,\n      mul_one, neg_smul]\n    symm\n    apply sum_eq_zero\n    simp only [Int.reduceNeg, neg_eq_zero, mem_filter, mem_powerset, and_imp]\n    intro t hts ht\n    rw [Set.indicator_of_notMem]\n    · simp\n    · contrapose ha\n      simp only [Set.mem_iInter] at ha\n      rcases ht with ⟨i, hi⟩\n      simp only [Set.mem_iUnion, exists_prop]\n      exact ⟨i, hts hi, ha _ hi⟩\n  rw [← sub_eq_zero]\n  calc\n    Set.indicator (⋃ i ∈ s, S i) f a - ∑ t ∈ s.powerset with t.Nonempty,\n      (-1) ^ (#t + 1) • Set.indicator (⋂ i ∈ t.1, S i) f a\n    _ = ∑ t ∈ s.powerset with t.Nonempty, (-1) ^ #t • Set.indicator (⋂ i ∈ t, S i) f a +\n        ∑ t ∈ s.powerset with ¬ t.Nonempty, (-1) ^ #t • Set.indicator (⋂ i ∈ t, S i) f a := by\n      simp [sub_eq_neg_add, ← sum_neg_distrib, filter_eq', pow_succ, ha]\n    _ = ∑ t ∈ s.powerset, (-1) ^ #t • Set.indicator (⋂ i ∈ t, S i) f a := by\n      rw [sum_filter_add_sum_filter_not]\n    _ = (∏ i ∈ s, (1 - Set.indicator (S i) 1 a : ℤ)) • f a := by\n      simp only [Int.reduceNeg, prod_sub, prod_const_one, mul_one, sum_smul]\n      congr! 1 with t\n      simp only [prod_const_one, prod_indicator_apply]\n      simp [Set.indicator]\n    _ = 0 := by\n      have : Set.indicator (⋃ i ∈ s, S i) 1 a = (1 : ℤ) := Set.indicator_of_mem ha 1\n      rw [← this, prod_indicator_biUnion_sub_indicator, zero_smul]\n      simp only [Set.mem_iUnion, exists_prop] at ha\n      rcases ha with ⟨i, hi, -⟩\n      exact ⟨i, hi⟩\n",
+        "docstring": "**Inclusion-exclusion principle**, indicator version over a finite union of sets. "
+      },
+      {
+        "id": 227010,
+        "name": "Polynomial.factor",
+        "module": "Mathlib.FieldTheory.SplittingField.Construction",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/FieldTheory/SplittingField/Construction.lean#L51-L53",
+        "source_text": "/-- Non-computably choose an irreducible factor from a polynomial. -/\ndef factor (f : K[X]) : K[X] :=\n  if H : ∃ g, Irreducible g ∧ g ∣ f then Classical.choose H else X\n",
+        "docstring": "Non-computably choose an irreducible factor from a polynomial. "
+      },
+      {
+        "id": 189153,
+        "name": "Finset.inclusion_exclusion_sum_inf_compl",
+        "module": "Mathlib.Combinatorics.Enumerative.InclusionExclusion",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/InclusionExclusion.lean#L160-L175",
+        "source_text": "/-- **Inclusion-exclusion principle** for the sum of a function over an intersection of complements.\n\nThe sum of a function `f` over the intersection of the complements of the `S i` over `i ∈ s` is the\nalternating sum of the sums of `f` over the intersections of the `S i`. -/\ntheorem inclusion_exclusion_sum_inf_compl (s : Finset ι) (S : ι → Finset α) (f : α → G) :\n    ∑ a ∈ s.inf fun i ↦ (S i)ᶜ, f a = ∑ t ∈ s.powerset, (-1) ^ #t • ∑ a ∈ t.inf S, f a := by\n  classical\n  calc\n    ∑ a ∈ s.inf fun i ↦ (S i)ᶜ, f a\n      = ∑ a, f a - ∑ a ∈ s.biUnion S, f a := by\n      rw [← Finset.compl_sup, sup_eq_biUnion, eq_sub_iff_add_eq, sum_compl_add_sum]\n    _ = ∑ t ∈ s.powerset.filter (¬ ·.Nonempty), (-1) ^ #t • ∑ a ∈ t.inf S, f a\n          + ∑ t ∈ s.powerset.filter (·.Nonempty), (-1) ^ #t • ∑ a ∈ t.inf S, f a := by\n      simp [← sum_attach (filter ..), inclusion_exclusion_sum_biUnion, inf'_eq_inf, filter_eq',\n        sub_eq_add_neg, pow_succ]\n    _ = ∑ t ∈ s.powerset, (-1) ^ #t • ∑ a ∈ t.inf S, f a := sum_filter_not_add_sum_filter ..\n",
+        "docstring": "**Inclusion-exclusion principle** for the sum of a function over an intersection of complements.\n\nThe sum of a function `f` over the intersection of the complements of the `S i` over `i ∈ s` is the\nalternating sum of the sums of `f` over the intersections of the `S i`. "
+      },
+      {
+        "id": 227017,
+        "name": "Polynomial.removeFactor",
+        "module": "Mathlib.FieldTheory.SplittingField.Construction",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/FieldTheory/SplittingField/Construction.lean#L89-L91",
+        "source_text": "/-- Divide a polynomial f by `X - C r` where `r` is a root of `f` in a bigger field extension. -/\ndef removeFactor (f : K[X]) : Polynomial (AdjoinRoot <| factor f) :=\n  map (AdjoinRoot.of f.factor) f /ₘ (X - C (AdjoinRoot.root f.factor))\n",
+        "docstring": "Divide a polynomial f by `X - C r` where `r` is a root of `f` in a bigger field extension. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.PolynomialIndicator.factorExclusionSum definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 389937,
+        "name": "PureU1.VectorLikeEvenPlane.P!_accCube",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L596-L602",
+        "source_text": "lemma P!_accCube (f : Fin n → ℚ) : accCube (2 * n.succ) (P! f) = 0 := by\n  rw [accCube_explicit, sum_evenShift, P!_evenShiftZero, P!_evenShiftLast]\n  simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero, Function.comp_apply,\n    zero_add]\n  refine Finset.sum_eq_zero fun i _ => ?_\n  simp only [P!_evenShiftFst, P!_evenShiftSnd]\n  ring\n",
+        "docstring": null
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

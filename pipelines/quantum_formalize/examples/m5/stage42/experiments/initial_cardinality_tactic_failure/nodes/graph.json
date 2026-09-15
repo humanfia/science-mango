@@ -1,0 +1,150 @@
+[
+  {
+    "id": "prefix_gcd_divisibility",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.ConditionalResidueCount.prefix_gcd_divisibility",
+      "statement": "∀ (T d : ℕ) (p q : List (Fin T)), (d ∣ M5.ConditionalResidueCount.selectedGcd T p q ↔ d ∣ T ∧ (∀ r ∈ p, d ∣ r.val) ∧ (∀ r ∈ q, d ∣ r.val))",
+      "imports": [
+        "M5ConditionalResidueCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum filter cardinality product",
+        "list gcd fold divisibility finite sum commutation"
+      ],
+      "guidance": "Prove by list induction that d divides prefixGcd exactly when it divides every selected residue, then unfold selectedGcd and gcd divisibility. The empty list uses gcd fold seed zero. Repeated residues are retained and allowed; no injectivity or positivity assumption is needed. Return tactic lines only without leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": "§4 conditional arithmetic recovery",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "selected_R_pair_count",
+    "dependencies": [],
+    "spec": {
+      "name": "M5.ConditionalResidueCount.selected_R_pair_count",
+      "statement": "∀ (P ZA ZB : M5.BinaryPolynomial) (T d k l : ℕ), P.Monic → 0 < T → d ∣ T → M5.ConditionalResidueCount.RSelected P ZA T d k * M5.ConditionalResidueCount.RSelected P ZB T d l = ∑ a : Fin k → Fin T, ∑ b : Fin l → Fin T, M5.ConditionalResidueCount.divisibilityIndicator P ZA ZB d a b",
+      "imports": [
+        "M5ConditionalResidueCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum filter cardinality product",
+        "list gcd fold divisibility finite sum commutation"
+      ],
+      "guidance": "Unfold monicity wrappers and rewrite each factor using accepted M5.TupleCompletion.restricted_completion_R. Unfold restrictedCount and divisibilityIndicator, rewrite card_eq_sum_ones, Nat.cast_sum, sum_filter and distribute sum_mul/mul_sum. Finish by pointwise cases on the four concrete predicates using narrow simp. Avoid change across different inferred Decidable instances. Different lengths and selected polynomials are essential; retain zero completion lengths. Return tactic lines only without leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": "§4 conditional arithmetic recovery",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "pair_indicator_exact",
+    "dependencies": [
+      "prefix_gcd_divisibility"
+    ],
+    "spec": {
+      "name": "M5.ConditionalResidueCount.pair_indicator_exact",
+      "statement": "∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), ∀ (a : Fin (M5.ConditionalResidueCount.remaining w p) → Fin T) (b : Fin (M5.ConditionalResidueCount.remaining w q) → Fin T), 0 < T → F.Monic → F ∣ M5.cyclicModulus T → M5.ConditionalResidueCount.pairIndicator w F p q a b = M5.ConditionalResidueCount.feasibleIndicator w F p q a b",
+      "imports": [
+        "M5ConditionalResidueCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum filter cardinality product",
+        "list gcd fold divisibility finite sum commutation"
+      ],
+      "guidance": "selectedGcd is positive because it divides positive T (use prefix_gcd_divisibility at d=selectedGcd). Apply accepted stage9 integer connected_indicator at selectedGcd with completion-coordinate images, rewriting gcd_image and zero anchor. Combine accepted stage23 exact_signature_indicator for the completed polynomials at T. Unfold feasible/feasibleIndicator; case-split the two conditions. Do not compute integer gcd from cancelled polynomial support. Return tactic lines only without leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": "§4 conditional arithmetic recovery",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "arithmetic_indicator_expansion",
+    "dependencies": [
+      "prefix_gcd_divisibility",
+      "selected_R_pair_count"
+    ],
+    "spec": {
+      "name": "M5.ConditionalResidueCount.arithmetic_indicator_expansion",
+      "statement": "∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ConditionalResidueCount.rawConditionalA T w F p q = ∑ a : Fin (M5.ConditionalResidueCount.remaining w p) → Fin T, ∑ b : Fin (M5.ConditionalResidueCount.remaining w q) → Fin T, M5.ConditionalResidueCount.pairIndicator w F p q a b",
+      "imports": [
+        "M5ConditionalResidueCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum filter cardinality product",
+        "list gcd fold divisibility finite sum commutation"
+      ],
+      "guidance": "For each d|selectedGcd, prefix_gcd_divisibility gives d|T. Residual factors are monic by accepted stage23 residual_factors_regular, so F times each subset product is monic. Rewrite selected_R_pair_count under d,S sums with membership-aware simp (disch := assumption) only, unfold indicators, and distribute finite sums. Use explicit one-time sum_comm rw/conv permutations (never simp[sum_comm]); align d/S order before sum_congr. Finish using four concrete predicate cases and narrow simp, not broad simp_all over count hypotheses. This is the stage31 expansion route with separate selected polynomials and completion lengths. Return tactic lines only without leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": "§4 conditional arithmetic recovery",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "exact_conditionalA",
+    "dependencies": [
+      "pair_indicator_exact",
+      "arithmetic_indicator_expansion"
+    ],
+    "spec": {
+      "name": "M5.ConditionalResidueCount.exact_conditionalA",
+      "statement": "∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ConditionalResidueCount.conditionalAAt T w F p q = (M5.ConditionalResidueCount.validCompletions T w F p q).card",
+      "imports": [
+        "M5ConditionalResidueCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum filter cardinality product",
+        "list gcd fold divisibility finite sum commutation"
+      ],
+      "guidance": "Split the fits guard. If false both the arithmetic wrapper and semantic completion set are zero/empty. If true rewrite arithmetic_indicator_expansion and pair_indicator_exact; unfold feasibleIndicator and identify the double finite sum with the filtered product-universe cardinality. Handle casts by card_eq_sum_ones and sum_filter, avoiding definitional-equality assumptions between Decidable instances. No prefix-length assumption may be added to the target. Return tactic lines only without leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": "§4 conditional arithmetic recovery",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  },
+  {
+    "id": "period_conditionalA_exact",
+    "dependencies": [
+      "exact_conditionalA"
+    ],
+    "spec": {
+      "name": "M5.ConditionalResidueCount.period_conditionalA_exact",
+      "statement": "∀ (w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin (M5.signaturePeriod F))), 0 < w → F.Monic → F.coeff 0 = 1 → M5.ConditionalResidueCount.conditionalA w F p q = (M5.ConditionalResidueCount.validCompletions (M5.signaturePeriod F) w F p q).card ∧ 0 ≤ M5.ConditionalResidueCount.conditionalA w F p q ∧ (0 < M5.ConditionalResidueCount.conditionalA w F p q ↔ M5.ConditionalResidueCount.fits w p q ∧ ∃ a : Fin (M5.ConditionalResidueCount.remaining w p) → Fin (M5.signaturePeriod F), ∃ b : Fin (M5.ConditionalResidueCount.remaining w q) → Fin (M5.signaturePeriod F), M5.ConditionalResidueCount.feasible w F p q a b)",
+      "imports": [
+        "M5ConditionalResidueCount"
+      ],
+      "context": "",
+      "queries": [
+        "finite sum filter cardinality product",
+        "list gcd fold divisibility finite sum commutation"
+      ],
+      "guidance": "Accepted period_law gives positive T=signaturePeriodF and F|M_T. Apply exact_conditionalA, then natural-cardinality nonnegativity and card_pos/nonempty. Unpack validCompletions and its fits guard to get exact completion existence. Overfull prefixes yield zero; no extra guard premise is allowed. F=1 and zero-dimensional quotients are included. Return tactic lines only without leading by; preserve exact target."
+    },
+    "metadata": {
+      "source_section": "§4 conditional arithmetic recovery",
+      "fallback_queries": [
+        "addition commutativity"
+      ]
+    }
+  }
+]

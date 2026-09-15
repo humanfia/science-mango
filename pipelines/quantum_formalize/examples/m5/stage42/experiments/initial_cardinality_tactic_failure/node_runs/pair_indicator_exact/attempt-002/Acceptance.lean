@@ -1,0 +1,3 @@
+import Candidate_b940656cb12e6f07
+example : QuantumHarnessFrozenTarget := M5.ConditionalResidueCount.pair_indicator_exact
+#print axioms M5.ConditionalResidueCount.pair_indicator_exact

@@ -1,0 +1,13 @@
+{
+  "name": "M5.ConditionalResidueCount.pair_indicator_exact",
+  "statement": "∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), ∀ (a : Fin (M5.ConditionalResidueCount.remaining w p) → Fin T) (b : Fin (M5.ConditionalResidueCount.remaining w q) → Fin T), 0 < T → F.Monic → F ∣ M5.cyclicModulus T → M5.ConditionalResidueCount.pairIndicator w F p q a b = M5.ConditionalResidueCount.feasibleIndicator w F p q a b",
+  "imports": [
+    "M5ConditionalResidueCount"
+  ],
+  "context": "theorem M5.ConditionalResidueCount.prefix_gcd_divisibility : ∀ (T d : ℕ) (p q : List (Fin T)), (d ∣ M5.ConditionalResidueCount.selectedGcd T p q ↔ d ∣ T ∧ (∀ r ∈ p, d ∣ r.val) ∧ (∀ r ∈ q, d ∣ r.val)) := by\n  change ∀ (T d : ℕ) (p q : List (Fin T)), _\n  intro T d p q\n  have hl {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n      d ∣ l.foldl (fun g r => Nat.gcd g (f r)) s ↔\n        d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n    induction l generalizing s with\n    | nil => simp\n    | cons a l ih =>\n        simp [List.foldl_cons, ih, Nat.dvd_gcd_iff, and_assoc]\n  have hr {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n      d ∣ l.foldr (fun r g => Nat.gcd (f r) g) s ↔\n        d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n    induction l with\n    | nil => simp\n    | cons a l ih =>\n        simp [List.foldr_cons, ih, Nat.dvd_gcd_iff, and_assoc,\n          and_left_comm, and_comm]\n  simp [M5.ConditionalResidueCount.selectedGcd,\n    M5.ConditionalResidueCount.prefixGcd, hl, hr,\n    Nat.dvd_gcd_iff, and_assoc]",
+  "queries": [
+    "finite sum filter cardinality product",
+    "list gcd fold divisibility finite sum commutation"
+  ],
+  "guidance": "selectedGcd is positive because it divides positive T (use prefix_gcd_divisibility at d=selectedGcd). Apply accepted stage9 integer connected_indicator at selectedGcd with completion-coordinate images, rewriting gcd_image and zero anchor. Combine accepted stage23 exact_signature_indicator for the completed polynomials at T. Unfold feasible/feasibleIndicator; case-split the two conditions. Do not compute integer gcd from cancelled polynomial support. Return tactic lines only without leading by; preserve exact target."
+}

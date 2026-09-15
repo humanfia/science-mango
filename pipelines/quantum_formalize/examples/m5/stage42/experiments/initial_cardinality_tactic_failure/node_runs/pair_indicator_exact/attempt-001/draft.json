@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), ∀ a b, _\nintro T w F p q a b hT hF hFT\nclassical\nhave hg : 0 < M5.ConditionalResidueCount.selectedGcd T p q :=\n  Nat.pos_of_dvd_of_pos\n    ((M5.ConditionalResidueCount.prefix_gcd_divisibility T\n      (M5.ConditionalResidueCount.selectedGcd T p q) p q).mp (dvd_refl _)).1 hT\nhave hc := M5.Connectivity.connected_indicator\n  (M5.ConditionalResidueCount.selectedGcd T p q)\n  (insert 0 (Finset.univ.image (fun i => (a i).val)))\n  (insert 0 (Finset.univ.image (fun i => (b i).val))) hg\nsimp [M5.Connectivity.supportGcd, Finset.gcd_image, Function.comp_def] at hc\nhave hs := M5.PolynomialIndicator.exact_signature_indicator\n  (M5.ConditionalResidueCount.completedPolynomial\n    (M5.ConditionalResidueCount.selectedPolynomial p) a)\n  (M5.ConditionalResidueCount.completedPolynomial\n    (M5.ConditionalResidueCount.selectedPolynomial q) b)\n  F T hT hF hFT\nunfold M5.ConditionalResidueCount.pairIndicator\n  M5.ConditionalResidueCount.feasibleIndicator\n  M5.ConditionalResidueCount.feasible\ndsimp only\nrw [hc, hs]\nsplit_ifs <;> simp_all",
+  "queries": [
+    "Finset.gcd_image Finset.gcd_insert",
+    "M5.ConditionalResidueCount.pairIndicator feasible definitions",
+    "M5.Connectivity.supportGcd connected_indicator"
+  ]
+}

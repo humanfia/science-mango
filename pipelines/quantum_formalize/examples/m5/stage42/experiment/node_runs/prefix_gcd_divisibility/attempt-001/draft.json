@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (T d : ℕ) (p q : List (Fin T)), _\nintro T d p q\nhave hl {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n    d ∣ l.foldl (fun g r => Nat.gcd g (f r)) s ↔\n      d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n  induction l generalizing s with\n  | nil => simp\n  | cons a l ih =>\n      simp [List.foldl_cons, ih, Nat.dvd_gcd_iff, and_assoc]\nhave hr {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n    d ∣ l.foldr (fun r g => Nat.gcd (f r) g) s ↔\n      d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n  induction l with\n  | nil => simp\n  | cons a l ih =>\n      simp [List.foldr_cons, ih, Nat.dvd_gcd_iff, and_assoc,\n        and_left_comm, and_comm]\nsimp [M5.ConditionalResidueCount.selectedGcd,\n  M5.ConditionalResidueCount.prefixGcd, hl, hr,\n  Nat.dvd_gcd_iff, and_assoc]",
+  "queries": [
+    "Nat.dvd_gcd_iff",
+    "List.foldl_cons List.foldr_cons",
+    "List.forall_mem_map"
+  ]
+}

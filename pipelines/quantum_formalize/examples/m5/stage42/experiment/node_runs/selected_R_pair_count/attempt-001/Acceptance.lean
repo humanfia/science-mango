@@ -1,0 +1,3 @@
+import Candidate_5a13fa517bd6485c
+example : QuantumHarnessFrozenTarget := M5.ConditionalResidueCount.selected_R_pair_count
+#print axioms M5.ConditionalResidueCount.selected_R_pair_count

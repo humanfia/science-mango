@@ -1,0 +1,7 @@
+# Exact-target deterministic repairs
+
+The initial experiment accepted `prefix_gcd_divisibility` and `pair_indicator_exact`; the selected-R product proof exhausted its live attempts on finite-filter simplification. Its exact frozen statement was repaired by a pointwise four-condition simplification and separately compiled/audited, then replayed successfully by the normal DAG harness.
+
+The next live arithmetic expansion exhausted five attempts, each stopping at a no-progress simp/dsimp command. The retained third draft was repaired by removing two unnecessary no-op commands, specializing its local finite-sum permutation lemma to the actual universe `Type`, and explicitly swapping the right-hand divisor/factor sums once. The resulting proof passed an independent exact-target and permitted-axiom audit under the normal limits. Its source hash is recorded in `arithmetic_indicator_expansion.debug.json`.
+
+`experiments/initial_cardinality_tactic_failure` and `experiments/expansion_tactic_failure` preserve both prior experiments and every accepted proof. `expansion_repair_flow` replays the three already accepted node proofs unchanged and the separately checked expansion proof. The two remaining target proofs use normal live generation. Fresh retrieval, compilation, exact-target checks, axiom audit and combined assembly remain enabled; no formula, target, context or acceptance rule changed.

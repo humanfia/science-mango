@@ -1,0 +1,54 @@
+{
+  "id": "prefix_gcd_divisibility",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ConditionalResidueCount.prefix_gcd_divisibility",
+    "spec_sha256": "52f2d618ae76f0a2ca0c7aa9532f2e640e1329ab7f872c8b321b74f0b6a3cc77",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-2_6v_l9z/attempt-001/Candidate_45713fa1faa6e512.lean",
+        "target_path": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-2_6v_l9z/attempt-001/FrozenTarget_45713fa1faa6e512.lean",
+        "feedback": "",
+        "target_sha256": "fbafd276614b9999e612dde9fd3408eb8c7ab3a1cdc0a82c5384012ab7ca7811",
+        "target_olean_sha256": "19dd8019ac1af201314f6641b8e110974a332b475e19092dfaddabdeb7cec28c",
+        "source_sha256": "1e9b2d8882289dfc8954bc11618c3987b9d85e1c30080faf6e27fc0df5e98154",
+        "olean_sha256": "c81e0725c4e91749b32be8d524999c9497f65fe3883117dc70a0dfafd3bb1044",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:25:37.874947+00:00",
+    "work": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-2_6v_l9z",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "764ebfecfe28c3d0e78823f8ba37012f66ce7fd2d729aa764cc1727d2332a77c",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-2_6v_l9z/attempt-001/Candidate_45713fa1faa6e512.lean",
+    "environment_sha256": "68b75574f97a251a83febfe6ba6eb088bd33a87c30831f4f97e38bc6deb4ec28",
+    "artifacts": {
+      "prefix_gcd_divisibility": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalResidueCount.prefix_gcd_divisibility : ∀ (T d : ℕ) (p q : List (Fin T)), (d ∣ M5.ConditionalResidueCount.selectedGcd T p q ↔ d ∣ T ∧ (∀ r ∈ p, d ∣ r.val) ∧ (∀ r ∈ q, d ∣ r.val)) := by\n  change ∀ (T d : ℕ) (p q : List (Fin T)), _\n  intro T d p q\n  have hl {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n      d ∣ l.foldl (fun g r => Nat.gcd g (f r)) s ↔\n        d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n    induction l generalizing s with\n    | nil => simp\n    | cons a l ih =>\n        simp [List.foldl_cons, ih, Nat.dvd_gcd_iff, and_assoc]\n  have hr {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n      d ∣ l.foldr (fun r g => Nat.gcd (f r) g) s ↔\n        d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n    induction l with\n    | nil => simp\n    | cons a l ih =>\n        simp [List.foldr_cons, ih, Nat.dvd_gcd_iff, and_assoc,\n          and_left_comm, and_comm]\n  simp [M5.ConditionalResidueCount.selectedGcd,\n    M5.ConditionalResidueCount.prefixGcd, hl, hr,\n    Nat.dvd_gcd_iff, and_assoc]",
+          "imports": [
+            "M5ConditionalResidueCount"
+          ],
+          "name": "M5.ConditionalResidueCount.prefix_gcd_divisibility",
+          "ancestors": [],
+          "spec_sha256": "52f2d618ae76f0a2ca0c7aa9532f2e640e1329ab7f872c8b321b74f0b6a3cc77"
+        },
+        "sha256": "2f37f6b8de75b664f6c584f70c8a69417330eb118a57924468f950ba31a088a3"
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nchange ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), _\nintro T w F p q a b hT hF hFT\nhave hg : 0 < M5.ConditionalResidueCount.selectedGcd T p q :=\n  Nat.pos_of_dvd_of_pos\n    ((M5.ConditionalResidueCount.prefix_gcd_divisibility T\n      (M5.ConditionalResidueCount.selectedGcd T p q) p q).mp (dvd_refl _)).1 hT\nhave hc := M5.Connectivity.connected_indicator\n  (M5.ConditionalResidueCount.selectedGcd T p q)\n  (insert 0 (Finset.univ.image (fun i => (a i).val)))\n  (insert 0 (Finset.univ.image (fun i => (b i).val))) hg\nsimp [M5.Connectivity.supportGcd, Finset.gcd_image] at hc\nhave hp := M5.PolynomialIndicator.exact_signature_indicator\n  (M5.ConditionalResidueCount.completedPolynomial\n    (M5.ConditionalResidueCount.selectedPolynomial p) a)\n  (M5.ConditionalResidueCount.completedPolynomial\n    (M5.ConditionalResidueCount.selectedPolynomial q) b)\n  F T hT hF hFT\nsimp only [M5.ConditionalResidueCount.pairIndicator,\n  M5.ConditionalResidueCount.feasibleIndicator,\n  M5.ConditionalResidueCount.feasible]\ntry dsimp only\nsimp_all [M5.Connectivity.supportGcd, Finset.gcd_image,\n  mul_ite, ite_mul]\nall_goals split_ifs <;> simp_all",
+  "queries": [
+    "Finset sum_mul mul_sum ite multiplication indicator conjunction",
+    "Finset gcd_image gcd_insert Nat gcd_zero_left"
+  ]
+}

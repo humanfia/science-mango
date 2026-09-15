@@ -10,7 +10,7 @@ This is a status map of the original reviewed proof, not a strengthened theorem 
 | §3 integer connectivity indicator | Accepted | [stage9](stage9/RESULTS.md) |
 | §3 polynomial exact-signature exclusion | Finite Boolean exclusion and factor products accepted; Exact finite factor-subset signature indicator accepted | [stage17](stage17/RESULTS.md), [stage18](stage18/RESULTS.md), [stage16](stage16/RESULTS.md) → stage23 |
 | §3 anchored C and conditional recovery | Exact C and conditional formula accepted; actual recovery connection open | [stage27](stage27/RESULTS.md); [stage34](stage34/RESULTS.md); actual recovery connection stage46 remains |
-| §4 feasible-pattern A, necessity and recovery | Exact arithmetic A and necessity accepted; conditional recovery open | [stage31](stage31/RESULTS.md), [stage35](stage35/RESULTS.md); generic recovery [stage37](stage37/RESULTS.md) |
+| §4 feasible-pattern A, necessity and recovery | Exact A, conditional formula and necessity accepted; actual recovery connection open | [stage31](stage31/RESULTS.md), [stage35](stage35/RESULTS.md), [stage42](stage42/RESULTS.md); actual recovery stage47 remains |
 | §4–5 global arithmetic existence criterion | Accepted, including bounded source and infinite progression | [stage39](stage39/RESULTS.md) |
 | §5 packing and signature preservation | Accepted components | [stage6](stage6/RESULTS.md), [stage8](stage8/RESULTS.md), [stage21](stage21/RESULTS.md) |
 | §5 actual bounded connected support construction | Accepted | stage19 + stage21 → stage22 |

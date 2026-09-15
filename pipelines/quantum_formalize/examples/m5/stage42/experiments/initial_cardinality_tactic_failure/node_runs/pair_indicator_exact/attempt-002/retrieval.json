@@ -1,0 +1,252 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.gcd_image Finset.gcd_insert",
+    "status": "ok",
+    "results": [
+      {
+        "id": 66030,
+        "name": "Finset.gcd",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L123-L125",
+        "source_text": "/-- Greatest common divisor of a finite set -/\ndef gcd (s : Finset β) (f : β → α) : α :=\n  s.fold GCDMonoid.gcd 0 f\n",
+        "docstring": "Greatest common divisor of a finite set "
+      },
+      {
+        "id": 66036,
+        "name": "Finset.gcd_cons",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L147-L149",
+        "source_text": "theorem gcd_cons {b : β} (h : b ∉ s) :\n    (cons b s h : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) :=\n  fold_cons h\n",
+        "docstring": null
+      },
+      {
+        "id": 66044,
+        "name": "Finset.gcd_image",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L181-L183",
+        "source_text": "theorem gcd_image [DecidableEq β] {g : γ → β} (s : Finset γ) :\n    (s.image g).gcd f = s.gcd (f ∘ g) := by\n  classical induction s using Finset.induction <;> simp [*]\n",
+        "docstring": null
+      },
+      {
+        "id": 202909,
+        "name": "Finset.image",
+        "module": "Mathlib.Data.Finset.Image",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L277-L279",
+        "source_text": "/-- `image f s` is the forward image of `s` under `f`. -/\ndef image (f : α → β) (s : Finset α) : Finset β :=\n  (s.1.map f).toFinset\n",
+        "docstring": "`image f s` is the forward image of `s` under `f`. "
+      },
+      {
+        "id": 66037,
+        "name": "Finset.gcd_insert",
+        "module": "Mathlib.Algebra.GCDMonoid.Finset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L151-L157",
+        "source_text": "@[simp]\ntheorem gcd_insert [DecidableEq β] {b : β} :\n    (insert b s : Finset β).gcd f = GCDMonoid.gcd (f b) (s.gcd f) := by\n  by_cases h : b ∈ s\n  · rw [insert_eq_of_mem h,\n      (gcd_eq_right_iff (f b) (s.gcd f) (Multiset.normalize_gcd (s.1.map f))).2 (gcd_dvd h)]\n  apply fold_insert h",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.gcd_image Finset.gcd_insert",
+    "status": "ok",
+    "results": [
+      {
+        "id": 389767,
+        "name": "WickContraction.orderedInsert_of_fin_list_sorted",
+        "module": "Physlib.QFT.PerturbationTheory.WickContraction.UncontractedList",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/WickContraction/UncontractedList.lean#L119-L144",
+        "source_text": "lemma orderedInsert_of_fin_list_sorted :\n    (l : List (Fin n)) → (hl : l.Pairwise (· ≤ ·)) → (i : Fin n) →\n    List.orderedInsert (· ≤ ·) i l = l.filter (fun x => x.1 < i.1) ++\n    i :: l.filter (fun x => i.1 ≤ x.1)\n  | [], _, _ => by simp\n  | a :: l, hl, i => by\n    simp only [List.pairwise_cons] at hl\n    by_cases ha : i ≤ a\n    · simp only [List.orderedInsert_cons, ha, ↓reduceIte, Fin.val_fin_lt, decide_eq_true_eq,\n      not_lt, List.filter_cons_of_neg, Fin.val_fin_le, decide_true, List.filter_cons_of_pos]\n      have h1 : List.filter (fun x => decide (↑x < ↑i)) l = [] := by\n        simp only [List.filter_eq_nil_iff, decide_eq_true_eq, not_lt]\n        intro a ha\n        have ha' := hl.1 a ha\n        omega\n      have hl : l = List.filter (fun x => decide (i ≤ x)) l := by\n        conv_lhs => rw [fin_list_sorted_split l hl.2 i]\n        simp [h1]\n      simp [← hl, h1]\n    · simp only [List.orderedInsert_cons, ha, ↓reduceIte, Fin.val_fin_lt, Fin.val_fin_le,\n      decide_false, Bool.false_eq_true, not_false_eq_true, List.filter_cons_of_neg]\n      rw [List.filter_cons_of_pos]\n      rw [orderedInsert_of_fin_list_sorted l hl.2 i]\n      simp only [Fin.val_fin_lt, Fin.val_fin_le, List.cons_append]\n      simp only [decide_eq_true_eq]\n      omega\n",
+        "docstring": null
+      },
+      {
+        "id": 390021,
+        "name": "PureU1.VectorLikeOddPlane.oddShiftShiftFst",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L182-L185",
+        "source_text": "/-- The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\n  to `Fin (2 * n.succ + 1)`. -/\ndef oddShiftShiftFst (j : Fin n) : Fin (2 * n.succ + 1) :=\n  Fin.cast (odd_shift_shift_eq n) (Fin.castAdd n.succ (Fin.castAdd 1 (Fin.natAdd 1 j)))\n",
+        "docstring": "The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\nto `Fin (2 * n.succ + 1)`. "
+      },
+      {
+        "id": 390015,
+        "name": "PureU1.VectorLikeOddPlane.oddShiftFst",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L144-L147",
+        "source_text": "/-- The inclusion of `Fin n` into `Fin (1 + n + n)` via the first `n`.\n  This is then casted to `Fin (2 * n + 1)`. -/\ndef oddShiftFst (j : Fin n) : Fin (2 * n + 1) :=\n  Fin.cast (odd_shift_eq n) (Fin.castAdd n (Fin.natAdd 1 j))\n",
+        "docstring": "The inclusion of `Fin n` into `Fin (1 + n + n)` via the first `n`.\nThis is then casted to `Fin (2 * n + 1)`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalResidueCount.pairIndicator feasible definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 91427,
+        "name": "Set.indicator",
+        "module": "Mathlib.Algebra.Notation.Indicator",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L51-L51",
+        "source_text": "@[to_additive /-- `Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. -/]\nnoncomputable def mulIndicator (s : Set α) (f : α → M) (x : α) : M :=",
+        "docstring": "`Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. "
+      },
+      {
+        "id": 91471,
+        "name": "Set.indicator_const_eq_indicator_const",
+        "module": "Mathlib.Algebra.Notation.Indicator",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L162-L162",
+        "source_text": "@[to_additive]\nlemma mulIndicator_const_eq_mulIndicator_const {t : Set β} {b : β} {c : M} (h : a ∈ s ↔ b ∈ t) :\n    s.mulIndicator (fun _ ↦ c) a = t.mulIndicator (fun _ ↦ c) b :=",
+        "docstring": null
+      },
+      {
+        "id": 333341,
+        "name": "SummationFilter.conditional",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L214-L217",
+        "source_text": "/-- **Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. -/\n@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)\n",
+        "docstring": "**Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. "
+      },
+      {
+        "id": 333342,
+        "name": "SummationFilter.conditional_filter",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L216-L216",
+        "source_text": "@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)",
+        "docstring": null
+      },
+      {
+        "id": 208612,
+        "name": "List.pairwise_iff_forall_infix",
+        "module": "Mathlib.Data.List.Pairwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/Pairwise.lean#L43-L48",
+        "source_text": "theorem pairwise_iff_forall_infix {α : Type*} {l : List α} {R : α → α → Prop} :\n    l.Pairwise R ↔\n      ∀ l', (h : 1 < l'.length) → l' <:+: l → R (l'.head <| by grind) (l'.getLast <| by grind) := by\n  refine l.pairwise_iff_getElem.trans ⟨fun h l' hne ⟨l₁, l₂, hl⟩ ↦ ?_, fun h i j hi hj hij ↦ ?_⟩\n  · grind [getElem_append_left', getElem_append_right']\n  · grind [h _ _ <| List.drop_suffix i _ |>.isInfix.trans <| l.take_prefix (j + 1) |>.isInfix]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.ConditionalResidueCount.pairIndicator feasible definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386828,
+        "name": "Equiv.finAddEquivSigmaCond_false",
+        "module": "Physlib.Mathematics.SchurTriangulation",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/SchurTriangulation.lean#L55-L61",
+        "source_text": "lemma finAddEquivSigmaCond_false (h : ¬ i < m) : finAddEquivSigmaCond i = ⟨false, i.subNat' h⟩ :=\n  let j : Fin n := i.subNat' h\n  calc finAddEquivSigmaCond i\n    _ = finAddEquivSigmaCond (Fin.natAdd m j) :=\n      suffices m + (i - m) = i from congrArg _ (Fin.ext this.symm)\n      Nat.add_sub_of_le (Nat.le_of_not_gt h)\n    _ = ⟨false, i.subNat' h⟩ := congrArg sumEquivSigmalCond <| finSumFinEquiv_symm_apply_natAdd j\n",
+        "docstring": null
+      },
+      {
+        "id": 391821,
+        "name": "TensorSpecies.Tensor.ComponentIdx.DropPairSection.mem_iff_apply_succSuccAbove_eq",
+        "module": "Physlib.Relativity.Tensors.ComponentIdx.Contraction",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComponentIdx/Contraction.lean#L87-L95",
+        "source_text": "lemma mem_iff_apply_succSuccAbove_eq {n : ℕ} {c : Fin (n + 1 + 1) → C}\n    {i j : Fin (n + 1 + 1)}\n    (b : ComponentIdx (c ∘ Fin.succSuccAbove i j))\n    (b' : ComponentIdx c) :\n    b' ∈ DropPairSection (S := S) b ↔\n      ∀ m, b' (Fin.succSuccAbove i j m) = b m := by\n  simp only [DropPairSection, Finset.mem_filter, Finset.mem_univ, true_and]\n  rw [funext_iff]\n  simp [dropPair]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Connectivity.supportGcd connected_indicator",
+    "status": "ok",
+    "results": [
+      {
+        "id": 91427,
+        "name": "Set.indicator",
+        "module": "Mathlib.Algebra.Notation.Indicator",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L51-L51",
+        "source_text": "@[to_additive /-- `Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. -/]\nnoncomputable def mulIndicator (s : Set α) (f : α → M) (x : α) : M :=",
+        "docstring": "`Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. "
+      },
+      {
+        "id": 91453,
+        "name": "Set.support_indicator",
+        "module": "Mathlib.Algebra.Notation.Indicator",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L112-L112",
+        "source_text": "@[to_additive (attr := simp)]\nlemma mulSupport_mulIndicator :",
+        "docstring": null
+      },
+      {
+        "id": 192985,
+        "name": "SimpleGraph.induce_union_connected",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Connectivity.Subgraph",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Connectivity/Subgraph.lean#L586-L592",
+        "source_text": "lemma induce_union_connected {s t : Set V}\n    (sconn : (G.induce s).Preconnected) (tconn : (G.induce t).Preconnected)\n    (sintert : (s ∩ t).Nonempty) :\n    (G.induce (s ∪ t)).Connected := by\n  rw [connected_induce_iff]\n  rw [preconnected_induce_iff] at sconn tconn\n  exact Subgraph.induce_union_connected sconn tconn sintert\n",
+        "docstring": null
+      },
+      {
+        "id": 91463,
+        "name": "Set.indicator_support",
+        "module": "Mathlib.Algebra.Notation.Indicator",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L138-L138",
+        "source_text": "@[to_additive (attr := simp)]\nlemma mulIndicator_mulSupport : mulIndicator (mulSupport f) f = f :=",
+        "docstring": null
+      },
+      {
+        "id": 69778,
+        "name": "Set.mulIndicator_mul_eq_right",
+        "module": "Mathlib.Algebra.Group.Indicator",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Indicator.lean#L120-L125",
+        "source_text": "@[to_additive]\ntheorem mulIndicator_mul_eq_right {f g : α → M} (h : Disjoint (mulSupport f) (mulSupport g)) :\n    (mulSupport g).mulIndicator (f * g) = g := by\n  refine (mulIndicator_congr fun x hx => ?_).trans mulIndicator_mulSupport\n  have : f x = 1 := notMem_mulSupport.1 (disjoint_right.1 h hx)\n  rw [Pi.mul_apply, this, one_mul]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

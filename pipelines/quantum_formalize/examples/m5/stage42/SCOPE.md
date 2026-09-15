@@ -1,0 +1,11 @@
+# Conditional arithmetic residue count (source §4)
+
+The selected prefixes are two lists p,q of residues in Fin T. They retain order and repetition. Each selected polynomial is `1 + sum X^r` over its list, and each remaining length is `w-1-list.length`. Prefixes longer than w-1 are explicitly rejected by the arithmetic guard and by the semantic completion set; natural subtraction is never used to silently accept an overfull prefix.
+
+The divisor domain is the divisors of δ=gcd(T, all selected residues). For each divisor d and subset S of the residual factors of M_T/F, the arithmetic summand is `mu(d) * (-1)^|S| * RSelected(P,Z_p,T,d,k_p) * RSelected(P,Z_q,T,d,k_q)`, with P=F*product(S). RSelected is the already accepted character-power R at quotient target mk(P)(Z), with a total monicity wrapper. Tuple/support enumeration appears only in the theorem's semantic count, never in this arithmetic definition.
+
+Completed feasibility uses the gcd of δ with both raw completion-coordinate gcds, and exact complete polynomial signature F at T. Thus repeated residues, zero residues and all polynomial cancellations remain valid. No distinctness, weight upper bound, nonzero-block or squarefree assumption is imposed. The generalized identity assumes only T>0,w>0,F monic,F dividing M_T; the original period specialization uses F(0)=1. It gives exact cardinality, nonnegativity, and positivity exactly when the prefixes fit and feasible completions exist.
+
+The six targets connect selected-prefix gcd divisibility, the two different R factors, the combined indicator, finite-sum expansion, guarded exact cardinality, and the period conditional-A criterion. The first two can run independently. All imports come from accepted stage31 and stage40 evidence; preflight verifies the original types and permitted axioms before any model runs.
+
+The subsequent recovery connection may identify a full finite-word prefix count with this exact conditional arithmetic oracle, then apply the accepted finite branching recovery result. That connection is not claimed by this stage. Factor-subset indexing is sufficient for the original arithmetic objective; literal squarefree-divisor reindexing is not an added gate. The current quotient-coordinate representation is noncomputable; no executable-code refinement is claimed here.

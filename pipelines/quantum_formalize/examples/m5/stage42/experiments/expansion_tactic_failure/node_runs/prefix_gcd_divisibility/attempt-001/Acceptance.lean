@@ -1,0 +1,3 @@
+import Candidate_45713fa1faa6e512
+example : QuantumHarnessFrozenTarget := M5.ConditionalResidueCount.prefix_gcd_divisibility
+#print axioms M5.ConditionalResidueCount.prefix_gcd_divisibility

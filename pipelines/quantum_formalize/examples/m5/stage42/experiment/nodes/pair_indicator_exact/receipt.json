@@ -1,0 +1,69 @@
+{
+  "id": "pair_indicator_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ConditionalResidueCount.pair_indicator_exact",
+    "spec_sha256": "d3d30393f059e73a35682f83b1d4230021467e05d14c20e81bab0a4af598085b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-0wmyitc5/attempt-001/Candidate_a50e53ab7a0b293d.lean",
+        "target_path": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-0wmyitc5/attempt-001/FrozenTarget_a50e53ab7a0b293d.lean",
+        "feedback": "",
+        "target_sha256": "07165656f39bfb213c89268e49183f936219cfb4a0381e25cf3a642f4c9fe40a",
+        "target_olean_sha256": "bd8399ba6fe7182be223c7b570d13786e04503152a188cb188c562215235406a",
+        "source_sha256": "527ee2b6a813e2e3512114673dad80bd420acc45b3a2f42378b381dbbd0ca73d",
+        "olean_sha256": "8a767ffc5fc51363f2f3ff119e407847f8d96d790f54af909463a940edf86da8",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:41:35.725590+00:00",
+    "work": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-0wmyitc5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "764ebfecfe28c3d0e78823f8ba37012f66ce7fd2d729aa764cc1727d2332a77c",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-conditional-residue-count-formalization/.humanize-formal-runs/run-0wmyitc5/attempt-001/Candidate_a50e53ab7a0b293d.lean",
+    "environment_sha256": "68b75574f97a251a83febfe6ba6eb088bd33a87c30831f4f97e38bc6deb4ec28",
+    "artifacts": {
+      "prefix_gcd_divisibility": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalResidueCount.prefix_gcd_divisibility : ∀ (T d : ℕ) (p q : List (Fin T)), (d ∣ M5.ConditionalResidueCount.selectedGcd T p q ↔ d ∣ T ∧ (∀ r ∈ p, d ∣ r.val) ∧ (∀ r ∈ q, d ∣ r.val)) := by\n  change ∀ (T d : ℕ) (p q : List (Fin T)), _\n  intro T d p q\n  have hl {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n      d ∣ l.foldl (fun g r => Nat.gcd g (f r)) s ↔\n        d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n    induction l generalizing s with\n    | nil => simp\n    | cons a l ih =>\n        simp [List.foldl_cons, ih, Nat.dvd_gcd_iff, and_assoc]\n  have hr {α : Type} (f : α → ℕ) (l : List α) (s : ℕ) :\n      d ∣ l.foldr (fun r g => Nat.gcd (f r) g) s ↔\n        d ∣ s ∧ ∀ r ∈ l, d ∣ f r := by\n    induction l with\n    | nil => simp\n    | cons a l ih =>\n        simp [List.foldr_cons, ih, Nat.dvd_gcd_iff, and_assoc,\n          and_left_comm, and_comm]\n  simp [M5.ConditionalResidueCount.selectedGcd,\n    M5.ConditionalResidueCount.prefixGcd, hl, hr,\n    Nat.dvd_gcd_iff, and_assoc]",
+          "imports": [
+            "M5ConditionalResidueCount"
+          ],
+          "name": "M5.ConditionalResidueCount.prefix_gcd_divisibility",
+          "ancestors": [],
+          "spec_sha256": "52f2d618ae76f0a2ca0c7aa9532f2e640e1329ab7f872c8b321b74f0b6a3cc77"
+        },
+        "sha256": "2f37f6b8de75b664f6c584f70c8a69417330eb118a57924468f950ba31a088a3"
+      },
+      "pair_indicator_exact": {
+        "payload": {
+          "declaration": "theorem M5.ConditionalResidueCount.pair_indicator_exact : ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), ∀ (a : Fin (M5.ConditionalResidueCount.remaining w p) → Fin T) (b : Fin (M5.ConditionalResidueCount.remaining w q) → Fin T), 0 < T → F.Monic → F ∣ M5.cyclicModulus T → M5.ConditionalResidueCount.pairIndicator w F p q a b = M5.ConditionalResidueCount.feasibleIndicator w F p q a b := by\n  classical\n  change ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), _\n  intro T w F p q a b hT hF hFT\n  have hg : 0 < M5.ConditionalResidueCount.selectedGcd T p q :=\n    Nat.pos_of_dvd_of_pos\n      ((M5.ConditionalResidueCount.prefix_gcd_divisibility T\n        (M5.ConditionalResidueCount.selectedGcd T p q) p q).mp (dvd_refl _)).1 hT\n  have hc := M5.Connectivity.connected_indicator\n    (M5.ConditionalResidueCount.selectedGcd T p q)\n    (insert 0 (Finset.univ.image (fun i => (a i).val)))\n    (insert 0 (Finset.univ.image (fun i => (b i).val))) hg\n  simp [M5.Connectivity.supportGcd, Finset.gcd_image] at hc\n  have hp := M5.PolynomialIndicator.exact_signature_indicator\n    (M5.ConditionalResidueCount.completedPolynomial\n      (M5.ConditionalResidueCount.selectedPolynomial p) a)\n    (M5.ConditionalResidueCount.completedPolynomial\n      (M5.ConditionalResidueCount.selectedPolynomial q) b)\n    F T hT hF hFT\n  simp only [M5.ConditionalResidueCount.pairIndicator,\n    M5.ConditionalResidueCount.feasibleIndicator,\n    M5.ConditionalResidueCount.feasible]\n  try dsimp only\n  simp_all [M5.Connectivity.supportGcd, Finset.gcd_image,\n    mul_ite, ite_mul]\n  all_goals split_ifs <;> simp_all",
+          "imports": [
+            "M5ConditionalResidueCount"
+          ],
+          "name": "M5.ConditionalResidueCount.pair_indicator_exact",
+          "ancestors": [
+            "prefix_gcd_divisibility"
+          ],
+          "spec_sha256": "bf01fe1a09fc1ae71cec4752ba586c66dea2250947953b09cf455ec1dd6c149d"
+        },
+        "sha256": "f5347ceb2e8f8f79654909bcb2d5574b4550911ac9c28e38e3d8cfb115367fe7"
+      }
+    }
+  }
+}

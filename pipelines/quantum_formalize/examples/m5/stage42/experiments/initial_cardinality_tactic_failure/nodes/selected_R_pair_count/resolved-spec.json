@@ -1,0 +1,13 @@
+{
+  "name": "M5.ConditionalResidueCount.selected_R_pair_count",
+  "statement": "∀ (P ZA ZB : M5.BinaryPolynomial) (T d k l : ℕ), P.Monic → 0 < T → d ∣ T → M5.ConditionalResidueCount.RSelected P ZA T d k * M5.ConditionalResidueCount.RSelected P ZB T d l = ∑ a : Fin k → Fin T, ∑ b : Fin l → Fin T, M5.ConditionalResidueCount.divisibilityIndicator P ZA ZB d a b",
+  "imports": [
+    "M5ConditionalResidueCount"
+  ],
+  "context": "",
+  "queries": [
+    "finite sum filter cardinality product",
+    "list gcd fold divisibility finite sum commutation"
+  ],
+  "guidance": "Unfold monicity wrappers and rewrite each factor using accepted M5.TupleCompletion.restricted_completion_R. Unfold restrictedCount and divisibilityIndicator, rewrite card_eq_sum_ones, Nat.cast_sum, sum_filter and distribute sum_mul/mul_sum. Finish by pointwise cases on the four concrete predicates using narrow simp. Avoid change across different inferred Decidable instances. Different lengths and selected polynomials are essential; retain zero completion lengths. Return tactic lines only without leading by; preserve exact target."
+}

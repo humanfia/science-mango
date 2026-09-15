@@ -1,0 +1,260 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.TupleCompletion.restrictedCount",
+    "status": "ok",
+    "results": [
+      {
+        "id": 189186,
+        "name": "Nat.Partition.countRestricted",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Basic.lean#L212-L214",
+        "source_text": "/-- The finset of those partitions in which every part is used less than `m` times. -/\ndef countRestricted (n : ℕ) (m : ℕ) : Finset n.Partition :=\n  Finset.univ.filter fun x ↦ ∀ i ∈ x.parts, x.parts.count i < m\n",
+        "docstring": "The finset of those partitions in which every part is used less than `m` times. "
+      },
+      {
+        "id": 189209,
+        "name": "Nat.Partition.card_restricted_eq_card_countRestricted",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Glaisher",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Glaisher.lean#L153-L156",
+        "source_text": "theorem card_restricted_eq_card_countRestricted (n : ℕ) {m : ℕ} (hm : 0 < m) :\n    #(restricted n (¬ m ∣ ·)) = #(countRestricted n m) := by\n  simpa using PowerSeries.ext_iff.mp\n    (powerSeriesMk_card_restricted_eq_powerSeriesMk_card_countRestricted ℤ hm) n\n",
+        "docstring": null
+      },
+      {
+        "id": 271043,
+        "name": "FirstOrder.Language.Theory.typeOf",
+        "module": "Mathlib.ModelTheory.Types",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Types.lean#L174-L179",
+        "source_text": "/-- The set of all formulas true at a tuple in a structure forms a complete type. -/\ndef typeOf (v : α → M) : T.CompleteType α :=\n  haveI : (constantsOn α).Structure M := constantsOn.structure v\n  { toTheory := L[[α]].completeTheory M\n    subset' := model_iff_subset_completeTheory.1 ((LHom.onTheory_model _ T).2 inferInstance)\n    isMaximal' := completeTheory.isMaximal _ _ }\n",
+        "docstring": "The set of all formulas true at a tuple in a structure forms a complete type. "
+      },
+      {
+        "id": 189189,
+        "name": "Nat.Partition.countRestricted_two",
+        "module": "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Enumerative/Partition/Basic.lean#L223-L226",
+        "source_text": "theorem countRestricted_two (n : ℕ) : countRestricted n 2 = distincts n := by\n  congrm Finset.univ.filter fun x ↦ ?_\n  rw [Multiset.nodup_iff_count_le_one]\n  grind [Multiset.count_eq_zero]\n",
+        "docstring": null
+      },
+      {
+        "id": 210496,
+        "name": "Multiset.count",
+        "module": "Mathlib.Data.Multiset.Count",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Count.lean#L122-L124",
+        "source_text": "/-- `count a s` is the multiplicity of `a` in `s`. -/\ndef count (a : α) : Multiset α → ℕ :=\n  countP (a = ·)\n",
+        "docstring": "`count a s` is the multiplicity of `a` in `s`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.TupleCompletion.restrictedCount",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388434,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+        "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+        "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+      },
+      {
+        "id": 393950,
+        "name": "FTheory.SU5.ChargeSpectrum.viableCompletions_nodup",
+        "module": "Physlib.StringTheory.FTheory.SU5.Charges.Viable",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Charges/Viable.lean#L248-L250",
+        "source_text": "lemma viableCompletions_nodup (I : CodimensionOneConfig) :\n    (viableCompletions I).Nodup := by\n  cases I <;> decide +kernel\n",
+        "docstring": null
+      },
+      {
+        "id": 391278,
+        "name": "LorentzGroup.restricted",
+        "module": "Physlib.Relativity.LorentzGroup.Restricted.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzGroup/Restricted/Basic.lean#L24-L45",
+        "source_text": "/-- The restricted Lorentz group comprises the proper and orthochronous elements of the\nLorentz group. -/\ndef restricted (d : ℕ) : Subgroup (LorentzGroup d) where\n  carrier := { Λ : LorentzGroup d | IsProper Λ ∧ IsOrthochronous Λ }\n  one_mem' := ⟨\n    by rw [IsProper]; exact det_one,\n    by rw [IsOrthochronous]; exact zero_le_one⟩\n  mul_mem' := by\n    rintro Λ₁ Λ₂ ⟨Λ₁_proper, Λ₁_ortho⟩ ⟨Λ₂_proper, Λ₂_ortho⟩\n    exact ⟨\n      by exact isProper_mul Λ₁_proper Λ₂_proper,\n      by exact isOrthochronous_mul Λ₁_ortho Λ₂_ortho⟩\n  inv_mem' := by\n    rintro Λ ⟨Λ_proper, Λ_ortho⟩\n\n    have h_η₀₀ : @minkowskiMatrix d (Sum.inl 0) (Sum.inl 0) = 1 := by rfl\n    have h_dual : (dual Λ.1) (Sum.inl 0) (Sum.inl 0) = Λ.1 (Sum.inl 0) (Sum.inl 0) := by\n      rw [dual_apply, h_η₀₀, one_mul, mul_one]\n\n    exact ⟨\n      by rw [IsProper, inv_eq_dual, det_dual, Λ_proper],\n      by simp [IsOrthochronous, inv_eq_dual, h_dual]; exact Λ_ortho⟩\n",
+        "docstring": "The restricted Lorentz group comprises the proper and orthochronous elements of the\nLorentz group. "
+      },
+      {
+        "id": 387051,
+        "name": "Physlib.noLemmas",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L185-L189",
+        "source_text": "/-- Number of definitions. -/\ndef noLemmas : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return !c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      },
+      {
+        "id": 387069,
+        "name": "Physlib.noInformalLemmas",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L68-L72",
+        "source_text": "/-- The number of informal lemmas in Physlib. -/\ndef noInformalLemmas : CoreM Nat := do\n  let imports ← allImports\n  let x ← imports.mapM Imports.getUserConsts\n  x.flatFilterSizeM fun c => return Informal.isInformalLemma c\n",
+        "docstring": "The number of informal lemmas in Physlib. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalResidueCount.completedPolynomial",
+    "status": "ok",
+    "results": [
+      {
+        "id": 326891,
+        "name": "Mathlib.Tactic.ComputeDegree.twoHeadsArgs",
+        "module": "Mathlib.Tactic.ComputeDegree",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ComputeDegree.lean#L213-L259",
+        "source_text": "/-- `twoHeadsArgs e` takes an `Expr`ession `e` as input and recurses into `e` to make sure\nthat `e` looks like `lhs ≤ rhs`, `lhs < rhs` or `lhs = rhs` and that `lhs` is one of\n`natDegree f, degree f, coeff f d`.\nIt returns\n* the function being applied on the LHS (`natDegree`, `degree`, or `coeff`),\n  or else `.anonymous` if it's none of these;\n* the name of the relation (`Eq`, `LE.le` or `LT.lt`), or else `.anonymous` if it's none of these;\n* either\n  * `.inl zero`, `.inl one`, or `.inl many` if the polynomial in a numeral;\n  * or `.inr` of the head symbol of `f`;\n  * or `.inl .anonymous` if inapplicable;\n* if it exists, whether the `rhs` is a metavariable;\n* if the LHS is `coeff f d`, whether `d` is a metavariable.\n\nThis is all the data needed to figure out whether `compute_degree` can make progress on `e`\nand, if so, which lemma it should apply.\n\nSample outputs:\n* `natDegree (f + g) ≤ d => (natDegree, LE.le, HAdd.hAdd, d.isMVar, none)` (similarly for `=`);\n* `degree (f * g) = d => (degree, Eq, HMul.hMul, d.isMVar, none)` (similarly for `≤`);\n* `coeff (1 : ℕ[X]) c = x => (coeff, Eq, one, x.isMVar, c.isMVar)` (no `≤` option!).\n-/\ndef twoHeadsArgs (e : Expr) : Name × Name × (Name ⊕ Name) × List Bool := Id.run do\n  let (eq_or_le, lhs, rhs) ← match e.getAppFnArgs with\n    | (na@``Eq, #[_, lhs, rhs])       => pure (na, lhs, rhs)\n    | (na@``LE.le, #[_, _, lhs, rhs]) => pure (na, lhs, rhs)\n    | (na@``LT.lt, #[_, _, lhs, rhs]) => pure (na, lhs, rhs)\n    | _ => return (.anonymous, .anonymous, .inl .anonymous, [])\n  let (ndeg_or_deg_or_coeff, pol, and?) ← match lhs.getAppFnArgs with\n    | (na@``Polynomial.natDegree, #[_, _, pol])     => (na, pol, [rhs.isMVar])\n    | (na@``Polynomial.degree,    #[_, _, pol])     => (na, pol, [rhs.isMVar])\n    | (na@``Polynomial.coeff,     #[_, _, pol, c])  => (na, pol, [rhs.isMVar, c.isMVar])\n    | _ => return (.anonymous, eq_or_le, .inl .anonymous, [])\n  let head := match pol.numeral? with\n    -- can I avoid the tri-splitting `n = 0`, `n = 1`, and generic `n`?\n    | some 0 => .inl `zero\n    | some 1 => .inl `one\n    | some _ => .inl `many\n    | none => match pol.getAppFnArgs with\n      | (``DFunLike.coe, #[_, _, _, _, polFun, _]) =>\n        let na := polFun.getAppFn.constName\n        if na ∈ [``Polynomial.monomial, ``Polynomial.C] then\n          .inr na\n        else\n          .inl .anonymous\n      | (na, _) => .inr na\n  (ndeg_or_deg_or_coeff, eq_or_le, head, and?)\n",
+        "docstring": "`twoHeadsArgs e` takes an `Expr`ession `e` as input and recurses into `e` to make sure\nthat `e` looks like `lhs ≤ rhs`, `lhs < rhs` or `lhs = rhs` and that `lhs` is one of\n`natDegree f, degree f, coeff f d`.\nIt returns\n* the function being applied on the LHS (`natDegree`, `degree`, or `coeff`),\n  or else `.anonymous` if it's none of these;\n* the name of the relation (`Eq`, `LE.le` or `LT.lt`), or else `.anonymous` if it's none of these;\n* either\n  * `.inl zero`, `.inl one`, or `.inl many` if the polynomial in a numeral;\n  * or `.inr` of the head symbol of `f`;\n  * or `.inl .anonymous` if inapplicable;\n* if it exists, whether the `rhs` is a metavariable;\n* if the LHS is `coeff f d`, whether `d` is a metavariable.\n\nThis is all the data needed to figure out whether `compute_degree` can make progress on `e`\nand, if so, which lemma it should apply.\n\nSample outputs:\n* `natDegree (f + g) ≤ d => (natDegree, LE.le, HAdd.hAdd, d.isMVar, none)` (similarly for `=`);\n* `degree (f * g) = d => (degree, Eq, HMul.hMul, d.isMVar, none)` (similarly for `≤`);\n* `coeff (1 : ℕ[X]) c = x => (coeff, Eq, one, x.isMVar, c.isMVar)` (no `≤` option!).\n"
+      },
+      {
+        "id": 273026,
+        "name": "HurwitzZeta.completedHurwitzZetaEven_residue_zero",
+        "module": "Mathlib.NumberTheory.LSeries.HurwitzZetaEven",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/HurwitzZetaEven.lean#L462-L471",
+        "source_text": "/-- The residue of `completedHurwitzZetaEven a s` at `s = 0` is equal to `-1` if `a = 0`, and `0`\notherwise. -/\nlemma completedHurwitzZetaEven_residue_zero (a : UnitAddCircle) :\n    Tendsto (fun s ↦ s * completedHurwitzZetaEven a s) (𝓝[≠] 0) (𝓝 (if a = 0 then -1 else 0)) := by\n  have h1 : Tendsto (fun s : ℂ ↦ s * _) (𝓝[≠] 0)\n    (𝓝 (-(if a = 0 then 1 else 0))) := (hurwitzEvenFEPair a).Λ_residue_zero\n  have : -(if a = 0 then (1 : ℂ) else 0) = (if a = 0 then -1 else 0) := by { split_ifs <;> simp }\n  simp only [this, push_cast] at h1\n  refine (h1.comp <| zero_div (2 : ℂ) ▸ (tendsto_div_two_punctured_nhds 0)).congr (fun s ↦ ?_)\n  simp [completedHurwitzZetaEven, div_mul_eq_mul_div, mul_div_assoc]\n",
+        "docstring": "The residue of `completedHurwitzZetaEven a s` at `s = 0` is equal to `-1` if `a = 0`, and `0`\notherwise. "
+      },
+      {
+        "id": 210496,
+        "name": "Multiset.count",
+        "module": "Mathlib.Data.Multiset.Count",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Count.lean#L122-L124",
+        "source_text": "/-- `count a s` is the multiplicity of `a` in `s`. -/\ndef count (a : α) : Multiset α → ℕ :=\n  countP (a = ·)\n",
+        "docstring": "`count a s` is the multiplicity of `a` in `s`. "
+      },
+      {
+        "id": 273230,
+        "name": "completedRiemannZeta_residue_one",
+        "module": "Mathlib.NumberTheory.LSeries.RiemannZeta",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/LSeries/RiemannZeta.lean#L110-L113",
+        "source_text": "/-- The residue of `Λ(s)` at `s = 1` is equal to `1`. -/\nlemma completedRiemannZeta_residue_one :\n    Tendsto (fun s ↦ (s - 1) * completedRiemannZeta s) (𝓝[≠] 1) (𝓝 1) :=\n  completedHurwitzZetaEven_residue_one 0\n",
+        "docstring": "The residue of `Λ(s)` at `s = 1` is equal to `1`. "
+      },
+      {
+        "id": 316791,
+        "name": "Polynomial.resultant",
+        "module": "Mathlib.RingTheory.Polynomial.Resultant.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Polynomial/Resultant/Basic.lean#L130-L135",
+        "source_text": "/-- The resultant of two polynomials `f` and `g` is the determinant of the Sylvester matrix of `f`\nand `g`. The size arguments `m` and `n` are implemented as `optParam`, meaning that the default\nvalues are `f.natDegree` and `g.natDegree` respectively, but they can also be specified to be\nother values. -/\ndef resultant (f g : R[X]) (m : ℕ := f.natDegree) (n : ℕ := g.natDegree) : R :=\n  (sylvester f g m n).det\n",
+        "docstring": "The resultant of two polynomials `f` and `g` is the determinant of the Sylvester matrix of `f`\nand `g`. The size arguments `m` and `n` are implemented as `optParam`, meaning that the default\nvalues are `f.natDegree` and `g.natDegree` respectively, but they can also be specified to be\nother values. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.ConditionalResidueCount.completedPolynomial",
+    "status": "ok",
+    "results": [
+      {
+        "id": 388434,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.completions",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Completions",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Completions.lean#L140-L148",
+        "source_text": "/-- Given a collection of charges `x` in `ofFinset S5 S10`,\n  the minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\n  complete. -/\ndef completions (S5 S10 : Finset 𝓩) (x : ChargeSpectrum 𝓩) : Multiset (ChargeSpectrum 𝓩) :=\n  let SqHd := if x.qHd.isSome then {x.qHd} else S5.val.map fun y => some y\n  let SqHu := if x.qHu.isSome then {x.qHu} else S5.val.map fun y => some y\n  let SQ5 := if x.Q5 ≠ ∅ then {x.Q5} else S5.val.map fun y => {y}\n  let SQ10 := if x.Q10 ≠ ∅ then {x.Q10} else S10.val.map fun y => {y}\n  (SqHd ×ˢ SqHu ×ˢ SQ5 ×ˢ SQ10).map (toProd).symm\n",
+        "docstring": "Given a collection of charges `x` in `ofFinset S5 S10`,\nthe minimal charges `y` in `ofFinset S5 S10` which are a super sets of `x` and are\ncomplete. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.ConditionalResidueCount.divisibilityIndicator",
+    "status": "ok",
+    "results": [
+      {
+        "id": 328475,
+        "name": "Mathlib.Meta.NormNum.evalIntDvd",
+        "module": "Mathlib.Tactic.NormNum.DivMod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/DivMod.lean#L159-L177",
+        "source_text": "/-- The `norm_num` extension which identifies expressions of the form `(a : ℤ) ∣ b`,\nsuch that `norm_num` successfully recognises both `a` and `b`. -/\n@[norm_num (_ : ℤ) ∣ _] def evalIntDvd : NormNumExt where eval {u α} e := do\n  let .app (.app f (a : Q(ℤ))) (b : Q(ℤ)) ← whnfR e | failure\n  haveI' : u =QL 0 := ⟨⟩; haveI' : $α =Q Prop := ⟨⟩\n  haveI' : $e =Q ($a ∣ $b) := ⟨⟩\n  -- We assert that the default instance for `Dvd` is `Int.dvd` when the first parameter is `ℕ`.\n  guard <|← withNewMCtxDepth <| isDefEq f q(Dvd.dvd (α := ℤ))\n  let rℤ : Q(Ring ℤ) := q(Int.instRing)\n  let ⟨za, na, pa⟩ ← (← derive a).toInt rℤ\n  let ⟨zb, nb, pb⟩ ← (← derive b).toInt rℤ\n  if zb % za == 0 then\n    let zc := zb / za\n    have c := mkRawIntLit zc\n    haveI' : Int.mul $na $c =Q $nb := ⟨⟩\n    return .isTrue q(isInt_dvd_true $pa $pb (.refl $nb))\n  else\n    have : Q(Int.emod $nb $na != 0) := (q(Eq.refl true) : Expr)\n    return .isFalse q(isInt_dvd_false $pa $pb $this)\n",
+        "docstring": "The `norm_num` extension which identifies expressions of the form `(a : ℤ) ∣ b`,\nsuch that `norm_num` successfully recognises both `a` and `b`. "
+      },
+      {
+        "id": 91427,
+        "name": "Set.indicator",
+        "module": "Mathlib.Algebra.Notation.Indicator",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L51-L51",
+        "source_text": "@[to_additive /-- `Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. -/]\nnoncomputable def mulIndicator (s : Set α) (f : α → M) (x : α) : M :=",
+        "docstring": "`Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. "
+      },
+      {
+        "id": 333341,
+        "name": "SummationFilter.conditional",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L214-L217",
+        "source_text": "/-- **Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. -/\n@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)\n",
+        "docstring": "**Conditional summation**, for ordered types `β` such that closed intervals `[x, y]` are\nfinite: this corresponds to limits of finite sums over larger and larger intervals. "
+      },
+      {
+        "id": 333342,
+        "name": "SummationFilter.conditional_filter",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L216-L216",
+        "source_text": "@[simps] def conditional : SummationFilter β where\n  filter := (atBot ×ˢ atTop).map (fun p ↦ Finset.Icc p.1 p.2)",
+        "docstring": null
+      },
+      {
+        "id": 333347,
+        "name": "SummationFilter.conditional_filter_eq_map_Ici",
+        "module": "Mathlib.Topology.Algebra.InfiniteSum.SummationFilter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/SummationFilter.lean#L237-L242",
+        "source_text": "/-- When `β` has a top element, `conditional β` is given by limits over finite intervals\n`{y | x ≤ y}` as `x → atBot`. -/\n@[simp high] -- want this to be prioritized over `conditional_filter` when they both apply\nlemma conditional_filter_eq_map_Ici {γ} [PartialOrder γ] [LocallyFiniteOrder γ] [OrderTop γ] :\n    (conditional γ).filter = atBot.map Finset.Ici := by\n  simp [isTop_top.atTop_eq, comp_def, Finset.Icc_top]\n",
+        "docstring": "When `β` has a top element, `conditional β` is given by limits over finite intervals\n`{y | x ≤ y}` as `x → atBot`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "addition commutativity",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394440,
+        "name": "WithDim.instAddCommSemigroup",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+        "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 388632,
+        "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+        "module": "Physlib.QFT.AnomalyCancellation.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+        "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+        "docstring": null
+      },
+      {
+        "id": 386758,
+        "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+        "module": "Physlib.Mathematics.PiTensorProduct",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+        "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+        "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

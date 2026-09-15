@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nchange ∀ (T w : ℕ) (F : M5.BinaryPolynomial) (p q : List (Fin T)), _\nintro T w F p q hT hw hF hFT\nby_cases hf : M5.ConditionalResidueCount.fits w p q\n· simp only [M5.ConditionalResidueCount.conditionalAAt, if_pos hf]\n  rw [M5.ConditionalResidueCount.arithmetic_indicator_expansion T w F p q hT hw hF hFT]\n  simp_rw [M5.ConditionalResidueCount.pair_indicator_exact T w F p q _ _ hT hF hFT]\n  simp [M5.ConditionalResidueCount.validCompletions,\n    M5.ConditionalResidueCount.feasibleIndicator, hf,\n    Finset.card_eq_sum_ones, Finset.sum_filter, Nat.cast_sum,\n    Finset.sum_product, Fintype.sum_prod_type, apply_ite]\n· simp [M5.ConditionalResidueCount.conditionalAAt,\n    M5.ConditionalResidueCount.validCompletions, hf]",
+  "queries": [
+    "Fintype.sum_prod_type",
+    "Finset.sum_product",
+    "Finset.card_eq_sum_ones Finset.sum_filter"
+  ]
+}
